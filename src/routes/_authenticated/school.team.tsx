@@ -10,6 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -54,11 +64,18 @@ function TeamPanel({
   pending: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string }>;
   onChanged: () => void;
 }) {
+  type TeamMember = (typeof members)[number];
+  type PendingChange =
+    | { kind: "remove"; member: TeamMember }
+    | { kind: "role"; member: TeamMember; nextRole: "member" | "admin" | "school_admin" | "owner" };
+
   const invite = useServerFn(inviteSchoolTeammate);
   const updateMember = useServerFn(updateMembershipStatus);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"member" | "admin" | "school_admin">("member");
   const [sending, setSending] = useState(false);
+  const [changeBusy, setChangeBusy] = useState(false);
+  const [pendingChange, setPendingChange] = useState<PendingChange | null>(null);
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -76,24 +93,41 @@ function TeamPanel({
     }
   }
 
-  async function handleRemove(membership_id: string) {
-    if (!confirm("Remove this teammate?")) return;
+  async function confirmTeamChange() {
+    const change = pendingChange;
+    if (!change) return;
+    setChangeBusy(true);
     try {
-      await updateMember({ data: { membership_id, status: "removed" } });
-      toast.success("Teammate removed.");
+      if (change.kind === "remove") {
+        await updateMember({
+          data: { membership_id: change.member.membership_id, status: "removed" },
+        });
+        toast.success("Teammate removed.");
+      } else {
+        await updateMember({
+          data: {
+            membership_id: change.member.membership_id,
+            role_within_org: change.nextRole,
+          },
+        });
+        toast.success("Team access updated.");
+      }
+      setPendingChange(null);
       onChanged();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not remove.");
+      toast.error(err instanceof Error ? err.message : "Could not update team access.");
+    } finally {
+      setChangeBusy(false);
     }
   }
 
-  async function handleRoleChange(membership_id: string, next: string) {
-    try {
-      await updateMember({ data: { membership_id, role_within_org: next as "member" | "admin" | "school_admin" } });
-      onChanged();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update role.");
-    }
+  function handleRoleChange(member: TeamMember, next: string) {
+    if (next === member.role_within_org) return;
+    setPendingChange({
+      kind: "role",
+      member,
+      nextRole: next as "member" | "admin" | "school_admin" | "owner",
+    });
   }
 
   return (
@@ -165,7 +199,7 @@ function TeamPanel({
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Select value={m.role_within_org} onValueChange={(v) => handleRoleChange(m.membership_id, v)}>
+                  <Select value={m.role_within_org} onValueChange={(v) => handleRoleChange(m, v)}>
                     <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="member">Member</SelectItem>
@@ -174,7 +208,7 @@ function TeamPanel({
                       <SelectItem value="owner">Owner</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button size="sm" variant="ghost" onClick={() => handleRemove(m.membership_id)}>
+                  <Button size="sm" variant="ghost" onClick={() => setPendingChange({ kind: "remove", member: m })}>
                     Remove
                   </Button>
                 </div>
@@ -183,6 +217,51 @@ function TeamPanel({
           </ul>
         )}
       </div>
+
+      <AlertDialog
+        open={pendingChange !== null}
+        onOpenChange={(open) => {
+          if (!open && !changeBusy) setPendingChange(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Team Access Change</AlertDialogTitle>
+            <AlertDialogDescription>
+              Review the account and access change before it takes effect.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {pendingChange && (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 border-y py-4 text-sm">
+              <dt className="text-muted-foreground">Team Member</dt>
+              <dd className="text-right font-medium">
+                {pendingChange.member.full_name ?? pendingChange.member.email ?? "Unknown User"}
+              </dd>
+              <dt className="text-muted-foreground">Current Access</dt>
+              <dd className="text-right font-medium">
+                {pendingChange.member.role_within_org.replaceAll("_", " ")}
+              </dd>
+              <dt className="text-muted-foreground">New Access</dt>
+              <dd className="text-right font-medium">
+                {pendingChange.kind === "remove"
+                  ? "Removed"
+                  : pendingChange.nextRole.replaceAll("_", " ")}
+              </dd>
+            </dl>
+          )}
+          <p className="text-sm text-muted-foreground">
+            {pendingChange?.kind === "remove"
+              ? "This person will lose access to school-scoped records and tools. Their account and historical audit records will remain intact."
+              : "Their school permissions will change immediately. TransitionForward will block the change if it would leave the school without an active administrator."}
+          </p>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={changeBusy}>Keep Current Access</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmTeamChange} disabled={changeBusy}>
+              {changeBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirm Access Change"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

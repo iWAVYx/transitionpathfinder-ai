@@ -1,14 +1,14 @@
 // Workstream 6 — Access code + redemption RLS regression.
 //
 // Coverage:
-//   access_codes
-//     * Org admin can INSERT + SELECT + UPDATE own-org codes.
+//   access_codes + license_allocations
+//     * Org admin issues codes only through the transactional RPC.
 //     * Outsider cannot SELECT or INSERT another org's codes.
-//     * uses_le_capacity constraint blocks over-capacity increments.
-//     * Revocation stamps revoked_at.
+//     * Issuance reserves purchased capacity immediately.
+//     * Revocation releases only unclaimed reservations.
 //
 //   access_code_redemptions
-//     * User can INSERT their own redemption.
+//     * Redemption is recorded only through the activation RPC.
 //     * User can SELECT own redemption.
 //     * Cannot INSERT redemption with user_id ≠ auth.uid().
 //     * Outsider cannot SELECT another user's redemption.
@@ -47,7 +47,13 @@ async function makeUser(kind, role) {
   });
   if (error) throw error;
   const uid = data.user.id;
-  if (role) await admin.from("user_roles").insert({ user_id: uid, role });
+  if (role) {
+    await admin.from("user_roles").insert({ user_id: uid, role });
+    await admin
+      .from("profiles")
+      .update({ primary_role: role })
+      .eq("id", uid);
+  }
   const client = createClient(URL, PUB, { auth: { persistSession: false } });
   const { error: signErr } = await client.auth.signInWithPassword({ email, password: PASSWORD });
   if (signErr) throw signErr;
@@ -64,22 +70,32 @@ async function makeOrg(name) {
   return data.id;
 }
 
-test("access_codes: org-admin scoping + capacity constraint", { skip: SKIP }, async () => {
+test("access codes reserve capacity and block direct browser writes", { skip: SKIP }, async () => {
   const orgId = await makeOrg("CodeOrg");
   const orgAdmin = await makeUser("orgadmin", "district_admin");
   const outsider = await makeUser("outsider", null);
 
-  const bind = await admin.from("org_memberships").insert({
+  const bind = await admin.from("organization_memberships").insert({
     user_id: orgAdmin.uid,
     organization_id: orgId,
-    role: "district_admin",
+    role_within_org: "district_admin",
+    status: "active",
+    membership_status: "active",
+  });
+  assert.equal(bind.error, null, bind.error?.message);
+
+  const pool = await admin.from("license_pools").insert({
+    organization_id: orgId,
+    license_type: "staff",
+    source: "pilot",
+    purchased: 3,
     status: "active",
   });
-  if (bind.error) return; // membership table shape differs — skip
+  assert.equal(pool.error, null, pool.error?.message);
 
-  // Org admin issues code.
+  // Direct inserts are blocked so every code is backed by reserved capacity.
   const raw = `AC-${STAMP}-${Math.random().toString(36).slice(2, 8)}`;
-  const ins = await orgAdmin.client
+  const direct = await orgAdmin.client
     .from("access_codes")
     .insert({
       code_hash: hashCode(raw),
@@ -88,11 +104,28 @@ test("access_codes: org-admin scoping + capacity constraint", { skip: SKIP }, as
       capacity: 2,
       single_use: false,
       created_by: orgAdmin.uid,
-    })
-    .select("id, uses, capacity")
-    .single();
-  assert.equal(ins.error, null, `org admin insert should succeed: ${ins.error?.message}`);
-  const codeId = ins.data.id;
+    });
+  assert.ok(direct.error, "authenticated clients must not insert codes directly");
+
+  const issued = await orgAdmin.client.rpc("issue_license_access_code", {
+    _org_id: orgId,
+    _target_organization_id: orgId,
+    _role: "educator",
+    _code_hash: hashCode(raw),
+    _label: "Node Test Staff Code",
+    _capacity: 2,
+    _single_use: false,
+    _expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+  });
+  assert.equal(issued.error, null, issued.error?.message);
+  const codeId = issued.data;
+
+  const reservations = await admin
+    .from("license_allocations")
+    .select("id, state")
+    .eq("access_code_id", codeId)
+    .eq("state", "reserved");
+  assert.equal(reservations.data?.length, 2);
 
   // Outsider cannot see.
   const leak = await outsider.client
@@ -112,65 +145,72 @@ test("access_codes: org-admin scoping + capacity constraint", { skip: SKIP }, as
     });
   assert.ok(outIns.error, "outsider insert must be denied");
 
-  // Over-capacity blocked by CHECK.
-  const over = await admin
-    .from("access_codes")
-    .update({ uses: 3 })
-    .eq("id", codeId);
-  assert.ok(over.error, "uses > capacity must be rejected by check constraint");
-
-  // Revocation stamp.
-  const rev = await orgAdmin.client
+  // Direct updates are blocked too; revocation must use the auditable RPC.
+  const directRevoke = await orgAdmin.client
     .from("access_codes")
     .update({ revoked_at: new Date().toISOString() })
-    .eq("id", codeId)
-    .select("revoked_at")
-    .single();
-  assert.equal(rev.error, null);
-  assert.ok(rev.data.revoked_at);
+    .eq("id", codeId);
+  assert.ok(directRevoke.error, "authenticated clients must not update codes directly");
+
+  const revoked = await orgAdmin.client.rpc("revoke_license_access_code", {
+    _code_id: codeId,
+    _reason: "Node regression test revocation",
+  });
+  assert.equal(revoked.error, null, revoked.error?.message);
+  assert.equal(revoked.data.released_seats, 2);
 });
 
-test("access_code_redemptions: self-only INSERT/SELECT + unique reuse block", { skip: SKIP }, async () => {
+test("access-code activation enforces role and records one redemption", { skip: SKIP }, async () => {
   const orgId = await makeOrg("RedeemOrg");
   const orgAdmin = await makeUser("owner", "district_admin");
-  const userA = await makeUser("a", null);
-  const userB = await makeUser("b", null);
+  const userA = await makeUser("a", "student");
+  const userB = await makeUser("b", "educator");
 
-  const bind = await admin.from("org_memberships").insert({
+  const bind = await admin.from("organization_memberships").insert({
     user_id: orgAdmin.uid,
     organization_id: orgId,
-    role: "district_admin",
+    role_within_org: "district_admin",
+    status: "active",
+    membership_status: "active",
+  });
+  assert.equal(bind.error, null, bind.error?.message);
+
+  const pool = await admin.from("license_pools").insert({
+    organization_id: orgId,
+    license_type: "pathway",
+    source: "pilot",
+    purchased: 2,
     status: "active",
   });
-  if (bind.error) return;
+  assert.equal(pool.error, null, pool.error?.message);
 
   const raw = `RC-${STAMP}-${Math.random().toString(36).slice(2, 8)}`;
-  const code = await orgAdmin.client
-    .from("access_codes")
-    .insert({
-      code_hash: hashCode(raw),
-      org_id: orgId,
-      role: "educator",
-      capacity: 10,
-      created_by: orgAdmin.uid,
-    })
-    .select("id")
-    .single();
-  const codeId = code.data.id;
+  const code = await orgAdmin.client.rpc("issue_license_access_code", {
+    _org_id: orgId,
+    _target_organization_id: orgId,
+    _role: "student",
+    _code_hash: hashCode(raw),
+    _label: "Node Test Student Code",
+    _capacity: 1,
+    _single_use: true,
+    _expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+  });
+  assert.equal(code.error, null, code.error?.message);
+  const codeId = code.data;
 
-  // User A records own redemption.
-  const okA = await userA.client
-    .from("access_code_redemptions")
-    .insert({ code_id: codeId, user_id: userA.uid })
-    .select("id")
-    .single();
-  assert.equal(okA.error, null, `self INSERT must succeed: ${okA.error?.message}`);
+  const okA = await userA.client.rpc("redeem_access_code", { _code: raw });
+  assert.equal(okA.error, null, okA.error?.message);
+  assert.equal(okA.data.ok, true);
 
-  // User A cannot record on behalf of B.
+  // Direct audit-row insertion is blocked, including cross-user spoofing.
   const spoof = await userA.client
     .from("access_code_redemptions")
     .insert({ code_id: codeId, user_id: userB.uid });
   assert.ok(spoof.error, "cross-user INSERT must be denied");
+
+  const mismatch = await userB.client.rpc("redeem_access_code", { _code: raw });
+  assert.equal(mismatch.error, null, mismatch.error?.message);
+  assert.equal(mismatch.data.reason, "role_mismatch");
 
   // User A can see own row.
   const readA = await userA.client
@@ -186,9 +226,7 @@ test("access_code_redemptions: self-only INSERT/SELECT + unique reuse block", { 
     .eq("code_id", codeId);
   assert.deepEqual(leak.data ?? [], [], "cross-user SELECT must return nothing");
 
-  // Reuse blocked by unique(code_id, user_id).
-  const reuse = await userA.client
-    .from("access_code_redemptions")
-    .insert({ code_id: codeId, user_id: userA.uid });
-  assert.ok(reuse.error, "duplicate redemption must be rejected");
+  const reuse = await userA.client.rpc("redeem_access_code", { _code: raw });
+  assert.equal(reuse.error, null, reuse.error?.message);
+  assert.equal(reuse.data.reason, "already_redeemed");
 });

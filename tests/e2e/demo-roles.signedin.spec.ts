@@ -69,6 +69,23 @@ async function collectMainHrefs(page: Page): Promise<string[]> {
   });
 }
 
+function isIgnorableConsoleError(error: { text: string; url: string }) {
+  if (/favicon|manifest|sourcemap/i.test(error.text)) return true;
+
+  // Google Fonts occasionally returns a transient 404 for an individual
+  // generated woff2 asset. That third-party fetch should not make signed-in
+  // role coverage fail, but app-owned 4xx/5xx requests and runtime errors must
+  // remain release-blocking.
+  if (
+    error.url.startsWith("https://fonts.gstatic.com/") &&
+    /failed to load resource/i.test(error.text)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 for (const role of ROLES) {
   test.describe(`${role.label} /demo signed-in coverage`, () => {
     test.skip(
@@ -79,10 +96,12 @@ for (const role of ROLES) {
 
     for (const path of DEMO_ROUTES) {
       test(`renders ${path}`, async ({ page }) => {
-        const errors: string[] = [];
-        page.on("pageerror", (e) => errors.push(String(e)));
+        const errors: Array<{ text: string; url: string }> = [];
+        page.on("pageerror", (e) => errors.push({ text: String(e), url: page.url() }));
         page.on("console", (m) => {
-          if (m.type() === "error") errors.push(m.text());
+          if (m.type() === "error") {
+            errors.push({ text: m.text(), url: m.location().url || page.url() });
+          }
         });
 
         const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
@@ -95,7 +114,9 @@ for (const role of ROLES) {
         await expect(page.locator("main, [role=main]").first()).toBeVisible();
 
         expect(
-          errors.filter((e) => !/favicon|manifest|sourcemap/i.test(e)),
+          errors
+            .filter((error) => !isIgnorableConsoleError(error))
+            .map((error) => `${error.text}${error.url ? ` (${error.url})` : ""}`),
         ).toEqual([]);
       });
     }

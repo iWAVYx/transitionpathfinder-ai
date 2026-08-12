@@ -12,7 +12,7 @@ import {
   PlayCircle,
   FileText,
   GraduationCap,
-  Mail,
+  RefreshCw,
   Compass,
   MessageCircle,
   Bookmark,
@@ -38,9 +38,10 @@ type Props = {
   firstName: string;
   snap: DashboardSnapshot;
   onToggleAction: (item: ActionItemRow) => void;
+  onReconnect?: () => void;
 };
 
-export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
+export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect }: Props) {
   const s = snap.student;
   const myActions = snap.actionItems.filter(
     (a) => a.category === "student" || a.category === "family",
@@ -64,35 +65,25 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
             Welcome, {toTitleCase(firstName)}.
           </h1>
           <p className="mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg">
-            You're signed in as a student. To see your transition plan, a family member,
-            educator, or case manager needs to add you as a collaborator on your plan.
+            This account controls your own transition plan. We could not finish
+            connecting the student profile to your dashboard yet, but you do not
+            need to be added as a collaborator.
           </p>
           <div className="mt-8 border-y border-border/70 py-5">
             <h2 className="font-display text-xl">Next Best Step</h2>
             <ol className="mt-3 list-inside list-decimal space-y-2 text-sm text-muted-foreground">
-              <li>Ask a parent, guardian, or case manager to invite you using this account's email.</li>
-              <li>Accept the invite when you receive it — your plan will appear here.</li>
-              <li>You'll be able to see your goals, your meetings, and your action items.</li>
+              <li>Reconnect your student profile below.</li>
+              <li>Refresh once the connection completes.</li>
+              <li>Your goals, meetings, documents, and action items will appear here.</li>
             </ol>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button
                 type="button"
                 size="sm"
-                onClick={async () => {
-                  const text = `Hi — please invite me to my transition plan on TransitionForward. Sign in, open the Students page, and add me as a collaborator using this email address. Thank you!`;
-                  try {
-                    if (navigator.clipboard) {
-                      await navigator.clipboard.writeText(text);
-                    }
-                  } catch {
-                    /* noop — fallback to mailto */
-                  }
-                  window.location.href = `mailto:?subject=${encodeURIComponent(
-                    "Please invite me to my transition plan",
-                  )}&body=${encodeURIComponent(text)}`;
-                }}
+                onClick={onReconnect}
+                disabled={!onReconnect}
               >
-                <Mail className="mr-1.5 h-3.5 w-3.5" /> Email an invite request
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Reconnect My Profile
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link to="/help">Get help</Link>
@@ -101,9 +92,6 @@ export function StudentDashboard({ firstName, snap, onToggleAction }: Props) {
                 <Link to="/settings">Account settings</Link>
               </Button>
             </div>
-            <p className="mt-3 text-[11px] text-muted-foreground">
-              The button above copies a short message and opens your email app — no data is sent automatically.
-            </p>
           </div>
         </div>
       </SiteShell>

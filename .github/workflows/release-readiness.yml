@@ -1,15 +1,15 @@
 name: Release readiness
 
-# Full pre-release Playwright suite. Runs against the live E2E/staging
-# domain using the seeded role accounts. Uploads Playwright traces,
-# screenshots, videos, and the HTML report as artifacts.
+# Full pre-release Playwright suite. Runs against the isolated staging Worker
+# using seeded role accounts. Uploads Playwright traces, screenshots, videos,
+# and the HTML report as artifacts.
 #
 # Trigger manually via workflow_dispatch, or on a schedule (nightly).
 on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: "Override PLAYWRIGHT_BASE_URL (defaults to E2E_BASE_URL secret)"
+        description: "Override PLAYWRIGHT_BASE_URL (defaults to direct staging Worker)"
         required: false
         default: ""
   schedule:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url != '' && github.event.inputs.base_url || secrets.E2E_BASE_URL }}
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url != '' && github.event.inputs.base_url || 'https://transitionforward-staging.caysi101.workers.dev' }}
       E2E_STUDENT_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
       E2E_STUDENT_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
       E2E_STUDENT_TOTP_SECRET: ${{ secrets.E2E_STUDENT_TOTP_SECRET }}

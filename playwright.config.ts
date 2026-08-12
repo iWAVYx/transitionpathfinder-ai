@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 // referenced secret (e.g. E2E_BASE_URL) is missing, which would otherwise
 // leave baseURL="" and skip the dev server entirely.
 const externalBase = process.env.PLAYWRIGHT_BASE_URL?.trim() || undefined;
-const baseURL = externalBase ?? "http://localhost:3000";
+const baseURL = externalBase ?? "http://127.0.0.1:3000";
 const useExternal = Boolean(externalBase);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -75,7 +75,8 @@ export default defineConfig({
     {
       name: "role-access",
       use: { baseURL, trace: "retain-on-failure" },
-      testMatch: /(role-leak-nav|role-access-rules|demo-roles|dashboard-tile-navigation|workspace-stage-navigation)\.signedin\.spec\.ts$/,
+      testMatch:
+        /(role-leak-nav|role-access-rules|demo-roles|dashboard-tile-navigation|workspace-stage-navigation)\.signedin\.spec\.ts$/,
       dependencies: ["dashboard-setup"],
     },
     // Release-readiness suite. Public specs run anon; signed-in specs use the
@@ -106,9 +107,11 @@ export default defineConfig({
   webServer: useExternal
     ? undefined
     : {
-        command: "npm run dev",
+        command: "npm run dev -- --host 127.0.0.1 --port 3000 --strictPort",
         url: baseURL,
         reuseExistingServer: true,
-        timeout: 120_000,
+        // TanStack Start compiles the full SSR route graph on a cold CI runner.
+        // Keep the readiness gate strict, but allow that first build to finish.
+        timeout: 300_000,
       },
 });

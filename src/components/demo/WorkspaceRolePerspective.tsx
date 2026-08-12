@@ -168,7 +168,7 @@ export function WorkspaceRolePerspective({
       )}
       <p className="mt-4 rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
         <span className="font-semibold text-foreground">Contributions saved as:</span>{" "}
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">
+        <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-foreground">
           {contribution}
         </span>{" "}
         · one shared workspace record. Other roles' private notes stay hidden.

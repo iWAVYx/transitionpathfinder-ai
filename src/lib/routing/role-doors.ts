@@ -67,6 +67,7 @@ const REDEEM_ACCESS_CODE: RoleDoorAction = {
   description:
     "Enter a district or school-issued access code to create your individual account.",
   to: "/login",
+  search: { redirect: "/redeem-access" },
 };
 
 const JOIN_WAITLIST = (role: RoleDoorSlug): RoleDoorAction => ({

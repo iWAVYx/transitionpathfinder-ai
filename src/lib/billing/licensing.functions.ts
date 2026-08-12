@@ -60,8 +60,6 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const ROLE_TO_LICENSE: Record<string, LicenseType> = {
   student: "pathway",
-  parent: "pathway",
-  guardian: "pathway",
   educator: "staff",
   teacher: "staff",
   case_manager: "staff",
@@ -128,6 +126,11 @@ export const inviteSponsoredMember = createServerFn({ method: "POST" })
     }) => {
       if (!UUID_RE.test(data.organizationId)) throw new Error("Invalid organization");
       if (!EMAIL_RE.test(data.email)) throw new Error("Enter a valid email address.");
+      if (data.role === "parent" || data.role === "guardian") {
+        throw new Error(
+          "Invite family members from the student's plan. They share the student's pathway license and do not use another seat.",
+        );
+      }
       if (!ROLE_TO_LICENSE[data.role]) throw new Error("Unsupported role.");
       if (data.studentId && !UUID_RE.test(data.studentId)) {
         throw new Error("Invalid student");
@@ -155,6 +158,13 @@ export const inviteSponsoredMember = createServerFn({ method: "POST" })
       .select("type")
       .eq("id", data.organizationId)
       .maybeSingle();
+
+    if (org?.type === "partner" || org?.type === "partner_organization") {
+      return { error: "Partner organizations do not allocate student or staff licenses." };
+    }
+    if (org?.type === "school" && data.role === "district_admin") {
+      return { error: "District administrator seats must be issued by a district." };
+    }
 
     const invitationType =
       data.role === "student" || data.role === "parent" || data.role === "guardian"
@@ -327,6 +337,22 @@ export const bulkInviteSponsored = createServerFn({ method: "POST" })
         org?.type === "district" ? "join_district" : "join_school";
 
       for (const row of parsed.rows) {
+        if (org?.type === "partner" || org?.type === "partner_organization") {
+          skipped.push({
+            line: row.lineNumber,
+            email: row.email,
+            reason: "Partner organizations do not allocate student or staff licenses.",
+          });
+          continue;
+        }
+        if (org?.type === "school" && row.role === "district_admin") {
+          skipped.push({
+            line: row.lineNumber,
+            email: row.email,
+            reason: "District administrator seats must be issued by a district.",
+          });
+          continue;
+        }
         const { data: allocationId, error: reserveError } = await supabase.rpc(
           "reserve_license_allocation",
           {
@@ -528,14 +554,22 @@ export const getMySponsorship = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<SponsorshipInfo> => {
     const { supabase, userId } = context;
 
-    const { data: alloc } = await supabase
-      .from("license_allocations")
-      .select("license_type, activated_at, sponsor_organization_id")
-      .eq("beneficiary_user_id", userId)
-      .eq("state", "active")
-      .order("activated_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const { data: sponsorshipRows, error: sponsorshipError } = await supabase.rpc(
+      "my_sponsored_access" as never,
+    );
+    if (sponsorshipError) {
+      console.error("getMySponsorship failed", sponsorshipError);
+    }
+    const alloc = (
+      Array.isArray(sponsorshipRows) ? sponsorshipRows[0] : sponsorshipRows
+    ) as
+      | {
+          license_type: LicenseType;
+          activated_at: string | null;
+          sponsor_organization_id: string;
+        }
+      | null
+      | undefined;
 
     if (!alloc) {
       return {

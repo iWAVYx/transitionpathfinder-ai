@@ -58,9 +58,9 @@ const LICENSE_LABEL: Record<LicenseType, string> = {
 
 const INVITE_ROLES = [
   { value: "student", label: "Student — uses a pathway license" },
-  { value: "parent", label: "Parent or guardian — uses a pathway license" },
   { value: "educator", label: "Educator — uses a staff seat" },
   { value: "case_manager", label: "Case manager — uses a staff seat" },
+  { value: "counselor", label: "Counselor — uses a staff seat" },
   { value: "school_admin", label: "School administrator — uses an admin seat" },
   {
     value: "district_admin",
@@ -132,7 +132,13 @@ function CapacityCard({ row }: { row: CapacityRow }) {
  * revocation. Every capacity change happens inside a database transaction,
  * so two admins inviting simultaneously can never over-allocate.
  */
-export function LicensePanel({ orgId }: { orgId: string }) {
+export function LicensePanel({
+  orgId,
+  orgType,
+}: {
+  orgId: string;
+  orgType: string;
+}) {
   const qc = useQueryClient();
   const fetchOverview = useServerFn(getLicenseOverview);
   const invite = useServerFn(inviteSponsoredMember);
@@ -219,11 +225,37 @@ export function LicensePanel({ orgId }: { orgId: string }) {
   });
 
   const capacity = overview.data?.capacity ?? [];
-  const allocations = overview.data?.allocations ?? [];
   const liveAllocations = useMemo(
-    () => allocations.filter((a) => a.state === "reserved" || a.state === "active"),
-    [allocations],
+    () =>
+      (overview.data?.allocations ?? []).filter(
+        (allocation) =>
+          allocation.state === "reserved" || allocation.state === "active",
+      ),
+    [overview.data?.allocations],
   );
+  const inviteRoles = useMemo(
+    () =>
+      INVITE_ROLES.filter(
+        (candidate) =>
+          orgType === "district" || candidate.value !== "district_admin",
+      ),
+    [orgType],
+  );
+
+  if (orgType === "partner" || orgType === "partner_organization") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Partner Access</CardTitle>
+          <CardDescription>
+            Partner accounts are managed as organization members. Student,
+            staff, and administrator license pools apply only to schools and
+            districts.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -243,7 +275,9 @@ export function LicensePanel({ orgId }: { orgId: string }) {
           <CardTitle className="text-base">Invite Someone</CardTitle>
           <CardDescription>
             The license is reserved as soon as you invite, and released
-            automatically if the invitation expires.
+            automatically if the invitation expires. Connected family members
+            share the student's pathway license and are invited from that
+            student's plan.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -266,7 +300,7 @@ export function LicensePanel({ orgId }: { orgId: string }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {INVITE_ROLES.map((r) => (
+                  {inviteRoles.map((r) => (
                     <SelectItem key={r.value} value={r.value}>
                       {r.label}
                     </SelectItem>

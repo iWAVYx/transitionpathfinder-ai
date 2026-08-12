@@ -10,8 +10,13 @@ import {
   PLANS,
   PRICE_TO_PLAN,
   QUANTITY_BASED_PRICE_IDS,
+  canOrganizationPurchasePlan,
+  canRolePurchasePersonalPlan,
   capacityForPurchase,
+  organizationPlanKeysForType,
+  personalPlanKeysForRole,
   planForPriceId,
+  pricingTierIdForRole,
   utilizationBand,
 } from "../src/lib/billing/plans.ts";
 
@@ -76,4 +81,53 @@ test("utilization alert bands fire at 80, 90 and 100 percent", () => {
   assert.equal(utilizationBand(0.9), 90);
   assert.equal(utilizationBand(1), 100);
   assert.equal(utilizationBand(1.5), 100);
+});
+
+test("personal subscription choices are isolated by account role", () => {
+  for (const role of ["student", "parent", "guardian"]) {
+    assert.deepEqual(personalPlanKeysForRole(role), ["individual_pathway"]);
+    assert.equal(canRolePurchasePersonalPlan(role, "individual_pathway"), true);
+    assert.equal(canRolePurchasePersonalPlan(role, "educator_solo"), false);
+  }
+  for (const role of ["educator", "teacher", "case_manager", "counselor"]) {
+    assert.deepEqual(personalPlanKeysForRole(role), ["educator_solo"]);
+    assert.equal(canRolePurchasePersonalPlan(role, "educator_solo"), true);
+    assert.equal(canRolePurchasePersonalPlan(role, "individual_pathway"), false);
+  }
+  for (const role of ["school_admin", "district_admin", "partner", "admin"]) {
+    assert.deepEqual(personalPlanKeysForRole(role), []);
+  }
+});
+
+test("organization catalogs cannot cross school, district, or partner boundaries", () => {
+  assert.deepEqual(organizationPlanKeysForType("school"), [
+    "school_core",
+    "school_plus",
+    "founding_pilot",
+    "student_addon",
+    "staff_addon",
+  ]);
+  assert.deepEqual(organizationPlanKeysForType("district"), [
+    "district_starter",
+    "district_growth",
+    "district_enterprise",
+    "student_addon",
+    "staff_addon",
+  ]);
+  assert.deepEqual(organizationPlanKeysForType("partner_organization"), [
+    "partner_premium",
+  ]);
+  assert.equal(canOrganizationPurchasePlan("school", "district_starter"), false);
+  assert.equal(canOrganizationPurchasePlan("district", "school_core"), false);
+  assert.equal(canOrganizationPurchasePlan("partner", "student_addon"), false);
+});
+
+test("signed-in pricing resolves to exactly one role-relevant tier", () => {
+  assert.equal(pricingTierIdForRole("student"), "family");
+  assert.equal(pricingTierIdForRole("parent"), "family");
+  assert.equal(pricingTierIdForRole("case_manager"), "educator");
+  assert.equal(pricingTierIdForRole("school_admin"), "school");
+  assert.equal(pricingTierIdForRole("district_admin"), "district");
+  assert.equal(pricingTierIdForRole("partner"), "partner");
+  assert.equal(pricingTierIdForRole("admin"), null);
 });

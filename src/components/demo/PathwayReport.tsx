@@ -117,16 +117,17 @@ function AudienceFrame({
   frame: { eyebrow: string; heading: string; body: string };
 }) {
   return (
-    <aside
+    <div
+      role="note"
       className="rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-5"
       aria-label="Audience framing"
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
         {frame.eyebrow}
       </p>
       <h2 className="mt-1 text-lg font-semibold text-foreground">{frame.heading}</h2>
       <p className="mt-1 text-sm text-foreground/80">{frame.body}</p>
-    </aside>
+    </div>
   );
 }
 
@@ -277,7 +278,8 @@ function ConflictsList({
 }) {
   if (items.length === 0) {
     return (
-      <aside
+      <div
+        role="note"
         className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-xs text-muted-foreground"
         aria-label="Conflicts and disagreements"
         data-demo-report-conflicts="none"
@@ -285,7 +287,7 @@ function ConflictsList({
         No conflicts flagged in {shortName}'s current evidence. If the family, student,
         or team disagrees with a recommendation, log it at the next PPT so the record stays
         honest.
-      </aside>
+      </div>
     );
   }
   return (

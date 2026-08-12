@@ -121,7 +121,7 @@ export function StudentSwitcher({
                       <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                         {p.tagline}
                       </span>
-                      <span className="mt-0.5 block truncate text-[11px] text-muted-foreground/80">
+                      <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
                         {p.demographics.townRegion}
                       </span>
                     </span>

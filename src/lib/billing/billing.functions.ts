@@ -21,8 +21,15 @@ import {
 
 import {
   MAX_SEATS,
+  PLANS,
   TRIAL_PERIOD_DAYS,
+  canOrganizationPurchasePlan,
+  canRolePurchasePersonalPlan,
   isSeatBasedPrice,
+  normalizeOrganizationKind,
+  organizationPlanKeysForType,
+  planForPriceId,
+  type PlanKey,
 } from "@/lib/billing/plans";
 
 type CheckoutResult = { clientSecret: string } | { error: string };
@@ -56,6 +63,19 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<CheckoutResult> => {
     const { supabase, userId } = context;
+    const requestedPlan = planForPriceId(data.priceId);
+    if (!requestedPlan) {
+      return { error: "That plan is not available." };
+    }
+
+    if (!requestedPlan.isAddon && data.quantity != null && data.quantity !== 1) {
+      return { error: "This plan has fixed included capacity." };
+    }
+    if (requestedPlan.isAddon && (data.quantity ?? 1) > MAX_SEATS) {
+      return { error: `Capacity packs are limited to ${MAX_SEATS} per purchase.` };
+    }
+
+    let billingOrganization: { name: string; type: string } | null = null;
 
     if (data.organizationId) {
       const { data: isAdmin, error } = await supabase.rpc("is_org_admin", {
@@ -64,6 +84,53 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       });
       if (error || !isAdmin) {
         return { error: "You do not manage billing for this organization." };
+      }
+
+      const { data: org, error: orgError } = await supabase
+        .from("organizations")
+        .select("name, type")
+        .eq("id", data.organizationId)
+        .maybeSingle();
+      if (orgError || !org) {
+        return { error: "Organization not found." };
+      }
+      if (!canOrganizationPurchasePlan(org.type, requestedPlan.key)) {
+        return { error: "That plan is not available for this organization." };
+      }
+      billingOrganization = org;
+
+      if (requestedPlan.isAddon) {
+        const { data: baseSubscriptions } = await supabase
+          .from("subscriptions")
+          .select("plan_code")
+          .eq("organization_id", data.organizationId)
+          .eq("environment", data.environment)
+          .in("status", ["active", "trialing"]);
+        const eligibleBasePlans = new Set(
+          organizationPlanKeysForType(org.type).filter(
+            (key) => !PLANS[key].isAddon && !PLANS[key].salesAssisted,
+          ),
+        );
+        const hasEligibleBase = (baseSubscriptions ?? []).some((subscription) => {
+          const planCode = subscription.plan_code;
+          return typeof planCode === "string" && eligibleBasePlans.has(planCode as PlanKey);
+        });
+        if (!hasEligibleBase) {
+          return { error: "Start an organization plan before adding capacity packs." };
+        }
+      }
+    } else {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("primary_role")
+        .eq("id", userId)
+        .maybeSingle();
+      if (
+        profileError ||
+        !profile ||
+        !canRolePurchasePersonalPlan(profile.primary_role, requestedPlan.key)
+      ) {
+        return { error: "That subscription is not available for your account role." };
       }
     }
 
@@ -82,14 +149,9 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       // shares a customer with the administrator who bought the plan.
       let customerId: string;
       if (data.organizationId) {
-        const { data: org } = await supabase
-          .from("organizations")
-          .select("name")
-          .eq("id", data.organizationId)
-          .maybeSingle();
         customerId = await resolveOrCreateOrgCustomer(stripe, {
           organizationId: data.organizationId,
-          name: org?.name ?? "Organization",
+          name: billingOrganization?.name ?? "Organization",
           email: user?.email ?? undefined,
         });
       } else {
@@ -112,6 +174,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 
       const metadata: Record<string, string> = { userId };
       if (data.organizationId) metadata["organizationId"] = data.organizationId;
+      metadata["planCode"] = requestedPlan.key;
       metadata["managed_payments"] = "true";
 
       // `managed_payments` is a preview-API field not yet in the SDK types.
@@ -448,6 +511,15 @@ export const requestDistrictInvoice = createServerFn({ method: "POST" })
     }): Promise<{ invoiceUrl: string | null; invoiceId: string } | { error: string }> => {
       const { supabase, userId } = context;
 
+      const requestedPlan = planForPriceId(data.priceId);
+      if (
+        !requestedPlan ||
+        requestedPlan.orgKind !== "district" ||
+        requestedPlan.isAddon
+      ) {
+        return { error: "Only a district base plan can be purchased by invoice." };
+      }
+
       const { data: isAdmin } = await supabase.rpc("is_org_admin", {
         _user_id: userId,
         _org_id: data.organizationId,
@@ -456,21 +528,29 @@ export const requestDistrictInvoice = createServerFn({ method: "POST" })
         return { error: "You do not manage billing for this organization." };
       }
 
+      const { data: org, error: orgError } = await supabase
+        .from("organizations")
+        .select("name, type")
+        .eq("id", data.organizationId)
+        .maybeSingle();
+      if (
+        orgError ||
+        !org ||
+        normalizeOrganizationKind(org.type) !== "district" ||
+        !canOrganizationPurchasePlan(org.type, requestedPlan.key)
+      ) {
+        return { error: "Invoice purchasing is available to district accounts only." };
+      }
+
       try {
         const stripe = createStripeClient(data.environment);
         const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
         const stripePrice = prices.data[0];
         if (!stripePrice) return { error: "Plan not found" };
 
-        const { data: org } = await supabase
-          .from("organizations")
-          .select("name")
-          .eq("id", data.organizationId)
-          .maybeSingle();
-
         const customerId = await resolveOrCreateOrgCustomer(stripe, {
           organizationId: data.organizationId,
-          name: org?.name ?? "Organization",
+          name: org.name,
           email: data.billingEmail,
           collectionMethod: "send_invoice",
         });

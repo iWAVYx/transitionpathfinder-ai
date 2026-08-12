@@ -65,7 +65,7 @@ export const Route = createFileRoute("/_authenticated")({
 
 
 // Routes that should NOT redirect to onboarding even if not completed
-const ONBOARDING_EXEMPT = ["/onboarding", "/settings"];
+const ONBOARDING_EXEMPT = ["/onboarding", "/settings", "/redeem-access"];
 const ONBOARDING_EXEMPT_PREFIX = ["/owner", "/admin"];
 
 function dashboardHintForBrowserLocation(): string | null {

@@ -42,7 +42,11 @@ import {
   type DashboardSnapshot,
   type ActionItemRow,
 } from "@/lib/golden-path.functions";
-import { listStudents, createShareToken } from "@/lib/students.functions";
+import {
+  listStudents,
+  createShareToken,
+  ensureOwnStudentProfile,
+} from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
 import {
@@ -248,6 +252,7 @@ function DashboardPage() {
     profileFirstName ?? fullName?.split(" ")[0] ?? emailHandle ?? "there";
 
   const fetchStudents = useServerFn(listStudents);
+  const ensureStudentProfile = useServerFn(ensureOwnStudentProfile);
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
   const fetchProfile = useServerFn(getProfile);
   const fetchRoles = useServerFn(getMyRoles);
@@ -356,7 +361,14 @@ function DashboardPage() {
       setLoading(true);
       setLoadError(null);
       try {
-        const list = await fetchStudents();
+        let list = await fetchStudents();
+        if (!list.students[0]) {
+          const currentProfile = await fetchProfile();
+          if (currentProfile.primary_role === "student") {
+            await ensureStudentProfile();
+            list = await fetchStudents();
+          }
+        }
         const studentList = list.students.map((s) => ({
           id: s.id,
           first_name: s.first_name,
@@ -373,7 +385,7 @@ function DashboardPage() {
         setLoading(false);
       }
     },
-    [fetchSnapshot, fetchStudents, selectedId],
+    [ensureStudentProfile, fetchProfile, fetchSnapshot, fetchStudents, selectedId],
   );
 
   useEffect(() => {
@@ -500,6 +512,7 @@ function DashboardPage() {
         firstName={friendly}
         snap={snap ?? EMPTY_STUDENT_SNAPSHOT}
         onToggleAction={snap ? toggleAction : () => {}}
+        onReconnect={() => reload()}
       />
     );
   }

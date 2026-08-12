@@ -20,6 +20,7 @@ export type RedeemAccessCodeResult =
       ok: true;
       code_id: string;
       org_id: string | null;
+      sponsor_org_id?: string | null;
       role: string;
       scope: string;
     }
@@ -32,11 +33,27 @@ export type RedeemAccessCodeResult =
         | "expired"
         | "over_capacity"
         | "already_redeemed"
+        | "role_mismatch"
         | "unknown_error";
       code_id?: string;
       org_id?: string | null;
       role?: string;
+      account_role?: string | null;
+      required_role?: string;
     };
+
+export const getMyActivatedLicenseRole = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<string | null> => {
+    const { data, error } = await context.supabase.rpc(
+      "my_activated_license_role",
+    );
+    if (error) {
+      console.error("my_activated_license_role failed", error);
+      throw new Error("Could not verify your activated license.");
+    }
+    return typeof data === "string" && data.length > 0 ? data : null;
+  });
 
 export const redeemAccessCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
