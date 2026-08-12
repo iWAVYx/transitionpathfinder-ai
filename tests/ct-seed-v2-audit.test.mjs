@@ -8,10 +8,11 @@
 //      fields the Changes dialog renders populated correctly, so the
 //      dialog produces a meaningful change list for each record.
 //
-// Run with:  node --test tests/ct-seed-v2-audit.test.mjs
+// Run with: node --test tests/ct-seed-v2-audit.test.mjs
 //
-// Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in the environment
-// (already present in the dev sandbox).
+// The source-code whitelist test is safe to run without credentials.
+// The live database audit requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
+// and is fail-closed only when REQUIRE_LIVE_CT_SEED_AUDIT=true.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -20,6 +21,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const REQUIRE_LIVE_AUDIT = process.env.REQUIRE_LIVE_CT_SEED_AUDIT === "true";
 
 const REQUIRED_V2_TAGS = [
   "ct_seed_v2",
@@ -69,12 +71,15 @@ test("CT_SEED_TAGS whitelist includes every v2 tag", () => {
 
 test("every v2 partner renders a complete Changes dialog", async (t) => {
   if (!SUPABASE_URL || !SERVICE_ROLE) {
-    if (process.env.CI) {
-      assert.fail("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured in CI");
+    if (REQUIRE_LIVE_AUDIT) {
+      assert.fail(
+        "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured when REQUIRE_LIVE_CT_SEED_AUDIT=true",
+      );
     }
-    t.skip("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
+    t.skip("live CT seed audit credentials not configured");
     return;
   }
+
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
