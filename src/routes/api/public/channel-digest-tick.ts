@@ -6,8 +6,8 @@
  * qualify them for a send, aggregates their channel activity, and delivers
  * the digest email through the internal transactional email pipeline.
  *
- * Auth: Supabase anon key in `apikey` header (canonical cron auth pattern).
- * Public-prefix routes bypass edge auth; we still verify the shared apikey.
+ * Auth: dedicated per-environment bearer secret plus strict deployment
+ * identity verification. Public Supabase keys are never accepted.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { render } from "@react-email/components";
@@ -15,6 +15,7 @@ import { createClient } from "@supabase/supabase-js";
 import * as React from "react";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 import { redactChannelPreviewForEmail } from "@/lib/channel-preview-redact";
+import { authorizeScheduledHook } from "@/lib/cron-auth.server";
 
 const DIGEST_TEMPLATE = "channel-activity-digest";
 const MAX_USERS_PER_TICK = 50;
@@ -33,15 +34,15 @@ export const Route = createFileRoute("/api/public/channel-digest-tick")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const anon = process.env.SUPABASE_ANON_KEY;
+        const authorization = await authorizeScheduledHook(request);
+        if (!authorization.ok) {
+          return Response.json({ error: authorization.error }, { status: authorization.status });
+        }
+
         const url = process.env.SUPABASE_URL;
         const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        const apiKey = request.headers.get("apikey");
-        if (!anon || !url || !serviceKey) {
-          return Response.json({ error: "misconfigured" }, { status: 500 });
-        }
-        if (apiKey !== anon) {
-          return Response.json({ error: "unauthorized" }, { status: 401 });
+        if (!url || !serviceKey) {
+          return Response.json({ error: "misconfigured" }, { status: 503 });
         }
 
         const admin = createClient(url, serviceKey, {

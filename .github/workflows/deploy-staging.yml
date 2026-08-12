@@ -41,7 +41,7 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - name: Guard tests (deployment identity + Stripe environment)
-        run: bunx vitest run tests/unit/env-identity-staging.test.ts tests/unit/stripe-env-resolver.test.ts
+        run: bunx vitest run tests/unit/env-identity-staging.test.ts tests/unit/stripe-env-resolver.test.ts tests/unit/cron-auth.test.ts
 
       - name: Refuse live Stripe credentials
         env:
@@ -89,6 +89,19 @@ jobs:
 
       - name: Wrangler dry run (staging config)
         run: bunx wrangler deploy --dry-run --config wrangler.staging.toml
+
+      - name: Configure staging cron webhook secret
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          STAGING_CRON_WEBHOOK_SECRET: ${{ secrets.STAGING_CRON_WEBHOOK_SECRET }}
+        run: |
+          if [ "${#STAGING_CRON_WEBHOOK_SECRET}" -lt 32 ]; then
+            echo "STAGING_CRON_WEBHOOK_SECRET must contain at least 32 characters." >&2
+            exit 1
+          fi
+          printf '%s' "$STAGING_CRON_WEBHOOK_SECRET" \
+            | bunx wrangler secret put CRON_WEBHOOK_SECRET --config wrangler.staging.toml
 
       - name: Deploy staging Worker
         env:

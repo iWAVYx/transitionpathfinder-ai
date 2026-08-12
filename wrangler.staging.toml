@@ -29,6 +29,7 @@ binding = "ASSETS"
 [vars]
 APP_ENV = "staging"
 VITE_APP_ENV = "staging"
+CRON_EXPECTED_ORIGIN = "https://transitionforward-staging.caysi101.workers.dev"
 
 [observability]
 enabled = true
@@ -37,6 +38,7 @@ enabled = true
 #   SUPABASE_URL                    https://qgrertkqbwanerqqemph.supabase.co
 #   SUPABASE_PUBLISHABLE_KEY        staging anon/publishable key
 #   SUPABASE_SERVICE_ROLE_KEY       staging service role key
+#   CRON_WEBHOOK_SECRET             staging-only random value (32+ characters)
 #   STRIPE_SANDBOX_API_KEY          sk_test_… (direct Stripe test key)
 #   PAYMENTS_SANDBOX_WEBHOOK_SECRET whsec_… from the staging webhook endpoint
 #

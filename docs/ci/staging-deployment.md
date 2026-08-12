@@ -60,13 +60,22 @@ Set secrets once per Worker (values never live in the repo):
 bunx wrangler secret put SUPABASE_URL --config wrangler.staging.toml
 bunx wrangler secret put SUPABASE_PUBLISHABLE_KEY --config wrangler.staging.toml
 bunx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config wrangler.staging.toml
+bunx wrangler secret put CRON_WEBHOOK_SECRET --config wrangler.staging.toml
 bunx wrangler secret put STRIPE_SANDBOX_API_KEY --config wrangler.staging.toml
 bunx wrangler secret put PAYMENTS_SANDBOX_WEBHOOK_SECRET --config wrangler.staging.toml
 ```
 
+`CRON_WEBHOOK_SECRET` must be a staging-only random value of at least 32
+characters. Store the same value in staging Vault under
+`transitionforward_cron_webhook_secret`; never reuse the production value.
+The non-secret `CRON_EXPECTED_ORIGIN` is pinned in `wrangler.staging.toml` to
+the direct staging Worker origin. See `docs/ci/privileged-http-cron.md` before
+activating the database jobs.
+
 CI equivalent: `.github/workflows/deploy-staging.yml` (manual dispatch only).
 It requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository
-secrets and refuses to run if a live Stripe secret is configured.
+secrets, the protected `STAGING_CRON_WEBHOOK_SECRET`, and refuses to run if a
+live Stripe secret is configured.
 
 ## 4. Stripe sandbox webhook
 
@@ -96,5 +105,5 @@ Expect HTTP 200, `"app_env": "staging"`, `"supabase_project_ref":
 Unit coverage for the guard and the environment resolver:
 
 ```bash
-bunx vitest run tests/unit/env-identity-staging.test.ts tests/unit/stripe-env-resolver.test.ts
+bunx vitest run tests/unit/env-identity-staging.test.ts tests/unit/stripe-env-resolver.test.ts tests/unit/cron-auth.test.ts
 ```

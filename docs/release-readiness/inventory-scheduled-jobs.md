@@ -5,14 +5,15 @@
 | Name                       | Cadence            | Target                                                                                        | Auth path                              |
 | -------------------------- | ------------------ | --------------------------------------------------------------------------------------------- | -------------------------------------- |
 | `process-email-queue`      | every 5 seconds while queued messages exist; disarmed when both queues drain (see `email_queue_dispatch` / `email_queue_wake`) | `POST project--<id>.lovable.app/lovable/email/queue/process` | Service-role bearer from vault (`email_queue_service_role_key`) |
-| `transition-channel-digest-tick` | every 15 min | `POST project--<id>.lovable.app/api/public/channel-digest-tick`                                | Service-role bearer                    |
+| `transition-channel-digest-tick` | every 15 min | `POST <environment-origin>/api/public/channel-digest-tick`                                    | Dedicated bearer secret from Vault     |
 | `channel-retention-purge`  | daily              | `SELECT public.channel_retention_purge()` (PL/pgSQL)                                          | In-DB                                  |
-| `obs-events-purge`         | daily              | `POST /api/public/hooks/obs-events-purge`                                                     | anon key in `apikey`; handler enforces auth internally |
-| `obs-alert-check`          | every 5 min        | `POST /api/public/hooks/obs-alert-check`                                                      | anon key in `apikey`; handler enforces auth internally |
+| `obs-events-purge`         | daily at 03:15 UTC | `POST <environment-origin>/api/public/hooks/obs-events-purge`                                 | Dedicated bearer secret from Vault     |
+| `obs-alert-check`          | every 5 min        | `POST <environment-origin>/api/public/hooks/obs-alert-check`                                  | Dedicated bearer secret from Vault     |
 
-`net.http_post` targets a stable `project--<id>.lovable.app` URL, which
-routes to the latest published deployment. This is by design — see the
-platform "Stable URLs" guidance.
+Migration `20260812163612_harden_scheduled_hook_isolation` first disables all
+three legacy HTTP jobs. It does not silently recreate them. An operator must
+provision a distinct Vault URL and webhook secret in each environment, then
+call the private scheduler. See `docs/ci/privileged-http-cron.md`.
 
 ## GitHub Actions workflows
 
@@ -31,5 +32,5 @@ platform "Stable URLs" guidance.
 ## Follow-ups for later slices
 
 - Slice 10 will run every workflow above and archive pass/fail per readiness level.
-- Slice 2 will re-confirm that `/api/public/hooks/obs-*` handlers verify caller identity (they are documented to do so; not re-executed here).
+- `/api/public/hooks/obs-*` and the digest tick share the dedicated bearer and strict environment-identity guard.
 - Slice 6 will confirm the digest tick respects quiet hours (existing `user_in_quiet_hours` helper is already wired per `channel-activity-digest` template).

@@ -123,9 +123,11 @@ Legacy redirects (verified inert): `owner.partner-network-status` →
 ## `api/*` routes
 
 - `api/public/channel-digest-tick` — pg_cron every 15 min; service-role
-  bearer required in handler.
-- `api/public/hooks/obs-alert-check` — pg_cron; anon key in `apikey`.
-- `api/public/hooks/obs-events-purge` — pg_cron; anon key in `apikey`.
+  data access after dedicated cron bearer + environment identity verification.
+- `api/public/hooks/obs-alert-check` — pg_cron; dedicated cron bearer +
+  environment identity verification.
+- `api/public/hooks/obs-events-purge` — pg_cron; dedicated cron bearer +
+  environment identity verification.
 
 Email infra routes under `routes/lovable/email/**`:
 `auth/preview`, `auth/webhook`, `queue/process`, `suppression`,
