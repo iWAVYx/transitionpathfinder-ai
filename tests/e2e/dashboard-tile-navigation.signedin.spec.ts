@@ -53,7 +53,13 @@ async function collectInternalTileHrefs(page: Page): Promise<string[]> {
 }
 
 async function pageIndicatesNotFound(page: Page): Promise<boolean> {
-  const mainText = (await page.locator("main").innerText().catch(() => "")).toLowerCase();
+  const mainText = (
+    await page
+      .locator("main")
+      .first()
+      .innerText()
+      .catch(() => "")
+  ).toLowerCase();
   if (!mainText) return false;
   return (
     mainText.includes("page not found") ||
@@ -78,65 +84,77 @@ for (const role of ROLES) {
       // shell. Poll for navigable content so we test the completed dashboard,
       // not the brief async state while roles and workspace data resolve.
       await expect
-        .poll(
-          async () => (await collectInternalTileHrefs(page)).length,
-          {
-            message: `no navigable dashboard tiles loaded in <main> for ${role.key}`,
-            timeout: 20_000,
-            intervals: [250, 500, 1_000],
-          },
-        )
+        .poll(async () => (await collectInternalTileHrefs(page)).length, {
+          message: `no navigable dashboard tiles loaded in <main> for ${role.key}`,
+          timeout: 20_000,
+          intervals: [250, 500, 1_000],
+        })
         .toBeGreaterThan(0);
 
       const hrefs = await collectInternalTileHrefs(page);
       const failures: string[] = [];
 
       for (const href of hrefs) {
-        // Re-load the dashboard between tiles so client state can't mask a
-        // broken destination (some tiles render in-place drawers).
-        await page.goto(href, { waitUntil: "domcontentloaded" }).catch(() => null);
+        // Probe every destination in its own page. Reusing one page made a
+        // renderer/page crash cascade into false failures for every href that
+        // followed it, hiding which tile actually failed.
+        const destination = await page.context().newPage();
+        try {
+          const navigationError = await destination
+            .goto(href, { waitUntil: "domcontentloaded" })
+            .then(() => null)
+            .catch((error: unknown) =>
+              error instanceof Error ? error.message : "navigation failed",
+            );
 
-        const finalPath = normalizePath(new URL(page.url()).pathname);
-        const target = normalizePath(href.split("#")[0].split("?")[0]);
+          if (destination.isClosed()) {
+            failures.push(
+              `${href} → page closed during navigation${navigationError ? ` (${navigationError})` : ""}`,
+            );
+            continue;
+          }
 
-        // Guard bounce → login / auth is a broken tile for THIS role.
-        if (finalPath === "/login" || finalPath.startsWith("/login/") || finalPath === "/auth") {
-          failures.push(`${href} → guard bounced to ${finalPath}`);
-          continue;
+          const finalPath = normalizePath(new URL(destination.url()).pathname);
+
+          // Guard bounce → login / auth is a broken tile for THIS role.
+          if (finalPath === "/login" || finalPath.startsWith("/login/") || finalPath === "/auth") {
+            failures.push(`${href} → guard bounced to ${finalPath}`);
+            continue;
+          }
+
+          if (navigationError) {
+            failures.push(`${href} → navigation failed at ${finalPath} (${navigationError})`);
+            continue;
+          }
+
+          // A route-pending/session-loading landmark is only a transition,
+          // not proof that the destination rendered. Wait for a completed
+          // route-owned <main> so an indefinitely pending guard still fails.
+          const main = destination
+            .locator(
+              'main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"])',
+            )
+            .first();
+          const mainVisible = await main
+            .waitFor({ state: "visible", timeout: 15_000 })
+            .then(() => true)
+            .catch(() => false);
+          if (!mainVisible) {
+            failures.push(`${href} → no completed <main> at ${finalPath}`);
+            continue;
+          }
+
+          if (await pageIndicatesNotFound(destination)) {
+            failures.push(`${href} → not-found boundary at ${finalPath}`);
+          }
+        } finally {
+          if (!destination.isClosed()) await destination.close();
         }
-
-        // Some tiles legitimately redirect to a sub-route or role fallback.
-        // Accept exact match OR descendant OR a redirect that still lands
-        // on a visible <main> (i.e. not the not-found boundary).
-        const mainVisible = await page
-          .locator("main")
-          .first()
-          .waitFor({ state: "visible", timeout: 15_000 })
-          .then(() => true)
-          .catch(() => false);
-        if (!mainVisible) {
-          failures.push(`${href} → no <main> at ${finalPath}`);
-          continue;
-        }
-
-        if (await pageIndicatesNotFound(page)) {
-          failures.push(`${href} → not-found boundary at ${finalPath}`);
-          continue;
-        }
-
-        const okPath =
-          finalPath === target ||
-          finalPath.startsWith(`${target}/`) ||
-          target.startsWith(`${finalPath}/`) ||
-          // Redirected to a distinct route but rendered a real page — allow.
-          true;
-        expect(okPath).toBe(true);
       }
 
-      expect(
-        failures,
-        `Broken dashboard tiles for ${role.key}:\n${failures.join("\n")}`,
-      ).toEqual([]);
+      expect(failures, `Broken dashboard tiles for ${role.key}:\n${failures.join("\n")}`).toEqual(
+        [],
+      );
     });
   });
 }
