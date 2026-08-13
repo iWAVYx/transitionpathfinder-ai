@@ -4,7 +4,7 @@ The digest and observability HTTP jobs use service-role capabilities after the
 request reaches the application. They therefore require a credential that is
 not public and must never be able to cross from staging into production.
 
-Migration `20260812163612_harden_scheduled_hook_isolation` is intentionally
+Migration `20260813013345_20260812163612_harden_scheduled_hook_isolation` is intentionally
 fail-closed: it unschedules the legacy jobs and defines an operator-only
 scheduler, but does not activate any job by itself.
 

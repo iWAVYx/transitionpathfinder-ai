@@ -10,7 +10,7 @@
 | `obs-events-purge`         | daily at 03:15 UTC | `POST <environment-origin>/api/public/hooks/obs-events-purge`                                 | Dedicated bearer secret from Vault     |
 | `obs-alert-check`          | every 5 min        | `POST <environment-origin>/api/public/hooks/obs-alert-check`                                  | Dedicated bearer secret from Vault     |
 
-Migration `20260812163612_harden_scheduled_hook_isolation` first disables all
+Migration `20260813013345_20260812163612_harden_scheduled_hook_isolation` first disables all
 three legacy HTTP jobs. It does not silently recreate them. An operator must
 provision a distinct Vault URL and webhook secret in each environment, then
 call the private scheduler. See `docs/ci/privileged-http-cron.md`.

@@ -117,7 +117,7 @@ describe("scheduled hook source and migration contract", () => {
     "src/routes/api/public/hooks/obs-events-purge.ts",
   ].map((path) => readFileSync(path, "utf8"));
   const migration = readFileSync(
-    "supabase/migrations/20260812163612_harden_scheduled_hook_isolation.sql",
+    "supabase/migrations/20260813013345_20260812163612_harden_scheduled_hook_isolation.sql",
     "utf8",
   );
 
