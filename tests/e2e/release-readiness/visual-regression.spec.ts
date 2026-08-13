@@ -42,7 +42,7 @@ const RELEASE_FONT_QUERIES = [
   'italic 500 16px "Cormorant Garamond"',
 ] as const;
 
-async function settle(page: Page) {
+async function settle(page: Page, options: { requireReleaseFonts?: boolean } = {}) {
   await expect(page.locator("main").first()).toBeVisible({ timeout: 20_000 });
 
   // The first visual test can reach screenshot capture before Google Fonts has
@@ -50,17 +50,19 @@ async function settle(page: Page) {
   // page-height drift even though the UI code is identical. Load the product's
   // primary faces explicitly and fail closed if the stylesheet did not
   // register them instead of accepting a fallback-font baseline.
-  const missingFonts = await page.evaluate(async (queries) => {
-    const loaded = await Promise.all(
-      queries.map(async (query) => ({
-        query,
-        faces: (await document.fonts.load(query, "TransitionForward release readiness")).length,
-      })),
-    );
-    await document.fonts.ready;
-    return loaded.filter(({ faces }) => faces === 0).map(({ query }) => query);
-  }, RELEASE_FONT_QUERIES);
-  expect(missingFonts, "release typography faces did not load").toEqual([]);
+  if (options.requireReleaseFonts) {
+    const missingFonts = await page.evaluate(async (queries) => {
+      const loaded = await Promise.all(
+        queries.map(async (query) => ({
+          query,
+          faces: (await document.fonts.load(query, "TransitionForward release readiness")).length,
+        })),
+      );
+      await document.fonts.ready;
+      return loaded.filter(({ faces }) => faces === 0).map(({ query }) => query);
+    }, RELEASE_FONT_QUERIES);
+    expect(missingFonts, "release typography faces did not load").toEqual([]);
+  }
 
   // Disable animations to keep snapshots deterministic.
   await page.addStyleTag({
@@ -126,7 +128,7 @@ for (const vp of VIEWPORTS) {
     for (const route of PUBLIC_PAGES) {
       test(`${route}`, async ({ page }) => {
         await page.goto(route, { waitUntil: "networkidle" });
-        await settle(page);
+        await settle(page, { requireReleaseFonts: true });
         await expect(page).toHaveScreenshot(
           `${vp.label}${route === "/" ? "/home" : route}.png`.replace(/\//g, "_"),
           { fullPage: true, maxDiffPixelRatio: 0.02, timeout: 20_000 },
@@ -145,7 +147,7 @@ for (const role of ROLES) {
       test(`${role.dashboard} @ ${vp.label}`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto(role.dashboard, { waitUntil: "networkidle" });
-        await settle(page);
+        await settle(page, { requireReleaseFonts: true });
         await expect(page).toHaveScreenshot(`${role.key}_${vp.label}.png`, {
           fullPage: true,
           maxDiffPixelRatio: 0.02,
