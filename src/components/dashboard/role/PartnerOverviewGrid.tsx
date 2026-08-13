@@ -291,7 +291,7 @@ function PartnerTile({
           ))}
         </dl>
       )}
-      <p className="mt-2 px-3.5 text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground/80">
+      <p className="mt-2 px-3.5 text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground">
         {detail.rows.length} items · {detail.connectsTo.length} connected
       </p>
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/60 bg-muted/20 px-3.5 py-2">

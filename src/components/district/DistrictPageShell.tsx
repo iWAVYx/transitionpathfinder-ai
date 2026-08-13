@@ -93,7 +93,7 @@ export function DistrictPageShell({
 
             <header className="mt-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary/70">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                   District leadership
                 </p>
                 <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">

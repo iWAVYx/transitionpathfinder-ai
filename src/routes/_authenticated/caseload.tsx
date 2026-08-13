@@ -263,7 +263,7 @@ function CaseloadPage() {
               />
             </div>
             <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-              <SelectTrigger className="w-full sm:w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[220px]" aria-label="Filter caseload students"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Students</SelectItem>
                 <SelectItem value="today">Meeting Today</SelectItem>

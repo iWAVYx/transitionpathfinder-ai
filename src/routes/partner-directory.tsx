@@ -161,6 +161,7 @@ function PartnerDirectoryPage() {
               value={county}
               onChange={(e) => setCounty(e.target.value)}
               className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label="County"
             >
               <option value="all">All counties</option>
               {counties.sort().map((c) => (
@@ -173,6 +174,7 @@ function PartnerDirectoryPage() {
               value={pathway}
               onChange={(e) => setPathway(e.target.value)}
               className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label="Pathway"
             >
               <option value="all">All pathways</option>
               {pathways.sort().map((p) => (

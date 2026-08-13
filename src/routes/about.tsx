@@ -364,7 +364,7 @@ function FounderMessage() {
           </div>
         </div>
         <div className="flex flex-col justify-center">
-          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             Why This Exists
           </div>
@@ -878,7 +878,7 @@ function StudentCentered() {
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
       <div className="relative mx-auto grid max-w-[1300px] gap-10 px-6 py-16 md:grid-cols-[6fr_5fr] md:gap-16 md:py-20">
         <div className="flex flex-col justify-center">
-          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             The Student At The Center
           </div>
@@ -1112,7 +1112,7 @@ function CTAwareFAQ() {
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
       <div className="relative mx-auto max-w-[1100px] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             Trust, Records, And Transparency
             <span className="h-px w-8 bg-[#1c1814]/30" />

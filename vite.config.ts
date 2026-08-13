@@ -33,6 +33,9 @@ export default defineConfig({
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
+        // Nitro/Cloudflare publishes .output/public. Without this override the
+        // plugin writes dist/sw.js, which is never included in the deployment.
+        outDir: ".output/public",
         filename: "sw.js",
         manifest: false, // we ship a hand-authored manifest at public/manifest.webmanifest
         devOptions: { enabled: false },

@@ -509,7 +509,7 @@ export function TextScrollFill({
         <span
           key={i}
           className="transition-colors duration-300"
-          style={{ color: i < lit ? "var(--foreground)" : "color-mix(in oklab, var(--foreground) 25%, transparent)" }}
+          style={{ color: i < lit ? "var(--foreground)" : "var(--muted-foreground)" }}
         >
           {w}{i < words.length - 1 ? " " : ""}
         </span>

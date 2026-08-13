@@ -154,6 +154,17 @@ test("nightly release evidence is fixed to isolated staging and exact SHA", () =
   assert.doesNotMatch(workflow, /transitionforwardct\.com/);
 });
 
+test("PWA worker is generated into and required from the deployed asset directory", () => {
+  const viteConfig = read("vite.config.ts");
+  const stagingDeploy = read(".github/workflows/deploy-staging.yml");
+
+  assert.match(viteConfig, /VitePWA\(\{[\s\S]*?outDir:\s*["']\.output\/public["']/);
+  assert.match(stagingDeploy, /\[ ! -f "\$assets\/sw\.js" \]/);
+  assert.match(stagingDeploy, /workbox-\*\.js/);
+  assert.match(stagingDeploy, /Verify deployed PWA assets/);
+  assert.match(stagingDeploy, /"\$STAGING_ORIGIN\/sw\.js"/);
+});
+
 test("no production deploy path exists while the audit says it is unprovisioned", () => {
   if (audit.production.deploymentWorkflowProvisioned) return;
 

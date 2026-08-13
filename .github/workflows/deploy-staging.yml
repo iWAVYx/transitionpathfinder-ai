@@ -77,6 +77,16 @@ jobs:
             exit 1
           fi
 
+          if [ ! -f "$assets/sw.js" ]; then
+            echo "The deployable asset directory is missing sw.js: $assets/sw.js" >&2
+            exit 1
+          fi
+
+          if ! find "$assets" -maxdepth 1 -type f -name 'workbox-*.js' -print -quit | grep -q .; then
+            echo "The deployable asset directory is missing the Workbox runtime: $assets" >&2
+            exit 1
+          fi
+
           echo "Build output: entry=$entry assets=$assets"
 
           # Keep the wrangler config aligned with whatever layout the build emitted.
@@ -153,3 +163,43 @@ jobs:
 
           echo "Staging health verification failed after 6 attempts." >&2
           exit 1
+
+      - name: Verify deployed PWA assets
+        env:
+          STAGING_ORIGIN: https://transitionforward-staging.caysi101.workers.dev
+        run: |
+          status=$(curl \
+            --silent \
+            --show-error \
+            --location \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --output /tmp/sw.js \
+            --write-out '%{http_code}' \
+            "$STAGING_ORIGIN/sw.js")
+
+          if [ "$status" != "200" ] || grep -qi '<!doctype html' /tmp/sw.js; then
+            echo "The deployed service worker is unavailable or returned HTML (HTTP $status)." >&2
+            exit 1
+          fi
+
+          workbox_asset=$(grep -oE 'workbox-[a-f0-9]+\.js' /tmp/sw.js | head -n 1)
+          if [ -z "$workbox_asset" ]; then
+            echo "The deployed service worker does not reference a Workbox runtime." >&2
+            exit 1
+          fi
+
+          workbox_status=$(curl \
+            --silent \
+            --show-error \
+            --location \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --output /dev/null \
+            --write-out '%{http_code}' \
+            "$STAGING_ORIGIN/$workbox_asset")
+
+          if [ "$workbox_status" != "200" ]; then
+            echo "The deployed Workbox runtime returned HTTP $workbox_status." >&2
+            exit 1
+          fi
