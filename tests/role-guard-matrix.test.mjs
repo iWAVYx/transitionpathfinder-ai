@@ -25,6 +25,7 @@ const ROOT = new URL("../", import.meta.url);
 const POLICY_FILE = new URL("src/lib/role-policy.ts", ROOT);
 const ROUTES_DIR = new URL("src/routes/_authenticated/", ROOT);
 const SNAPSHOT_FILE = new URL("tests/__snapshots__/role-guard-matrix.snap.json", ROOT);
+const DOCUMENTS_ROUTE_FILE = new URL("src/routes/_authenticated/documents.tsx", ROOT);
 
 const POLICY_SRC = readFileSync(POLICY_FILE, "utf8");
 
@@ -201,5 +202,22 @@ test("every <RoleGuard path=...> references a known ROUTE_AUDIENCES entry or use
       "(and no inline allow= override). Add the path to ROUTE_AUDIENCES in " +
       "src/lib/role-policy.ts, or pass allow={[...]} on the guard.\nOffenders:\n  " +
       offenders.join("\n  "),
+  );
+});
+
+// /documents exposes student records and uploaded IEP metadata. Its component
+// guard remains useful defense-in-depth, but direct navigation must be rejected
+// before the route renders so a denied user is never left on the sensitive URL.
+test("/documents beforeLoad guard matches the central route policy", () => {
+  const src = readFileSync(DOCUMENTS_ROUTE_FILE, "utf8");
+  const match = src.match(/beforeLoad\s*:\s*\(\)\s*=>\s*ensureRoleAccess\s*\(\s*\[([^\]]*)\]\s*\)/);
+
+  assert.ok(match, "The /documents route must call ensureRoleAccess([...]) in beforeLoad.");
+
+  const actual = [...match[1].matchAll(/"([^"]+)"/g)].map((entry) => entry[1]).sort();
+  assert.deepEqual(
+    actual,
+    [...ROUTE_AUDIENCES["/documents"]].sort(),
+    "The /documents beforeLoad audiences must match ROUTE_AUDIENCES.",
   );
 });
