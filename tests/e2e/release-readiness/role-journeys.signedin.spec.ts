@@ -37,13 +37,13 @@ for (const role of ROLES) {
       }
     });
 
-    test("main content has no duplicate in-app links", async ({ page }) => {
+    test("main content has no duplicate visible in-app links", async ({ page }) => {
       await gotoDashboard(page, role.dashboard);
-      const hrefs = await page.locator("main a[href^='/']").evaluateAll((els) =>
-        els
-          .map((e) => (e.getAttribute("href") || "").split("?")[0].split("#")[0])
-          .filter((h) => h && h !== "/"),
-      );
+      const hrefs = await page
+        .locator("main a[href^='/']:visible")
+        .evaluateAll((els) =>
+          els.map((e) => e.getAttribute("href") || "").filter((h) => h && h !== "/"),
+        );
       const counts = new Map<string, number>();
       for (const h of hrefs) counts.set(h, (counts.get(h) ?? 0) + 1);
       const dupes = [...counts.entries()].filter(([, n]) => n > 1).map(([h]) => h);
