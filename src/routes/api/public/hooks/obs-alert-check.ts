@@ -1,18 +1,18 @@
 /**
  * Cron entry: evaluate observability alert rules every 5 minutes.
- * Called by pg_cron with the project anon key in the `apikey` header.
+ * Called by pg_cron with a dedicated per-environment bearer secret.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { authorizeScheduledHook } from "@/lib/cron-auth.server";
 
 export const Route = createFileRoute("/api/public/hooks/obs-alert-check")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey");
-        const expected = process.env.SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!apikey || !expected || apikey !== expected) {
-          return new Response("Unauthorized", { status: 401 });
+        const authorization = await authorizeScheduledHook(request);
+        if (!authorization.ok) {
+          return Response.json({ error: authorization.error }, { status: authorization.status });
         }
         const { runAlertCheck } = await import("@/lib/obs/alerts.server");
         try {

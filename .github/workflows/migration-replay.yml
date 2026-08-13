@@ -119,6 +119,34 @@ jobs:
             | tee /tmp/realtime_policies.txt
           test "$(cat /tmp/realtime_policies.txt)" -ge 1
 
+      - name: Privileged HTTP cron is fail-closed after replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select count(*) = 0
+            from cron.job
+            where jobname in (
+              'transition-channel-digest-tick',
+              'obs-alert-check',
+              'obs-events-purge'
+            );" | grep -qx t
+
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select not has_function_privilege(
+              'anon',
+              'transitionforward_private.schedule_privileged_http_jobs()',
+              'EXECUTE'
+            )
+            and not has_function_privilege(
+              'authenticated',
+              'transitionforward_private.schedule_privileged_http_jobs()',
+              'EXECUTE'
+            )
+            and not has_function_privilege(
+              'service_role',
+              'transitionforward_private.schedule_privileged_http_jobs()',
+              'EXECUTE'
+            );" | grep -qx t
+
       - name: Grant hygiene — anon must not reach licensing or billing tables
         run: |
           psql -v ON_ERROR_STOP=1 -tAc "
