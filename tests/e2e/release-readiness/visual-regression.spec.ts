@@ -35,6 +35,25 @@ async function settle(page: Page) {
     content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
   });
 
+  // Traverse the full page in viewport-sized steps so IntersectionObserver
+  // reveals reach the same completed state a user sees after scrolling. A
+  // single jump to the bottom can skip elements between render frames and
+  // leave meaningful sections at their pre-reveal opacity in a full-page shot.
+  await page.evaluate(async () => {
+    const step = Math.max(320, Math.floor(window.innerHeight * 0.65));
+    const nextPaint = () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      );
+
+    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await nextPaint();
+    }
+    window.scrollTo(0, 0);
+    await nextPaint();
+  });
+
   // Bring every rendered image into view individually. A fast document-wide
   // scroll can skip native loading="lazy" images between animation frames;
   // exercising each image mirrors a real user scroll and makes the gate prove
