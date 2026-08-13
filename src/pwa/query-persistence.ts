@@ -6,7 +6,8 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 
 
-const CACHE_KEY = "tf-query-cache-v1";
+const CACHE_KEY = "tf-query-cache-v2";
+const LEGACY_CACHE_KEYS = ["tf-query-cache-v1"] as const;
 const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 // Loose typing: workspace pulls in two query-core copies, so the imported
@@ -16,6 +17,14 @@ export function setupQueryPersistence(queryClient: unknown): void {
   if (typeof window.localStorage === "undefined") return;
 
   try {
+    // v1 persisted every successful query unless its key looked auth-related.
+    // That allowed user-scoped dashboard data to cross a sign-out/sign-in
+    // boundary and could race React hydration when a storage state was
+    // restored in a new browser context. Remove it before attempting restore.
+    for (const key of LEGACY_CACHE_KEYS) {
+      window.localStorage.removeItem(key);
+    }
+
     const persister = createSyncStoragePersister({
       storage: window.localStorage,
       key: CACHE_KEY,
@@ -29,13 +38,11 @@ export function setupQueryPersistence(queryClient: unknown): void {
       maxAge: MAX_AGE_MS,
       buster: "v1",
       dehydrateOptions: {
-        // Don't persist queries that errored or hold auth-bearing payloads
-        // we'd rather refetch fresh.
+        // Private by default: a query must explicitly opt in with
+        // `meta: { persist: true }`. Authenticated/dashboard queries never
+        // persist merely because their key happens not to mention "auth".
         shouldDehydrateQuery: (query) =>
-          query.state.status === "success" &&
-          !query.queryKey.some(
-            (k) => typeof k === "string" && (k === "session" || k.startsWith("auth")),
-          ),
+          query.state.status === "success" && query.meta?.persist === true,
       },
     });
   } catch {
