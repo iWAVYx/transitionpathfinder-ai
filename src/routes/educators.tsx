@@ -8,14 +8,10 @@ import {
   MessageCircle,
   FileDown,
 } from "lucide-react";
-import stressedTeacherAsset from "@/assets/red-head-teacher-stressed.png.asset.json";
-import happyTeacherMorningAsset from "@/assets/happy-teacher-morning.png.asset.json";
-import calendarMeetingAsset from "@/assets/calendar-meeting.png.asset.json";
-import iepBinderAsset from "@/assets/iep-binder.png.asset.json";
-const educatorsHero = stressedTeacherAsset.url;
-const frameworkImg = calendarMeetingAsset.url;
-const dashboardImg = happyTeacherMorningAsset.url;
-const iepUploadImg = iepBinderAsset.url;
+import educatorsHero from "@/assets/bundled/red-head-teacher-stressed.webp";
+import dashboardImg from "@/assets/bundled/happy-teacher-morning.webp";
+import frameworkImg from "@/assets/bundled/calendar-meeting.webp";
+import iepUploadImg from "@/assets/bundled/iep-binder.webp";
 
 import {
   Parallax,

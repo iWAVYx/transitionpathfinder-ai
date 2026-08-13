@@ -28,6 +28,30 @@ async function settle(page: Page) {
   await page.addStyleTag({
     content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
   });
+
+  // Visit the full document before taking a full-page screenshot. This triggers
+  // lazy-loaded images and IntersectionObserver-based reveal sections so the
+  // baseline represents the page a user sees while scrolling.
+  await page.evaluate(async () => {
+    const step = Math.max(300, Math.floor(window.innerHeight * 0.75));
+    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    }
+    window.scrollTo(0, 0);
+  });
+
+  await expect
+    .poll(
+      () =>
+        page.locator("img[src]").evaluateAll((images: HTMLImageElement[]) =>
+          images
+            .filter((image) => !image.complete || image.naturalWidth === 0)
+            .map((image) => image.currentSrc || image.src),
+        ),
+      { message: "page contains unloaded or broken images", timeout: 15_000 },
+    )
+    .toEqual([]);
   await page.waitForTimeout(300);
 }
 

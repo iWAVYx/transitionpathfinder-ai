@@ -56,8 +56,7 @@ import { createStudentActionItem } from "@/lib/action-items.functions";
 import { toast } from "sonner";
 import { ListPlus } from "lucide-react";
 
-import resourcesHeroAsset from "@/assets/student-reading-library.png.asset.json";
-const resourcesHero = resourcesHeroAsset.url;
+import resourcesHero from "@/assets/bundled/student-reading-library.webp";
 import {
   RESOURCES,
   TOPIC_META,

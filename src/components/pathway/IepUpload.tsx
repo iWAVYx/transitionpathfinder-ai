@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
-import iepImage from "@/assets/iep-upload-buried.png.asset.json";
+import iepImage from "@/assets/bundled/iep-upload-buried.webp";
 import { TrustNote } from "@/components/site/TrustNote";
 
 type Props = {
@@ -150,7 +150,7 @@ export function IepUpload({ onExtracted }: Props) {
 
         <div className="relative hidden min-h-[220px] bg-gradient-warm md:block">
           <img
-            src={iepImage.url}
+            src={iepImage}
             alt=""
             aria-hidden
             loading="lazy"

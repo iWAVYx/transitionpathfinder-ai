@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, join } from "node:path";
 import { test } from "node:test";
 
@@ -9,6 +9,13 @@ const audit = JSON.parse(readFileSync(AUDIT_PATH, "utf8"));
 
 function read(path) {
   return readFileSync(path, "utf8");
+}
+
+function filesUnder(path) {
+  return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
+    const child = join(path, entry.name);
+    return entry.isDirectory() ? filesUnder(child) : [child];
+  });
 }
 
 function envEntries(path) {
@@ -174,6 +181,24 @@ test("PWA worker is generated into and required from the deployed asset director
   assert.match(stagingDeploy, /"\$STAGING_ORIGIN\/sw\.js"/);
   assert.match(stagingDeploy, /grep -q 'sw-privacy-cleanup\.js'/);
   assert.match(stagingDeploy, /Workbox propagation attempt/);
+});
+
+test("deployable source owns every referenced marketing image", () => {
+  const sourceFiles = filesUnder("src").filter((path) => /\.(?:ts|tsx)$/.test(path));
+  for (const path of sourceFiles) {
+    const source = read(path);
+    assert.doesNotMatch(source, /\.asset\.json/, `${path} depends on a Lovable-only asset manifest`);
+    assert.doesNotMatch(source, /\/__l5e\/assets-v1\//, `${path} depends on a Lovable-only asset route`);
+  }
+
+  const bundled = readdirSync("src/assets/bundled").filter((name) => name.endsWith(".webp"));
+  assert.equal(bundled.length, 31, "all referenced Lovable images must have optimized local copies");
+  for (const name of bundled) {
+    assert.ok(
+      statSync(join("src/assets/bundled", name)).size <= 400 * 1024,
+      `${name} is too large for the deployable marketing bundle`,
+    );
+  }
 });
 
 test("no production deploy path exists while the audit says it is unprovisioned", () => {

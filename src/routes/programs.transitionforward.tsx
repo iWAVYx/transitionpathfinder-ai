@@ -5,8 +5,7 @@ import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 
 import { photos, srcSetFor } from "@/lib/photos";
-import frameworkHeroAsset from "@/assets/framework-hero-graduation.png.asset.json";
-const frameworkHero = frameworkHeroAsset.url;
+import frameworkHero from "@/assets/bundled/framework-hero-graduation.webp";
 const frameworkHeroSrcSet = undefined as unknown as string;
 const bgTopo = photos.bgTopo;
 const bgTopoSrcSet = srcSetFor("bgTopo");

@@ -11,12 +11,10 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { photos, srcSetFor } from "@/lib/photos";
-import familyWalkingAsset from "@/assets/family-walking-together.png.asset.json";
-import momDaughterHomeworkAsset from "@/assets/mom-daughter-homework.png.asset.json";
+import homeFamilyImage from "@/assets/bundled/family-walking-together.webp";
+import familiesHero from "@/assets/bundled/mom-daughter-homework.webp";
 void photos; void srcSetFor;
-const familiesHero = momDaughterHomeworkAsset.url;
 const familiesHeroSrcSet: string | undefined = undefined;
-const homeFamilyImage = familyWalkingAsset.url;
 
 import {
   Parallax,
