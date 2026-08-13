@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
+import { ensureRoleAccess } from "@/lib/route-role-guard";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -34,6 +35,7 @@ import { rescanDocument } from "@/lib/documents.functions";
 
 
 export const Route = createFileRoute("/_authenticated/documents")({
+  beforeLoad: () => ensureRoleAccess(["family", "educator", "admin"]),
   head: () => ({ meta: [{ title: "Documents — TransitionForward" }] }),
   component: () => (
     <RoleGuard path="/documents">
