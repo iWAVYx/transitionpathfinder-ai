@@ -22,6 +22,12 @@ const VIEWPORTS = [
 
 const PUBLIC_PAGES = ["/", "/families", "/educators", "/partners", "/pricing"];
 
+// Full-page screenshots include content that has not physically entered the
+// viewport. Capture the product's supported reduced-motion state so scroll
+// reveals render visibly and deterministically instead of freezing offscreen
+// elements at their pre-animation opacity.
+test.use({ reducedMotion: "reduce" });
+
 async function settle(page: Page) {
   await expect(page.locator("main").first()).toBeVisible({ timeout: 20_000 });
   // Disable animations to keep snapshots deterministic.
@@ -67,7 +73,7 @@ for (const vp of VIEWPORTS) {
         await settle(page);
         await expect(page).toHaveScreenshot(
           `${vp.label}${route === "/" ? "/home" : route}.png`.replace(/\//g, "_"),
-          { fullPage: true, maxDiffPixelRatio: 0.02 },
+          { fullPage: true, maxDiffPixelRatio: 0.02, timeout: 20_000 },
         );
       });
     }
@@ -87,6 +93,7 @@ for (const role of ROLES) {
         await expect(page).toHaveScreenshot(`${role.key}_${vp.label}.png`, {
           fullPage: true,
           maxDiffPixelRatio: 0.02,
+          timeout: 20_000,
         });
       });
 
