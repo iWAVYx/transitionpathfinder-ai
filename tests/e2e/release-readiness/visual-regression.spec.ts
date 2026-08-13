@@ -29,23 +29,26 @@ async function settle(page: Page) {
     content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
   });
 
-  // Visit the full document before taking a full-page screenshot. This triggers
-  // lazy-loaded images and IntersectionObserver-based reveal sections so the
-  // baseline represents the page a user sees while scrolling.
-  await page.evaluate(async () => {
-    const step = Math.max(300, Math.floor(window.innerHeight * 0.75));
-    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-      window.scrollTo(0, y);
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    }
-    window.scrollTo(0, 0);
-  });
+  // Bring every rendered image into view individually. A fast document-wide
+  // scroll can skip native loading="lazy" images between animation frames;
+  // exercising each image mirrors a real user scroll and makes the gate prove
+  // that the decoded pixels are actually available before snapshotting.
+  const images = page.locator("img[src]:visible");
+  for (let index = 0; index < (await images.count()); index += 1) {
+    const image = images.nth(index);
+    await image.scrollIntoViewIfNeeded();
+    await image.evaluate(async (element: HTMLImageElement) => {
+      await element.decode().catch(() => undefined);
+    });
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
 
   await expect
     .poll(
       () =>
         page.locator("img[src]").evaluateAll((images: HTMLImageElement[]) =>
           images
+            .filter((image) => image.getClientRects().length > 0)
             .filter((image) => !image.complete || image.naturalWidth === 0)
             .map((image) => image.currentSrc || image.src),
         ),

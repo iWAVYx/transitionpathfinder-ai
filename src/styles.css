@@ -3055,6 +3055,10 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .tf-eyebrow::before,
 .report-shell .tf-eyebrow::before { display: none; }
+.demo-shell .tf-eyebrow.tf-eyebrow--contrast,
+.report-shell .tf-eyebrow.tf-eyebrow--contrast {
+  color: var(--demo-primary);
+}
 
 /* ===== Audience tabs (student switcher etc.) ===== */
 .demo-shell .tf-audience,
