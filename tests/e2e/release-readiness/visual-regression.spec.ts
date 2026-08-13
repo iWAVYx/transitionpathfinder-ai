@@ -28,8 +28,40 @@ const PUBLIC_PAGES = ["/", "/families", "/educators", "/partners", "/pricing"];
 // elements at their pre-animation opacity.
 test.use({ reducedMotion: "reduce" });
 
+const RELEASE_FONT_QUERIES = [
+  '300 16px "Karla"',
+  '400 16px "Karla"',
+  '500 16px "Karla"',
+  '600 16px "Karla"',
+  '700 16px "Karla"',
+  '400 16px "Cormorant Garamond"',
+  '500 16px "Cormorant Garamond"',
+  '600 16px "Cormorant Garamond"',
+  '700 16px "Cormorant Garamond"',
+  'italic 400 16px "Cormorant Garamond"',
+  'italic 500 16px "Cormorant Garamond"',
+] as const;
+
 async function settle(page: Page) {
   await expect(page.locator("main").first()).toBeVisible({ timeout: 20_000 });
+
+  // The first visual test can reach screenshot capture before Google Fonts has
+  // replaced its fallback faces. That changes text wrapping and accumulates
+  // page-height drift even though the UI code is identical. Load the product's
+  // primary faces explicitly and fail closed if the stylesheet did not
+  // register them instead of accepting a fallback-font baseline.
+  const missingFonts = await page.evaluate(async (queries) => {
+    const loaded = await Promise.all(
+      queries.map(async (query) => ({
+        query,
+        faces: (await document.fonts.load(query, "TransitionForward release readiness")).length,
+      })),
+    );
+    await document.fonts.ready;
+    return loaded.filter(({ faces }) => faces === 0).map(({ query }) => query);
+  }, RELEASE_FONT_QUERIES);
+  expect(missingFonts, "release typography faces did not load").toEqual([]);
+
   // Disable animations to keep snapshots deterministic.
   await page.addStyleTag({
     content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
@@ -80,6 +112,11 @@ async function settle(page: Page) {
       { message: "page contains unloaded or broken images", timeout: 15_000 },
     )
     .toEqual([]);
+  // Scrolling can introduce additional below-fold font faces. Do not capture
+  // until the browser has completed every font load requested by that layout.
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
   await page.waitForTimeout(300);
 }
 
