@@ -42,6 +42,34 @@ const RELEASE_FONT_QUERIES = [
   'italic 500 16px "Cormorant Garamond"',
 ] as const;
 
+const RELEASE_FONT_NETWORK_ERROR = "RELEASE_FONT_NETWORK_ERROR";
+
+async function openForVisualCapture(page: Page, route: string) {
+  const maxAttempts = 3;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    await page.goto(route, { waitUntil: "networkidle" });
+
+    try {
+      await settle(page, { requireReleaseFonts: true });
+      return;
+    } catch (error) {
+      const isTransientFontFailure =
+        error instanceof Error && error.message.includes(RELEASE_FONT_NETWORK_ERROR);
+
+      if (!isTransientFontFailure || attempt === maxAttempts) {
+        throw error;
+      }
+
+      // A rejected FontFace remains in the error state for the life of the
+      // document. Start with a fresh document after a short backoff so a
+      // transient fonts.gstatic.com failure gets another chance. Persistent
+      // failures still fail closed after the bounded third attempt.
+      await page.waitForTimeout(attempt * 1_000);
+    }
+  }
+}
+
 async function settle(page: Page, options: { requireReleaseFonts?: boolean } = {}) {
   await expect(page.locator("main").first()).toBeVisible({ timeout: 20_000 });
 
@@ -51,17 +79,34 @@ async function settle(page: Page, options: { requireReleaseFonts?: boolean } = {
   // primary faces explicitly and fail closed if the stylesheet did not
   // register them instead of accepting a fallback-font baseline.
   if (options.requireReleaseFonts) {
-    const missingFonts = await page.evaluate(async (queries) => {
+    const fontResult = await page.evaluate(async (queries) => {
       const loaded = await Promise.all(
-        queries.map(async (query) => ({
-          query,
-          faces: (await document.fonts.load(query, "TransitionForward release readiness")).length,
-        })),
+        queries.map(async (query) => {
+          try {
+            return {
+              query,
+              faces: (await document.fonts.load(query, "TransitionForward release readiness"))
+                .length,
+              networkError: false,
+            };
+          } catch {
+            return { query, faces: 0, networkError: true };
+          }
+        }),
       );
       await document.fonts.ready;
-      return loaded.filter(({ faces }) => faces === 0).map(({ query }) => query);
+      return {
+        missing: loaded
+          .filter(({ faces, networkError }) => faces === 0 && !networkError)
+          .map(({ query }) => query),
+        networkErrors: loaded.filter(({ networkError }) => networkError).map(({ query }) => query),
+      };
     }, RELEASE_FONT_QUERIES);
-    expect(missingFonts, "release typography faces did not load").toEqual([]);
+
+    if (fontResult.networkErrors.length > 0) {
+      throw new Error(`${RELEASE_FONT_NETWORK_ERROR}: ${fontResult.networkErrors.join(", ")}`);
+    }
+    expect(fontResult.missing, "release typography faces did not load").toEqual([]);
   }
 
   // Disable animations to keep snapshots deterministic.
@@ -127,8 +172,7 @@ for (const vp of VIEWPORTS) {
     test.use({ viewport: { width: vp.width, height: vp.height } });
     for (const route of PUBLIC_PAGES) {
       test(`${route}`, async ({ page }) => {
-        await page.goto(route, { waitUntil: "networkidle" });
-        await settle(page, { requireReleaseFonts: true });
+        await openForVisualCapture(page, route);
         await expect(page).toHaveScreenshot(
           `${vp.label}${route === "/" ? "/home" : route}.png`.replace(/\//g, "_"),
           { fullPage: true, maxDiffPixelRatio: 0.02, timeout: 20_000 },
@@ -146,8 +190,7 @@ for (const role of ROLES) {
     for (const vp of VIEWPORTS) {
       test(`${role.dashboard} @ ${vp.label}`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
-        await page.goto(role.dashboard, { waitUntil: "networkidle" });
-        await settle(page, { requireReleaseFonts: true });
+        await openForVisualCapture(page, role.dashboard);
         await expect(page).toHaveScreenshot(`${role.key}_${vp.label}.png`, {
           fullPage: true,
           maxDiffPixelRatio: 0.02,
@@ -172,8 +215,9 @@ for (const role of ROLES) {
 async function captureLayout(page: Page) {
   return page.evaluate(() => {
     const navLinks = document.querySelectorAll("nav a[href]").length;
-    const cards = document.querySelectorAll("main [data-card], main .card, main [class*='card']")
-      .length;
+    const cards = document.querySelectorAll(
+      "main [data-card], main .card, main [class*='card']",
+    ).length;
     const ctas = document.querySelectorAll("main a[href], main button").length;
     return { navLinks, cards, ctas };
   });
