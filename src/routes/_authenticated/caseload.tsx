@@ -336,7 +336,7 @@ function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.
       <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         {icon} {label}
       </span>
-      <span className="text-[11px] text-muted-foreground/80 group-hover:text-foreground">{desc}</span>
+      <span className="text-[11px] text-muted-foreground group-hover:text-foreground">{desc}</span>
     </Link>
   );
 }

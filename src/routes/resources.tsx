@@ -510,7 +510,7 @@ function ResourcesPage() {
                 rel={r.url ? "noreferrer" : undefined}
                 className={`group flex flex-col rounded-2xl border-2 border-amber-500/40 bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift ${viewDensity === "compact" ? "p-3" : "p-5"}`}>
                 <div className="flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">Featured</span>
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{r.resource_type}</span>
                   {r.url && <span className="rounded-full bg-muted px-2 py-0.5">External</span>}
                 </div>
@@ -564,7 +564,7 @@ function ResourcesPage() {
                     </span>
                   )}
                   {r.featured && (
-                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">Featured</span>
                   )}
                   {r.topic && <span>{r.topic.replace(/_/g, " ")}</span>}
                 </div>
@@ -680,7 +680,7 @@ function ResourcesPage() {
                   </span>
                   <span className="rounded-full bg-muted px-2 py-0.5">{s.location_scope}</span>
                   {s.review_status === "featured" && (
-                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">Featured</span>
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">Featured</span>
                   )}
                 </div>
                 <h3 className={`mt-2 font-display font-medium leading-snug ${viewDensity === "compact" ? "text-sm" : "text-lg"}`}>{s.source_name}</h3>
