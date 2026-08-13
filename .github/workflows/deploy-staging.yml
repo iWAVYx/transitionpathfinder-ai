@@ -180,7 +180,9 @@ jobs:
               --write-out '%{http_code}' \
               "$STAGING_ORIGIN/sw.js")
 
-            if [ "$status" = "200" ] && ! grep -qi '<!doctype html' /tmp/sw.js; then
+            if [ "$status" = "200" ] \
+              && ! grep -qi '<!doctype html' /tmp/sw.js \
+              && grep -q 'sw-privacy-cleanup.js' /tmp/sw.js; then
               break
             fi
 
@@ -188,8 +190,10 @@ jobs:
             sleep 5
           done
 
-          if [ "$status" != "200" ] || grep -qi '<!doctype html' /tmp/sw.js; then
-            echo "The deployed service worker is unavailable or returned HTML (HTTP $status)." >&2
+          if [ "$status" != "200" ] \
+            || grep -qi '<!doctype html' /tmp/sw.js \
+            || ! grep -q 'sw-privacy-cleanup.js' /tmp/sw.js; then
+            echo "The current privacy-safe service worker did not propagate (HTTP $status)." >&2
             exit 1
           fi
 
@@ -199,15 +203,25 @@ jobs:
             exit 1
           fi
 
-          workbox_status=$(curl \
-            --silent \
-            --show-error \
-            --location \
-            --connect-timeout 10 \
-            --max-time 30 \
-            --output /dev/null \
-            --write-out '%{http_code}' \
-            "$STAGING_ORIGIN/$workbox_asset.js")
+          workbox_status="000"
+          for attempt in 1 2 3 4 5 6; do
+            workbox_status=$(curl \
+              --silent \
+              --show-error \
+              --location \
+              --connect-timeout 10 \
+              --max-time 30 \
+              --output /dev/null \
+              --write-out '%{http_code}' \
+              "$STAGING_ORIGIN/$workbox_asset.js")
+
+            if [ "$workbox_status" = "200" ]; then
+              break
+            fi
+
+            echo "Workbox propagation attempt $attempt of 6 returned HTTP $workbox_status."
+            sleep 5
+          done
 
           if [ "$workbox_status" != "200" ]; then
             echo "The deployed Workbox runtime returned HTTP $workbox_status." >&2

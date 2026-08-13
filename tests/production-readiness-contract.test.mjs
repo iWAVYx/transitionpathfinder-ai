@@ -172,6 +172,8 @@ test("PWA worker is generated into and required from the deployed asset director
   assert.match(stagingDeploy, /workbox-\*\.js/);
   assert.match(stagingDeploy, /Verify deployed PWA assets/);
   assert.match(stagingDeploy, /"\$STAGING_ORIGIN\/sw\.js"/);
+  assert.match(stagingDeploy, /grep -q 'sw-privacy-cleanup\.js'/);
+  assert.match(stagingDeploy, /Workbox propagation attempt/);
 });
 
 test("no production deploy path exists while the audit says it is unprovisioned", () => {
