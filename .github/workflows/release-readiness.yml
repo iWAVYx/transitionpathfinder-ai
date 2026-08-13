@@ -1,47 +1,45 @@
 name: Release readiness
 
-# Full pre-release Playwright suite. Runs against the isolated staging Worker
-# using seeded role accounts. Uploads Playwright traces, screenshots, videos,
-# and the HTML report as artifacts.
-#
-# Trigger manually via workflow_dispatch, or on a schedule (nightly).
+# Full pre-release Playwright suite against the exact commit deployed to the
+# isolated staging Worker. The job uses only the protected staging environment
+# and the seven synthetic staging identities.
 on:
   workflow_dispatch:
-    inputs:
-      base_url:
-        description: "Override PLAYWRIGHT_BASE_URL (defaults to direct staging Worker)"
-        required: false
-        default: ""
   schedule:
     - cron: "0 7 * * *" # 07:00 UTC nightly
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-readiness-staging
+  cancel-in-progress: false
 
 jobs:
   release-readiness:
     runs-on: ubuntu-latest
+    environment: staging
     timeout-minutes: 60
     env:
-      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url != '' && github.event.inputs.base_url || 'https://transitionforward-staging.caysi101.workers.dev' }}
-      E2E_STUDENT_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
-      E2E_STUDENT_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
-      E2E_STUDENT_TOTP_SECRET: ${{ secrets.E2E_STUDENT_TOTP_SECRET }}
-      E2E_PARENT_EMAIL: ${{ secrets.E2E_PARENT_EMAIL }}
-      E2E_PARENT_PASSWORD: ${{ secrets.E2E_PARENT_PASSWORD }}
-      E2E_PARENT_TOTP_SECRET: ${{ secrets.E2E_PARENT_TOTP_SECRET }}
-      E2E_EDUCATOR_EMAIL: ${{ secrets.E2E_EDUCATOR_EMAIL }}
-      E2E_EDUCATOR_PASSWORD: ${{ secrets.E2E_EDUCATOR_PASSWORD }}
-      E2E_EDUCATOR_TOTP_SECRET: ${{ secrets.E2E_EDUCATOR_TOTP_SECRET }}
-      E2E_SCHOOL_ADMIN_EMAIL: ${{ secrets.E2E_SCHOOL_ADMIN_EMAIL }}
-      E2E_SCHOOL_ADMIN_PASSWORD: ${{ secrets.E2E_SCHOOL_ADMIN_PASSWORD }}
-      E2E_SCHOOL_ADMIN_TOTP_SECRET: ${{ secrets.E2E_SCHOOL_ADMIN_TOTP_SECRET }}
-      E2E_DISTRICT_ADMIN_EMAIL: ${{ secrets.E2E_DISTRICT_ADMIN_EMAIL }}
-      E2E_DISTRICT_ADMIN_PASSWORD: ${{ secrets.E2E_DISTRICT_ADMIN_PASSWORD }}
-      E2E_DISTRICT_ADMIN_TOTP_SECRET: ${{ secrets.E2E_DISTRICT_ADMIN_TOTP_SECRET }}
-      E2E_PARTNER_EMAIL: ${{ secrets.E2E_PARTNER_EMAIL }}
-      E2E_PARTNER_PASSWORD: ${{ secrets.E2E_PARTNER_PASSWORD }}
-      E2E_PARTNER_TOTP_SECRET: ${{ secrets.E2E_PARTNER_TOTP_SECRET }}
-      E2E_OWNER_EMAIL: ${{ secrets.E2E_OWNER_EMAIL }}
-      E2E_OWNER_PASSWORD: ${{ secrets.E2E_OWNER_PASSWORD }}
-      E2E_OWNER_TOTP_SECRET: ${{ secrets.E2E_OWNER_TOTP_SECRET }}
+      PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
+      E2E_EXPECTED_BUILD_SHA: ${{ github.sha }}
+      LIVE_VERIFICATION: "true"
+      REQUIRE_ALL_ROLES: "true"
+      ALLOW_STAGING_OWNER_WITHOUT_TOTP: "true"
+      E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
+      E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
+      E2E_PARENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_EDUCATOR_EMAIL: e2e.educator@staging.transitionforwardct.test
+      E2E_EDUCATOR_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_SCHOOL_ADMIN_EMAIL: e2e.schooladmin@staging.transitionforwardct.test
+      E2E_SCHOOL_ADMIN_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_DISTRICT_ADMIN_EMAIL: e2e.districtadmin@staging.transitionforwardct.test
+      E2E_DISTRICT_ADMIN_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARTNER_EMAIL: e2e.partner@staging.transitionforwardct.test
+      E2E_PARTNER_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_OWNER_EMAIL: e2e.owner@staging.transitionforwardct.test
+      E2E_OWNER_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
       PLAYWRIGHT_HTML_REPORT: playwright-report
     steps:
       - uses: actions/checkout@v4
@@ -51,15 +49,61 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Install Playwright browsers
         run: bun run playwright:install
+      - name: Require isolated staging password
+        run: |
+          if [ -z "$E2E_STUDENT_PASSWORD" ]; then
+            echo "::error::STAGING_E2E_PASSWORD is missing from the GitHub staging environment."
+            exit 1
+          fi
+          echo "Synthetic staging credentials are configured."
+      - name: Require all seven staging role credentials
+        run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Base URL reachability preflight
-        if: ${{ env.PLAYWRIGHT_BASE_URL != '' }}
         run: node tests/e2e/scripts/check-base-url.mjs
-      - name: Per-role auth setup (skips roles without credentials)
-        run: bunx playwright test --project=dashboard-setup
+      - name: Verify isolated staging deployment identity
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.PLAYWRIGHT_BASE_URL;
+          const response = await fetch(`${base}/api/public/env-health`);
+          const body = await response.text();
+          if (!response.ok) {
+            throw new Error(`env-health returned ${response.status}: ${body.slice(0, 500)}`);
+          }
+          const health = JSON.parse(body);
+          const errors = [];
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.vite_app_env !== "staging") {
+            errors.push(`vite_app_env=${health.vite_app_env}`);
+          }
+          if (health.supabase_project_ref !== "qgrertkqbwanerqqemph") {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) {
+            errors.push(`is_production_project=${health.is_production_project}`);
+          }
+          if (health.stripe_mode !== "sandbox" || health.stripe_livemode !== false) {
+            errors.push(`stripe_mode=${health.stripe_mode}`);
+          }
+          if (health.isolation?.ok !== true) {
+            errors.push(`isolation=${JSON.stringify(health.isolation)}`);
+          }
+          if (errors.length) {
+            throw new Error(`Staging isolation check failed: ${errors.join(", ")}`);
+          }
+          console.log("Staging deployment identity verified.");
+          NODE
+      - name: Per-role auth setup at the exact deployed SHA
+        run: |
+          echo "Expected deployed build SHA: $E2E_EXPECTED_BUILD_SHA"
+          GITHUB_SHA="$E2E_EXPECTED_BUILD_SHA" bunx playwright test --project=dashboard-setup
+      - name: Verify all seven storage states
+        env:
+          CHECK_STORAGE_STATES: "1"
+        run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Public release-readiness, accessibility, visual regression
         run: bunx playwright test --project=release-public --reporter=list,html
       - name: Signed-in role journeys, access control, workflows
-        run: bunx playwright test --project=release-signedin --reporter=list,html
+        run: bunx playwright test --project=release-signedin --no-deps --reporter=list,html
       - uses: actions/upload-artifact@v4
         if: always()
         with:

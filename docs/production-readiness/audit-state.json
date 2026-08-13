@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "auditedAt": "2026-08-13",
+  "auditedMainSha": "7731e8b4037720fb2b1dbe1eccd2136115472c52",
+  "status": "no-go",
+  "staging": {
+    "supabaseProjectRef": "qgrertkqbwanerqqemph",
+    "workerOrigin": "https://transitionforward-staging.caysi101.workers.dev",
+    "stripeMode": "sandbox"
+  },
+  "production": {
+    "supabaseProjectRef": "lrqcntqyekucamifpffs",
+    "canonicalOrigin": "https://transitionforwardct.com",
+    "stripeModeRequired": "live",
+    "githubEnvironmentProvisioned": false,
+    "deploymentWorkflowProvisioned": false,
+    "migrationBaselineVerified": false
+  },
+  "migrations": {
+    "canonicalCount": 178,
+    "latestCanonicalFile": "20260813013345_20260812163612_harden_scheduled_hook_isolation.sql"
+  }
+}

@@ -1,0 +1,39 @@
+name: Production Readiness Audit
+
+# Credential-free static release-control audit. Production secrets must never
+# be added to this PR-triggered workflow.
+on:
+  pull_request:
+    paths:
+      - ".env*"
+      - ".gitignore"
+      - ".github/workflows/**"
+      - "docs/production-readiness/**"
+      - "src/lib/env-identity.ts"
+      - "src/routes/api/public/env-health.ts"
+      - "supabase/migrations/**"
+      - "tests/production-readiness-contract.test.mjs"
+      - "tests/unit/env-identity-production.test.ts"
+      - "package.json"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-audit:
+    name: Credential-free Production Readiness Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Run release-control contract
+        run: bun run test:production-readiness
+      - name: Run production identity unit tests
+        run: bunx vitest run tests/unit/env-identity-production.test.ts tests/unit/env-identity-staging.test.ts

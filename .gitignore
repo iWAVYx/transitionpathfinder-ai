@@ -16,6 +16,15 @@ dist-ssr
 .nitro
 *.local
 
+# Environment files are ignored by default. The three tracked exceptions are
+# intentionally public/browser configuration and are guarded by
+# tests/production-readiness-contract.test.mjs.
+.env*
+!.env
+!.env.development
+!.env.production
+!.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

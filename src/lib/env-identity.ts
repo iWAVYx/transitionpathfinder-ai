@@ -67,6 +67,17 @@ export interface StagingIdentityInput {
   productionSecretsPresent?: string[];
 }
 
+export interface ProductionIdentityInput {
+  appEnv: string | undefined | null;
+  viteAppEnv: string | undefined | null;
+  hostname: string;
+  supabaseProjectRef: string | undefined | null;
+  stripeMode: StripeMode | null | undefined;
+  gitCommitSha: string | undefined | null;
+  /** Names of staging-only variables that were found in this deployment. */
+  stagingSecretsPresent?: string[];
+}
+
 export interface DeploymentEnvSources {
   runtimeAppEnv?: string | null;
   runtimeViteAppEnv?: string | null;
@@ -133,6 +144,56 @@ export function evaluateStagingIdentity(input: StagingIdentityInput): IdentityVe
 
   for (const name of input.productionSecretsPresent ?? []) {
     errors.push(`Production credential ${name} must not exist in staging.`);
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
+/**
+ * Strict deployment identity for production.
+ *
+ * Production is never inferred from a build default. Every identity field is
+ * explicit, the payment mode is live, and the deployed commit is auditable.
+ */
+export function evaluateProductionIdentity(input: ProductionIdentityInput): IdentityVerdict {
+  const errors: string[] = [];
+
+  if (input.appEnv !== "production") {
+    errors.push(`APP_ENV must be "production" (got ${JSON.stringify(input.appEnv ?? null)}).`);
+  }
+  if (input.viteAppEnv !== "production") {
+    errors.push(
+      `VITE_APP_ENV must be "production" (got ${JSON.stringify(input.viteAppEnv ?? null)}).`,
+    );
+  }
+
+  const ref = input.supabaseProjectRef;
+  if (!ref || ref === "unknown") {
+    errors.push("Supabase project ref is missing or unknown.");
+  } else if (ref === STAGING_PROJECT_REF) {
+    errors.push("Supabase project ref points at the staging project.");
+  } else if (ref !== PRODUCTION_PROJECT_REF) {
+    errors.push(`Supabase project ref must be ${PRODUCTION_PROJECT_REF} (got ${ref}).`);
+  }
+
+  if (input.stripeMode == null || input.stripeMode === "unknown") {
+    errors.push("Stripe mode is missing or unknown.");
+  } else if (input.stripeMode !== "live") {
+    errors.push("Stripe mode must be live; sandbox credentials detected.");
+  }
+
+  if (!input.hostname) {
+    errors.push("Hostname is missing.");
+  } else if (!PRODUCTION_HOSTNAMES.includes(input.hostname.toLowerCase())) {
+    errors.push(`"${input.hostname}" is not an allowed production hostname.`);
+  }
+
+  if (!/^[a-f0-9]{40}$/i.test(input.gitCommitSha ?? "")) {
+    errors.push("GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA.");
+  }
+
+  for (const name of input.stagingSecretsPresent ?? []) {
+    errors.push(`Staging credential ${name} must not exist in production.`);
   }
 
   return { ok: errors.length === 0, errors };

@@ -5,15 +5,15 @@
  * Stripe mode, git commit SHA, and the isolation verdict. It never returns
  * keys, secrets, database URLs, or webhook secrets.
  *
- * On a staging deployment (staging hostname, or APP_ENV/VITE_APP_ENV claiming
- * staging) the strict identity guard runs and any missing, unknown, or
- * production-connected value returns 503.
+ * Staging and production deployments are both validated strictly. Any missing,
+ * unknown, cross-environment, or unauditable identity value returns 503.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import {
   PRODUCTION_PROJECT_REF,
   PRODUCTION_HOSTNAMES,
   STAGING_PROJECT_REF,
+  evaluateProductionIdentity,
   evaluateStagingIdentity,
   isStagingHostname,
   projectRefFrom,
@@ -23,6 +23,14 @@ import {
 
 /** Production-only variables that must not exist in the staging Worker. */
 const FORBIDDEN_IN_STAGING = ["STRIPE_LIVE_API_KEY", "PAYMENTS_LIVE_WEBHOOK_SECRET"];
+
+/** Staging-only variables that must not exist in the production Worker. */
+const FORBIDDEN_IN_PRODUCTION = [
+  "STAGING_E2E_PASSWORD",
+  "STAGING_STRIPE_API_KEY",
+  "STAGING_SUPABASE_SERVICE_ROLE_KEY",
+  "STAGING_SUPABASE_URL",
+];
 
 export const Route = createFileRoute("/api/public/env-health")({
   server: {
@@ -55,6 +63,13 @@ export const Route = createFileRoute("/api/public/env-health")({
           vite_app_env === "staging" ||
           supabase_project_ref === STAGING_PROJECT_REF;
 
+        const productionTarget =
+          !stagingTarget &&
+          (PRODUCTION_HOSTNAMES.includes(hostname.toLowerCase()) ||
+            app_env === "production" ||
+            vite_app_env === "production" ||
+            supabase_project_ref === PRODUCTION_PROJECT_REF);
+
         let isolation: { ok: boolean; errors: string[] } = {
           ok: true,
           errors: [],
@@ -69,6 +84,16 @@ export const Route = createFileRoute("/api/public/env-health")({
             stripeMode: stripe_mode,
             productionSecretsPresent: FORBIDDEN_IN_STAGING.filter((name) => !!process.env[name]),
           });
+        } else if (productionTarget) {
+          isolation = evaluateProductionIdentity({
+            appEnv: app_env,
+            viteAppEnv: vite_app_env,
+            hostname,
+            supabaseProjectRef: supabase_project_ref,
+            stripeMode: stripe_mode,
+            gitCommitSha: git_commit_sha,
+            stagingSecretsPresent: FORBIDDEN_IN_PRODUCTION.filter((name) => !!process.env[name]),
+          });
         }
 
         return Response.json(
@@ -80,6 +105,7 @@ export const Route = createFileRoute("/api/public/env-health")({
             is_production_project: supabase_project_ref === PRODUCTION_PROJECT_REF,
             is_production_hostname: PRODUCTION_HOSTNAMES.includes(hostname),
             is_staging_target: stagingTarget,
+            is_production_target: productionTarget,
             stripe_mode,
             stripe_livemode: stripe_mode === "unknown" ? null : stripe_mode === "live",
             git_commit_sha,
