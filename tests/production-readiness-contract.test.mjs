@@ -157,8 +157,17 @@ test("nightly release evidence is fixed to isolated staging and exact SHA", () =
 test("PWA worker is generated into and required from the deployed asset directory", () => {
   const viteConfig = read("vite.config.ts");
   const stagingDeploy = read(".github/workflows/deploy-staging.yml");
+  const privacyCleanup = read("public/sw-privacy-cleanup.js");
 
   assert.match(viteConfig, /VitePWA\(\{[\s\S]*?outDir:\s*["']\.output\/public["']/);
+  assert.match(viteConfig, /importScripts:\s*\[["']\/sw-privacy-cleanup\.js["']\]/);
+  assert.match(
+    viteConfig,
+    /request\.mode\s*===\s*["']navigate["'][\s\S]*?handler:\s*["']NetworkOnly["'][\s\S]*?fallbackURL:\s*["']\/offline\.html["']/,
+  );
+  assert.doesNotMatch(viteConfig, /cacheName:\s*["']tf-pages["']/);
+  assert.doesNotMatch(viteConfig, /navigateFallback:/);
+  assert.match(privacyCleanup, /caches\.delete\(["']tf-pages["']\)/);
   assert.match(stagingDeploy, /\[ ! -f "\$assets\/sw\.js" \]/);
   assert.match(stagingDeploy, /workbox-\*\.js/);
   assert.match(stagingDeploy, /Verify deployed PWA assets/);

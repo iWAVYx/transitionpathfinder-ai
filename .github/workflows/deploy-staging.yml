@@ -168,22 +168,32 @@ jobs:
         env:
           STAGING_ORIGIN: https://transitionforward-staging.caysi101.workers.dev
         run: |
-          status=$(curl \
-            --silent \
-            --show-error \
-            --location \
-            --connect-timeout 10 \
-            --max-time 30 \
-            --output /tmp/sw.js \
-            --write-out '%{http_code}' \
-            "$STAGING_ORIGIN/sw.js")
+          status="000"
+          for attempt in 1 2 3 4 5 6; do
+            status=$(curl \
+              --silent \
+              --show-error \
+              --location \
+              --connect-timeout 10 \
+              --max-time 30 \
+              --output /tmp/sw.js \
+              --write-out '%{http_code}' \
+              "$STAGING_ORIGIN/sw.js")
+
+            if [ "$status" = "200" ] && ! grep -qi '<!doctype html' /tmp/sw.js; then
+              break
+            fi
+
+            echo "Service-worker propagation attempt $attempt of 6 returned HTTP $status."
+            sleep 5
+          done
 
           if [ "$status" != "200" ] || grep -qi '<!doctype html' /tmp/sw.js; then
             echo "The deployed service worker is unavailable or returned HTML (HTTP $status)." >&2
             exit 1
           fi
 
-          workbox_asset=$(grep -oE 'workbox-[a-f0-9]+\.js' /tmp/sw.js | head -n 1)
+          workbox_asset=$(grep -oE 'workbox-[a-f0-9]+' /tmp/sw.js | head -n 1)
           if [ -z "$workbox_asset" ]; then
             echo "The deployed service worker does not reference a Workbox runtime." >&2
             exit 1
@@ -197,7 +207,7 @@ jobs:
             --max-time 30 \
             --output /dev/null \
             --write-out '%{http_code}' \
-            "$STAGING_ORIGIN/$workbox_asset")
+            "$STAGING_ORIGIN/$workbox_asset.js")
 
           if [ "$workbox_status" != "200" ]; then
             echo "The deployed Workbox runtime returned HTTP $workbox_status." >&2
