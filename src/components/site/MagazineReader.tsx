@@ -60,7 +60,8 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
   const navigate = useNavigate();
   const [tocOpen, setTocOpen] = useState(false);
   const prevPathRef = useRef(location.pathname);
-  const search = preserveStudent ? { s: student } : undefined;
+  void preserveStudent;
+  void student;
 
   const idx = Math.max(0, pageIndex(currentId));
   const current = PUBLICATION_PAGES[idx];
@@ -81,17 +82,17 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "ArrowRight" && next) {
         e.preventDefault();
-        void navigate({ to: next.route, search });
+        void navigate({ to: next.route });
       } else if (e.key === "ArrowLeft" && prev) {
         e.preventDefault();
-        void navigate({ to: prev.route, search });
+        void navigate({ to: prev.route });
       } else if (e.key === "Escape" && tocOpen) {
         setTocOpen(false);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [next, prev, navigate, search, tocOpen]);
+  }, [next, prev, navigate, tocOpen]);
 
   // Resolve a milestone -> route for the clickable Pathway Spine.
   const resolveSpineHref = (m: Parameters<typeof firstPageForMilestone>[0]) => {
@@ -115,7 +116,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             aria-label={prev ? `Previous: ${prev.label}` : "No previous page"}
           >
             {prev ? (
-              <Link to={prev.route} search={search}>
+              <Link to={prev.route}>
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden md:inline">Prev</span>
               </Link>
@@ -149,7 +150,6 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
               <Link
                 key={sid}
                 to={current.route}
-                search={{ s: sid }}
                 role="tab"
                 aria-selected={student === sid}
                 className={student === sid ? "is-active" : ""}
@@ -167,7 +167,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             aria-label={next ? `Next: ${next.label}` : "End of report"}
           >
             {next ? (
-              <Link to={next.route} search={search}>
+              <Link to={next.route}>
                 <span className="hidden md:inline">Next</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -182,7 +182,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
           <PathwaySpine
             active={current.milestone}
             resolveHref={resolveSpineHref}
-            search={search}
+           
           />
         </div>
         <div className="mx-auto h-[1px] max-w-7xl bg-[color:var(--demo-primary)]/10" aria-hidden>
@@ -234,7 +234,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
                             <li key={p.id}>
                               <Link
                                 to={p.route}
-                                search={search}
+                               
                                 onClick={() => setTocOpen(false)}
                                 aria-current={active ? "page" : undefined}
                                 className={`group flex items-baseline gap-4 py-3 transition-colors hover:bg-foreground/[0.03] ${
@@ -291,7 +291,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
       >
         <div className="grid grid-cols-3">
           {prev ? (
-            <Link to={prev.route} search={search} className="mag-mobile-nav-btn">
+            <Link to={prev.route} className="mag-mobile-nav-btn">
               <ArrowLeft className="h-4 w-4" aria-hidden />
               <span className="mag-mobile-nav-label">{prev.label}</span>
             </Link>
@@ -311,7 +311,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
             <span className="mag-mobile-nav-label">{String(idx + 1).padStart(2, "0")} / {total}</span>
           </button>
           {next ? (
-            <Link to={next.route} search={search} className="mag-mobile-nav-btn">
+            <Link to={next.route} className="mag-mobile-nav-btn">
               <ArrowRight className="h-4 w-4" aria-hidden />
               <span className="mag-mobile-nav-label">{next.label}</span>
             </Link>
@@ -350,14 +350,15 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
   const idx = pageIndex(currentId);
   const prev = prevPage(currentId);
   const next = nextPage(currentId);
-  const search = preserveStudent ? { s: student } : undefined;
+  void preserveStudent;
+  void student;
 
   return (
     <div className="mx-auto mt-16 max-w-7xl px-4 pb-12 sm:px-6 lg:px-12">
       <div className="mag-pageturn">
         <div className="mag-pageturn-side mag-pageturn-side--prev">
           {prev ? (
-            <Link to={prev.route} search={search} className="mag-pageturn-link">
+            <Link to={prev.route} className="mag-pageturn-link">
               <span className="mag-pageturn-folio">
                 <ArrowLeft className="h-3.5 w-3.5" /> Page {String(prev.folio).padStart(2, "0")}
               </span>
@@ -375,7 +376,7 @@ export function MagazinePageTurn({ currentId, student, preserveStudent }: Footer
 
         <div className="mag-pageturn-side mag-pageturn-side--next">
           {next ? (
-            <Link to={next.route} search={search} className="mag-pageturn-link is-next">
+            <Link to={next.route} className="mag-pageturn-link is-next">
               <span className="mag-pageturn-folio">
                 Page {String(next.folio).padStart(2, "0")} <ArrowRight className="h-3.5 w-3.5" />
               </span>
