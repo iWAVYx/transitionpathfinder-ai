@@ -81,6 +81,33 @@ function readSnap(url) {
   return JSON.parse(readFileSync(url, "utf8"));
 }
 
+const RELATED_LINK_COLUMNS = [
+  "related_partner_id",
+  "related_pathway_report_id",
+  "related_action_item_id",
+  "related_meeting_id",
+];
+
+function assertRelatedLinkSecurityFloor(policies, source) {
+  for (const policyName of [
+    "calendar_events_insert",
+    "calendar_events_update",
+  ]) {
+    const policy = policies.find(({ polname }) => polname === policyName);
+    assert.ok(
+      policy?.check_expr,
+      `${source} ${policyName} must define a WITH CHECK expression`,
+    );
+    for (const relatedColumn of RELATED_LINK_COLUMNS) {
+      assert.match(
+        policy.check_expr,
+        new RegExp(`\\b${relatedColumn}\\b`),
+        `${source} ${policyName} must validate access to ${relatedColumn}`,
+      );
+    }
+  }
+}
+
 function writeSnap(url, value) {
   const dir = dirname(fileURLToPath(url));
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
@@ -96,6 +123,12 @@ test("calendar_events RLS is enabled", { skip: SKIP }, () => {
     `SELECT relrowsecurity::text FROM pg_class WHERE oid = 'public.calendar_events'::regclass`,
   );
   assert.match(enabled, /^(t|true)$/, "RLS must be enabled on calendar_events");
+});
+
+test("committed calendar_events RLS snapshot protects related links", () => {
+  const expected = readSnap(SNAP_POLICIES);
+  assert.ok(expected, "Missing committed calendar RLS policy snapshot");
+  assertRelatedLinkSecurityFloor(expected, "committed snapshot");
 });
 
 test("calendar_events RLS policies match committed snapshot", { skip: SKIP }, () => {
@@ -116,6 +149,10 @@ test("calendar_events RLS policies match committed snapshot", { skip: SKIP }, ()
     ) s
   `);
   const current = JSON.parse(raw);
+
+  // Enforce the security floor even while a reviewed staging capture is
+  // regenerating the snapshot.
+  assertRelatedLinkSecurityFloor(current, "live database");
 
   if (UPDATE) {
     writeSnap(SNAP_POLICIES, current);
@@ -252,19 +289,7 @@ test("calendar_events visibility matrix matches committed snapshot", { skip: SKI
   assert.ok(jsonLine, `no JSON matrix in psql output:\n${out}`);
   const current = JSON.parse(jsonLine);
 
-  if (UPDATE) {
-    writeSnap(SNAP_MATRIX, current);
-    return;
-  }
-  const expected = readSnap(SNAP_MATRIX);
-  assert.ok(expected, "Missing matrix snapshot. Run with UPDATE_SNAPSHOTS=1.");
-  assert.deepEqual(
-    current,
-    expected,
-    "Visibility matrix drifted. A role can now see (or no longer see) an event it shouldn't.",
-  );
-
-  // Hard invariants — must always hold regardless of snapshot.
+  // Hard invariants must run in both regression and snapshot-capture mode.
   assert.equal(current.anon.private, false, "anon must NEVER see private events");
   assert.equal(current.anon.student_team, false, "anon must NEVER see team events");
   assert.equal(current.anon.family_team, false, "anon must NEVER see family events");
@@ -282,6 +307,18 @@ test("calendar_events visibility matrix matches committed snapshot", { skip: SKI
   assert.equal(current.parent_collab.admin_only, false, "collaborator must NOT see admin-only events");
 
   assert.equal(current.owner.private, true, "owner must see their own private events");
+
+  if (UPDATE) {
+    writeSnap(SNAP_MATRIX, current);
+    return;
+  }
+  const expected = readSnap(SNAP_MATRIX);
+  assert.ok(expected, "Missing matrix snapshot. Run with UPDATE_SNAPSHOTS=1.");
+  assert.deepEqual(
+    current,
+    expected,
+    "Visibility matrix drifted. A role can now see (or no longer see) an event it shouldn't.",
+  );
 });
 
 // ---------------------------------------------------------------------------

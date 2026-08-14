@@ -2,14 +2,14 @@
 -- index. Keep the exactly-one-subject checks and make the webhook's compound
 -- subject keys directly usable by atomic upserts.
 
-CREATE UNIQUE INDEX billing_accounts_subject_environment_uidx
+CREATE UNIQUE INDEX IF NOT EXISTS billing_accounts_subject_environment_uidx
   ON public.billing_accounts (user_id, organization_id, environment)
   NULLS NOT DISTINCT;
 
 DROP INDEX IF EXISTS public.billing_accounts_user_uidx;
 DROP INDEX IF EXISTS public.billing_accounts_org_uidx;
 
-CREATE UNIQUE INDEX access_entitlements_subject_plan_uidx
+CREATE UNIQUE INDEX IF NOT EXISTS access_entitlements_subject_plan_uidx
   ON public.access_entitlements (organization_id, user_id, plan_type)
   NULLS NOT DISTINCT;
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-08-13",
-  "auditedMainSha": "7731e8b4037720fb2b1dbe1eccd2136115472c52",
+  "auditedAt": "2026-08-14",
+  "auditedMainSha": "95aa2f76512d41be9e7e2f5f71db1f7472e610ff",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
@@ -17,7 +17,7 @@
     "migrationBaselineVerified": false
   },
   "migrations": {
-    "canonicalCount": 178,
-    "latestCanonicalFile": "20260813013345_20260812163612_harden_scheduled_hook_isolation.sql"
+    "canonicalCount": 185,
+    "latestCanonicalFile": "20260814203539_e9798b8a-16ad-4791-a8e9-7573b4212711.sql"
   }
 }
