@@ -102,11 +102,7 @@ function DemoWorkspaceStagePage() {
     navigate({
       to: "/demo/workspace/$stage",
       params: { stage: stageId },
-      search: (prev) => ({
-        ...prev,
-        ...(next ? { expand: true as const } : {}),
-        ...(next ? {} : { expand: undefined }),
-      }),
+      search: { ...search, ...(next ? { expand: true as const } : { expand: undefined }) },
       replace: false,
     });
   };
