@@ -263,7 +263,7 @@ function CaseloadPage() {
               />
             </div>
             <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-              <SelectTrigger className="w-full sm:w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[220px]" aria-label="Filter caseload students"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Students</SelectItem>
                 <SelectItem value="today">Meeting Today</SelectItem>
@@ -336,7 +336,7 @@ function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.
       <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         {icon} {label}
       </span>
-      <span className="text-[11px] text-muted-foreground/80 group-hover:text-foreground">{desc}</span>
+      <span className="text-[11px] text-muted-foreground group-hover:text-foreground">{desc}</span>
     </Link>
   );
 }

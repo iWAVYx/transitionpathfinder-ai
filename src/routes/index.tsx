@@ -23,15 +23,15 @@ import { PublicJourneyStrip } from "@/components/site/PublicJourneyStrip";
 
 import { HeroCTAs } from "@/components/site/HeroCTAs";
 import { photos, photoSrcSet, srcSetFor } from "@/lib/photos";
-import ctMapAsset from "@/assets/ct-map-illustration.jpg.asset.json";
-import pptPlanningShot from "@/assets/ppt-planning-desk.png.asset.json";
-import studentPhoneMapShot from "@/assets/gps-walking.png.asset.json";
-import culinaryTrainingShot from "@/assets/baking-in-kitchen.png.asset.json";
-import constructionTrainingShot from "@/assets/cutting-wood-final.png.asset.json";
+import ctMap from "@/assets/bundled/ct-map-illustration.webp";
+import pptPlanningShot from "@/assets/bundled/ppt-planning-desk.webp";
+import studentPhoneMapShot from "@/assets/bundled/gps-walking.webp";
+import culinaryTrainingShot from "@/assets/bundled/baking-in-kitchen.webp";
+import constructionTrainingShot from "@/assets/bundled/cutting-wood-final.webp";
 
-import whyWeBuiltThisShot from "@/assets/why-we-built-this.jpg.asset.json";
-import studentsCohortShot from "@/assets/students-cohort.jpg.asset.json";
-import connectShot from "@/assets/construction-final.png.asset.json";
+import whyWeBuiltThisShot from "@/assets/bundled/why-we-built-this.webp";
+import studentsCohortShot from "@/assets/bundled/students-cohort.webp";
+import connectShot from "@/assets/bundled/construction-final.webp";
 import { observeWatermarkSafeguards } from "@/lib/watermark-contrast-telemetry";
 const HERO_ID = "photo-1571260899304-425eee4c7efc";
 const heroImg = photos.homeHero;
@@ -45,8 +45,7 @@ const educatorImg = photos.homeEducator;
 const pathwayImg = photos.homePathway;
 const roadImg = photos.homeRoad;
 const roadSrcSet = srcSetFor("homeRoad");
-import collegeCampusAsset from "@/assets/college-campus.png.asset.json";
-const pathCollege = collegeCampusAsset.url;
+import pathCollege from "@/assets/bundled/college-campus.webp";
 const pathCollegeSrcSet: string | undefined = undefined;
 const pathTechnical = photos.pathTechnical;
 const pathTechnicalSrcSet = srcSetFor("pathTechnical");
@@ -54,20 +53,15 @@ const pathCareer = photos.pathCareer;
 const pathCareerSrcSet = srcSetFor("pathCareer");
 const pathLifeskills = photos.pathLifeskills;
 const pathLifeskillsSrcSet = srcSetFor("pathLifeskills");
-import progressTrackedAsset from "@/assets/bookmark-progress.png.asset.json";
-const pathProgress = progressTrackedAsset.url;
+import pathProgress from "@/assets/bundled/bookmark-progress.webp";
 const pathProgressSrcSet = undefined;
 const dashboardImg = photos.dashboard;
-import iepUploadBuriedAsset from "@/assets/iep-upload-buried.png.asset.json";
-import womanHoldingIepAsset from "@/assets/woman-holding-iep.png.asset.json";
-const iepUploadImg = womanHoldingIepAsset.url;
-import glassesPaperworkAsset from "@/assets/glasses-on-paperwork.png.asset.json";
-const layerOrganizeImg = glassesPaperworkAsset.url;
-import stickyNotesFinalAsset from "@/assets/sticky-notes-final.png.asset.json";
-const layerGenerateImg = stickyNotesFinalAsset.url;
+import resourcesImg from "@/assets/bundled/iep-upload-buried.webp";
+import iepUploadImg from "@/assets/bundled/woman-holding-iep.webp";
+import layerOrganizeImg from "@/assets/bundled/glasses-on-paperwork.webp";
+import layerGenerateImg from "@/assets/bundled/sticky-notes-final.webp";
 const layerConnectImg = photos.layerConnect;
 const layerConnectSrcSet = srcSetFor("layerConnect");
-const resourcesImg = iepUploadBuriedAsset.url;
 const frameworkImg = photos.framework;
 const frameworkSrcSet = srcSetFor("framework");
 
@@ -77,7 +71,7 @@ import stickerCareer from "@/assets/sticker-career.png";
 import stickerLifeskills from "@/assets/sticker-lifeskills.png";
 import stickerProgress from "@/assets/sticker-progress.png";
 import doodlePlane from "@/assets/doodle-plane.png";
-import familyDashboardShot from "@/assets/family-dashboard-screenshot.png.asset.json";
+import familyDashboardShot from "@/assets/bundled/family-dashboard-screenshot.webp";
 
 import {
   Parallax,
@@ -157,7 +151,7 @@ const HERO_DEFAULTS = {
 function HomePage() {
   const fetchSection = useServerFn(getPageSection);
   const [hero, setHero] = useState(HERO_DEFAULTS);
-  const [careerImage, setCareerImage] = useState<string>(culinaryTrainingShot.url);
+  const [careerImage, setCareerImage] = useState<string>(culinaryTrainingShot);
   useEffect(() => {
     let cancelled = false;
     fetchSection({ data: { page_key: "home", section_key: "hero" } })
@@ -332,7 +326,7 @@ function HomePage() {
           <Reveal className="lg:col-span-5" y={36}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift">
               <ParallaxImage
-                src={whyWeBuiltThisShot.url}
+                src={whyWeBuiltThisShot}
                 sizes="(min-width: 1024px) 42vw, 100vw"
                 alt="A student raising a hand in a bright classroom discussion"
                 width={1400}
@@ -536,7 +530,7 @@ function HomePage() {
           />
           <FeatureShot
             className="md:col-span-2"
-            image={familyDashboardShot.url}
+            image={familyDashboardShot}
             label="Your dashboard"
             alt="Family dashboard view showing Jordan Rivera's plan overview"
             caption="A calm hub for what's next — reports, goals, and meeting prep."
@@ -561,7 +555,7 @@ function HomePage() {
             aspect="aspect-[4/3]"
           />
           <FeatureShot
-            image={connectShot.url}
+            image={connectShot}
             label="Connect"
             alt="Two trainees framing interior walls during a construction skills program"
             caption="Match interests to CT colleges, technical schools, BRS, and job training near home."
@@ -585,7 +579,7 @@ function HomePage() {
             aspect="aspect-[4/3]"
           />
           <FeatureShot
-            image={pptPlanningShot.url}
+            image={pptPlanningShot}
             label="PPT meeting prep"
             alt="Student at desk with notebook planning for a PPT meeting"
             caption="A one-page agenda, the right questions, and scripts you can borrow word-for-word."
@@ -636,7 +630,7 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-2 md:col-span-6"
-            image={constructionTrainingShot.url}
+            image={constructionTrainingShot}
             sizes="(min-width: 768px) 50vw, 100vw"
             sticker={stickerTechnical}
             label="Technical Education"
@@ -657,7 +651,7 @@ function HomePage() {
           />
           <PathwayTile
             className="col-span-1 md:col-span-2"
-            image={studentPhoneMapShot.url}
+            image={studentPhoneMapShot}
             sizes="(min-width: 768px) 17vw, 50vw"
             sticker={stickerLifeskills}
             label="Life Skills"
@@ -875,7 +869,7 @@ function HomePage() {
       {/* CTA — full-bleed road image */}
       <section className="relative isolate overflow-hidden">
         <ParallaxImage
-          src={studentsCohortShot.url}
+          src={studentsCohortShot}
           sizes="100vw"
           alt="A diverse group of students and an educator smiling together on a campus walkway"
           width={1920}
@@ -1153,7 +1147,7 @@ function ImpactMap({ items }: { items: ImpactItem[] }) {
         >
           <img
             ref={watermarkImgRef}
-            src={ctMapAsset.url}
+            src={ctMap}
             alt=""
             loading="lazy"
             decoding="async"

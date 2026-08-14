@@ -64,7 +64,7 @@ export function NextActionRow({ action, onComplete, completing }: Props) {
           ) : null}
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground">{action.reason}</p>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Owner: {action.ownerLabel}
         </p>
       </div>

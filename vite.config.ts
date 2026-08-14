@@ -33,28 +33,28 @@ export default defineConfig({
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
+        // Nitro/Cloudflare publishes .output/public. Without this override the
+        // plugin writes dist/sw.js, which is never included in the deployment.
+        outDir: ".output/public",
         filename: "sw.js",
         manifest: false, // we ship a hand-authored manifest at public/manifest.webmanifest
         devOptions: { enabled: false },
         workbox: {
           globPatterns: ["**/*.{js,css,html,svg,png,ico,webp,woff2}"],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-          navigateFallback: "/offline.html",
-          navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/_/],
+          // Remove the legacy HTML runtime cache. Authenticated SSR responses
+          // must never survive sign-out or become visible on a shared device.
+          importScripts: ["/sw-privacy-cleanup.js"],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
           runtimeCaching: [
             {
-              // HTML navigations — network first so users see fresh content,
-              // falling back to cached shells when offline.
+              // Always fetch SSR navigations from the network. If the device is
+              // actually offline, serve only the generic precached offline page.
               urlPattern: ({ request }) => request.mode === "navigate",
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "tf-pages",
-                networkTimeoutSeconds: 4,
-                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              },
+              handler: "NetworkOnly",
+              options: { precacheFallback: { fallbackURL: "/offline.html" } },
             },
             {
               urlPattern: ({ request, url }) =>

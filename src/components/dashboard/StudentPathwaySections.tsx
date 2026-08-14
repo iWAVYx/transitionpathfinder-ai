@@ -229,7 +229,7 @@ export function StudentPathwaySections({
 
         {/* Recommended pathway */}
         <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-4 lg:col-span-2">
-          <p className="tf-eyebrow flex items-center gap-1">
+          <p className="tf-eyebrow tf-eyebrow--contrast flex items-center gap-1">
             <Compass className="h-3 w-3" aria-hidden /> Recommended Pathway
           </p>
           <h3 className="mt-1 font-display text-lg font-medium tracking-tight">

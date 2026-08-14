@@ -97,7 +97,7 @@ export function NextBestAction({
         <button
           type="button"
           onClick={() => load()}
-          className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-amber-700"
+          className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-amber-700 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-amber-800"
         >
           <RefreshCw className="h-4 w-4" />
           Try again
@@ -180,7 +180,7 @@ export function NextBestAction({
             {action.body}
           </p>
           {action.reason ? (
-            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
+            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {action.reason}
             </p>
           ) : null}
@@ -193,7 +193,7 @@ export function NextBestAction({
                 action.tone === "success"
                   ? "bg-emerald-600 text-white hover:bg-emerald-700"
                   : action.tone === "warning"
-                    ? "bg-amber-600 text-white hover:bg-amber-700"
+                    ? "bg-amber-700 text-white hover:bg-amber-800"
                     : "bg-primary text-primary-foreground",
               )}
             >

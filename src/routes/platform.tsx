@@ -16,8 +16,7 @@ import {
   Heart,
   ArrowRight,
 } from "lucide-react";
-import platformHeroAsset from "@/assets/piecing-puzzle.png.asset.json";
-const platformHero = platformHeroAsset.url;
+import platformHero from "@/assets/bundled/piecing-puzzle.webp";
 const platformHeroSrcSet = undefined as unknown as string;
 
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";

@@ -245,9 +245,17 @@ function RootComponent() {
     void import("@/lib/sentry/init").then((m) => m.initSentry());
     registerServiceWorker();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      router.invalidate();
-      queryClient.invalidateQueries();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      // INITIAL_SESSION fires while a restored browser context is hydrating.
+      // The initial route load has already read that same session, so a
+      // synchronous second invalidation can unmount a correctly rendered
+      // protected route and make React hydration fail. Supabase also advises
+      // deferring work that may call back into auth until its callback exits.
+      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") return;
+      window.setTimeout(() => {
+        void router.invalidate();
+        void queryClient.invalidateQueries();
+      }, 0);
     });
     return () => subscription.unsubscribe();
   }, [router, queryClient]);

@@ -434,7 +434,7 @@ export function DashboardCalendar({
               className={
                 "relative rounded-lg border bg-background p-1.5 " +
                 (compact ? "min-h-[56px] " : "min-h-[72px] ") +
-                (inMonth ? "" : "opacity-40 ") +
+                (inMonth ? "" : "bg-muted/30 ") +
                 (isToday ? "ring-2 ring-primary/40 " : "")
               }
             >
@@ -442,7 +442,11 @@ export function DashboardCalendar({
                 <span
                   className={
                     "text-[11px] font-medium " +
-                    (isToday ? "text-primary" : "text-foreground")
+                    (isToday
+                      ? "text-primary"
+                      : inMonth
+                        ? "text-foreground"
+                        : "text-muted-foreground")
                   }
                 >
                   {d.getDate()}

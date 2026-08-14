@@ -212,7 +212,7 @@ function StudentTile({
         </dl>
       )}
       {detail.stats && detail.stats.length > 0 && (
-        <p className="mt-2 px-3.5 text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground/80">
+        <p className="mt-2 px-3.5 text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground">
           {detail.rows.length} items · {detail.connectsTo.length} connected
         </p>
       )}

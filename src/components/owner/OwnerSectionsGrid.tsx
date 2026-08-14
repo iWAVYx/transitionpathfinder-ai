@@ -34,7 +34,7 @@ export function OwnerSectionsGrid() {
       <div className="space-y-6">
         {groups.map((g) => (
           <div key={g} className="space-y-2">
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               {toTitleCase(g)}
             </h3>
             <div className="grid divide-y divide-border/60 border-y border-border/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3 xl:grid-cols-4">

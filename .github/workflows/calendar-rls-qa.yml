@@ -27,12 +27,14 @@ on:
 
 jobs:
   rls-regression:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: staging
     # Requires SUPABASE_DB_URL pointing at a Postgres database that has the
     # current schema migrations applied (staging or an ephemeral CI database).
     # If the secret is absent each suite skips itself rather than failing.
     env:
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_DB_URL: ${{ secrets.STAGING_DB_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,21 +54,21 @@ jobs:
         run: node --test tests/iep-upload-signed-url.test.mjs
       - name: IEP signed-URL TTL expiry regression
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
         run: node --test tests/iep-signed-url-expiry.test.mjs
       - name: IEP signed-URL revocation regression (mint-eligibility)
         run: node --test tests/iep-signed-url-revocation.test.mjs
       - name: IEP signed-URL revocation regression (live URL invalidation)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
         run: node --test tests/iep-signed-url-revocation-live.test.mjs
       - name: Check demo-isolation credentials
         id: demo-credentials
         env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -77,8 +79,8 @@ jobs:
       - name: Demo isolation RLS regression (is_demo rows)
         if: steps.demo-credentials.outputs.ready == 'true'
         env:
-          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
         run: node --test tests/rls-demo-isolation.test.mjs
       - name: How to update snapshots
         if: failure()

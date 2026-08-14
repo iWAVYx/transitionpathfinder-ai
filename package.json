@@ -14,6 +14,7 @@
     "test:role-guard": "node --test tests/role-guard-matrix.test.mjs",
     "test:ct-seed-v2": "node --test tests/ct-seed-v2-audit.test.mjs",
     "test:ct-seed-v2-repair": "node --test tests/ct-seed-v2-repair.test.mjs",
+    "test:production-readiness": "node --test tests/production-readiness-contract.test.mjs",
     "repair:ct-seed-v2-staging": "node scripts/repair-ct-seed-v2-staging.mjs",
     "playwright:install": "node scripts/ensure-playwright-chromium.mjs",
     "pretest:e2e": "node scripts/ensure-playwright-chromium.mjs",

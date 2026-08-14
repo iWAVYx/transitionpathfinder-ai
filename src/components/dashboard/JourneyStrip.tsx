@@ -169,13 +169,13 @@ export function JourneyStrip({
                     ? "border-primary bg-primary text-primary-foreground shadow-soft"
                     : isDone
                       ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200"
-                      : "border-border bg-background text-foreground/70 hover:border-primary/40 hover:text-foreground",
+                      : "border-border bg-background text-foreground hover:border-primary/40 hover:text-foreground",
                 )}
               >
                 {isDone ? (
                   <Check className="h-3 w-3" aria-hidden />
                 ) : (
-                  <span className="text-[10px] tabular-nums opacity-60">
+                  <span className="text-[10px] tabular-nums">
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                 )}

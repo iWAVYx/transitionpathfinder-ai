@@ -44,23 +44,20 @@ import {
 } from "@/components/ui/accordion";
 
 // Imagery — reused project assets, cropped via aspect wrappers per project rules.
-import heroImgAsset from "@/assets/raising-hands-class.png.asset.json";
-const heroImg = heroImgAsset.url;
+import heroImg from "@/assets/bundled/raising-hands-class.webp";
 import studentCenter from "@/assets/about-student-center.jpg";
 import founderImg from "@/assets/home-educator.jpg";
 import paperworkImg from "@/assets/iep-upload.jpg";
-import classroomImg from "@/assets/about-chapter-02-classroom.png.asset.json";
+import classroomImg from "@/assets/bundled/about-chapter-02-classroom.webp";
 import familyImg from "@/assets/families-hero-v2.jpg";
-import patternImg from "@/assets/about-chapter-03-pattern.png.asset.json";
+import patternImg from "@/assets/bundled/about-chapter-03-pattern.webp";
 import pathwayImg from "@/assets/pathway-hero.jpg";
 
-import ctaImgAsset from "@/assets/school-crossing.png.asset.json";
+import ctaImg from "@/assets/bundled/school-crossing.webp";
 
-import binderImgAsset from "@/assets/about-chapter-01-binder.png.asset.json";
-import buildImgAsset from "@/assets/about-chapter-04-build.png.asset.json";
-const ctaImg = ctaImgAsset.url;
+import binderImg from "@/assets/bundled/about-chapter-01-binder.webp";
+import buildImg from "@/assets/bundled/about-chapter-04-build.webp";
 
-const binderImg = binderImgAsset.url;
 import sunriseImg from "@/assets/framework-bg-sunrise.jpg";
 import topoImg from "@/assets/framework-bg-topo.jpg";
 import studentPhoto from "@/assets/home-student-photo.jpg";
@@ -211,21 +208,21 @@ const CHAPTERS = [
     label: "Chapter 02 · The Classroom",
     title: "The classroom showed me what the paperwork couldn't.",
     body: "Hamden. New Haven. Student Teaching. The plan on the page rarely matched the student in the room — their strengths, their voice, the family at the table.",
-    image: classroomImg.url,
+    image: classroomImg,
     place: "Hamden, CT",
   },
   {
     label: "Chapter 03 · The Pattern",
     title: "I kept seeing the same gap, in district after district.",
     body: "Paperwork without a path. Brilliant families and educators doing heroic work to translate documents into next steps that should have been obvious.",
-    image: patternImg.url,
+    image: patternImg,
     place: "Connecticut",
   },
   {
     label: "Chapter 04 · The Build",
     title: "So I built what the binder was missing.",
     body: "Transition Forward turns the paperwork into a plan — a Pathway Report families, educators, and partners can actually use together.",
-    image: buildImgAsset.url,
+    image: buildImg,
     place: "Transition Forward",
   },
 ];
@@ -364,7 +361,7 @@ function FounderMessage() {
           </div>
         </div>
         <div className="flex flex-col justify-center">
-          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             Why This Exists
           </div>
@@ -878,7 +875,7 @@ function StudentCentered() {
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
       <div className="relative mx-auto grid max-w-[1300px] gap-10 px-6 py-16 md:grid-cols-[6fr_5fr] md:gap-16 md:py-20">
         <div className="flex flex-col justify-center">
-          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             The Student At The Center
           </div>
@@ -1112,7 +1109,7 @@ function CTAwareFAQ() {
     <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
       <div className="relative mx-auto max-w-[1100px] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/60">
+          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
             <span className="h-px w-8 bg-[#1c1814]/30" />
             Trust, Records, And Transparency
             <span className="h-px w-8 bg-[#1c1814]/30" />
