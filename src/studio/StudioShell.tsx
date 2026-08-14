@@ -213,7 +213,7 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
             </button>
           </div>
 
-          <PathwayMap activeId={stage} preserveStudent={!!search} student={student} />
+          <PathwayMap activeId={stage} preserveStudent={!!preserveStudent} student={student} />
 
           <div style={{ marginTop: 24, display: "grid", gap: 18 }}>
             {(["I", "II", "III", "IV"] as const).map((act) => {
