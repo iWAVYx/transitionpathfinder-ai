@@ -25,6 +25,11 @@ import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
 import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import { WORKSPACE_STAGES, type StageId } from "@/lib/workspace/stages";
+
+function asStageId(raw: string | undefined): StageId | undefined {
+  return WORKSPACE_STAGES.find((s) => s.id === raw)?.id;
+}
 import { useDemoRoleView } from "@/lib/demo/use-demo-role-view";
 import {
   resolveDemoRoleDestination,
