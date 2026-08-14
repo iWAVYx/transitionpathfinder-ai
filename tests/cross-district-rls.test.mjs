@@ -22,7 +22,11 @@ const SUPABASE_PUBLISHABLE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   process.env.SUPABASE_PUBLISHABLE_KEY;
 
-const PASSWORD = "TestPass!2026";
+const PASSWORD = process.env.STAGING_E2E_PASSWORD;
+assert.ok(
+  PASSWORD,
+  "STAGING_E2E_PASSWORD is required for fixed staging identities",
+);
 const DISTRICT_A = "11111111-1111-1111-1111-1111111111aa";
 const DISTRICT_B = "11111111-1111-1111-1111-1111111111bb";
 
