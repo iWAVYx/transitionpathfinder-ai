@@ -145,6 +145,29 @@ test("no workflow references a generic service-role secret", () => {
   }
 });
 
+test("protected staging RLS workflows use a deterministic supported runtime", () => {
+  for (const name of [
+    "calendar-rls-qa.yml",
+    "cross-district-rls-qa.yml",
+    "permission-regression-qa.yml",
+  ]) {
+    const source = read(join(".github/workflows", name));
+    assert.match(source, /node-version:\s*"22"/);
+    assert.match(source, /@supabase\/supabase-js@2\.106\.2/);
+    assert.doesNotMatch(source, /@supabase\/supabase-js@\^2/);
+  }
+});
+
+test("staging SQL RLS checks fail closed on the isolated database identity", () => {
+  const workflow = read(".github/workflows/calendar-rls-qa.yml");
+  assert.match(workflow, /PGHOST:\s*aws-0-ca-central-1\.pooler\.supabase\.com/);
+  assert.match(workflow, /PGUSER:\s*postgres\.qgrertkqbwanerqqemph/);
+  assert.match(workflow, /PGPASSWORD:\s*\$\{\{ secrets\.STAGING_DB_PASSWORD \}\}/);
+  assert.match(workflow, /PGSSLMODE:\s*require/);
+  assert.doesNotMatch(workflow, /STAGING_DB_URL/);
+  assert.doesNotMatch(workflow, /lrqcntqyekucamifpffs/);
+});
+
 test("nightly release evidence is fixed to isolated staging and exact SHA", () => {
   const workflow = read(".github/workflows/release-readiness.yml");
   assert.match(workflow, /environment:\s*staging/);

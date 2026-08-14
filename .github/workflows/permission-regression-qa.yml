@@ -28,9 +28,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Install @supabase/supabase-js
-        run: npm install --no-save @supabase/supabase-js@^2
+        run: npm install --no-save @supabase/supabase-js@2.106.2
       - name: Check live permission-test credentials
         id: live-credentials
         run: |

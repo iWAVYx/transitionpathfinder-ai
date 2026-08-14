@@ -30,18 +30,33 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: staging
-    # Requires SUPABASE_DB_URL pointing at a Postgres database that has the
-    # current schema migrations applied (staging or an ephemeral CI database).
-    # If the secret is absent each suite skips itself rather than failing.
+    # Build the connection from fixed staging fields and a separately stored
+    # password. This prevents an opaque URL secret from silently targeting a
+    # different project or carrying an invalid pooler username.
     env:
-      SUPABASE_DB_URL: ${{ secrets.STAGING_DB_URL }}
+      PGHOST: aws-0-ca-central-1.pooler.supabase.com
+      PGPORT: "5432"
+      PGDATABASE: postgres
+      PGUSER: postgres.qgrertkqbwanerqqemph
+      PGPASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      PGSSLMODE: require
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Install Supabase test client
-        run: npm install --no-save @supabase/supabase-js@^2
+        run: npm install --no-save @supabase/supabase-js@2.106.2
+      - name: Require isolated staging database credentials
+        run: |
+          test -n "$PGPASSWORD" || {
+            echo "STAGING_DB_PASSWORD is not set." >&2
+            exit 1
+          }
+          test "$PGUSER" = "postgres.qgrertkqbwanerqqemph" || {
+            echo "Unexpected staging database identity." >&2
+            exit 1
+          }
       - name: Install psql client
         run: |
           sudo apt-get update -y
