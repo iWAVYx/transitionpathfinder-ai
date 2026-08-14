@@ -107,8 +107,8 @@ function EducatorReadinessGapsPage() {
                   <tr key={r.student_id} className="border-t">
                     <td className="p-3 font-medium">
                       <Link
-                        to="/students/$id"
-                        params={{ id: r.student_id }}
+                        to="/students/$studentId"
+                        params={{ studentId: r.student_id }}
                         className="hover:underline"
                       >
                         {r.student_name}

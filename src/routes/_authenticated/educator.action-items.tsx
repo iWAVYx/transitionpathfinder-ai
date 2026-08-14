@@ -191,8 +191,8 @@ function Section({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <Link
-                  to="/students/$id"
-                  params={{ id: it.student_id }}
+                  to="/students/$studentId"
+                  params={{ studentId: it.student_id }}
                   className="text-sm font-medium hover:underline"
                 >
                   {it.student_name}

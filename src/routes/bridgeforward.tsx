@@ -192,7 +192,7 @@ function BridgeForwardPublicPage() {
               ) : (
                 <>
                   <Button asChild size="lg">
-                    <Link to="/login" search={{}}>
+                    <Link to="/login" search={{ redirect: "/dashboard" }}>
                       Sign In to Start
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
