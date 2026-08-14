@@ -19,7 +19,11 @@ const SUPABASE_PUBLISHABLE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
 const QA_PARENT_EMAIL = "qa.parent@transitionforward.test";
-const QA_PARENT_PASSWORD = "TestPass!2026";
+const QA_PARENT_PASSWORD = process.env.STAGING_E2E_PASSWORD;
+assert.ok(
+  QA_PARENT_PASSWORD,
+  "STAGING_E2E_PASSWORD is required for the fixed staging parent identity",
+);
 
 const DEMO_SEEDED_TABLES = [
   "students",

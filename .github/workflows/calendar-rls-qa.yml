@@ -84,8 +84,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          STAGING_E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
         run: |
-          if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then
+          if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] && [ -n "$STAGING_E2E_PASSWORD" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
@@ -96,13 +97,15 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          STAGING_E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
         run: node --test tests/rls-demo-isolation.test.mjs
       - name: How to update snapshots
         if: failure()
         run: |
           echo "::error::An RLS policy snapshot or behavioral matrix drifted."
-          echo "If the change is intentional, regenerate the affected snapshot(s) locally with:"
-          echo "  UPDATE_SNAPSHOTS=1 node --test tests/calendar-rls.test.mjs"
+          echo "For calendar policy drift, dispatch 'Capture Staging Calendar RLS Snapshot' from main"
+          echo "with confirmation 'staging-snapshot', then review its artifact before committing."
+          echo "For other reviewed policy changes, regenerate the affected snapshot(s) locally with:"
           echo "  UPDATE_SNAPSHOTS=1 node --test tests/documents-rls.test.mjs"
           echo "  UPDATE_SNAPSHOTS=1 node --test tests/iep-upload-signed-url.test.mjs"
           echo "Then commit tests/__snapshots__/*.snap.json and re-run."

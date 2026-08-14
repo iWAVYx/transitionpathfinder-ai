@@ -1,0 +1,74 @@
+name: Capture Staging Calendar RLS Snapshot
+
+# Manual-only, protected capture of the current isolated-staging policy and
+# behavioral snapshots. The artifact is reviewed before any snapshot is
+# committed; this workflow never pushes code or targets production.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "staging-snapshot" to capture from isolated staging'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capture-staging-calendar-rls-snapshot
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 20
+    env:
+      PGHOST: aws-0-ca-central-1.pooler.supabase.com
+      PGPORT: "5432"
+      PGDATABASE: postgres
+      PGUSER: postgres.qgrertkqbwanerqqemph
+      PGSSLMODE: require
+      UPDATE_SNAPSHOTS: "1"
+
+    steps:
+      - name: Confirm isolated staging intent
+        env:
+          PGPASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: |
+          test "${{ github.event.inputs.confirm }}" = "staging-snapshot" || {
+            echo "Confirmation text did not match 'staging-snapshot'." >&2
+            exit 1
+          }
+          test -n "$PGPASSWORD" || {
+            echo "STAGING_DB_PASSWORD is not set." >&2
+            exit 1
+          }
+          test "$PGHOST" = "aws-0-ca-central-1.pooler.supabase.com" || exit 1
+          test "$PGUSER" = "postgres.qgrertkqbwanerqqemph" || exit 1
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends postgresql-client
+
+      - name: Capture reviewed calendar RLS snapshots
+        env:
+          PGPASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: node --test tests/calendar-rls.test.mjs
+
+      - name: Upload staging snapshot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-calendar-rls-snapshot-${{ github.run_id }}
+          path: |
+            tests/__snapshots__/calendar-rls-policies.snap.json
+            tests/__snapshots__/calendar-rls-matrix.snap.json
+          retention-days: 7
+          if-no-files-found: error

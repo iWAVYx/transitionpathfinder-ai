@@ -10,10 +10,12 @@ const PRODUCTION_PROJECT_REF = "lrqcntqyekucamifpffs";
 const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph";
 const url = process.env.STAGING_SUPABASE_URL;
 const serviceKey = process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY;
-const password = process.env.STAGING_E2E_PASSWORD ?? "Staging-E2E-Passw0rd!";
+const password = process.env.STAGING_E2E_PASSWORD;
 
-if (!url || !serviceKey) {
-  console.error("STAGING_SUPABASE_URL and STAGING_SUPABASE_SERVICE_ROLE_KEY are required");
+if (!url || !serviceKey || !password) {
+  console.error(
+    "STAGING_SUPABASE_URL, STAGING_SUPABASE_SERVICE_ROLE_KEY, and STAGING_E2E_PASSWORD are required",
+  );
   process.exit(1);
 }
 if (url.includes(PRODUCTION_PROJECT_REF)) {
@@ -40,10 +42,52 @@ const IDENTITIES = [
   { key: "owner", email: `e2e.owner${D}`, name: "Ollie Staging", roles: ["admin"], primary: "admin" },
 ];
 
+// These older fixed identities own the cross-district and consent fixtures.
+// They must remain distinct from the seven browser-E2E identities, but all
+// synthetic staging accounts consume the same protected staging password.
+const REQUIRED_FIXED_QA_IDENTITIES = [
+  "qa.districtadmin@transitionforward.test",
+  "qa.schooladmin@transitionforward.test",
+  "qa.partner@transitionforward.test",
+  "qa.parent@transitionforward.test",
+  "qa.educator@transitionforward.test",
+];
+
+let usersByEmail;
+
+async function getUsersByEmail() {
+  if (usersByEmail) return usersByEmail;
+
+  const users = [];
+  for (let page = 1; ; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw new Error(`list staging auth users: ${error.message}`);
+    const batch = data?.users ?? [];
+    users.push(...batch);
+    if (batch.length < 1000) break;
+  }
+
+  usersByEmail = new Map(users.map((user) => [user.email, user]));
+  return usersByEmail;
+}
+
 async function ensureUser({ email, name }) {
-  const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  const existing = list?.users?.find((u) => u.email === email);
-  if (existing) return existing.id;
+  const users = await getUsersByEmail();
+  const existing = users.get(email);
+  if (existing) {
+    const { data, error } = await admin.auth.admin.updateUserById(existing.id, {
+      password,
+      email_confirm: true,
+      user_metadata: {
+        ...(existing.user_metadata ?? {}),
+        full_name: name,
+        synthetic: true,
+      },
+    });
+    if (error) throw new Error(`${email}: ${error.message}`);
+    users.set(email, data.user);
+    return existing.id;
+  }
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password,
@@ -51,7 +95,22 @@ async function ensureUser({ email, name }) {
     user_metadata: { full_name: name, synthetic: true },
   });
   if (error) throw new Error(`${email}: ${error.message}`);
+  users.set(email, data.user);
   return data.user.id;
+}
+
+async function reconcileFixedQaPasswords() {
+  const users = await getUsersByEmail();
+  for (const email of REQUIRED_FIXED_QA_IDENTITIES) {
+    const existing = users.get(email);
+    if (!existing) {
+      throw new Error(`required fixed staging QA identity is missing: ${email}`);
+    }
+    const { data, error } = await admin.auth.admin.updateUserById(existing.id, { password });
+    if (error) throw new Error(`${email}: ${error.message}`);
+    users.set(email, data.user);
+  }
+  console.log("password reconciled: fixed QA identities", REQUIRED_FIXED_QA_IDENTITIES.length);
 }
 
 async function main() {
@@ -60,6 +119,7 @@ async function main() {
     ids[identity.key] = await ensureUser(identity);
     console.log("user:", identity.key, ids[identity.key]);
   }
+  await reconcileFixedQaPasswords();
 
   // Organizations: one district with one school child (no unique constraint on
   // name in this schema, so look up before inserting).
