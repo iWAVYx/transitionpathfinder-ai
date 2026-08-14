@@ -35,7 +35,8 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
   const [railOpen, setRailOpen] = useState(false);
   const current = stageById(stage);
   const { prev, next } = neighbors(stage);
-  const search = preserveStudent && student ? { s: student } : undefined;
+  void preserveStudent;
+  void student;
   const currentIdx = STUDIO_STAGES.findIndex((x) => x.id === stage);
 
   const railBody = (
@@ -61,7 +62,6 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
             <li key={s.id}>
               <Link
                 to={s.to}
-                {...(search ? { search } : {})}
                 className="stage"
                 data-state={state}
                 aria-current={state === "current" ? "step" : undefined}
@@ -150,7 +150,6 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
           {prev ? (
             <Link
               to={prev.to}
-              {...(search ? { search } : {})}
               className="nav prev"
             >
               <span className="arrow" aria-hidden>←</span>
@@ -176,7 +175,6 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
           {next ? (
             <Link
               to={next.to}
-              {...(search ? { search } : {})}
               className="nav next"
             >
               <span className="label">
@@ -215,7 +213,7 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
             </button>
           </div>
 
-          <PathwayMap activeId={stage} preserveStudent={!!search} student={student} />
+          <PathwayMap activeId={stage} preserveStudent={!!preserveStudent} student={student} />
 
           <div style={{ marginTop: 24, display: "grid", gap: 18 }}>
             {(["I", "II", "III", "IV"] as const).map((act) => {
@@ -234,8 +232,7 @@ export function StudioShell({ stage, student, preserveStudent, hideRail, childre
                       <li key={s.id}>
                         <Link
                           to={s.to}
-                          {...(search ? { search } : {})}
-                          onClick={() => setMapOpen(false)}
+                                    onClick={() => setMapOpen(false)}
                           style={{
                             display: "grid",
                             gridTemplateColumns: "44px 1fr auto",
@@ -359,7 +356,8 @@ export function PathwayMap({
   student?: DemoStudentId;
 }) {
   const activeIdx = STUDIO_STAGES.findIndex((s) => s.id === activeId);
-  const search = preserveStudent && student ? { s: student } : undefined;
+  void preserveStudent;
+  void student;
   return (
     <nav className="st-route" aria-label="Visual pathway route">
       {STUDIO_STAGES.map((s, i) => {
@@ -369,7 +367,6 @@ export function PathwayMap({
           <Link
             key={s.id}
             to={s.to}
-            {...(search ? { search } : {})}
             data-state={state}
             aria-current={state === "current" ? "step" : undefined}
           >

@@ -104,8 +104,8 @@ function EducatorNotesPage() {
               <li key={n.id} className="rounded-lg border bg-card p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Link
-                    to="/students/$id"
-                    params={{ id: n.student_id }}
+                    to="/students/$studentId"
+                    params={{ studentId: n.student_id }}
                     className="text-sm font-medium hover:underline"
                   >
                     {n.student_name}

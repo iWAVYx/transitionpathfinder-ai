@@ -3,6 +3,20 @@ import { ArrowRight } from "lucide-react";
 
 import { type HubDefinition, getHub } from "@/lib/hubs/registry";
 
+const HUB_ROUTES = {
+  student: "/hubs/student",
+  family: "/hubs/family",
+  caseload: "/hubs/caseload",
+  school: "/hubs/school",
+  district: "/hubs/district",
+  partner: "/hubs/partner",
+  admin: "/hubs/admin",
+} as const;
+
+function hubRoute(slug: string) {
+  return HUB_ROUTES[slug as keyof typeof HUB_ROUTES] ?? "/hubs/student";
+}
+
 /**
  * "No dead ends" rail — every hub renders this so users always know what
  * to explore next. Pulls related hubs from the registry; falls back to
@@ -27,7 +41,7 @@ export function RelatedLinksRail({ hub }: { hub: HubDefinition }) {
           {related.map((r) => (
             <li key={r.id}>
               <Link
-                to={r.signedIn ? `/hubs/${r.slug}` : `/hubs/${r.slug}`}
+                to={hubRoute(r.slug)}
                 className="group flex items-start gap-3 rounded-2xl border bg-card p-4 transition hover:border-primary/40 hover:shadow-soft"
               >
                 <ArrowRight

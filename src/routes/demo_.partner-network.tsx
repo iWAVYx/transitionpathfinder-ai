@@ -16,6 +16,10 @@ export const Route = createFileRoute("/demo_/partner-network")({
   validateSearch: (s) => searchSchema.parse(s),
   beforeLoad: ({ search }) => {
     const role = (search as { role?: string }).role ?? "family";
-    throw redirect({ to: `/demo/feature/${role}/partner-network`, replace: true });
+    throw redirect({
+      to: "/demo/feature/$role/$slug",
+      params: { role, slug: "partner-network" },
+      replace: true,
+    });
   },
 });

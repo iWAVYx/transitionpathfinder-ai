@@ -36,17 +36,26 @@ const stageParam = z.enum(STAGE_IDS);
 
 const ROLE_IDS = DEMO_ROLE_ORDER as [DemoRoleId, ...DemoRoleId[]];
 
+export type WorkspaceSearch = {
+  expand?: true;
+  role?: DemoRoleId;
+  student?: string;
+};
+
 const searchSchema = z
   .object({
     expand: z.unknown().optional(),
     role: z.unknown().optional(),
     student: z.unknown().optional(),
   })
-  .transform((raw) => ({
-    expand: coerceExpand(raw.expand) || undefined,
-    role: coerceRole(raw.role),
-    student: typeof raw.student === "string" ? raw.student : undefined,
-  }));
+  .transform((raw): WorkspaceSearch => {
+    const out: WorkspaceSearch = {};
+    if (coerceExpand(raw.expand)) out.expand = true;
+    const role = coerceRole(raw.role);
+    if (role) out.role = role;
+    if (typeof raw.student === "string") out.student = raw.student;
+    return out;
+  });
 
 export const Route = createFileRoute("/demo_/workspace/$stage")({
   parseParams: (raw) => ({ stage: stageParam.parse(raw.stage) }),
@@ -93,10 +102,7 @@ function DemoWorkspaceStagePage() {
     navigate({
       to: "/demo/workspace/$stage",
       params: { stage: stageId },
-      search: (prev: Record<string, unknown>) => ({
-        ...prev,
-        expand: next ? true : undefined,
-      }),
+      search: { ...search, ...(next ? { expand: true as const } : { expand: undefined }) },
       replace: false,
     });
   };

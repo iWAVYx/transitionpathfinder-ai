@@ -910,7 +910,7 @@ function HomePage() {
               </Link>
               <Link
                 to="/login"
-                search={{}}
+                search={{ redirect: "/dashboard" }}
                 className="inline-flex items-center justify-center rounded-full border border-background/30 px-7 py-3.5 text-sm font-semibold text-background hover:bg-background/10"
               >
                 Sign in

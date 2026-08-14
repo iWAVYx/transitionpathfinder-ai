@@ -586,7 +586,7 @@ function PlatformPage() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
                 to="/login"
-                search={{}}
+                search={{ redirect: "/dashboard" }}
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
               >
                 Create A Pathway Report <ArrowRight className="ml-1 h-4 w-4" />
