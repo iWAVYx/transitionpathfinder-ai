@@ -1,0 +1,51 @@
+name: Bootstrap Staging QA Identities
+
+# Deliberate one-time provisioning path for migration-backed legacy QA actors.
+# Routine verification remains fail-closed if these identities are absent.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "bootstrap-staging-qa" to provision isolated staging identities'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bootstrap-staging-qa-identities
+  cancel-in-progress: false
+
+jobs:
+  bootstrap-staging-qa:
+    name: Bootstrap fixed isolated-staging QA identities
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Confirm isolated staging intent
+        run: |
+          test "${{ github.event.inputs.confirm }}" = "bootstrap-staging-qa" || {
+            echo "Confirmation text did not match 'bootstrap-staging-qa'." >&2
+            exit 1
+          }
+
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+      - run: bun install --frozen-lockfile
+
+      - name: Bootstrap fixed staging QA identities
+        env:
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STAGING_E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+        run: node scripts/bootstrap-staging-qa-identities.mjs
+
+      - name: Verify routine staging reconciliation now passes
+        env:
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STAGING_E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+        run: node scripts/seed-staging-identities.mjs
