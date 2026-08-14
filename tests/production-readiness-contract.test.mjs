@@ -168,6 +168,29 @@ test("staging SQL RLS checks fail closed on the isolated database identity", () 
   assert.doesNotMatch(workflow, /lrqcntqyekucamifpffs/);
 });
 
+test("fixed staging identities consume only the protected synthetic password", () => {
+  for (const name of [
+    "cross-district-rls-qa.yml",
+    "permission-regression-qa.yml",
+  ]) {
+    const source = read(join(".github/workflows", name));
+    assert.match(
+      source,
+      /STAGING_E2E_PASSWORD:\s*\$\{\{ secrets\.STAGING_E2E_PASSWORD \}\}/,
+    );
+  }
+
+  for (const name of [
+    "cross-district-rls.test.mjs",
+    "district-school-hijack-rls.test.mjs",
+    "student-relationships-consent-rls.test.mjs",
+  ]) {
+    const source = read(join("tests", name));
+    assert.match(source, /process\.env\.STAGING_E2E_PASSWORD/);
+    assert.doesNotMatch(source, /TestPass!2026/);
+  }
+});
+
 test("nightly release evidence is fixed to isolated staging and exact SHA", () => {
   const workflow = read(".github/workflows/release-readiness.yml");
   assert.match(workflow, /environment:\s*staging/);

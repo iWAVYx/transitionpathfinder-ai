@@ -22,7 +22,11 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
-const PASSWORD = "TestPass!2026";
+const PASSWORD = process.env.STAGING_E2E_PASSWORD;
+assert.ok(
+  PASSWORD,
+  "STAGING_E2E_PASSWORD is required for fixed staging identities",
+);
 const EDITOR_EMAIL = "qa.parent@transitionforward.test";
 const RELATED_EMAIL = "qa.educator@transitionforward.test";
 
