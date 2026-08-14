@@ -51,11 +51,13 @@ export type Database = {
           created_by: string
           expires_at: string | null
           id: string
+          label: string | null
           org_id: string | null
           revoked_at: string | null
           role: string
           scope: string
           single_use: boolean
+          target_organization_id: string | null
           updated_at: string
           uses: number
         }
@@ -66,11 +68,13 @@ export type Database = {
           created_by: string
           expires_at?: string | null
           id?: string
+          label?: string | null
           org_id?: string | null
           revoked_at?: string | null
           role: string
           scope?: string
           single_use?: boolean
+          target_organization_id?: string | null
           updated_at?: string
           uses?: number
         }
@@ -81,11 +85,13 @@ export type Database = {
           created_by?: string
           expires_at?: string | null
           id?: string
+          label?: string | null
           org_id?: string | null
           revoked_at?: string | null
           role?: string
           scope?: string
           single_use?: boolean
+          target_organization_id?: string | null
           updated_at?: string
           uses?: number
         }
@@ -93,6 +99,13 @@ export type Database = {
           {
             foreignKeyName: "access_codes_org_id_fkey"
             columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_codes_target_organization_id_fkey"
+            columns: ["target_organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
@@ -4102,6 +4115,7 @@ export type Database = {
       }
       license_allocations: {
         Row: {
+          access_code_id: string | null
           activated_at: string | null
           beneficiary_email: string | null
           beneficiary_user_id: string | null
@@ -4126,6 +4140,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_code_id?: string | null
           activated_at?: string | null
           beneficiary_email?: string | null
           beneficiary_user_id?: string | null
@@ -4150,6 +4165,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_code_id?: string | null
           activated_at?: string | null
           beneficiary_email?: string | null
           beneficiary_user_id?: string | null
@@ -4174,6 +4190,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "license_allocations_access_code_id_fkey"
+            columns: ["access_code_id"]
+            isOneToOne: false
+            referencedRelation: "access_codes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "license_allocations_invitation_id_fkey"
             columns: ["invitation_id"]
@@ -9148,6 +9171,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      attach_my_pathway_license_to_student: {
+        Args: { _student_id: string }
+        Returns: boolean
+      }
       audience_for_role: { Args: { _role: string }; Returns: string }
       authorize: {
         Args: {
@@ -9220,6 +9247,51 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      ensure_student_self_profile: {
+        Args: never
+        Returns: {
+          age: number | null
+          coverage_state: string
+          coverage_state_changed_at: string | null
+          created_at: string
+          current_transition_status: string | null
+          date_of_birth: string | null
+          expected_graduation_year: number | null
+          export_window_ends_at: string | null
+          family_priorities: string | null
+          first_name: string
+          grade_band: string | null
+          graduation_target_date: string | null
+          id: string
+          iep_annual_review_date: string | null
+          iep_reevaluation_date: string | null
+          interests_summary: string | null
+          is_demo: boolean
+          last_name: string | null
+          notes: string | null
+          organization_id: string | null
+          owner_id: string
+          photo_url: string | null
+          preferred_name: string | null
+          primary_disability_category: string | null
+          program_track: string
+          readiness_level: string | null
+          rights_status: string
+          school: string | null
+          strengths_summary: string | null
+          student_user_id: string | null
+          student_voice_statement: string | null
+          support_needs_summary: string | null
+          transfer_notice_acknowledged_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "students"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_invitation_share_token: {
         Args: { _invitation_id: string }
         Returns: string
@@ -9285,6 +9357,33 @@ export type Database = {
       }
       is_partner_only: { Args: { _user_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      issue_license_access_code: {
+        Args: {
+          _capacity: number
+          _code_hash: string
+          _expires_at: string
+          _label: string
+          _org_id: string
+          _role: string
+          _single_use: boolean
+          _target_organization_id: string
+        }
+        Returns: string
+      }
+      license_access_code_options: {
+        Args: { _org_id: string }
+        Returns: {
+          active: number
+          available: number
+          license_type: string
+          purchased: number
+          reserved: number
+          sponsor_organization_id: string
+          target_organization_id: string
+          target_organization_name: string
+          target_organization_type: string
+        }[]
+      }
       license_capacity: {
         Args: { _license_type: string; _org_id: string }
         Returns: {
@@ -9302,6 +9401,15 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      my_activated_license_role: { Args: never; Returns: string }
+      my_sponsored_access: {
+        Args: never
+        Returns: {
+          activated_at: string
+          license_type: string
+          sponsor_organization_id: string
+        }[]
       }
       obs_events_purge_expired: { Args: never; Returns: number }
       obs_slo_status: {
@@ -9390,6 +9498,10 @@ export type Database = {
           created_at: string
           report_id: string
         }[]
+      }
+      revoke_license_access_code: {
+        Args: { _code_id: string; _reason?: string }
+        Returns: Json
       }
       revoke_license_allocation: {
         Args: { _allocation_id: string; _reason?: string }
