@@ -446,8 +446,8 @@ function RoleAwareCtaLink({
   children: React.ReactNode;
 } & Omit<React.ComponentProps<"a">, "href">) {
   const workspaceMatch = to.match(/^\/demo\/workspace\/([^/?#]+)/);
-  if (workspaceMatch) {
-    const stage = workspaceMatch[1];
+  const stage = workspaceMatch ? asStageId(workspaceMatch[1]) : undefined;
+  if (stage) {
     const isReport = stage === "roadmap";
     return (
       <Link
