@@ -211,6 +211,42 @@ test("staging identity reconciliation rotates existing synthetic users and fails
   }
 });
 
+test("legacy QA identity bootstrap is manual, protected, and staging-only", () => {
+  const script = read("scripts/bootstrap-staging-qa-identities.mjs");
+  const workflow = read(".github/workflows/bootstrap-staging-qa-identities.yml");
+
+  assert.match(script, /const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph"/);
+  assert.match(script, /const PRODUCTION_PROJECT_REF = "lrqcntqyekucamifpffs"/);
+  assert.match(script, /REFUSING: target is the production Supabase project/);
+  assert.match(script, /admin\.auth\.admin\.createUser\(\{[\s\S]*?id: identity\.id/);
+  assert.match(script, /const password = process\.env\.STAGING_E2E_PASSWORD/);
+  assert.doesNotMatch(script, /TestPass!2026|Staging-E2E-Passw0rd!/);
+
+  for (const [email, id] of [
+    ["qa.districtadmin@transitionforward.test", "b4aec3a7-daa5-453d-9481-a45bac781437"],
+    ["qa.schooladmin@transitionforward.test", "97c6e8b7-faa9-4bd0-a044-012c55122ddd"],
+    ["qa.parent@transitionforward.test", "038f92be-916f-4dc9-84e4-b36f9645f5c2"],
+    ["qa.educator@transitionforward.test", "44444444-4444-4444-8444-444444444444"],
+    ["qa.partner@transitionforward.test", "55555555-5555-4555-8555-555555555555"],
+  ]) {
+    assert.match(script, new RegExp(email.replaceAll(".", "\\.")));
+    assert.match(script, new RegExp(id));
+  }
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /^\s+(?:pull_request|push):/m);
+  assert.match(
+    workflow,
+    /if: github\.event_name == 'workflow_dispatch' && github\.ref == 'refs\/heads\/main'/,
+  );
+  assert.match(workflow, /environment:\s*staging/);
+  assert.match(workflow, /bootstrap-staging-qa/);
+  assert.match(workflow, /secrets\.STAGING_SUPABASE_URL/);
+  assert.match(workflow, /secrets\.STAGING_SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(workflow, /secrets\.STAGING_E2E_PASSWORD/);
+  assert.doesNotMatch(workflow, /lrqcntqyekucamifpffs/);
+});
+
 test("calendar policy snapshots can only be captured manually from protected staging", () => {
   const workflow = read(
     ".github/workflows/capture-staging-calendar-rls-snapshot.yml",
