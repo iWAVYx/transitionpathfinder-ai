@@ -163,7 +163,10 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
         .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    await requirePlatformAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
+
     const { metric, search, sortBy, sortDirection, statusFilter } = data;
     const ascending = sortDirection !== "desc";
 
