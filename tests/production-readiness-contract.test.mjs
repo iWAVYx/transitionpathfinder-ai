@@ -170,6 +170,7 @@ test("staging SQL RLS checks fail closed on the isolated database identity", () 
 
 test("fixed staging identities consume only the protected synthetic password", () => {
   for (const name of [
+    "calendar-rls-qa.yml",
     "cross-district-rls-qa.yml",
     "permission-regression-qa.yml",
   ]) {
@@ -184,11 +185,47 @@ test("fixed staging identities consume only the protected synthetic password", (
     "cross-district-rls.test.mjs",
     "district-school-hijack-rls.test.mjs",
     "student-relationships-consent-rls.test.mjs",
+    "rls-demo-isolation.test.mjs",
   ]) {
     const source = read(join("tests", name));
     assert.match(source, /process\.env\.STAGING_E2E_PASSWORD/);
     assert.doesNotMatch(source, /TestPass!2026/);
   }
+});
+
+test("staging identity reconciliation rotates existing synthetic users and fails closed", () => {
+  const seed = read("scripts/seed-staging-identities.mjs");
+  assert.match(seed, /const password = process\.env\.STAGING_E2E_PASSWORD;/);
+  assert.match(seed, /updateUserById\(existing\.id, \{[\s\S]*?password/);
+  assert.match(seed, /required fixed staging QA identity is missing/);
+  assert.doesNotMatch(seed, /Staging-E2E-Passw0rd!/);
+
+  for (const email of [
+    "qa.districtadmin@transitionforward.test",
+    "qa.schooladmin@transitionforward.test",
+    "qa.partner@transitionforward.test",
+    "qa.parent@transitionforward.test",
+    "qa.educator@transitionforward.test",
+  ]) {
+    assert.match(seed, new RegExp(email.replaceAll(".", "\\.")));
+  }
+});
+
+test("calendar policy snapshots can only be captured manually from protected staging", () => {
+  const workflow = read(
+    ".github/workflows/capture-staging-calendar-rls-snapshot.yml",
+  );
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /^\s+(?:pull_request|push):/m);
+  assert.match(workflow, /if: github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /environment:\s*staging/);
+  assert.match(workflow, /PGHOST:\s*aws-0-ca-central-1\.pooler\.supabase\.com/);
+  assert.match(workflow, /PGUSER:\s*postgres\.qgrertkqbwanerqqemph/);
+  assert.match(workflow, /PGPASSWORD:\s*\$\{\{ secrets\.STAGING_DB_PASSWORD \}\}/);
+  assert.match(workflow, /UPDATE_SNAPSHOTS:\s*"1"/);
+  assert.match(workflow, /staging-snapshot/);
+  assert.match(workflow, /actions\/upload-artifact@v4/);
+  assert.doesNotMatch(workflow, /lrqcntqyekucamifpffs/);
 });
 
 test("nightly release evidence is fixed to isolated staging and exact SHA", () => {
