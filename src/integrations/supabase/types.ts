@@ -7294,13 +7294,6 @@ export type Database = {
             referencedRelation: "resource_sources"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "resources_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "resource_sources_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rights_transfer_status: {
@@ -9053,48 +9046,6 @@ export type Database = {
           },
         ]
       }
-      resource_sources_public: {
-        Row: {
-          audience_focus: string[] | null
-          description: string | null
-          id: string | null
-          last_reviewed_at: string | null
-          location_scope: string | null
-          organization_name: string | null
-          review_status: string | null
-          source_name: string | null
-          source_type: string | null
-          source_url: string | null
-          topic_focus: string[] | null
-        }
-        Insert: {
-          audience_focus?: string[] | null
-          description?: string | null
-          id?: string | null
-          last_reviewed_at?: string | null
-          location_scope?: string | null
-          organization_name?: string | null
-          review_status?: string | null
-          source_name?: string | null
-          source_type?: string | null
-          source_url?: string | null
-          topic_focus?: string[] | null
-        }
-        Update: {
-          audience_focus?: string[] | null
-          description?: string | null
-          id?: string | null
-          last_reviewed_at?: string | null
-          location_scope?: string | null
-          organization_name?: string | null
-          review_status?: string | null
-          source_name?: string | null
-          source_type?: string | null
-          source_url?: string | null
-          topic_focus?: string[] | null
-        }
-        Relationships: []
-      }
       student_evidence_v1: {
         Row: {
           confidence: number | null
@@ -9391,6 +9342,22 @@ export type Database = {
           available: number
           purchased: number
           reserved: number
+        }[]
+      }
+      list_public_resource_sources: {
+        Args: never
+        Returns: {
+          audience_focus: string[]
+          description: string
+          id: string
+          last_reviewed_at: string
+          location_scope: string
+          organization_name: string
+          review_status: string
+          source_name: string
+          source_type: string
+          source_url: string
+          topic_focus: string[]
         }[]
       }
       move_to_dlq: {
