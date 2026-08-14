@@ -19,10 +19,26 @@ export type PartnerNetworkStatus = {
   };
 };
 
+async function requirePlatformAdmin(supabase: any, userId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from("admin_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .in("role", ["platform_owner", "platform_admin"])
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) {
+    throw new Error("Forbidden: Platform admin access required.");
+  }
+}
+
 export const getPartnerNetworkStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    await requirePlatformAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
+
     const count = (q: { count: number | null }) => q.count ?? 0;
 
     const [
@@ -163,7 +179,10 @@ export const getPartnerMetricRows = createServerFn({ method: "GET" })
         .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    await requirePlatformAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
+
     const { metric, search, sortBy, sortDirection, statusFilter } = data;
     const ascending = sortDirection !== "desc";
 
