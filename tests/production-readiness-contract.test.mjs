@@ -311,9 +311,14 @@ test("primary release fonts are bundled instead of fetched from Google", () => {
 
   assert.match(packageJson, /@fontsource-variable\/cormorant-garamond/);
   assert.match(packageJson, /@fontsource-variable\/karla/);
-  assert.match(styles, /@import "@fontsource-variable\/cormorant-garamond"/);
-  assert.match(styles, /@import "@fontsource-variable\/cormorant-garamond\/wght-italic\.css"/);
-  assert.match(styles, /@import "@fontsource-variable\/karla"/);
+  assert.match(styles, /cormorant-garamond-latin-ext-wght-normal\.woff2/);
+  assert.match(styles, /cormorant-garamond-latin-wght-normal\.woff2/);
+  assert.match(styles, /cormorant-garamond-latin-ext-wght-italic\.woff2/);
+  assert.match(styles, /cormorant-garamond-latin-wght-italic\.woff2/);
+  assert.match(styles, /karla-latin-ext-wght-normal\.woff2/);
+  assert.match(styles, /karla-latin-wght-normal\.woff2/);
+  assert.doesNotMatch(styles, /@import "@fontsource-variable\/cormorant-garamond/);
+  assert.doesNotMatch(styles, /@import "@fontsource-variable\/karla/);
   assert.doesNotMatch(root, /family=Cormorant\+Garamond/);
   assert.doesNotMatch(root, /family=Karla/);
   assert.match(visualRegression, /Cormorant Garamond Variable/);

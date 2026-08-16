@@ -29,6 +29,7 @@ import {
   type AnnouncementEngagement,
   type RecipientRow,
 } from "@/lib/broadcasts.functions";
+import { loadXlsx } from "@/lib/browser-only-libs";
 
 export const Route = createFileRoute("/_authenticated/owner/broadcasts")({
   head: () => ({ meta: [{ title: "Broadcasts — Admin Hub" }] }),
@@ -87,7 +88,7 @@ async function downloadEngagementXlsx(
   daily: Array<{ date: string; views: number; clicks: number }>,
   meta: { announcementId: string; range: string; from?: string; to?: string; role: string },
 ) {
-  const XLSX = await import("xlsx");
+  const XLSX = await loadXlsx();
   const wb = XLSX.utils.book_new();
 
   const dailyRows: (string | number)[][] = [

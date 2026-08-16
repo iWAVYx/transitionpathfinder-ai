@@ -47,6 +47,7 @@ import {
   type DocumentRow,
   type ExtractedGoal,
 } from "@/lib/documents.functions";
+import { loadPdfJs } from "@/lib/browser-only-libs";
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/_authenticated/students/$studentId")({
 });
 
 async function extractPdfText(file: File): Promise<string> {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjs = await loadPdfJs();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (pdfjs as any).GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.mjs`;
   const buf = await file.arrayBuffer();
