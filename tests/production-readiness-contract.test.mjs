@@ -303,6 +303,16 @@ test("nightly release evidence is fixed to isolated staging and exact SHA", () =
   assert.doesNotMatch(workflow, /transitionforwardct\.com/);
 });
 
+test("pull request refs cannot request protected staging browser credentials", () => {
+  const workflow = read(".github/workflows/dashboard-regression.yml");
+  assert.match(workflow, /pull_request:/);
+  assert.match(
+    workflow,
+    /e2e:\s*\n\s+if: github\.event_name != 'pull_request'[\s\S]*?environment:\s*staging/,
+  );
+  assert.match(workflow, /secrets\.STAGING_E2E_PASSWORD/);
+});
+
 test("PWA worker is generated into and required from the deployed asset directory", () => {
   const viteConfig = read("vite.config.ts");
   const stagingDeploy = read(".github/workflows/deploy-staging.yml");

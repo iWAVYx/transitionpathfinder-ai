@@ -78,6 +78,11 @@ It requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository
 secrets, the protected `STAGING_CRON_WEBHOOK_SECRET`, and refuses to run if a
 live Stripe secret is configured.
 
+Pull requests do not receive the protected `staging` environment or its
+synthetic browser credentials. Dashboard PRs run the credential-free unit
+gate; the full staging browser regression runs only on merged `main` or an
+authorized manual run, after the exact commit has been deployed.
+
 ## 4. Stripe sandbox webhook
 
 Point a **sandbox** endpoint at:
