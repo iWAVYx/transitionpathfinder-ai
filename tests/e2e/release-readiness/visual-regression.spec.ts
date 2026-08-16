@@ -29,17 +29,17 @@ const PUBLIC_PAGES = ["/", "/families", "/educators", "/partners", "/pricing"];
 test.use({ reducedMotion: "reduce" });
 
 const RELEASE_FONT_QUERIES = [
-  '300 16px "Karla"',
-  '400 16px "Karla"',
-  '500 16px "Karla"',
-  '600 16px "Karla"',
-  '700 16px "Karla"',
-  '400 16px "Cormorant Garamond"',
-  '500 16px "Cormorant Garamond"',
-  '600 16px "Cormorant Garamond"',
-  '700 16px "Cormorant Garamond"',
-  'italic 400 16px "Cormorant Garamond"',
-  'italic 500 16px "Cormorant Garamond"',
+  '300 16px "Karla Variable"',
+  '400 16px "Karla Variable"',
+  '500 16px "Karla Variable"',
+  '600 16px "Karla Variable"',
+  '700 16px "Karla Variable"',
+  '400 16px "Cormorant Garamond Variable"',
+  '500 16px "Cormorant Garamond Variable"',
+  '600 16px "Cormorant Garamond Variable"',
+  '700 16px "Cormorant Garamond Variable"',
+  'italic 400 16px "Cormorant Garamond Variable"',
+  'italic 500 16px "Cormorant Garamond Variable"',
 ] as const;
 
 const RELEASE_FONT_NETWORK_ERROR = "RELEASE_FONT_NETWORK_ERROR";

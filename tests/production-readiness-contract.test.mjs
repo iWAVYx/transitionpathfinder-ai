@@ -303,6 +303,23 @@ test("nightly release evidence is fixed to isolated staging and exact SHA", () =
   assert.doesNotMatch(workflow, /transitionforwardct\.com/);
 });
 
+test("primary release fonts are bundled instead of fetched from Google", () => {
+  const packageJson = read("package.json");
+  const styles = read("src/styles.css");
+  const root = read("src/routes/__root.tsx");
+  const visualRegression = read("tests/e2e/release-readiness/visual-regression.spec.ts");
+
+  assert.match(packageJson, /@fontsource-variable\/cormorant-garamond/);
+  assert.match(packageJson, /@fontsource-variable\/karla/);
+  assert.match(styles, /@import "@fontsource-variable\/cormorant-garamond"/);
+  assert.match(styles, /@import "@fontsource-variable\/cormorant-garamond\/wght-italic\.css"/);
+  assert.match(styles, /@import "@fontsource-variable\/karla"/);
+  assert.doesNotMatch(root, /family=Cormorant\+Garamond/);
+  assert.doesNotMatch(root, /family=Karla/);
+  assert.match(visualRegression, /Cormorant Garamond Variable/);
+  assert.match(visualRegression, /Karla Variable/);
+});
+
 test("pull request refs cannot request protected staging browser credentials", () => {
   const workflow = read(".github/workflows/dashboard-regression.yml");
   assert.match(workflow, /pull_request:/);
