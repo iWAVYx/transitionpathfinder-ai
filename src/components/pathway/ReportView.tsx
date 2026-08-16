@@ -1995,7 +1995,7 @@ export function ReportView({
           }
           body.print-magazine .eh-chapter h1,
           body.print-magazine .eh-chapter h2 {
-            font-family: "Instrument Serif", "Cormorant Garamond", Georgia, serif !important;
+            font-family: "Instrument Serif", "Cormorant Garamond Variable", Georgia, serif !important;
             font-style: italic !important;
             color: #ffffff !important;
           }
@@ -2006,7 +2006,7 @@ export function ReportView({
 
           /* Editorial pull quote — keep the italic serif voice. */
           body.print-magazine .eh-pullquote {
-            font-family: "Instrument Serif", "Cormorant Garamond", Georgia, serif !important;
+            font-family: "Instrument Serif", "Cormorant Garamond Variable", Georgia, serif !important;
             font-style: italic !important;
             font-size: 18pt !important;
             line-height: 1.3 !important;

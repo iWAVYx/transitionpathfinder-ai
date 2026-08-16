@@ -3,6 +3,9 @@
 @source "../src";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
+@import "@fontsource-variable/cormorant-garamond";
+@import "@fontsource-variable/cormorant-garamond/wght-italic.css";
+@import "@fontsource-variable/karla";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -21,8 +24,8 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: "Karla Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond Variable", ui-serif, Georgia, "Times New Roman", serif;
   --font-hand: "Caveat", "Kalam", cursive;
 
 
@@ -2229,7 +2232,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --eh-ink: #1A1F2A;
   --eh-rule: #E4E1D8;
   --eh-mute: #5D6470;
-  --font-eh-serif: "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
+  --font-eh-serif: "Cormorant Garamond Variable", ui-serif, Georgia, "Times New Roman", serif;
 }
 
 /* Issue background — deliberately transparent so the demo + report shells
@@ -2297,7 +2300,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .eh-cover-dek,
 .report-shell .eh-cover-dek {
-  font-family: "Karla", "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Karla Variable", "Epilogue", ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1rem, 1.25vw, 1.15rem);
   font-weight: 400;
   line-height: 1.55;
@@ -2326,7 +2329,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .eh-cover-foot .value,
 .report-shell .eh-cover-foot .value {
-  font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Karla Variable", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.95rem; font-weight: 600; color: var(--eh-ink);
 }
 .demo-shell .eh-cover-folio,
@@ -2373,7 +2376,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .eh-chapter p,
 .report-shell .eh-chapter p {
-  font-family: "Karla", "Epilogue", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Karla Variable", "Epilogue", ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(0.95rem, 1.1vw, 1.05rem);
   font-weight: 400; line-height: 1.6;
   color: color-mix(in oklab, var(--eh-ink) 78%, transparent);
@@ -2474,7 +2477,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .eh-callout p,
 .report-shell .eh-callout p {
-  font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Karla Variable", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.95rem; line-height: 1.55;
   color: color-mix(in oklab, var(--eh-ink) 82%, transparent);
 }
@@ -2494,7 +2497,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .eh-sidebar-list,
 .report-shell .eh-sidebar-list {
-  font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Karla Variable", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.92rem; line-height: 1.5;
   color: var(--eh-ink);
   list-style: none; padding: 0; margin: 0;
@@ -2544,7 +2547,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
 }
 .demo-shell .eh-qa .prompt,
 .report-shell .eh-qa .prompt {
-  font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Karla Variable", ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem; font-weight: 600; color: var(--eh-ink);
   margin-bottom: 0.5rem;
 }
@@ -3744,7 +3747,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --pub-accent-soft:  #2d8a9e;
   --pub-rule:         #d9d3c4;
   --pub-rule-soft:    #ece6d6;
-  --pub-serif:        "Instrument Serif", "Cormorant Garamond", Georgia, serif;
+  --pub-serif:        "Instrument Serif", "Cormorant Garamond Variable", Georgia, serif;
   --pub-display:      "Urbanist", "Epilogue", Inter, sans-serif;
   --pub-body:         "Inter", system-ui, sans-serif;
 
@@ -5294,7 +5297,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
   --v2-teal-soft:   color-mix(in oklab, #2d8a9e 14%, transparent);
   --v2-rule:        color-mix(in oklab, #0c2340 20%, transparent);
   --v2-rule-soft:   color-mix(in oklab, #0c2340 10%, transparent);
-  --v2-serif:       "DM Serif Display", "Cormorant Garamond", Georgia, serif;
+  --v2-serif:       "DM Serif Display", "Cormorant Garamond Variable", Georgia, serif;
   --v2-sans:        "Fira Sans", "Plus Jakarta Sans", system-ui, sans-serif;
   --v2-page-max:    72rem;
 
