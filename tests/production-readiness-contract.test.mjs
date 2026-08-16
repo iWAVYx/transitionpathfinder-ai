@@ -247,19 +247,26 @@ test("legacy QA identity bootstrap is manual, protected, and staging-only", () =
   assert.doesNotMatch(workflow, /lrqcntqyekucamifpffs/);
 });
 
-test("calendar policy snapshots can only be captured manually from protected staging", () => {
+test("RLS policy snapshots can only be captured manually from protected staging", () => {
   const workflow = read(
     ".github/workflows/capture-staging-calendar-rls-snapshot.yml",
   );
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /^\s+(?:pull_request|push):/m);
-  assert.match(workflow, /if: github\.ref == 'refs\/heads\/main'/);
+  assert.match(
+    workflow,
+    /if: github\.event_name == 'workflow_dispatch' && github\.ref == 'refs\/heads\/main'/,
+  );
   assert.match(workflow, /environment:\s*staging/);
   assert.match(workflow, /PGHOST:\s*aws-0-ca-central-1\.pooler\.supabase\.com/);
   assert.match(workflow, /PGUSER:\s*postgres\.qgrertkqbwanerqqemph/);
   assert.match(workflow, /PGPASSWORD:\s*\$\{\{ secrets\.STAGING_DB_PASSWORD \}\}/);
   assert.match(workflow, /UPDATE_SNAPSHOTS:\s*"1"/);
   assert.match(workflow, /staging-snapshot/);
+  assert.match(workflow, /node --test tests\/calendar-rls\.test\.mjs/);
+  assert.match(workflow, /node --test tests\/documents-rls\.test\.mjs/);
+  assert.match(workflow, /tests\/__snapshots__\/documents-rls-policies\.snap\.json/);
+  assert.match(workflow, /tests\/__snapshots__\/documents-rls-matrix\.snap\.json/);
   assert.match(workflow, /actions\/upload-artifact@v4/);
   assert.doesNotMatch(workflow, /lrqcntqyekucamifpffs/);
 });

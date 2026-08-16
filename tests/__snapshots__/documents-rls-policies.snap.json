@@ -29,58 +29,72 @@
   },
   {
     "rel": "public.documents",
-    "polname": "Access docs via student",
-    "polcmd": "r",
-    "using_expr": "can_access_student(auth.uid(), student_id)",
-    "check_expr": null
-  },
-  {
-    "rel": "public.documents",
-    "polname": "Delete docs via student",
+    "polname": "documents_delete_platform_admin",
     "polcmd": "d",
-    "using_expr": "can_edit_student(auth.uid(), student_id)",
+    "using_expr": "is_platform_admin(auth.uid())",
     "check_expr": null
   },
   {
     "rel": "public.documents",
-    "polname": "Insert docs via student",
+    "polname": "documents_insert",
     "polcmd": "a",
     "using_expr": null,
-    "check_expr": "(can_edit_student(auth.uid(), student_id) AND (auth.uid() = uploaded_by))"
+    "check_expr": "((NOT is_partner_only(auth.uid())) AND (auth.uid() = uploaded_by) AND can_edit_student(auth.uid(), student_id))"
   },
   {
     "rel": "public.documents",
-    "polname": "Update docs via student",
-    "polcmd": "w",
-    "using_expr": "can_edit_student(auth.uid(), student_id)",
-    "check_expr": null
-  },
-  {
-    "rel": "storage.objects",
-    "polname": "Access student docs via student access",
+    "polname": "documents_select_active",
     "polcmd": "r",
-    "using_expr": "((bucket_id = 'student-documents'::text) AND can_access_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "using_expr": "((archived_at IS NULL) AND (deleted_at IS NULL) AND (NOT is_partner_only(auth.uid())) AND (can_access_student(auth.uid(), student_id) OR can_view_document(auth.uid(), id)) AND ((scan_status = 'clean'::text) OR (auth.uid() = uploaded_by) OR is_platform_admin(auth.uid())))",
     "check_expr": null
   },
   {
-    "rel": "storage.objects",
-    "polname": "Delete student docs via edit access",
-    "polcmd": "d",
-    "using_expr": "((bucket_id = 'student-documents'::text) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "rel": "public.documents",
+    "polname": "documents_select_admin_override",
+    "polcmd": "r",
+    "using_expr": "has_recent_admin_doc_access(auth.uid(), id)",
     "check_expr": null
   },
   {
-    "rel": "storage.objects",
-    "polname": "Update student docs via edit access",
+    "rel": "public.documents",
+    "polname": "documents_select_archived_editors",
+    "polcmd": "r",
+    "using_expr": "((archived_at IS NOT NULL) AND (deleted_at IS NULL) AND (NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), student_id))",
+    "check_expr": null
+  },
+  {
+    "rel": "public.documents",
+    "polname": "documents_update",
     "polcmd": "w",
-    "using_expr": "((bucket_id = 'student-documents'::text) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "using_expr": "((NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), student_id))",
+    "check_expr": "((NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), student_id))"
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Delete student docs",
+    "polcmd": "d",
+    "using_expr": "((bucket_id = 'student-documents'::text) AND (is_platform_admin(auth.uid()) OR ((NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))))",
     "check_expr": null
   },
   {
     "rel": "storage.objects",
-    "polname": "Upload student docs via edit access",
+    "polname": "Read student docs",
+    "polcmd": "r",
+    "using_expr": "((bucket_id = 'student-documents'::text) AND storage_can_read_student_doc(auth.uid(), name))",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Update student docs",
+    "polcmd": "w",
+    "using_expr": "((bucket_id = 'student-documents'::text) AND (NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))",
+    "check_expr": "((bucket_id = 'student-documents'::text) AND (NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))"
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "Upload student docs",
     "polcmd": "a",
     "using_expr": null,
-    "check_expr": "((bucket_id = 'student-documents'::text) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))"
+    "check_expr": "((bucket_id = 'student-documents'::text) AND (NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))"
   }
 ]

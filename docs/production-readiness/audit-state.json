@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "auditedAt": "2026-08-15",
-  "auditedMainSha": "01e4c1408c1287178849af2978bcc2e84ea12acf",
+  "auditedMainSha": "4f3c8367e36be5ada277b4ec08ed86a7ace09c02",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",

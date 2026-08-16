@@ -10,9 +10,14 @@ on:
     paths:
       - "supabase/migrations/**"
       - ".github/workflows/migration-replay.yml"
+      - "tests/documents-rls.test.mjs"
+      - "tests/__snapshots__/documents-rls-policies.snap.json"
   pull_request:
     paths:
       - "supabase/migrations/**"
+      - ".github/workflows/migration-replay.yml"
+      - "tests/documents-rls.test.mjs"
+      - "tests/__snapshots__/documents-rls-policies.snap.json"
   workflow_dispatch:
 
 jobs:
@@ -40,6 +45,10 @@ jobs:
       PGDATABASE: postgres
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       - name: Bootstrap Supabase-like roles and schemas
         run: |
@@ -118,6 +127,11 @@ jobs:
             "select count(*) from pg_policies where schemaname='realtime' and tablename='messages';" \
             | tee /tmp/realtime_policies.txt
           test "$(cat /tmp/realtime_policies.txt)" -ge 1
+
+      - name: Canonical document RLS snapshot matches migration replay
+        env:
+          DOCUMENT_RLS_POLICY_ONLY: "1"
+        run: node --test tests/documents-rls.test.mjs
 
       - name: Privileged HTTP cron is fail-closed after replay
         run: |

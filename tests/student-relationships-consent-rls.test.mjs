@@ -66,8 +66,13 @@ async function teardown({ ownerClient, studentId }) {
 function assertRlsDenied(res, label) {
   if (res.error) {
     const code = res.error.code ?? "";
+    assert.notEqual(
+      code,
+      "23514",
+      `${label}: fixture violated a CHECK constraint instead of exercising RLS: ${res.error.message}`,
+    );
     assert.ok(
-      code === "42501" || code.startsWith("PGRST") || /policy|permission|denied|violates/i.test(res.error.message),
+      code === "42501" || code.startsWith("PGRST") || /policy|permission|denied/i.test(res.error.message),
       `${label}: expected RLS denial, got ${code} ${res.error.message}`,
     );
     return;
@@ -89,7 +94,7 @@ test("editor cannot INSERT student_relationship with consent_status='approved'",
       .insert({
         student_id: fx.studentId,
         related_user_id: fx.relatedId,
-        relationship_type: "educator",
+        relationship_type: "educator_case_manager",
         permission_level: "collaborate",
         consent_status: "approved", // <-- forbidden by WITH CHECK
       })
@@ -108,7 +113,7 @@ test("editor cannot INSERT student_relationship with related_user_id = self", as
       .insert({
         student_id: fx.studentId,
         related_user_id: fx.owner.id, // <-- self-invite forbidden
-        relationship_type: "parent",
+        relationship_type: "parent_guardian",
         permission_level: "collaborate",
         consent_status: "pending",
       })
@@ -127,7 +132,7 @@ test("editor CAN INSERT a legitimate pending invite for a different user", async
       .insert({
         student_id: fx.studentId,
         related_user_id: fx.relatedId,
-        relationship_type: "educator",
+        relationship_type: "educator_case_manager",
         permission_level: "collaborate",
         consent_status: "pending",
       })
@@ -150,7 +155,7 @@ test("editor cannot UPDATE consent_status to 'approved' on another user's pendin
       .insert({
         student_id: fx.studentId,
         related_user_id: fx.relatedId,
-        relationship_type: "educator",
+        relationship_type: "educator_case_manager",
         permission_level: "collaborate",
         consent_status: "pending",
       })
@@ -186,7 +191,7 @@ test("related user CAN approve their own pending consent row", async () => {
       .insert({
         student_id: fx.studentId,
         related_user_id: fx.relatedId,
-        relationship_type: "educator",
+        relationship_type: "educator_case_manager",
         permission_level: "collaborate",
         consent_status: "pending",
       })
