@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-08-15",
-  "auditedMainSha": "4f3c8367e36be5ada277b4ec08ed86a7ace09c02",
+  "auditedAt": "2026-08-16",
+  "auditedMainSha": "e8ee0ebd4e9a0117d7f5ee60ca824f0b89bda9fa",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
@@ -12,9 +12,18 @@
     "supabaseProjectRef": "lrqcntqyekucamifpffs",
     "canonicalOrigin": "https://transitionforwardct.com",
     "stripeModeRequired": "live",
-    "githubEnvironmentProvisioned": false,
+    "hostingProvider": "lovable-cloud",
+    "githubEnvironmentProvisioned": true,
     "deploymentWorkflowProvisioned": false,
-    "migrationBaselineVerified": false
+    "migrationBaselineVerified": false,
+    "exactDeploymentIdentityVerified": false,
+    "hostingControlPlaneVerified": true,
+    "backupInventoryVerified": true,
+    "restoreDrillVerified": false,
+    "stripeLiveReadinessVerified": false,
+    "secretIsolationVerified": false,
+    "securityFindingsClosed": false,
+    "malwareScanningVerified": false
   },
   "migrations": {
     "canonicalCount": 187,

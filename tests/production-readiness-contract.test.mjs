@@ -7,6 +7,20 @@ import { test } from "node:test";
 const AUDIT_PATH = "docs/production-readiness/audit-state.json";
 const audit = JSON.parse(readFileSync(AUDIT_PATH, "utf8"));
 
+const productionGoControls = [
+  "githubEnvironmentProvisioned",
+  "deploymentWorkflowProvisioned",
+  "migrationBaselineVerified",
+  "exactDeploymentIdentityVerified",
+  "hostingControlPlaneVerified",
+  "backupInventoryVerified",
+  "restoreDrillVerified",
+  "stripeLiveReadinessVerified",
+  "secretIsolationVerified",
+  "securityFindingsClosed",
+  "malwareScanningVerified",
+];
+
 function read(path) {
   return readFileSync(path, "utf8");
 }
@@ -41,19 +55,26 @@ test("audit is fail-closed until every production control is proven", () => {
   );
   assert.equal(audit.staging.stripeMode, "sandbox");
   assert.equal(audit.production.stripeModeRequired, "live");
+  assert.ok(
+    ["lovable-cloud", "cloudflare-workers"].includes(audit.production.hostingProvider),
+    "the production hosting control plane must be explicit",
+  );
+  for (const control of productionGoControls) {
+    assert.equal(
+      typeof audit.production[control],
+      "boolean",
+      `production.${control} must be an explicit boolean`,
+    );
+  }
 
   if (audit.status === "go") {
-    assert.equal(audit.production.githubEnvironmentProvisioned, true);
-    assert.equal(audit.production.deploymentWorkflowProvisioned, true);
-    assert.equal(audit.production.migrationBaselineVerified, true);
+    for (const control of productionGoControls) {
+      assert.equal(audit.production[control], true, `production.${control} must pass for GO`);
+    }
   } else {
     assert.equal(audit.status, "no-go");
     assert.ok(
-      [
-        audit.production.githubEnvironmentProvisioned,
-        audit.production.deploymentWorkflowProvisioned,
-        audit.production.migrationBaselineVerified,
-      ].includes(false),
+      productionGoControls.some((control) => audit.production[control] === false),
       "a NO-GO audit must retain at least one explicit blocking control",
     );
   }
@@ -175,10 +196,7 @@ test("fixed staging identities consume only the protected synthetic password", (
     "permission-regression-qa.yml",
   ]) {
     const source = read(join(".github/workflows", name));
-    assert.match(
-      source,
-      /STAGING_E2E_PASSWORD:\s*\$\{\{ secrets\.STAGING_E2E_PASSWORD \}\}/,
-    );
+    assert.match(source, /STAGING_E2E_PASSWORD:\s*\$\{\{ secrets\.STAGING_E2E_PASSWORD \}\}/);
   }
 
   for (const name of [
@@ -248,9 +266,7 @@ test("legacy QA identity bootstrap is manual, protected, and staging-only", () =
 });
 
 test("RLS policy snapshots can only be captured manually from protected staging", () => {
-  const workflow = read(
-    ".github/workflows/capture-staging-calendar-rls-snapshot.yml",
-  );
+  const workflow = read(".github/workflows/capture-staging-calendar-rls-snapshot.yml");
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /^\s+(?:pull_request|push):/m);
   assert.match(
@@ -313,12 +329,24 @@ test("deployable source owns every referenced marketing image", () => {
   const sourceFiles = filesUnder("src").filter((path) => /\.(?:ts|tsx)$/.test(path));
   for (const path of sourceFiles) {
     const source = read(path);
-    assert.doesNotMatch(source, /\.asset\.json/, `${path} depends on a Lovable-only asset manifest`);
-    assert.doesNotMatch(source, /\/__l5e\/assets-v1\//, `${path} depends on a Lovable-only asset route`);
+    assert.doesNotMatch(
+      source,
+      /\.asset\.json/,
+      `${path} depends on a Lovable-only asset manifest`,
+    );
+    assert.doesNotMatch(
+      source,
+      /\/__l5e\/assets-v1\//,
+      `${path} depends on a Lovable-only asset route`,
+    );
   }
 
   const bundled = readdirSync("src/assets/bundled").filter((name) => name.endsWith(".webp"));
-  assert.equal(bundled.length, 31, "all referenced Lovable images must have optimized local copies");
+  assert.equal(
+    bundled.length,
+    31,
+    "all referenced Lovable images must have optimized local copies",
+  );
   for (const name of bundled) {
     assert.ok(
       statSync(join("src/assets/bundled", name)).size <= 400 * 1024,
@@ -353,10 +381,14 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(health, /is_production_target/);
 
   const auditReport = read("docs/production-readiness/audit-2026-08-13.md");
+  const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
   assert.match(auditReport, /NO-GO/);
   assert.match(auditReport, /Do not deploy or migrate production/);
+  assert.match(currentAlignment, /Lovable Cloud/);
+  assert.match(currentAlignment, /Production remains \*\*NO-GO\*\*/);
+  assert.match(currentAlignment, /staging credentials/i);
   assert.match(migrationPlan, /restore drill/i);
   assert.match(migrationPlan, /forward-only/i);
   assert.match(migrationPlan, /lrqcntqyekucamifpffs/);

@@ -9,7 +9,9 @@ the maintenance window.
 
 1. Record the approved Git SHA and the 187 sorted canonical migration files.
 2. Query production `supabase_migrations.schema_migrations` using a restricted,
-   read-only operator connection.
+   read-only operator connection or the Lovable Cloud SQL editor. The production
+   ref `lrqcntqyekucamifpffs` is Lovable-managed and is not one of the projects
+   in the separately signed-in Supabase organization.
 3. Compare version numbers exactly. Stop for a missing historical version,
    production-only version, duplicate, renamed migration, or checksum concern.
 4. Produce the exact pending list. Never assume every file after a remembered
@@ -19,13 +21,15 @@ the maintenance window.
 
 ## 2. Prove recovery
 
-1. Confirm point-in-time recovery/backup retention and record the recovery
-   point immediately before the maintenance window.
+1. Confirm Lovable Cloud backup/export retention and record the recovery point
+   immediately before the maintenance window. A visible daily-backup inventory
+   is evidence of backups, not evidence that recovery works.
 2. Restore the backup into an isolated, non-production project.
 3. Run schema verification and a representative application smoke test on the
    restored copy. Record elapsed restore time and recovery-point objective.
-4. Export non-secret Cloudflare Worker version/route metadata and record the
-   last known-good application version.
+4. Export non-secret Lovable publish/build/domain metadata and record the last
+   known-good published application snapshot. If an approved release changes
+   production hosting to Cloudflare, export Worker version/route metadata too.
 5. Define the abort owner, database operator, release operator, and incident
    communication channel.
 
@@ -73,8 +77,10 @@ If the restore drill has not passed, the migration is NO-GO.
 Application rollback and database recovery are separate decisions:
 
 - If the schema is healthy and backward-compatible but the application fails,
-  roll Cloudflare back to the recorded last known-good application version.
-  Verify that version is compatible with the new schema.
+  restore the recorded last known-good Lovable published snapshot. If production
+  has been intentionally moved to Cloudflare, roll the Worker back to its
+  recorded last known-good version instead. Verify that the chosen application
+  version is compatible with the new schema.
 - If a forward migration partially fails, stop immediately. Do not improvise
   down SQL. Prefer a reviewed corrective forward migration when data integrity
   is intact.
