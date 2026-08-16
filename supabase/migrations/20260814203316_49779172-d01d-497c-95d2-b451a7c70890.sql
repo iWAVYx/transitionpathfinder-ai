@@ -524,22 +524,33 @@ GRANT EXECUTE ON FUNCTION public.accept_invitation_by_token(text) TO authenticat
 -- The issuing organization remains the administrative owner of the code while
 -- target_organization_id identifies the school/district the account joins.
 ALTER TABLE public.access_codes
-  ADD COLUMN label text,
-  ADD COLUMN target_organization_id uuid
+  ADD COLUMN IF NOT EXISTS label text,
+  ADD COLUMN IF NOT EXISTS target_organization_id uuid
     REFERENCES public.organizations(id) ON DELETE CASCADE;
 
-ALTER TABLE public.access_codes
-  ADD CONSTRAINT access_codes_label_length_check
-  CHECK (label IS NULL OR char_length(btrim(label)) BETWEEN 1 AND 100);
+DO $migration$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.access_codes'::regclass
+      AND conname = 'access_codes_label_length_check'
+  ) THEN
+    ALTER TABLE public.access_codes
+      ADD CONSTRAINT access_codes_label_length_check
+      CHECK (label IS NULL OR char_length(btrim(label)) BETWEEN 1 AND 100);
+  END IF;
+END
+$migration$;
 
-CREATE INDEX access_codes_target_org_idx
+CREATE INDEX IF NOT EXISTS access_codes_target_org_idx
   ON public.access_codes (target_organization_id);
 
 ALTER TABLE public.license_allocations
-  ADD COLUMN access_code_id uuid
+  ADD COLUMN IF NOT EXISTS access_code_id uuid
     REFERENCES public.access_codes(id) ON DELETE SET NULL;
 
-CREATE INDEX license_allocations_access_code_idx
+CREATE INDEX IF NOT EXISTS license_allocations_access_code_idx
   ON public.license_allocations (access_code_id, state)
   WHERE access_code_id IS NOT NULL;
 

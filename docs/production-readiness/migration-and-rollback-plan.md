@@ -7,7 +7,7 @@ the maintenance window.
 
 ## 1. Establish the baseline (read-only)
 
-1. Record the approved Git SHA and the 178 sorted canonical migration files.
+1. Record the approved Git SHA and the 187 sorted canonical migration files.
 2. Query production `supabase_migrations.schema_migrations` using a restricted,
    read-only operator connection.
 3. Compare version numbers exactly. Stop for a missing historical version,
@@ -41,12 +41,19 @@ If the restore drill has not passed, the migration is NO-GO.
 5. After each file, verify its recorded version and targeted invariants. Do not
    edit, rename, skip, or mark a migration applied manually to get past a
    failure.
-6. After
-   `20260813013345_20260812163612_harden_scheduled_hook_isolation.sql`, verify
-   the three privileged HTTP cron jobs are absent. Provision the production
-   Vault origin and webhook secret, verify the Worker secret matches, then call
-   the private scheduling function as the database operator. Never store a
-   decrypted secret in migration SQL or `cron.job.command`.
+6. The August 14 repository sync added six later migration versions whose SQL
+   repeats already-canonical changes. Preserve those version numbers when
+   comparing remote history. The two copies that create indexes are deliberately
+   idempotent so a clean replay and a database that already has the original
+   indexes both succeed; never mark either version applied by hand.
+7. After both
+   `20260813013345_20260812163612_harden_scheduled_hook_isolation.sql` and its
+   later synchronized version
+   `20260814203430_dd944c00-cb34-4cb1-b5a7-ee6e76f67235.sql`, verify the three
+   privileged HTTP cron jobs are absent. Provision the production Vault origin
+   and webhook secret, verify the Worker secret matches, then call the private
+   scheduling function as the database operator. Never store a decrypted secret
+   in migration SQL or `cron.job.command`.
 
 ## 4. Verification gates
 

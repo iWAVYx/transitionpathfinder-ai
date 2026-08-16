@@ -14,6 +14,7 @@ explicitly approved run.
 Documents:
 
 - `audit-2026-08-13.md` — evidence and current blockers.
+- `alignment-2026-08-14.md` — current staging RLS and migration-alignment evidence.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.
 - `release-checklist.md` — operator go/no-go procedure.
 - `audit-state.json` — fail-closed CI contract.
