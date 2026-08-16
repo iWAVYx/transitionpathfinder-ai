@@ -1,8 +1,8 @@
-name: Capture Staging Calendar RLS Snapshot
+name: Capture Staging RLS Snapshots
 
-# Manual-only, protected capture of the current isolated-staging policy and
-# behavioral snapshots. The artifact is reviewed before any snapshot is
-# committed; this workflow never pushes code or targets production.
+# Manual-only, protected capture of the current isolated-staging calendar and
+# document policy/behavioral snapshots. The artifact is reviewed before any
+# snapshot is committed; this workflow never pushes code or targets production.
 on:
   workflow_dispatch:
     inputs:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   capture:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: staging
     timeout-minutes: 20
@@ -58,17 +58,21 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends postgresql-client
 
-      - name: Capture reviewed calendar RLS snapshots
+      - name: Capture reviewed calendar and document RLS snapshots
         env:
           PGPASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
-        run: node --test tests/calendar-rls.test.mjs
+        run: |
+          node --test tests/calendar-rls.test.mjs
+          node --test tests/documents-rls.test.mjs
 
       - name: Upload staging snapshot evidence
         uses: actions/upload-artifact@v4
         with:
-          name: staging-calendar-rls-snapshot-${{ github.run_id }}
+          name: staging-rls-snapshot-${{ github.run_id }}
           path: |
             tests/__snapshots__/calendar-rls-policies.snap.json
             tests/__snapshots__/calendar-rls-matrix.snap.json
+            tests/__snapshots__/documents-rls-policies.snap.json
+            tests/__snapshots__/documents-rls-matrix.snap.json
           retention-days: 7
           if-no-files-found: error

@@ -46,10 +46,12 @@ const SNAP_MATRIX = new URL(
   import.meta.url,
 );
 const UPDATE = process.env.UPDATE_SNAPSHOTS === "1";
+const POLICY_ONLY = process.env.DOCUMENT_RLS_POLICY_ONLY === "1";
 
 const DB_AVAILABLE =
   Boolean(process.env.SUPABASE_DB_URL) || Boolean(process.env.PGHOST);
 const SKIP = DB_AVAILABLE ? false : "no database (set SUPABASE_DB_URL)";
+const SKIP_NON_POLICY = POLICY_ONLY ? "document policy snapshot only" : SKIP;
 
 function psqlArgs(extra = []) {
   const args = ["-tAX", "-v", "ON_ERROR_STOP=1", ...extra];
@@ -109,8 +111,139 @@ SELECT json_agg(json_build_object(
 FROM pols
 `;
 
+function requiredPolicy(policies, rel, polname, polcmd) {
+  const policy = policies.find(
+    (candidate) =>
+      candidate.rel === rel &&
+      candidate.polname === polname &&
+      candidate.polcmd === polcmd,
+  );
+  assert.ok(policy, `missing required ${rel}.${polname} (${polcmd}) policy`);
+  return policy;
+}
+
+function assertDocumentPolicySecurityFloor(policies, source) {
+  const active = requiredPolicy(
+    policies,
+    "public.documents",
+    "documents_select_active",
+    "r",
+  );
+  for (const guard of [
+    /archived_at IS NULL/,
+    /deleted_at IS NULL/,
+    /NOT is_partner_only\(auth\.uid\(\)\)/,
+    /can_access_student\(auth\.uid\(\), student_id\)/,
+    /can_view_document\(auth\.uid\(\), id\)/,
+    /scan_status = 'clean'(?:::text)?/,
+    /auth\.uid\(\) = uploaded_by/,
+    /is_platform_admin\(auth\.uid\(\)\)/,
+  ]) {
+    assert.match(
+      active.using_expr ?? "",
+      guard,
+      `${source}: documents_select_active lost ${guard}`,
+    );
+  }
+
+  const insert = requiredPolicy(
+    policies,
+    "public.documents",
+    "documents_insert",
+    "a",
+  );
+  for (const guard of [
+    /NOT is_partner_only\(auth\.uid\(\)\)/,
+    /auth\.uid\(\) = uploaded_by/,
+    /can_edit_student\(auth\.uid\(\), student_id\)/,
+  ]) {
+    assert.match(
+      insert.check_expr ?? "",
+      guard,
+      `${source}: documents_insert lost ${guard}`,
+    );
+  }
+
+  const update = requiredPolicy(
+    policies,
+    "public.documents",
+    "documents_update",
+    "w",
+  );
+  for (const expression of [update.using_expr, update.check_expr]) {
+    assert.match(
+      expression ?? "",
+      /NOT is_partner_only\(auth\.uid\(\)\)/,
+      `${source}: documents_update permits partner-only access`,
+    );
+    assert.match(
+      expression ?? "",
+      /can_edit_student\(auth\.uid\(\), student_id\)/,
+      `${source}: documents_update lost student edit scoping`,
+    );
+  }
+
+  const deleteAdmin = requiredPolicy(
+    policies,
+    "public.documents",
+    "documents_delete_platform_admin",
+    "d",
+  );
+  assert.match(
+    deleteAdmin.using_expr ?? "",
+    /is_platform_admin\(auth\.uid\(\)\)/,
+    `${source}: document deletion is not platform-admin scoped`,
+  );
+
+  const storageRead = requiredPolicy(
+    policies,
+    "storage.objects",
+    "Read student docs",
+    "r",
+  );
+  assert.match(storageRead.using_expr ?? "", /bucket_id = 'student-documents'/);
+  assert.match(
+    storageRead.using_expr ?? "",
+    /storage_can_read_student_doc\(auth\.uid\(\), name\)/,
+    `${source}: storage reads bypass the document quarantine helper`,
+  );
+
+  for (const [name, cmd, expressionKey] of [
+    ["Upload student docs", "a", "check_expr"],
+    ["Update student docs", "w", "check_expr"],
+    ["Delete student docs", "d", "using_expr"],
+  ]) {
+    const policy = requiredPolicy(policies, "storage.objects", name, cmd);
+    const expression = policy[expressionKey] ?? "";
+    assert.match(
+      expression,
+      /bucket_id = 'student-documents'/,
+      `${source}: ${name} lost bucket scoping`,
+    );
+    assert.match(
+      expression,
+      /can_edit_student\(auth\.uid\(\)/,
+      `${source}: ${name} lost student edit scoping`,
+    );
+    if (name !== "Delete student docs") {
+      assert.match(
+        expression,
+        /NOT is_partner_only\(auth\.uid\(\)\)/,
+        `${source}: ${name} permits partner-only writes`,
+      );
+    }
+  }
+}
+
+test("committed document RLS snapshot enforces the security floor", () => {
+  const expected = readSnap(SNAP_POLICIES);
+  assert.ok(expected, "Missing committed document RLS policy snapshot");
+  assertDocumentPolicySecurityFloor(expected, "committed snapshot");
+});
+
 test("documents + storage RLS policies match committed snapshot", { skip: SKIP }, () => {
   const current = JSON.parse(psqlQuery(POLICY_SQL));
+  assertDocumentPolicySecurityFloor(current, "database policy");
 
   // Hard checks regardless of snapshot.
   const rls = JSON.parse(
@@ -260,7 +393,7 @@ FROM (
 ROLLBACK;
 `;
 
-test("documents access matrix matches committed snapshot", { skip: SKIP }, () => {
+test("documents access matrix matches committed snapshot", { skip: SKIP_NON_POLICY }, () => {
   const out = psqlScript(MATRIX_SQL);
   const jsonLine = out
     .split("\n")
@@ -272,15 +405,15 @@ test("documents access matrix matches committed snapshot", { skip: SKIP }, () =>
 
   if (UPDATE) {
     writeSnap(SNAP_MATRIX, current);
-    return;
+  } else {
+    const expected = readSnap(SNAP_MATRIX);
+    assert.ok(expected, "Missing matrix snapshot. Run with UPDATE_SNAPSHOTS=1.");
+    assert.deepEqual(
+      current,
+      expected,
+      "Documents access matrix drifted. A role can now access (or no longer access) files it shouldn't.",
+    );
   }
-  const expected = readSnap(SNAP_MATRIX);
-  assert.ok(expected, "Missing matrix snapshot. Run with UPDATE_SNAPSHOTS=1.");
-  assert.deepEqual(
-    current,
-    expected,
-    "Documents access matrix drifted. A role can now access (or no longer access) files it shouldn't.",
-  );
 
   // Hard invariants — must always hold regardless of snapshot.
   // Anon: zero document access of any kind.
@@ -341,7 +474,7 @@ WHERE s2.id = s.id
 LIMIT 1
 `;
 
-test("storage bucket policy derives student_id from path correctly", { skip: SKIP }, () => {
+test("storage bucket policy derives student_id from path correctly", { skip: SKIP_NON_POLICY }, () => {
   const guards = JSON.parse(psqlQuery(STORAGE_PATH_SQL));
   for (const [k, v] of Object.entries(guards)) {
     assert.equal(v, true, `Storage path guard "${k}" must hold — got ${v}`);
@@ -352,7 +485,7 @@ test("storage bucket policy derives student_id from path correctly", { skip: SKI
 // 4. Data-API GRANTs — ensure anon was never widened on document tables.
 // ---------------------------------------------------------------------------
 
-test("anon has NO direct privileges on documents or document_summaries", { skip: SKIP }, () => {
+test("anon has NO direct privileges on documents or document_summaries", { skip: SKIP_NON_POLICY }, () => {
   const raw = psqlQuery(`
     SELECT json_agg(privilege_type ORDER BY privilege_type)::text
     FROM information_schema.role_table_grants

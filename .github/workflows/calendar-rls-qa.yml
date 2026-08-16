@@ -103,9 +103,8 @@ jobs:
         if: failure()
         run: |
           echo "::error::An RLS policy snapshot or behavioral matrix drifted."
-          echo "For calendar policy drift, dispatch 'Capture Staging Calendar RLS Snapshot' from main"
+          echo "For calendar or document policy drift, dispatch 'Capture Staging RLS Snapshots' from main"
           echo "with confirmation 'staging-snapshot', then review its artifact before committing."
-          echo "For other reviewed policy changes, regenerate the affected snapshot(s) locally with:"
-          echo "  UPDATE_SNAPSHOTS=1 node --test tests/documents-rls.test.mjs"
+          echo "For other reviewed policy changes, regenerate the affected snapshot locally with:"
           echo "  UPDATE_SNAPSHOTS=1 node --test tests/iep-upload-signed-url.test.mjs"
           echo "Then commit tests/__snapshots__/*.snap.json and re-run."
