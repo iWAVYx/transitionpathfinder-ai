@@ -51,8 +51,9 @@ export const Route = createFileRoute("/api/public/env-health")({
         );
         const git_commit_sha =
           process.env["GIT_COMMIT_SHA"] ??
-          process.env["CF_VERSION_METADATA_ID"] ??
           process.env["CF_PAGES_COMMIT_SHA"] ??
+          (import.meta.env["VITE_APP_BUILD_SHA"] as string | undefined) ??
+          (import.meta.env["VITE_GIT_COMMIT_SHA"] as string | undefined) ??
           "unknown";
 
         // Any deployment that either claims staging or is served from a
@@ -82,6 +83,7 @@ export const Route = createFileRoute("/api/public/env-health")({
             hostname,
             supabaseProjectRef: supabase_project_ref,
             stripeMode: stripe_mode,
+            gitCommitSha: git_commit_sha,
             productionSecretsPresent: FORBIDDEN_IN_STAGING.filter((name) => !!process.env[name]),
           });
         } else if (productionTarget) {

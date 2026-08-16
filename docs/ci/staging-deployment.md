@@ -6,12 +6,12 @@
 Staging runs as its own Cloudflare Worker, entirely separate from the Lovable
 production deployment.
 
-| | Production | Staging |
-| --- | --- | --- |
-| Hostname | transitionforwardct.com | e2e.transitionforwardct.com (or `*.workers.dev`) |
-| Supabase project | `lrqcntqyekucamifpffs` | `qgrertkqbwanerqqemph` |
-| Stripe | live (Lovable connector gateway) | sandbox (direct `sk_test_` key) |
-| APP_ENV | `production` | `staging` |
+|                  | Production                       | Staging                                          |
+| ---------------- | -------------------------------- | ------------------------------------------------ |
+| Hostname         | transitionforwardct.com          | e2e.transitionforwardct.com (or `*.workers.dev`) |
+| Supabase project | `lrqcntqyekucamifpffs`           | `qgrertkqbwanerqqemph`                           |
+| Stripe           | live (Lovable connector gateway) | sandbox (direct `sk_test_` key)                  |
+| APP_ENV          | `production`                     | `staging`                                        |
 
 ## 1. Deployment identity is enforced by code
 
@@ -23,6 +23,7 @@ staging hostname, or the staging Supabase ref) must satisfy **all** of:
 - Supabase project ref is exactly `qgrertkqbwanerqqemph`
 - Stripe mode is sandbox
 - Hostname is an allowed staging hostname and not a production hostname
+- Git commit identity is an exact 40-character SHA embedded by the build
 - `STRIPE_LIVE_API_KEY` and `PAYMENTS_LIVE_WEBHOOK_SECRET` are absent
 
 Otherwise the endpoint returns **503** with the list of failures, which the
@@ -77,6 +78,11 @@ It requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository
 secrets, the protected `STAGING_CRON_WEBHOOK_SECRET`, and refuses to run if a
 live Stripe secret is configured.
 
+Pull requests do not receive the protected `staging` environment or its
+synthetic browser credentials. Dashboard PRs run the credential-free unit
+gate; the full staging browser regression runs only on merged `main` or an
+authorized manual run, after the exact commit has been deployed.
+
 ## 4. Stripe sandbox webhook
 
 Point a **sandbox** endpoint at:
@@ -99,8 +105,10 @@ curl -s https://<staging-host>/api/public/env-health | jq
 ```
 
 Expect HTTP 200, `"app_env": "staging"`, `"supabase_project_ref":
-"qgrertkqbwanerqqemph"`, `"stripe_mode": "sandbox"`,
-`"is_production_project": false`, `"isolation": { "ok": true, "errors": [] }`.
+"qgrertkqbwanerqqemph"`, `"stripe_mode": "sandbox"`, `"git_commit_sha"`
+equal to the exact deployed commit, `"is_production_project": false`, and
+`"isolation": { "ok": true, "errors": [] }`. The deploy workflow compares
+the endpoint SHA to GitHub's exact `GITHUB_SHA` and fails on any mismatch.
 
 Unit coverage for the guard and the environment resolver:
 

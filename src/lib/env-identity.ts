@@ -63,6 +63,7 @@ export interface StagingIdentityInput {
   hostname: string;
   supabaseProjectRef: string | undefined | null;
   stripeMode: StripeMode | null | undefined;
+  gitCommitSha: string | undefined | null;
   /** Names of production-only variables that were found in this deployment. */
   productionSecretsPresent?: string[];
 }
@@ -140,6 +141,10 @@ export function evaluateStagingIdentity(input: StagingIdentityInput): IdentityVe
     errors.push(`"${input.hostname}" is a production hostname.`);
   } else if (!isStagingHostname(input.hostname)) {
     errors.push(`"${input.hostname}" is not an allowed staging hostname.`);
+  }
+
+  if (!/^[a-f0-9]{40}$/i.test(input.gitCommitSha ?? "")) {
+    errors.push("GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA.");
   }
 
   for (const name of input.productionSecretsPresent ?? []) {
