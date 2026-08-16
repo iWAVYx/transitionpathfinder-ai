@@ -1,7 +1,7 @@
 # Production-readiness alignment — 2026-08-14
 
-Scope: read-only review of `main` at
-`95aa2f76512d41be9e7e2f5f71db1f7472e610ff`, isolated staging evidence, and
+Scope: read-only review of `main` through
+`01e4c1408c1287178849af2978bcc2e84ea12acf`, isolated staging evidence, and
 repository contracts. This work did not deploy or migrate production.
 
 ## Protected staging RLS evidence
@@ -19,10 +19,11 @@ repository contracts. This work did not deploy or migrate production.
 
 ## Migration alignment
 
-The canonical directory now contains 185 migrations. Seven versions were added
-on August 14. Six repeat previously canonical SQL under later version numbers;
-the remaining migration replaces a public SECURITY DEFINER view with an
-explicit column-limited function.
+The canonical directory now contains 187 migrations. Nine versions were added
+after the prior 178-file audit. Six repeat previously canonical SQL under later
+version numbers. The remaining three replace a public SECURITY DEFINER view
+with an explicit column-limited function, restrict public resource columns, and
+add malware-scan/document/audit-log security gates.
 
 The synchronized copies of the webhook conflict-target and student ownership
 migrations contained non-idempotent index creation. Their versioned files are

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-08-14",
-  "auditedMainSha": "95aa2f76512d41be9e7e2f5f71db1f7472e610ff",
+  "auditedAt": "2026-08-15",
+  "auditedMainSha": "01e4c1408c1287178849af2978bcc2e84ea12acf",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
@@ -17,7 +17,7 @@
     "migrationBaselineVerified": false
   },
   "migrations": {
-    "canonicalCount": 185,
-    "latestCanonicalFile": "20260814203539_e9798b8a-16ad-4791-a8e9-7573b4212711.sql"
+    "canonicalCount": 187,
+    "latestCanonicalFile": "20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql"
   }
 }

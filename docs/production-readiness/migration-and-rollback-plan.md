@@ -7,7 +7,7 @@ the maintenance window.
 
 ## 1. Establish the baseline (read-only)
 
-1. Record the approved Git SHA and the 185 sorted canonical migration files.
+1. Record the approved Git SHA and the 187 sorted canonical migration files.
 2. Query production `supabase_migrations.schema_migrations` using a restricted,
    read-only operator connection.
 3. Compare version numbers exactly. Stop for a missing historical version,
