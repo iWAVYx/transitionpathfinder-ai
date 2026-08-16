@@ -43,8 +43,11 @@ jobs:
 
   # Signed-in role-leak + access-rule verification across all 7 roles. These
   # checks target the isolated staging Worker, so they use only synthetic
-  # staging identities and never mix in production E2E credentials.
+  # staging identities and never mix in production E2E credentials. Pull
+  # request refs are deliberately excluded from the protected environment;
+  # the credential-free role matrix remains the PR gate.
   role-leak-signedin:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: role-guard-matrix
     environment: staging
