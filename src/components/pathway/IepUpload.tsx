@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
 import iepImage from "@/assets/bundled/iep-upload-buried.webp";
 import { TrustNote } from "@/components/site/TrustNote";
+import { loadPdfJs } from "@/lib/browser-only-libs";
 
 type Props = {
   onExtracted: (extract: IepExtract) => void;
@@ -13,7 +14,7 @@ type Props = {
 
 async function extractPdfText(file: File): Promise<string> {
   // Use legacy build so it works inside the browser bundler
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjs = await loadPdfJs();
   // Worker via CDN to avoid bundling complexity
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (pdfjs as any).GlobalWorkerOptions.workerSrc =

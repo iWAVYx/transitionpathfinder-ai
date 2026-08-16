@@ -22,6 +22,7 @@ import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolP
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { loadJsPdf, loadJsPdfAutoTable } from "@/lib/browser-only-libs";
 import { cn } from "@/lib/utils";
 import {
   getSchoolReportMetrics,
@@ -512,8 +513,8 @@ function exportCsv(org: SchoolOrg, w: SchoolReportWindow, rangeLabel: string) {
 
 async function exportPdf(org: SchoolOrg, w: SchoolReportWindow, rangeLabel: string) {
   try {
-    const { jsPDF } = await import("jspdf");
-    const autoTable = (await import("jspdf-autotable")).default;
+    const { jsPDF } = await loadJsPdf();
+    const autoTable = (await loadJsPdfAutoTable()).default;
     const { summary, studentRows } = buildRows(org, w, rangeLabel);
     const doc = new jsPDF();
     doc.setFontSize(16);

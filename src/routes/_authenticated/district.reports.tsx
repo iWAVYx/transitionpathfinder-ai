@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { loadJsPdf, loadJsPdfAutoTable } from "@/lib/browser-only-libs";
 import { cn } from "@/lib/utils";
 import {
   getDistrictReportMetrics,
@@ -395,8 +396,8 @@ function exportCsv(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: s
 
 async function exportPdf(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: string) {
   try {
-    const { jsPDF } = await import("jspdf");
-    const autoTable = (await import("jspdf-autotable")).default;
+    const { jsPDF } = await loadJsPdf();
+    const autoTable = (await loadJsPdfAutoTable()).default;
     const { summary, schoolRows } = buildRows(district, w, rangeLabel);
     const doc = new jsPDF();
     doc.setFontSize(16);
