@@ -320,6 +320,9 @@ test("PWA worker is generated into and required from the deployed asset director
   assert.match(stagingDeploy, /\[ ! -f "\$assets\/sw\.js" \]/);
   assert.match(stagingDeploy, /workbox-\*\.js/);
   assert.match(stagingDeploy, /Verify deployed PWA assets/);
+  assert.match(stagingDeploy, /Verify exact staging deployment identity/);
+  assert.match(stagingDeploy, /health_sha=.*git_commit_sha/);
+  assert.match(stagingDeploy, /\$health_sha" = "\$GITHUB_SHA/);
   assert.match(stagingDeploy, /"\$STAGING_ORIGIN\/sw\.js"/);
   assert.match(stagingDeploy, /grep -q 'sw-privacy-cleanup\.js'/);
   assert.match(stagingDeploy, /Workbox propagation attempt/);
@@ -379,6 +382,11 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(identity, /exact 40-character Git commit SHA/);
   assert.match(health, /FORBIDDEN_IN_PRODUCTION/);
   assert.match(health, /is_production_target/);
+  assert.match(
+    health,
+    /process\.env\["GIT_COMMIT_SHA"\][\s\S]*?import\.meta\.env\["VITE_APP_BUILD_SHA"\]/,
+  );
+  assert.match(health, /evaluateStagingIdentity\(\{[\s\S]*?gitCommitSha: git_commit_sha/);
 
   const auditReport = read("docs/production-readiness/audit-2026-08-13.md");
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");

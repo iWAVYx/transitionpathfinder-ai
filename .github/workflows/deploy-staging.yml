@@ -119,7 +119,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx wrangler deploy --config wrangler.staging.toml
 
-      - name: Verify deployment identity
+      - name: Verify exact staging deployment identity
         env:
           # Bot Fight Mode challenges non-browser traffic on the custom zone.
           # The workers.dev hostname reaches the same isolated staging Worker directly.
@@ -147,12 +147,17 @@ jobs:
 
               cat /tmp/health.json
 
-              if [ "$status" = "200" ]; then
+              health_sha="$(jq -r '.git_commit_sha // "unknown"' /tmp/health.json)"
+              isolation_ok="$(jq -r '.isolation.ok // false' /tmp/health.json)"
+
+              if [ "$status" = "200" ] \
+                && [ "$health_sha" = "$GITHUB_SHA" ] \
+                && [ "$isolation_ok" = "true" ]; then
                 echo "Staging isolation verified."
                 exit 0
               fi
 
-              echo "env-health returned HTTP $status." >&2
+              echo "Staging identity mismatch: HTTP $status, expected SHA $GITHUB_SHA, got $health_sha, isolation.ok=$isolation_ok." >&2
             else
               curl_exit=$?
               echo "curl failed with exit code $curl_exit." >&2

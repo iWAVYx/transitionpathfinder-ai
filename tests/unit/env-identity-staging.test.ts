@@ -15,6 +15,7 @@ const OK = {
   hostname: "e2e.transitionforwardct.com",
   supabaseProjectRef: STAGING_PROJECT_REF,
   stripeMode: "sandbox" as const,
+  gitCommitSha: "a".repeat(40),
 };
 
 describe("staging deployment identity", () => {
@@ -51,6 +52,13 @@ describe("staging deployment identity", () => {
   it("fails on unknown or missing Stripe mode", () => {
     expect(evaluateStagingIdentity({ ...OK, stripeMode: "unknown" }).ok).toBe(false);
     expect(evaluateStagingIdentity({ ...OK, stripeMode: null }).ok).toBe(false);
+  });
+
+  it("fails when the exact deployed Git SHA is unknown or malformed", () => {
+    expect(evaluateStagingIdentity({ ...OK, gitCommitSha: "unknown" }).ok).toBe(false);
+    const verdict = evaluateStagingIdentity({ ...OK, gitCommitSha: "abc123" });
+    expect(verdict.ok).toBe(false);
+    expect(verdict.errors.join(" ")).toMatch(/exact 40-character Git commit SHA/);
   });
 
   it("fails when APP_ENV is missing or wrong", () => {
