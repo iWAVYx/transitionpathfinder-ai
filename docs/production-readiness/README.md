@@ -16,6 +16,7 @@ Documents:
 - `audit-2026-08-13.md` — evidence and current blockers.
 - `alignment-2026-08-14.md` — current staging RLS and migration-alignment evidence.
 - `alignment-2026-08-15.md` — PR #19 post-merge failures and document/permission alignment controls.
+- `alignment-2026-08-16.md` — GitHub protections and current Lovable production-control evidence.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.
 - `release-checklist.md` — operator go/no-go procedure.
 - `audit-state.json` — fail-closed CI contract.
