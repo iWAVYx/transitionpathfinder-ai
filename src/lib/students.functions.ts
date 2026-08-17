@@ -64,7 +64,7 @@ export const listStudents = createServerFn({ method: "GET" })
 
 export const getStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error } = await supabase
@@ -83,7 +83,7 @@ export const getStudent = createServerFn({ method: "POST" })
  */
 export const canEditStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase.rpc("can_edit_student", {
@@ -99,7 +99,7 @@ export const canEditStudent = createServerFn({ method: "POST" })
 
 export const createStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => StudentInput.parse(i))
+  .validator((i: unknown) => StudentInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -189,7 +189,7 @@ export const createStudent = createServerFn({ method: "POST" })
 
 export const deleteStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("students").delete().eq("id", data.id);
@@ -226,7 +226,7 @@ export type Goal = {
 
 export const listGoals = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -243,7 +243,7 @@ export const listGoals = createServerFn({ method: "POST" })
 
 export const createGoal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => GoalInput.parse(i))
+  .validator((i: unknown) => GoalInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
@@ -269,7 +269,7 @@ export const createGoal = createServerFn({ method: "POST" })
 
 export const updateGoalStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       status: z.enum(["not-started", "in-progress", "met", "paused"]),
@@ -284,7 +284,7 @@ export const updateGoalStatus = createServerFn({ method: "POST" })
 
 export const deleteGoal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("goals").delete().eq("id", data.id);
@@ -315,7 +315,7 @@ export type ShareTokenRow = {
 
 export const createShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       report_id: z.string().uuid(),
       audience: z.enum(["family", "educator"]).default("family"),
@@ -370,7 +370,7 @@ export const createShareToken = createServerFn({ method: "POST" })
 
 export const listShareTokens = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -384,7 +384,7 @@ export const listShareTokens = createServerFn({ method: "POST" })
 
 export const revokeShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase

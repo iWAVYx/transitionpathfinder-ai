@@ -33,7 +33,7 @@ export type ActionPriority = (typeof ACTION_PRIORITIES)[number];
  */
 export const promoteMessageToAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       channel_id: string;
       message_id: string;
@@ -223,7 +223,7 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
  */
 export const updateChannelAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       action_id: string;
       status?: ActionStatus;
@@ -349,7 +349,7 @@ export const updateChannelAction = createServerFn({ method: "POST" })
  */
 export const deleteChannelAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { action_id: string }) =>
+  .validator((input: { action_id: string }) =>
     z.object({ action_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -373,7 +373,7 @@ export type ChannelMemberOption = {
 
 export const listChannelAssigneeOptions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { channel_id: string }) =>
+  .validator((input: { channel_id: string }) =>
     z.object({ channel_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {

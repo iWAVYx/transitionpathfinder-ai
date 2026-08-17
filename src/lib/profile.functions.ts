@@ -68,7 +68,7 @@ export const getProfile = createServerFn({ method: "GET" })
 
 export const updateProfileLanguage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ language: z.string().min(2).max(8) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -116,7 +116,7 @@ const jsonValueSchema: z.ZodType<unknown> = z.lazy(() =>
 
 export const completeOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         primary_role: z.enum(PRIMARY_ROLES),
@@ -202,7 +202,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
 // Lightweight progress save so onboarding is resumable on refresh.
 export const saveOnboardingProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         primary_role: z.enum(PRIMARY_ROLES).optional(),

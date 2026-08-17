@@ -48,7 +48,7 @@ export const adminListResources = createServerFn({ method: "POST" })
 
 export const adminUpsertResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ResourceInput.parse(i))
+  .validator((i: unknown) => ResourceInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const payload = {
@@ -70,7 +70,7 @@ export const adminUpsertResource = createServerFn({ method: "POST" })
 
 export const adminReviewResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         resource_id: z.string().uuid(),
@@ -95,7 +95,7 @@ export const adminReviewResource = createServerFn({ method: "POST" })
 
 export const adminArchiveResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { error } = await context.supabase

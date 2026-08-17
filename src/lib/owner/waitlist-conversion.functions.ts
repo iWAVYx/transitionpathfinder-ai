@@ -34,7 +34,7 @@ function randomToken(): string {
 
 export const convertWaitlistToInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         waitlist_id: z.string().uuid(),

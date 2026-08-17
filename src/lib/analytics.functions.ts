@@ -42,7 +42,7 @@ function countBy<T extends Record<string, unknown>>(rows: T[], key: keyof T): An
 
 export const getAnalyticsSummary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<AnalyticsSummary> => {

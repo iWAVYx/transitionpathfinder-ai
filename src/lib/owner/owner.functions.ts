@@ -319,7 +319,7 @@ export const ownerListWaitlist = createServerFn({ method: "GET" })
 
 export const ownerGetWaitlistEntry = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
@@ -354,7 +354,7 @@ export const ownerGetWaitlistEntry = createServerFn({ method: "GET" })
 
 export const ownerUpdateWaitlistEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -378,7 +378,7 @@ export const ownerUpdateWaitlistEntry = createServerFn({ method: "POST" })
 
 export const ownerAddWaitlistNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         waitlist_entry_id: z.string().uuid(),
@@ -401,7 +401,7 @@ export const ownerAddWaitlistNote = createServerFn({ method: "POST" })
 
 export const ownerDeleteWaitlistEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
@@ -432,7 +432,7 @@ export const ownerListContacts = createServerFn({ method: "GET" })
 
 export const ownerUpdateContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -459,7 +459,7 @@ export const ownerUpdateContact = createServerFn({ method: "POST" })
 
 export const ownerDeleteContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
@@ -474,7 +474,7 @@ export const ownerDeleteContact = createServerFn({ method: "POST" })
 
 // Public contact submission (no auth required)
 export const submitContactForm = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         first_name: z.string().trim().min(1).max(100),
@@ -527,7 +527,7 @@ export const ownerListSettings = createServerFn({ method: "GET" })
 
 export const ownerUpdateSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         setting_key: z.string().trim().min(1).max(100),
@@ -756,7 +756,7 @@ const resourceInput = z.object({
 
 export const ownerSaveResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => resourceInput.parse(i))
+  .validator((i: unknown) => resourceInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
@@ -790,7 +790,7 @@ export const ownerSaveResource = createServerFn({ method: "POST" })
 
 export const ownerDeleteResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
@@ -850,7 +850,7 @@ export type ReviewDecision = (typeof REVIEW_DECISIONS)[number];
 
 export const ownerReviewResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -927,7 +927,7 @@ export type BulkReviewDecision = (typeof BULK_REVIEW_DECISIONS)[number];
 
 export const ownerBulkReviewResources = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         ids: z.array(z.string().uuid()).min(1).max(100),
@@ -1052,7 +1052,7 @@ function bucketByDay(rows: Array<{ created_at: string }>, days: number): Analyti
 
 export const getAdminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ days: z.number().int().min(7).max(90).default(30) }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -1320,7 +1320,7 @@ export const ownerListAdminInvitations = createServerFn({ method: "GET" })
 
 export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { email: string; role: AdminRole }) =>
+  .validator((d: { email: string; role: AdminRole }) =>
     z
       .object({
         email: z.string().trim().toLowerCase().email().max(255),
@@ -1433,7 +1433,7 @@ export const ownerCreateAdminInvitation = createServerFn({ method: "POST" })
 
 export const ownerRevokeAdminInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId, claims } = context;
     requireAal2(claims); // Slice 3 A-05: MFA-required for admin_roles mutations
@@ -1450,7 +1450,7 @@ export const ownerRevokeAdminInvitation = createServerFn({ method: "POST" })
 
 export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { user_id: string; role: AdminRole }) =>
+  .validator((d: { user_id: string; role: AdminRole }) =>
     z.object({ user_id: z.string().uuid(), role: z.enum(ADMIN_ROLES) }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -1482,7 +1482,7 @@ export const ownerRemoveAdminRole = createServerFn({ method: "POST" })
 // Public-ish: invitee looks up an invitation by token (must be signed in + email must match).
 export const previewAdminInvitation = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { token: string }) =>
+  .validator((d: { token: string }) =>
     z.object({ token: z.string().min(16).max(128) }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -1527,7 +1527,7 @@ export const previewAdminInvitation = createServerFn({ method: "GET" })
 
 export const acceptAdminInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { token: string }) =>
+  .validator((d: { token: string }) =>
     z.object({ token: z.string().min(16).max(128) }).parse(d),
   )
   .handler(async ({ data, context }) => {

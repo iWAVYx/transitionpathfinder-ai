@@ -127,7 +127,7 @@ export const getCaseload = createServerFn({ method: "GET" })
 
 export const addCaseManagerNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -159,7 +159,7 @@ export const addCaseManagerNote = createServerFn({ method: "POST" })
 
 export const listStudentNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows } = await supabase
@@ -173,7 +173,7 @@ export const listStudentNotes = createServerFn({ method: "POST" })
 
 export const quickAssignActionItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),

@@ -40,7 +40,7 @@ export type StudentFriendlySummary = {
 
 export const getStudentFriendlyDocumentSummary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ document_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -89,7 +89,7 @@ export const getStudentFriendlyDocumentSummary = createServerFn({ method: "POST"
  */
 export const listStudentFriendlyDocuments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

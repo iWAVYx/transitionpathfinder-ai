@@ -61,7 +61,7 @@ function rowToEntry(r: any): IepAuditEntry {
 
 export const searchIepAuditLog = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => FilterSchema.parse(i ?? {}))
+  .validator((i: unknown) => FilterSchema.parse(i ?? {}))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     if (!(await isAdmin(supabase, userId))) {

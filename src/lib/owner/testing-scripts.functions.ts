@@ -273,7 +273,7 @@ export const listTestingScripts = createServerFn({ method: "GET" })
 
 export const upsertTestingStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         script_key: z.string().min(1).max(80),
@@ -327,7 +327,7 @@ export const upsertTestingStep = createServerFn({ method: "POST" })
 
 export const resetTestingScript = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ script_key: z.string().min(1).max(80) }).parse(i),
   )
   .handler(async ({ data, context }) => {

@@ -60,7 +60,7 @@ export function exportWindowDaysLeft(
 /** Students sponsored by one organization, plus their coverage state. */
 export const getOrgCoverage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string }) => {
+  .validator((data: { organizationId: string }) => {
     if (!UUID_RE.test(data.organizationId))
       throw new Error("Invalid organization");
     return data;

@@ -96,7 +96,7 @@ function classify(created_at: string, updated_at: string): "created" | "updated"
 
 export const getImportAudit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         since: z.string().datetime().optional(),

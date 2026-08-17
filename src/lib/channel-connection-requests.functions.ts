@@ -102,7 +102,7 @@ export const listMyConnectionRequests = createServerFn({ method: "GET" })
 
 export const respondToConnectionRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { request_id: string; decision: "accepted" | "declined" }) =>
+  .validator((input: { request_id: string; decision: "accepted" | "declined" }) =>
     z
       .object({
         request_id: uuid,
@@ -193,7 +193,7 @@ export const respondToConnectionRequest = createServerFn({ method: "POST" })
 
 export const withdrawConnectionRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { request_id: string }) =>
+  .validator((input: { request_id: string }) =>
     z.object({ request_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {

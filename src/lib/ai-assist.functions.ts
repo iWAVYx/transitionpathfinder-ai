@@ -102,7 +102,7 @@ function safeReportJson(report: unknown): string {
 
 export const translateReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       report: z.unknown(),
       language: z.enum(LANGUAGES),
@@ -151,7 +151,7 @@ export type NextSteps = z.infer<typeof NextStepsSchema>;
 
 export const suggestNextSteps = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       student_first_name: z
         .string()

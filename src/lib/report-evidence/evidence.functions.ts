@@ -43,7 +43,7 @@ function toDomain(r: DbRow): EvidenceLink {
 /** List all evidence links for a student the caller can view. */
 export const listEvidenceForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -61,7 +61,7 @@ export const listEvidenceForStudent = createServerFn({ method: "POST" })
 /** Attach a new evidence link. Caller must be able to edit the student. */
 export const attachEvidenceLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -96,7 +96,7 @@ export const attachEvidenceLink = createServerFn({ method: "POST" })
 /** Remove an evidence link. Caller must be able to edit the student. */
 export const detachEvidenceLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("report_evidence_links")

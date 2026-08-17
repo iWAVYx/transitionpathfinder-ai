@@ -24,7 +24,7 @@ const inputBase = z.object({
 
 export const addRecommendationToActionItems = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => inputBase.parse(i))
+  .validator((i: unknown) => inputBase.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const description = [
@@ -53,7 +53,7 @@ export const addRecommendationToActionItems = createServerFn({ method: "POST" })
 
 export const addRecommendationToCalendar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     inputBase.extend({
       // Default: 14 days out as a follow-up nudge
       event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -96,7 +96,7 @@ export const addRecommendationToCalendar = createServerFn({ method: "POST" })
 
 export const addRecommendationToNextMeetingPrep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => inputBase.parse(i))
+  .validator((i: unknown) => inputBase.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 

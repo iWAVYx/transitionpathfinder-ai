@@ -11,7 +11,7 @@ export type FamilyPriorities = {
 
 export const getFamilyPriorities = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -31,7 +31,7 @@ export const getFamilyPriorities = createServerFn({ method: "POST" })
 
 export const updateFamilyPriorities = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -65,7 +65,7 @@ export type SharingPermission = {
 
 export const listSharingPermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -84,7 +84,7 @@ export const listSharingPermissions = createServerFn({ method: "POST" })
 
 export const revokeSharingPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     // Read the row first so we can capture student_id + audience for the audit trail.

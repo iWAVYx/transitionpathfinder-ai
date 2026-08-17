@@ -41,7 +41,7 @@ export type ListPathwayShadowRunsResult =
 
 export const listPathwayShadowRuns = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => InputSchema.parse(data))
+  .validator((data: unknown) => InputSchema.parse(data))
   .handler(
     async ({ data, context }): Promise<ListPathwayShadowRunsResult> => {
       if (!data.enabled) {

@@ -136,7 +136,7 @@ export const listAdminPartners = createServerFn({ method: "GET" })
 
 export const setPartnerStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: {
       id: string;
       verification_status?: string;
@@ -158,7 +158,7 @@ export const setPartnerStatus = createServerFn({ method: "POST" })
 
 export const listOpportunitiesForPartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { partner_id: string }) => d)
+  .validator((d: { partner_id: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await requirePlatformAdmin(context.supabase, context.userId);
@@ -183,7 +183,7 @@ const upsertOpportunityInput = z.object({
 
 export const upsertOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => upsertOpportunityInput.parse(d))
+  .validator((d: unknown) => upsertOpportunityInput.parse(d))
   .handler(async ({ data, context }) => {
     if (data.id) {
       const { error } = await context.supabase
@@ -204,7 +204,7 @@ export const upsertOpportunity = createServerFn({ method: "POST" })
 
 export const bulkInsertOpportunities = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { partner_id: string; items: unknown[] }) => d)
+  .validator((d: { partner_id: string; items: unknown[] }) => d)
   .handler(async ({ data, context }) => {
     const errors: { row: number; field: string; message: string }[] = [];
     const valid: Record<string, unknown>[] = [];
@@ -243,7 +243,7 @@ export const bulkInsertOpportunities = createServerFn({ method: "POST" })
 
 export const archiveOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; status?: string }) => d)
+  .validator((d: { id: string; status?: string }) => d)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("partner_network_opportunities")
@@ -255,7 +255,7 @@ export const archiveOpportunity = createServerFn({ method: "POST" })
 
 export const deleteOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
+  .validator((d: { id: string }) => d)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("partner_network_opportunities")

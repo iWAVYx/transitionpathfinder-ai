@@ -96,7 +96,7 @@ type SupabaseLike = {
 
 export const getDistrictDashboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ district_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<DistrictDashboard> => {
@@ -371,7 +371,7 @@ function emptyDashboard(): DistrictDashboard {
 
 export const createDistrict = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         name: z.string().trim().min(2).max(160),
@@ -423,7 +423,7 @@ export const createDistrict = createServerFn({ method: "POST" })
 
 export const addSchoolToDistrict = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         district_id: z.string().uuid(),
@@ -517,7 +517,7 @@ export const addSchoolToDistrict = createServerFn({ method: "POST" })
 
 export const removeSchoolFromDistrict = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ district_id: z.string().uuid(), school_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -541,7 +541,7 @@ export const removeSchoolFromDistrict = createServerFn({ method: "POST" })
 
 export const inviteDistrictTeammate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         district_id: z.string().uuid(),
@@ -640,7 +640,7 @@ export type DistrictReportWindow = {
 
 export const getDistrictReportMetrics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         district_id: z.string().uuid(),

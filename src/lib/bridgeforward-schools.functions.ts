@@ -42,7 +42,7 @@ export type CtProgram = {
 
 export const listCtHighSchools = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         q: z.string().trim().max(120).optional(),
@@ -70,7 +70,7 @@ export const listCtHighSchools = createServerFn({ method: "POST" })
 
 export const getCtHighSchool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -122,7 +122,7 @@ function tokenize(s: string | null | undefined): string[] {
 
 export const searchSchoolsForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -296,7 +296,7 @@ export const searchSchoolsForStudent = createServerFn({ method: "POST" })
 
 export const listSavedMatches = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -312,7 +312,7 @@ export const listSavedMatches = createServerFn({ method: "POST" })
 
 export const saveSchoolMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -359,7 +359,7 @@ export const saveSchoolMatch = createServerFn({ method: "POST" })
 
 export const updateMatchStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

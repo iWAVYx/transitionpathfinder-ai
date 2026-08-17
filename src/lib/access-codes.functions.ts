@@ -57,7 +57,7 @@ export const getMyActivatedLicenseRole = createServerFn({ method: "GET" })
 
 export const redeemAccessCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => CODE_INPUT.parse(i))
+  .validator((i: unknown) => CODE_INPUT.parse(i))
   .handler(async ({ data, context }): Promise<RedeemAccessCodeResult> => {
     const { supabase } = context;
     const { data: rpc, error } = await supabase.rpc("redeem_access_code", {

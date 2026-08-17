@@ -34,7 +34,7 @@ export const listBetaTesters = createServerFn({ method: "GET" })
 
 export const upsertBetaTester = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -79,7 +79,7 @@ export const upsertBetaTester = createServerFn({ method: "POST" })
 
 export const deleteBetaTester = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { error } = await context.supabase.from("beta_testers").delete().eq("id", data.id);
@@ -103,7 +103,7 @@ export const listTestingScripts = createServerFn({ method: "GET" })
 // =============== FEEDBACK ===============
 export const submitFeedback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         feedback_type: z.enum([
@@ -149,7 +149,7 @@ export const listFeedback = createServerFn({ method: "GET" })
 
 export const updateFeedback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -173,7 +173,7 @@ export const updateFeedback = createServerFn({ method: "POST" })
 
 export const convertFeedbackToIssue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         feedback_id: z.string().uuid(),
@@ -226,7 +226,7 @@ export const listIssues = createServerFn({ method: "GET" })
 
 export const upsertIssue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -257,7 +257,7 @@ export const upsertIssue = createServerFn({ method: "POST" })
 
 export const deleteIssue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { error } = await context.supabase.from("product_issues").delete().eq("id", data.id);
@@ -281,7 +281,7 @@ export const listChecklist = createServerFn({ method: "GET" })
 
 export const updateChecklistItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -317,7 +317,7 @@ export const listOutreach = createServerFn({ method: "GET" })
 
 export const upsertOutreach = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -365,7 +365,7 @@ export const upsertOutreach = createServerFn({ method: "POST" })
 
 export const deleteOutreach = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { error } = await context.supabase
@@ -391,7 +391,7 @@ export const listPilotPackages = createServerFn({ method: "GET" })
 
 export const upsertPilotPackage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -422,7 +422,7 @@ export const upsertPilotPackage = createServerFn({ method: "POST" })
 
 export const deletePilotPackage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { error } = await context.supabase.from("pilot_packages").delete().eq("id", data.id);
@@ -433,7 +433,7 @@ export const deletePilotPackage = createServerFn({ method: "POST" })
 // =============== USAGE EVENTS ===============
 export const recordUsageEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         event_type: z.string().min(1).max(80).regex(/^[a-z0-9_.-]+$/i),

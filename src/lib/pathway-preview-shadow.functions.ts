@@ -74,7 +74,7 @@ export type PreviewPathwayReportShadowResult =
 
 export const previewPathwayReportShadow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => InputSchema.parse(data))
+  .validator((data: unknown) => InputSchema.parse(data))
   .handler(
     async ({
       data,

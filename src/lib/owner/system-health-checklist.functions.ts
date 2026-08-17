@@ -67,7 +67,7 @@ export const listSystemHealthChecklist = createServerFn({ method: "GET" })
 
 export const updateSystemHealthChecklistItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
+  .validator((input: {
     id: string;
     status?: ChecklistStatus;
     notes?: string | null;

@@ -55,7 +55,7 @@ function tokens(s: string | null | undefined) {
 
 export const matchPartnersForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { student_id: string; limit?: number }) => d)
+  .validator((d: { student_id: string; limit?: number }) => d)
   .handler(async ({ data, context }): Promise<{ matches: PartnerMatch[] }> => {
     const { data: studentRaw, error: e1 } = await context.supabase
       .from("students")
@@ -332,7 +332,7 @@ export const matchPartnersForStudent = createServerFn({ method: "POST" })
 // Saves a generated match into student_opportunity_matches (or saved_partners) for the pathway report.
 export const persistPartnerMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: { student_id: string; partner_id: string; match_reason: string; next_step?: string }) => d,
   )
   .handler(async ({ data, context }) => {

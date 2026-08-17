@@ -49,7 +49,7 @@ async function callGateway(messages: GatewayMessage[]): Promise<string> {
 }
 
 export const translateBatch = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => TranslateInput.parse(input))
+  .validator((input: unknown) => TranslateInput.parse(input))
   .handler(async ({ data }) => {
     const { locale, texts } = data;
     if (locale === "en") return { translations: texts };

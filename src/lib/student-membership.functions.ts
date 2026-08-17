@@ -28,7 +28,7 @@ export type TeamMember = {
 
 export const listStudentMembership = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [{ data: gRows }, { data: tRows }] = await Promise.all([
@@ -82,7 +82,7 @@ export const listStudentMembership = createServerFn({ method: "POST" })
 
 export const updateGuardian = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -105,7 +105,7 @@ export const updateGuardian = createServerFn({ method: "POST" })
 
 export const deleteGuardian = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("student_guardians").delete().eq("id", data.id);
     if (error) throw new Error("Could not remove guardian.");
@@ -114,7 +114,7 @@ export const deleteGuardian = createServerFn({ method: "POST" })
 
 export const updateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -138,7 +138,7 @@ export const updateTeamMember = createServerFn({ method: "POST" })
 
 export const deleteTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("student_team_members").delete().eq("id", data.id);
     if (error) throw new Error("Could not remove team member.");

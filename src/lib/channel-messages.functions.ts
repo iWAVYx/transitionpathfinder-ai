@@ -41,7 +41,7 @@ export type ChannelBookmark = {
 
 export const listThreadMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { parent_id: string }) =>
+  .validator((input: { parent_id: string }) =>
     z.object({ parent_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -96,7 +96,7 @@ export const listThreadMessages = createServerFn({ method: "GET" })
 
 export const editChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { message_id: string; body: string }) =>
+  .validator((input: { message_id: string; body: string }) =>
     z
       .object({
         message_id: uuid,
@@ -137,7 +137,7 @@ export const editChannelMessage = createServerFn({ method: "POST" })
 
 export const deleteChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { message_id: string }) =>
+  .validator((input: { message_id: string }) =>
     z.object({ message_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -169,7 +169,7 @@ export const deleteChannelMessage = createServerFn({ method: "POST" })
 
 export const setMessagePinned = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { message_id: string; pinned: boolean }) =>
+  .validator((input: { message_id: string; pinned: boolean }) =>
     z.object({ message_id: uuid, pinned: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -203,7 +203,7 @@ export const setMessagePinned = createServerFn({ method: "POST" })
 
 export const listPinnedMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { channel_id: string }) =>
+  .validator((input: { channel_id: string }) =>
     z.object({ channel_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -246,7 +246,7 @@ export const listPinnedMessages = createServerFn({ method: "GET" })
 
 export const toggleBookmark = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { message_id: string; note?: string | null }) =>
+  .validator((input: { message_id: string; note?: string | null }) =>
     z
       .object({
         message_id: uuid,
@@ -326,7 +326,7 @@ export const listMyBookmarks = createServerFn({ method: "GET" })
 
 export const listChannelBookmarkIds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { channel_id: string }) =>
+  .validator((input: { channel_id: string }) =>
     z.object({ channel_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -344,7 +344,7 @@ export const listChannelBookmarkIds = createServerFn({ method: "GET" })
 
 export const registerAttachment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       channel_id: string;
       message_id: string;
@@ -394,7 +394,7 @@ export const registerAttachment = createServerFn({ method: "POST" })
 
 export const listMessageAttachments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { message_ids: string[] }) =>
+  .validator((input: { message_ids: string[] }) =>
     z.object({ message_ids: z.array(uuid).max(200) }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -413,7 +413,7 @@ export const listMessageAttachments = createServerFn({ method: "GET" })
 
 export const getAttachmentDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { attachment_id: string }) =>
+  .validator((input: { attachment_id: string }) =>
     z.object({ attachment_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {

@@ -13,7 +13,7 @@ export type StudentVoiceResponse = {
 
 export const getStudentVoiceResponses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -31,7 +31,7 @@ export const getStudentVoiceResponses = createServerFn({ method: "POST" })
 
 export const upsertStudentVoiceResponse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         studentId: z.string().uuid(),

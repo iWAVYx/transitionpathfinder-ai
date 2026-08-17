@@ -40,7 +40,7 @@ export type StudentRelationship = {
 
 export const listStudentRelationships = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -59,7 +59,7 @@ export const listStudentRelationships = createServerFn({ method: "POST" })
 
 export const requestStudentConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -92,7 +92,7 @@ export const requestStudentConnection = createServerFn({ method: "POST" })
 
 export const respondToConnectionRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         relationship_id: z.string().uuid(),

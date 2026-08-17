@@ -47,7 +47,7 @@ export const getMyEntitlement = createServerFn({ method: "GET" })
 
 export const listOrgEntitlements = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ organization_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -76,7 +76,7 @@ const PLAN_TYPE = z.enum([
 
 export const setEntitlement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),

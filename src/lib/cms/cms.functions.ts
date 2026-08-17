@@ -98,7 +98,7 @@ async function logActivity(
 // ---------- Page sections (public read + admin write) ----------
 
 export const getPageSection = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ page_key: z.string(), section_key: z.string() }).parse(i),
   )
   .handler(async ({ data }): Promise<{ content: any }> => {
@@ -129,7 +129,7 @@ export const adminListPageSections = createServerFn({ method: "GET" })
 
 export const adminUpsertPageSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         page_key: z.string().trim().min(1).max(100),
@@ -178,7 +178,7 @@ export const adminListMedia = createServerFn({ method: "GET" })
 
 export const adminUploadMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         filename: z.string().min(1).max(200),
@@ -231,7 +231,7 @@ export const adminUploadMedia = createServerFn({ method: "POST" })
 
 export const adminDeleteMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -253,7 +253,7 @@ export const adminDeleteMedia = createServerFn({ method: "POST" })
 // ---------- FAQs ----------
 
 export const getPublishedFaqs = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ category: z.string().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data }) => {
@@ -293,7 +293,7 @@ const faqInput = z.object({
 
 export const adminSaveFaq = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => faqInput.parse(i))
+  .validator((i: unknown) => faqInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -312,7 +312,7 @@ export const adminSaveFaq = createServerFn({ method: "POST" })
 
 export const adminDeleteFaq = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -353,7 +353,7 @@ const testimonialInput = z.object({
 
 export const adminSaveTestimonial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => testimonialInput.parse(i))
+  .validator((i: unknown) => testimonialInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -374,7 +374,7 @@ export const adminSaveTestimonial = createServerFn({ method: "POST" })
 
 export const adminDeleteTestimonial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -397,7 +397,7 @@ export const getPublishedBlogPosts = createServerFn({ method: "GET" }).handler(a
 });
 
 export const getBlogPostBySlug = createServerFn({ method: "GET" })
-  .inputValidator((i: unknown) => z.object({ slug: z.string().min(1) }).parse(i))
+  .validator((i: unknown) => z.object({ slug: z.string().min(1) }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
@@ -445,7 +445,7 @@ const blogInput = z.object({
 
 export const adminSaveBlogPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => blogInput.parse(i))
+  .validator((i: unknown) => blogInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -475,7 +475,7 @@ export const adminSaveBlogPost = createServerFn({ method: "POST" })
 
 export const adminDeleteBlogPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);

@@ -49,7 +49,7 @@ export type Collaborator = {
 
 export const listCollaborators = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -66,7 +66,7 @@ export const listCollaborators = createServerFn({ method: "POST" })
 
 export const inviteCollaborator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -151,7 +151,7 @@ export const inviteCollaborator = createServerFn({ method: "POST" })
 
 export const updateCollaboratorRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -185,7 +185,7 @@ export const updateCollaboratorRole = createServerFn({ method: "POST" })
 
 export const removeCollaborator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase
@@ -198,7 +198,7 @@ export const removeCollaborator = createServerFn({ method: "POST" })
 
 export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { userId, claims } = context;
     const email = (claims.email as string | undefined)?.toLowerCase();
@@ -228,7 +228,7 @@ export const acceptInvite = createServerFn({ method: "POST" })
 
 export const resendCollaboratorInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 

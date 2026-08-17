@@ -31,7 +31,7 @@ const PayloadSchema = z.object({
 
 export const getDemoMeetingEdits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_key: StudentKey }).parse(i))
+  .validator((i: unknown) => z.object({ student_key: StudentKey }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
@@ -49,7 +49,7 @@ export const getDemoMeetingEdits = createServerFn({ method: "POST" })
 
 export const saveDemoMeetingEdits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => PayloadSchema.parse(i))
+  .validator((i: unknown) => PayloadSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("demo_meeting_edits").upsert(
@@ -70,7 +70,7 @@ export const saveDemoMeetingEdits = createServerFn({ method: "POST" })
 
 export const resetDemoMeetingEdits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_key: StudentKey }).parse(i))
+  .validator((i: unknown) => z.object({ student_key: StudentKey }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

@@ -39,7 +39,7 @@ export type RightsTransferRow = {
 
 export const getRightsStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -85,7 +85,7 @@ const SetSchema = z.object({
 
 export const setRightsStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => SetSchema.parse(i))
+  .validator((i: unknown) => SetSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 

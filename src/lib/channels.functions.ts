@@ -107,7 +107,7 @@ export const listMyChannels = createServerFn({ method: "GET" })
 
 export const listChannelMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { channel_id: string; before?: string | null }) =>
+  .validator((input: { channel_id: string; before?: string | null }) =>
     z
       .object({
         channel_id: uuid,
@@ -155,7 +155,7 @@ export const listChannelMessages = createServerFn({ method: "GET" })
 
 export const sendChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
+  .validator((input: {
     channel_id: string;
     body: string;
     parent_id?: string | null;
@@ -208,7 +208,7 @@ export const sendChannelMessage = createServerFn({ method: "POST" })
 
 export const markChannelRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { channel_id: string; last_read_message_id?: string | null }) =>
+  .validator((input: { channel_id: string; last_read_message_id?: string | null }) =>
     z
       .object({
         channel_id: uuid,

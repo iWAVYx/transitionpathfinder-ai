@@ -101,7 +101,7 @@ export const listMyMentions = createServerFn({ method: "GET" })
 /** Channel actions filtered by kind and optional assignee. */
 export const listChannelActions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       kind:
         | "action"
@@ -199,7 +199,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
  */
 export const markMentionSeen = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { mention_id: string }) => z.object({ mention_id: uuid }).parse(input))
+  .validator((input: { mention_id: string }) => z.object({ mention_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

@@ -63,7 +63,7 @@ export const listRoleAuditReviews = createServerFn({ method: "GET" })
 
 export const updateRoleAuditReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: {
+  .validator((data: {
     id: string;
     purpose?: string;
     issues_found?: string;

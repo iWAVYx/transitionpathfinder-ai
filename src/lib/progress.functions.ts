@@ -14,7 +14,7 @@ export type ProgressRow = {
 
 export const listProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid(), pathway_id: z.string().min(1).max(80) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -33,7 +33,7 @@ export const listProgress = createServerFn({ method: "POST" })
 
 export const upsertProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),

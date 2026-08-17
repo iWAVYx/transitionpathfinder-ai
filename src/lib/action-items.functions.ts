@@ -25,7 +25,7 @@ const STATUSES = ["not_started", "in_progress", "completed", "blocked"] as const
 
 export const listStudentActionItems = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -42,7 +42,7 @@ export const listStudentActionItems = createServerFn({ method: "POST" })
 
 export const createStudentActionItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -80,7 +80,7 @@ export const createStudentActionItem = createServerFn({ method: "POST" })
 
 export const updateStudentActionItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -141,7 +141,7 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
 
 export const deleteStudentActionItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("action_items").delete().eq("id", data.id);

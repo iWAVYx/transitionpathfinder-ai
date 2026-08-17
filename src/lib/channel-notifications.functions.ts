@@ -11,7 +11,7 @@ const uuid = z.string().uuid();
 
 export const setChannelNotificationSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       channel_id: string;
       muted?: boolean;
@@ -51,7 +51,7 @@ export type ChannelDigestFrequency = "off" | "daily" | "weekly";
 
 export const setChannelDigestPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       channel_digest_frequency?: ChannelDigestFrequency;
       channel_mentions_email?: boolean;

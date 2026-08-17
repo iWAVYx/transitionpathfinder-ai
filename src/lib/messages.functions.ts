@@ -47,7 +47,7 @@ export type Message = {
 
 export const listThreads = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -67,7 +67,7 @@ export const listThreads = createServerFn({ method: "POST" })
 
 export const createThread = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -116,7 +116,7 @@ export const createThread = createServerFn({ method: "POST" })
 
 export const listMessages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ thread_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ thread_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -133,7 +133,7 @@ export const listMessages = createServerFn({ method: "POST" })
 
 export const postMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         thread_id: z.string().uuid(),
@@ -161,7 +161,7 @@ export const postMessage = createServerFn({ method: "POST" })
 
 export const setThreadStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

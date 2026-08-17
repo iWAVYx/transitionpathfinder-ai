@@ -58,7 +58,7 @@ export function labelForAuditEvent(event: string): string {
  */
 export const getGovernanceAudit = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string; windowDays?: number }) => {
+  .validator((data: { organizationId: string; windowDays?: number }) => {
     if (!UUID_RE.test(data.organizationId)) throw new Error("Invalid organization");
     const windowDays = Math.min(Math.max(data.windowDays ?? 180, 1), 730);
     return { organizationId: data.organizationId, windowDays };

@@ -43,7 +43,7 @@ type PortalResult = { url: string } | { error: string };
  */
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       priceId: string;
       quantity?: number;
@@ -210,7 +210,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 /** Opens the Stripe-hosted billing portal for the caller's active customer. */
 export const createPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       returnUrl?: string;
       organizationId?: string;
@@ -280,7 +280,7 @@ type SeatUpdateResult =
  */
 export const updateSubscriptionSeats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       organizationId: string;
       subscriptionId: string;
@@ -362,7 +362,7 @@ export const updateSubscriptionSeats = createServerFn({ method: "POST" })
 /** Subscriptions visible to the caller (own + orgs they belong to). */
 export const getMyBilling = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { environment?: StripeEnv }) => ({
+  .validator((data: { environment?: StripeEnv }) => ({
     ...data,
     // The deployment decides sandbox vs live; a client value must match.
     environment: assertRequestedStripeEnv(data.environment),
@@ -397,7 +397,7 @@ export interface PersonalBillingSummary {
  */
 export const getMyPersonalBilling = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { environment?: StripeEnv }) => ({
+  .validator((data: { environment?: StripeEnv }) => ({
     ...data,
     // The deployment decides sandbox vs live; a client value must match.
     environment: assertRequestedStripeEnv(data.environment),
@@ -439,7 +439,7 @@ export const getMyPersonalBilling = createServerFn({ method: "GET" })
  */
 export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { sessionId: string; environment?: StripeEnv }) => {
+  .validator((data: { sessionId: string; environment?: StripeEnv }) => {
     if (!/^cs_[a-zA-Z0-9_]+$/.test(data.sessionId)) {
       throw new Error("Invalid session id");
     }
@@ -481,7 +481,7 @@ export const getCheckoutSessionStatus = createServerFn({ method: "POST" })
  */
 export const requestDistrictInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       organizationId: string;
       priceId: string;

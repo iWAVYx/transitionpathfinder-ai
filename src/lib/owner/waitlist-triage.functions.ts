@@ -49,7 +49,7 @@ async function assertPlatformAdmin(supabase: any, userId: string) {
 
 export const updateWaitlistTriage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         waitlist_id: z.string().uuid(),
@@ -82,7 +82,7 @@ export const updateWaitlistTriage = createServerFn({ method: "POST" })
 
 export const linkConvertedAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         waitlist_id: z.string().uuid(),

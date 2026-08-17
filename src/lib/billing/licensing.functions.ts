@@ -71,7 +71,7 @@ const ROLE_TO_LICENSE: Record<string, LicenseType> = {
 /** Purchased, reserved, active, and available capacity plus the ledger. */
 export const getLicenseOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string }) => {
+  .validator((data: { organizationId: string }) => {
     if (!UUID_RE.test(data.organizationId)) throw new Error("Invalid organization");
     return data;
   })
@@ -116,7 +116,7 @@ type InviteResult =
  */
 export const inviteSponsoredMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       organizationId: string;
       email: string;
@@ -235,7 +235,7 @@ export const inviteSponsoredMember = createServerFn({ method: "POST" })
 /** Extends a pending invitation and its reservation by another 14 days. */
 export const resendSponsoredInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { invitationId: string }) => {
+  .validator((data: { invitationId: string }) => {
     if (!UUID_RE.test(data.invitationId)) throw new Error("Invalid invitation");
     return data;
   })
@@ -262,7 +262,7 @@ export const resendSponsoredInvitation = createServerFn({ method: "POST" })
 /** Cancels a pending invitation and immediately returns its capacity. */
 export const cancelSponsoredInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { invitationId: string }) => {
+  .validator((data: { invitationId: string }) => {
     if (!UUID_RE.test(data.invitationId)) throw new Error("Invalid invitation");
     return data;
   })
@@ -303,7 +303,7 @@ export interface BulkInviteResult {
  */
 export const bulkInviteSponsored = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string; csv: string }) => {
+  .validator((data: { organizationId: string; csv: string }) => {
     if (!UUID_RE.test(data.organizationId)) throw new Error("Invalid organization");
     if (data.csv.length > 200_000) throw new Error("That file is too large.");
     return data;
@@ -419,7 +419,7 @@ export const bulkInviteSponsored = createServerFn({ method: "POST" })
  */
 export const revokeAllocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { allocationId: string; reason: string }) => {
+  .validator((data: { allocationId: string; reason: string }) => {
     if (!UUID_RE.test(data.allocationId)) throw new Error("Invalid allocation");
     const reason = (data.reason ?? "").trim();
     if (reason.length < 10) {
@@ -464,7 +464,7 @@ export const revokeAllocation = createServerFn({ method: "POST" })
 /** Reassigns a live license to a different person or student. */
 export const transferAllocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       allocationId: string;
       toEmail?: string;
@@ -547,7 +547,7 @@ export interface SponsorshipInfo {
  */
 export const getMySponsorship = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { environment?: "sandbox" | "live" }) => ({
+  .validator((data: { environment?: "sandbox" | "live" }) => ({
     ...data,
     environment: assertRequestedStripeEnv(data.environment),
   }))
@@ -631,7 +631,7 @@ export interface CoverageStateResult {
  */
 export const setStudentCoverageState = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: {
       studentId: string;
       state: CoverageState;

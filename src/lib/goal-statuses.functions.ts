@@ -6,7 +6,7 @@ const StatusEnum = z.enum(["not-started", "in-progress", "met"]);
 
 export const listGoalStatuses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { reportId: string }) =>
+  .validator((input: { reportId: string }) =>
     z.object({ reportId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -24,7 +24,7 @@ export const listGoalStatuses = createServerFn({ method: "POST" })
 
 export const upsertGoalStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { reportId: string; itemId: string; status: string }) =>
+  .validator((input: { reportId: string; itemId: string; status: string }) =>
     z
       .object({
         reportId: z.string().uuid(),
@@ -58,7 +58,7 @@ export const upsertGoalStatus = createServerFn({ method: "POST" })
  */
 export const summarizeGoalStatuses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { reportIds: string[] }) =>
+  .validator((input: { reportIds: string[] }) =>
     z
       .object({
         reportIds: z.array(z.string().uuid()).max(500),

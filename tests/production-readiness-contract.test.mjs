@@ -352,6 +352,18 @@ test("hosted Worker builds omit unused email formatting dependencies", () => {
   }
 });
 
+test("hosted builds use the supported server validator API", () => {
+  const deprecatedValidatorCalls = filesUnder("src")
+    .filter((path) => /\.[cm]?[jt]sx?$/.test(path))
+    .filter((path) => /\.inputValidator\s*\(/.test(read(path)));
+
+  assert.deepEqual(
+    deprecatedValidatorCalls,
+    [],
+    "deprecated inputValidator calls multiply warnings across client, SSR, and Worker builds",
+  );
+});
+
 test("pull request refs cannot request protected staging browser credentials", () => {
   const workflow = read(".github/workflows/dashboard-regression.yml");
   assert.match(workflow, /pull_request:/);
