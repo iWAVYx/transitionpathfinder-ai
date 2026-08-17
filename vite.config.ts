@@ -24,6 +24,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    build: {
+      // Hosted preview builds emit hundreds of chunks. Gzipping each one only
+      // to print size statistics adds memory pressure without changing output.
+      reportCompressedSize: false,
+    },
     define: {
       "import.meta.env.APP_ENV": JSON.stringify(appEnv),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),

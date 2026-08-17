@@ -325,6 +325,33 @@ test("primary release fonts are bundled instead of fetched from Google", () => {
   assert.match(visualRegression, /Karla Variable/);
 });
 
+test("hosted Worker builds omit unused email formatting dependencies", () => {
+  const viteConfig = read("vite.config.ts");
+  const renderer = read("src/lib/email-render.server.ts");
+  const emailRoutes = [
+    "src/routes/api/public/channel-digest-tick.ts",
+    "src/routes/lovable/email/auth/preview.ts",
+    "src/routes/lovable/email/auth/webhook.ts",
+    "src/routes/lovable/email/transactional/preview.ts",
+    "src/routes/lovable/email/transactional/send.ts",
+  ];
+
+  assert.match(viteConfig, /reportCompressedSize:\s*false/);
+  assert.match(renderer, /react-dom\/server\.edge/);
+  assert.match(renderer, /from ["']html-to-text["']/);
+  assert.doesNotMatch(renderer, /(?:from|import\()\s*["']prettier/);
+
+  for (const path of emailRoutes) {
+    const source = read(path);
+    assert.match(source, /email-render\.server/);
+    assert.doesNotMatch(
+      source,
+      /import\s*\{[^}]*\brender\b[^}]*\}\s*from\s*["']@react-email\/components["']/,
+      `${path} must not restore React Email's Prettier-backed renderer`,
+    );
+  }
+});
+
 test("pull request refs cannot request protected staging browser credentials", () => {
   const workflow = read(".github/workflows/dashboard-regression.yml");
   assert.match(workflow, /pull_request:/);

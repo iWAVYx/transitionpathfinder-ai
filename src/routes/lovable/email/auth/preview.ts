@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { render } from '@react-email/components'
 import { createFileRoute } from '@tanstack/react-router'
+import { renderEmail } from '@/lib/email-render.server'
 import { SignupEmail } from '@/lib/email-templates/signup'
 import { InviteEmail } from '@/lib/email-templates/invite'
 import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
@@ -105,7 +105,7 @@ export const Route = createFileRoute("/lovable/email/auth/preview")({
         }
 
         const sampleData = SAMPLE_DATA[type] || {}
-        const html = await render(React.createElement(EmailTemplate, sampleData))
+        const html = await renderEmail(React.createElement(EmailTemplate, sampleData))
 
         return new Response(html, {
           status: 200,

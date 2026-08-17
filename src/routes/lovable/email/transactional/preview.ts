@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { render } from '@react-email/components'
 import { createFileRoute } from '@tanstack/react-router'
+import { renderEmail } from '@/lib/email-render.server'
 import { TEMPLATES } from '@/lib/email-templates/registry'
 
 // Renders all registered templates with their previewData.
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/lovable/email/transactional/preview")({
           }
 
           try {
-            const html = await render(
+            const html = await renderEmail(
               React.createElement(entry.component, entry.previewData)
             )
             const resolvedSubject =
