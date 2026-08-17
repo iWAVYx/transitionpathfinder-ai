@@ -64,7 +64,7 @@ export const getSmsProviderStatus = createServerFn({ method: "GET" })
 
 export const requestSmsVerification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ phone: PhoneSchema }).parse(i))
+  .validator((i: unknown) => z.object({ phone: PhoneSchema }).parse(i))
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -78,7 +78,7 @@ export const requestSmsVerification = createServerFn({ method: "POST" })
 
 export const confirmSmsVerification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ code: z.string().trim().regex(/^[0-9]{6}$/, "Enter the 6-digit code.") }).parse(i),
   )
   .handler(async ({ data, context }) => {

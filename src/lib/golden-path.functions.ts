@@ -98,7 +98,7 @@ export type DashboardSnapshot = {
 
 export const getDashboardSnapshot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid().optional() }).parse(i),
   )
   .handler(async ({ data, context }): Promise<DashboardSnapshot> => {
@@ -274,7 +274,7 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
 
 export const setActionItemStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -296,7 +296,7 @@ export const setActionItemStatus = createServerFn({ method: "POST" })
 
 export const setMeetingPrepCompleted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), completed: z.boolean() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -312,7 +312,7 @@ export const setMeetingPrepCompleted = createServerFn({ method: "POST" })
 
 export const toggleSavedResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ resource_id: z.string().uuid(), saved: z.boolean() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -346,7 +346,7 @@ export const toggleSavedResource = createServerFn({ method: "POST" })
 
 export const recordConsent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -375,7 +375,7 @@ export const recordConsent = createServerFn({ method: "POST" })
 
 export const revokeConsent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase

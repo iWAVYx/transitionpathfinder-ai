@@ -17,7 +17,7 @@ export type Organization = {
 
 export const searchOrganizations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         q: z.string().trim().min(1).max(120),
@@ -45,7 +45,7 @@ export const searchOrganizations = createServerFn({ method: "POST" })
 
 export const requestOrgAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         organization_id: z.string().uuid(),
@@ -82,7 +82,7 @@ export const requestOrgAccess = createServerFn({ method: "POST" })
 
 export const approveOrgMembership = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         membership_id: z.string().uuid(),

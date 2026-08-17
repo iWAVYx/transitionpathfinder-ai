@@ -33,7 +33,7 @@ export type FeedKind = (typeof FEED_KINDS)[number];
 
 export const listFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid().optional(),

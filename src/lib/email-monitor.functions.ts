@@ -37,7 +37,7 @@ const PENDING_STATUSES = new Set(["pending"]);
 
 export const getEmailMonitor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         range: z.enum(["24h", "7d", "30d", "custom"]).default("7d"),

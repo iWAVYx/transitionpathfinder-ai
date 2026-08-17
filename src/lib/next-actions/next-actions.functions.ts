@@ -285,7 +285,7 @@ async function deriveActionsFromState(
  */
 export const completeNextAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string; note?: string }) => input)
+  .validator((input: { id: string; note?: string }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row } = await supabase
@@ -329,7 +329,7 @@ export const completeNextAction = createServerFn({ method: "POST" })
 
 export const dismissNextAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => input)
+  .validator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("next_actions")

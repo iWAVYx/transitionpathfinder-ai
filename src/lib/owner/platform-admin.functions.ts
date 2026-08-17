@@ -103,7 +103,7 @@ export const platformListOrganizations = createServerFn({ method: "GET" })
 
 export const platformDecideOrganization = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -139,7 +139,7 @@ export type OpportunityRow = {
 
 export const platformListOpportunities = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         status: z
@@ -181,7 +181,7 @@ export const platformListOpportunities = createServerFn({ method: "POST" })
 
 export const platformDecideOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -214,7 +214,7 @@ export type PlatformUserRow = {
 
 export const platformListUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ search: z.string().trim().max(120).optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {

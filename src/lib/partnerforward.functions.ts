@@ -17,7 +17,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const submitOpportunityForReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -51,7 +51,7 @@ const ImpactInput = z.object({
 
 export const recordImpactEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ImpactInput.parse(i))
+  .validator((i: unknown) => ImpactInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     // Verify caller is an active member of this org.
@@ -75,7 +75,7 @@ export const recordImpactEvent = createServerFn({ method: "POST" })
 
 export const listImpactEvents = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ organization_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -90,7 +90,7 @@ export const listImpactEvents = createServerFn({ method: "POST" })
 
 export const getImpactSummary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ organization_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -203,7 +203,7 @@ export const adminListIncentives = createServerFn({ method: "GET" })
 
 export const adminUpsertIncentive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => IncentiveInput.parse(i))
+  .validator((i: unknown) => IncentiveInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertPlatformAdmin(context.supabase as never, context.userId);
     const { error } = await context.supabase
@@ -215,7 +215,7 @@ export const adminUpsertIncentive = createServerFn({ method: "POST" })
 
 export const adminDeleteIncentive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -243,7 +243,7 @@ const BADGE_KINDS = [
 
 export const adminAwardBadge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         organization_id: z.string().uuid(),
@@ -267,7 +267,7 @@ export const adminAwardBadge = createServerFn({ method: "POST" })
 
 export const adminRevokeBadge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertPlatformAdmin(context.supabase as never, context.userId);
     const { error } = await context.supabase
@@ -314,7 +314,7 @@ export const listPartnerResourcesWithSaved = createServerFn({ method: "GET" })
 
 export const savePartnerResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         resource_id: z.string().uuid(),
@@ -336,7 +336,7 @@ export const savePartnerResource = createServerFn({ method: "POST" })
 
 export const updatePartnerSavedResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -356,7 +356,7 @@ export const updatePartnerSavedResource = createServerFn({ method: "POST" })
 
 export const unsavePartnerResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("partnerforward_partner_saved_resources")

@@ -43,7 +43,7 @@ export type DocumentPermissionRow = {
 
 export const listDocuments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -60,7 +60,7 @@ export const listDocuments = createServerFn({ method: "POST" })
 
 export const registerDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       student_id: z.string().uuid(),
       title: z.string().trim().min(1).max(200),
@@ -584,7 +584,7 @@ export const registerDocument = createServerFn({ method: "POST" })
  */
 export const archiveDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().uuid(),
     reason: z.string().trim().max(500).optional(),
     restore: z.boolean().optional(),
@@ -629,7 +629,7 @@ export const archiveDocument = createServerFn({ method: "POST" })
  */
 export const hardDeleteDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     id: z.string().uuid(),
     reason: z.string().trim().min(8, "Reason must be at least 8 characters.").max(500),
   }).parse(i))
@@ -685,7 +685,7 @@ export const deleteDocument = archiveDocument;
  */
 export const assertCanUploadForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: ok } = await supabase.rpc("can_edit_student", {
@@ -704,7 +704,7 @@ export const assertCanUploadForStudent = createServerFn({ method: "POST" })
 
 export const getDocumentSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -821,7 +821,7 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
  */
 export const requestAdminDocAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({
+  .validator((i: unknown) => z.object({
     document_id: z.string().uuid(),
     reason: z.string().trim().min(8, "Please describe why this access is needed.").max(500),
     scope: z
@@ -908,7 +908,7 @@ export type ExtractedGoal = z.infer<typeof GoalsExtractSchema>["goals"][number];
 
 export const extractGoalsFromText = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       text: z.string().trim().min(40).max(120_000),
     }).parse(i),
@@ -950,7 +950,7 @@ ${data.text.slice(0, 100_000)}
 
 export const saveExtractedGoals = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       student_id: z.string().uuid(),
       goals: z
@@ -1000,7 +1000,7 @@ const ROLE_TYPES = ["family", "student", "educator", "school_admin", "district_a
 
 export const listDocumentPermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ document_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ document_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -1017,7 +1017,7 @@ export const listDocumentPermissions = createServerFn({ method: "POST" })
 
 export const grantDocumentPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       document_id: z.string().uuid(),
       user_email: z.string().trim().email().max(254).optional(),
@@ -1096,7 +1096,7 @@ export const grantDocumentPermission = createServerFn({ method: "POST" })
 
 export const revokeDocumentPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row } = await supabase
@@ -1126,7 +1126,7 @@ export const revokeDocumentPermission = createServerFn({ method: "POST" })
  */
 export const logDocumentView = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         document_id: z.string().uuid(),
@@ -1180,7 +1180,7 @@ export type DocumentMetaRow = {
 
 export const getDocumentMeta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ document_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ document_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error } = await supabase
@@ -1213,7 +1213,7 @@ async function ensureCanEditDocument(
 
 export const classifyDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       doc_type: z.enum(DOC_TYPES),
@@ -1242,7 +1242,7 @@ export const classifyDocument = createServerFn({ method: "POST" })
 
 export const markDocumentReviewed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       id: z.string().uuid(),
       reviewed: z.boolean().default(true),
@@ -1280,7 +1280,7 @@ export const markDocumentReviewed = createServerFn({ method: "POST" })
  */
 export const rescanDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 

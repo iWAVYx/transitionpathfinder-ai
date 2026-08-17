@@ -53,7 +53,7 @@ async function assertPlatformAdmin(ctx: { supabase: any; userId: string }) {
 
 export const getSloStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { window_hours?: number }) =>
+  .validator((i: { window_hours?: number }) =>
     z.object({ window_hours: z.number().int().min(1).max(2160).default(24) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -67,7 +67,7 @@ export const getSloStatus = createServerFn({ method: "GET" })
 
 export const listRecentErrors = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { limit?: number; window_hours?: number; server_fn?: string | null }) =>
+  .validator((i: { limit?: number; window_hours?: number; server_fn?: string | null }) =>
     z.object({
       limit: z.number().int().min(1).max(200).default(50),
       window_hours: z.number().int().min(1).max(720).default(24),
@@ -92,7 +92,7 @@ export const listRecentErrors = createServerFn({ method: "GET" })
 
 export const getTrace = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { trace_id: string }) =>
+  .validator((i: { trace_id: string }) =>
     z.object({ trace_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

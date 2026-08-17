@@ -44,7 +44,7 @@ export const getUserPreferences = createServerFn({ method: "GET" })
 
 export const updateUserPreferences = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => PrefsInput.parse(i))
+  .validator((i: unknown) => PrefsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -72,7 +72,7 @@ const QuietHoursInput = z.object({
 
 export const updateQuietHours = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => QuietHoursInput.parse(i))
+  .validator((i: unknown) => QuietHoursInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

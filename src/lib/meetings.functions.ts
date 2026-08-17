@@ -61,7 +61,7 @@ export type ActionItem = {
 
 export const listMeetings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid().optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -81,7 +81,7 @@ export const listMeetings = createServerFn({ method: "POST" })
 
 export const getMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [m, agenda, qs, actions] = await Promise.all([
@@ -113,7 +113,7 @@ export const getMeeting = createServerFn({ method: "POST" })
 
 export const createMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid(),
@@ -168,7 +168,7 @@ export const createMeeting = createServerFn({ method: "POST" })
 
 export const updateMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -202,7 +202,7 @@ export const updateMeeting = createServerFn({ method: "POST" })
  */
 export const completeMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -287,7 +287,7 @@ export const completeMeeting = createServerFn({ method: "POST" })
 
 export const addAgendaItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         meeting_id: z.string().uuid(),
@@ -315,7 +315,7 @@ export const addAgendaItem = createServerFn({ method: "POST" })
 
 export const addQuestion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         meeting_id: z.string().uuid(),
@@ -340,7 +340,7 @@ export const addQuestion = createServerFn({ method: "POST" })
 
 export const addActionItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         meeting_id: z.string().uuid(),
@@ -364,7 +364,7 @@ export const addActionItem = createServerFn({ method: "POST" })
 
 export const setActionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

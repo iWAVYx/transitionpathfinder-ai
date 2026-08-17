@@ -40,7 +40,7 @@ export const listSavedResources = createServerFn({ method: "GET" })
 
 export const saveResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         resource_id: z.string().uuid(),
@@ -66,7 +66,7 @@ export const saveResource = createServerFn({ method: "POST" })
 
 export const unsaveResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ resource_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -82,7 +82,7 @@ export const unsaveResource = createServerFn({ method: "POST" })
 
 export const updateSavedResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

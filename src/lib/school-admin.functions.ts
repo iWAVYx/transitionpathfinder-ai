@@ -50,7 +50,7 @@ export type SchoolDashboard = {
 
 export const getSchoolDashboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<SchoolDashboard> => {
@@ -202,7 +202,7 @@ export const getSchoolDashboard = createServerFn({ method: "POST" })
 
 export const updateMembershipStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         membership_id: z.string().uuid(),
@@ -290,7 +290,7 @@ export const updateMembershipStatus = createServerFn({ method: "POST" })
 
 export const createSchoolForAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         name: z.string().trim().min(2).max(160),
@@ -344,7 +344,7 @@ export const createSchoolForAdmin = createServerFn({ method: "POST" })
 
 export const inviteSchoolTeammate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         organization_id: z.string().uuid(),
@@ -429,7 +429,7 @@ export type SchoolReportRow = {
 
 export const listSchoolReports = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ organization_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -491,7 +491,7 @@ export type SchoolReadiness = {
 
 export const getSchoolReadiness = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ organization_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }): Promise<SchoolReadiness> => {
@@ -590,7 +590,7 @@ export type SchoolReportWindow = {
 
 export const getSchoolReportMetrics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         organization_id: z.string().uuid(),

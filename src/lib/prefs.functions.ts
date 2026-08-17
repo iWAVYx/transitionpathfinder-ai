@@ -56,7 +56,7 @@ export const getNotificationPrefs = createServerFn({ method: "GET" })
 
 export const updateNotificationPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => PrefsInput.parse(i))
+  .validator((i: unknown) => PrefsInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 

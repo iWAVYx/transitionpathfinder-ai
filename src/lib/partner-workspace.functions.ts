@@ -62,7 +62,7 @@ const OPP_TYPE = [
 
 export const getPartnerWorkspace = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<PartnerWorkspace> => {
@@ -137,7 +137,7 @@ const opportunitySchema = z.object({
 
 export const createOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => opportunitySchema.parse(i))
+  .validator((i: unknown) => opportunitySchema.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireFeatureEntitlement(supabase, userId, "partner");
@@ -156,7 +156,7 @@ export const createOpportunity = createServerFn({ method: "POST" })
 
 export const updateOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -209,7 +209,7 @@ export const updateOpportunity = createServerFn({ method: "POST" })
 
 export const deleteOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("partner_opportunities").delete().eq("id", data.id);
@@ -221,7 +221,7 @@ export const deleteOpportunity = createServerFn({ method: "POST" })
 // an active admin member. Used when a partner user has no org yet.
 export const createPartnerOrg = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         name: z.string().trim().min(2).max(200),
@@ -277,7 +277,7 @@ export const createPartnerOrg = createServerFn({ method: "POST" })
 
 export const updatePartnerOrgProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

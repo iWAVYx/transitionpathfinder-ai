@@ -17,7 +17,7 @@ export type AuditEntry = {
 
 export const listStudentAuditTrail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({ student_id: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() })
       .parse(i),

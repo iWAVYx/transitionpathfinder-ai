@@ -54,7 +54,7 @@ export type AccessOverview = {
 
 export const getStudentAccessOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }): Promise<AccessOverview> => {

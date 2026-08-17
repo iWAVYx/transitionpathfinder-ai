@@ -20,7 +20,7 @@ import {
 const CODE_RE = /^[A-Z]{2}-[A-Z]{2}$/;
 
 export const getJurisdictionPack = createServerFn({ method: "GET" })
-  .inputValidator((data?: { code?: string }) => {
+  .validator((data?: { code?: string }) => {
     const code = data?.code ?? DEFAULT_JURISDICTION;
     if (!CODE_RE.test(code)) throw new Error("Invalid jurisdiction code");
     return { code };

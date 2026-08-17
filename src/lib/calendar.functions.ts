@@ -140,7 +140,7 @@ async function listAccessibleStudentIds(
 
 export const listCalendarEvents = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         // Optional: scope to a single student. Otherwise aggregate across all accessible students.
@@ -641,7 +641,7 @@ const calendarEventInput = z
 
 export const createCalendarEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => calendarEventInput.parse(i))
+  .validator((i: unknown) => calendarEventInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
@@ -677,7 +677,7 @@ export const createCalendarEvent = createServerFn({ method: "POST" })
 
 export const updateCalendarEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -728,7 +728,7 @@ export const listMyCalendarOrganizations = createServerFn({ method: "POST" })
 
 export const deleteCalendarEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

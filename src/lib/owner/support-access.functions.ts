@@ -18,7 +18,7 @@ export const listSupportAccessGrants = createServerFn({ method: "GET" })
 
 export const revokeSupportAccessGrant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { requirePlatformAdminAccess, revokeGrant } = await import("./support-access.server");
     await requirePlatformAdminAccess(context.supabase, context.userId);

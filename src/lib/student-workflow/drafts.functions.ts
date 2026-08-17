@@ -46,7 +46,7 @@ const TASK_KEY = z
 
 export const getStudentWorkflowDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ taskKey: TASK_KEY }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -66,7 +66,7 @@ export const getStudentWorkflowDraft = createServerFn({ method: "POST" })
 
 export const listStudentWorkflowDrafts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ limit: z.number().int().min(1).max(20).optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -86,7 +86,7 @@ export const listStudentWorkflowDrafts = createServerFn({ method: "POST" })
 
 export const saveStudentWorkflowDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         taskKey: TASK_KEY,
@@ -117,7 +117,7 @@ export const saveStudentWorkflowDraft = createServerFn({ method: "POST" })
 
 export const clearStudentWorkflowDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ taskKey: TASK_KEY }).parse(i),
   )
   .handler(async ({ data, context }) => {

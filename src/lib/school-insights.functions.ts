@@ -29,7 +29,7 @@ export type SchoolSupportNeeds = {
  */
 export const getSchoolSupportNeeds = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<SchoolSupportNeeds> => {
@@ -216,7 +216,7 @@ export type SchoolPlanningStatus = {
 
 export const getSchoolPlanningStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<SchoolPlanningStatus> => {
@@ -346,7 +346,7 @@ async function trendsFor(context: SupabaseCtx, orgId: string, scope: "school" | 
 
 export const getSchoolReadinessTrends = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<ReadinessTrendData> => {
@@ -361,7 +361,7 @@ export const getSchoolReadinessTrends = createServerFn({ method: "POST" })
 
 export const getDistrictReadinessTrends = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ district_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<ReadinessTrendData> => {
@@ -412,7 +412,7 @@ export type SchoolResourceUsage = {
 
 export const getSchoolResourceUsage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<SchoolResourceUsage> => {

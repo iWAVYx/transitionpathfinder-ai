@@ -199,7 +199,7 @@ export const listAdminOrgs = createServerFn({ method: "GET" })
 
 export const listOrgAccessCodes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }): Promise<{ codes: OrgAccessCodeRow[] }> => {
     const { data: rows, error } = await context.supabase
       .from("access_codes")
@@ -237,7 +237,7 @@ export const listOrgAccessCodes = createServerFn({ method: "GET" })
 
 export const listLicenseAccessCodeOptions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ org_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }): Promise<{ options: AccessCodeAdminOption[] }> => {
@@ -251,7 +251,7 @@ export const listLicenseAccessCodeOptions = createServerFn({ method: "GET" })
 
 export const mintOrgAccessCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         org_id: z.string().uuid(),
@@ -328,7 +328,7 @@ export const mintOrgAccessCode = createServerFn({ method: "POST" })
 
 export const revokeOrgAccessCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -356,7 +356,7 @@ const INVITATION_COLS =
 
 export const listOrgInvitations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }): Promise<{ invitations: OrgInvitationRow[] }> => {
     const { data: rows, error } = await context.supabase
       .from("invitations")
@@ -376,7 +376,7 @@ function randomToken(): string {
 
 export const bulkCreateOrgInvitations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         org_id: z.string().uuid(),
@@ -430,7 +430,7 @@ export const bulkCreateOrgInvitations = createServerFn({ method: "POST" })
 
 export const revokeOrgInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("invitations")
@@ -445,7 +445,7 @@ export const revokeOrgInvitation = createServerFn({ method: "POST" })
 
 export const listOrgMembers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ org_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }): Promise<{ members: OrgMemberRow[] }> => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
@@ -506,7 +506,7 @@ export const listLicenseRequests = createServerFn({ method: "GET" })
 
 export const updateLicenseRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),

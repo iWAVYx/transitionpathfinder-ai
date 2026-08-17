@@ -141,7 +141,7 @@ type InsertRow = {
  */
 export const extractEvidenceFromText = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ExtractInput.parse(i))
+  .validator((i: unknown) => ExtractInput.parse(i))
   .handler(async ({ data, context }) => {
     // Authorization: caller must be able to view+edit this student.
     const { data: canEdit, error: canErr } = await context.supabase.rpc(
@@ -209,7 +209,7 @@ export const extractEvidenceFromText = createServerFn({ method: "POST" })
  */
 export const extractEvidenceFromDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ document_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

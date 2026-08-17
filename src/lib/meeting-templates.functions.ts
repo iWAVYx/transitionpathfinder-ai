@@ -44,7 +44,7 @@ export const listMeetingTemplates = createServerFn({ method: "GET" })
 
 export const getMeetingTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const [t, items] = await Promise.all([
       context.supabase.from("meeting_templates").select("*").eq("id", data.id).maybeSingle(),
@@ -63,7 +63,7 @@ export const getMeetingTemplate = createServerFn({ method: "POST" })
 
 export const createMeetingTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         name: z.string().trim().min(1).max(120),
@@ -93,7 +93,7 @@ export const createMeetingTemplate = createServerFn({ method: "POST" })
 
 export const updateMeetingTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -114,7 +114,7 @@ export const updateMeetingTemplate = createServerFn({ method: "POST" })
 
 export const deleteMeetingTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("meeting_templates")
@@ -126,7 +126,7 @@ export const deleteMeetingTemplate = createServerFn({ method: "POST" })
 
 export const upsertTemplateItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -171,7 +171,7 @@ export const upsertTemplateItem = createServerFn({ method: "POST" })
 
 export const deleteTemplateItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("meeting_template_items")
@@ -221,7 +221,7 @@ function complianceForBand(band: TransitionBand, age: number | null) {
 
 export const applyMeetingTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         meeting_id: z.string().uuid(),
@@ -335,7 +335,7 @@ export const applyMeetingTemplate = createServerFn({ method: "POST" })
 
 export const setAgendaItemCompleted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), completed: z.boolean() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -349,7 +349,7 @@ export const setAgendaItemCompleted = createServerFn({ method: "POST" })
 
 export const updateAgendaItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -370,7 +370,7 @@ export const updateAgendaItem = createServerFn({ method: "POST" })
 
 export const deleteAgendaItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("meeting_agenda_items")

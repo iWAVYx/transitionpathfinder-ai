@@ -65,7 +65,7 @@ const ROLE_CHECKLISTS: Record<RoleSurface, ChecklistStep[]> = {
 
 export const getOnboardingChecklist = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { surface: RoleSurface }) => input)
+  .validator((input: { surface: RoleSurface }) => input)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     type Row = { onboarding: Record<string, Record<string, boolean>> | null };
@@ -89,7 +89,7 @@ export const getOnboardingChecklist = createServerFn({ method: "GET" })
 
 export const setOnboardingStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { surface: RoleSurface; stepId: string; completed: boolean }) => input)
+  .validator((input: { surface: RoleSurface; stepId: string; completed: boolean }) => input)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     type Sb = {

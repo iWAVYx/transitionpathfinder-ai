@@ -37,7 +37,7 @@ const CAPABILITIES: Array<keyof PartnerTierCapabilities> = [
 
 export const getPartnerTierUsage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ organization_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }): Promise<PartnerTierUsage> => {

@@ -42,7 +42,7 @@ const PROTECTED_FIELDS = new Set([
 
 export const updateEditableProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => EditableProfileInput.parse(i))
+  .validator((i: unknown) => EditableProfileInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -89,7 +89,7 @@ export const updateEditableProfile = createServerFn({ method: "POST" })
 // Email change kicks off Supabase's reverification flow.
 export const requestEmailChange = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ new_email: z.string().trim().email().max(254) }).parse(i),
   )
   .handler(async ({ data, context }) => {

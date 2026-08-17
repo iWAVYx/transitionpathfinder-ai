@@ -54,7 +54,7 @@ export const listTemplates = createServerFn({ method: "GET" })
 
 export const getTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(i))
+  .validator((i: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error } = await supabase
@@ -68,7 +68,7 @@ export const getTemplate = createServerFn({ method: "POST" })
 
 export const listResponses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         student_id: z.string().uuid().optional(),
@@ -88,7 +88,7 @@ export const listResponses = createServerFn({ method: "POST" })
 
 export const saveResponse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),

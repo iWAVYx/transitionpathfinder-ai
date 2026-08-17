@@ -38,7 +38,7 @@ export type BridgeforwardProfile = z.infer<typeof ProfileInput> & {
 
 export const getBridgeforwardProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -56,7 +56,7 @@ export const getBridgeforwardProfile = createServerFn({ method: "POST" })
 
 export const upsertBridgeforwardProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ProfileInput.parse(i))
+  .validator((i: unknown) => ProfileInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -104,7 +104,7 @@ const OptionInput = z.object({
 
 export const listHighSchoolOptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -123,7 +123,7 @@ export const listHighSchoolOptions = createServerFn({ method: "POST" })
 
 export const upsertHighSchoolOption = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => OptionInput.parse(i))
+  .validator((i: unknown) => OptionInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const payload = { ...data, created_by: userId };
@@ -141,7 +141,7 @@ export const upsertHighSchoolOption = createServerFn({ method: "POST" })
 
 export const deleteHighSchoolOption = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("high_school_options")
@@ -164,7 +164,7 @@ const FitReviewInput = z.object({
 
 export const getFitReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -178,7 +178,7 @@ export const getFitReview = createServerFn({ method: "POST" })
 
 export const upsertFitReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => FitReviewInput.parse(i))
+  .validator((i: unknown) => FitReviewInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const payload = {
@@ -200,7 +200,7 @@ export const upsertFitReview = createServerFn({ method: "POST" })
 
 export const listReadinessSnapshots = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -214,7 +214,7 @@ export const listReadinessSnapshots = createServerFn({ method: "POST" })
 
 export const generateReadinessSnapshot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ studentId: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

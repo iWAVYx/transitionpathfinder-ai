@@ -31,7 +31,7 @@ const publicSubmissionSchema = z.object({
 
 // Public — anyone can submit, uses admin client to bypass auth-only RLS context (insert policy still validates shape)
 export const submitPartnerApplication = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => publicSubmissionSchema.parse(d))
+  .validator((d: unknown) => publicSubmissionSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
@@ -57,7 +57,7 @@ export const listPartnerSubmissions = createServerFn({ method: "GET" })
 // Admin — update status, notes
 export const updateSubmissionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: { id: string; status: (typeof SUB_STATUS)[number]; admin_notes?: string }) => d,
   )
   .handler(async ({ data, context }) => {
@@ -77,7 +77,7 @@ export const updateSubmissionStatus = createServerFn({ method: "POST" })
 // Admin — approve & promote into a partner record
 export const approveSubmissionToPartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
+  .validator((d: { id: string }) => d)
   .handler(async ({ data, context }) => {
     const { data: sub, error: e1 } = await context.supabase
       .from("partner_submissions")

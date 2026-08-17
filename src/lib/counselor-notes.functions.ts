@@ -48,7 +48,7 @@ function payloadToView(row: {
 
 export const listCounselorNotes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { student_id: string }) =>
+  .validator((input: { student_id: string }) =>
     z.object({ student_id: uuid }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -68,7 +68,7 @@ export const listCounselorNotes = createServerFn({ method: "GET" })
 
 export const createCounselorNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { student_id: string; note: string; focus?: string | null }) =>
+  .validator((input: { student_id: string; note: string; focus?: string | null }) =>
     z
       .object({
         student_id: uuid,

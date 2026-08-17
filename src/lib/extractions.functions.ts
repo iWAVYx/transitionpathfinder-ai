@@ -43,7 +43,7 @@ function emptySections(extract?: Partial<IepExtract>): ExtractionSections {
 
 export const getOrCreateExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ document_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -82,7 +82,7 @@ export const getOrCreateExtraction = createServerFn({ method: "POST" })
 
 export const runExtractionFromText = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       document_id: z.string().uuid(),
       text: z.string().trim().min(40).max(120_000),
@@ -126,7 +126,7 @@ export const runExtractionFromText = createServerFn({ method: "POST" })
 
 export const updateExtractionSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       extraction_id: z.string().uuid(),
       key: z.enum(EXTRACTION_SECTION_KEYS),
@@ -168,7 +168,7 @@ export const updateExtractionSection = createServerFn({ method: "POST" })
 
 export const updateExtractionMeta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({
       extraction_id: z.string().uuid(),
       missing_information: z.array(z.string().max(400)).max(40).optional(),
@@ -192,7 +192,7 @@ export const updateExtractionMeta = createServerFn({ method: "POST" })
 
 export const applyAcceptedExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ extraction_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {

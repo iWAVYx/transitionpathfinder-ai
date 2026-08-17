@@ -51,7 +51,7 @@ function gradeMatches(studentBand: string | null, resourceRange: string | null):
 
 export const recommendResourcesForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ student_id: z.string().uuid(), limit: z.number().int().min(1).max(20).default(8) }).parse(i),
   )
   .handler(async ({ data, context }) => {

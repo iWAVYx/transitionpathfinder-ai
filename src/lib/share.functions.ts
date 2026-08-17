@@ -12,7 +12,7 @@ function publicClient() {
 }
 
 export const resolveShareToken = createServerFn({ method: "POST" })
-  .inputValidator((i: unknown) => z.object({ token: z.string().min(8).max(128) }).parse(i))
+  .validator((i: unknown) => z.object({ token: z.string().min(8).max(128) }).parse(i))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: rows, error } = await sb.rpc("resolve_share_token", { _token: data.token });

@@ -146,7 +146,7 @@ export function deriveWaitlistRouting(
 }
 
 export const submitWaitlist = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => WaitlistSchema.parse(input))
+  .validator((input: unknown) => WaitlistSchema.parse(input))
   .handler(async ({ data }) => {
     // Belt-and-suspenders: reject any role string that maps to a platform
     // admin audience, even if it slips past the enum.

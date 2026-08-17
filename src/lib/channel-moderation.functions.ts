@@ -50,7 +50,7 @@ async function assertPlatformAdmin(supabase: any, userId: string) {
 
 export const listChannelReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         status: z.enum(["open", "resolved", "dismissed", "all"]).default("open"),
@@ -119,7 +119,7 @@ export const listChannelReports = createServerFn({ method: "GET" })
 
 export const resolveChannelReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         report_id: z.string().uuid(),
@@ -163,7 +163,7 @@ export const resolveChannelReport = createServerFn({ method: "POST" })
 
 export const removeChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ message_id: z.string().uuid(), reason: z.string().max(500).optional() }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -198,7 +198,7 @@ export const removeChannelMessage = createServerFn({ method: "POST" })
 
 export const setChannelRetention = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         channel_id: z.string().uuid(),
@@ -252,7 +252,7 @@ export type ChannelExportBundle = {
 
 export const exportChannelBundle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ channel_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }): Promise<ChannelExportBundle> => {

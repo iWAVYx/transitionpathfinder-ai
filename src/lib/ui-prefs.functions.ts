@@ -42,7 +42,7 @@ export const getReportViewerPrefs = createServerFn({ method: "GET" })
 
 export const updateReportViewerPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ReportViewerSchema.parse(i))
+  .validator((i: unknown) => ReportViewerSchema.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: existing } = await supabase
@@ -78,7 +78,7 @@ export const getAccessibilityPrefs = createServerFn({ method: "GET" })
 
 export const updateAccessibilityPrefs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => AccessibilitySchema.parse(i))
+  .validator((i: unknown) => AccessibilitySchema.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: existing } = await supabase

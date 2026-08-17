@@ -131,7 +131,7 @@ const sourceInput = z.object({
 
 export const adminUpsertSource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => sourceInput.parse(i))
+  .validator((i: unknown) => sourceInput.parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
@@ -156,7 +156,7 @@ export const adminUpsertSource = createServerFn({ method: "POST" })
 
 export const adminMarkSourceReviewed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -179,7 +179,7 @@ export const adminMarkSourceReviewed = createServerFn({ method: "POST" })
 
 export const adminSetSourceStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ id: z.string().uuid(), review_status: z.enum(REVIEW_STATUSES) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -196,7 +196,7 @@ export const adminSetSourceStatus = createServerFn({ method: "POST" })
 
 export const adminDeleteSource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);

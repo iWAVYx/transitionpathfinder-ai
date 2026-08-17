@@ -68,7 +68,7 @@ const createSchema = z.object({
 
 export const createAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => createSchema.parse(data))
+  .validator((data) => createSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await requirePlatformAdmin(supabase, userId);
@@ -106,7 +106,7 @@ export const listAnnouncements = createServerFn({ method: "GET" })
 
 export const deleteAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     await requirePlatformAdmin(context.supabase, context.userId);
     const { error } = await (await getAdmin()).from("announcements").delete().eq("id", data.id);
@@ -116,7 +116,7 @@ export const deleteAnnouncement = createServerFn({ method: "POST" })
 
 export const togglePublishAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ id: z.string().uuid(), published: z.boolean() }).parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -142,7 +142,7 @@ export type RecipientRow = {
 
 export const exportRecipientsByRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         roles: z.array(z.string().min(1).max(50)).min(1).max(20),
@@ -229,7 +229,7 @@ export const listMyAnnouncements = createServerFn({ method: "GET" })
 
 export const dismissAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -253,7 +253,7 @@ async function primaryRoleFor(userId: string): Promise<string | null> {
 
 export const trackAnnouncementView = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const role = await primaryRoleFor(userId);
@@ -272,7 +272,7 @@ export const trackAnnouncementView = createServerFn({ method: "POST" })
 
 export const trackAnnouncementClick = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         id: z.string().uuid(),
@@ -348,7 +348,7 @@ const engagementSchema = z.object({
 
 export const getAnnouncementEngagement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => engagementSchema.parse(data))
+  .validator((data) => engagementSchema.parse(data))
   .handler(async ({ data, context }): Promise<AnnouncementEngagement> => {
     await requirePlatformAdmin(context.supabase, context.userId);
 

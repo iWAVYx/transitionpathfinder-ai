@@ -363,7 +363,7 @@ Tone: warm, hopeful, 7th-grade reading level, student-centered. When the three v
 
 export const createPathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => IntakeSchema.parse(input))
+  .validator((input: unknown) => IntakeSchema.parse(input))
   .handler(async ({ data, context }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
@@ -517,7 +517,7 @@ export const listMyReports = createServerFn({ method: "GET" })
 
 export const getReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error } = await supabase
@@ -554,7 +554,7 @@ export const getReport = createServerFn({ method: "POST" })
 
 export const linkReportToStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         report_id: z.string().uuid(),
@@ -598,7 +598,7 @@ export const linkReportToStudent = createServerFn({ method: "POST" })
  */
 export const getReportProvenance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { readRecommendationProvenance } = await import("./evidence-writers.functions");
     const rows = await readRecommendationProvenance(context.supabase, data.report_id);
@@ -614,7 +614,7 @@ export const getReportProvenance = createServerFn({ method: "POST" })
  */
 export const getReportProvenanceCoverage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ report_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await (context.supabase
       .from("report_provenance_coverage_v1") as any)
@@ -634,7 +634,7 @@ export const getReportProvenanceCoverage = createServerFn({ method: "POST" })
 
 export const deleteReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("pathway_reports").delete().eq("id", data.id);
@@ -663,7 +663,7 @@ export type ReportVersionRow = {
  */
 export const updateReportContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         report_id: z.string().uuid(),
@@ -739,7 +739,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
 
 export const listReportVersions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ report_id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -759,7 +759,7 @@ export const listReportVersions = createServerFn({ method: "POST" })
 
 export const getReportVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ version_id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -786,7 +786,7 @@ export const getReportVersion = createServerFn({ method: "POST" })
  */
 export const getLatestReportForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ student_id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -939,7 +939,7 @@ Return ONLY the v2 schema JSON.`;
 
 export const regeneratePathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ report_id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {

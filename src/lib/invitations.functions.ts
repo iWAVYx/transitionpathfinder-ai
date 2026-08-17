@@ -59,7 +59,7 @@ function randomToken(): string {
 
 export const createInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         email: z.string().trim().email().max(255),
@@ -106,7 +106,7 @@ export const createInvitation = createServerFn({ method: "POST" })
 
 export const getInvitationShareToken = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: token, error } = await context.supabase.rpc(
       "get_invitation_share_token",
@@ -150,7 +150,7 @@ export const listMyInvitations = createServerFn({ method: "GET" })
 
 export const acceptInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z.object({ token: z.string().min(8).max(128) }).parse(i),
   )
   .handler(async ({ data, context }) => {
@@ -170,7 +170,7 @@ export const acceptInvitation = createServerFn({ method: "POST" })
 
 export const revokeInvitation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

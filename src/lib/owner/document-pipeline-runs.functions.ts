@@ -62,7 +62,7 @@ const STATUSES: PipelineStatus[] = [
 
 export const listDocumentPipelineRuns = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         stage: z.enum(["upload", "sniff", "hash", "extract", "verify", "publish"]).optional(),

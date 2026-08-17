@@ -27,7 +27,7 @@ const SurfaceSchema = z.object({
 
 export const getNextBestAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => SurfaceSchema.parse(input))
+  .validator((input) => SurfaceSchema.parse(input))
   .handler(async ({ data, context }): Promise<NextBestAction> => {
     const { supabase, userId } = context;
     const surface = data.surface;

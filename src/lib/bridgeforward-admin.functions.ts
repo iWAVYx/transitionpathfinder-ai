@@ -67,7 +67,7 @@ const ProgramInput = z.object({
 
 export const adminListSchools = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         status: z.string().optional(),
@@ -90,7 +90,7 @@ export const adminListSchools = createServerFn({ method: "POST" })
 
 export const adminUpsertSchool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => SchoolInput.parse(i))
+  .validator((i: unknown) => SchoolInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const payload = {
@@ -110,7 +110,7 @@ export const adminUpsertSchool = createServerFn({ method: "POST" })
 
 export const adminArchiveSchool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { error } = await context.supabase
@@ -123,7 +123,7 @@ export const adminArchiveSchool = createServerFn({ method: "POST" })
 
 export const adminUpsertProgram = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => ProgramInput.parse(i))
+  .validator((i: unknown) => ProgramInput.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
@@ -159,7 +159,7 @@ export const adminListSourceRecords = createServerFn({ method: "POST" })
 
 export const adminImportSourceRecord = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         source_name: z.string().trim().min(1).max(200),
@@ -190,7 +190,7 @@ export const adminImportSourceRecord = createServerFn({ method: "POST" })
 
 export const adminReviewSourceRecord = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
+  .validator((i: unknown) =>
     z
       .object({
         source_record_id: z.string().uuid(),

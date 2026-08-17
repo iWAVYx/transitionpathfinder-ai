@@ -21,7 +21,7 @@ const outreachSchema = z.object({
 
 export const listOutreachForPartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { partner_id: string }) => d)
+  .validator((d: { partner_id: string }) => d)
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("partner_outreach_log")
@@ -46,7 +46,7 @@ export const listAllOutreach = createServerFn({ method: "GET" })
 
 export const addOutreachEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => outreachSchema.parse(d))
+  .validator((d: unknown) => outreachSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("partner_outreach_log").insert({
       ...data,
@@ -71,7 +71,7 @@ export const addOutreachEntry = createServerFn({ method: "POST" })
 
 export const deleteOutreachEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
+  .validator((d: { id: string }) => d)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("partner_outreach_log")

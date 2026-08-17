@@ -160,7 +160,7 @@ const SortBySchema = z.enum(["name", "status", "updated_at", "type", "county"]);
 
 export const getPartnerMetricRows = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: {
       metric: MetricKey;
       search?: string;
