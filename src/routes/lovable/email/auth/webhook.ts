@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { render } from '@react-email/components'
 import { parseEmailWebhookPayload } from '@lovable.dev/email-js'
 import { WebhookError, verifyWebhookRequest } from '@lovable.dev/webhooks-js'
 import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { SUPPORT_EMAIL } from '@/lib/contact'
+import { renderEmail } from '@/lib/email-render.server'
 import { SignupEmail } from '@/lib/email-templates/signup'
 import { InviteEmail } from '@/lib/email-templates/invite'
 import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
@@ -150,8 +150,8 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
 
         // Render React Email to HTML and plain text
         const element = React.createElement(EmailTemplate, templateProps)
-        const html = await render(element)
-        const text = await render(element, { plainText: true })
+        const html = await renderEmail(element)
+        const text = await renderEmail(element, { plainText: true })
 
         // Enqueue email for async processing by the dispatcher (process-email-queue).
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL

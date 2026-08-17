@@ -10,12 +10,12 @@
  * identity verification. Public Supabase keys are never accepted.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { render } from "@react-email/components";
 import { createClient } from "@supabase/supabase-js";
 import * as React from "react";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 import { redactChannelPreviewForEmail } from "@/lib/channel-preview-redact";
 import { authorizeScheduledHook } from "@/lib/cron-auth.server";
+import { renderEmail } from "@/lib/email-render.server";
 
 const DIGEST_TEMPLATE = "channel-activity-digest";
 const MAX_USERS_PER_TICK = 50;
@@ -124,7 +124,7 @@ export const Route = createFileRoute("/api/public/channel-digest-tick")({
 
             const tpl = TEMPLATES[DIGEST_TEMPLATE];
             if (!tpl) throw new Error("digest template missing");
-            const html = await render(
+            const html = await renderEmail(
               React.createElement(tpl.component, templateData),
             );
             const subject =
