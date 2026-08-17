@@ -26,6 +26,7 @@ const POLICY_FILE = new URL("src/lib/role-policy.ts", ROOT);
 const ROUTES_DIR = new URL("src/routes/_authenticated/", ROOT);
 const SNAPSHOT_FILE = new URL("tests/__snapshots__/role-guard-matrix.snap.json", ROOT);
 const DOCUMENTS_ROUTE_FILE = new URL("src/routes/_authenticated/documents.tsx", ROOT);
+const PPT_PREP_ROUTE_FILE = new URL("src/routes/_authenticated/ppt-prep.tsx", ROOT);
 
 const POLICY_SRC = readFileSync(POLICY_FILE, "utf8");
 
@@ -219,5 +220,23 @@ test("/documents beforeLoad guard matches the central route policy", () => {
     actual,
     [...ROUTE_AUDIENCES["/documents"]].sort(),
     "The /documents beforeLoad audiences must match ROUTE_AUDIENCES.",
+  );
+});
+
+// PPT prep can expose student meeting information. Like /documents, it must
+// reject denied direct navigation before rendering; the component guard alone
+// is not sufficient because its asynchronous role lookup can leave the URL
+// reachable during client navigation.
+test("/ppt-prep beforeLoad guard matches the central route policy", () => {
+  const src = readFileSync(PPT_PREP_ROUTE_FILE, "utf8");
+  const match = src.match(/beforeLoad\s*:\s*\(\)\s*=>\s*ensureRoleAccess\s*\(\s*\[([^\]]*)\]\s*\)/);
+
+  assert.ok(match, "The /ppt-prep route must call ensureRoleAccess([...]) in beforeLoad.");
+
+  const actual = [...match[1].matchAll(/"([^"]+)"/g)].map((entry) => entry[1]).sort();
+  assert.deepEqual(
+    actual,
+    [...ROUTE_AUDIENCES["/ppt-prep"]].sort(),
+    "The /ppt-prep beforeLoad audiences must match ROUTE_AUDIENCES.",
   );
 });

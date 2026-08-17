@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
+import { ensureRoleAccess } from "@/lib/route-role-guard";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ const SearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/_authenticated/ppt-prep")({
+  beforeLoad: () => ensureRoleAccess(["family", "educator", "admin"]),
   head: () => ({ meta: [{ title: "PPT Meeting Prep — TransitionForward" }] }),
   validateSearch: (s) => SearchSchema.parse(s),
   component: () => (<RoleGuard path="/ppt-prep"><PptPrepPage /></RoleGuard>),
