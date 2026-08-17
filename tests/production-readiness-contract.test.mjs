@@ -91,6 +91,25 @@ test("machine-readable migration inventory matches the canonical directory", () 
   }
 });
 
+test("production migration baseline tooling is read-only and fail-closed", () => {
+  const sql = read("docs/production-readiness/production-migration-baseline.sql");
+  const executableSql = sql
+    .split(/\r?\n/)
+    .filter((line) => !line.trim().startsWith("--"))
+    .join("\n");
+  assert.match(executableSql, /^\s*select\b/i);
+  assert.doesNotMatch(
+    executableSql,
+    /\b(insert|update|delete|merge|alter|drop|create|truncate|grant|revoke|call|do)\b/i,
+  );
+
+  const comparator = read("scripts/compare-production-migration-history.mjs");
+  assert.match(comparator, /empty-production-history/);
+  assert.match(comparator, /production-only-version/);
+  assert.match(comparator, /missing-historical-version/);
+  assert.doesNotMatch(comparator, /SUPABASE_(SERVICE_ROLE|ACCESS_TOKEN|DB_PASSWORD)/);
+});
+
 test("tracked environment files contain only reviewed public variables", () => {
   const allowlists = {
     ".env": new Set([
