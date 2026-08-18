@@ -429,6 +429,19 @@ test("pull request refs cannot request protected staging browser credentials", (
   assert.match(workflow, /secrets\.STAGING_E2E_PASSWORD/);
 });
 
+test("role-guard browser CI uses the bounded standardized Playwright installer", () => {
+  const workflow = read(".github/workflows/role-guard-qa.yml");
+  assert.match(
+    workflow,
+    /role-leak-signedin:[\s\S]*?runs-on:\s*ubuntu-latest[\s\S]*?timeout-minutes:\s*30/,
+  );
+  assert.match(
+    workflow,
+    /name:\s*Install Playwright browsers\s*\n\s*timeout-minutes:\s*10\s*\n\s*run:\s*bun run playwright:install/,
+  );
+  assert.doesNotMatch(workflow, /bunx playwright install/);
+});
+
 test("PWA worker is generated into and required from the deployed asset directory", () => {
   const viteConfig = read("vite.config.ts");
   const stagingDeploy = read(".github/workflows/deploy-staging.yml");
