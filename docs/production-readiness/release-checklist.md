@@ -16,9 +16,13 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Database
 
-- [ ] Production migration history read and exact pending list attached.
-- [ ] Pending migrations reviewed in canonical order; lock/uniqueness/RLS/grant
-      risks signed off.
+- [x] Production migration history read and content-aware baseline attached;
+      the 2026-08-17 evidence reports zero pending migrations.
+- [ ] Baseline regenerated immediately before release and still aligned with
+      zero pending migrations; if not, every pending migration is reviewed in
+      canonical order and lock/uniqueness/RLS/grant risks are signed off.
+- [ ] Staging-only E2E fixture remains explicitly production-forbidden and is
+      absent from the production migration plan.
 - [ ] Lovable Cloud backup/export recovery point recorded and an isolated restore
       drill passed; inventorying daily backups alone is not a restore test.
 - [ ] Maintenance and abort owners are present.

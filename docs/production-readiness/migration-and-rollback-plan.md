@@ -7,29 +7,36 @@ the maintenance window.
 
 ## 1. Establish the baseline (read-only)
 
-1. Record the approved Git SHA and the 187 sorted canonical migration files.
+1. Record the approved Git SHA and the sorted canonical migration files.
 2. After visually confirming Lovable Cloud production project ref
    `lrqcntqyekucamifpffs`, run the SELECT-only
    `production-migration-baseline.sql` query in its SQL editor and export the
    ordered result as JSON or CSV. The production project is Lovable-managed and
    is not one of the projects in the separately signed-in Supabase organization.
-3. Save the export outside tracked source (for example,
-   `.tmp/production-migration-history.json`) and compare it locally:
+3. Save the export as release evidence and compare it locally:
 
    ```sh
    npm run audit:production-migrations -- .tmp/production-migration-history.json
    ```
 
-   The comparator fails closed on an empty or malformed export, duplicate or
-   production-only versions, non-increasing order, and any missing historical
-   version. It emits the exact canonical forward tail only when the recorded
-   versions are aligned.
-4. Compare version numbers exactly. Stop for a missing historical version,
-   production-only version, duplicate, renamed migration, or checksum concern.
+   The comparator fails closed on missing hashes, empty or malformed evidence,
+   duplicates, non-increasing order, unknown production content, ambiguous or
+   duplicate mappings, invalid reviewed policy, and any pending canonical file.
+4. Compare content evidence under the reviewed
+   `production-migration-policy.json`; do not infer pending work from timestamps
+   alone. Stop for unknown content, an unreviewed alias, a historical-variant
+   mismatch, a supersession mismatch, or any production-forbidden file that is
+   not explicitly excluded.
 5. Produce the exact pending list. Never assume every file after a remembered
    timestamp is pending.
 6. Review each pending statement for locks, table rewrites, uniqueness failures,
    role/grant changes, RLS changes, extension needs, and post-deploy jobs.
+
+The 2026-08-17 baseline is aligned with zero pending production migrations. It
+must be regenerated immediately before release; it is not permission to mutate
+production. The staging-only
+`20260621153500_e2e_role_dashboard_readiness.sql` migration is permanently
+production-forbidden.
 
 ## 2. Prove recovery
 
@@ -73,7 +80,9 @@ If the restore drill has not passed, the migration is NO-GO.
 
 ## 4. Verification gates
 
-- Exact migration history equals the reviewed canonical list.
+- Content-aware migration history accounts for every canonical file through a
+  direct match, reviewed supersession, or explicit production-forbidden
+  exclusion, with zero unresolved or pending rows.
 - RLS/permission regression and cross-district isolation pass on a controlled
   production-safe test tenant or approved clone; never use real student data as
   a test fixture.

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "target": "lovable-production",
+  "versionAliases": [
+    {
+      "productionVersion": "20260603203051",
+      "canonicalFile": "20260603203051_email_infra.sql",
+      "expectedName": "email_infra",
+      "expectedProductionStatementsMd5": "1a3ac5f82223b81bcdd56e59f76ea273",
+      "expectedCanonicalCodeMd5": "89760c5d88d31cfb8534b58062eb7c24",
+      "reason": "The recorded production statement differs only in comments and formatting from the reviewed canonical email-infrastructure migration."
+    },
+    {
+      "productionVersion": "20260603203105",
+      "canonicalFile": "20260603203105_email_infra.sql",
+      "expectedName": "email_infra",
+      "expectedProductionStatementsMd5": "1a3ac5f82223b81bcdd56e59f76ea273",
+      "expectedCanonicalCodeMd5": "89760c5d88d31cfb8534b58062eb7c24",
+      "reason": "The recorded production statement differs only in comments and formatting from the reviewed canonical email-infrastructure migration."
+    },
+    {
+      "productionVersion": "20260603203657",
+      "canonicalFile": "20260603203657_email_infra.sql",
+      "expectedName": "email_infra",
+      "expectedProductionStatementsMd5": "1a3ac5f82223b81bcdd56e59f76ea273",
+      "expectedCanonicalCodeMd5": "89760c5d88d31cfb8534b58062eb7c24",
+      "reason": "The recorded production statement differs only in comments and formatting from the reviewed canonical email-infrastructure migration."
+    },
+    {
+      "productionVersion": "20260603203954",
+      "canonicalFile": "20260603203955_email_infra.sql",
+      "expectedName": "email_infra",
+      "expectedProductionStatementsMd5": "1a3ac5f82223b81bcdd56e59f76ea273",
+      "expectedCanonicalCodeMd5": "89760c5d88d31cfb8534b58062eb7c24",
+      "reason": "Lovable recorded the fourth identical email-infrastructure execution one second before the canonical filename."
+    },
+    {
+      "productionVersion": "20260605051058",
+      "canonicalFile": "20260605051100_ce7c6073-7bbc-4031-87d9-17f095c88a3d.sql",
+      "expectedProductionStatementsMd5": "c948f1c0b42f762e0f924233f919e390",
+      "expectedCanonicalStatementsMd5": "c948f1c0b42f762e0f924233f919e390",
+      "reason": "The production execution timestamp predates the canonical filename by two seconds; executable SQL is identical."
+    },
+    {
+      "productionVersion": "20260605101734",
+      "canonicalFile": "20260605101736_a4ac1f37-541e-446d-af1e-ad4ce8935f81.sql",
+      "expectedProductionStatementsMd5": "211b0e13cac4ea2c122a97fad23d8490",
+      "expectedCanonicalStatementsMd5": "211b0e13cac4ea2c122a97fad23d8490",
+      "reason": "The production execution timestamp predates the canonical filename by two seconds; executable SQL is identical."
+    }
+  ],
+  "historicalVariants": [
+    {
+      "productionVersion": "20260814202912",
+      "canonicalFile": "20260814202912_5f6e9857-6edc-468c-b4da-7117fc914b19.sql",
+      "expectedName": "5f6e9857-6edc-468c-b4da-7117fc914b19",
+      "expectedStatementsMd5": "0728d53d4c8c29c4c47c654e1a8b3fb1",
+      "sourceCommit": "b658eaa7",
+      "reason": "Production applied the file's original form; commit 955406f4 later added idempotent index guards without changing the intended final schema."
+    },
+    {
+      "productionVersion": "20260814203316",
+      "canonicalFile": "20260814203316_49779172-d01d-497c-95d2-b451a7c70890.sql",
+      "expectedName": "49779172-d01d-497c-95d2-b451a7c70890",
+      "expectedStatementsMd5": "d040a83930d46db9ec63301e9685de32",
+      "sourceCommit": "60fdb160",
+      "reason": "Production applied the file's original form; commit 955406f4 later added idempotent column and index guards without changing the intended final schema."
+    }
+  ],
+  "supersededCanonicalFiles": [
+    {
+      "file": "20260803161500_forward_only_defect_fixes_and_grant_hygiene.sql",
+      "coveredByProductionVersion": "20260814202809",
+      "expectedProductionStatementsMd5": "bea3dd2df416ff18f1e2c80180f73247",
+      "expectedProductionCodeMd5": "d35e60b710ad93bbd2c78478cb6c6148",
+      "reason": "The later synchronized production migration repeats the same executable SQL."
+    },
+    {
+      "file": "20260810070359_billing_grant_hygiene.sql",
+      "coveredByProductionVersion": "20260814202839",
+      "expectedProductionStatementsMd5": "bf39f157ec4fee7305769026eabcedfc",
+      "expectedProductionCodeMd5": "f43831a01851d72806afd1d187013802",
+      "reason": "The later synchronized production migration repeats the same executable SQL."
+    },
+    {
+      "file": "20260810070712_payment_event_ledger_server_only.sql",
+      "coveredByProductionVersion": "20260814202853",
+      "expectedProductionStatementsMd5": "b2fd8a191bf7aa92a969b1941f54a728",
+      "expectedProductionCodeMd5": "88aa24a3051c657173d3d61fd4087765",
+      "reason": "The later synchronized production migration repeats the same executable SQL."
+    },
+    {
+      "file": "20260811131802_webhook_reconciliation_conflict_targets.sql",
+      "coveredByProductionVersion": "20260814202912",
+      "expectedProductionStatementsMd5": "0728d53d4c8c29c4c47c654e1a8b3fb1",
+      "expectedProductionCodeMd5": "8fe3099ca167f71757f67077254e9ae6",
+      "reason": "The later synchronized production migration applied the original conflict-index SQL."
+    },
+    {
+      "file": "20260811203727_student_self_ownership_and_invitation_linking.sql",
+      "coveredByProductionVersion": "20260814203316",
+      "expectedProductionStatementsMd5": "d040a83930d46db9ec63301e9685de32",
+      "expectedProductionCodeMd5": "e24345a07922d2eeae39272f0a8f62ca",
+      "reason": "The later synchronized production migration applied the original ownership and invitation SQL."
+    },
+    {
+      "file": "20260813013345_20260812163612_harden_scheduled_hook_isolation.sql",
+      "coveredByProductionVersion": "20260814203430",
+      "expectedProductionStatementsMd5": "4168736924333340158b07906fe5247b",
+      "expectedProductionCodeMd5": "900b7e95ff2cdf84f3f04d78e92d0194",
+      "reason": "The later synchronized production migration repeats the same executable SQL."
+    }
+  ],
+  "excludedCanonicalFiles": [
+    {
+      "file": "20260621153500_e2e_role_dashboard_readiness.sql",
+      "productionForbidden": true,
+      "reason": "This migration creates synthetic E2E roles, demo students, and E2E organizations for isolated staging; it must never run in production."
+    }
+  ]
+}

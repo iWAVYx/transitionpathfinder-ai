@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-08-16",
-  "auditedMainSha": "e8ee0ebd4e9a0117d7f5ee60ca824f0b89bda9fa",
+  "auditedAt": "2026-08-17",
+  "auditedMainSha": "4196947d3b2b080c5ada9798e0968544a5264712",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
@@ -15,7 +15,7 @@
     "hostingProvider": "lovable-cloud",
     "githubEnvironmentProvisioned": true,
     "deploymentWorkflowProvisioned": false,
-    "migrationBaselineVerified": false,
+    "migrationBaselineVerified": true,
     "exactDeploymentIdentityVerified": false,
     "hostingControlPlaneVerified": true,
     "backupInventoryVerified": true,
