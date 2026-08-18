@@ -56,7 +56,9 @@ jobs:
               exit 1;;
           esac
 
-      - run: bun run build
+      # The protected staging build includes environment-specific client values
+      # and needs more Nitro bundling headroom than Lovable's preview build.
+      - run: bun run build:staging
 
       - name: Verify build output contract
         run: |
@@ -69,7 +71,7 @@ jobs:
           fi
 
           if [ -z "$entry" ]; then
-            echo "Expected server entry + client assets were not produced by 'bun run build'." >&2
+            echo "Expected server entry + client assets were not produced by 'bun run build:staging'." >&2
             echo "--- repo root ---" >&2; ls -1 . >&2
             echo "--- dist ---" >&2; ls -1 dist 2>&1 >&2 || true
             echo "--- dist/server ---" >&2; ls -1 dist/server 2>&1 >&2 || true

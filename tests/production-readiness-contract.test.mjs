@@ -423,6 +423,18 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /\.\.\.clientOnlyPlugins\(\s*VitePWA\(/);
 });
 
+test("protected staging builds use dedicated CI memory headroom", () => {
+  const packageJson = read("package.json");
+  const deployStaging = read(".github/workflows/deploy-staging.yml");
+
+  assert.match(
+    packageJson,
+    /"build:staging":\s*"NODE_OPTIONS=--max-old-space-size=4096 vite build"/,
+  );
+  assert.match(deployStaging, /- run:\s*bun run build:staging/);
+  assert.doesNotMatch(deployStaging, /- run:\s*bun run build\s*$/m);
+});
+
 test("hosted builds use the supported server validator API", () => {
   const deprecatedValidatorCalls = filesUnder("src")
     .filter((path) => /\.[cm]?[jt]sx?$/.test(path))
