@@ -407,6 +407,22 @@ test("hosted Worker builds omit unused email formatting dependencies", () => {
   }
 });
 
+test("hosted builds stay within Lovable memory limits without duplicate PWA work", () => {
+  const packageJson = read("package.json");
+  const viteConfig = read("vite.config.ts");
+
+  assert.match(packageJson, /--max-old-space-size=3072 vite build/);
+  assert.match(packageJson, /--max-old-space-size=3072 vite build --mode development/);
+  assert.match(viteConfig, /reportCompressedSize:\s*false/);
+  assert.match(viteConfig, /maxParallelFileOps:\s*32/);
+  assert.match(viteConfig, /function clientOnlyPlugins/);
+  assert.match(
+    viteConfig,
+    /applyToEnvironment:\s*\(environment\)\s*=>\s*environment\.name\s*===\s*["']client["']/,
+  );
+  assert.match(viteConfig, /\.\.\.clientOnlyPlugins\(\s*VitePWA\(/);
+});
+
 test("hosted builds use the supported server validator API", () => {
   const deprecatedValidatorCalls = filesUnder("src")
     .filter((path) => /\.[cm]?[jt]sx?$/.test(path))
