@@ -442,6 +442,19 @@ test("role-guard browser CI uses the bounded standardized Playwright installer",
   assert.doesNotMatch(workflow, /bunx playwright install/);
 });
 
+test("accessibility CI uses the bounded standardized Playwright installer", () => {
+  const workflow = read(".github/workflows/report-a11y.yml");
+  assert.match(
+    workflow,
+    /report-a11y:\s*\n\s+runs-on:\s*ubuntu-latest\s*\n\s+timeout-minutes:\s*15/,
+  );
+  assert.match(
+    workflow,
+    /name:\s*Install Playwright browsers\s*\n\s*timeout-minutes:\s*10\s*\n\s*run:\s*bun run playwright:install/,
+  );
+  assert.doesNotMatch(workflow, /bunx playwright install/);
+});
+
 test("PWA worker is generated into and required from the deployed asset directory", () => {
   const viteConfig = read("vite.config.ts");
   const stagingDeploy = read(".github/workflows/deploy-staging.yml");
