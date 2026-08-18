@@ -49,6 +49,7 @@ jobs:
   role-leak-signedin:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: role-guard-matrix
     environment: staging
     env:
@@ -78,7 +79,8 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - name: Install Playwright browsers
-        run: bunx playwright install --with-deps chromium
+        timeout-minutes: 10
+        run: bun run playwright:install
       - name: Require isolated staging password
         run: |
           if [ -z "$E2E_STUDENT_PASSWORD" ]; then
