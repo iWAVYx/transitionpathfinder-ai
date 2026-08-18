@@ -29,7 +29,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Install Playwright browsers
-        run: bunx playwright install --with-deps chromium
+        timeout-minutes: 10
+        run: bun run playwright:install
       - name: Run axe-core report-page suite
         env:
           # Optional — when present, the signed-in /reports/$reportId suite
