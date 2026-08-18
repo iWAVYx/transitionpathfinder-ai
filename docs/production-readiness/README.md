@@ -17,6 +17,10 @@ Documents:
 - `alignment-2026-08-14.md` — current staging RLS and migration-alignment evidence.
 - `alignment-2026-08-15.md` — PR #19 post-merge failures and document/permission alignment controls.
 - `alignment-2026-08-16.md` — GitHub protections and current Lovable production-control evidence.
+- `production-migration-baseline-2026-08-17.md` — content-aware production
+  migration evidence and the zero-pending result.
+- `production-migration-policy.json` — pinned aliases, historical variants,
+  supersessions, and the production-forbidden staging fixture.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.
 - `release-checklist.md` — operator go/no-go procedure.
 - `audit-state.json` — fail-closed CI contract.

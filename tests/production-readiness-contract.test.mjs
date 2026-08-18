@@ -91,6 +91,61 @@ test("machine-readable migration inventory matches the canonical directory", () 
   }
 });
 
+test("production migration baseline tooling is read-only and fail-closed", () => {
+  const sql = read("docs/production-readiness/production-migration-baseline.sql");
+  const executableSql = sql
+    .split(/\r?\n/)
+    .filter((line) => !line.trim().startsWith("--"))
+    .join("\n");
+  assert.match(executableSql, /^\s*select\b/i);
+  assert.doesNotMatch(
+    executableSql,
+    /\b(insert|update|delete|merge|alter|drop|create|truncate|grant|revoke|call|do)\b/i,
+  );
+  assert.match(executableSql, /statements_md5/);
+  assert.match(executableSql, /code_md5/);
+
+  const comparator = read("scripts/compare-production-migration-history.mjs");
+  assert.match(comparator, /empty-production-history/);
+  assert.match(comparator, /unresolved-production-history/);
+  assert.match(comparator, /invalid-alignment-policy/);
+  assert.match(comparator, /pending-production-migration/);
+  assert.doesNotMatch(comparator, /SUPABASE_(SERVICE_ROLE|ACCESS_TOKEN|DB_PASSWORD)/);
+
+  const policy = JSON.parse(read("docs/production-readiness/production-migration-policy.json"));
+  assert.equal(policy.target, "lovable-production");
+  assert.equal(policy.historicalVariants.length, 2);
+  assert.equal(policy.supersededCanonicalFiles.length, 6);
+  assert.deepEqual(policy.excludedCanonicalFiles, [
+    {
+      file: "20260621153500_e2e_role_dashboard_readiness.sql",
+      productionForbidden: true,
+      reason:
+        "This migration creates synthetic E2E roles, demo students, and E2E organizations for isolated staging; it must never run in production.",
+    },
+  ]);
+
+  const report = JSON.parse(
+    execFileSync(
+      process.execPath,
+      [
+        "scripts/compare-production-migration-history.mjs",
+        "docs/production-readiness/evidence/production-migration-history-2026-08-17.csv",
+        "--json",
+      ],
+      { encoding: "utf8" },
+    ),
+  );
+  assert.equal(report.status, "aligned");
+  assert.equal(report.appliedCount, 180);
+  assert.equal(report.canonicalCount, 187);
+  assert.equal(report.directCoverageCount, 180);
+  assert.equal(report.supersededCount, 6);
+  assert.equal(report.excludedCount, 1);
+  assert.equal(report.pendingCount, 0);
+  assert.equal(audit.production.migrationBaselineVerified, true);
+});
+
 test("tracked environment files contain only reviewed public variables", () => {
   const allowlists = {
     ".env": new Set([
