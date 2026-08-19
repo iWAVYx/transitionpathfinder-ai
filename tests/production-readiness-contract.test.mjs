@@ -423,6 +423,29 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /\.\.\.clientOnlyPlugins\(\s*VitePWA\(/);
 });
 
+test("SSR stubs only the authenticated client-only route subtree", () => {
+  const viteConfig = read("vite.config.ts");
+  const authenticatedRoute = read("src/routes/_authenticated.tsx");
+
+  assert.match(
+    authenticatedRoute,
+    /createFileRoute\(["']\/_authenticated["']\)[\s\S]*?ssr:\s*false/,
+  );
+  assert.match(viteConfig, /function serverAuthenticatedRouteStubs\(\): Plugin/);
+  assert.match(
+    viteConfig,
+    /applyToEnvironment:\s*\(environment\)\s*=>\s*environment\.name\s*!==\s*["']client["']/,
+  );
+  assert.match(viteConfig, /normalizedId\.endsWith\(["']\/src\/routes\/_authenticated\.tsx["']\)/);
+  assert.match(viteConfig, /normalizedId\.includes\(["']\/src\/routes\/_authenticated\/["']\)/);
+  assert.match(
+    viteConfig,
+    /create\(\?:ServerFn\|ServerOnlyFn\|Middleware\|ServerFileRoute\)/,
+    "the build must fail closed if an authenticated route gains an inline server primitive",
+  );
+  assert.match(viteConfig, /plugins:\s*\[\s*serverAuthenticatedRouteStubs\(\)/);
+});
+
 test("protected staging builds use dedicated CI memory headroom", () => {
   const packageJson = read("package.json");
   const deployStaging = read(".github/workflows/deploy-staging.yml");

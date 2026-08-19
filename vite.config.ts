@@ -18,6 +18,45 @@ function clientOnlyPlugins(plugins: Plugin[]): Plugin[] {
   }));
 }
 
+function serverAuthenticatedRouteStubs(): Plugin {
+  return {
+    name: "transitionforward:server-authenticated-route-stubs",
+    enforce: "pre",
+    applyToEnvironment: (environment) => environment.name !== "client",
+    transform(source, id) {
+      const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
+      const isAuthenticatedRoute =
+        normalizedId.endsWith("/src/routes/_authenticated.tsx") ||
+        (normalizedId.includes("/src/routes/_authenticated/") && normalizedId.endsWith(".tsx"));
+      if (!isAuthenticatedRoute) return null;
+
+      // The parent route already declares ssr:false because authentication is
+      // restored from browser storage. These modules therefore cannot render
+      // on the server, but Nitro would otherwise parse and inline all 138 UI
+      // routes into Lovable's single-file fetch bundle. Refuse to stub a route
+      // if a future change adds an inline server primitive; those handlers must
+      // first be moved to a dedicated *.functions.ts or server route module.
+      if (/\bcreate(?:ServerFn|ServerOnlyFn|Middleware|ServerFileRoute)\b/.test(source)) {
+        throw new Error(
+          `[server-authenticated-route-stubs] ${normalizedId} contains an inline server primitive`,
+        );
+      }
+
+      const routeMatch = source.match(/\bcreateFileRoute\(\s*(["'`])([^"'`]+)\1\s*\)/);
+      if (!routeMatch) {
+        throw new Error(
+          `[server-authenticated-route-stubs] Could not identify the route path in ${normalizedId}`,
+        );
+      }
+
+      return {
+        code: `import { createFileRoute } from "@tanstack/react-router";\nexport const Route = createFileRoute(${JSON.stringify(routeMatch[2])})({ ssr: false });\n`,
+        map: null,
+      };
+    },
+  };
+}
+
 const appBuildSha =
   process.env.VITE_APP_BUILD_SHA ??
   process.env.GITHUB_SHA ??
@@ -52,6 +91,7 @@ export default defineConfig({
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
     plugins: [
+      serverAuthenticatedRouteStubs(),
       ...clientOnlyPlugins(
         VitePWA({
           registerType: "autoUpdate",
