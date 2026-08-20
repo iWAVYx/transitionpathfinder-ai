@@ -584,6 +584,70 @@ test("no production deploy path exists while the audit says it is unprovisioned"
   assert.equal(rootFiles.includes("wrangler.production.toml"), false);
 });
 
+test("Cloudflare production release path is manual, exact-SHA, and fail-closed", () => {
+  assert.equal(audit.production.hostingProvider, "cloudflare-workers");
+  assert.equal(audit.production.deploymentWorkflowProvisioned, true);
+  assert.equal(audit.production.hostingControlPlaneVerified, false);
+  assert.equal(audit.status, "no-go");
+
+  const workflow = read(".github/workflows/deploy-production.yml");
+  const wrangler = read("wrangler.production.toml");
+  const executableWrangler = wrangler
+    .split(/\r?\n/)
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
+  const alignment = read("docs/production-readiness/alignment-2026-08-20.md");
+  const packageJson = read("package.json");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\n\s+(?:push|pull_request|schedule|workflow_run):/);
+  assert.match(workflow, /environment:\s*production/);
+  assert.match(workflow, /CONFIRM_INPUT: \$\{\{ github\.event\.inputs\.confirm \}\}/);
+  assert.match(workflow, /APPROVED_SHA_INPUT: \$\{\{ github\.event\.inputs\.approved_sha \}\}/);
+  assert.doesNotMatch(workflow, /run: \|[\s\S]*?\$\{\{ github\.event\.inputs\./);
+  assert.match(workflow, /\$CONFIRM_INPUT[\s\S]*?deploy-production/);
+  assert.match(workflow, /\$GITHUB_REF" != "refs\/heads\/main"/);
+  assert.match(workflow, /APPROVED_SHA_INPUT[\s\S]*?\$GITHUB_SHA/);
+  assert.match(workflow, /\.status == "go"/);
+  assert.match(workflow, /Production audit evidence is not GO/);
+  assert.match(workflow, /deploy-staging\.yml/);
+  assert.match(workflow, /release-readiness\.yml/);
+  assert.match(workflow, /staging-role-verification\.yml/);
+  assert.match(workflow, /staging-billing-verification\.yml/);
+  assert.match(workflow, /migration-replay\.yml/);
+  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_URL/);
+  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(workflow, /secrets\.PRODUCTION_PAYMENTS_CLIENT_TOKEN/);
+  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_API_TOKEN/);
+  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_ACCOUNT_ID/);
+  const jobEnv = workflow.split("    steps:")[0];
+  assert.doesNotMatch(jobEnv, /PRODUCTION_CLOUDFLARE_API_TOKEN/);
+  assert.doesNotMatch(jobEnv, /PRODUCTION_CLOUDFLARE_ACCOUNT_ID/);
+  assert.doesNotMatch(workflow, /secrets\.STAGING_/);
+  assert.match(workflow, /wrangler secret list --format json --config wrangler\.production\.toml/);
+  assert.match(workflow, /STRIPE_LIVE_API_KEY/);
+  assert.match(workflow, /STRIPE_SANDBOX_API_KEY/);
+  assert.match(workflow, /wrangler deploy --dry-run --config wrangler\.production\.toml/);
+  assert.match(workflow, /wrangler deploy --config wrangler\.production\.toml/);
+  assert.match(workflow, /git_commit_sha == \$sha/);
+  assert.match(workflow, /\.isolation\.ok == true/);
+  assert.match(workflow, /deployments-before\.json/);
+
+  assert.match(wrangler, /name = "transitionforward-production"/);
+  assert.match(wrangler, /workers_dev = false/);
+  assert.match(wrangler, /transitionforwardct\.com\/\*/);
+  assert.match(wrangler, /APP_ENV = "production"/);
+  assert.match(wrangler, /VITE_APP_ENV = "production"/);
+  assert.match(wrangler, /GIT_COMMIT_SHA = "__SET_BY_PRODUCTION_WORKFLOW__"/);
+  assert.doesNotMatch(executableWrangler, /qgrertkqbwanerqqemph|staging/i);
+  assert.match(
+    packageJson,
+    /"build:production": "NODE_OPTIONS=--max-old-space-size=4096 vite build"/,
+  );
+  assert.match(alignment, /production remains NO-GO/i);
+  assert.match(alignment, /does not[\s\S]*deploy Cloudflare/i);
+});
+
 test("production identity fails closed and operator documents are complete", () => {
   const identity = read("src/lib/env-identity.ts");
   const health = read("src/routes/api/public/env-health.ts");

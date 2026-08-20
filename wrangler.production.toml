@@ -1,0 +1,46 @@
+# Approval-gated Cloudflare Worker production target.
+#
+# This file contains no credentials. The production Worker and its required
+# secrets must be provisioned separately under the reviewed production change
+# window. `.github/workflows/deploy-production.yml` refuses to deploy while the
+# machine-readable audit is NO-GO or any identity/evidence check is incomplete.
+
+name = "transitionforward-production"
+main = "dist/server/index.mjs"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+no_bundle = true
+
+routes = [
+  { pattern = "transitionforwardct.com/*", zone_name = "transitionforwardct.com" },
+  { pattern = "www.transitionforwardct.com/*", zone_name = "transitionforwardct.com" },
+]
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.mjs", "**/*.js"]
+
+[assets]
+directory = "dist/client"
+binding = "ASSETS"
+
+[vars]
+APP_ENV = "production"
+VITE_APP_ENV = "production"
+CRON_EXPECTED_ORIGIN = "https://transitionforwardct.com"
+GIT_COMMIT_SHA = "__SET_BY_PRODUCTION_WORKFLOW__"
+
+[observability]
+enabled = true
+
+# Required pre-provisioned Worker secrets (names only):
+#   SUPABASE_URL
+#   SUPABASE_PUBLISHABLE_KEY
+#   SUPABASE_SERVICE_ROLE_KEY
+#   PAYMENTS_CLIENT_TOKEN
+#   STRIPE_LIVE_API_KEY
+#   PAYMENTS_LIVE_WEBHOOK_SECRET
+#   CRON_WEBHOOK_SECRET
+#
+# Staging and sandbox secret names are forbidden on this Worker.
