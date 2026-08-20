@@ -83,7 +83,7 @@ export default defineConfig({
         // Rollup otherwise permits up to 1,000 queued file operations. Keep
         // enough parallelism for a useful build while leaving memory headroom
         // inside Lovable's smaller hosted build containers.
-        maxParallelFileOps: 8,
+        maxParallelFileOps: 2,
       },
     },
     define: {
