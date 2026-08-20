@@ -75,6 +75,7 @@ export default defineConfig({
   },
   vite: {
     build: {
+      sourcemap: false,
       // Hosted preview builds emit hundreds of chunks. Gzipping each one only
       // to print size statistics adds memory pressure without changing output.
       reportCompressedSize: false,
@@ -82,7 +83,7 @@ export default defineConfig({
         // Rollup otherwise permits up to 1,000 queued file operations. Keep
         // enough parallelism for a useful build while leaving memory headroom
         // inside Lovable's smaller hosted build containers.
-        maxParallelFileOps: 32,
+        maxParallelFileOps: 8,
       },
     },
     define: {
