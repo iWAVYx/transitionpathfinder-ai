@@ -411,11 +411,17 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   const packageJson = read("package.json");
   const viteConfig = read("vite.config.ts");
 
-  assert.match(packageJson, /--max-old-space-size=3072 vite build/);
-  assert.match(packageJson, /--max-old-space-size=3072 vite build --mode development/);
+  assert.match(packageJson, /--max-old-space-size=3072 --expose-gc' vite build/);
+  assert.match(packageJson, /--max-old-space-size=3072 --expose-gc' vite build --mode development/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
   assert.match(viteConfig, /maxParallelFileOps:\s*2/);
+  assert.match(viteConfig, /function buildEnvironmentGarbageCollector\(\): Plugin/);
+  assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
+  assert.match(
+    viteConfig,
+    /plugins:\s*\[\s*serverAuthenticatedRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+  );
   assert.match(viteConfig, /function clientOnlyPlugins/);
   assert.match(
     viteConfig,

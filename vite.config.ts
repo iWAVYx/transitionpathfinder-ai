@@ -18,6 +18,22 @@ function clientOnlyPlugins(plugins: Plugin[]): Plugin[] {
   }));
 }
 
+function buildEnvironmentGarbageCollector(): Plugin {
+  return {
+    name: "transitionforward:build-environment-garbage-collector",
+    apply: "build",
+    // TanStack Start builds the client, SSR, and Nitro environments in one
+    // process. Reclaim an environment's unreachable heap before the next one
+    // starts so Lovable's hosted preview does not retain every build graph.
+    closeBundle: {
+      order: "post",
+      handler() {
+        global.gc?.();
+      },
+    },
+  };
+}
+
 function serverAuthenticatedRouteStubs(): Plugin {
   return {
     name: "transitionforward:server-authenticated-route-stubs",
@@ -93,6 +109,7 @@ export default defineConfig({
     },
     plugins: [
       serverAuthenticatedRouteStubs(),
+      buildEnvironmentGarbageCollector(),
       ...clientOnlyPlugins(
         VitePWA({
           registerType: "autoUpdate",
