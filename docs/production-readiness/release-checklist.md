@@ -5,12 +5,14 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Approval and identity
 
 - [ ] Release PR merged through protected `main`; exact 40-character SHA recorded.
-- [ ] GitHub `production` environment approval granted by required reviewers.
+- [ ] Separate owner approval recorded for the exact Lovable publish and DNS window.
 - [ ] Production Supabase ref is exactly `lrqcntqyekucamifpffs`; staging ref is absent.
-- [ ] The approved production hosting control plane, owner access, custom domains,
-      deployment source, and last known-good application version are reviewed.
-- [ ] If production moves to Cloudflare, its account, Worker, routes, token scope,
-      WAF/access controls, and rollback version are reviewed before cutover.
+- [ ] The Lovable project, connected GitHub repository/branch, publish owner,
+      current published snapshot, and last known-good snapshot are reviewed.
+- [ ] The Cloudflare account and `transitionforwardct.com` zone owner access,
+      DNS/proxy source, WAF/rate-limit/cache rules, and rollback export are reviewed.
+- [ ] No Cloudflare Worker route or custom domain serves the production application;
+      the `transitionforward-production` placeholder remains outside the release path.
 - [ ] `/api/public/env-health` proves production labels, project, live Stripe,
       allowed hostname, exact SHA, and passing isolation.
 
@@ -26,15 +28,16 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Lovable Cloud backup/export recovery point recorded and an isolated restore
       drill passed; inventorying daily backups alone is not a restore test.
 - [ ] Maintenance and abort owners are present.
-- [ ] Migration applies one file at a time with stop-on-error; post-file
-      invariants recorded.
-- [ ] Production Vault cron values provisioned and privileged jobs rescheduled
-      only after the hook-isolation migration verifies them.
+- [ ] Any approved migration applies one file at a time with stop-on-error and
+      records post-file invariants; publish itself never applies migrations.
+- [ ] Production Vault cron values are provisioned and privileged jobs are
+      rescheduled only after the hook-isolation migration verifies them.
 
 ## Configuration and third parties
 
-- [ ] Production secrets exist only in the protected production control plane;
-      none are repository-scoped, copied from staging, or exposed to PR code.
+- [ ] Privileged production secrets remain only in Lovable Cloud's managed
+      production runtime; the Supabase service-role key is absent from GitHub,
+      Cloudflare, repository variables, logs, and PR code.
 - [ ] Staging database, Supabase service-role, and Stripe secrets are absent from
       the Lovable production project's secret store.
 - [ ] Lovable preview activity cannot mutate real production records, or an
@@ -51,6 +54,8 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 - [ ] Build and SSR verification passed for the approved SHA.
+- [ ] Lovable's connected build succeeded for that exact SHA; neither
+      `Build unsuccessful` nor `Preview is out of date` is present.
 - [ ] Migration replay and RLS/permission/cross-district suites passed.
 - [ ] Seven-role auth, role guards, dashboard regression, accessibility, and
       release-readiness journeys passed on the exact candidate.
@@ -59,16 +64,29 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Low-risk live Stripe transaction, webhook receipt, entitlement result,
       cancellation/refund, and ledger reconciliation passed under approval.
 
+## Cloudflare edge setup
+
+- [ ] Lovable domain settings use the supported **Domain uses Cloudflare or a
+      similar proxy** option and the exact Lovable-supplied CNAME is recorded.
+- [ ] Required ownership-verification records remain DNS-only when required.
+- [ ] Application hostnames are proxied to Lovable; no Worker route, Pages
+      project, origin rewrite, or guessed target is in the request path.
+- [ ] Authenticated HTML/API responses and `/api/*`, `/lovable/*`, OAuth,
+      payment/email webhook, and cron traffic are not cached.
+- [ ] WAF/challenge/rate-limit rules preserve signed webhook, OAuth, email, and
+      cron reachability without bypassing their application-level authentication.
+- [ ] TLS mode, HSTS plan, canonical redirects, `www` behavior, and emergency
+      DNS-only rollback are tested and recorded.
+
 ## Release and observation
 
-- [ ] Operator repeats target/SHA confirmation immediately before deploy.
-- [ ] Production deploy/publish is manual and approval-gated; staging
-      workflow/config/secrets are not reused.
-- [ ] The chosen hosting path is recorded. For Lovable, its connected `main`
-      build is current and the exact SHA is selected for publish. For
-      Cloudflare, the production Worker/account/routes/token scope and rollback
-      version are verified and the exact approved SHA is selected for deploy.
-- [ ] Post-deploy health, logs, error rate, cron, auth, database, and Stripe
-      checks pass for the observation window.
-- [ ] Rollback owner confirms application and database recovery triggers.
-- [ ] Evidence links and final GO decision recorded; otherwise rollback/NO-GO.
+- [ ] Operator repeats target/SHA/project confirmation immediately before publish.
+- [ ] The exact reviewed Lovable snapshot is selected; publishing remains manual
+      and requires separate explicit authorization.
+- [ ] DNS/proxy changes occur only in their separately approved window and match
+      the recorded Lovable target; staging configuration and secrets are not reused.
+- [ ] Post-publish health, headers, logs, error rate, cron, auth, database, email,
+      and Stripe checks pass for the observation window.
+- [ ] Rollback owner confirms the last known-good Lovable snapshot, prior
+      Cloudflare configuration, and database recovery triggers.
+- [ ] Evidence links and final GO decision are recorded; otherwise rollback/NO-GO.

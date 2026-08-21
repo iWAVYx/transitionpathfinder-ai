@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import { test } from "node:test";
 
 const AUDIT_PATH = "docs/production-readiness/audit-state.json";
@@ -9,7 +9,7 @@ const audit = JSON.parse(readFileSync(AUDIT_PATH, "utf8"));
 
 const productionGoControls = [
   "githubEnvironmentProvisioned",
-  "deploymentWorkflowProvisioned",
+  "releaseProcedureDocumented",
   "migrationBaselineVerified",
   "exactDeploymentIdentityVerified",
   "hostingControlPlaneVerified",
@@ -41,7 +41,7 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  assert.equal(audit.schemaVersion, 1);
+  assert.equal(audit.schemaVersion, 2);
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.notEqual(
     audit.production.supabaseProjectRef,
@@ -55,10 +55,10 @@ test("audit is fail-closed until every production control is proven", () => {
   );
   assert.equal(audit.staging.stripeMode, "sandbox");
   assert.equal(audit.production.stripeModeRequired, "live");
-  assert.ok(
-    ["lovable-cloud", "cloudflare-workers"].includes(audit.production.hostingProvider),
-    "the production hosting control plane must be explicit",
-  );
+  assert.equal(audit.production.hostingProvider, "lovable-cloud");
+  assert.equal(audit.production.privilegedRuntime, "lovable-cloud");
+  assert.equal(audit.production.edgeProvider, "cloudflare");
+  assert.equal(audit.production.cloudflareWorkerDeploymentAuthorized, false);
   for (const control of productionGoControls) {
     assert.equal(
       typeof audit.production[control],
@@ -568,146 +568,43 @@ test("deployable source owns every referenced marketing image", () => {
   }
 });
 
-test("no production deploy path exists while the audit says it is unprovisioned", () => {
-  if (audit.production.deploymentWorkflowProvisioned) return;
-
-  const workflowDir = ".github/workflows";
-  for (const name of readdirSync(workflowDir).filter((file) => /\.ya?ml$/.test(file))) {
-    const path = join(workflowDir, name);
-    const source = read(path);
-    if (basename(path) === "production-readiness-audit.yml") continue;
-    assert.doesNotMatch(source, /environment:\s*production/);
-    assert.doesNotMatch(source, /wrangler\.production\.toml/);
-  }
-
-  const rootFiles = readdirSync(".");
-  assert.equal(rootFiles.includes("wrangler.production.toml"), false);
-});
-
-test("Cloudflare production release path is manual, exact-SHA, and fail-closed", () => {
-  assert.equal(audit.production.hostingProvider, "cloudflare-workers");
-  assert.equal(audit.production.deploymentWorkflowProvisioned, true);
+test("Lovable keeps the privileged production runtime and Cloudflare stays edge-only", () => {
+  assert.equal(audit.production.hostingProvider, "lovable-cloud");
+  assert.equal(audit.production.privilegedRuntime, "lovable-cloud");
+  assert.equal(audit.production.edgeProvider, "cloudflare");
+  assert.equal(audit.production.cloudflareWorkerDeploymentAuthorized, false);
+  assert.equal(audit.production.releaseProcedureDocumented, true);
   assert.equal(audit.production.hostingControlPlaneVerified, false);
   assert.equal(audit.status, "no-go");
 
-  const workflow = read(".github/workflows/deploy-production.yml");
-  const wrangler = read("wrangler.production.toml");
-  const executableWrangler = wrangler
-    .split(/\r?\n/)
-    .filter((line) => !line.trim().startsWith("#"))
-    .join("\n");
-  const alignment = read("docs/production-readiness/alignment-2026-08-20.md");
-  const packageJson = read("package.json");
+  const workflows = readdirSync(".github/workflows").filter((name) => /\.ya?ml$/.test(name));
+  assert.equal(workflows.includes("deploy-production.yml"), false);
+  assert.equal(workflows.includes("provision-production-worker-secrets.yml"), false);
+  assert.equal(readdirSync(".").includes("wrangler.production.toml"), false);
 
-  assert.match(workflow, /workflow_dispatch:/);
-  assert.doesNotMatch(workflow, /\n\s+(?:push|pull_request|schedule|workflow_run):/);
-  assert.match(workflow, /environment:\s*production/);
-  assert.match(workflow, /CONFIRM_INPUT: \$\{\{ github\.event\.inputs\.confirm \}\}/);
-  assert.match(workflow, /APPROVED_SHA_INPUT: \$\{\{ github\.event\.inputs\.approved_sha \}\}/);
-  assert.doesNotMatch(workflow, /run: \|[\s\S]*?\$\{\{ github\.event\.inputs\./);
-  assert.match(workflow, /\$CONFIRM_INPUT[\s\S]*?deploy-production/);
-  assert.match(workflow, /\$GITHUB_REF" != "refs\/heads\/main"/);
-  assert.match(workflow, /APPROVED_SHA_INPUT[\s\S]*?\$GITHUB_SHA/);
-  assert.match(workflow, /\.status == "go"/);
-  assert.match(workflow, /Production audit evidence is not GO/);
-  assert.match(workflow, /deploy-staging\.yml/);
-  assert.match(workflow, /release-readiness\.yml/);
-  assert.match(workflow, /staging-role-verification\.yml/);
-  assert.match(workflow, /staging-billing-verification\.yml/);
-  assert.match(workflow, /migration-replay\.yml/);
-  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_URL/);
-  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_PUBLISHABLE_KEY/);
-  assert.match(workflow, /secrets\.PRODUCTION_PAYMENTS_CLIENT_TOKEN/);
-  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_API_TOKEN/);
-  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_ACCOUNT_ID/);
-  const jobEnv = workflow.split("    steps:")[0];
-  assert.doesNotMatch(jobEnv, /PRODUCTION_CLOUDFLARE_API_TOKEN/);
-  assert.doesNotMatch(jobEnv, /PRODUCTION_CLOUDFLARE_ACCOUNT_ID/);
-  assert.doesNotMatch(workflow, /secrets\.STAGING_/);
-  assert.match(workflow, /wrangler secret list --format json --config wrangler\.production\.toml/);
-  assert.match(workflow, /STRIPE_LIVE_API_KEY/);
-  assert.match(workflow, /STRIPE_SANDBOX_API_KEY/);
-  assert.match(workflow, /wrangler deploy --dry-run --config wrangler\.production\.toml/);
-  assert.match(workflow, /wrangler deploy --config wrangler\.production\.toml/);
-  assert.match(workflow, /git_commit_sha == \$sha/);
-  assert.match(workflow, /\.isolation\.ok == true/);
-  assert.match(workflow, /deployments-before\.json/);
+  for (const name of workflows) {
+    const source = read(join(".github/workflows", name));
+    assert.doesNotMatch(source, /wrangler\.production\.toml/);
+    assert.doesNotMatch(source, /transitionforward-production/);
+    assert.doesNotMatch(source, /PRODUCTION_SUPABASE_SERVICE_ROLE_KEY/);
+  }
 
-  assert.match(wrangler, /name = "transitionforward-production"/);
-  assert.match(wrangler, /workers_dev = false/);
-  assert.match(wrangler, /transitionforwardct\.com\/\*/);
-  assert.match(wrangler, /APP_ENV = "production"/);
-  assert.match(wrangler, /VITE_APP_ENV = "production"/);
-  assert.match(wrangler, /GIT_COMMIT_SHA = "__SET_BY_PRODUCTION_WORKFLOW__"/);
-  assert.doesNotMatch(executableWrangler, /qgrertkqbwanerqqemph|staging/i);
-  assert.match(
-    packageJson,
-    /"build:production": "NODE_OPTIONS=--max-old-space-size=4096 vite build"/,
-  );
+  const alignment = read("docs/production-readiness/alignment-2026-08-21.md");
+  const retiredPath = read("docs/production-readiness/production-worker-secret-provisioning.md");
+  const superseded = read("docs/production-readiness/alignment-2026-08-20.md");
+
+  assert.match(alignment, /Lovable Cloud remains the production application origin/i);
+  assert.match(alignment, /Cloudflare is limited to the[\s\S]*custom domain and edge protections/i);
+  assert.match(alignment, /does not display, export, forward, or copy/i);
+  assert.match(alignment, /Do not attach a Worker route/i);
+  assert.match(alignment, /Build unsuccessful/);
+  assert.match(alignment, /Preview is out of date/);
   assert.match(alignment, /production remains NO-GO/i);
-  assert.match(alignment, /does not[\s\S]*deploy Cloudflare/i);
-});
-
-test("production Worker secret provisioning is manual, protected, and route-free", () => {
-  const workflow = read(".github/workflows/provision-production-worker-secrets.yml");
-  const procedure = read("docs/production-readiness/production-worker-secret-provisioning.md");
-
-  assert.match(workflow, /workflow_dispatch:/);
-  assert.doesNotMatch(workflow, /\n\s+(?:push|pull_request|schedule|workflow_run):/);
-  assert.match(workflow, /environment:\s*production/);
-  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
-  assert.match(workflow, /CONFIRM_INPUT: \$\{\{ github\.event\.inputs\.confirm \}\}/);
-  assert.match(workflow, /APPROVED_SHA_INPUT: \$\{\{ github\.event\.inputs\.approved_sha \}\}/);
-  assert.match(workflow, /provision-production-worker-secrets/);
-  assert.match(workflow, /APPROVED_SHA_INPUT[\s\S]*?\$GITHUB_SHA/);
-  assert.match(workflow, /WORKER_NAME: transitionforward-production/);
-  assert.match(workflow, /EXPECTED_CLOUDFLARE_ACCOUNT_ID: a0f40bdc4e478ac72c5a94e7964edc74/);
-  assert.match(workflow, /\.status == "no-go"/);
-  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_API_TOKEN/);
-  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_ACCOUNT_ID/);
-  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_URL/);
-  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_PUBLISHABLE_KEY/);
-  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(workflow, /secrets\.PRODUCTION_PAYMENTS_CLIENT_TOKEN/);
-  assert.match(workflow, /secrets\.PRODUCTION_STRIPE_LIVE_API_KEY/);
-  assert.match(workflow, /secrets\.PRODUCTION_PAYMENTS_LIVE_WEBHOOK_SECRET/);
-  assert.match(workflow, /secrets\.PRODUCTION_CRON_WEBHOOK_SECRET/);
-  assert.doesNotMatch(workflow, /secrets\.STAGING_/);
-  assert.match(workflow, /workers\/scripts\/\$\{WORKER_NAME\}\/subdomain/);
-  assert.match(workflow, /\.result\.enabled == false/);
-  assert.match(workflow, /\.result\.previews_enabled == false/);
-  assert.match(workflow, /wrangler secret bulk --name "\$WORKER_NAME"/);
-  assert.match(workflow, /wrangler secret list --format json --name "\$WORKER_NAME"/);
-  assert.doesNotMatch(workflow, /wrangler\s+(?:versions\s+)?deploy\b/);
-  assert.doesNotMatch(workflow, /wrangler\.production\.toml|--config/);
-  assert.doesNotMatch(workflow, /transitionforwardct\.com\/\*/);
-  for (const name of [
-    "SUPABASE_URL",
-    "SUPABASE_PUBLISHABLE_KEY",
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "PAYMENTS_CLIENT_TOKEN",
-    "STRIPE_LIVE_API_KEY",
-    "PAYMENTS_LIVE_WEBHOOK_SECRET",
-    "CRON_WEBHOOK_SECRET",
-  ]) {
-    assert.match(workflow, new RegExp(`\\b${name}\\b`));
-  }
-  for (const name of [
-    "STAGING_E2E_PASSWORD",
-    "STAGING_SUPABASE_URL",
-    "STAGING_SUPABASE_SERVICE_ROLE_KEY",
-    "STAGING_STRIPE_API_KEY",
-    "STRIPE_SANDBOX_API_KEY",
-    "PAYMENTS_SANDBOX_WEBHOOK_SECRET",
-  ]) {
-    assert.match(workflow, new RegExp(`\\b${name}\\b`));
-  }
-
-  assert.match(procedure, /prepared but not authorized to run/i);
-  assert.match(procedure, /production remains NO-GO/i);
-  assert.match(procedure, /workers\.dev.*disabled/i);
-  assert.match(procedure, /no custom domain[\s\S]*or route/i);
-  assert.match(procedure, /Merging its PR does not authorize dispatching it/i);
+  assert.match(retiredPath, /retired and non-runnable/i);
+  assert.match(retiredPath, /No GitHub workflow may deploy or provision/i);
+  assert.match(retiredPath, /workers\.dev.*disabled/i);
+  assert.match(retiredPath, /no custom domain, route, or[\s\S]*application secrets/i);
+  assert.match(superseded, /Superseded on 2026-08-21/i);
 });
 
 test("production identity fails closed and operator documents are complete", () => {
@@ -726,6 +623,7 @@ test("production identity fails closed and operator documents are complete", () 
 
   const auditReport = read("docs/production-readiness/audit-2026-08-13.md");
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");
+  const hostingAlignment = read("docs/production-readiness/alignment-2026-08-21.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
   assert.match(auditReport, /NO-GO/);
@@ -733,10 +631,15 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(currentAlignment, /Lovable Cloud/);
   assert.match(currentAlignment, /Production remains \*\*NO-GO\*\*/);
   assert.match(currentAlignment, /staging credentials/i);
+  assert.match(hostingAlignment, /Lovable Cloud remains/i);
+  assert.match(hostingAlignment, /Cloudflare[\s\S]*edge protections/i);
+  assert.match(hostingAlignment, /separate explicit authorization/i);
   assert.match(migrationPlan, /restore drill/i);
   assert.match(migrationPlan, /forward-only/i);
   assert.match(migrationPlan, /lrqcntqyekucamifpffs/);
   assert.match(migrationPlan, /qgrertkqbwanerqqemph/);
   assert.match(checklist, /Exact-SHA acceptance/);
+  assert.match(checklist, /Domain uses Cloudflare/i);
+  assert.match(checklist, /no Cloudflare Worker route/i);
   assert.match(checklist, /rollback/i);
 });
