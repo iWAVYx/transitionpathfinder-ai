@@ -1,0 +1,348 @@
+name: Deploy Production
+
+# Manual-only Cloudflare production release. The protected production
+# environment, exact-SHA guard, machine-readable GO decision, staging evidence,
+# secret inventory, and post-deploy identity checks all fail closed.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy-production" to confirm the release'
+        required: true
+      approved_sha:
+        description: "Exact 40-character main SHA approved for production"
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Exact Approved SHA to Production
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 60
+    env:
+      APP_ENV: production
+      VITE_APP_ENV: production
+      VITE_APP_BUILD_SHA: ${{ github.sha }}
+      PRODUCTION_ORIGIN: https://transitionforwardct.com
+      PRODUCTION_HEALTH_URL: https://transitionforwardct.com/api/public/env-health
+      EXPECTED_PRODUCTION_PROJECT_REF: lrqcntqyekucamifpffs
+      VITE_SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PRODUCTION_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_PAYMENTS_CLIENT_TOKEN: ${{ secrets.PRODUCTION_PAYMENTS_CLIENT_TOKEN }}
+      CONFIRM_INPUT: ${{ github.event.inputs.confirm }}
+      APPROVED_SHA_INPUT: ${{ github.event.inputs.approved_sha }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Confirm exact production intent
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$CONFIRM_INPUT" != "deploy-production" ]; then
+            echo "Confirmation text did not match 'deploy-production'." >&2
+            exit 1
+          fi
+          if ! [[ "$APPROVED_SHA_INPUT" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "approved_sha must be an exact lowercase 40-character Git SHA." >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "Production deployments are permitted only from main." >&2
+            exit 1
+          fi
+          if [ "$APPROVED_SHA_INPUT" != "$GITHUB_SHA" ]; then
+            echo "The approved SHA does not match the workflow checkout." >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REPOSITORY" != "iWAVYx/transitionpathfinder-ai" ]; then
+            echo "Unexpected repository identity." >&2
+            exit 1
+          fi
+
+      - name: Require reviewed production GO evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! jq -e '
+            .status == "go" and
+            .production.hostingProvider == "cloudflare-workers" and
+            ([
+              .production.githubEnvironmentProvisioned,
+              .production.deploymentWorkflowProvisioned,
+              .production.migrationBaselineVerified,
+              .production.exactDeploymentIdentityVerified,
+              .production.hostingControlPlaneVerified,
+              .production.backupInventoryVerified,
+              .production.restoreDrillVerified,
+              .production.stripeLiveReadinessVerified,
+              .production.secretIsolationVerified,
+              .production.securityFindingsClosed,
+              .production.malwareScanningVerified
+            ] | all)
+          ' docs/production-readiness/audit-state.json >/dev/null; then
+            echo "Production audit evidence is not GO. Deployment is forbidden." >&2
+            exit 1
+          fi
+
+      - name: Require exact-SHA protected staging evidence
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          require_successful_run() {
+            workflow="$1"
+            label="$2"
+            response=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/runs?branch=main&per_page=100")
+            if ! jq -e --arg sha "$GITHUB_SHA" '
+              [.workflow_runs[] |
+                select(
+                  .head_sha == $sha and
+                  .event == "workflow_dispatch" and
+                  .status == "completed" and
+                  .conclusion == "success"
+                )] | length > 0
+            ' <<<"$response" >/dev/null; then
+              echo "No successful manual ${label} run exists for exact SHA ${GITHUB_SHA}." >&2
+              exit 1
+            fi
+            echo "Verified ${label} for exact SHA ${GITHUB_SHA}."
+          }
+
+          require_successful_run deploy-staging.yml "isolated staging deployment"
+          require_successful_run release-readiness.yml "release-readiness acceptance"
+          require_successful_run staging-role-verification.yml "seven-role verification"
+          require_successful_run staging-billing-verification.yml "billing verification"
+          require_successful_run migration-replay.yml "migration replay"
+
+      - name: Require production-only GitHub configuration
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.PRODUCTION_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.PRODUCTION_CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          required=(
+            VITE_SUPABASE_URL
+            VITE_SUPABASE_PUBLISHABLE_KEY
+            VITE_PAYMENTS_CLIENT_TOKEN
+            CLOUDFLARE_API_TOKEN
+            CLOUDFLARE_ACCOUNT_ID
+          )
+          for name in "${required[@]}"; do
+            if [ -z "${!name:-}" ]; then
+              echo "Required protected production value ${name} is missing." >&2
+              exit 1
+            fi
+          done
+
+          expected_url="https://${EXPECTED_PRODUCTION_PROJECT_REF}.supabase.co"
+          if [ "$VITE_SUPABASE_URL" != "$expected_url" ]; then
+            echo "Production Supabase URL does not target the approved project ref." >&2
+            exit 1
+          fi
+          case "$VITE_PAYMENTS_CLIENT_TOKEN" in
+            pk_live_*) ;;
+            *) echo "Production payments client token is not a live publishable key." >&2; exit 1 ;;
+          esac
+          if ! [[ "$CLOUDFLARE_ACCOUNT_ID" =~ ^[a-f0-9]{32}$ ]]; then
+            echo "Production Cloudflare account ID is malformed." >&2
+            exit 1
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Run production release-control guards
+        run: |
+          bun run test:production-readiness
+          bunx vitest run \
+            tests/unit/env-identity-production.test.ts \
+            tests/unit/stripe-env-resolver.test.ts \
+            tests/unit/cron-auth.test.ts
+
+      - name: Build exact production candidate
+        run: bun run build:production
+
+      - name: Verify production build output contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          entry=""
+          assets=""
+          if [ -f dist/server/index.mjs ] && [ -d dist/client ]; then
+            entry="dist/server/index.mjs"; assets="dist/client"
+          elif [ -f .output/server/index.mjs ] && [ -d .output/public ]; then
+            entry=".output/server/index.mjs"; assets=".output/public"
+          fi
+
+          if [ -z "$entry" ]; then
+            echo "The production build did not emit a deployable Worker entry and asset directory." >&2
+            exit 1
+          fi
+          if [ ! -f "$assets/sw.js" ]; then
+            echo "The production asset directory is missing sw.js." >&2
+            exit 1
+          fi
+          if ! find "$assets" -maxdepth 1 -type f -name 'workbox-*.js' -print -quit | grep -q .; then
+            echo "The production asset directory is missing its Workbox runtime." >&2
+            exit 1
+          fi
+
+          if [ "$entry" != "dist/server/index.mjs" ]; then
+            sed -i "s#^main = .*#main = \"$entry\"#" wrangler.production.toml
+            sed -i "s#^directory = .*#directory = \"$assets\"#" wrangler.production.toml
+          fi
+          sed -i "s#__SET_BY_PRODUCTION_WORKFLOW__#${GITHUB_SHA}#" wrangler.production.toml
+
+          if grep -q '__SET_BY_PRODUCTION_WORKFLOW__' wrangler.production.toml; then
+            echo "Production Git SHA placeholder was not replaced." >&2
+            exit 1
+          fi
+          if grep -q 'qgrertkqbwanerqqemph' wrangler.production.toml; then
+            echo "The production Wrangler config contains the staging project ref." >&2
+            exit 1
+          fi
+
+      - name: Wrangler dry run (production config)
+        run: bunx wrangler deploy --dry-run --config wrangler.production.toml
+
+      - name: Require pre-provisioned production Worker secrets
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.PRODUCTION_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.PRODUCTION_CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          secret_inventory=$(bunx wrangler secret list --format json --config wrangler.production.toml)
+          required=(
+            SUPABASE_URL
+            SUPABASE_PUBLISHABLE_KEY
+            SUPABASE_SERVICE_ROLE_KEY
+            PAYMENTS_CLIENT_TOKEN
+            STRIPE_LIVE_API_KEY
+            PAYMENTS_LIVE_WEBHOOK_SECRET
+            CRON_WEBHOOK_SECRET
+          )
+          forbidden=(
+            STAGING_E2E_PASSWORD
+            STAGING_SUPABASE_URL
+            STAGING_SUPABASE_SERVICE_ROLE_KEY
+            STAGING_STRIPE_API_KEY
+            STRIPE_SANDBOX_API_KEY
+            PAYMENTS_SANDBOX_WEBHOOK_SECRET
+          )
+
+          for name in "${required[@]}"; do
+            if ! jq -e --arg name "$name" '.[] | select(.name == $name)' \
+              <<<"$secret_inventory" >/dev/null; then
+              echo "Required production Worker secret ${name} is not provisioned." >&2
+              exit 1
+            fi
+          done
+          for name in "${forbidden[@]}"; do
+            if jq -e --arg name "$name" '.[] | select(.name == $name)' \
+              <<<"$secret_inventory" >/dev/null; then
+              echo "Forbidden staging/sandbox secret ${name} exists on the production Worker." >&2
+              exit 1
+            fi
+          done
+
+      - name: Record last known-good Worker deployment
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.PRODUCTION_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.PRODUCTION_CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p production-release-evidence
+          bunx wrangler deployments list --json --config wrangler.production.toml \
+            > production-release-evidence/deployments-before.json
+
+      - name: Deploy production Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.PRODUCTION_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.PRODUCTION_CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx wrangler deploy --config wrangler.production.toml
+
+      - name: Verify exact production deployment identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5 6; do
+            status=$(curl \
+              --silent \
+              --show-error \
+              --location \
+              --connect-timeout 10 \
+              --max-time 30 \
+              --output /tmp/production-health.json \
+              --write-out '%{http_code}' \
+              "$PRODUCTION_HEALTH_URL" || true)
+
+            if [ "$status" = "200" ] && jq -e \
+              --arg sha "$GITHUB_SHA" \
+              --arg ref "$EXPECTED_PRODUCTION_PROJECT_REF" '
+                .app_env == "production" and
+                .vite_app_env == "production" and
+                .hostname == "transitionforwardct.com" and
+                .supabase_project_ref == $ref and
+                .is_production_project == true and
+                .is_production_hostname == true and
+                .is_staging_target == false and
+                .is_production_target == true and
+                .stripe_mode == "live" and
+                .stripe_livemode == true and
+                .git_commit_sha == $sha and
+                .isolation.ok == true
+              ' /tmp/production-health.json >/dev/null; then
+              cp /tmp/production-health.json production-release-evidence/env-health.json
+              echo "Exact production deployment identity verified."
+              exit 0
+            fi
+
+            echo "Production identity has not propagated (attempt ${attempt} of 6)." >&2
+            sleep 10
+          done
+
+          echo "Production identity verification failed. Use the recorded previous deployment for rollback." >&2
+          exit 1
+
+      - name: Verify deployed production PWA assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl --silent --show-error --location --output /tmp/production-sw.js \
+            --write-out '%{http_code}' "$PRODUCTION_ORIGIN/sw.js")
+          if [ "$status" != "200" ] \
+            || grep -qi '<!doctype html' /tmp/production-sw.js \
+            || ! grep -q 'sw-privacy-cleanup.js' /tmp/production-sw.js; then
+            echo "The privacy-safe production service worker was not deployed correctly." >&2
+            exit 1
+          fi
+
+      - name: Upload non-secret production release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-release-evidence-${{ github.run_id }}
+          path: production-release-evidence/
+          retention-days: 90
+          if-no-files-found: warn

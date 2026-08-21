@@ -64,8 +64,10 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Operator repeats target/SHA confirmation immediately before deploy.
 - [ ] Production deploy/publish is manual and approval-gated; staging
       workflow/config/secrets are not reused.
-- [ ] Lovable's connected `main` build succeeds, the preview is current, and the
-      exact approved SHA is the version selected for publish.
+- [ ] The chosen hosting path is recorded. For Lovable, its connected `main`
+      build is current and the exact SHA is selected for publish. For
+      Cloudflare, the production Worker/account/routes/token scope and rollback
+      version are verified and the exact approved SHA is selected for deploy.
 - [ ] Post-deploy health, logs, error rate, cron, auth, database, and Stripe
       checks pass for the observation window.
 - [ ] Rollback owner confirms application and database recovery triggers.

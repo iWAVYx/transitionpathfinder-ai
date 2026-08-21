@@ -17,6 +17,8 @@ Documents:
 - `alignment-2026-08-14.md` — current staging RLS and migration-alignment evidence.
 - `alignment-2026-08-15.md` — PR #19 post-merge failures and document/permission alignment controls.
 - `alignment-2026-08-16.md` — GitHub protections and current Lovable production-control evidence.
+- `alignment-2026-08-20.md` — approved Cloudflare target path, guarded
+  production workflow, and remaining cutover controls.
 - `production-migration-baseline-2026-08-17.md` — content-aware production
   migration evidence and the zero-pending result.
 - `production-migration-policy.json` — pinned aliases, historical variants,
