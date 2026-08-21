@@ -648,6 +648,68 @@ test("Cloudflare production release path is manual, exact-SHA, and fail-closed",
   assert.match(alignment, /does not[\s\S]*deploy Cloudflare/i);
 });
 
+test("production Worker secret provisioning is manual, protected, and route-free", () => {
+  const workflow = read(".github/workflows/provision-production-worker-secrets.yml");
+  const procedure = read("docs/production-readiness/production-worker-secret-provisioning.md");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\n\s+(?:push|pull_request|schedule|workflow_run):/);
+  assert.match(workflow, /environment:\s*production/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /CONFIRM_INPUT: \$\{\{ github\.event\.inputs\.confirm \}\}/);
+  assert.match(workflow, /APPROVED_SHA_INPUT: \$\{\{ github\.event\.inputs\.approved_sha \}\}/);
+  assert.match(workflow, /provision-production-worker-secrets/);
+  assert.match(workflow, /APPROVED_SHA_INPUT[\s\S]*?\$GITHUB_SHA/);
+  assert.match(workflow, /WORKER_NAME: transitionforward-production/);
+  assert.match(workflow, /EXPECTED_CLOUDFLARE_ACCOUNT_ID: a0f40bdc4e478ac72c5a94e7964edc74/);
+  assert.match(workflow, /\.status == "no-go"/);
+  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_API_TOKEN/);
+  assert.match(workflow, /secrets\.PRODUCTION_CLOUDFLARE_ACCOUNT_ID/);
+  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_URL/);
+  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(workflow, /secrets\.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(workflow, /secrets\.PRODUCTION_PAYMENTS_CLIENT_TOKEN/);
+  assert.match(workflow, /secrets\.PRODUCTION_STRIPE_LIVE_API_KEY/);
+  assert.match(workflow, /secrets\.PRODUCTION_PAYMENTS_LIVE_WEBHOOK_SECRET/);
+  assert.match(workflow, /secrets\.PRODUCTION_CRON_WEBHOOK_SECRET/);
+  assert.doesNotMatch(workflow, /secrets\.STAGING_/);
+  assert.match(workflow, /workers\/scripts\/\$\{WORKER_NAME\}\/subdomain/);
+  assert.match(workflow, /\.result\.enabled == false/);
+  assert.match(workflow, /\.result\.previews_enabled == false/);
+  assert.match(workflow, /wrangler secret bulk --name "\$WORKER_NAME"/);
+  assert.match(workflow, /wrangler secret list --format json --name "\$WORKER_NAME"/);
+  assert.doesNotMatch(workflow, /wrangler\s+(?:versions\s+)?deploy\b/);
+  assert.doesNotMatch(workflow, /wrangler\.production\.toml|--config/);
+  assert.doesNotMatch(workflow, /transitionforwardct\.com\/\*/);
+  for (const name of [
+    "SUPABASE_URL",
+    "SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "PAYMENTS_CLIENT_TOKEN",
+    "STRIPE_LIVE_API_KEY",
+    "PAYMENTS_LIVE_WEBHOOK_SECRET",
+    "CRON_WEBHOOK_SECRET",
+  ]) {
+    assert.match(workflow, new RegExp(`\\b${name}\\b`));
+  }
+  for (const name of [
+    "STAGING_E2E_PASSWORD",
+    "STAGING_SUPABASE_URL",
+    "STAGING_SUPABASE_SERVICE_ROLE_KEY",
+    "STAGING_STRIPE_API_KEY",
+    "STRIPE_SANDBOX_API_KEY",
+    "PAYMENTS_SANDBOX_WEBHOOK_SECRET",
+  ]) {
+    assert.match(workflow, new RegExp(`\\b${name}\\b`));
+  }
+
+  assert.match(procedure, /prepared but not authorized to run/i);
+  assert.match(procedure, /production remains NO-GO/i);
+  assert.match(procedure, /workers\.dev.*disabled/i);
+  assert.match(procedure, /no custom domain[\s\S]*or route/i);
+  assert.match(procedure, /Merging its PR does not authorize dispatching it/i);
+});
+
 test("production identity fails closed and operator documents are complete", () => {
   const identity = read("src/lib/env-identity.ts");
   const health = read("src/routes/api/public/env-health.ts");
