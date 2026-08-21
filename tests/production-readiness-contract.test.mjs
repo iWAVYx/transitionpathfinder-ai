@@ -411,8 +411,14 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   const packageJson = read("package.json");
   const viteConfig = read("vite.config.ts");
 
-  assert.match(packageJson, /--max-old-space-size=3072 --expose-gc' vite build/);
-  assert.match(packageJson, /--max-old-space-size=3072 --expose-gc' vite build --mode development/);
+  assert.match(
+    packageJson,
+    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build/,
+  );
+  assert.match(
+    packageJson,
+    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build --mode development/,
+  );
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
   assert.match(viteConfig, /maxParallelFileOps:\s*2/);
