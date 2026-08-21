@@ -1,53 +1,32 @@
-# Production Worker secret provisioning
+# Retired production Worker secret path
 
-Status: **prepared but not authorized to run; production remains NO-GO.**
+Status: **retired and non-runnable; production remains NO-GO.**
 
-The Cloudflare Worker `transitionforward-production` exists as a placeholder.
-Its `workers.dev` URL and preview URLs are disabled, and it has no custom domain
-or route. Initial placeholder version `387b17be` is the pre-provisioning
-baseline.
+The `transitionforward-production` placeholder Worker was created unrouted with
+`workers.dev` and preview URLs disabled. It has no custom domain, route, or
+application secrets. It is not part of the approved production release path.
 
-`.github/workflows/provision-production-worker-secrets.yml` is the only approved
-secret-provisioning path. It is manual-only, runs on `main`, requires the exact
-reviewed SHA and confirmation phrase, and uses the protected GitHub `production`
-environment. Merging its PR does not authorize dispatching it.
+The former Worker secret-provisioning workflow was removed after a diagnostic
+confirmed that Lovable Cloud does not expose or forward the managed production
+Supabase service-role credential. An external Worker that performs privileged
+database operations therefore cannot be provisioned safely while production
+remains on Lovable Cloud.
 
-## Protected GitHub values
+## Enforced decision
 
-The workflow maps these environment secrets to the existing Worker without
-printing or reading back values:
+- Lovable Cloud remains the application origin, backend, and privileged server
+  runtime for project ref `lrqcntqyekucamifpffs`.
+- Cloudflare may provide DNS, TLS, proxy, WAF, rate limiting, and other edge
+  protections for `transitionforwardct.com`; it must not receive the Supabase
+  service-role key or serve the privileged application routes.
+- No GitHub workflow may deploy or provision `transitionforward-production`.
+- No Cloudflare Worker route or custom domain may be attached as part of the
+  selected release path.
+- The placeholder Worker may be deleted later only under separate explicit
+  authorization after its exact unrouted state is reverified.
 
-| GitHub `production` environment secret    | Worker secret                  |
-| ----------------------------------------- | ------------------------------ |
-| `PRODUCTION_SUPABASE_URL`                 | `SUPABASE_URL`                 |
-| `PRODUCTION_SUPABASE_PUBLISHABLE_KEY`     | `SUPABASE_PUBLISHABLE_KEY`     |
-| `PRODUCTION_SUPABASE_SERVICE_ROLE_KEY`    | `SUPABASE_SERVICE_ROLE_KEY`    |
-| `PRODUCTION_PAYMENTS_CLIENT_TOKEN`        | `PAYMENTS_CLIENT_TOKEN`        |
-| `PRODUCTION_STRIPE_LIVE_API_KEY`          | `STRIPE_LIVE_API_KEY`          |
-| `PRODUCTION_PAYMENTS_LIVE_WEBHOOK_SECRET` | `PAYMENTS_LIVE_WEBHOOK_SECRET` |
-| `PRODUCTION_CRON_WEBHOOK_SECRET`          | `CRON_WEBHOOK_SECRET`          |
-
-The Cloudflare account ID and least-privilege token remain separate protected
-environment values:
-
-- `PRODUCTION_CLOUDFLARE_ACCOUNT_ID`
-- `PRODUCTION_CLOUDFLARE_API_TOKEN`
-
-## Fail-closed behavior
-
-Before mutation, the workflow verifies the repository, `main` SHA, NO-GO audit
-state, exact approved Cloudflare account, approved Supabase project, live Stripe
-key formats, distinct service-role and cron values, Worker existence, and
-disabled Worker/preview URLs. Staging and sandbox values are rejected.
-
-Provisioning uses `wrangler secret bulk --name transitionforward-production`
-without a Wrangler configuration file. Cloudflare creates a secret-only version
-of the existing placeholder; no application build is uploaded and no route,
-domain, DNS record, or production application release is created. The Worker is
-still unreachable because both public URL modes remain disabled.
-
-After mutation, the workflow requires the Worker secret-name inventory to equal
-the seven approved names exactly and rechecks that public and preview URLs remain
-disabled. A separate explicit approval is required before dispatching this
-workflow, and the production deployment remains independently blocked by the
-NO-GO audit.
+Do not add `PRODUCTION_SUPABASE_SERVICE_ROLE_KEY`, Stripe server secrets, or
+cron secrets to GitHub or Cloudflare to revive the retired design. A future
+move to an owner-controlled Supabase project would require a new reviewed
+architecture, migration plan, recovery proof, and explicit production
+authorization.

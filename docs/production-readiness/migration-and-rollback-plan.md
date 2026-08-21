@@ -22,6 +22,7 @@ the maintenance window.
    The comparator fails closed on missing hashes, empty or malformed evidence,
    duplicates, non-increasing order, unknown production content, ambiguous or
    duplicate mappings, invalid reviewed policy, and any pending canonical file.
+
 4. Compare content evidence under the reviewed
    `production-migration-policy.json`; do not infer pending work from timestamps
    alone. Stop for unknown content, an unreviewed alias, a historical-variant
@@ -47,8 +48,9 @@ production-forbidden.
 3. Run schema verification and a representative application smoke test on the
    restored copy. Record elapsed restore time and recovery-point objective.
 4. Export non-secret Lovable publish/build/domain metadata and record the last
-   known-good published application snapshot. If an approved release changes
-   production hosting to Cloudflare, export Worker version/route metadata too.
+   known-good published application snapshot. Export the current Cloudflare DNS,
+   proxy, WAF, rate-limit, cache, and redirect configuration separately. The
+   approved architecture does not attach a production Worker route.
 5. Define the abort owner, database operator, release operator, and incident
    communication channel.
 
@@ -98,10 +100,11 @@ If the restore drill has not passed, the migration is NO-GO.
 Application rollback and database recovery are separate decisions:
 
 - If the schema is healthy and backward-compatible but the application fails,
-  restore the recorded last known-good Lovable published snapshot. If production
-  has been intentionally moved to Cloudflare, roll the Worker back to its
-  recorded last known-good version instead. Verify that the chosen application
-  version is compatible with the new schema.
+  restore the recorded last known-good Lovable published snapshot. If the edge
+  configuration is the cause, restore the recorded prior Cloudflare DNS/proxy
+  and rules configuration. No application code or privileged route is deployed
+  to a production Worker. Verify that the chosen application version is
+  compatible with the new schema.
 - If a forward migration partially fails, stop immediately. Do not improvise
   down SQL. Prefer a reviewed corrective forward migration when data integrity
   is intact.
