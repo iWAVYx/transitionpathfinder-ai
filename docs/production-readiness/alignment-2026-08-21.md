@@ -5,10 +5,11 @@ Supabase backend, and privileged server runtime. Cloudflare is limited to the
 custom domain and edge protections. Production remains NO-GO.**
 
 This alignment is based on merged `main` SHA
-`a8eba6b3eba0e8aa77f7c81ef4b8ad992dd34aec` and a diagnostic performed in the
+`dc43ee3a25be78135c94429bffe01994c1d3c5b3` and diagnostics performed in the
 connected Lovable project. It does not publish Lovable, change DNS, attach a
-Cloudflare route, deploy or delete a Worker, change a secret, run a payment,
-restore a backup, or mutate the production database.
+Cloudflare production route, deploy or delete a production Worker, change a
+production secret, run a payment, restore a backup, or mutate the production
+database.
 
 ## Why the Worker application path was retired
 
@@ -79,8 +80,40 @@ rules configuration. Database recovery remains a separate decision under
 `migration-and-rollback-plan.md`; no DNS or application rollback authorizes a
 database restore.
 
+## Current release-candidate evidence
+
+Merged `main` SHA `dc43ee3a25be78135c94429bffe01994c1d3c5b3` was deployed
+to the isolated staging Worker by run `32488516441`. The deployment verified
+the exact SHA, staging Supabase ref `qgrertkqbwanerqqemph`, sandbox Stripe mode,
+passing isolation, and the deployed PWA assets.
+
+Protected release-readiness run `32490345888` passed on attempt 2 after one
+transient student-login timeout. The successful attempt verified all seven
+role sessions and storage states, public accessibility and visual coverage, and
+signed-in role journeys and access-control workflows against that exact staging
+deployment. The credential-free Production Readiness Audit also passed for the
+exact SHA in run `32476160090`.
+
+Lovable's hosted preview build succeeded with the merged PR #43 build settings
+and reported no OOM, signal, compiler diagnostic, or failed target. Lovable
+labels that working version with internal identifier `2ac8744e`; that identifier
+does not resolve to a GitHub commit. The Lovable Git settings confirm two-way
+sync with `iWAVYx/transitionpathfinder-ai` on `main`, but expose no manual sync
+action or auditable mapping from the internal identifier to GitHub merge SHA
+`dc43ee3a25be78135c94429bffe01994c1d3c5b3`.
+
+GitHub did not create the normal push-triggered workflow runs for this merge.
+The source tree passed the PR Build & SSR checks, and the exact merge SHA passed
+the manually dispatched credential-free production audit, but the Build & SSR
+workflow had no manual recovery trigger. The follow-up control adds only a
+credential-free `workflow_dispatch` entry; it does not expose or consume
+staging or production credentials.
+
 ## Remaining immediate blocker
 
-The connected Lovable build must succeed and become current for the selected
-`main` SHA before any publish or DNS cutover. This alignment removes an
-unfillable credential path; it does not declare the product ready to release.
+The connected Lovable build must become auditably current for the selected exact
+GitHub `main` SHA before any publish or DNS cutover. A successful build of the
+same content under a Lovable-only identifier does not by itself satisfy the
+exact-SHA release gate. This alignment removes an unfillable credential path
+and records green staging evidence; it does not declare the product ready to
+release.
