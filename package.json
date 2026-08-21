@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=3072 --expose-gc' vite build",
+    "build": "NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build",
     "build:staging": "NODE_OPTIONS=--max-old-space-size=4096 vite build",
     "build:production": "NODE_OPTIONS=--max-old-space-size=4096 vite build",
-    "build:dev": "NODE_OPTIONS='--max-old-space-size=3072 --expose-gc' vite build --mode development",
+    "build:dev": "NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
