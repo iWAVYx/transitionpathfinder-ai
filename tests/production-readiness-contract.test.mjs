@@ -436,6 +436,16 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /\.\.\.clientOnlyPlugins\(\s*VitePWA\(/);
 });
 
+test("build verification has a credential-free exact-main recovery trigger", () => {
+  const workflow = read(".github/workflows/build-ssr-verify.yml");
+
+  assert.match(workflow, /push:\s*[\s\S]*?branches:\s*\[['"]\*\*['"]\]/);
+  assert.match(workflow, /pull_request:\s*[\s\S]*?branches:\s*\[['"]\*\*['"]\]/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /environment:\s*(?:staging|production)/);
+  assert.doesNotMatch(workflow, /secrets\./);
+});
+
 test("SSR stubs only the authenticated client-only route subtree", () => {
   const viteConfig = read("vite.config.ts");
   const authenticatedRoute = read("src/routes/_authenticated.tsx");
