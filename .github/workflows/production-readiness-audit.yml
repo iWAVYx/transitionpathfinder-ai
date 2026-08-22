@@ -10,10 +10,12 @@ on:
       - ".github/workflows/**"
       - "docs/production-readiness/**"
       - "src/lib/env-identity.ts"
+      - "src/lib/owner/testing-scripts.functions.ts"
       - "src/routes/api/public/env-health.ts"
       - "supabase/migrations/**"
       - "tests/production-readiness-contract.test.mjs"
       - "tests/unit/env-identity-production.test.ts"
+      - "tests/unit/testing-scripts-initialization.test.ts"
       - "package.json"
   push:
     branches: [main]
@@ -36,4 +38,4 @@ jobs:
       - name: Run release-control contract
         run: bun run test:production-readiness
       - name: Run production identity unit tests
-        run: bunx vitest run tests/unit/env-identity-production.test.ts tests/unit/env-identity-staging.test.ts
+        run: bunx vitest run tests/unit/env-identity-production.test.ts tests/unit/env-identity-staging.test.ts tests/unit/testing-scripts-initialization.test.ts
