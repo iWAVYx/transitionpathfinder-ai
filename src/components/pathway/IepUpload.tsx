@@ -6,31 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
 import iepImage from "@/assets/bundled/iep-upload-buried.webp";
 import { TrustNote } from "@/components/site/TrustNote";
-import { loadPdfJs } from "@/lib/browser-only-libs";
+import { extractPdfText } from "@/lib/browser-only-libs";
 
 type Props = {
   onExtracted: (extract: IepExtract) => void;
 };
-
-async function extractPdfText(file: File): Promise<string> {
-  // Use legacy build so it works inside the browser bundler
-  const pdfjs = await loadPdfJs();
-  // Worker via CDN to avoid bundling complexity
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (pdfjs as any).GlobalWorkerOptions.workerSrc =
-    `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.mjs`;
-  const buf = await file.arrayBuffer();
-  const doc = await pdfjs.getDocument({ data: buf }).promise;
-  let out = "";
-  const max = Math.min(doc.numPages, 40);
-  for (let i = 1; i <= max; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    const text = content.items.map((it) => ("str" in it ? it.str : "")).join(" ");
-    out += text + "\n\n";
-  }
-  return out;
-}
 
 export function IepUpload({ onExtracted }: Props) {
   const extract = useServerFn(extractFromIep);

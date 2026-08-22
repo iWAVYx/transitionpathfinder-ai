@@ -23,7 +23,7 @@
     "cloudflareWorkerDeploymentAuthorized": false,
     "githubEnvironmentProvisioned": true,
     "releaseProcedureDocumented": true,
-    "migrationBaselineVerified": true,
+    "migrationBaselineVerified": false,
     "exactDeploymentIdentityVerified": false,
     "hostingControlPlaneVerified": false,
     "backupInventoryVerified": true,
@@ -34,7 +34,7 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 187,
-    "latestCanonicalFile": "20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql"
+    "canonicalCount": 188,
+    "latestCanonicalFile": "20260821230000_security_remediation_hardening.sql"
   }
 }

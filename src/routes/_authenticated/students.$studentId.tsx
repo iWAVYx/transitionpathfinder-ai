@@ -47,28 +47,12 @@ import {
   type DocumentRow,
   type ExtractedGoal,
 } from "@/lib/documents.functions";
-import { loadPdfJs } from "@/lib/browser-only-libs";
+import { extractPdfText } from "@/lib/browser-only-libs";
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
   component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
-
-async function extractPdfText(file: File): Promise<string> {
-  const pdfjs = await loadPdfJs();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (pdfjs as any).GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.mjs`;
-  const buf = await file.arrayBuffer();
-  const doc = await pdfjs.getDocument({ data: buf }).promise;
-  let out = "";
-  const max = Math.min(doc.numPages, 40);
-  for (let i = 1; i <= max; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    out += content.items.map((it) => ("str" in it ? it.str : "")).join(" ") + "\n\n";
-  }
-  return out;
-}
 
 function StudentDetailPage() {
   const { studentId } = Route.useParams();

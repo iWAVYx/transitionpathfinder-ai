@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -125,25 +125,27 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     },
   ]);
 
-  const report = JSON.parse(
-    execFileSync(
-      process.execPath,
-      [
-        "scripts/compare-production-migration-history.mjs",
-        "docs/production-readiness/evidence/production-migration-history-2026-08-17.csv",
-        "--json",
-      ],
-      { encoding: "utf8" },
-    ),
+  const comparison = spawnSync(
+    process.execPath,
+    [
+      "scripts/compare-production-migration-history.mjs",
+      "docs/production-readiness/evidence/production-migration-history-2026-08-17.csv",
+      "--json",
+    ],
+    { encoding: "utf8" },
   );
-  assert.equal(report.status, "aligned");
+  assert.equal(comparison.status, 2, comparison.stderr);
+  const report = JSON.parse(comparison.stdout);
+  assert.equal(report.status, "blocked");
+  assert.deepEqual(report.blockers, ["pending-production-migration"]);
   assert.equal(report.appliedCount, 180);
-  assert.equal(report.canonicalCount, 187);
+  assert.equal(report.canonicalCount, 188);
   assert.equal(report.directCoverageCount, 180);
   assert.equal(report.supersededCount, 6);
   assert.equal(report.excludedCount, 1);
-  assert.equal(report.pendingCount, 0);
-  assert.equal(audit.production.migrationBaselineVerified, true);
+  assert.equal(report.pendingCount, 1);
+  assert.deepEqual(report.pending, ["20260821230000_security_remediation_hardening.sql"]);
+  assert.equal(audit.production.migrationBaselineVerified, false);
 });
 
 test("tracked environment files contain only reviewed public variables", () => {

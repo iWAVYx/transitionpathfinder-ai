@@ -209,6 +209,49 @@ jobs:
               )
               and i.indnullsnotdistinct;" | grep -qx t
 
+      - name: Security remediation remains fail-closed after replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select exists (
+              select 1
+              from pg_policies
+              where schemaname = 'public'
+                and tablename = 'collaboration_notes'
+                and policyname = 'View notes via student'
+                and qual ilike '%private_note%'
+                and qual ilike '%visibility%private%'
+            )
+            and not has_table_privilege(
+              'authenticated',
+              'public.channel_attachments',
+              'UPDATE'
+            )
+            and not has_column_privilege(
+              'authenticated',
+              'public.partner_organizations',
+              'contact_email',
+              'SELECT'
+            )
+            and not has_column_privilege(
+              'authenticated',
+              'public.partner_organizations',
+              'phone',
+              'SELECT'
+            )
+            and not has_function_privilege(
+              'anon',
+              'public.accept_invitation_by_token(text)',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'authenticated',
+              'public.accept_invitation_by_token(text)',
+              'EXECUTE'
+            )
+            and pg_get_functiondef(
+              'public.list_public_resource_sources()'::regprocedure
+            ) ilike '%outdated%';" | grep -qx t
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4

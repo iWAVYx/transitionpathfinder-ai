@@ -66,7 +66,6 @@
     "@stripe/react-stripe-js": "6.2.0",
     "@stripe/stripe-js": "9.2.0",
     "@supabase/supabase-js": "^2.106.2",
-    "@tailwindcss/vite": "^4.2.1",
     "@tanstack/query-sync-storage-persister": "^5.101.0",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-query-persist-client": "^5.101.0",
@@ -79,6 +78,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "fflate": "^0.8.3",
     "html-to-text": "^9.0.5",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",
@@ -88,12 +88,11 @@
     "motion": "^12.40.0",
     "otplib": "12.0.1",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.7.284",
+    "pdfjs-dist": "^6.2.108",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",
-    "react-email": "6.6.4",
     "react-hook-form": "^7.71.2",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.6.5",
@@ -105,10 +104,6 @@
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
     "vaul": "^1.1.2",
-    "vite-plugin-pwa": "^1.3.0",
-    "vite-tsconfig-paths": "^6.0.2",
-    "workbox-window": "^7.4.1",
-    "xlsx": "^0.18.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -117,6 +112,7 @@
     "@lovable.dev/vite-tanstack-config": "2.13.1",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.2.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^22.16.5",
@@ -136,13 +132,21 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^7.3.1",
+    "vite": "^7.3.6",
+    "vite-plugin-pwa": "^1.3.0",
+    "vite-tsconfig-paths": "^6.0.2",
     "vitest": "^4.1.9",
     "wrangler": "^4"
   },
-  "pnpm": {
-    "overrides": {
-      "entities": "4.5.0"
-    }
+  "overrides": {
+    "dompurify": "3.4.13",
+    "entities": "4.5.0",
+    "fast-uri": "3.1.5",
+    "js-yaml": "4.3.1",
+    "nanoid": "3.3.18",
+    "postcss": "8.5.23",
+    "socket.io-parser": "4.2.7",
+    "undici": "7.29.0",
+    "ws": "8.21.0"
   }
 }
