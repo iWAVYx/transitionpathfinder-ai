@@ -410,15 +410,36 @@ test("hosted Worker builds omit unused email formatting dependencies", () => {
 test("hosted builds stay within Lovable memory limits without duplicate PWA work", () => {
   const packageJson = read("package.json");
   const viteConfig = read("vite.config.ts");
+  const buildApp = read("scripts/build-app.mjs");
+  const buildEnvironment = read("scripts/build-environment.mjs");
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build/,
+    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' node scripts\/build-app\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build --mode development/,
+    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' node scripts\/build-app\.mjs --mode development/,
   );
+  assert.match(buildApp, /spawn\(process\.execPath/);
+  assert.match(buildApp, /VITE_APP_BUILD_TIME:\s*buildTime/);
+  assert.match(buildApp, /createBuilder/);
+  assert.match(buildApp, /plugins:\s*\[splitClientBuildPlugin\]/);
+  assert.match(buildApp, /runNodeScript\(environmentBuilder, \["client", mode\]\)/);
+  assert.match(buildApp, /client\.isBuilt\s*=\s*true/);
+  assert.match(buildApp, /builder\.buildApp\(\)/);
+  assert.match(buildApp, /builder\.environments\.client\?\.config\.build\.outDir/);
+  assert.match(buildApp, /runNodeScript\(serviceWorkerBuilder, \[clientOutputDirectory\]\)/);
+  assert.match(buildApp, /tanstack-start-manifest:v/);
+  assert.match(buildApp, /readFile\(startManifestFile, "utf8"\)/);
+  assert.match(buildApp, /#tanstack-start-server-fn-resolver/);
+  assert.match(buildApp, /readFile\(serverFnResolverFile, "utf8"\)/);
+  assert.match(buildApp, /generate-service-worker\.mjs/);
+  assert.match(buildEnvironment, /createBuilder/);
+  assert.match(buildEnvironment, /builder\.build\(environment\)/);
+  assert.match(buildEnvironment, /tanstack-start:start-manifest-plugin/);
+  assert.match(buildEnvironment, /tanstack-start-core:server-fn-resolver/);
+  assert.match(buildEnvironment, /moduleSource\.length < 1_000/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
   assert.match(viteConfig, /maxParallelFileOps:\s*2/);
@@ -428,12 +449,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     viteConfig,
     /plugins:\s*\[\s*serverAuthenticatedRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
-  assert.match(viteConfig, /function clientOnlyPlugins/);
-  assert.match(
-    viteConfig,
-    /applyToEnvironment:\s*\(environment\)\s*=>\s*environment\.name\s*===\s*["']client["']/,
-  );
-  assert.match(viteConfig, /\.\.\.clientOnlyPlugins\(\s*VitePWA\(/);
+  assert.doesNotMatch(viteConfig, /VitePWA/);
 });
 
 test("build verification has a credential-free exact-main recovery trigger", () => {
@@ -475,7 +491,7 @@ test("protected staging builds use dedicated CI memory headroom", () => {
 
   assert.match(
     packageJson,
-    /"build:staging":\s*"NODE_OPTIONS=--max-old-space-size=4096 vite build"/,
+    /"build:staging":\s*"NODE_OPTIONS=--max-old-space-size=4096 vite build && node scripts\/generate-service-worker\.mjs"/,
   );
   assert.match(deployStaging, /- run:\s*bun run build:staging/);
   assert.doesNotMatch(deployStaging, /- run:\s*bun run build\s*$/m);
@@ -530,18 +546,21 @@ test("accessibility CI uses the bounded standardized Playwright installer", () =
 });
 
 test("PWA worker is generated into and required from the deployed asset directory", () => {
-  const viteConfig = read("vite.config.ts");
+  const serviceWorkerBuild = read("scripts/generate-service-worker.mjs");
   const stagingDeploy = read(".github/workflows/deploy-staging.yml");
   const privacyCleanup = read("public/sw-privacy-cleanup.js");
 
-  assert.match(viteConfig, /VitePWA\(\{[\s\S]*?outDir:\s*["']\.output\/public["']/);
-  assert.match(viteConfig, /importScripts:\s*\[["']\/sw-privacy-cleanup\.js["']\]/);
+  assert.match(serviceWorkerBuild, /vite-plugin-pwa\/package\.json/);
+  assert.match(serviceWorkerBuild, /vitePwaRequire\(["']workbox-build["']\)/);
+  assert.match(serviceWorkerBuild, /process\.argv\[2\]/);
+  assert.match(serviceWorkerBuild, /join\(publicDirectory, ["']sw\.js["']\)/);
+  assert.match(serviceWorkerBuild, /importScripts:\s*\[["']\/sw-privacy-cleanup\.js["']\]/);
   assert.match(
-    viteConfig,
+    serviceWorkerBuild,
     /request\.mode\s*===\s*["']navigate["'][\s\S]*?handler:\s*["']NetworkOnly["'][\s\S]*?fallbackURL:\s*["']\/offline\.html["']/,
   );
-  assert.doesNotMatch(viteConfig, /cacheName:\s*["']tf-pages["']/);
-  assert.doesNotMatch(viteConfig, /navigateFallback:/);
+  assert.doesNotMatch(serviceWorkerBuild, /cacheName:\s*["']tf-pages["']/);
+  assert.doesNotMatch(serviceWorkerBuild, /navigateFallback:/);
   assert.match(privacyCleanup, /caches\.delete\(["']tf-pages["']\)/);
   assert.match(stagingDeploy, /\[ ! -f "\$assets\/sw\.js" \]/);
   assert.match(stagingDeploy, /workbox-\*\.js/);
