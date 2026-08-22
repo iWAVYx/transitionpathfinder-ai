@@ -6,17 +6,6 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { Plugin } from "vite";
-import { VitePWA } from "vite-plugin-pwa";
-
-function clientOnlyPlugins(plugins: Plugin[]): Plugin[] {
-  return plugins.map((plugin) => ({
-    ...plugin,
-    // TanStack Start builds client, SSR, and Nitro environments in one
-    // process. Workbox only needs the final public client assets, so running
-    // it again for SSR and Nitro wastes memory and regenerates the same files.
-    applyToEnvironment: (environment) => environment.name === "client",
-  }));
-}
 
 function buildEnvironmentGarbageCollector(): Plugin {
   return {
@@ -107,65 +96,9 @@ export default defineConfig({
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
-    plugins: [
-      serverAuthenticatedRouteStubs(),
-      buildEnvironmentGarbageCollector(),
-      ...clientOnlyPlugins(
-        VitePWA({
-          registerType: "autoUpdate",
-          injectRegister: null,
-          // Nitro/Cloudflare publishes .output/public. Without this override the
-          // plugin writes dist/sw.js, which is never included in the deployment.
-          outDir: ".output/public",
-          filename: "sw.js",
-          manifest: false, // we ship a hand-authored manifest at public/manifest.webmanifest
-          devOptions: { enabled: false },
-          workbox: {
-            globPatterns: ["**/*.{js,css,html,svg,png,ico,webp,woff2}"],
-            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-            // Remove the legacy HTML runtime cache. Authenticated SSR responses
-            // must never survive sign-out or become visible on a shared device.
-            importScripts: ["/sw-privacy-cleanup.js"],
-            cleanupOutdatedCaches: true,
-            clientsClaim: true,
-            skipWaiting: true,
-            runtimeCaching: [
-              {
-                // Always fetch SSR navigations from the network. If the device is
-                // actually offline, serve only the generic precached offline page.
-                urlPattern: ({ request }) => request.mode === "navigate",
-                handler: "NetworkOnly",
-                options: { precacheFallback: { fallbackURL: "/offline.html" } },
-              },
-              {
-                urlPattern: ({ request, url }) =>
-                  url.origin === self.location.origin &&
-                  ["style", "script", "worker"].includes(request.destination),
-                handler: "StaleWhileRevalidate",
-                options: { cacheName: "tf-assets" },
-              },
-              {
-                urlPattern: ({ request, url }) =>
-                  url.origin === self.location.origin &&
-                  ["image", "font"].includes(request.destination),
-                handler: "CacheFirst",
-                options: {
-                  cacheName: "tf-media",
-                  expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
-                },
-              },
-              {
-                urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com",
-                handler: "CacheFirst",
-                options: {
-                  cacheName: "tf-gfonts",
-                  expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                },
-              },
-            ],
-          },
-        }),
-      ),
-    ],
+    // The hosted build orchestrator runs the memory-heavy client bundle in a
+    // fresh Node process, then completes SSR and Nitro in the parent builder.
+    // Workbox runs afterward from scripts/generate-service-worker.mjs.
+    plugins: [serverAuthenticatedRouteStubs(), buildEnvironmentGarbageCollector()],
   },
 });
