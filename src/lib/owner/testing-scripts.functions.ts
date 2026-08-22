@@ -22,7 +22,7 @@ export type ScriptDef = {
   steps: ScriptStep[];
 };
 
-export const TEST_SCRIPTS: ScriptDef[] = [
+const CORE_TEST_SCRIPTS: ScriptDef[] = [
   {
     key: "family-first-run",
     label: "Family — First Run",
@@ -94,7 +94,6 @@ export const TEST_SCRIPTS: ScriptDef[] = [
       { key: "emails", title: "Email monitor green", detail: "/owner/emails shows recent sends without persistent failures." },
     ],
   },
-  ...buildRoleQaScripts(),
 ];
 
 /**
@@ -219,6 +218,8 @@ function buildRoleQaScripts(): ScriptDef[] {
     steps: [...BASELINE_STEPS, ...r.extra],
   }));
 }
+
+export const TEST_SCRIPTS: ScriptDef[] = [...CORE_TEST_SCRIPTS, ...buildRoleQaScripts()];
 
 const PRIORITIES = ["low", "medium", "high", "critical"] as const;
 type Priority = (typeof PRIORITIES)[number];
