@@ -65,6 +65,14 @@
       "expectedStatementsMd5": "d040a83930d46db9ec63301e9685de32",
       "sourceCommit": "60fdb160",
       "reason": "Production applied the file's original form; commit 955406f4 later added idempotent column and index guards without changing the intended final schema."
+    },
+    {
+      "productionVersion": "20260823090553",
+      "canonicalFile": "20260823100000_align_public_resources_select_policies.sql",
+      "expectedName": "ded54c9d-17ff-48ec-b8f5-f12c7829c6c7",
+      "expectedStatementsMd5": "e95fccc7a3f18caecd63bc60aa199f84",
+      "sourceCommit": "ee05339b",
+      "reason": "Lovable applied the reviewed public-resources RLS replacement before the canonical migration was merged. The production form omits only the redundant idempotent drop of the replacement policy; read-only pg_policies evidence confirms the same final authenticated policy and preserved public policy."
     }
   ],
   "supersededCanonicalFiles": [

@@ -19,7 +19,8 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Database
 
 - [x] Production migration history read and content-aware baseline attached;
-      the 2026-08-17 evidence reports zero pending migrations.
+      the 2026-08-23 evidence accounts for all 181 rows and reports the one
+      reviewed pending security-remediation migration.
 - [ ] Baseline regenerated immediately before release and still aligned with
       zero pending migrations; if not, every pending migration is reviewed in
       canonical order and lock/uniqueness/RLS/grant risks are signed off.
@@ -53,9 +54,10 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current staging evidence: SHA `dc43ee3a25be78135c94429bffe01994c1d3c5b3`
-passed isolated staging deployment run `32488516441` and protected release-readiness
-run `32490345888` (attempt 2). These runs do not close the production boxes below:
+Current staging evidence: SHA `ee05339b3c53e8ef0b8c05bc9ab7620ff4c04f43`
+passed isolated staging deployment run `32630840015` and protected
+release-readiness run `32631149812` (attempt 1). These runs do not close the
+production boxes below:
 Lovable's internal build identifier is not a GitHub commit, and the connected
 build still needs an auditable mapping to the exact GitHub SHA.
 
