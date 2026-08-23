@@ -663,6 +663,7 @@ test("production identity fails closed and operator documents are complete", () 
   const auditReport = read("docs/production-readiness/audit-2026-08-13.md");
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");
   const hostingAlignment = read("docs/production-readiness/alignment-2026-08-21.md");
+  const recoveryGate = read("docs/production-readiness/recovery-gate-2026-08-23.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
   assert.match(auditReport, /NO-GO/);
@@ -673,6 +674,10 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(hostingAlignment, /Lovable Cloud remains/i);
   assert.match(hostingAlignment, /Cloudflare[\s\S]*edge protections/i);
   assert.match(hostingAlignment, /separate explicit authorization/i);
+  assert.match(recoveryGate, /BLOCKED \/ NO-GO/);
+  assert.match(recoveryGate, /support request is not proof that recovery works/i);
+  assert.match(recoveryGate, /do not publish, migrate, pause, reset/i);
+  assert.equal(audit.production.restoreDrillVerified, false);
   assert.match(migrationPlan, /restore drill/i);
   assert.match(migrationPlan, /forward-only/i);
   assert.match(migrationPlan, /lrqcntqyekucamifpffs/);
