@@ -24,6 +24,8 @@ Documents:
   production migration evidence and the exact one-migration pending list.
 - `recovery-gate-2026-08-23.md` — current Lovable backup/restore evidence,
   submitted support request, and the still-blocking isolated restore drill.
+- `staging-credential-containment-2026-08-23.md` — synthetic staging credential
+  containment, rotation evidence, and the password-form native fallback fix.
 - `production-migration-baseline-2026-08-17.md` — prior historical baseline.
 - `production-migration-policy.json` — pinned aliases, historical variants,
   supersessions, and the production-forbidden staging fixture.

@@ -671,6 +671,11 @@ for (const role of ROLES) {
         );
       }
 
+      await expect(page.getByTestId("login-form")).toHaveAttribute("method", "post");
+      await expect(page.getByTestId("login-form")).toHaveAttribute("data-auth-hydrated", "true");
+      await expect(emailInput).toBeEnabled();
+      await expect(page.getByTestId("login-password")).toBeEnabled();
+      await expect(page.getByTestId("login-submit")).toBeEnabled();
       await emailInput.fill(email!);
       await page.getByTestId("login-password").fill(password!);
       await page.getByTestId("login-submit").click();
