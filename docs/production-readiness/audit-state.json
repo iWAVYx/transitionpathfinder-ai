@@ -34,7 +34,7 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 188,
-    "latestCanonicalFile": "20260821230000_security_remediation_hardening.sql"
+    "canonicalCount": 189,
+    "latestCanonicalFile": "20260823100000_align_public_resources_select_policies.sql"
   }
 }
