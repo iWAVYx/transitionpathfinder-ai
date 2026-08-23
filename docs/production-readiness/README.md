@@ -20,8 +20,9 @@ Documents:
 - `alignment-2026-08-20.md` — superseded historical Cloudflare Worker target.
 - `alignment-2026-08-21.md` — current Lovable application/backend origin and
   Cloudflare domain/protection boundary.
-- `production-migration-baseline-2026-08-17.md` — content-aware production
-  migration evidence and the zero-pending result.
+- `production-migration-baseline-2026-08-23.md` — current content-aware
+  production migration evidence and the exact one-migration pending list.
+- `production-migration-baseline-2026-08-17.md` — prior historical baseline.
 - `production-migration-policy.json` — pinned aliases, historical variants,
   supersessions, and the production-forbidden staging fixture.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.

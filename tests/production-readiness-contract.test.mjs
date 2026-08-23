@@ -114,7 +114,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
 
   const policy = JSON.parse(read("docs/production-readiness/production-migration-policy.json"));
   assert.equal(policy.target, "lovable-production");
-  assert.equal(policy.historicalVariants.length, 2);
+  assert.equal(policy.historicalVariants.length, 3);
   assert.equal(policy.supersededCanonicalFiles.length, 6);
   assert.deepEqual(policy.excludedCanonicalFiles, [
     {
@@ -129,7 +129,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     process.execPath,
     [
       "scripts/compare-production-migration-history.mjs",
-      "docs/production-readiness/evidence/production-migration-history-2026-08-17.csv",
+      "docs/production-readiness/evidence/production-migration-history-2026-08-23.csv",
       "--json",
     ],
     { encoding: "utf8" },
@@ -138,15 +138,14 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   const report = JSON.parse(comparison.stdout);
   assert.equal(report.status, "blocked");
   assert.deepEqual(report.blockers, ["pending-production-migration"]);
-  assert.equal(report.appliedCount, 180);
+  assert.equal(report.appliedCount, 181);
   assert.equal(report.canonicalCount, 189);
-  assert.equal(report.directCoverageCount, 180);
+  assert.equal(report.directCoverageCount, 181);
   assert.equal(report.supersededCount, 6);
   assert.equal(report.excludedCount, 1);
-  assert.equal(report.pendingCount, 2);
+  assert.equal(report.pendingCount, 1);
   assert.deepEqual(report.pending, [
     "20260821230000_security_remediation_hardening.sql",
-    "20260823100000_align_public_resources_select_policies.sql",
   ]);
   assert.equal(audit.production.migrationBaselineVerified, false);
 });
