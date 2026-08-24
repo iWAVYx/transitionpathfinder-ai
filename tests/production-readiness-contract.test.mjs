@@ -41,8 +41,15 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
+  const verifiedStagingSha = "7803a6486ad67357a523ce252f835ce2d0b53f30";
+
   assert.equal(audit.schemaVersion, 2);
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
+  assert.equal(audit.auditedMainSha, verifiedStagingSha);
+  assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
+  assert.equal(audit.staging.deploymentRun, 32676148661);
+  assert.equal(audit.staging.releaseReadinessRun, 32677397120);
+  assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.notEqual(
     audit.production.supabaseProjectRef,
     audit.staging.supabaseProjectRef,
@@ -719,7 +726,11 @@ test("password auth forms fail closed until client hydration", () => {
   const containment = read(
     "docs/production-readiness/staging-credential-containment-2026-08-23.md",
   );
-  assert.match(containment, /CONTAINED; CODE FIX PENDING REVIEW/);
+  assert.match(containment, /CONTAINED; CODE FIX VERIFIED IN STAGING/);
+  assert.match(containment, /7803a6486ad67357a523ce252f835ce2d0b53f30/);
+  assert.match(containment, /32676016370/);
+  assert.match(containment, /32677397120/);
+  assert.match(containment, /does not change the production \*\*NO-GO\*\* decision/);
   assert.match(containment, /Production credentials[\s\S]*were not[\s\S]*involved or changed/i);
   assert.match(containment, /artifact `9501164856`[\s\S]*deleted/);
   assert.match(containment, /rotated all seven fixed synthetic staging users/);
