@@ -6,7 +6,10 @@
 // directly by an authenticated server function via supabase.functions.invoke
 // to trigger immediate processing after a queue insert.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -203,7 +206,8 @@ async function recordPipelineRun(
   }
 }
 
-async function processJob(supabase: ReturnType<typeof createClient>, job: Job) {
+// deno-lint-ignore no-explicit-any
+async function processJob(supabase: SupabaseClient<any, "public", any>, job: Job) {
   let systemPrompt = systemPromptFor(job.job_type);
   const MODEL_VERSION = "google/gemini-3-flash-preview";
   const PROMPT_VERSION = "v1";
