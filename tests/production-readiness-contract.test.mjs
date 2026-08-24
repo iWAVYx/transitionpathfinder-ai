@@ -638,6 +638,28 @@ test("Lovable keeps the privileged production runtime and Cloudflare stays edge-
     assert.doesNotMatch(source, /PRODUCTION_SUPABASE_SERVICE_ROLE_KEY/);
   }
 
+  const publicCmsClient = read("src/integrations/supabase/public.server.ts");
+  const cmsFunctions = read("src/lib/cms/cms.functions.ts");
+  const publicCmsReads = [
+    "getPageSection",
+    "getPublishedFaqs",
+    "getPublishedBlogPosts",
+    "getBlogPostBySlug",
+  ];
+
+  assert.doesNotMatch(publicCmsClient, /SERVICE_ROLE/);
+  assert.match(publicCmsClient, /SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(publicCmsClient, /persistSession:\s*false/);
+  for (const exportName of publicCmsReads) {
+    const start = cmsFunctions.indexOf(`export const ${exportName}`);
+    const end = cmsFunctions.indexOf("\nexport const ", start + 1);
+    assert.notEqual(start, -1, `${exportName} must remain present`);
+    assert.notEqual(end, -1, `${exportName} must remain independently auditable`);
+    const handler = cmsFunctions.slice(start, end);
+    assert.match(handler, /@\/integrations\/supabase\/public\.server/);
+    assert.doesNotMatch(handler, /client\.server|supabaseAdmin/);
+  }
+
   const alignment = read("docs/production-readiness/alignment-2026-08-21.md");
   const retiredPath = read("docs/production-readiness/production-worker-secret-provisioning.md");
   const superseded = read("docs/production-readiness/alignment-2026-08-20.md");
