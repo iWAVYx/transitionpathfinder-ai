@@ -687,3 +687,41 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(checklist, /no Cloudflare Worker route/i);
   assert.match(checklist, /rollback/i);
 });
+
+test("password auth forms fail closed until client hydration", () => {
+  const loginRoute = read("src/routes/login.index.tsx");
+  const signInStart = loginRoute.indexOf("function SignInForm()");
+  const signUpStart = loginRoute.indexOf("function SignUpForm()");
+  const googleStart = loginRoute.indexOf("function GoogleButton()");
+
+  assert.ok(signInStart > -1 && signUpStart > signInStart && googleStart > signUpStart);
+  const signIn = loginRoute.slice(signInStart, signUpStart);
+  const signUp = loginRoute.slice(signUpStart, googleStart);
+
+  assert.match(
+    loginRoute,
+    /function useHydratedAuthForm\(\)[\s\S]*useState\(false\)[\s\S]*setHydrated\(true\)/,
+  );
+  for (const formSource of [signIn, signUp]) {
+    assert.match(formSource, /const hydrated = useHydratedAuthForm\(\)/);
+    assert.match(formSource, /<form[\s\S]*method="post"[\s\S]*action="\/login"/);
+    assert.match(formSource, /data-auth-hydrated=\{hydrated \? "true" : "false"\}/);
+    assert.match(formSource, /disabled=\{!hydrated \|\| submitting\}/);
+  }
+  assert.equal((signIn.match(/disabled=\{!hydrated\}/g) ?? []).length, 2);
+  assert.equal((signUp.match(/disabled=\{!hydrated\}/g) ?? []).length, 3);
+
+  const authSetup = read("tests/e2e/auth-roles.setup.ts");
+  assert.match(authSetup, /login-form"\)\)\.toHaveAttribute\("method", "post"\)/);
+  assert.match(authSetup, /data-auth-hydrated[\s\S]*"true"/);
+  assert.match(authSetup, /login-submit"\)\)\.toBeEnabled\(\)/);
+
+  const containment = read(
+    "docs/production-readiness/staging-credential-containment-2026-08-23.md",
+  );
+  assert.match(containment, /CONTAINED; CODE FIX PENDING REVIEW/);
+  assert.match(containment, /Production credentials[\s\S]*were not[\s\S]*involved or changed/i);
+  assert.match(containment, /artifact `9501164856`[\s\S]*deleted/);
+  assert.match(containment, /rotated all seven fixed synthetic staging users/);
+  assert.match(containment, /No secret value belongs in this document/);
+});

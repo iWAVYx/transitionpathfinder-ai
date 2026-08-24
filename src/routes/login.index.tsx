@@ -315,8 +315,19 @@ function normalizeAuthRedirect(value: string) {
   return value;
 }
 
+function useHydratedAuthForm() {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  return hydrated;
+}
+
 function SignInForm() {
   const [submitting, setSubmitting] = useState(false);
+  const hydrated = useHydratedAuthForm();
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: { email: "", password: "" },
@@ -354,7 +365,14 @@ function SignInForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" data-testid="login-form">
+    <form
+      method="post"
+      action="/login"
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-4"
+      data-testid="login-form"
+      data-auth-hydrated={hydrated ? "true" : "false"}
+    >
       <div>
         <Label htmlFor="signin-email">Email</Label>
         <Input
@@ -363,6 +381,7 @@ function SignInForm() {
           autoComplete="email"
           aria-label="Email"
           data-testid="login-email"
+          disabled={!hydrated}
           {...form.register("email")}
         />
         {form.formState.errors.email && (
@@ -377,6 +396,7 @@ function SignInForm() {
           autoComplete="current-password"
           aria-label="Password"
           data-testid="login-password"
+          disabled={!hydrated}
           {...form.register("password")}
         />
         {form.formState.errors.password && (
@@ -385,7 +405,7 @@ function SignInForm() {
       </div>
       <Button
         type="submit"
-        disabled={submitting}
+        disabled={!hydrated || submitting}
         className="w-full"
         data-testid="login-submit"
       >
@@ -397,6 +417,7 @@ function SignInForm() {
 
 function SignUpForm() {
   const [submitting, setSubmitting] = useState(false);
+  const hydrated = useHydratedAuthForm();
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: { email: "", password: "", full_name: "" },
@@ -421,17 +442,29 @@ function SignUpForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      method="post"
+      action="/login"
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-4"
+      data-auth-hydrated={hydrated ? "true" : "false"}
+    >
       <div>
         <Label htmlFor="signup-name">Full name</Label>
-        <Input id="signup-name" {...form.register("full_name")} />
+        <Input id="signup-name" disabled={!hydrated} {...form.register("full_name")} />
         {form.formState.errors.full_name && (
           <p className="mt-1 text-xs text-destructive">{form.formState.errors.full_name.message}</p>
         )}
       </div>
       <div>
         <Label htmlFor="signup-email">Email</Label>
-        <Input id="signup-email" type="email" autoComplete="email" {...form.register("email")} />
+        <Input
+          id="signup-email"
+          type="email"
+          autoComplete="email"
+          disabled={!hydrated}
+          {...form.register("email")}
+        />
         {form.formState.errors.email && (
           <p className="mt-1 text-xs text-destructive">{form.formState.errors.email.message}</p>
         )}
@@ -442,13 +475,14 @@ function SignUpForm() {
           id="signup-password"
           type="password"
           autoComplete="new-password"
+          disabled={!hydrated}
           {...form.register("password")}
         />
         {form.formState.errors.password && (
           <p className="mt-1 text-xs text-destructive">{form.formState.errors.password.message}</p>
         )}
       </div>
-      <Button type="submit" disabled={submitting} className="w-full">
+      <Button type="submit" disabled={!hydrated || submitting} className="w-full">
         {submitting ? "Creating Account…" : "Create Account"}
       </Button>
     </form>
