@@ -102,8 +102,8 @@ export const getPageSection = createServerFn({ method: "GET" })
     z.object({ page_key: z.string(), section_key: z.string() }).parse(i),
   )
   .handler(async ({ data }): Promise<{ content: any }> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
+    const { supabasePublic } = await import("@/integrations/supabase/public.server");
+    const { data: row } = await supabasePublic
       .from("page_sections")
       .select("content, is_published")
       .eq("page_key", data.page_key)
@@ -257,8 +257,8 @@ export const getPublishedFaqs = createServerFn({ method: "GET" })
     z.object({ category: z.string().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let q = supabaseAdmin
+    const { supabasePublic } = await import("@/integrations/supabase/public.server");
+    let q = supabasePublic
       .from("faqs")
       .select("*")
       .eq("is_published", true)
@@ -387,8 +387,8 @@ export const adminDeleteTestimonial = createServerFn({ method: "POST" })
 // ---------- Blog posts ----------
 
 export const getPublishedBlogPosts = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
+  const { supabasePublic } = await import("@/integrations/supabase/public.server");
+  const { data } = await supabasePublic
     .from("blog_posts")
     .select("id, slug, title, excerpt, cover_image_url, author_name, category, tags, published_at")
     .eq("status", "published")
@@ -399,8 +399,8 @@ export const getPublishedBlogPosts = createServerFn({ method: "GET" }).handler(a
 export const getBlogPostBySlug = createServerFn({ method: "GET" })
   .validator((i: unknown) => z.object({ slug: z.string().min(1) }).parse(i))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
+    const { supabasePublic } = await import("@/integrations/supabase/public.server");
+    const { data: row } = await supabasePublic
       .from("blog_posts")
       .select("*")
       .eq("slug", data.slug)
