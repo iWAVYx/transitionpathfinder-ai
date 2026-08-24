@@ -151,9 +151,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(report.supersededCount, 6);
   assert.equal(report.excludedCount, 1);
   assert.equal(report.pendingCount, 1);
-  assert.deepEqual(report.pending, [
-    "20260821230000_security_remediation_hardening.sql",
-  ]);
+  assert.deepEqual(report.pending, ["20260821230000_security_remediation_hardening.sql"]);
   assert.equal(audit.production.migrationBaselineVerified, false);
 });
 
@@ -423,6 +421,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   const viteConfig = read("vite.config.ts");
   const buildApp = read("scripts/build-app.mjs");
   const buildEnvironment = read("scripts/build-environment.mjs");
+  const buildSha = read("scripts/resolve-build-sha.mjs");
 
   assert.match(
     packageJson,
@@ -454,6 +453,10 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
   assert.match(viteConfig, /maxParallelFileOps:\s*2/);
+  assert.match(viteConfig, /resolveBuildSha\(\)/);
+  assert.match(buildSha, /git["'],\s*\[["']rev-parse["'],\s*["']HEAD["']\]/);
+  assert.match(buildSha, /\^\[a-f0-9\]\{40\}\$/);
+  assert.match(buildSha, /return normalizeBuildSha\(checkoutSha\) \?\? ["']dev["']/);
   assert.match(viteConfig, /function buildEnvironmentGarbageCollector\(\): Plugin/);
   assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
   assert.match(

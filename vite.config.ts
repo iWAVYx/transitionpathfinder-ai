@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { Plugin } from "vite";
+import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 function buildEnvironmentGarbageCollector(): Plugin {
   return {
@@ -62,12 +63,11 @@ function serverAuthenticatedRouteStubs(): Plugin {
   };
 }
 
-const appBuildSha =
-  process.env.VITE_APP_BUILD_SHA ??
-  process.env.GITHUB_SHA ??
-  process.env.CF_PAGES_COMMIT_SHA ??
-  process.env.VERCEL_GIT_COMMIT_SHA ??
-  "dev";
+// Lovable's hosted builder does not currently expose a documented commit-SHA
+// variable. Prefer explicit platform metadata, then derive the exact SHA from
+// the checked-out repository. If neither is available, retain the fail-closed
+// "dev" identity so production health cannot report a false positive.
+const appBuildSha = resolveBuildSha();
 
 const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString();
 const appEnv = process.env.APP_ENV ?? "";
