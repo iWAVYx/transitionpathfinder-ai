@@ -166,7 +166,7 @@ test("tracked environment files contain only reviewed public variables", () => {
       "VITE_SUPABASE_URL",
     ]),
     ".env.development": new Set(["VITE_PAYMENTS_CLIENT_TOKEN"]),
-    ".env.production": new Set(["VITE_PAYMENTS_CLIENT_TOKEN"]),
+    ".env.production": new Set(["VITE_APP_ENV", "VITE_PAYMENTS_CLIENT_TOKEN"]),
   };
   const tracked = execFileSync(
     "git",
@@ -192,8 +192,10 @@ test("tracked environment files contain only reviewed public variables", () => {
   const prodPayment = envEntries(".env.production").find(
     ({ name }) => name === "VITE_PAYMENTS_CLIENT_TOKEN",
   );
+  const prodAppEnv = envEntries(".env.production").find(({ name }) => name === "VITE_APP_ENV");
   assert.match(devPayment?.value ?? "", /^pk_(test|sandbox)_/);
   assert.match(prodPayment?.value ?? "", /^pk_live_/);
+  assert.equal(prodAppEnv?.value, "production");
 
   const ignore = read(".gitignore");
   assert.match(ignore, /^\.env\*$/m);
