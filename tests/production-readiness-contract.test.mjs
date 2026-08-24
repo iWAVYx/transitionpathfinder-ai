@@ -436,19 +436,26 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(buildApp, /spawn\(process\.execPath/);
   assert.match(buildApp, /VITE_APP_BUILD_TIME:\s*buildTime/);
   assert.match(buildApp, /createBuilder/);
-  assert.match(buildApp, /plugins:\s*\[splitClientBuildPlugin\]/);
+  assert.match(buildApp, /plugins:\s*\[splitHeavyBuildEnvironmentsPlugin\]/);
   assert.match(buildApp, /runNodeScript\(environmentBuilder, \["client", mode\]\)/);
   assert.match(buildApp, /client\.isBuilt\s*=\s*true/);
+  assert.match(buildApp, /runNodeScript\(environmentBuilder, \["ssr", mode\]\)/);
+  assert.match(buildApp, /ssr\.isBuilt\s*=\s*true/);
   assert.match(buildApp, /builder\.buildApp\(\)/);
   assert.match(buildApp, /builder\.environments\.client\?\.config\.build\.outDir/);
   assert.match(buildApp, /runNodeScript\(serviceWorkerBuilder, \[clientOutputDirectory\]\)/);
-  assert.match(buildApp, /tanstack-start-manifest:v/);
-  assert.match(buildApp, /readFile\(startManifestFile, "utf8"\)/);
-  assert.match(buildApp, /#tanstack-start-server-fn-resolver/);
-  assert.match(buildApp, /readFile\(serverFnResolverFile, "utf8"\)/);
   assert.match(buildApp, /generate-service-worker\.mjs/);
   assert.match(buildEnvironment, /createBuilder/);
   assert.match(buildEnvironment, /builder\.build\(environment\)/);
+  assert.match(buildEnvironment, /plugins:\s*environmentName === "ssr"/);
+  assert.match(buildEnvironment, /transitionforward:split-client-virtual-modules/);
+  assert.match(buildEnvironment, /tanstack-start-manifest:v/);
+  assert.match(buildEnvironment, /readCapturedVirtualModule\(startManifestFile, startManifestId\)/);
+  assert.match(buildEnvironment, /#tanstack-start-server-fn-resolver/);
+  assert.match(
+    buildEnvironment,
+    /readCapturedVirtualModule\(serverFnResolverFile, serverFnResolverId\)/,
+  );
   assert.match(buildEnvironment, /tanstack-start:start-manifest-plugin/);
   assert.match(buildEnvironment, /tanstack-start-core:server-fn-resolver/);
   assert.match(buildEnvironment, /moduleSource\.length < 1_000/);
