@@ -96,9 +96,9 @@ export default defineConfig({
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
-    // The hosted build orchestrator runs the memory-heavy client bundle in a
-    // fresh Node process, then completes SSR and Nitro in the parent builder.
-    // Workbox runs afterward from scripts/generate-service-worker.mjs.
+    // The hosted build orchestrator runs the memory-heavy client and SSR
+    // bundles in separate Node processes, then completes Nitro in the parent
+    // builder. Workbox runs afterward from scripts/generate-service-worker.mjs.
     plugins: [serverAuthenticatedRouteStubs(), buildEnvironmentGarbageCollector()],
   },
 });

@@ -1,5 +1,4 @@
 import { spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { createBuilder } from "vite";
 
@@ -20,16 +19,6 @@ const serviceWorkerBuilder = fileURLToPath(
   new URL("./generate-service-worker.mjs", import.meta.url),
 );
 const configFile = fileURLToPath(new URL("../vite.config.ts", import.meta.url));
-const startManifestFile = fileURLToPath(
-  new URL("../node_modules/.nitro/vite/split-client-manifest.mjs", import.meta.url),
-);
-const serverFnResolverFile = fileURLToPath(
-  new URL("../node_modules/.nitro/vite/split-server-fn-resolver.mjs", import.meta.url),
-);
-const startManifestId = "tanstack-start-manifest:v";
-const serverFnResolverId = "#tanstack-start-server-fn-resolver";
-const resolvedStartManifestId = "\0transitionforward:split-start-manifest";
-const resolvedServerFnResolverId = "\0transitionforward:split-server-fn-resolver";
 
 function runNodeScript(script, args = []) {
   return new Promise((resolve, reject) => {
@@ -54,49 +43,33 @@ function runNodeScript(script, args = []) {
   });
 }
 
-const splitClientBuildPlugin = {
-  name: "transitionforward:split-client-build",
-  enforce: "pre",
-  resolveId: {
-    order: "pre",
-    handler(id) {
-      if (id === startManifestId) {
-        return resolvedStartManifestId;
-      }
-      if (id === serverFnResolverId) {
-        return resolvedServerFnResolverId;
-      }
-    },
-  },
-  load: {
-    order: "pre",
-    async handler(id) {
-      if (id === resolvedStartManifestId && this.environment.name === "ssr") {
-        return readFile(startManifestFile, "utf8");
-      }
-      if (id === resolvedServerFnResolverId && this.environment.name === "ssr") {
-        return readFile(serverFnResolverFile, "utf8");
-      }
-    },
-  },
+const splitHeavyBuildEnvironmentsPlugin = {
+  name: "transitionforward:split-heavy-build-environments",
   async buildApp(builder) {
     const client = builder.environments.client;
+    const ssr = builder.environments.ssr;
     if (!client) {
       throw new Error("The client build environment is required");
     }
+    if (!ssr) {
+      throw new Error("The SSR build environment is required");
+    }
 
     // Nitro's pre-build hook prepares the output directory before this normal
-    // buildApp hook runs. Build the largest environment in a fresh process,
-    // then let the parent builder run SSR, Nitro, and every post-build hook.
+    // buildApp hook runs. Build the two memory-heavy Vite environments in
+    // separate processes so their build graphs are released before the parent
+    // process runs Nitro and every post-build hook.
     await runNodeScript(environmentBuilder, ["client", mode]);
     client.isBuilt = true;
+    await runNodeScript(environmentBuilder, ["ssr", mode]);
+    ssr.isBuilt = true;
   },
 };
 
 const builder = await createBuilder({
   configFile,
   mode,
-  plugins: [splitClientBuildPlugin],
+  plugins: [splitHeavyBuildEnvironmentsPlugin],
 });
 const clientOutputDirectory = builder.environments.client?.config.build.outDir;
 if (!clientOutputDirectory) {
