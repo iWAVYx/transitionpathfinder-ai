@@ -1,6 +1,6 @@
 # Synthetic staging credential containment — 2026-08-23
 
-Decision: **CONTAINED; CODE FIX PENDING REVIEW**. Production credentials,
+Decision: **CONTAINED; CODE FIX VERIFIED IN STAGING**. Production credentials,
 production users, production data, and the production environment were not
 involved or changed.
 
@@ -41,6 +41,12 @@ Both password-bearing forms on `/login` now:
 3. Expose a non-secret hydration marker that browser setup waits for before
    entering credentials.
 
-The production-readiness contract locks these properties. The protected
-Dashboard regression and full release-readiness suites must pass on an exact-SHA
-isolated-staging deployment after the fix is reviewed and merged.
+The production-readiness contract locks these properties. PR #51 merged the fix
+as SHA `7803a6486ad67357a523ce252f835ce2d0b53f30`. Isolated staging deployment
+run [`32676148661`](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/32676148661),
+protected Dashboard regression run
+[`32676016370`](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/32676016370),
+and full release-readiness run
+[`32677397120`](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/32677397120)
+all passed at that exact SHA. This closes the staging incident's code-fix gate;
+it does not change the production **NO-GO** decision.
