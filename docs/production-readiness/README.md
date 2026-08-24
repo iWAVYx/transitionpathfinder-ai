@@ -20,6 +20,8 @@ Documents:
 - `alignment-2026-08-20.md` — superseded historical Cloudflare Worker target.
 - `alignment-2026-08-21.md` — current Lovable application/backend origin and
   Cloudflare domain/protection boundary.
+- `preflight-2026-08-23.md` — refreshed exact-SHA staging acceptance, live
+  production health, GitHub control, Cloudflare, and email-authentication evidence.
 - `production-migration-baseline-2026-08-23.md` — current content-aware
   production migration evidence and the exact one-migration pending list.
 - `recovery-gate-2026-08-23.md` — current Lovable backup/restore evidence,

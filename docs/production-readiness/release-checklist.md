@@ -54,18 +54,20 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current staging evidence: SHA `7803a6486ad67357a523ce252f835ce2d0b53f30`
-passed isolated staging deployment run `32676148661` and protected
-release-readiness run `32677397120` (attempt 1). These runs do not close the
+Current staging evidence: SHA `a2192d8e0f79742211be349e411e076301aea7fc`
+passed isolated staging deployment run `32685433926` and protected
+release-readiness run `32686237405` (attempt 1). These runs do not close the
 production boxes below:
 Lovable's internal build identifier is not a GitHub commit, and the connected
 build still needs an auditable mapping to the exact GitHub SHA.
 
-- [ ] Build and SSR verification passed for the approved SHA.
+- [x] Build and SSR verification passed for the approved SHA.
 - [ ] Lovable's connected build succeeded for that exact SHA; neither
       `Build unsuccessful` nor `Preview is out of date` is present.
-- [ ] Migration replay and RLS/permission/cross-district suites passed.
-- [ ] Seven-role auth, role guards, dashboard regression, accessibility, and
+- [x] Migration replay and RLS/permission/cross-district suites passed. The
+      canonical migration tree is unchanged since replay run `32630746041`;
+      the live staging RLS suites passed for the candidate SHA.
+- [x] Seven-role auth, role guards, dashboard regression, accessibility, and
       release-readiness journeys passed on the exact candidate.
 - [ ] Public routes, login/MFA, owner strict MFA, document access, report flow,
       invitation linking, licensing, and billing smoke checks passed.
