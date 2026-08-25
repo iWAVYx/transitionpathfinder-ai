@@ -22,10 +22,14 @@ Documents:
   Cloudflare domain/protection boundary.
 - `lovable-build-trigger-2026-08-24.md` — documentation-only connected-build
   trigger scope and exact-SHA post-merge acceptance requirements.
+- `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
+  production migration delta, production health recheck, and remaining release
+  gates.
 - `preflight-2026-08-23.md` — refreshed exact-SHA staging acceptance, live
   production health, GitHub control, Cloudflare, and email-authentication evidence.
-- `production-migration-baseline-2026-08-23.md` — current content-aware
-  production migration evidence and the exact one-migration pending list.
+- `production-migration-baseline-2026-08-23.md` — historical content-aware
+  production migration evidence captured when one migration was pending; the
+  current three-file comparison is recorded in `preflight-2026-08-25.md`.
 - `recovery-gate-2026-08-23.md` — current Lovable backup/restore evidence,
   submitted support request, and the still-blocking isolated restore drill.
 - `staging-credential-containment-2026-08-23.md` — synthetic staging credential

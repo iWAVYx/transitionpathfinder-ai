@@ -46,6 +46,38 @@ evidence is not permission to mutate production. The staging-only
 `20260621153500_e2e_role_dashboard_readiness.sql` migration is permanently
 production-forbidden.
 
+### Reviewed pending-delta risk profile — 2026-08-25
+
+The saved 181-row production history was re-compared with canonical `main` at
+`c3abb18795914b30253c598efd27fb1db0eb3987`. It resolves every recorded row and
+reports exactly the same three pending files above. This comparison reuses the
+2026-08-23 SELECT-only evidence; it must be regenerated from production
+immediately before an authorized maintenance window.
+
+1. `20260821230000_security_remediation_hardening.sql` replaces one
+   collaboration-note SELECT policy, revokes an unsupported attachment UPDATE
+   grant and direct access to partner contact columns, replaces the public
+   resource-source function, and reasserts invitation-function grants. Verify
+   private notes remain creator-only, attachment metadata is immutable,
+   sensitive partner columns are denied, outdated/archived resource sources are
+   excluded, and invitation acceptance remains authenticated-only.
+2. `20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`
+   restores authenticated/service-role execution of two admin helpers while
+   keeping anonymous execution denied, then replaces four published-content
+   SELECT policies. Verify both helper ACLs and anonymous reads of published
+   page sections, FAQs, testimonials, and blog posts.
+3. `20260825050000_scope_public_cms_admin_policies.sql` restricts five
+   platform-admin management policies to `authenticated`. Verify the five
+   policies have roles `{authenticated}` and perform real anonymous SELECTs on
+   blog posts, testimonials, page sections, FAQs, and media assets.
+
+These files contain no row mutation, table rewrite, index build, uniqueness
+constraint, or data backfill. Policy/function replacement and ACL changes still
+take catalog locks, so apply one file at a time, stop on any error, and run the
+listed invariant checks before advancing. Do not create ad-hoc down SQL; use a
+reviewed forward correction when integrity is intact or the approved
+pre-migration recovery point when recovery is required.
+
 ## 2. Prove recovery
 
 1. Confirm Lovable Cloud backup/export retention and record the recovery point
