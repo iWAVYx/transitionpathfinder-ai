@@ -34,9 +34,10 @@ the maintenance window.
    role/grant changes, RLS changes, extension needs, and post-deploy jobs.
 
 The 2026-08-23 baseline accounts for all 181 production-history rows. The
-current canonical directory leaves two reviewed migrations pending:
+current canonical directory leaves three reviewed migrations pending:
 `20260821230000_security_remediation_hardening.sql` and
-`20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`.
+`20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`, followed
+by `20260825050000_scope_public_cms_admin_policies.sql`.
 Lovable's earlier platform-generated public-resources policy replacement is
 pinned as a reviewed historical variant of
 `20260823100000_align_public_resources_select_policies.sql`; do not apply that
