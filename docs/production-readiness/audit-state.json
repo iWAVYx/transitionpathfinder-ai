@@ -34,7 +34,7 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 190,
-    "latestCanonicalFile": "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql"
+    "canonicalCount": 191,
+    "latestCanonicalFile": "20260825050000_scope_public_cms_admin_policies.sql"
   }
 }

@@ -44,5 +44,6 @@ attached:
 
 The pending production migrations
 `20260821230000_security_remediation_hardening.sql` and
-`20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql` remain
-unauthorized while this gate is blocked.
+`20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`, followed
+by `20260825050000_scope_public_cms_admin_policies.sql`, remain unauthorized
+while this gate is blocked.

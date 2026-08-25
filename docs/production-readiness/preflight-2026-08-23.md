@@ -72,7 +72,8 @@ DKIM selector evidence is still required if another selector is intended.
 4. Re-baseline production immediately before a maintenance window, then apply
    only the reviewed pending migrations
    `20260821230000_security_remediation_hardening.sql` and
-   `20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`, in
+   `20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`,
+   followed by `20260825050000_scope_public_cms_admin_policies.sql`, in
    canonical order. Do not reapply the already-covered public-resources
    alignment migration.
 5. Complete Stripe live catalog, webhook, portal, tax, transaction,

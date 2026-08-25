@@ -285,9 +285,36 @@ jobs:
                   or qual ilike '%status%published%'
                 )
             )
+            and (
+              select count(*) = 5
+              from pg_policies
+              where schemaname = 'public'
+                and (
+                  (tablename = 'page_sections' and policyname = 'Platform admins can manage page sections')
+                  or (tablename = 'faqs' and policyname = 'Platform admins can manage faqs')
+                  or (tablename = 'testimonials' and policyname = 'Platform admins can manage testimonials')
+                  or (tablename = 'blog_posts' and policyname = 'Platform admins can manage blog posts')
+                  or (tablename = 'media_assets' and policyname = 'Platform admins can manage media')
+                )
+                and roles = array['authenticated'::name]
+                and cmd = 'ALL'
+                and qual ilike '%is_platform_admin%'
+                and with_check ilike '%is_platform_admin%'
+            )
             and pg_get_functiondef(
               'public.list_public_resource_sources()'::regprocedure
             ) ilike '%outdated%';" | grep -qx t
+
+      - name: Public CMS reads do not evaluate authenticated-only helpers
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            set role anon;
+            select
+              (select count(*) >= 0 from public.page_sections)
+              and (select count(*) >= 0 from public.faqs)
+              and (select count(*) >= 0 from public.testimonials)
+              and (select count(*) >= 0 from public.blog_posts)
+              and (select count(*) >= 0 from public.media_assets);" | grep -qx t
 
       - name: Upload replay log
         if: always()
