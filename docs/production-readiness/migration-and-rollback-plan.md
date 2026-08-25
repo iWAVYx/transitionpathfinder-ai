@@ -33,11 +33,12 @@ the maintenance window.
 6. Review each pending statement for locks, table rewrites, uniqueness failures,
    role/grant changes, RLS changes, extension needs, and post-deploy jobs.
 
-The 2026-08-23 baseline accounts for all 181 production-history rows and leaves
-exactly one reviewed canonical migration pending:
-`20260821230000_security_remediation_hardening.sql`. Lovable's earlier
-platform-generated public-resources policy replacement is pinned as a reviewed
-historical variant of
+The 2026-08-23 baseline accounts for all 181 production-history rows. The
+current canonical directory leaves two reviewed migrations pending:
+`20260821230000_security_remediation_hardening.sql` and
+`20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`.
+Lovable's earlier platform-generated public-resources policy replacement is
+pinned as a reviewed historical variant of
 `20260823100000_align_public_resources_select_policies.sql`; do not apply that
 canonical file again. Regenerate the baseline immediately before release. This
 evidence is not permission to mutate production. The staging-only

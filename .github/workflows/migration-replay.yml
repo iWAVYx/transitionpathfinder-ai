@@ -248,6 +248,43 @@ jobs:
               'public.accept_invitation_by_token(text)',
               'EXECUTE'
             )
+            and not has_function_privilege(
+              'anon',
+              'public.is_platform_admin(uuid)',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'authenticated',
+              'public.is_platform_admin(uuid)',
+              'EXECUTE'
+            )
+            and not has_function_privilege(
+              'anon',
+              'public.is_admin_hub_member(uuid)',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'authenticated',
+              'public.is_admin_hub_member(uuid)',
+              'EXECUTE'
+            )
+            and (
+              select count(*) = 4
+              from pg_policies
+              where schemaname = 'public'
+                and (
+                  (tablename = 'page_sections' and policyname = 'Public can view published page sections')
+                  or (tablename = 'faqs' and policyname = 'Public can view published faqs')
+                  or (tablename = 'testimonials' and policyname = 'Public can view published testimonials')
+                  or (tablename = 'blog_posts' and policyname = 'Public can view published blog posts')
+                )
+                and roles @> array['anon'::name, 'authenticated'::name]
+                and qual not ilike '%is_admin_hub_member%'
+                and (
+                  qual ilike '%is_published%'
+                  or qual ilike '%status%published%'
+                )
+            )
             and pg_get_functiondef(
               'public.list_public_resource_sources()'::regprocedure
             ) ilike '%outdated%';" | grep -qx t

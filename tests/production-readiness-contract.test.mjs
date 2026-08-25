@@ -146,12 +146,15 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(report.status, "blocked");
   assert.deepEqual(report.blockers, ["pending-production-migration"]);
   assert.equal(report.appliedCount, 181);
-  assert.equal(report.canonicalCount, 189);
+  assert.equal(report.canonicalCount, 190);
   assert.equal(report.directCoverageCount, 181);
   assert.equal(report.supersededCount, 6);
   assert.equal(report.excludedCount, 1);
-  assert.equal(report.pendingCount, 1);
-  assert.deepEqual(report.pending, ["20260821230000_security_remediation_hardening.sql"]);
+  assert.equal(report.pendingCount, 2);
+  assert.deepEqual(report.pending, [
+    "20260821230000_security_remediation_hardening.sql",
+    "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql",
+  ]);
   assert.equal(audit.production.migrationBaselineVerified, false);
 });
 
