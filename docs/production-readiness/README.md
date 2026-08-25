@@ -31,7 +31,10 @@ Documents:
   production migration evidence captured when one migration was pending; the
   current three-file comparison is recorded in `preflight-2026-08-25.md`.
 - `recovery-gate-2026-08-23.md` — current Lovable backup/restore evidence,
-  submitted support request, and the still-blocking isolated restore drill.
+  support response, live backup and Storage inventory, and the still-blocking
+  isolated restore drill.
+- `isolated-restore-drill-plan-2026-08-25.md` — fail-closed Data Export restore
+  procedure, target-isolation rules, cost gate, timing, and pass criteria.
 - `staging-credential-containment-2026-08-23.md` — synthetic staging credential
   containment, rotation evidence, and the password-form native fallback fix.
 - `production-migration-baseline-2026-08-17.md` — prior historical baseline.
