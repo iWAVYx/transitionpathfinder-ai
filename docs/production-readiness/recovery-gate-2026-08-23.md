@@ -42,6 +42,7 @@ attached:
 5. Coverage evidence for database schema/data, authentication users, and storage
    objects, or an explicit recovery plan for any excluded component.
 
-The one pending production migration
-`20260821230000_security_remediation_hardening.sql` remains unauthorized while
-this gate is blocked.
+The pending production migrations
+`20260821230000_security_remediation_hardening.sql` and
+`20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql` remain
+unauthorized while this gate is blocked.
