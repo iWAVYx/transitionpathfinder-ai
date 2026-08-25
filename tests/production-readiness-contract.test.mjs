@@ -41,14 +41,14 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "a2192d8e0f79742211be349e411e076301aea7fc";
+  const verifiedStagingSha = "c3abb18795914b30253c598efd27fb1db0eb3987";
 
   assert.equal(audit.schemaVersion, 2);
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 32685433926);
-  assert.equal(audit.staging.releaseReadinessRun, 32686237405);
+  assert.equal(audit.staging.deploymentRun, 32865396727);
+  assert.equal(audit.staging.releaseReadinessRun, 32902198754);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.notEqual(
     audit.production.supabaseProjectRef,
@@ -709,6 +709,7 @@ test("production identity fails closed and operator documents are complete", () 
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");
   const hostingAlignment = read("docs/production-readiness/alignment-2026-08-21.md");
   const recoveryGate = read("docs/production-readiness/recovery-gate-2026-08-23.md");
+  const latestPreflight = read("docs/production-readiness/preflight-2026-08-25.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
   assert.match(auditReport, /NO-GO/);
@@ -722,6 +723,18 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(recoveryGate, /BLOCKED \/ NO-GO/);
   assert.match(recoveryGate, /support request is not proof that recovery works/i);
   assert.match(recoveryGate, /do not publish, migrate, pause, reset/i);
+  assert.match(latestPreflight, /NO-GO/);
+  assert.match(latestPreflight, /c3abb18795914b30253c598efd27fb1db0eb3987/);
+  assert.match(latestPreflight, /32865396727/);
+  assert.match(latestPreflight, /32902198754/);
+  assert.match(latestPreflight, /exactly 3 pending production migrations/i);
+  assert.match(latestPreflight, /20260821230000_security_remediation_hardening\.sql/);
+  assert.match(
+    latestPreflight,
+    /20260825041500_restore_admin_helper_grants_and_public_cms_reads\.sql/,
+  );
+  assert.match(latestPreflight, /20260825050000_scope_public_cms_admin_policies\.sql/);
+  assert.match(latestPreflight, /did not[\s\S]*modify production data or schema/i);
   assert.equal(audit.production.restoreDrillVerified, false);
   assert.match(migrationPlan, /restore drill/i);
   assert.match(migrationPlan, /forward-only/i);
