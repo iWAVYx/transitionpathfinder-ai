@@ -78,7 +78,7 @@ const policy = {
   ],
 };
 
-test("parses ordered JSON and CSV hash evidence", () => {
+test("parses ordered JSON and comma- or semicolon-delimited CSV hash evidence", () => {
   const expected = [
     row({}),
     row({
@@ -93,6 +93,13 @@ test("parses ordered JSON and CSV hash evidence", () => {
     parseMigrationHistory(
       "version,name,statement_count,statements_md5,code_md5\n" +
         "20260101000000,first,1,11111111111111111111111111111111,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+    ),
+    [row({})],
+  );
+  assert.deepEqual(
+    parseMigrationHistory(
+      "code_md5;name;statement_count;statements_md5;version\n" +
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;first;1;11111111111111111111111111111111;20260101000000\n",
     ),
     [row({})],
   );

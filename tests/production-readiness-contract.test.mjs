@@ -136,7 +136,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     process.execPath,
     [
       "scripts/compare-production-migration-history.mjs",
-      "docs/production-readiness/evidence/production-migration-history-2026-08-23.csv",
+      "docs/production-readiness/evidence/production-migration-history-2026-08-26.csv",
       "--json",
     ],
     { encoding: "utf8" },
@@ -156,6 +156,15 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql",
     "20260825050000_scope_public_cms_admin_policies.sql",
   ]);
+  assert.equal(audit.migrations.productionHistoryReadAt, "2026-08-26T02:50:51Z");
+  assert.equal(
+    audit.migrations.productionHistoryEvidence,
+    "docs/production-readiness/evidence/production-migration-history-2026-08-26.csv",
+  );
+  assert.equal(audit.migrations.productionHistoryComparedMainSha, "586e18e3970471d802a5146260d6a725ce2d9a93");
+  assert.equal(audit.migrations.productionHistoryAppliedCount, 181);
+  assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260823090553");
+  assert.equal(audit.migrations.pendingProductionCount, 3);
   assert.equal(audit.production.migrationBaselineVerified, false);
 });
 

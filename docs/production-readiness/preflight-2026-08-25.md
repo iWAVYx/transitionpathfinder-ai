@@ -43,9 +43,15 @@ history against this exact candidate:
   2. `20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`
   3. `20260825050000_scope_public_cms_admin_policies.sql`
 
-This is a comparison refresh, not a fresh read of production. Regenerate the
-SELECT-only history immediately before an approved maintenance window and stop
-if the pending list or any content mapping differs.
+The production history was then freshly re-read with the SELECT-only query on
+2026-08-26 at 02:50:51 UTC and compared with current `main` SHA
+`586e18e3970471d802a5146260d6a725ce2d9a93`. The ordered 181-row dataset is
+unchanged, every production row remains accounted for, and the exact same three
+files remain pending. See `production-migration-baseline-2026-08-26.md`.
+
+Repeat this read immediately before an approved maintenance window if this
+snapshot is no longer contemporaneous, and stop if the pending list or any
+content mapping differs.
 
 The three pending files change policies, function definitions, and grants. They
 contain no row mutation, table rewrite, index build, uniqueness constraint, or
@@ -98,9 +104,10 @@ staging credential names.
    teardown of the sensitive local target and archive.
 2. Resolve the Lovable hosted-build/control-plane status and prove the exact
    candidate maps to a successful connected build.
-3. Re-read production migration history, confirm the exact three-file delta,
-   and obtain separate owner authorization for the maintenance window before
-   applying any production migration.
+3. The fresh production history confirms the exact three-file delta; obtain
+   separate owner authorization for the maintenance window before applying any
+   production migration, and re-read again if the evidence is no longer
+   contemporaneous.
 4. Configure and verify production labels, exact build SHA, staging-secret
    absence, and Stripe live mode through a separately authorized Lovable publish.
 5. Complete live Stripe, email authentication, malware scanning, security
