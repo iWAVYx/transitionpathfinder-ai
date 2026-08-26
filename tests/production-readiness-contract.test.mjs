@@ -709,6 +709,9 @@ test("production identity fails closed and operator documents are complete", () 
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");
   const hostingAlignment = read("docs/production-readiness/alignment-2026-08-21.md");
   const recoveryGate = read("docs/production-readiness/recovery-gate-2026-08-23.md");
+  const restoreDrillPlan = read(
+    "docs/production-readiness/isolated-restore-drill-plan-2026-08-25.md",
+  );
   const latestPreflight = read("docs/production-readiness/preflight-2026-08-25.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
@@ -723,6 +726,22 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(recoveryGate, /BLOCKED \/ NO-GO/);
   assert.match(recoveryGate, /support request is not proof that recovery works/i);
   assert.match(recoveryGate, /do not publish, migrate, pause, reset/i);
+  assert.match(recoveryGate, /15 daily recovery points/i);
+  assert.match(recoveryGate, /Aug 25, 2026, 10:14:51 AM UTC/);
+  assert.match(recoveryGate, /student-documents/);
+  assert.match(recoveryGate, /site-media/);
+  assert.match(recoveryGate, /channel-attachments/);
+  assert.match(recoveryGate, /0\.0 KB for 0 files/i);
+  assert.match(recoveryGate, /Export data was not selected/i);
+  assert.match(restoreDrillPlan, /PLANNED \/ NOT YET RUN/);
+  assert.match(restoreDrillPlan, /lrqcntqyekucamifpffs/);
+  assert.match(restoreDrillPlan, /qgrertkqbwanerqqemph/);
+  assert.match(restoreDrillPlan, /must never be/i);
+  assert.match(restoreDrillPlan, /exact price/i);
+  assert.match(restoreDrillPlan, /outbound integrations disabled/i);
+  assert.match(restoreDrillPlan, /SHA-256 checksum/i);
+  assert.match(restoreDrillPlan, /RPO and RTO are measured/i);
+  assert.match(restoreDrillPlan, /restoreDrillVerified` remains `false/);
   assert.match(latestPreflight, /NO-GO/);
   assert.match(latestPreflight, /c3abb18795914b30253c598efd27fb1db0eb3987/);
   assert.match(latestPreflight, /32865396727/);
