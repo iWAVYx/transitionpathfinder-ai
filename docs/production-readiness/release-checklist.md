@@ -19,19 +19,19 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Database
 
 - [x] Production migration history read and content-aware baseline attached;
-      the fresh 2026-08-26 evidence accounts for all 181 rows. Comparison
-      against `586e18e3970471d802a5146260d6a725ce2d9a93` reports exactly three
-      reviewed pending migrations in canonical order.
-- [ ] Baseline regenerated immediately before release and still aligned with
-      zero pending migrations; if not, every pending migration is reviewed in
-      canonical order and lock/uniqueness/RLS/grant risks are signed off.
-- [ ] Staging-only E2E fixture remains explicitly production-forbidden and is
+      the post-window 2026-08-26 evidence accounts for all 184 rows and reports
+      zero unresolved or pending migrations against
+      `9a4bbb979118abb05d34da79dd44c8db8a76d2e3`.
+- [x] Baseline regenerated immediately before the maintenance window, its exact
+      three-file delta was applied in reviewed order, and the final baseline is
+      aligned with zero pending migrations.
+- [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
-- [ ] Lovable Cloud backup/export recovery point recorded and an isolated restore
-      drill passed; inventorying daily backups alone is not a restore test.
+- [x] Lovable Cloud backup recovery point was recorded and the isolated export
+      restore drill passed; both are linked from the migration-window evidence.
 - [ ] Maintenance and abort owners are present.
-- [ ] Any approved migration applies one file at a time with stop-on-error and
-      records post-file invariants; publish itself never applies migrations.
+- [x] The approved migration applied one file at a time with stop-on-error and
+      recorded post-file invariants; publish did not apply migrations.
 - [ ] Production Vault cron values are provisioned and privileged jobs are
       rescheduled only after the hook-isolation migration verifies them.
 
@@ -55,9 +55,9 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current staging evidence: SHA `c3abb18795914b30253c598efd27fb1db0eb3987`
-passed isolated staging deployment run `32865396727`, all protected push
-workflows, and protected release-readiness run `32902198754` (attempt 1).
+Current staging evidence: SHA `9a4bbb979118abb05d34da79dd44c8db8a76d2e3`
+passed isolated staging deployment run `32925043655`, all protected push
+workflows, and protected release-readiness run `32925847586`.
 These runs do not close the
 production boxes below:
 Lovable's internal build identifier is not a GitHub commit, and the connected

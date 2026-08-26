@@ -41,14 +41,14 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "c3abb18795914b30253c598efd27fb1db0eb3987";
+  const verifiedStagingSha = "9a4bbb979118abb05d34da79dd44c8db8a76d2e3";
 
   assert.equal(audit.schemaVersion, 2);
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 32865396727);
-  assert.equal(audit.staging.releaseReadinessRun, 32902198754);
+  assert.equal(audit.staging.deploymentRun, 32925043655);
+  assert.equal(audit.staging.releaseReadinessRun, 32925847586);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.notEqual(
     audit.production.supabaseProjectRef,
@@ -132,40 +132,65 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     },
   ]);
 
-  const comparison = spawnSync(
+  const preWindowComparison = spawnSync(
     process.execPath,
     [
       "scripts/compare-production-migration-history.mjs",
-      "docs/production-readiness/evidence/production-migration-history-2026-08-26.csv",
+      "docs/production-readiness/evidence/production-migration-history-pre-window-2026-08-26.csv",
       "--json",
     ],
     { encoding: "utf8" },
   );
-  assert.equal(comparison.status, 2, comparison.stderr);
-  const report = JSON.parse(comparison.stdout);
-  assert.equal(report.status, "blocked");
-  assert.deepEqual(report.blockers, ["pending-production-migration"]);
-  assert.equal(report.appliedCount, 181);
-  assert.equal(report.canonicalCount, 191);
-  assert.equal(report.directCoverageCount, 181);
-  assert.equal(report.supersededCount, 6);
-  assert.equal(report.excludedCount, 1);
-  assert.equal(report.pendingCount, 3);
-  assert.deepEqual(report.pending, [
+  assert.equal(preWindowComparison.status, 2, preWindowComparison.stderr);
+  const preWindowReport = JSON.parse(preWindowComparison.stdout);
+  assert.equal(preWindowReport.status, "blocked");
+  assert.deepEqual(preWindowReport.blockers, ["pending-production-migration"]);
+  assert.equal(preWindowReport.appliedCount, 181);
+  assert.equal(preWindowReport.canonicalCount, 191);
+  assert.equal(preWindowReport.directCoverageCount, 181);
+  assert.equal(preWindowReport.supersededCount, 6);
+  assert.equal(preWindowReport.excludedCount, 1);
+  assert.equal(preWindowReport.pendingCount, 3);
+  assert.deepEqual(preWindowReport.pending, [
     "20260821230000_security_remediation_hardening.sql",
     "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql",
     "20260825050000_scope_public_cms_admin_policies.sql",
   ]);
-  assert.equal(audit.migrations.productionHistoryReadAt, "2026-08-26T02:50:51Z");
+
+  const postWindowComparison = spawnSync(
+    process.execPath,
+    [
+      "scripts/compare-production-migration-history.mjs",
+      "docs/production-readiness/evidence/production-migration-history-post-window-2026-08-26.csv",
+      "--json",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(postWindowComparison.status, 0, postWindowComparison.stderr);
+  const postWindowReport = JSON.parse(postWindowComparison.stdout);
+  assert.equal(postWindowReport.status, "aligned");
+  assert.deepEqual(postWindowReport.blockers, []);
+  assert.equal(postWindowReport.appliedCount, 184);
+  assert.equal(postWindowReport.canonicalCount, 191);
+  assert.equal(postWindowReport.directCoverageCount, 184);
+  assert.equal(postWindowReport.supersededCount, 6);
+  assert.equal(postWindowReport.excludedCount, 1);
+  assert.equal(postWindowReport.pendingCount, 0);
+  assert.deepEqual(postWindowReport.pending, []);
+
+  assert.equal(audit.migrations.productionHistoryReadAt, "2026-08-26T03:55:50Z");
   assert.equal(
     audit.migrations.productionHistoryEvidence,
-    "docs/production-readiness/evidence/production-migration-history-2026-08-26.csv",
+    "docs/production-readiness/evidence/production-migration-history-post-window-2026-08-26.csv",
   );
-  assert.equal(audit.migrations.productionHistoryComparedMainSha, "586e18e3970471d802a5146260d6a725ce2d9a93");
-  assert.equal(audit.migrations.productionHistoryAppliedCount, 181);
-  assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260823090553");
-  assert.equal(audit.migrations.pendingProductionCount, 3);
-  assert.equal(audit.production.migrationBaselineVerified, false);
+  assert.equal(
+    audit.migrations.productionHistoryComparedMainSha,
+    "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
+  );
+  assert.equal(audit.migrations.productionHistoryAppliedCount, 184);
+  assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260825050000");
+  assert.equal(audit.migrations.pendingProductionCount, 0);
+  assert.equal(audit.production.migrationBaselineVerified, true);
 });
 
 test("tracked environment files contain only reviewed public variables", () => {

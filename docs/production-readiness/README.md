@@ -40,6 +40,9 @@ Documents:
 - `restore-drill-evidence-2026-08-26.md` — completed isolated database restore,
   measured RPO/RTO, aggregate recovery checks, access-control smoke tests, and
   the local three-migration rehearsal.
+- `production-migration-window-2026-08-26.md` — authorized production database
+  window, recovery point, exact three-file application, post-file invariants,
+  and final zero-pending content-aware baseline.
 - `staging-credential-containment-2026-08-23.md` — synthetic staging credential
   containment, rotation evidence, and the password-form native fallback fix.
 - `production-migration-baseline-2026-08-17.md` — prior historical baseline.
