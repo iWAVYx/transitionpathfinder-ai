@@ -35,6 +35,12 @@
   },
   "migrations": {
     "canonicalCount": 191,
-    "latestCanonicalFile": "20260825050000_scope_public_cms_admin_policies.sql"
+    "latestCanonicalFile": "20260825050000_scope_public_cms_admin_policies.sql",
+    "productionHistoryReadAt": "2026-08-26T02:50:51Z",
+    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-08-26.csv",
+    "productionHistoryComparedMainSha": "586e18e3970471d802a5146260d6a725ce2d9a93",
+    "productionHistoryAppliedCount": 181,
+    "productionHistoryLatestAppliedVersion": "20260823090553",
+    "pendingProductionCount": 3
   }
 }

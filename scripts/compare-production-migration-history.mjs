@@ -18,7 +18,7 @@ function normalizeExecutableSql(value) {
   return value.replace(/--[^\n\r]*/g, "").replace(/\s+/g, "");
 }
 
-function parseCsvLine(line) {
+function parseCsvLine(line, delimiter = ",") {
   const fields = [];
   let field = "";
   let quoted = false;
@@ -31,7 +31,7 @@ function parseCsvLine(line) {
       } else {
         quoted = !quoted;
       }
-    } else if (character === "," && !quoted) {
+    } else if (character === delimiter && !quoted) {
       fields.push(field);
       field = "";
     } else {
@@ -80,11 +80,12 @@ export function parseMigrationHistory(source) {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
-  const headers = parseCsvLine(lines[0]).map((header) => header.toLowerCase());
+  const delimiter = lines[0].includes(";") ? ";" : ",";
+  const headers = parseCsvLine(lines[0], delimiter).map((header) => header.toLowerCase());
   if (!headers.includes("version")) return lines.map(normalizeHistoryRow);
 
   return lines.slice(1).map((line) => {
-    const values = parseCsvLine(line);
+    const values = parseCsvLine(line, delimiter);
     return normalizeHistoryRow(
       Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])),
     );

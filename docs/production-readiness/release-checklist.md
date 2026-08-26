@@ -19,9 +19,9 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Database
 
 - [x] Production migration history read and content-aware baseline attached;
-      the 2026-08-23 evidence accounts for all 181 rows. Re-comparison against
-      `c3abb18795914b30253c598efd27fb1db0eb3987` reports exactly three reviewed
-      pending migrations in canonical order.
+      the fresh 2026-08-26 evidence accounts for all 181 rows. Comparison
+      against `586e18e3970471d802a5146260d6a725ce2d9a93` reports exactly three
+      reviewed pending migrations in canonical order.
 - [ ] Baseline regenerated immediately before release and still aligned with
       zero pending migrations; if not, every pending migration is reviewed in
       canonical order and lock/uniqueness/RLS/grant risks are signed off.
