@@ -25,9 +25,12 @@ restore was performed while collecting this evidence.
   not record restore start/end times. An in-place production restore is not an
   acceptable drill.
 - Lovable exposes **Cloud → Overview → Advanced settings → Export data** for a
-  downloadable database dump. The control was visible and enabled during the
-  2026-08-25 inspection. **Export data was not selected**, no dump was created or
-  downloaded, and no restore was started.
+  downloadable database dump. One export was started on 2026-08-25 and Lovable
+  created `database_export_26_08_26/transitionpathfinder-ai_260826.backup`.
+  The file is 17,820,860 bytes (17.0 MB in the dashboard) with SHA-256
+  `2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819`.
+  It was downloaded to the local operator account, not opened, and never placed
+  in the repository or CI. No restore was started.
 - Support said the built-in in-place backup restore has no additional cost. That
   statement does not establish that a separate isolated restore target is free.
 - A Lovable Support request with subject
@@ -62,9 +65,10 @@ attached:
    objects, or an explicit recovery plan for any excluded component.
 
 The controlled compensating procedure and cost gate are in
-`isolated-restore-drill-plan-2026-08-25.md`. No target may be created and no
-export may be generated until its expected cost and sensitive-data handling are
-accepted. Production and existing staging must remain untouched.
+`isolated-restore-drill-plan-2026-08-25.md`; the export record is in
+`export-evidence-2026-08-25.md`. No restore target may be created until its
+expected cost and sensitive-data handling are accepted. Production and existing
+staging must remain untouched.
 
 The pending production migrations
 `20260821230000_security_remediation_hardening.sql` and

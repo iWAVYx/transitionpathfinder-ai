@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "auditedAt": "2026-08-25",
+  "auditedAt": "2026-08-26",
   "auditedMainSha": "c3abb18795914b30253c598efd27fb1db0eb3987",
   "status": "no-go",
   "staging": {
@@ -27,7 +27,7 @@
     "exactDeploymentIdentityVerified": false,
     "hostingControlPlaneVerified": false,
     "backupInventoryVerified": true,
-    "restoreDrillVerified": false,
+    "restoreDrillVerified": true,
     "stripeLiveReadinessVerified": false,
     "secretIsolationVerified": false,
     "securityFindingsClosed": false,

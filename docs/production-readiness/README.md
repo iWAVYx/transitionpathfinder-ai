@@ -35,6 +35,11 @@ Documents:
   isolated restore drill.
 - `isolated-restore-drill-plan-2026-08-25.md` — fail-closed Data Export restore
   procedure, target-isolation rules, cost gate, timing, and pass criteria.
+- `export-evidence-2026-08-25.md` — completed Lovable export filename, size,
+  checksum, target capacity, and handoff into the isolated local drill.
+- `restore-drill-evidence-2026-08-26.md` — completed isolated database restore,
+  measured RPO/RTO, aggregate recovery checks, access-control smoke tests, and
+  the local three-migration rehearsal.
 - `staging-credential-containment-2026-08-23.md` — synthetic staging credential
   containment, rotation evidence, and the password-form native fallback fix.
 - `production-migration-baseline-2026-08-17.md` — prior historical baseline.
