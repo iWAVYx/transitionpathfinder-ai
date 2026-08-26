@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
   "auditedAt": "2026-08-26",
-  "auditedMainSha": "c3abb18795914b30253c598efd27fb1db0eb3987",
+  "auditedMainSha": "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
     "workerOrigin": "https://transitionforward-staging.caysi101.workers.dev",
     "stripeMode": "sandbox",
-    "exactDeploymentSha": "c3abb18795914b30253c598efd27fb1db0eb3987",
-    "deploymentRun": 32865396727,
-    "releaseReadinessRun": 32902198754,
+    "exactDeploymentSha": "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
+    "deploymentRun": 32925043655,
+    "releaseReadinessRun": 32925847586,
     "releaseReadinessAttempt": 1,
     "releaseReadinessVerified": true
   },
@@ -23,7 +23,7 @@
     "cloudflareWorkerDeploymentAuthorized": false,
     "githubEnvironmentProvisioned": true,
     "releaseProcedureDocumented": true,
-    "migrationBaselineVerified": false,
+    "migrationBaselineVerified": true,
     "exactDeploymentIdentityVerified": false,
     "hostingControlPlaneVerified": false,
     "backupInventoryVerified": true,
@@ -36,11 +36,11 @@
   "migrations": {
     "canonicalCount": 191,
     "latestCanonicalFile": "20260825050000_scope_public_cms_admin_policies.sql",
-    "productionHistoryReadAt": "2026-08-26T02:50:51Z",
-    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-08-26.csv",
-    "productionHistoryComparedMainSha": "586e18e3970471d802a5146260d6a725ce2d9a93",
-    "productionHistoryAppliedCount": 181,
-    "productionHistoryLatestAppliedVersion": "20260823090553",
-    "pendingProductionCount": 3
+    "productionHistoryReadAt": "2026-08-26T03:55:50Z",
+    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-post-window-2026-08-26.csv",
+    "productionHistoryComparedMainSha": "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
+    "productionHistoryAppliedCount": 184,
+    "productionHistoryLatestAppliedVersion": "20260825050000",
+    "pendingProductionCount": 0
   }
 }
