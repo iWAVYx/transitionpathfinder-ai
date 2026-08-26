@@ -712,6 +712,9 @@ test("production identity fails closed and operator documents are complete", () 
   const restoreDrillPlan = read(
     "docs/production-readiness/isolated-restore-drill-plan-2026-08-25.md",
   );
+  const exportEvidence = read(
+    "docs/production-readiness/export-evidence-2026-08-25.md",
+  );
   const latestPreflight = read("docs/production-readiness/preflight-2026-08-25.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
@@ -732,7 +735,8 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(recoveryGate, /site-media/);
   assert.match(recoveryGate, /channel-attachments/);
   assert.match(recoveryGate, /0\.0 KB for 0 files/i);
-  assert.match(recoveryGate, /Export data was not selected/i);
+  assert.match(recoveryGate, /17,820,860 bytes/i);
+  assert.match(recoveryGate, /2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819/);
   assert.match(restoreDrillPlan, /PLANNED \/ NOT YET RUN/);
   assert.match(restoreDrillPlan, /lrqcntqyekucamifpffs/);
   assert.match(restoreDrillPlan, /qgrertkqbwanerqqemph/);
@@ -742,6 +746,19 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(restoreDrillPlan, /SHA-256 checksum/i);
   assert.match(restoreDrillPlan, /RPO and RTO are measured/i);
   assert.match(restoreDrillPlan, /restoreDrillVerified` remains `false/);
+  assert.match(restoreDrillPlan, /cyhclwpkjnzaelwkzgly/);
+  assert.match(restoreDrillPlan, /both active project slots in use/i);
+  assert.match(restoreDrillPlan, /No paid project or software installation is authorized/i);
+  assert.match(exportEvidence, /EXPORT COMPLETE \/ RESTORE NOT STARTED/);
+  assert.match(exportEvidence, /transitionpathfinder-ai_260826\.backup/);
+  assert.match(exportEvidence, /17,820,860 bytes/);
+  assert.match(
+    exportEvidence,
+    /2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819/,
+  );
+  assert.match(exportEvidence, /contents were not opened, parsed, printed, indexed, uploaded/i);
+  assert.match(exportEvidence, /no free hosted target is currently available/i);
+  assert.match(exportEvidence, /production\.restoreDrillVerified=false/);
   assert.match(latestPreflight, /NO-GO/);
   assert.match(latestPreflight, /c3abb18795914b30253c598efd27fb1db0eb3987/);
   assert.match(latestPreflight, /32865396727/);
