@@ -1,6 +1,7 @@
 # Lovable database export evidence — 2026-08-25
 
-Status: **EXPORT COMPLETE / RESTORE NOT STARTED**. Production remains **NO-GO**.
+Status: **EXPORT COMPLETE / ISOLATED RESTORE PASSED**. Production remains
+**NO-GO**.
 
 ## Export record
 
@@ -18,10 +19,13 @@ Status: **EXPORT COMPLETE / RESTORE NOT STARTED**. Production remains **NO-GO**.
 - SHA-256:
   `2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819`.
 
-The file was downloaded to the local operator account solely for size and hash
-verification. Its contents were not opened, parsed, printed, indexed, uploaded,
-or copied into the repository, GitHub, CI, Cloudflare, staging, or a new project.
-The dump itself is not evidence attached to this PR and must never be committed.
+The file was downloaded to the local operator account, verified by size and
+hash, and later consumed only by the isolated local restore documented in
+`restore-drill-evidence-2026-08-26.md`. PostgreSQL parsed its catalog and restored
+its schema and data locally; no row contents, credentials, or tokens were
+printed. The dump was not uploaded or copied into the repository, GitHub, CI,
+Cloudflare, staging, or a hosted project. The dump itself is not evidence
+attached to this PR and must never be committed.
 
 ## Target-capacity evidence
 
@@ -36,18 +40,20 @@ describes the existing Supabase organization; it does not prove that the Lovable
 dump will restore below 500 MB. Compressed export size also does not prove the
 restored database size.
 
-Read-only local checks found no Docker, Supabase CLI, or `psql` command on PATH.
-Therefore:
+The owner authorized installation of local restore tooling. Docker Desktop,
+WSL 2, and a pinned Supabase CLI were installed and verified, and the restored
+database measured 543,632,531 bytes. Therefore:
 
 - neither existing Supabase project may be repurposed;
 - no free hosted target is currently available;
-- no local restore can begin until compatible tooling is installed;
+- the 500 MB free hosted target would not fit this restored database;
+- the isolated local $0 restore route was selected and completed;
 - no paid target may be created until its exact price is disclosed and approved.
 
 ## Gate effect
 
-This closes export generation and integrity-recording steps only. It does not
-prove that the dump restores, does not establish RPO/RTO, and does not change
-`production.restoreDrillVerified=false`. No production or staging database,
-Lovable publish, deployment, migration, DNS, secrets, or payment configuration
-was changed.
+This export supplied the recovery point for the completed isolated drill. The
+restore, RPO/RTO, aggregate integrity checks, and migration rehearsal are
+recorded in `restore-drill-evidence-2026-08-26.md`. No production or staging
+database, Lovable publish, deployment, migration, DNS, secrets, or payment
+configuration was changed.

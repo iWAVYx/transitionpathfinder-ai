@@ -56,11 +56,17 @@ fixture.
 
 ## Recovery and rollback gate
 
-The isolated restore drill remains unverified. Backup inventory and a support
-request do not prove that database schema/data, Auth users, and Storage objects
-can be restored within an acceptable RPO/RTO. Production migration remains
-unauthorized until the drill and recovery evidence in
-`recovery-gate-2026-08-23.md` pass.
+The isolated database restore drill passed on 2026-08-26. The Lovable export
+restored into a database-only local PostgreSQL 17.6 target; schema/data, 46 Auth
+users, migration history, RLS/grants, representative queries, and
+cross-organization denial were verified without displaying record contents.
+The exact three-file pending delta also applied cleanly to the recovered clone.
+Measured RPO/RTO and fail-closed diagnostics are in
+`restore-drill-evidence-2026-08-26.md`.
+
+Production migration remains unauthorized until this evidence is reviewed and
+merged, the SELECT-only production history is freshly re-read, the exact delta
+is unchanged, and the owner separately approves the maintenance window.
 
 Database recovery and application rollback remain separate decisions. Use a
 reviewed forward correction for a safely recoverable schema defect; use the
@@ -88,8 +94,8 @@ staging credential names.
 
 ## Remaining authorization gates
 
-1. Complete the isolated backup/restore drill and record recovery coverage,
-   recovery point, RPO, RTO, smoke tests, and operators.
+1. Review and merge the isolated restore evidence; retain or separately approve
+   teardown of the sensitive local target and archive.
 2. Resolve the Lovable hosted-build/control-plane status and prove the exact
    candidate maps to a successful connected build.
 3. Re-read production migration history, confirm the exact three-file delta,

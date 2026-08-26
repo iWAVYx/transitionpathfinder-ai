@@ -1,6 +1,8 @@
 # Isolated Lovable recovery drill plan — 2026-08-25
 
-Status: **PLANNED / NOT YET RUN**. Production remains **NO-GO**.
+Status: **COMPLETED / DATABASE RESTORE PASSED 2026-08-26**. Production remains
+**NO-GO**. Redacted execution evidence is in
+`restore-drill-evidence-2026-08-26.md`.
 
 This document converts Lovable Support's 2026-08-25 response and the signed-in
 read-only dashboard inspection into a safe recovery drill. It does not authorize
@@ -25,7 +27,8 @@ new paid project, or deletion.
   production database. It is therefore prohibited as a rehearsal.
 - Lovable's **Export data** control created one 17,820,860-byte database dump on
   2026-08-25. Its filename and SHA-256 are recorded in
-  `export-evidence-2026-08-25.md`. The dump was not opened or committed.
+  `export-evidence-2026-08-25.md`. It was later parsed and restored only in the
+  isolated local drill and was never committed.
 - Lovable does not record restore start/end times; the operator must time the
   drill manually.
 
@@ -78,21 +81,25 @@ used as the restore target. A third hosted project is therefore not a confirmed
 $0 option. The local operator machine also did not expose Docker, Supabase CLI,
 or `psql` on its PATH during the 2026-08-25 check.
 
-The next owner decision is limited to either installing the local restore tools
-for the $0 local drill or approving the disclosed price for one new temporary
-hosted target. No paid project or software installation is authorized here.
+The owner selected and authorized the $0 local route. The operator installed
+WSL 2, Docker Desktop, and pinned Supabase CLI v2.115.0, then restored into a
+database-only local Docker target. The restored database measured 543,632,531
+bytes, confirming it exceeded the documented 500 MB free hosted allowance. No
+paid target was created.
 
 ## Drill progress
 
 - [x] Latest backup inventory and the three zero-object Storage buckets recorded.
-- [x] One Lovable Data Export generated and downloaded without opening it.
+- [x] One Lovable Data Export generated and downloaded; it remained unopened
+  until the isolated local restore.
 - [x] Export byte size and SHA-256 recorded without committing the dump.
 - [x] Current free hosted-project capacity and local-tool availability checked.
-- [ ] New isolated target selected and its exact cost approved.
-- [ ] Outbound integrations disabled on the isolated target.
-- [ ] Dump restored and RTO measured.
-- [ ] Schema, migration, Auth, RLS/grant, and smoke checks passed.
-- [ ] Redacted results reviewed and teardown separately approved.
+- [x] New isolated local target selected at $0 cloud cost.
+- [x] Database-only target used with no outbound integrations attached.
+- [x] Dump restored and RTO measured.
+- [x] Schema, migration, Auth, RLS/grant, and smoke checks passed.
+- [x] Redacted results attached to draft PR #64 for review.
+- [ ] Teardown separately approved.
 
 Official references:
 
@@ -144,5 +151,8 @@ The drill passes only when:
 - no production or staging state changed and no outbound side effect occurred;
 - redacted evidence is attached to a reviewed PR.
 
-Until then, `production.restoreDrillVerified` remains `false`, the three pending
-production migrations remain unauthorized, and production remains **NO-GO**.
+The execution evidence proposes `production.restoreDrillVerified=true` in draft
+PR #64. The three pending production migrations remain unauthorized until that
+evidence is reviewed and merged, the production baseline is freshly re-read,
+and the owner separately approves a maintenance window. Production remains
+**NO-GO**.

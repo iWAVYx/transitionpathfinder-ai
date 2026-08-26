@@ -715,6 +715,9 @@ test("production identity fails closed and operator documents are complete", () 
   const exportEvidence = read(
     "docs/production-readiness/export-evidence-2026-08-25.md",
   );
+  const restoreEvidence = read(
+    "docs/production-readiness/restore-drill-evidence-2026-08-26.md",
+  );
   const latestPreflight = read("docs/production-readiness/preflight-2026-08-25.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
@@ -737,7 +740,7 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(recoveryGate, /0\.0 KB for 0 files/i);
   assert.match(recoveryGate, /17,820,860 bytes/i);
   assert.match(recoveryGate, /2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819/);
-  assert.match(restoreDrillPlan, /PLANNED \/ NOT YET RUN/);
+  assert.match(restoreDrillPlan, /COMPLETED \/ DATABASE RESTORE PASSED 2026-08-26/);
   assert.match(restoreDrillPlan, /lrqcntqyekucamifpffs/);
   assert.match(restoreDrillPlan, /qgrertkqbwanerqqemph/);
   assert.match(restoreDrillPlan, /must never be/i);
@@ -745,20 +748,35 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(restoreDrillPlan, /outbound integrations disabled/i);
   assert.match(restoreDrillPlan, /SHA-256 checksum/i);
   assert.match(restoreDrillPlan, /RPO and RTO are measured/i);
-  assert.match(restoreDrillPlan, /restoreDrillVerified` remains `false/);
+  assert.match(restoreDrillPlan, /restoreDrillVerified=true/);
   assert.match(restoreDrillPlan, /cyhclwpkjnzaelwkzgly/);
   assert.match(restoreDrillPlan, /both active project slots in use/i);
-  assert.match(restoreDrillPlan, /No paid project or software installation is authorized/i);
-  assert.match(exportEvidence, /EXPORT COMPLETE \/ RESTORE NOT STARTED/);
+  assert.match(restoreDrillPlan, /No\s+paid target was created/i);
+  assert.match(exportEvidence, /EXPORT COMPLETE \/ ISOLATED RESTORE PASSED/);
   assert.match(exportEvidence, /transitionpathfinder-ai_260826\.backup/);
   assert.match(exportEvidence, /17,820,860 bytes/);
   assert.match(
     exportEvidence,
     /2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819/,
   );
-  assert.match(exportEvidence, /contents were not opened, parsed, printed, indexed, uploaded/i);
+  assert.match(exportEvidence, /consumed only by the isolated local restore/i);
+  assert.match(exportEvidence, /no row contents, credentials, or tokens were\s+printed/i);
   assert.match(exportEvidence, /no free hosted target is currently available/i);
-  assert.match(exportEvidence, /production\.restoreDrillVerified=false/);
+  assert.match(exportEvidence, /543,632,531 bytes/);
+  assert.match(restoreEvidence, /DATABASE RESTORE DRILL PASSED/);
+  assert.match(restoreEvidence, /23 minutes 51\.487 seconds/);
+  assert.match(restoreEvidence, /1 hour 3 minutes 33\.271 seconds/);
+  assert.match(restoreEvidence, /3,110\s+catalog entries/);
+  assert.match(restoreEvidence, /all 167 had RLS enabled/i);
+  assert.match(restoreEvidence, /46 authentication users/i);
+  assert.match(restoreEvidence, /cross-organization denial checks still passed/i);
+  assert.match(restoreEvidence, /20260821230000_security_remediation_hardening\.sql/);
+  assert.match(
+    restoreEvidence,
+    /20260825041500_restore_admin_helper_grants_and_public_cms_reads\.sql/,
+  );
+  assert.match(restoreEvidence, /20260825050000_scope_public_cms_admin_policies\.sql/);
+  assert.match(restoreEvidence, /Production remains \*\*NO-GO\*\*/);
   assert.match(latestPreflight, /NO-GO/);
   assert.match(latestPreflight, /c3abb18795914b30253c598efd27fb1db0eb3987/);
   assert.match(latestPreflight, /32865396727/);
@@ -771,7 +789,7 @@ test("production identity fails closed and operator documents are complete", () 
   );
   assert.match(latestPreflight, /20260825050000_scope_public_cms_admin_policies\.sql/);
   assert.match(latestPreflight, /did not[\s\S]*modify production data or schema/i);
-  assert.equal(audit.production.restoreDrillVerified, false);
+  assert.equal(audit.production.restoreDrillVerified, true);
   assert.match(migrationPlan, /restore drill/i);
   assert.match(migrationPlan, /forward-only/i);
   assert.match(migrationPlan, /lrqcntqyekucamifpffs/);
