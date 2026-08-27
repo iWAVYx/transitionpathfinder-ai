@@ -465,11 +465,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' node scripts\/build-app\.mjs/,
+    /--max-semi-space-size=2 --max-old-space-size=1280 --expose-gc' node scripts\/build-app\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' node scripts\/build-app\.mjs --mode development/,
+    /--max-semi-space-size=2 --max-old-space-size=1280 --expose-gc' node scripts\/build-app\.mjs --mode development/,
   );
   assert.match(buildApp, /spawn\(process\.execPath/);
   assert.match(buildApp, /VITE_APP_BUILD_TIME:\s*buildTime/);
