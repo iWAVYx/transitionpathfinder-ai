@@ -22,6 +22,8 @@ Documents:
   Cloudflare domain/protection boundary.
 - `lovable-build-trigger-2026-08-24.md` — documentation-only connected-build
   trigger scope and exact-SHA post-merge acceptance requirements.
+- `staging-acceptance-2026-08-28.md` — current exact-SHA isolated-staging
+  deployment, protected workflow, and consolidated browser-suite evidence.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
