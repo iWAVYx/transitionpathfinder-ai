@@ -6,6 +6,7 @@ import {
   isStagingHostname,
   projectRefFrom,
   resolveDeploymentEnvLabels,
+  resolveDeploymentStripeMode,
   stripeModeFromToken,
 } from "@/lib/env-identity";
 
@@ -85,6 +86,30 @@ describe("staging deployment identity", () => {
         buildViteAppEnv: "staging",
       }),
     ).toEqual({ appEnv: "production", viteAppEnv: "production" });
+  });
+
+  it("uses the public build payment token only when runtime bindings are unavailable", () => {
+    expect(
+      resolveDeploymentStripeMode({
+        buildVitePaymentsClientToken: "pk_live_build",
+      }),
+    ).toBe("live");
+
+    expect(
+      resolveDeploymentStripeMode({
+        runtimeVitePaymentsClientToken: "pk_test_runtime",
+        buildVitePaymentsClientToken: "pk_live_build",
+      }),
+    ).toBe("sandbox");
+  });
+
+  it("fails closed when an explicit runtime payment token is malformed", () => {
+    expect(
+      resolveDeploymentStripeMode({
+        runtimeVitePaymentsClientToken: "malformed",
+        buildVitePaymentsClientToken: "pk_live_build",
+      }),
+    ).toBe("unknown");
   });
 
   it("fails on a production hostname", () => {

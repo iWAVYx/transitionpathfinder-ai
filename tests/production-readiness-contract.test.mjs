@@ -733,6 +733,12 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(identity, /exact 40-character Git commit SHA/);
   assert.match(health, /FORBIDDEN_IN_PRODUCTION/);
   assert.match(health, /is_production_target/);
+  assert.match(health, /buildViteAppEnv: import\.meta\.env\.VITE_APP_ENV/);
+  assert.match(
+    health,
+    /buildVitePaymentsClientToken: import\.meta\.env\.VITE_PAYMENTS_CLIENT_TOKEN/,
+  );
+  assert.doesNotMatch(health, /import\.meta\.env\["VITE_(APP_ENV|PAYMENTS_CLIENT_TOKEN)"\]/);
   assert.match(
     health,
     /process\.env\["GIT_COMMIT_SHA"\][\s\S]*?import\.meta\.env\["VITE_APP_BUILD_SHA"\]/,
