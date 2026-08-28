@@ -97,6 +97,23 @@ export function resolveDeploymentEnvLabels(input: DeploymentEnvSources): {
   };
 }
 
+export interface DeploymentStripeSources {
+  runtimeVitePaymentsClientToken?: string | null;
+  runtimePaymentsClientToken?: string | null;
+  runtimeStripeSandboxApiKey?: string | null;
+  buildVitePaymentsClientToken?: string | null;
+}
+
+/** Runtime bindings win; the reviewed public build token is a server-bundle fallback. */
+export function resolveDeploymentStripeMode(input: DeploymentStripeSources): StripeMode {
+  return stripeModeFromToken(
+    input.runtimeVitePaymentsClientToken ??
+      input.runtimePaymentsClientToken ??
+      input.runtimeStripeSandboxApiKey ??
+      input.buildVitePaymentsClientToken,
+  );
+}
+
 export interface IdentityVerdict {
   ok: boolean;
   errors: string[];

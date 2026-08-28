@@ -18,7 +18,7 @@ import {
   isStagingHostname,
   projectRefFrom,
   resolveDeploymentEnvLabels,
-  stripeModeFromToken,
+  resolveDeploymentStripeMode,
 } from "@/lib/env-identity";
 
 /** Production-only variables that must not exist in the staging Worker. */
@@ -41,14 +41,19 @@ export const Route = createFileRoute("/api/public/env-health")({
           runtimeAppEnv: process.env["APP_ENV"],
           runtimeViteAppEnv: process.env["VITE_APP_ENV"],
           buildAppEnv: import.meta.env["APP_ENV"] as string | undefined,
-          buildViteAppEnv: import.meta.env["VITE_APP_ENV"] as string | undefined,
+          // Vite's build-time define replacement requires static property access.
+          buildViteAppEnv: import.meta.env.VITE_APP_ENV as string | undefined,
         });
         const supabase_project_ref = projectRefFrom(process.env["SUPABASE_URL"]);
-        const stripe_mode = stripeModeFromToken(
-          process.env["VITE_PAYMENTS_CLIENT_TOKEN"] ??
-            process.env["PAYMENTS_CLIENT_TOKEN"] ??
-            process.env["STRIPE_SANDBOX_API_KEY"],
-        );
+        const stripe_mode = resolveDeploymentStripeMode({
+          runtimeVitePaymentsClientToken: process.env["VITE_PAYMENTS_CLIENT_TOKEN"],
+          runtimePaymentsClientToken: process.env["PAYMENTS_CLIENT_TOKEN"],
+          runtimeStripeSandboxApiKey: process.env["STRIPE_SANDBOX_API_KEY"],
+          // This VITE_* token is the same public publishable token bundled for checkout.
+          buildVitePaymentsClientToken: import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as
+            | string
+            | undefined,
+        });
         const git_commit_sha =
           process.env["GIT_COMMIT_SHA"] ??
           process.env["CF_PAGES_COMMIT_SHA"] ??
