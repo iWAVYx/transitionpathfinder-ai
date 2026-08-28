@@ -55,9 +55,9 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current staging evidence: SHA `9a4bbb979118abb05d34da79dd44c8db8a76d2e3`
-passed isolated staging deployment run `32925043655`, all protected push
-workflows, and protected release-readiness run `32925847586`.
+Current staging evidence: SHA `eb9fc5d4d065159ec01713dac2e936b2a005454f`
+passed isolated staging deployment run `33144143505`, all protected push
+workflows, and protected release-readiness run `33147001032`.
 These runs do not close the
 production boxes below:
 Lovable's internal build identifier is not a GitHub commit, and the connected
