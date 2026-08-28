@@ -459,44 +459,17 @@ test("hosted Worker builds omit unused email formatting dependencies", () => {
 test("hosted builds stay within Lovable memory limits without duplicate PWA work", () => {
   const packageJson = read("package.json");
   const viteConfig = read("vite.config.ts");
-  const buildApp = read("scripts/build-app.mjs");
-  const buildEnvironment = read("scripts/build-environment.mjs");
   const buildSha = read("scripts/resolve-build-sha.mjs");
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=2 --max-old-space-size=1280 --expose-gc' node scripts\/build-app\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=2 --max-old-space-size=1280 --expose-gc' node scripts\/build-app\.mjs --mode development/,
+    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
-  assert.match(buildApp, /spawn\(process\.execPath/);
-  assert.match(buildApp, /VITE_APP_BUILD_TIME:\s*buildTime/);
-  assert.match(buildApp, /createBuilder/);
-  assert.match(buildApp, /plugins:\s*\[splitHeavyBuildEnvironmentsPlugin\]/);
-  assert.match(buildApp, /runNodeScript\(environmentBuilder, \["client", mode\]\)/);
-  assert.match(buildApp, /client\.isBuilt\s*=\s*true/);
-  assert.match(buildApp, /runNodeScript\(environmentBuilder, \["ssr", mode\]\)/);
-  assert.match(buildApp, /ssr\.isBuilt\s*=\s*true/);
-  assert.match(buildApp, /builder\.buildApp\(\)/);
-  assert.match(buildApp, /builder\.environments\.client\?\.config\.build\.outDir/);
-  assert.match(buildApp, /runNodeScript\(serviceWorkerBuilder, \[clientOutputDirectory\]\)/);
-  assert.match(buildApp, /generate-service-worker\.mjs/);
-  assert.match(buildEnvironment, /createBuilder/);
-  assert.match(buildEnvironment, /builder\.build\(environment\)/);
-  assert.match(buildEnvironment, /plugins:\s*environmentName === "ssr"/);
-  assert.match(buildEnvironment, /transitionforward:split-client-virtual-modules/);
-  assert.match(buildEnvironment, /tanstack-start-manifest:v/);
-  assert.match(buildEnvironment, /readCapturedVirtualModule\(startManifestFile, startManifestId\)/);
-  assert.match(buildEnvironment, /#tanstack-start-server-fn-resolver/);
-  assert.match(
-    buildEnvironment,
-    /readCapturedVirtualModule\(serverFnResolverFile, serverFnResolverId\)/,
-  );
-  assert.match(buildEnvironment, /tanstack-start:start-manifest-plugin/);
-  assert.match(buildEnvironment, /tanstack-start-core:server-fn-resolver/);
-  assert.match(buildEnvironment, /moduleSource\.length < 1_000/);
+  assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
   assert.match(viteConfig, /maxParallelFileOps:\s*2/);
