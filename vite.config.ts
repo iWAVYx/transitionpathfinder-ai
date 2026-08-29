@@ -7,8 +7,27 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import type { Plugin } from "vite";
+import { loadEnv, type Plugin } from "vite";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
+
+const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
+
+function resolveRequestedViteMode() {
+  const childMode = process.env[CHILD_BUILD_MODE_ENV];
+  if (childMode) return childMode;
+
+  const requestedModeIndex = process.argv.indexOf("--mode");
+  const requestedMode =
+    requestedModeIndex >= 0 ? process.argv[requestedModeIndex + 1] : undefined;
+  if (requestedModeIndex >= 0 && (!requestedMode || requestedMode.startsWith("--"))) {
+    throw new Error("--mode requires a value");
+  }
+  if (requestedMode) return requestedMode;
+
+  return process.argv.some((argument) => argument === "dev" || argument === "serve")
+    ? "development"
+    : "production";
+}
 
 function buildEnvironmentGarbageCollector(): Plugin {
   return {
@@ -29,11 +48,7 @@ function buildEnvironmentGarbageCollector(): Plugin {
 function splitLovableBuildEnvironments(): Plugin {
   const isLovableSandbox =
     process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
-  const requestedModeIndex = process.argv.indexOf("--mode");
-  const requestedMode = requestedModeIndex >= 0 ? process.argv[requestedModeIndex + 1] : "production";
-  if (!requestedMode || requestedMode.startsWith("--")) {
-    throw new Error("--mode requires a value");
-  }
+  const requestedMode = resolveRequestedViteMode();
   const environmentBuilder = fileURLToPath(
     new URL("./scripts/build-environment.mjs", import.meta.url),
   );
@@ -43,6 +58,7 @@ function splitLovableBuildEnvironments(): Plugin {
       const child = spawn(process.execPath, [environmentBuilder, environmentName, requestedMode], {
         env: {
           ...process.env,
+          [CHILD_BUILD_MODE_ENV]: requestedMode,
           VITE_APP_BUILD_TIME: appBuildTime,
         },
         stdio: "inherit",
@@ -136,6 +152,11 @@ const appBuildSha = resolveBuildSha();
 
 const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString();
 const appEnv = process.env.APP_ENV ?? "";
+const requestedViteMode = resolveRequestedViteMode();
+const publicBuildEnv = loadEnv(requestedViteMode, process.cwd(), "VITE_");
+const viteAppEnv = process.env.VITE_APP_ENV ?? publicBuildEnv.VITE_APP_ENV ?? "";
+const paymentsClientToken =
+  process.env.VITE_PAYMENTS_CLIENT_TOKEN ?? publicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN ?? "";
 
 export default defineConfig({
   tanstackStart: {
@@ -158,6 +179,11 @@ export default defineConfig({
     },
     define: {
       "import.meta.env.APP_ENV": JSON.stringify(appEnv),
+      // Lovable's production publisher retains explicit user defines in the
+      // Nitro server bundle. Keep these reviewed public build values explicit
+      // so the live identity endpoint sees the same mode as the browser app.
+      "import.meta.env.VITE_APP_ENV": JSON.stringify(viteAppEnv),
+      "import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN": JSON.stringify(paymentsClientToken),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
