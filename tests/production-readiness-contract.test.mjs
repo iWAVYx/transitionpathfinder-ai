@@ -501,7 +501,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverAuthenticatedRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -516,7 +516,7 @@ test("build verification has a credential-free exact-main recovery trigger", () 
   assert.doesNotMatch(workflow, /secrets\./);
 });
 
-test("SSR stubs only the authenticated client-only route subtree", () => {
+test("SSR stubs only the explicitly client-only route groups", () => {
   const viteConfig = read("vite.config.ts");
   const authenticatedRoute = read("src/routes/_authenticated.tsx");
 
@@ -524,21 +524,31 @@ test("SSR stubs only the authenticated client-only route subtree", () => {
     authenticatedRoute,
     /createFileRoute\(["']\/_authenticated["']\)[\s\S]*?ssr:\s*false/,
   );
-  assert.match(viteConfig, /function serverAuthenticatedRouteStubs\(\): Plugin/);
+  assert.match(viteConfig, /function serverClientOnlyRouteStubs\(\): Plugin/);
   assert.match(
     viteConfig,
     /applyToEnvironment:\s*\(environment\)\s*=>\s*environment\.name\s*!==\s*["']client["']/,
   );
   assert.match(viteConfig, /normalizedId\.endsWith\(["']\/src\/routes\/_authenticated\.tsx["']\)/);
   assert.match(viteConfig, /normalizedId\.includes\(["']\/src\/routes\/_authenticated\/["']\)/);
+  assert.match(viteConfig, /normalizedId\.endsWith\(["']\/src\/routes\/demo\.tsx["']\)/);
+  assert.match(viteConfig, /normalizedId\.includes\(["']\/src\/routes\/demo_["']\)/);
+  assert.match(
+    viteConfig,
+    /normalizedId\.endsWith\(["']\/src\/routes\/share\.\$token\.tsx["']\)/,
+  );
+  assert.match(viteConfig, /function publicClientOnlyRouteHead\(routePath:\s*string\)/);
+  assert.match(viteConfig, /Shared Pathway Report — TransitionForward/);
+  assert.match(viteConfig, /noindex, nofollow/);
+  assert.match(viteConfig, /Interactive TransitionForward preview using fictional sample data/);
   assert.match(
     viteConfig,
     /create\(\?:ServerFn\|ServerOnlyFn\|Middleware\|ServerFileRoute\)/,
-    "the build must fail closed if an authenticated route gains an inline server primitive",
+    "the build must fail closed if a client-only route gains an inline server primitive",
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverAuthenticatedRouteStubs\(\)/,
+    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 
