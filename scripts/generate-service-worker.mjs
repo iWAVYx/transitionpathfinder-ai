@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -6,8 +7,19 @@ const projectRequire = createRequire(import.meta.url);
 const vitePwaRequire = createRequire(projectRequire.resolve("vite-plugin-pwa/package.json"));
 const { generateSW } = vitePwaRequire("workbox-build");
 
-const defaultPublicDirectory = fileURLToPath(new URL("../.output/public", import.meta.url));
+const isLovableBuild =
+  process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+const defaultPublicDirectory = fileURLToPath(
+  new URL(isLovableBuild ? "../dist/client" : "../.output/public", import.meta.url),
+);
 const publicDirectory = resolve(process.argv[2] ?? defaultPublicDirectory);
+
+if (!existsSync(publicDirectory)) {
+  throw new Error(
+    "Cannot generate the service worker: deployed asset directory does not exist: " +
+      publicDirectory,
+  );
+}
 
 await generateSW({
   globDirectory: publicDirectory,

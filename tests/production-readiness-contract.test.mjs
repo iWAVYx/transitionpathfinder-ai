@@ -469,6 +469,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     packageJson,
     /--max-semi-space-size=4 --max-old-space-size=2560 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
+  assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
@@ -587,6 +588,10 @@ test("PWA worker is generated into and required from the deployed asset director
   assert.match(serviceWorkerBuild, /vite-plugin-pwa\/package\.json/);
   assert.match(serviceWorkerBuild, /vitePwaRequire\(["']workbox-build["']\)/);
   assert.match(serviceWorkerBuild, /process\.argv\[2\]/);
+  assert.match(serviceWorkerBuild, /process\.env\.LOVABLE_SANDBOX\s*===\s*["']1["']/);
+  assert.match(serviceWorkerBuild, /process\.env\.DEV_SERVER__PROJECT_PATH/);
+  assert.match(serviceWorkerBuild, /isLovableBuild\s*\?\s*["']\.\.\/dist\/client["']/);
+  assert.match(serviceWorkerBuild, /existsSync\(publicDirectory\)/);
   assert.match(serviceWorkerBuild, /join\(publicDirectory, ["']sw\.js["']\)/);
   assert.match(serviceWorkerBuild, /importScripts:\s*\[["']\/sw-privacy-cleanup\.js["']\]/);
   assert.match(
