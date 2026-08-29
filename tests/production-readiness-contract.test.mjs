@@ -480,6 +480,15 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(buildSha, /return normalizeBuildSha\(checkoutSha\) \?\? ["']dev["']/);
   assert.match(viteConfig, /function splitLovableBuildEnvironments\(\): Plugin/);
   assert.match(viteConfig, /process\.env\.LOVABLE_SANDBOX\s*===\s*["']1["']/);
+  assert.match(viteConfig, /loadEnv\(requestedViteMode, process\.cwd\(\), ["']VITE_["']\)/);
+  assert.match(
+    viteConfig,
+    /["']import\.meta\.env\.VITE_APP_ENV["']:\s*JSON\.stringify\(viteAppEnv\)/,
+  );
+  assert.match(
+    viteConfig,
+    /["']import\.meta\.env\.VITE_PAYMENTS_CLIENT_TOKEN["']:\s*JSON\.stringify\(paymentsClientToken\)/,
+  );
   assert.match(viteConfig, /Boolean\(process\.env\.DEV_SERVER__PROJECT_PATH\)/);
   assert.match(viteConfig, /buildApp:\s*\{\s*order:\s*["']pre["']/);
   assert.match(viteConfig, /if \(!isLovableSandbox\) return/);
