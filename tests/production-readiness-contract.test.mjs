@@ -478,11 +478,21 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(buildSha, /git["'],\s*\[["']rev-parse["'],\s*["']HEAD["']\]/);
   assert.match(buildSha, /\^\[a-f0-9\]\{40\}\$/);
   assert.match(buildSha, /return normalizeBuildSha\(checkoutSha\) \?\? ["']dev["']/);
+  assert.match(viteConfig, /function splitLovableBuildEnvironments\(\): Plugin/);
+  assert.match(viteConfig, /process\.env\.LOVABLE_SANDBOX\s*===\s*["']1["']/);
+  assert.match(viteConfig, /Boolean\(process\.env\.DEV_SERVER__PROJECT_PATH\)/);
+  assert.match(viteConfig, /buildApp:\s*\{\s*order:\s*["']pre["']/);
+  assert.match(viteConfig, /if \(!isLovableSandbox\) return/);
+  assert.match(viteConfig, /spawn\(process\.execPath/);
+  assert.match(viteConfig, /await buildInChildProcess\(["']client["']\)/);
+  assert.match(viteConfig, /client\.isBuilt\s*=\s*true/);
+  assert.match(viteConfig, /await buildInChildProcess\(["']ssr["']\)/);
+  assert.match(viteConfig, /ssr\.isBuilt\s*=\s*true/);
   assert.match(viteConfig, /function buildEnvironmentGarbageCollector\(\): Plugin/);
   assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*serverAuthenticatedRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverAuthenticatedRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -517,7 +527,10 @@ test("SSR stubs only the authenticated client-only route subtree", () => {
     /create\(\?:ServerFn\|ServerOnlyFn\|Middleware\|ServerFileRoute\)/,
     "the build must fail closed if an authenticated route gains an inline server primitive",
   );
-  assert.match(viteConfig, /plugins:\s*\[\s*serverAuthenticatedRouteStubs\(\)/);
+  assert.match(
+    viteConfig,
+    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverAuthenticatedRouteStubs\(\)/,
+  );
 });
 
 test("protected staging builds use dedicated CI memory headroom", () => {

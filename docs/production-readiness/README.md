@@ -28,6 +28,8 @@ Documents:
   the narrowly scoped memory cap for Lovable's supported single-pass build.
 - `lovable-sandbox-output-alignment-2026-08-29.md` — exact Lovable sandbox
   reproduction, current wrapper alignment, and deployed PWA output correction.
+- `lovable-embedded-memory-isolation-2026-08-29.md` — exact hosted failure
+  reproduction and supported-command process isolation for final packaging.
 - `staging-acceptance-2026-08-28.md` — current exact-SHA isolated-staging
   deployment, protected workflow, and consolidated browser-suite evidence.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file

@@ -5,6 +5,8 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
@@ -18,6 +20,69 @@ function buildEnvironmentGarbageCollector(): Plugin {
     closeBundle: {
       order: "post",
       handler() {
+        global.gc?.();
+      },
+    },
+  };
+}
+
+function splitLovableBuildEnvironments(): Plugin {
+  const isLovableSandbox =
+    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+  const requestedModeIndex = process.argv.indexOf("--mode");
+  const requestedMode = requestedModeIndex >= 0 ? process.argv[requestedModeIndex + 1] : "production";
+  if (!requestedMode || requestedMode.startsWith("--")) {
+    throw new Error("--mode requires a value");
+  }
+  const environmentBuilder = fileURLToPath(
+    new URL("./scripts/build-environment.mjs", import.meta.url),
+  );
+
+  function buildInChildProcess(environmentName: "client" | "ssr") {
+    return new Promise<void>((resolve, reject) => {
+      const child = spawn(process.execPath, [environmentBuilder, environmentName, requestedMode], {
+        env: {
+          ...process.env,
+          VITE_APP_BUILD_TIME: appBuildTime,
+        },
+        stdio: "inherit",
+      });
+
+      child.once("error", reject);
+      child.once("exit", (code, signal) => {
+        if (code === 0) {
+          resolve();
+          return;
+        }
+        reject(
+          new Error(
+            `${environmentName} build failed${
+              signal ? ` with signal ${signal}` : ` with exit code ${String(code)}`
+            }`,
+          ),
+        );
+      });
+    });
+  }
+
+  return {
+    name: "transitionforward:split-lovable-build-environments",
+    apply: "build",
+    buildApp: {
+      order: "pre",
+      async handler(builder) {
+        if (!isLovableSandbox) return;
+
+        const client = builder.environments.client;
+        const ssr = builder.environments.ssr;
+        if (!client || !ssr) {
+          throw new Error("Lovable builds require both client and SSR environments");
+        }
+
+        await buildInChildProcess("client");
+        client.isBuilt = true;
+        await buildInChildProcess("ssr");
+        ssr.isBuilt = true;
         global.gc?.();
       },
     },
@@ -96,9 +161,13 @@ export default defineConfig({
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
-    // Lovable's last known-good hosted build uses Vite's supported single-pass
-    // application build. The garbage collector and authenticated-route stubs
-    // keep that build bounded; Workbox runs afterward from the package script.
-    plugins: [serverAuthenticatedRouteStubs(), buildEnvironmentGarbageCollector()],
+    // Keep Lovable's supported Vite application-build entrypoint, but release
+    // the client and SSR graphs in child processes before Nitro creates the
+    // single fetch bundle. Workbox runs afterward from the package script.
+    plugins: [
+      splitLovableBuildEnvironments(),
+      serverAuthenticatedRouteStubs(),
+      buildEnvironmentGarbageCollector(),
+    ],
   },
 });
