@@ -463,11 +463,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=2560 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=3072 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=2560 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
   assert.match(viteConfig, /sourcemap:\s*false/);
