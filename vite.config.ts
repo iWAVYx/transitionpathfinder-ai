@@ -105,9 +105,48 @@ function splitLovableBuildEnvironments(): Plugin {
   };
 }
 
-function serverAuthenticatedRouteStubs(): Plugin {
+function publicClientOnlyRouteHead(routePath: string) {
+  if (routePath === "/share/$token") {
+    return {
+      meta: [
+        { title: "Shared Pathway Report — TransitionForward" },
+        { name: "robots", content: "noindex, nofollow" },
+        { property: "og:url", content: "/share/$token" },
+      ],
+      links: [{ rel: "canonical", href: "/share/$token" }],
+    };
+  }
+
+  if (routePath === "/demo") {
+    const description =
+      "Preview TransitionForward by role using fictional sample data.";
+    return {
+      meta: [
+        { title: "Demo — Preview TransitionForward by role" },
+        { name: "description", content: description },
+        { property: "og:title", content: "Demo — Preview TransitionForward by role" },
+        { property: "og:description", content: description },
+        { property: "og:url", content: "/demo" },
+      ],
+      links: [{ rel: "canonical", href: "/demo" }],
+    };
+  }
+
   return {
-    name: "transitionforward:server-authenticated-route-stubs",
+    meta: [
+      { title: "Demo — TransitionForward" },
+      {
+        name: "description",
+        content: "Interactive TransitionForward preview using fictional sample data.",
+      },
+      { name: "robots", content: "noindex" },
+    ],
+  };
+}
+
+function serverClientOnlyRouteStubs(): Plugin {
+  return {
+    name: "transitionforward:server-client-only-route-stubs",
     enforce: "pre",
     applyToEnvironment: (environment) => environment.name !== "client",
     transform(source, id) {
@@ -115,29 +154,38 @@ function serverAuthenticatedRouteStubs(): Plugin {
       const isAuthenticatedRoute =
         normalizedId.endsWith("/src/routes/_authenticated.tsx") ||
         (normalizedId.includes("/src/routes/_authenticated/") && normalizedId.endsWith(".tsx"));
-      if (!isAuthenticatedRoute) return null;
+      const isPublicClientOnlyRoute =
+        normalizedId.endsWith("/src/routes/demo.tsx") ||
+        (normalizedId.includes("/src/routes/demo_") && normalizedId.endsWith(".tsx")) ||
+        normalizedId.endsWith("/src/routes/share.$token.tsx");
+      if (!isAuthenticatedRoute && !isPublicClientOnlyRoute) return null;
 
-      // The parent route already declares ssr:false because authentication is
-      // restored from browser storage. These modules therefore cannot render
-      // on the server, but Nitro would otherwise parse and inline all 138 UI
-      // routes into Lovable's single-file fetch bundle. Refuse to stub a route
-      // if a future change adds an inline server primitive; those handlers must
-      // first be moved to a dedicated *.functions.ts or server route module.
+      // The authenticated subtree restores identity from browser storage. The
+      // public demo routes restore fictional demo state from the browser, and
+      // the shared report resolves its token after mount. Their full components
+      // therefore do not produce useful server HTML, but Nitro would otherwise
+      // inline both browser UI graphs into Lovable's single-file fetch bundle.
+      // Refuse to stub any route that gains an inline server primitive; those
+      // handlers must first move to a dedicated *.functions.ts or server route.
       if (/\bcreate(?:ServerFn|ServerOnlyFn|Middleware|ServerFileRoute)\b/.test(source)) {
         throw new Error(
-          `[server-authenticated-route-stubs] ${normalizedId} contains an inline server primitive`,
+          `[server-client-only-route-stubs] ${normalizedId} contains an inline server primitive`,
         );
       }
 
       const routeMatch = source.match(/\bcreateFileRoute\(\s*(["'`])([^"'`]+)\1\s*\)/);
       if (!routeMatch) {
         throw new Error(
-          `[server-authenticated-route-stubs] Could not identify the route path in ${normalizedId}`,
+          `[server-client-only-route-stubs] Could not identify the route path in ${normalizedId}`,
         );
       }
 
+      const routePath = routeMatch[2];
+      const publicHead = isPublicClientOnlyRoute
+        ? `, head: () => (${JSON.stringify(publicClientOnlyRouteHead(routePath))})`
+        : "";
       return {
-        code: `import { createFileRoute } from "@tanstack/react-router";\nexport const Route = createFileRoute(${JSON.stringify(routeMatch[2])})({ ssr: false });\n`,
+        code: `import { createFileRoute } from "@tanstack/react-router";\nexport const Route = createFileRoute(${JSON.stringify(routePath)})({ ssr: false${publicHead} });\n`,
         map: null,
       };
     },
@@ -192,7 +240,7 @@ export default defineConfig({
     // single fetch bundle. Workbox runs afterward from the package script.
     plugins: [
       splitLovableBuildEnvironments(),
-      serverAuthenticatedRouteStubs(),
+      serverClientOnlyRouteStubs(),
       buildEnvironmentGarbageCollector(),
     ],
   },
