@@ -96,9 +96,9 @@ export default defineConfig({
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
-    // The hosted build orchestrator runs the memory-heavy client and SSR
-    // bundles in separate Node processes, then completes Nitro in the parent
-    // builder. Workbox runs afterward from scripts/generate-service-worker.mjs.
+    // Lovable's last known-good hosted build uses Vite's supported single-pass
+    // application build. The garbage collector and authenticated-route stubs
+    // keep that build bounded; Workbox runs afterward from the package script.
     plugins: [serverAuthenticatedRouteStubs(), buildEnvironmentGarbageCollector()],
   },
 });
