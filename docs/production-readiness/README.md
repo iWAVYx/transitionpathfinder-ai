@@ -36,6 +36,8 @@ Documents:
 - `lovable-hosted-memory-floor-2026-08-30.md` — exact PR #78 diagnostic and
   constrained-build evidence establishing a 1,024 MiB failure boundary and a
   complete 1,280 MiB build.
+- `lovable-hosted-container-boundary-2026-08-30.md` — exact PR #79 result,
+  process-tree measurements, and the lowest tested passing 1,216 MiB boundary.
 - `staging-acceptance-2026-08-28.md` — current exact-SHA isolated-staging
   deployment, protected workflow, and consolidated browser-suite evidence.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
