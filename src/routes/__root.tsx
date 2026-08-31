@@ -27,6 +27,7 @@ import {
   dashboardTestIdForPath,
   ROLE_DASHBOARD_TEST_IDS,
 } from "@/lib/dashboard-testids";
+import { resolveCspNonce } from "@/lib/cspNonce";
 
 
 import appCss from "../styles.css?url";
@@ -186,16 +187,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  // Generate a per-request CSP nonce during SSR so the inline dark-mode
-  // restore script can be allow-listed by a strict Content-Security-Policy
-  // (e.g. `script-src 'self' 'nonce-...'`). The shell only renders on the
-  // server, so there's no hydration mismatch. The nonce is also exposed via
-  // a <meta name="csp-nonce"> tag so other code or CSP middleware can read
-  // the same value when assembling the response header.
-  const nonce =
-    typeof globalThis.crypto?.randomUUID === "function"
-      ? globalThis.crypto.randomUUID().replace(/-/g, "")
-      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+  // The server creates a per-request nonce. During hydration the browser
+  // reads that same value from the SSR'd meta tag, preventing React from
+  // comparing the server nonce with a newly generated client value.
+  const nonce = resolveCspNonce();
 
   return (
     <html lang="en">
