@@ -499,9 +499,17 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /ssr\.isBuilt\s*=\s*true/);
   assert.match(viteConfig, /function buildEnvironmentGarbageCollector\(\): Plugin/);
   assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
+  assert.match(viteConfig, /function useDirectLucideIconModules\(\): Plugin/);
+  assert.match(viteConfig, /lucide-react\/dist\/esm\/lucide-react\.js/);
+  assert.match(viteConfig, /if \(iconModules\.size < 1_000\)/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /applyToEnvironment:\s*\(environment\)\s*=>\s*isLovableSandbox\s*&&\s*environment\.name\s*===\s*["']client["']/,
+  );
+  assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
+  assert.match(
+    viteConfig,
+    /plugins:\s*\[\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -548,8 +556,26 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
+});
+
+test("legacy admin and owner routes share a component without cross-importing route modules", () => {
+  const legacyAdminRoute = read("src/routes/_authenticated/admin.tsx");
+  const ownerRoute = read("src/routes/_authenticated/owner.index.tsx");
+  const ownerDashboard = read("src/components/owner/OwnerDashboardPage.tsx");
+
+  assert.match(
+    legacyAdminRoute,
+    /import \{ OwnerDashboardPage \} from ["']@\/components\/owner\/OwnerDashboardPage["']/,
+  );
+  assert.match(
+    ownerRoute,
+    /import \{ OwnerDashboardPage \} from ["']@\/components\/owner\/OwnerDashboardPage["']/,
+  );
+  assert.doesNotMatch(legacyAdminRoute, /from ["']\.\/owner\.index["']/);
+  assert.doesNotMatch(ownerRoute, /export function OwnerDashboardPage/);
+  assert.match(ownerDashboard, /export function OwnerDashboardPage\(\)/);
 });
 
 test("protected staging builds use dedicated CI memory headroom", () => {

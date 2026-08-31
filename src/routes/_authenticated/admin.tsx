@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { OwnerDashboardPage } from "./owner.index";
+import { OwnerDashboardPage } from "@/components/owner/OwnerDashboardPage";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 // Legacy /admin route — render the same Admin Hub dashboard so main-scoped
