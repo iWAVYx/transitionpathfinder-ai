@@ -6,8 +6,13 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { loadEnv, type Plugin } from "vite";
+import {
+  mapLucideIconModules,
+  rewriteLucideReactImports,
+} from "./scripts/direct-lucide-icon-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
@@ -41,6 +46,49 @@ function buildEnvironmentGarbageCollector(): Plugin {
       handler() {
         global.gc?.();
       },
+    },
+  };
+}
+
+function useDirectLucideIconModules(): Plugin {
+  const isLovableSandbox =
+    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+  const lucideBarrelPath = fileURLToPath(
+    import.meta.resolve("lucide-react/dist/esm/lucide-react.js"),
+  );
+  const lucideBarrel = readFileSync(lucideBarrelPath, "utf8");
+  const iconModules = mapLucideIconModules(lucideBarrel);
+
+  if (iconModules.size < 1_000) {
+    throw new Error(
+      `Could not map Lucide's ESM icon exports (found ${iconModules.size.toLocaleString()})`,
+    );
+  }
+  let rewrittenFiles = 0;
+  let rewrittenIcons = 0;
+
+  return {
+    name: "transitionforward:direct-lucide-icon-modules",
+    apply: "build",
+    enforce: "pre",
+    applyToEnvironment: (environment) => isLovableSandbox && environment.name === "client",
+    transform(source, id) {
+      const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
+      if (!normalizedId.includes("/src/") || !/\.[cm]?[jt]sx?$/.test(normalizedId)) {
+        return null;
+      }
+
+      const result = rewriteLucideReactImports(source, iconModules);
+      if (result.rewrittenIcons === 0) return null;
+
+      rewrittenFiles += 1;
+      rewrittenIcons += result.rewrittenIcons;
+      return { code: result.code, map: null };
+    },
+    buildEnd() {
+      console.info(
+        `[direct-lucide-icon-modules] rewrote ${rewrittenIcons.toLocaleString()} icon imports across ${rewrittenFiles.toLocaleString()} files`,
+      );
     },
   };
 }
@@ -239,6 +287,7 @@ export default defineConfig({
     // the client and SSR graphs in child processes before Nitro creates the
     // single fetch bundle. Workbox runs afterward from the package script.
     plugins: [
+      useDirectLucideIconModules(),
       splitLovableBuildEnvironments(),
       serverClientOnlyRouteStubs(),
       buildEnvironmentGarbageCollector(),
