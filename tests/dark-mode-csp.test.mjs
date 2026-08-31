@@ -18,8 +18,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import vm from "node:vm";
+import { resolveCspNonce } from "../src/lib/cspNonce.ts";
 
 const ROOT_FILE = new URL("../src/routes/__root.tsx", import.meta.url);
+const NONCE_FILE = new URL("../src/lib/cspNonce.ts", import.meta.url);
 
 /** Pull the inline dark-mode IIFE source straight from __root.tsx so the
  *  test stays in sync with the real shell. */
@@ -103,6 +105,34 @@ function makeBrowserSandbox({ stored, prefersDark }) {
 
 test("shell wires CSP nonce on inline dark-mode script", () => {
   assertShellUsesNonce();
+});
+
+test("browser hydration reuses the server-rendered CSP nonce", () => {
+  const rootSource = readFileSync(ROOT_FILE, "utf8");
+  const nonceSource = readFileSync(NONCE_FILE, "utf8");
+
+  assert.match(rootSource, /const nonce = resolveCspNonce\(\)/);
+  assert.match(nonceSource, /meta\[name=["']csp-nonce["']\]/);
+  assert.match(nonceSource, /if \(serverNonce\) return serverNonce/);
+});
+
+test("nonce resolver returns the server-rendered value during hydration", () => {
+  const originalDocument = globalThis.document;
+  globalThis.document = {
+    querySelector(selector) {
+      assert.equal(selector, 'meta[name="csp-nonce"]');
+      return {
+        getAttribute: (name) => (name === "content" ? "server-request-nonce" : null),
+      };
+    },
+  };
+
+  try {
+    assert.equal(resolveCspNonce(), "server-request-nonce");
+  } finally {
+    if (originalDocument === undefined) delete globalThis.document;
+    else globalThis.document = originalDocument;
+  }
 });
 
 test("shell declares light as the default color-scheme for all pages", () => {
