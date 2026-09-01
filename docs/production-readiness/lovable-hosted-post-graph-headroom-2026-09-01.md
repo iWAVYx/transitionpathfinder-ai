@@ -493,3 +493,50 @@ boundary, dynamic-import failure, or console error.
 Acceptance still requires exactly one connected Lovable preview build for a
 fresh exact candidate SHA. No same-SHA retry, publish, merge to `main`, deploy,
 migration, or secret change is authorized.
+
+## Twelfth candidate: phase-specific cross-runtime headroom
+
+The Node-compatibility candidate,
+`d722ee2820a01913a13213f9ea10a1cc791b1f81`, passed GitHub Build & SSR
+Verification but Lovable still ended as **Build unsuccessful** with **Preview
+is out of date**. Expanding its Details surface exposed no build phase, exit
+code, memory measurement, or actionable error. No same-SHA retry or publish was
+performed.
+
+The previous 912 MiB boundary was then retested on Node 24.19.0 with the exact
+Lovable sandbox output shape and Lovable's current production environment
+labels. This produced new direct evidence that one uniform heap cap is not
+portable across supported Node runtimes:
+
+- **912 MiB:** the 1,339-module client failed while rendering chunks.
+- **944 MiB:** the client and SSR child builds passed, but Nitro's final fetch
+  bundle failed at its heap limit.
+- **1,024 MiB:** the client and SSR child builds passed, but the final Nitro
+  fetch bundle still failed at its heap limit.
+
+The build now uses phase-specific limits. The reduced client and SSR graphs run
+in separate child processes at 944 MiB. Only the fresh parent process that
+creates Nitro's final single-file fetch bundle receives 1,216 MiB. The phases
+remain sequential, so these limits are not additive. Protected staging and
+production Cloudflare builds remain unchanged at 4,096 MiB.
+
+With `APP_ENV=production`, `VITE_APP_ENV=production`,
+`LOVABLE_SANDBOX=1`, and the `lovable-fetch-bundle` output shape, the exact
+candidate completed all of the following on Node 24.19.0:
+
+- all eight prepared vendor slices;
+- the 1,339-module client and 185 emitted client chunks;
+- the SSR child build;
+- the 3,700-module final Nitro build;
+- `dist/server/index.mjs` at 7.62 MB; and
+- service-worker generation beside the deployed client assets.
+
+The production-readiness contract passed 31/31 checks. The six prepared-vendor
+behavior checks, direct date-fns, Lucide, and Motion rewrite checks, and the
+full TypeScript check passed. Direct fetches through the generated Lovable
+Worker returned HTTP 200 with expected content for Home, About, and Research.
+
+Acceptance still requires exactly one connected Lovable preview build for a
+fresh exact candidate SHA. No same-SHA retry, publish, merge to `main`, staging
+or production deploy, database migration, secret change, or protection change
+is authorized.

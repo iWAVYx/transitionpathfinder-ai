@@ -21,6 +21,7 @@ import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 const CHILD_BUILD_ENVIRONMENT_ENV = "TRANSITIONFORWARD_VITE_ENVIRONMENT";
+const LOVABLE_CHILD_NODE_OPTIONS = "--max-semi-space-size=4 --max-old-space-size=944";
 const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
 const LUCIDE_BUNDLE_ID = "transitionforward:lucide-used-icons";
 const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
@@ -420,6 +421,10 @@ function splitLovableBuildEnvironments(): Plugin {
       const child = spawn(process.execPath, [environmentBuilder, environmentName, requestedMode], {
         env: {
           ...process.env,
+          // The reduced client and SSR graphs fit within this lower cap. Keep
+          // the parent process's additional headroom for Nitro's final
+          // single-file fetch bundle instead of giving every phase one limit.
+          NODE_OPTIONS: LOVABLE_CHILD_NODE_OPTIONS,
           [CHILD_BUILD_MODE_ENV]: requestedMode,
           [CHILD_BUILD_ENVIRONMENT_ENV]: environmentName,
           VITE_APP_BUILD_TIME: appBuildTime,

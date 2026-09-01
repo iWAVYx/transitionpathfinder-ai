@@ -473,11 +473,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=912' vite build && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1216' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=912' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1216' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.doesNotMatch(packageJson, /--expose-gc/);
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
@@ -506,6 +506,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /buildApp:\s*\{\s*order:\s*["']pre["']/);
   assert.match(viteConfig, /if \(!isLovableSandbox\) return/);
   assert.match(viteConfig, /spawn\(process\.execPath/);
+  assert.match(
+    viteConfig,
+    /const LOVABLE_CHILD_NODE_OPTIONS = ["']--max-semi-space-size=4 --max-old-space-size=944["']/,
+  );
+  assert.match(viteConfig, /NODE_OPTIONS:\s*LOVABLE_CHILD_NODE_OPTIONS/);
   assert.match(viteConfig, /await buildInChildProcess\(["']client["']\)/);
   assert.match(viteConfig, /client\.isBuilt\s*=\s*true/);
   assert.match(viteConfig, /await buildInChildProcess\(["']ssr["']\)/);
