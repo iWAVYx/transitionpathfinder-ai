@@ -39,6 +39,12 @@ if (isLovableSandbox) {
       ].join("\n"),
       external: [],
     },
+    {
+      name: "motion-client",
+      contents:
+        'export { AnimatePresence, LazyMotion, domMax, motion, useInView, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";',
+      external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    },
   ];
 
   for (const bundle of bundles) {

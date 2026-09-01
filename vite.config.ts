@@ -24,7 +24,17 @@ const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-
 const LUCIDE_BUNDLE_ID = "transitionforward:lucide-used-icons";
 const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
 const MOTION_DIRECT_PREFIX = "transitionforward:motion-direct/";
+const PREPARED_MOTION_ID = "transitionforward:prepared-motion-client";
 const LOVABLE_VENDOR_DIRECTORY = new URL("./.transitionforward-build/vendor/", import.meta.url);
+const REVIEWED_MOTION_IMPORTERS = new Set([
+  "/src/components/site/SiteFooter.tsx",
+  "/src/components/site/SiteHeader.tsx",
+  "/src/routes/__root.tsx",
+  "/src/routes/about.tsx",
+  "/src/routes/index.tsx",
+  "/src/routes/programs.transitionforward.tsx",
+  "/src/routes/research.tsx",
+]);
 
 const MOTION_DIRECT_MODULES = new Map<string, { relativePath: string; exportName: string }>([
   ["motion", { relativePath: "./render/components/m/proxy.mjs", exportName: "m" }],
@@ -91,10 +101,12 @@ function usePreparedLovableVendorBundles(): Plugin {
   const sentryBrowserBundle = fileURLToPath(
     new URL("sentry-browser.mjs", LOVABLE_VENDOR_DIRECTORY),
   );
+  const motionClientBundle = fileURLToPath(new URL("motion-client.mjs", LOVABLE_VENDOR_DIRECTORY));
   const preparedBundles = new Map([
     ["react-day-picker", reactDayPickerBundle],
     ["@sentry/browser", sentryBrowserBundle],
     ["@sentry/core/browser", sentryBrowserBundle],
+    [PREPARED_MOTION_ID, motionClientBundle],
   ]);
 
   if (isLovableSandbox) {
@@ -122,7 +134,7 @@ function usePreparedLovableVendorBundles(): Plugin {
     resolveId(source, importer) {
       const bundlePath = preparedBundles.get(source);
       if (!bundlePath || !importer) return null;
-      const normalizedImporter = importer.replaceAll("\\", "/");
+      const normalizedImporter = importer.replaceAll("\\", "/").split("?", 1)[0];
       if (
         source === "react-day-picker" &&
         normalizedImporter.endsWith("/src/components/ui/calendar.tsx")
@@ -135,7 +147,21 @@ function usePreparedLovableVendorBundles(): Plugin {
       ) {
         return bundlePath;
       }
+      if (
+        source === PREPARED_MOTION_ID &&
+        [...REVIEWED_MOTION_IMPORTERS].some((path) => normalizedImporter.endsWith(path))
+      ) {
+        return bundlePath;
+      }
       return null;
+    },
+    transform(source, id) {
+      if (!/["']motion\/react["']/.test(source)) return null;
+      const normalizedId = id.replaceAll("\\", "/").split("?", 1)[0];
+      if (![...REVIEWED_MOTION_IMPORTERS].some((path) => normalizedId.endsWith(path))) {
+        throw new Error(`Unreviewed motion/react importer in Lovable client build: ${id}`);
+      }
+      return source.replace(/(["'])motion\/react\1/g, `$1${PREPARED_MOTION_ID}$1`);
     },
   };
 }

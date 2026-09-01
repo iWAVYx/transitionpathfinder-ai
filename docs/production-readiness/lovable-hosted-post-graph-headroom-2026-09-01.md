@@ -228,3 +228,49 @@ boundary. The prepared calendar slice also passed its direct render test.
 Acceptance still requires exactly one connected Lovable preview build for the
 new exact candidate SHA. No same-SHA retry, publish, merge to `main`, staging or
 production deploy, database migration, or secret change is authorized.
+
+## Fifth hosted result and prepared Motion slice
+
+The prepared calendar/Sentry candidate,
+`6c4f992320865dd70c39a413e542b0476a7df9ff`, passed GitHub Build & SSR
+Verification in 1m11s. Lovable still ended as **Build unsuccessful** with
+**Preview is out of date** and exposed no actionable build diagnostic. No retry
+or publish was performed.
+
+Disabling Lovable-only minification did not improve the measured boundary: the
+2,074-module client still exhausted 896 MiB while rendering chunks. That
+experiment was fully reverted and was never committed or pushed.
+
+A fresh inventory of the successful 1,024 MiB graph found that `motion-dom`
+still contributed 219 modules, `framer-motion` 89, and `motion-utils` 30. The
+direct-import candidate had reduced unnecessary entrypoint traversal but Vite
+still had to transform Motion's reviewed internal feature graph.
+
+The sequential preparation step now generates a third Lovable-client-only ESM
+slice. `motion-client.mjs` is 139,226 bytes and exports exactly the nine public
+Motion APIs used by the seven reviewed source files: `AnimatePresence`,
+`LazyMotion`, `domMax`, `motion`, `useInView`, `useReducedMotion`, `useScroll`,
+`useSpring`, and `useTransform`. React remains external, and any new unreviewed
+`motion/react` importer fails the constrained build closed. Normal protected
+staging and production builds continue to use Motion's public package normally.
+
+The prepared Motion slice test verifies the exact export surface and renders a
+Motion element. The client graph falls from 2,074 to 1,737 transformed modules,
+a reduction of 337 modules (16.2%):
+
+- **896 MiB old space:** the client transformed all 1,737 modules, then failed
+  with `JavaScript heap out of memory`.
+- **960 MiB old space:** the client, server-rendered application, and final
+  Nitro Worker bundle completed successfully. Service-worker generation also
+  passed.
+
+The exact 960 MiB output passed the local Worker browser smoke on Home, About,
+and Research: all returned 200, rendered their expected headings and icons,
+retained Motion-driven styles, and did not render the application error
+boundary.
+
+The candidate therefore uses the verified 960 MiB default
+Lovable/development limit. Protected staging and production remain fixed at
+4,096 MiB. Acceptance still requires exactly one connected Lovable preview
+build for the new exact candidate SHA. No same-SHA retry, publish, merge to
+`main`, deploy, migration, or secret change is authorized.

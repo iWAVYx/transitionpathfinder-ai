@@ -467,11 +467,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1024 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=960 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1024 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=960 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.match(packageJson, /"esbuild":\s*"0\.28\.1"/);
@@ -509,6 +509,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /function useDirectDateFnsModules\(\): Plugin/);
   assert.match(viteConfig, /function usePreparedLovableVendorBundles\(\): Plugin/);
   assert.match(viteConfig, /const LOVABLE_VENDOR_DIRECTORY = new URL\(/);
+  assert.match(
+    viteConfig,
+    /const PREPARED_MOTION_ID = ["']transitionforward:prepared-motion-client["']/,
+  );
+  assert.match(viteConfig, /const REVIEWED_MOTION_IMPORTERS = new Set\(\[/);
   assert.match(viteConfig, /Prepared Lovable vendor bundle for \$\{source\} is unexpectedly small/);
   assert.match(
     viteConfig,
@@ -558,6 +563,9 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     preparedVendorBundles,
     /applySdkMetadata, isSyntheticEvent, setNormalizeStringifier/,
   );
+  assert.match(preparedVendorBundles, /AnimatePresence, LazyMotion, domMax, motion/);
+  assert.match(viteConfig, /Unreviewed motion\/react importer in Lovable client build/);
+  assert.match(viteConfig, /source\.replace\(\/\(\["'\]\)motion\\\/react\\1\/g/);
   assert.match(gitignore, /^\.transitionforward-build\/$/m);
   assert.doesNotMatch(sentryInit, /from ["']@sentry\/react["']/);
   assert.match(sentryInit, /applySdkMetadata\(reactOptions, ["']react["']\)/);
