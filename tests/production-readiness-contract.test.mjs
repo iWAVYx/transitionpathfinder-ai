@@ -460,17 +460,21 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   const packageJson = read("package.json");
   const viteConfig = read("vite.config.ts");
   const buildSha = read("scripts/resolve-build-sha.mjs");
+  const preparedVendorBundles = read("scripts/prepare-lovable-vendor-bundles.mjs");
+  const gitignore = read(".gitignore");
   const rootRoute = read("src/routes/__root.tsx");
+  const sentryInit = read("src/lib/sentry/init.ts");
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1056 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1024 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1056 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1024 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
+  assert.match(packageJson, /"esbuild":\s*"0\.28\.1"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
@@ -503,28 +507,65 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /function useDirectLucideIconModules\(\): Plugin/);
   assert.match(viteConfig, /function useDirectMotionModules\(\): Plugin/);
   assert.match(viteConfig, /function useDirectDateFnsModules\(\): Plugin/);
+  assert.match(viteConfig, /function usePreparedLovableVendorBundles\(\): Plugin/);
+  assert.match(viteConfig, /const LOVABLE_VENDOR_DIRECTORY = new URL\(/);
+  assert.match(viteConfig, /Prepared Lovable vendor bundle for \$\{source\} is unexpectedly small/);
+  assert.match(
+    viteConfig,
+    /source === ["']react-day-picker["'][\s\S]*?\/src\/components\/ui\/calendar\.tsx/,
+  );
+  assert.match(
+    viteConfig,
+    /source === ["']@sentry\/browser["'] \|\| source === ["']@sentry\/core\/browser["'][\s\S]*?\/src\/lib\/sentry\/init\.ts/,
+  );
   assert.match(viteConfig, /function stubUnusedJsPdfOptionalRenderers\(\): Plugin/);
-  assert.match(viteConfig, /new Set\(\[["']canvg["'],\s*["']dompurify["'],\s*["']html2canvas["']\]\)/);
+  assert.match(
+    viteConfig,
+    /new Set\(\[["']canvg["'],\s*["']dompurify["'],\s*["']html2canvas["']\]\)/,
+  );
   assert.match(viteConfig, /normalizedImporter\.includes\(["']\/node_modules\/jspdf\/["']\)/);
   assert.match(viteConfig, /import\.meta\.resolve\(["']date-fns["']\)/);
   assert.match(viteConfig, /if \(functionModules\.size < 200\)/);
-  assert.match(
-    viteConfig,
-    /normalizedId\.includes\(["']\/node_modules\/react-day-picker\/["']\)/,
-  );
+  assert.match(viteConfig, /normalizedId\.includes\(["']\/node_modules\/react-day-picker\/["']\)/);
   assert.match(viteConfig, /lucide-react\/dist\/esm\/lucide-react\.js/);
   assert.match(viteConfig, /if \(iconModules\.size < 1_000\)/);
   assert.match(viteConfig, /const LUCIDE_BUNDLE_ID = ["']transitionforward:lucide-used-icons["']/);
-  assert.match(viteConfig, /const LUCIDE_BUNDLE_RESOLVED_ID = ["']\\0transitionforward:lucide-used-icons["']/);
+  assert.match(
+    viteConfig,
+    /const LUCIDE_BUNDLE_RESOLVED_ID = ["']\\0transitionforward:lucide-used-icons["']/,
+  );
   assert.match(viteConfig, /collectLucideRuntimeExports\(source, iconModules\)/);
   assert.match(viteConfig, /createLucideIconBundle\(/);
   assert.match(viteConfig, /bundled \$\{usedIconExports\.size/);
-  assert.match(viteConfig, /const MOTION_DIRECT_PREFIX = ["']transitionforward:motion-direct\/["']/);
+  assert.match(
+    viteConfig,
+    /const MOTION_DIRECT_PREFIX = ["']transitionforward:motion-direct\/["']/,
+  );
   assert.match(viteConfig, /import\.meta\.resolve\(["']framer-motion["']\)/);
   assert.match(viteConfig, /\.\/render\/components\/m\/proxy\.mjs/);
   assert.match(viteConfig, /rewriteMotionReactImports\(source, directExports\)/);
   assert.match(rootRoute, /import \{ LazyMotion, domMax \} from ["']motion\/react["']/);
   assert.match(rootRoute, /<LazyMotion features=\{domMax\}>[\s\S]*?<\/LazyMotion>/);
+  assert.match(preparedVendorBundles, /process\.env\.LOVABLE_SANDBOX === ["']1["']/);
+  assert.match(preparedVendorBundles, /Boolean\(process\.env\.DEV_SERVER__PROJECT_PATH\)/);
+  assert.match(preparedVendorBundles, /conditions:\s*\[["']browser["'],\s*["']production["']\]/);
+  assert.match(preparedVendorBundles, /minify:\s*true/);
+  assert.match(preparedVendorBundles, /for \(const bundle of bundles\) \{[\s\S]*?await build\(/);
+  assert.doesNotMatch(preparedVendorBundles, /Promise\.all/);
+  assert.match(preparedVendorBundles, /DayButton, DayPicker, getDefaultClassNames/);
+  assert.match(preparedVendorBundles, /captureMessage, init, normalizeStringifyValue, setContext/);
+  assert.match(
+    preparedVendorBundles,
+    /applySdkMetadata, isSyntheticEvent, setNormalizeStringifier/,
+  );
+  assert.match(gitignore, /^\.transitionforward-build\/$/m);
+  assert.doesNotMatch(sentryInit, /from ["']@sentry\/react["']/);
+  assert.match(sentryInit, /applySdkMetadata\(reactOptions, ["']react["']\)/);
+  assert.match(sentryInit, /setContext\(["']react["'], \{ version: reactVersion \}\)/);
+  assert.match(sentryInit, /isSyntheticEvent\(value\) \? ["']\[SyntheticEvent\]["']/);
+  assert.match(sentryInit, /sendDefaultPii:\s*false/);
+  assert.match(sentryInit, /replaysSessionSampleRate:\s*0/);
+  assert.match(sentryInit, /beforeSend:\s*\(event\) => redactSentryEvent\(event\)/);
   assert.match(
     viteConfig,
     /applyToEnvironment:\s*\(environment\)\s*=>\s*isLovableSandbox\s*&&\s*environment\.name\s*===\s*["']client["']/,
@@ -532,7 +573,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*usePreparedLovableVendorBundles\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -562,11 +603,7 @@ test("Lovable stubs only jsPDF renderers the product does not call", () => {
   ]) {
     const source = read(path);
     assert.doesNotMatch(source, /\.html\s*\(/, `${path} must not use jsPDF.html`);
-    assert.doesNotMatch(
-      source,
-      /\.addSvgAsImage\s*\(/,
-      `${path} must not use jsPDF.addSvgAsImage`,
-    );
+    assert.doesNotMatch(source, /\.addSvgAsImage\s*\(/, `${path} must not use jsPDF.addSvgAsImage`);
   }
 });
 
@@ -597,10 +634,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   assert.match(viteConfig, /normalizedId\.includes\(["']\/src\/routes\/_authenticated\/["']\)/);
   assert.match(viteConfig, /normalizedId\.endsWith\(["']\/src\/routes\/demo\.tsx["']\)/);
   assert.match(viteConfig, /normalizedId\.includes\(["']\/src\/routes\/demo_["']\)/);
-  assert.match(
-    viteConfig,
-    /normalizedId\.endsWith\(["']\/src\/routes\/share\.\$token\.tsx["']\)/,
-  );
+  assert.match(viteConfig, /normalizedId\.endsWith\(["']\/src\/routes\/share\.\$token\.tsx["']\)/);
   assert.match(viteConfig, /function publicClientOnlyRouteHead\(routePath:\s*string\)/);
   assert.match(viteConfig, /Shared Pathway Report — TransitionForward/);
   assert.match(viteConfig, /noindex, nofollow/);
@@ -612,7 +646,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*usePreparedLovableVendorBundles\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 
@@ -844,12 +878,8 @@ test("production identity fails closed and operator documents are complete", () 
   const restoreDrillPlan = read(
     "docs/production-readiness/isolated-restore-drill-plan-2026-08-25.md",
   );
-  const exportEvidence = read(
-    "docs/production-readiness/export-evidence-2026-08-25.md",
-  );
-  const restoreEvidence = read(
-    "docs/production-readiness/restore-drill-evidence-2026-08-26.md",
-  );
+  const exportEvidence = read("docs/production-readiness/export-evidence-2026-08-25.md");
+  const restoreEvidence = read("docs/production-readiness/restore-drill-evidence-2026-08-26.md");
   const latestPreflight = read("docs/production-readiness/preflight-2026-08-25.md");
   const migrationPlan = read("docs/production-readiness/migration-and-rollback-plan.md");
   const checklist = read("docs/production-readiness/release-checklist.md");
@@ -887,10 +917,7 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(exportEvidence, /EXPORT COMPLETE \/ ISOLATED RESTORE PASSED/);
   assert.match(exportEvidence, /transitionpathfinder-ai_260826\.backup/);
   assert.match(exportEvidence, /17,820,860 bytes/);
-  assert.match(
-    exportEvidence,
-    /2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819/,
-  );
+  assert.match(exportEvidence, /2A70D53D32D6AFE1AC1F0A9B93AA4F336815230B88D9DAA461AEFD06A1660819/);
   assert.match(exportEvidence, /consumed only by the isolated local restore/i);
   assert.match(exportEvidence, /no row contents, credentials, or tokens were\s+printed/i);
   assert.match(exportEvidence, /no free hosted target is currently available/i);

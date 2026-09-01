@@ -14,6 +14,7 @@ dist-ssr
 .vinxi
 .tanstack/**
 .nitro
+.transitionforward-build/
 *.local
 
 # Environment files are ignored by default. The three tracked exceptions are

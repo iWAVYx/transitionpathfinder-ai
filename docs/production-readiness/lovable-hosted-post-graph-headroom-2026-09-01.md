@@ -159,3 +159,72 @@ error boundary.
 Acceptance still requires one successful hosted Lovable preview for the exact
 candidate SHA. No same-SHA retry, publish, merge, deploy, migration, or secret
 change is authorized.
+
+## Fourth hosted result and prepared vendor slices
+
+The Motion candidate, `40abaef15099b476cfca5b1f924f27f7f39d8a71`,
+passed GitHub Build & SSR Verification in 1m19s. Lovable still ended as
+**Build unsuccessful** with **Preview is out of date**, again without a
+compiler diagnostic, exit code, failing phase, timestamp, or memory
+measurement. No retry or publish was performed.
+
+The next client inventory attributed 932 transformed modules to the app, 585
+to `date-fns`, 233 to `@sentry/core`, 51 to `@sentry/browser`, 42 to
+`@sentry/browser-utils`, and 108 to `react-day-picker`. The constrained build
+was therefore still repeatedly asking Vite and Rollup to discover, transform,
+and optimize large reviewed dependency graphs even though the product uses a
+small, fixed public surface from those packages.
+
+For Lovable's client build only, a sequential preparation step now uses the
+pinned `esbuild@0.28.1` to produce two minified, browser-targeted ESM slices:
+
+- `react-day-picker.mjs` is 68,280 bytes and exports exactly `DayButton`,
+  `DayPicker`, and `getDefaultClassNames`. React remains external so the app
+  continues to use its single reviewed React runtime.
+- `sentry-browser.mjs` is 85,501 bytes and exports exactly the browser and core
+  functions used by TransitionForward's Sentry initialization.
+
+The slices are generated into the ignored `.transitionforward-build/`
+directory before a Lovable/default build. Vite redirects only the exact
+`react-day-picker` import in `src/components/ui/calendar.tsx` and the exact
+Sentry imports in `src/lib/sentry/init.ts`, and only for Lovable's client
+environment. Missing or unexpectedly small prepared output fails the build
+closed. Protected staging and production builds continue to resolve the
+original packages normally.
+
+The Sentry initialization no longer traverses the `@sentry/react` barrel. It
+reproduces that SDK's React initialization using its public browser/core APIs:
+SDK metadata remains `react`, the React version context remains attached, and
+Synthetic Events retain the same normalized representation. Existing DSN
+gating, release identity, sampling, PII prohibition, replay exclusion,
+breadcrumb filtering, and event/transaction redaction remain unchanged.
+
+Focused regression coverage verifies the exact generated exports, minimum
+bundle sizes, sequential preparation, importer restrictions, fail-closed
+checks, and Sentry privacy posture. It also server-renders the prepared
+`DayPicker` and verifies the September 2026 grid and selected September 15
+accessibility label. All 48 focused Lovable/readiness tests, all 11 Sentry
+privacy tests, and the full TypeScript check pass.
+
+Together, the Sentry entry alignment and prepared slices reduce the Lovable
+client graph from 3,086 to 2,074
+transformed modules, a reduction of 1,012 modules (32.8%). The final boundary
+was measured with the full Lovable sandbox path:
+
+- **896 MiB old space:** the 2,074-module client still failed while rendering
+  chunks with `JavaScript heap out of memory`.
+- **1,024 MiB old space:** the client, server-rendered application, final Nitro
+  Worker bundle, and service-worker generation all completed successfully.
+
+The candidate therefore uses the verified 1,024 MiB default
+Lovable/development limit. Protected staging and production retain their 4,096
+MiB limits. A separate normal 4,096 MiB production-style build also passed.
+
+The exact constrained output then passed a local Worker browser smoke test:
+Home, About, and Research returned 200, rendered their expected headings and
+icons, retained Motion-driven styles, and did not render the application error
+boundary. The prepared calendar slice also passed its direct render test.
+
+Acceptance still requires exactly one connected Lovable preview build for the
+new exact candidate SHA. No same-SHA retry, publish, merge to `main`, staging or
+production deploy, database migration, or secret change is authorized.

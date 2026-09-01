@@ -15,10 +15,7 @@ import {
   mapLucideIconModules,
   rewriteLucideReactImportsFromBundle,
 } from "./scripts/direct-lucide-icon-imports.mjs";
-import {
-  mapDateFnsModules,
-  rewriteDateFnsImports,
-} from "./scripts/direct-date-fns-imports.mjs";
+import { mapDateFnsModules, rewriteDateFnsImports } from "./scripts/direct-date-fns-imports.mjs";
 import { rewriteMotionReactImports } from "./scripts/direct-motion-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
@@ -27,11 +24,9 @@ const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-
 const LUCIDE_BUNDLE_ID = "transitionforward:lucide-used-icons";
 const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
 const MOTION_DIRECT_PREFIX = "transitionforward:motion-direct/";
+const LOVABLE_VENDOR_DIRECTORY = new URL("./.transitionforward-build/vendor/", import.meta.url);
 
-const MOTION_DIRECT_MODULES = new Map<
-  string,
-  { relativePath: string; exportName: string }
->([
+const MOTION_DIRECT_MODULES = new Map<string, { relativePath: string; exportName: string }>([
   ["motion", { relativePath: "./render/components/m/proxy.mjs", exportName: "m" }],
   [
     "AnimatePresence",
@@ -52,10 +47,7 @@ const MOTION_DIRECT_MODULES = new Map<
   ],
   ["useScroll", { relativePath: "./value/use-scroll.mjs", exportName: "useScroll" }],
   ["useSpring", { relativePath: "./value/use-spring.mjs", exportName: "useSpring" }],
-  [
-    "useTransform",
-    { relativePath: "./value/use-transform.mjs", exportName: "useTransform" },
-  ],
+  ["useTransform", { relativePath: "./value/use-transform.mjs", exportName: "useTransform" }],
 ]);
 
 function resolveRequestedViteMode() {
@@ -63,8 +55,7 @@ function resolveRequestedViteMode() {
   if (childMode) return childMode;
 
   const requestedModeIndex = process.argv.indexOf("--mode");
-  const requestedMode =
-    requestedModeIndex >= 0 ? process.argv[requestedModeIndex + 1] : undefined;
+  const requestedMode = requestedModeIndex >= 0 ? process.argv[requestedModeIndex + 1] : undefined;
   if (requestedModeIndex >= 0 && (!requestedMode || requestedMode.startsWith("--"))) {
     throw new Error("--mode requires a value");
   }
@@ -87,6 +78,64 @@ function buildEnvironmentGarbageCollector(): Plugin {
       handler() {
         global.gc?.();
       },
+    },
+  };
+}
+
+function usePreparedLovableVendorBundles(): Plugin {
+  const isLovableSandbox =
+    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+  const reactDayPickerBundle = fileURLToPath(
+    new URL("react-day-picker.mjs", LOVABLE_VENDOR_DIRECTORY),
+  );
+  const sentryBrowserBundle = fileURLToPath(
+    new URL("sentry-browser.mjs", LOVABLE_VENDOR_DIRECTORY),
+  );
+  const preparedBundles = new Map([
+    ["react-day-picker", reactDayPickerBundle],
+    ["@sentry/browser", sentryBrowserBundle],
+    ["@sentry/core/browser", sentryBrowserBundle],
+  ]);
+
+  if (isLovableSandbox) {
+    for (const [source, bundlePath] of preparedBundles) {
+      let bundleSource = "";
+      try {
+        bundleSource = readFileSync(bundlePath, "utf8");
+      } catch (error) {
+        throw new Error(
+          `Missing prepared Lovable vendor bundle for ${source}. Run prepare-lovable-vendor-bundles.mjs first.`,
+          { cause: error },
+        );
+      }
+      if (bundleSource.length < 10_000) {
+        throw new Error(`Prepared Lovable vendor bundle for ${source} is unexpectedly small`);
+      }
+    }
+  }
+
+  return {
+    name: "transitionforward:prepared-lovable-vendor-bundles",
+    apply: "build",
+    enforce: "pre",
+    applyToEnvironment: (environment) => isLovableSandbox && environment.name === "client",
+    resolveId(source, importer) {
+      const bundlePath = preparedBundles.get(source);
+      if (!bundlePath || !importer) return null;
+      const normalizedImporter = importer.replaceAll("\\", "/");
+      if (
+        source === "react-day-picker" &&
+        normalizedImporter.endsWith("/src/components/ui/calendar.tsx")
+      ) {
+        return bundlePath;
+      }
+      if (
+        (source === "@sentry/browser" || source === "@sentry/core/browser") &&
+        normalizedImporter.endsWith("/src/lib/sentry/init.ts")
+      ) {
+        return bundlePath;
+      }
+      return null;
     },
   };
 }
@@ -171,14 +220,8 @@ function useDirectLucideIconModules(): Plugin {
       }
     }
   }
-  const iconBundle = createLucideIconBundle(
-    usedIconExports,
-    iconModules,
-    (iconModule) =>
-      readFileSync(
-        fileURLToPath(new URL(`./icons/${iconModule}`, lucideBarrelUrl)),
-        "utf8",
-      ),
+  const iconBundle = createLucideIconBundle(usedIconExports, iconModules, (iconModule) =>
+    readFileSync(fileURLToPath(new URL(`./icons/${iconModule}`, lucideBarrelUrl)), "utf8"),
   );
   let rewrittenFiles = 0;
   let rewrittenIcons = 0;
@@ -202,11 +245,7 @@ function useDirectLucideIconModules(): Plugin {
         return null;
       }
 
-      const result = rewriteLucideReactImportsFromBundle(
-        source,
-        iconModules,
-        LUCIDE_BUNDLE_ID,
-      );
+      const result = rewriteLucideReactImportsFromBundle(source, iconModules, LUCIDE_BUNDLE_ID);
       if (result.rewrittenIcons === 0) return null;
 
       rewrittenFiles += 1;
@@ -245,10 +284,7 @@ function useDirectDateFnsModules(): Plugin {
       const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
       const isApplicationSource = normalizedId.includes("/src/");
       const isReactDayPicker = normalizedId.includes("/node_modules/react-day-picker/");
-      if (
-        (!isApplicationSource && !isReactDayPicker) ||
-        !/\.[cm]?[jt]sx?$/.test(normalizedId)
-      ) {
+      if ((!isApplicationSource && !isReactDayPicker) || !/\.[cm]?[jt]sx?$/.test(normalizedId)) {
         return null;
       }
 
@@ -371,8 +407,7 @@ function publicClientOnlyRouteHead(routePath: string) {
   }
 
   if (routePath === "/demo") {
-    const description =
-      "Preview TransitionForward by role using fictional sample data.";
+    const description = "Preview TransitionForward by role using fictional sample data.";
     return {
       meta: [
         { title: "Demo — Preview TransitionForward by role" },
@@ -493,6 +528,7 @@ export default defineConfig({
     // single fetch bundle. Workbox runs afterward from the package script.
     plugins: [
       stubUnusedJsPdfOptionalRenderers(),
+      usePreparedLovableVendorBundles(),
       useDirectDateFnsModules(),
       useDirectLucideIconModules(),
       useDirectMotionModules(),

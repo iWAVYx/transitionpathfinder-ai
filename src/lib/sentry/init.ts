@@ -8,13 +8,31 @@
  * Everything that does get sent is scrubbed by `redactSentryEvent`.
  */
 
-import * as Sentry from "@sentry/react";
+import {
+  captureMessage,
+  init as initBrowserSentry,
+  normalizeStringifyValue as normalizeBrowserStringifyValue,
+  setContext,
+} from "@sentry/browser";
+import { applySdkMetadata, isSyntheticEvent, setNormalizeStringifier } from "@sentry/core/browser";
+import { version as reactVersion } from "react";
 
 import { APP_BUILD_SHA } from "@/lib/build-info";
 import { resolveSentryConfig } from "./config";
 import { redactSentryEvent } from "./redact";
 
 let initialized = false;
+
+function initReactSentry(options: Parameters<typeof initBrowserSentry>[0]) {
+  const reactOptions = { ...options };
+  applySdkMetadata(reactOptions, "react");
+  setContext("react", { version: reactVersion });
+  const client = initBrowserSentry(reactOptions);
+  setNormalizeStringifier((value) =>
+    isSyntheticEvent(value) ? "[SyntheticEvent]" : normalizeBrowserStringifyValue(value),
+  );
+  return client;
+}
 
 export function initSentry(): void {
   if (initialized) return;
@@ -27,7 +45,7 @@ export function initSentry(): void {
 
   initialized = true;
 
-  Sentry.init({
+  initReactSentry({
     dsn,
     environment,
     release: APP_BUILD_SHA && APP_BUILD_SHA !== "dev" ? APP_BUILD_SHA : undefined,
@@ -59,5 +77,5 @@ export function initSentry(): void {
 /** Exposed for the acceptance pass; not wired to any UI. */
 export function captureSyntheticSentryTestEvent(label: string): string | undefined {
   if (!initialized) return undefined;
-  return Sentry.captureMessage(`synthetic-check:${label}`, "info");
+  return captureMessage(`synthetic-check:${label}`, "info");
 }
