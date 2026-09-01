@@ -417,3 +417,43 @@ staging and production remain at 4,096 MiB. Acceptance still requires exactly
 one connected Lovable preview build for a fresh exact candidate SHA. No
 same-SHA retry, publish, merge to `main`, deploy, migration, or secret change is
 authorized.
+
+## Tenth hosted result and constrained client chunk merging
+
+The prepared report-date formatter candidate,
+`023fd710ae802b9ddf0fe439eda5adf8db1bfc9e`, passed GitHub Build & SSR
+Verification in 56 seconds. Lovable created the exact automatic card but again
+ended as **Build unsuccessful** with **Preview is out of date**. Its Details
+view exposed only the reviewed file changes and no phase, exit code, memory
+measurement, or actionable error. GitHub check, commit-status, deployment, and
+webhook metadata likewise exposed no Lovable diagnostic. No same-SHA retry or
+publish was performed.
+
+A local-only experiment disabled minification in the constrained Lovable client
+child. It still failed at 896 MiB and was discarded without a commit or hosted
+attempt because the larger artifact did not provide useful headroom.
+
+The accepted candidate instead uses Rollup's supported
+`experimentalMinChunkSize` output option only in the constrained Lovable client
+child. A 20,000-byte threshold merges small chunks only when their dependency
+relationships permit it; it does not remove routes or application code. The
+client output falls from 366 JavaScript chunks to 185. The server-rendered app,
+Nitro Worker, protected staging, and production retain Rollup's default
+threshold.
+
+- **896 MiB old space:** all 1,339 client modules transformed and the small
+  chunks merged, then the client failed with `JavaScript heap out of memory`.
+- **912 MiB old space:** the client, server-rendered application, final Nitro
+  Worker bundle, and service-worker generation completed successfully.
+
+The exact 912 MiB output passed local Worker browser smoke on Home, About,
+Research, the main demo, Student, Family, Educator, School Admin, District
+Admin, Partner, and Owner demo views, the workspace tour, Pathway Report, and
+Transition Channel. Every route rendered its expected heading with no
+application error boundary, dynamic-import failure, or console error.
+
+The candidate therefore lowers the constrained Lovable/development limit from
+928 to 912 MiB. Protected staging and production remain at 4,096 MiB.
+Acceptance still requires exactly one connected Lovable preview build for a
+fresh exact candidate SHA. No same-SHA retry, publish, merge to `main`, deploy,
+migration, or secret change is authorized.

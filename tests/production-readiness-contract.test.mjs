@@ -441,6 +441,12 @@ test("hosted Worker builds omit unused email formatting dependencies", () => {
   ];
 
   assert.match(viteConfig, /reportCompressedSize:\s*false/);
+  assert.match(
+    viteConfig,
+    /experimentalMinChunkSize:\s*isConstrainedLovableClientBuild\s*\?\s*20_000\s*:\s*1/,
+  );
+  assert.match(viteConfig, /\[CHILD_BUILD_ENVIRONMENT_ENV\]:\s*environmentName/);
+  assert.match(viteConfig, /process\.env\[CHILD_BUILD_ENVIRONMENT_ENV\]\s*===\s*["']client["']/);
   assert.match(renderer, /react-dom\/server\.edge/);
   assert.match(renderer, /from ["']html-to-text["']/);
   assert.doesNotMatch(renderer, /(?:from|import\()\s*["']prettier/);
@@ -467,11 +473,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=928 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=912 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=928 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=912 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.match(packageJson, /"esbuild":\s*"0\.28\.1"/);

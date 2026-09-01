@@ -20,12 +20,16 @@ import { rewriteMotionReactImports } from "./scripts/direct-motion-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
+const CHILD_BUILD_ENVIRONMENT_ENV = "TRANSITIONFORWARD_VITE_ENVIRONMENT";
 const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
 const LUCIDE_BUNDLE_ID = "transitionforward:lucide-used-icons";
 const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
 const MOTION_DIRECT_PREFIX = "transitionforward:motion-direct/";
 const PREPARED_MOTION_ID = "transitionforward:prepared-motion-client";
 const LOVABLE_VENDOR_DIRECTORY = new URL("./.transitionforward-build/vendor/", import.meta.url);
+const isConstrainedLovableClientBuild =
+  (process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH)) &&
+  process.env[CHILD_BUILD_ENVIRONMENT_ENV] === "client";
 const REVIEWED_MOTION_IMPORTERS = new Set([
   "/src/components/site/SiteFooter.tsx",
   "/src/components/site/SiteHeader.tsx",
@@ -417,6 +421,7 @@ function splitLovableBuildEnvironments(): Plugin {
         env: {
           ...process.env,
           [CHILD_BUILD_MODE_ENV]: requestedMode,
+          [CHILD_BUILD_ENVIRONMENT_ENV]: environmentName,
           VITE_APP_BUILD_TIME: appBuildTime,
         },
         stdio: "inherit",
@@ -580,6 +585,13 @@ export default defineConfig({
         // enough parallelism for a useful build while leaving memory headroom
         // inside Lovable's smaller hosted build containers.
         maxParallelFileOps: 2,
+        output: {
+          // The client currently emits hundreds of tiny route chunks. Let
+          // Rollup merge only sub-20 KiB chunks in the constrained Lovable
+          // client child, reducing simultaneous render/output bookkeeping.
+          // Other build environments retain Rollup's default threshold.
+          experimentalMinChunkSize: isConstrainedLovableClientBuild ? 20_000 : 1,
+        },
       },
     },
     define: {
