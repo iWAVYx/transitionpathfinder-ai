@@ -62,7 +62,10 @@ if (isLovableSandbox) {
     },
     {
       name: "zod-client",
-      contents: 'export * from "zod";',
+      contents: [
+        'export * from "zod";',
+        'export { $ZodError, parse, parseAsync } from "zod/v4/core";',
+      ].join("\n"),
       external: [],
     },
   ];

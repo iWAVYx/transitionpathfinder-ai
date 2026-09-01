@@ -117,6 +117,7 @@ function usePreparedLovableVendorBundles(): Plugin {
     ["remark-gfm", remarkGfmBundle],
     ["qrcode", qrcodeBundle],
     ["zod", zodBundle],
+    ["zod/v4/core", zodBundle],
   ]);
 
   if (isLovableSandbox) {
@@ -176,6 +177,12 @@ function usePreparedLovableVendorBundles(): Plugin {
         return bundlePath;
       }
       if (source === "zod" && normalizedImporter.includes("/src/")) {
+        return bundlePath;
+      }
+      if (
+        source === "zod/v4/core" &&
+        normalizedImporter.endsWith("/node_modules/@hookform/resolvers/zod/dist/zod.mjs")
+      ) {
         return bundlePath;
       }
       return null;

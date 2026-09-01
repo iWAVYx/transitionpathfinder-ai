@@ -340,3 +340,45 @@ still below the previous 960 MiB candidate. Protected staging and production
 remain at 4,096 MiB. Acceptance still requires exactly one connected Lovable
 preview build for a fresh exact candidate SHA. No same-SHA retry, publish,
 merge to `main`, deploy, migration, or secret change is authorized.
+
+## Eighth hosted result and shared Zod resolver slice
+
+The patched Browserslist candidate,
+`0caba3f4ab9308b9af19c144c4a52b08b7d4b2c6`, passed GitHub Build & SSR
+Verification. Lovable still ended as **Build unsuccessful** with **Preview is
+out of date** and no compiler error, exit code, memory measurement, or other
+actionable diagnostic. No same-SHA retry or publish was performed.
+
+A local-only client inventory found that 937 of the remaining 1,430 modules
+were TransitionForward application files. The largest unexpected dependency
+remainder was 55 Zod modules. React Hook Form's reviewed resolver imports the
+public `zod/v4/core` entry even when the application schemas use Zod's
+compatible v3 root surface.
+
+The Lovable client now redirects that one exact
+`@hookform/resolvers/zod/dist/zod.mjs` core import to the existing prepared Zod
+bundle. That bundle is 63,993 bytes and adds exactly `$ZodError`, `parse`, and
+`parseAsync` from the public core entry. App schemas and resolver support
+therefore share one prepared Zod runtime instead of duplicating the 55-module
+core graph. Any unrelated `zod/v4/core` importer continues through the normal
+package resolution.
+
+Focused behavior coverage sends both valid and invalid prepared schemas through
+the real Zod resolver and verifies its output, in addition to checking the
+required core symbols. The client graph falls from 1,430 to 1,375 transformed
+modules:
+
+- **912 MiB old space:** all 1,375 modules transformed, then the client failed
+  while rendering chunks with `JavaScript heap out of memory`.
+- **928 MiB old space:** the client, server-rendered application, final Nitro
+  Worker bundle, and service-worker generation completed successfully.
+
+The exact 928 MiB output also passed local Worker browser smoke on Home, About,
+and Research with the expected headings, icons, and Motion-driven styles and no
+application error boundary.
+
+The candidate therefore returns to the verified 928 MiB Lovable/development
+limit. Protected staging and production remain at 4,096 MiB. Acceptance still
+requires exactly one connected Lovable preview build for a fresh exact
+candidate SHA. No same-SHA retry, publish, merge to `main`, deploy, migration,
+or secret change is authorized.

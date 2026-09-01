@@ -114,13 +114,30 @@ test("prepared Markdown slices render GFM content", async () => {
 });
 
 test("prepared validation and QR slices preserve public behavior", async () => {
-  const [{ z }, { default: QRCode }] = await Promise.all([
+  const [preparedZod, { default: QRCode }, { zodResolver }] = await Promise.all([
     import(zodUrl.href),
     import(qrcodeUrl.href),
+    import("@hookform/resolvers/zod"),
   ]);
-  assert.deepEqual(z.object({ role: z.literal("student") }).parse({ role: "student" }), {
+  const schema = preparedZod.z.object({ role: preparedZod.z.literal("student") });
+  assert.deepEqual(schema.parse({ role: "student" }), {
     role: "student",
   });
+  const resolver = zodResolver(schema);
+  const resolverOptions = {
+    criteriaMode: "firstError",
+    fields: {},
+    shouldUseNativeValidation: false,
+  };
+  assert.deepEqual(await resolver({ role: "student" }, {}, resolverOptions), {
+    errors: {},
+    values: { role: "student" },
+  });
+  const invalidResult = await resolver({ role: "educator" }, {}, resolverOptions);
+  assert.equal(invalidResult.values.role, undefined);
+  assert.match(invalidResult.errors.role.message, /student/i);
+  assert.equal(typeof preparedZod.parseAsync, "function");
+  assert.equal(typeof preparedZod.$ZodError, "function");
   const qr = QRCode.create("transitionforward:test");
   assert.ok(qr.modules.size > 0);
   assert.equal(typeof qr.modules.get(0, 0), "number");
