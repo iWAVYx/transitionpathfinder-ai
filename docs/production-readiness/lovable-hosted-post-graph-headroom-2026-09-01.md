@@ -457,3 +457,39 @@ The candidate therefore lowers the constrained Lovable/development limit from
 Acceptance still requires exactly one connected Lovable preview build for a
 fresh exact candidate SHA. No same-SHA retry, publish, merge to `main`, deploy,
 migration, or secret change is authorized.
+
+## Eleventh hosted result and Node runtime compatibility
+
+The constrained-chunk candidate,
+`b1332bfb1bc12e64124c72d6ac50ee761764dff9`, passed GitHub Build & SSR
+Verification. Lovable created the exact automatic card but again ended as
+**Build unsuccessful** with **Preview is out of date** and no phase, exit code,
+memory measurement, or actionable error. No same-SHA retry or publish was
+performed.
+
+The remaining pre-Vite compatibility review found in the
+[Node CLI documentation](https://nodejs.org/download/release/v22.12.0/docs/api/cli.html#--expose-gc)
+that `--expose-gc` was added to Node 20 in 20.18.0 and to Node 22 in 22.3.0.
+[Lovable's public external-build guidance](https://docs.lovable.dev/tips-tricks/external-deployment-hosting)
+recommends Node 22, but it does not establish the exact Node patch version used
+by the hosted preview container. An older patch would reject the flag from
+`NODE_OPTIONS` and exit before Vite could write a diagnostic. This is a
+compatibility hypothesis, not a confirmed explanation for the hosted failure.
+
+The explicit flag is no longer necessary for the important heap-reclamation
+boundary: the constrained build now runs client and server-rendered builds in
+separate child processes, and each process releases its entire graph on exit.
+The optional `global.gc?.()` calls remain safe no-ops when an operator has not
+started Node with explicit GC exposure.
+
+The default Lovable/development scripts therefore remove only `--expose-gc` and
+retain the verified 4 MiB semi-space and 912 MiB old-space bounds. The exact
+912 MiB build without the flag completed the client, server-rendered
+application, final Nitro Worker bundle, and service-worker generation. Its
+Worker output passed browser smoke on Home, Student demo, Owner Hub demo, and
+the expanded Pathway Report with the expected headings and no application
+boundary, dynamic-import failure, or console error.
+
+Acceptance still requires exactly one connected Lovable preview build for a
+fresh exact candidate SHA. No same-SHA retry, publish, merge to `main`, deploy,
+migration, or secret change is authorized.
