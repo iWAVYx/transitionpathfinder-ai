@@ -307,3 +307,36 @@ Lovable/development limit. Protected staging and production remain at 4,096
 MiB. Acceptance still requires exactly one connected Lovable preview build for
 the new exact candidate SHA. No same-SHA retry, publish, merge to `main`,
 deploy, migration, or secret change is authorized.
+
+## Seventh hosted result and dependency advisory remediation
+
+The prepared content/validation candidate,
+`7a0806648668d9cb02b0d13bd1d702fedc000ba2`, produced one automatic Lovable
+card. Lovable ended as **Build unsuccessful** with **Preview is out of date**
+and exposed only the reviewed file list—no compiler error, exit code, memory
+measurement, or other actionable diagnostic. No same-SHA retry or publish was
+performed.
+
+GitHub correctly failed closed before building because a newly published pair
+of high-severity Browserslist advisories affected the transitive 4.28.2
+resolution. The follow-up pins Browserslist 4.28.8 through the existing
+override mechanism and regenerates the lockfile. `bun audit --audit-level=high`
+then reports no high or critical findings.
+
+The patched Browserslist release slightly changed build-time memory use while
+leaving the application graph at 1,430 transformed client modules:
+
+- **928 MiB old space:** the client transformed all 1,430 modules, then failed
+  while rendering chunks with `JavaScript heap out of memory`.
+- **944 MiB old space:** the client, server-rendered application, final Nitro
+  Worker bundle, and service-worker generation completed successfully.
+
+The exact 944 MiB output also passed local Worker browser smoke on Home, About,
+and Research with the expected headings, icons, and Motion-driven styles and no
+application error boundary.
+
+The follow-up therefore uses the verified 944 MiB Lovable/development limit,
+still below the previous 960 MiB candidate. Protected staging and production
+remain at 4,096 MiB. Acceptance still requires exactly one connected Lovable
+preview build for a fresh exact candidate SHA. No same-SHA retry, publish,
+merge to `main`, deploy, migration, or secret change is authorized.
