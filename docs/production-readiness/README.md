@@ -38,6 +38,10 @@ Documents:
   complete 1,280 MiB build.
 - `lovable-hosted-container-boundary-2026-08-30.md` — exact PR #79 result,
   process-tree measurements, and the lowest tested passing 1,216 MiB boundary.
+- `lovable-hosted-module-graph-reduction-2026-08-31.md` — PR #82 client-graph
+  reduction and the resulting lower constrained-build boundary.
+- `lovable-hosted-post-graph-headroom-2026-09-01.md` — isolated connected-build
+  result and the newly verified complete 1,152 MiB Lovable build.
 - `staging-acceptance-2026-08-28.md` — current exact-SHA isolated-staging
   deployment, protected workflow, and consolidated browser-suite evidence.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
