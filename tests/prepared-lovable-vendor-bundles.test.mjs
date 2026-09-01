@@ -13,6 +13,10 @@ const vendorDirectory = new URL("../.transitionforward-build/vendor/", import.me
 const dayPickerUrl = new URL("react-day-picker.mjs", vendorDirectory);
 const sentryUrl = new URL("sentry-browser.mjs", vendorDirectory);
 const motionUrl = new URL("motion-client.mjs", vendorDirectory);
+const reactMarkdownUrl = new URL("react-markdown.mjs", vendorDirectory);
+const remarkGfmUrl = new URL("remark-gfm.mjs", vendorDirectory);
+const qrcodeUrl = new URL("qrcode-client.mjs", vendorDirectory);
+const zodUrl = new URL("zod-client.mjs", vendorDirectory);
 
 test.after(() => {
   if (originalLovableSandbox === undefined) delete process.env.LOVABLE_SANDBOX;
@@ -82,4 +86,42 @@ test("prepared Motion slice renders a motion component", async () => {
 
   assert.match(markup, /data-motion-check="ready"/);
   assert.match(markup, />Ready<\/div>/);
+});
+
+test("prepared Markdown slices render GFM content", async () => {
+  const previousDocument = globalThis.document;
+  try {
+    globalThis.document = {
+      createElement: () => ({ innerHTML: "", textContent: "" }),
+    };
+    const [{ default: ReactMarkdown }, { default: remarkGfm }] = await Promise.all([
+      import(reactMarkdownUrl.href),
+      import(remarkGfmUrl.href),
+    ]);
+    const markup = renderToStaticMarkup(
+      React.createElement(
+        ReactMarkdown,
+        { remarkPlugins: [remarkGfm] },
+        "| Path | Ready |\n| --- | --- |\n| College | Yes |",
+      ),
+    );
+    assert.match(markup, /<table>/);
+    assert.match(markup, /<td>College<\/td>/);
+  } finally {
+    if (previousDocument === undefined) delete globalThis.document;
+    else globalThis.document = previousDocument;
+  }
+});
+
+test("prepared validation and QR slices preserve public behavior", async () => {
+  const [{ z }, { default: QRCode }] = await Promise.all([
+    import(zodUrl.href),
+    import(qrcodeUrl.href),
+  ]);
+  assert.deepEqual(z.object({ role: z.literal("student") }).parse({ role: "student" }), {
+    role: "student",
+  });
+  const qr = QRCode.create("transitionforward:test");
+  assert.ok(qr.modules.size > 0);
+  assert.equal(typeof qr.modules.get(0, 0), "number");
 });

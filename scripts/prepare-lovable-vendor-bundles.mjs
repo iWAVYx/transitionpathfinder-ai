@@ -45,6 +45,26 @@ if (isLovableSandbox) {
         'export { AnimatePresence, LazyMotion, domMax, motion, useInView, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";',
       external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
     },
+    {
+      name: "react-markdown",
+      contents: 'export { default } from "react-markdown";',
+      external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    },
+    {
+      name: "remark-gfm",
+      contents: 'export { default } from "remark-gfm";',
+      external: [],
+    },
+    {
+      name: "qrcode-client",
+      contents: 'export { default } from "qrcode";',
+      external: [],
+    },
+    {
+      name: "zod-client",
+      contents: 'export * from "zod";',
+      external: [],
+    },
   ];
 
   for (const bundle of bundles) {

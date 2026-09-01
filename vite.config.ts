@@ -102,11 +102,21 @@ function usePreparedLovableVendorBundles(): Plugin {
     new URL("sentry-browser.mjs", LOVABLE_VENDOR_DIRECTORY),
   );
   const motionClientBundle = fileURLToPath(new URL("motion-client.mjs", LOVABLE_VENDOR_DIRECTORY));
+  const reactMarkdownBundle = fileURLToPath(
+    new URL("react-markdown.mjs", LOVABLE_VENDOR_DIRECTORY),
+  );
+  const remarkGfmBundle = fileURLToPath(new URL("remark-gfm.mjs", LOVABLE_VENDOR_DIRECTORY));
+  const qrcodeBundle = fileURLToPath(new URL("qrcode-client.mjs", LOVABLE_VENDOR_DIRECTORY));
+  const zodBundle = fileURLToPath(new URL("zod-client.mjs", LOVABLE_VENDOR_DIRECTORY));
   const preparedBundles = new Map([
     ["react-day-picker", reactDayPickerBundle],
     ["@sentry/browser", sentryBrowserBundle],
     ["@sentry/core/browser", sentryBrowserBundle],
     [PREPARED_MOTION_ID, motionClientBundle],
+    ["react-markdown", reactMarkdownBundle],
+    ["remark-gfm", remarkGfmBundle],
+    ["qrcode", qrcodeBundle],
+    ["zod", zodBundle],
   ]);
 
   if (isLovableSandbox) {
@@ -151,6 +161,21 @@ function usePreparedLovableVendorBundles(): Plugin {
         source === PREPARED_MOTION_ID &&
         [...REVIEWED_MOTION_IMPORTERS].some((path) => normalizedImporter.endsWith(path))
       ) {
+        return bundlePath;
+      }
+      if (
+        (source === "react-markdown" || source === "remark-gfm") &&
+        normalizedImporter.endsWith("/src/routes/blog.$slug.tsx")
+      ) {
+        return bundlePath;
+      }
+      if (
+        source === "qrcode" &&
+        normalizedImporter.endsWith("/src/routes/_authenticated/security.tsx")
+      ) {
+        return bundlePath;
+      }
+      if (source === "zod" && normalizedImporter.includes("/src/")) {
         return bundlePath;
       }
       return null;

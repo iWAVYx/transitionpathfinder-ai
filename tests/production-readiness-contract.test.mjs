@@ -467,11 +467,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=960 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=928 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=960 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=928 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.match(packageJson, /"esbuild":\s*"0\.28\.1"/);
@@ -564,6 +564,10 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     /applySdkMetadata, isSyntheticEvent, setNormalizeStringifier/,
   );
   assert.match(preparedVendorBundles, /AnimatePresence, LazyMotion, domMax, motion/);
+  assert.match(preparedVendorBundles, /export \{ default \} from ["']react-markdown["']/);
+  assert.match(preparedVendorBundles, /export \{ default \} from ["']remark-gfm["']/);
+  assert.match(preparedVendorBundles, /export \{ default \} from ["']qrcode["']/);
+  assert.match(preparedVendorBundles, /export \* from ["']zod["']/);
   assert.match(viteConfig, /Unreviewed motion\/react importer in Lovable client build/);
   assert.match(viteConfig, /source\.replace\(\/\(\["'\]\)motion\\\/react\\1\/g/);
   assert.match(gitignore, /^\.transitionforward-build\/$/m);

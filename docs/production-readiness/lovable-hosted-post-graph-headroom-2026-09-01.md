@@ -274,3 +274,36 @@ Lovable/development limit. Protected staging and production remain fixed at
 4,096 MiB. Acceptance still requires exactly one connected Lovable preview
 build for the new exact candidate SHA. No same-SHA retry, publish, merge to
 `main`, deploy, migration, or secret change is authorized.
+
+## Sixth hosted result and prepared content/validation slices
+
+The prepared Motion candidate, `1dde80de19b19db82d72883d9c54d1fee9f191b4`,
+passed GitHub Build & SSR Verification in 1m13s. Lovable again ended as **Build
+unsuccessful** with **Preview is out of date** and no actionable diagnostic. No
+retry or publish was performed.
+
+The next measured candidate prebuilds four additional Lovable-client-only
+public surfaces: React Markdown (117,508 bytes), Remark GFM (42,320 bytes), the
+browser QR generator (24,859 bytes), and Zod (61,148 bytes). Importer routing is
+restricted to the reviewed blog, security, and application source paths;
+protected staging and production continue to resolve the original packages.
+
+Behavior tests render a GFM table, parse a representative Zod object, and
+generate a QR module matrix. Together these slices reduce the client graph from
+1,737 to 1,430 transformed modules, a reduction of 307 modules (17.7%):
+
+- **896 MiB old space:** the client transformed all 1,430 modules, then failed
+  with `JavaScript heap out of memory`.
+- **928 MiB old space:** the client, server-rendered application, and final
+  Nitro Worker bundle completed successfully.
+
+Service-worker generation also passed. The exact 928 MiB output passed the
+local Worker browser smoke on Home, About, and Research: all returned 200,
+rendered their expected headings and icons, retained Motion-driven styles, and
+did not render the application error boundary.
+
+The candidate therefore uses the verified 928 MiB default
+Lovable/development limit. Protected staging and production remain at 4,096
+MiB. Acceptance still requires exactly one connected Lovable preview build for
+the new exact candidate SHA. No same-SHA retry, publish, merge to `main`,
+deploy, migration, or secret change is authorized.
