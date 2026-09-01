@@ -7,3 +7,23 @@ export declare function rewriteLucideReactImports(
   code: string;
   rewrittenIcons: number;
 };
+
+export declare function collectLucideRuntimeExports(
+  source: string,
+  iconModules: ReadonlyMap<string, string>,
+): Set<string>;
+
+export declare function rewriteLucideReactImportsFromBundle(
+  source: string,
+  iconModules: ReadonlyMap<string, string>,
+  bundleId: string,
+): {
+  code: string;
+  rewrittenIcons: number;
+};
+
+export declare function createLucideIconBundle(
+  exportNames: Iterable<string>,
+  iconModules: ReadonlyMap<string, string>,
+  readIconModule: (iconModule: string) => string,
+): string;

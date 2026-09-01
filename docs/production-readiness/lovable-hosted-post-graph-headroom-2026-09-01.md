@@ -89,3 +89,39 @@ Lovable/development builds. Protected staging and production Cloudflare builds
 remain unchanged at 4,096 MiB. Acceptance still requires one successful hosted
 Lovable preview for the exact candidate SHA; no publish, retry, merge, deploy,
 migration, or secret change is authorized by this experiment.
+
+## Second hosted result and exact-icon bundle
+
+The second isolated candidate, `fc61181b212a006e8271bd99343b6899a4745255`,
+passed GitHub Build & SSR Verification but again ended as **Build unsuccessful**
+with **Preview is out of date** in Lovable. Lovable exposed no compiler
+diagnostic, exit code, failing phase, timestamp, or memory measurement. No retry
+or publish was performed.
+
+The next conservative reduction keeps Sentry monitoring and all existing Motion
+animations unchanged. For Lovable's client build only, it scans the application
+source for Lucide icon imports, reads the installed Lucide package's exact SVG
+node definitions, and generates one virtual module containing only the 209 icon
+exports the product actually uses. Alias exports share the same component, and
+the build fails closed on unknown imports, unsafe names, unreadable icon data, or
+an unexpectedly small icon inventory. Normal protected staging and production
+builds continue to use Lucide normally.
+
+This reduces the constrained Lovable client graph from 3,349 to 3,149
+transformed modules, a reduction of 200 modules (6.0%), without removing icons
+or changing their SVG data. The exact Lovable client boundary was measured
+locally:
+
+- **1,056 MiB old space:** all 3,149 client modules transformed, then the build
+  failed while rendering chunks with `JavaScript heap out of memory`.
+- **1,072 MiB old space:** the client, server-rendered application, final Nitro
+  server bundle, and service-worker generation completed successfully.
+
+The candidate therefore uses 1,072 MiB for default Lovable/development builds.
+Protected staging and production Cloudflare builds remain unchanged at 4,096
+MiB. Acceptance still requires one successful hosted Lovable preview for the
+exact candidate SHA; no same-SHA retry, publish, merge, deploy, migration, or
+secret change is authorized.
+
+The normal 4,096 MiB production-style build also completed after this change,
+confirming that the optimization remains confined to the Lovable client path.

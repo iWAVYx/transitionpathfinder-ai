@@ -2,8 +2,11 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import {
+  collectLucideRuntimeExports,
+  createLucideIconBundle,
   mapLucideIconModules,
   rewriteLucideReactImports,
+  rewriteLucideReactImportsFromBundle,
 } from "../scripts/direct-lucide-icon-imports.mjs";
 
 const iconModules = mapLucideIconModules(`
@@ -80,5 +83,55 @@ export { default as ArrowRight } from './icons/arrow-left.js';
         "export { default as ArrowRight } from './icons/../unsafe.js';",
       ),
     /Unsafe Lucide icon export mapping/,
+  );
+});
+
+test("collects runtime icons and rewrites them to one generated bundle", () => {
+  const source = `
+import {
+  ArrowRight,
+  Settings as SettingsGlyph,
+  type LucideIcon,
+} from "lucide-react";
+`;
+  assert.deepEqual(
+    [...collectLucideRuntimeExports(source, iconModules)],
+    ["ArrowRight", "Settings"],
+  );
+
+  const result = rewriteLucideReactImportsFromBundle(
+    source,
+    iconModules,
+    "transitionforward:lucide-used-icons",
+  );
+  assert.equal(result.rewrittenIcons, 2);
+  assert.match(result.code, /import \{ type LucideIcon \} from "lucide-react";/);
+  assert.match(
+    result.code,
+    /import \{ ArrowRight, Settings as SettingsGlyph \} from "transitionforward:lucide-used-icons";/,
+  );
+});
+
+test("builds one component per used Lucide module while preserving aliases", () => {
+  const manyModules = new Map();
+  const manyExports = [];
+  for (let index = 0; index < 100; index += 1) {
+    const exportName = `Icon${index}`;
+    const moduleName = `icon-${index}.js`;
+    manyModules.set(exportName, moduleName);
+    manyExports.push(exportName);
+  }
+  manyModules.set("IconAlias", "icon-0.js");
+  manyExports.push("IconAlias");
+
+  const bundle = createLucideIconBundle(manyExports, manyModules, (moduleName) => `
+const __iconNode = [["path", { d: ${JSON.stringify(moduleName)}, key: "key" }]];
+const Icon = createLucideIcon("${moduleName.slice(0, -3)}", __iconNode);
+`);
+  assert.match(bundle, /import createLucideIcon from "lucide-react\/dist\/esm\/createLucideIcon\.js";/);
+  assert.equal((bundle.match(/const __TransitionForwardLucide/g) ?? []).length, 100);
+  assert.match(
+    bundle,
+    /__TransitionForwardLucide0 as Icon0, __TransitionForwardLucide0 as IconAlias/,
   );
 });

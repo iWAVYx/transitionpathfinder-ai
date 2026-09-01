@@ -463,11 +463,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1088 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=1072 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1088 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=1072 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
@@ -512,6 +512,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   );
   assert.match(viteConfig, /lucide-react\/dist\/esm\/lucide-react\.js/);
   assert.match(viteConfig, /if \(iconModules\.size < 1_000\)/);
+  assert.match(viteConfig, /const LUCIDE_BUNDLE_ID = ["']transitionforward:lucide-used-icons["']/);
+  assert.match(viteConfig, /const LUCIDE_BUNDLE_RESOLVED_ID = ["']\\0transitionforward:lucide-used-icons["']/);
+  assert.match(viteConfig, /collectLucideRuntimeExports\(source, iconModules\)/);
+  assert.match(viteConfig, /createLucideIconBundle\(/);
+  assert.match(viteConfig, /bundled \$\{usedIconExports\.size/);
   assert.match(
     viteConfig,
     /applyToEnvironment:\s*\(environment\)\s*=>\s*isLovableSandbox\s*&&\s*environment\.name\s*===\s*["']client["']/,

@@ -6,12 +6,14 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { spawn } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { loadEnv, type Plugin } from "vite";
 import {
+  collectLucideRuntimeExports,
+  createLucideIconBundle,
   mapLucideIconModules,
-  rewriteLucideReactImports,
+  rewriteLucideReactImportsFromBundle,
 } from "./scripts/direct-lucide-icon-imports.mjs";
 import {
   mapDateFnsModules,
@@ -21,6 +23,8 @@ import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
+const LUCIDE_BUNDLE_ID = "transitionforward:lucide-used-icons";
+const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
 
 function resolveRequestedViteMode() {
   const childMode = process.env[CHILD_BUILD_MODE_ENV];
@@ -58,9 +62,8 @@ function buildEnvironmentGarbageCollector(): Plugin {
 function useDirectLucideIconModules(): Plugin {
   const isLovableSandbox =
     process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
-  const lucideBarrelPath = fileURLToPath(
-    import.meta.resolve("lucide-react/dist/esm/lucide-react.js"),
-  );
+  const lucideBarrelUrl = import.meta.resolve("lucide-react/dist/esm/lucide-react.js");
+  const lucideBarrelPath = fileURLToPath(lucideBarrelUrl);
   const lucideBarrel = readFileSync(lucideBarrelPath, "utf8");
   const iconModules = mapLucideIconModules(lucideBarrel);
 
@@ -69,6 +72,33 @@ function useDirectLucideIconModules(): Plugin {
       `Could not map Lucide's ESM icon exports (found ${iconModules.size.toLocaleString()})`,
     );
   }
+  const sourceRoot = fileURLToPath(new URL("./src/", import.meta.url));
+  const usedIconExports = new Set<string>();
+  const sourceDirectories = [sourceRoot];
+  while (sourceDirectories.length > 0) {
+    const directory = sourceDirectories.pop();
+    if (!directory) break;
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const entryPath = `${directory}/${entry.name}`;
+      if (entry.isDirectory()) {
+        sourceDirectories.push(entryPath);
+      } else if (/\.[cm]?[jt]sx?$/.test(entry.name)) {
+        const source = readFileSync(entryPath, "utf8");
+        for (const exportName of collectLucideRuntimeExports(source, iconModules)) {
+          usedIconExports.add(exportName);
+        }
+      }
+    }
+  }
+  const iconBundle = createLucideIconBundle(
+    usedIconExports,
+    iconModules,
+    (iconModule) =>
+      readFileSync(
+        fileURLToPath(new URL(`./icons/${iconModule}`, lucideBarrelUrl)),
+        "utf8",
+      ),
+  );
   let rewrittenFiles = 0;
   let rewrittenIcons = 0;
 
@@ -77,13 +107,25 @@ function useDirectLucideIconModules(): Plugin {
     apply: "build",
     enforce: "pre",
     applyToEnvironment: (environment) => isLovableSandbox && environment.name === "client",
+    resolveId(source) {
+      if (source === LUCIDE_BUNDLE_ID) return LUCIDE_BUNDLE_RESOLVED_ID;
+      return null;
+    },
+    load(id) {
+      if (id === LUCIDE_BUNDLE_RESOLVED_ID) return iconBundle;
+      return null;
+    },
     transform(source, id) {
       const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
       if (!normalizedId.includes("/src/") || !/\.[cm]?[jt]sx?$/.test(normalizedId)) {
         return null;
       }
 
-      const result = rewriteLucideReactImports(source, iconModules);
+      const result = rewriteLucideReactImportsFromBundle(
+        source,
+        iconModules,
+        LUCIDE_BUNDLE_ID,
+      );
       if (result.rewrittenIcons === 0) return null;
 
       rewrittenFiles += 1;
@@ -92,7 +134,7 @@ function useDirectLucideIconModules(): Plugin {
     },
     buildEnd() {
       console.info(
-        `[direct-lucide-icon-modules] rewrote ${rewrittenIcons.toLocaleString()} icon imports across ${rewrittenFiles.toLocaleString()} files`,
+        `[direct-lucide-icon-modules] bundled ${usedIconExports.size.toLocaleString()} used icon exports and rewrote ${rewrittenIcons.toLocaleString()} imports across ${rewrittenFiles.toLocaleString()} files`,
       );
     },
   };
