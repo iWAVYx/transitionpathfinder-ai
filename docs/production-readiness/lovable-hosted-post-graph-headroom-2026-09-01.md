@@ -125,3 +125,37 @@ secret change is authorized.
 
 The normal 4,096 MiB production-style build also completed after this change,
 confirming that the optimization remains confined to the Lovable client path.
+
+## Third hosted result and Motion feature loading
+
+The exact-icon candidate, `d897ae29e62a957fc539be7b653338b3d0107111`,
+passed GitHub Build & SSR Verification but again ended as **Build unsuccessful**
+with **Preview is out of date** in Lovable. Its Details surface showed the seven
+expected file changes but no compiler diagnostic, exit code, failing phase,
+timestamp, or memory measurement. No retry or publish was performed.
+
+The next isolated candidate keeps every existing animation declaration and all
+Sentry monitoring unchanged. The app root now supplies Motion's complete
+`domMax` browser feature set once through `LazyMotion`. During the constrained
+Lovable client build only, the seven source files that import `motion/react` are
+rewritten to Motion's minimal component proxy and the exact eight reviewed hook,
+presence, and feature modules they use. Any new unreviewed runtime export fails
+the build closed. Normal protected staging and production builds continue to
+resolve the public `motion/react` API normally.
+
+This reduces the constrained client graph from 3,149 to 3,086 transformed
+modules, a further reduction of 63 modules (2.0%). The exact Lovable sandbox
+path completed at **1,056 MiB old space**, including the client,
+server-rendered application, final Nitro server bundle, and service-worker
+generation. The default Lovable/development limit therefore moves from 1,072
+MiB to 1,056 MiB; protected staging and production remain at 4,096 MiB.
+
+The normal 4,096 MiB production-style path also completed. A local Worker
+browser smoke test returned 200 responses for Home, About, and Research,
+rendered their actual page headings, loaded 61, 34, and 23 Lucide icons,
+respectively, retained Motion-driven style elements, and never rendered the root
+error boundary.
+
+Acceptance still requires one successful hosted Lovable preview for the exact
+candidate SHA. No same-SHA retry, publish, merge, deploy, migration, or secret
+change is authorized.

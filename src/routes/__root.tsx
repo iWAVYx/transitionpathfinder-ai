@@ -9,6 +9,7 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { LazyMotion, domMax } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccessibilityControls } from "@/components/a11y/AccessibilityControls";
 import { SmoothScroll } from "@/components/effects/SmoothScroll";
@@ -257,21 +258,23 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        >
-          Skip to main content
-        </a>
-        <DemoBanner />
-        <SmoothScroll />
-        <ScrollToTop />
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <Toaster />
-        <AccessibilityControls />
-      </LanguageProvider>
+      <LazyMotion features={domMax}>
+        <LanguageProvider>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            Skip to main content
+          </a>
+          <DemoBanner />
+          <SmoothScroll />
+          <ScrollToTop />
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster />
+          <AccessibilityControls />
+        </LanguageProvider>
+      </LazyMotion>
     </QueryClientProvider>
   );
 }

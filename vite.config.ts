@@ -19,12 +19,44 @@ import {
   mapDateFnsModules,
   rewriteDateFnsImports,
 } from "./scripts/direct-date-fns-imports.mjs";
+import { rewriteMotionReactImports } from "./scripts/direct-motion-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
 const LUCIDE_BUNDLE_ID = "transitionforward:lucide-used-icons";
 const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
+const MOTION_DIRECT_PREFIX = "transitionforward:motion-direct/";
+
+const MOTION_DIRECT_MODULES = new Map<
+  string,
+  { relativePath: string; exportName: string }
+>([
+  ["motion", { relativePath: "./render/components/m/proxy.mjs", exportName: "m" }],
+  [
+    "AnimatePresence",
+    {
+      relativePath: "./components/AnimatePresence/index.mjs",
+      exportName: "AnimatePresence",
+    },
+  ],
+  ["LazyMotion", { relativePath: "./components/LazyMotion/index.mjs", exportName: "LazyMotion" }],
+  ["domMax", { relativePath: "./render/dom/features-max.mjs", exportName: "domMax" }],
+  ["useInView", { relativePath: "./utils/use-in-view.mjs", exportName: "useInView" }],
+  [
+    "useReducedMotion",
+    {
+      relativePath: "./utils/reduced-motion/use-reduced-motion.mjs",
+      exportName: "useReducedMotion",
+    },
+  ],
+  ["useScroll", { relativePath: "./value/use-scroll.mjs", exportName: "useScroll" }],
+  ["useSpring", { relativePath: "./value/use-spring.mjs", exportName: "useSpring" }],
+  [
+    "useTransform",
+    { relativePath: "./value/use-transform.mjs", exportName: "useTransform" },
+  ],
+]);
 
 function resolveRequestedViteMode() {
   const childMode = process.env[CHILD_BUILD_MODE_ENV];
@@ -55,6 +87,55 @@ function buildEnvironmentGarbageCollector(): Plugin {
       handler() {
         global.gc?.();
       },
+    },
+  };
+}
+
+function useDirectMotionModules(): Plugin {
+  const isLovableSandbox =
+    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+  const framerMotionIndexUrl = import.meta.resolve("framer-motion");
+  const directModulePaths = new Map(
+    [...MOTION_DIRECT_MODULES].map(([exportName, { relativePath }]) => [
+      `${MOTION_DIRECT_PREFIX}${exportName}`,
+      fileURLToPath(new URL(relativePath, framerMotionIndexUrl)),
+    ]),
+  );
+  const directExports = new Map<string, { moduleId: string; exportName: string }>();
+  for (const [importedName, { exportName }] of MOTION_DIRECT_MODULES) {
+    directExports.set(importedName, {
+      moduleId: `${MOTION_DIRECT_PREFIX}${importedName}`,
+      exportName,
+    });
+  }
+  let rewrittenFiles = 0;
+  let rewrittenExports = 0;
+
+  return {
+    name: "transitionforward:direct-motion-modules",
+    apply: "build",
+    enforce: "pre",
+    applyToEnvironment: (environment) => isLovableSandbox && environment.name === "client",
+    resolveId(source) {
+      return directModulePaths.get(source) ?? null;
+    },
+    transform(source, id) {
+      const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
+      if (!normalizedId.includes("/src/") || !/\.[cm]?[jt]sx?$/.test(normalizedId)) {
+        return null;
+      }
+
+      const result = rewriteMotionReactImports(source, directExports);
+      if (result.rewrittenExports === 0) return null;
+
+      rewrittenFiles += 1;
+      rewrittenExports += result.rewrittenExports;
+      return { code: result.code, map: null };
+    },
+    buildEnd() {
+      console.info(
+        `[direct-motion-modules] rewrote ${rewrittenExports.toLocaleString()} exports across ${rewrittenFiles.toLocaleString()} files`,
+      );
     },
   };
 }
@@ -414,6 +495,7 @@ export default defineConfig({
       stubUnusedJsPdfOptionalRenderers(),
       useDirectDateFnsModules(),
       useDirectLucideIconModules(),
+      useDirectMotionModules(),
       splitLovableBuildEnvironments(),
       serverClientOnlyRouteStubs(),
       buildEnvironmentGarbageCollector(),

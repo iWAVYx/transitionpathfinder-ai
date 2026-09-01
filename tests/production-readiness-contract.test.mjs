@@ -460,14 +460,15 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   const packageJson = read("package.json");
   const viteConfig = read("vite.config.ts");
   const buildSha = read("scripts/resolve-build-sha.mjs");
+  const rootRoute = read("src/routes/__root.tsx");
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1072 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=1056 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1072 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=1056 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
@@ -500,6 +501,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /function buildEnvironmentGarbageCollector\(\): Plugin/);
   assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
   assert.match(viteConfig, /function useDirectLucideIconModules\(\): Plugin/);
+  assert.match(viteConfig, /function useDirectMotionModules\(\): Plugin/);
   assert.match(viteConfig, /function useDirectDateFnsModules\(\): Plugin/);
   assert.match(viteConfig, /function stubUnusedJsPdfOptionalRenderers\(\): Plugin/);
   assert.match(viteConfig, /new Set\(\[["']canvg["'],\s*["']dompurify["'],\s*["']html2canvas["']\]\)/);
@@ -517,6 +519,12 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /collectLucideRuntimeExports\(source, iconModules\)/);
   assert.match(viteConfig, /createLucideIconBundle\(/);
   assert.match(viteConfig, /bundled \$\{usedIconExports\.size/);
+  assert.match(viteConfig, /const MOTION_DIRECT_PREFIX = ["']transitionforward:motion-direct\/["']/);
+  assert.match(viteConfig, /import\.meta\.resolve\(["']framer-motion["']\)/);
+  assert.match(viteConfig, /\.\/render\/components\/m\/proxy\.mjs/);
+  assert.match(viteConfig, /rewriteMotionReactImports\(source, directExports\)/);
+  assert.match(rootRoute, /import \{ LazyMotion, domMax \} from ["']motion\/react["']/);
+  assert.match(rootRoute, /<LazyMotion features=\{domMax\}>[\s\S]*?<\/LazyMotion>/);
   assert.match(
     viteConfig,
     /applyToEnvironment:\s*\(environment\)\s*=>\s*isLovableSandbox\s*&&\s*environment\.name\s*===\s*["']client["']/,
@@ -524,7 +532,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -604,7 +612,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 
