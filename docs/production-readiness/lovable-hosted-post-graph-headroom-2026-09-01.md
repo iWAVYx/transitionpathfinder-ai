@@ -43,3 +43,49 @@ existing 4,096 MiB limits. The inert trigger marker is removed.
 3. Require **Build successful** and a current preview for that exact SHA.
 4. Do not publish, retry the same SHA, merge to `main`, deploy, migrate, or
    change secrets without the corresponding separate authorization.
+
+## Connected result and next graph reduction
+
+The first isolated candidate, `d282d4b28e8fb3e2b3268bafc1f0d213b85a1840`,
+passed GitHub Build & SSR Verification in 1m21s but again ended as **Build
+unsuccessful** with **Preview is out of date** in Lovable. Its Details surface
+showed the expected file changes but no compiler diagnostic, exit code, failing
+phase, or memory measurement. No retry or publish was performed.
+
+A local client module inventory then identified 826 `date-fns` modules in the
+3,809-module graph. Only the district and school report screens use that
+dependency, and both use only `format`. They now import the package's supported
+`date-fns/format` entry instead of the full barrel. The formatting API and
+screen behavior are unchanged; the candidate removes unnecessary build-graph
+work rather than removing a product feature.
+
+`react-day-picker` also imports its date helpers through the package root. A
+Lovable-client-only Vite transform now maps those named imports to the
+corresponding supported `date-fns/<function>` entries. The transform reads the
+installed package's own export index and fails the build if that export map is
+not present, so a dependency change cannot silently produce an incomplete
+rewrite.
+
+The inventory also found that jsPDF was bundling its optional HTML and SVG
+rendering stack (`html2canvas`, `dompurify`, and `canvg`) even though
+TransitionForward's report exports use only text and AutoTable. For the
+constrained Lovable client build only, imports of those three optional
+renderers made by jsPDF itself are replaced with fail-closed stubs. Contract
+tests prohibit the district and school report exports from calling the omitted
+`html()` or `addSvgAsImage()` APIs. Normal protected staging and production
+builds continue to use the full jsPDF package.
+
+Together these changes reduced the Lovable client graph from 3,809 to 3,349
+transformed modules, a reduction of 460 modules (12.1%). The new boundary was
+verified locally with the exact Lovable sandbox path:
+
+- **1,024 MiB old space:** the client still failed while rendering chunks with
+  `JavaScript heap out of memory`.
+- **1,088 MiB old space:** the client, server-rendered application, final Nitro
+  server bundle, and service-worker generation all completed successfully.
+
+The next isolated candidate therefore uses 1,088 MiB for default
+Lovable/development builds. Protected staging and production Cloudflare builds
+remain unchanged at 4,096 MiB. Acceptance still requires one successful hosted
+Lovable preview for the exact candidate SHA; no publish, retry, merge, deploy,
+migration, or secret change is authorized by this experiment.

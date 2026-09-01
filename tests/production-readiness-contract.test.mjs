@@ -463,11 +463,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
 
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1152 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=1088 --expose-gc' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
-    /--max-semi-space-size=4 --max-old-space-size=1152 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
+    /--max-semi-space-size=4 --max-old-space-size=1088 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.19\.5"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
@@ -500,6 +500,16 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /function buildEnvironmentGarbageCollector\(\): Plugin/);
   assert.match(viteConfig, /closeBundle:\s*\{[\s\S]*?global\.gc\?\.\(\)/);
   assert.match(viteConfig, /function useDirectLucideIconModules\(\): Plugin/);
+  assert.match(viteConfig, /function useDirectDateFnsModules\(\): Plugin/);
+  assert.match(viteConfig, /function stubUnusedJsPdfOptionalRenderers\(\): Plugin/);
+  assert.match(viteConfig, /new Set\(\[["']canvg["'],\s*["']dompurify["'],\s*["']html2canvas["']\]\)/);
+  assert.match(viteConfig, /normalizedImporter\.includes\(["']\/node_modules\/jspdf\/["']\)/);
+  assert.match(viteConfig, /import\.meta\.resolve\(["']date-fns["']\)/);
+  assert.match(viteConfig, /if \(functionModules\.size < 200\)/);
+  assert.match(
+    viteConfig,
+    /normalizedId\.includes\(["']\/node_modules\/react-day-picker\/["']\)/,
+  );
   assert.match(viteConfig, /lucide-react\/dist\/esm\/lucide-react\.js/);
   assert.match(viteConfig, /if \(iconModules\.size < 1_000\)/);
   assert.match(
@@ -509,9 +519,42 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
+});
+
+test("client date formatting does not load the complete date-fns barrel", () => {
+  const clientSources = filesUnder("src").filter((path) => /\.[cm]?[jt]sx?$/.test(path));
+  for (const path of clientSources) {
+    assert.doesNotMatch(
+      read(path),
+      /from\s+["']date-fns["']/,
+      `${path} must use the supported date-fns function entry instead of its full barrel`,
+    );
+  }
+
+  for (const path of [
+    "src/routes/_authenticated/district.reports.tsx",
+    "src/routes/_authenticated/school.reports.tsx",
+  ]) {
+    assert.match(read(path), /import\s+\{\s*format\s*\}\s+from\s+["']date-fns\/format["']/);
+  }
+});
+
+test("Lovable stubs only jsPDF renderers the product does not call", () => {
+  for (const path of [
+    "src/routes/_authenticated/district.reports.tsx",
+    "src/routes/_authenticated/school.reports.tsx",
+  ]) {
+    const source = read(path);
+    assert.doesNotMatch(source, /\.html\s*\(/, `${path} must not use jsPDF.html`);
+    assert.doesNotMatch(
+      source,
+      /\.addSvgAsImage\s*\(/,
+      `${path} must not use jsPDF.addSvgAsImage`,
+    );
+  }
 });
 
 test("build verification has a credential-free exact-main recovery trigger", () => {
@@ -556,7 +599,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 

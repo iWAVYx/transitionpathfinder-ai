@@ -13,9 +13,14 @@ import {
   mapLucideIconModules,
   rewriteLucideReactImports,
 } from "./scripts/direct-lucide-icon-imports.mjs";
+import {
+  mapDateFnsModules,
+  rewriteDateFnsImports,
+} from "./scripts/direct-date-fns-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
+const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
 
 function resolveRequestedViteMode() {
   const childMode = process.env[CHILD_BUILD_MODE_ENV];
@@ -89,6 +94,83 @@ function useDirectLucideIconModules(): Plugin {
       console.info(
         `[direct-lucide-icon-modules] rewrote ${rewrittenIcons.toLocaleString()} icon imports across ${rewrittenFiles.toLocaleString()} files`,
       );
+    },
+  };
+}
+
+function useDirectDateFnsModules(): Plugin {
+  const isLovableSandbox =
+    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+  const dateFnsIndexPath = fileURLToPath(import.meta.resolve("date-fns"));
+  const dateFnsIndex = readFileSync(dateFnsIndexPath, "utf8");
+  const functionModules = mapDateFnsModules(dateFnsIndex);
+
+  if (functionModules.size < 200) {
+    throw new Error(
+      `Could not map date-fns function exports (found ${functionModules.size.toLocaleString()})`,
+    );
+  }
+  let rewrittenFiles = 0;
+  let rewrittenFunctions = 0;
+
+  return {
+    name: "transitionforward:direct-date-fns-modules",
+    apply: "build",
+    enforce: "pre",
+    applyToEnvironment: (environment) => isLovableSandbox && environment.name === "client",
+    transform(source, id) {
+      const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
+      const isApplicationSource = normalizedId.includes("/src/");
+      const isReactDayPicker = normalizedId.includes("/node_modules/react-day-picker/");
+      if (
+        (!isApplicationSource && !isReactDayPicker) ||
+        !/\.[cm]?[jt]sx?$/.test(normalizedId)
+      ) {
+        return null;
+      }
+
+      const result = rewriteDateFnsImports(source, functionModules);
+      if (result.rewrittenFunctions === 0) return null;
+
+      rewrittenFiles += 1;
+      rewrittenFunctions += result.rewrittenFunctions;
+      return { code: result.code, map: null };
+    },
+    buildEnd() {
+      console.info(
+        `[direct-date-fns-modules] rewrote ${rewrittenFunctions.toLocaleString()} function imports across ${rewrittenFiles.toLocaleString()} files`,
+      );
+    },
+  };
+}
+
+function stubUnusedJsPdfOptionalRenderers(): Plugin {
+  const isLovableSandbox =
+    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+  const optionalRenderers = new Set(["canvg", "dompurify", "html2canvas"]);
+
+  return {
+    name: "transitionforward:stub-unused-jspdf-optional-renderers",
+    apply: "build",
+    enforce: "pre",
+    applyToEnvironment: (environment) => isLovableSandbox && environment.name === "client",
+    resolveId(source, importer) {
+      if (!importer || !optionalRenderers.has(source)) return null;
+      const normalizedImporter = importer.replaceAll("\\", "/");
+      if (!normalizedImporter.includes("/node_modules/jspdf/")) return null;
+      return `${JSPDF_OPTIONAL_RENDERER_STUB_PREFIX}${source}`;
+    },
+    load(id) {
+      if (!id.startsWith(JSPDF_OPTIONAL_RENDERER_STUB_PREFIX)) return null;
+      const renderer = id.slice(JSPDF_OPTIONAL_RENDERER_STUB_PREFIX.length);
+      const message = `The unused jsPDF ${renderer} renderer is not included in the constrained Lovable build.`;
+      if (renderer === "canvg") {
+        return `const unsupported = () => { throw new Error(${JSON.stringify(message)}); };\nexport const Canvg = { from: unsupported, fromString: unsupported };\nexport default { Canvg };\n`;
+      }
+      if (renderer === "dompurify") {
+        return `const unsupported = () => { throw new Error(${JSON.stringify(message)}); };\nexport default { sanitize: unsupported };\n`;
+      }
+      return `export default function unsupported() { throw new Error(${JSON.stringify(message)}); }\n`;
     },
   };
 }
@@ -287,6 +369,8 @@ export default defineConfig({
     // the client and SSR graphs in child processes before Nitro creates the
     // single fetch bundle. Workbox runs afterward from the package script.
     plugins: [
+      stubUnusedJsPdfOptionalRenderers(),
+      useDirectDateFnsModules(),
       useDirectLucideIconModules(),
       splitLovableBuildEnvironments(),
       serverClientOnlyRouteStubs(),
