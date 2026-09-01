@@ -570,8 +570,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(preparedVendorBundles, /export \{ default \} from ["']qrcode["']/);
   assert.match(preparedVendorBundles, /export \* from ["']zod["']/);
   assert.match(preparedVendorBundles, /\$ZodError, parse, parseAsync/);
+  assert.match(preparedVendorBundles, /export \{ format \} from ["']date-fns\/format["']/);
   assert.match(viteConfig, /\["zod\/v4\/core", zodBundle\]/);
   assert.match(viteConfig, /\/node_modules\/@hookform\/resolvers\/zod\/dist\/zod\.mjs/);
+  assert.match(viteConfig, /_authenticated\/district\.reports\.tsx/);
+  assert.match(viteConfig, /_authenticated\/school\.reports\.tsx/);
   assert.match(viteConfig, /Unreviewed motion\/react importer in Lovable client build/);
   assert.match(viteConfig, /source\.replace\(\/\(\["'\]\)motion\\\/react\\1\/g/);
   assert.match(gitignore, /^\.transitionforward-build\/$/m);

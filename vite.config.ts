@@ -108,6 +108,9 @@ function usePreparedLovableVendorBundles(): Plugin {
   const remarkGfmBundle = fileURLToPath(new URL("remark-gfm.mjs", LOVABLE_VENDOR_DIRECTORY));
   const qrcodeBundle = fileURLToPath(new URL("qrcode-client.mjs", LOVABLE_VENDOR_DIRECTORY));
   const zodBundle = fileURLToPath(new URL("zod-client.mjs", LOVABLE_VENDOR_DIRECTORY));
+  const dateFnsFormatBundle = fileURLToPath(
+    new URL("date-fns-format.mjs", LOVABLE_VENDOR_DIRECTORY),
+  );
   const preparedBundles = new Map([
     ["react-day-picker", reactDayPickerBundle],
     ["@sentry/browser", sentryBrowserBundle],
@@ -118,6 +121,7 @@ function usePreparedLovableVendorBundles(): Plugin {
     ["qrcode", qrcodeBundle],
     ["zod", zodBundle],
     ["zod/v4/core", zodBundle],
+    ["date-fns/format", dateFnsFormatBundle],
   ]);
 
   if (isLovableSandbox) {
@@ -182,6 +186,13 @@ function usePreparedLovableVendorBundles(): Plugin {
       if (
         source === "zod/v4/core" &&
         normalizedImporter.endsWith("/node_modules/@hookform/resolvers/zod/dist/zod.mjs")
+      ) {
+        return bundlePath;
+      }
+      if (
+        source === "date-fns/format" &&
+        (normalizedImporter.endsWith("/src/routes/_authenticated/district.reports.tsx") ||
+          normalizedImporter.endsWith("/src/routes/_authenticated/school.reports.tsx"))
       ) {
         return bundlePath;
       }

@@ -382,3 +382,38 @@ limit. Protected staging and production remain at 4,096 MiB. Acceptance still
 requires exactly one connected Lovable preview build for a fresh exact
 candidate SHA. No same-SHA retry, publish, merge to `main`, deploy, migration,
 or secret change is authorized.
+
+## Ninth hosted result and prepared report date formatter
+
+The shared-Zod candidate, `157f33924e132ff2d7005fdff091521f10243483`,
+passed GitHub Build & SSR Verification in 1m14s. Lovable again ended as **Build
+unsuccessful** with **Preview is out of date** and exposed no compiler error,
+exit code, memory measurement, or other actionable diagnostic. No same-SHA
+retry or publish was performed.
+
+A fresh local-only client inventory found the next low-risk dependency
+remainder: 37 date-fns modules reached through the exact public
+`date-fns/format` imports in the district and school report routes. The Lovable
+client now redirects only those two reviewed imports to a prepared 19,621-byte
+bundle that exports exactly `format`. Protected staging and production continue
+to resolve the normal date-fns package.
+
+Focused behavior coverage verifies that the prepared formatter produces the
+existing `September 15, 2026` report output. Replacing the 37-module dependency
+remainder with the one prepared module reduces the client graph from 1,375 to
+1,339 transformed modules:
+
+- **912 MiB old space:** all 1,339 modules transformed, then the client failed
+  while rendering chunks with `JavaScript heap out of memory`.
+- **928 MiB old space:** the client, server-rendered application, final Nitro
+  Worker bundle, and service-worker generation completed successfully.
+
+The exact 928 MiB output also passed local Worker browser smoke on Home, About,
+and Research with the expected headings, icon counts, and Motion-driven styles
+and no application error boundary.
+
+The candidate keeps the verified 928 MiB Lovable/development limit. Protected
+staging and production remain at 4,096 MiB. Acceptance still requires exactly
+one connected Lovable preview build for a fresh exact candidate SHA. No
+same-SHA retry, publish, merge to `main`, deploy, migration, or secret change is
+authorized.

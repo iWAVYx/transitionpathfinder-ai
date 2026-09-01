@@ -68,6 +68,11 @@ if (isLovableSandbox) {
       ].join("\n"),
       external: [],
     },
+    {
+      name: "date-fns-format",
+      contents: 'export { format } from "date-fns/format";',
+      external: [],
+    },
   ];
 
   for (const bundle of bundles) {

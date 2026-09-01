@@ -17,6 +17,7 @@ const reactMarkdownUrl = new URL("react-markdown.mjs", vendorDirectory);
 const remarkGfmUrl = new URL("remark-gfm.mjs", vendorDirectory);
 const qrcodeUrl = new URL("qrcode-client.mjs", vendorDirectory);
 const zodUrl = new URL("zod-client.mjs", vendorDirectory);
+const dateFnsFormatUrl = new URL("date-fns-format.mjs", vendorDirectory);
 
 test.after(() => {
   if (originalLovableSandbox === undefined) delete process.env.LOVABLE_SANDBOX;
@@ -141,4 +142,9 @@ test("prepared validation and QR slices preserve public behavior", async () => {
   const qr = QRCode.create("transitionforward:test");
   assert.ok(qr.modules.size > 0);
   assert.equal(typeof qr.modules.get(0, 0), "number");
+});
+
+test("prepared date formatter preserves report output", async () => {
+  const { format } = await import(dateFnsFormatUrl.href);
+  assert.equal(format(new Date(2026, 8, 15, 12), "MMMM d, yyyy"), "September 15, 2026");
 });
