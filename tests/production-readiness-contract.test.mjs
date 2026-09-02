@@ -544,7 +544,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /spawn\(process\.execPath/);
   assert.match(
     viteConfig,
-    /const LOVABLE_CHILD_NODE_OPTIONS = ["']--max-semi-space-size=4 --max-old-space-size=944["']/,
+    /const LOVABLE_CHILD_NODE_OPTIONS = ["']--max-semi-space-size=4 --max-old-space-size=1024["']/,
   );
   assert.match(viteConfig, /NODE_OPTIONS:\s*LOVABLE_CHILD_NODE_OPTIONS/);
   assert.match(viteConfig, /await buildInChildProcess\(["']client["']\)/);

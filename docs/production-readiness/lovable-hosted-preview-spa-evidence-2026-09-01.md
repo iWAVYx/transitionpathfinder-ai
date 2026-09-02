@@ -57,6 +57,20 @@ existing 4,096 MiB build allowance.
 - Full `build:production` after the change: passed with the normal Cloudflare module output and
   full SSR graph.
 
+## Cross-runtime correction
+
+The first pushed candidate, `e08cc0906c88465d7d26b758d137df9be1ccef4c`, exposed a useful
+runtime difference before acceptance:
+
+- Windows Node 22.23.2 completed the client child with its 944 MiB cap.
+- GitHub's Linux Node 22.23.2 runner transformed all 1,339 client modules and then reached about
+  921 MiB while rendering chunks, exhausting the same 944 MiB cap.
+
+The corrected candidate gives only the short-lived client and SSR child processes a 1,024 MiB
+old-space cap. The final Nitro parent stays at 768 MiB and the phases remain sequential, so the
+maximum configured heap is still lower than the previous 1,216 MiB design. A fresh GitHub and
+Lovable preview result is required for the corrected commit; the failed SHA must not be retried.
+
 ## CI guardrail
 
 `Build & SSR Verification` now runs both:
