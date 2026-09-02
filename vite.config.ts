@@ -28,9 +28,13 @@ const LUCIDE_BUNDLE_RESOLVED_ID = "\0transitionforward:lucide-used-icons";
 const MOTION_DIRECT_PREFIX = "transitionforward:motion-direct/";
 const PREPARED_MOTION_ID = "transitionforward:prepared-motion-client";
 const LOVABLE_VENDOR_DIRECTORY = new URL("./.transitionforward-build/vendor/", import.meta.url);
+const LOVABLE_PREVIEW_ROOT_SHELL = new URL("./src/lovable-preview-root-shell.tsx", import.meta.url);
+const isLovableSandbox =
+  process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+const isLovablePreviewSpaBuild =
+  isLovableSandbox && process.env.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA === "1";
 const isConstrainedLovableClientBuild =
-  (process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH)) &&
-  process.env[CHILD_BUILD_ENVIRONMENT_ENV] === "client";
+  isLovableSandbox && process.env[CHILD_BUILD_ENVIRONMENT_ENV] === "client";
 const REVIEWED_MOTION_IMPORTERS = new Set([
   "/src/components/site/SiteFooter.tsx",
   "/src/components/site/SiteHeader.tsx",
@@ -409,8 +413,6 @@ function stubUnusedJsPdfOptionalRenderers(): Plugin {
 }
 
 function splitLovableBuildEnvironments(): Plugin {
-  const isLovableSandbox =
-    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
   const requestedMode = resolveRequestedViteMode();
   const environmentBuilder = fileURLToPath(
     new URL("./scripts/build-environment.mjs", import.meta.url),
@@ -518,6 +520,10 @@ function serverClientOnlyRouteStubs(): Plugin {
     applyToEnvironment: (environment) => environment.name !== "client",
     transform(source, id) {
       const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
+      const isRouteModule =
+        normalizedId.includes("/src/routes/") &&
+        normalizedId.endsWith(".tsx") &&
+        !normalizedId.endsWith("/src/routes/__root.tsx");
       const isAuthenticatedRoute =
         normalizedId.endsWith("/src/routes/_authenticated.tsx") ||
         (normalizedId.includes("/src/routes/_authenticated/") && normalizedId.endsWith(".tsx"));
@@ -525,7 +531,8 @@ function serverClientOnlyRouteStubs(): Plugin {
         normalizedId.endsWith("/src/routes/demo.tsx") ||
         (normalizedId.includes("/src/routes/demo_") && normalizedId.endsWith(".tsx")) ||
         normalizedId.endsWith("/src/routes/share.$token.tsx");
-      if (!isAuthenticatedRoute && !isPublicClientOnlyRoute) return null;
+      const isPreviewSpaRoute = isLovablePreviewSpaBuild && isRouteModule;
+      if (!isAuthenticatedRoute && !isPublicClientOnlyRoute && !isPreviewSpaRoute) return null;
 
       // The authenticated subtree restores identity from browser storage. The
       // public demo routes restore fictional demo state from the browser, and
@@ -548,13 +555,32 @@ function serverClientOnlyRouteStubs(): Plugin {
       }
 
       const routePath = routeMatch[2];
-      const publicHead = isPublicClientOnlyRoute
+      const publicHead = isPublicClientOnlyRoute && !isPreviewSpaRoute
         ? `, head: () => (${JSON.stringify(publicClientOnlyRouteHead(routePath))})`
         : "";
       return {
         code: `import { createFileRoute } from "@tanstack/react-router";\nexport const Route = createFileRoute(${JSON.stringify(routePath)})({ ssr: false${publicHead} });\n`,
         map: null,
       };
+    },
+  };
+}
+
+function lovablePreviewRootShell(): Plugin {
+  const previewRootShellSource = isLovablePreviewSpaBuild
+    ? readFileSync(LOVABLE_PREVIEW_ROOT_SHELL, "utf8")
+    : "";
+
+  return {
+    name: "transitionforward:lovable-preview-root-shell",
+    enforce: "pre",
+    apply: "build",
+    applyToEnvironment: (environment) =>
+      isLovablePreviewSpaBuild && environment.name !== "client",
+    transform(_source, id) {
+      const normalizedId = id.split("?", 1)[0].replaceAll("\\", "/");
+      if (!normalizedId.endsWith("/src/routes/__root.tsx")) return null;
+      return { code: previewRootShellSource, map: null };
     },
   };
 }
@@ -578,6 +604,10 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    // Lovable preview is a browser-rendered shell backed by the same server
+    // functions. Protected staging and production omit this flag and retain
+    // full route SSR for SEO, initial-load performance, and release parity.
+    ...(isLovablePreviewSpaBuild ? { spa: { enabled: true } } : {}),
   },
   vite: {
     build: {
@@ -608,6 +638,9 @@ export default defineConfig({
       "import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN": JSON.stringify(paymentsClientToken),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
+      "import.meta.env.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA": JSON.stringify(
+        isLovablePreviewSpaBuild ? "1" : "",
+      ),
     },
     // Keep Lovable's supported Vite application-build entrypoint, but release
     // the client and SSR graphs in child processes before Nitro creates the
@@ -619,6 +652,7 @@ export default defineConfig({
       useDirectLucideIconModules(),
       useDirectMotionModules(),
       splitLovableBuildEnvironments(),
+      lovablePreviewRootShell(),
       serverClientOnlyRouteStubs(),
       buildEnvironmentGarbageCollector(),
     ],

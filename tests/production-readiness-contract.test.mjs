@@ -467,13 +467,15 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   const viteConfig = read("vite.config.ts");
   const buildSha = read("scripts/resolve-build-sha.mjs");
   const preparedVendorBundles = read("scripts/prepare-lovable-vendor-bundles.mjs");
+  const lovablePreviewRootShell = read("src/lovable-preview-root-shell.tsx");
+  const buildWorkflow = read(".github/workflows/build-ssr-verify.yml");
   const gitignore = read(".gitignore");
   const rootRoute = read("src/routes/__root.tsx");
   const sentryInit = read("src/lib/sentry/init.ts");
 
   assert.match(
     packageJson,
-    /node scripts\/prepare-lovable-vendor-bundles\.mjs && NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1216' vite build && node scripts\/generate-service-worker\.mjs/,
+    /node scripts\/prepare-lovable-vendor-bundles\.mjs && TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA=1 NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=768' vite build && node scripts\/generate-service-worker\.mjs/,
   );
   assert.match(
     packageJson,
@@ -503,6 +505,40 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     /["']import\.meta\.env\.VITE_PAYMENTS_CLIENT_TOKEN["']:\s*JSON\.stringify\(paymentsClientToken\)/,
   );
   assert.match(viteConfig, /Boolean\(process\.env\.DEV_SERVER__PROJECT_PATH\)/);
+  assert.match(
+    viteConfig,
+    /const isLovablePreviewSpaBuild\s*=\s*isLovableSandbox\s*&&\s*process\.env\.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA\s*===\s*["']1["']/,
+  );
+  assert.match(viteConfig, /\.\.\.\(isLovablePreviewSpaBuild \? \{ spa: \{ enabled: true \} \} : \{\}\)/);
+  assert.match(viteConfig, /function lovablePreviewRootShell\(\): Plugin/);
+  assert.match(
+    viteConfig,
+    /isLovablePreviewSpaBuild && environment\.name !== ["']client["']/,
+  );
+  assert.match(viteConfig, /const isPreviewSpaRoute = isLovablePreviewSpaBuild && isRouteModule/);
+  assert.match(lovablePreviewRootShell, /createRootRouteWithContext/);
+  assert.match(lovablePreviewRootShell, /ssr:\s*false/);
+  assert.match(lovablePreviewRootShell, /<HeadContent \/>/);
+  assert.match(lovablePreviewRootShell, /<Scripts \/>/);
+  assert.match(lovablePreviewRootShell, /name: ["']robots["'], content: ["']noindex, nofollow["']/);
+  assert.match(rootRoute, /<ClientOnly>\{app\}<\/ClientOnly>/);
+  assert.match(
+    buildWorkflow,
+    /LOVABLE_SANDBOX=1[\s\S]*?DEV_SERVER__PROJECT_PATH=["']\$GITHUB_WORKSPACE["'][\s\S]*?LOVABLE_NITRO_PRESET=lovable-fetch-bundle[\s\S]*?bun run build/,
+  );
+  assert.match(buildWorkflow, /bun run build:production/);
+  assert.doesNotMatch(
+    JSON.parse(packageJson).scripts["build:production"],
+    /TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA/,
+  );
+  assert.doesNotMatch(
+    JSON.parse(packageJson).scripts["build:staging"],
+    /TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA/,
+  );
+  assert.match(
+    rootRoute,
+    /ssr:\s*import\.meta\.env\.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA\s*===\s*["']1["']\s*\?\s*false\s*:\s*true/,
+  );
   assert.match(viteConfig, /buildApp:\s*\{\s*order:\s*["']pre["']/);
   assert.match(viteConfig, /if \(!isLovableSandbox\) return/);
   assert.match(viteConfig, /spawn\(process\.execPath/);
@@ -604,7 +640,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*usePreparedLovableVendorBundles\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*usePreparedLovableVendorBundles\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*lovablePreviewRootShell\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -648,7 +684,7 @@ test("build verification has a credential-free exact-main recovery trigger", () 
   assert.doesNotMatch(workflow, /secrets\./);
 });
 
-test("SSR stubs only the explicitly client-only route groups", () => {
+test("SSR stubs remain scoped to client-only groups or the isolated Lovable SPA preview", () => {
   const viteConfig = read("vite.config.ts");
   const authenticatedRoute = read("src/routes/_authenticated.tsx");
 
@@ -677,7 +713,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*usePreparedLovableVendorBundles\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*usePreparedLovableVendorBundles\(\),\s*useDirectDateFnsModules\(\),\s*useDirectLucideIconModules\(\),\s*useDirectMotionModules\(\),\s*splitLovableBuildEnvironments\(\),\s*lovablePreviewRootShell\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 

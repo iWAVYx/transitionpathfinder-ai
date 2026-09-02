@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    name: Clean Production Build
+    name: Lovable Preview + Full Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -60,21 +60,38 @@ jobs:
       - name: Verify preview auth storage isolation
         run: node --experimental-strip-types --test tests/preview-auth-storage.test.mjs
 
-      - name: Run clean production build
+      - name: Run constrained Lovable preview and full production builds
         id: build
         run: |
-          echo "::group::Build output"
-          bun run build 2>&1 | tee build.log
+          set +e
+          echo "::group::Constrained Lovable preview build"
+          LOVABLE_SANDBOX=1 \
+            DEV_SERVER__PROJECT_PATH="$GITHUB_WORKSPACE" \
+            LOVABLE_NITRO_PRESET=lovable-fetch-bundle \
+            APP_ENV=production \
+            VITE_APP_ENV=production \
+            bun run build 2>&1 | tee build.log
+          preview_exit=${PIPESTATUS[0]}
           echo "::endgroup::"
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          if [ "$preview_exit" -ne 0 ]; then
+            echo "exit_code=$preview_exit" >> "$GITHUB_OUTPUT"
+            exit "$preview_exit"
+          fi
+
+          echo "::group::Full production SSR build"
+          bun run build:production 2>&1 | tee -a build.log
+          production_exit=${PIPESTATUS[0]}
+          echo "::endgroup::"
+          echo "exit_code=$production_exit" >> "$GITHUB_OUTPUT"
+          exit "$production_exit"
 
       - name: Report build result
         if: always()
         run: |
           if [ "${{ steps.build.outputs.exit_code }}" = "0" ]; then
-            echo "✅ **Production build succeeded**" >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ **Lovable preview and full production builds succeeded**" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "❌ **Production build failed**" >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ **Lovable preview or full production build failed**" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
@@ -87,7 +104,7 @@ jobs:
       - name: Annotate SSR errors
         if: failure() && steps.build.outputs.exit_code != '0'
         run: |
-          echo "::error::Production build failed — SSR or bundling error detected."
+          echo "::error::Lovable preview or full production build failed — SSR or bundling error detected."
           if [ -f build.log ]; then
             echo "::group::Build error details"
             tail -n 80 build.log

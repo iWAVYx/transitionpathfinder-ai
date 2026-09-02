@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
   useLocation,
+  ClientOnly,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { LazyMotion, domMax } from "motion/react";
@@ -117,6 +118,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // The isolated Lovable preview uses TanStack's supported SPA mode. Its
+  // route components render in the browser while server functions remain
+  // available. Protected staging and production compile this value to true.
+  ssr: import.meta.env.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA === "1" ? false : true,
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -139,6 +144,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Student-centered transition planning for Connecticut families, students, and educators." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/66c26351-1645-4962-8766-8719416f28ba/id-preview-2f432d2f--a4a5068b-10df-4e31-8d22-73186657d452.lovable.app-1780535419668.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/66c26351-1645-4962-8766-8719416f28ba/id-preview-2f432d2f--a4a5068b-10df-4e31-8d22-73186657d452.lovable.app-1780535419668.png" },
+      ...(import.meta.env.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA === "1"
+        ? [{ name: "robots", content: "noindex, nofollow" }]
+        : []),
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -256,7 +264,7 @@ function RootComponent() {
     return () => subscription.unsubscribe();
   }, [router, queryClient]);
 
-  return (
+  const app = (
     <QueryClientProvider client={queryClient}>
       <LazyMotion features={domMax}>
         <LanguageProvider>
@@ -276,6 +284,17 @@ function RootComponent() {
         </LanguageProvider>
       </LazyMotion>
     </QueryClientProvider>
+  );
+
+  // The Lovable preview intentionally ships a browser-rendered SPA shell so
+  // its server bundle stays below the host's memory ceiling. ClientOnly makes
+  // the first browser render identical to that empty shell, then mounts the
+  // complete application immediately after hydration. Staging and production
+  // keep their existing SSR behavior.
+  return import.meta.env.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA === "1" ? (
+    <ClientOnly>{app}</ClientOnly>
+  ) : (
+    app
   );
 }
 
