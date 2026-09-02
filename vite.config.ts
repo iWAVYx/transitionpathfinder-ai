@@ -611,7 +611,7 @@ export default defineConfig({
     // functions. Protected staging and production omit this flag and retain
     // full route SSR for SEO, initial-load performance, and release parity.
     ...(isLovablePreviewSpaBuild
-      ? { spa: { enabled: true, prerender: { outputPath: "/index" } } }
+      ? { pages: [{ path: "/", prerender: { enabled: true } }] }
       : {}),
   },
   vite: {
