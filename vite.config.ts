@@ -610,7 +610,9 @@ export default defineConfig({
     // Lovable preview is a browser-rendered shell backed by the same server
     // functions. Protected staging and production omit this flag and retain
     // full route SSR for SEO, initial-load performance, and release parity.
-    ...(isLovablePreviewSpaBuild ? { spa: { enabled: true } } : {}),
+    ...(isLovablePreviewSpaBuild
+      ? { spa: { enabled: true, prerender: { outputPath: "/index" } } }
+      : {}),
   },
   vite: {
     build: {

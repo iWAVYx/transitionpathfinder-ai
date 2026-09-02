@@ -509,7 +509,10 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     viteConfig,
     /const isLovablePreviewSpaBuild\s*=\s*isLovableSandbox\s*&&\s*process\.env\.TRANSITIONFORWARD_LOVABLE_PREVIEW_SPA\s*===\s*["']1["']/,
   );
-  assert.match(viteConfig, /\.\.\.\(isLovablePreviewSpaBuild \? \{ spa: \{ enabled: true \} \} : \{\}\)/);
+  assert.match(
+    viteConfig,
+    /\.\.\.\(isLovablePreviewSpaBuild\s*\? \{ spa: \{ enabled: true, prerender: \{ outputPath: ["']\/index["'] \} \} \}\s*: \{\}\)/,
+  );
   assert.match(viteConfig, /function lovablePreviewRootShell\(\): Plugin/);
   assert.match(
     viteConfig,
