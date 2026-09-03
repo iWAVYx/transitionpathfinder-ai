@@ -87,12 +87,20 @@ for (const role of ROLES) {
 
     for (const forbidden of FORBIDDEN_ROUTES[role.key]) {
       test(`cannot reach ${forbidden} via direct URL`, async ({ page }) => {
-        await page.goto(forbidden, { waitUntil: "networkidle" }).catch(() => {});
-        const ok = await landedAwayFrom(page, forbidden);
-        expect(
-          ok,
-          `${role.key} reached forbidden route ${forbidden} (final url=${page.url()})`,
-        ).toBe(true);
+        // A guarded route can redirect to a dashboard with background requests.
+        // Waiting for networkidle can consume the entire test timeout before the
+        // authorization assertion runs, so wait only for the document and then
+        // poll the actual redirect/denial condition.
+        await page.goto(forbidden, {
+          waitUntil: "domcontentloaded",
+          timeout: 20_000,
+        });
+        await expect
+          .poll(() => landedAwayFrom(page, forbidden), {
+            message: `${role.key} reached forbidden route ${forbidden} (final url=${page.url()})`,
+            timeout: 15_000,
+          })
+          .toBe(true);
       });
     }
   });
