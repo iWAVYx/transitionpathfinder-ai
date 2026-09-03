@@ -40,6 +40,8 @@ Documents:
   process-tree measurements, and the lowest tested passing 1,216 MiB boundary.
 - `staging-acceptance-2026-08-28.md` — current exact-SHA isolated-staging
   deployment, protected workflow, and consolidated browser-suite evidence.
+- `staging-acceptance-2026-09-02.md` — superseding exact-SHA isolated-staging
+  deployment and consolidated release-readiness evidence for `09ccdf6d`.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
