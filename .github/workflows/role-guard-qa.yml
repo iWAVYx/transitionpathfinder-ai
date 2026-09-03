@@ -12,6 +12,7 @@ on:
       - "tests/e2e/role-access-rules.signedin.spec.ts"
       - "tests/e2e/helpers/roles.ts"
       - "tests/e2e/scripts/check-role-creds.mjs"
+      - "tests/role-access-navigation-contract.test.mjs"
       - ".github/workflows/role-guard-qa.yml"
   push:
     branches: [main]
@@ -32,7 +33,7 @@ jobs:
         with:
           node-version: "20"
       - name: Run role-guard regression
-        run: node --test tests/role-guard-matrix.test.mjs
+        run: npm run test:role-guard
       - name: How to update snapshot
         if: failure()
         run: |
