@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "auditedMainSha": "7be709777edff97de83e297a487540943607a062",
+  "observedAt": "2026-09-03",
+  "status": "no-go",
+  "currentArchitecture": {
+    "applicationOrigin": "lovable-cloud",
+    "privilegedRuntime": "lovable-cloud",
+    "databaseAuthStorage": "lovable-cloud-managed-supabase",
+    "edgeProvider": "cloudflare",
+    "cloudflareApplicationWorkerAuthorized": false,
+    "productionPublishAuthorized": false
+  },
+  "lovableDevelopment": {
+    "codeEditingAvailable": true,
+    "filesViewAvailable": true,
+    "gitIngestObserved": true,
+    "observedBranch": "lovable/preview-7be70977",
+    "observedCommit": "92f378296c1c783d9045840b04ca0d13a3a3feb1",
+    "hostedPreviewCurrent": false,
+    "hostedPreviewStatus": "build-unsuccessful",
+    "safeWorkflow": [
+      "make one focused change on a dedicated branch",
+      "review the GitHub diff and open a pull request",
+      "run credential-free checks",
+      "deploy only to isolated staging after approval",
+      "run protected staging acceptance",
+      "merge only after owner authorization"
+    ]
+  },
+  "sourceInventory": {
+    "normalization": "sorted repository-relative POSIX paths joined by newline and hashed with SHA-256",
+    "privilegedMarkers": [
+      "supabaseAdmin",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "LOVABLE_API_KEY",
+      "connector-gateway.lovable.dev",
+      "ai.gateway.lovable.dev"
+    ],
+    "categories": {
+      "publicTopLevelRoutes": {
+        "count": 68,
+        "sha256": "03d25a10539bb65319e104d1169be19aa6c54a1df8ac7c41e16b095195496db3"
+      },
+      "authenticatedRoutes": {
+        "count": 138,
+        "sha256": "da45ef2a591f2b2c2d91924f30c6a4b9268af97fac3f7efda787aef24fdb9ba6"
+      },
+      "serverFunctionFiles": {
+        "count": 116,
+        "sha256": "526e9260d1534d2a36af9df1587789964f70503a27cdceead5a1f43c633fc840"
+      },
+      "privilegedRuntimeFiles": {
+        "count": 59,
+        "sha256": "c612db9cc6e54d525e84206d3727a2959f009880e14833a2f0a86925049fcc7f"
+      },
+      "explicitEndpointFiles": {
+        "count": 11,
+        "sha256": "3e4b9dba31c85523010e064be8e726691303eba71dcd91dbf93987e3fdceb863"
+      }
+    }
+  },
+  "requestBoundary": {
+    "protectedPrefixes": ["/_serverFn/", "/_server/", "/api/", "/lovable/", "/email/"],
+    "reviewedPublicBuildVariables": [
+      "VITE_APP_ENV",
+      "VITE_APP_BUILD_SHA",
+      "VITE_APP_BUILD_TIME",
+      "VITE_PAYMENTS_CLIENT_TOKEN",
+      "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "VITE_SUPABASE_URL"
+    ],
+    "forbiddenClientSecrets": [
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "STRIPE_LIVE_API_KEY",
+      "PAYMENTS_LIVE_WEBHOOK_SECRET",
+      "LOVABLE_API_KEY",
+      "OPSWAT_API_KEY",
+      "TWILIO_API_KEY"
+    ]
+  },
+  "externalProduction": {
+    "authorized": false,
+    "status": "blocked",
+    "publicFrontendCandidate": true,
+    "fullStackCloudflareCapabilityProvenInIsolatedStaging": true,
+    "blockers": [
+      "production service-role credential is held inside Lovable Cloud and is not approved for export",
+      "every protected server-function and endpoint needs an assigned trusted runtime",
+      "authentication forwarding, CORS, cookies, caching, and CSRF controls need split-origin acceptance",
+      "Stripe, email, AI, malware scanning, SMS, cron, and webhook secrets need approved runtime ownership",
+      "an exact-SHA production build, smoke suite, observation window, and rollback need evidence"
+    ],
+    "forbiddenWithoutSeparateAuthorization": [
+      "deploy a production Cloudflare Worker",
+      "attach a production Worker route or custom domain",
+      "copy or invent a production service-role credential",
+      "change production DNS",
+      "publish Lovable",
+      "migrate production data, authentication users, or storage"
+    ]
+  },
+  "localVerification": {
+    "constrainedBuildOldSpaceMiB": 1216,
+    "constrainedBuildResult": "failed-during-ssr-with-javascript-heap-out-of-memory",
+    "productionStyleBuildOldSpaceMiB": 4096,
+    "productionStyleBuildResult": "passed",
+    "serverEntryPresent": true,
+    "serviceWorkerPresent": true,
+    "workboxRuntimeCount": 1,
+    "lovableRootCauseProven": false
+  },
+  "cutoverAcceptance": [
+    "approved architecture decision names the application origin and every privileged runtime",
+    "source inventory is reviewed and current",
+    "no server secret is present in browser assets, repository files, PR logs, or unprotected workflows",
+    "exact-SHA build and deployment identity pass",
+    "public, authenticated, owner, district, document, pathway, billing, email, cron, and webhook smoke tests pass",
+    "Cloudflare cache and security rules preserve dynamic and signed traffic",
+    "rollback owners and last-known-good application, DNS, and database evidence are recorded",
+    "owner separately authorizes production deployment and DNS cutover"
+  ]
+}
