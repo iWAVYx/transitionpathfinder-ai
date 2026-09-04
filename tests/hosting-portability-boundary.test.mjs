@@ -132,8 +132,16 @@ test("Cloudflare production application deployment remains retired", () => {
 test("Lovable development remains separate from preview and publish acceptance", () => {
   assert.equal(policy.lovableDevelopment.codeEditingAvailable, true);
   assert.equal(policy.lovableDevelopment.gitIngestObserved, true);
-  assert.equal(policy.lovableDevelopment.hostedPreviewCurrent, false);
-  assert.equal(policy.lovableDevelopment.hostedPreviewStatus, "build-unsuccessful");
+  assert.equal(policy.lovableDevelopment.hostedPreviewCurrent, true);
+  assert.equal(policy.lovableDevelopment.hostedPreviewStatus, "rendering-sha-unverified");
+  assert.equal(policy.lovableDevelopment.supportReportedLatestPreviewBuildSuccessful, true);
+  assert.equal(
+    policy.lovableDevelopment.supportReportedEarlierFailureOutOfMemoryEvidence,
+    false,
+  );
+  assert.equal(policy.lovableDevelopment.observedHistoricalFailureCard, true);
+  assert.equal(policy.lovableDevelopment.observedPreviewBuildIdentity, "dev");
+  assert.equal(policy.lovableDevelopment.exactGitShaVerified, false);
   assert.ok(
     policy.lovableDevelopment.safeWorkflow.includes(
       "review the GitHub diff and open a pull request",
@@ -152,4 +160,5 @@ test("local build evidence distinguishes portability from Lovable root cause", (
   assert.equal(policy.localVerification.serviceWorkerPresent, true);
   assert.equal(policy.localVerification.workboxRuntimeCount, 1);
   assert.equal(policy.localVerification.lovableRootCauseProven, false);
+  assert.equal(policy.localVerification.lovableSupportFoundMemoryCauseEvidence, false);
 });

@@ -1,9 +1,10 @@
 # Hosting portability boundary — 2026-09-03
 
 Decision: **Production remains NO-GO. Lovable remains available for authoring
-and Git synchronization, but its hosted preview and production publish path are
-not accepted. This audit does not deploy, publish, migrate, route, or copy a
-secret.**
+and Git synchronization, and its active preview is rendering again. The
+successful preview still cannot be mapped to an exact GitHub SHA, so neither
+preview acceptance nor production publish acceptance is closed. This audit
+does not deploy, publish, migrate, route, or copy a secret.**
 
 Audited protected `main` SHA:
 `7be709777edff97de83e297a487540943607a062`.
@@ -17,11 +18,22 @@ mode. It also ingested the file-identical GitHub trigger commit
 and code-generation surface when every change is isolated on a branch and
 reviewed through GitHub.
 
-The same hosted attempt ended as **Build unsuccessful** with **Preview is out
-of date**. A Lovable edit is not evidence that a current preview exists, and it
-does not authorize publication. Until the hosted builder recovers, visual and
-functional acceptance must use the isolated Cloudflare staging Worker after
-the relevant GitHub checks pass.
+On 2026-09-04, Lovable Support reported that the most recent preview build
+completed successfully and that it found no sign that the earlier failure was
+caused by memory exhaustion. A read-only project check at 16:28 EDT confirmed
+that the active preview renders the TransitionForward homepage. The rendered
+document reports build time `2026-09-03T23:11:24.585Z`, while its
+`app-build-sha` metadata is `dev` rather than a 40-character Git commit. The
+project history still displays the earlier **Build unsuccessful** and
+**Preview is out of date** card after a refresh, even though the active control
+says **Previewing**.
+
+This closes the assumption that Lovable's preview is wholly unavailable, but
+it does not prove which branch or commit produced the successful preview. A
+rendered page, a support statement, and an old failure card are not substitutes
+for exact-SHA identity. Visual and functional acceptance therefore continues
+to use the isolated Cloudflare staging Worker until Lovable identifies the
+successful run or exposes an exact commit identity.
 
 ## Source boundary
 
@@ -59,9 +71,10 @@ The current branch also passed a complete local production-style build with a
 4,096 MiB Node old-space limit. The build emitted the server entry, service
 worker, and exactly one Workbox runtime. A separate 1,216 MiB constrained run
 completed the client bundle and then failed during SSR with JavaScript heap
-exhaustion. That is direct local evidence that the application is portable
-with sufficient build headroom; it is not proof of Lovable's undisclosed hosted
-termination cause.
+exhaustion. That remains direct local evidence that the application is portable
+with sufficient build headroom. It was never proof of Lovable's hosted failure,
+and Lovable Support has now explicitly reported that it found no sign of memory
+exhaustion in the earlier hosted failure.
 
 The safest fallback sequence is:
 

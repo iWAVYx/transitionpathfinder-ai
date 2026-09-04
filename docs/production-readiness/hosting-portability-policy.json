@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "auditedMainSha": "7be709777edff97de83e297a487540943607a062",
-  "observedAt": "2026-09-03",
+  "observedAt": "2026-09-04",
   "status": "no-go",
   "currentArchitecture": {
     "applicationOrigin": "lovable-cloud",
@@ -15,10 +15,16 @@
     "codeEditingAvailable": true,
     "filesViewAvailable": true,
     "gitIngestObserved": true,
-    "observedBranch": "lovable/preview-7be70977",
-    "observedCommit": "92f378296c1c783d9045840b04ca0d13a3a3feb1",
-    "hostedPreviewCurrent": false,
-    "hostedPreviewStatus": "build-unsuccessful",
+    "lastRequestedBranch": "lovable/preview-7be70977",
+    "lastRequestedCommit": "92f378296c1c783d9045840b04ca0d13a3a3feb1",
+    "hostedPreviewCurrent": true,
+    "hostedPreviewStatus": "rendering-sha-unverified",
+    "supportReportedLatestPreviewBuildSuccessful": true,
+    "supportReportedEarlierFailureOutOfMemoryEvidence": false,
+    "observedHistoricalFailureCard": true,
+    "observedPreviewBuildTime": "2026-09-03T23:11:24.585Z",
+    "observedPreviewBuildIdentity": "dev",
+    "exactGitShaVerified": false,
     "safeWorkflow": [
       "make one focused change on a dedicated branch",
       "review the GitHub diff and open a pull request",
@@ -108,7 +114,8 @@
     "serverEntryPresent": true,
     "serviceWorkerPresent": true,
     "workboxRuntimeCount": 1,
-    "lovableRootCauseProven": false
+    "lovableRootCauseProven": false,
+    "lovableSupportFoundMemoryCauseEvidence": false
   },
   "cutoverAcceptance": [
     "approved architecture decision names the application origin and every privileged runtime",
