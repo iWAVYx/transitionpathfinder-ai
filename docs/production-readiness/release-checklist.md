@@ -66,6 +66,11 @@ build still needs an auditable mapping to the exact GitHub SHA.
 - [x] Build and SSR verification passed for the approved SHA.
 - [ ] Lovable's connected build succeeded for that exact SHA; neither
       `Build unsuccessful` nor `Preview is out of date` is present.
+- [ ] If the approved Lovable application origin is replaced, the reviewed
+      `hosting-portability-policy.json` inventory is current; every protected
+      request prefix and privileged capability has a named trusted runtime;
+      exact-SHA acceptance, secret isolation, smoke coverage, and coordinated
+      rollback pass before any production deployment or DNS cutover.
 - [x] Migration replay and RLS/permission/cross-district suites passed. The
       canonical migration tree is unchanged since replay run `32630746041`;
       the live staging RLS suites passed for the candidate SHA.

@@ -20,6 +20,11 @@ Documents:
 - `alignment-2026-08-20.md` — superseded historical Cloudflare Worker target.
 - `alignment-2026-08-21.md` — current Lovable application/backend origin and
   Cloudflare domain/protection boundary.
+- `hosting-portability-boundary-2026-09-03.md` — Lovable authoring continuity,
+  external-hosting feasibility, protected runtime boundary, and fail-closed
+  fallback sequence.
+- `hosting-portability-policy.json` — machine-readable source inventory,
+  protected request/secret boundary, and external-production cutover gates.
 - `lovable-build-trigger-2026-08-24.md` — documentation-only connected-build
   trigger scope and exact-SHA post-merge acceptance requirements.
 - `lovable-build-recovery-2026-08-28.md` — evidence and acceptance gate for
