@@ -271,6 +271,8 @@ test("no workflow references a generic service-role secret", () => {
 });
 
 test("protected staging RLS workflows use a deterministic supported runtime", () => {
+  const lockfile = read("bun.lock");
+
   for (const name of [
     "calendar-rls-qa.yml",
     "cross-district-rls-qa.yml",
@@ -278,9 +280,15 @@ test("protected staging RLS workflows use a deterministic supported runtime", ()
   ]) {
     const source = read(join(".github/workflows", name));
     assert.match(source, /node-version:\s*"22"/);
-    assert.match(source, /@supabase\/supabase-js@2\.106\.2/);
-    assert.doesNotMatch(source, /@supabase\/supabase-js@\^2/);
+    assert.match(source, /oven-sh\/setup-bun@v2/);
+    assert.match(source, /bun install --frozen-lockfile/);
+    assert.doesNotMatch(source, /npm install --no-save/);
   }
+
+  assert.match(
+    lockfile,
+    /"@supabase\/supabase-js": \["@supabase\/supabase-js@2\.106\.2"/,
+  );
 });
 
 test("staging SQL RLS checks fail closed on the isolated database identity", () => {
