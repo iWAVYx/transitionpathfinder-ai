@@ -208,7 +208,7 @@ export function OwnerShell({
         {/* Sidebar */}
         <aside className="hidden w-64 shrink-0 border-r border-border bg-background lg:flex lg:flex-col">
           <div className="flex items-center gap-2 border-b border-border px-5 py-4">
-            <Shield className="h-5 w-5 text-primary" />
+            <BrandLogo variant="icon" size="sm" decorative />
             <div>
               <div className="text-sm font-semibold leading-none">Admin Hub</div>
               <div className="mt-1 text-xs text-muted-foreground">TransitionForward</div>
