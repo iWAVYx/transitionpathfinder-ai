@@ -48,8 +48,8 @@ Documents:
 - `staging-acceptance-2026-09-02.md` — historical exact-SHA isolated-staging
   deployment and consolidated release-readiness evidence for `09ccdf6d`.
 - `staging-acceptance-2026-09-06.md` — current exact-SHA isolated-staging
-  deployment, repaired security workflow, and full acceptance evidence for
-  `58804aca`.
+  deployment, Phase 1 branding and visual-baseline alignment, protected
+  security workflows, and full acceptance evidence for `29b0575d`.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
