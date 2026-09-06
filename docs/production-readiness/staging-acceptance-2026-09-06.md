@@ -8,8 +8,9 @@ migrate either database, or run a live payment.
 ## Exact candidate and isolation
 
 Protected `main` SHA
-`58804aca00c7752c5123cf29d4a7f48d75aa3755` (PR #88) was deployed by
-[Deploy Staging run 34013153533](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013153533).
+`29b0575d4f99ad4e7f57bafa40f67535ea4675d4` (PR #91, following the
+Phase 1 brand foundation in PR #90) was deployed by
+[Deploy Staging run 34044555082](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044555082).
 The deployment passed its staging-intent, locked-dependency, sandbox-Stripe,
 output-contract, Wrangler dry-run, staging cron-secret, exact-SHA identity, and
 PWA checks.
@@ -21,39 +22,44 @@ The public staging health endpoint independently reported:
 - isolated Supabase project `qgrertkqbwanerqqemph`;
 - `is_staging_target=true` and `is_production_target=false`;
 - `stripe_mode=sandbox`;
-- exact commit `58804aca00c7752c5123cf29d4a7f48d75aa3755`; and
+- exact commit `29b0575d4f99ad4e7f57bafa40f67535ea4675d4`; and
 - `isolation.ok=true` with no isolation errors.
 
 ## Protected push checks
 
-Every listed run completed successfully on its first attempt at the exact
-candidate SHA:
+Every listed workflow completed successfully at the exact candidate SHA. All
+passed on the first attempt except the controlled Role-guard rerun documented
+below:
 
 | Check | Run |
 | --- | ---: |
-| Production Readiness Audit | [34013055193](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055193) |
-| Build & SSR Verification | [34013055247](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055247) |
-| Report accessibility (axe-core) | [34013055202](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055202) |
-| CT Seed v2 Audit | [34013055278](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055278) |
-| Dashboard regression | [34013055199](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055199) |
-| Permission regression QA | [34013055255](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055255) |
-| Cross-district RLS QA | [34013055289](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055289) |
-| RLS regression QA | [34013055284](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055284) |
-| Role-guard QA | [34013055209](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013055209) |
+| Production Readiness Audit | [34044445740](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445740) |
+| Build & SSR Verification | [34044445848](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445848) |
+| Report accessibility (axe-core) | [34044445688](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445688) |
+| CT Seed v2 Audit | [34044445760](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445760) |
+| Dashboard regression | [34044445746](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445746) |
+| Permission regression QA | [34044445765](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445765) |
+| Cross-district RLS QA | [34044445815](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445815) |
+| RLS regression QA | [34044445656](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445656) |
+| Role-guard QA (attempt 2) | [34044445724](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34044445724) |
 
-PR #88 replaced the three security workflows' one-off npm installation with
-the repository's frozen Bun lockfile. The previously observed npm-internal
-`edgesOut` crash did not recur. Permission, RLS, and cross-district assertions
-all executed and passed; no security assertion, environment gate, or staging
-identity check was removed or weakened.
+The first Role-guard browser attempt completed 236 assertions before one
+School Administrator navigation was aborted by Playwright with
+`net::ERR_ABORTED` while the frame detached. The independently running
+Dashboard regression passed the same signed-in role-access coverage on the
+same deployment. One controlled failed-job rerun, with no code or test change,
+then passed the complete Role-guard suite. Permission, RLS, cross-district,
+role, dashboard, and seed assertions all executed; no security assertion,
+environment gate, comparison threshold, or staging identity check was removed
+or weakened.
 
 ## Consolidated release-readiness run
 
 The manually dispatched, protected
-[Release readiness run 34013864397](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34013864397)
+[Release readiness run 34045529249](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34045529249)
 passed on attempt 1. Its GitHub deployment record identified environment
 `staging` (ID `19355000275`), exact SHA
-`58804aca00c7752c5123cf29d4a7f48d75aa3755`, and
+`29b0575d4f99ad4e7f57bafa40f67535ea4675d4`, and
 `production_environment=false`.
 
 The run passed:
@@ -63,16 +69,19 @@ The run passed:
 - public release-readiness, accessibility, and visual-regression tests; and
 - signed-in role journeys, access controls, and workflows.
 
-An obsolete scheduled run `33752523087` for old SHA `7be70977` was waiting on
-the same protected staging environment and blocked the current run's
-concurrency group. It was verified as a scheduled, staging-only request and
-canceled without approval or execution so the authorized exact-SHA run could
-proceed.
+The preceding Phase 1 brand deployment at `4fc779d2` passed 97 public,
+accessibility, responsive, and functional assertions but correctly rejected 33
+visual snapshots that still represented the old identity. PR #91 updated only
+those 33 PNG baselines from the captured isolated-staging screenshots; it did
+not change application code, visual-test logic, or the 2% comparison threshold.
+The final run above passed the aligned public and signed-in visual comparisons
+as well as the later signed-in journeys.
 
 ## Remaining release gates
 
-This evidence supersedes the 2026-09-02 staging candidate and closes the
-current isolated-staging acceptance step only. Production remains NO-GO until
+This evidence supersedes the earlier `58804aca` acceptance recorded on the
+same date and closes the current isolated-staging acceptance step only.
+Production remains NO-GO until
 the independent unchecked items in `release-checklist.md` have evidence,
 including:
 
