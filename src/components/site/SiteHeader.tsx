@@ -423,7 +423,12 @@ export function SiteHeader() {
                 className="brand-focus-ring flex items-center gap-2"
               >
                 <BrandLogo variant="lockup" size="sm" decorative className="dark:hidden" />
-                <BrandLogo variant="dark" size="sm" decorative className="hidden dark:inline-flex" />
+                <BrandLogo
+                  variant="dark"
+                  size="sm"
+                  decorative
+                  className="hidden dark:inline-flex"
+                />
               </SmartLink>
 
             </div>
