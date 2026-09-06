@@ -435,18 +435,18 @@ export function SiteHeader() {
                 to="/"
                 reload
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2"
+                aria-label="TransitionForward — home"
+                className="brand-focus-ring flex items-center gap-2"
               >
-                <span
-                  aria-hidden
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
-                >
-                  <span className="h-3 w-3 rounded-full bg-primary" />
-                </span>
-                <span className="font-display text-base font-semibold tracking-tight">
-                  TransitionForward
-                </span>
+                <BrandLogo variant="lockup" size="sm" decorative className="dark:hidden" />
+                <BrandLogo
+                  variant="dark"
+                  size="sm"
+                  decorative
+                  className="hidden dark:inline-flex"
+                />
               </SmartLink>
+
             </div>
 
             <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
