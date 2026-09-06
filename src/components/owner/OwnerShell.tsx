@@ -27,6 +27,7 @@ import {
   Megaphone,
   HeartHandshake,
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { toTitleCase } from "@/lib/title-case";
 import {
