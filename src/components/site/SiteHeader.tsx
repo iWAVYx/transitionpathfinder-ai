@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
 import { supabase } from "@/integrations/supabase/client";
