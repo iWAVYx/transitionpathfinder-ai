@@ -57,12 +57,7 @@ export function SiteFooter() {
             className="brand-focus-ring group flex items-center gap-2"
           >
             <BrandLogo variant="lockup" size="lg" decorative className="dark:hidden" />
-            <BrandLogo
-              variant="dark"
-              size="lg"
-              decorative
-              className="hidden dark:inline-flex"
-            />
+            <BrandLogo variant="dark" size="lg" decorative className="hidden dark:inline-flex" />
           </Link>
           <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
             From IEP Plans to Real-Life Pathways. One platform for the students,

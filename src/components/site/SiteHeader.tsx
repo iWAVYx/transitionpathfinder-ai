@@ -25,10 +25,6 @@ type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
 type UserNavGroup = NavGroup & { roles: RoleAudience[] };
 
-
-
-
-
 const navGroups: NavGroup[] = [
   {
     label: "Product",
@@ -169,10 +165,6 @@ const userGroups: UserNavGroup[] = [
   },
 ];
 
-
-
-
-
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -279,7 +271,6 @@ export function SiteHeader() {
   const showSignedInNav = Boolean(user && signedInNavAllowed);
   const signedInUser = showSignedInNav ? user : null;
 
-
   return (
     <header
       className={
@@ -298,15 +289,8 @@ export function SiteHeader() {
           onClick={() => setOpen(false)}
         >
           <BrandLogo variant="lockup" size="md" decorative className="dark:hidden" />
-          <BrandLogo
-            variant="dark"
-            size="md"
-            decorative
-            className="hidden dark:inline-flex"
-          />
+          <BrandLogo variant="dark" size="md" decorative className="hidden dark:inline-flex" />
         </SmartLink>
-
-
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 xl:flex">
         {navGroups.map((group) => (
@@ -439,12 +423,7 @@ export function SiteHeader() {
                 className="brand-focus-ring flex items-center gap-2"
               >
                 <BrandLogo variant="lockup" size="sm" decorative className="dark:hidden" />
-                <BrandLogo
-                  variant="dark"
-                  size="sm"
-                  decorative
-                  className="hidden dark:inline-flex"
-                />
+                <BrandLogo variant="dark" size="sm" decorative className="hidden dark:inline-flex" />
               </SmartLink>
 
             </div>
@@ -495,7 +474,6 @@ export function SiteHeader() {
                   Privacy
                 </SmartLink>
               </nav>
-
 
               {signedInUser && (
                 <>
