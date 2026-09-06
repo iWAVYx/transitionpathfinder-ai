@@ -40,9 +40,9 @@ const WORDMARK_SIZE: Record<BrandLogoSize, string> = {
 };
 
 const TEXT_SIZE: Record<BrandLogoSize, string> = {
-  sm: "text-base",
-  md: "text-lg",
-  lg: "text-xl",
+  sm: "text-xl",
+  md: "text-2xl",
+  lg: "text-3xl",
 };
 
 export interface BrandLogoProps {
