@@ -43,10 +43,13 @@ Documents:
   complete 1,280 MiB build.
 - `lovable-hosted-container-boundary-2026-08-30.md` — exact PR #79 result,
   process-tree measurements, and the lowest tested passing 1,216 MiB boundary.
-- `staging-acceptance-2026-08-28.md` — current exact-SHA isolated-staging
+- `staging-acceptance-2026-08-28.md` — historical exact-SHA isolated-staging
   deployment, protected workflow, and consolidated browser-suite evidence.
-- `staging-acceptance-2026-09-02.md` — superseding exact-SHA isolated-staging
+- `staging-acceptance-2026-09-02.md` — historical exact-SHA isolated-staging
   deployment and consolidated release-readiness evidence for `09ccdf6d`.
+- `staging-acceptance-2026-09-06.md` — current exact-SHA isolated-staging
+  deployment, repaired security workflow, and full acceptance evidence for
+  `58804aca`.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
