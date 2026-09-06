@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LEGAL_ATTRIBUTION, legalCopyright } from "@/lib/contact";
 
 const productLinks = [
@@ -50,18 +51,18 @@ export function SiteFooter() {
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:px-8">
         <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
-          <Link to="/" className="group flex items-center gap-2">
-            <motion.span
-              aria-hidden
-              whileHover={{ rotate: 12, scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 18 }}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
-            >
-              <span className="h-3 w-3 rounded-full bg-primary" />
-            </motion.span>
-            <span className="font-display text-xl font-semibold tracking-tight">
-              TransitionForward
-            </span>
+          <Link
+            to="/"
+            aria-label="TransitionForward — home"
+            className="brand-focus-ring group flex items-center gap-2"
+          >
+            <BrandLogo variant="lockup" size="lg" decorative className="dark:hidden" />
+            <BrandLogo
+              variant="dark"
+              size="lg"
+              decorative
+              className="hidden dark:inline-flex"
+            />
           </Link>
           <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
             From IEP Plans to Real-Life Pathways. One platform for the students,
