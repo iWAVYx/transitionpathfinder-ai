@@ -293,25 +293,19 @@ export function SiteHeader() {
         <SmartLink
           to="/"
           reload
-          className="group flex shrink-0 items-center gap-2 whitespace-nowrap"
+          aria-label="TransitionForward — home"
+          className="brand-focus-ring group flex shrink-0 items-center gap-2 whitespace-nowrap"
           onClick={() => setOpen(false)}
         >
-          <motion.span
-            aria-hidden
-            whileHover={{ rotate: 12, scale: 1.06 }}
-            transition={{ type: "spring", stiffness: 320, damping: 18 }}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
-          >
-            <motion.span
-              className="h-3 w-3 rounded-full bg-primary"
-              animate={{ scale: [1, 1.18, 1] }}
-              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </motion.span>
-          <span className="font-display text-lg font-semibold tracking-tight">
-            TransitionForward
-          </span>
+          <BrandLogo variant="lockup" size="md" decorative className="dark:hidden" />
+          <BrandLogo
+            variant="dark"
+            size="md"
+            decorative
+            className="hidden dark:inline-flex"
+          />
         </SmartLink>
+
 
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 xl:flex">
