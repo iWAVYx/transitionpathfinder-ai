@@ -430,7 +430,6 @@ export function SiteHeader() {
                   className="hidden dark:inline-flex"
                 />
               </SmartLink>
-
             </div>
 
             <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
