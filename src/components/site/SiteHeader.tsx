@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { motion } from "motion/react";
 import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -12,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,10 +24,6 @@ import { toTitleCase } from "@/lib/title-case";
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
 type UserNavGroup = NavGroup & { roles: RoleAudience[] };
-
-
-
-
 
 const navGroups: NavGroup[] = [
   {
@@ -169,10 +165,6 @@ const userGroups: UserNavGroup[] = [
   },
 ];
 
-
-
-
-
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -279,7 +271,6 @@ export function SiteHeader() {
   const showSignedInNav = Boolean(user && signedInNavAllowed);
   const signedInUser = showSignedInNav ? user : null;
 
-
   return (
     <header
       className={
@@ -293,26 +284,13 @@ export function SiteHeader() {
         <SmartLink
           to="/"
           reload
-          className="group flex shrink-0 items-center gap-2 whitespace-nowrap"
+          aria-label="TransitionForward — home"
+          className="brand-focus-ring group flex shrink-0 items-center gap-2 whitespace-nowrap"
           onClick={() => setOpen(false)}
         >
-          <motion.span
-            aria-hidden
-            whileHover={{ rotate: 12, scale: 1.06 }}
-            transition={{ type: "spring", stiffness: 320, damping: 18 }}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
-          >
-            <motion.span
-              className="h-3 w-3 rounded-full bg-primary"
-              animate={{ scale: [1, 1.18, 1] }}
-              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </motion.span>
-          <span className="font-display text-lg font-semibold tracking-tight">
-            TransitionForward
-          </span>
+          <BrandLogo variant="lockup" size="md" decorative className="dark:hidden" />
+          <BrandLogo variant="dark" size="md" decorative className="hidden dark:inline-flex" />
         </SmartLink>
-
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 xl:flex">
         {navGroups.map((group) => (
@@ -441,17 +419,16 @@ export function SiteHeader() {
                 to="/"
                 reload
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2"
+                aria-label="TransitionForward — home"
+                className="brand-focus-ring flex items-center gap-2"
               >
-                <span
-                  aria-hidden
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-hero shadow-soft"
-                >
-                  <span className="h-3 w-3 rounded-full bg-primary" />
-                </span>
-                <span className="font-display text-base font-semibold tracking-tight">
-                  TransitionForward
-                </span>
+                <BrandLogo variant="lockup" size="sm" decorative className="dark:hidden" />
+                <BrandLogo
+                  variant="dark"
+                  size="sm"
+                  decorative
+                  className="hidden dark:inline-flex"
+                />
               </SmartLink>
             </div>
 
@@ -501,7 +478,6 @@ export function SiteHeader() {
                   Privacy
                 </SmartLink>
               </nav>
-
 
               {signedInUser && (
                 <>
