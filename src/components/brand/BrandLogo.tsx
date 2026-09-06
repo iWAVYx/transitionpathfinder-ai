@@ -27,22 +27,22 @@ export const BRAND_ICON_SRC = "/brand/transitionforward-app-icon.svg";
 export const BRAND_WORDMARK_SRC = "/brand/transitionforward-wordmark.png";
 
 const ICON_SIZE: Record<BrandLogoSize, string> = {
-  sm: "h-7 w-7",
-  md: "h-9 w-9",
-  lg: "h-11 w-11",
+  sm: "h-8 w-8",
+  md: "h-10 w-10",
+  lg: "h-12 w-12",
 };
 
 /** Wordmark keeps its native 6:1 aspect ratio — height only, width auto. */
 const WORDMARK_SIZE: Record<BrandLogoSize, string> = {
-  sm: "h-[14px]",
-  md: "h-[18px]",
-  lg: "h-[24px]",
+  sm: "h-[18px]",
+  md: "h-[28px]",
+  lg: "h-[36px]",
 };
 
 const TEXT_SIZE: Record<BrandLogoSize, string> = {
-  sm: "text-base",
-  md: "text-lg",
-  lg: "text-xl",
+  sm: "text-2xl",
+  md: "text-3xl",
+  lg: "text-4xl",
 };
 
 export interface BrandLogoProps {

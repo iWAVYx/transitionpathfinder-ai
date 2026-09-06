@@ -149,7 +149,7 @@ for (const vp of BEHAVIOR_VIEWPORTS) {
  * They give us a deterministic "snapshot" the test can assert against.
  */
 const ITEM_WIDTHS = {
-  logo: 200, // brand mark + "TransitionForward" wordmark
+  logo: 220, // larger brand mark + "TransitionForward" wordmark
   bell: 40, // h-10 w-10 round button
   dashboard: 96, // "Dashboard" link, px-2.5 .. xl:px-3
   adminHub: 116, // optional "Admin Hub" pill with shield icon
