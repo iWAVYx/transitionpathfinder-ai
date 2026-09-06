@@ -7440,3 +7440,95 @@ nav.no-print[aria-label="Report outline"] {
   .tf-bar-grow { transform-origin: left; animation: bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   .tf-ring-fill { animation: ring-fill 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 }
+
+/* ==========================================================================
+ * TransitionForward brand system — Phase 1 centralized semantic tokens.
+ *
+ * Single source of truth for the official brand palette, brand typography,
+ * brand focus ring, brand surfaces/borders and brand status colors. Consume
+ * these through the generated utilities (bg-brand-purple, text-brand-teal,
+ * font-brand, …) or via var(--brand-*). Never hard-code the hex values in
+ * components.
+ *
+ * Accessibility contract:
+ *  - white text on Royal Purple and Charcoal
+ *  - Charcoal text on White, Mist Gray, Teal and Gold
+ *  - Teal and Gold are accents only; never small body text on white
+ * ======================================================================== */
+:root {
+  /* Core palette */
+  --brand-royal-purple: #5B2A86;
+  --brand-teal: #19B7AE;
+  --brand-forward-gold: #F2B84B;
+  --brand-charcoal: #242A33;
+  --brand-mist-gray: #F5F6F8;
+  --brand-white: #FFFFFF;
+
+  /* Semantic surfaces + borders */
+  --brand-surface: var(--brand-white);
+  --brand-surface-muted: var(--brand-mist-gray);
+  --brand-surface-inverse: var(--brand-charcoal);
+  --brand-surface-brand: var(--brand-royal-purple);
+  --brand-border: color-mix(in oklab, var(--brand-charcoal) 14%, transparent);
+  --brand-border-strong: var(--brand-charcoal);
+
+  /* Semantic text (AA-compliant pairings) */
+  --brand-on-surface: var(--brand-charcoal);
+  --brand-on-surface-muted: color-mix(in oklab, var(--brand-charcoal) 72%, var(--brand-white));
+  --brand-on-brand: var(--brand-white);
+  --brand-on-inverse: var(--brand-white);
+  --brand-on-accent: var(--brand-charcoal);
+
+  /* Status */
+  --brand-status-info: var(--brand-royal-purple);
+  --brand-status-success: var(--brand-teal);
+  --brand-status-warning: var(--brand-forward-gold);
+  --brand-status-danger: #B3261E;
+
+  /* Typography — Inter is the primary product typeface. */
+  --brand-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --brand-tracking-wordmark: -0.02em;
+
+  /* Focus */
+  --brand-focus-ring: var(--brand-royal-purple);
+  --brand-focus-ring-width: 2px;
+  --brand-focus-ring-offset: 2px;
+}
+
+@theme inline {
+  --color-brand-purple: var(--brand-royal-purple);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-gold: var(--brand-forward-gold);
+  --color-brand-charcoal: var(--brand-charcoal);
+  --color-brand-mist: var(--brand-mist-gray);
+  --color-brand-white: var(--brand-white);
+
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-surface-muted: var(--brand-surface-muted);
+  --color-brand-surface-inverse: var(--brand-surface-inverse);
+  --color-brand-border: var(--brand-border);
+
+  --color-brand-on-surface: var(--brand-on-surface);
+  --color-brand-on-surface-muted: var(--brand-on-surface-muted);
+  --color-brand-on-brand: var(--brand-on-brand);
+  --color-brand-on-inverse: var(--brand-on-inverse);
+  --color-brand-on-accent: var(--brand-on-accent);
+
+  --color-brand-info: var(--brand-status-info);
+  --color-brand-success: var(--brand-status-success);
+  --color-brand-warning: var(--brand-status-warning);
+  --color-brand-danger: var(--brand-status-danger);
+
+  --font-brand: var(--brand-font-sans);
+}
+
+@utility brand-focus-ring {
+  outline: none;
+}
+
+/* Visible keyboard focus for brand surfaces. */
+.brand-focus-ring:focus-visible {
+  outline: var(--brand-focus-ring-width) solid var(--brand-focus-ring);
+  outline-offset: var(--brand-focus-ring-offset);
+  border-radius: 0.75rem;
+}
