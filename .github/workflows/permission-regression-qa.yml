@@ -30,8 +30,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Install @supabase/supabase-js
-        run: npm install --no-save @supabase/supabase-js@2.106.2
+      - uses: oven-sh/setup-bun@v2
+      - name: Install locked test dependencies
+        run: bun install --frozen-lockfile
       - name: Check live permission-test credentials
         id: live-credentials
         run: |
