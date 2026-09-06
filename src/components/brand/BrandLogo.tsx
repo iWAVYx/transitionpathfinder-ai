@@ -75,10 +75,7 @@ export function BrandLogo({
 
   if (variant === "icon") {
     return (
-      <span
-        className={cn("inline-flex items-center p-0.5", className)}
-        data-brand-logo="icon"
-      >
+      <span className={cn("inline-flex items-center p-0.5", className)} data-brand-logo="icon">
         {icon}
       </span>
     );
@@ -89,9 +86,7 @@ export function BrandLogo({
       <span
         className={cn("inline-flex items-center gap-2 p-0.5", className)}
         data-brand-logo="dark"
-        {...(decorative
-          ? { "aria-hidden": true }
-          : { role: "img", "aria-label": BRAND_NAME })}
+        {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": BRAND_NAME })}
       >
         {icon}
         <span
