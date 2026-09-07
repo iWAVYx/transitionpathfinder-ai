@@ -498,10 +498,15 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     /["']import\.meta\.env\.VITE_PAYMENTS_CLIENT_TOKEN["']:\s*JSON\.stringify\(paymentsClientToken\)/,
   );
   assert.match(viteConfig, /resolvePublicBuildInputs\(\{/);
-  assert.match(viteConfig, /allowLovableCompatibility:\s*isLovableSandbox/);
+  assert.match(viteConfig, /loadEnv\(["']development["'], process\.cwd\(\), ["']VITE_["']\)/);
+  assert.match(viteConfig, /loadEnv\(["']production["'], process\.cwd\(\), ["']VITE_["']\)/);
+  assert.match(viteConfig, /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN/);
+  assert.match(viteConfig, /VITE_PAYMENTS_LIVE_CLIENT_TOKEN/);
   const publicBuildInputs = read("scripts/resolve-public-build-inputs.mjs");
-  assert.match(publicBuildInputs, /TRANSITIONFORWARD_BUILD_APP_ENV/);
-  assert.match(publicBuildInputs, /PAYMENTS_CLIENT_TOKEN/);
+  assert.match(publicBuildInputs, /paymentsEnvironmentForHostname/);
+  assert.match(publicBuildInputs, /selectPaymentsClientConfig/);
+  assert.doesNotMatch(publicBuildInputs, /TRANSITIONFORWARD_BUILD_APP_ENV/);
+  assert.doesNotMatch(publicBuildInputs, /runtimeEnv\.PAYMENTS_CLIENT_TOKEN/);
   assert.match(viteConfig, /Boolean\(process\.env\.DEV_SERVER__PROJECT_PATH\)/);
   assert.match(viteConfig, /buildApp:\s*\{\s*order:\s*["']pre["']/);
   assert.match(viteConfig, /if \(!isLovableSandbox\) return/);
@@ -785,14 +790,24 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(health, /buildViteAppEnv: import\.meta\.env\.VITE_APP_ENV/);
   assert.match(
     health,
-    /buildVitePaymentsClientToken: import\.meta\.env\.VITE_PAYMENTS_CLIENT_TOKEN/,
+    /buildVitePaymentsClientToken: hostSelectedBuildPaymentsToken/,
   );
+  assert.match(health, /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN/);
+  assert.match(health, /VITE_PAYMENTS_LIVE_CLIENT_TOKEN/);
+  assert.match(health, /expectedMode: stagingTarget \? ["']sandbox["'] : productionTarget \? ["']live["']/);
+  assert.match(health, /runtimeStripeLiveApiKey: process\.env\["STRIPE_LIVE_API_KEY"\]/);
   assert.doesNotMatch(health, /import\.meta\.env\["VITE_(APP_ENV|PAYMENTS_CLIENT_TOKEN)"\]/);
   assert.match(
     health,
     /process\.env\["GIT_COMMIT_SHA"\][\s\S]*?import\.meta\.env\["VITE_APP_BUILD_SHA"\]/,
   );
   assert.match(health, /evaluateStagingIdentity\(\{[\s\S]*?gitCommitSha: git_commit_sha/);
+
+  const stripeClient = read("src/lib/stripe.ts");
+  assert.match(stripeClient, /selectPaymentsClientConfig\(\{/);
+  assert.match(stripeClient, /window\.location\.hostname/);
+  assert.match(stripeClient, /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN/);
+  assert.match(stripeClient, /VITE_PAYMENTS_LIVE_CLIENT_TOKEN/);
 
   const auditReport = read("docs/production-readiness/audit-2026-08-13.md");
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");

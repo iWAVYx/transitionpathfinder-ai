@@ -98,20 +98,51 @@ export function resolveDeploymentEnvLabels(input: DeploymentEnvSources): {
 }
 
 export interface DeploymentStripeSources {
+  expectedMode?: Exclude<StripeMode, "unknown">;
   runtimeVitePaymentsClientToken?: string | null;
   runtimePaymentsClientToken?: string | null;
   runtimeStripeSandboxApiKey?: string | null;
+  runtimeStripeLiveApiKey?: string | null;
   buildVitePaymentsClientToken?: string | null;
 }
 
-/** Runtime bindings win; the reviewed public build token is a server-bundle fallback. */
+function stripeModeFromNamedServerCredential(
+  credential: string | undefined | null,
+  namedMode: Exclude<StripeMode, "unknown">,
+): StripeMode {
+  if (typeof credential !== "string" || credential.length === 0) return "unknown";
+  // Lovable's managed connection identifiers are opaque, but the platform
+  // provisions separate environment-owned names. Direct keys still have to
+  // prove their mode from their prefix.
+  if (credential.startsWith("mk_")) return namedMode;
+  return stripeModeFromToken(credential);
+}
+
+/**
+ * Resolve payment identity without exposing credentials. For a known target,
+ * both the browser publishable token and the matching server credential must
+ * prove the same mode; a wrong, missing, or opaque value fails closed.
+ */
 export function resolveDeploymentStripeMode(input: DeploymentStripeSources): StripeMode {
-  return stripeModeFromToken(
+  const clientMode = stripeModeFromToken(
     input.runtimeVitePaymentsClientToken ??
       input.runtimePaymentsClientToken ??
-      input.runtimeStripeSandboxApiKey ??
       input.buildVitePaymentsClientToken,
   );
+
+  if (input.expectedMode) {
+    const serverMode = stripeModeFromNamedServerCredential(
+      input.expectedMode === "live"
+        ? input.runtimeStripeLiveApiKey
+        : input.runtimeStripeSandboxApiKey,
+      input.expectedMode,
+    );
+    return clientMode === input.expectedMode && serverMode === input.expectedMode
+      ? input.expectedMode
+      : "unknown";
+  }
+
+  return clientMode;
 }
 
 export interface IdentityVerdict {

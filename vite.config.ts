@@ -251,12 +251,18 @@ const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString()
 const appEnv = process.env.APP_ENV ?? "";
 const requestedViteMode = resolveRequestedViteMode();
 const publicBuildEnv = loadEnv(requestedViteMode, process.cwd(), "VITE_");
-const isLovableSandbox =
-  process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
-const { viteAppEnv, paymentsClientToken } = resolvePublicBuildInputs({
+const sandboxPublicBuildEnv = loadEnv("development", process.cwd(), "VITE_");
+const livePublicBuildEnv = loadEnv("production", process.cwd(), "VITE_");
+const {
+  viteAppEnv,
+  paymentsClientToken,
+  sandboxPaymentsClientToken,
+  livePaymentsClientToken,
+} = resolvePublicBuildInputs({
   runtimeEnv: process.env,
   publicBuildEnv,
-  allowLovableCompatibility: isLovableSandbox,
+  sandboxPublicBuildEnv,
+  livePublicBuildEnv,
 });
 
 export default defineConfig({
@@ -285,6 +291,12 @@ export default defineConfig({
       // so the live identity endpoint sees the same mode as the browser app.
       "import.meta.env.VITE_APP_ENV": JSON.stringify(viteAppEnv),
       "import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN": JSON.stringify(paymentsClientToken),
+      "import.meta.env.VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN": JSON.stringify(
+        sandboxPaymentsClientToken,
+      ),
+      "import.meta.env.VITE_PAYMENTS_LIVE_CLIENT_TOKEN": JSON.stringify(
+        livePaymentsClientToken,
+      ),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },

@@ -103,6 +103,39 @@ describe("staging deployment identity", () => {
     ).toBe("sandbox");
   });
 
+  it("requires matching client and named server payment identities for known targets", () => {
+    expect(
+      resolveDeploymentStripeMode({
+        expectedMode: "sandbox",
+        runtimeStripeSandboxApiKey: "sk_test_server",
+        buildVitePaymentsClientToken: "pk_test_build",
+      }),
+    ).toBe("sandbox");
+
+    expect(
+      resolveDeploymentStripeMode({
+        expectedMode: "live",
+        runtimeStripeLiveApiKey: "mk_managed_connection",
+        buildVitePaymentsClientToken: "pk_live_build",
+      }),
+    ).toBe("live");
+
+    expect(
+      resolveDeploymentStripeMode({
+        expectedMode: "live",
+        runtimeStripeLiveApiKey: "mk_managed_connection",
+        buildVitePaymentsClientToken: "pk_test_build",
+      }),
+    ).toBe("unknown");
+
+    expect(
+      resolveDeploymentStripeMode({
+        expectedMode: "live",
+        buildVitePaymentsClientToken: "pk_live_build",
+      }),
+    ).toBe("unknown");
+  });
+
   it("fails closed when an explicit runtime payment token is malformed", () => {
     expect(
       resolveDeploymentStripeMode({

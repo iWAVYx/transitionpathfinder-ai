@@ -45,15 +45,6 @@ export const Route = createFileRoute("/api/public/env-health")({
           buildViteAppEnv: import.meta.env.VITE_APP_ENV as string | undefined,
         });
         const supabase_project_ref = projectRefFrom(process.env["SUPABASE_URL"]);
-        const stripe_mode = resolveDeploymentStripeMode({
-          runtimeVitePaymentsClientToken: process.env["VITE_PAYMENTS_CLIENT_TOKEN"],
-          runtimePaymentsClientToken: process.env["PAYMENTS_CLIENT_TOKEN"],
-          runtimeStripeSandboxApiKey: process.env["STRIPE_SANDBOX_API_KEY"],
-          // This VITE_* token is the same public publishable token bundled for checkout.
-          buildVitePaymentsClientToken: import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as
-            | string
-            | undefined,
-        });
         const git_commit_sha =
           process.env["GIT_COMMIT_SHA"] ??
           process.env["CF_PAGES_COMMIT_SHA"] ??
@@ -75,6 +66,23 @@ export const Route = createFileRoute("/api/public/env-health")({
             app_env === "production" ||
             vite_app_env === "production" ||
             supabase_project_ref === PRODUCTION_PROJECT_REF);
+
+        const hostSelectedBuildPaymentsToken = stagingTarget
+          ? (import.meta.env.VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN as string | undefined)
+          : productionTarget
+            ? (import.meta.env.VITE_PAYMENTS_LIVE_CLIENT_TOKEN as string | undefined)
+            : (import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined);
+        const stripe_mode = resolveDeploymentStripeMode({
+          expectedMode: stagingTarget ? "sandbox" : productionTarget ? "live" : undefined,
+          runtimeVitePaymentsClientToken: process.env["VITE_PAYMENTS_CLIENT_TOKEN"],
+          runtimePaymentsClientToken: process.env["PAYMENTS_CLIENT_TOKEN"],
+          runtimeStripeSandboxApiKey: process.env["STRIPE_SANDBOX_API_KEY"],
+          runtimeStripeLiveApiKey: process.env["STRIPE_LIVE_API_KEY"],
+          // Lovable Test and Live share a build. The request target chooses
+          // the matching public token; billing server functions still own and
+          // independently validate the transaction environment.
+          buildVitePaymentsClientToken: hostSelectedBuildPaymentsToken,
+        });
 
         let isolation: { ok: boolean; errors: string[] } = {
           ok: true,
