@@ -55,15 +55,17 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current staging evidence: SHA `ee444f1ae02fd15e487c5c9a21da86d94ca32183`
-passed isolated staging deployment run `34065047646`, all protected push
-workflows, and protected release-readiness run `34065553181`. The controlled
+Current isolated-staging deployment evidence: SHA
+`3cc06ade646e2d73779ee38c029209a68eada179` passed deployment run
+`34154404480` and all nine protected push workflows recorded in
+`staging-acceptance-2026-09-07.md`. No separate consolidated Release Readiness
+run was dispatched for that SHA; the most recent consolidated browser-suite
+run remains `34065553181` for the preceding accepted candidate. The controlled
 Lovable evidence in `lovable-preview-acceptance-2026-09-06.md` records a live
 preview for file-identical trigger `cb0076390d133965c07c808cf6f5d7b7dcd3fc8d`
 and GitHub build run `34069599141`. These runs do not close the production boxes
-below. Lovable still did not expose a hosted runtime SHA, so the preview's exact
-source identity is established by parent/tree equality rather than a Lovable
-runtime identifier.
+below. Lovable still has not exposed a passing hosted runtime mapped to the
+current protected `main` SHA.
 
 - [x] Build and SSR verification passed for the approved SHA.
 - [ ] Lovable's connected build succeeded for that exact SHA; neither
