@@ -86,32 +86,72 @@ export interface DeploymentEnvSources {
   buildViteAppEnv?: string | null;
 }
 
+function firstNonBlank(...values: Array<string | undefined | null>): string | null {
+  const value = values.find(
+    (candidate) => typeof candidate === "string" && candidate.trim().length > 0,
+  );
+  return typeof value === "string" ? value.trim() : null;
+}
+
 /** Runtime bindings win; build labels cover runtimes that do not populate process.env. */
 export function resolveDeploymentEnvLabels(input: DeploymentEnvSources): {
   appEnv: string | null;
   viteAppEnv: string | null;
 } {
   return {
-    appEnv: input.runtimeAppEnv ?? input.buildAppEnv ?? null,
-    viteAppEnv: input.runtimeViteAppEnv ?? input.buildViteAppEnv ?? null,
+    appEnv: firstNonBlank(input.runtimeAppEnv, input.buildAppEnv),
+    viteAppEnv: firstNonBlank(input.runtimeViteAppEnv, input.buildViteAppEnv),
   };
 }
 
 export interface DeploymentStripeSources {
+  expectedMode?: Exclude<StripeMode, "unknown">;
   runtimeVitePaymentsClientToken?: string | null;
   runtimePaymentsClientToken?: string | null;
   runtimeStripeSandboxApiKey?: string | null;
+  runtimeStripeLiveApiKey?: string | null;
   buildVitePaymentsClientToken?: string | null;
 }
 
-/** Runtime bindings win; the reviewed public build token is a server-bundle fallback. */
+function stripeModeFromNamedServerCredential(
+  credential: string | undefined | null,
+  namedMode: Exclude<StripeMode, "unknown">,
+): StripeMode {
+  if (typeof credential !== "string" || credential.length === 0) return "unknown";
+  // Lovable's managed connection identifiers are opaque, but the platform
+  // provisions separate environment-owned names. Direct keys still have to
+  // prove their mode from their prefix.
+  if (credential.startsWith("mk_")) return namedMode;
+  return stripeModeFromToken(credential);
+}
+
+/**
+ * Resolve payment identity without exposing credentials. For a known target,
+ * both the browser publishable token and the matching server credential must
+ * prove the same mode; a wrong, missing, or opaque value fails closed.
+ */
 export function resolveDeploymentStripeMode(input: DeploymentStripeSources): StripeMode {
-  return stripeModeFromToken(
-    input.runtimeVitePaymentsClientToken ??
-      input.runtimePaymentsClientToken ??
-      input.runtimeStripeSandboxApiKey ??
+  const clientMode = stripeModeFromToken(
+    firstNonBlank(
+      input.runtimeVitePaymentsClientToken,
+      input.runtimePaymentsClientToken,
       input.buildVitePaymentsClientToken,
+    ),
   );
+
+  if (input.expectedMode) {
+    const serverMode = stripeModeFromNamedServerCredential(
+      input.expectedMode === "live"
+        ? input.runtimeStripeLiveApiKey
+        : input.runtimeStripeSandboxApiKey,
+      input.expectedMode,
+    );
+    return clientMode === input.expectedMode && serverMode === input.expectedMode
+      ? input.expectedMode
+      : "unknown";
+  }
+
+  return clientMode;
 }
 
 export interface IdentityVerdict {

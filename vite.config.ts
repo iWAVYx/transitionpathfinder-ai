@@ -14,6 +14,7 @@ import {
   rewriteLucideReactImports,
 } from "./scripts/direct-lucide-icon-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
+import { resolvePublicBuildInputs } from "./scripts/resolve-public-build-inputs.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 
@@ -250,9 +251,19 @@ const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString()
 const appEnv = process.env.APP_ENV ?? "";
 const requestedViteMode = resolveRequestedViteMode();
 const publicBuildEnv = loadEnv(requestedViteMode, process.cwd(), "VITE_");
-const viteAppEnv = process.env.VITE_APP_ENV ?? publicBuildEnv.VITE_APP_ENV ?? "";
-const paymentsClientToken =
-  process.env.VITE_PAYMENTS_CLIENT_TOKEN ?? publicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN ?? "";
+const sandboxPublicBuildEnv = loadEnv("development", process.cwd(), "VITE_");
+const livePublicBuildEnv = loadEnv("production", process.cwd(), "VITE_");
+const {
+  viteAppEnv,
+  paymentsClientToken,
+  sandboxPaymentsClientToken,
+  livePaymentsClientToken,
+} = resolvePublicBuildInputs({
+  runtimeEnv: process.env,
+  publicBuildEnv,
+  sandboxPublicBuildEnv,
+  livePublicBuildEnv,
+});
 
 export default defineConfig({
   tanstackStart: {
@@ -280,6 +291,12 @@ export default defineConfig({
       // so the live identity endpoint sees the same mode as the browser app.
       "import.meta.env.VITE_APP_ENV": JSON.stringify(viteAppEnv),
       "import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN": JSON.stringify(paymentsClientToken),
+      "import.meta.env.VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN": JSON.stringify(
+        sandboxPaymentsClientToken,
+      ),
+      "import.meta.env.VITE_PAYMENTS_LIVE_CLIENT_TOKEN": JSON.stringify(
+        livePaymentsClientToken,
+      ),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
     },
