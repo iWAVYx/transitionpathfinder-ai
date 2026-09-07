@@ -86,14 +86,21 @@ export interface DeploymentEnvSources {
   buildViteAppEnv?: string | null;
 }
 
+function firstNonBlank(...values: Array<string | undefined | null>): string | null {
+  const value = values.find(
+    (candidate) => typeof candidate === "string" && candidate.trim().length > 0,
+  );
+  return typeof value === "string" ? value.trim() : null;
+}
+
 /** Runtime bindings win; build labels cover runtimes that do not populate process.env. */
 export function resolveDeploymentEnvLabels(input: DeploymentEnvSources): {
   appEnv: string | null;
   viteAppEnv: string | null;
 } {
   return {
-    appEnv: input.runtimeAppEnv ?? input.buildAppEnv ?? null,
-    viteAppEnv: input.runtimeViteAppEnv ?? input.buildViteAppEnv ?? null,
+    appEnv: firstNonBlank(input.runtimeAppEnv, input.buildAppEnv),
+    viteAppEnv: firstNonBlank(input.runtimeViteAppEnv, input.buildViteAppEnv),
   };
 }
 
@@ -125,9 +132,11 @@ function stripeModeFromNamedServerCredential(
  */
 export function resolveDeploymentStripeMode(input: DeploymentStripeSources): StripeMode {
   const clientMode = stripeModeFromToken(
-    input.runtimeVitePaymentsClientToken ??
-      input.runtimePaymentsClientToken ??
+    firstNonBlank(
+      input.runtimeVitePaymentsClientToken,
+      input.runtimePaymentsClientToken,
       input.buildVitePaymentsClientToken,
+    ),
   );
 
   if (input.expectedMode) {
