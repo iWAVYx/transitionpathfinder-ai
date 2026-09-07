@@ -14,6 +14,7 @@ import {
   rewriteLucideReactImports,
 } from "./scripts/direct-lucide-icon-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
+import { resolvePublicBuildInputs } from "./scripts/resolve-public-build-inputs.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 
@@ -250,9 +251,13 @@ const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString()
 const appEnv = process.env.APP_ENV ?? "";
 const requestedViteMode = resolveRequestedViteMode();
 const publicBuildEnv = loadEnv(requestedViteMode, process.cwd(), "VITE_");
-const viteAppEnv = process.env.VITE_APP_ENV ?? publicBuildEnv.VITE_APP_ENV ?? "";
-const paymentsClientToken =
-  process.env.VITE_PAYMENTS_CLIENT_TOKEN ?? publicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN ?? "";
+const isLovableSandbox =
+  process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+const { viteAppEnv, paymentsClientToken } = resolvePublicBuildInputs({
+  runtimeEnv: process.env,
+  publicBuildEnv,
+  allowLovableCompatibility: isLovableSandbox,
+});
 
 export default defineConfig({
   tanstackStart: {
