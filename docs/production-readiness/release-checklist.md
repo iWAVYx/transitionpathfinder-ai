@@ -55,17 +55,22 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current staging evidence: SHA `29b0575d4f99ad4e7f57bafa40f67535ea4675d4`
-passed isolated staging deployment run `34044555082`, all protected push
-workflows, and protected release-readiness run `34045529249`.
-These runs do not close the
-production boxes below:
-Lovable's internal build identifier is not a GitHub commit, and the connected
-build still needs an auditable mapping to the exact GitHub SHA.
+Current staging evidence: SHA `ee444f1ae02fd15e487c5c9a21da86d94ca32183`
+passed isolated staging deployment run `34065047646`, all protected push
+workflows, and protected release-readiness run `34065553181`. The controlled
+Lovable evidence in `lovable-preview-acceptance-2026-09-06.md` records a live
+preview for file-identical trigger `cb0076390d133965c07c808cf6f5d7b7dcd3fc8d`
+and GitHub build run `34069599141`. These runs do not close the production boxes
+below. Lovable still did not expose a hosted runtime SHA, so the preview's exact
+source identity is established by parent/tree equality rather than a Lovable
+runtime identifier.
 
 - [x] Build and SSR verification passed for the approved SHA.
 - [ ] Lovable's connected build succeeded for that exact SHA; neither
       `Build unsuccessful` nor `Preview is out of date` is present.
+      The file-identical controlled preview rendered without either message,
+      but this remains unchecked until the hosted runtime reports the exact
+      protected `main` SHA or the approved production health contract proves it.
 - [ ] If the approved Lovable application origin is replaced, the reviewed
       `hosting-portability-policy.json` inventory is current; every protected
       request prefix and privileged capability has a named trusted runtime;

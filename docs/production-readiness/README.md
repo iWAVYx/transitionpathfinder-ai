@@ -47,9 +47,12 @@ Documents:
   deployment, protected workflow, and consolidated browser-suite evidence.
 - `staging-acceptance-2026-09-02.md` — historical exact-SHA isolated-staging
   deployment and consolidated release-readiness evidence for `09ccdf6d`.
-- `staging-acceptance-2026-09-06.md` — current exact-SHA isolated-staging
+- `staging-acceptance-2026-09-06.md` — historical exact-SHA isolated-staging
   deployment, Phase 1 branding and visual-baseline alignment, protected
   security workflows, and full acceptance evidence for `29b0575d`.
+- `lovable-preview-acceptance-2026-09-06.md` — current `ee444f1a` isolated-
+  staging acceptance, file-identical Lovable trigger mapping, successful live
+  preview evidence, and the production conditions that remain NO-GO.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
