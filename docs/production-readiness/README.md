@@ -50,6 +50,9 @@ Documents:
 - `staging-acceptance-2026-09-06.md` — historical exact-SHA isolated-staging
   deployment, Phase 1 branding and visual-baseline alignment, protected
   security workflows, and full acceptance evidence for `29b0575d`.
+- `staging-acceptance-2026-09-07.md` — current exact-SHA isolated-staging
+  deployment and protected push-check evidence for `3cc06ade`; it explicitly
+  preserves the boundary around the older consolidated browser-suite run.
 - `lovable-preview-acceptance-2026-09-06.md` — current `ee444f1a` isolated-
   staging acceptance, file-identical Lovable trigger mapping, successful live
   preview evidence, and the production conditions that remain NO-GO.
