@@ -309,6 +309,13 @@ export function useMessageAttachments(messageIds: string[]) {
     queryKey: ["channel-message-attachments", key],
     queryFn: () => listFn({ data: { message_ids: messageIds } }),
     enabled: messageIds.length > 0,
+    // A scan now runs in its own request so sending a message stays responsive.
+    // Poll only while a quarantined attachment is pending, then stop as soon as
+    // the service-role scanner records clean, deleted, or failed.
+    refetchInterval: (current) =>
+      current.state.data?.attachments.some((attachment) => attachment.scan_status === "pending")
+        ? 2_500
+        : false,
   });
   const byMessage = useMemo(() => {
     const map = new Map<string, ChannelAttachment[]>();
