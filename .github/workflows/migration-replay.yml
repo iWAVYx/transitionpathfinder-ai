@@ -11,12 +11,16 @@ on:
       - "supabase/migrations/**"
       - ".github/workflows/migration-replay.yml"
       - "tests/documents-rls.test.mjs"
+      - "tests/security-finding-alignment.test.mjs"
+      - "docs/production-readiness/security-finding-inventory.sql"
       - "tests/__snapshots__/documents-rls-policies.snap.json"
   pull_request:
     paths:
       - "supabase/migrations/**"
       - ".github/workflows/migration-replay.yml"
       - "tests/documents-rls.test.mjs"
+      - "tests/security-finding-alignment.test.mjs"
+      - "docs/production-readiness/security-finding-inventory.sql"
       - "tests/__snapshots__/documents-rls-policies.snap.json"
   workflow_dispatch:
 
@@ -132,6 +136,9 @@ jobs:
         env:
           DOCUMENT_RLS_POLICY_ONLY: "1"
         run: node --test tests/documents-rls.test.mjs
+
+      - name: Credential-free security-finding contract
+        run: node --test tests/security-finding-alignment.test.mjs
 
       - name: Privileged HTTP cron is fail-closed after replay
         run: |
@@ -303,7 +310,64 @@ jobs:
             )
             and pg_get_functiondef(
               'public.list_public_resource_sources()'::regprocedure
-            ) ilike '%outdated%';" | grep -qx t
+            ) ilike '%outdated%'
+            and not has_table_privilege(
+              'anon',
+              'public.resource_sources',
+              'SELECT'
+            )
+            and has_function_privilege(
+              'anon',
+              'public.list_public_resource_sources()',
+              'EXECUTE'
+            )
+            and pg_get_functiondef(
+              'public.is_partner_only(uuid)'::regprocedure
+            ) ilike '%role <> ''partner''%'
+            and not has_function_privilege(
+              'anon',
+              'public.is_partner_only(uuid)',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'authenticated',
+              'public.is_partner_only(uuid)',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'service_role',
+              'public.is_partner_only(uuid)',
+              'EXECUTE'
+            )
+            and not has_table_privilege(
+              'anon',
+              'public.form_templates',
+              'SELECT'
+            )
+            and not has_table_privilege(
+              'authenticated',
+              'public.form_templates',
+              'SELECT'
+            )
+            and (
+              select bool_and(
+                has_column_privilege(
+                  'authenticated',
+                  'public.form_templates',
+                  column_name,
+                  'SELECT'
+                )
+              )
+              from information_schema.columns
+              where table_schema = 'public'
+                and table_name = 'form_templates'
+            );" | grep -qx t
+
+      - name: Capture read-only security catalog inventory
+        run: >-
+          psql -v ON_ERROR_STOP=1
+          -f docs/production-readiness/security-finding-inventory.sql
+          -o /tmp/security-finding-inventory.txt
 
       - name: Public CMS reads do not evaluate authenticated-only helpers
         run: |
@@ -321,5 +385,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: migration-replay-log
-          path: /tmp/realtime_policies.txt
+          path: |
+            /tmp/realtime_policies.txt
+            /tmp/security-finding-inventory.txt
           if-no-files-found: ignore

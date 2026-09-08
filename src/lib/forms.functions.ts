@@ -37,13 +37,19 @@ export type FormResponse = {
   updated_at: string;
 };
 
+// Keep the application query aligned with the database's reviewed column
+// grant. Adding a template column must be an explicit security decision rather
+// than becoming readable through select("*") automatically.
+const FORM_TEMPLATE_SELECT =
+  "slug,title,description,audience,category,schema,created_at,updated_at";
+
 export const listTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
     const { data, error } = await supabase
       .from("form_templates")
-      .select("*")
+      .select(FORM_TEMPLATE_SELECT)
       .order("title", { ascending: true });
     if (error) {
       console.error("listTemplates failed", error);
@@ -59,7 +65,7 @@ export const getTemplate = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("form_templates")
-      .select("*")
+      .select(FORM_TEMPLATE_SELECT)
       .eq("slug", data.slug)
       .maybeSingle();
     if (error || !row) throw new Error("Form not found.");
