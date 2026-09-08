@@ -1026,7 +1026,6 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
 
   const [draft, setDraft] = useState("");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const invalidateActive = () => {
@@ -1038,42 +1037,88 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     refetchAttachments();
   };
 
+  const attachmentMutation = useMutation({
+    mutationFn: async ({
+      channelId,
+      messageId,
+      file,
+    }: {
+      channelId: string;
+      messageId: string;
+      file: File;
+    }) => {
+      const cleanName = file.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
+      const path = `${channelId}/${messageId}/${crypto.randomUUID()}-${cleanName}`;
+      const upload = await supabase.storage.from("channel-attachments").upload(path, file, {
+        contentType: file.type || "application/octet-stream",
+        upsert: false,
+      });
+      if (upload.error) throw new Error(upload.error.message);
+
+      try {
+        const registration = await registerAttachmentFn({
+          data: {
+            channel_id: channelId,
+            message_id: messageId,
+            storage_path: path,
+            file_name: file.name,
+            content_type: file.type || null,
+            size_bytes: file.size,
+          },
+        });
+        return { attachmentId: registration.attachment.id };
+      } catch (error) {
+        // A storage object without its quarantined database row can never be
+        // read under the malware-gate policy. Still remove it when possible so
+        // a failed registration does not leave an unnecessary orphan behind.
+        const cleanup = await supabase.storage.from("channel-attachments").remove([path]);
+        if (cleanup.error) {
+          console.error("channel attachment registration cleanup failed");
+        }
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      qc.invalidateQueries({ queryKey: ["channel-message-attachments"] });
+
+      // Scanning has its own authenticated request. The database and storage
+      // policies keep the attachment quarantined until the server-only path
+      // records a clean verdict.
+      void scanAttachmentFn({ data: { attachment_id: result.attachmentId } })
+        .then(() => invalidateActive())
+        .catch((error) => {
+          console.error("channel attachment scan request failed", error);
+          toast.error(
+            "The attachment remains quarantined because its security scan did not complete.",
+          );
+          invalidateActive();
+        });
+    },
+    onError: (error) => {
+      console.error("channel attachment upload or registration failed", error);
+      toast.error("Your message was sent, but its attachment could not be secured.");
+      qc.invalidateQueries({ queryKey: ["channel-message-attachments"] });
+    },
+  });
+
   const sendMutation = useMutation({
-    mutationFn: async (body: string) => {
+    mutationFn: async ({
+      body,
+      channelId,
+      attachment,
+    }: {
+      body: string;
+      channelId: string;
+      attachment: File | null;
+    }) => {
       const res = await sendFn({
         data: {
-          channel_id: activeId!,
+          channel_id: channelId,
           body,
-          client_dedupe_key: `${activeId}:${Date.now()}`,
+          client_dedupe_key: `${channelId}:${Date.now()}`,
         },
       });
-      let attachmentId: string | null = null;
-      if (pendingFile && activeId) {
-        setUploading(true);
-        try {
-          const cleanName = pendingFile.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
-          const path = `${activeId}/${res.message.id}/${crypto.randomUUID()}-${cleanName}`;
-          const up = await supabase.storage.from("channel-attachments").upload(path, pendingFile, {
-            contentType: pendingFile.type || "application/octet-stream",
-            upsert: false,
-          });
-          if (up.error) throw new Error(up.error.message);
-          const registration = await registerAttachmentFn({
-            data: {
-              channel_id: activeId,
-              message_id: res.message.id,
-              storage_path: path,
-              file_name: pendingFile.name,
-              content_type: pendingFile.type || null,
-              size_bytes: pendingFile.size,
-            },
-          });
-          attachmentId = registration.attachment.id;
-        } finally {
-          setUploading(false);
-        }
-      }
-      return { ...res, attachmentId };
+      return { ...res, attachment, channelId };
     },
     onSuccess: (result) => {
       setDraft("");
@@ -1081,20 +1126,14 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       if (fileInputRef.current) fileInputRef.current.value = "";
       invalidateActive();
 
-      if (result.attachmentId) {
-        // Scanning uses its own authenticated request so the message composer
-        // is never held open by the external antivirus service. Database and
-        // storage policies keep the file quarantined until that request records
-        // a clean verdict through the server-only service-role path.
-        void scanAttachmentFn({ data: { attachment_id: result.attachmentId } })
-          .then(() => invalidateActive())
-          .catch((error) => {
-            console.error("channel attachment scan request failed", error);
-            toast.error(
-              "The attachment remains quarantined because its security scan did not complete.",
-            );
-            invalidateActive();
-          });
+      if (result.attachment) {
+        // The message is already durable and the composer has been released.
+        // Upload, quarantined registration, and scanning continue separately.
+        attachmentMutation.mutate({
+          channelId: result.channelId,
+          messageId: result.message.id,
+          file: result.attachment,
+        });
       }
     },
   });
@@ -1228,8 +1267,8 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                 onSubmit={(e) => {
                   e.preventDefault();
                   const body = draft.trim();
-                  if (!body || sendMutation.isPending || uploading) return;
-                  sendMutation.mutate(body);
+                  if (!body || sendMutation.isPending) return;
+                  sendMutation.mutate({ body, channelId: active.id, attachment: pendingFile });
                 }}
               >
                 {pendingFile && (
@@ -1270,7 +1309,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     variant="outline"
                     size="icon"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={!!active.archived_at || uploading}
+                    disabled={!!active.archived_at || sendMutation.isPending}
                     title="Attach file"
                   >
                     <Paperclip className="h-4 w-4" />
@@ -1286,8 +1325,12 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         const body = draft.trim();
-                        if (body && !sendMutation.isPending && !uploading) {
-                          sendMutation.mutate(body);
+                        if (body && !sendMutation.isPending) {
+                          sendMutation.mutate({
+                            body,
+                            channelId: active.id,
+                            attachment: pendingFile,
+                          });
                         }
                       }
                     }}
@@ -1296,9 +1339,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                   />
                   <Button
                     type="submit"
-                    disabled={
-                      !draft.trim() || sendMutation.isPending || uploading || !!active.archived_at
-                    }
+                    disabled={!draft.trim() || sendMutation.isPending || !!active.archived_at}
                   >
                     <Send className="h-4 w-4" />
                     <span className="sr-only">Send</span>
