@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
+import { toast } from "sonner";
 import {
   Send,
   MessageSquare,
@@ -60,6 +61,7 @@ import {
   listPinnedMessages,
   listChannelBookmarkIds,
   registerAttachment,
+  scanChannelAttachment,
 } from "@/lib/channel-messages.functions";
 import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
 import { ThreadPanel } from "@/components/channels/ThreadPanel";
@@ -592,8 +594,7 @@ function ActionCard({ action }: { action: ChannelActionRecord }) {
   };
 
   const statusMut = useMutation({
-    mutationFn: (status: ActionStatus) =>
-      updateFn({ data: { action_id: action.id, status } }),
+    mutationFn: (status: ActionStatus) => updateFn({ data: { action_id: action.id, status } }),
     onSuccess: invalidate,
   });
   const assignMut = useMutation({
@@ -616,9 +617,7 @@ function ActionCard({ action }: { action: ChannelActionRecord }) {
             {action.priority && <Badge variant="outline">{action.priority}</Badge>}
             <span className="text-xs text-muted-foreground">in {action.channel_title}</span>
           </div>
-          {action.resolution && (
-            <p className="mt-2 text-sm">{action.resolution}</p>
-          )}
+          {action.resolution && <p className="mt-2 text-sm">{action.resolution}</p>}
           <p className="mt-2 text-xs text-muted-foreground">
             Promoted by {action.promoter_name}
             {action.assignee_name ? ` · Assigned to ${action.assignee_name}` : " · Unassigned"}
@@ -672,7 +671,9 @@ function ActionCard({ action }: { action: ChannelActionRecord }) {
               <SelectValue placeholder="Assign…" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none" className="text-xs">Unassigned</SelectItem>
+              <SelectItem value="none" className="text-xs">
+                Unassigned
+              </SelectItem>
               {(assigneesQuery.data?.options ?? []).map((o) => (
                 <SelectItem key={o.user_id} value={o.user_id} className="text-xs">
                   {o.name}
@@ -907,6 +908,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   const pinnedFn = useServerFn(listPinnedMessages);
   const bookmarksFn = useServerFn(listChannelBookmarkIds);
   const registerAttachmentFn = useServerFn(registerAttachment);
+  const scanAttachmentFn = useServerFn(scanChannelAttachment);
   const qc = useQueryClient();
 
   const channelsQuery = useQuery({
@@ -948,10 +950,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     enabled: !!activeId,
   });
 
-  const allMessages = useMemo(
-    () => messagesQuery.data?.messages ?? [],
-    [messagesQuery.data],
-  );
+  const allMessages = useMemo(() => messagesQuery.data?.messages ?? [], [messagesQuery.data]);
 
   // Split top-level messages from thread replies, and index reply counts.
   const { topLevel, replyCounts } = useMemo(() => {
@@ -1048,19 +1047,18 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
           client_dedupe_key: `${activeId}:${Date.now()}`,
         },
       });
+      let attachmentId: string | null = null;
       if (pendingFile && activeId) {
         setUploading(true);
         try {
           const cleanName = pendingFile.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
           const path = `${activeId}/${res.message.id}/${crypto.randomUUID()}-${cleanName}`;
-          const up = await supabase.storage
-            .from("channel-attachments")
-            .upload(path, pendingFile, {
-              contentType: pendingFile.type || "application/octet-stream",
-              upsert: false,
-            });
+          const up = await supabase.storage.from("channel-attachments").upload(path, pendingFile, {
+            contentType: pendingFile.type || "application/octet-stream",
+            upsert: false,
+          });
           if (up.error) throw new Error(up.error.message);
-          await registerAttachmentFn({
+          const registration = await registerAttachmentFn({
             data: {
               channel_id: activeId,
               message_id: res.message.id,
@@ -1070,17 +1068,34 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
               size_bytes: pendingFile.size,
             },
           });
+          attachmentId = registration.attachment.id;
         } finally {
           setUploading(false);
         }
       }
-      return res;
+      return { ...res, attachmentId };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       setDraft("");
       setPendingFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       invalidateActive();
+
+      if (result.attachmentId) {
+        // Scanning uses its own authenticated request so the message composer
+        // is never held open by the external antivirus service. Database and
+        // storage policies keep the file quarantined until that request records
+        // a clean verdict through the server-only service-role path.
+        void scanAttachmentFn({ data: { attachment_id: result.attachmentId } })
+          .then(() => invalidateActive())
+          .catch((error) => {
+            console.error("channel attachment scan request failed", error);
+            toast.error(
+              "The attachment remains quarantined because its security scan did not complete.",
+            );
+            invalidateActive();
+          });
+      }
     },
   });
 
@@ -1156,10 +1171,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                         <Pin className="h-3 w-3 mr-1" /> {pinned.length} pinned
                       </Badge>
                     )}
-                    <ChannelMuteToggle
-                      channelId={active.id}
-                      muted={active.muted}
-                    />
+                    <ChannelMuteToggle channelId={active.id} muted={active.muted} />
                   </div>
                 </div>
               </header>
@@ -1285,10 +1297,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                   <Button
                     type="submit"
                     disabled={
-                      !draft.trim() ||
-                      sendMutation.isPending ||
-                      uploading ||
-                      !!active.archived_at
+                      !draft.trim() || sendMutation.isPending || uploading || !!active.archived_at
                     }
                   >
                     <Send className="h-4 w-4" />
@@ -1323,7 +1332,6 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     </>
   );
 }
-
 
 function labelForKind(kind: string): string {
   switch (kind) {

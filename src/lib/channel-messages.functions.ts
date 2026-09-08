@@ -41,15 +41,15 @@ export type ChannelBookmark = {
 
 export const listThreadMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { parent_id: string }) =>
-    z.object({ parent_id: uuid }).parse(input),
-  )
+  .validator((input: { parent_id: string }) => z.object({ parent_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 
     const { data: parent, error: pErr } = await supabase
       .from("channel_messages")
-      .select("id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at")
+      .select(
+        "id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at",
+      )
       .eq("id", data.parent_id)
       .maybeSingle();
     if (pErr) throw new Error(pErr.message);
@@ -57,18 +57,16 @@ export const listThreadMessages = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await supabase
       .from("channel_messages")
-      .select("id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at")
+      .select(
+        "id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at",
+      )
       .eq("parent_id", data.parent_id)
       .order("created_at", { ascending: true })
       .limit(200);
     if (error) throw new Error(error.message);
 
     const authorIds = Array.from(
-      new Set(
-        [parent, ...(rows ?? [])]
-          .map((r) => r.author_id)
-          .filter((v): v is string => !!v),
-      ),
+      new Set([parent, ...(rows ?? [])].map((r) => r.author_id).filter((v): v is string => !!v)),
     );
     const nameMap = new Map<string, string>();
     if (authorIds.length > 0) {
@@ -83,7 +81,7 @@ export const listThreadMessages = createServerFn({ method: "GET" })
 
     const shape = (r: typeof parent): ChannelMessage => ({
       ...(r as ChannelMessage),
-      author_name: r.author_id ? nameMap.get(r.author_id) ?? "Member" : null,
+      author_name: r.author_id ? (nameMap.get(r.author_id) ?? "Member") : null,
     });
 
     return {
@@ -137,9 +135,7 @@ export const editChannelMessage = createServerFn({ method: "POST" })
 
 export const deleteChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { message_id: string }) =>
-    z.object({ message_id: uuid }).parse(input),
-  )
+  .validator((input: { message_id: string }) => z.object({ message_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -193,24 +189,21 @@ export const setMessagePinned = createServerFn({ method: "POST" })
     const patch = data.pinned
       ? { pinned: true, pinned_at: new Date().toISOString(), pinned_by: userId }
       : { pinned: false, pinned_at: null, pinned_by: null };
-    const { error } = await supabase
-      .from("channel_messages")
-      .update(patch)
-      .eq("id", existing.id);
+    const { error } = await supabase.from("channel_messages").update(patch).eq("id", existing.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 export const listPinnedMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { channel_id: string }) =>
-    z.object({ channel_id: uuid }).parse(input),
-  )
+  .validator((input: { channel_id: string }) => z.object({ channel_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: rows, error } = await supabase
       .from("channel_messages")
-      .select("id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at")
+      .select(
+        "id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at",
+      )
       .eq("channel_id", data.channel_id)
       .eq("pinned", true)
       .is("deleted_at", null)
@@ -236,7 +229,7 @@ export const listPinnedMessages = createServerFn({ method: "GET" })
       pinned: (rows ?? []).map(
         (r): ChannelMessage => ({
           ...(r as ChannelMessage),
-          author_name: r.author_id ? nameMap.get(r.author_id) ?? "Member" : null,
+          author_name: r.author_id ? (nameMap.get(r.author_id) ?? "Member") : null,
         }),
       ),
     };
@@ -274,10 +267,7 @@ export const toggleBookmark = createServerFn({ method: "POST" })
     if (eErr) throw new Error(eErr.message);
 
     if (existing) {
-      const { error } = await supabase
-        .from("channel_bookmarks")
-        .delete()
-        .eq("id", existing.id);
+      const { error } = await supabase.from("channel_bookmarks").delete().eq("id", existing.id);
       if (error) throw new Error(error.message);
       return { bookmarked: false };
     }
@@ -326,9 +316,7 @@ export const listMyBookmarks = createServerFn({ method: "GET" })
 
 export const listChannelBookmarkIds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { channel_id: string }) =>
-    z.object({ channel_id: uuid }).parse(input),
-  )
+  .validator((input: { channel_id: string }) => z.object({ channel_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: rows, error } = await supabase
@@ -341,6 +329,71 @@ export const listChannelBookmarkIds = createServerFn({ method: "GET" })
   });
 
 // ─── Attachments ───────────────────────────────────────────────────────────
+
+async function scanRegisteredAttachment(row: ChannelAttachment, actorId: string) {
+  // Keep the object quarantined until the existing private OPSWAT pipeline
+  // returns a clean verdict. Missing credentials, timeouts, unknown verdicts,
+  // or write failures all leave the attachment unavailable.
+  const { scanUploadedDocument } = await import("./document-av-scan.server");
+  const scanResult = await scanUploadedDocument({
+    bucket: "channel-attachments",
+    storage_path: row.storage_path,
+    declared_mime: row.content_type,
+    declared_size: row.size_bytes,
+  });
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  const isInfected = !scanResult.ok && scanResult.code === "infected";
+  const nextStatus = scanResult.ok ? "clean" : isInfected ? "deleted" : "failed";
+  let storagePurged = false;
+
+  if (isInfected) {
+    const { error: removeError } = await supabaseAdmin.storage
+      .from("channel-attachments")
+      .remove([row.storage_path]);
+    storagePurged = !removeError;
+    if (removeError) {
+      console.error("channel_attachment_scan: infected object purge failed", {
+        attachmentId: row.id,
+      });
+    }
+  }
+
+  const { error: statusError } = await supabaseAdmin
+    .from("channel_attachments")
+    .update({ scan_status: nextStatus })
+    .eq("id", row.id)
+    .eq("scan_status", "pending");
+  if (statusError) {
+    // The database default is pending, so an update failure remains closed.
+    throw new Error("Attachment security scan state could not be recorded");
+  }
+
+  const { error: auditError } = await supabaseAdmin.from("channel_audit_events").insert({
+    channel_id: row.channel_id,
+    event_type: scanResult.ok
+      ? "attachment_scan_clean"
+      : isInfected
+        ? "attachment_scan_blocked"
+        : "attachment_scan_quarantined",
+    actor_id: actorId,
+    metadata: {
+      attachment_id: row.id,
+      scan_code: scanResult.code,
+      scan_data_id: scanResult.data_id,
+      scan_all_result_i: scanResult.scan_all_result_i ?? null,
+      threat_count: scanResult.threats.length,
+      storage_purged: storagePurged,
+    },
+  });
+  if (auditError) {
+    console.error("channel_attachment_scan: audit event write failed", {
+      attachmentId: row.id,
+    });
+  }
+
+  return { ...row, scan_status: nextStatus } as ChannelAttachment;
+}
 
 export const registerAttachment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -401,69 +454,42 @@ export const registerAttachment = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Keep the object quarantined until the existing private OPSWAT pipeline
-    // returns a clean verdict. Missing credentials, timeouts, unknown verdicts,
-    // or write failures all leave the attachment unavailable.
-    const { scanUploadedDocument } = await import("./document-av-scan.server");
-    const scanResult = await scanUploadedDocument({
-      bucket: "channel-attachments",
-      storage_path: data.storage_path,
-      declared_mime: data.content_type ?? null,
-      declared_size: data.size_bytes ?? null,
-    });
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const isInfected = !scanResult.ok && scanResult.code === "infected";
-    const nextStatus = scanResult.ok ? "clean" : isInfected ? "deleted" : "failed";
-    let storagePurged = false;
-
-    if (isInfected) {
-      const { error: removeError } = await supabaseAdmin.storage
-        .from("channel-attachments")
-        .remove([data.storage_path]);
-      storagePurged = !removeError;
-      if (removeError) {
-        console.error("channel_attachment_scan: infected object purge failed", {
-          attachmentId: row.id,
-        });
-      }
-    }
-
-    const { error: statusError } = await supabaseAdmin
-      .from("channel_attachments")
-      .update({ scan_status: nextStatus })
-      .eq("id", row.id);
-    if (statusError) {
-      // The database default is pending, so an update failure remains closed.
-      throw new Error("Attachment security scan state could not be recorded");
-    }
-
-    const { error: auditError } = await supabaseAdmin.from("channel_audit_events").insert({
-      channel_id: data.channel_id,
-      event_type: scanResult.ok
-        ? "attachment_scan_clean"
-        : isInfected
-          ? "attachment_scan_blocked"
-          : "attachment_scan_quarantined",
-      actor_id: userId,
-      metadata: {
-        attachment_id: row.id,
-        scan_code: scanResult.code,
-        scan_data_id: scanResult.data_id,
-        scan_all_result_i: scanResult.scan_all_result_i ?? null,
-        threat_count: scanResult.threats.length,
-        storage_purged: storagePurged,
-      },
-    });
-    if (auditError) {
-      console.error("channel_attachment_scan: audit event write failed", {
-        attachmentId: row.id,
-      });
-    }
-
     return {
-      attachment: { ...row, scan_status: nextStatus } as ChannelAttachment,
+      // Registration deliberately returns while the database and storage
+      // policies still quarantine the object. The client starts the separate
+      // authenticated scan request only after this durable pending row exists.
+      attachment: row as ChannelAttachment,
     };
+  });
+
+export const scanChannelAttachment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { attachment_id: string }) => z.object({ attachment_id: uuid }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // The caller's RLS-scoped client proves current channel membership, and
+    // the uploaded_by predicate prevents other members from spending scanner
+    // capacity for somebody else's attachment.
+    const { data: row, error } = await supabase
+      .from("channel_attachments")
+      .select(
+        "id, channel_id, message_id, storage_path, file_name, content_type, size_bytes, scan_status, uploaded_by, created_at",
+      )
+      .eq("id", data.attachment_id)
+      .eq("uploaded_by", userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Attachment not found or scan is not permitted");
+
+    // A completed verdict is idempotent. Only a quarantined pending object may
+    // enter the private scanner, and only the service-role path below can
+    // record the resulting verdict.
+    if (row.scan_status !== "pending") {
+      return { attachment: row as ChannelAttachment };
+    }
+
+    return { attachment: await scanRegisteredAttachment(row as ChannelAttachment, userId) };
   });
 
 export const listMessageAttachments = createServerFn({ method: "GET" })
@@ -487,9 +513,7 @@ export const listMessageAttachments = createServerFn({ method: "GET" })
 
 export const getAttachmentDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { attachment_id: string }) =>
-    z.object({ attachment_id: uuid }).parse(input),
-  )
+  .validator((input: { attachment_id: string }) => z.object({ attachment_id: uuid }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: row, error: rErr } = await supabase
