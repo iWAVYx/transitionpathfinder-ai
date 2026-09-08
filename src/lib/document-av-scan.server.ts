@@ -16,6 +16,7 @@ const METADEFENDER_BASE = "https://api.metadefender.com/v4";
 const UPLOAD_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 2_500;
 const POLL_TIMEOUT_MS = 90_000;
+const MAX_SCAN_BYTES = 25 * 1024 * 1024;
 
 /** MetaDefender `scan_all_result_i` numeric verdict codes we care about. */
 const META_CLEAN = 0;
@@ -32,7 +33,10 @@ export type ScanCode =
   | "indeterminate"
   | "timeout";
 
+export type ScanStorageBucket = "student-documents" | "channel-attachments";
+
 export interface ScanInput {
+  bucket?: ScanStorageBucket;
   storage_path: string;
   declared_mime?: string | null;
   declared_size?: number | null;
@@ -171,8 +175,9 @@ export async function scanUploadedDocument(input: ScanInput): Promise<ScanResult
   let filename: string;
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const bucket = input.bucket ?? "student-documents";
     const { data: blob, error } = await supabaseAdmin.storage
-      .from("student-documents")
+      .from(bucket)
       .download(input.storage_path);
     if (error || !blob) {
       return {
@@ -184,6 +189,15 @@ export async function scanUploadedDocument(input: ScanInput): Promise<ScanResult
       };
     }
     bytes = new Uint8Array(await blob.arrayBuffer());
+    if (bytes.byteLength > MAX_SCAN_BYTES) {
+      return {
+        ok: false,
+        code: "failed",
+        data_id: null,
+        threats: [],
+        error_message: "File exceeds the 25 MB malware scan limit.",
+      };
+    }
     // Use only the last path segment; MetaDefender only needs a filename hint.
     filename = input.storage_path.split("/").pop() ?? "upload.bin";
   } catch (err) {

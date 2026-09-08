@@ -367,10 +367,21 @@ export const registerAttachment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Path must live under this channel's prefix (matches the storage policy).
-    const firstSegment = data.storage_path.split("/")[0];
-    if (firstSegment !== data.channel_id) {
-      throw new Error("Attachment path does not match its channel");
+    // The client uploads to channel/message/randomized-name. Pin both path
+    // segments before the service-role scanner ever reads the object.
+    const [pathChannelId, pathMessageId] = data.storage_path.split("/");
+    if (pathChannelId !== data.channel_id || pathMessageId !== data.message_id) {
+      throw new Error("Attachment path does not match its channel and message");
+    }
+
+    const { data: message, error: messageError } = await supabase
+      .from("channel_messages")
+      .select("id, channel_id")
+      .eq("id", data.message_id)
+      .maybeSingle();
+    if (messageError) throw new Error(messageError.message);
+    if (!message || message.channel_id !== data.channel_id) {
+      throw new Error("Attachment message does not belong to this channel");
     }
 
     const { data: row, error } = await supabase
@@ -389,7 +400,70 @@ export const registerAttachment = createServerFn({ method: "POST" })
       )
       .single();
     if (error) throw new Error(error.message);
-    return { attachment: row as ChannelAttachment };
+
+    // Keep the object quarantined until the existing private OPSWAT pipeline
+    // returns a clean verdict. Missing credentials, timeouts, unknown verdicts,
+    // or write failures all leave the attachment unavailable.
+    const { scanUploadedDocument } = await import("./document-av-scan.server");
+    const scanResult = await scanUploadedDocument({
+      bucket: "channel-attachments",
+      storage_path: data.storage_path,
+      declared_mime: data.content_type ?? null,
+      declared_size: data.size_bytes ?? null,
+    });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const isInfected = !scanResult.ok && scanResult.code === "infected";
+    const nextStatus = scanResult.ok ? "clean" : isInfected ? "deleted" : "failed";
+    let storagePurged = false;
+
+    if (isInfected) {
+      const { error: removeError } = await supabaseAdmin.storage
+        .from("channel-attachments")
+        .remove([data.storage_path]);
+      storagePurged = !removeError;
+      if (removeError) {
+        console.error("channel_attachment_scan: infected object purge failed", {
+          attachmentId: row.id,
+        });
+      }
+    }
+
+    const { error: statusError } = await supabaseAdmin
+      .from("channel_attachments")
+      .update({ scan_status: nextStatus })
+      .eq("id", row.id);
+    if (statusError) {
+      // The database default is pending, so an update failure remains closed.
+      throw new Error("Attachment security scan state could not be recorded");
+    }
+
+    const { error: auditError } = await supabaseAdmin.from("channel_audit_events").insert({
+      channel_id: data.channel_id,
+      event_type: scanResult.ok
+        ? "attachment_scan_clean"
+        : isInfected
+          ? "attachment_scan_blocked"
+          : "attachment_scan_quarantined",
+      actor_id: userId,
+      metadata: {
+        attachment_id: row.id,
+        scan_code: scanResult.code,
+        scan_data_id: scanResult.data_id,
+        scan_all_result_i: scanResult.scan_all_result_i ?? null,
+        threat_count: scanResult.threats.length,
+        storage_purged: storagePurged,
+      },
+    });
+    if (auditError) {
+      console.error("channel_attachment_scan: audit event write failed", {
+        attachmentId: row.id,
+      });
+    }
+
+    return {
+      attachment: { ...row, scan_status: nextStatus } as ChannelAttachment,
+    };
   });
 
 export const listMessageAttachments = createServerFn({ method: "GET" })
@@ -420,11 +494,18 @@ export const getAttachmentDownloadUrl = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: row, error: rErr } = await supabase
       .from("channel_attachments")
-      .select("id, storage_path, file_name")
+      .select("id, storage_path, file_name, scan_status")
       .eq("id", data.attachment_id)
       .maybeSingle();
     if (rErr) throw new Error(rErr.message);
     if (!row) throw new Error("Attachment not found");
+    if (row.scan_status !== "clean") {
+      throw new Error(
+        row.scan_status === "pending"
+          ? "Attachment security scanning is still in progress"
+          : "Attachment was blocked by security scanning",
+      );
+    }
 
     const { data: signed, error } = await supabase.storage
       .from("channel-attachments")

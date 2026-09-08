@@ -18,6 +18,7 @@
     "test:ct-seed-v2-repair": "node --test tests/ct-seed-v2-repair.test.mjs",
     "test:production-readiness": "node --test tests/production-readiness-contract.test.mjs tests/hosting-portability-boundary.test.mjs",
     "test:security-findings": "node --test tests/security-finding-alignment.test.mjs tests/security-definer-routine-grants.test.mjs",
+    "test:channel-attachment-security": "node --test tests/channel-attachment-malware-gate.test.mjs",
     "test:hosting-portability": "node --test tests/hosting-portability-boundary.test.mjs",
     "audit:production-migrations": "node scripts/compare-production-migration-history.mjs",
     "repair:ct-seed-v2-staging": "node scripts/repair-ct-seed-v2-staging.mjs",

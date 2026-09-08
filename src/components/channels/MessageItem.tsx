@@ -257,10 +257,18 @@ function AttachmentChip({ attachment }: { attachment: ChannelAttachment }) {
   const dlFn = useServerFn(getAttachmentDownloadUrl);
   const [loading, setLoading] = useState(false);
   const size = useMemo(() => formatSize(attachment.size_bytes), [attachment.size_bytes]);
+  const isClean = attachment.scan_status === "clean";
+  const statusLabel =
+    attachment.scan_status === "pending"
+      ? "Scanning…"
+      : attachment.scan_status === "deleted"
+        ? "Blocked"
+        : "Quarantined";
   return (
     <button
       type="button"
-      disabled={loading}
+      disabled={loading || !isClean}
+      title={isClean ? `Download ${attachment.file_name}` : statusLabel}
       onClick={async () => {
         try {
           setLoading(true);
@@ -275,7 +283,11 @@ function AttachmentChip({ attachment }: { attachment: ChannelAttachment }) {
       <Paperclip className="h-3 w-3 shrink-0" />
       <span className="truncate max-w-[200px]">{attachment.file_name}</span>
       {size && <span className="text-muted-foreground shrink-0">{size}</span>}
-      <Download className="h-3 w-3 shrink-0 opacity-60" />
+      {isClean ? (
+        <Download className="h-3 w-3 shrink-0 opacity-60" />
+      ) : (
+        <span className="text-muted-foreground shrink-0">{statusLabel}</span>
+      )}
     </button>
   );
 }

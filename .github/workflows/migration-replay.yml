@@ -13,6 +13,7 @@ on:
       - "tests/documents-rls.test.mjs"
       - "tests/security-finding-alignment.test.mjs"
       - "tests/security-definer-routine-grants.test.mjs"
+      - "tests/channel-attachment-malware-gate.test.mjs"
       - "docs/production-readiness/security-finding-inventory.sql"
       - "docs/production-readiness/security-definer-execute-allowlist.json"
       - "tests/__snapshots__/documents-rls-policies.snap.json"
@@ -23,6 +24,7 @@ on:
       - "tests/documents-rls.test.mjs"
       - "tests/security-finding-alignment.test.mjs"
       - "tests/security-definer-routine-grants.test.mjs"
+      - "tests/channel-attachment-malware-gate.test.mjs"
       - "docs/production-readiness/security-finding-inventory.sql"
       - "docs/production-readiness/security-definer-execute-allowlist.json"
       - "tests/__snapshots__/documents-rls-policies.snap.json"
@@ -146,6 +148,7 @@ jobs:
           node --test
           tests/security-finding-alignment.test.mjs
           tests/security-definer-routine-grants.test.mjs
+          tests/channel-attachment-malware-gate.test.mjs
 
       - name: Privileged HTTP cron is fail-closed after replay
         run: |
