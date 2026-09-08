@@ -12,7 +12,9 @@ on:
       - ".github/workflows/migration-replay.yml"
       - "tests/documents-rls.test.mjs"
       - "tests/security-finding-alignment.test.mjs"
+      - "tests/security-definer-routine-grants.test.mjs"
       - "docs/production-readiness/security-finding-inventory.sql"
+      - "docs/production-readiness/security-definer-execute-allowlist.json"
       - "tests/__snapshots__/documents-rls-policies.snap.json"
   pull_request:
     paths:
@@ -20,7 +22,9 @@ on:
       - ".github/workflows/migration-replay.yml"
       - "tests/documents-rls.test.mjs"
       - "tests/security-finding-alignment.test.mjs"
+      - "tests/security-definer-routine-grants.test.mjs"
       - "docs/production-readiness/security-finding-inventory.sql"
+      - "docs/production-readiness/security-definer-execute-allowlist.json"
       - "tests/__snapshots__/documents-rls-policies.snap.json"
   workflow_dispatch:
 
@@ -137,8 +141,11 @@ jobs:
           DOCUMENT_RLS_POLICY_ONLY: "1"
         run: node --test tests/documents-rls.test.mjs
 
-      - name: Credential-free security-finding contract
-        run: node --test tests/security-finding-alignment.test.mjs
+      - name: Credential-free security-finding contracts
+        run: >-
+          node --test
+          tests/security-finding-alignment.test.mjs
+          tests/security-definer-routine-grants.test.mjs
 
       - name: Privileged HTTP cron is fail-closed after replay
         run: |

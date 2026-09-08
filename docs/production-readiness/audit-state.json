@@ -34,13 +34,13 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 192,
-    "latestCanonicalFile": "20260907190000_security_finding_alignment.sql",
+    "canonicalCount": 193,
+    "latestCanonicalFile": "20260907224500_least_privilege_security_definer_grants.sql",
     "productionHistoryReadAt": "2026-08-26T03:55:50Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-post-window-2026-08-26.csv",
     "productionHistoryComparedMainSha": "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
     "productionHistoryAppliedCount": 184,
     "productionHistoryLatestAppliedVersion": "20260825050000",
-    "pendingProductionCount": 1
+    "pendingProductionCount": 2
   }
 }
