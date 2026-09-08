@@ -1,37 +1,55 @@
 # Lovable security-finding alignment — 2026-09-07
 
-Decision: **CODE ALIGNMENT PROPOSED; RESCAN AND LIVE EVIDENCE PENDING**.
-Production remains **NO-GO**.
+Decision: **STAGING CONTROLS VERIFIED; PRIVILEGED-ROUTINE FOLLOW-UP
+REQUIRED**. Production remains **NO-GO**.
 
-This review maps the nine ignored Lovable findings to the canonical database
-controls and identifies the evidence still required to close them. The review
-and its draft code do not authorize a merge, deployment, migration, Lovable
-build or publish, database change, DNS change, or production release.
+PR #98 merged as protected `main` SHA
+`2b256c8389f7c400d24d449e7af31558a0e2a40a`. The exact SHA was deployed only
+to the isolated staging Worker, and migration
+`20260907190000_security_finding_alignment.sql` was applied only to Supabase
+project `qgrertkqbwanerqqemph`. Both Lovable's basic and deep scans were then
+refreshed. They reported no active issues and 0 known dependency issues, but
+all nine findings remain in Lovable's ignored list. Ignored status is not
+treated as proof that a finding is closed.
 
-| # | Lovable finding | Disposition in this draft | Evidence still required |
+| # | Lovable finding | Staging disposition after live evidence | Remaining action |
 |---|---|---|---|
-| 1 | Partner organization contact emails readable by authenticated users | Remediated by `20260821230000_security_remediation_hardening.sql`; production-window verification already denied the sensitive columns to public client roles. | Re-run the Lovable scan after exact-SHA staging acceptance and retain the focused catalog result. |
-| 2 | Collaboration-note visibility depends on `note_type` | Remediated by requiring both non-private `note_type` and non-private `visibility` for anyone other than the creator. | Migration replay and staging policy verification must pass. |
-| 3 | Channel attachment metadata lacks explicit UPDATE control | Remediated by revoking authenticated UPDATE; the product has no supported metadata-update path. | Migration replay and staging privilege verification must pass. |
-| 4 | Partner-only restriction could fail when roles are added | Real future-role gap addressed by `20260907190000_security_finding_alignment.sql`: partner-only now means partner exists and every role row is partner. | Review, migration replay, isolated-staging application, and live role regression are required before any production consideration. |
-| 5 | Resource-source metadata is publicly viewable | Intentional public-directory behavior. Anonymous callers use a column-limited function that excludes `notes`, creator data, and archived/outdated sources; the base table remains unavailable to anonymous callers. | Confirm the function/base-table privilege split using the catalog inventory and document the refreshed scan disposition. |
-| 6 | Form templates are readable by authenticated users | Intentional product behavior; templates contain prompts/schema, not responses or student data. This draft replaces the table-wide grant and wildcard application query with a reviewed column allowlist so future columns fail closed. | Migration replay and an authenticated forms smoke test must pass in isolated staging. |
-| 7 | Public can execute a SECURITY DEFINER function | Requires exact routine identity rather than assuming every definer function is unsafe. Public resource listing is intentionally anonymous; account-changing functions are not. | Run `security-finding-inventory.sql`, compare every public/anonymous grant with the reviewed allowlist, and retain the output without application data. |
-| 8 | Signed-in users can execute a SECURITY DEFINER function | Some signed-in execution is required by RLS helpers. `is_partner_only` is search-path pinned and re-granted only to authenticated/service roles in this draft. | Inventory every authenticated grant and confirm each function is search-path pinned, caller-bound, and necessary. |
-| 9 | Extension installed in the public schema | Location must be established from the live catalog; changing or moving a managed extension based only on a scanner label is unsafe. | Record `pg_extension.extnamespace` from staging and production read-only. Escalate only an unmanaged extension actually located in `public`. |
+| 1 | Partner organization contact emails readable by authenticated users | Verified remediated: authenticated callers lack `SELECT` on both `contact_email` and `phone`. | Reconfirm production catalog state in the eventual production preflight. |
+| 2 | Collaboration-note visibility depends on `note_type` | Verified remediated: the live policy requires both non-private `note_type` and non-private `visibility` for non-creators. | Reconfirm production catalog state before release. |
+| 3 | Channel attachment metadata lacks explicit UPDATE control | Verified remediated: authenticated callers lack table-level `UPDATE`. | Reconfirm production catalog state before release. |
+| 4 | Partner-only restriction could fail when roles are added | Verified in staging: the new helper is search-path pinned, PUBLIC/anonymous execution is revoked, and zero existing role sets disagree with the fail-closed definition. | Apply the reviewed migration to production only in a separately authorized maintenance window. |
+| 5 | Resource-source metadata is publicly viewable | Verified intentional and column-limited: anonymous callers cannot read the base table but can execute the reviewed listing function, which excludes sensitive/admin fields and archived/outdated rows. | Preserve this explicit anonymous allowlist. |
+| 6 | Form templates are readable by authenticated users | Verified intentional and fail closed: RLS remains enabled, no anonymous grant exists, authenticated table-wide `SELECT` is absent, and only the eight reviewed columns are selectable. | Apply the reviewed migration to production only after separate authorization. |
+| 7 | Public can execute a SECURITY DEFINER function | **Not closed.** The live catalog found 17 public-executable security-definer routines. Several are trigger functions, but non-trigger helpers also inherit PUBLIC execution. | Create a focused least-privilege migration that explicitly revokes PUBLIC/anonymous execution except for the narrow anonymous RPC allowlist, then replay and test it. |
+| 8 | Signed-in users can execute a SECURITY DEFINER function | **Not closed.** All 74 security-definer routines are search-path pinned, but 68 are executable by authenticated callers and 24 by anonymous callers through explicit or inherited grants. | Review each caller boundary and reduce grants to the minimum required roles; add a machine-readable routine allowlist and regression tests. |
+| 9 | Extension installed in the public schema | Scanner label is not reproduced in staging: all nine installed extensions are in `pg_catalog`, `extensions`, `pgmq`, or `vault`; zero are in `public`. | Run the same read-only namespace inventory in production before closing the finding globally. |
 
-## Verification sequence
+## Recorded verification
 
-1. Run the credential-free contract test on the pull request.
-2. Replay every migration in a disposable PostgreSQL instance and run the
-   targeted privilege assertions plus the catalog-only inventory.
-3. After separate owner approval, merge the reviewed change.
-4. After separate staging authorization, apply only the new migration to the
-   isolated staging project and run protected permission/RLS checks.
-5. Re-run Lovable's security scan and attach the refreshed results.
-6. Prepare a separate production migration window only if every earlier gate
-   passes and the owner explicitly authorizes that exact migration.
+- Deploy Staging run
+  [34176604002](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34176604002)
+  deployed and verified the exact 40-character SHA with 31/31 guard tests.
+- The staging migration ledger contains exactly one
+  `20260907190000` row. Its canonical SQL MD5 is
+  `eccebb8899612891df9d1e2882fa4c88`.
+- The focused live catalog checks passed for partner contacts, collaboration
+  notes, attachment updates, partner-only role semantics, public resources,
+  form-template columns, and extension locations.
+- Every protected push workflow passed, including disposable migration replay,
+  live permission/RLS/cross-district checks, dashboard and role-guard journeys,
+  build verification, accessibility, and the credential-free readiness audit.
+- Consolidated Release Readiness run
+  [34177650200](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/34177650200)
+  passed at the same exact SHA.
+- Lovable basic and deep scans both completed after the merge. Lovable showed
+  no active issues, the same nine ignored findings, 77 packages, and 0 known
+  dependency issues.
 
-Until steps 1–5 pass, `securityFindingsClosed` remains false. A draft PR or a
-successful static test is evidence of progress, not permission to migrate or
-release production.
+`securityFindingsClosed` remains false because findings 7 and 8 require a
+least-privilege routine-grant follow-up, and production still needs the
+read-only extension inventory plus a separately authorized migration window.
+These staging results do not authorize a production migration. A future rescan
+is evidence only and cannot substitute for the remaining live catalog
+verification or a separate owner-approved maintenance window.
+No Lovable build or publish, production database change, DNS change, secret
+change, or payment occurred during this evidence pass.
