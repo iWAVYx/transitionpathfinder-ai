@@ -33,8 +33,8 @@ the maintenance window.
 6. Review each pending statement for locks, table rewrites, uniqueness failures,
    role/grant changes, RLS changes, extension needs, and post-deploy jobs.
 
-The 2026-08-23 baseline accounts for all 181 production-history rows. The
-current canonical directory leaves three reviewed migrations pending:
+The 2026-08-23 baseline accounted for all 181 production-history rows. At that
+time, the canonical directory left three reviewed migrations pending:
 `20260821230000_security_remediation_hardening.sql` and
 `20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql`, followed
 by `20260825050000_scope_public_cms_admin_policies.sql`.
@@ -45,6 +45,14 @@ canonical file again. Regenerate the baseline immediately before release. This
 evidence is not permission to mutate production. The staging-only
 `20260621153500_e2e_role_dashboard_readiness.sql` migration is permanently
 production-forbidden.
+
+Those three migrations were subsequently applied and verified in the recorded
+2026-08-26 maintenance window, leaving 184 aligned production-history rows.
+The 2026-09-07 security-finding alignment draft proposes one new forward-only
+migration, `20260907190000_security_finding_alignment.sql`. It remains
+unapplied. If the draft is eventually merged and passes isolated-staging
+acceptance, regenerate the production baseline and treat that exact file as a
+new pending delta requiring separate review and explicit authorization.
 
 ### Reviewed pending-delta risk profile — 2026-08-25
 

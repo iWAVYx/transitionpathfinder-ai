@@ -19,12 +19,13 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Database
 
 - [x] Production migration history read and content-aware baseline attached;
-      the post-window 2026-08-26 evidence accounts for all 184 rows and reports
-      zero unresolved or pending migrations against
-      `9a4bbb979118abb05d34da79dd44c8db8a76d2e3`.
-- [x] Baseline regenerated immediately before the maintenance window, its exact
-      three-file delta was applied in reviewed order, and the final baseline is
-      aligned with zero pending migrations.
+      the completed 2026-08-26 window accounts for all 184 production rows and
+      the then-approved three-file delta.
+- [ ] The proposed security-alignment migration
+      `20260907190000_security_finding_alignment.sql` remains unapplied. After
+      merge and isolated-staging acceptance, regenerate the production baseline
+      and review the exact one-file delta before requesting a separate
+      production maintenance-window authorization.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Lovable Cloud backup recovery point was recorded and the isolated export
@@ -51,7 +52,9 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Malware scanning, incident response, backup restoration, and legal/privacy
       blockers for real student/IEP data are closed.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
-      known dependency vulnerabilities are reviewed and dispositioned.
+      known dependency vulnerabilities are reviewed and dispositioned. The
+      code-level mapping and still-pending evidence are recorded in
+      `security-finding-alignment-2026-09-07.md`.
 
 ## Exact-SHA acceptance
 
