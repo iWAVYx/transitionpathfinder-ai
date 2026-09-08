@@ -51,7 +51,11 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Production email provider and SPF/DKIM/DMARC verified, or email remains disabled.
 - [ ] Sentry/observability environment, redaction, alert routes, and retention verified.
 - [ ] Malware scanning, incident response, backup restoration, and legal/privacy
-      blockers for real student/IEP data are closed.
+      blockers for real student/IEP data are closed. The fail-closed document
+      scanner exists and the Channel attachment gate is implemented in draft, but
+      clean-file/EICAR evidence, isolated-staging verification, production
+      configuration, and OPSWAT subprocessor approval are still required. See
+      `channel-attachment-malware-gate-2026-09-08.md`.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9

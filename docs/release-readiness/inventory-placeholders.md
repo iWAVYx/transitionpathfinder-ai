@@ -29,7 +29,7 @@
 | `EVIDENCE_GRAPH_WRITES`       | Yes            | B/C            | Engineering              |
 | Google OAuth provider enabled | Requires Lovable Cloud dashboard confirmation | B/C | Founder + Engineering    |
 | Email sending domain (DKIM/SPF/DMARC) | Not verifiable from code | A (recommended) / B (required) / C (required) | Founder + Vendor       |
-| Malware scanning on upload    | Not present in code | C (required) | Engineering + Vendor     |
+| Malware scanning on upload    | OPSWAT pipeline present; live staging proof pending | C (required) | Engineering + Founder + Vendor |
 | External APM (error monitoring) | Not present in code | C (recommended) | Engineering            |
 | Backup restore drill          | Not verifiable from code | C (required) | Founder + Vendor        |
 | Legal review of subprocessors | Not verifiable from code | B / C          | Founder + Legal          |
