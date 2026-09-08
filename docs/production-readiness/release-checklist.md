@@ -25,8 +25,8 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `20260907190000_security_finding_alignment.sql` is applied and verified in
       isolated staging but remains unapplied to production. Regenerate the
       production baseline and review the exact production delta, including the
-      privileged-routine follow-up, before requesting a separate production
-      maintenance-window authorization.
+      draft `20260907224500_least_privilege_security_definer_grants.sql`, before
+      requesting a separate production maintenance-window authorization.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Lovable Cloud backup recovery point was recorded and the isolated export
@@ -57,8 +57,10 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       and deep scans are current with 0 known dependency issues, but all 9
       findings remain ignored rather than closed. Staging verified findings
       1–6 and did not reproduce the public-schema extension finding; findings
-      7–8 still require least-privilege routine grants and regression tests.
-      Production also needs a read-only extension inventory. Details are in
+      7–8 now have a draft least-privilege migration and exact allowlist, but
+      still require review, replay, isolated-staging application, protected
+      regression tests, and a rescan. Production also needs a read-only
+      extension inventory. Details are in
       `security-finding-alignment-2026-09-07.md`.
 
 ## Exact-SHA acceptance
