@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
   "auditedAt": "2026-09-07",
-  "auditedMainSha": "29b0575d4f99ad4e7f57bafa40f67535ea4675d4",
+  "auditedMainSha": "2b256c8389f7c400d24d449e7af31558a0e2a40a",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
     "workerOrigin": "https://transitionforward-staging.caysi101.workers.dev",
     "stripeMode": "sandbox",
-    "exactDeploymentSha": "29b0575d4f99ad4e7f57bafa40f67535ea4675d4",
-    "deploymentRun": 34044555082,
-    "releaseReadinessRun": 34045529249,
+    "exactDeploymentSha": "2b256c8389f7c400d24d449e7af31558a0e2a40a",
+    "deploymentRun": 34176604002,
+    "releaseReadinessRun": 34177650200,
     "releaseReadinessAttempt": 1,
     "releaseReadinessVerified": true
   },

@@ -21,11 +21,12 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [x] Production migration history read and content-aware baseline attached;
       the completed 2026-08-26 window accounts for all 184 production rows and
       the then-approved three-file delta.
-- [ ] The proposed security-alignment migration
-      `20260907190000_security_finding_alignment.sql` remains unapplied. After
-      merge and isolated-staging acceptance, regenerate the production baseline
-      and review the exact one-file delta before requesting a separate
-      production maintenance-window authorization.
+- [ ] The security-alignment migration
+      `20260907190000_security_finding_alignment.sql` is applied and verified in
+      isolated staging but remains unapplied to production. Regenerate the
+      production baseline and review the exact production delta, including the
+      privileged-routine follow-up, before requesting a separate production
+      maintenance-window authorization.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Lovable Cloud backup recovery point was recorded and the isolated export
@@ -52,23 +53,26 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Malware scanning, incident response, backup restoration, and legal/privacy
       blockers for real student/IEP data are closed.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
-      known dependency vulnerabilities are reviewed and dispositioned. The
-      code-level mapping and still-pending evidence are recorded in
+      known dependency vulnerabilities are reviewed and dispositioned. Basic
+      and deep scans are current with 0 known dependency issues, but all 9
+      findings remain ignored rather than closed. Staging verified findings
+      1–6 and did not reproduce the public-schema extension finding; findings
+      7–8 still require least-privilege routine grants and regression tests.
+      Production also needs a read-only extension inventory. Details are in
       `security-finding-alignment-2026-09-07.md`.
 
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: SHA
-`3cc06ade646e2d73779ee38c029209a68eada179` passed deployment run
-`34154404480` and all nine protected push workflows recorded in
-`staging-acceptance-2026-09-07.md`. No separate consolidated Release Readiness
-run was dispatched for that SHA; the most recent consolidated browser-suite
-run remains `34065553181` for the preceding accepted candidate. The controlled
-Lovable evidence in `lovable-preview-acceptance-2026-09-06.md` records a live
-preview for file-identical trigger `cb0076390d133965c07c808cf6f5d7b7dcd3fc8d`
-and GitHub build run `34069599141`. These runs do not close the production boxes
-below. Lovable still has not exposed a passing hosted runtime mapped to the
-current protected `main` SHA.
+`2b256c8389f7c400d24d449e7af31558a0e2a40a` passed deployment run
+`34176604002`, all 10 protected push workflows, and consolidated Release
+Readiness run `34177650200`, as recorded in
+`staging-acceptance-2026-09-07.md`. The controlled Lovable evidence in
+`lovable-preview-acceptance-2026-09-06.md` records a live preview for
+file-identical trigger `cb0076390d133965c07c808cf6f5d7b7dcd3fc8d` and GitHub
+build run `34069599141`. These runs do not close the production boxes below.
+Lovable still has not exposed a passing hosted runtime mapped to the current
+protected `main` SHA.
 
 - [x] Build and SSR verification passed for the approved SHA.
 - [ ] Lovable's connected build succeeded for that exact SHA; neither
@@ -82,8 +86,9 @@ current protected `main` SHA.
       exact-SHA acceptance, secret isolation, smoke coverage, and coordinated
       rollback pass before any production deployment or DNS cutover.
 - [x] Migration replay and RLS/permission/cross-district suites passed. The
-      canonical migration tree is unchanged since replay run `32630746041`;
-      the live staging RLS suites passed for the candidate SHA.
+      canonical migration tree, including the security-alignment migration,
+      passed replay run `34176545827`; the live staging RLS suites passed for
+      the candidate SHA.
 - [x] Seven-role auth, role guards, dashboard regression, accessibility, and
       release-readiness journeys passed on the exact candidate.
 - [ ] Public routes, login/MFA, owner strict MFA, document access, report flow,

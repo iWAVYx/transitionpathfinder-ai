@@ -41,14 +41,14 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "29b0575d4f99ad4e7f57bafa40f67535ea4675d4";
+  const verifiedStagingSha = "2b256c8389f7c400d24d449e7af31558a0e2a40a";
 
   assert.equal(audit.schemaVersion, 2);
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 34044555082);
-  assert.equal(audit.staging.releaseReadinessRun, 34045529249);
+  assert.equal(audit.staging.deploymentRun, 34176604002);
+  assert.equal(audit.staging.releaseReadinessRun, 34177650200);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.notEqual(
     audit.production.supabaseProjectRef,
