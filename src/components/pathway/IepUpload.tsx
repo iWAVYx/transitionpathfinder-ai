@@ -6,7 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
 import iepImage from "@/assets/bundled/iep-upload-buried.webp";
 import { TrustNote } from "@/components/site/TrustNote";
-import { extractPdfText } from "@/lib/browser-only-libs";
+import {
+  SensitiveFilePrivacyReviewDialog,
+} from "@/components/privacy/SensitiveFilePrivacyReviewDialog";
+import type { SensitiveFileReviewSource } from "@/lib/sensitive-file-review.browser";
 import {
   PROTECTED_FILE_UPLOADS_ENABLED,
   PROTECTED_FILE_UPLOADS_MESSAGE,
@@ -21,6 +24,7 @@ export function IepUpload({ onExtracted }: Props) {
   const [busy, setBusy] = useState<null | "reading" | "thinking">(null);
   const [pasted, setPasted] = useState("");
   const [showPaste, setShowPaste] = useState(false);
+  const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
   async function handleText(text: string) {
     if (text.trim().length < 40) {
@@ -39,32 +43,6 @@ export function IepUpload({ onExtracted }: Props) {
     }
   }
 
-  async function handleFile(file: File) {
-    if (!PROTECTED_FILE_UPLOADS_ENABLED) {
-      toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
-      return;
-    }
-    setBusy("reading");
-    try {
-      let text = "";
-      if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-        text = await extractPdfText(file);
-      } else {
-        text = await file.text();
-      }
-      if (!text.trim()) {
-        toast.error("We couldn't read text from that file. Try pasting it instead.");
-        setBusy(null);
-        return;
-      }
-      await handleText(text);
-    } catch (err) {
-      console.error(err);
-      toast.error("Couldn't read that file. Try pasting the text instead.");
-      setBusy(null);
-    }
-  }
-
   const loading = busy !== null;
 
   return (
@@ -78,7 +56,7 @@ export function IepUpload({ onExtracted }: Props) {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {PROTECTED_FILE_UPLOADS_ENABLED
               ? "Upload a PDF or paste the text. We'll quietly fill in the sections below — you stay in charge and can edit anything. Your file stays in your browser; only the text is sent for analysis."
-              : "File selection is temporarily paused while private security scanning is finalized. You can still paste relevant IEP text below, review every field, and continue without attaching a file."}
+              : "File selection is temporarily paused while private security scanning is finalized. You can still paste relevant IEP text below; TransitionForward will suggest redactions and require your review before analysis."}
           </p>
 
           {!PROTECTED_FILE_UPLOADS_ENABLED && (
@@ -87,7 +65,7 @@ export function IepUpload({ onExtracted }: Props) {
               className="mt-4 rounded-xl border border-amber-200/70 bg-amber-50/60 p-3 text-xs leading-relaxed text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
             >
               <strong>IEP file selection is temporarily unavailable.</strong> Pasting text remains
-              available; remove identifying details first.
+              available and receives a privacy review before analysis.
             </p>
           )}
 
@@ -108,7 +86,7 @@ export function IepUpload({ onExtracted }: Props) {
                 disabled={loading || !PROTECTED_FILE_UPLOADS_ENABLED}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) handleFile(f);
+                  if (f) setPrivacySource({ kind: "file", file: f });
                   e.target.value = "";
                 }}
               />
@@ -146,7 +124,9 @@ export function IepUpload({ onExtracted }: Props) {
                   size="sm"
                   className="rounded-full"
                   disabled={loading || pasted.trim().length < 40}
-                  onClick={() => handleText(pasted)}
+                  onClick={() =>
+                    setPrivacySource({ kind: "text", name: "Pasted IEP text", text: pasted })
+                  }
                 >
                   {busy === "thinking" ? "Understanding…" : "Read this text"}
                 </Button>
@@ -156,8 +136,8 @@ export function IepUpload({ onExtracted }: Props) {
 
           <TrustNote variant="document" className="mt-4" />
           <p className="mt-3 text-xs italic text-muted-foreground">
-            Privacy: please remove last names or other identifying details before uploading. We do not
-            store the file — only the structured fields you choose to save.
+            Privacy: automatic suggestions help remove common identifiers, and you approve the
+            text-only copy before analysis. The original file is not stored.
           </p>
         </div>
 
@@ -173,6 +153,15 @@ export function IepUpload({ onExtracted }: Props) {
           />
         </div>
       </div>
+      <SensitiveFilePrivacyReviewDialog
+        source={privacySource}
+        confirmLabel="Analyze privacy-safe text"
+        onCancel={() => setPrivacySource(null)}
+        onConfirm={({ text }) => {
+          setPrivacySource(null);
+          void handleText(text);
+        }}
+      />
     </div>
   );
 }

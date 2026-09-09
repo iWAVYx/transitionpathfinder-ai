@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { redactSensitiveText } from "./sensitive-text-redaction";
 
 const InputSchema = z.object({
   text: z.string().trim().min(40, "Not enough text to read from.").max(120_000),
@@ -29,6 +30,7 @@ export const extractFromIep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
+    const privacySafeText = redactSensitiveText(data.text).text;
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
 
@@ -46,7 +48,7 @@ Rules:
 
 IEP TEXT:
 """
-${data.text.slice(0, 100_000)}
+${privacySafeText.slice(0, 100_000)}
 """`;
 
     try {

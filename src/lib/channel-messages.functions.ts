@@ -10,6 +10,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ChannelMessage } from "@/lib/channels.functions";
 import { assertProtectedFileUploadsEnabled } from "@/lib/protected-file-uploads";
+import { assertPrivacySafeDerivedUpload } from "@/lib/sensitive-text-redaction";
 
 const uuid = z.string().uuid();
 
@@ -418,6 +419,7 @@ export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     assertProtectedFileUploadsEnabled();
+    assertPrivacySafeDerivedUpload(data.file_name, data.content_type ?? null);
     const { supabase, userId } = context;
 
     const { data: message, error: messageError } = await supabase

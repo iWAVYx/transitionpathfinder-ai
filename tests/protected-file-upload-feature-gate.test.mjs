@@ -70,7 +70,8 @@ test("document and IEP screens explain the pause while existing work stays reach
 
   assert.match(pathwayIepUpload, /disabled=\{loading \|\| !PROTECTED_FILE_UPLOADS_ENABLED\}/);
   assert.match(pathwayIepUpload, /IEP file selection is temporarily unavailable/);
-  assert.match(pathwayIepUpload, /onClick=\{\(\) => handleText\(pasted\)\}/);
+  assert.match(pathwayIepUpload, /name: "Pasted IEP text", text: pasted/);
+  assert.match(pathwayIepUpload, /onConfirm=\{\(\{ text \}\) =>/);
 });
 
 test("Transition Channel blocks attachment authorization without blocking messaging or cleanup", () => {

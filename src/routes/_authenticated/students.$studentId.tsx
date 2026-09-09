@@ -276,6 +276,9 @@ function StudentDetailPage() {
           <FamilyDocumentUpload
             studentId={studentId}
             studentFirstName={student?.first_name ?? null}
+            studentLastName={student?.last_name ?? null}
+            studentSchool={student?.school ?? null}
+            studentDateOfBirth={student?.date_of_birth ?? null}
             docs={docs}
             onChange={reload}
             canEdit={canEdit}
