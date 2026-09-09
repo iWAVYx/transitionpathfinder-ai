@@ -146,11 +146,11 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(preWindowReport.status, "blocked");
   assert.deepEqual(preWindowReport.blockers, ["pending-production-migration"]);
   assert.equal(preWindowReport.appliedCount, 181);
-  assert.equal(preWindowReport.canonicalCount, 194);
+  assert.equal(preWindowReport.canonicalCount, 195);
   assert.equal(preWindowReport.directCoverageCount, 181);
   assert.equal(preWindowReport.supersededCount, 6);
   assert.equal(preWindowReport.excludedCount, 1);
-  assert.equal(preWindowReport.pendingCount, 6);
+  assert.equal(preWindowReport.pendingCount, 7);
   assert.deepEqual(preWindowReport.pending, [
     "20260821230000_security_remediation_hardening.sql",
     "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql",
@@ -158,6 +158,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260907190000_security_finding_alignment.sql",
     "20260907224500_least_privilege_security_definer_grants.sql",
     "20260908000500_channel_attachment_malware_gate.sql",
+    "20260909010000_create_private_channel_attachments_bucket.sql",
   ]);
 
   const postWindowComparison = spawnSync(
@@ -174,15 +175,16 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(postWindowReport.status, "blocked");
   assert.deepEqual(postWindowReport.blockers, ["pending-production-migration"]);
   assert.equal(postWindowReport.appliedCount, 184);
-  assert.equal(postWindowReport.canonicalCount, 194);
+  assert.equal(postWindowReport.canonicalCount, 195);
   assert.equal(postWindowReport.directCoverageCount, 184);
   assert.equal(postWindowReport.supersededCount, 6);
   assert.equal(postWindowReport.excludedCount, 1);
-  assert.equal(postWindowReport.pendingCount, 3);
+  assert.equal(postWindowReport.pendingCount, 4);
   assert.deepEqual(postWindowReport.pending, [
     "20260907190000_security_finding_alignment.sql",
     "20260907224500_least_privilege_security_definer_grants.sql",
     "20260908000500_channel_attachment_malware_gate.sql",
+    "20260909010000_create_private_channel_attachments_bucket.sql",
   ]);
 
   assert.equal(audit.migrations.productionHistoryReadAt, "2026-08-26T03:55:50Z");
@@ -196,7 +198,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   );
   assert.equal(audit.migrations.productionHistoryAppliedCount, 184);
   assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260825050000");
-  assert.equal(audit.migrations.pendingProductionCount, 3);
+  assert.equal(audit.migrations.pendingProductionCount, 4);
   assert.equal(audit.production.migrationBaselineVerified, false);
 });
 
