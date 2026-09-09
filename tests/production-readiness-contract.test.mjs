@@ -617,6 +617,25 @@ test("protected staging builds use dedicated CI memory headroom", () => {
   assert.doesNotMatch(deployStaging, /- run:\s*bun run build\s*$/m);
 });
 
+test("staging deploy installs the protected antivirus key only into isolated staging", () => {
+  const deployStaging = read(".github/workflows/deploy-staging.yml");
+  const stagingConfig = read("wrangler.staging.toml");
+
+  assert.match(deployStaging, /environment:\s*staging/);
+  assert.match(
+    deployStaging,
+    /STAGING_OPSWAT_API_KEY:\s*\$\{\{ secrets\.STAGING_OPSWAT_API_KEY \}\}/,
+  );
+  assert.match(deployStaging, /if \[ -z "\$STAGING_OPSWAT_API_KEY" \]/);
+  assert.match(
+    deployStaging,
+    /wrangler secret put OPSWAT_API_KEY --config wrangler\.staging\.toml/,
+  );
+  assert.doesNotMatch(deployStaging, /secrets\.OPSWAT_API_KEY/);
+  assert.match(stagingConfig, /name = "transitionforward-staging"/);
+  assert.doesNotMatch(stagingConfig, /^OPSWAT_API_KEY\s*=/m);
+});
+
 test("hosted builds use the supported server validator API", () => {
   const deprecatedValidatorCalls = filesUnder("src")
     .filter((path) => /\.[cm]?[jt]sx?$/.test(path))
