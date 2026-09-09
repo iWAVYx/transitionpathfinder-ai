@@ -60,7 +60,8 @@ import {
 import {
   listPinnedMessages,
   listChannelBookmarkIds,
-  registerAttachment,
+  prepareChannelAttachmentUpload,
+  failChannelAttachmentUpload,
   scanChannelAttachment,
 } from "@/lib/channel-messages.functions";
 import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
@@ -907,7 +908,8 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   const readFn = useServerFn(markChannelRead);
   const pinnedFn = useServerFn(listPinnedMessages);
   const bookmarksFn = useServerFn(listChannelBookmarkIds);
-  const registerAttachmentFn = useServerFn(registerAttachment);
+  const prepareAttachmentUploadFn = useServerFn(prepareChannelAttachmentUpload);
+  const failAttachmentUploadFn = useServerFn(failChannelAttachmentUpload);
   const scanAttachmentFn = useServerFn(scanChannelAttachment);
   const qc = useQueryClient();
 
@@ -1047,36 +1049,34 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       messageId: string;
       file: File;
     }) => {
-      const cleanName = file.name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
-      const path = `${channelId}/${messageId}/${crypto.randomUUID()}-${cleanName}`;
-      const upload = await supabase.storage.from("channel-attachments").upload(path, file, {
-        contentType: file.type || "application/octet-stream",
-        upsert: false,
+      const prepared = await prepareAttachmentUploadFn({
+        data: {
+          channel_id: channelId,
+          message_id: messageId,
+          file_name: file.name,
+          content_type: file.type || null,
+          size_bytes: file.size,
+        },
       });
-      if (upload.error) throw new Error(upload.error.message);
 
-      try {
-        const registration = await registerAttachmentFn({
-          data: {
-            channel_id: channelId,
-            message_id: messageId,
-            storage_path: path,
-            file_name: file.name,
-            content_type: file.type || null,
-            size_bytes: file.size,
-          },
+      const upload = await supabase.storage
+        .from("channel-attachments")
+        .uploadToSignedUrl(prepared.upload.storage_path, prepared.upload.token, file, {
+          contentType: file.type || "application/octet-stream",
+          upsert: false,
         });
-        return { attachmentId: registration.attachment.id };
-      } catch (error) {
-        // A storage object without its quarantined database row can never be
-        // read under the malware-gate policy. Still remove it when possible so
-        // a failed registration does not leave an unnecessary orphan behind.
-        const cleanup = await supabase.storage.from("channel-attachments").remove([path]);
-        if (cleanup.error) {
-          console.error("channel attachment registration cleanup failed");
+      if (upload.error) {
+        try {
+          await failAttachmentUploadFn({
+            data: { attachment_id: prepared.attachment.id },
+          });
+        } catch (failureRecordError) {
+          console.error("channel attachment upload failure recording failed", failureRecordError);
         }
-        throw error;
+        throw new Error(upload.error.message);
       }
+
+      return { attachmentId: prepared.attachment.id };
     },
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["channel-message-attachments"] });

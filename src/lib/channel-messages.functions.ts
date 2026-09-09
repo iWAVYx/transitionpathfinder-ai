@@ -395,13 +395,12 @@ async function scanRegisteredAttachment(row: ChannelAttachment, actorId: string)
   return { ...row, scan_status: nextStatus } as ChannelAttachment;
 }
 
-export const registerAttachment = createServerFn({ method: "POST" })
+export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
     (input: {
       channel_id: string;
       message_id: string;
-      storage_path: string;
       file_name: string;
       content_type?: string | null;
       size_bytes?: number | null;
@@ -410,7 +409,6 @@ export const registerAttachment = createServerFn({ method: "POST" })
         .object({
           channel_id: uuid,
           message_id: uuid,
-          storage_path: z.string().min(1).max(1000),
           file_name: z.string().min(1).max(255),
           content_type: z.string().max(200).optional().nullable(),
           size_bytes: z.number().int().min(0).max(26214400).optional().nullable(),
@@ -420,29 +418,31 @@ export const registerAttachment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // The client uploads to channel/message/randomized-name. Pin both path
-    // segments before the service-role scanner ever reads the object.
-    const [pathChannelId, pathMessageId] = data.storage_path.split("/");
-    if (pathChannelId !== data.channel_id || pathMessageId !== data.message_id) {
-      throw new Error("Attachment path does not match its channel and message");
-    }
-
     const { data: message, error: messageError } = await supabase
       .from("channel_messages")
-      .select("id, channel_id")
+      .select("id, channel_id, author_id")
       .eq("id", data.message_id)
       .maybeSingle();
     if (messageError) throw new Error(messageError.message);
     if (!message || message.channel_id !== data.channel_id) {
       throw new Error("Attachment message does not belong to this channel");
     }
+    if (message.author_id !== userId) {
+      throw new Error("Attachments may only be added by the message author");
+    }
+
+    // Generate the entire object path on the trusted server. The signed token
+    // below is scoped to this single randomized path and never exposes the
+    // service-role credential to the browser.
+    const cleanName = data.file_name.replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
+    const storagePath = `${data.channel_id}/${data.message_id}/${crypto.randomUUID()}-${cleanName || "attachment"}`;
 
     const { data: row, error } = await supabase
       .from("channel_attachments")
       .insert({
         channel_id: data.channel_id,
         message_id: data.message_id,
-        storage_path: data.storage_path,
+        storage_path: storagePath,
         file_name: data.file_name,
         content_type: data.content_type ?? null,
         size_bytes: data.size_bytes ?? null,
@@ -454,11 +454,86 @@ export const registerAttachment = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: signed, error: signedError } = await supabaseAdmin.storage
+        .from("channel-attachments")
+        .createSignedUploadUrl(storagePath, { upsert: false });
+      if (signedError || !signed) {
+        throw new Error("Signed upload authorization failed");
+      }
+
+      return {
+        attachment: row as ChannelAttachment,
+        upload: {
+          storage_path: storagePath,
+          token: signed.token,
+        },
+      };
+    } catch (error) {
+      // A token is never returned unless the pending row and signed path both
+      // exist. Best-effort removal prevents an unusable pending row when token
+      // creation fails; either outcome remains quarantined.
+      const { error: cleanupError } = await supabase
+        .from("channel_attachments")
+        .delete()
+        .eq("id", row.id)
+        .eq("uploaded_by", userId)
+        .eq("scan_status", "pending");
+      if (cleanupError) {
+        console.error("channel attachment upload authorization cleanup failed", {
+          attachmentId: row.id,
+        });
+      }
+      throw error;
+    }
+  });
+
+export const failChannelAttachmentUpload = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { attachment_id: string }) => z.object({ attachment_id: uuid }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error } = await supabase
+      .from("channel_attachments")
+      .select("id, channel_id, storage_path, scan_status, uploaded_by")
+      .eq("id", data.attachment_id)
+      .eq("uploaded_by", userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row || row.scan_status !== "pending") return { ok: true };
+
+    // The RLS-scoped lookup above proves that the caller owns this pending
+    // attachment. Only then may the server-only client purge a partial object
+    // and record a terminal, still-quarantined failure state.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: removeError } = await supabaseAdmin.storage
+      .from("channel-attachments")
+      .remove([row.storage_path]);
+    const { error: statusError } = await supabaseAdmin
+      .from("channel_attachments")
+      .update({ scan_status: "failed" })
+      .eq("id", row.id)
+      .eq("scan_status", "pending");
+    if (statusError) throw new Error("Attachment upload failure could not be recorded");
+
+    const { error: auditError } = await supabaseAdmin.from("channel_audit_events").insert({
+      channel_id: row.channel_id,
+      event_type: "attachment_upload_failed",
+      actor_id: userId,
+      metadata: {
+        attachment_id: row.id,
+        storage_purged: !removeError,
+      },
+    });
+    if (auditError) {
+      console.error("channel_attachment_upload_failed: audit event write failed", {
+        attachmentId: row.id,
+      });
+    }
+
     return {
-      // Registration deliberately returns while the database and storage
-      // policies still quarantine the object. The client starts the separate
-      // authenticated scan request only after this durable pending row exists.
-      attachment: row as ChannelAttachment,
+      ok: true,
     };
   });
 
