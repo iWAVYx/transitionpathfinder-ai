@@ -9,6 +9,7 @@ import { z } from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ChannelMessage } from "@/lib/channels.functions";
+import { assertProtectedFileUploadsEnabled } from "@/lib/protected-file-uploads";
 
 const uuid = z.string().uuid();
 
@@ -416,6 +417,7 @@ export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertProtectedFileUploadsEnabled();
     const { supabase, userId } = context;
 
     const { data: message, error: messageError } = await supabase

@@ -37,7 +37,15 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
-import { registerDocument, type DocumentRow } from "@/lib/documents.functions";
+import {
+  assertCanUploadForStudent,
+  registerDocument,
+  type DocumentRow,
+} from "@/lib/documents.functions";
+import {
+  PROTECTED_FILE_UPLOADS_ENABLED,
+  PROTECTED_FILE_UPLOADS_MESSAGE,
+} from "@/lib/protected-file-uploads";
 import { DocumentPermissionsDialog } from "./DocumentPermissionsDialog";
 
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
@@ -138,6 +146,7 @@ export function FamilyDocumentUpload({
   canEdit = true,
 }: Props) {
   const register = useServerFn(registerDocument);
+  const assertCanUpload = useServerFn(assertCanUploadForStudent);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [docType, setDocType] = useState<DocType>("current-iep");
@@ -154,6 +163,10 @@ export function FamilyDocumentUpload({
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   async function upload(file: File) {
+    if (!PROTECTED_FILE_UPLOADS_ENABLED) {
+      toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
+      return;
+    }
     if (file.size > MAX_BYTES) {
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
       return;
@@ -165,6 +178,7 @@ export function FamilyDocumentUpload({
     }
     setBusy(true);
     try {
+      await assertCanUpload({ data: { student_id: studentId } });
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
       const path = `${studentId}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage
@@ -224,8 +238,9 @@ export function FamilyDocumentUpload({
               Documents for {firstName}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Upload IEPs, evaluations, and plans. Files stay private to {firstName}'s team —
-              you decide who sees them.
+              {PROTECTED_FILE_UPLOADS_ENABLED
+                ? `Upload IEPs, evaluations, and plans. Files stay private to ${firstName}'s team — you decide who sees them.`
+                : `Review the documents already stored for ${firstName}. New file uploads are paused while private security scanning is finalized.`}
             </p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -245,7 +260,21 @@ export function FamilyDocumentUpload({
         </div>
       )}
 
-      {canEdit && (
+      {canEdit && !PROTECTED_FILE_UPLOADS_ENABLED && (
+        <div
+          role="status"
+          className="flex items-start gap-2.5 border-b bg-amber-50/60 px-5 py-4 text-sm leading-relaxed text-amber-950 dark:bg-amber-950/30 dark:text-amber-100 sm:px-6"
+        >
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            <strong>Document uploads are temporarily paused.</strong>{" "}
+            {PROTECTED_FILE_UPLOADS_MESSAGE} You can continue using the student dashboard and
+            reviewing documents that are already available.
+          </p>
+        </div>
+      )}
+
+      {canEdit && PROTECTED_FILE_UPLOADS_ENABLED && (
       <>
       {/* Guidance */}
       <Collapsible defaultOpen>
@@ -513,7 +542,9 @@ export function FamilyDocumentUpload({
         </div>
         {docs.length === 0 ? (
           <div className="px-5 pb-6 pt-1 text-center text-sm text-muted-foreground sm:px-6">
-            Nothing uploaded yet. Start with the most recent IEP if you have it.
+            {PROTECTED_FILE_UPLOADS_ENABLED
+              ? "Nothing uploaded yet. Start with the most recent IEP if you have it."
+              : "Nothing is stored here yet. Uploads will return after private security scanning is verified."}
           </div>
         ) : (
           <ul className="divide-y border-t">

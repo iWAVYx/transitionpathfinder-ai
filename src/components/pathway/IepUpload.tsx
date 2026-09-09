@@ -7,6 +7,10 @@ import { extractFromIep, type IepExtract } from "@/lib/iep-extract.functions";
 import iepImage from "@/assets/bundled/iep-upload-buried.webp";
 import { TrustNote } from "@/components/site/TrustNote";
 import { extractPdfText } from "@/lib/browser-only-libs";
+import {
+  PROTECTED_FILE_UPLOADS_ENABLED,
+  PROTECTED_FILE_UPLOADS_MESSAGE,
+} from "@/lib/protected-file-uploads";
 
 type Props = {
   onExtracted: (extract: IepExtract) => void;
@@ -36,6 +40,10 @@ export function IepUpload({ onExtracted }: Props) {
   }
 
   async function handleFile(file: File) {
+    if (!PROTECTED_FILE_UPLOADS_ENABLED) {
+      toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
+      return;
+    }
     setBusy("reading");
     try {
       let text = "";
@@ -68,25 +76,49 @@ export function IepUpload({ onExtracted }: Props) {
             Have an IEP Already? Let Us Read It.
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Upload a PDF or paste the text. We'll quietly fill in the sections below — you stay in
-            charge and can edit anything. Your file stays in your browser; only the text is sent for
-            analysis.
+            {PROTECTED_FILE_UPLOADS_ENABLED
+              ? "Upload a PDF or paste the text. We'll quietly fill in the sections below — you stay in charge and can edit anything. Your file stays in your browser; only the text is sent for analysis."
+              : "File selection is temporarily paused while private security scanning is finalized. You can still paste relevant IEP text below, review every field, and continue without attaching a file."}
           </p>
 
+          {!PROTECTED_FILE_UPLOADS_ENABLED && (
+            <p
+              role="status"
+              className="mt-4 rounded-xl border border-amber-200/70 bg-amber-50/60 p-3 text-xs leading-relaxed text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
+            >
+              <strong>IEP file selection is temporarily unavailable.</strong> Pasting text remains
+              available; remove identifying details first.
+            </p>
+          )}
+
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift disabled:opacity-50">
+            <label
+              aria-disabled={!PROTECTED_FILE_UPLOADS_ENABLED}
+              title={!PROTECTED_FILE_UPLOADS_ENABLED ? PROTECTED_FILE_UPLOADS_MESSAGE : undefined}
+              className={`inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-all ${
+                PROTECTED_FILE_UPLOADS_ENABLED
+                  ? "cursor-pointer hover:shadow-lift"
+                  : "cursor-not-allowed opacity-50"
+              }`}
+            >
               <input
                 type="file"
                 accept=".pdf,.txt,application/pdf,text/plain"
                 className="hidden"
-                disabled={loading}
+                disabled={loading || !PROTECTED_FILE_UPLOADS_ENABLED}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (f) handleFile(f);
                   e.target.value = "";
                 }}
               />
-              {busy === "reading" ? "Reading PDF…" : busy === "thinking" ? "Understanding…" : "Upload IEP (PDF)"}
+              {busy === "reading"
+                ? "Reading PDF…"
+                : busy === "thinking"
+                  ? "Understanding…"
+                  : PROTECTED_FILE_UPLOADS_ENABLED
+                    ? "Upload IEP (PDF)"
+                    : "IEP file upload paused"}
             </label>
             <Button
               type="button"
