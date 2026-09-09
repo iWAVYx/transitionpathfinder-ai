@@ -62,6 +62,7 @@ bunx wrangler secret put SUPABASE_URL --config wrangler.staging.toml
 bunx wrangler secret put SUPABASE_PUBLISHABLE_KEY --config wrangler.staging.toml
 bunx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config wrangler.staging.toml
 bunx wrangler secret put CRON_WEBHOOK_SECRET --config wrangler.staging.toml
+bunx wrangler secret put OPSWAT_API_KEY --config wrangler.staging.toml
 bunx wrangler secret put STRIPE_SANDBOX_API_KEY --config wrangler.staging.toml
 bunx wrangler secret put PAYMENTS_SANDBOX_WEBHOOK_SECRET --config wrangler.staging.toml
 ```
@@ -69,14 +70,20 @@ bunx wrangler secret put PAYMENTS_SANDBOX_WEBHOOK_SECRET --config wrangler.stagi
 `CRON_WEBHOOK_SECRET` must be a staging-only random value of at least 32
 characters. Store the same value in staging Vault under
 `transitionforward_cron_webhook_secret`; never reuse the production value.
+`OPSWAT_API_KEY` must also be staging-only. Store its source value as
+`STAGING_OPSWAT_API_KEY` in GitHub's protected `staging` environment; the manual
+deployment workflow installs it as an encrypted Worker secret without printing
+it. This staging proof does not move or copy the separate production credential
+from Lovable Cloud.
 The non-secret `CRON_EXPECTED_ORIGIN` is pinned in `wrangler.staging.toml` to
 the direct staging Worker origin. See `docs/ci/privileged-http-cron.md` before
 activating the database jobs.
 
 CI equivalent: `.github/workflows/deploy-staging.yml` (manual dispatch only).
 It requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository
-secrets, the protected `STAGING_CRON_WEBHOOK_SECRET`, and refuses to run if a
-live Stripe secret is configured.
+secrets, the protected `STAGING_CRON_WEBHOOK_SECRET` and
+`STAGING_OPSWAT_API_KEY`, and refuses to run if either required runtime secret
+is absent or a live Stripe secret is configured.
 
 Pull requests do not receive the protected `staging` environment or its
 synthetic browser credentials. Dashboard PRs run the credential-free unit

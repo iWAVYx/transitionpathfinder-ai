@@ -39,6 +39,7 @@ enabled = true
 #   SUPABASE_PUBLISHABLE_KEY        staging anon/publishable key
 #   SUPABASE_SERVICE_ROLE_KEY       staging service role key
 #   CRON_WEBHOOK_SECRET             staging-only random value (32+ characters)
+#   OPSWAT_API_KEY                  staging-only MetaDefender API key
 #   STRIPE_SANDBOX_API_KEY          sk_test_… (direct Stripe test key)
 #   PAYMENTS_SANDBOX_WEBHOOK_SECRET whsec_… from the staging webhook endpoint
 #
