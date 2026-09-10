@@ -140,10 +140,10 @@ const ROLE_QA: RoleQa[] = [
   {
     key: "qa-parent",
     label: "QA — Parent / Guardian",
-    description: "Family account: create student, upload IEP, review, save resources, plan ahead.",
+    description: "Family account: create student, verify the upload safety gate, review, save resources, plan ahead.",
     extra: [
       { key: "create_student", title: "Create a student", detail: "Add a new student from /students; record persists with owner_id = self." },
-      { key: "upload_iep", title: "Upload IEP", detail: "Upload a PDF via FamilyDocumentUpload; signed URL works and access is scoped." },
+      { key: "upload_iep", title: "Verify upload safety gate", detail: "FamilyDocumentUpload explains that new files are paused until private malware scanning passes protected verification; existing documents remain readable by authorized users." },
       { key: "review_extracted", title: "Review extracted info", detail: "Open the document; AI summary/extraction renders within policy." },
       { key: "view_report", title: "View Pathway Report", detail: "Generate or open a Pathway Report and see family-facing sections." },
       { key: "save_resources", title: "Save resources", detail: "Save a resource and see it on the student profile." },

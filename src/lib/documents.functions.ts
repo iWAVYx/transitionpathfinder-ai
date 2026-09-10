@@ -4,6 +4,7 @@ import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { assertAuthorized } from "./authz";
+import { assertProtectedFileUploadsEnabled } from "./protected-file-uploads";
 
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
@@ -92,6 +93,7 @@ export const registerDocument = createServerFn({ method: "POST" })
   )
 
   .handler(async ({ data, context }) => {
+    assertProtectedFileUploadsEnabled();
     const { supabase, userId } = context;
 
     // Hard partner deny — RLS would block this anyway, but we want a clean error.
@@ -687,6 +689,7 @@ export const assertCanUploadForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
+    assertProtectedFileUploadsEnabled();
     const { supabase, userId } = context;
     const { data: ok } = await supabase.rpc("can_edit_student", {
       _user_id: userId,

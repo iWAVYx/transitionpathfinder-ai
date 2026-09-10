@@ -31,6 +31,10 @@ import {
   type DocumentReviewStatus,
 } from "@/lib/cross-docs.functions";
 import { rescanDocument } from "@/lib/documents.functions";
+import {
+  PROTECTED_FILE_UPLOADS_ENABLED,
+  PROTECTED_FILE_UPLOADS_MESSAGE,
+} from "@/lib/protected-file-uploads";
 
 
 
@@ -167,6 +171,20 @@ function DocumentsHubPage() {
             who still needs to look at it.
           </p>
         </header>
+
+        {!PROTECTED_FILE_UPLOADS_ENABLED && (
+          <div
+            role="status"
+            className="mt-6 flex items-start gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4 text-sm leading-relaxed text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
+          >
+            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+            <p>
+              <strong>New document uploads are temporarily paused.</strong>{" "}
+              {PROTECTED_FILE_UPLOADS_MESSAGE} Documents already here remain available according to
+              their existing permissions.
+            </p>
+          </div>
+        )}
 
 
         {/* Status pipeline */}
@@ -374,7 +392,11 @@ function EmptyState() {
       <IllustratedEmptyState
         kind="documents"
         title="No Documents Yet"
-        description="Start by opening a student and uploading their current IEP or transition assessment. We'll keep everything private and only visible to the people you invite."
+        description={
+          PROTECTED_FILE_UPLOADS_ENABLED
+            ? "Start by opening a student and uploading their current IEP or transition assessment. We'll keep everything private and only visible to the people you invite."
+            : "New uploads are temporarily paused while private security scanning is finalized. You can continue pathway planning without attaching a document."
+        }
         action={
           <Button asChild>
             <Link to="/students">Go to my students</Link>

@@ -82,6 +82,11 @@ import {
 import { audiencesForRoles, fallbackPathFor, type RoleAudience } from "@/lib/role-policy";
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
 import { ChannelMuteToggle } from "@/components/channels/ChannelMuteToggle";
+import {
+  PROTECTED_FILE_UPLOADS_ENABLED,
+  PROTECTED_FILE_UPLOADS_MESSAGE,
+  assertProtectedFileUploadsEnabled,
+} from "@/lib/protected-file-uploads";
 
 const tabSchema = z.enum([
   "inbox",
@@ -1049,6 +1054,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       messageId: string;
       file: File;
     }) => {
+      assertProtectedFileUploadsEnabled();
       const prepared = await prepareAttachmentUploadFn({
         data: {
           channel_id: channelId,
@@ -1268,7 +1274,11 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                   e.preventDefault();
                   const body = draft.trim();
                   if (!body || sendMutation.isPending) return;
-                  sendMutation.mutate({ body, channelId: active.id, attachment: pendingFile });
+                  sendMutation.mutate({
+                    body,
+                    channelId: active.id,
+                    attachment: PROTECTED_FILE_UPLOADS_ENABLED ? pendingFile : null,
+                  });
                 }}
               >
                 {pendingFile && (
@@ -1288,11 +1298,18 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     </button>
                   </div>
                 )}
+                {!PROTECTED_FILE_UPLOADS_ENABLED && (
+                  <p role="status" className="text-xs leading-relaxed text-muted-foreground">
+                    Attachments are temporarily unavailable while private security scanning is
+                    finalized. You can still send messages normally.
+                  </p>
+                )}
                 <div className="flex gap-2">
                   <input
                     ref={fileInputRef}
                     type="file"
                     className="sr-only"
+                    disabled={!PROTECTED_FILE_UPLOADS_ENABLED || !!active.archived_at}
                     onChange={(e) => {
                       const f = e.target.files?.[0] ?? null;
                       if (f && f.size > 25 * 1024 * 1024) {
@@ -1308,9 +1325,23 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     type="button"
                     variant="outline"
                     size="icon"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={!!active.archived_at || sendMutation.isPending}
-                    title="Attach file"
+                    onClick={() => {
+                      if (!PROTECTED_FILE_UPLOADS_ENABLED) {
+                        toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
+                        return;
+                      }
+                      fileInputRef.current?.click();
+                    }}
+                    disabled={
+                      !PROTECTED_FILE_UPLOADS_ENABLED ||
+                      !!active.archived_at ||
+                      sendMutation.isPending
+                    }
+                    title={
+                      PROTECTED_FILE_UPLOADS_ENABLED
+                        ? "Attach file"
+                        : PROTECTED_FILE_UPLOADS_MESSAGE
+                    }
                   >
                     <Paperclip className="h-4 w-4" />
                     <span className="sr-only">Attach file</span>
@@ -1329,7 +1360,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                           sendMutation.mutate({
                             body,
                             channelId: active.id,
-                            attachment: pendingFile,
+                            attachment: PROTECTED_FILE_UPLOADS_ENABLED ? pendingFile : null,
                           });
                         }
                       }
