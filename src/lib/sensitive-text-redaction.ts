@@ -77,13 +77,14 @@ function addLiteralMatches(
   category: SensitiveDataCategory,
   replacement: string,
   priority = 20,
+  minimumLength = 3,
 ) {
   const trimmed = value?.trim();
-  if (!trimmed || trimmed.length < 3) return;
+  if (!trimmed || trimmed.length < minimumLength) return;
   addPatternMatches(
     candidates,
     input,
-    new RegExp(`\\b${escapeRegExp(trimmed)}\\b`, "gi"),
+    new RegExp(`\\b${escapeRegExp(trimmed)}\\b`, trimmed.length < 3 ? "g" : "gi"),
     category,
     replacement,
     priority,
@@ -99,17 +100,32 @@ function dateOfBirthVariants(value: string | null | undefined) {
   const dayNumber = Number(day);
   if (monthNumber < 1 || monthNumber > 12 || dayNumber < 1 || dayNumber > 31) return [];
 
+  const parsed = new Date(Date.UTC(Number(year), monthNumber - 1, dayNumber));
+  if (
+    parsed.getUTCFullYear() !== Number(year) ||
+    parsed.getUTCMonth() !== monthNumber - 1 ||
+    parsed.getUTCDate() !== dayNumber
+  ) {
+    return [];
+  }
+
   const shortYear = year.slice(-2);
   const monthName = MONTH_NAMES[monthNumber - 1];
-  return [
-    `${monthNumber}/${dayNumber}/${year}`,
-    `${monthNumber}/${dayNumber}/${shortYear}`,
-    `${month}-${dayNumber}-${year}`,
-    `${month}-${day}-${year}`,
-    `${year}-${month}-${day}`,
-    `${monthName} ${dayNumber}, ${year}`,
-    `${monthName} ${dayNumber} ${year}`,
-  ];
+  const shortMonthName = monthName.slice(0, 3);
+  const variants = new Set<string>([`${year}-${month}-${day}`]);
+  for (const separator of ["/", "-", "."]) {
+    for (const formattedMonth of [month, String(monthNumber)]) {
+      for (const formattedDay of [day, String(dayNumber)]) {
+        variants.add(`${formattedMonth}${separator}${formattedDay}${separator}${year}`);
+        variants.add(`${formattedMonth}${separator}${formattedDay}${separator}${shortYear}`);
+      }
+    }
+  }
+  for (const name of new Set([monthName, shortMonthName, `${shortMonthName}.`])) {
+    variants.add(`${name} ${dayNumber}, ${year}`);
+    variants.add(`${name} ${dayNumber} ${year}`);
+  }
+  return [...variants];
 }
 
 function chooseNonOverlappingCandidates(candidates: Candidate[]) {
@@ -207,7 +223,7 @@ export function redactSensitiveText(
       35,
     );
   }
-  addLiteralMatches(candidates, input, lastName, "student_name", "[REDACTED: LAST NAME]", 20);
+  addLiteralMatches(candidates, input, lastName, "student_name", "[REDACTED: LAST NAME]", 20, 2);
   addLiteralMatches(candidates, input, context.schoolName, "school", "[REDACTED: SCHOOL]", 20);
   for (const variant of dateOfBirthVariants(context.dateOfBirth)) {
     addLiteralMatches(candidates, input, variant, "date_of_birth", "[REDACTED: DATE OF BIRTH]", 30);

@@ -82,6 +82,16 @@ test("ordinary educational dates are preserved when they are not the known or la
   assert.doesNotMatch(result.text, /06\/08\/2011/);
 });
 
+test("known padded birth dates and two-letter family names are redacted", () => {
+  const result = redactSensitiveText(
+    "Li receives services. Birth date on record: 03/07/2010. Review date: 03/07/2027.",
+    { studentLastName: "Li", dateOfBirth: "2010-03-07" },
+  );
+
+  assert.doesNotMatch(result.text, /\bLi\b|03\/07\/2010/);
+  assert.match(result.text, /Review date: 03\/07\/2027/);
+});
+
 test("all three sensitive file entry points require the privacy review", () => {
   const dialog = read("src/components/privacy/SensitiveFilePrivacyReviewDialog.tsx");
   const pathway = read("src/components/pathway/IepUpload.tsx");
