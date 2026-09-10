@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { assertAuthorized } from "./authz";
 import { assertProtectedFileUploadsEnabled } from "./protected-file-uploads";
+import { assertPrivacySafeDerivedUpload } from "./sensitive-text-redaction";
 
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
@@ -94,6 +95,7 @@ export const registerDocument = createServerFn({ method: "POST" })
 
   .handler(async ({ data, context }) => {
     assertProtectedFileUploadsEnabled();
+    assertPrivacySafeDerivedUpload(data.storage_path, data.mime_type ?? null);
     const { supabase, userId } = context;
 
     // Hard partner deny — RLS would block this anyway, but we want a clean error.

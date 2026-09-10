@@ -46,6 +46,11 @@ import {
   PROTECTED_FILE_UPLOADS_ENABLED,
   PROTECTED_FILE_UPLOADS_MESSAGE,
 } from "@/lib/protected-file-uploads";
+import {
+  SensitiveFilePrivacyReviewDialog,
+} from "@/components/privacy/SensitiveFilePrivacyReviewDialog";
+import type { SensitiveFileReviewSource } from "@/lib/sensitive-file-review.browser";
+import { assertPrivacySafeDerivedUpload } from "@/lib/sensitive-text-redaction";
 import { DocumentPermissionsDialog } from "./DocumentPermissionsDialog";
 
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
@@ -127,6 +132,9 @@ const GUIDANCE = [
 type Props = {
   studentId: string;
   studentFirstName: string | null;
+  studentLastName?: string | null;
+  studentSchool?: string | null;
+  studentDateOfBirth?: string | null;
   docs: DocumentRow[];
   onChange: () => void | Promise<void>;
   /** Optional row-level actions (download, extract, delete) rendered by parent. */
@@ -140,6 +148,9 @@ type Props = {
 export function FamilyDocumentUpload({
   studentId,
   studentFirstName,
+  studentLastName,
+  studentSchool,
+  studentDateOfBirth,
   docs,
   onChange,
   renderRowActions,
@@ -161,12 +172,14 @@ export function FamilyDocumentUpload({
   const [source, setSource] = useState("");
   const [consent, setConsent] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
   async function upload(file: File) {
     if (!PROTECTED_FILE_UPLOADS_ENABLED) {
       toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
       return;
     }
+    assertPrivacySafeDerivedUpload(file.name, file.type);
     if (file.size > MAX_BYTES) {
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
       return;
@@ -342,11 +355,12 @@ export function FamilyDocumentUpload({
               id="doc-title"
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-              placeholder={`e.g. ${firstName} — IEP 2026-27`}
+              placeholder="e.g. Current IEP — 2026-27"
               maxLength={200}
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
-              Leave blank to use the file's name.
+              Use a generic title without a last name or student ID. Leave blank to use the
+              privacy-safe file name.
             </p>
           </div>
         </div>
@@ -492,12 +506,19 @@ export function FamilyDocumentUpload({
           <input
             ref={fileRef}
             type="file"
-            accept=".pdf,.txt,.doc,.docx,application/pdf,text/plain"
+            accept=".pdf,.txt,application/pdf,text/plain"
             className="hidden"
             disabled={busy}
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) upload(f);
+              if (f) {
+                if (f.size > MAX_BYTES) {
+                  toast.error("That file is over 20 MB. Try a smaller export or split it.");
+                } else {
+                  setPrivacySource({ kind: "file", file: f });
+                }
+              }
+              e.target.value = "";
             }}
           />
           {busy ? (
@@ -512,7 +533,7 @@ export function FamilyDocumentUpload({
               </span>
               <p className="text-sm font-medium">Tap to choose a file</p>
               <p className="text-xs text-muted-foreground">
-                PDF, Word, or plain text · up to 20 MB
+                Text-based PDF or plain text · up to 20 MB
               </p>
             </>
           )}
@@ -521,7 +542,8 @@ export function FamilyDocumentUpload({
         <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
           Files are stored privately and only available to {firstName}'s team. We log every
-          download to an audit trail you can review.
+          download to an audit trail you can review. Only the text-only copy you approve is saved;
+          the original file and its hidden metadata are not uploaded.
         </p>
       </div>
       </>
@@ -579,6 +601,21 @@ export function FamilyDocumentUpload({
           </ul>
         )}
       </div>
+      <SensitiveFilePrivacyReviewDialog
+        source={privacySource}
+        context={{
+          studentFirstName,
+          studentLastName,
+          schoolName: studentSchool,
+          dateOfBirth: studentDateOfBirth,
+        }}
+        confirmLabel="Approve privacy-safe copy"
+        onCancel={() => setPrivacySource(null)}
+        onConfirm={({ file }) => {
+          setPrivacySource(null);
+          void upload(file);
+        }}
+      />
     </div>
   );
 }

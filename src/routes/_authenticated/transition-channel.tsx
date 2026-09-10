@@ -83,6 +83,11 @@ import { audiencesForRoles, fallbackPathFor, type RoleAudience } from "@/lib/rol
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
 import { ChannelMuteToggle } from "@/components/channels/ChannelMuteToggle";
 import {
+  SensitiveFilePrivacyReviewDialog,
+} from "@/components/privacy/SensitiveFilePrivacyReviewDialog";
+import type { SensitiveFileReviewSource } from "@/lib/sensitive-file-review.browser";
+import { assertPrivacySafeDerivedUpload } from "@/lib/sensitive-text-redaction";
+import {
   PROTECTED_FILE_UPLOADS_ENABLED,
   PROTECTED_FILE_UPLOADS_MESSAGE,
   assertProtectedFileUploadsEnabled,
@@ -1033,6 +1038,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
 
   const [draft, setDraft] = useState("");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const invalidateActive = () => {
@@ -1055,6 +1061,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       file: File;
     }) => {
       assertProtectedFileUploadsEnabled();
+      assertPrivacySafeDerivedUpload(file.name, file.type);
       const prepared = await prepareAttachmentUploadFn({
         data: {
           channel_id: channelId,
@@ -1308,6 +1315,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                   <input
                     ref={fileInputRef}
                     type="file"
+                    accept=".pdf,.txt,application/pdf,text/plain"
                     className="sr-only"
                     disabled={!PROTECTED_FILE_UPLOADS_ENABLED || !!active.archived_at}
                     onChange={(e) => {
@@ -1317,7 +1325,8 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                         e.target.value = "";
                         return;
                       }
-                      setPendingFile(f);
+                      if (f) setPrivacySource({ kind: "file", file: f });
+                      e.target.value = "";
                     }}
                     aria-label="Attach a file"
                   />
@@ -1381,6 +1390,16 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
           )}
         </section>
       </div>
+
+      <SensitiveFilePrivacyReviewDialog
+        source={privacySource}
+        confirmLabel="Attach privacy-safe copy"
+        onCancel={() => setPrivacySource(null)}
+        onConfirm={({ file }) => {
+          setPrivacySource(null);
+          setPendingFile(file);
+        }}
+      />
 
       <ThreadPanel
         parentId={threadParentId}
