@@ -549,6 +549,19 @@ test("build verification has a credential-free exact-main recovery trigger", () 
   assert.match(workflow, /workflow_dispatch:/);
   assert.doesNotMatch(workflow, /environment:\s*(?:staging|production)/);
   assert.doesNotMatch(workflow, /secrets\./);
+  assert.match(workflow, /LOVABLE_SANDBOX:\s*["']1["']/);
+  assert.match(workflow, /LOVABLE_NITRO_PRESET:\s*lovable-fetch-bundle/);
+
+  const buildCommand = workflow.indexOf("bun run build 2>&1 | tee build.log");
+  const captureExitCode = workflow.indexOf("build_exit_code=${PIPESTATUS[0]}");
+  const closeLogGroup = workflow.indexOf('echo "::endgroup::"', buildCommand);
+  assert.ok(buildCommand >= 0, "build verification must run the locked build command");
+  assert.ok(
+    captureExitCode > buildCommand && captureExitCode < closeLogGroup,
+    "the build exit code must be captured before another command overwrites PIPESTATUS",
+  );
+  assert.match(workflow, /exit "\$build_exit_code"/);
+  assert.doesNotMatch(workflow, /echo ["']exit_code=\$\{PIPESTATUS\[0\]\}/);
 });
 
 test("SSR stubs only the explicitly client-only route groups", () => {
