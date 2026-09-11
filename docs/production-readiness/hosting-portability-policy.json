@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "auditedMainSha": "eb07b49ec11dcb33c4851212e279089c74901fe5",
-  "observedAt": "2026-09-08",
+  "auditedMainSha": "17ddf10efcc71f2f46eff7babc6e1828ed05fa37",
+  "observedAt": "2026-09-10",
   "status": "no-go",
   "currentArchitecture": {
     "applicationOrigin": "lovable-cloud",
@@ -53,12 +53,12 @@
         "sha256": "da45ef2a591f2b2c2d91924f30c6a4b9268af97fac3f7efda787aef24fdb9ba6"
       },
       "serverFunctionFiles": {
-        "count": 116,
-        "sha256": "526e9260d1534d2a36af9df1587789964f70503a27cdceead5a1f43c633fc840"
+        "count": 117,
+        "sha256": "1e5a20619ba7bd9e984776465efdb67bf7d7054fe2b3bddad15ff983bb7906c2"
       },
       "privilegedRuntimeFiles": {
-        "count": 60,
-        "sha256": "458ac27e4c6ae6d27859e76a7ad58ee4a687cc315cecd663f1efad40caec752a"
+        "count": 61,
+        "sha256": "b59f97e471d66361bd48a12c3d7969b17955c6b643d4e73a523ab1a6352a710c"
       },
       "explicitEndpointFiles": {
         "count": 11,
