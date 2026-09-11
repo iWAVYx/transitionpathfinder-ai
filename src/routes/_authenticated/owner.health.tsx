@@ -10,6 +10,7 @@ import {
   Activity,
   Wrench,
   ChevronDown,
+  BrainCircuit,
 } from "lucide-react";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,10 @@ import {
   type HealthStatus,
 } from "@/lib/owner/system-health.functions";
 import { ManualChecklistSection } from "@/components/owner/SystemHealthChecklist";
+import {
+  runOwnerAiSmokeTest,
+  type OwnerAiSmokeTestResult,
+} from "@/lib/owner/ai-smoke-test.functions";
 
 export const Route = createFileRoute("/_authenticated/owner/health")({
   head: () => ({ meta: [{ title: "System Health — Admin Hub" }] }),
@@ -66,6 +71,7 @@ const CATEGORY_LABEL: Record<HealthCheck["category"], string> = {
 
 function SystemHealthPage() {
   const probe = useServerFn(runSystemHealth);
+  const runAiSmokeTest = useServerFn(runOwnerAiSmokeTest);
   const [data, setData] = useState<{
     results: HealthCheck[];
     summary: { working: number; attention: number; manual: number; coming_soon: number; total: number; checked_at: string };
@@ -73,6 +79,9 @@ function SystemHealthPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [rerunning, setRerunning] = useState<Record<string, boolean>>({});
+  const [aiSmokeRunning, setAiSmokeRunning] = useState(false);
+  const [aiSmokeResult, setAiSmokeResult] = useState<OwnerAiSmokeTestResult | null>(null);
+  const [aiSmokeError, setAiSmokeError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const res = await probe();
@@ -112,6 +121,21 @@ function SystemHealthPage() {
         delete next[key];
         return next;
       });
+    }
+  }
+
+  async function runSyntheticAiSmokeTest() {
+    setAiSmokeRunning(true);
+    setAiSmokeResult(null);
+    setAiSmokeError(null);
+    try {
+      setAiSmokeResult(await runAiSmokeTest());
+    } catch (error) {
+      setAiSmokeError(
+        error instanceof Error ? error.message : "Lovable AI smoke test did not complete.",
+      );
+    } finally {
+      setAiSmokeRunning(false);
     }
   }
 
@@ -160,6 +184,60 @@ function SystemHealthPage() {
             backend is reachable and policies allow a platform admin to read each table — they do
             not yet exercise full end-to-end user flows.
           </p>
+
+          <section
+            aria-labelledby="owner-ai-smoke-heading"
+            className="rounded-lg border border-border bg-background p-4"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-2xl">
+                <div className="flex items-center gap-2">
+                  <BrainCircuit className="h-4 w-4 text-primary" aria-hidden />
+                  <h2 id="owner-ai-smoke-heading" className="text-sm font-semibold">
+                    Lovable AI live smoke test
+                  </h2>
+                  <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                    Platform owner only
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  Sends fixed fictional text through the real privacy-redaction and Lovable AI
+                  pipeline. It accepts no user text, uploads no file, and creates no student,
+                  document, Pathway Report, or database record.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={runSyntheticAiSmokeTest}
+                disabled={aiSmokeRunning}
+              >
+                {aiSmokeRunning ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <BrainCircuit className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                {aiSmokeRunning ? "Running once…" : "Run synthetic AI test"}
+              </Button>
+            </div>
+
+            <div className="mt-3 text-xs" role="status" aria-live="polite">
+              {aiSmokeResult ? (
+                <p className="text-emerald-700 dark:text-emerald-300">
+                  Passed in {aiSmokeResult.latencyMs} ms · {aiSmokeResult.redactionCount} synthetic
+                  identifiers removed · no records saved · checked{" "}
+                  {new Date(aiSmokeResult.checkedAt).toLocaleString()}
+                </p>
+              ) : aiSmokeError ? (
+                <p className="text-amber-700 dark:text-amber-300">Failed: {aiSmokeError}</p>
+              ) : (
+                <p className="text-muted-foreground">
+                  Not run. This check starts only when the TransitionForward platform owner selects
+                  the button.
+                </p>
+              )}
+            </div>
+          </section>
 
           {grouped.map(({ category, items }) =>
             items.length === 0 ? null : (
