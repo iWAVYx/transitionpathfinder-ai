@@ -25,7 +25,7 @@ root cause.
 ## Candidate changes
 
 - Reduce only the default and development hosted-build heap cap from 1280 MB to
-  1152 MB. Staging and production remain at 4096 MB.
+  1216 MB. Staging and production remain at 4096 MB.
 - Update the official Lovable TanStack adapter from `2.19.5` to `2.21.0` so the
   hosted build uses the current platform integration and build-reporting markers.
 - Rewrite date-fns barrel imports to supported direct function entries during the
@@ -40,8 +40,13 @@ root cause.
 
 - Focused Node contract tests: 38 passed, 0 failed.
 - TypeScript (`tsc --noEmit`): passed.
-- Lovable-shaped build at the 1152 MB heap cap: passed, including client, SSR,
-  Nitro output, and service-worker generation.
+- Lovable-shaped local build at a 1152 MB heap cap: passed, including client,
+  SSR, Nitro output, and service-worker generation. Truthful GitHub runs
+  `34657491384` and `34657517120` then established that 1152 MB is below the
+  Linux runner boundary, so the candidate cap was corrected to 1216 MB without
+  weakening or bypassing the check.
+- Lovable-shaped candidate build at the corrected 1216 MB heap cap: passed
+  locally, including client, SSR, Nitro output, and service-worker generation.
 - Client graph transformed modules: 3,357, down from the 3,817-module baseline
   (460 fewer modules, approximately 12.1%).
 - Full production-path build at the unchanged 4096 MB heap cap: passed.
