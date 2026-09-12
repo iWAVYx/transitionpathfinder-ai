@@ -59,6 +59,9 @@ Documents:
 - `lovable-preview-acceptance-2026-09-11.md` — current protected `main` merge,
   exact-SHA isolated-staging acceptance, successful Lovable hosted preview, and
   the still-enforced production NO-GO boundary for `a0396a3a`.
+- `staging-migration-ledger-repair-2026-09-11.md` — ledger-only repair for
+  `20260909010000`, unchanged private Channel attachment bucket, and protected
+  post-repair staging evidence at `c0cee626`.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
