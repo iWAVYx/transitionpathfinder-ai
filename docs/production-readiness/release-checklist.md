@@ -29,6 +29,11 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       requesting a separate production maintenance-window authorization.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
+- [x] Isolated staging records
+      `20260909010000_create_private_channel_attachments_bucket` after a
+      ledger-only correction with zero recorded statements. The migration SQL
+      was not rerun and `channel-attachments` remained private. Evidence:
+      `staging-migration-ledger-repair-2026-09-11.md`.
 - [x] Lovable Cloud backup recovery point was recorded and the isolated export
       restore drill passed; both are linked from the migration-window evidence.
 - [ ] Maintenance and abort owners are present.
@@ -70,20 +75,26 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: protected `main` SHA
-`a0396a3af276e978d10920f29dc429f2820e47b9` passed deployment run
-`34659215406`, Build & SSR Verification, accessibility, CT Seed v2, dashboard,
+`c0cee6269363fa3368654191ad3b5efd7b58c5c1` passed deployment run
+`34663612644`, Build & SSR Verification, accessibility, CT Seed v2, dashboard,
 all seven role storage states, role-guard, permission, RLS, and cross-district
-RLS checks. Lovable connected to `main`, reported the repository in sync, and
-rendered its hosted preview for short SHA `a0396a3a` after exactly one build
-attempt with no retry or publish. The exact evidence is recorded in
-`lovable-preview-acceptance-2026-09-11.md`. These runs close the current
-exact-SHA build/preview acceptance gate but do not close the remaining
-production boxes below.
+RLS checks. The protected database and browser checks were rerun successfully
+after the staging-only `20260909010000` ledger correction; the exact evidence is
+recorded in `staging-migration-ledger-repair-2026-09-11.md`.
+
+Lovable's hosted preview evidence remains attached to application-bearing SHA
+`a0396a3af276e978d10920f29dc429f2820e47b9`, because PR #116 changed only
+production-readiness documentation. Lovable connected to `main`, reported the
+repository in sync, and rendered the homepage for short SHA `a0396a3a` after
+exactly one build attempt with no retry or publish. That evidence is recorded
+in `lovable-preview-acceptance-2026-09-11.md`. These records do not close the
+remaining production boxes below.
 
 - [x] Build and SSR verification passed for the approved SHA.
-- [x] Lovable's connected build succeeded for that exact SHA. The current
-      hosted preview rendered the TransitionForward homepage for `a0396a3a`;
-      historical failure cards for older commits remain history only.
+- [x] Lovable's connected build succeeded for the last application-bearing SHA.
+      The current hosted preview rendered the TransitionForward homepage for
+      `a0396a3a`; historical failure cards for older commits remain history
+      only. The later `c0cee626` merge is documentation-only.
 - [ ] If the approved Lovable application origin is replaced, the reviewed
       `hosting-portability-policy.json` inventory is current; every protected
       request prefix and privileged capability has a named trusted runtime;
