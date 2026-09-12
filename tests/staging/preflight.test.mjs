@@ -14,6 +14,7 @@ import {
   projectRefFrom,
   stripeGet,
 } from "./harness.mjs";
+import { retryTransientGatewayRead } from "./transient-gateway-retry.mjs";
 
 const REQUIRED_WEBHOOK_EVENTS = [
   "checkout.session.completed",
@@ -46,7 +47,7 @@ test("staging database has the billing schema", { skip: SKIP }, async () => {
     "access_entitlements",
     "entitlement_audit_events",
   ]) {
-    const { error } = await admin.from(table).select("*").limit(1);
+    const { error } = await retryTransientGatewayRead(() => admin.from(table).select("*").limit(1));
     assert.equal(error, null, `${table} must exist on staging: ${error?.message}`);
   }
 });
