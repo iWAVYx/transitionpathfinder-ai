@@ -69,23 +69,21 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current isolated-staging deployment evidence: SHA
-`2b256c8389f7c400d24d449e7af31558a0e2a40a` passed deployment run
-`34176604002`, all 10 protected push workflows, and consolidated Release
-Readiness run `34177650200`, as recorded in
-`staging-acceptance-2026-09-07.md`. The controlled Lovable evidence in
-`lovable-preview-acceptance-2026-09-06.md` records a live preview for
-file-identical trigger `cb0076390d133965c07c808cf6f5d7b7dcd3fc8d` and GitHub
-build run `34069599141`. These runs do not close the production boxes below.
-Lovable still has not exposed a passing hosted runtime mapped to the current
-protected `main` SHA.
+Current isolated-staging deployment evidence: protected `main` SHA
+`a0396a3af276e978d10920f29dc429f2820e47b9` passed deployment run
+`34659215406`, Build & SSR Verification, accessibility, CT Seed v2, dashboard,
+all seven role storage states, role-guard, permission, RLS, and cross-district
+RLS checks. Lovable connected to `main`, reported the repository in sync, and
+rendered its hosted preview for short SHA `a0396a3a` after exactly one build
+attempt with no retry or publish. The exact evidence is recorded in
+`lovable-preview-acceptance-2026-09-11.md`. These runs close the current
+exact-SHA build/preview acceptance gate but do not close the remaining
+production boxes below.
 
 - [x] Build and SSR verification passed for the approved SHA.
-- [ ] Lovable's connected build succeeded for that exact SHA; neither
-      `Build unsuccessful` nor `Preview is out of date` is present.
-      The file-identical controlled preview rendered without either message,
-      but this remains unchecked until the hosted runtime reports the exact
-      protected `main` SHA or the approved production health contract proves it.
+- [x] Lovable's connected build succeeded for that exact SHA. The current
+      hosted preview rendered the TransitionForward homepage for `a0396a3a`;
+      historical failure cards for older commits remain history only.
 - [ ] If the approved Lovable application origin is replaced, the reviewed
       `hosting-portability-policy.json` inventory is current; every protected
       request prefix and privileged capability has a named trusted runtime;

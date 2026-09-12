@@ -56,6 +56,9 @@ Documents:
 - `lovable-preview-acceptance-2026-09-06.md` — current `ee444f1a` isolated-
   staging acceptance, file-identical Lovable trigger mapping, successful live
   preview evidence, and the production conditions that remain NO-GO.
+- `lovable-preview-acceptance-2026-09-11.md` — current protected `main` merge,
+  exact-SHA isolated-staging acceptance, successful Lovable hosted preview, and
+  the still-enforced production NO-GO boundary for `a0396a3a`.
 - `preflight-2026-08-25.md` — current exact-SHA staging acceptance, three-file
   production migration delta, production health recheck, and remaining release
   gates.
