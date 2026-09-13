@@ -18,15 +18,17 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Database
 
-- [x] Production migration history read and content-aware baseline attached;
-      the completed 2026-08-26 window accounts for all 184 production rows and
-      the then-approved three-file delta.
-- [ ] The security-alignment migration
-      `20260907190000_security_finding_alignment.sql` is applied and verified in
-      isolated staging but remains unapplied to production. Regenerate the
-      production baseline and review the exact production delta, including the
-      draft `20260907224500_least_privilege_security_definer_grants.sql`, before
-      requesting a separate production maintenance-window authorization.
+- [x] Production migration history was reread on 2026-09-13 and its
+      content-aware baseline attached. Production still records 184 rows through
+      `20260825050000`; the normalized result is line-for-line identical to the
+      2026-08-26 post-window evidence. See
+      `production-migration-baseline-2026-09-13.md`.
+- [ ] Four canonical migrations remain pending in production. The two
+      antivirus-independent security migrations require a current SELECT-only
+      routine/ACL inventory and final review. The two attachment migrations stay
+      blocked on provider/privacy approval and clean-file/EICAR staging proof.
+      The visible production `channel-attachments` bucket also requires a
+      SELECT-only bucket/policy inventory before any apply or ledger decision.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Isolated staging records
@@ -56,11 +58,14 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Production email provider and SPF/DKIM/DMARC verified, or email remains disabled.
 - [ ] Sentry/observability environment, redaction, alert routes, and retention verified.
 - [ ] Malware scanning, incident response, backup restoration, and legal/privacy
-      blockers for real student/IEP data are closed. The fail-closed document
-      scanner exists and the Channel attachment gate is implemented in draft, but
-      clean-file/EICAR evidence, isolated-staging verification, production
-      configuration, and OPSWAT subprocessor approval are still required. See
-      `channel-attachment-malware-gate-2026-09-08.md`.
+      blockers for real student/IEP data are closed. The fail-closed document and
+      attachment controls are implemented and deployed to isolated staging. A
+      protected run for SHA `625ea0de386cd44fbef12344a1b1f852af4ae07d`
+      stopped before login or upload because the staging OPSWAT key lacks paid
+      private-scanning entitlement. No clean file or EICAR file was uploaded and
+      no retry occurred. Provider contractual/privacy approval, protected
+      clean-file/EICAR evidence, and production configuration are still required.
+      See `channel-attachment-malware-gate-2026-09-08.md`.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9
@@ -75,12 +80,14 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: protected `main` SHA
-`c0cee6269363fa3368654191ad3b5efd7b58c5c1` passed deployment run
-`34663612644`, Build & SSR Verification, accessibility, CT Seed v2, dashboard,
-all seven role storage states, role-guard, permission, RLS, and cross-district
-RLS checks. The protected database and browser checks were rerun successfully
-after the staging-only `20260909010000` ledger correction; the exact evidence is
-recorded in `staging-migration-ledger-repair-2026-09-11.md`.
+`625ea0de386cd44fbef12344a1b1f852af4ae07d` passed deployment run
+`34743586628`. Build and SSR, accessibility, CT Seed v2, dashboard, all seven
+role storage states, role-guard, permission, RLS, cross-district RLS, migration
+replay, and the standard production-readiness audit passed for the exact SHA.
+The separately authorized antivirus run `34744192572` failed closed during its
+provider-entitlement preflight, before login, file upload, or scanning. That
+blocked run is not clean-file/EICAR acceptance evidence and production remains
+NO-GO.
 
 Lovable's hosted preview evidence remains attached to application-bearing SHA
 `a0396a3af276e978d10920f29dc429f2820e47b9`, because PR #116 changed only
