@@ -9,6 +9,7 @@ const CSS = read("src/styles.css");
 const HOME = read("src/routes/index.tsx");
 const ABOUT = read("src/routes/about.tsx");
 const DEMO = read("src/routes/demo.tsx");
+const OPPORTUNITY_MATCHES = read("src/components/demo/OpportunityMatches.tsx");
 
 describe("recovered Lovable visual update", () => {
   it("maps the shared light theme to the approved TransitionForward palette", () => {
@@ -55,6 +56,12 @@ describe("recovered Lovable visual update", () => {
   it("restores the dashboard-preview wording", () => {
     expect(DEMO).toContain("Choose a dashboard to preview");
     expect(DEMO).not.toContain("Choose a role to preview");
+  });
+
+  it("keeps the restored gold opportunity badge accessible on the public demo report", () => {
+    expect(OPPORTUNITY_MATCHES).toContain(
+      'worth_exploring: "bg-amber-500/10 text-[#8A5A12] dark:text-amber-400 border-amber-500/30"',
+    );
   });
 });
 
