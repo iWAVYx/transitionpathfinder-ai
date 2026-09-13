@@ -719,7 +719,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
  * Tailwind amber-700 token only inside the demo/report shells so we
  * clear AA without touching the rest of the site. */
 .demo-shell .text-amber-700,
-.report-shell .text-amber-700 { color: oklch(0.48 0.14 60); }
+.report-shell .text-amber-700 { color: #8A5A12; }
 
 /* Pathway line motif — diagonal dashed sweep used as a subtle backdrop. */
 .demo-shell .pathway-line,

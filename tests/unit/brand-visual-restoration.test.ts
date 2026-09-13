@@ -26,6 +26,7 @@ describe("recovered Lovable visual update", () => {
     expect(CSS).toContain("html.high-contrast {");
     expect(CSS).toContain(".demo-shell,");
     expect(CSS).toContain("--demo-ink: oklch(0.283 0.019 258)");
+    expect(CSS).toContain(".report-shell .text-amber-700 { color: #8A5A12; }");
   });
 
   it("restores the final hero color placement and headline treatment", () => {
