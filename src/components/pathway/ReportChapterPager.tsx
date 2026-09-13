@@ -132,7 +132,7 @@ export function ReportChapterPager() {
         >
           <div className="mag-reportpager-drawer-inner">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[color:var(--demo-mute,#5b6770)]">
+              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[color:var(--demo-mute,#5C6270)]">
                 Table Of Contents
               </span>
               <button
@@ -147,7 +147,7 @@ export function ReportChapterPager() {
             {parts.map(({ part, sections }) =>
               sections.length === 0 ? null : (
                 <div key={part} className="mb-4 last:mb-0">
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--demo-accent,#2d8a9e)]">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--demo-accent,#0E6E68)]">
                     {part}
                   </p>
                   <ul className="space-y-0.5">
@@ -160,7 +160,7 @@ export function ReportChapterPager() {
                             onClick={() => goTo(i)}
                             className={`block w-full rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
                               i === activeIdx
-                                ? "font-semibold text-[color:var(--demo-ink,#0c2340)]"
+                                ? "font-semibold text-[color:var(--demo-ink,#242A33)]"
                                 : "text-foreground/80"
                             }`}
                             aria-current={i === activeIdx ? "true" : undefined}

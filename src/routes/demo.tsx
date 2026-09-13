@@ -78,7 +78,7 @@ function DemoHub() {
           <div className="mb-4 flex items-baseline gap-3">
             <span className="font-mono text-xs font-semibold tracking-widest text-primary">01</span>
             <div className="h-px flex-1 bg-border" />
-            <h2 className="font-display text-xl">Choose a role to preview</h2>
+            <h2 className="font-display text-xl">Choose a dashboard to preview</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {DEMO_ROLE_ORDER.map((id) => {

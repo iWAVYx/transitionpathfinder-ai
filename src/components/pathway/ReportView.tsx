@@ -1764,7 +1764,7 @@ export function ReportView({
             background:
               radial-gradient(ellipse at top right, rgba(37, 99, 235, 0.06), transparent 55%),
               linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
-            border-top: 6px solid #1e3a8a;
+            border-top: 6px solid #42206B;
             position: relative;
           }
           .print-cover-brand {
@@ -1776,12 +1776,12 @@ export function ReportView({
             display: inline-block;
             width: 14pt; height: 14pt;
             border-radius: 3pt;
-            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+            background: linear-gradient(135deg, #5B2A86, #42206B);
           }
           .print-cover-brand-text {
             font: 600 11pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             letter-spacing: 0.06em;
-            color: #1e3a8a;
+            color: #42206B;
           }
           .print-cover-body {
             margin-top: auto;
@@ -1793,13 +1793,13 @@ export function ReportView({
             font: 600 10pt/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             letter-spacing: 0.22em;
             text-transform: uppercase;
-            color: #2563eb;
+            color: #5B2A86;
           }
           .print-cover-title {
             margin: 0;
             font: 500 46pt/1.05 Georgia, "Iowan Old Style", "Times New Roman", serif;
             letter-spacing: -0.015em;
-            color: #0b1220;
+            color: #242A33;
           }
           .print-cover-sub {
             margin: 18pt 0 0 0;
@@ -1811,7 +1811,7 @@ export function ReportView({
             margin-top: 28pt;
             height: 2pt;
             width: 60pt;
-            background: #1e3a8a;
+            background: #42206B;
             border-radius: 1pt;
           }
           .print-cover-meta-grid {
@@ -1846,7 +1846,7 @@ export function ReportView({
           }
           .print-cover-footer-tag {
             font-weight: 600;
-            color: #1e3a8a;
+            color: #42206B;
             letter-spacing: 0.04em;
           }
 
@@ -1866,7 +1866,7 @@ export function ReportView({
 
           .report-root { font: 10.5pt/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #111 !important; }
           .report-root h1, .report-root h2, .report-root h3, .report-root h4 {
-            color: #0b1220 !important;
+            color: #242A33 !important;
             font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
             font-weight: 500;
           }
@@ -1877,7 +1877,7 @@ export function ReportView({
           .report-root p { orphans: 3; widows: 3; }
           .report-root .text-muted-foreground,
           .report-root [class*="text-foreground/"] { color: #374151 !important; }
-          .report-root a { color: #1e3a8a; text-decoration: none; }
+          .report-root a { color: #42206B; text-decoration: none; }
 
           /* Section paging: each major section starts on a new page */
           .report-root .report-header,
@@ -1959,7 +1959,7 @@ export function ReportView({
           body.print-magazine .report-root h3,
           body.print-magazine .report-root h4 {
             font-family: "Urbanist", -apple-system, BlinkMacSystemFont, sans-serif !important;
-            color: #0b1220 !important;
+            color: #242A33 !important;
           }
 
           /* Editorial paper sheets — keep the rounded card feel, lose the screen shadow. */
@@ -1974,7 +1974,7 @@ export function ReportView({
 
           /* Chapter openers (Part I–V) — each gets its own full-bleed teal page. */
           body.print-magazine .eh-chapter {
-            background: #006666 !important;
+            background: #0E6E68 !important;
             color: #ffffff !important;
             border-radius: 0 !important;
             box-shadow: none !important;
@@ -2010,8 +2010,8 @@ export function ReportView({
             font-style: italic !important;
             font-size: 18pt !important;
             line-height: 1.3 !important;
-            color: #0b1220 !important;
-            border-left: 3px solid #006666 !important;
+            color: #242A33 !important;
+            border-left: 3px solid #0E6E68 !important;
             padding-left: 0.5in !important;
             margin: 0.3in 0 !important;
             break-inside: avoid;
@@ -2045,7 +2045,7 @@ export function ReportView({
 
           /* Folio page-number badges. */
           body.print-magazine .eh-folio {
-            color: #006666 !important;
+            color: #0E6E68 !important;
           }
 
           /* Keep the issue's warm rules visible in print. */

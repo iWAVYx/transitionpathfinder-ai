@@ -42,7 +42,7 @@ export function IllustratedEmptyState({
     <div
       className={cn(
         "relative overflow-hidden rounded-2xl border border-dashed border-border/60",
-        "bg-[radial-gradient(120%_120%_at_0%_0%,color-mix(in_oklab,var(--st-mustard,#e8b14a)_10%,transparent)_0%,transparent_55%),radial-gradient(120%_120%_at_100%_100%,color-mix(in_oklab,var(--st-map,#3a7ea1)_8%,transparent)_0%,transparent_55%)]",
+        "bg-[radial-gradient(120%_120%_at_0%_0%,color-mix(in_oklab,var(--st-mustard,#F2B84B)_10%,transparent)_0%,transparent_55%),radial-gradient(120%_120%_at_100%_100%,color-mix(in_oklab,var(--st-map,#5B2A86)_8%,transparent)_0%,transparent_55%)]",
         "text-center",
         sizes.wrap,
         className,
@@ -82,9 +82,9 @@ export function IllustratedEmptyState({
 
 function Illustration({ kind }: { kind: EmptyKind }) {
   const stroke = "#1b3a4b"; // ink navy
-  const mustard = "#e8b14a";
-  const terra = "#a83f2a";
-  const map = "#3a7ea1";
+  const mustard = "#F2B84B";
+  const terra = "#5B2A86";
+  const map = "#5B2A86";
   const cream = "#fbf7ef";
   const common = {
     stroke,

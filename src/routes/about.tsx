@@ -110,7 +110,7 @@ function CinematicHero() {
   return (
     <section
       ref={ref}
-      className="relative h-[100svh] w-full overflow-hidden bg-[#0b0a09] text-white"
+      className="relative h-[100svh] w-full overflow-hidden bg-[#1A1E25] text-white"
     >
       {/* Background image */}
       <motion.div style={{ y, scale }} className="absolute inset-0">
@@ -248,7 +248,7 @@ function PinnedStory() {
 
   if (reduce) {
     return (
-      <section className="bg-[#0b0a09] text-white">
+      <section className="bg-[#1A1E25] text-white">
         <div className="mx-auto max-w-5xl px-6 py-20 space-y-16">
           {CHAPTERS.map((c, i) => (
             <article key={i} className="space-y-4">
@@ -264,7 +264,7 @@ function PinnedStory() {
   }
 
   return (
-    <section ref={ref} className="relative bg-[#0b0a09] text-white" style={{ height: "200vh" }}>
+    <section ref={ref} className="relative bg-[#1A1E25] text-white" style={{ height: "200vh" }}>
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
         {/* Background image crossfade */}
         <div className="absolute inset-0">
@@ -337,7 +337,7 @@ function PinnedStory() {
 
 function FounderMessage() {
   return (
-    <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
+    <section className="relative overflow-hidden bg-[#F5F6F8] text-[#242A33]">
       <img
         src={topoImg}
         alt=""
@@ -356,35 +356,35 @@ function FounderMessage() {
               className="h-full w-full object-cover object-[50%_30%]"
             />
           </div>
-          <div className="absolute -bottom-4 left-6 rounded-full bg-[#1c1814] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#f4ede3] shadow-lg">
+          <div className="absolute -bottom-4 left-6 rounded-full bg-[#242A33] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#F5F6F8] shadow-lg">
             Founder · Educator
           </div>
         </div>
         <div className="flex flex-col justify-center">
-          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
-            <span className="h-px w-8 bg-[#1c1814]/30" />
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#242A33]/80">
+            <span className="h-px w-8 bg-[#242A33]/30" />
             Why This Exists
           </div>
           <h2 className="font-serif text-[clamp(2rem,4.6vw,3.6rem)] font-light leading-[1.05]">
-            Transition planning depends on the right people
-            <span className="italic"> having the right context at the right time.</span>
+            Transition planning depends on the right <span className="text-brand-gold">people</span>
+            <span className="italic"> having the right <span className="text-brand-gold">context</span> at the right <span className="text-brand-gold">time</span>.</span>
           </h2>
-          <p className="mt-5 text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mt-5 text-base text-[#242A33]/80 sm:text-lg">
             I saw how easily student voice, family knowledge, documents, goals, services,
             and next steps become separated from one another. Families needed clarity.
             Educators needed organization. Districts needed visibility. Partners needed a
             clear way to connect opportunities to students. And students needed more than
             compliance paperwork — they needed a plan they could see themselves in.
           </p>
-          <p className="mt-3 text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mt-3 text-base text-[#242A33]/80 sm:text-lg">
             Transition Forward grew from the belief that planning should be easier to
             understand, easier to share, and easier to act on.
           </p>
           <div className="mt-8 flex items-end gap-5">
-            <span className="font-serif text-3xl italic tracking-tight text-[#1c1814]/90">
+            <span className="font-serif text-3xl italic tracking-tight text-[#242A33]/90">
               — The Founder
             </span>
-            <span className="mb-1 h-px flex-1 bg-[#1c1814]/20" />
+            <span className="mb-1 h-px flex-1 bg-[#242A33]/20" />
           </div>
         </div>
       </div>
@@ -460,7 +460,7 @@ function ScrollPathBackground({ targetRef }: { targetRef: React.RefObject<HTMLEl
     <div className="pointer-events-none absolute inset-0 z-0">
       <img src={sunriseImg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
       {/* Darker overlay so the path reads as ambient texture behind text */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/70 to-[#0b0a09]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1A1E25]/85 via-[#1A1E25]/70 to-[#1A1E25]" />
       <svg
         className="absolute inset-0 h-full w-full opacity-40 sm:opacity-60"
         viewBox="0 0 1000 1500"
@@ -487,8 +487,8 @@ function ScrollPathBackground({ targetRef }: { targetRef: React.RefObject<HTMLEl
         />
         <motion.g style={{ x: arrowX, y: arrowY, rotate: arrowR }}>
           <circle r="10" fill="rgba(255,220,160,0.14)" />
-          <circle r="4" fill="#ffd9a0" />
-          <path d="M 1 -5 L 11 0 L 1 5 Z" fill="#ffd9a0" />
+          <circle r="4" fill="#F2B84B" />
+          <path d="M 1 -5 L 11 0 L 1 5 Z" fill="#F2B84B" />
         </motion.g>
       </svg>
     </div>
@@ -499,7 +499,7 @@ function JourneyPath() {
   const ref = useRef<HTMLElement>(null);
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] py-12 text-white md:py-16">
+    <section ref={ref} className="relative overflow-hidden bg-[#1A1E25] py-12 text-white md:py-16">
       <ScrollPathBackground targetRef={ref} />
 
       <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6">
@@ -575,7 +575,7 @@ const WALKTHROUGH: WalkStance[] = [
     title: "Prepare The Path Before The Student Needs It",
     lead:
       "Get options, deadlines, materials, and readiness signals in place before the next meeting or transition step arrives.",
-    accent: "#ffd9a0",
+    accent: "#F2B84B",
     actions: [
       {
         icon: BookMarked,
@@ -613,7 +613,7 @@ const WALKTHROUGH: WalkStance[] = [
     title: "Move Through The Plan Together",
     lead:
       "Work with the student, family, and team inside a shared workspace where goals, meetings, and next steps stay connected.",
-    accent: "#a8e6cf",
+    accent: "#19B7AE",
     actions: [
       {
         icon: LayoutDashboard,
@@ -658,7 +658,7 @@ const WALKTHROUGH: WalkStance[] = [
     title: "Preserve The Record Behind Every Decision",
     lead:
       "Keep uploads, notes, reports, and access history intact so the story of the student's plan is never lost.",
-    accent: "#b5d8ff",
+    accent: "#B48AD6",
     actions: [
       {
         icon: FileText,
@@ -705,7 +705,7 @@ function AheadBesideBehindWalkthrough() {
   const stance = WALKTHROUGH.find((s) => s.key === active) ?? WALKTHROUGH[0];
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
+    <section ref={ref} className="relative overflow-hidden bg-[#1A1E25] text-white">
       <ScrollPathBackground targetRef={ref} />
       <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
@@ -737,7 +737,7 @@ function AheadBesideBehindWalkthrough() {
                 id={`walkthrough-tab-${s.key}`}
                 onClick={() => setActive(s.key)}
                 className={`relative flex-1 rounded-xl px-5 py-3 text-left transition-colors sm:text-center ${
-                  isActive ? "text-[#0b0a09]" : "text-white/70 hover:text-white"
+                  isActive ? "text-[#1A1E25]" : "text-white/70 hover:text-white"
                 }`}
               >
                 {isActive && (
@@ -872,18 +872,18 @@ function AheadBesideBehindWalkthrough() {
 
 function StudentCentered() {
   return (
-    <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
+    <section className="relative overflow-hidden bg-[#F5F6F8] text-[#242A33]">
       <div className="relative mx-auto grid max-w-[1300px] gap-10 px-6 py-16 md:grid-cols-[6fr_5fr] md:gap-16 md:py-20">
         <div className="flex flex-col justify-center">
-          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
-            <span className="h-px w-8 bg-[#1c1814]/30" />
+          <div className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#242A33]/80">
+            <span className="h-px w-8 bg-[#242A33]/30" />
             The Student At The Center
           </div>
           <h2 className="font-serif text-[clamp(2rem,4.6vw,3.6rem)] font-light leading-[1.05]">
             The student is not a profile in a system.
-            <span className="italic"> They are the reason for it.</span>
+            <span className="italic text-brand-gold"> They are the reason for it.</span>
           </h2>
-          <p className="mt-5 text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mt-5 text-base text-[#8A5A12] sm:text-lg">
             Their strengths, preferences, interests, goals, questions, and next steps
             should shape the plan — not the other way around. Transition Forward is built
             to help students understand their own path, participate in planning, and see
@@ -898,7 +898,7 @@ function StudentCentered() {
               className="h-full w-full object-cover object-[50%_25%]"
             />
           </div>
-          <div className="absolute -bottom-4 right-6 rounded-full bg-[#1c1814] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#f4ede3] shadow-lg">
+          <div className="absolute -bottom-4 right-6 rounded-full bg-[#242A33] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#F5F6F8] shadow-lg">
             The Path Is Theirs
           </div>
         </div>
@@ -935,7 +935,7 @@ function EcosystemAndCare() {
   ];
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
+    <section ref={ref} className="relative overflow-hidden bg-[#1A1E25] text-white">
       <ScrollPathBackground targetRef={ref} />
       <div className="relative z-10 mx-auto max-w-[1300px] px-6 py-20 md:py-24">
         {/* CT-Aware */}
@@ -1091,11 +1091,11 @@ const FAQ_ITEMS: FAQEntry[] = [
         do not claim that using TransitionForward guarantees compliance with
         any federal, state, or district law or regulation. Districts retain
         responsibility for their own compliance. Read more in our{" "}
-        <Link to="/privacy" className="underline underline-offset-4 hover:text-[#1c1814]">
+        <Link to="/privacy" className="underline underline-offset-4 hover:text-[#242A33]">
           Privacy Policy
         </Link>{" "}
         and{" "}
-        <Link to="/terms" className="underline underline-offset-4 hover:text-[#1c1814]">
+        <Link to="/terms" className="underline underline-offset-4 hover:text-[#242A33]">
           Terms of Service
         </Link>
         .
@@ -1106,19 +1106,19 @@ const FAQ_ITEMS: FAQEntry[] = [
 
 function CTAwareFAQ() {
   return (
-    <section className="relative overflow-hidden bg-[#f4ede3] text-[#1c1814]">
+    <section className="relative overflow-hidden bg-[#F5F6F8] text-[#242A33]">
       <div className="relative mx-auto max-w-[1100px] px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#1c1814]/80">
-            <span className="h-px w-8 bg-[#1c1814]/30" />
+          <div className="mb-4 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[#242A33]/80">
+            <span className="h-px w-8 bg-[#242A33]/30" />
             Trust, Records, And Transparency
-            <span className="h-px w-8 bg-[#1c1814]/30" />
+            <span className="h-px w-8 bg-[#242A33]/30" />
           </div>
           <h2 className="font-serif text-[clamp(1.9rem,4.6vw,3.4rem)] font-light leading-[1.05]">
             How The Record Is Kept,
             <span className="italic"> And Who Holds The Key.</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-[#1c1814]/80 sm:text-lg">
+          <p className="mx-auto mt-5 max-w-2xl text-base text-[#242A33]/80 sm:text-lg">
             Transition planning depends on trust. Here is how we approach
             recordkeeping, permissions, and audit history — with Connecticut
             transition teams and families in mind.
@@ -1132,11 +1132,11 @@ function CTAwareFAQ() {
               <AccordionItem
                 key={item.question}
                 value={`faq-${i}`}
-                className="border-[#1c1814]/10"
+                className="border-[#242A33]/10"
               >
                 <AccordionTrigger className="py-5 text-left hover:no-underline">
                   <span className="flex items-start gap-4">
-                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1c1814]/8 text-[#1c1814]/80">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#242A33]/8 text-[#242A33]/80">
                       <Icon className="h-4 w-4" />
                     </span>
                     <span className="font-serif text-lg font-light leading-snug sm:text-xl">
@@ -1145,7 +1145,7 @@ function CTAwareFAQ() {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="pl-[52px]">
-                  <p className="max-w-3xl text-[15px] leading-relaxed text-[#1c1814]/80">
+                  <p className="max-w-3xl text-[15px] leading-relaxed text-[#242A33]/80">
                     {item.answer}
                   </p>
                 </AccordionContent>
@@ -1154,16 +1154,16 @@ function CTAwareFAQ() {
           })}
         </Accordion>
 
-        <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#1c1814]/70 md:mt-12">
+        <div className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#242A33]/70 md:mt-12">
           Have a question about security, privacy, or how we support districts?{" "}
           <Link
             to="/trust-and-safety"
-            className="underline underline-offset-4 hover:text-[#1c1814]"
+            className="underline underline-offset-4 hover:text-[#242A33]"
           >
             Read our Trust & Safety overview
           </Link>{" "}
           or{" "}
-          <Link to="/contact" className="underline underline-offset-4 hover:text-[#1c1814]">
+          <Link to="/contact" className="underline underline-offset-4 hover:text-[#242A33]">
             contact us
           </Link>
           .
@@ -1188,10 +1188,10 @@ function ClosingCTA() {
   const scale = useTransform(scrollYProgress, [0, 1], [1.1, 1]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-[#0b0a09] text-white">
+    <section ref={ref} className="relative overflow-hidden bg-[#1A1E25] text-white">
       <motion.div style={{ y, scale }} className="absolute inset-0">
         <img src={ctaImg} alt="" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0a09]/85 via-[#0b0a09]/55 to-[#0b0a09]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1A1E25]/85 via-[#1A1E25]/55 to-[#1A1E25]" />
       </motion.div>
 
       <div className="relative mx-auto flex min-h-[60svh] max-w-[1300px] flex-col items-center justify-center px-6 py-16 text-center md:py-20">
@@ -1265,7 +1265,7 @@ function AboutPage() {
 
   return (
     <SiteShell>
-      <article className="bg-[#0b0a09]">
+      <article className="bg-[#1A1E25]">
         <CinematicHero />
         <PinnedStory />
         <AheadBesideBehindWalkthrough />
