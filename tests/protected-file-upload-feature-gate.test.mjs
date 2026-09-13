@@ -13,6 +13,7 @@ const channelRoute = read("src/routes/_authenticated/transition-channel.tsx");
 const documentsRoute = read("src/routes/_authenticated/documents.tsx");
 const ownerTestingScripts = read("src/lib/owner/testing-scripts.functions.ts");
 const cms = read("src/lib/cms/cms.functions.ts");
+const stagingDeploy = read(".github/workflows/deploy-staging.yml");
 
 function section(source, startMarker, endMarker) {
   const start = source.indexOf(startMarker);
@@ -22,14 +23,27 @@ function section(source, startMarker, endMarker) {
   return source.slice(start, end);
 }
 
-test("protected file uploads use one explicit fail-closed policy", () => {
-  assert.match(policy, /export const PROTECTED_FILE_UPLOADS_ENABLED = false/);
+test("protected file uploads use one isolated-staging-only fail-closed policy", () => {
+  assert.match(
+    policy,
+    /input\.appEnv === "staging" && projectRefFrom\(input\.supabaseUrl\) === STAGING_PROJECT_REF/,
+  );
+  assert.match(
+    policy,
+    /export const PROTECTED_FILE_UPLOADS_ENABLED = resolveProtectedFileUploadsEnabled\(/,
+  );
+  assert.match(policy, /supabaseUrl: import\.meta\.env\.VITE_SUPABASE_URL/);
   assert.match(policy, /private malware scanning is being finalized/);
   assert.match(
     policy,
     /if \(!PROTECTED_FILE_UPLOADS_ENABLED\)[\s\S]{0,120}?throw new Error\(PROTECTED_FILE_UPLOADS_MESSAGE\)/,
   );
-  assert.doesNotMatch(policy, /process\.env|import\.meta\.env|localStorage|sessionStorage/);
+  assert.doesNotMatch(policy, /process\.env|localStorage|sessionStorage/);
+  assert.match(
+    stagingDeploy,
+    /tests\/unit\/protected-file-uploads-policy\.test\.ts/,
+    "staging deployment must run the upload policy tests before building",
+  );
 });
 
 test("document upload preflight and registration reject before trusted data work", () => {
