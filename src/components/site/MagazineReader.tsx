@@ -187,7 +187,7 @@ export function MagazineReader({ currentId, student, preserveStudent }: ReaderPr
         </div>
         <div className="mx-auto h-[1px] max-w-7xl bg-[color:var(--demo-primary)]/10" aria-hidden>
           <div
-            className="h-full bg-[color:var(--demo-ink,#0c2340)] transition-transform duration-700 ease-out origin-left"
+            className="h-full bg-[color:var(--demo-ink,#242A33)] transition-transform duration-700 ease-out origin-left"
             style={{ transform: `scaleX(${progressPct / 100})` }}
           />
         </div>

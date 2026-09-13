@@ -76,10 +76,10 @@ export const template = {
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '24px', maxWidth: '560px', margin: '0 auto' }
-const h1 = { fontSize: '24px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }
+const h1 = { fontSize: '24px', fontWeight: 600, color: '#242A33', marginBottom: '16px' }
 const text = { fontSize: '15px', lineHeight: '1.6', color: '#334155' }
 const button = {
-  backgroundColor: '#0a6c4a',
+  backgroundColor: '#5B2A86',
   color: '#ffffff',
   padding: '12px 24px',
   borderRadius: '8px',

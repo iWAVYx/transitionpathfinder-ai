@@ -47,7 +47,7 @@ const AdminInvitationEmail = ({
         <Text style={text}>
           If the button doesn't work, copy and paste this link into your browser:
           <br />
-          <span style={{ wordBreak: 'break-all', color: '#0a6c4a' }}>{acceptUrl}</span>
+          <span style={{ wordBreak: 'break-all', color: '#5B2A86' }}>{acceptUrl}</span>
         </Text>
         {expiresAt ? (
           <Text style={footer}>
@@ -85,7 +85,7 @@ const container = { padding: '32px 28px', maxWidth: '560px' }
 const h1 = {
   fontSize: '24px',
   fontWeight: 'bold' as const,
-  color: '#0f172a',
+  color: '#242A33',
   margin: '0 0 20px',
 }
 const text = {
@@ -95,7 +95,7 @@ const text = {
   margin: '0 0 16px',
 }
 const button = {
-  backgroundColor: '#0a6c4a',
+  backgroundColor: '#5B2A86',
   color: '#ffffff',
   fontSize: '15px',
   fontWeight: 'bold' as const,

@@ -197,8 +197,8 @@ function HomePage() {
           scale={1.1}
           tilt={45}
           drift={140}
-          gradientFrom="hsl(210 90% 70%)"
-          gradientTo="hsl(280 80% 65%)"
+          gradientFrom="#5B2A86"
+          gradientTo="#B48AD6"
         />
         {/* Secondary counter-rotating shape, right side */}
         <ShapeScroll
@@ -207,8 +207,8 @@ function HomePage() {
           scale={0.9}
           tilt={35}
           drift={-100}
-          gradientFrom="hsl(20 90% 70%)"
-          gradientTo="hsl(340 85% 70%)"
+          gradientFrom="#19B7AE"
+          gradientTo="#0E6E68"
         />
         {/* Smaller accent shape lower-left */}
         <ShapeScroll
@@ -217,8 +217,8 @@ function HomePage() {
           scale={1.4}
           tilt={60}
           drift={80}
-          gradientFrom="hsl(150 70% 65%)"
-          gradientTo="hsl(190 80% 60%)"
+          gradientFrom="#F2B84B"
+          gradientTo="#B07E17"
         />
 
 
@@ -234,7 +234,7 @@ function HomePage() {
 
         <span aria-hidden="true" className="pointer-events-none absolute right-[28%] top-32 -z-10 hidden h-3 w-3 rounded-full bg-primary/70 sparkle-twinkle md:block" />
         <span aria-hidden="true" className="pointer-events-none absolute right-[18%] top-[260px] -z-10 hidden h-2 w-2 rounded-full bg-amber-400 sparkle-twinkle md:block" style={{ animationDelay: "0.8s" }} />
-        <span aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[200px] -z-10 hidden h-2.5 w-2.5 rounded-full bg-pink-400 sparkle-twinkle md:block" style={{ animationDelay: "1.4s" }} />
+        <span aria-hidden="true" className="pointer-events-none absolute right-[40%] top-[200px] -z-10 hidden h-2.5 w-2.5 rounded-full bg-sky-400 sparkle-twinkle md:block" style={{ animationDelay: "1.4s" }} />
         {/* Soft blob behind headline */}
         <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl blob-drift" />
 
@@ -245,7 +245,7 @@ function HomePage() {
             </p>
             <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
               {hero.headline_lead}{" "}
-              <span className="relative inline-block whitespace-nowrap not-italic text-primary">
+              <span className="relative inline-block whitespace-nowrap bg-gradient-to-r from-brand-teal to-brand-gold bg-clip-text not-italic text-transparent">
                 {hero.headline_accent.replace(/-/g, "\u2011")}
                 <svg
                   aria-hidden="true"
@@ -259,7 +259,7 @@ function HomePage() {
                     stroke="currentColor"
                     strokeWidth="3"
                     strokeLinecap="round"
-                    className="text-primary/80"
+                    className="text-brand-teal"
                   />
                 </svg>
               </span>
@@ -269,7 +269,7 @@ function HomePage() {
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
               {hero.subhead}
             </p>
-            <p className="mt-5 font-display text-xl italic text-foreground/75 sm:text-2xl">
+            <p className="mt-5 font-display text-xl italic text-brand-gold sm:text-2xl">
               <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
               <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
               <span className="whitespace-nowrap">Forward&nbsp;Together.</span>
@@ -851,7 +851,7 @@ function HomePage() {
                 source="Independent Living Series"
                 topic="Independent Living"
                 icon={Building2}
-                tint="from-emerald-500/15 to-emerald-500/5"
+                tint="from-sky-500/15 to-sky-500/5"
               />
               <ResourcePreviewCard
                 eyebrow="CT Agency"
@@ -1710,7 +1710,7 @@ function HomeStat({ value, suffix, label, delay }: { value: number; suffix: stri
     >
       <div className="font-display text-4xl font-medium leading-none tracking-tight text-background sm:text-5xl lg:text-[2.75rem] xl:text-5xl">
         {formatted}
-        <span className="text-primary">{suffix}</span>
+        <span className="text-brand-gold">{suffix}</span>
       </div>
       <p className="mt-3 text-sm leading-relaxed text-background/70">{label}</p>
 
