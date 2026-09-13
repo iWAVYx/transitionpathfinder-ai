@@ -187,14 +187,40 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260909010000_create_private_channel_attachments_bucket.sql",
   ]);
 
-  assert.equal(audit.migrations.productionHistoryReadAt, "2026-08-26T03:55:50Z");
+  const currentProductionComparison = spawnSync(
+    process.execPath,
+    [
+      "scripts/compare-production-migration-history.mjs",
+      "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
+      "--json",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(currentProductionComparison.status, 2, currentProductionComparison.stderr);
+  const currentProductionReport = JSON.parse(currentProductionComparison.stdout);
+  assert.equal(currentProductionReport.status, "blocked");
+  assert.deepEqual(currentProductionReport.blockers, ["pending-production-migration"]);
+  assert.equal(currentProductionReport.appliedCount, 184);
+  assert.equal(currentProductionReport.canonicalCount, 195);
+  assert.equal(currentProductionReport.directCoverageCount, 184);
+  assert.equal(currentProductionReport.supersededCount, 6);
+  assert.equal(currentProductionReport.excludedCount, 1);
+  assert.equal(currentProductionReport.pendingCount, 4);
+  assert.deepEqual(currentProductionReport.pending, [
+    "20260907190000_security_finding_alignment.sql",
+    "20260907224500_least_privilege_security_definer_grants.sql",
+    "20260908000500_channel_attachment_malware_gate.sql",
+    "20260909010000_create_private_channel_attachments_bucket.sql",
+  ]);
+
+  assert.equal(audit.migrations.productionHistoryReadAt, "2026-09-13T07:24:13Z");
   assert.equal(
     audit.migrations.productionHistoryEvidence,
-    "docs/production-readiness/evidence/production-migration-history-post-window-2026-08-26.csv",
+    "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
   );
   assert.equal(
     audit.migrations.productionHistoryComparedMainSha,
-    "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
+    "625ea0de386cd44fbef12344a1b1f852af4ae07d",
   );
   assert.equal(audit.migrations.productionHistoryAppliedCount, 184);
   assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260825050000");

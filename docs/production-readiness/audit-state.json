@@ -36,9 +36,9 @@
   "migrations": {
     "canonicalCount": 195,
     "latestCanonicalFile": "20260909010000_create_private_channel_attachments_bucket.sql",
-    "productionHistoryReadAt": "2026-08-26T03:55:50Z",
-    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-post-window-2026-08-26.csv",
-    "productionHistoryComparedMainSha": "9a4bbb979118abb05d34da79dd44c8db8a76d2e3",
+    "productionHistoryReadAt": "2026-09-13T07:24:13Z",
+    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
+    "productionHistoryComparedMainSha": "625ea0de386cd44fbef12344a1b1f852af4ae07d",
     "productionHistoryAppliedCount": 184,
     "productionHistoryLatestAppliedVersion": "20260825050000",
     "pendingProductionCount": 4
