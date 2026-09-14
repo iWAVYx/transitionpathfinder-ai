@@ -32,10 +32,15 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       inventory before Lovable finding 9 can be closed globally.
 - [ ] Five canonical migrations remain pending in production. Three are the
       antivirus-independent security alignment sequence, including the new
-      forward-only application-function default-permission migration. They
-      require review, replay, isolated-staging application, protected evidence,
-      and a separately approved production window. The two attachment migrations
-      stay blocked on provider/privacy approval and clean-file/EICAR staging proof.
+      forward-only application-function default-permission migration. All three
+      are now reviewed, replayed, recorded once in isolated staging, and covered
+      by protected post-migration evidence for exact SHA `73c3c36a`. Production
+      still requires a fresh baseline, named maintenance/abort owners, final
+      procedure review, and a separately approved production window. The two
+      attachment migrations stay blocked on provider/privacy approval and
+      clean-file/EICAR staging proof. See
+      `staging-security-default-privileges-2026-09-14.md` and
+      `production-security-migration-plan-2026-09-14.md`.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Isolated staging records
@@ -80,19 +85,25 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       76 public-schema privileged routines: 17 PUBLIC-executable, 26 anonymous-
       executable, and 70 authenticated-executable before the pending alignment.
       The exact current-routine allowlists and forward-only default-permission
-      hardening are now represented in canonical migrations, but still require
-      review, replay, isolated-staging application, protected regression tests,
-      and a rescan. Details are in `security-finding-alignment-2026-09-07.md`
-      and `production-security-inventory-2026-09-14.md`. The production
-      extension namespace check for finding 9 is still pending.
+      hardening are represented in canonical migrations and passed review,
+      replay, isolated-staging application, and protected exact-SHA regression.
+      They still require a separately approved production window and a Lovable
+      rescan afterward. Details are in
+      `staging-security-default-privileges-2026-09-14.md` and
+      `production-security-inventory-2026-09-14.md`. The production extension
+      namespace check for finding 9 is still pending.
 
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: protected `main` SHA
-`625ea0de386cd44fbef12344a1b1f852af4ae07d` passed deployment run
-`34743586628`. Build and SSR, accessibility, CT Seed v2, dashboard, all seven
-role storage states, role-guard, permission, RLS, cross-district RLS, migration
-replay, and the standard production-readiness audit passed for the exact SHA.
+`73c3c36a340cf6ef03174d503da5751a4eb1a4a4` passed deployment run
+`34868713078`. Its push-time Build and SSR, accessibility, migration replay, and
+standard production-readiness checks passed. After the three-file security
+sequence was confirmed in the live staging ledger, CT Seed v2, dashboard, all
+seven role storage states, role-guard, permission, RLS, and cross-district RLS
+were rerun and passed for that same exact SHA. See
+`staging-security-default-privileges-2026-09-14.md`.
+
 The separately authorized antivirus run `34744192572` failed closed during its
 provider-entitlement preflight, before login, file upload, or scanning. That
 blocked run is not clean-file/EICAR acceptance evidence and production remains
@@ -117,9 +128,9 @@ remaining production boxes below.
       exact-SHA acceptance, secret isolation, smoke coverage, and coordinated
       rollback pass before any production deployment or DNS cutover.
 - [x] Migration replay and RLS/permission/cross-district suites passed. The
-      canonical migration tree, including the security-alignment migration,
-      passed replay run `34176545827`; the live staging RLS suites passed for
-      the candidate SHA.
+      canonical migration tree, including all three antivirus-independent
+      security-alignment migrations, passed replay; the live staging RLS and
+      permission suites passed again after application for the candidate SHA.
 - [x] Seven-role auth, role guards, dashboard regression, accessibility, and
       release-readiness journeys passed on the exact candidate.
 - [ ] Public routes, login/MFA, owner strict MFA, document access, report flow,

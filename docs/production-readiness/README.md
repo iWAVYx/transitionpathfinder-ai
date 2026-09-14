@@ -50,7 +50,7 @@ Documents:
 - `staging-acceptance-2026-09-06.md` — historical exact-SHA isolated-staging
   deployment, Phase 1 branding and visual-baseline alignment, protected
   security workflows, and full acceptance evidence for `29b0575d`.
-- `staging-acceptance-2026-09-07.md` — current exact-SHA isolated-staging
+- `staging-acceptance-2026-09-07.md` — historical exact-SHA isolated-staging
   deployment and protected push-check evidence for `3cc06ade`; it explicitly
   preserves the boundary around the older consolidated browser-suite run.
 - `lovable-preview-acceptance-2026-09-06.md` — current `ee444f1a` isolated-
@@ -89,6 +89,12 @@ Documents:
 - `production-security-inventory-2026-09-14.md` — current SELECT-only Lovable
   production bucket, policy, permission, privileged-routine, and default-
   function-ACL evidence plus the still-enforced NO-GO boundary.
+- `staging-security-default-privileges-2026-09-14.md` — current exact-SHA
+  isolated-staging ledger, default-function permission, environment-identity,
+  and protected post-migration evidence for `73c3c36a`.
+- `production-security-migration-plan-2026-09-14.md` — non-authorizing,
+  fail-closed production procedure for the exact three-file
+  antivirus-independent security release unit.
 - `production-security-inventory.sql` — reusable SELECT-only metadata query for
   the production security inventory; it does not read application rows or
   credentials.

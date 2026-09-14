@@ -8,10 +8,16 @@ const inventoryPath =
   "docs/production-readiness/production-security-inventory.sql";
 const evidencePath =
   "docs/production-readiness/production-security-inventory-2026-09-14.md";
+const stagingEvidencePath =
+  "docs/production-readiness/staging-security-default-privileges-2026-09-14.md";
+const productionPlanPath =
+  "docs/production-readiness/production-security-migration-plan-2026-09-14.md";
 
 const migration = readFileSync(migrationPath, "utf8");
 const inventory = readFileSync(inventoryPath, "utf8");
 const evidence = readFileSync(evidencePath, "utf8");
+const stagingEvidence = readFileSync(stagingEvidencePath, "utf8");
+const productionPlan = readFileSync(productionPlanPath, "utf8");
 
 test("forward-only migration closes application function defaults without changing current objects", () => {
   assert.match(migration, /^--[\s\S]*?\nBEGIN;/);
@@ -83,4 +89,51 @@ test("redacted production evidence preserves the NO-GO and no-change boundary", 
   assert.match(evidence, /raw CSV download did not complete/i);
   assert.match(evidence, /do(?:es)? not authorize a staging or production migration/i);
   assert.match(evidence, /PRODUCTION REMAINS NO-GO/);
+});
+
+test("staging evidence records exact identity, ledger, and protected checks", () => {
+  assert.match(stagingEvidence, /73c3c36a340cf6ef03174d503da5751a4eb1a4a4/);
+  assert.match(stagingEvidence, /Deploy Staging run 34868713078/);
+  assert.match(stagingEvidence, /qgrertkqbwanerqqemph/);
+  assert.match(stagingEvidence, /isolation\.ok=true/);
+  assert.match(stagingEvidence, /20260907190000_security_finding_alignment/);
+  assert.match(stagingEvidence, /20260907224500_least_privilege_security_definer_grants/);
+  assert.match(
+    stagingEvidence,
+    /20260914120000_harden_application_function_default_privileges/,
+  );
+  assert.match(stagingEvidence, /5db71d69000f8c0d6f2d1cb202a57e0f/);
+  assert.match(stagingEvidence, /a0a57957f380d54efa83f579339a46ff/);
+  for (const run of [
+    "34868525031",
+    "34868524987",
+    "34868524913",
+    "34868524860",
+    "34868524944",
+    "34868525011",
+  ]) {
+    assert.match(stagingEvidence, new RegExp(run));
+  }
+  assert.match(stagingEvidence, /production remains NO-GO/i);
+  assert.match(stagingEvidence, /did not execute the migration again/i);
+});
+
+test("production procedure is exact-scope, fail-closed, and non-authorizing", () => {
+  const ordered = [
+    "20260907190000_security_finding_alignment.sql",
+    "20260907224500_least_privilege_security_definer_grants.sql",
+    "20260914120000_harden_application_function_default_privileges.sql",
+  ].map((file) => productionPlan.indexOf(file));
+
+  assert.ok(ordered.every((index) => index >= 0));
+  assert.ok(ordered[0] < ordered[1] && ordered[1] < ordered[2]);
+  assert.match(productionPlan, /PREPARED FOR REVIEW ONLY; production remains NO-GO/);
+  assert.match(productionPlan, /separately authorizes the exact three migration\s+files/i);
+  assert.match(productionPlan, /lrqcntqyekucamifpffs/);
+  assert.match(productionPlan, /Stop if staging ref `qgrertkqbwanerqqemph` appears/);
+  assert.match(productionPlan, /20260908000500.*20260909010000/s);
+  assert.match(productionPlan, /not\s+part of this window/i);
+  assert.match(productionPlan, /Do not improvise down SQL/i);
+  assert.match(productionPlan, /never use real student or IEP data as a\s+fixture/i);
+  assert.match(productionPlan, /Do not run a live payment without\s+separate approval/i);
 });
