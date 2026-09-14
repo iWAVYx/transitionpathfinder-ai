@@ -30,17 +30,19 @@
     "restoreDrillVerified": true,
     "stripeLiveReadinessVerified": false,
     "secretIsolationVerified": false,
+    "securityInventoryReadOnlyEvidenceVerified": true,
+    "securityInventoryEvidence": "docs/production-readiness/production-security-inventory-2026-09-14.md",
     "securityFindingsClosed": false,
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 195,
-    "latestCanonicalFile": "20260909010000_create_private_channel_attachments_bucket.sql",
+    "canonicalCount": 196,
+    "latestCanonicalFile": "20260914120000_harden_application_function_default_privileges.sql",
     "productionHistoryReadAt": "2026-09-13T07:24:13Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
     "productionHistoryComparedMainSha": "625ea0de386cd44fbef12344a1b1f852af4ae07d",
     "productionHistoryAppliedCount": 184,
     "productionHistoryLatestAppliedVersion": "20260825050000",
-    "pendingProductionCount": 4
+    "pendingProductionCount": 5
   }
 }
