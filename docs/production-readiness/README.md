@@ -86,6 +86,12 @@ Documents:
 - `staging-credential-containment-2026-08-23.md` — synthetic staging credential
   containment, rotation evidence, and the password-form native fallback fix.
 - `production-migration-baseline-2026-08-17.md` — prior historical baseline.
+- `production-security-inventory-2026-09-14.md` — current SELECT-only Lovable
+  production bucket, policy, permission, privileged-routine, and default-
+  function-ACL evidence plus the still-enforced NO-GO boundary.
+- `production-security-inventory.sql` — reusable SELECT-only metadata query for
+  the production security inventory; it does not read application rows or
+  credentials.
 - `production-migration-policy.json` — pinned aliases, historical variants,
   supersessions, and the production-forbidden staging fixture.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.

@@ -23,12 +23,19 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `20260825050000`; the normalized result is line-for-line identical to the
       2026-08-26 post-window evidence. See
       `production-migration-baseline-2026-09-13.md`.
-- [ ] Four canonical migrations remain pending in production. The two
-      antivirus-independent security migrations require a current SELECT-only
-      routine/ACL inventory and final review. The two attachment migrations stay
-      blocked on provider/privacy approval and clean-file/EICAR staging proof.
-      The visible production `channel-attachments` bucket also requires a
-      SELECT-only bucket/policy inventory before any apply or ledger decision.
+- [x] The SELECT-only production security inventory is recorded in
+      `production-security-inventory-2026-09-14.md`. It confirms the existing
+      `channel-attachments` bucket is private, captures its current constraints
+      and policies, and records current routine and default-function grants
+      without reading application rows or changing production.
+- [ ] Production still needs the separate SELECT-only extension namespace
+      inventory before Lovable finding 9 can be closed globally.
+- [ ] Five canonical migrations remain pending in production. Three are the
+      antivirus-independent security alignment sequence, including the new
+      forward-only application-function default-permission migration. They
+      require review, replay, isolated-staging application, protected evidence,
+      and a separately approved production window. The two attachment migrations
+      stay blocked on provider/privacy approval and clean-file/EICAR staging proof.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Isolated staging records
@@ -69,13 +76,15 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9
-      findings remain ignored rather than closed. Staging verified findings
-      1–6 and did not reproduce the public-schema extension finding; findings
-      7–8 now have a draft least-privilege migration and exact allowlist, but
-      still require review, replay, isolated-staging application, protected
-      regression tests, and a rescan. Production also needs a read-only
-      extension inventory. Details are in
-      `security-finding-alignment-2026-09-07.md`.
+      findings remain ignored rather than closed. Production inventory confirms
+      76 public-schema privileged routines: 17 PUBLIC-executable, 26 anonymous-
+      executable, and 70 authenticated-executable before the pending alignment.
+      The exact current-routine allowlists and forward-only default-permission
+      hardening are now represented in canonical migrations, but still require
+      review, replay, isolated-staging application, protected regression tests,
+      and a rescan. Details are in `security-finding-alignment-2026-09-07.md`
+      and `production-security-inventory-2026-09-14.md`. The production
+      extension namespace check for finding 9 is still pending.
 
 ## Exact-SHA acceptance
 
