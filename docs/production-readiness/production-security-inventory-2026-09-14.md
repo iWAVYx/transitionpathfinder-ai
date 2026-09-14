@@ -86,6 +86,21 @@ grant migration:
 
 The antivirus-dependent attachment migrations remain a separate blocked
 release unit and were not edited by this alignment. This evidence and draft SQL
-do not authorize a staging or production migration. Replay, review, isolated
-staging application, protected regression evidence, named maintenance/abort
-owners, and separate production authorization are still required.
+do not authorize a staging or production migration. The later staging
+application was separately authorized and is recorded below.
+
+## Subsequent isolated-staging acceptance
+
+All three antivirus-independent migrations above are now recorded exactly once
+in the isolated staging ledger with one statement each. The final default-
+privilege migration was applied to staging as `postgres`; its catalog verifier
+found zero PUBLIC/anonymous/authenticated function-execution defaults and
+preserved the `service_role` default. Six post-migration protected staging
+regressions passed against exact protected-main SHA
+`73c3c36a340cf6ef03174d503da5751a4eb1a4a4`.
+
+The full ledger, hash, environment-identity, and run evidence is in
+`staging-security-default-privileges-2026-09-14.md`. Production still requires
+a fresh SELECT-only baseline, named maintenance/abort owners, review of
+`production-security-migration-plan-2026-09-14.md`, and separate exact
+authorization.

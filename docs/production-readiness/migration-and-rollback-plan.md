@@ -48,11 +48,19 @@ production-forbidden.
 
 Those three migrations were subsequently applied and verified in the recorded
 2026-08-26 maintenance window, leaving 184 aligned production-history rows.
-The 2026-09-07 security-finding alignment draft proposes one new forward-only
-migration, `20260907190000_security_finding_alignment.sql`. It remains
-unapplied. If the draft is eventually merged and passes isolated-staging
-acceptance, regenerate the production baseline and treat that exact file as a
-new pending delta requiring separate review and explicit authorization.
+The current antivirus-independent production security release unit contains
+three forward-only migrations:
+
+1. `20260907190000_security_finding_alignment.sql`;
+2. `20260907224500_least_privilege_security_definer_grants.sql`; and
+3. `20260914120000_harden_application_function_default_privileges.sql`.
+
+All three have passed isolated-staging application and protected exact-SHA
+regressions; see `staging-security-default-privileges-2026-09-14.md`. This does
+not authorize production execution. Regenerate the production baseline, name
+the maintenance and abort owners, and follow the fail-closed preparation in
+`production-security-migration-plan-2026-09-14.md`. The two antivirus-dependent
+attachment migrations remain a separate blocked release unit.
 
 ### Reviewed pending-delta risk profile — 2026-08-25
 
