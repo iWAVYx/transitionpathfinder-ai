@@ -10,6 +10,12 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  livePaymentsClientToken as buildLivePaymentsClientToken,
+  paymentsClientToken as buildPaymentsClientToken,
+  sandboxPaymentsClientToken as buildSandboxPaymentsClientToken,
+  viteAppEnv as buildViteAppEnv,
+} from "virtual:transitionforward-public-build-inputs";
+import {
   PRODUCTION_PROJECT_REF,
   PRODUCTION_HOSTNAMES,
   STAGING_PROJECT_REF,
@@ -41,8 +47,7 @@ export const Route = createFileRoute("/api/public/env-health")({
           runtimeAppEnv: process.env["APP_ENV"],
           runtimeViteAppEnv: process.env["VITE_APP_ENV"],
           buildAppEnv: import.meta.env["APP_ENV"] as string | undefined,
-          // Vite's build-time define replacement requires static property access.
-          buildViteAppEnv: import.meta.env.VITE_APP_ENV as string | undefined,
+          buildViteAppEnv,
         });
         const supabase_project_ref = projectRefFrom(process.env["SUPABASE_URL"]);
         const git_commit_sha =
@@ -68,10 +73,10 @@ export const Route = createFileRoute("/api/public/env-health")({
             supabase_project_ref === PRODUCTION_PROJECT_REF);
 
         const hostSelectedBuildPaymentsToken = stagingTarget
-          ? (import.meta.env.VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN as string | undefined)
+          ? buildSandboxPaymentsClientToken
           : productionTarget
-            ? (import.meta.env.VITE_PAYMENTS_LIVE_CLIENT_TOKEN as string | undefined)
-            : (import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined);
+            ? buildLivePaymentsClientToken
+            : buildPaymentsClientToken;
         const stripe_mode = resolveDeploymentStripeMode({
           expectedMode: stagingTarget ? "sandbox" : productionTarget ? "live" : undefined,
           runtimeVitePaymentsClientToken: process.env["VITE_PAYMENTS_CLIENT_TOKEN"],
