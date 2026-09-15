@@ -545,6 +545,11 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(viteConfig, /loadEnv\(["']production["'], process\.cwd\(\), ["']VITE_["']\)/);
   assert.match(viteConfig, /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN/);
   assert.match(viteConfig, /VITE_PAYMENTS_LIVE_CLIENT_TOKEN/);
+  assert.match(viteConfig, /function publicBuildInputsModule\(/);
+  assert.match(viteConfig, /virtual:transitionforward-public-build-inputs/);
+  assert.match(viteConfig, /JSON\.stringify\(inputs\.viteAppEnv\)/);
+  assert.match(viteConfig, /JSON\.stringify\(inputs\.sandboxPaymentsClientToken\)/);
+  assert.match(viteConfig, /JSON\.stringify\(inputs\.livePaymentsClientToken\)/);
   const publicBuildInputs = read("scripts/resolve-public-build-inputs.mjs");
   assert.match(publicBuildInputs, /paymentsEnvironmentForHostname/);
   assert.match(publicBuildInputs, /selectPaymentsClientConfig/);
@@ -580,7 +585,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*publicBuildInputsModule\(publicBuildInputs\),\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -671,7 +676,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*publicBuildInputsModule\(publicBuildInputs\),\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 
@@ -903,13 +908,14 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(identity, /exact 40-character Git commit SHA/);
   assert.match(health, /FORBIDDEN_IN_PRODUCTION/);
   assert.match(health, /is_production_target/);
-  assert.match(health, /buildViteAppEnv: import\.meta\.env\.VITE_APP_ENV/);
+  assert.match(health, /buildViteAppEnv,/);
+  assert.match(health, /virtual:transitionforward-public-build-inputs/);
   assert.match(
     health,
     /buildVitePaymentsClientToken: hostSelectedBuildPaymentsToken/,
   );
-  assert.match(health, /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN/);
-  assert.match(health, /VITE_PAYMENTS_LIVE_CLIENT_TOKEN/);
+  assert.match(health, /buildSandboxPaymentsClientToken/);
+  assert.match(health, /buildLivePaymentsClientToken/);
   assert.match(health, /expectedMode: stagingTarget \? ["']sandbox["'] : productionTarget \? ["']live["']/);
   assert.match(health, /runtimeStripeLiveApiKey: process\.env\["STRIPE_LIVE_API_KEY"\]/);
   assert.doesNotMatch(health, /import\.meta\.env\["VITE_(APP_ENV|PAYMENTS_CLIENT_TOKEN)"\]/);
@@ -922,8 +928,10 @@ test("production identity fails closed and operator documents are complete", () 
   const stripeClient = read("src/lib/stripe.ts");
   assert.match(stripeClient, /selectPaymentsClientConfig\(\{/);
   assert.match(stripeClient, /window\.location\.hostname/);
-  assert.match(stripeClient, /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN/);
-  assert.match(stripeClient, /VITE_PAYMENTS_LIVE_CLIENT_TOKEN/);
+  assert.match(stripeClient, /virtual:transitionforward-public-build-inputs/);
+  assert.match(stripeClient, /sandboxPaymentsClientToken/);
+  assert.match(stripeClient, /livePaymentsClientToken/);
+  assert.doesNotMatch(stripeClient, /import\.meta\.env\.VITE_/);
 
   const auditReport = read("docs/production-readiness/audit-2026-08-13.md");
   const currentAlignment = read("docs/production-readiness/alignment-2026-08-16.md");

@@ -104,6 +104,9 @@ Documents:
 - `production-pg-net-dependency-inventory.sql` — reusable SELECT-only member,
   ownership, and dependency inventory with a fail-closed zero-public-member
   guard.
+- `lovable-production-build-input-alignment-2026-09-15.md` — current public
+  production health diagnosis and the review-only virtual-module alignment for
+  missing Lovable public build inputs.
 - `production-migration-policy.json` — pinned aliases, historical variants,
   supersessions, and the production-forbidden staging fixture.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.

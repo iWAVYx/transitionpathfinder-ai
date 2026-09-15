@@ -22,6 +22,8 @@ import { resolvePublicBuildInputs } from "./scripts/resolve-public-build-inputs.
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
+const PUBLIC_BUILD_INPUTS_MODULE_ID = "virtual:transitionforward-public-build-inputs";
+const RESOLVED_PUBLIC_BUILD_INPUTS_MODULE_ID = `\0${PUBLIC_BUILD_INPUTS_MODULE_ID}`;
 
 function resolveRequestedViteMode() {
   const childMode = process.env[CHILD_BUILD_MODE_ENV];
@@ -52,6 +54,29 @@ function buildEnvironmentGarbageCollector(): Plugin {
       handler() {
         global.gc?.();
       },
+    },
+  };
+}
+
+function publicBuildInputsModule(
+  inputs: ReturnType<typeof resolvePublicBuildInputs>,
+): Plugin {
+  return {
+    name: "transitionforward:public-build-inputs-module",
+    enforce: "pre",
+    resolveId(source) {
+      return source === PUBLIC_BUILD_INPUTS_MODULE_ID
+        ? RESOLVED_PUBLIC_BUILD_INPUTS_MODULE_ID
+        : null;
+    },
+    load(id) {
+      if (id !== RESOLVED_PUBLIC_BUILD_INPUTS_MODULE_ID) return null;
+      return [
+        `export const viteAppEnv = ${JSON.stringify(inputs.viteAppEnv)};`,
+        `export const paymentsClientToken = ${JSON.stringify(inputs.paymentsClientToken)};`,
+        `export const sandboxPaymentsClientToken = ${JSON.stringify(inputs.sandboxPaymentsClientToken)};`,
+        `export const livePaymentsClientToken = ${JSON.stringify(inputs.livePaymentsClientToken)};`,
+      ].join("\n");
     },
   };
 }
@@ -335,17 +360,18 @@ const requestedViteMode = resolveRequestedViteMode();
 const publicBuildEnv = loadEnv(requestedViteMode, process.cwd(), "VITE_");
 const sandboxPublicBuildEnv = loadEnv("development", process.cwd(), "VITE_");
 const livePublicBuildEnv = loadEnv("production", process.cwd(), "VITE_");
-const {
-  viteAppEnv,
-  paymentsClientToken,
-  sandboxPaymentsClientToken,
-  livePaymentsClientToken,
-} = resolvePublicBuildInputs({
+const publicBuildInputs = resolvePublicBuildInputs({
   runtimeEnv: process.env,
   publicBuildEnv,
   sandboxPublicBuildEnv,
   livePublicBuildEnv,
 });
+const {
+  viteAppEnv,
+  paymentsClientToken,
+  sandboxPaymentsClientToken,
+  livePaymentsClientToken,
+} = publicBuildInputs;
 
 export default defineConfig({
   tanstackStart: {
@@ -386,6 +412,7 @@ export default defineConfig({
     // the client and SSR graphs in child processes before Nitro creates the
     // single fetch bundle. Workbox runs afterward from the package script.
     plugins: [
+      publicBuildInputsModule(publicBuildInputs),
       stubUnusedJsPdfOptionalRenderers(),
       directDateFnsModulesPlugin(),
       useDirectLucideIconModules(),

@@ -1,5 +1,10 @@
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { selectPaymentsClientConfig } from "../../scripts/resolve-public-build-inputs.mjs";
+import {
+  livePaymentsClientToken,
+  sandboxPaymentsClientToken,
+  viteAppEnv,
+} from "virtual:transitionforward-public-build-inputs";
 
 /** Mirrors StripeEnv in stripe.server.ts (kept local so this stays browser-safe). */
 export type StripeEnv = "sandbox" | "live";
@@ -7,11 +12,9 @@ export type StripeEnv = "sandbox" | "live";
 function paymentsClientConfig() {
   return selectPaymentsClientConfig({
     hostname: typeof window === "undefined" ? "" : window.location.hostname,
-    fallbackAppEnv: import.meta.env.VITE_APP_ENV as string | undefined,
-    sandboxPaymentsClientToken: import.meta.env
-      .VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN as string | undefined,
-    livePaymentsClientToken: import.meta.env
-      .VITE_PAYMENTS_LIVE_CLIENT_TOKEN as string | undefined,
+    fallbackAppEnv: viteAppEnv,
+    sandboxPaymentsClientToken,
+    livePaymentsClientToken,
   });
 }
 
