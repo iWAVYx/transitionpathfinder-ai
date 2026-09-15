@@ -28,8 +28,14 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `channel-attachments` bucket is private, captures its current constraints
       and policies, and records current routine and default-function grants
       without reading application rows or changing production.
-- [ ] Production still needs the separate SELECT-only extension namespace
-      inventory before Lovable finding 9 can be closed globally.
+- [x] The separate SELECT-only production extension namespace and dependency
+      inventory is recorded in
+      `production-pg-net-hosting-boundary-2026-09-15.md`. It confirms
+      `pg_net` 0.20.3 has a `public` metadata namespace while all 28 actual
+      members are outside `public`, under `net`, and owned by
+      `supabase_admin`. PostgreSQL marks the extension non-relocatable. Finding
+      9 remains open pending a reviewed platform-managed disposition; this
+      evidence does not authorize moving, dropping, or reinstalling it.
 - [ ] Five canonical migrations remain pending in production. Three are the
       antivirus-independent security alignment sequence, including the new
       forward-only application-function default-permission migration. All three
@@ -89,9 +95,13 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       replay, isolated-staging application, and protected exact-SHA regression.
       They still require a separately approved production window and a Lovable
       rescan afterward. Details are in
-      `staging-security-default-privileges-2026-09-14.md` and
-      `production-security-inventory-2026-09-14.md`. The production extension
-      namespace check for finding 9 is still pending.
+      `staging-security-default-privileges-2026-09-14.md`,
+      `production-security-inventory-2026-09-14.md`, and
+      `production-pg-net-hosting-boundary-2026-09-15.md`. Finding 9 remains
+      open because the non-relocatable, `supabase_admin`-owned `pg_net`
+      registration uses `public`, although the fail-closed member inventory
+      confirms zero actual extension members are in `public`. Do not attempt an
+      automatic move or reinstall.
 
 ## Exact-SHA acceptance
 

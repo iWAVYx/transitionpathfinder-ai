@@ -98,6 +98,12 @@ Documents:
 - `production-security-inventory.sql` — reusable SELECT-only metadata query for
   the production security inventory; it does not read application rows or
   credentials.
+- `production-pg-net-hosting-boundary-2026-09-15.md` — production catalog
+  evidence for the non-relocatable, `supabase_admin`-owned `pg_net` hosting
+  boundary and the still-open finding 9 disposition.
+- `production-pg-net-dependency-inventory.sql` — reusable SELECT-only member,
+  ownership, and dependency inventory with a fail-closed zero-public-member
+  guard.
 - `production-migration-policy.json` — pinned aliases, historical variants,
   supersessions, and the production-forbidden staging fixture.
 - `migration-and-rollback-plan.md` — ordering, verification, and rollback.
