@@ -14,6 +14,12 @@ const MY_IEP_SUMMARY_CARD = read("src/components/dashboard/MyIepSummaryCard.tsx"
 const STUDENT_PATHWAY_SECTIONS = read("src/components/dashboard/StudentPathwaySections.tsx");
 const COLLAPSIBLE_SECTION = read("src/components/layout/CollapsibleSection.tsx");
 const CASELOAD = read("src/routes/_authenticated/caseload.tsx");
+const NEXT_ACTION_CARD = read("src/components/next-actions/NextActionCard.tsx");
+const NEXT_ACTION_ROW = read("src/components/next-actions/NextActionRow.tsx");
+const NEXT_ACTIONS_EMPTY_STATE = read("src/components/next-actions/EmptyState.tsx");
+const RECENTLY_COMPLETED_STRIP = read(
+  "src/components/next-actions/RecentlyCompletedStrip.tsx",
+);
 
 describe("dashboard accessibility contrast contract", () => {
   it("uses the audited readable helper color throughout the student dashboard", () => {
@@ -91,5 +97,32 @@ describe("dashboard accessibility contrast contract", () => {
       '<p className="mt-0.5 text-sm text-foreground/75">{description}</p>',
     );
     expect(CASELOAD).toContain('<p className="mt-1 text-sm text-foreground/75">');
+  });
+
+  it("keeps every dashboard next-action state readable", () => {
+    for (const source of [
+      NEXT_ACTION_CARD,
+      NEXT_ACTION_ROW,
+      NEXT_ACTIONS_EMPTY_STATE,
+      RECENTLY_COMPLETED_STRIP,
+    ]) {
+      expect(source).not.toContain("text-muted-foreground");
+    }
+
+    expect(NEXT_ACTION_CARD).toContain(
+      'className="mt-1 max-w-2xl text-sm text-foreground/75 sm:text-base"',
+    );
+    expect(NEXT_ACTION_ROW).toContain(
+      'className="text-sm leading-relaxed text-foreground/75"',
+    );
+    expect(NEXT_ACTION_ROW).toContain(
+      'className="text-[11px] font-medium uppercase tracking-wide text-foreground/75"',
+    );
+    expect(NEXT_ACTIONS_EMPTY_STATE).toContain(
+      '<p className="text-sm text-foreground/75">',
+    );
+    expect(RECENTLY_COMPLETED_STRIP).toContain(
+      'text-[11px] font-semibold uppercase tracking-wider text-foreground/75',
+    );
   });
 });
