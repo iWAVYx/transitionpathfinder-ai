@@ -366,8 +366,8 @@ function FounderMessage() {
             Why This Exists
           </div>
           <h2 className="font-serif text-[clamp(2rem,4.6vw,3.6rem)] font-light leading-[1.05]">
-            Transition planning depends on the right <span className="text-brand-gold">people</span>
-            <span className="italic"> having the right <span className="text-brand-gold">context</span> at the right <span className="text-brand-gold">time</span>.</span>
+            Transition planning depends on the right <span className="text-brand-gold-ink">people</span>
+            <span className="italic"> having the right <span className="text-brand-gold-ink">context</span> at the right <span className="text-brand-gold-ink">time</span>.</span>
           </h2>
           <p className="mt-5 text-base text-[#242A33]/80 sm:text-lg">
             I saw how easily student voice, family knowledge, documents, goals, services,
@@ -881,7 +881,7 @@ function StudentCentered() {
           </div>
           <h2 className="font-serif text-[clamp(2rem,4.6vw,3.6rem)] font-light leading-[1.05]">
             The student is not a profile in a system.
-            <span className="italic text-brand-gold"> They are the reason for it.</span>
+            <span className="italic text-brand-gold-ink"> They are the reason for it.</span>
           </h2>
           <p className="mt-5 text-base text-[#8A5A12] sm:text-lg">
             Their strengths, preferences, interests, goals, questions, and next steps

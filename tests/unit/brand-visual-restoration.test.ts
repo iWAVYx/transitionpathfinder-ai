@@ -10,6 +10,12 @@ const HOME = read("src/routes/index.tsx");
 const ABOUT = read("src/routes/about.tsx");
 const DEMO = read("src/routes/demo.tsx");
 const OPPORTUNITY_MATCHES = read("src/components/demo/OpportunityMatches.tsx");
+const BREADCRUMBS = read("src/components/site/Breadcrumbs.tsx");
+const ONBOARDING_CHECKLIST = read("src/components/dashboard/OnboardingChecklist.tsx");
+const PAGE_HEADER = read("src/components/layout/PageHeader.tsx");
+const STUDENT_DASHBOARD = read("src/components/dashboard/StudentDashboard.tsx");
+const DISTRICT_OVERVIEW = read("src/routes/_authenticated/district.overview.tsx");
+const DISTRICT_SCHOOLS = read("src/routes/_authenticated/district.schools.tsx");
 
 describe("recovered Lovable visual update", () => {
   it("maps the shared light theme to the approved TransitionForward palette", () => {
@@ -18,6 +24,8 @@ describe("recovered Lovable visual update", () => {
     expect(CSS).toContain("--secondary: oklch(0.92 0.075 85)");
     expect(CSS).toContain("--foreground: oklch(0.283 0.019 258)");
     expect(CSS).toContain("--background: oklch(0.985 0.003 265)");
+    expect(CSS).toContain("--brand-forward-gold-ink: #8A5A12");
+    expect(CSS).toContain("--color-brand-gold-ink: var(--brand-forward-gold-ink)");
   });
 
   it("keeps light, dark, high-contrast, demo and report surfaces aligned", () => {
@@ -39,16 +47,16 @@ describe("recovered Lovable visual update", () => {
     expect(HOME).toContain('className="text-brand-teal"');
     expect(HOME).toContain('<span className="text-brand-gold">{suffix}</span>');
     expect(HOME).toContain(
-      'className="mt-5 font-display text-xl italic text-brand-gold sm:text-2xl"',
+      'className="mt-5 font-display text-xl italic text-brand-gold-ink sm:text-2xl"',
     );
   });
 
   it("restores the final About-page emphasis", () => {
     for (const word of ["people", "context", "time"]) {
-      expect(ABOUT).toContain(`<span className="text-brand-gold">${word}</span>`);
+      expect(ABOUT).toContain(`<span className="text-brand-gold-ink">${word}</span>`);
     }
     expect(ABOUT).toContain(
-      '<span className="italic text-brand-gold"> They are the reason for it.</span>',
+      '<span className="italic text-brand-gold-ink"> They are the reason for it.</span>',
     );
     expect(ABOUT).toContain('className="mt-5 text-base text-[#8A5A12] sm:text-lg"');
   });
@@ -62,6 +70,19 @@ describe("recovered Lovable visual update", () => {
     expect(OPPORTUNITY_MATCHES).toContain(
       'worth_exploring: "bg-amber-500/10 text-[#8A5A12] dark:text-amber-400 border-amber-500/30"',
     );
+  });
+
+  it("keeps branded text and dashboard helper copy legible on light surfaces", () => {
+    expect(CSS).toContain("--brand-status-warning-text: var(--brand-forward-gold-ink)");
+    expect(CSS).toContain("--color-brand-warning-text: var(--brand-status-warning-text)");
+    expect(BREADCRUMBS).toContain("text-foreground/75");
+    expect(ONBOARDING_CHECKLIST).not.toContain("text-muted-foreground");
+    expect(PAGE_HEADER).toContain("text-foreground/75 sm:text-[15px]");
+    expect(STUDENT_DASHBOARD).toContain(
+      "font-semibold uppercase tracking-wider text-foreground/75",
+    );
+    expect(DISTRICT_OVERVIEW).toContain("text-brand-warning-text dark:text-amber-300");
+    expect(DISTRICT_SCHOOLS).toContain("text-brand-warning-text dark:text-amber-300");
   });
 });
 

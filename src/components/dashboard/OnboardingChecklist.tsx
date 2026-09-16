@@ -91,12 +91,12 @@ export function OnboardingChecklist({
         <div className="flex items-center gap-2.5">
           <ListChecks className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold">{SURFACE_TITLES[surface]}</span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground/75">
             {done} of {total} done
           </span>
         </div>
         <ChevronDown
-          className={cn("h-4 w-4 text-muted-foreground transition", open && "rotate-180")}
+          className={cn("h-4 w-4 text-foreground/75 transition", open && "rotate-180")}
         />
       </button>
 
@@ -126,7 +126,7 @@ export function OnboardingChecklist({
                   <Icon
                     className={cn(
                       "h-4 w-4",
-                      s.completed ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground",
+                      s.completed ? "text-emerald-600 dark:text-emerald-400" : "text-foreground/75",
                     )}
                   />
                 </button>
@@ -135,14 +135,14 @@ export function OnboardingChecklist({
                     <span
                       className={cn(
                         "text-sm",
-                        s.completed && "line-through text-muted-foreground",
+                        s.completed && "line-through text-foreground/75",
                       )}
                     >
                       {s.label}
                     </span>
                   </div>
                   {s.hint && (
-                    <p className="text-xs text-muted-foreground">{s.hint}</p>
+                    <p className="text-xs text-foreground/75">{s.hint}</p>
                   )}
                 </div>
                 {s.to && (

@@ -332,7 +332,7 @@ function FactCard({
 }) {
   return (
     <div className="border-y border-border/70 py-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground/75">
         {icon}
         {label}
       </div>
