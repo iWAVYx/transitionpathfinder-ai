@@ -239,7 +239,7 @@ function CaseloadPage() {
           <CollapsibleSection
             title="Team Calendar"
             description="Meetings, action items, and team-shared events across your caseload."
-            icon={<ClipboardList className="h-4 w-4 text-muted-foreground" />}
+            icon={<ClipboardList className="h-4 w-4 text-foreground/75" />}
           >
             <DashboardCalendar
               title="Team Calendar"
@@ -254,7 +254,7 @@ function CaseloadPage() {
           {/* Filters */}
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="relative min-w-0 flex-1 sm:min-w-[220px]">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-foreground/75" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -277,7 +277,7 @@ function CaseloadPage() {
           {/* Caseload list */}
           <div id="caseload-list" className="scroll-mt-24 border-y border-border/70">
             {loading ? (
-              <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center p-10 text-sm text-foreground/75">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
               </div>
             ) : filtered.length === 0 ? (
@@ -320,7 +320,7 @@ function CaseloadRoleLandmark() {
 
 function CaseloadAccessFallback() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-foreground/75 sm:px-6 lg:px-8">
       Checking access…
     </div>
   );
@@ -344,11 +344,11 @@ function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.
 function EmptyState({ hasAny }: { hasAny: boolean }) {
   return (
     <div className="px-6 py-12 text-center">
-      <Users className="mx-auto h-8 w-8 text-muted-foreground" />
+      <Users className="mx-auto h-8 w-8 text-foreground/75" />
       <h3 className="mt-3 font-display text-lg">
         {hasAny ? "No matches" : "Your caseload is empty"}
       </h3>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <p className="mt-1 text-sm text-foreground/75">
         {hasAny
           ? "Try clearing your filters or search."
           : "Ask a family to invite you as a collaborator, or add a student you own to start tracking."}
@@ -381,7 +381,7 @@ function CaseloadRow({
             <p className="truncate font-medium">
               {row.first_name} {row.last_name ?? ""}
             </p>
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-foreground/75">
               {row.relationship}
             </span>
             {row.next_meeting_at && (
@@ -394,7 +394,7 @@ function CaseloadRow({
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-xs text-foreground/75">
             {[row.grade_band, row.school].filter(Boolean).join(" · ") || "No school on file"}
           </p>
         </div>
@@ -446,7 +446,7 @@ function Stat({ label, value, tone }: { label: string; value: React.ReactNode; t
   return (
     <div className="text-center">
       <p className={`text-sm font-semibold ${tone === "warn" ? "text-amber-600 dark:text-amber-400" : ""}`}>{value}</p>
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-foreground/75">{label}</p>
     </div>
   );
 }
@@ -540,7 +540,7 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
           <ul className="mt-2 max-h-40 space-y-2 overflow-y-auto border-t pt-2 text-xs">
             {notes.slice(0, 5).map((n) => (
               <li key={n.id}>
-                <p className="text-muted-foreground">{new Date(n.created_at).toLocaleString()}</p>
+                <p className="text-foreground/75">{new Date(n.created_at).toLocaleString()}</p>
                 <p className="text-foreground">{n.content}</p>
               </li>
             ))}

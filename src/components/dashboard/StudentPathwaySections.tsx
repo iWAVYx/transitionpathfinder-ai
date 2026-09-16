@@ -128,7 +128,7 @@ export function StudentPathwaySections({
           >
             Your Plan, In Your Words
           </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-1 max-w-2xl text-sm text-foreground/75">
             The same report your family and team see — reframed for you. Every
             section is drawn from what you shared and what's on file.
           </p>
@@ -214,7 +214,7 @@ export function StudentPathwaySections({
                 <div className="min-w-0">
                   <p className="font-medium text-foreground">{r.domain}</p>
                   {r.note && (
-                    <p className="text-[11px] text-muted-foreground">{r.note}</p>
+                    <p className="text-[11px] text-foreground/75">{r.note}</p>
                   )}
                 </div>
                 <span
@@ -241,13 +241,13 @@ export function StudentPathwaySections({
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl bg-background/70 p-3 text-xs">
               <p className="font-semibold text-foreground">Why This Fits You</p>
-              <p className="mt-1 text-muted-foreground">
+              <p className="mt-1 text-foreground/75">
                 {d.recommendedPathway.why}
               </p>
             </div>
             <div className="rounded-xl bg-background/70 p-3 text-xs">
               <p className="font-semibold text-foreground">Your Next Step</p>
-              <p className="mt-1 text-muted-foreground">
+              <p className="mt-1 text-foreground/75">
                 {d.recommendedPathway.nextStep}
               </p>
             </div>
@@ -266,14 +266,14 @@ export function StudentPathwaySections({
                 className="rounded-xl border bg-card p-3 text-xs shadow-soft"
               >
                 <p className="font-semibold text-foreground">{m.title}</p>
-                <p className="mt-0.5 text-muted-foreground">{m.why}</p>
+                <p className="mt-0.5 text-foreground/75">{m.why}</p>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <p className="mt-5 text-[11px] italic leading-relaxed text-muted-foreground">
+      <p className="mt-5 text-[11px] italic leading-relaxed text-foreground/75">
         AI-assisted — your team reviews everything here before it's shared. You
         can always update your Voice or ask a question at your next meeting.
       </p>
@@ -287,7 +287,7 @@ export function StudentPathwaySections({
 function SnapshotBit({ label, value }: { label: string; value?: string }) {
   return (
     <div>
-      <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <dt className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
         {label}
       </dt>
       <dd className="mt-0.5 text-foreground">{value ?? "—"}</dd>
@@ -298,7 +298,7 @@ function SnapshotBit({ label, value }: { label: string; value?: string }) {
 function TagRow({ label, items }: { label: string; items: string[] }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
         {label}
       </p>
       <ul className="mt-1.5 flex flex-wrap gap-1.5">
