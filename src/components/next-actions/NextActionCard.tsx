@@ -64,11 +64,11 @@ export function NextActionCard({
             <ListChecks className="h-5 w-5 text-primary" aria-hidden />
             {title}
           </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground sm:text-base">
+          <p className="mt-1 max-w-2xl text-sm text-foreground/75 sm:text-base">
             {description}
           </p>
         </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-foreground/75">
           <span
             className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary"
             aria-label={`${active.length} active`}

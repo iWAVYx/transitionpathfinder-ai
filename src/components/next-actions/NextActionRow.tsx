@@ -51,7 +51,7 @@ export function NextActionRow({ action, onComplete, completing }: Props) {
                   ? "bg-red-500/10 text-red-700 dark:text-red-300"
                   : dueSoon
                   ? "bg-orange-500/10 text-orange-700 dark:text-orange-300"
-                  : "bg-muted text-muted-foreground",
+                  : "bg-muted text-foreground/75",
               )}
             >
               {overdue ? (
@@ -63,8 +63,8 @@ export function NextActionRow({ action, onComplete, completing }: Props) {
             </span>
           ) : null}
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">{action.reason}</p>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-sm leading-relaxed text-foreground/75">{action.reason}</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/75">
           Owner: {action.ownerLabel}
         </p>
       </div>

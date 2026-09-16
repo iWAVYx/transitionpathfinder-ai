@@ -20,7 +20,7 @@ export function NextActionsEmptyState({
           No Urgent Actions Right Now
         </p>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-foreground/75">
         Nothing needs your attention today. When new tasks come in — a draft
         report, a document to upload, a meeting to confirm — they'll appear
         here.
