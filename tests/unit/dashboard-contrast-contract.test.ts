@@ -3,14 +3,16 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const ROOT = path.resolve(__dirname, "../..");
-const read = (file: string) =>
-  readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
+const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const STUDENT_DASHBOARD = read("src/components/dashboard/StudentDashboard.tsx");
 const FAMILY_DASHBOARD = read("src/routes/_authenticated/dashboard.tsx");
 const STAT_GRID = read("src/components/layout/StatGrid.tsx");
 const DASHBOARD_CALENDAR = read("src/components/dashboard/DashboardCalendar.tsx");
 const INVITE_PEOPLE_CARD = read("src/components/dashboard/InvitePeopleCard.tsx");
+const MY_IEP_SUMMARY_CARD = read("src/components/dashboard/MyIepSummaryCard.tsx");
+const STUDENT_PATHWAY_SECTIONS = read("src/components/dashboard/StudentPathwaySections.tsx");
+const COLLAPSIBLE_SECTION = read("src/components/layout/CollapsibleSection.tsx");
 const CASELOAD = read("src/routes/_authenticated/caseload.tsx");
 
 describe("dashboard accessibility contrast contract", () => {
@@ -29,9 +31,7 @@ describe("dashboard accessibility contrast contract", () => {
 
   it("uses the audited readable helper color throughout the family dashboard", () => {
     expect(FAMILY_DASHBOARD).not.toContain("text-muted-foreground");
-    expect(FAMILY_DASHBOARD).toContain(
-      'tracking-[0.18em] text-foreground/75">Your students</p>',
-    );
+    expect(FAMILY_DASHBOARD).toContain('tracking-[0.18em] text-foreground/75">Your students</p>');
     expect(FAMILY_DASHBOARD).toContain('className="mt-1 text-sm text-foreground/75"');
     expect(FAMILY_DASHBOARD).toContain(
       '<span className="italic text-foreground/75">Not set yet</span>',
@@ -71,11 +71,25 @@ describe("dashboard accessibility contrast contract", () => {
     expect(quickLinkStart).toBeGreaterThan(-1);
     expect(quickLinkEnd).toBeGreaterThan(quickLinkStart);
     expect(quickLink).not.toContain("text-muted-foreground");
-    expect(quickLink).toContain(
-      "text-xs font-medium text-foreground/75",
+    expect(quickLink).toContain("text-xs font-medium text-foreground/75");
+    expect(quickLink).toContain("text-[11px] text-foreground/75 group-hover:text-foreground");
+  });
+
+  it("keeps every student IEP and pathway helper state readable", () => {
+    expect(MY_IEP_SUMMARY_CARD).not.toContain("text-muted-foreground");
+    expect(STUDENT_PATHWAY_SECTIONS).not.toContain("text-muted-foreground");
+    expect(MY_IEP_SUMMARY_CARD).toContain('<p className="text-sm text-foreground/75">');
+    expect(STUDENT_PATHWAY_SECTIONS).toContain(
+      '<dt className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">',
     );
-    expect(quickLink).toContain(
-      "text-[11px] text-foreground/75 group-hover:text-foreground",
+  });
+
+  it("keeps shared collapsible descriptions and every caseload state readable", () => {
+    expect(COLLAPSIBLE_SECTION).not.toContain("text-muted-foreground");
+    expect(CASELOAD).not.toContain("text-muted-foreground");
+    expect(COLLAPSIBLE_SECTION).toContain(
+      '<p className="mt-0.5 text-sm text-foreground/75">{description}</p>',
     );
+    expect(CASELOAD).toContain('<p className="mt-1 text-sm text-foreground/75">');
   });
 });

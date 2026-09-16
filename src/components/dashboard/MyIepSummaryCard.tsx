@@ -66,51 +66,51 @@ export function MyIepSummaryCard({ studentId }: Props) {
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-foreground/75">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
       ) : !hasDocs ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/75">
           Your team hasn't shared your IEP here yet. When they do, you'll see a
           plain-language summary of your strengths, supports, and goals.
         </p>
       ) : !summary ? (
         <div className="rounded-xl border bg-muted/40 p-4 text-sm">
           <p className="font-medium">Your team is still preparing this summary.</p>
-          {docTitle && <p className="mt-1 text-xs text-muted-foreground">From: {docTitle}</p>}
-          <p className="mt-2 text-xs text-muted-foreground">
+          {docTitle && <p className="mt-1 text-xs text-foreground/75">From: {docTitle}</p>}
+          <p className="mt-2 text-xs text-foreground/75">
             Once it's ready, you'll be able to read about your goals, supports, and what your
             team is working on with you.
           </p>
         </div>
       ) : summary.sections.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/75">
           Your team has shared an IEP, but a student-friendly summary hasn't been written yet.
           Ask your case manager to walk through it with you.
         </p>
       ) : (
         <>
           {docTitle && (
-            <p className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="mb-3 flex items-center gap-1.5 text-xs text-foreground/75">
               <Sparkles className="h-3 w-3" /> From {docTitle}
             </p>
           )}
           <ul className="space-y-3">
             {summary.sections.slice(0, 6).map((s) => (
               <li key={s.key} className="rounded-xl border bg-background p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
                   {s.label}
                 </p>
                 <p className="mt-1 whitespace-pre-line text-sm text-foreground/90">{s.value}</p>
                 {!s.accepted && (
-                  <p className="mt-1 text-[10px] text-muted-foreground">
+                  <p className="mt-1 text-[10px] text-foreground/75">
                     Draft — your team is still reviewing this.
                   </p>
                 )}
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs text-muted-foreground">
+          <p className="mt-4 text-xs text-foreground/75">
             This is a planning summary to help you understand your IEP. It does not replace the
             official IEP from your school team.
           </p>

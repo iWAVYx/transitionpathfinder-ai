@@ -56,7 +56,7 @@ export function CollapsibleSection({
           <span className="flex min-w-0 flex-col">
             <span className="truncate text-sm font-medium">{title}</span>
             {description ? (
-              <span className="truncate text-xs text-muted-foreground">
+              <span className="truncate text-xs text-foreground/75">
                 {description}
               </span>
             ) : null}
@@ -64,7 +64,7 @@ export function CollapsibleSection({
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+            "h-4 w-4 shrink-0 text-foreground/75 transition-transform",
             open ? "rotate-180" : "",
           )}
         />
@@ -76,7 +76,7 @@ export function CollapsibleSection({
           <h3 className="font-display text-base">{title}</h3>
         </div>
         {description ? (
-          <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+          <p className="mt-0.5 text-sm text-foreground/75">{description}</p>
         ) : null}
       </div>
       <div
