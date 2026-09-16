@@ -327,7 +327,7 @@ export function DashboardCalendar({
           <CalendarDays className="h-5 w-5 text-primary" />
           <div>
             <h2 className="font-display text-xl">{title}</h2>
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
+            <p className="text-xs text-foreground/75">{subtitle}</p>
           </div>
         </div>
 
@@ -414,7 +414,7 @@ export function DashboardCalendar({
         </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="mt-3 grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
           <div key={d} className="px-2 py-1 text-center">
             {d}
@@ -446,7 +446,7 @@ export function DashboardCalendar({
                       ? "text-primary"
                       : inMonth
                         ? "text-foreground"
-                        : "text-muted-foreground")
+                        : "text-foreground/75")
                   }
                 >
                   {d.getDate()}
@@ -470,7 +470,7 @@ export function DashboardCalendar({
                   );
                 })}
                 {dayEvents.length > (compact ? 2 : 3) && (
-                  <p className="px-1 text-[9px] text-muted-foreground">
+                  <p className="px-1 text-[9px] text-foreground/75">
                     +{dayEvents.length - (compact ? 2 : 3)} more
                   </p>
                 )}
@@ -483,16 +483,16 @@ export function DashboardCalendar({
       <div className="mt-6">
         <div className="flex items-center justify-between">
           <h3 className="font-display text-sm font-medium">Upcoming</h3>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-[10px] uppercase tracking-wider text-foreground/75">
             Tap a date to add to Google Calendar
           </p>
         </div>
         {loading ? (
-          <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+          <p className="mt-3 flex items-center gap-2 text-sm text-foreground/75">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </p>
         ) : upcoming.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-foreground/75">
             Nothing scheduled. Use "Add event" above to put something on the team calendar.
           </p>
         ) : (
@@ -516,7 +516,7 @@ export function DashboardCalendar({
                       <p
                         className={
                           "text-sm font-medium " +
-                          (isDone ? "line-through text-muted-foreground" : "")
+                          (isDone ? "line-through text-foreground/75" : "")
                         }
                       >
                         {ev.title}
@@ -531,7 +531,7 @@ export function DashboardCalendar({
                         {s.label}
                       </span>
                       {ev.student_name && (
-                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
                           {ev.student_name}
                         </span>
                       )}
@@ -542,11 +542,11 @@ export function DashboardCalendar({
                       )}
                     </div>
                     {ev.detail && (
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                      <p className="mt-1 line-clamp-2 text-xs text-foreground/75">
                         {ev.detail}
                       </p>
                     )}
-                    <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                    <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-foreground/75">
                       <span className="font-medium text-foreground">{dateLabel}</span>
                       {ev.owner_name && (ev.kind === "team" || ev.kind === "personal") && (
                         <span>Added by {ev.owner_name}</span>
@@ -569,7 +569,7 @@ export function DashboardCalendar({
                         <button
                           type="button"
                           onClick={() => handleComplete(ev)}
-                          className="rounded-full px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                          className="rounded-full px-2 py-1 text-[11px] font-medium text-foreground/75 hover:bg-muted hover:text-foreground"
                           title={ev.event_status === "completed" ? "Reopen" : "Mark complete"}
                           aria-label={ev.event_status === "completed" ? `Reopen ${ev.title}` : `Mark ${ev.title} complete`}
                         >
@@ -578,7 +578,7 @@ export function DashboardCalendar({
                         <button
                           type="button"
                           onClick={() => handleDelete(ev)}
-                          className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+                          className="rounded-full p-1 text-foreground/75 hover:bg-muted hover:text-destructive"
                           title="Delete event"
                           aria-label="Delete event"
                         >
