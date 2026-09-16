@@ -62,14 +62,14 @@ export function StatCard({
         className,
       )}
     >
-      <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-foreground/75">
         {icon}
         <span className="truncate">{label}</span>
       </div>
       <div className="mt-1.5 flex items-baseline justify-between gap-2">
         <p className={cn("font-display text-xl sm:text-2xl", valueTone)}>{value}</p>
         {hint ? (
-          <p className="truncate text-[11px] text-muted-foreground">{hint}</p>
+          <p className="truncate text-[11px] text-foreground/75">{hint}</p>
         ) : null}
       </div>
     </div>

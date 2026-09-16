@@ -64,14 +64,14 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
           <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             Welcome, {toTitleCase(firstName)}.
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mt-3 text-base leading-relaxed text-foreground/75 sm:text-lg">
             This account controls your own transition plan. We could not finish
             connecting the student profile to your dashboard yet, but you do not
             need to be added as a collaborator.
           </p>
           <div className="mt-8 border-y border-border/70 py-5">
             <h2 className="font-display text-xl">Next Best Step</h2>
-            <ol className="mt-3 list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+            <ol className="mt-3 list-inside list-decimal space-y-2 text-sm text-foreground/75">
               <li>Reconnect your student profile below.</li>
               <li>Refresh once the connection completes.</li>
               <li>Your goals, meetings, documents, and action items will appear here.</li>
@@ -124,7 +124,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
           <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
             Hi, {toTitleCase(s.preferred_name ?? s.first_name)}.
           </h1>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg">
             This is your space. Here's what your team is working on with you —
             your goals, your meetings, and the next steps that move your plan forward.
           </p>
@@ -176,7 +176,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
               </Link>
             </div>
             {snap.goals.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground/75">
                 No goals set yet. Your team will add goals to your plan soon.
               </p>
             ) : (
@@ -188,11 +188,11 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{g.title}</p>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
                         {g.category}
                       </p>
                     </div>
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
                       {g.status.replace(/-/g, " ")}
                     </span>
                   </li>
@@ -208,10 +208,10 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
                 <ClipboardList className="h-5 w-5 text-primary" />
                 <h2 className="font-display text-xl">Next Best Steps</h2>
               </div>
-              <span className="text-xs text-muted-foreground">{openCount} open</span>
+              <span className="text-xs text-foreground/75">{openCount} open</span>
             </div>
             {myActions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground/75">
                 Nothing for you to do right now. Your team will add steps as your plan grows.
               </p>
             ) : (
@@ -232,13 +232,13 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
                       ) : a.status === "in_progress" ? (
                         <PlayCircle className="h-5 w-5 text-primary/70" />
                       ) : (
-                        <Circle className="h-5 w-5 text-muted-foreground" />
+                        <Circle className="h-5 w-5 text-foreground/75" />
                       )}
                     </button>
                     <p
                       className={
                         a.status === "complete"
-                          ? "text-sm line-through text-muted-foreground"
+                          ? "text-sm line-through text-foreground/75"
                           : "text-sm font-medium"
                       }
                     >
@@ -295,7 +295,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
                 {snap.latestReport ? "Latest report" : "Not generated yet"}
               </h2>
               {snap.latestReport && (
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-foreground/75">
                   Created {new Date(snap.latestReport.created_at).toLocaleDateString()}
                 </p>
               )}
@@ -307,7 +307,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
                 </Link>
               </Button>
             ) : (
-              <p className="max-w-sm text-sm text-muted-foreground">
+              <p className="max-w-sm text-sm text-foreground/75">
                 A pathway report shows your strengths, interests, and what's next after high
                 school. Your team will share it with you when it's ready.
               </p>
@@ -412,7 +412,7 @@ function ExploreForStudent({
   return (
     <section className="mt-6">
       <h2 className="font-display text-xl">Explore</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <p className="mt-1 text-sm text-foreground/75">
         Tools picked for you{isMiddle ? " — middle school" : isHigh ? " — high school" : ""}.
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -426,7 +426,7 @@ function ExploreForStudent({
               {t.icon}
             </div>
             <h3 className="mt-3 font-display text-base">{t.title}</h3>
-            <p className="mt-1 text-xs text-muted-foreground">{t.body}</p>
+            <p className="mt-1 text-xs text-foreground/75">{t.body}</p>
           </Link>
         ))}
       </div>
