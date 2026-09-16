@@ -153,11 +153,11 @@ function DashboardErrorShell({ message }: { message: string | null }) {
         <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">
           We hit a snag loading your dashboard.
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-foreground/75">
           Refresh the page to try again. Your data is safe.
         </p>
         {message && (
-          <pre className="mx-auto mt-4 max-w-lg overflow-auto rounded-lg border bg-muted/40 p-3 text-left text-[10px] text-muted-foreground">
+          <pre className="mx-auto mt-4 max-w-lg overflow-auto rounded-lg border bg-muted/40 p-3 text-left text-[10px] text-foreground/75">
             {message}
           </pre>
         )}
@@ -228,10 +228,10 @@ function DashboardLoadingShell() {
         <h1 className="font-display text-2xl font-medium tracking-tight">
           Preparing Your Dashboard
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-foreground/75">
           Checking your access and loading planning details for your workspace.
         </p>
-        <div className="mt-6 inline-flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="mt-6 inline-flex items-center gap-2 text-sm text-foreground/75">
           <Loader2 className="h-4 w-4 animate-spin" /> Checking access…
         </div>
       </div>
@@ -527,7 +527,7 @@ function DashboardPage() {
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+          <p className="mt-3 text-base leading-relaxed text-foreground/75">
             TransitionForward helps you understand the student, organize important documents,
             prepare for PPT meetings, and connect goals to real-life pathways. Start by adding
             your student — or try the full experience with a demo student.
@@ -546,7 +546,7 @@ function DashboardPage() {
               <h3 className="mt-5 font-display text-xl">
                 Try with demo student
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-foreground/75">
                 Creates Marcus — a sample 11th grader with goals, IEP docs, a Pathway Report,
                 action items, an upcoming PPT meeting, and recommended resources.
               </p>
@@ -560,14 +560,14 @@ function DashboardPage() {
                 <Plus className="h-6 w-6" />
               </div>
               <h3 className="mt-5 font-display text-xl">Add your student</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-foreground/75">
                 Create a private student profile. You control who sees it. Documents and reports
                 stay in your account.
               </p>
             </Link>
           </div>
 
-          <div className="mt-4 text-center text-sm text-muted-foreground">
+          <div className="mt-4 text-center text-sm text-foreground/75">
             Just want to look around first?{" "}
             <Link to="/demo-mode" className="font-medium text-primary hover:underline">
               Explore Demo Mode (read-only)
@@ -588,7 +588,7 @@ function DashboardPage() {
           </div>
           <AlertCircle className="mx-auto h-6 w-6 text-destructive" />
           <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">We couldn't load your dashboard</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <p className="mt-2 text-sm text-foreground/75">{loadError}</p>
           <Button onClick={() => reload()} className="mt-5">Try again</Button>
         </div>
       </SiteShell>
@@ -606,11 +606,11 @@ function DashboardPage() {
           <h1 className="font-display text-2xl font-medium tracking-tight">
             Loading Your Family Dashboard
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-foreground/75">
             Gathering your connected students, upcoming meetings, saved
             documents, and pathway progress.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="mt-6 inline-flex items-center gap-2 text-sm text-foreground/75">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading your dashboard…
           </div>
         </div>
@@ -634,7 +634,7 @@ function DashboardPage() {
           <h1 className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
             Welcome back, {toTitleCase(friendly)}.
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground/75 sm:text-base">
             Everything you need to keep the plan moving — next best step, journey, documents, meetings, and the Pathway Report.
           </p>
         </div>
@@ -659,7 +659,7 @@ function DashboardPage() {
         {/* Header band */}
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Your students</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">Your students</p>
           </div>
           {students.length > 1 && (
             <select
@@ -691,7 +691,7 @@ function DashboardPage() {
                   <h2 className="mt-1 truncate font-display text-2xl font-medium tracking-tight sm:text-3xl">
                     {s.preferred_name ?? s.first_name} {s.last_name ?? ""}
                   </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-foreground/75">
                     {s.grade_band ?? "Grade not set"}
                     {s.school ? ` · ${s.school}` : ""}
                     {s.expected_graduation_year ? ` · Class of ${s.expected_graduation_year}` : ""}
@@ -722,11 +722,11 @@ function DashboardPage() {
             {s.student_voice_statement && (
               <blockquote className="mt-5 border-l-4 border-primary/40 bg-primary/5 px-4 py-3 text-sm italic text-foreground/80">
                 "{s.student_voice_statement}"
-                <span className="ml-2 text-xs not-italic text-muted-foreground">— {s.first_name}</span>
+                <span className="ml-2 text-xs not-italic text-foreground/75">— {s.first_name}</span>
               </blockquote>
             )}
             {s.current_transition_status && (
-              <p className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-4 text-sm text-foreground/75">
                 <span className="font-semibold text-foreground">Status:</span>{" "}
                 {s.current_transition_status}
               </p>
@@ -751,7 +751,7 @@ function DashboardPage() {
                   {snap.latestReport ? "Latest report" : "No report yet"}
                 </h2>
                 {snap.latestReport && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-foreground/75">
                     Generated {new Date(snap.latestReport.created_at).toLocaleDateString()}
                   </p>
                 )}
@@ -804,7 +804,7 @@ function DashboardPage() {
             {snap.latestReport ? (
               <ReportSections content={snap.latestReport.content} />
             ) : (
-              <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
+              <p className="mt-6 max-w-2xl text-sm text-foreground/75">
                 Generate {s.first_name}'s first Pathway Report to see Student Snapshot, SPIN
                 analysis, recommended pathways, career matches, readiness scorecard, IEP
                 translator, family/teacher action plans, meeting prep, and matched resources.
@@ -840,7 +840,7 @@ function DashboardPage() {
                     <li key={d.id} className="flex items-center justify-between gap-3 p-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{d.title}</p>
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                        <p className="text-xs uppercase tracking-wider text-foreground/75">
                           {d.doc_type}
                         </p>
                       </div>
@@ -878,20 +878,20 @@ function DashboardPage() {
                         ) : a.status === "in_progress" ? (
                           <PlayCircle className="h-5 w-5 text-primary/70" />
                         ) : (
-                          <Circle className="h-5 w-5 text-muted-foreground" />
+                          <Circle className="h-5 w-5 text-foreground/75" />
                         )}
                       </button>
                       <div className="min-w-0 flex-1">
                         <p
                           className={
                             a.status === "complete"
-                              ? "text-sm line-through text-muted-foreground"
+                              ? "text-sm line-through text-foreground/75"
                               : "text-sm font-medium"
                           }
                         >
                           {a.title}
                         </p>
-                        <div className="mt-1 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <div className="mt-1 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
                           <span className="rounded-full bg-muted px-2 py-0.5">{a.category}</span>
                           <span
                             className={
@@ -954,7 +954,7 @@ function DashboardPage() {
                     <div className="space-y-3">
                       {Array.from(new Set(snap.meetingPrep.map((p) => p.category))).map((cat) => (
                         <div key={cat}>
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
                             {cat}
                           </p>
                           <ul className="mt-1 space-y-1">
@@ -973,10 +973,10 @@ function DashboardPage() {
                                     {p.completed ? (
                                       <CheckCircle2 className="h-4 w-4 text-primary" />
                                     ) : (
-                                      <Circle className="h-4 w-4 text-muted-foreground" />
+                                      <Circle className="h-4 w-4 text-foreground/75" />
                                     )}
                                   </button>
-                                  <span className={p.completed ? "line-through text-muted-foreground" : ""}>
+                                  <span className={p.completed ? "line-through text-foreground/75" : ""}>
                                     {p.content}
                                   </span>
                                 </li>
@@ -1018,7 +1018,7 @@ function DashboardPage() {
                         <div className="min-w-0">
                           <p className="text-sm font-semibold">{r.title}</p>
                           {r.description && (
-                            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                            <p className="mt-1 line-clamp-2 text-xs text-foreground/75">
                               {r.description}
                             </p>
                           )}
@@ -1036,7 +1036,7 @@ function DashboardPage() {
                               "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition " +
                               (r.saved
                                 ? "border-primary/40 bg-primary/10 text-primary"
-                                : "border-muted-foreground/20 text-muted-foreground hover:border-primary/40 hover:text-primary")
+                                : "border-muted-foreground/20 text-foreground/75 hover:border-primary/40 hover:text-primary")
                             }
                           >
                             {r.saved ? "Saved" : "Save"}
@@ -1046,7 +1046,7 @@ function DashboardPage() {
                               href={r.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-muted-foreground hover:text-primary"
+                              className="text-foreground/75 hover:text-primary"
                               aria-label="Open resource in a new tab"
                             >
                               <ExternalLink className="h-4 w-4" />
@@ -1071,7 +1071,7 @@ function DashboardPage() {
                 <h2 className="font-display text-2xl font-medium tracking-tight">
                   Privacy & consent
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground/75">
                   You control who sees {s.first_name}'s information.
                 </p>
               </div>
@@ -1133,8 +1133,8 @@ function DashboardPage() {
             </div>
 
             <div className="mt-6 flex items-start gap-3 border-t border-dashed border-border/60 bg-muted/30 pt-4">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-              <p className="text-xs leading-relaxed text-muted-foreground">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-foreground/75" />
+              <p className="text-xs leading-relaxed text-foreground/75">
                 TransitionForward's AI recommendations are supportive planning tools and do{" "}
                 <span className="font-semibold">not</span> replace the school team, professional
                 judgment, legal advice, or official IEP/PPT decisions. You can revoke any consent
@@ -1185,7 +1185,7 @@ function ProfileField({ label, value }: { label: string; value: string | null })
     <div>
       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{label}</p>
       <p className="mt-1 text-sm leading-relaxed text-foreground/80">
-        {value ?? <span className="italic text-muted-foreground">Not set yet</span>}
+        {value ?? <span className="italic text-foreground/75">Not set yet</span>}
       </p>
     </div>
   );
@@ -1215,7 +1215,7 @@ function Panel({
           </div>
           <div className="min-w-0">
             <h3 className="font-display text-xl font-medium tracking-tight">{toTitleCase(title)}</h3>
-            {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-foreground/75">{subtitle}</p>}
           </div>
         </div>
         {actionHref && actionLabel && (
@@ -1280,7 +1280,7 @@ function ConsentRow({
     <div className="flex items-start justify-between gap-3 border-b border-border/60 py-3 last:border-b-0">
       <div className="min-w-0">
         <p className="text-sm font-semibold">{label}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
+        <p className="mt-1 text-xs text-foreground/75">{desc}</p>
       </div>
       {granted ? (
         <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -1317,7 +1317,7 @@ function QuickLink({
         {icon}
       </div>
       <h3 className="mt-3 font-display text-lg">{toTitleCase(title)} →</h3>
-      <p className="mt-1 text-xs text-muted-foreground">{body}</p>
+      <p className="mt-1 text-xs text-foreground/75">{body}</p>
     </Link>
   );
 }
@@ -1354,7 +1354,7 @@ function ReportSections({ content }: { content: unknown }) {
         <SectionCard label="Student Snapshot">
           <p className="text-sm leading-relaxed">{summary}</p>
           {snapshot?.student_voice_quote && (
-            <p className="mt-2 text-xs italic text-muted-foreground">
+            <p className="mt-2 text-xs italic text-foreground/75">
               "{snapshot.student_voice_quote}"
             </p>
           )}
@@ -1369,7 +1369,7 @@ function ReportSections({ content }: { content: unknown }) {
             <p className="mt-1 text-xs"><span className="font-semibold">Needs:</span> {spin.needs.slice(0, 3).join(", ")}</p>
           )}
           {spin.what_this_means && (
-            <p className="mt-2 text-xs italic text-muted-foreground">{spin.what_this_means}</p>
+            <p className="mt-2 text-xs italic text-foreground/75">{spin.what_this_means}</p>
           )}
         </SectionCard>
       )}
@@ -1409,7 +1409,7 @@ function ReportSections({ content }: { content: unknown }) {
       {iep.length > 0 && (
         <SectionCard label="IEP/Transition Translator">
           <p className="text-xs font-semibold">{iep[0].goal_text}</p>
-          <p className="mt-1 text-xs text-muted-foreground">→ {iep[0].plain_meaning}</p>
+          <p className="mt-1 text-xs text-foreground/75">→ {iep[0].plain_meaning}</p>
         </SectionCard>
       )}
       {gaps.length > 0 && (
