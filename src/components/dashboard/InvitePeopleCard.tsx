@@ -107,7 +107,7 @@ export function InvitePeopleCard({
           >
             Bring others into {nameLabel}
           </h2>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+          <p className="mt-2 max-w-xl text-sm text-foreground/75">
             Add a co-parent so they can update the plan with you, or an
             educator so they can read the Pathway Report and coordinate on
             meetings.
@@ -155,7 +155,7 @@ export function InvitePeopleCard({
               className="mt-1"
               maxLength={255}
             />
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 text-xs text-foreground/75">
               {mode === "co-parent"
                 ? "Co-parents can edit the plan, goals, and documents."
                 : "Educators get read access — you can promote to editor anytime."}
@@ -183,7 +183,7 @@ export function InvitePeopleCard({
 
       {pending.length > 0 && (
         <div className="mt-6 border-t pt-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
             Pending invites
           </p>
           <ul className="mt-2 space-y-2">
@@ -193,9 +193,9 @@ export function InvitePeopleCard({
                 className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-background px-3 py-2 text-sm"
               >
                 <div className="flex min-w-0 items-center gap-2">
-                  <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <Mail className="h-4 w-4 shrink-0 text-foreground/75" />
                   <span className="truncate">{c.invited_email}</span>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-foreground/75">
                     {c.role}
                   </span>
                 </div>
