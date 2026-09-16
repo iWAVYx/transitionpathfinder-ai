@@ -269,7 +269,7 @@ function HomePage() {
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
               {hero.subhead}
             </p>
-            <p className="mt-5 font-display text-xl italic text-brand-gold sm:text-2xl">
+            <p className="mt-5 font-display text-xl italic text-brand-gold-ink sm:text-2xl">
               <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
               <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
               <span className="whitespace-nowrap">Forward&nbsp;Together.</span>

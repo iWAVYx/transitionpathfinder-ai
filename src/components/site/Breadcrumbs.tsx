@@ -16,7 +16,7 @@ export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
   const filtered = trail.filter((c) => c.to !== "/");
   return (
     <nav aria-label="Breadcrumb" className="text-xs sm:text-sm">
-      <ol className="flex flex-wrap items-center gap-1.5 text-muted-foreground">
+      <ol className="flex flex-wrap items-center gap-1.5 text-foreground/75">
         <li>
           <Link
             to="/"

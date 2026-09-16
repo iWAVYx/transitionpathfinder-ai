@@ -166,7 +166,7 @@ function DistrictOverviewPage() {
                           {s.students_count} students · {s.reports_count} reports
                         </p>
                       </div>
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-300">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-brand-warning-text dark:text-amber-300">
                         <AlertTriangle className="h-3 w-3" /> Needs follow-up
                       </span>
                     </li>

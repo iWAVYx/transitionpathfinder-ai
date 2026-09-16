@@ -7500,6 +7500,8 @@ nav.no-print[aria-label="Report outline"] {
   --brand-royal-purple: #5B2A86;
   --brand-teal: #19B7AE;
   --brand-forward-gold: #F2B84B;
+  /* Accessible gold-derived text for light surfaces (WCAG AA). */
+  --brand-forward-gold-ink: #8A5A12;
   --brand-charcoal: #242A33;
   --brand-mist-gray: #F5F6F8;
   --brand-white: #FFFFFF;
@@ -7523,6 +7525,7 @@ nav.no-print[aria-label="Report outline"] {
   --brand-status-info: var(--brand-royal-purple);
   --brand-status-success: var(--brand-teal);
   --brand-status-warning: var(--brand-forward-gold);
+  --brand-status-warning-text: var(--brand-forward-gold-ink);
   --brand-status-danger: #B3261E;
 
   /* Typography — Inter is the primary product typeface. */
@@ -7539,6 +7542,7 @@ nav.no-print[aria-label="Report outline"] {
   --color-brand-purple: var(--brand-royal-purple);
   --color-brand-teal: var(--brand-teal);
   --color-brand-gold: var(--brand-forward-gold);
+  --color-brand-gold-ink: var(--brand-forward-gold-ink);
   --color-brand-charcoal: var(--brand-charcoal);
   --color-brand-mist: var(--brand-mist-gray);
   --color-brand-white: var(--brand-white);
@@ -7557,6 +7561,7 @@ nav.no-print[aria-label="Report outline"] {
   --color-brand-info: var(--brand-status-info);
   --color-brand-success: var(--brand-status-success);
   --color-brand-warning: var(--brand-status-warning);
+  --color-brand-warning-text: var(--brand-status-warning-text);
   --color-brand-danger: var(--brand-status-danger);
 
   --font-brand: var(--brand-font-sans);
