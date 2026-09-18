@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
 import { SmartBackLink } from "@/components/site/SmartBackLink";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getBlogPostBySlug, type BlogPost } from "@/lib/cms/cms.functions";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -22,7 +23,10 @@ export const Route = createFileRoute("/blog/$slug")({
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="font-display text-2xl">Post not available</h1>
         <p className="mt-2 text-muted-foreground">{error.message}</p>
-        <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-primary hover:underline">
+        <Link
+          to="/blog"
+          className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to blog
         </Link>
       </div>
@@ -32,7 +36,10 @@ export const Route = createFileRoute("/blog/$slug")({
     <SiteShell>
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="font-display text-2xl">Post not found</h1>
-        <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-primary hover:underline">
+        <Link
+          to="/blog"
+          className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to blog
         </Link>
       </div>
@@ -46,16 +53,30 @@ function BlogPostPage() {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
+    setMissing(false);
+    setLoadError(false);
     fetchPost({ data: { slug } })
       .then((r) => {
+        if (cancelled) return;
         if (!r.post) setMissing(true);
         else setPost(r.post);
       })
-      .finally(() => setLoading(false));
-  }, [fetchPost, slug]);
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchPost, retryKey, slug]);
 
   if (loading) {
     return (
@@ -66,13 +87,47 @@ function BlogPostPage() {
       </SiteShell>
     );
   }
+  if (loadError) {
+    return (
+      <SiteShell>
+        <div role="alert" className="mx-auto max-w-2xl px-4 py-24 text-center">
+          <AlertCircle className="mx-auto h-8 w-8 text-destructive" aria-hidden="true" />
+          <h1 className="mt-3 font-display text-2xl">Post temporarily unavailable</h1>
+          <p className="mt-2 text-muted-foreground">
+            We could not load this article right now. Please try again.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setRetryKey((value) => value + 1)}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
+              Try again
+            </Button>
+            <Button asChild variant="ghost">
+              <Link to="/blog">
+                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+                Back to blog
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </SiteShell>
+    );
+  }
   if (missing || !post) {
     return (
       <SiteShell>
         <div className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-display text-2xl">Post not found</h1>
-          <p className="mt-2 text-muted-foreground">This article may have been moved or unpublished.</p>
-          <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-primary hover:underline">
+          <p className="mt-2 text-muted-foreground">
+            This article may have been moved or unpublished.
+          </p>
+          <Link
+            to="/blog"
+            className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+          >
             <ArrowLeft className="h-4 w-4" /> Back to blog
           </Link>
         </div>
@@ -102,9 +157,7 @@ function BlogPostPage() {
           <h1 className="mt-4 font-display text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
             {post.title}
           </h1>
-          {post.excerpt && (
-            <p className="mt-4 text-lg text-muted-foreground">{post.excerpt}</p>
-          )}
+          {post.excerpt && <p className="mt-4 text-lg text-muted-foreground">{post.excerpt}</p>}
         </header>
 
         {post.cover_image_url && (
@@ -116,9 +169,7 @@ function BlogPostPage() {
         )}
 
         <div className="prose prose-neutral mt-8 max-w-none dark:prose-invert prose-headings:font-display prose-a:text-primary">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {post.body_markdown}
-          </ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.body_markdown}</ReactMarkdown>
         </div>
 
         {post.tags && post.tags.length > 0 && (
