@@ -108,14 +108,15 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: protected `main` SHA
-`83890ab47fe55bdbac0569f68eaecc025e5d9b0e` passed deployment run
-`35180151307` and consolidated Release Readiness run `35180363649`. Its
+`308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430` passed deployment run
+`35307324390` and consolidated Release Readiness run `35337890892`. Its
 push-time Build and SSR, accessibility, CT Seed v2, dashboard, role-guard,
 permission, RLS, cross-district RLS, and standard production-readiness checks
-all passed at exact-SHA parity. PR #134 changed no migration file and did not
-reapply a migration. The accepted three-file staging security sequence remains
+all passed at exact-SHA parity. PR #136 changed documentation only and changed
+no migration file; it did not reapply a migration. The accepted three-file
+staging security sequence remains
 recorded in `staging-security-default-privileges-2026-09-14.md`; the current
-application and browser evidence is in `staging-acceptance-2026-09-17.md`.
+application and browser evidence is in `staging-acceptance-2026-09-18.md`.
 
 The separately authorized antivirus run `34744192572` failed closed during its
 provider-entitlement preflight, before login, file upload, or scanning. That
