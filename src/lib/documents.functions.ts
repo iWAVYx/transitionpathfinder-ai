@@ -319,12 +319,14 @@ export const registerDocument = createServerFn({ method: "POST" })
       },
     });
 
-    // ── OPSWAT MetaDefender Cloud AV scan ─────────────────────────────
+    // ── Private Cloudmersive advanced malware scan ────────────────────
     // Bytes are quarantined (scan_status = 'pending' via default) until we
     // receive a "clean" verdict. Everything else fails closed: no AI job
     // is enqueued and the file is either hard-deleted (infected) or held
     // in quarantine (failed/timeout/indeterminate).
-    const { scanUploadedDocument } = await import("./document-av-scan.server");
+    const { MALWARE_SCAN_PROVIDER, scanUploadedDocument } = await import(
+      "./document-av-scan.server"
+    );
     const scanStartedAt = new Date().toISOString();
     await recordPipelineRun({
       document_id: row.id,
@@ -333,7 +335,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       stage: "av_scan",
       status: "running",
       started_at: scanStartedAt,
-      payload: { engine: "opswat_metadefender_cloud", samplesharing: 0, privateProcessing: 1 },
+      payload: { provider: MALWARE_SCAN_PROVIDER, mode: "advanced", fail_closed: true },
     });
     const scanResult = await scanUploadedDocument({
       storage_path: data.storage_path,
@@ -364,12 +366,13 @@ export const registerDocument = createServerFn({ method: "POST" })
           scan_status: isInfected ? "deleted" : "failed",
           scan_verdict: {
             code: scanResult.code,
-            scan_all_result_i: scanResult.scan_all_result_i ?? null,
-            scan_all_result_a: scanResult.scan_all_result_a ?? null,
+            provider: scanResult.provider,
+            clean_result: scanResult.clean_result,
+            blocked_reasons: scanResult.blocked_reasons,
             threats: scanResult.threats,
             error_message: scanResult.error_message,
           },
-          scan_data_id: scanResult.data_id,
+          scan_data_id: scanResult.scan_id,
           scanned_at: now,
           review_status: "rejected",
           archived_at: now,
@@ -392,8 +395,10 @@ export const registerDocument = createServerFn({ method: "POST" })
         error_code: scanResult.code,
         error_message: scanResult.error_message,
         payload: {
-          data_id: scanResult.data_id,
-          scan_all_result_i: scanResult.scan_all_result_i ?? null,
+          provider: scanResult.provider,
+          scan_id: scanResult.scan_id,
+          clean_result: scanResult.clean_result,
+          blocked_reason_count: scanResult.blocked_reasons.length,
           threat_count: scanResult.threats.length,
         },
       });
@@ -415,8 +420,10 @@ export const registerDocument = createServerFn({ method: "POST" })
         title: data.title,
         doc_type: data.doc_type,
         scan_code: scanResult.code,
-        scan_data_id: scanResult.data_id,
-        scan_all_result_i: scanResult.scan_all_result_i ?? null,
+        provider: scanResult.provider,
+        scan_id: scanResult.scan_id,
+        clean_result: scanResult.clean_result,
+        blocked_reasons: scanResult.blocked_reasons,
         threats: scanResult.threats,
         uploader_role: uploaderRole,
       };
@@ -480,12 +487,11 @@ export const registerDocument = createServerFn({ method: "POST" })
         scan_status: "clean",
         scan_verdict: {
           code: "clean",
-          scan_all_result_i: scanResult.scan_all_result_i,
-          scan_all_result_a: scanResult.scan_all_result_a,
-          total_avs: scanResult.total_avs ?? null,
-          total_detected_avs: scanResult.total_detected_avs ?? 0,
+          provider: scanResult.provider,
+          clean_result: scanResult.clean_result,
+          blocked_reasons: scanResult.blocked_reasons,
         },
-        scan_data_id: scanResult.data_id,
+        scan_data_id: scanResult.scan_id,
         scanned_at: scanFinishedAt,
       })
       .eq("id", row.id);
@@ -500,9 +506,9 @@ export const registerDocument = createServerFn({ method: "POST" })
       finished_at: scanFinishedAt,
       latency_ms: scanLatencyMs,
       payload: {
-        data_id: scanResult.data_id,
-        scan_all_result_i: scanResult.scan_all_result_i,
-        total_avs: scanResult.total_avs ?? null,
+        provider: scanResult.provider,
+        scan_id: scanResult.scan_id,
+        clean_result: scanResult.clean_result,
       },
     });
 
@@ -515,9 +521,9 @@ export const registerDocument = createServerFn({ method: "POST" })
       metadata: {
         title: data.title,
         doc_type: data.doc_type,
-        scan_data_id: scanResult.data_id,
-        scan_all_result_i: scanResult.scan_all_result_i,
-        total_avs: scanResult.total_avs ?? null,
+        provider: scanResult.provider,
+        scan_id: scanResult.scan_id,
+        clean_result: scanResult.clean_result,
       },
     });
 
@@ -1277,7 +1283,7 @@ export const markDocumentReviewed = createServerFn({ method: "POST" })
   });
 
 /**
- * Re-run the OPSWAT MetaDefender scan on a document whose previous scan
+ * Re-run the Cloudmersive advanced scan on a document whose previous scan
  * ended in `failed` / `timeout` / other indeterminate state. Fails closed:
  * a non-clean verdict leaves the row quarantined and never enqueues an AI
  * job. Rows whose bytes were already purged (`scan_status = 'deleted'`,
@@ -1313,7 +1319,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
 
     const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { scanUploadedDocument } = await import("./document-av-scan.server");
+    const { MALWARE_SCAN_PROVIDER, scanUploadedDocument } = await import(
+      "./document-av-scan.server"
+    );
 
     const correlationId = newCorrelationId();
     const startedAt = new Date().toISOString();
@@ -1330,7 +1338,12 @@ export const rescanDocument = createServerFn({ method: "POST" })
       stage: "av_scan",
       status: "running",
       started_at: startedAt,
-      payload: { engine: "opswat_metadefender_cloud", samplesharing: 0, privateProcessing: 1, retry: true },
+      payload: {
+        provider: MALWARE_SCAN_PROVIDER,
+        mode: "advanced",
+        fail_closed: true,
+        retry: true,
+      },
     });
 
     const scanResult = await scanUploadedDocument({
@@ -1357,13 +1370,14 @@ export const rescanDocument = createServerFn({ method: "POST" })
           scan_status: isInfected ? "deleted" : "failed",
           scan_verdict: {
             code: scanResult.code,
-            scan_all_result_i: scanResult.scan_all_result_i ?? null,
-            scan_all_result_a: scanResult.scan_all_result_a ?? null,
+            provider: scanResult.provider,
+            clean_result: scanResult.clean_result,
+            blocked_reasons: scanResult.blocked_reasons,
             threats: scanResult.threats,
             error_message: scanResult.error_message,
             retry: true,
           },
-          scan_data_id: scanResult.data_id,
+          scan_data_id: scanResult.scan_id,
           scanned_at: finishedAt,
           review_status: "rejected",
           archived_at: finishedAt,
@@ -1388,8 +1402,10 @@ export const rescanDocument = createServerFn({ method: "POST" })
         error_message: scanResult.error_message,
         payload: {
           retry: true,
-          data_id: scanResult.data_id,
-          scan_all_result_i: scanResult.scan_all_result_i ?? null,
+          provider: scanResult.provider,
+          scan_id: scanResult.scan_id,
+          clean_result: scanResult.clean_result,
+          blocked_reason_count: scanResult.blocked_reasons.length,
           threat_count: scanResult.threats.length,
         },
       });
@@ -1398,8 +1414,10 @@ export const rescanDocument = createServerFn({ method: "POST" })
         title: row.title,
         doc_type: row.doc_type,
         scan_code: scanResult.code,
-        scan_data_id: scanResult.data_id,
-        scan_all_result_i: scanResult.scan_all_result_i ?? null,
+        provider: scanResult.provider,
+        scan_id: scanResult.scan_id,
+        clean_result: scanResult.clean_result,
+        blocked_reasons: scanResult.blocked_reasons,
         threats: scanResult.threats,
         retry: true,
       };
@@ -1437,13 +1455,12 @@ export const rescanDocument = createServerFn({ method: "POST" })
         scan_status: "clean",
         scan_verdict: {
           code: "clean",
-          scan_all_result_i: scanResult.scan_all_result_i,
-          scan_all_result_a: scanResult.scan_all_result_a,
-          total_avs: scanResult.total_avs ?? null,
-          total_detected_avs: scanResult.total_detected_avs ?? 0,
+          provider: scanResult.provider,
+          clean_result: scanResult.clean_result,
+          blocked_reasons: scanResult.blocked_reasons,
           retry: true,
         },
-        scan_data_id: scanResult.data_id,
+        scan_data_id: scanResult.scan_id,
         scanned_at: finishedAt,
         review_status: "pending_review",
         archived_at: null,
@@ -1461,7 +1478,12 @@ export const rescanDocument = createServerFn({ method: "POST" })
       started_at: startedAt,
       finished_at: finishedAt,
       latency_ms: latencyMs,
-      payload: { retry: true, data_id: scanResult.data_id, scan_all_result_i: scanResult.scan_all_result_i },
+      payload: {
+        retry: true,
+        provider: scanResult.provider,
+        scan_id: scanResult.scan_id,
+        clean_result: scanResult.clean_result,
+      },
     });
 
     await supabase.from("audit_log").insert({
@@ -1473,8 +1495,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
       metadata: {
         title: row.title,
         doc_type: row.doc_type,
-        scan_data_id: scanResult.data_id,
-        scan_all_result_i: scanResult.scan_all_result_i,
+        provider: scanResult.provider,
+        scan_id: scanResult.scan_id,
+        clean_result: scanResult.clean_result,
         retry: true,
       },
     });
