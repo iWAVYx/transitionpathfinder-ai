@@ -41,14 +41,15 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "2b256c8389f7c400d24d449e7af31558a0e2a40a";
+  const verifiedStagingSha = "308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430";
 
   assert.equal(audit.schemaVersion, 2);
+  assert.equal(audit.auditedAt, "2026-09-18");
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 34176604002);
-  assert.equal(audit.staging.releaseReadinessRun, 34177650200);
+  assert.equal(audit.staging.deploymentRun, 35307324390);
+  assert.equal(audit.staging.releaseReadinessRun, 35337890892);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.notEqual(
     audit.production.supabaseProjectRef,
@@ -193,7 +194,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     process.execPath,
     [
       "scripts/compare-production-migration-history.mjs",
-      "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
+      "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
       "--json",
     ],
     { encoding: "utf8" },
@@ -202,38 +203,35 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   const currentProductionReport = JSON.parse(currentProductionComparison.stdout);
   assert.equal(currentProductionReport.status, "blocked");
   assert.deepEqual(currentProductionReport.blockers, ["pending-production-migration"]);
-  assert.equal(currentProductionReport.appliedCount, 184);
+  assert.equal(currentProductionReport.appliedCount, 187);
   assert.equal(currentProductionReport.canonicalCount, 196);
-  assert.equal(currentProductionReport.directCoverageCount, 184);
+  assert.equal(currentProductionReport.directCoverageCount, 187);
   assert.equal(currentProductionReport.supersededCount, 6);
   assert.equal(currentProductionReport.excludedCount, 1);
-  assert.equal(currentProductionReport.pendingCount, 5);
+  assert.equal(currentProductionReport.pendingCount, 2);
   assert.deepEqual(currentProductionReport.pending, [
-    "20260907190000_security_finding_alignment.sql",
-    "20260907224500_least_privilege_security_definer_grants.sql",
     "20260908000500_channel_attachment_malware_gate.sql",
     "20260909010000_create_private_channel_attachments_bucket.sql",
-    "20260914120000_harden_application_function_default_privileges.sql",
   ]);
 
-  assert.equal(audit.migrations.productionHistoryReadAt, "2026-09-13T07:24:13Z");
+  assert.equal(audit.migrations.productionHistoryReadAt, "2026-09-17T23:54:44.631906Z");
   assert.equal(
     audit.migrations.productionHistoryEvidence,
-    "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
+    "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
   );
   assert.equal(
     audit.migrations.productionHistoryComparedMainSha,
-    "625ea0de386cd44fbef12344a1b1f852af4ae07d",
+    "f933401803e26ac76e3190d71cab9ca8c8b52536",
   );
-  assert.equal(audit.migrations.productionHistoryAppliedCount, 184);
-  assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260825050000");
-  assert.equal(audit.migrations.pendingProductionCount, 5);
+  assert.equal(audit.migrations.productionHistoryAppliedCount, 187);
+  assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260914120000");
+  assert.equal(audit.migrations.pendingProductionCount, 2);
   assert.equal(audit.production.securityInventoryReadOnlyEvidenceVerified, true);
   assert.equal(
     audit.production.securityInventoryEvidence,
     "docs/production-readiness/production-security-inventory-2026-09-14.md",
   );
-  assert.equal(audit.production.migrationBaselineVerified, false);
+  assert.equal(audit.production.migrationBaselineVerified, true);
 });
 
 test("tracked environment files contain only reviewed public variables", () => {
