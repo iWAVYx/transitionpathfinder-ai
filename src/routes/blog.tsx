@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Newspaper, Search, ArrowRight } from "lucide-react";
+import { AlertCircle, Newspaper, Search, ArrowRight, RefreshCw } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getPublishedBlogPosts } from "@/lib/cms/cms.functions";
 
@@ -44,18 +45,29 @@ function BlogIndexPage() {
   const fetchPosts = useServerFn(getPublishedBlogPosts);
   const [posts, setPosts] = useState<PostCard[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  useEffect(() => {
-    fetchPosts()
-      .then((r) => setPosts((r.posts ?? []) as PostCard[]))
-      .finally(() => setLoaded(true));
+  const loadPosts = useCallback(async () => {
+    setLoaded(false);
+    setLoadError(false);
+    try {
+      const result = await fetchPosts();
+      setPosts((result.posts ?? []) as PostCard[]);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoaded(true);
+    }
   }, [fetchPosts]);
 
+  useEffect(() => {
+    void loadPosts();
+  }, [loadPosts]);
+
   const categories = useMemo(
-    () =>
-      Array.from(new Set(posts.map((p) => p.category).filter(Boolean) as string[])).sort(),
+    () => Array.from(new Set(posts.map((p) => p.category).filter(Boolean) as string[])).sort(),
     [posts],
   );
 
@@ -83,8 +95,8 @@ function BlogIndexPage() {
             News, Stories, and Updates
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Field notes from TransitionForward on transition planning, postsecondary
-            pathways, and what Connecticut families and educators are learning.
+            Field notes from TransitionForward on transition planning, postsecondary pathways, and
+            what Connecticut families and educators are learning.
           </p>
           <div className="relative mx-auto mt-8 max-w-lg">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -121,6 +133,28 @@ function BlogIndexPage() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-72 animate-pulse rounded-2xl bg-muted" />
             ))}
+          </div>
+        ) : loadError ? (
+          <div
+            role="alert"
+            className="rounded-xl border border-destructive/30 bg-destructive/5 p-10 text-center"
+          >
+            <AlertCircle className="mx-auto h-8 w-8 text-destructive" aria-hidden="true" />
+            <h2 className="mt-3 text-lg font-semibold text-foreground">
+              Stories are temporarily unavailable
+            </h2>
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+              We could not load the blog right now. No information was lost—please try again.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-5"
+              onClick={() => void loadPosts()}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
+              Try again
+            </Button>
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-12 text-center">
@@ -205,9 +239,7 @@ function PostCardItem({ post }: { post: PostCard }) {
           {post.title}
         </h3>
         {post.excerpt && (
-          <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-            {post.excerpt}
-          </p>
+          <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{post.excerpt}</p>
         )}
         <div className="mt-auto flex items-center justify-between pt-4 text-xs text-muted-foreground">
           <span>{post.author_name ?? "TransitionForward"}</span>

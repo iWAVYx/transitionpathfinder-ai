@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -37,6 +37,8 @@ import {
   BookOpen,
   Eye,
   SlidersHorizontal,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { getPublishedFaqs, type Faq } from "@/lib/cms/cms.functions";
@@ -166,7 +168,7 @@ const CATEGORY_META: Record<string, { icon: React.ReactNode; label: string }> = 
   "Getting Started": { icon: <Sparkles className="h-3.5 w-3.5" />, label: "Getting Started" },
   "Families & Students": { icon: <Users className="h-3.5 w-3.5" />, label: "For Families" },
   "Educators & Districts": { icon: <School className="h-3.5 w-3.5" />, label: "For Educators" },
-  "Accessibility": { icon: <Eye className="h-3.5 w-3.5" />, label: "Accessibility" },
+  Accessibility: { icon: <Eye className="h-3.5 w-3.5" />, label: "Accessibility" },
 };
 
 const POPULAR_SEARCHES = [
@@ -192,7 +194,7 @@ function HighlightText({ text, term }: { text: string; term: string }) {
           </mark>
         ) : (
           <span key={i}>{part}</span>
-        )
+        ),
       )}
     </>
   );
@@ -202,24 +204,36 @@ function HelpHeroAndFaqs() {
   const fetchFaqs = useServerFn(getPublishedFaqs);
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isSticky, setIsSticky] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchFaqs({ data: {} }).then((r) => {
-      setFaqs(r.faqs);
+  const loadFaqs = useCallback(async () => {
+    setLoaded(false);
+    setLoadError(false);
+    try {
+      const result = await fetchFaqs({ data: {} });
+      setFaqs(result.faqs);
+    } catch {
+      setLoadError(true);
+    } finally {
       setLoaded(true);
-    });
+    }
   }, [fetchFaqs]);
+
+  useEffect(() => {
+    void loadFaqs();
+  }, [loadFaqs]);
 
   // Keyboard shortcut: / or Cmd+K to focus search
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (
-        (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement).tagName)) ||
+        (e.key === "/" &&
+          !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement).tagName)) ||
         (e.metaKey && e.key === "k")
       ) {
         e.preventDefault();
@@ -241,10 +255,7 @@ function HelpHeroAndFaqs() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const categories = useMemo(
-    () => Array.from(new Set(faqs.map((f) => f.category))).sort(),
-    [faqs]
-  );
+  const categories = useMemo(() => Array.from(new Set(faqs.map((f) => f.category))).sort(), [faqs]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -391,34 +402,37 @@ function HelpHeroAndFaqs() {
         {/* Category filter pills */}
         <div className="no-scrollbar mt-4 flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
           <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <button
-              onClick={() => setActiveCategory("all")}
+          <button
+            onClick={() => setActiveCategory("all")}
             className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                activeCategory === "all"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              All topics
-            </button>
-            {categories.map((cat) => {
-              const meta = CATEGORY_META[cat] ?? { icon: <BookOpen className="h-3.5 w-3.5" />, label: cat };
-              const isActive = activeCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {meta.icon}
-                  {meta.label}
-                </button>
-              );
-            })}
+              activeCategory === "all"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            All topics
+          </button>
+          {categories.map((cat) => {
+            const meta = CATEGORY_META[cat] ?? {
+              icon: <BookOpen className="h-3.5 w-3.5" />,
+              label: cat,
+            };
+            const isActive = activeCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {meta.icon}
+                {meta.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -429,6 +443,29 @@ function HelpHeroAndFaqs() {
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />
             ))}
+          </div>
+        ) : loadError ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-destructive/30 bg-destructive/5 p-10 text-center sm:p-14"
+          >
+            <AlertCircle className="mx-auto h-8 w-8 text-destructive" aria-hidden="true" />
+            <h2 className="mt-4 text-lg font-semibold text-foreground">
+              FAQs are temporarily unavailable
+            </h2>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+              We could not load the FAQ library right now. You can retry or still send us a message
+              below.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Button type="button" variant="outline" onClick={() => void loadFaqs()}>
+                <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
+                Try again
+              </Button>
+              <Button asChild>
+                <a href="#contact">Send us a message</a>
+              </Button>
+            </div>
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-10 text-center sm:p-14">
@@ -462,34 +499,34 @@ function HelpHeroAndFaqs() {
           </div>
         ) : (
           <div className="space-y-10">
-            {activeCategory === "all"
-              ? grouped.map(([category, items]) => (
-                  <div key={category}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        {CATEGORY_META[category]?.icon ?? <BookOpen className="h-3.5 w-3.5" />}
-                      </span>
-                      <h2 className="font-display text-lg font-semibold text-foreground">
-                        {CATEGORY_META[category]?.label ?? category}
-                      </h2>
-                      <Badge variant="secondary" className="text-[10px] font-normal">
-                        {items.length}
-                      </Badge>
-                    </div>
-                    <Accordion type="single" collapsible className="space-y-3">
-                      {items.map((faq) => (
-                        <FaqAccordionItem key={faq.id} faq={faq} highlightTerm={search.trim()} />
-                      ))}
-                    </Accordion>
+            {activeCategory === "all" ? (
+              grouped.map(([category, items]) => (
+                <div key={category}>
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      {CATEGORY_META[category]?.icon ?? <BookOpen className="h-3.5 w-3.5" />}
+                    </span>
+                    <h2 className="font-display text-lg font-semibold text-foreground">
+                      {CATEGORY_META[category]?.label ?? category}
+                    </h2>
+                    <Badge variant="secondary" className="text-[10px] font-normal">
+                      {items.length}
+                    </Badge>
                   </div>
-                ))
-              : (
-                <Accordion type="single" collapsible className="space-y-3">
-                  {filtered.map((faq) => (
-                    <FaqAccordionItem key={faq.id} faq={faq} highlightTerm={search.trim()} />
-                  ))}
-                </Accordion>
-              )}
+                  <Accordion type="single" collapsible className="space-y-3">
+                    {items.map((faq) => (
+                      <FaqAccordionItem key={faq.id} faq={faq} highlightTerm={search.trim()} />
+                    ))}
+                  </Accordion>
+                </div>
+              ))
+            ) : (
+              <Accordion type="single" collapsible className="space-y-3">
+                {filtered.map((faq) => (
+                  <FaqAccordionItem key={faq.id} faq={faq} highlightTerm={search.trim()} />
+                ))}
+              </Accordion>
+            )}
           </div>
         )}
       </section>
@@ -559,9 +596,9 @@ function ContactSection() {
             A real person reads every message.
           </h2>
           <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-            We're a small pilot team in Connecticut. No ticket queues, no chatbots. Tell us
-            what you need — for your student, your classroom, your district, or your program —
-            and we'll get back to you within two school days.
+            We're a small pilot team in Connecticut. No ticket queues, no chatbots. Tell us what you
+            need — for your student, your classroom, your district, or your program — and we'll get
+            back to you within two school days.
           </p>
         </header>
 
@@ -598,7 +635,11 @@ function ContactSection() {
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Your Name" error={form.formState.errors.full_name?.message}>
-                <Input {...form.register("full_name")} placeholder="First and last name" maxLength={200} />
+                <Input
+                  {...form.register("full_name")}
+                  placeholder="First and last name"
+                  maxLength={200}
+                />
               </Field>
               <Field label="Email" error={form.formState.errors.email?.message}>
                 <Input
@@ -643,8 +684,8 @@ function ContactSection() {
                 placeholder="Tell us what's happening, what you need, or what you'd like to see. Plain language is best — no special-education jargon required."
               />
               <p className="mt-1.5 text-xs text-muted-foreground">
-                Don't include sensitive student data here. For anything involving a child's
-                records, we'll move to a secure channel once we reply.
+                Don't include sensitive student data here. For anything involving a child's records,
+                we'll move to a secure channel once we reply.
               </p>
             </Field>
 
@@ -672,9 +713,9 @@ function ContactSection() {
                   Got it. Thank you for reaching out.
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  A real Connecticut human will reply within two school days. If it's urgent,
-                  write "urgent" in the subject when you reply to our confirmation and we'll
-                  move you to the top of the day.
+                  A real Connecticut human will reply within two school days. If it's urgent, write
+                  "urgent" in the subject when you reply to our confirmation and we'll move you to
+                  the top of the day.
                 </p>
               </div>
             </div>
@@ -697,15 +738,7 @@ function ContactSection() {
   );
 }
 
-function HelpCard({
-  icon,
-  title,
-  body,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-}) {
+function HelpCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="rounded-3xl border bg-card p-5 shadow-soft">
       <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-hero text-primary">

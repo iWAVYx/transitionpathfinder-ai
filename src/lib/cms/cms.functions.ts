@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwIfPublicCmsReadFailed } from "./public-read-error";
 
 // ---------- Types ----------
 
@@ -98,18 +99,17 @@ async function logActivity(
 // ---------- Page sections (public read + admin write) ----------
 
 export const getPageSection = createServerFn({ method: "GET" })
-  .validator((i: unknown) =>
-    z.object({ page_key: z.string(), section_key: z.string() }).parse(i),
-  )
+  .validator((i: unknown) => z.object({ page_key: z.string(), section_key: z.string() }).parse(i))
   .handler(async ({ data }): Promise<{ content: any }> => {
     const { supabasePublic } = await import("@/integrations/supabase/public.server");
-    const { data: row } = await supabasePublic
+    const { data: row, error } = await supabasePublic
       .from("page_sections")
       .select("content, is_published")
       .eq("page_key", data.page_key)
       .eq("section_key", data.section_key)
       .eq("is_published", true)
       .maybeSingle();
+    throwIfPublicCmsReadFailed(error, "page-section");
     return { content: (row?.content as Record<string, unknown>) ?? null };
   });
 
@@ -253,18 +253,13 @@ export const adminDeleteMedia = createServerFn({ method: "POST" })
 // ---------- FAQs ----------
 
 export const getPublishedFaqs = createServerFn({ method: "GET" })
-  .validator((i: unknown) =>
-    z.object({ category: z.string().optional() }).parse(i ?? {}),
-  )
+  .validator((i: unknown) => z.object({ category: z.string().optional() }).parse(i ?? {}))
   .handler(async ({ data }) => {
     const { supabasePublic } = await import("@/integrations/supabase/public.server");
-    let q = supabasePublic
-      .from("faqs")
-      .select("*")
-      .eq("is_published", true)
-      .order("position");
+    let q = supabasePublic.from("faqs").select("*").eq("is_published", true).order("position");
     if (data.category) q = q.eq("category", data.category);
-    const { data: rows } = await q;
+    const { data: rows, error } = await q;
+    throwIfPublicCmsReadFailed(error, "faqs");
     return { faqs: (rows ?? []) as Faq[] };
   });
 
@@ -299,7 +294,10 @@ export const adminSaveFaq = createServerFn({ method: "POST" })
     await requireAdminHub(supabase, userId);
     const { id, ...row } = data;
     if (id) {
-      const { error } = await supabase.from("faqs").update(row as never).eq("id", id);
+      const { error } = await supabase
+        .from("faqs")
+        .update(row as never)
+        .eq("id", id);
       if (error) throw new Error(error.message);
       await logActivity(supabase, userId, "faq_updated", "faq", id);
     } else {
@@ -324,16 +322,12 @@ export const adminDeleteFaq = createServerFn({ method: "POST" })
 
 // ---------- Testimonials ----------
 
-
 export const adminListTestimonials = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     await requireAdminHub(supabase, userId);
-    const { data, error } = await supabase
-      .from("testimonials")
-      .select("*")
-      .order("position");
+    const { data, error } = await supabase.from("testimonials").select("*").order("position");
     if (error) throw new Error(error.message);
     return { testimonials: (data ?? []) as Testimonial[] };
   });
@@ -361,7 +355,10 @@ export const adminSaveTestimonial = createServerFn({ method: "POST" })
     const row: Record<string, any> = { ...rest };
     if (row.avatar_url === "") row.avatar_url = null;
     if (id) {
-      const { error } = await supabase.from("testimonials").update(row as never).eq("id", id);
+      const { error } = await supabase
+        .from("testimonials")
+        .update(row as never)
+        .eq("id", id);
       if (error) throw new Error(error.message);
       await logActivity(supabase, userId, "testimonial_updated", "testimonial", id);
     } else {
@@ -388,11 +385,12 @@ export const adminDeleteTestimonial = createServerFn({ method: "POST" })
 
 export const getPublishedBlogPosts = createServerFn({ method: "GET" }).handler(async () => {
   const { supabasePublic } = await import("@/integrations/supabase/public.server");
-  const { data } = await supabasePublic
+  const { data, error } = await supabasePublic
     .from("blog_posts")
     .select("id, slug, title, excerpt, cover_image_url, author_name, category, tags, published_at")
     .eq("status", "published")
     .order("published_at", { ascending: false });
+  throwIfPublicCmsReadFailed(error, "blog-posts");
   return { posts: data ?? [] };
 });
 
@@ -400,12 +398,13 @@ export const getBlogPostBySlug = createServerFn({ method: "GET" })
   .validator((i: unknown) => z.object({ slug: z.string().min(1) }).parse(i))
   .handler(async ({ data }) => {
     const { supabasePublic } = await import("@/integrations/supabase/public.server");
-    const { data: row } = await supabasePublic
+    const { data: row, error } = await supabasePublic
       .from("blog_posts")
       .select("*")
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
+    throwIfPublicCmsReadFailed(error, "blog-post");
     return { post: row as BlogPost | null };
   });
 
@@ -456,7 +455,10 @@ export const adminSaveBlogPost = createServerFn({ method: "POST" })
       row.published_at = new Date().toISOString();
     }
     if (id) {
-      const { error } = await supabase.from("blog_posts").update(row as never).eq("id", id);
+      const { error } = await supabase
+        .from("blog_posts")
+        .update(row as never)
+        .eq("id", id);
       if (error) throw new Error(error.message);
       await logActivity(supabase, userId, "blog_post_updated", "blog_post", id);
       return { ok: true, id };
