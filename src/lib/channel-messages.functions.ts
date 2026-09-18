@@ -333,7 +333,7 @@ export const listChannelBookmarkIds = createServerFn({ method: "GET" })
 // ─── Attachments ───────────────────────────────────────────────────────────
 
 async function scanRegisteredAttachment(row: ChannelAttachment, actorId: string) {
-  // Keep the object quarantined until the existing private OPSWAT pipeline
+  // Keep the object quarantined until the private Cloudmersive pipeline
   // returns a clean verdict. Missing credentials, timeouts, unknown verdicts,
   // or write failures all leave the attachment unavailable.
   const { scanUploadedDocument } = await import("./document-av-scan.server");
@@ -382,8 +382,10 @@ async function scanRegisteredAttachment(row: ChannelAttachment, actorId: string)
     metadata: {
       attachment_id: row.id,
       scan_code: scanResult.code,
-      scan_data_id: scanResult.data_id,
-      scan_all_result_i: scanResult.scan_all_result_i ?? null,
+      scan_provider: scanResult.provider,
+      scan_id: scanResult.scan_id,
+      clean_result: scanResult.clean_result,
+      blocked_reason_count: scanResult.blocked_reasons.length,
       threat_count: scanResult.threats.length,
       storage_purged: storagePurged,
     },

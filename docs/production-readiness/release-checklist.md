@@ -82,11 +82,15 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       blockers for real student/IEP data are closed. The fail-closed document and
       attachment controls are implemented and deployed to isolated staging. A
       protected run for SHA `625ea0de386cd44fbef12344a1b1f852af4ae07d`
-      stopped before login or upload because the staging OPSWAT key lacks paid
+      stopped before login or upload because the staging OPSWAT key lacked paid
       private-scanning entitlement. No clean file or EICAR file was uploaded and
-      no retry occurred. Provider contractual/privacy approval, protected
-      clean-file/EICAR evidence, and production configuration are still required.
-      See `channel-attachment-malware-gate-2026-09-08.md`.
+      no retry occurred. Cloudmersive is now the selected replacement candidate;
+      its credential-free fail-closed adapter package is documented, but no key,
+      provider call, or live evidence exists yet. Provider contractual/privacy
+      approval, a staging-only key, protected clean-file/EICAR evidence, and
+      production configuration are still required. See
+      `channel-attachment-malware-gate-2026-09-08.md` and
+      `cloudmersive-substitution-2026-09-18.md`.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9
@@ -120,8 +124,9 @@ application and browser evidence is in `staging-acceptance-2026-09-18.md`.
 
 The separately authorized antivirus run `34744192572` failed closed during its
 provider-entitlement preflight, before login, file upload, or scanning. That
-blocked run is not clean-file/EICAR acceptance evidence and production remains
-NO-GO.
+blocked OPSWAT run is not clean-file/EICAR acceptance evidence. Cloudmersive
+substitution work is credential-free until a staging-only key and privacy
+review are separately approved. Production remains NO-GO.
 
 Lovable's hosted preview evidence remains attached to application-bearing SHA
 `a0396a3af276e978d10920f29dc429f2820e47b9`, because PR #116 changed only
