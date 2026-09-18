@@ -8,6 +8,9 @@ Production remains **NO-GO**. This package does not create an account or API
 key, change a secret, call an antivirus service, upload a file, deploy staging,
 publish Lovable, change a database, or touch production.
 
+The current approval boundary is **SYNTHETIC STAGING ONLY**. No real student,
+family, educator, IEP, health, or district file may be sent to Cloudmersive.
+
 ## Why this package exists
 
 The existing OPSWAT integration could not complete the protected live proof
@@ -45,10 +48,60 @@ This means the free plan can prove the integration with small harmless test
 files, but it is not sufficient for all real IEP documents unless the product
 also adopts a 3.5 MB upload limit.
 
+## Read-only vendor review — 2026-09-18
+
+### Positive evidence
+
+- Cloudmersive publicly describes applicable APIs as stateless and says payload
+  data is processed transiently without retaining a copy after the transaction.
+- Its security documentation advertises TLS 1.2 or later and selectable North
+  American, European, UK, and APAC deployment regions.
+- A public DPA and subprocessor inventory exist.
+
+### Unresolved production blockers
+
+- The DPA says it must be accepted by contacting Cloudmersive sales; merely
+  creating a free account does not make the DPA effective.
+- The public materials reviewed do not provide a clear FERPA or school-records
+  commitment suitable for TransitionForward's student and IEP data.
+- The terms say the standard APIs are not represented as HIPAA-suitable and
+  require prior written consent before transmitting protected health
+  information. Although school records are often governed by a different legal
+  framework, IEP documents can contain sensitive health and disability data, so
+  this uncertainty must remain closed rather than inferred away.
+- The DPA permits processing in the United States and other countries where
+  Cloudmersive or its subprocessors operate, and describes geographically
+  dispersed replication. The exact region and cross-region behavior for the
+  selected plan therefore need written confirmation.
+- The public subprocessor list includes multiple infrastructure providers. We
+  still need confirmation of which ones can process Virus Scan API payloads or
+  metadata for our chosen region and plan.
+
+### Required written answers before real-file or production approval
+
+1. Countersigned or otherwise effective DPA for TransitionForward.
+2. Written confirmation that the service and selected plan may process student
+   records and minor data subject to FERPA, COPPA where applicable, Connecticut
+   student-data obligations, and district contract requirements.
+3. Exact processing region, whether payloads or metadata cross that region, and
+   which subprocessors can access each category.
+4. Confirmation that file bytes are not persisted, backed up, used for model or
+   product training, sold, or used for advertising, plus the retention period
+   for filenames, hashes, telemetry, logs, and scan results.
+5. Incident-notification commitment, support-access controls, deletion process,
+   and subprocessor-change notification terms.
+6. Production plan, file-size limit, rate limit, support level, and availability
+   commitment appropriate for district use.
+
+Until those answers are reviewed and accepted, a free key may be used only for
+one separately authorized synthetic staging proof. It must never receive a real
+IEP or other user file.
+
 ## Remaining gates
 
 1. Review Cloudmersive DPA, subprocessors, region, retention/deletion terms,
-   security posture, and education-data suitability.
+   security posture, and education-data suitability; obtain the written answers
+   listed above.
 2. Create a staging-only Cloudmersive account/key and store it only as the
    protected GitHub `staging` secret `STAGING_CLOUDMERSIVE_API_KEY`.
 3. Review and merge this package, then deploy its exact merge SHA to isolated
