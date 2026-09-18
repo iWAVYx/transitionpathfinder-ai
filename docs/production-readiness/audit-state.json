@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
-  "auditedAt": "2026-09-07",
-  "auditedMainSha": "2b256c8389f7c400d24d449e7af31558a0e2a40a",
+  "auditedAt": "2026-09-18",
+  "auditedMainSha": "308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
     "workerOrigin": "https://transitionforward-staging.caysi101.workers.dev",
     "stripeMode": "sandbox",
-    "exactDeploymentSha": "2b256c8389f7c400d24d449e7af31558a0e2a40a",
-    "deploymentRun": 34176604002,
-    "releaseReadinessRun": 34177650200,
+    "exactDeploymentSha": "308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430",
+    "deploymentRun": 35307324390,
+    "releaseReadinessRun": 35337890892,
     "releaseReadinessAttempt": 1,
     "releaseReadinessVerified": true
   },
@@ -23,7 +23,7 @@
     "cloudflareWorkerDeploymentAuthorized": false,
     "githubEnvironmentProvisioned": true,
     "releaseProcedureDocumented": true,
-    "migrationBaselineVerified": false,
+    "migrationBaselineVerified": true,
     "exactDeploymentIdentityVerified": false,
     "hostingControlPlaneVerified": false,
     "backupInventoryVerified": true,
@@ -38,11 +38,11 @@
   "migrations": {
     "canonicalCount": 196,
     "latestCanonicalFile": "20260914120000_harden_application_function_default_privileges.sql",
-    "productionHistoryReadAt": "2026-09-13T07:24:13Z",
-    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-13.csv",
-    "productionHistoryComparedMainSha": "625ea0de386cd44fbef12344a1b1f852af4ae07d",
-    "productionHistoryAppliedCount": 184,
-    "productionHistoryLatestAppliedVersion": "20260825050000",
-    "pendingProductionCount": 5
+    "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
+    "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
+    "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
+    "productionHistoryAppliedCount": 187,
+    "productionHistoryLatestAppliedVersion": "20260914120000",
+    "pendingProductionCount": 2
   }
 }
