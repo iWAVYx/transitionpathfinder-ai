@@ -23,6 +23,13 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `20260825050000`; the normalized result is line-for-line identical to the
       2026-08-26 post-window evidence. See
       `production-migration-baseline-2026-09-13.md`.
+- [x] The separately authorized 2026-09-17 production security window applied
+      the three reviewed antivirus-independent migrations one at a time from
+      protected-main SHA `f933401803e26ac76e3190d71cab9ca8c8b52536`.
+      Exact ledger hashes and every post-file invariant passed. The fresh
+      baseline contains 187 rows through `20260914120000`, with no malformed,
+      duplicate, unresolved, or policy-error entries. See
+      `production-security-maintenance-2026-09-17.md`.
 - [x] The SELECT-only production security inventory is recorded in
       `production-security-inventory-2026-09-14.md`. It confirms the existing
       `channel-attachments` bucket is private, captures its current constraints
@@ -36,17 +43,12 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `supabase_admin`. PostgreSQL marks the extension non-relocatable. Finding
       9 remains open pending a reviewed platform-managed disposition; this
       evidence does not authorize moving, dropping, or reinstalling it.
-- [ ] Five canonical migrations remain pending in production. Three are the
-      antivirus-independent security alignment sequence, including the new
-      forward-only application-function default-permission migration. All three
-      are now reviewed, replayed, recorded once in isolated staging, and covered
-      by protected post-migration evidence for exact SHA `73c3c36a`. Production
-      still requires a fresh baseline, named maintenance/abort owners, final
-      procedure review, and a separately approved production window. The two
-      attachment migrations stay blocked on provider/privacy approval and
-      clean-file/EICAR staging proof. See
-      `staging-security-default-privileges-2026-09-14.md` and
-      `production-security-migration-plan-2026-09-14.md`.
+- [ ] Two canonical migrations remain pending in production. Both belong to
+      the attachment/antivirus release and remain blocked on provider/privacy
+      approval and protected clean-file/EICAR staging proof. The three reviewed
+      antivirus-independent security migrations were applied and verified in
+      the separately authorized 2026-09-17 window. See
+      `production-security-maintenance-2026-09-17.md`.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Isolated staging records
@@ -56,7 +58,8 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `staging-migration-ledger-repair-2026-09-11.md`.
 - [x] Lovable Cloud backup recovery point was recorded and the isolated export
       restore drill passed; both are linked from the migration-window evidence.
-- [ ] Maintenance and abort owners are present.
+- [x] Maintenance and abort owners were present for the 2026-09-17 database
+      security window, with the authorizing task retained as its incident record.
 - [x] The approved migration applied one file at a time with stop-on-error and
       recorded post-file invariants; publish did not apply migrations.
 - [ ] Production Vault cron values are provisioned and privileged jobs are
@@ -87,17 +90,16 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9
-      findings remain ignored rather than closed. Production inventory confirms
-      76 public-schema privileged routines: 17 PUBLIC-executable, 26 anonymous-
-      executable, and 70 authenticated-executable before the pending alignment.
-      The exact current-routine allowlists and forward-only default-permission
-      hardening are represented in canonical migrations and passed review,
-      replay, isolated-staging application, and protected exact-SHA regression.
-      They still require a separately approved production window and a Lovable
-      rescan afterward. Details are in
+      findings remain ignored rather than closed. The 2026-09-17 production
+      security window reduced the 76 public-schema privileged routines to the
+      reviewed grants: 0 PUBLIC-executable, 5 anonymous-executable, 54
+      authenticated-executable, and none missing service-role execution. Future
+      application-role functions no longer default to PUBLIC, anonymous, or
+      authenticated execution. A Lovable rescan and reviewed finding disposition
+      are still required. Details are in
       `staging-security-default-privileges-2026-09-14.md`,
       `production-security-inventory-2026-09-14.md`, and
-      `production-pg-net-hosting-boundary-2026-09-15.md`. Finding 9 remains
+      `production-security-maintenance-2026-09-17.md`. Finding 9 remains
       open because the non-relocatable, `supabase_admin`-owned `pg_net`
       registration uses `public`, although the fail-closed member inventory
       confirms zero actual extension members are in `public`. Do not attempt an
