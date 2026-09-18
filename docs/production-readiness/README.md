@@ -98,6 +98,13 @@ Documents:
 - `production-security-migration-plan-2026-09-14.md` — non-authorizing,
   fail-closed production procedure for the exact three-file
   antivirus-independent security release unit.
+- `production-security-maintenance-2026-09-17.md` — authorized production
+  execution evidence for the three antivirus-independent security migrations,
+  exact ledger hashes, post-file invariants, final 187-row baseline, and the
+  still-enforced overall production NO-GO boundary.
+- `evidence/production-migration-history-2026-09-17.csv` — fresh SELECT-only
+  post-window production migration baseline used by the content-aware
+  comparator.
 - `production-security-inventory.sql` — reusable SELECT-only metadata query for
   the production security inventory; it does not read application rows or
   credentials.
