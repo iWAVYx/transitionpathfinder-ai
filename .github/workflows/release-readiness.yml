@@ -104,14 +104,18 @@ jobs:
         run: bunx playwright test --project=release-public --reporter=list,html
       - name: Signed-in role journeys, access control, workflows
         run: bunx playwright test --project=release-signedin --no-deps --reporter=list,html
-      - uses: actions/upload-artifact@v4
+      - name: Remove credential-bearing Playwright artifacts
+        id: sanitize-artifacts
         if: always()
+        run: node tests/e2e/scripts/sanitize-playwright-artifacts.mjs playwright-report test-results
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.sanitize-artifacts.outcome == 'success' }}
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && steps.sanitize-artifacts.outcome == 'success' }}
         with:
           name: playwright-traces-and-media
           path: |

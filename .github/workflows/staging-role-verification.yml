@@ -139,8 +139,13 @@ jobs:
       - name: Role Access and Role-Leak Protection
         run: bunx playwright test --project=role-access --no-deps
 
-      - name: Upload Staging Playwright Evidence
+      - name: Remove credential-bearing Playwright artifacts
+        id: sanitize-artifacts
         if: always()
+        run: node tests/e2e/scripts/sanitize-playwright-artifacts.mjs playwright-report test-results
+
+      - name: Upload Staging Playwright Evidence
+        if: ${{ always() && steps.sanitize-artifacts.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: staging-role-verification-${{ github.run_id }}
