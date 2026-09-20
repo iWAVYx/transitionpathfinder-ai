@@ -1,17 +1,21 @@
 {
   "schemaVersion": 2,
-  "auditedAt": "2026-09-18",
-  "auditedMainSha": "308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430",
+  "auditedAt": "2026-09-20",
+  "auditedMainSha": "193bed60f8d3d4233aab7cc043709e52cb388790",
   "status": "no-go",
   "staging": {
     "supabaseProjectRef": "qgrertkqbwanerqqemph",
     "workerOrigin": "https://transitionforward-staging.caysi101.workers.dev",
     "stripeMode": "sandbox",
-    "exactDeploymentSha": "308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430",
-    "deploymentRun": 35307324390,
-    "releaseReadinessRun": 35337890892,
+    "exactDeploymentSha": "193bed60f8d3d4233aab7cc043709e52cb388790",
+    "deploymentRun": 35517198872,
+    "releaseReadinessRun": 35519846560,
     "releaseReadinessAttempt": 1,
-    "releaseReadinessVerified": true
+    "releaseReadinessVerified": true,
+    "antivirusProvider": "cloudmersive",
+    "channelAttachmentMalwareRun": 35521640583,
+    "channelAttachmentMalwareAttempt": 1,
+    "channelAttachmentMalwareVerified": true
   },
   "production": {
     "supabaseProjectRef": "lrqcntqyekucamifpffs",
