@@ -41,16 +41,21 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430";
+  const verifiedStagingSha = "193bed60f8d3d4233aab7cc043709e52cb388790";
 
   assert.equal(audit.schemaVersion, 2);
-  assert.equal(audit.auditedAt, "2026-09-18");
+  assert.equal(audit.auditedAt, "2026-09-20");
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 35307324390);
-  assert.equal(audit.staging.releaseReadinessRun, 35337890892);
+  assert.equal(audit.staging.deploymentRun, 35517198872);
+  assert.equal(audit.staging.releaseReadinessRun, 35519846560);
   assert.equal(audit.staging.releaseReadinessVerified, true);
+  assert.equal(audit.staging.antivirusProvider, "cloudmersive");
+  assert.equal(audit.staging.channelAttachmentMalwareRun, 35521640583);
+  assert.equal(audit.staging.channelAttachmentMalwareAttempt, 1);
+  assert.equal(audit.staging.channelAttachmentMalwareVerified, true);
+  assert.equal(audit.production.malwareScanningVerified, false);
   assert.notEqual(
     audit.production.supabaseProjectRef,
     audit.staging.supabaseProjectRef,

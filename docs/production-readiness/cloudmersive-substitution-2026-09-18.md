@@ -2,14 +2,36 @@
 
 ## Status
 
-**DRAFT / CREDENTIAL-FREE / NOT DEPLOYED / NOT LIVE-TESTED**
+**DEPLOYED TO ISOLATED STAGING / SYNTHETIC CHANNEL PROOF PASSED / PRODUCTION NOT APPROVED**
 
-Production remains **NO-GO**. This package does not create an account or API
-key, change a secret, call an antivirus service, upload a file, deploy staging,
-publish Lovable, change a database, or touch production.
+Production remains **NO-GO**. The reviewed adapter is deployed to isolated
+staging and one protected synthetic channel-attachment clean/EICAR proof passed
+on 2026-09-20. No real student/IEP file, production credential, production
+database, Lovable publish, production DNS, or live payment was involved.
 
 The current approval boundary is **SYNTHETIC STAGING ONLY**. No real student,
 family, educator, IEP, health, or district file may be sent to Cloudmersive.
+
+## Protected staging proof — 2026-09-20
+
+Protected `main` SHA
+`193bed60f8d3d4233aab7cc043709e52cb388790` was deployed to the isolated
+staging Worker by run `35517198872`. Consolidated Release Readiness run
+`35519846560` passed at exact-SHA parity.
+
+Exactly one manual Channel Attachment Malware QA run, `35521640583`, then
+passed using only the synthetic staging student and synthetic text files:
+
+- the clean file received a clean Cloudmersive verdict, became downloadable
+  through a signed private-bucket URL, and downloaded byte-for-byte correctly;
+- the harmless EICAR test marker received an infected verdict, stayed
+  unavailable, and was purged from storage;
+- both verdicts produced sanitized audit events without the submitted filename
+  or storage path; and
+- the temporary QA channel and QA-only objects were removed.
+
+No retry was performed. Full evidence and the remaining boundary are recorded
+in `staging-acceptance-2026-09-20.md`.
 
 ## Why this package exists
 
@@ -44,9 +66,9 @@ free evaluation limit. A reviewed paid plan may set
 `CLOUDMERSIVE_MAX_SCAN_BYTES` up to the application's existing 25 MiB cap. An
 invalid or excessive override falls back to the free-tier limit.
 
-This means the free plan can prove the integration with small harmless test
-files, but it is not sufficient for all real IEP documents unless the product
-also adopts a 3.5 MB upload limit.
+The staging proof used small harmless files and did not establish a production
+file-size entitlement. A production plan must explicitly support the chosen
+limit; otherwise the application remains fail-closed above 3.5 MB.
 
 ## Read-only vendor review — 2026-09-18
 
@@ -93,23 +115,32 @@ also adopts a 3.5 MB upload limit.
 6. Production plan, file-size limit, rate limit, support level, and availability
    commitment appropriate for district use.
 
-Until those answers are reviewed and accepted, a free key may be used only for
-one separately authorized synthetic staging proof. It must never receive a real
-IEP or other user file.
+Until those answers are reviewed and accepted, the staging-only key may be used
+only for separately authorized synthetic staging proof. It must never receive a
+real IEP or other user file.
 
 ## Remaining gates
 
+Completed for synthetic staging:
+
+- the staging-only replacement key is stored as
+  `STAGING_CLOUDMERSIVE_API_KEY` in the protected GitHub `staging` environment;
+- the reviewed adapter is merged and deployed at exact SHA;
+- one protected channel-attachment clean/EICAR proof passed without retry; and
+- the clean-only download, infected-object purge, and sanitized-audit contracts
+  were proven live.
+
+Still required:
+
 1. Review Cloudmersive DPA, subprocessors, region, retention/deletion terms,
-   security posture, and education-data suitability; obtain the written answers
-   listed above.
-2. Create a staging-only Cloudmersive account/key and store it only as the
-   protected GitHub `staging` secret `STAGING_CLOUDMERSIVE_API_KEY`.
-3. Review and merge this package, then deploy its exact merge SHA to isolated
-   staging.
-4. Run exactly one protected clean-file and harmless EICAR proof using only
-   synthetic staging data.
-5. Keep the upload feature gate closed until the proof passes.
-6. Obtain separate authorization before any production secret, deployment,
+   security posture, and education-data suitability; obtain and accept the
+   written answers listed above.
+2. Record the production plan, supported file size, rate limit, service level,
+   incident commitment, and approved region.
+3. Add equivalent protected synthetic live proof for the `student-documents`
+   upload path. It shares the reviewed adapter, but only the
+   `channel-attachments` path was exercised in run `35521640583`.
+4. Obtain separate authorization before any production secret, deployment,
    migration, or real student/IEP file is involved.
 
 ## Official references

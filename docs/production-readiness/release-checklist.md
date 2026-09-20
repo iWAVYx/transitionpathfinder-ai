@@ -43,9 +43,14 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `supabase_admin`. PostgreSQL marks the extension non-relocatable. Finding
       9 remains open pending a reviewed platform-managed disposition; this
       evidence does not authorize moving, dropping, or reinstalling it.
-- [ ] Two canonical migrations remain pending in production. Both belong to
-      the attachment/antivirus release and remain blocked on provider/privacy
-      approval and protected clean-file/EICAR staging proof. The three reviewed
+- [ ] Three canonical migrations remain pending in production:
+      `20260908000500_channel_attachment_malware_gate.sql`,
+      `20260909010000_create_private_channel_attachments_bucket.sql`, and
+      `20260918190000_scope_student_policies_and_access_code_roles.sql`. The
+      first two belong to the attachment/antivirus release and remain blocked
+      on provider/privacy approval, equivalent `student-documents` proof, and
+      separate production authorization. The authorization-hardening migration
+      also requires its own reviewed production window. The three earlier
       antivirus-independent security migrations were applied and verified in
       the separately authorized 2026-09-17 window. See
       `production-security-maintenance-2026-09-17.md`.
@@ -80,17 +85,19 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Sentry/observability environment, redaction, alert routes, and retention verified.
 - [ ] Malware scanning, incident response, backup restoration, and legal/privacy
       blockers for real student/IEP data are closed. The fail-closed document and
-      attachment controls are implemented and deployed to isolated staging. A
-      protected run for SHA `625ea0de386cd44fbef12344a1b1f852af4ae07d`
-      stopped before login or upload because the staging OPSWAT key lacked paid
-      private-scanning entitlement. No clean file or EICAR file was uploaded and
-      no retry occurred. Cloudmersive is now the selected replacement candidate;
-      its credential-free fail-closed adapter package is documented, but no key,
-      provider call, or live evidence exists yet. Provider contractual/privacy
-      approval, a staging-only key, protected clean-file/EICAR evidence, and
-      production configuration are still required. See
+      attachment controls are implemented and deployed to isolated staging.
+      Exactly one protected Cloudmersive run, `35521640583`, passed against
+      exact SHA `193bed60f8d3d4233aab7cc043709e52cb388790` with no retry: the
+      synthetic clean channel attachment was released through a signed private
+      URL and matched byte-for-byte, while the harmless EICAR marker was blocked
+      and purged. No real file was used. This closes the channel-attachment
+      staging proof only. Cloudmersive contractual/privacy, education-data,
+      region, subprocessor, retention, and production-plan approval; equivalent
+      protected proof for `student-documents`; and separately authorized
+      production configuration and migrations are still required. See
       `channel-attachment-malware-gate-2026-09-08.md` and
-      `cloudmersive-substitution-2026-09-18.md`.
+      `cloudmersive-substitution-2026-09-18.md` and
+      `staging-acceptance-2026-09-20.md`.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9
@@ -112,21 +119,23 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: protected `main` SHA
-`308c274f7ffbdb8a9eb7ed0f4ff1a02a3d4eb430` passed deployment run
-`35307324390` and consolidated Release Readiness run `35337890892`. Its
+`193bed60f8d3d4233aab7cc043709e52cb388790` passed deployment run
+`35517198872` and consolidated Release Readiness run `35519846560`. Its
 push-time Build and SSR, accessibility, CT Seed v2, dashboard, role-guard,
 permission, RLS, cross-district RLS, and standard production-readiness checks
-all passed at exact-SHA parity. PR #136 changed documentation only and changed
-no migration file; it did not reapply a migration. The accepted three-file
-staging security sequence remains
-recorded in `staging-security-default-privileges-2026-09-14.md`; the current
-application and browser evidence is in `staging-acceptance-2026-09-18.md`.
+all passed at exact-SHA parity. The Release Readiness artifact was sanitized
+before upload and passed the no-credential-artifact gate. The current evidence
+is recorded in `staging-acceptance-2026-09-20.md`; containment and prevention
+for the earlier staging Playwright artifact incident are recorded in
+`staging-playwright-artifact-containment-2026-09-20.md`.
 
-The separately authorized antivirus run `34744192572` failed closed during its
-provider-entitlement preflight, before login, file upload, or scanning. That
-blocked OPSWAT run is not clean-file/EICAR acceptance evidence. Cloudmersive
-substitution work is credential-free until a staging-only key and privacy
-review are separately approved. Production remains NO-GO.
+Exactly one separately authorized Cloudmersive Channel Attachment Malware QA
+run, `35521640583`, passed on the same exact SHA using only a synthetic clean
+file and the harmless EICAR marker. The clean file was released through a
+signed private URL; EICAR remained unavailable and was purged. No retry was
+performed. This is not production acceptance: provider/legal approval,
+equivalent `student-documents` proof, and separately authorized production
+configuration and migrations remain open. Production remains NO-GO.
 
 Lovable's hosted preview evidence remains attached to application-bearing SHA
 `a0396a3af276e978d10920f29dc429f2820e47b9`, because PR #116 changed only

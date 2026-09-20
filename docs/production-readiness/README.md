@@ -56,9 +56,15 @@ Documents:
 - `staging-acceptance-2026-09-17.md` — historical exact-SHA isolated-staging
   deployment, protected security checks, corrected dashboard contrast, and full
   consolidated Release Readiness evidence for `83890ab4`.
-- `staging-acceptance-2026-09-18.md` — current exact-SHA isolated-staging
+- `staging-acceptance-2026-09-18.md` — historical exact-SHA isolated-staging
   deployment, protected push checks, independent environment-health verification,
   and full consolidated Release Readiness evidence for `308c274f`.
+- `staging-acceptance-2026-09-20.md` — current exact-SHA isolated-staging
+  deployment, protected push checks, consolidated Release Readiness, and the
+  one-attempt Cloudmersive channel-attachment clean/EICAR proof for `193bed60`.
+- `staging-playwright-artifact-containment-2026-09-20.md` — containment of the
+  synthetic staging Playwright artifact incident, session revocation, artifact
+  deletion, and the post-fix artifact-sanitization evidence.
 - `lovable-preview-acceptance-2026-09-06.md` — current `ee444f1a` isolated-
   staging acceptance, file-identical Lovable trigger mapping, successful live
   preview evidence, and the production conditions that remain NO-GO.
@@ -117,6 +123,9 @@ Documents:
 - `production-pg-net-dependency-inventory.sql` — reusable SELECT-only member,
   ownership, and dependency inventory with a fail-closed zero-public-member
   guard.
+- `cloudmersive-substitution-2026-09-18.md` — reviewed Cloudmersive adapter
+  boundary, successful synthetic channel-attachment proof, and the privacy,
+  legal, plan, `student-documents`, and production gates that remain open.
 - `lovable-production-build-input-alignment-2026-09-15.md` — current public
   production health diagnosis and the review-only virtual-module alignment for
   missing Lovable public build inputs.
