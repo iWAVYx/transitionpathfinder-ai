@@ -114,7 +114,10 @@ function blockedReasonsFrom(body: CloudmersiveResponse | undefined): string[] {
 
 function verdictCodeFor(body: CloudmersiveResponse | undefined): ScanCode {
   const threats = threatsFrom(body);
-  if (body?.CleanResult === true && threats.length === 0) return "clean";
+  const blockedReasons = blockedReasonsFrom(body);
+  if (body?.CleanResult === true && threats.length === 0 && blockedReasons.length === 0) {
+    return "clean";
+  }
   if (body?.CleanResult === false && threats.length > 0) return "infected";
   return "indeterminate";
 }

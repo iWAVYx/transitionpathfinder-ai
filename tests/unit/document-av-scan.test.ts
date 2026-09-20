@@ -27,6 +27,9 @@ describe("Cloudmersive verdict mapping (fail-closed)", () => {
     expect(verdictCodeFor({ CleanResult: false, FoundViruses: [] })).toBe("indeterminate");
     expect(verdictCodeFor({ ContainsMacros: true })).toBe("indeterminate");
     expect(
+      verdictCodeFor({ CleanResult: true, FoundViruses: [], ContainsMacros: true }),
+    ).toBe("indeterminate");
+    expect(
       verdictCodeFor({ CleanResult: true, FoundViruses: [{ VirusName: "contradiction" }] }),
     ).toBe("indeterminate");
     expect(verdictCodeFor(undefined)).toBe("indeterminate");
