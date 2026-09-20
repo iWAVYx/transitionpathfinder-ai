@@ -1,30 +1,22 @@
-// OPSWAT MetaDefender Cloud anti-virus scan for uploaded documents.
+// Cloudmersive advanced anti-virus scan for uploaded documents.
 //
-// Runs server-side after the sniff stage but before the AI extract job is
-// enqueued. Files are uploaded to MetaDefender Cloud with
-// `samplesharing: 0` and `privateprocessing: 1` so bytes are never shared
-// outside the private tenant. We poll for a final verdict with a bounded
-// timeout and FAIL CLOSED — any timeout, API failure, or indeterminate
-// result keeps the document quarantined and is treated as non-clean.
+// Files remain quarantined until this server-only module receives an explicit
+// clean verdict. Missing credentials, size-limit violations, request failures,
+// timeouts, malformed responses, contradictory responses, and policy blocks
+// all FAIL CLOSED. Only a response with CleanResult === true and no reported
+// viruses releases a file.
 //
-// This module is `.server.ts` so it is stripped from client bundles.
-// Import lazily from server-function handlers:
+// This module is `.server.ts` so it is stripped from client bundles. Import it
+// lazily from server-function handlers:
 //
 //   const { scanUploadedDocument } = await import("./document-av-scan.server");
 
-const METADEFENDER_BASE = "https://api.metadefender.com/v4";
-const UPLOAD_TIMEOUT_MS = 30_000;
-const POLL_INTERVAL_MS = 2_500;
-const POLL_TIMEOUT_MS = 90_000;
-const MAX_SCAN_BYTES = 25 * 1024 * 1024;
+const CLOUDMERSIVE_SCAN_URL = "https://api.cloudmersive.com/virus/scan/file/advanced";
+const SCAN_TIMEOUT_MS = 60_000;
+const FREE_TIER_MAX_SCAN_BYTES = 3_500_000;
+const ABSOLUTE_MAX_SCAN_BYTES = 25 * 1024 * 1024;
 
-/** MetaDefender `scan_all_result_i` numeric verdict codes we care about. */
-const META_CLEAN = 0;
-const META_INFECTED = 1;
-const META_SUSPICIOUS = 2;
-const META_FAILED_TO_SCAN = 3;
-// 4 = cleaned/rescan, 5 = unknown, 6 = quarantined, 7 = skipped, 8 = pwd-protected,
-// 9 = not scanned, 10 = potentially vulnerable, 11 = potentially unwanted, 12 = timeout, ...
+export const MALWARE_SCAN_PROVIDER = "cloudmersive" as const;
 
 export type ScanCode =
   | "clean"
@@ -42,64 +34,124 @@ export interface ScanInput {
   declared_size?: number | null;
 }
 
-export interface ScanClean {
-  ok: true;
-  code: "clean";
-  data_id: string;
-  scan_all_result_i: number;
-  scan_all_result_a: string;
-  total_avs?: number;
-  total_detected_avs?: number;
-  threats: string[];
+interface CloudmersiveVirus {
+  FileName?: unknown;
+  VirusName?: unknown;
 }
 
-export interface ScanNotClean {
+interface CloudmersiveResponse {
+  CleanResult?: unknown;
+  FoundViruses?: unknown;
+  ContainsExecutable?: unknown;
+  ContainsInvalidFile?: unknown;
+  ContainsScript?: unknown;
+  ContainsPasswordProtectedFile?: unknown;
+  ContainsRestrictedFileFormat?: unknown;
+  ContainsMacros?: unknown;
+  ContainsXmlExternalEntities?: unknown;
+  ContainsInsecureDeserialization?: unknown;
+  ContainsHtml?: unknown;
+  ContainsUnsafeArchive?: unknown;
+  ContainsOleEmbeddedObject?: unknown;
+  ContainsUnwantedAction?: unknown;
+}
+
+interface ScanBase {
+  provider: typeof MALWARE_SCAN_PROVIDER;
+  scan_id: string | null;
+  clean_result: boolean | null;
+  threats: string[];
+  blocked_reasons: string[];
+}
+
+export interface ScanClean extends ScanBase {
+  ok: true;
+  code: "clean";
+  scan_id: string;
+  clean_result: true;
+}
+
+export interface ScanNotClean extends ScanBase {
   ok: false;
   code: Exclude<ScanCode, "clean">;
-  data_id: string | null;
-  scan_all_result_i?: number;
-  scan_all_result_a?: string;
-  threats: string[];
   error_message: string;
 }
 
 export type ScanResult = ScanClean | ScanNotClean;
 
-interface FileResponse {
-  scan_results?: {
-    scan_all_result_i?: number;
-    scan_all_result_a?: string;
-    progress_percentage?: number;
-    total_avs?: number;
-    total_detected_avs?: number;
-    scan_details?: Record<string, { threat_found?: string; scan_result_i?: number }>;
-  };
+const POLICY_SIGNAL_NAMES = [
+  "ContainsExecutable",
+  "ContainsInvalidFile",
+  "ContainsScript",
+  "ContainsPasswordProtectedFile",
+  "ContainsRestrictedFileFormat",
+  "ContainsMacros",
+  "ContainsXmlExternalEntities",
+  "ContainsInsecureDeserialization",
+  "ContainsHtml",
+  "ContainsUnsafeArchive",
+  "ContainsOleEmbeddedObject",
+  "ContainsUnwantedAction",
+] as const satisfies readonly (keyof CloudmersiveResponse)[];
+
+function threatsFrom(body: CloudmersiveResponse | undefined): string[] {
+  if (!Array.isArray(body?.FoundViruses)) return [];
+
+  const names = body.FoundViruses.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const name = (entry as CloudmersiveVirus).VirusName;
+    if (typeof name !== "string" || name.trim().length === 0) return [];
+    // Do not copy provider-returned filenames into logs or audit records.
+    return [name.trim().slice(0, 200)];
+  });
+  return [...new Set(names)];
 }
 
-function threatsFrom(details: FileResponse["scan_results"]): string[] {
-  const map = details?.scan_details ?? {};
-  const out: string[] = [];
-  for (const engine of Object.keys(map)) {
-    const t = map[engine]?.threat_found;
-    if (t && t.trim().length > 0) out.push(`${engine}: ${t}`);
+function blockedReasonsFrom(body: CloudmersiveResponse | undefined): string[] {
+  if (!body) return [];
+  return POLICY_SIGNAL_NAMES.filter((name) => body[name] === true);
+}
+
+function verdictCodeFor(body: CloudmersiveResponse | undefined): ScanCode {
+  const threats = threatsFrom(body);
+  const blockedReasons = blockedReasonsFrom(body);
+  if (body?.CleanResult === true && threats.length === 0 && blockedReasons.length === 0) {
+    return "clean";
   }
-  return out;
+  if (body?.CleanResult === false && threats.length > 0) return "infected";
+  return "indeterminate";
 }
 
-function verdictCodeFor(scan_all_result_i: number | undefined): ScanCode {
-  if (scan_all_result_i === META_CLEAN) return "clean";
-  if (scan_all_result_i === META_INFECTED || scan_all_result_i === META_SUSPICIOUS) return "infected";
-  if (scan_all_result_i === META_FAILED_TO_SCAN) return "failed";
-  return "indeterminate";
+function maxScanBytesFromEnvironment(raw = process.env.CLOUDMERSIVE_MAX_SCAN_BYTES): number {
+  if (!raw) return FREE_TIER_MAX_SCAN_BYTES;
+  const parsed = Number(raw);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0 || parsed > ABSOLUTE_MAX_SCAN_BYTES) {
+    return FREE_TIER_MAX_SCAN_BYTES;
+  }
+  return parsed;
+}
+
+function safeFilename(storagePath: string): string {
+  const lastSegment = storagePath.split("/").pop() ?? "upload.bin";
+  const extensionMatch = lastSegment.match(/\.([a-zA-Z0-9]{1,12})$/);
+  const extension = extensionMatch?.[1]?.toLowerCase();
+  // Preserve only a short file extension for format verification. Never send
+  // a student's original filename or storage path to the external provider.
+  return extension ? `upload.${extension}` : "upload.bin";
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit, ms: number): Promise<Response> {
   const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), ms);
+  const timer = setTimeout(() => controller.abort(), ms);
   try {
     return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("scan_timeout");
+    }
+    throw error;
   } finally {
-    clearTimeout(t);
+    clearTimeout(timer);
   }
 }
 
@@ -107,68 +159,69 @@ async function submitFile(
   apiKey: string,
   bytes: Uint8Array,
   filename: string,
-): Promise<string> {
-  const res = await fetchWithTimeout(
-    `${METADEFENDER_BASE}/file`,
+  mimeType: string,
+): Promise<CloudmersiveResponse> {
+  const form = new FormData();
+  const arrayBuffer = bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+  form.append("inputFile", new Blob([arrayBuffer], { type: mimeType }), filename);
+
+  const response = await fetchWithTimeout(
+    CLOUDMERSIVE_SCAN_URL,
     {
       method: "POST",
       headers: {
-        apikey: apiKey,
-        filename,
-        // Private scanning — bytes are NOT added to community samples,
-        // and processing is confined to the private tenant.
-        samplesharing: "0",
-        privateprocessing: "1",
-        "content-type": "application/octet-stream",
+        Apikey: apiKey,
+        fileName: filename,
+        allowExecutables: "false",
+        allowInvalidFiles: "false",
+        allowScripts: "false",
+        allowPasswordProtectedFiles: "false",
+        allowMacros: "false",
+        allowXmlExternalEntities: "false",
+        allowInsecureDeserialization: "false",
+        allowHtml: "false",
+        allowUnsafeArchives: "false",
+        allowOleEmbeddedObject: "false",
+        allowUnwantedAction: "false",
       },
-      body: bytes as unknown as BodyInit,
+      body: form,
     },
-    UPLOAD_TIMEOUT_MS,
+    SCAN_TIMEOUT_MS,
   );
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`MetaDefender submit ${res.status}: ${text.slice(0, 300)}`);
+
+  if (!response.ok) {
+    // Avoid copying provider response bodies into logs; they can contain
+    // request diagnostics and must not become a student-data side channel.
+    throw new Error(`Cloudmersive scan returned HTTP ${response.status}.`);
   }
-  const json = (await res.json()) as { data_id?: string };
-  if (!json.data_id) throw new Error("MetaDefender submit returned no data_id");
-  return json.data_id;
+
+  return (await response.json()) as CloudmersiveResponse;
 }
 
-async function pollForVerdict(
-  apiKey: string,
-  dataId: string,
-  deadline: number,
-): Promise<FileResponse> {
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    if (Date.now() >= deadline) throw new Error("poll_timeout");
-    const res = await fetchWithTimeout(
-      `${METADEFENDER_BASE}/file/${encodeURIComponent(dataId)}`,
-      { headers: { apikey: apiKey } },
-      10_000,
-    );
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`MetaDefender poll ${res.status}: ${text.slice(0, 300)}`);
-    }
-    const body = (await res.json()) as FileResponse;
-    const progress = body.scan_results?.progress_percentage ?? 0;
-    const verdictI = body.scan_results?.scan_all_result_i;
-    if (progress >= 100 && typeof verdictI === "number") return body;
-    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-  }
+function failedResult(
+  errorMessage: string,
+  scanId: string | null = null,
+  code: ScanNotClean["code"] = "failed",
+): ScanNotClean {
+  return {
+    ok: false,
+    code,
+    provider: MALWARE_SCAN_PROVIDER,
+    scan_id: scanId,
+    clean_result: null,
+    threats: [],
+    blocked_reasons: [],
+    error_message: errorMessage,
+  };
 }
 
 export async function scanUploadedDocument(input: ScanInput): Promise<ScanResult> {
-  const apiKey = process.env.OPSWAT_API_KEY;
+  const apiKey = process.env.CLOUDMERSIVE_API_KEY?.trim();
   if (!apiKey) {
-    return {
-      ok: false,
-      code: "failed",
-      data_id: null,
-      threats: [],
-      error_message: "OPSWAT_API_KEY not configured — failing closed.",
-    };
+    return failedResult("CLOUDMERSIVE_API_KEY not configured — failing closed.");
   }
 
   let bytes: Uint8Array;
@@ -180,95 +233,70 @@ export async function scanUploadedDocument(input: ScanInput): Promise<ScanResult
       .from(bucket)
       .download(input.storage_path);
     if (error || !blob) {
-      return {
-        ok: false,
-        code: "failed",
-        data_id: null,
-        threats: [],
-        error_message: error?.message ?? "Could not read uploaded object for AV scan.",
-      };
+      return failedResult(error?.message ?? "Could not read uploaded object for AV scan.");
     }
     bytes = new Uint8Array(await blob.arrayBuffer());
-    if (bytes.byteLength > MAX_SCAN_BYTES) {
-      return {
-        ok: false,
-        code: "failed",
-        data_id: null,
-        threats: [],
-        error_message: "File exceeds the 25 MB malware scan limit.",
-      };
+    const maxScanBytes = maxScanBytesFromEnvironment();
+    if (bytes.byteLength > maxScanBytes) {
+      return failedResult(`File exceeds the configured ${maxScanBytes}-byte malware scan limit.`);
     }
-    // Use only the last path segment; MetaDefender only needs a filename hint.
-    filename = input.storage_path.split("/").pop() ?? "upload.bin";
-  } catch (err) {
-    return {
-      ok: false,
-      code: "failed",
-      data_id: null,
-      threats: [],
-      error_message: err instanceof Error ? err.message : String(err),
-    };
+    filename = safeFilename(input.storage_path);
+  } catch (error) {
+    return failedResult(error instanceof Error ? error.message : String(error));
   }
 
-  let dataId: string;
+  const scanId = crypto.randomUUID();
+  let body: CloudmersiveResponse;
   try {
-    dataId = await submitFile(apiKey, bytes, filename);
-  } catch (err) {
-    return {
-      ok: false,
-      code: "failed",
-      data_id: null,
-      threats: [],
-      error_message: err instanceof Error ? err.message : String(err),
-    };
+    body = await submitFile(
+      apiKey,
+      bytes,
+      filename,
+      input.declared_mime?.trim() || "application/octet-stream",
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return failedResult(message, scanId, message === "scan_timeout" ? "timeout" : "failed");
   }
 
-  let body: FileResponse;
-  try {
-    body = await pollForVerdict(apiKey, dataId, Date.now() + POLL_TIMEOUT_MS);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      ok: false,
-      code: msg === "poll_timeout" ? "timeout" : "failed",
-      data_id: dataId,
-      threats: [],
-      error_message: msg,
-    };
-  }
-
-  const sr = body.scan_results!;
-  const code = verdictCodeFor(sr.scan_all_result_i);
-  const threats = threatsFrom(sr);
+  const code = verdictCodeFor(body);
+  const threats = threatsFrom(body);
+  const blockedReasons = blockedReasonsFrom(body);
 
   if (code === "clean") {
     return {
       ok: true,
       code: "clean",
-      data_id: dataId,
-      scan_all_result_i: sr.scan_all_result_i!,
-      scan_all_result_a: sr.scan_all_result_a ?? "No Threat Detected",
-      total_avs: sr.total_avs,
-      total_detected_avs: sr.total_detected_avs,
+      provider: MALWARE_SCAN_PROVIDER,
+      scan_id: scanId,
+      clean_result: true,
       threats,
+      blocked_reasons: blockedReasons,
     };
   }
 
   return {
     ok: false,
     code,
-    data_id: dataId,
-    scan_all_result_i: sr.scan_all_result_i,
-    scan_all_result_a: sr.scan_all_result_a,
+    provider: MALWARE_SCAN_PROVIDER,
+    scan_id: scanId,
+    clean_result: body.CleanResult === false ? false : null,
     threats,
+    blocked_reasons: blockedReasons,
     error_message:
       code === "infected"
-        ? `Threats detected: ${threats.slice(0, 3).join("; ") || sr.scan_all_result_a || "unknown"}`
-        : code === "failed"
-          ? `Scan failed: ${sr.scan_all_result_a ?? "engines could not complete"}`
-          : `Indeterminate verdict (${sr.scan_all_result_i}: ${sr.scan_all_result_a ?? "unknown"})`,
+        ? `Threats detected: ${threats.slice(0, 3).join("; ") || "provider-reported malware"}`
+        : blockedReasons.length > 0
+          ? `Cloudmersive blocked the file: ${blockedReasons.slice(0, 4).join(", ")}`
+          : "Cloudmersive returned an indeterminate or contradictory verdict.",
   };
 }
 
-// Exported for unit testing only.
-export const __test__ = { verdictCodeFor, threatsFrom };
+// Exported for credential-free unit testing only.
+export const __test__ = {
+  blockedReasonsFrom,
+  maxScanBytesFromEnvironment,
+  safeFilename,
+  threatsFrom,
+  verdictCodeFor,
+};

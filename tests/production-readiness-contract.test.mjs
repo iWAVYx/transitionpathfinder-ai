@@ -718,16 +718,17 @@ test("staging deploy installs the protected antivirus key only into isolated sta
   assert.match(deployStaging, /environment:\s*staging/);
   assert.match(
     deployStaging,
-    /STAGING_OPSWAT_API_KEY:\s*\$\{\{ secrets\.STAGING_OPSWAT_API_KEY \}\}/,
+    /STAGING_CLOUDMERSIVE_API_KEY:\s*\$\{\{ secrets\.STAGING_CLOUDMERSIVE_API_KEY \}\}/,
   );
-  assert.match(deployStaging, /if \[ -z "\$STAGING_OPSWAT_API_KEY" \]/);
+  assert.match(deployStaging, /if \[ -z "\$STAGING_CLOUDMERSIVE_API_KEY" \]/);
   assert.match(
     deployStaging,
-    /wrangler secret put OPSWAT_API_KEY --config wrangler\.staging\.toml/,
+    /wrangler secret put CLOUDMERSIVE_API_KEY --config wrangler\.staging\.toml/,
   );
-  assert.doesNotMatch(deployStaging, /secrets\.OPSWAT_API_KEY/);
+  assert.doesNotMatch(deployStaging, /secrets\.CLOUDMERSIVE_API_KEY/);
+  assert.doesNotMatch(deployStaging, /OPSWAT_API_KEY/);
   assert.match(stagingConfig, /name = "transitionforward-staging"/);
-  assert.doesNotMatch(stagingConfig, /^OPSWAT_API_KEY\s*=/m);
+  assert.doesNotMatch(stagingConfig, /^CLOUDMERSIVE_API_KEY\s*=/m);
 });
 
 test("hosted builds use the supported server validator API", () => {
