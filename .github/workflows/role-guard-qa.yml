@@ -129,8 +129,12 @@ jobs:
         run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Role-leak nav + access-rule guard
         run: bunx playwright test --project=role-access --no-deps
-      - uses: actions/upload-artifact@v4
+      - name: Remove credential-bearing Playwright artifacts
+        id: sanitize-artifacts
         if: always()
+        run: node tests/e2e/scripts/sanitize-playwright-artifacts.mjs playwright-report test-results
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.sanitize-artifacts.outcome == 'success' }}
         with:
           name: role-leak-playwright-report
           path: |

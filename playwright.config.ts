@@ -36,13 +36,18 @@ export default defineConfig({
   reporter: [["list"]],
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    // Fail closed: projects inherit trace capture off. A Playwright trace
+    // serializes the browser context's storageState, including reusable
+    // Supabase refresh tokens for signed-in tests. Credential-free projects
+    // may opt in explicitly below.
+    trace: "off",
   },
   projects: [
     {
       name: "setup",
       testMatch: /auth\.setup\.ts/,
       testIgnore: [/auth-roles\.setup\.ts/],
+      use: { baseURL, trace: "off" },
     },
     {
       name: "anon",
@@ -51,7 +56,12 @@ export default defineConfig({
     },
     {
       name: "authed",
-      use: { baseURL, trace: "retain-on-failure", storageState: STORAGE_STATE },
+      use: {
+        baseURL,
+        trace: "off",
+        screenshot: "only-on-failure",
+        storageState: STORAGE_STATE,
+      },
       testMatch: /\.signedin\.spec\.ts$/,
       testIgnore: [/dashboard-regression\.signedin\.spec\.ts$/],
       dependencies: ["setup"],
@@ -62,10 +72,11 @@ export default defineConfig({
     {
       name: "dashboard-setup",
       testMatch: /auth-roles\.setup\.ts/,
+      use: { baseURL, trace: "off" },
     },
     {
       name: "dashboard-regression",
-      use: { baseURL, trace: "retain-on-failure" },
+      use: { baseURL, trace: "off", screenshot: "only-on-failure" },
       testMatch: /dashboard-regression\.signedin\.spec\.ts$/,
       dependencies: ["dashboard-setup"],
     },
@@ -74,7 +85,7 @@ export default defineConfig({
     // when storageState is missing.
     {
       name: "role-access",
-      use: { baseURL, trace: "retain-on-failure" },
+      use: { baseURL, trace: "off", screenshot: "only-on-failure" },
       testMatch:
         /(role-leak-nav|role-access-rules|demo-roles|dashboard-tile-navigation|workspace-stage-navigation)\.signedin\.spec\.ts$/,
       dependencies: ["dashboard-setup"],
@@ -85,7 +96,8 @@ export default defineConfig({
       name: "release-public",
       use: {
         baseURL,
-        trace: "retain-on-failure",
+        // These files include per-role cases that load saved storageState.
+        trace: "off",
         screenshot: "only-on-failure",
         video: "retain-on-failure",
       },
@@ -96,7 +108,7 @@ export default defineConfig({
       name: "release-signedin",
       use: {
         baseURL,
-        trace: "retain-on-failure",
+        trace: "off",
         screenshot: "only-on-failure",
         video: "retain-on-failure",
       },
