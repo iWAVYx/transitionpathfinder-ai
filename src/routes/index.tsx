@@ -240,7 +240,7 @@ function HomePage() {
 
         <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-white">
               {hero.eyebrow}
             </p>
             <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
@@ -266,10 +266,10 @@ function HomePage() {
               {"\u00A0"}
               <span className="whitespace-nowrap">{hero.headline_tail}</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-foreground/80 sm:text-xl">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white sm:text-xl">
               {hero.subhead}
             </p>
-            <p className="mt-5 font-display text-xl italic text-brand-gold-ink sm:text-2xl">
+            <p className="mt-5 font-display text-xl font-bold italic text-brand-teal-ink sm:text-2xl">
               <span className="whitespace-nowrap">One&nbsp;Platform.</span>{" "}
               <span className="whitespace-nowrap">One&nbsp;Plan.</span>{" "}
               <span className="whitespace-nowrap">Forward&nbsp;Together.</span>

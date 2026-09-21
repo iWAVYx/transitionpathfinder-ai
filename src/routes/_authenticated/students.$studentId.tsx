@@ -272,7 +272,7 @@ function StudentDetailPage() {
 
 
         {/* DOCUMENTS */}
-        <div className="mt-10">
+        <div className="mt-10" data-testid="student-document-section">
           <FamilyDocumentUpload
             studentId={studentId}
             studentFirstName={student?.first_name ?? null}

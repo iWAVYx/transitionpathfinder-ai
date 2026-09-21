@@ -47,7 +47,13 @@ describe("recovered Lovable visual update", () => {
     expect(HOME).toContain('className="text-brand-teal"');
     expect(HOME).toContain('<span className="text-brand-gold">{suffix}</span>');
     expect(HOME).toContain(
-      'className="mt-5 font-display text-xl italic text-brand-gold-ink sm:text-2xl"',
+      'className="text-xs font-bold uppercase tracking-[0.22em] text-white"',
+    );
+    expect(HOME).toContain(
+      'className="mt-6 max-w-xl text-lg leading-relaxed text-white sm:text-xl"',
+    );
+    expect(HOME).toContain(
+      'className="mt-5 font-display text-xl font-bold italic text-brand-teal-ink sm:text-2xl"',
     );
   });
 
