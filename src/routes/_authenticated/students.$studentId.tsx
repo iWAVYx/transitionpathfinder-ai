@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -53,6 +53,38 @@ export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
   component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
+
+class StudentPanelBoundary extends Component<
+  { children: ReactNode; name: string },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch() {
+    // Deliberately omit the thrown value: server errors can contain private
+    // student context. The panel name is enough for privacy-safe diagnostics.
+    console.error(`[StudentPanelBoundary:${this.props.name}]`);
+  }
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <div
+          role="status"
+          className="mt-4 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
+        >
+          This section is temporarily unavailable. The rest of the student workspace is still
+          available.
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function StudentDetailPage() {
   const { studentId } = Route.useParams();
@@ -222,25 +254,29 @@ function StudentDetailPage() {
             <StatTile icon={<UsersIcon className="h-4 w-4" />} label="Privacy" value="Invite-only" small />
           </div>
 
-          <ProfileCompleteness student={student} goals={goals} docs={docs} />
-          <RightsStatusCard studentId={studentId} />
-          <CtTransitionPrompts
-            dateOfBirth={student?.date_of_birth ?? null}
-            age={null}
-            gradeBand={student?.grade_band ?? null}
-          />
+          <StudentPanelBoundary name="profile-support">
+            <ProfileCompleteness student={student} goals={goals} docs={docs} />
+            <RightsStatusCard studentId={studentId} />
+            <CtTransitionPrompts
+              dateOfBirth={student?.date_of_birth ?? null}
+              age={null}
+              gradeBand={student?.grade_band ?? null}
+            />
+          </StudentPanelBoundary>
 
 
 
         </header>
 
         {/* PATHWAY REPORT — single CTA loop */}
-        <div className="mt-8">
-          <PathwayReportCard
-            studentId={studentId}
-            studentFirstName={student?.first_name ?? null}
-          />
-        </div>
+        <StudentPanelBoundary name="pathway-report">
+          <div className="mt-8">
+            <PathwayReportCard
+              studentId={studentId}
+              studentFirstName={student?.first_name ?? null}
+            />
+          </div>
+        </StudentPanelBoundary>
 
         {/* HUB CARDS */}
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -343,63 +379,63 @@ function StudentDetailPage() {
           </div>
         )}
 
-        <div className="mt-6">
-          <GoalsEditor
-            studentId={studentId}
-            studentFirstName={student?.first_name ?? null}
-            goals={goals}
-            onChange={reload}
-          />
-        </div>
-
-        <div className="mt-6">
-          <PathwayProgress studentId={studentId} />
-        </div>
-
-        <div className="mt-6">
-          <StudentVoicePanel studentId={studentId} />
-        </div>
-
-        <div className="mt-6">
-          <ActionItemsPanel studentId={studentId} />
-        </div>
-
-        {student && (
+        <StudentPanelBoundary name="planning-tools">
           <div className="mt-6">
-            <ReadinessInsightsCard
+            <GoalsEditor
               studentId={studentId}
-              studentFirstName={student.first_name}
+              studentFirstName={student?.first_name ?? null}
+              goals={goals}
+              onChange={reload}
             />
           </div>
-        )}
 
-        <div className="mt-6">
-          <RecommendedResourcesPanel studentId={studentId} />
-        </div>
+          <div className="mt-6">
+            <PathwayProgress studentId={studentId} />
+          </div>
 
+          <div className="mt-6">
+            <StudentVoicePanel studentId={studentId} />
+          </div>
 
+          <div className="mt-6">
+            <ActionItemsPanel studentId={studentId} />
+          </div>
 
-        <div className="mt-6">
-          <RecommendedPartnersPanel studentId={studentId} />
-        </div>
+          {student && (
+            <div className="mt-6">
+              <ReadinessInsightsCard
+                studentId={studentId}
+                studentFirstName={student.first_name}
+              />
+            </div>
+          )}
 
-        <div className="mt-6">
-          <MembershipPanel studentId={studentId} />
-        </div>
+          <div className="mt-6">
+            <RecommendedResourcesPanel studentId={studentId} />
+          </div>
 
-        <div className="mt-6">
-          <WhoCanSeeThisPanel studentId={studentId} />
-        </div>
+          <div className="mt-6">
+            <RecommendedPartnersPanel studentId={studentId} />
+          </div>
 
-        <div className="mt-6">
-          <CollaboratorsPanel studentId={studentId} />
-        </div>
+          <div className="mt-6">
+            <MembershipPanel studentId={studentId} />
+          </div>
 
-        <div className="mt-6">
-          <CounselorNotesPanel studentId={studentId} />
-        </div>
+          <div className="mt-6">
+            <WhoCanSeeThisPanel studentId={studentId} />
+          </div>
 
-        <AuditTrailPanel studentId={studentId} />
+          <div className="mt-6">
+            <CollaboratorsPanel studentId={studentId} />
+          </div>
+
+          <div className="mt-6">
+            <CounselorNotesPanel studentId={studentId} />
+          </div>
+
+          <AuditTrailPanel studentId={studentId} />
+        </StudentPanelBoundary>
       </section>
     </SiteShell>
   );
