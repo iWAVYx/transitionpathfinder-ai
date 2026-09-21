@@ -242,7 +242,10 @@ export function FamilyDocumentUpload({
   const firstName = studentFirstName ?? "your student";
 
   return (
-    <div className="rounded-2xl border bg-card shadow-soft">
+    <div
+      className="rounded-2xl border bg-card shadow-soft"
+      data-testid="student-document-panel"
+    >
       {/* Header */}
       <div className="border-b p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
