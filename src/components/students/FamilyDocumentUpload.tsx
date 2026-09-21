@@ -51,6 +51,7 @@ import {
 } from "@/components/privacy/SensitiveFilePrivacyReviewDialog";
 import type { SensitiveFileReviewSource } from "@/lib/sensitive-file-review.browser";
 import { assertPrivacySafeDerivedUpload } from "@/lib/sensitive-text-redaction";
+import { formatDocumentTypeLabel } from "@/lib/document-display";
 import { DocumentPermissionsDialog } from "./DocumentPermissionsDialog";
 
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
@@ -585,7 +586,7 @@ export function FamilyDocumentUpload({
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{d.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      <span className="capitalize">{d.doc_type.replace("-", " ")}</span>
+                      <span className="capitalize">{formatDocumentTypeLabel(d.doc_type)}</span>
                       {(d.size_bytes ?? 0) > 0
                         ? ` · ${Math.round((d.size_bytes ?? 0) / 1024)} KB`
                         : ""}
