@@ -46,7 +46,7 @@ import {
 // Imagery — reused project assets, cropped via aspect wrappers per project rules.
 import heroImg from "@/assets/bundled/raising-hands-class.webp";
 import studentCenter from "@/assets/about-student-center.jpg";
-import founderImg from "@/assets/home-educator.jpg";
+import founderImg from "@/assets/bundled/founder-headshot-top.webp";
 import paperworkImg from "@/assets/iep-upload.jpg";
 import classroomImg from "@/assets/bundled/about-chapter-02-classroom.webp";
 import familyImg from "@/assets/families-hero-v2.jpg";
@@ -60,7 +60,7 @@ import buildImg from "@/assets/bundled/about-chapter-04-build.webp";
 
 import sunriseImg from "@/assets/framework-bg-sunrise.jpg";
 import topoImg from "@/assets/framework-bg-topo.jpg";
-import studentPhoto from "@/assets/home-student-photo.jpg";
+import studentPhoto from "@/assets/bundled/class-read-2.webp";
 import collageImg from "@/assets/about-hero-collage.png";
 
 export const Route = createFileRoute("/about")({
@@ -883,7 +883,7 @@ function StudentCentered() {
             The student is not a profile in a system.
             <span className="italic text-brand-gold-ink"> They are the reason for it.</span>
           </h2>
-          <p className="mt-5 text-base text-[#8A5A12] sm:text-lg">
+          <p className="mt-5 text-base text-[#242A33] sm:text-lg">
             Their strengths, preferences, interests, goals, questions, and next steps
             should shape the plan — not the other way around. Transition Forward is built
             to help students understand their own path, participate in planning, and see
@@ -895,7 +895,7 @@ function StudentCentered() {
             <img
               src={studentPhoto}
               alt="A Connecticut student preparing for what comes next"
-              className="h-full w-full object-cover object-[50%_25%]"
+              className="h-full w-full object-cover object-[50%_38%]"
             />
           </div>
           <div className="absolute -bottom-4 right-6 rounded-full bg-[#242A33] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#F5F6F8] shadow-lg">

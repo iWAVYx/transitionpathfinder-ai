@@ -841,7 +841,7 @@ test("deployable source owns every referenced marketing image", () => {
   const bundled = readdirSync("src/assets/bundled").filter((name) => name.endsWith(".webp"));
   assert.equal(
     bundled.length,
-    31,
+    33,
     "all referenced Lovable images must have optimized local copies",
   );
   for (const name of bundled) {
