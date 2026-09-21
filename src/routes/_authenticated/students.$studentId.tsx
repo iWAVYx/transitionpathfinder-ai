@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
-import { Component, useEffect, useState, type ReactNode } from "react";
+import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -21,23 +21,13 @@ import {
   StandardDocActions,
 } from "@/components/students/FamilyDocumentUpload";
 import { Button } from "@/components/ui/button";
-import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
-import { WhoCanSeeThisPanel } from "@/components/students/WhoCanSeeThisPanel";
-import { GoalsEditor } from "@/components/students/GoalsEditor";
-import { MembershipPanel } from "@/components/students/MembershipPanel";
-import { PathwayProgress } from "@/components/students/PathwayProgress";
-import { StudentVoicePanel } from "@/components/students/StudentVoicePanel";
-import { RecommendedResourcesPanel } from "@/components/students/RecommendedResourcesPanel";
-import { ReadinessInsightsCard } from "@/components/students/ReadinessInsightsCard";
-import { RecommendedPartnersPanel } from "@/components/students/RecommendedPartnersPanel";
-import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
-import { ProfileCompleteness } from "@/components/students/ProfileCompleteness";
-import { RightsStatusCard } from "@/components/students/RightsStatusCard";
-import { CtTransitionPrompts } from "@/components/students/CtTransitionPrompts";
-import { AuditTrailPanel } from "@/components/students/AuditTrailPanel";
-import { PathwayReportCard } from "@/components/students/PathwayReportCard";
-import { CounselorNotesPanel } from "@/components/students/CounselorNotesPanel";
-import { getStudent, listGoals, canEditStudent, type Student, type Goal } from "@/lib/students.functions";
+import {
+  getStudent,
+  listGoals,
+  canEditStudent,
+  type Student,
+  type Goal,
+} from "@/lib/students.functions";
 import {
   listDocuments,
   deleteDocument,
@@ -49,13 +39,31 @@ import {
 } from "@/lib/documents.functions";
 import { extractPdfText } from "@/lib/browser-only-libs";
 
+const StudentProfileSupport = lazy(() =>
+  import("@/components/students/StudentProfileSupport").then((module) => ({
+    default: module.StudentProfileSupport,
+  })),
+);
+const StudentPathwayReportPanel = lazy(() =>
+  import("@/components/students/StudentPathwayReportPanel").then((module) => ({
+    default: module.StudentPathwayReportPanel,
+  })),
+);
+const StudentPlanningTools = lazy(() =>
+  import("@/components/students/StudentPlanningTools").then((module) => ({
+    default: module.StudentPlanningTools,
+  })),
+);
+
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
   component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
 
+type StudentPanelName = "profile-support" | "pathway-report" | "planning-tools";
+
 class StudentPanelBoundary extends Component<
-  { children: ReactNode; name: string },
+  { children: ReactNode; name: StudentPanelName },
   { failed: boolean }
 > {
   state = { failed: false };
@@ -75,6 +83,7 @@ class StudentPanelBoundary extends Component<
       return (
         <div
           role="status"
+          data-testid={`student-panel-boundary-${this.props.name}`}
           className="mt-4 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
         >
           This section is temporarily unavailable. The rest of the student workspace is still
@@ -84,6 +93,17 @@ class StudentPanelBoundary extends Component<
     }
     return this.props.children;
   }
+}
+
+function StudentPanelLoading() {
+  return (
+    <div
+      aria-live="polite"
+      className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground"
+    >
+      Loading this section…
+    </div>
+  );
 }
 
 function StudentDetailPage() {
@@ -123,7 +143,6 @@ function StudentDetailPage() {
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
-
 
   async function handleDownload(doc: DocumentRow) {
     try {
@@ -248,34 +267,50 @@ function StudentDetailPage() {
 
           {/* Stats row */}
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile icon={<Target className="h-4 w-4" />} label="Active goals" value={String(goals.length)} />
-            <StatTile icon={<FileText className="h-4 w-4" />} label="Documents" value={String(docs.length)} />
-            <StatTile icon={<Compass className="h-4 w-4" />} label="Pathway" value="In progress" small />
-            <StatTile icon={<UsersIcon className="h-4 w-4" />} label="Privacy" value="Invite-only" small />
+            <StatTile
+              icon={<Target className="h-4 w-4" />}
+              label="Active goals"
+              value={String(goals.length)}
+            />
+            <StatTile
+              icon={<FileText className="h-4 w-4" />}
+              label="Documents"
+              value={String(docs.length)}
+            />
+            <StatTile
+              icon={<Compass className="h-4 w-4" />}
+              label="Pathway"
+              value="In progress"
+              small
+            />
+            <StatTile
+              icon={<UsersIcon className="h-4 w-4" />}
+              label="Privacy"
+              value="Invite-only"
+              small
+            />
           </div>
 
           <StudentPanelBoundary name="profile-support">
-            <ProfileCompleteness student={student} goals={goals} docs={docs} />
-            <RightsStatusCard studentId={studentId} />
-            <CtTransitionPrompts
-              dateOfBirth={student?.date_of_birth ?? null}
-              age={null}
-              gradeBand={student?.grade_band ?? null}
-            />
+            <Suspense fallback={<StudentPanelLoading />}>
+              <StudentProfileSupport
+                student={student}
+                studentId={studentId}
+                goals={goals}
+                docs={docs}
+              />
+            </Suspense>
           </StudentPanelBoundary>
-
-
-
         </header>
 
         {/* PATHWAY REPORT — single CTA loop */}
         <StudentPanelBoundary name="pathway-report">
-          <div className="mt-8">
-            <PathwayReportCard
+          <Suspense fallback={<StudentPanelLoading />}>
+            <StudentPathwayReportPanel
               studentId={studentId}
               studentFirstName={student?.first_name ?? null}
             />
-          </div>
+          </Suspense>
         </StudentPanelBoundary>
 
         {/* HUB CARDS */}
@@ -305,7 +340,6 @@ function StudentDetailPage() {
             desc="Family input, interest surveys, life-skills checklists."
           />
         </div>
-
 
         {/* DOCUMENTS */}
         <div className="mt-10" data-testid="student-document-section">
@@ -337,8 +371,8 @@ function StudentDetailPage() {
               <div>
                 <h3 className="font-display text-xl">Goals We Found</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Review and remove any you don't want before saving. Nothing is added until you click
-                  Save.
+                  Review and remove any you don't want before saving. Nothing is added until you
+                  click Save.
                 </p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setProposed(null)}>
@@ -373,68 +407,23 @@ function StudentDetailPage() {
             </ul>
             <div className="mt-4 flex justify-end">
               <Button onClick={handleSaveGoals} disabled={saving || proposed.goals.length === 0}>
-                {saving ? "Saving…" : `Save ${proposed.goals.length} goal${proposed.goals.length === 1 ? "" : "s"}`}
+                {saving
+                  ? "Saving…"
+                  : `Save ${proposed.goals.length} goal${proposed.goals.length === 1 ? "" : "s"}`}
               </Button>
             </div>
           </div>
         )}
 
         <StudentPanelBoundary name="planning-tools">
-          <div className="mt-6">
-            <GoalsEditor
+          <Suspense fallback={<StudentPanelLoading />}>
+            <StudentPlanningTools
+              student={student}
               studentId={studentId}
-              studentFirstName={student?.first_name ?? null}
               goals={goals}
               onChange={reload}
             />
-          </div>
-
-          <div className="mt-6">
-            <PathwayProgress studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <StudentVoicePanel studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <ActionItemsPanel studentId={studentId} />
-          </div>
-
-          {student && (
-            <div className="mt-6">
-              <ReadinessInsightsCard
-                studentId={studentId}
-                studentFirstName={student.first_name}
-              />
-            </div>
-          )}
-
-          <div className="mt-6">
-            <RecommendedResourcesPanel studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <RecommendedPartnersPanel studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <MembershipPanel studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <WhoCanSeeThisPanel studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <CollaboratorsPanel studentId={studentId} />
-          </div>
-
-          <div className="mt-6">
-            <CounselorNotesPanel studentId={studentId} />
-          </div>
-
-          <AuditTrailPanel studentId={studentId} />
+          </Suspense>
         </StudentPanelBoundary>
       </section>
     </SiteShell>
@@ -458,7 +447,13 @@ function StatTile({
         {icon}
         <span className="text-[10px] font-semibold uppercase tracking-[0.16em]">{label}</span>
       </div>
-      <p className={small ? "mt-2 text-sm font-medium text-foreground" : "mt-1 font-display text-2xl font-medium text-foreground"}>
+      <p
+        className={
+          small
+            ? "mt-2 text-sm font-medium text-foreground"
+            : "mt-1 font-display text-2xl font-medium text-foreground"
+        }
+      >
         {value}
       </p>
     </div>
