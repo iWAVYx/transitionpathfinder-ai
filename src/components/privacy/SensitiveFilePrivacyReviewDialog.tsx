@@ -22,6 +22,7 @@ import {
   type SensitiveTextContext,
   type SensitiveTextRedactionReport,
 } from "@/lib/sensitive-text-redaction";
+import { sensitiveTextContextDependencies } from "@/lib/sensitive-file-review-context";
 
 const CATEGORY_LABELS: Record<SensitiveDataCategory, string> = {
   address: "address",
@@ -61,6 +62,13 @@ export function SensitiveFilePrivacyReviewDialog({
   const [confirmedReview, setConfirmedReview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Callers can construct the privacy context inline. Depending on the object
+  // identity would restart the review whenever an otherwise unrelated parent
+  // render creates an equivalent object, clearing the family's reviewed text.
+  // Track only the values that can actually change the redaction result.
+  const [contextStudentFirstName, contextStudentLastName, contextSchoolName, contextDateOfBirth] =
+    sensitiveTextContextDependencies(context);
+
   useEffect(() => {
     let cancelled = false;
     setReviewText("");
@@ -77,7 +85,12 @@ export function SensitiveFilePrivacyReviewDialog({
     }
 
     setLoading(true);
-    void prepareSensitiveFileReview(source, context)
+    void prepareSensitiveFileReview(source, {
+      studentFirstName: contextStudentFirstName,
+      studentLastName: contextStudentLastName,
+      schoolName: contextSchoolName,
+      dateOfBirth: contextDateOfBirth,
+    })
       .then((prepared) => {
         if (cancelled) return;
         setReviewText(prepared.redactedText);
@@ -95,7 +108,13 @@ export function SensitiveFilePrivacyReviewDialog({
     return () => {
       cancelled = true;
     };
-  }, [context, source]);
+  }, [
+    source,
+    contextStudentFirstName,
+    contextStudentLastName,
+    contextSchoolName,
+    contextDateOfBirth,
+  ]);
 
   const categorySummary = Object.entries(report.counts)
     .filter((entry): entry is [SensitiveDataCategory, number] => Boolean(entry[1]))
