@@ -791,7 +791,13 @@ test("PWA worker is generated into and required from the deployed asset director
 
   assert.match(serviceWorkerBuild, /vite-plugin-pwa\/package\.json/);
   assert.match(serviceWorkerBuild, /vitePwaRequire\(["']workbox-build["']\)/);
-  assert.match(serviceWorkerBuild, /process\.argv\[2\]/);
+  assert.match(serviceWorkerBuild, /const positionalArgs = \[\]/);
+  assert.match(serviceWorkerBuild, /process\.argv\[i\]\.startsWith\(["']--["']\)/);
+  assert.match(
+    serviceWorkerBuild,
+    /resolve\(positionalArgs\[0\] \?\? defaultPublicDirectory\)/,
+  );
+  assert.doesNotMatch(serviceWorkerBuild, /resolve\(process\.argv\[2\]/);
   assert.match(serviceWorkerBuild, /process\.env\.LOVABLE_SANDBOX\s*===\s*["']1["']/);
   assert.match(serviceWorkerBuild, /process\.env\.DEV_SERVER__PROJECT_PATH/);
   assert.match(serviceWorkerBuild, /isLovableBuild\s*\?\s*["']\.\.\/dist\/client["']/);

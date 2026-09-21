@@ -12,7 +12,17 @@ const isLovableBuild =
 const defaultPublicDirectory = fileURLToPath(
   new URL(isLovableBuild ? "../dist/client" : "../.output/public", import.meta.url),
 );
-const publicDirectory = resolve(process.argv[2] ?? defaultPublicDirectory);
+// The hosted build appends Vite flags like `--config <file>`; only a bare
+// positional argument overrides the public directory. Ignore flag/value pairs.
+const positionalArgs = [];
+for (let i = 2; i < process.argv.length; i++) {
+  if (process.argv[i].startsWith("--")) {
+    i++; // skip the flag's value
+    continue;
+  }
+  positionalArgs.push(process.argv[i]);
+}
+const publicDirectory = resolve(positionalArgs[0] ?? defaultPublicDirectory);
 
 if (!existsSync(publicDirectory)) {
   throw new Error(
