@@ -18,7 +18,7 @@ import {
 } from "@/lib/students.functions";
 
 import { toTitleCase } from "@/lib/title-case";
-export const Route = createFileRoute("/_authenticated/students")({
+export const Route = createFileRoute("/_authenticated/students/")({
   head: () => ({ meta: [{ title: "Students — TransitionForward" }] }),
   component: () => (<RoleGuard path="/students"><StudentsPage /></RoleGuard>),
 });

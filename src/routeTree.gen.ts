@@ -78,7 +78,6 @@ import { Route as AdminInviteTokenRouteImport } from './routes/admin-invite.$tok
 import { Route as AuthenticatedTrustRouteImport } from './routes/_authenticated/trust'
 import { Route as AuthenticatedTransitionChannelRouteImport } from './routes/_authenticated/transition-channel'
 import { Route as AuthenticatedTeacherPortalRouteImport } from './routes/_authenticated/teacher-portal'
-import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedStudentVoiceRouteImport } from './routes/_authenticated/student-voice'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
@@ -110,6 +109,7 @@ import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedActionItemsRouteImport } from './routes/_authenticated/action-items'
 import { Route as DemoWorkspaceIndexRouteImport } from './routes/demo_.workspace.index'
 import { Route as AuthenticatedWorkspaceIndexRouteImport } from './routes/_authenticated/workspace.index'
+import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace.$stage'
@@ -576,11 +576,6 @@ const AuthenticatedTeacherPortalRoute =
     path: '/teacher-portal',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedStudentVoiceRoute =
   AuthenticatedStudentVoiceRouteImport.update({
     id: '/student-voice',
@@ -745,6 +740,12 @@ const AuthenticatedWorkspaceIndexRoute =
     path: '/workspace/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedStudentsIndexRoute =
+  AuthenticatedStudentsIndexRouteImport.update({
+    id: '/students/',
+    path: '/students/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -779,9 +780,9 @@ const AuthenticatedWorkspaceStageRoute =
   } as any)
 const AuthenticatedStudentsStudentIdRoute =
   AuthenticatedStudentsStudentIdRouteImport.update({
-    id: '/$studentId',
-    path: '/$studentId',
-    getParentRoute: () => AuthenticatedStudentsRoute,
+    id: '/students/$studentId',
+    path: '/students/$studentId',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedStudentHistoryRoute =
   AuthenticatedStudentHistoryRouteImport.update({
@@ -1485,7 +1486,6 @@ export interface FileRoutesByFullPath {
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
-  '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/teacher-portal': typeof AuthenticatedTeacherPortalRoute
   '/transition-channel': typeof AuthenticatedTransitionChannelRoute
   '/trust': typeof AuthenticatedTrustRoute
@@ -1634,6 +1634,7 @@ export interface FileRoutesByFullPath {
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
+  '/students/': typeof AuthenticatedStudentsIndexRoute
   '/workspace/': typeof AuthenticatedWorkspaceIndexRoute
   '/demo/workspace/': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
@@ -1702,7 +1703,6 @@ export interface FileRoutesByTo {
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/student-voice': typeof AuthenticatedStudentVoiceRoute
-  '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/teacher-portal': typeof AuthenticatedTeacherPortalRoute
   '/transition-channel': typeof AuthenticatedTransitionChannelRoute
   '/trust': typeof AuthenticatedTrustRoute
@@ -1851,6 +1851,7 @@ export interface FileRoutesByTo {
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
+  '/students': typeof AuthenticatedStudentsIndexRoute
   '/workspace': typeof AuthenticatedWorkspaceIndexRoute
   '/demo/workspace': typeof DemoWorkspaceIndexRoute
   '/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
@@ -1923,7 +1924,6 @@ export interface FileRoutesById {
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/student-voice': typeof AuthenticatedStudentVoiceRoute
-  '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/_authenticated/teacher-portal': typeof AuthenticatedTeacherPortalRoute
   '/_authenticated/transition-channel': typeof AuthenticatedTransitionChannelRoute
   '/_authenticated/trust': typeof AuthenticatedTrustRoute
@@ -2072,6 +2072,7 @@ export interface FileRoutesById {
   '/demo_/workspace/$stage': typeof DemoWorkspaceStageRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
+  '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
   '/_authenticated/workspace/': typeof AuthenticatedWorkspaceIndexRoute
   '/demo_/workspace/': typeof DemoWorkspaceIndexRoute
   '/_authenticated/documents/$documentId/review': typeof AuthenticatedDocumentsDocumentIdReviewRoute
@@ -2144,7 +2145,6 @@ export interface FileRouteTypes {
     | '/security'
     | '/settings'
     | '/student-voice'
-    | '/students'
     | '/teacher-portal'
     | '/transition-channel'
     | '/trust'
@@ -2293,6 +2293,7 @@ export interface FileRouteTypes {
     | '/demo/workspace/$stage'
     | '/lovable/email/suppression'
     | '/owner/'
+    | '/students/'
     | '/workspace/'
     | '/demo/workspace/'
     | '/documents/$documentId/review'
@@ -2361,7 +2362,6 @@ export interface FileRouteTypes {
     | '/security'
     | '/settings'
     | '/student-voice'
-    | '/students'
     | '/teacher-portal'
     | '/transition-channel'
     | '/trust'
@@ -2510,6 +2510,7 @@ export interface FileRouteTypes {
     | '/demo/workspace/$stage'
     | '/lovable/email/suppression'
     | '/owner'
+    | '/students'
     | '/workspace'
     | '/demo/workspace'
     | '/documents/$documentId/review'
@@ -2581,7 +2582,6 @@ export interface FileRouteTypes {
     | '/_authenticated/security'
     | '/_authenticated/settings'
     | '/_authenticated/student-voice'
-    | '/_authenticated/students'
     | '/_authenticated/teacher-portal'
     | '/_authenticated/transition-channel'
     | '/_authenticated/trust'
@@ -2730,6 +2730,7 @@ export interface FileRouteTypes {
     | '/demo_/workspace/$stage'
     | '/lovable/email/suppression'
     | '/_authenticated/owner/'
+    | '/_authenticated/students/'
     | '/_authenticated/workspace/'
     | '/demo_/workspace/'
     | '/_authenticated/documents/$documentId/review'
@@ -3309,13 +3310,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeacherPortalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/students': {
-      id: '/_authenticated/students'
-      path: '/students'
-      fullPath: '/students'
-      preLoaderRoute: typeof AuthenticatedStudentsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/student-voice': {
       id: '/_authenticated/student-voice'
       path: '/student-voice'
@@ -3533,6 +3527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkspaceIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/students/': {
+      id: '/_authenticated/students/'
+      path: '/students'
+      fullPath: '/students/'
+      preLoaderRoute: typeof AuthenticatedStudentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/owner/': {
       id: '/_authenticated/owner/'
       path: '/'
@@ -3577,10 +3578,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/students/$studentId': {
       id: '/_authenticated/students/$studentId'
-      path: '/$studentId'
+      path: '/students/$studentId'
       fullPath: '/students/$studentId'
       preLoaderRoute: typeof AuthenticatedStudentsStudentIdRouteImport
-      parentRoute: typeof AuthenticatedStudentsRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/student/history': {
       id: '/_authenticated/student/history'
@@ -4531,19 +4532,6 @@ const AuthenticatedReportsRouteChildren: AuthenticatedReportsRouteChildren = {
 const AuthenticatedReportsRouteWithChildren =
   AuthenticatedReportsRoute._addFileChildren(AuthenticatedReportsRouteChildren)
 
-interface AuthenticatedStudentsRouteChildren {
-  AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRoute
-}
-
-const AuthenticatedStudentsRouteChildren: AuthenticatedStudentsRouteChildren = {
-  AuthenticatedStudentsStudentIdRoute: AuthenticatedStudentsStudentIdRoute,
-}
-
-const AuthenticatedStudentsRouteWithChildren =
-  AuthenticatedStudentsRoute._addFileChildren(
-    AuthenticatedStudentsRouteChildren,
-  )
-
 interface AuthenticatedRouteChildren {
   AuthenticatedActionItemsRoute: typeof AuthenticatedActionItemsRoute
   AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
@@ -4574,7 +4562,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudentVoiceRoute: typeof AuthenticatedStudentVoiceRoute
-  AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
   AuthenticatedTeacherPortalRoute: typeof AuthenticatedTeacherPortalRoute
   AuthenticatedTransitionChannelRoute: typeof AuthenticatedTransitionChannelRoute
   AuthenticatedTrustRoute: typeof AuthenticatedTrustRoute
@@ -4629,7 +4616,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSchoolSupportNeedsRoute: typeof AuthenticatedSchoolSupportNeedsRoute
   AuthenticatedSchoolTeamRoute: typeof AuthenticatedSchoolTeamRoute
   AuthenticatedStudentHistoryRoute: typeof AuthenticatedStudentHistoryRoute
+  AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRoute
   AuthenticatedWorkspaceStageRoute: typeof AuthenticatedWorkspaceStageRoute
+  AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
   AuthenticatedWorkspaceIndexRoute: typeof AuthenticatedWorkspaceIndexRoute
   AuthenticatedFamilyResourcesRecommendedRoute: typeof AuthenticatedFamilyResourcesRecommendedRoute
 }
@@ -4664,7 +4653,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudentVoiceRoute: AuthenticatedStudentVoiceRoute,
-  AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
   AuthenticatedTeacherPortalRoute: AuthenticatedTeacherPortalRoute,
   AuthenticatedTransitionChannelRoute: AuthenticatedTransitionChannelRoute,
   AuthenticatedTrustRoute: AuthenticatedTrustRoute,
@@ -4735,7 +4723,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSchoolSupportNeedsRoute: AuthenticatedSchoolSupportNeedsRoute,
   AuthenticatedSchoolTeamRoute: AuthenticatedSchoolTeamRoute,
   AuthenticatedStudentHistoryRoute: AuthenticatedStudentHistoryRoute,
+  AuthenticatedStudentsStudentIdRoute: AuthenticatedStudentsStudentIdRoute,
   AuthenticatedWorkspaceStageRoute: AuthenticatedWorkspaceStageRoute,
+  AuthenticatedStudentsIndexRoute: AuthenticatedStudentsIndexRoute,
   AuthenticatedWorkspaceIndexRoute: AuthenticatedWorkspaceIndexRoute,
   AuthenticatedFamilyResourcesRecommendedRoute:
     AuthenticatedFamilyResourcesRecommendedRoute,
