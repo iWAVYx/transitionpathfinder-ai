@@ -48,9 +48,15 @@ describe("recovered Lovable visual update", () => {
     expect(HOME).toContain('className="text-brand-teal"');
     expect(HOME).toContain('<span className="text-brand-gold">{suffix}</span>');
     expect(HOME).toContain(
-      'className="text-xs font-bold uppercase tracking-[0.22em] text-white"',
+      'className="text-xs font-bold uppercase tracking-[0.22em] text-foreground"',
     );
     expect(HOME).toContain(
+      'className="mt-6 max-w-xl whitespace-pre-line text-lg leading-relaxed text-foreground sm:text-xl"',
+    );
+    expect(HOME).not.toContain(
+      'className="text-xs font-bold uppercase tracking-[0.22em] text-white"',
+    );
+    expect(HOME).not.toContain(
       'className="mt-6 max-w-xl whitespace-pre-line text-lg leading-relaxed text-white sm:text-xl"',
     );
     expect(HOME).toContain("plan life after\\nhigh school — together.");
