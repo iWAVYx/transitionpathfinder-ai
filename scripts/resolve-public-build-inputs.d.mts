@@ -21,7 +21,10 @@ export function resolvePublicBuildInputs(input?: {
   publicBuildEnv?: PublicBuildEnvironment;
   sandboxPublicBuildEnv?: PublicBuildEnvironment;
   livePublicBuildEnv?: PublicBuildEnvironment;
+  preferLiveBuildInputs?: boolean;
 }): PublicBuildInputs;
+
+export function assertLovablePublicBuildInputs(inputs: PublicBuildInputs): void;
 
 export function paymentsEnvironmentForHostname(
   hostname: string | undefined | null,
