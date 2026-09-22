@@ -8,6 +8,7 @@ const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
 const CSS = read("src/styles.css");
 const HOME = read("src/routes/index.tsx");
 const ABOUT = read("src/routes/about.tsx");
+const BRAND_LOGO = read("src/components/brand/BrandLogo.tsx");
 const DEMO = read("src/routes/demo.tsx");
 const OPPORTUNITY_MATCHES = read("src/components/demo/OpportunityMatches.tsx");
 const BREADCRUMBS = read("src/components/site/Breadcrumbs.tsx");
@@ -75,6 +76,13 @@ describe("recovered Lovable visual update", () => {
     expect(ABOUT).toContain('object-cover object-[50%_38%]');
     expect(ABOUT).not.toContain('import founderImgAsset from');
     expect(ABOUT).not.toContain('import studentPhotoAsset from');
+  });
+
+  it("keeps the final Lovable wordmark size uniform across logo variants", () => {
+    expect(BRAND_LOGO).toContain('sm: "h-8"');
+    expect(BRAND_LOGO).toContain('md: "h-8 max-sm:max-w-[240px]"');
+    expect(BRAND_LOGO).toContain('lg: "h-8"');
+    expect(BRAND_LOGO).not.toContain('h-[36px]');
   });
 
   it("restores the dashboard-preview wording", () => {
