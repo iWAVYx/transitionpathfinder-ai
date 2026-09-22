@@ -10,9 +10,14 @@ on:
       - "tests/__snapshots__/role-guard-matrix.snap.json"
       - "tests/e2e/role-leak-nav.signedin.spec.ts"
       - "tests/e2e/role-access-rules.signedin.spec.ts"
+      - "tests/e2e/demo-roles.signedin.spec.ts"
+      - "tests/e2e/dashboard-tile-navigation.signedin.spec.ts"
+      - "tests/e2e/workspace-stage-navigation.signedin.spec.ts"
+      - "tests/e2e/auth-roles.setup.ts"
       - "tests/e2e/helpers/roles.ts"
       - "tests/e2e/scripts/check-role-creds.mjs"
       - "tests/role-access-navigation-contract.test.mjs"
+      - "playwright.config.ts"
       - ".github/workflows/role-guard-qa.yml"
   push:
     branches: [main]
@@ -42,11 +47,11 @@ jobs:
           echo "  UPDATE_SNAPSHOTS=1 npm run test:role-guard"
           echo "Then commit tests/__snapshots__/role-guard-matrix.snap.json."
 
-  # Signed-in role-leak + access-rule verification across all 7 roles. These
-  # checks target the isolated staging Worker, so they use only synthetic
-  # staging identities and never mix in production E2E credentials. Pull
-  # request refs are deliberately excluded from the protected environment;
-  # the credential-free role matrix remains the PR gate.
+  # Sole protected CI owner of the complete signed-in role-access project
+  # across all 7 roles. These checks target the isolated staging Worker, so
+  # they use only synthetic staging identities and never mix in production E2E
+  # credentials. Pull request refs are deliberately excluded from the
+  # protected environment; the credential-free role matrix remains the PR gate.
   role-leak-signedin:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest

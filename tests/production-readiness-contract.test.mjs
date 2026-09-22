@@ -758,6 +758,49 @@ test("pull request refs cannot request protected staging browser credentials", (
   assert.match(workflow, /secrets\.STAGING_E2E_PASSWORD/);
 });
 
+test("the complete role-access browser suite has one protected push-workflow owner", () => {
+  const dashboard = read(".github/workflows/dashboard-regression.yml");
+  const roleGuard = read(".github/workflows/role-guard-qa.yml");
+  const playwright = read("playwright.config.ts");
+  const roleAccessCommand = /bunx playwright test --project=role-access --no-deps/g;
+
+  assert.equal(
+    [...dashboard.matchAll(roleAccessCommand)].length,
+    0,
+    "Dashboard regression must not duplicate the protected role-access workload",
+  );
+  assert.equal(
+    [...roleGuard.matchAll(roleAccessCommand)].length,
+    1,
+    "Role-guard QA must remain the sole protected push-workflow owner",
+  );
+
+  const completeRoleAccessSpecs = [
+    "role-leak-nav",
+    "role-access-rules",
+    "demo-roles",
+    "dashboard-tile-navigation",
+    "workspace-stage-navigation",
+  ];
+  for (const spec of completeRoleAccessSpecs) {
+    assert.match(
+      playwright,
+      new RegExp(`\\b${spec}\\b`),
+      `role-access project must continue to include ${spec}`,
+    );
+    assert.match(
+      roleGuard,
+      new RegExp(
+        `tests/e2e/${spec.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\.signedin\\.spec\\.ts`,
+      ),
+      `Role-guard QA must trigger when ${spec} changes`,
+    );
+  }
+
+  assert.match(roleGuard, /tests\/e2e\/auth-roles\.setup\.ts/);
+  assert.match(roleGuard, /playwright\.config\.ts/);
+});
+
 test("role-guard browser CI uses the bounded standardized Playwright installer", () => {
   const workflow = read(".github/workflows/role-guard-qa.yml");
   assert.match(
