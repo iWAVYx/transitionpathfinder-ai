@@ -46,6 +46,7 @@ function candidateRouteFiles(urlPath: string, authenticated: boolean): string[] 
   const exts = [".tsx", ".ts"];
   const bases = [
     path.join(base, flatDot),
+    path.join(base, `${flatDot}.index`),
     path.join(base, flatUnderscore),
     path.join(base, nested),
     path.join(base, nested, "index"),

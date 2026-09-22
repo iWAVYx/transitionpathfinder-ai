@@ -25,6 +25,9 @@ Documents:
   fallback sequence.
 - `hosting-portability-policy.json` — machine-readable source inventory,
   protected request/secret boundary, and external-production cutover gates.
+- `student-route-hosting-boundary-alignment-2026-09-21.md` — reviewed
+  authenticated-route inventory update for the student directory/detail route
+  correction, with hosting and production boundaries unchanged.
 - `lovable-build-trigger-2026-08-24.md` — documentation-only connected-build
   trigger scope and exact-SHA post-merge acceptance requirements.
 - `lovable-build-recovery-2026-08-28.md` — evidence and acceptance gate for
