@@ -6,6 +6,7 @@ import {
   isStagingHostname,
   projectRefFrom,
   resolveDeploymentEnvLabels,
+  resolveDeploymentStripeProof,
   resolveDeploymentStripeMode,
   stripeModeFromToken,
 } from "@/lib/env-identity";
@@ -151,6 +152,23 @@ describe("staging deployment identity", () => {
         buildVitePaymentsClientToken: "pk_live_build",
       }),
     ).toBe("unknown");
+  });
+
+  it("reports only client and server modes when a known payment target fails closed", () => {
+    expect(
+      resolveDeploymentStripeProof({
+        expectedMode: "live",
+        runtimeStripeLiveApiKey: "mk_managed_connection",
+        buildVitePaymentsClientToken: "pk_test_build",
+      }),
+    ).toEqual({ clientMode: "sandbox", serverMode: "live", mode: "unknown" });
+
+    expect(
+      resolveDeploymentStripeProof({
+        expectedMode: "live",
+        buildVitePaymentsClientToken: "pk_live_build",
+      }),
+    ).toEqual({ clientMode: "live", serverMode: "unknown", mode: "unknown" });
   });
 
   it("fails closed when an explicit runtime payment token is malformed", () => {

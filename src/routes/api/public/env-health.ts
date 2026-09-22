@@ -24,7 +24,7 @@ import {
   isStagingHostname,
   projectRefFrom,
   resolveDeploymentEnvLabels,
-  resolveDeploymentStripeMode,
+  resolveDeploymentStripeProof,
 } from "@/lib/env-identity";
 
 /** Production-only variables that must not exist in the staging Worker. */
@@ -77,7 +77,7 @@ export const Route = createFileRoute("/api/public/env-health")({
           : productionTarget
             ? buildLivePaymentsClientToken
             : buildPaymentsClientToken;
-        const stripe_mode = resolveDeploymentStripeMode({
+        const stripeProof = resolveDeploymentStripeProof({
           expectedMode: stagingTarget ? "sandbox" : productionTarget ? "live" : undefined,
           runtimeVitePaymentsClientToken: process.env["VITE_PAYMENTS_CLIENT_TOKEN"],
           runtimePaymentsClientToken: process.env["PAYMENTS_CLIENT_TOKEN"],
@@ -88,6 +88,7 @@ export const Route = createFileRoute("/api/public/env-health")({
           // independently validate the transaction environment.
           buildVitePaymentsClientToken: hostSelectedBuildPaymentsToken,
         });
+        const stripe_mode = stripeProof.mode;
 
         let isolation: { ok: boolean; errors: string[] } = {
           ok: true,
@@ -127,6 +128,10 @@ export const Route = createFileRoute("/api/public/env-health")({
             is_staging_target: stagingTarget,
             is_production_target: productionTarget,
             stripe_mode,
+            // Mode-only diagnostics distinguish the public build input from
+            // the private server binding without returning either credential.
+            stripe_public_mode: stripeProof.clientMode,
+            stripe_server_mode: stripeProof.serverMode,
             stripe_livemode: stripe_mode === "unknown" ? null : stripe_mode === "live",
             git_commit_sha,
             isolation,

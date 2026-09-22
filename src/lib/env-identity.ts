@@ -113,6 +113,12 @@ export interface DeploymentStripeSources {
   buildVitePaymentsClientToken?: string | null;
 }
 
+export interface DeploymentStripeProof {
+  clientMode: StripeMode;
+  serverMode: StripeMode;
+  mode: StripeMode;
+}
+
 function stripeModeFromNamedServerCredential(
   credential: string | undefined | null,
   namedMode: Exclude<StripeMode, "unknown">,
@@ -130,7 +136,9 @@ function stripeModeFromNamedServerCredential(
  * both the browser publishable token and the matching server credential must
  * prove the same mode; a wrong, missing, or opaque value fails closed.
  */
-export function resolveDeploymentStripeMode(input: DeploymentStripeSources): StripeMode {
+export function resolveDeploymentStripeProof(
+  input: DeploymentStripeSources,
+): DeploymentStripeProof {
   const clientMode = stripeModeFromToken(
     firstNonBlank(
       input.runtimeVitePaymentsClientToken,
@@ -146,12 +154,21 @@ export function resolveDeploymentStripeMode(input: DeploymentStripeSources): Str
         : input.runtimeStripeSandboxApiKey,
       input.expectedMode,
     );
-    return clientMode === input.expectedMode && serverMode === input.expectedMode
-      ? input.expectedMode
-      : "unknown";
+    return {
+      clientMode,
+      serverMode,
+      mode:
+        clientMode === input.expectedMode && serverMode === input.expectedMode
+          ? input.expectedMode
+          : "unknown",
+    };
   }
 
-  return clientMode;
+  return { clientMode, serverMode: "unknown", mode: clientMode };
+}
+
+export function resolveDeploymentStripeMode(input: DeploymentStripeSources): StripeMode {
+  return resolveDeploymentStripeProof(input).mode;
 }
 
 export interface IdentityVerdict {

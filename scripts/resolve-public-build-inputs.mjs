@@ -25,6 +25,7 @@ export function resolvePublicBuildInputs({
   publicBuildEnv = {},
   sandboxPublicBuildEnv = {},
   livePublicBuildEnv = {},
+  preferLiveBuildInputs = false,
 } = {}) {
   const runtimePaymentsClientToken = firstNonEmpty(
     runtimeEnv.VITE_PAYMENTS_CLIENT_TOKEN,
@@ -39,6 +40,7 @@ export function resolvePublicBuildInputs({
     viteAppEnv: firstNonEmpty(
       runtimeEnv.VITE_APP_ENV,
       publicBuildEnv.VITE_APP_ENV,
+      preferLiveBuildInputs ? livePublicBuildEnv.VITE_APP_ENV : undefined,
     ),
     paymentsClientToken: selectedPaymentsClientToken,
     sandboxPaymentsClientToken: firstNonEmpty(
@@ -52,6 +54,27 @@ export function resolvePublicBuildInputs({
       livePublicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN,
     ),
   };
+}
+
+/**
+ * Lovable Test and Live share one hosted application build. Require the
+ * reviewed production label plus both public Stripe modes before that build
+ * starts; no private credential is read or embedded here.
+ */
+export function assertLovablePublicBuildInputs(inputs) {
+  const errors = [];
+  if (inputs.viteAppEnv !== "production") {
+    errors.push('VITE_APP_ENV must resolve to "production"');
+  }
+  if (paymentsClientTokenMode(inputs.sandboxPaymentsClientToken) !== "sandbox") {
+    errors.push("the sandbox Stripe publishable token is missing or invalid");
+  }
+  if (paymentsClientTokenMode(inputs.livePaymentsClientToken) !== "live") {
+    errors.push("the live Stripe publishable token is missing or invalid");
+  }
+  if (errors.length > 0) {
+    throw new Error(`Lovable public build inputs are incomplete: ${errors.join("; ")}.`);
+  }
 }
 
 export function paymentsEnvironmentForHostname(hostname, fallbackAppEnv = "") {

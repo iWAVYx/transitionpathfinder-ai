@@ -9,7 +9,7 @@ const health = read("src/routes/api/public/env-health.ts");
 const stripeClient = read("src/lib/stripe.ts");
 const declaration = read("src/types/virtual-public-build-inputs.d.ts");
 const evidence = read(
-  "docs/production-readiness/lovable-production-build-input-alignment-2026-09-15.md",
+  "docs/production-readiness/lovable-public-build-input-hardening-2026-09-22.md",
 );
 
 test("Lovable public build inputs are emitted through a literal virtual module", () => {
@@ -22,6 +22,15 @@ test("Lovable public build inputs are emitted through a literal virtual module",
   assert.match(viteConfig, /JSON\.stringify\(inputs\.sandboxPaymentsClientToken\)/);
   assert.match(viteConfig, /JSON\.stringify\(inputs\.livePaymentsClientToken\)/);
   assert.match(viteConfig, /publicBuildInputsModule\(publicBuildInputs\)/);
+  assert.match(viteConfig, /splitLovableBuildEnvironments\(publicBuildInputs\)/);
+  assert.match(
+    viteConfig,
+    /VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN: inputs\.sandboxPaymentsClientToken/,
+  );
+  assert.match(
+    viteConfig,
+    /VITE_PAYMENTS_LIVE_CLIENT_TOKEN: inputs\.livePaymentsClientToken/,
+  );
 
   const moduleFactory = viteConfig.match(
     /function publicBuildInputsModule\([\s\S]*?\r?\n}\s*function useDirectLucideIconModules/,
@@ -42,6 +51,8 @@ test("production health and Stripe client consume the same embedded public input
   assert.match(health, /buildSandboxPaymentsClientToken/);
   assert.match(health, /buildLivePaymentsClientToken/);
   assert.match(health, /runtimeStripeLiveApiKey: process\.env\["STRIPE_LIVE_API_KEY"\]/);
+  assert.match(health, /stripe_public_mode: stripeProof\.clientMode/);
+  assert.match(health, /stripe_server_mode: stripeProof\.serverMode/);
   assert.doesNotMatch(health, /import\.meta\.env\.VITE_(?:APP_ENV|PAYMENTS)/);
   assert.doesNotMatch(stripeClient, /import\.meta\.env\.VITE_/);
 
@@ -54,7 +65,7 @@ test("evidence stays fail closed and does not authorize a production publish", (
   assert.match(evidence, /HTTP 503/);
   assert.match(evidence, /VITE_APP_ENV.*unknown/is);
   assert.match(evidence, /Stripe mode.*unknown/is);
-  assert.match(evidence, /No private Stripe credential is embedded/i);
+  assert.match(evidence, /No private Stripe key is read, copied,[\s\S]*or embedded/i);
   assert.match(evidence, /PRODUCTION REMAINS NO-GO/i);
-  assert.match(evidence, /does not authorize.*publish/is);
+  assert.match(evidence, /does not authorize[\s\S]*publish/is);
 });

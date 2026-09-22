@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  assertLovablePublicBuildInputs,
   paymentsClientTokenMode,
   paymentsEnvironmentForHostname,
   resolvePublicBuildInputs,
@@ -63,6 +64,39 @@ test("an explicit sandbox VITE token overrides only the sandbox build input", ()
       sandboxPaymentsClientToken: runtimeSandboxToken,
       livePaymentsClientToken: LIVE_TOKEN,
     },
+  );
+});
+
+test("Lovable shared builds use the reviewed production label in development mode", () => {
+  const inputs = resolvePublicBuildInputs({
+    publicBuildEnv: {
+      VITE_PAYMENTS_CLIENT_TOKEN: SANDBOX_TOKEN,
+    },
+    sandboxPublicBuildEnv: {
+      VITE_PAYMENTS_CLIENT_TOKEN: SANDBOX_TOKEN,
+    },
+    livePublicBuildEnv: {
+      VITE_APP_ENV: "production",
+      VITE_PAYMENTS_CLIENT_TOKEN: LIVE_TOKEN,
+    },
+    preferLiveBuildInputs: true,
+  });
+
+  assert.equal(inputs.viteAppEnv, "production");
+  assert.equal(paymentsClientTokenMode(inputs.sandboxPaymentsClientToken), "sandbox");
+  assert.equal(paymentsClientTokenMode(inputs.livePaymentsClientToken), "live");
+  assert.doesNotThrow(() => assertLovablePublicBuildInputs(inputs));
+});
+
+test("Lovable shared builds fail closed when a reviewed public input is missing", () => {
+  assert.throws(
+    () =>
+      assertLovablePublicBuildInputs({
+        viteAppEnv: "",
+        sandboxPaymentsClientToken: SANDBOX_TOKEN,
+        livePaymentsClientToken: "",
+      }),
+    /VITE_APP_ENV.*live Stripe publishable token/,
   );
 });
 

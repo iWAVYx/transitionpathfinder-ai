@@ -544,7 +544,10 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.match(buildSha, /git["'],\s*\[["']rev-parse["'],\s*["']HEAD["']\]/);
   assert.match(buildSha, /\^\[a-f0-9\]\{40\}\$/);
   assert.match(buildSha, /return normalizeBuildSha\(checkoutSha\) \?\? ["']dev["']/);
-  assert.match(viteConfig, /function splitLovableBuildEnvironments\(\): Plugin/);
+  assert.match(
+    viteConfig,
+    /function splitLovableBuildEnvironments\([\s\S]*?ReturnType<typeof resolvePublicBuildInputs>[\s\S]*?\): Plugin/,
+  );
   assert.match(viteConfig, /process\.env\.LOVABLE_SANDBOX\s*===\s*["']1["']/);
   assert.match(viteConfig, /loadEnv\(requestedViteMode, process\.cwd\(\), ["']VITE_["']\)/);
   assert.match(
@@ -600,7 +603,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   assert.doesNotMatch(viteConfig, /manualChunks|onlyExplicitManualChunks/);
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*publicBuildInputsModule\(publicBuildInputs\),\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
+    /plugins:\s*\[\s*publicBuildInputsModule\(publicBuildInputs\),\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(publicBuildInputs\),\s*serverClientOnlyRouteStubs\(\),\s*buildEnvironmentGarbageCollector\(\)/,
   );
   assert.doesNotMatch(viteConfig, /VitePWA/);
 });
@@ -691,7 +694,7 @@ test("SSR stubs only the explicitly client-only route groups", () => {
   );
   assert.match(
     viteConfig,
-    /plugins:\s*\[\s*publicBuildInputsModule\(publicBuildInputs\),\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(\),\s*serverClientOnlyRouteStubs\(\)/,
+    /plugins:\s*\[\s*publicBuildInputsModule\(publicBuildInputs\),\s*stubUnusedJsPdfOptionalRenderers\(\),\s*directDateFnsModulesPlugin\(\),\s*useDirectLucideIconModules\(\),\s*splitLovableBuildEnvironments\(publicBuildInputs\),\s*serverClientOnlyRouteStubs\(\)/,
   );
 });
 
@@ -983,6 +986,8 @@ test("production identity fails closed and operator documents are complete", () 
   assert.match(health, /buildLivePaymentsClientToken/);
   assert.match(health, /expectedMode: stagingTarget \? ["']sandbox["'] : productionTarget \? ["']live["']/);
   assert.match(health, /runtimeStripeLiveApiKey: process\.env\["STRIPE_LIVE_API_KEY"\]/);
+  assert.match(health, /stripe_public_mode: stripeProof\.clientMode/);
+  assert.match(health, /stripe_server_mode: stripeProof\.serverMode/);
   assert.doesNotMatch(health, /import\.meta\.env\["VITE_(APP_ENV|PAYMENTS_CLIENT_TOKEN)"\]/);
   assert.match(
     health,

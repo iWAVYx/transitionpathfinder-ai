@@ -18,12 +18,17 @@ import {
   rewriteDateFnsImports,
 } from "./scripts/direct-date-fns-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
-import { resolvePublicBuildInputs } from "./scripts/resolve-public-build-inputs.mjs";
+import {
+  assertLovablePublicBuildInputs,
+  resolvePublicBuildInputs,
+} from "./scripts/resolve-public-build-inputs.mjs";
 
 const CHILD_BUILD_MODE_ENV = "TRANSITIONFORWARD_VITE_MODE";
 const JSPDF_OPTIONAL_RENDERER_STUB_PREFIX = "\0transitionforward:jspdf-optional-renderer:";
 const PUBLIC_BUILD_INPUTS_MODULE_ID = "virtual:transitionforward-public-build-inputs";
 const RESOLVED_PUBLIC_BUILD_INPUTS_MODULE_ID = `\0${PUBLIC_BUILD_INPUTS_MODULE_ID}`;
+const isLovableSandbox =
+  process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
 
 function resolveRequestedViteMode() {
   const childMode = process.env[CHILD_BUILD_MODE_ENV];
@@ -82,8 +87,6 @@ function publicBuildInputsModule(
 }
 
 function useDirectLucideIconModules(): Plugin {
-  const isLovableSandbox =
-    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
   const lucideBarrelPath = fileURLToPath(
     import.meta.resolve("lucide-react/dist/esm/lucide-react.js"),
   );
@@ -125,8 +128,6 @@ function useDirectLucideIconModules(): Plugin {
 }
 
 function directDateFnsModulesPlugin(): Plugin {
-  const isLovableSandbox =
-    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
   const dateFnsIndexPath = fileURLToPath(import.meta.resolve("date-fns"));
   const dateFnsIndex = readFileSync(dateFnsIndexPath, "utf8");
   const functionModules = mapDateFnsModules(dateFnsIndex);
@@ -171,8 +172,6 @@ function directDateFnsModulesPlugin(): Plugin {
 }
 
 function stubUnusedJsPdfOptionalRenderers(): Plugin {
-  const isLovableSandbox =
-    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
   const optionalRenderers = new Set(["canvg", "dompurify", "html2canvas"]);
 
   return {
@@ -201,9 +200,9 @@ function stubUnusedJsPdfOptionalRenderers(): Plugin {
   };
 }
 
-function splitLovableBuildEnvironments(): Plugin {
-  const isLovableSandbox =
-    process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
+function splitLovableBuildEnvironments(
+  inputs: ReturnType<typeof resolvePublicBuildInputs>,
+): Plugin {
   const requestedMode = resolveRequestedViteMode();
   const environmentBuilder = fileURLToPath(
     new URL("./scripts/build-environment.mjs", import.meta.url),
@@ -216,6 +215,12 @@ function splitLovableBuildEnvironments(): Plugin {
           ...process.env,
           [CHILD_BUILD_MODE_ENV]: requestedMode,
           VITE_APP_BUILD_TIME: appBuildTime,
+          // Vite adds the active mode's public values to process.env before
+          // these child builds start. Carry the already-reviewed shared values
+          // explicitly so the preview sandbox token cannot mask the live token.
+          VITE_APP_ENV: inputs.viteAppEnv,
+          VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN: inputs.sandboxPaymentsClientToken,
+          VITE_PAYMENTS_LIVE_CLIENT_TOKEN: inputs.livePaymentsClientToken,
         },
         stdio: "inherit",
       });
@@ -365,7 +370,14 @@ const publicBuildInputs = resolvePublicBuildInputs({
   publicBuildEnv,
   sandboxPublicBuildEnv,
   livePublicBuildEnv,
+  // Lovable's preview command uses development mode, but Test and Live share
+  // the resulting application bundle. Take the reviewed production label from
+  // .env.production rather than silently emitting an empty label.
+  preferLiveBuildInputs: isLovableSandbox,
 });
+if (isLovableSandbox) {
+  assertLovablePublicBuildInputs(publicBuildInputs);
+}
 const {
   viteAppEnv,
   paymentsClientToken,
@@ -416,7 +428,7 @@ export default defineConfig({
       stubUnusedJsPdfOptionalRenderers(),
       directDateFnsModulesPlugin(),
       useDirectLucideIconModules(),
-      splitLovableBuildEnvironments(),
+      splitLovableBuildEnvironments(publicBuildInputs),
       serverClientOnlyRouteStubs(),
       buildEnvironmentGarbageCollector(),
     ],
