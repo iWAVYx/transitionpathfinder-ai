@@ -119,23 +119,25 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current isolated-staging deployment evidence: protected `main` SHA
-`193bed60f8d3d4233aab7cc043709e52cb388790` passed deployment run
-`35517198872` and consolidated Release Readiness run `35519846560`. Its
+`7cdb7cdcb88a186d7428f52a45a60d833578f39b` passed deployment run
+`35692279156` and consolidated Release Readiness run `35693326975`. Its
 push-time Build and SSR, accessibility, CT Seed v2, dashboard, role-guard,
 permission, RLS, cross-district RLS, and standard production-readiness checks
 all passed at exact-SHA parity. The Release Readiness artifact was sanitized
 before upload and passed the no-credential-artifact gate. The current evidence
-is recorded in `staging-acceptance-2026-09-20.md`; containment and prevention
+is recorded in `staging-acceptance-2026-09-22.md`; containment and prevention
 for the earlier staging Playwright artifact incident are recorded in
 `staging-playwright-artifact-containment-2026-09-20.md`.
 
 Exactly one separately authorized Cloudmersive Channel Attachment Malware QA
-run, `35521640583`, passed on the same exact SHA using only a synthetic clean
-file and the harmless EICAR marker. The clean file was released through a
-signed private URL; EICAR remained unavailable and was purged. No retry was
-performed. This is not production acceptance: provider/legal approval,
-equivalent `student-documents` proof, and separately authorized production
-configuration and migrations remain open. Production remains NO-GO.
+run, `35521640583`, passed on the earlier exact SHA
+`193bed60f8d3d4233aab7cc043709e52cb388790` using only a synthetic clean file
+and the harmless EICAR marker. The clean file was released through a signed
+private URL; EICAR remained unavailable and was purged. No retry was performed.
+Antivirus was not rerun for the current candidate. This is not production
+acceptance: provider/legal approval, equivalent `student-documents` proof, and
+separately authorized production configuration and migrations remain open.
+Production remains NO-GO.
 
 Lovable's hosted preview evidence remains attached to application-bearing SHA
 `a0396a3af276e978d10920f29dc429f2820e47b9`, because PR #116 changed only

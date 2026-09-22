@@ -62,9 +62,12 @@ Documents:
 - `staging-acceptance-2026-09-18.md` — historical exact-SHA isolated-staging
   deployment, protected push checks, independent environment-health verification,
   and full consolidated Release Readiness evidence for `308c274f`.
-- `staging-acceptance-2026-09-20.md` — current exact-SHA isolated-staging
+- `staging-acceptance-2026-09-20.md` — historical exact-SHA isolated-staging
   deployment, protected push checks, consolidated Release Readiness, and the
   one-attempt Cloudmersive channel-attachment clean/EICAR proof for `193bed60`.
+- `staging-acceptance-2026-09-22.md` — current exact-SHA isolated-staging
+  deployment, protected push checks, corrected homepage contrast and visual
+  baseline, and full consolidated Release Readiness evidence for `7cdb7cdc`.
 - `staging-playwright-artifact-containment-2026-09-20.md` — containment of the
   synthetic staging Playwright artifact incident, session revocation, artifact
   deletion, and the post-fix artifact-sanitization evidence.
