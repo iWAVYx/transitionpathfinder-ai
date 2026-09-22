@@ -175,7 +175,7 @@ export function FamilyDocumentUpload({
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
-  async function upload(file: File) {
+  async function upload(file: File, consentAcknowledged = consent) {
     if (!PROTECTED_FILE_UPLOADS_ENABLED) {
       toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
       return;
@@ -185,7 +185,7 @@ export function FamilyDocumentUpload({
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
       return;
     }
-    if (!consent) {
+    if (!consentAcknowledged) {
       setPendingFile(file);
       toast.error("Please confirm the privacy notice below before uploading.");
       return;
@@ -489,7 +489,7 @@ export function FamilyDocumentUpload({
               if (next && pendingFile) {
                 const f = pendingFile;
                 setPendingFile(null);
-                upload(f);
+                void upload(f, true);
               }
             }}
             className="mt-0.5"
