@@ -10,8 +10,6 @@ on:
       - "tests/e2e/auth-roles.setup.ts"
       - "tests/e2e/helpers/roles.ts"
       - "tests/e2e/dashboard-regression.signedin.spec.ts"
-      - "tests/e2e/role-leak-nav.signedin.spec.ts"
-      - "tests/e2e/role-access-rules.signedin.spec.ts"
       - "tests/e2e/scripts/check-role-creds.mjs"
       - "vitest.config.ts"
       - "playwright.config.ts"
@@ -41,11 +39,12 @@ jobs:
       - name: Vitest — dashboard static regression
         run: bun run test:unit
 
-  # Browser regression + role-leak + role-access across all 7 roles. These
-  # checks target the isolated staging Worker, so they use only synthetic
-  # staging identities and never mix in production E2E credentials. Pull
-  # request refs are deliberately excluded from the protected environment;
-  # the credential-free unit job remains the PR gate.
+  # Dashboard browser regression across all 7 roles. The complete role-access
+  # browser suite has one protected owner in role-guard-qa.yml so a push does
+  # not run the same 239-test workload against staging twice at once. These
+  # checks use only synthetic staging identities and never mix in production
+  # E2E credentials. Pull request refs are deliberately excluded from the
+  # protected environment; the credential-free unit job remains the PR gate.
   e2e:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -126,8 +125,6 @@ jobs:
         run: node tests/e2e/scripts/check-role-creds.mjs
       - name: Dashboard regression
         run: bunx playwright test --project=dashboard-regression --no-deps
-      - name: Role-leak nav + access-rule guard
-        run: bunx playwright test --project=role-access --no-deps
       - name: Remove credential-bearing Playwright artifacts
         id: sanitize-artifacts
         if: always()
