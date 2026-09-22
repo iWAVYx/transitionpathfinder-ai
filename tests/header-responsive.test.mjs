@@ -143,13 +143,12 @@ for (const vp of BEHAVIOR_VIEWPORTS) {
 // ---------- 3. Width-budget snapshot per viewport ----------
 
 /**
- * Measured pixel widths of each header item when signed in.
- * Values are upper-bound estimates derived from the Tailwind classes on each
- * element (px-2.5/3.5/4 padding, text-sm ≈ 14px line-height, gap-1.5).
- * They give us a deterministic "snapshot" the test can assert against.
+ * Measured pixel widths of each header item when signed in. The logo estimate
+ * covers the 40px header icon plus the uniform 32px wordmark and spacing.
  */
 const ITEM_WIDTHS = {
-  logo: 220, // larger brand mark + "TransitionForward" wordmark
+  logoDesktop: 272,
+  logoMobile: 272,
   bell: 40, // h-10 w-10 round button
   dashboard: 96, // "Dashboard" link, px-2.5 .. xl:px-3
   adminHub: 116, // optional "Admin Hub" pill with shield icon
@@ -159,6 +158,11 @@ const ITEM_WIDTHS = {
   gap: 6, // gap-1.5 between user-control items
 };
 
+/** Measured native width of the marketing nav's six dropdown triggers. */
+const NAV_NATIVE_WIDTH = 640;
+/** The nav may compress (min-w-0) when space is tight — but not below this. */
+const NAV_MIN_WIDTH = 320;
+
 function innerWidth(viewportPx) {
   // max-w-7xl = 1280px. Padding: px-4 (sm), sm:px-6, lg:px-8.
   const max = 1280;
@@ -167,18 +171,16 @@ function innerWidth(viewportPx) {
 }
 
 /**
- * Return the total width of items the signed-in header renders at a given
- * viewport, based on the breakpoint rules in SiteHeader.tsx.
+ * Fixed (non-shrinkable) width of the signed-in header at a given viewport,
+ * based on the breakpoint rules in SiteHeader.tsx.
  *
  *   <  lg (1024) : logo + hamburger
  *   lg .. <xl    : logo + bell + dashboard + (admin) + more + signOut + hamburger
  *   >= xl (1280) : logo + bell + dashboard + (admin) + more + signOut
- *                  (marketing nav also shows but lives in its own flex region
- *                   between logo and user controls — the parent uses
- *                   justify-between, so we still need everything to fit.)
+ *                  + marketing nav (compressible down to NAV_MIN_WIDTH)
  */
-function signedInHeaderWidth(viewportPx, { isAdmin } = { isAdmin: false }) {
-  const items = [ITEM_WIDTHS.logo];
+function signedInFixedWidth(viewportPx, { isAdmin } = { isAdmin: false }) {
+  const items = [viewportPx >= 640 ? ITEM_WIDTHS.logoDesktop : ITEM_WIDTHS.logoMobile];
   const showUserControls = viewportPx >= 1024;
   const showHamburger = viewportPx < 1280;
   const showMarketingNav = viewportPx >= 1280;
@@ -192,11 +194,11 @@ function signedInHeaderWidth(viewportPx, { isAdmin } = { isAdmin: false }) {
   }
   if (showHamburger) items.push(ITEM_WIDTHS.hamburger);
 
-  // Marketing nav (rough budget): ~6 trigger/links averaging 80px + gaps.
-  if (showMarketingNav) items.push(6 * 80 + 5 * 4);
-
   const gaps = (items.length - 1) * ITEM_WIDTHS.gap;
-  return items.reduce((a, b) => a + b, 0) + gaps;
+  const fixed = items.reduce((a, b) => a + b, 0) + gaps;
+  // The marketing nav (shown >=xl) is min-w-0 and can compress; reserve its
+  // minimum rather than its native width.
+  return fixed + (showMarketingNav ? NAV_MIN_WIDTH : 0);
 }
 
 const COMMON_VIEWPORTS = [
@@ -211,14 +213,24 @@ const COMMON_VIEWPORTS = [
   { label: "large-desktop", width: 1920 },
 ];
 
+test("marketing nav is compressible (min-w-0) so a full nav + user controls never hard-overlap", () => {
+  assert.match(
+    SRC,
+    /<nav\b[^>]*className="[^"]*\bmin-w-0\b[^"]*"/,
+    "the marketing <nav> must keep min-w-0 so it can shrink before colliding " +
+      "with the user controls on crowded desktop widths",
+  );
+  assert.ok(NAV_NATIVE_WIDTH > NAV_MIN_WIDTH);
+});
+
 for (const vp of COMMON_VIEWPORTS) {
   for (const isAdmin of [false, true]) {
     test(`signed-in header fits at ${vp.label} (${vp.width}px)${isAdmin ? " [admin]" : ""}`, () => {
-      const used = signedInHeaderWidth(vp.width, { isAdmin });
+      const used = signedInFixedWidth(vp.width, { isAdmin });
       const available = innerWidth(vp.width);
       assert.ok(
         used <= available,
-        `header items (${used}px) overflow available width (${available}px) ` +
+        `header items (${used}px incl. compressed nav) overflow available width (${available}px) ` +
           `at ${vp.width}px — the notification bell or sibling controls would overlap`,
       );
     });
