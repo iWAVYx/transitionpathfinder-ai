@@ -41,17 +41,26 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "193bed60f8d3d4233aab7cc043709e52cb388790";
+  const verifiedStagingSha = "7cdb7cdcb88a186d7428f52a45a60d833578f39b";
 
   assert.equal(audit.schemaVersion, 2);
-  assert.equal(audit.auditedAt, "2026-09-20");
+  assert.equal(audit.auditedAt, "2026-09-22");
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 35517198872);
-  assert.equal(audit.staging.releaseReadinessRun, 35519846560);
+  assert.equal(audit.staging.deploymentRun, 35692279156);
+  assert.equal(audit.staging.releaseReadinessRun, 35693326975);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.equal(audit.staging.antivirusProvider, "cloudmersive");
+  assert.equal(
+    audit.staging.channelAttachmentMalwareSha,
+    "193bed60f8d3d4233aab7cc043709e52cb388790",
+  );
+  assert.notEqual(
+    audit.staging.channelAttachmentMalwareSha,
+    audit.staging.exactDeploymentSha,
+    "historical antivirus evidence must not be attributed to the current staging candidate",
+  );
   assert.equal(audit.staging.channelAttachmentMalwareRun, 35521640583);
   assert.equal(audit.staging.channelAttachmentMalwareAttempt, 1);
   assert.equal(audit.staging.channelAttachmentMalwareVerified, true);
