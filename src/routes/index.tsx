@@ -142,7 +142,7 @@ const HERO_DEFAULTS = {
   headline_accent: "Real-Life",
   headline_tail: "Pathways.",
   subhead:
-    "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after high school — together.",
+    "A warm, easy-to-use platform that helps students with disabilities, families, and educators plan life after\nhigh school — together.",
   tagline: "One Platform. One Plan. Forward Together.",
   cta_primary_label: "Join the Waitlist",
   cta_secondary_label: "Try the Live Demo",
@@ -266,7 +266,7 @@ function HomePage() {
               {"\u00A0"}
               <span className="whitespace-nowrap">{hero.headline_tail}</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white sm:text-xl">
+            <p className="mt-6 max-w-xl whitespace-pre-line text-lg leading-relaxed text-white sm:text-xl">
               {hero.subhead}
             </p>
             <p className="mt-5 font-display text-xl font-bold italic text-brand-teal-ink sm:text-2xl">

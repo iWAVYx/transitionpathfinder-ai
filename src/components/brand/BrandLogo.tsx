@@ -32,11 +32,11 @@ const ICON_SIZE: Record<BrandLogoSize, string> = {
   lg: "h-12 w-12",
 };
 
-/** Wordmark keeps its native 6:1 aspect ratio — height only, width auto. */
+/** Wordmark keeps its native 6:1 aspect ratio — one uniform height everywhere. */
 const WORDMARK_SIZE: Record<BrandLogoSize, string> = {
-  sm: "h-[18px]",
-  md: "h-[28px]",
-  lg: "h-[36px]",
+  sm: "h-8",
+  md: "h-8 max-sm:max-w-[240px]",
+  lg: "h-8",
 };
 
 const TEXT_SIZE: Record<BrandLogoSize, string> = {
