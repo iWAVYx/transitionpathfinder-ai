@@ -3,6 +3,8 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Compass, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
+import { FeatureContractLinks } from "@/components/site/FeatureContractLinks";
+import type { PublicFeatureId } from "@/lib/public-feature-contract";
 
 import { photos, srcSetFor } from "@/lib/photos";
 import frameworkHero from "@/assets/bundled/framework-hero-graduation.webp";
@@ -107,30 +109,40 @@ const bands = [
   },
 ];
 
-const strands = [
+const strands: Array<{
+  title: string;
+  body: string;
+  featureId: PublicFeatureId;
+}> = [
   {
     title: "Academics that lead somewhere",
     body: "Course choices read as transition signals, not isolated grades.",
+    featureId: "pathway-builder",
   },
   {
     title: "Finding their own voice",
     body: "Self-determination practiced in small, real moments.",
+    featureId: "student-voice",
   },
   {
     title: "The skills that shape a day",
     body: "Money, transportation, time, food, health — the quiet competencies of adulthood.",
+    featureId: "pathway-builder",
   },
   {
     title: "A real look at what's out there",
     body: "Local employers, community colleges, BRS, youth-development partners.",
+    featureId: "resource-match",
   },
   {
     title: "You, held in the loop",
     body: "Plain-language updates, prep sheets before meetings, translations after.",
+    featureId: "ppt-prep",
   },
   {
     title: "Everyone on the same page",
     body: "Teachers, related services, agencies, family — one plan, no version drift.",
+    featureId: "communication-log",
   },
 ];
 
@@ -416,6 +428,7 @@ function FrameworkPage() {
                         <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
                           {s.body}
                         </p>
+                        <FeatureContractLinks featureId={s.featureId} compact />
                       </div>
                     </div>
                   </li>

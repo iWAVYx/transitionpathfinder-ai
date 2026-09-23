@@ -9,13 +9,7 @@
  * Platform Owner is intentionally absent — there is no public signup.
  */
 
-export type RoleDoorSlug =
-  | "student"
-  | "family"
-  | "educator"
-  | "school"
-  | "district"
-  | "partner";
+export type RoleDoorSlug = "student" | "family" | "educator" | "school" | "district" | "partner";
 
 export type RoleDoorActionKey =
   | "signin"
@@ -34,6 +28,7 @@ export interface RoleDoorAction {
   description: string;
   to: string;
   search?: Record<string, string>;
+  hash?: string;
 }
 
 export interface RoleDoor {
@@ -48,24 +43,21 @@ export interface RoleDoor {
 const SIGNIN: RoleDoorAction = {
   key: "signin",
   label: "Sign In",
-  description:
-    "Already have an account? Sign in to your workspace.",
+  description: "Already have an account? Sign in to your workspace.",
   to: "/login",
 };
 
 const REDEEM_INVITATION: RoleDoorAction = {
   key: "redeem_invitation",
   label: "Redeem An Invitation",
-  description:
-    "Use the invitation link sent by your school, district, or organization.",
+  description: "Use the invitation link sent by your school, district, or organization.",
   to: "/login",
 };
 
 const REDEEM_ACCESS_CODE: RoleDoorAction = {
   key: "redeem_access_code",
   label: "Redeem An Access Code",
-  description:
-    "Enter a district or school-issued access code to create your individual account.",
+  description: "Enter a district or school-issued access code to create your individual account.",
   to: "/login",
   search: { redirect: "/redeem-access" },
 };
@@ -73,10 +65,22 @@ const REDEEM_ACCESS_CODE: RoleDoorAction = {
 const JOIN_WAITLIST = (role: RoleDoorSlug): RoleDoorAction => ({
   key: "join_waitlist",
   label: "Join The Waitlist",
-  description:
-    "Tell us where you are and we'll notify you as access opens in your area.",
+  description: "Tell us where you are and we'll notify you as access opens in your area.",
   to: "/waitlist",
   search: { role },
+});
+
+const REQUEST_HELP = (
+  label: string,
+  description: string,
+  topic: "family-question" | "educator-question" | "district-demo",
+): RoleDoorAction => ({
+  key: "request_org_access",
+  label,
+  description,
+  to: "/help",
+  search: { topic },
+  hash: "contact",
 });
 
 export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
@@ -92,14 +96,12 @@ export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
       REDEEM_INVITATION,
       REDEEM_ACCESS_CODE,
       {
-        key: "request_org_access",
-        label: "Ask Your School To Add You",
-        description:
-          "Share TransitionForward with your case manager or school counselor.",
-        to: "/waitlist",
-        search: { role: "student" },
+        ...REQUEST_HELP(
+          "Ask Your School To Add You",
+          "Send a school-access request for your case manager or school counselor.",
+          "family-question",
+        ),
       },
-      JOIN_WAITLIST("student"),
     ],
   },
   family: {
@@ -112,22 +114,11 @@ export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
     actions: [
       SIGNIN,
       REDEEM_INVITATION,
-      {
-        key: "request_org_access",
-        label: "Request Access Through Your School",
-        description:
-          "Ask your child's school or district to enable TransitionForward for your family.",
-        to: "/waitlist",
-        search: { role: "family" },
-      },
-      {
-        key: "independent_signup",
-        label: "Begin Independent Family Access",
-        description:
-          "For approved early-access families — start your child's transition plan today.",
-        to: "/waitlist",
-        search: { role: "family" },
-      },
+      REQUEST_HELP(
+        "Request Access Through Your School",
+        "Ask your child's school or district to enable TransitionForward for your family.",
+        "family-question",
+      ),
       JOIN_WAITLIST("family"),
     ],
   },
@@ -142,14 +133,11 @@ export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
       SIGNIN,
       REDEEM_INVITATION,
       REDEEM_ACCESS_CODE,
-      {
-        key: "request_org_access",
-        label: "Request Access Through Your District",
-        description:
-          "If your school or district hasn't enabled TransitionForward yet, we'll route your request.",
-        to: "/waitlist",
-        search: { role: "educator" },
-      },
+      REQUEST_HELP(
+        "Request Access Through Your District",
+        "If your school or district already licenses TransitionForward, ask us to route your access request to its administrator.",
+        "educator-question",
+      ),
       JOIN_WAITLIST("educator"),
     ],
   },
@@ -165,12 +153,12 @@ export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
       {
         key: "request_org_license",
         label: "Request A School License",
-        description:
-          "Talk with our team about piloting TransitionForward across your building.",
-        to: "/waitlist",
-        search: { role: "district" },
+        description: "Talk with our team about piloting TransitionForward across your building.",
+        to: "/help",
+        search: { topic: "district-demo" },
+        hash: "contact",
       },
-      JOIN_WAITLIST("district"),
+      JOIN_WAITLIST("school"),
     ],
   },
   district: {
@@ -187,10 +175,10 @@ export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
         label: "Request A District License",
         description:
           "Start a conversation about district-wide provisioning, individual accounts, and secure roll-out.",
-        to: "/waitlist",
-        search: { role: "district" },
+        to: "/help",
+        search: { topic: "district-demo" },
+        hash: "contact",
       },
-      JOIN_WAITLIST("district"),
     ],
   },
   partner: {
@@ -205,18 +193,16 @@ export const ROLE_DOORS: Record<RoleDoorSlug, RoleDoor> = {
       {
         key: "partner_free",
         label: "Begin Partner Free",
-        description:
-          "Create a partner profile and appear in the Partner Network at no cost.",
-        to: "/partners",
+        description: "Create a partner profile and appear in the Partner Network at no cost.",
+        to: "/partner-interest",
       },
       {
         key: "partner_premium",
         label: "Begin Partner Premium",
         description:
           "Upgrade for enhanced discovery, warm-handoff intake, and matching diagnostics.",
-        to: "/partners",
+        to: "/partner-interest",
       },
-      JOIN_WAITLIST("partner"),
     ],
   },
 };

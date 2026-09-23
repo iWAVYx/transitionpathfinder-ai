@@ -36,6 +36,7 @@ const ROLE_TO_INVITE: Record<string, { role: string; type: string }> = {
   student: { role: "student", type: "connect_to_student" },
   educator: { role: "educator", type: "join_school" },
   administrator: { role: "school_admin", type: "join_school" },
+  school_admin: { role: "school_admin", type: "join_school" },
   district: { role: "district_admin", type: "join_district" },
   partner: { role: "partner", type: "join_partner_org" },
 };
@@ -101,7 +102,8 @@ function WaitlistPage() {
       if (statusFilter !== "all" && e.status !== statusFilter) return false;
       if (roleFilter !== "all" && e.role !== roleFilter) return false;
       if (!q) return true;
-      const hay = `${e.full_name ?? ""} ${e.first_name ?? ""} ${e.last_name ?? ""} ${e.email} ${e.organization ?? ""}`.toLowerCase();
+      const hay =
+        `${e.full_name ?? ""} ${e.first_name ?? ""} ${e.last_name ?? ""} ${e.email} ${e.organization ?? ""}`.toLowerCase();
       return hay.includes(q);
     });
   }, [entries, search, statusFilter, roleFilter]);
@@ -116,8 +118,7 @@ function WaitlistPage() {
     });
   }, [filtered]);
 
-  const allVisibleSelected =
-    filtered.length > 0 && filtered.every((e) => selected.has(e.id));
+  const allVisibleSelected = filtered.length > 0 && filtered.every((e) => selected.has(e.id));
   const someVisibleSelected = filtered.some((e) => selected.has(e.id));
 
   function toggleOne(id: string, checked: boolean) {
@@ -211,7 +212,8 @@ function WaitlistPage() {
     clearSelection();
     setBulkBusy(null);
     if (failed === 0) toast.success(`Archived ${ok} ${ok === 1 ? "entry" : "entries"}.`);
-    else if (ok === 0) toast.error(`Failed to archive ${failed} ${failed === 1 ? "entry" : "entries"}.`);
+    else if (ok === 0)
+      toast.error(`Failed to archive ${failed} ${failed === 1 ? "entry" : "entries"}.`);
     else toast.warning(`Archived ${ok}, ${failed} failed.`);
   }
 
@@ -249,9 +251,7 @@ function WaitlistPage() {
     const ok = results.filter((r) => r.status === "fulfilled").length;
     const failed = results.length - ok;
     const convertedIds = new Set(
-      eligible
-        .filter((_, i) => results[i].status === "fulfilled")
-        .map((e) => e.id),
+      eligible.filter((_, i) => results[i].status === "fulfilled").map((e) => e.id),
     );
     if (convertedIds.size) {
       setEntries((prev) =>
@@ -323,9 +323,7 @@ function WaitlistPage() {
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm">
-          <span className="font-medium">
-            {selected.size} selected
-          </span>
+          <span className="font-medium">{selected.size} selected</span>
           <span className="text-muted-foreground">·</span>
           <button
             type="button"
@@ -370,11 +368,7 @@ function WaitlistPage() {
                   <th className="w-8 px-3 py-2.5">
                     <Checkbox
                       checked={
-                        allVisibleSelected
-                          ? true
-                          : someVisibleSelected
-                            ? "indeterminate"
-                            : false
+                        allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false
                       }
                       onCheckedChange={(v) => toggleAllVisible(v === true)}
                       aria-label="Select all visible"
@@ -391,10 +385,7 @@ function WaitlistPage() {
                 {filtered.map((e) => {
                   const isSel = selected.has(e.id);
                   return (
-                    <tr
-                      key={e.id}
-                      className={`hover:bg-muted/30 ${isSel ? "bg-muted/40" : ""}`}
-                    >
+                    <tr key={e.id} className={`hover:bg-muted/30 ${isSel ? "bg-muted/40" : ""}`}>
                       <td className="px-3 py-2.5">
                         <Checkbox
                           checked={isSel}
@@ -404,13 +395,17 @@ function WaitlistPage() {
                       </td>
                       <td className="px-3 py-2.5">
                         <div className="font-medium">
-                          {e.full_name || `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim() || "—"}
+                          {e.full_name ||
+                            `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim() ||
+                            "—"}
                         </div>
                         <div className="text-xs text-muted-foreground">{e.email}</div>
                       </td>
                       <td className="px-3 py-2.5 text-muted-foreground">{e.role}</td>
                       <td className="px-3 py-2.5">
-                        <Badge variant={STATUS_COLORS[e.status]}>{WAITLIST_STATUS_LABELS[e.status]}</Badge>
+                        <Badge variant={STATUS_COLORS[e.status]}>
+                          {WAITLIST_STATUS_LABELS[e.status]}
+                        </Badge>
                       </td>
                       <td className="px-3 py-2.5 text-xs text-muted-foreground">
                         {new Date(e.created_at).toLocaleDateString()}
@@ -491,12 +486,27 @@ function WaitlistDetailDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Waitlist entry">
-      <button type="button" aria-label="Close panel" className="flex-1 bg-foreground/30" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-50 flex"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Waitlist entry"
+    >
+      <button
+        type="button"
+        aria-label="Close panel"
+        className="flex-1 bg-foreground/30"
+        onClick={onClose}
+      />
       <aside className="flex w-full max-w-xl flex-col overflow-y-auto bg-background shadow-2xl">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="font-display text-lg font-medium">Waitlist entry</h2>
-          <button type="button" aria-label="Close panel" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            type="button"
+            aria-label="Close panel"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </header>
@@ -531,10 +541,7 @@ function WaitlistDetailDrawer({
               <Field label="State" value={entry.state} />
               <Field label="Grade band" value={entry.student_grade_band} />
               <Field label="Source" value={entry.source || entry.source_page} />
-              <Field
-                label="Submitted"
-                value={new Date(entry.created_at).toLocaleString()}
-              />
+              <Field label="Submitted" value={new Date(entry.created_at).toLocaleString()} />
             </dl>
 
             {entry.intended_use && (
@@ -602,7 +609,10 @@ function WaitlistDetailDrawer({
 
               <ul className="mt-4 space-y-3">
                 {notes.map((n) => (
-                  <li key={n.id} className="rounded-md border border-border bg-muted/20 p-3 text-sm">
+                  <li
+                    key={n.id}
+                    className="rounded-md border border-border bg-muted/20 p-3 text-sm"
+                  >
                     <div className="flex items-baseline justify-between text-xs text-muted-foreground">
                       <span>{n.admin_name || "Admin"}</span>
                       <span>{new Date(n.created_at).toLocaleString()}</span>
@@ -636,6 +646,7 @@ function ConvertToInvitationButton({ entry }: { entry: WaitlistEntry }) {
     student: { role: "student", type: "connect_to_student" },
     educator: { role: "educator", type: "join_school" },
     administrator: { role: "school_admin", type: "join_school" },
+    school_admin: { role: "school_admin", type: "join_school" },
     district: { role: "district_admin", type: "join_district" },
     partner: { role: "partner", type: "join_partner_org" },
   };
@@ -664,7 +675,11 @@ function ConvertToInvitationButton({ entry }: { entry: WaitlistEntry }) {
 
   return (
     <Button size="sm" onClick={handle} disabled={busy}>
-      {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Mail className="mr-1.5 h-3.5 w-3.5" />}
+      {busy ? (
+        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Mail className="mr-1.5 h-3.5 w-3.5" />
+      )}
       Convert to invitation
     </Button>
   );

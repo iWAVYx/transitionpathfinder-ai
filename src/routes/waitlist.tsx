@@ -5,15 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import {
-  HeartHandshake,
-  GraduationCap,
-  Users,
-  Building2,
-  Briefcase,
-  ArrowRight,
-  ArrowLeft,
-} from "lucide-react";
+import { HeartHandshake, Users, Building2, ArrowRight, ArrowLeft } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
 
@@ -32,7 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { submitWaitlist } from "@/lib/waitlist.functions";
 
 import { toTitleCase } from "@/lib/title-case";
-type RoleKey = "family" | "student" | "educator" | "district" | "partner";
+type RoleKey = "family" | "educator" | "school_admin";
 
 const ROLE_OPTIONS: {
   key: RoleKey;
@@ -50,14 +42,6 @@ const ROLE_OPTIONS: {
     icon: <HeartHandshake className="h-5 w-5" />,
   },
   {
-    key: "student",
-    label: "Student",
-    blurb:
-      "Explore careers, college, training, and life after high school — in your own voice.",
-    cta: "Explore my future path",
-    icon: <GraduationCap className="h-5 w-5" />,
-  },
-  {
     key: "educator",
     label: "Educator / case manager",
     blurb:
@@ -66,27 +50,19 @@ const ROLE_OPTIONS: {
     icon: <Users className="h-5 w-5" />,
   },
   {
-    key: "district",
-    label: "School or district leader",
+    key: "school_admin",
+    label: "School leader",
     blurb:
-      "See how TransitionForward complements CT SEDS and improves outcomes across your buildings.",
-    cta: "Request a school demo",
+      "Join the pilot waitlist when your school is not yet part of a licensed TransitionForward district.",
+    cta: "Join the school waitlist",
     icon: <Building2 className="h-5 w-5" />,
-  },
-  {
-    key: "partner",
-    label: "Community partner",
-    blurb:
-      "Colleges, technical programs, BRS, employers, mentorship — connect with students who fit.",
-    cta: "Become a partner",
-    icon: <Briefcase className="h-5 w-5" />,
   },
 ];
 
 const Schema = z.object({
   full_name: z.string().trim().min(1, "Required").max(200),
   email: z.string().trim().email("Enter a valid email").max(255),
-  role: z.enum(["family", "student", "educator", "district", "partner"]),
+  role: z.enum(["family", "educator", "school_admin"]),
   state: z.string().trim().max(100).optional(),
   student_grade_band: z
     .enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable"])
@@ -110,9 +86,7 @@ const Schema = z.object({
   services_offered: z.string().trim().max(2000).optional(),
 
   // Required consent — the public waitlist RLS policy also enforces this.
-  consent_to_contact: z
-    .boolean()
-    .refine((v) => v === true, "Please confirm we can contact you."),
+  consent_to_contact: z.boolean().refine((v) => v === true, "Please confirm we can contact you."),
 });
 
 type FormValues = z.infer<typeof Schema>;
@@ -124,7 +98,7 @@ export const Route = createFileRoute("/waitlist")({
       {
         name: "description",
         content:
-          "Request early access to TransitionForward — separate paths for families, students, educators, schools, and partner organizations.",
+          "Request early access to TransitionForward as a family, educator, or school outside a licensed district.",
       },
       { property: "og:url", content: "/waitlist" },
     ],
@@ -147,8 +121,7 @@ function WaitlistPage() {
     }
   };
 
-  // Pick up ?role= or ?audience= from URL. Each "door" on entry points like
-  // /partners or /educators can route here with their audience preselected.
+  // Pick up ?role= or ?audience= from eligible waitlist entry points.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -161,23 +134,16 @@ function WaitlistPage() {
       parent: "family",
       parents: "family",
       caregiver: "family",
-      student: "student",
-      students: "student",
       educator: "educator",
       educators: "educator",
       teacher: "educator",
       teachers: "educator",
       "case-manager": "educator",
-      school: "district",
-      schools: "district",
-      district: "district",
-      districts: "district",
-      administrator: "district",
-      admin: "district",
-      leader: "district",
-      partner: "partner",
-      partners: "partner",
-      community: "partner",
+      school: "school_admin",
+      schools: "school_admin",
+      administrator: "school_admin",
+      "school-admin": "school_admin",
+      school_admin: "school_admin",
     };
     const key = ALIAS[raw.toLowerCase()];
     if (key) {
@@ -201,8 +167,7 @@ function WaitlistPage() {
         if (lenis && !prefersReduced) {
           lenis.scrollTo(el, { offset: -headerOffset });
         } else {
-          const top =
-            el.getBoundingClientRect().top + window.scrollY - headerOffset;
+          const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
           window.scrollTo({
             top,
             behavior: prefersReduced ? "auto" : "smooth",
@@ -211,41 +176,43 @@ function WaitlistPage() {
         // Move focus to the first focusable field. Use preventScroll so
         // the browser doesn't jump past our smooth-scrolled position,
         // then nudge into view if it ended up under the sticky header.
-        window.setTimeout(() => {
-          const firstField = el.querySelector<HTMLElement>(
-            'input, select, textarea, button, [tabindex]:not([tabindex="-1"])',
-          );
-          if (!firstField) return;
-          // Briefly highlight the focus ring so it is unmistakable on landing.
-          firstField.classList.add(
-            "ring-2",
-            "ring-primary",
-            "ring-offset-2",
-            "ring-offset-background",
-          );
-          firstField.focus({ preventScroll: true });
-          const rect = firstField.getBoundingClientRect();
-          if (rect.top < headerOffset) {
-            const correction =
-              window.scrollY + rect.top - headerOffset;
-            if (lenis && !prefersReduced) {
-              lenis.scrollTo(correction);
-            } else {
-              window.scrollTo({
-                top: correction,
-                behavior: prefersReduced ? "auto" : "smooth",
-              });
-            }
-          }
-          window.setTimeout(() => {
-            firstField.classList.remove(
+        window.setTimeout(
+          () => {
+            const firstField = el.querySelector<HTMLElement>(
+              'input, select, textarea, button, [tabindex]:not([tabindex="-1"])',
+            );
+            if (!firstField) return;
+            // Briefly highlight the focus ring so it is unmistakable on landing.
+            firstField.classList.add(
               "ring-2",
               "ring-primary",
               "ring-offset-2",
               "ring-offset-background",
             );
-          }, 1800);
-        }, prefersReduced ? 0 : 600);
+            firstField.focus({ preventScroll: true });
+            const rect = firstField.getBoundingClientRect();
+            if (rect.top < headerOffset) {
+              const correction = window.scrollY + rect.top - headerOffset;
+              if (lenis && !prefersReduced) {
+                lenis.scrollTo(correction);
+              } else {
+                window.scrollTo({
+                  top: correction,
+                  behavior: prefersReduced ? "auto" : "smooth",
+                });
+              }
+            }
+            window.setTimeout(() => {
+              firstField.classList.remove(
+                "ring-2",
+                "ring-primary",
+                "ring-offset-2",
+                "ring-offset-background",
+              );
+            }, 1800);
+          },
+          prefersReduced ? 0 : 600,
+        );
       };
       requestAnimationFrame(tryScroll);
     }
@@ -259,8 +226,7 @@ function WaitlistPage() {
     if (!selected || done) return;
     if (typeof window === "undefined") return;
 
-    const prefersReduced =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const prefersReduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     const headerOffset = 96;
     let raf = 0;
 
@@ -370,25 +336,27 @@ function WaitlistPage() {
               You don't have to figure this out alone.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              The waitlist is how we route access — for families, students,
-              educators, school and district leaders, and partner
-              organizations. Pick the door that fits you and we'll qualify
-              the right next step (early access, demo, pilot, or partner review).
+              The waitlist is for families, educators, and schools that are not already covered by a
+              licensed district. Students request access through their school, districts request a
+              license, and partners use the dedicated partner application.
             </p>
             <p className="mx-auto mt-3 max-w-xl text-xs text-muted-foreground/80">
               Already have an invitation or active access?{" "}
-              <a href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+              <a
+                href="/login"
+                className="font-semibold text-primary underline-offset-4 hover:underline"
+              >
                 Sign in instead →
               </a>
             </p>
             <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground/80">
-              A real person on our Connecticut team reads every submission — usually within two school days.
+              A real person on our Connecticut team reads every submission — usually within two
+              school days.
             </p>
           </header>
 
-
           {!done && !current && (
-            <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:[&>*]:col-span-2 lg:[&>*:nth-child(4)]:col-start-2 lg:[&>*:nth-child(5)]:col-start-4">
+            <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:grid-cols-3">
               {ROLE_OPTIONS.map((opt) => (
                 <button
                   key={opt.key}
@@ -399,7 +367,9 @@ function WaitlistPage() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
                     {opt.icon}
                   </span>
-                  <h2 className="mt-4 font-display text-xl font-medium">{toTitleCase(opt.label)}</h2>
+                  <h2 className="mt-4 font-display text-xl font-medium">
+                    {toTitleCase(opt.label)}
+                  </h2>
                   <p className="mt-2 text-sm text-muted-foreground">{opt.blurb}</p>
                   <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                     {opt.cta}{" "}
@@ -431,14 +401,15 @@ function WaitlistPage() {
             </div>
           )}
 
-
           {!done && current && (
             <div id="waitlist-form" className="mt-10 grid scroll-mt-24 gap-6 md:grid-cols-5">
               <aside className="rounded-3xl border bg-card p-6 shadow-soft md:col-span-2">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-hero text-primary">
                   {current.icon}
                 </span>
-                <h2 className="mt-4 font-display text-2xl font-medium">{toTitleCase(current.label)}</h2>
+                <h2 className="mt-4 font-display text-2xl font-medium">
+                  {toTitleCase(current.label)}
+                </h2>
                 <p className="mt-3 text-sm text-muted-foreground">{current.blurb}</p>
                 <button
                   type="button"
@@ -458,11 +429,7 @@ function WaitlistPage() {
                     <Input {...form.register("full_name")} placeholder="Your Name" />
                   </Field>
                   <Field label="Email" error={form.formState.errors.email?.message}>
-                    <Input
-                      type="email"
-                      {...form.register("email")}
-                      placeholder="you@example.com"
-                    />
+                    <Input type="email" {...form.register("email")} placeholder="you@example.com" />
                   </Field>
                 </div>
 
@@ -470,21 +437,20 @@ function WaitlistPage() {
                   <Input {...form.register("state")} placeholder="CT" maxLength={100} />
                 </Field>
 
-                {(current.key === "family" || current.key === "student") && (
+                {current.key === "family" && (
                   <Field label="Student grade band">
                     <Select
                       onValueChange={(v) =>
-                        form.setValue(
-                          "student_grade_band",
-                          v as FormValues["student_grade_band"],
-                        )
+                        form.setValue("student_grade_band", v as FormValues["student_grade_band"])
                       }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select…" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="6-8">6th – 8th (BridgeForward · high school choice)</SelectItem>
+                        <SelectItem value="6-8">
+                          6th – 8th (BridgeForward · high school choice)
+                        </SelectItem>
                         <SelectItem value="9-10">9th – 10th (Launch / Explore)</SelectItem>
                         <SelectItem value="11-12">11th – 12th (Plan / Execute)</SelectItem>
                         <SelectItem value="post-secondary">Post-secondary (18–21)</SelectItem>
@@ -497,52 +463,50 @@ function WaitlistPage() {
                 {current.key === "educator" && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="School (optional)">
-                      <Input {...form.register("school_name")} placeholder="e.g. Hartford Public HS" maxLength={200} />
+                      <Input
+                        {...form.register("school_name")}
+                        placeholder="e.g. Hartford Public HS"
+                        maxLength={200}
+                      />
                     </Field>
                     <Field label="District (optional)">
-                      <Input {...form.register("district_name")} placeholder="e.g. Hartford Public Schools" maxLength={200} />
+                      <Input
+                        {...form.register("district_name")}
+                        placeholder="e.g. Hartford Public Schools"
+                        maxLength={200}
+                      />
                     </Field>
                   </div>
                 )}
 
-                {current.key === "district" && (
+                {current.key === "school_admin" && (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="District">
-                      <Input {...form.register("district_name")} placeholder="District name" maxLength={200} />
+                    <Field label="School">
+                      <Input
+                        {...form.register("school_name")}
+                        placeholder="School name"
+                        maxLength={200}
+                      />
                     </Field>
-                    <Field label="School (if just one building)">
-                      <Input {...form.register("school_name")} placeholder="Leave blank for district-wide" maxLength={200} />
+                    <Field label="District (optional)">
+                      <Input
+                        {...form.register("district_name")}
+                        placeholder="District name"
+                        maxLength={200}
+                      />
                     </Field>
                   </div>
-                )}
-
-                {current.key === "partner" && (
-                  <>
-                    <Field label="Organization">
-                      <Input {...form.register("organization_name")} placeholder="Organization name" maxLength={200} />
-                    </Field>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Field label="Services offered">
-                        <Input {...form.register("services_offered")} placeholder="e.g. paid internships, mentorship, training" maxLength={2000} />
-                      </Field>
-                      <Field label="Service area">
-                        <Input {...form.register("service_area")} placeholder="e.g. Hartford County, statewide" maxLength={500} />
-                      </Field>
-                    </div>
-                    <Field label="Populations supported (optional)">
-                      <Input {...form.register("populations_supported")} placeholder="e.g. students 16–22 with IEPs" maxLength={1000} />
-                    </Field>
-                    <p className="rounded-md border border-amber-500/30 bg-amber-50/60 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                      Partner accounts manage opportunities and PartnerForward resources.
-                      Partners never see private student data.
-                    </p>
-                  </>
                 )}
 
                 {current.key === "educator" && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Caseload size (approx.)">
-                      <Input type="number" min={0} {...form.register("caseload_size")} placeholder="e.g. 18" />
+                      <Input
+                        type="number"
+                        min={0}
+                        {...form.register("caseload_size")}
+                        placeholder="e.g. 18"
+                      />
                     </Field>
                     <Field label="Wants a demo?">
                       <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
@@ -556,17 +520,31 @@ function WaitlistPage() {
                   </div>
                 )}
 
-                {current.key === "district" && (
+                {current.key === "school_admin" && (
                   <div className="grid gap-4 sm:grid-cols-3">
                     <Field label="Est. students">
-                      <Input type="number" min={0} {...form.register("estimated_student_count")} placeholder="e.g. 4200" />
+                      <Input
+                        type="number"
+                        min={0}
+                        {...form.register("estimated_student_count")}
+                        placeholder="e.g. 4200"
+                      />
                     </Field>
                     <Field label="Est. schools">
-                      <Input type="number" min={0} {...form.register("estimated_school_count")} placeholder="e.g. 7" />
+                      <Input
+                        type="number"
+                        min={0}
+                        {...form.register("estimated_school_count")}
+                        placeholder="e.g. 7"
+                      />
                     </Field>
                     <Field label="Timeline">
-                      <Select onValueChange={(v) => form.setValue("urgency", v as FormValues["urgency"])}>
-                        <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+                      <Select
+                        onValueChange={(v) => form.setValue("urgency", v as FormValues["urgency"])}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select…" />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="exploring">Just exploring</SelectItem>
                           <SelectItem value="this_quarter">This quarter</SelectItem>
@@ -578,7 +556,7 @@ function WaitlistPage() {
                   </div>
                 )}
 
-                {(current.key === "family" || current.key === "student") && (
+                {current.key === "family" && (
                   <Field label="Are you currently connected to a student in an active school?">
                     <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
                       <Checkbox
@@ -592,11 +570,9 @@ function WaitlistPage() {
 
                 <Field
                   label={
-                    current.key === "partner"
-                      ? "Tell us about your organization"
-                      : current.key === "district"
-                        ? "Your school or district"
-                        : "What brought you here? (optional)"
+                    current.key === "school_admin"
+                      ? "Your school or district"
+                      : "What brought you here? (optional)"
                   }
                   error={form.formState.errors.reason?.message}
                 >
@@ -605,11 +581,9 @@ function WaitlistPage() {
                     maxLength={2000}
                     {...form.register("reason")}
                     placeholder={
-                      current.key === "partner"
-                        ? "Programs offered, regions served, who you'd like to reach."
-                        : current.key === "district"
-                          ? "District, role, and what you're hoping to evaluate."
-                          : "Anything you'd like us to know."
+                      current.key === "school_admin"
+                        ? "District, role, and what you're hoping to evaluate."
+                        : "Anything you'd like us to know."
                     }
                   />
                 </Field>
@@ -621,12 +595,14 @@ function WaitlistPage() {
                   <label className="flex items-start gap-2 text-xs text-muted-foreground">
                     <Checkbox
                       checked={!!form.watch("consent_to_contact")}
-                      onCheckedChange={(v) => form.setValue("consent_to_contact", v === true, { shouldValidate: true })}
+                      onCheckedChange={(v) =>
+                        form.setValue("consent_to_contact", v === true, { shouldValidate: true })
+                      }
                       className="mt-0.5"
                     />
                     <span>
-                      I consent to be contacted by the TransitionForward team
-                      about my request. (Required)
+                      I consent to be contacted by the TransitionForward team about my request.
+                      (Required)
                     </span>
                   </label>
                 </Field>
@@ -660,8 +636,8 @@ function WaitlistPage() {
                     You're in. Thank you for trusting us with this.
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    A real person on our Connecticut team reads every submission.
-                    Here's exactly what happens next.
+                    A real person on our Connecticut team reads every submission. Here's exactly
+                    what happens next.
                   </p>
                 </div>
               </div>
@@ -676,7 +652,7 @@ function WaitlistPage() {
                   n={2}
                   title="We review your fit"
                   body={
-                    current.key === "district" || current.key === "partner"
+                    current.key === "school_admin"
                       ? "We'll match your request to the next open pilot cohort and schedule a 20-minute intro call."
                       : current.key === "educator"
                         ? "We'll match your request to an educator cohort or an existing school pilot in your area."
@@ -700,8 +676,8 @@ function WaitlistPage() {
                   While you wait
                 </p>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  These pages were built specifically for {current.label.toLowerCase()} —
-                  they'll give you the clearest sense of what TransitionForward feels like in practice.
+                  These pages were built specifically for {current.label.toLowerCase()} — they'll
+                  give you the clearest sense of what TransitionForward feels like in practice.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <a
@@ -712,23 +688,19 @@ function WaitlistPage() {
                   </a>
                   <a
                     href={
-                      current.key === "family" || current.key === "student"
+                      current.key === "family"
                         ? "/families"
                         : current.key === "educator"
                           ? "/educators"
-                          : current.key === "district"
-                            ? "/platform"
-                            : "/partners"
+                          : "/platform"
                     }
                     className="inline-flex items-center justify-center gap-1 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/40"
                   >
-                    {current.key === "family" || current.key === "student"
+                    {current.key === "family"
                       ? "For Families"
                       : current.key === "educator"
                         ? "For Educators"
-                        : current.key === "district"
-                          ? "The Platform"
-                          : "Partner overview"}
+                        : "The Platform"}
                   </a>
                   <a
                     href="/programs/transitionforward"

@@ -25,7 +25,6 @@ import { Parallax, Reveal, Marquee } from "@/components/effects/ScrollEffects";
 import { PartnerApplyForm } from "@/components/site/PartnerApplyForm";
 import { toTitleCase } from "@/lib/title-case";
 
-
 export const Route = createFileRoute("/partners")({
   head: () => ({
     meta: [
@@ -73,8 +72,8 @@ const partnerTypes = [
   },
   {
     icon: HeartHandshake,
-    title: "Community organizations",
-    body: "Higher Heights, the RISE Network, Dalio Education, and other Connecticut groups doing this work for years.",
+    title: "Community, after-school & enrichment",
+    body: "After-school programs, enrichment, recreation, mentoring, and extracurricular opportunities that help students build skills and belonging.",
   },
   {
     icon: Sparkles,
@@ -87,12 +86,12 @@ const principles = [
   {
     n: "01",
     title: "Vetted, not aggregated",
-    body: "Every partner is reviewed by someone who has actually called, visited, or worked with them — not scraped from a directory.",
+    body: "Listings marked verified have completed human review. Prospective leads remain clearly separated until that review is complete.",
   },
   {
     n: "02",
     title: "Matched to the student",
-    body: "Opportunities surface based on a student's interests, strengths, and goals — not generic lists for everyone.",
+    body: "The directory can be searched by pathway, audience, service, and location. Personalized matching and warm handoffs are still being validated.",
   },
   {
     n: "03",
@@ -106,7 +105,7 @@ const principles = [
   },
 ];
 
-const featuredCtPartners = [
+const ctEcosystemExamples = [
   "Higher Heights",
   "RISE Network",
   "Dalio Education",
@@ -130,13 +129,7 @@ function GridBurst({ className }: { className?: string }) {
       {Array.from({ length: 14 }).map((_, i) => {
         const a = (i / 14) * Math.PI * 2;
         return (
-          <line
-            key={i}
-            x1="100"
-            y1="100"
-            x2={100 + Math.cos(a) * 96}
-            y2={100 + Math.sin(a) * 96}
-          />
+          <line key={i} x1="100" y1="100" x2={100 + Math.cos(a) * 96} y2={100 + Math.sin(a) * 96} />
         );
       })}
       <circle cx="100" cy="100" r="38" />
@@ -149,24 +142,14 @@ function GridBurst({ className }: { className?: string }) {
 function CornerArc({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 160 160" aria-hidden className={className} fill="none">
-      <path
-        d="M 0 160 A 160 160 0 0 1 160 0"
-        stroke="currentColor"
-        strokeWidth="1"
-        opacity="0.5"
-      />
+      <path d="M 0 160 A 160 160 0 0 1 160 0" stroke="currentColor" strokeWidth="1" opacity="0.5" />
       <path
         d="M 0 160 A 110 110 0 0 1 110 50"
         stroke="currentColor"
         strokeWidth="1"
         opacity="0.35"
       />
-      <path
-        d="M 0 160 A 60 60 0 0 1 60 100"
-        stroke="currentColor"
-        strokeWidth="1"
-        opacity="0.2"
-      />
+      <path d="M 0 160 A 60 60 0 0 1 60 100" stroke="currentColor" strokeWidth="1" opacity="0.2" />
     </svg>
   );
 }
@@ -189,7 +172,11 @@ function PartnerNetworkVisual() {
       <div className="absolute inset-0 bg-gradient-to-br from-peach/30 via-transparent to-sky/40" />
       <div className="absolute -left-10 -top-10 h-56 w-56 rounded-full bg-peach/40 blur-3xl" />
       <div className="absolute -bottom-12 -right-8 h-56 w-56 rounded-full bg-sky/40 blur-3xl" />
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full"
+      >
         <defs>
           <radialGradient id="pnv-glow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="oklch(0.7 0.18 30)" stopOpacity="0.35" />
@@ -299,10 +286,10 @@ function PartnersPage() {
                 <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
                   <Magnetic>
                     <Link
-                      to="/waitlist"
+                      to="/partner-directory"
                       className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-lift hover:shadow-soft"
                     >
-                      Join the pilot <ArrowRight className="h-4 w-4" />
+                      Search the directory <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Magnetic>
                   <Magnetic>
@@ -344,7 +331,13 @@ function PartnersPage() {
               >
                 {Array.from({ length: 8 }).map((_, y) =>
                   Array.from({ length: 8 }).map((_, x) => (
-                    <circle key={`${x}-${y}`} cx={x * 10 + 5} cy={y * 10 + 5} r="1.2" fill="currentColor" />
+                    <circle
+                      key={`${x}-${y}`}
+                      cx={x * 10 + 5}
+                      cy={y * 10 + 5}
+                      r="1.2"
+                      fill="currentColor"
+                    />
                   )),
                 )}
               </svg>
@@ -353,11 +346,14 @@ function PartnersPage() {
         </section>
 
         {/* Marquee */}
-        <div className="border-y border-foreground/15 bg-card/60 backdrop-blur-sm">
+        <div
+          className="border-y border-foreground/15 bg-card/60 backdrop-blur-sm"
+          aria-label="Examples from Connecticut's transition-support ecosystem; directory verification status is shown in the live directory"
+        >
           <Marquee
             speed={40}
             className="py-5 font-display text-2xl italic text-foreground/70 sm:text-3xl"
-            items={featuredCtPartners.map((p) => (
+            items={ctEcosystemExamples.map((p) => (
               <span key={p} className="inline-flex items-center">
                 {p}
                 <span className="ml-8 text-primary">·</span>
@@ -477,8 +473,6 @@ function PartnersPage() {
         </div>
       </section>
 
-
-
       {/* PartnerForward — incentive & support layer (not a second directory) */}
       <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="rounded-3xl border bg-gradient-hero p-8 shadow-soft sm:p-10 lg:p-12">
@@ -492,12 +486,10 @@ function PartnersPage() {
                 PartnerForward: The Incentive & Support Layer.
               </h3>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                A plain-language guide to federal, state, philanthropic, and
-                workforce-development incentives, grants, credits, deductions,
-                and support programs that may help partners grow inclusive
-                hiring, accessibility, and community reach. PartnerForward sits
-                alongside — not on top of — the existing Partner Network and
-                Opportunity Directory.
+                A plain-language guide to federal, state, philanthropic, and workforce-development
+                incentives, grants, credits, deductions, and support programs that may help partners
+                grow inclusive hiring, accessibility, and community reach. PartnerForward sits
+                alongside — not on top of — the existing Partner Network and Opportunity Directory.
               </p>
             </div>
             <Link
@@ -510,9 +502,11 @@ function PartnersPage() {
         </div>
       </section>
 
-
       {/* ============ CTA — OPEN COMPOSITION ============ */}
-      <section className="relative mx-auto max-w-6xl overflow-hidden px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+      <section
+        id="apply"
+        className="relative mx-auto max-w-6xl scroll-mt-20 overflow-hidden px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
+      >
         <FloatingShape
           className="pointer-events-none absolute left-[4%] top-16 hidden text-primary/25 lg:block"
           duration={26}

@@ -1,5 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
+import { FeatureContractLinks } from "@/components/site/FeatureContractLinks";
+import type { PublicFeatureId } from "@/lib/public-feature-contract";
 import {
   BookOpen,
   Heart,
@@ -13,7 +15,8 @@ import {
 import { photos, srcSetFor } from "@/lib/photos";
 import homeFamilyImage from "@/assets/bundled/family-walking-together.webp";
 import familiesHero from "@/assets/bundled/mom-daughter-homework.webp";
-void photos; void srcSetFor;
+void photos;
+void srcSetFor;
 const familiesHeroSrcSet: string | undefined = undefined;
 
 import {
@@ -39,34 +42,45 @@ import {
   ArcStack,
 } from "@/components/effects/Decorations";
 
-
-
-
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/families")({
   head: () => ({
     meta: [
       { title: "For Families | TransitionForward" },
-      { name: "description", content: "Plain language transition planning for Connecticut families. Understand the IEP, track progress, and find real resources." },
+      {
+        name: "description",
+        content:
+          "Plain language transition planning for Connecticut families. Understand the IEP, track progress, and find real resources.",
+      },
       { property: "og:title", content: "For Families | TransitionForward" },
-      { property: "og:description", content: "Plain Language Transition Planning for Connecticut Families." },
+      {
+        property: "og:description",
+        content: "Plain Language Transition Planning for Connecticut Families.",
+      },
       { property: "og:url", content: "/families" },
       { property: "og:image", content: familiesHero },
     ],
     links: [
       { rel: "canonical", href: "/families" },
       { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
-      { rel: "preload", as: "image", href: familiesHero, imagesrcset: familiesHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+      {
+        rel: "preload",
+        as: "image",
+        href: familiesHero,
+        imagesrcset: familiesHeroSrcSet,
+        imagesizes: "(min-width: 1024px) 50vw, 100vw",
+        fetchpriority: "high",
+      },
     ],
     scripts: [
-
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Service",
           name: "Transition Planning for Families",
-          description: "Plain language transition planning for Connecticut families with students with disabilities. IEP guidance, progress tracking, and resource discovery.",
+          description:
+            "Plain language transition planning for Connecticut families with students with disabilities. IEP guidance, progress tracking, and resource discovery.",
           provider: { "@type": "Organization", name: "TransitionForward", url: "/" },
           areaServed: "Connecticut, USA",
           audience: { "@type": "Audience", audienceType: "Families of students with disabilities" },
@@ -77,13 +91,48 @@ export const Route = createFileRoute("/families")({
   component: FamiliesPage,
 });
 
-const cards = [
-  { icon: BookOpen, t: "Understand the Plan, in Plain Language", b: "Paste any transition goal and we will explain what it means, why it matters, and what progress should look like at home." },
-  { icon: Heart, t: "Your Voice Belongs Here", b: "A space for your hopes, your concerns, and the questions you want to bring to the next PPT. Saved between meetings, not lost in them." },
-  { icon: TrendingUp, t: "See Real Progress", b: "Goals connected to skills, evidence, and the next gentle step, so you can tell if your child is actually moving forward." },
-  { icon: MapPin, t: "Find What They Actually Need", b: "Connecticut aware resources matched to your child's interests and grade. Community colleges, BRS, technical schools, job training, and internships." },
-  { icon: ClipboardCheck, t: "Walk Into PPTs Prepared", b: "A printable meeting prep sheet with strengths, concerns, questions, and your family priorities, ready in minutes." },
-  { icon: Archive, t: "Hold Onto the History", b: "Assessments, work samples, and reflections in one place. Growth over years stays visible instead of buried in folders." },
+const cards: Array<{
+  icon: typeof BookOpen;
+  t: string;
+  b: string;
+  featureId: PublicFeatureId;
+}> = [
+  {
+    icon: BookOpen,
+    t: "Understand the Plan, in Plain Language",
+    b: "Pathway Reports explain transition goals in plain language. A standalone paste-and-translate tool is not live yet.",
+    featureId: "family-translator",
+  },
+  {
+    icon: Heart,
+    t: "Your Voice Belongs Here",
+    b: "A space for your hopes, your concerns, and the questions you want to bring to the next PPT. Saved between meetings, not lost in them.",
+    featureId: "family-voice",
+  },
+  {
+    icon: TrendingUp,
+    t: "See Real Progress",
+    b: "Goal status is available now; evidence journals, charts, compliance views, and shareable exports are still being built.",
+    featureId: "goal-progress",
+  },
+  {
+    icon: MapPin,
+    t: "Find What They Actually Need",
+    b: "Search Connecticut resources and partner listings now. Personalized student matching and warm handoffs are still being completed.",
+    featureId: "resource-match",
+  },
+  {
+    icon: ClipboardCheck,
+    t: "Walk Into PPTs Prepared",
+    b: "A printable meeting prep sheet with strengths, concerns, questions, and your family priorities, ready in minutes.",
+    featureId: "ppt-prep",
+  },
+  {
+    icon: Archive,
+    t: "Hold Onto the History",
+    b: "Family history and documents are available; the full year-over-year assessment and work-sample vault is still being built.",
+    featureId: "document-history",
+  },
 ];
 
 function FamiliesPage() {
@@ -110,15 +159,24 @@ function FamiliesPage() {
           gradientTo="hsl(280 70% 78%)"
         />
         <DotField className="absolute inset-x-0 top-0 -z-10 h-40 text-primary/15" />
-        <FloatingShape className="absolute left-6 top-24 -z-0 hidden h-10 w-10 text-primary/50 lg:block" delay={0.2}>
+        <FloatingShape
+          className="absolute left-6 top-24 -z-0 hidden h-10 w-10 text-primary/50 lg:block"
+          delay={0.2}
+        >
           <Sparkle className="h-full w-full" />
         </FloatingShape>
-        <FloatingShape className="absolute left-[42%] top-10 -z-0 hidden h-8 w-8 text-secondary-foreground/50 md:block" duration={14} delay={1}>
+        <FloatingShape
+          className="absolute left-[42%] top-10 -z-0 hidden h-8 w-8 text-secondary-foreground/50 md:block"
+          duration={14}
+          delay={1}
+        >
           <Sparkle className="h-full w-full" />
         </FloatingShape>
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
           <Reveal y={36}>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">For Families</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              For Families
+            </p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
               You Are Not Supposed to Figure This Out Alone.
               <UnderlineSwoosh className="mt-2 block h-3 w-72 text-primary/60" />
@@ -126,21 +184,40 @@ function FamiliesPage() {
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Transition planning is a lot. Goals written in school system language, services that
               change every year, decisions that feel enormous. TransitionForward sits next to you
-              and gently translates, so you can see what is happening, what to ask, and what to do next.
+              and gently translates, so you can see what is happening, what to ask, and what to do
+              next.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
-              <Link to="/demo" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift">See a Sample Pathway</Link>
-              <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted">Join the Waitlist</Link>
+              <Link
+                to="/demo"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift"
+              >
+                See a Sample Pathway
+              </Link>
+              <Link
+                to="/waitlist"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-muted"
+              >
+                Join the Waitlist
+              </Link>
               <ArrowDoodle className="ml-1 hidden h-12 w-16 -translate-y-2 rotate-[10deg] text-primary/60 sm:block" />
             </div>
           </Reveal>
           <Reveal delay={150}>
             <div className="relative">
               <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-warm blur-2xl opacity-60" />
-              <FloatingShape className="absolute -left-10 -top-6 z-10 h-16 w-16 text-primary/80" delay={0.4} duration={16}>
+              <FloatingShape
+                className="absolute -left-10 -top-6 z-10 h-16 w-16 text-primary/80"
+                delay={0.4}
+                duration={16}
+              >
                 <PaperPlane className="h-full w-full" />
               </FloatingShape>
-              <FloatingShape className="absolute -right-6 bottom-8 z-10 h-20 w-20 text-secondary-foreground/70" delay={1.2} duration={20}>
+              <FloatingShape
+                className="absolute -right-6 bottom-8 z-10 h-20 w-20 text-secondary-foreground/70"
+                delay={1.2}
+                duration={20}
+              >
                 <BookDoodle className="h-full w-full" />
               </FloatingShape>
               <Confetti className="absolute -bottom-6 left-6 z-10 h-16 w-24" />
@@ -156,13 +233,11 @@ function FamiliesPage() {
                   speed={0.4}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift"
                 />
-
               </Parallax>
             </div>
           </Reveal>
         </div>
       </section>
-
 
       {/* Voices marquee */}
       <section aria-label="Family voices" className="border-y border-border/40 bg-muted/30 py-6">
@@ -204,11 +279,14 @@ function FamiliesPage() {
         />
         <ArcStack className="absolute -left-10 bottom-0 -z-10 hidden h-56 w-56 text-primary/20 lg:block" />
         <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
-        <FloatingShape className="absolute left-1/3 top-2 -z-0 hidden h-7 w-7 text-secondary-foreground/60 md:block" delay={0.5}>
+        <FloatingShape
+          className="absolute left-1/3 top-2 -z-0 hidden h-7 w-7 text-secondary-foreground/60 md:block"
+          delay={0.5}
+        >
           <Sparkle className="h-full w-full" />
         </FloatingShape>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map(({ icon: Icon, t, b }, i) => (
+          {cards.map(({ icon: Icon, t, b, featureId }, i) => (
             <Reveal key={t} delay={i * 80}>
               <article className="group h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground">
@@ -216,6 +294,7 @@ function FamiliesPage() {
                 </div>
                 <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{t}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
+                <FeatureContractLinks featureId={featureId} />
               </article>
             </Reveal>
           ))}
@@ -235,14 +314,20 @@ function FamiliesPage() {
                 decoding="async"
                 className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
               />
-
             </div>
           </div>
           <div className="lg:col-span-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Family portal</p>
-            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">One Place for Everything That Matters.</h3>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Family portal
+            </p>
+            <h3 className="mt-3 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              One Place for Everything That Matters.
+            </h3>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Inside you'll find a living timeline of milestones across grades and PPT cycles, space to invite grandparents or trusted advocates, soft reminders for paperwork windows and deadlines, and a private sketchpad for late-night worries and small wins — kept just for you.
+              Inside you'll find a living timeline of milestones across grades and PPT cycles, space
+              to invite grandparents or trusted advocates, soft reminders for paperwork windows and
+              deadlines, and a private sketchpad for late-night worries and small wins — kept just
+              for you.
             </p>
           </div>
         </div>
@@ -262,8 +347,8 @@ function FamiliesPage() {
               </h3>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 BridgeForward is built for families with middle schoolers. Capture strengths,
-                compare high school options, and hear your student's voice before the first
-                grade 9 PPT ever happens.
+                compare high school options, and hear your student's voice before the first grade 9
+                PPT ever happens.
               </p>
             </div>
             <Link
@@ -275,8 +360,6 @@ function FamiliesPage() {
           </div>
         </div>
       </section>
-
     </SiteShell>
   );
 }
-

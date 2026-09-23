@@ -69,6 +69,10 @@ const ContactSchema = z.object({
 
 type ContactValues = z.infer<typeof ContactSchema>;
 
+const HelpSearchSchema = z.object({
+  topic: ContactSchema.shape.topic.optional(),
+});
+
 const TOPIC_TO_INQUIRY: Record<ContactValues["topic"], string> = {
   general: "general",
   "family-question": "family",
@@ -134,6 +138,7 @@ const SUPPORT_CATEGORIES: {
 ];
 
 export const Route = createFileRoute("/help")({
+  validateSearch: HelpSearchSchema,
   head: () => ({
     meta: [
       { title: "Help & Contact | TransitionForward" },
@@ -555,16 +560,21 @@ function FaqAccordionItem({ faq, highlightTerm }: { faq: Faq; highlightTerm: str
 function ContactSection() {
   const [done, setDone] = useState(false);
   const submit = useServerFn(submitContactForm);
+  const { topic } = Route.useSearch();
 
   const form = useForm<ContactValues>({
     resolver: zodResolver(ContactSchema),
     defaultValues: {
       full_name: "",
       email: "",
-      topic: "general",
+      topic: topic ?? "general",
       message: "",
     },
   });
+
+  useEffect(() => {
+    if (topic) form.setValue("topic", topic);
+  }, [form, topic]);
 
   const onSubmit = async (values: ContactValues) => {
     try {
