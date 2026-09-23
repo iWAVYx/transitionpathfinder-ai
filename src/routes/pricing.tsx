@@ -15,19 +15,10 @@ import { CardGrid } from "@/components/layout/CardGrid";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StripeEmbeddedCheckout } from "@/components/billing/StripeEmbeddedCheckout";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  PLANS,
-  TRIAL_PERIOD_DAYS,
-  pricingTierIdForRole,
-} from "@/lib/billing/plans";
+import { PLANS, TRIAL_PERIOD_DAYS, pricingTierIdForRole } from "@/lib/billing/plans";
 import { getProfile } from "@/lib/profile.functions";
 import { isPaymentsConfigured } from "@/lib/stripe";
 import { SALES_EMAIL, mailtoHref } from "@/lib/contact";
@@ -56,7 +47,7 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-type CtaTo = "/waitlist" | "/contact";
+type CtaTo = "/waitlist" | "/help" | "/partner-interest";
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -75,7 +66,7 @@ interface Tier {
   price: TierPrice;
   description: string;
   highlights: string[];
-  cta: { label: string; to: CtaTo; search?: Record<string, string> };
+  cta: { label: string; to: CtaTo; search?: Record<string, string>; hash?: string };
   /**
    * Self-serve plans: signed-in visitors check out here instead of being
    * sent to the waitlist.
@@ -158,7 +149,12 @@ const tiers: Tier[] = [
     description:
       "Multi-school access with district reporting and implementation support. District Growth covers 8 schools, 400 pathways, and 90 staff seats for $32,000 per year; Enterprise is a custom contract.",
     highlights: ["Up to 3 schools", "150 student pathways", "Invoice or purchase order"],
-    cta: { label: "Request a district quote", to: "/contact" },
+    cta: {
+      label: "Request a district quote",
+      to: "/help",
+      search: { topic: "district-demo" },
+      hash: "contact",
+    },
     icon: Landmark,
   },
   {
@@ -172,11 +168,10 @@ const tiers: Tier[] = [
     description:
       "Colleges, employers, training programs, and community organizations — list opportunities and reach the students who fit.",
     highlights: ["Free basic listing", "Verified profile", "Featured placement"],
-    cta: { label: "Become a partner", to: "/waitlist", search: { audience: "partner" } },
+    cta: { label: "Become a partner", to: "/partner-interest" },
     icon: Briefcase,
   },
 ];
-
 
 function BillingToggle({
   value,
@@ -202,7 +197,7 @@ function BillingToggle({
             "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
             value === period
               ? "bg-card text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           {period === "monthly" ? "Monthly" : "Yearly"}
@@ -272,8 +267,8 @@ function PricingPage() {
             {toTitleCase("Simple pricing for every part of the pathway.")}
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Affordable access for families. Fair, transparent options for
-            educators, schools, districts, and partners.
+            Affordable access for families. Fair, transparent options for educators, schools,
+            districts, and partners.
           </p>
           <div className="mt-6 flex justify-center">
             <BillingToggle value={billing} onChange={setBilling} />
@@ -322,20 +317,17 @@ function PricingPage() {
                   {user && ["school", "district", "partner"].includes(tier.id) ? (
                     <Button asChild className="w-full" variant="outline">
                       <Link to="/admin/orgs">
-                        {toTitleCase("Manage organization billing")} <ArrowRight className="h-4 w-4" />
+                        {toTitleCase("Manage organization billing")}{" "}
+                        <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
                   ) : canCheckout && tier.checkoutPriceIds ? (
                     <>
                       <Button
                         className="w-full"
-                        onClick={() =>
-                          setCheckoutPrice(tier.checkoutPriceIds![billing])
-                        }
+                        onClick={() => setCheckoutPrice(tier.checkoutPriceIds![billing])}
                       >
-                        {toTitleCase(
-                          `Start ${TRIAL_PERIOD_DAYS}-day free trial`,
-                        )}{" "}
+                        {toTitleCase(`Start ${TRIAL_PERIOD_DAYS}-day free trial`)}{" "}
                         <ArrowRight className="h-4 w-4" />
                       </Button>
                       <p className="mt-2 text-center text-xs text-muted-foreground">
@@ -344,7 +336,7 @@ function PricingPage() {
                     </>
                   ) : (
                     <Button asChild className="w-full" variant="outline">
-                      <Link to={tier.cta.to} search={tier.cta.search as never}>
+                      <Link to={tier.cta.to} search={tier.cta.search as never} hash={tier.cta.hash}>
                         {toTitleCase(tier.cta.label)} <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -370,10 +362,17 @@ function PricingPage() {
             <div>
               <h2 className="font-display text-xl">{toTitleCase("Our pricing promise")}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/85">
-                We will never let cost block a family from the core planning tools their
-                student needs to leave high school with a real plan. Families included through a licensed school or district access TransitionForward at no extra cost. If cost is
-                a barrier — for a family, a teacher, or a small program —
-                email <a className="font-medium text-primary underline underline-offset-2" href={mailtoHref("sales")}>{SALES_EMAIL}</a>.
+                We will never let cost block a family from the core planning tools their student
+                needs to leave high school with a real plan. Families included through a licensed
+                school or district access TransitionForward at no extra cost. If cost is a barrier —
+                for a family, a teacher, or a small program — email{" "}
+                <a
+                  className="font-medium text-primary underline underline-offset-2"
+                  href={mailtoHref("sales")}
+                >
+                  {SALES_EMAIL}
+                </a>
+                .
               </p>
             </div>
           </div>

@@ -20,8 +20,9 @@ import platformHero from "@/assets/bundled/piecing-puzzle.webp";
 const platformHeroSrcSet = undefined as unknown as string;
 
 import { PerspectiveTabs } from "@/components/platform/PerspectiveTabs";
+import { FeatureContractLinks } from "@/components/site/FeatureContractLinks";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon, ChevronDown } from "lucide-react";
+import { ClipboardList as ClipboardIcon, FileText, LayoutDashboard as HubIcon } from "lucide-react";
 import { LayerDiagram } from "@/components/platform/LayerDiagram";
 import {
   Parallax,
@@ -41,13 +42,15 @@ import {
   ArcStack,
 } from "@/components/effects/Decorations";
 
-
-
 import { toTitleCase } from "@/lib/title-case";
 import { cn } from "@/lib/utils";
+import {
+  getPublicFeature,
+  type PublicFeatureAudience,
+  type PublicFeatureId,
+} from "@/lib/public-feature-contract";
 
-import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useRef, type MouseEvent as ReactMouseEvent } from "react";
 export const Route = createFileRoute("/platform")({
   head: () => ({
     meta: [
@@ -69,78 +72,83 @@ export const Route = createFileRoute("/platform")({
     links: [
       { rel: "canonical", href: "/platform" },
       { rel: "preconnect", href: "https://images.unsplash.com", crossOrigin: "" },
-      { rel: "preload", as: "image", href: platformHero, imagesrcset: platformHeroSrcSet, imagesizes: "(min-width: 1024px) 50vw, 100vw", fetchpriority: "high" },
+      {
+        rel: "preload",
+        as: "image",
+        href: platformHero,
+        imagesrcset: platformHeroSrcSet,
+        imagesizes: "(min-width: 1024px) 50vw, 100vw",
+        fetchpriority: "high",
+      },
     ],
   }),
 
   component: PlatformPage,
 });
 
-type Tag = "Family" | "Student" | "Educator" | "Admin";
-
 const features: Array<{
   icon: typeof Sparkles;
   title: string;
   body: string;
-  tags: Tag[];
+  featureId: PublicFeatureId;
 }> = [
   {
     icon: Sparkles,
     title: "The Pathway Builder",
     body: "Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, and a 30 day plan.",
-    tags: ["Family", "Student", "Educator"],
+    featureId: "pathway-builder",
   },
   {
     icon: Mic,
     title: "Student Voice Profile",
     body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.\n\u00a0",
-    tags: ["Student", "Family"],
+    featureId: "student-voice",
   },
   {
     icon: Users,
     title: "Family Voice",
     body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.\n\u00a0\u00a0",
-    tags: ["Family", "Educator"],
+    featureId: "family-voice",
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
-    body: "Paste a transition goal and we explain what it means, why it matters, what to ask, and what progress should look like at home.\n\u00a0",
-    tags: ["Family"],
+    body: "Pathway Reports explain transition goals in plain language. A standalone paste-and-translate workspace is planned, not live yet.\n\u00a0",
+    featureId: "family-translator",
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
-    body: "A visual chain from Goal to Skill to Evidence to Progress to Next Step. Progress finally lines up with the plan.\n\u00a0",
-    tags: ["Educator", "Family"],
+    body: "Track goal status today. Evidence journals, progress charts, compliance views, and exports are the next planned layer.\n\u00a0",
+    featureId: "goal-progress",
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
-    body: "Hold on to interest inventories, work samples, and assessments year over year, so growth becomes visible instead of lost.\n\u00a0",
-    tags: ["Educator", "Family"],
+    body: "A protected staging pilot supports privacy-reviewed TXT and text-based PDF uploads; the complete year-over-year vault is still being built.\n\u00a0",
+    featureId: "assessment-vault",
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
     body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.\n\u00a0",
-    tags: ["Family", "Educator", "Student"],
+    featureId: "ppt-prep",
   },
   {
     icon: MapPin,
     title: "Resource And Opportunity Match",
-    body: "Community colleges, technical high schools, BRS, job training, and internships, tuned to interest, location, and grade.",
-    tags: ["Family", "Student"],
+    body: "Search live resources and partner listings now. Personalized matching and warm handoffs are still being completed.",
+    featureId: "resource-match",
   },
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
     body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews/approves.",
-    tags: ["Educator", "Admin"],
+    featureId: "educator-dashboard",
   },
 ];
 
-const tagStyles: Record<Tag, string> = {
+const tagStyles: Record<PublicFeatureAudience, string> = {
   Family: "bg-peach-soft text-foreground/80",
   Student: "bg-sky-soft text-foreground/80",
   Educator: "bg-primary/10 text-primary",
@@ -149,10 +157,9 @@ const tagStyles: Record<Tag, string> = {
 
 type Feature = (typeof features)[number];
 
-function ToolCard({ icon: Icon, title, body, tags }: Feature) {
+function ToolCard({ icon: Icon, title, body, featureId }: Feature) {
   const ref = useRef<HTMLElement | null>(null);
-  const [expanded, setExpanded] = useState(false);
-  const isMobile = useIsMobile();
+  const { liveAudiences } = getPublicFeature(featureId);
 
   const handleMove = (e: ReactMouseEvent<HTMLElement>) => {
     const el = ref.current;
@@ -160,8 +167,8 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const rx = ((y / rect.height) - 0.5) * -6;
-    const ry = ((x / rect.width) - 0.5) * 6;
+    const rx = (y / rect.height - 0.5) * -6;
+    const ry = (x / rect.width - 0.5) * 6;
     el.style.setProperty("--mx", `${x}px`);
     el.style.setProperty("--my", `${y}px`);
     el.style.setProperty("--rx", `${rx}deg`);
@@ -175,28 +182,11 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
     el.style.setProperty("--ry", `0deg`);
   };
 
-  const toggle = () => setExpanded((v) => !v);
-
   return (
     <article
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      onClick={isMobile ? toggle : undefined}
-      role={isMobile ? "button" : undefined}
-      tabIndex={isMobile ? 0 : undefined}
-      aria-expanded={isMobile ? expanded : undefined}
-      aria-label={isMobile ? `${expanded ? "Collapse" : "Expand"} ${toTitleCase(title)} description` : undefined}
-      onKeyDown={
-        isMobile
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                toggle();
-              }
-            }
-          : undefined
-      }
       style={{
         transform: "perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))",
         transformStyle: "preserve-3d",
@@ -204,8 +194,6 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
       }}
       className={cn(
         "group relative flex h-full w-full flex-col justify-start overflow-hidden rounded-2xl border border-border/60 bg-card p-2.5 shadow-soft transition-all duration-300 hover:shadow-lift sm:justify-between sm:p-3",
-        isMobile && "cursor-pointer active:scale-[0.98]",
-        isMobile && expanded && "shadow-[0_4px_20px_-4px_hsl(var(--foreground)/0.08)]"
       )}
     >
       <div
@@ -225,7 +213,7 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
           <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
         <div className="flex flex-wrap content-start justify-end gap-1">
-          {tags.map((t) => (
+          {liveAudiences.map((t) => (
             <span
               key={t}
               className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:text-[11px] ${tagStyles[t]}`}
@@ -239,31 +227,11 @@ function ToolCard({ icon: Icon, title, body, tags }: Feature) {
         <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-base font-bold leading-tight tracking-tight text-ellipsis sm:min-h-[3.5rem] sm:text-xl sm:leading-snug">
           {toTitleCase(title)}
         </h3>
-        <div
-          className={cn(
-            "overflow-hidden transition-[max-height] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] sm:max-h-[40rem] sm:transition-none",
-            expanded ? "max-h-[40rem]" : "max-h-[3.5rem]"
-          )}
-        >
-          <p
-            className={cn(
-              "text-xs leading-snug text-muted-foreground sm:text-sm",
-              expanded ? "sm:line-clamp-4" : "line-clamp-3 sm:line-clamp-4"
-            )}
-          >
-            {body}
-          </p>
+        <div>
+          <p className="text-xs leading-snug text-muted-foreground sm:text-sm">{body}</p>
         </div>
       </div>
-      <div className="relative mt-2 flex items-center justify-center sm:hidden">
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-primary transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-            expanded && "rotate-180"
-          )}
-          aria-hidden
-        />
-      </div>
+      <FeatureContractLinks featureId={featureId} compact />
     </article>
   );
 }
@@ -301,9 +269,9 @@ function PlatformPage() {
               One Platform. Four Perspectives.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              See how TransitionForward adapts as students move from middle-school
-              discovery to high-school planning and postsecondary action — with families,
-              students, educators, and admins all working from the same page.
+              See how TransitionForward adapts as students move from middle-school discovery to
+              high-school planning and postsecondary action — with families, students, educators,
+              and admins all working from the same page.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
               <Link
@@ -335,7 +303,6 @@ function PlatformPage() {
                   speed={0.4}
                   className="aspect-[4/3] w-full rounded-[2rem] shadow-lift object-cover object-center"
                 />
-
               </Parallax>
             </div>
           </Reveal>
@@ -365,7 +332,10 @@ function PlatformPage() {
       <section className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <CompassRose className="absolute left-2 top-6 hidden h-20 w-20 text-primary/25 lg:block" />
         <Starburst className="absolute right-2 top-6 hidden h-16 w-16 text-secondary-foreground/30 lg:block" />
-        <FloatingShape className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60" delay={0.3}>
+        <FloatingShape
+          className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-6 text-primary/60"
+          delay={0.3}
+        >
           <Sparkle className="h-full w-full" />
         </FloatingShape>
         <Squiggle className="absolute inset-x-0 bottom-4 mx-auto h-5 w-72 text-primary/30" />
@@ -380,20 +350,17 @@ function PlatformPage() {
         <DotField className="absolute right-0 top-0 -z-10 hidden h-40 w-40 text-primary/15 md:block" />
         <ArcStack className="absolute -left-10 bottom-0 -z-10 hidden h-56 w-56 text-secondary-foreground/25 lg:block" />
         <div className="mx-auto mb-10 max-w-2xl text-center">
-
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             See It From Every Chair
           </p>
           <h2 className="mt-3 font-display text-4xl font-medium tracking-tight sm:text-5xl">
             The Same Plan, Built for Who You Are.
-
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Pick a role to see the same student's pathway through Student, Family, or
-            Educator eyes. Student view centers voice, interests, and next steps.
-            Family view centers context, logistics, and upcoming decisions. Educator
-            view centers evidence, planning, and coordination — all contributing to
-            one connected pathway report.
+            Pick a role to see the same student's pathway through Student, Family, or Educator eyes.
+            Student view centers voice, interests, and next steps. Family view centers context,
+            logistics, and upcoming decisions. Educator view centers evidence, planning, and
+            coordination — all contributing to one connected pathway report.
           </p>
         </div>
         <PerspectiveTabs />
@@ -415,9 +382,8 @@ function PlatformPage() {
               See Exactly How It Works.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              Choose from three fictional student journeys, then switch roles to see
-              how students, families, and educators contribute to one connected pathway.
-              No account, no setup.
+              Choose from three fictional student journeys, then switch roles to see how students,
+              families, and educators contribute to one connected pathway. No account, no setup.
             </p>
           </div>
 
@@ -430,8 +396,8 @@ function PlatformPage() {
               Three Fictional Students, One Adaptive Pathway.
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Each journey shows how the platform's focus changes with age, grade,
-              and where a student is in transition planning.
+              Each journey shows how the platform's focus changes with age, grade, and where a
+              student is in transition planning.
             </p>
             <ul className="mt-6 divide-y divide-border/60">
               <JourneyRow
@@ -494,10 +460,12 @@ function PlatformPage() {
         </div>
       </section>
 
-
       {/* Tool library */}
       <section className="relative overflow-hidden mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Parallax speed={0.18} className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center">
+        <Parallax
+          speed={0.18}
+          className="pointer-events-none absolute inset-x-0 top-8 -z-10 flex justify-center"
+        >
           <div className="h-80 w-80 rounded-full bg-gradient-sky opacity-25 blur-3xl" />
         </Parallax>
         <Parallax speed={-0.12} className="pointer-events-none absolute right-4 bottom-12 -z-10">
@@ -530,8 +498,6 @@ function PlatformPage() {
         </div>
       </section>
 
-
-
       {/* Layered diagram */}
       <section className="relative overflow-hidden py-14">
         <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-60" />
@@ -553,8 +519,8 @@ function PlatformPage() {
               Three Quiet Layers, Working as One.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              Organize what's true about your student. Generate a Pathway you can act on.
-              Connect it to real opportunities here in Connecticut.
+              Organize what's true about your student. Generate a Pathway you can act on. Connect it
+              to real opportunities here in Connecticut.
             </p>
           </div>
           <LayerDiagram />
@@ -622,8 +588,6 @@ function PlatformPage() {
           />
         </div>
       </section>
-
-
     </SiteShell>
   );
 }
@@ -691,15 +655,13 @@ function JourneyRow({
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
         </div>
         <span className="inline-flex shrink-0 items-center gap-1 self-center text-sm font-medium text-primary">
-          Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          Open{" "}
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </Link>
     </li>
   );
 }
-
-
-
 
 function TrustCard({
   icon: Icon,

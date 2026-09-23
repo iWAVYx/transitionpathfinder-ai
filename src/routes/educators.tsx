@@ -1,13 +1,8 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
-import {
-  User,
-  Target,
-  Sparkles,
-  ClipboardList,
-  MessageCircle,
-  FileDown,
-} from "lucide-react";
+import { FeatureContractLinks } from "@/components/site/FeatureContractLinks";
+import type { PublicFeatureId } from "@/lib/public-feature-contract";
+import { User, Target, Sparkles, ClipboardList, MessageCircle, FileDown } from "lucide-react";
 import educatorsHero from "@/assets/bundled/red-head-teacher-stressed.webp";
 import dashboardImg from "@/assets/bundled/happy-teacher-morning.webp";
 import frameworkImg from "@/assets/bundled/calendar-meeting.webp";
@@ -28,9 +23,16 @@ export const Route = createFileRoute("/educators")({
   head: () => ({
     meta: [
       { title: "For Educators | TransitionForward" },
-      { name: "description", content: "Less paperwork, more support. Transition goal tracking, PPT prep, and family communication built for CT special educators." },
+      {
+        name: "description",
+        content:
+          "Less paperwork, more support. Transition goal tracking, PPT prep, and family communication built for CT special educators.",
+      },
       { property: "og:title", content: "For Educators | TransitionForward" },
-      { property: "og:description", content: "Less Paperwork, More Student Support, built for CT special educators." },
+      {
+        property: "og:description",
+        content: "Less Paperwork, More Student Support, built for CT special educators.",
+      },
       { property: "og:url", content: "/educators" },
       { property: "og:image", content: educatorsHero },
     ],
@@ -41,13 +43,13 @@ export const Route = createFileRoute("/educators")({
     ],
     scripts: [
       {
-
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Service",
           name: "Transition Planning for Educators",
-          description: "Transition goal tracking, PPT meeting prep, and family communication tools built for Connecticut special educators.",
+          description:
+            "Transition goal tracking, PPT meeting prep, and family communication tools built for Connecticut special educators.",
           provider: { "@type": "Organization", name: "TransitionForward", url: "/" },
           areaServed: "Connecticut, USA",
           audience: { "@type": "Audience", audienceType: "Special educators and case managers" },
@@ -58,13 +60,48 @@ export const Route = createFileRoute("/educators")({
   component: EducatorsPage,
 });
 
-const cards = [
-  { icon: User, t: "Student Transition Snapshot", b: "Strengths, interests, goals, supports, and family input. One screen per student, always current." },
-  { icon: Target, t: "Goal and Progress Alignment", b: "Goal to skill to evidence to next step. Progress reports finally match what the goal actually says." },
-  { icon: Sparkles, t: "Expert Drafted, Teacher Approved", b: "Pathway recommendations, meeting summaries, and family friendly translations drafted by our specialist formulas for you to edit. Nothing leaves your hands without your review." },
-  { icon: ClipboardList, t: "PPT Prep, Ready to Print", b: "Agenda, strengths summary, concerns, requested next steps, and a plain language meeting summary template, generated in one click." },
-  { icon: MessageCircle, t: "Family Communication Log", b: "Notes, questions, and responses in one place, so context does not live in your inbox." },
-  { icon: FileDown, t: "Exportable PDF Summaries", b: "Hand families something they can actually read. Hand admins something that documents the work you are already doing." },
+const cards: Array<{
+  icon: typeof User;
+  t: string;
+  b: string;
+  featureId: PublicFeatureId;
+}> = [
+  {
+    icon: User,
+    t: "Student Transition Snapshot",
+    b: "Strengths, interests, goals, supports, and family input in the licensed educator caseload.",
+    featureId: "educator-dashboard",
+  },
+  {
+    icon: Target,
+    t: "Goal and Progress Alignment",
+    b: "Goal status is available now; evidence journals, compliance charts, and exports are still being built.",
+    featureId: "goal-progress",
+  },
+  {
+    icon: Sparkles,
+    t: "Expert Drafted, Teacher Approved",
+    b: "Pathway recommendations and plain-language report content are drafted for educator review rather than sent as final decisions.",
+    featureId: "pathway-builder",
+  },
+  {
+    icon: ClipboardList,
+    t: "PPT Prep, Ready to Print",
+    b: "Generate and save an agenda, strengths summary, questions, scripts, and requested next steps, then print or save as PDF.",
+    featureId: "ppt-prep",
+  },
+  {
+    icon: MessageCircle,
+    t: "Family Communication Log",
+    b: "Secure messaging and case notes are available; a single exportable communication log is still being completed.",
+    featureId: "communication-log",
+  },
+  {
+    icon: FileDown,
+    t: "Exportable PDF Summaries",
+    b: "Authorized users can open Pathway Reports and use their print or save-to-PDF output.",
+    featureId: "report-export",
+  },
 ];
 
 const marqueeQuotes = [
@@ -85,7 +122,7 @@ const storyPanels = [
   },
   {
     title: "Wednesday, the IEP arrives.",
-    body: "Drop the PDF in. We pull out goals, services, and accommodations, then translate the transition pieces into plain language families and students can actually use.",
+    body: "In the protected staging pilot, privacy-reviewed TXT and text-based PDFs can be uploaded for transition-document review. Scanned PDFs, images, and Word files are not yet supported.",
     image: iepUploadImg,
     alt: "IEP upload and plain-language summary",
   },
@@ -116,18 +153,31 @@ function EducatorsPage() {
 
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pt-16 pb-12 sm:px-6 md:grid-cols-[1.05fr_1fr] lg:px-8 lg:pt-24 lg:pb-16">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">For Educators</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              For Educators
+            </p>
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
               Built to Give You Your <span className="text-primary">Evenings</span> Back.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              TransitionForward is not another system of record. It is a quiet companion that organizes
-              transition planning, surfaces student and family input, and drafts the language you
-              already write, so you can review, edit, and approve instead of starting from scratch.
+              TransitionForward is not another system of record. It is a quiet companion that
+              organizes transition planning, surfaces student and family input, and drafts the
+              language you already write, so you can review, edit, and approve instead of starting
+              from scratch.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
-              <Link to="/demo" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">See the Pathway Builder</Link>
-              <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-muted">Bring It to Your School</Link>
+              <Link
+                to="/demo"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                See the Pathway Builder
+              </Link>
+              <Link
+                to="/waitlist"
+                className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-muted"
+              >
+                Bring It to Your School
+              </Link>
             </div>
           </Reveal>
           <Reveal delay={120} y={36}>
@@ -137,7 +187,7 @@ function EducatorsPage() {
               </Parallax>
               <ParallaxImage
                 src={educatorsHero}
-                
+
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 eager
                 alt="Illustrated teacher desk at golden hour with a constellation of Sticky Notes wired to a glowing lightbulb"
@@ -153,14 +203,14 @@ function EducatorsPage() {
       </section>
 
       {/* MARQUEE — what teachers are saying */}
-      <section aria-label="Educator quotes" className="border-y border-border/40 bg-background py-6">
+      <section
+        aria-label="Educator quotes"
+        className="border-y border-border/40 bg-background py-6"
+      >
         <Marquee
           speed={60}
           items={marqueeQuotes.map((q, i) => (
-            <span
-              key={i}
-              className="font-display text-xl italic text-foreground/80 sm:text-2xl"
-            >
+            <span key={i} className="font-display text-xl italic text-foreground/80 sm:text-2xl">
               {q}
               <span className="mx-6 inline-block text-primary/40">✦</span>
             </span>
@@ -179,14 +229,17 @@ function EducatorsPage() {
           </h2>
         </Reveal>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map(({ icon: Icon, t, b }, i) => (
+          {cards.map(({ icon: Icon, t, b, featureId }, i) => (
             <Reveal key={t} delay={i * 80} y={28}>
               <article className="group h-full rounded-3xl border border-border/60 bg-card p-7 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-sky text-primary-foreground transition-transform group-hover:rotate-6 group-hover:scale-110">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 font-display text-xl font-medium tracking-tight">{toTitleCase(t)}</h3>
+                <h3 className="mt-5 font-display text-xl font-medium tracking-tight">
+                  {toTitleCase(t)}
+                </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{b}</p>
+                <FeatureContractLinks featureId={featureId} />
               </article>
             </Reveal>
           ))}
@@ -202,7 +255,15 @@ function EducatorsPage() {
         />
         <StickyScrollStory
           eyebrow="A week in the platform"
-          title={<>Scroll Through <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">Your Week</span>.</>}
+          title={
+            <>
+              Scroll Through{" "}
+              <span className="bg-gradient-to-r from-primary via-sky to-peach bg-clip-text italic text-transparent">
+                Your Week
+              </span>
+              .
+            </>
+          }
           panels={storyPanels}
         />
       </section>
@@ -231,12 +292,21 @@ function EducatorsPage() {
             Try the Pathway Builder yourself, or bring it to your team for a pilot.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/demo" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">See the Pathway Builder</Link>
-            <Link to="/waitlist" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background">Bring It to Your School</Link>
+            <Link
+              to="/demo"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+            >
+              See the Pathway Builder
+            </Link>
+            <Link
+              to="/waitlist"
+              className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-6 py-3 text-sm font-semibold backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-background"
+            >
+              Bring It to Your School
+            </Link>
           </div>
         </Reveal>
       </section>
-
     </SiteShell>
   );
 }

@@ -582,8 +582,8 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       "I can identify support gaps.",
       "I can help teams stay coordinated.",
     ],
-    ctaPrimary: { label: "Request a pilot", to: "/waitlist" },
-    ctaSecondary: { label: "Talk with our team", to: "/contact" },
+    ctaPrimary: { label: "Choose school access", to: "/get-started/school" },
+    ctaSecondary: { label: "Talk with our team", to: "/help" },
     next: "district-admin",
   },
 
@@ -690,8 +690,8 @@ export const DEMO_ROLES: Record<DemoRoleId, DemoRolePreview> = {
       "I can identify service gaps.",
       "I can support implementation and planning at scale.",
     ],
-    ctaPrimary: { label: "Request a district pilot", to: "/waitlist" },
-    ctaSecondary: { label: "Talk with our team", to: "/contact" },
+    ctaPrimary: { label: "Request a district license", to: "/get-started/district" },
+    ctaSecondary: { label: "Talk with our team", to: "/help" },
     next: "partner",
   },
 
