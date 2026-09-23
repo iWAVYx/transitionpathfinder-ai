@@ -68,6 +68,9 @@ Documents:
 - `staging-acceptance-2026-09-22.md` — current exact-SHA isolated-staging
   deployment, protected push checks, corrected homepage contrast and visual
   baseline, and full consolidated Release Readiness evidence for `7cdb7cdc`.
+- `student-document-malware-proof-2026-09-22.md` — exact-SHA, one-attempt
+  protected Cloudmersive proof for the synthetic `student-documents` clean and
+  harmless-EICAR paths, with production approval deliberately left open.
 - `staging-playwright-artifact-containment-2026-09-20.md` — containment of the
   synthetic staging Playwright artifact incident, session revocation, artifact
   deletion, and the post-fix artifact-sanitization evidence.

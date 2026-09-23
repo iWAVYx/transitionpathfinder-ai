@@ -48,8 +48,8 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `20260909010000_create_private_channel_attachments_bucket.sql`, and
       `20260918190000_scope_student_policies_and_access_code_roles.sql`. The
       first two belong to the attachment/antivirus release and remain blocked
-      on provider/privacy approval, equivalent `student-documents` proof, and
-      separate production authorization. The authorization-hardening migration
+      on provider/privacy approval and separate production authorization. Both
+      synthetic staging upload paths are proven. The authorization-hardening migration
       also requires its own reviewed production window. The three earlier
       antivirus-independent security migrations were applied and verified in
       the separately authorized 2026-09-17 window. See
@@ -86,18 +86,20 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 - [ ] Malware scanning, incident response, backup restoration, and legal/privacy
       blockers for real student/IEP data are closed. The fail-closed document and
       attachment controls are implemented and deployed to isolated staging.
-      Exactly one protected Cloudmersive run, `35521640583`, passed against
-      exact SHA `193bed60f8d3d4233aab7cc043709e52cb388790` with no retry: the
-      synthetic clean channel attachment was released through a signed private
-      URL and matched byte-for-byte, while the harmless EICAR marker was blocked
-      and purged. No real file was used. This closes the channel-attachment
-      staging proof only. Cloudmersive contractual/privacy, education-data,
-      region, subprocessor, retention, and production-plan approval; equivalent
-      protected proof for `student-documents`; and separately authorized
+      Exactly one protected Cloudmersive channel run, `35521640583`, passed
+      against exact SHA `193bed60f8d3d4233aab7cc043709e52cb388790`, and exactly
+      one protected student-document run, `35810041318`, passed against exact
+      SHA `848af3ef0220a31df8d5c3b65937b328898f8082`. Neither was retried. Each
+      synthetic clean file was released through a signed private URL and
+      matched byte-for-byte, while harmless EICAR was blocked and purged. No
+      real file was used. This closes both staging path proofs only.
+      Cloudmersive contractual/privacy, education-data, region, subprocessor,
+      retention, and production-plan approval plus separately authorized
       production configuration and migrations are still required. See
       `channel-attachment-malware-gate-2026-09-08.md` and
       `cloudmersive-substitution-2026-09-18.md` and
-      `staging-acceptance-2026-09-20.md`.
+      `staging-acceptance-2026-09-20.md` and
+      `student-document-malware-proof-2026-09-22.md`.
 - [ ] Lovable security findings are rescanned and closed; ignored findings and
       known dependency vulnerabilities are reviewed and dispositioned. Basic
       and deep scans are current with 0 known dependency issues, but all 9
@@ -118,7 +120,7 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
 ## Exact-SHA acceptance
 
-Current isolated-staging deployment evidence: protected `main` SHA
+Current consolidated isolated-staging acceptance snapshot: protected `main` SHA
 `7cdb7cdcb88a186d7428f52a45a60d833578f39b` passed deployment run
 `35692279156` and consolidated Release Readiness run `35693326975`. Its
 push-time Build and SSR, accessibility, CT Seed v2, dashboard, role-guard,
@@ -134,10 +136,17 @@ run, `35521640583`, passed on the earlier exact SHA
 `193bed60f8d3d4233aab7cc043709e52cb388790` using only a synthetic clean file
 and the harmless EICAR marker. The clean file was released through a signed
 private URL; EICAR remained unavailable and was purged. No retry was performed.
-Antivirus was not rerun for the current candidate. This is not production
-acceptance: provider/legal approval, equivalent `student-documents` proof, and
-separately authorized production configuration and migrations remain open.
-Production remains NO-GO.
+The later exact-SHA deployment `848af3ef0220a31df8d5c3b65937b328898f8082`
+passed its standard protected checks, then exactly one separately authorized
+Student Document Malware QA run, `35810041318`, proved the synthetic clean-file
+and harmless-EICAR paths without retry. The clean file stayed quarantined until
+its clean verdict, then downloaded with matching bytes and entered the AI
+pipeline. EICAR was marked infected/deleted, purged from private storage,
+excluded from the parent-facing list, sanitized in audit metadata, and never
+queued for AI. This targeted proof does not replace the earlier consolidated
+Release Readiness snapshot. It is not production acceptance: provider/legal
+approval and separately authorized production configuration and migrations
+remain open. Production remains NO-GO.
 
 Lovable's hosted preview evidence remains attached to application-bearing SHA
 `a0396a3af276e978d10920f29dc429f2820e47b9`, because PR #116 changed only
