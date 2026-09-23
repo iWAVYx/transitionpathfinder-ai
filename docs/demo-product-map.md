@@ -14,19 +14,19 @@ sections. Companion to `src/lib/demo/feature-map.ts` (machine-checked) and
 
 ## A. Demo Walkthrough Steps (`/demo/*`)
 
-| # | Demo step | Provided by | Saved to | Consumed by | Visible to | Output to user | If missing | Depth | Phase |
-|---|-----------|-------------|----------|-------------|------------|----------------|-----------|-------|-------|
-| 1 | **Intake** (`/demo/intake`) | Student, Parent, Educator | `student_intakes`, `students`, `student_strengths_needs` | Report §Snapshot, §SPIN, §Family Priorities, §Recommended Supports; Dashboard NBA | Owner + collaborators; partners blocked | Filled profile + readiness baseline | Report shows placeholders, NBA prompts to finish intake | thin (chronology + comm/transport/services/outcomes/deadlines missing) | **1** |
-| 2 | **Hub** (`/demo/hub`) | n/a (role lens preview) | — | — | All roles | Sample of role-specific dashboard | n/a | solid | — |
-| 3 | **Documents** (`/demo/documents`) | Educator, Parent | `documents`, `document_extractions`, `document_summaries` | Report §Document-Based Insights, §Present Levels, §Goals | Owner + collaborators with `can_view_document`; **never partners** | Source-labeled chips populating report fields (review-before-accept) | Report § hidden; banner: "Add IEP / transition assessment to enrich" | thin (only IEP extraction wired; need doc-type tagging + multi-doc fan-out) | **2** |
-| 4 | **Voice** (`/demo/voice`) | Student | `student_voice_responses` | Report §Student Voice, §Vision, §Self-Advocacy Readiness | Student + collaborators; partners blocked | Quoted answers + "How this shapes recommendations" | Voice § shows prompts only | thin (5 prompts; need 10 covering independence, advocacy, comfort) | **3** |
-| 5 | **Report** (`/demo/report`) | All inputs above | `pathway_reports` (JSONB `content`, versioned) | Family / school sharing, meeting prep, plan, calendar | Audience views: Student / Family / Educator; share tokens scoped | The flagship deliverable | Skeleton sections with "needs input" banners | thin (missing Exec Summary, Self-Advocacy Readiness, Independent Living Readiness, Source Notes, Role-specific Next Steps) | **4** |
-| 6 | **Plan** (`/demo/plan`) | Educator + family from report | `action_items` (owner, due, status) | Dashboard NBA, Calendar | Owner + collaborators | 30/60/90 timeline with owners & success criteria | "Generate plan from report" CTA | solid | — |
-| 7 | **Meeting** (`/demo/meeting`) | Educator, Parent | `meetings`, `meeting_prep_items`, `meeting_agenda_items`, `meeting_questions`, `meeting_action_items` | Calendar, Report §Meeting Prep | Owner + collaborators; partner block | Agenda, questions, partner-suggestion list | Empty agenda | thin (no read-only minutes capture; partner suggestions ok) | 3/4 |
-| 8 | **Resources** (`/demo/resources`) | System (matched) | `resources`, `saved_resources`, `student_resource_recommendations` | Report §Recommended Supports | All roles (partner sees only public) | Matched cards with rationale | Generic library | solid | — |
-| 9 | **Opportunities** (`/demo/opportunities`) | Partners publish | `partner_opportunities`, `partner_network_opportunities` | Report §Partner Opportunities | All roles; partners see public + matched interest, **never PII** | Match cards + opt-in intro | Generic directory | partial (intro request flow future-phase) | 4 |
-| 10 | **Calendar** (`/demo/calendar`) | All; auto from milestones | `calendar_events` | Dashboard, meeting prep | Owner + collaborators | Month/agenda views, ICS export | Empty calendar | solid | — |
-| 11 | **Next** (`/demo/next`) | n/a | — | — | All | What to try next | n/a | solid | — |
+| #   | Demo step                                 | Provided by                   | Saved to                                                                                              | Consumed by                                                                       | Visible to                                                         | Output to user                                                       | If missing                                                           | Depth                                                                                                                                                                            | Phase          |
+| --- | ----------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 1   | **Intake** (`/demo/intake`)               | Student, Parent, Educator     | `student_intakes`, `students`, `student_strengths_needs`                                              | Report §Snapshot, §SPIN, §Family Priorities, §Recommended Supports; Dashboard NBA | Owner + collaborators; partners blocked                            | Filled profile + readiness baseline                                  | Report shows placeholders, NBA prompts to finish intake              | strengthened (live `/pathway` collects communication/transport needs, services, desired outcomes, priorities, concerns, and deadlines; longitudinal history remains future work) | **1 complete** |
+| 2   | **Hub** (`/demo/hub`)                     | n/a (role lens preview)       | —                                                                                                     | —                                                                                 | All roles                                                          | Sample of role-specific dashboard                                    | n/a                                                                  | solid                                                                                                                                                                            | —              |
+| 3   | **Documents** (`/demo/documents`)         | Educator, Parent              | `documents`, `document_extractions`, `document_summaries`                                             | Report §Document-Based Insights, §Present Levels, §Goals                          | Owner + collaborators with `can_view_document`; **never partners** | Source-labeled chips populating report fields (review-before-accept) | Report § hidden; banner: "Add IEP / transition assessment to enrich" | thin (only IEP extraction wired; need doc-type tagging + multi-doc fan-out)                                                                                                      | **2**          |
+| 4   | **Voice** (`/demo/voice`)                 | Student                       | `student_voice_responses`                                                                             | Report §Student Voice, §Vision, §Self-Advocacy Readiness                          | Student + collaborators; partners blocked                          | Quoted answers + "How this shapes recommendations"                   | Voice § shows prompts only                                           | thin (5 prompts; need 10 covering independence, advocacy, comfort)                                                                                                               | **3**          |
+| 5   | **Report** (`/demo/report`)               | All inputs above              | `pathway_reports` (JSONB `content`, versioned)                                                        | Family / school sharing, meeting prep, plan, calendar                             | Audience views: Student / Family / Educator; share tokens scoped   | The flagship deliverable                                             | Skeleton sections with "needs input" banners                         | thin (missing Exec Summary, Self-Advocacy Readiness, Independent Living Readiness, Source Notes, Role-specific Next Steps)                                                       | **4**          |
+| 6   | **Plan** (`/demo/plan`)                   | Educator + family from report | `action_items` (owner, due, status)                                                                   | Dashboard NBA, Calendar                                                           | Owner + collaborators                                              | 30/60/90 timeline with owners & success criteria                     | "Generate plan from report" CTA                                      | solid                                                                                                                                                                            | —              |
+| 7   | **Meeting** (`/demo/meeting`)             | Educator, Parent              | `meetings`, `meeting_prep_items`, `meeting_agenda_items`, `meeting_questions`, `meeting_action_items` | Calendar, Report §Meeting Prep                                                    | Owner + collaborators; partner block                               | Agenda, questions, partner-suggestion list                           | Empty agenda                                                         | thin (no read-only minutes capture; partner suggestions ok)                                                                                                                      | 3/4            |
+| 8   | **Resources** (`/demo/resources`)         | System (matched)              | `resources`, `saved_resources`, `student_resource_recommendations`                                    | Report §Recommended Supports                                                      | All roles (partner sees only public)                               | Matched cards with rationale                                         | Generic library                                                      | solid                                                                                                                                                                            | —              |
+| 9   | **Opportunities** (`/demo/opportunities`) | Partners publish              | `partner_opportunities`, `partner_network_opportunities`                                              | Report §Partner Opportunities                                                     | All roles; partners see public + matched interest, **never PII**   | Match cards + opt-in intro                                           | Generic directory                                                    | partial (intro request flow future-phase)                                                                                                                                        | 4              |
+| 10  | **Calendar** (`/demo/calendar`)           | All; auto from milestones     | `calendar_events`                                                                                     | Dashboard, meeting prep                                                           | Owner + collaborators                                              | Month/agenda views, ICS export                                       | Empty calendar                                                       | solid                                                                                                                                                                            | —              |
+| 11  | **Next** (`/demo/next`)                   | n/a                           | —                                                                                                     | —                                                                                 | All                                                                | What to try next                                                     | n/a                                                                  | solid                                                                                                                                                                            | —              |
 
 ### Cross-cutting
 
@@ -39,53 +39,56 @@ sections. Companion to `src/lib/demo/feature-map.ts` (machine-checked) and
 
 ## B. Pathway Report Sections (`ReportView` + `ReportV2Sections`)
 
-| Section | Inputs (table → field) | Audience framing | Status | Phase to deepen |
-|---------|------------------------|------------------|--------|------------------|
-| Executive Summary | derived from snapshot+voice+docs | All views; framing differs | **missing** | 4 |
-| Student Snapshot | `students`, `student_intakes` | All | solid | — |
-| Student Voice | `student_voice_responses` | Student leads; family/educator see context | thin → expand to 10 prompts | 3 |
-| Family Priorities | `student_intakes.family_*` (new) | Family leads; educator informational | thin → add hopes/concerns/comm/transport/consent | 3 |
-| Educator / Case-Manager Insights | `meeting_prep_items`, `goals`, `goal_statuses`, `student_intakes.educator_*` | Educator leads | thin → add WBL/self-advocacy/attendance | 3 |
-| Strengths & Interests | `student_strengths_needs` | All | solid | — |
-| Current Supports | `student_intakes.services_received` (new) | All | gap | 1 |
-| **Document-Based Insights** | `document_extractions`, `document_summaries` (with source label) | All; review-before-accept | thin | 2 |
-| Academic Readiness | `readiness_scores`, document extracts | Educator/School lead | partial | 4 |
-| **Self-Advocacy Readiness** | voice + readiness | Student/Family lead | **missing** | 4 |
-| **Independent Living Readiness** | intake + voice | Student/Family lead | **missing** | 4 |
-| Career & Postsecondary Direction | intake + voice + pathways | Student/Family lead | solid | — |
-| BridgeForward Pathway (6–8) | `bridgeforward_profiles`, snapshots | Student/Family lead | solid | — |
-| TransitionForward Pathway (9–12) | `pathway_recommendations` | All | solid | — |
-| Recommended Supports | resources, services | All | solid | — |
-| Partner / Community Opportunities | `partner_opportunities` (filtered) | Family/Educator; **partner sees own only** | partial | 4 |
-| Questions to Bring to the Team | `meeting_questions` | Family/Student lead | solid | — |
-| Meeting Preparation | `meetings`, `meeting_agenda_items` | Educator lead | solid | — |
-| 30 / 60 / 90 Day Action Plan | `action_items` | Family/Educator lead | solid | — |
-| Longer-Term Roadmap | derived | All | partial | 4 |
-| **Role-Specific Next Steps** | derived per audience | Each view shows its own | **missing** | 4 |
-| **Source Notes / Information Used** | document refs + intake timestamps | All; transparency block | **missing** | 4 |
-| Version History | `pathway_report_versions` | Educator | partial | — |
+| Section                             | Inputs (table → field)                                                       | Audience framing                           | Status                                           | Phase to deepen |
+| ----------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------ | --------------- |
+| Executive Summary                   | derived from snapshot+voice+docs                                             | All views; framing differs                 | **missing**                                      | 4               |
+| Student Snapshot                    | `students`, `student_intakes`                                                | All                                        | solid                                            | —               |
+| Student Voice                       | `student_voice_responses`                                                    | Student leads; family/educator see context | thin → expand to 10 prompts                      | 3               |
+| Family Priorities                   | `student_intakes.family_*` (new)                                             | Family leads; educator informational       | thin → add hopes/concerns/comm/transport/consent | 3               |
+| Educator / Case-Manager Insights    | `meeting_prep_items`, `goals`, `goal_statuses`, `student_intakes.educator_*` | Educator leads                             | thin → add WBL/self-advocacy/attendance          | 3               |
+| Strengths & Interests               | `student_strengths_needs`                                                    | All                                        | solid                                            | —               |
+| Current Supports                    | `student_intakes.services_received` (new)                                    | All                                        | gap                                              | 1               |
+| **Document-Based Insights**         | `document_extractions`, `document_summaries` (with source label)             | All; review-before-accept                  | thin                                             | 2               |
+| Academic Readiness                  | `readiness_scores`, document extracts                                        | Educator/School lead                       | partial                                          | 4               |
+| **Self-Advocacy Readiness**         | voice + readiness                                                            | Student/Family lead                        | **missing**                                      | 4               |
+| **Independent Living Readiness**    | intake + voice                                                               | Student/Family lead                        | **missing**                                      | 4               |
+| Career & Postsecondary Direction    | intake + voice + pathways                                                    | Student/Family lead                        | solid                                            | —               |
+| BridgeForward Pathway (6–8)         | `bridgeforward_profiles`, snapshots                                          | Student/Family lead                        | solid                                            | —               |
+| TransitionForward Pathway (9–12)    | `pathway_recommendations`                                                    | All                                        | solid                                            | —               |
+| Recommended Supports                | resources, services                                                          | All                                        | solid                                            | —               |
+| Partner / Community Opportunities   | `partner_opportunities` (filtered)                                           | Family/Educator; **partner sees own only** | partial                                          | 4               |
+| Questions to Bring to the Team      | `meeting_questions`                                                          | Family/Student lead                        | solid                                            | —               |
+| Meeting Preparation                 | `meetings`, `meeting_agenda_items`                                           | Educator lead                              | solid                                            | —               |
+| 30 / 60 / 90 Day Action Plan        | `action_items`                                                               | Family/Educator lead                       | solid                                            | —               |
+| Longer-Term Roadmap                 | derived                                                                      | All                                        | partial                                          | 4               |
+| **Role-Specific Next Steps**        | derived per audience                                                         | Each view shows its own                    | **missing**                                      | 4               |
+| **Source Notes / Information Used** | document refs + intake timestamps                                            | All; transparency block                    | **missing**                                      | 4               |
+| Version History                     | `pathway_report_versions`                                                    | Educator                                   | partial                                          | —               |
 
 ---
 
 ## C. Role Value Summary
 
-| Role | Reason to use | Demo step that proves it |
-|------|---------------|--------------------------|
-| Student | Self-knowledge, voice in plan, next steps | Voice → Report (Student view) → Plan |
-| Parent/Guardian | Family priorities heard, doc questions, action items | Intake (family) → Documents → Report (Family view) → Meeting |
-| Educator/Case Manager | Organize PPT, doc review, services, plan | Documents → Educator inputs → Report (Educator view) → Meeting |
-| School Admin | Caseload readiness, compliance support | Hub (school) — aggregates only |
-| District Admin | Program-level readiness & service gaps | Hub (district) — aggregates only |
-| Partner | Manage opportunities; **no PII** | Opportunities, Hub (partner) — own org scope |
-| Owner/Admin | Platform ops | (out of demo scope) |
+| Role                  | Reason to use                                        | Demo step that proves it                                       |
+| --------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Student               | Self-knowledge, voice in plan, next steps            | Voice → Report (Student view) → Plan                           |
+| Parent/Guardian       | Family priorities heard, doc questions, action items | Intake (family) → Documents → Report (Family view) → Meeting   |
+| Educator/Case Manager | Organize PPT, doc review, services, plan             | Documents → Educator inputs → Report (Educator view) → Meeting |
+| School Admin          | Caseload readiness, compliance support               | Hub (school) — aggregates only                                 |
+| District Admin        | Program-level readiness & service gaps               | Hub (district) — aggregates only                               |
+| Partner               | Manage opportunities; **no PII**                     | Opportunities, Hub (partner) — own org scope                   |
+| Owner/Admin           | Platform ops                                         | (out of demo scope)                                            |
 
 ---
 
-## D. Schema Gaps Identified (drives Phase 1 migration)
+## D. Phase 1 schema baseline
 
-Additive only — no destructive ALTERs.
+The repository already contains the additive, non-destructive migration that supports the deeper
+intake. The live `/pathway` form now maps all eight planning-context fields through the existing
+server validation, persistence, and Pathway Report prompt. No new migration is required for this
+form alignment.
 
-1. `student_intakes`: new nullable columns
+1. `student_intakes`: nullable planning-context columns
    - `communication_prefs jsonb`
    - `transportation_needs text`
    - `family_priorities jsonb`

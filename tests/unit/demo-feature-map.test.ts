@@ -34,4 +34,10 @@ describe("demo feature map", () => {
       expect(DEMO_FEATURE_MAP, `missing ${id}`).toHaveProperty(id);
     }
   });
+
+  it("points both intake demo surfaces to the real signed-in Pathway Builder", () => {
+    expect(DEMO_FEATURE_MAP["intake.categories"].livesAt).toMatch(/^\/pathway\b/);
+    expect(DEMO_FEATURE_MAP["intake.roleLens"].livesAt).toMatch(/^\/pathway\b/);
+    expect(DEMO_FEATURE_MAP["intake.roleLens"].roles).toEqual(["student", "parent", "educator"]);
+  });
 });

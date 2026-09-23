@@ -14,13 +14,7 @@
 export type DemoStatus = "live" | "partial" | "future-phase";
 
 export type DemoRole =
-  | "student"
-  | "parent"
-  | "educator"
-  | "school"
-  | "district"
-  | "partner"
-  | "platform";
+  "student" | "parent" | "educator" | "school" | "district" | "partner" | "platform";
 
 export interface DemoFeatureEntry {
   /** Human-readable name shown on the connection page. */
@@ -57,7 +51,7 @@ export const DEMO_FEATURE_MAP = {
   "intake.categories": {
     element: "Intake category list",
     product: "Student onboarding / intake profile",
-    livesAt: "/intake (signed-in)",
+    livesAt: "/pathway (signed-in)",
     roles: ["student", "parent", "educator"],
     dataSource: "intake_responses + student_profiles",
     nextAction: "Sign in and complete real intake fields for the student",
@@ -66,12 +60,13 @@ export const DEMO_FEATURE_MAP = {
   "intake.roleLens": {
     element: "Role lens on intake",
     product: "Role-targeted intake prompts",
-    livesAt: "/intake (signed-in, role-aware)",
-    roles: ["student", "parent", "educator", "school", "district", "partner"],
+    livesAt: "/pathway (signed-in, role-aware)",
+    roles: ["student", "parent", "educator"],
     dataSource: "Static role copy",
     nextAction: "Pick a role to preview how prompts adapt",
     status: "partial",
-    notes: "Real product personalizes prompts based on signed-in role + grade band.",
+    notes:
+      "The live intake adjusts voice emphasis by submitter role and uses grade band in the report.",
   },
 
   /* ---------- Student Voice ---------- */
@@ -296,7 +291,6 @@ export const DEMO_FEATURE_MAP = {
     notes: "Enforced by RLS on partner_opportunities + partner_organizations.",
   },
 
-
   /* ---------- Action Plan ---------- */
   "plan.timeline": {
     element: "30/60/90 day timeline",
@@ -347,7 +341,6 @@ export const DEMO_FEATURE_MAP = {
     nextAction: "Decisions flow into the next report version + 30/60/90 plan",
     status: "live",
   },
-
 
   /* ---------- Calendar ---------- */
   "calendar.month": {

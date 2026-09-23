@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useMemo, useState } from "react";
-import { z } from "zod";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,6 +24,7 @@ import {
   ClipboardList,
   MessageCircle,
   FileText,
+  MapPinned,
 } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -37,38 +37,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover, PopoverContent, PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { createPathwayReport } from "@/lib/pathway.functions";
+import {
+  PathwayIntakeFormSchema,
+  createPathwayIntakeDefaults,
+  mergePathwayIntake,
+  type PathwayIntakeFormValues as FormValues,
+  type PathwayIntakeRole as Role,
+} from "@/lib/pathway-intake";
 import type { IepExtract } from "@/lib/iep-extract.functions";
 import pathwayHero from "@/assets/pathway-hero.jpg";
-
-const Schema = z.object({
-  submitter_role: z.enum(["family", "student", "educator"]),
-  student_first_name: z.string().trim().min(1, "Please add a first name to continue.").max(80),
-  grade_band: z.enum(["9-10", "11-12", "post-secondary", "not-applicable"]).optional(),
-  strengths: z.string().trim().max(2000).optional(),
-  interests: z.string().trim().max(2000).optional(),
-  career_goals: z.string().trim().max(2000).optional(),
-  education_goals: z.string().trim().max(2000).optional(),
-  needs: z.string().trim().max(2000).optional(),
-  life_skills: z.string().trim().max(2000).optional(),
-  supports: z.string().trim().max(2000).optional(),
-  transportation: z.string().trim().max(500).optional(),
-  communication: z.string().trim().max(500).optional(),
-  current_goals: z.string().trim().max(2000).optional(),
-  teacher_observations: z.string().trim().max(2000).optional(),
-  family_concerns: z.string().trim().max(2000).optional(),
-  student_voice: z.string().trim().max(2000).optional(),
-  family_voice: z.string().trim().max(2000).optional(),
-  educator_input: z.string().trim().max(2000).optional(),
-});
-type FormValues = z.infer<typeof Schema>;
-type Role = FormValues["submitter_role"];
 
 const ROLE_META: Record<Role, { title: string; subtitle: string; icon: typeof Users }> = {
   family: {
@@ -94,6 +80,7 @@ const STEPS = [
   { id: "strengths", label: "Strengths & interests", icon: Lightbulb },
   { id: "career", label: "Career & education goals", icon: Briefcase },
   { id: "life", label: "Life skills & supports", icon: HomeIcon },
+  { id: "context", label: "Planning context", icon: MapPinned },
   { id: "current", label: "Current goals & observations", icon: ClipboardList },
   { id: "voices", label: "Voices & review", icon: MessageCircle },
 ] as const;
@@ -102,7 +89,11 @@ export const Route = createFileRoute("/_authenticated/pathway")({
   head: () => ({
     meta: [{ title: "Create a Pathway Report — TransitionForward" }],
   }),
-  component: () => (<RoleGuard path="/pathway"><PathwayPage /></RoleGuard>),
+  component: () => (
+    <RoleGuard path="/pathway">
+      <PathwayPage />
+    </RoleGuard>
+  ),
 });
 
 function PathwayPage() {
@@ -111,28 +102,9 @@ function PathwayPage() {
   const [stepIndex, setStepIndex] = useState(0);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(Schema),
+    resolver: zodResolver(PathwayIntakeFormSchema),
     mode: "onSubmit",
-    defaultValues: {
-      submitter_role: "family",
-      student_first_name: "",
-      grade_band: undefined,
-      strengths: "",
-      interests: "",
-      career_goals: "",
-      education_goals: "",
-      needs: "",
-      life_skills: "",
-      supports: "",
-      transportation: "",
-      communication: "",
-      current_goals: "",
-      teacher_observations: "",
-      family_concerns: "",
-      student_voice: "",
-      family_voice: "",
-      educator_input: "",
-    },
+    defaultValues: createPathwayIntakeDefaults(),
   });
 
   const role = form.watch("submitter_role");
@@ -141,7 +113,7 @@ function PathwayPage() {
     try {
       // Merge new structured sections into existing backend fields so they
       // reach the AI without requiring a DB schema change.
-      const merged = mergeIntake(values);
+      const merged = mergePathwayIntake(values);
       const res = await generate({ data: merged });
       navigate({
         to: "/reports/$reportId",
@@ -155,9 +127,17 @@ function PathwayPage() {
 
   const applyExtract = (e: IepExtract) => {
     const fields: (keyof FormValues)[] = [
-      "student_first_name", "strengths", "interests", "needs", "supports",
-      "transportation", "communication", "current_goals", "family_concerns",
-      "student_voice", "educator_input",
+      "student_first_name",
+      "strengths",
+      "interests",
+      "needs",
+      "supports",
+      "transportation",
+      "communication",
+      "current_goals",
+      "family_concerns",
+      "student_voice",
+      "educator_input",
     ];
     for (const k of fields) {
       const v = (e as Record<string, string>)[k];
@@ -190,110 +170,72 @@ function PathwayPage() {
   return (
     <SiteShell>
       <div className="demo-shell">
-      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
-        <div className="tf-cover relative mt-5 overflow-hidden px-6 py-10 sm:px-10 sm:py-14">
-          <div className="absolute inset-y-0 right-0 hidden w-1/2 md:block">
-            <img
-              src={pathwayHero}
-              alt=""
-              aria-hidden
-              width={1600}
-              height={900}
-              className="h-full w-full object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black_45%)]"
-            />
+        <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+          <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
+          <div className="tf-cover relative mt-5 overflow-hidden px-6 py-10 sm:px-10 sm:py-14">
+            <div className="absolute inset-y-0 right-0 hidden w-1/2 md:block">
+              <img
+                src={pathwayHero}
+                alt=""
+                aria-hidden
+                width={1600}
+                height={900}
+                className="h-full w-full object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black_45%)]"
+              />
+            </div>
+            <div className="relative">
+              <p className="tf-eyebrow">
+                Pathway Builder · Step {stepIndex + 1} of {STEPS.length} · {progressPct}% Complete
+              </p>
+              <h1 className="mt-4 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+                {stepHeading(stepIndex, role)}
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                {stepSubhead(stepIndex)}{" "}
+                <Link to="/reports" className="font-semibold text-foreground hover:underline">
+                  See your saved reports →
+                </Link>
+              </p>
+            </div>
           </div>
-          <div className="relative">
-            <p className="tf-eyebrow">
-              Pathway Builder · Step {stepIndex + 1} of {STEPS.length} · {progressPct}% Complete
-            </p>
-            <h1 className="mt-4 max-w-2xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              {stepHeading(stepIndex, role)}
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              {stepSubhead(stepIndex)}{" "}
-              <Link to="/reports" className="font-semibold text-foreground hover:underline">
-                See your saved reports →
-              </Link>
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="mx-auto max-w-4xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-        <Stepper current={stepIndex} onJump={(i) => i < stepIndex && setStepIndex(i)} />
-        <ProgressBar pct={progressPct} />
+        <section className="mx-auto max-w-4xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+          <Stepper current={stepIndex} onJump={(i) => i < stepIndex && setStepIndex(i)} />
+          <ProgressBar pct={progressPct} />
 
-        <FormProvider {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-6 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8"
-            noValidate
-          >
-            {stepIndex === 0 && <StepRole role={role} onPick={(r) => form.setValue("submitter_role", r)} />}
-            {stepIndex === 1 && <StepAbout onExtracted={applyExtract} />}
-            {stepIndex === 2 && <StepStrengths />}
-            {stepIndex === 3 && <StepCareer />}
-            {stepIndex === 4 && <StepLifeSkills />}
-            {stepIndex === 5 && <StepCurrentGoals role={role} />}
-            {stepIndex === 6 && <StepVoices role={role} />}
+          <FormProvider {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="mt-6 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8"
+              noValidate
+            >
+              {stepIndex === 0 && (
+                <StepRole role={role} onPick={(r) => form.setValue("submitter_role", r)} />
+              )}
+              {stepIndex === 1 && <StepAbout onExtracted={applyExtract} />}
+              {stepIndex === 2 && <StepStrengths />}
+              {stepIndex === 3 && <StepCareer />}
+              {stepIndex === 4 && <StepLifeSkills />}
+              {stepIndex === 5 && <StepPlanningContext />}
+              {stepIndex === 6 && <StepCurrentGoals role={role} />}
+              {stepIndex === 7 && <StepVoices role={role} />}
 
-            <StepNav
-              stepIndex={stepIndex}
-              total={STEPS.length}
-              onBack={goBack}
-              onNext={goNext}
-              submitting={form.formState.isSubmitting}
-            />
-          </form>
-        </FormProvider>
+              <StepNav
+                stepIndex={stepIndex}
+                total={STEPS.length}
+                onBack={goBack}
+                onNext={goNext}
+                submitting={form.formState.isSubmitting}
+              />
+            </form>
+          </FormProvider>
 
-        <TrustRow />
-      </section>
+          <TrustRow />
+        </section>
       </div>
     </SiteShell>
   );
-}
-
-
-/* ---------- Merge helper ---------- */
-
-function mergeIntake(v: FormValues) {
-  const join = (label: string, val?: string) =>
-    val && val.trim() ? `${label}: ${val.trim()}` : "";
-
-  const current_goals = [
-    v.current_goals?.trim() || "",
-    join("Career goals", v.career_goals),
-    join("Education / training goals", v.education_goals),
-  ].filter(Boolean).join("\n\n");
-
-  const needs = [
-    v.needs?.trim() || "",
-    join("Life-skills needs", v.life_skills),
-  ].filter(Boolean).join("\n\n");
-
-  const educator_input = [
-    v.educator_input?.trim() || "",
-    join("Teacher observations", v.teacher_observations),
-  ].filter(Boolean).join("\n\n");
-
-  return {
-    submitter_role: v.submitter_role,
-    student_first_name: v.student_first_name,
-    grade_band: v.grade_band,
-    strengths: v.strengths,
-    interests: v.interests,
-    needs,
-    supports: v.supports,
-    transportation: v.transportation,
-    communication: v.communication,
-    current_goals,
-    family_concerns: v.family_concerns,
-    student_voice: v.student_voice,
-    family_voice: v.family_voice,
-    educator_input,
-  };
 }
 
 /* ---------- Step heads ---------- */
@@ -304,19 +246,22 @@ function stepHeading(i: number, role: Role): string {
   if (i === 2) return "What are they good at? What do they love?";
   if (i === 3) return "What do they want their life to look like?";
   if (i === 4) return "What helps day-to-day — and what's still being learned?";
-  if (i === 5) return "Where are things today?";
-  return role === "student"
-    ? "Your voice matters most."
-    : "Bring the three voices together.";
+  if (i === 5) return "What should the planning team understand?";
+  if (i === 6) return "Where are things today?";
+  return role === "student" ? "Your voice matters most." : "Bring the three voices together.";
 }
 
 function stepSubhead(i: number): string {
   if (i === 0) return "Pick the role that fits you best — we'll tune the questions for you.";
-  if (i === 1) return "Just the basics. You can upload an IEP or evaluation and we'll fill in what we can find.";
+  if (i === 1)
+    return "Just the basics. You can upload an IEP or evaluation and we'll fill in what we can find.";
   if (i === 2) return "Short bullets are perfect. You don't need to write essays.";
   if (i === 3) return "Dreams count. So do small, practical next steps. Both belong here.";
   if (i === 4) return "Things like cooking, money, transportation, friendships, self-advocacy.";
-  if (i === 5) return "Current IEP transition goals, what the team is seeing, and anything weighing on the family.";
+  if (i === 5)
+    return "Add the services, priorities, barriers, and deadlines that make recommendations practical.";
+  if (i === 6)
+    return "Current IEP transition goals, what the team is seeing, and anything weighing on the family.";
   return "Share what you can. The more voices included, the more grounded the report.";
 }
 
@@ -339,7 +284,8 @@ function Stepper({ current, onJump }: { current: number; onJump: (i: number) => 
               className={cn(
                 "flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors",
                 active && "border-primary bg-primary text-primary-foreground",
-                done && "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer",
+                done &&
+                  "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer",
                 !active && !done && "border-border bg-background text-muted-foreground",
               )}
             >
@@ -422,8 +368,8 @@ function StepRole({ role, onPick }: { role: Role; onPick: (r: Role) => void }) {
         })}
       </div>
       <p className="text-sm text-muted-foreground">
-        Don't worry — you'll be able to add the other voices later. Picking your role just
-        helps us reorder the questions so the most important ones come first for you.
+        Don't worry — you'll be able to add the other voices later. Picking your role just helps us
+        reorder the questions so the most important ones come first for you.
       </p>
     </div>
   );
@@ -443,11 +389,7 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
           error={form.formState.errors.student_first_name?.message}
           required
         >
-          <Input
-            {...form.register("student_first_name")}
-            placeholder="First name only"
-            autoFocus
-          />
+          <Input {...form.register("student_first_name")} placeholder="First name only" autoFocus />
         </Field>
         <Field
           label="Grade band"
@@ -458,7 +400,9 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
             value={form.watch("grade_band") ?? ""}
             onValueChange={(v) => form.setValue("grade_band", v as FormValues["grade_band"])}
           >
-            <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="9-10">9th – 10th</SelectItem>
               <SelectItem value="11-12">11th – 12th</SelectItem>
@@ -475,8 +419,9 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
           out your student's goals, services, and supports.
         </p>
         <p className="mt-2">
-          A <strong>PPT</strong> (<Term definition={GLOSSARY.PPT}>Planning &amp; Placement Team</Term>)
-          meeting is where families and school staff review that plan together.
+          A <strong>PPT</strong> (
+          <Term definition={GLOSSARY.PPT}>Planning &amp; Placement Team</Term>) meeting is where
+          families and school staff review that plan together.
         </p>
       </InfoBox>
 
@@ -536,7 +481,11 @@ function StepStrengths() {
           "Music production / making beats",
         ]}
       >
-        <Textarea rows={3} {...form.register("interests")} placeholder="e.g. cars, cooking, anime, animals, music production…" />
+        <Textarea
+          rows={3}
+          {...form.register("interests")}
+          placeholder="e.g. cars, cooking, anime, animals, music production…"
+        />
       </Field>
     </div>
   );
@@ -645,21 +594,157 @@ function StepLifeSkills() {
           hint="How they get around today and what they're working toward."
           why="Transportation is one of the most common barriers to adult life. Naming it early matters."
         >
-          <Input {...form.register("transportation")} placeholder="e.g. bus, family drives, learning to drive" />
+          <Input
+            {...form.register("transportation")}
+            placeholder="e.g. bus, family drives, learning to drive"
+          />
         </Field>
         <Field
           label="Communication"
           hint="How they communicate best."
           why="Helps every adult on the team meet the student where they are."
         >
-          <Input {...form.register("communication")} placeholder="e.g. verbal, AAC, written, prefers text" />
+          <Input
+            {...form.register("communication")}
+            placeholder="e.g. verbal, AAC, written, prefers text"
+          />
         </Field>
       </div>
     </div>
   );
 }
 
-/* ---------- Step 6: Current goals + observations ---------- */
+/* ---------- Step 6: Planning context ---------- */
+
+function StepPlanningContext() {
+  const form = useFormContext<FormValues>();
+  return (
+    <div className="space-y-7">
+      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-foreground/80">
+        These questions make the report more specific to real life. Answer what you know today;
+        every field is optional, and missing information will be identified as a follow-up instead
+        of guessed.
+      </div>
+
+      <fieldset className="space-y-5">
+        <legend className="font-display text-xl">What is already in place</legend>
+        <Field
+          label="Services currently received"
+          hint="School, community, clinical, vocational, or family supports in place now."
+          why="The report should build from current services and identify coordination gaps, not recommend a duplicate plan."
+          examples={[
+            "Speech therapy twice weekly",
+            "Job coach through vocational rehabilitation",
+            "School social worker check-in every Friday",
+          ]}
+        >
+          <Textarea
+            rows={3}
+            {...form.register("services_received")}
+            placeholder="One service or support per line is helpful."
+          />
+        </Field>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field
+            label="Communication preferences"
+            hint="How should people share information, choices, or changes?"
+            why="A recommendation is only useful when the student can understand and participate in it."
+          >
+            <Textarea
+              rows={3}
+              {...form.register("communication_prefs")}
+              placeholder="e.g. written steps before meetings, plain language, extra processing time"
+            />
+          </Field>
+          <Field
+            label="Transportation needs or barriers"
+            hint="What limits access to school, work, training, or community activities?"
+            why="Transportation can decide whether a pathway is realistic, so the report treats it as a planning need."
+          >
+            <Textarea
+              rows={3}
+              {...form.register("transportation_needs")}
+              placeholder="e.g. bus training, no evening route, needs a travel companion"
+            />
+          </Field>
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-5 border-t border-border/60 pt-6">
+        <legend className="font-display text-xl">What success should look like</legend>
+        <Field
+          label="Desired outcomes after high school"
+          hint="Describe the life the student is working toward across employment, education, and independent living."
+          why="This gives the Pathway engine a destination so recommendations can be sequenced toward meaningful outcomes."
+          examples={[
+            "Paid part-time work with a path to more hours",
+            "A certificate program with disability supports",
+            "Living with a roommate and managing a weekly budget",
+          ]}
+        >
+          <Textarea
+            rows={3}
+            {...form.register("desired_postsecondary_outcomes")}
+            placeholder="What would a good adult life look like in the student's own terms?"
+          />
+        </Field>
+        <Field
+          label="Family priorities"
+          hint="The two or three outcomes the family most wants the team to protect or advance."
+          why="Explicit priorities help the report distinguish must-haves from ideas that can wait."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("family_priorities")}
+            placeholder="e.g. safety in the community, meaningful paid work, stronger self-advocacy"
+          />
+        </Field>
+      </fieldset>
+
+      <fieldset className="space-y-5 border-t border-border/60 pt-6">
+        <legend className="font-display text-xl">What needs attention next</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field
+            label="Student worries or unanswered questions"
+            hint="What feels uncertain, stressful, or hard to say in a meeting?"
+            why="The report can turn a worry into a concrete question, support, or next action without speaking over the student."
+          >
+            <Textarea
+              rows={3}
+              {...form.register("student_worries")}
+              placeholder="Use the student's words whenever possible."
+            />
+          </Field>
+          <Field
+            label="Additional concerns for the team"
+            hint="Important concerns that need a direct response beyond the general hopes already shared."
+            why="Separating unresolved concerns helps the meeting-prep section make them visible and actionable."
+          >
+            <Textarea
+              rows={3}
+              {...form.register("family_concerns_extended")}
+              placeholder="e.g. no work-based learning yet, unclear adult-service handoff"
+            />
+          </Field>
+        </div>
+        <Field
+          label="Upcoming meetings, applications, or deadlines"
+          hint="Include a date when you know it, plus what needs to happen before then."
+          why="Deadlines let the report turn general recommendations into an ordered, time-aware action plan."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("upcoming_meetings")}
+            placeholder="e.g. Annual PPT on October 18; vocational rehabilitation application due in November"
+          />
+        </Field>
+      </fieldset>
+    </div>
+  );
+}
+
+/* ---------- Step 7: Current goals + observations ---------- */
 
 function StepCurrentGoals({ role }: { role: Role }) {
   const form = useFormContext<FormValues>();
@@ -710,7 +795,7 @@ function StepCurrentGoals({ role }: { role: Role }) {
   );
 }
 
-/* ---------- Step 7: Voices ---------- */
+/* ---------- Step 8: Voices ---------- */
 
 function StepVoices({ role }: { role: Role }) {
   const form = useFormContext<FormValues>();
