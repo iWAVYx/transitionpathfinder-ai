@@ -1,5 +1,7 @@
 export type PublicFeatureStatus = "available" | "pilot" | "partial";
 
+export type PublicFeatureAudience = "Family" | "Student" | "Educator" | "Admin";
+
 export type PublicFeatureRoute =
   | "/demo/documents"
   | "/demo/educator"
@@ -30,6 +32,7 @@ export interface PublicFeatureContract {
   statusLabel: string;
   previewRoute: PublicFeatureRoute;
   liveRoute: PublicFeatureRoute;
+  liveAudiences: readonly PublicFeatureAudience[];
   availability: string;
 }
 
@@ -48,6 +51,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/family",
     liveRoute: "/dashboard",
+    liveAudiences: ["Family"],
     availability:
       "The family dashboard is available to connected family accounts; deeper dashboard/data parity is still being expanded.",
   },
@@ -57,6 +61,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/intake",
     liveRoute: "/pathway",
+    liveAudiences: ["Family", "Educator", "Admin"],
     availability:
       "The guided preview is public. Live intake is available to authorized family, educator, and administrator accounts.",
   },
@@ -66,6 +71,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/voice",
     liveRoute: "/student-voice",
+    liveAudiences: ["Family", "Student", "Educator", "Admin"],
     availability:
       "Students and their connected teams can capture strengths, preferences, and meeting input.",
   },
@@ -75,6 +81,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/family",
     liveRoute: "/family/priorities",
+    liveAudiences: ["Family", "Educator", "Admin"],
     availability:
       "Connected family accounts can save priorities, concerns, and questions for the student team.",
   },
@@ -84,6 +91,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Partially available",
     previewRoute: "/demo/report",
     liveRoute: "/reports",
+    liveAudiences: ["Family", "Student", "Educator", "Admin"],
     availability:
       "Plain-language explanations are included in Pathway Reports. A standalone paste-and-translate tool is not yet available.",
   },
@@ -93,6 +101,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Partially available",
     previewRoute: "/demo/plan",
     liveRoute: "/goals",
+    liveAudiences: ["Family", "Educator", "Admin"],
     availability:
       "Goal status tracking is live. Evidence journals, charts, compliance views, and exports are still being built.",
   },
@@ -102,6 +111,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Protected pilot",
     previewRoute: "/demo/documents",
     liveRoute: "/documents",
+    liveAudiences: ["Family", "Educator", "Admin"],
     availability:
       "Privacy-reviewed TXT and text-based PDF uploads are being validated in staging. Scans, images, and Word files are not yet supported.",
   },
@@ -111,6 +121,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/meeting",
     liveRoute: "/ppt-prep",
+    liveAudiences: ["Family", "Educator", "Admin"],
     availability:
       "Meeting-prep generation, saved plans, scripts, questions, and print/PDF output are available to authorized family and educator accounts.",
   },
@@ -120,6 +131,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Partially available",
     previewRoute: "/demo/opportunities",
     liveRoute: "/resources",
+    liveAudiences: ["Family", "Student", "Educator", "Admin"],
     availability:
       "Searchable resources and partner listings are live. Student-specific matching and warm handoffs are still being completed.",
   },
@@ -129,6 +141,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/educator",
     liveRoute: "/caseload",
+    liveAudiences: ["Educator", "Admin"],
     availability:
       "Licensed educators can open their caseload and student records; fixture-driven supporting views are being replaced with live data.",
   },
@@ -138,6 +151,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Partially available",
     previewRoute: "/demo/transition-channel",
     liveRoute: "/transition-channel",
+    liveAudiences: ["Family", "Student", "Educator", "Admin"],
     availability:
       "Secure messaging and case notes are available. A unified, exportable family-communication log is still being completed.",
   },
@@ -147,6 +161,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Available now",
     previewRoute: "/demo/report",
     liveRoute: "/reports",
+    liveAudiences: ["Family", "Student", "Educator", "Admin"],
     availability: "Authorized users can open Pathway Reports and use their print/PDF output.",
   },
   "document-history": {
@@ -155,6 +170,7 @@ export const PUBLIC_FEATURES = {
     statusLabel: "Partially available",
     previewRoute: "/demo/documents",
     liveRoute: "/family/history",
+    liveAudiences: ["Family", "Admin"],
     availability:
       "Family history and document views exist; the complete year-over-year assessment and work-sample vault is still being built.",
   },

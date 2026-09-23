@@ -44,7 +44,11 @@ import {
 
 import { toTitleCase } from "@/lib/title-case";
 import { cn } from "@/lib/utils";
-import type { PublicFeatureId } from "@/lib/public-feature-contract";
+import {
+  getPublicFeature,
+  type PublicFeatureAudience,
+  type PublicFeatureId,
+} from "@/lib/public-feature-contract";
 
 import { useRef, type MouseEvent as ReactMouseEvent } from "react";
 export const Route = createFileRoute("/platform")({
@@ -82,81 +86,69 @@ export const Route = createFileRoute("/platform")({
   component: PlatformPage,
 });
 
-type Tag = "Family" | "Student" | "Educator" | "Admin";
-
 const features: Array<{
   icon: typeof Sparkles;
   title: string;
   body: string;
-  tags: Tag[];
   featureId: PublicFeatureId;
 }> = [
   {
     icon: Sparkles,
     title: "The Pathway Builder",
     body: "Our specialist-built formulas deliver a personalized Pathway Report with career directions, life skills, and a 30 day plan.",
-    tags: ["Family", "Student", "Educator"],
     featureId: "pathway-builder",
   },
   {
     icon: Mic,
     title: "Student Voice Profile",
     body: "A student owned space for strengths, interests, the kind of life they want after high school, and what they want their PPT team to know.\n\u00a0",
-    tags: ["Student", "Family"],
     featureId: "student-voice",
   },
   {
     icon: Users,
     title: "Family Voice",
     body: "A dedicated home for the hopes, concerns, and questions families bring to the planning table, so input never gets lost between meetings.\n\u00a0\u00a0",
-    tags: ["Family", "Educator"],
     featureId: "family-voice",
   },
   {
     icon: Languages,
     title: "Family Friendly Translator",
     body: "Pathway Reports explain transition goals in plain language. A standalone paste-and-translate workspace is planned, not live yet.\n\u00a0",
-    tags: ["Family"],
     featureId: "family-translator",
   },
   {
     icon: Target,
     title: "Goal And Progress Tracker",
     body: "Track goal status today. Evidence journals, progress charts, compliance views, and exports are the next planned layer.\n\u00a0",
-    tags: ["Educator", "Family"],
     featureId: "goal-progress",
   },
   {
     icon: Archive,
     title: "Transition Assessment Vault",
     body: "A protected staging pilot supports privacy-reviewed TXT and text-based PDF uploads; the complete year-over-year vault is still being built.\n\u00a0",
-    tags: ["Educator", "Family"],
     featureId: "assessment-vault",
   },
   {
     icon: ClipboardList,
     title: "PPT Meeting Prep",
     body: "Parent questions, student talking points, teacher notes, an agenda, and a plain language summary, ready before you walk in the room.\n\u00a0",
-    tags: ["Family", "Educator", "Student"],
     featureId: "ppt-prep",
   },
   {
     icon: MapPin,
     title: "Resource And Opportunity Match",
     body: "Search live resources and partner listings now. Personalized matching and warm handoffs are still being completed.",
-    tags: ["Family", "Student"],
     featureId: "resource-match",
   },
   {
     icon: LayoutDashboard,
     title: "Educator Dashboard",
     body: "A snapshot for each student: progress notes, family input, upcoming meetings, and expert-drafted language the teacher reviews/approves.",
-    tags: ["Educator", "Admin"],
     featureId: "educator-dashboard",
   },
 ];
 
-const tagStyles: Record<Tag, string> = {
+const tagStyles: Record<PublicFeatureAudience, string> = {
   Family: "bg-peach-soft text-foreground/80",
   Student: "bg-sky-soft text-foreground/80",
   Educator: "bg-primary/10 text-primary",
@@ -165,8 +157,9 @@ const tagStyles: Record<Tag, string> = {
 
 type Feature = (typeof features)[number];
 
-function ToolCard({ icon: Icon, title, body, tags, featureId }: Feature) {
+function ToolCard({ icon: Icon, title, body, featureId }: Feature) {
   const ref = useRef<HTMLElement | null>(null);
+  const { liveAudiences } = getPublicFeature(featureId);
 
   const handleMove = (e: ReactMouseEvent<HTMLElement>) => {
     const el = ref.current;
@@ -220,7 +213,7 @@ function ToolCard({ icon: Icon, title, body, tags, featureId }: Feature) {
           <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
         <div className="flex flex-wrap content-start justify-end gap-1">
-          {tags.map((t) => (
+          {liveAudiences.map((t) => (
             <span
               key={t}
               className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:text-[11px] ${tagStyles[t]}`}

@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { PUBLIC_FEATURES } from "@/lib/public-feature-contract";
+import { ROUTE_AUDIENCES } from "@/lib/role-policy";
 
 const ROOT = resolve(__dirname, "../..");
 const ROUTES_DIR = resolve(ROOT, "src/routes");
@@ -36,6 +37,38 @@ describe("public feature promise contract", () => {
     for (const feature of Object.values(PUBLIC_FEATURES)) {
       expect(pathnameHasRoute(feature.previewRoute), `${feature.id} preview`).toBe(true);
       expect(pathnameHasRoute(feature.liveRoute), `${feature.id} live tool`).toBe(true);
+      expect(feature.liveAudiences.length, `${feature.id} live audiences`).toBeGreaterThan(0);
+    }
+  });
+
+  it("derives Platform role badges from the access contract without overpromising student access", () => {
+    expect(PUBLIC_FEATURES["pathway-builder"].liveAudiences).not.toContain("Student");
+    expect(PUBLIC_FEATURES["ppt-prep"].liveAudiences).not.toContain("Student");
+    expect(PUBLIC_FEATURES["student-voice"].liveAudiences).toContain("Student");
+
+    const platform = readFileSync(resolve(ROOT, "src/routes/platform.tsx"), "utf8");
+    expect(platform).toContain("getPublicFeature(featureId)");
+    expect(platform).toContain("liveAudiences.map");
+    expect(platform).not.toMatch(/\btags:\s*\[/);
+  });
+
+  it("keeps advertised audiences aligned with guarded live routes", () => {
+    const labels = {
+      family: "Family",
+      student: "Student",
+      educator: "Educator",
+      admin: "Admin",
+    } as const;
+
+    for (const feature of Object.values(PUBLIC_FEATURES)) {
+      const guardedAudiences = ROUTE_AUDIENCES[feature.liveRoute];
+      if (!guardedAudiences) continue;
+
+      const expected = guardedAudiences
+        .filter((audience): audience is keyof typeof labels => audience in labels)
+        .map((audience) => labels[audience])
+        .sort();
+      expect([...feature.liveAudiences].sort(), feature.id).toEqual(expected);
     }
   });
 
