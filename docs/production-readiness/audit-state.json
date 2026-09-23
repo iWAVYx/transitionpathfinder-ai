@@ -16,7 +16,11 @@
     "channelAttachmentMalwareSha": "193bed60f8d3d4233aab7cc043709e52cb388790",
     "channelAttachmentMalwareRun": 35521640583,
     "channelAttachmentMalwareAttempt": 1,
-    "channelAttachmentMalwareVerified": true
+    "channelAttachmentMalwareVerified": true,
+    "studentDocumentMalwareSha": "848af3ef0220a31df8d5c3b65937b328898f8082",
+    "studentDocumentMalwareRun": 35810041318,
+    "studentDocumentMalwareAttempt": 1,
+    "studentDocumentMalwareVerified": true
   },
   "production": {
     "supabaseProjectRef": "lrqcntqyekucamifpffs",
