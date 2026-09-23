@@ -70,7 +70,9 @@ Documents:
   baseline, and full consolidated Release Readiness evidence for `7cdb7cdc`.
 - `staging-acceptance-2026-09-23.md` — current exact-SHA isolated-staging
   deployment, protected push checks, and full consolidated Release Readiness
-  evidence for `62bf4113` after recording both synthetic malware-path proofs.
+  evidence for `27481367`, including the connected public feature routes and 12
+  reviewed public visual baselines while retaining both historical synthetic
+  malware-path proofs.
 - `student-document-malware-proof-2026-09-22.md` — exact-SHA, one-attempt
   protected Cloudmersive proof for the synthetic `student-documents` clean and
   harmless-EICAR paths, with production approval deliberately left open.

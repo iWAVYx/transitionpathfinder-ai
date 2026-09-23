@@ -45,15 +45,15 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "62bf4113c1ef5806f7fa3d78987d62cec49413bf";
+  const verifiedStagingSha = "274813670bf9aba20aafa32d601eff305a3f0a15";
 
   assert.equal(audit.schemaVersion, 2);
   assert.equal(audit.auditedAt, "2026-09-23");
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 35811577541);
-  assert.equal(audit.staging.releaseReadinessRun, 35812391876);
+  assert.equal(audit.staging.deploymentRun, 35905590583);
+  assert.equal(audit.staging.releaseReadinessRun, 35905951167);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.equal(audit.staging.antivirusProvider, "cloudmersive");
   assert.equal(
@@ -107,13 +107,30 @@ test("audit is fail-closed until every production control is proven", () => {
 });
 
 test("current staging acceptance evidence matches the exact audited candidate", () => {
-  assert.match(currentStagingEvidence, /62bf4113c1ef5806f7fa3d78987d62cec49413bf/);
-  assert.match(currentStagingEvidence, /35811577541/);
-  assert.match(currentStagingEvidence, /35812391876/);
-  assert.match(currentStagingEvidence, /10730336556/);
+  assert.match(currentStagingEvidence, /274813670bf9aba20aafa32d601eff305a3f0a15/);
+  assert.match(currentStagingEvidence, /35905590583/);
+  assert.match(currentStagingEvidence, /35905951167/);
+  for (const protectedRun of [
+    35905471029,
+    35905471143,
+    35905471004,
+    35905470980,
+    35905470964,
+    35905471052,
+    35905471097,
+    35905470990,
+    35905471021,
+  ]) {
+    assert.match(
+      currentStagingEvidence,
+      new RegExp(String(protectedRun)),
+      `current staging evidence must retain protected run ${protectedRun}`,
+    );
+  }
+  assert.match(currentStagingEvidence, /10771099833/);
   assert.match(
     currentStagingEvidence,
-    /sha256:fcd3a64f075dcf4cae880f309fa350dcb3f2287905011f48acc2864add60a14e/,
+    /sha256:9446fa0a19b0789deb70f6000ed740fdbdbf8010e2a05b9418727283a73d5778/,
   );
   assert.match(currentStagingEvidence, /No antivirus workflow was dispatched or rerun/);
   assert.match(currentStagingEvidence, /Production remains \*\*NO-GO\*\*/);
