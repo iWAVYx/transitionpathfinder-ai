@@ -121,13 +121,13 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current consolidated isolated-staging acceptance snapshot: protected `main` SHA
-`7cdb7cdcb88a186d7428f52a45a60d833578f39b` passed deployment run
-`35692279156` and consolidated Release Readiness run `35693326975`. Its
+`62bf4113c1ef5806f7fa3d78987d62cec49413bf` passed deployment run
+`35811577541` and consolidated Release Readiness run `35812391876`. Its
 push-time Build and SSR, accessibility, CT Seed v2, dashboard, role-guard,
 permission, RLS, cross-district RLS, and standard production-readiness checks
 all passed at exact-SHA parity. The Release Readiness artifact was sanitized
 before upload and passed the no-credential-artifact gate. The current evidence
-is recorded in `staging-acceptance-2026-09-22.md`; containment and prevention
+is recorded in `staging-acceptance-2026-09-23.md`; containment and prevention
 for the earlier staging Playwright artifact incident are recorded in
 `staging-playwright-artifact-containment-2026-09-20.md`.
 

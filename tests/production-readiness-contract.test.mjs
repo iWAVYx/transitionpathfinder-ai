@@ -6,6 +6,10 @@ import { test } from "node:test";
 
 const AUDIT_PATH = "docs/production-readiness/audit-state.json";
 const audit = JSON.parse(readFileSync(AUDIT_PATH, "utf8"));
+const currentStagingEvidence = readFileSync(
+  "docs/production-readiness/staging-acceptance-2026-09-23.md",
+  "utf8",
+);
 
 const productionGoControls = [
   "githubEnvironmentProvisioned",
@@ -41,15 +45,15 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "7cdb7cdcb88a186d7428f52a45a60d833578f39b";
+  const verifiedStagingSha = "62bf4113c1ef5806f7fa3d78987d62cec49413bf";
 
   assert.equal(audit.schemaVersion, 2);
-  assert.equal(audit.auditedAt, "2026-09-22");
+  assert.equal(audit.auditedAt, "2026-09-23");
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 35692279156);
-  assert.equal(audit.staging.releaseReadinessRun, 35693326975);
+  assert.equal(audit.staging.deploymentRun, 35811577541);
+  assert.equal(audit.staging.releaseReadinessRun, 35812391876);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.equal(audit.staging.antivirusProvider, "cloudmersive");
   assert.equal(
@@ -100,6 +104,19 @@ test("audit is fail-closed until every production control is proven", () => {
       "a NO-GO audit must retain at least one explicit blocking control",
     );
   }
+});
+
+test("current staging acceptance evidence matches the exact audited candidate", () => {
+  assert.match(currentStagingEvidence, /62bf4113c1ef5806f7fa3d78987d62cec49413bf/);
+  assert.match(currentStagingEvidence, /35811577541/);
+  assert.match(currentStagingEvidence, /35812391876/);
+  assert.match(currentStagingEvidence, /10730336556/);
+  assert.match(
+    currentStagingEvidence,
+    /sha256:fcd3a64f075dcf4cae880f309fa350dcb3f2287905011f48acc2864add60a14e/,
+  );
+  assert.match(currentStagingEvidence, /No antivirus workflow was dispatched or rerun/);
+  assert.match(currentStagingEvidence, /Production remains \*\*NO-GO\*\*/);
 });
 
 test("machine-readable migration inventory matches the canonical directory", () => {
