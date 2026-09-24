@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
+import { SAMPLE_DOCUMENT_READINESS } from "@/lib/document-readiness";
 
 export const Route = createFileRoute("/_authenticated/demo-mode")({
   head: () => ({ meta: [{ title: "Demo Mode — TransitionForward" }] }),
@@ -70,7 +71,7 @@ function DemoModePage() {
         </section>
 
         <PathwayTimeline />
-        <DocumentReadinessMeter />
+        <DocumentReadinessMeter items={SAMPLE_DOCUMENT_READINESS} />
 
         {/* Header */}
         <div className="rounded-3xl border bg-card p-6 shadow-soft">
