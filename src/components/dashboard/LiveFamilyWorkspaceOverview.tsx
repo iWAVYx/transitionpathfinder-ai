@@ -11,7 +11,12 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import { useState } from "react";
 
+import {
+  LiveToolPreviewDrawer,
+  type LiveToolPreview,
+} from "@/components/dashboard/LiveToolPreviewDrawer";
 import {
   ToolPreviewCard,
   ToolPreviewGrid,
@@ -24,6 +29,11 @@ import { toTitleCase } from "@/lib/title-case";
 type Props = {
   firstName: string;
   snapshot: DashboardSnapshot;
+};
+
+type FamilyWorkspaceCard = ToolPreviewCardProps & {
+  dataSource: string;
+  privacyNote: string;
 };
 
 function formatGradeBand(value: string | null) {
@@ -56,6 +66,7 @@ function reportSectionCount(report: DashboardSnapshot["latestReport"]) {
  * cross this boundary.
  */
 export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
+  const [activePreview, setActivePreview] = useState<LiveToolPreview | null>(null);
   const student = snapshot.student;
   if (!student) return null;
 
@@ -74,7 +85,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
   const school = student.school ?? "School not set";
   const familyFocus = student.family_priorities ?? "Add family priorities";
 
-  const cards: ToolPreviewCardProps[] = [
+  const liveStudentBoundary =
+    "Visible only through your signed-in, role-authorized student workspace.";
+  const cards: FamilyWorkspaceCard[] = [
     {
       icon: Users,
       title: "Connected Student",
@@ -89,6 +102,8 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         to: "/students/$studentId",
         params: { studentId: student.id },
       },
+      dataSource: "Authorized student profile and team workspace",
+      privacyNote: liveStudentBoundary,
     },
     {
       icon: FileText,
@@ -111,6 +126,8 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
             params: { reportId: snapshot.latestReport.id },
           }
         : { label: "Create Pathway Report", to: "/pathway" },
+      dataSource: "Latest role-authorized Pathway Report",
+      privacyNote: "The preview shows report status and counts, not private report text.",
     },
     {
       icon: FolderOpen,
@@ -126,6 +143,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         },
       ],
       cta: { label: "Manage Documents", to: "/documents" },
+      dataSource: "Authorized document records",
+      privacyNote:
+        "Only document counts and workflow status appear here; file contents stay hidden.",
     },
     {
       icon: ClipboardList,
@@ -142,6 +162,8 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         },
       ],
       cta: { label: "Prep For Meeting", to: "/ppt-prep" },
+      dataSource: "Meeting schedule and saved preparation items",
+      privacyNote: liveStudentBoundary,
     },
     {
       icon: CalendarDays,
@@ -154,6 +176,8 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Location", value: snapshot.upcomingMeeting?.location ?? "—" },
       ],
       cta: { label: "Open Calendar", to: "/meetings" },
+      dataSource: "Authorized meeting calendar",
+      privacyNote: liveStudentBoundary,
     },
     {
       icon: CheckSquare,
@@ -166,7 +190,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Open", value: activeActions.length },
         { label: "Completed", value: completedActions },
       ],
-      cta: { label: "Open Action Items", to: "/goals" },
+      cta: { label: "Open Action Items", to: "/family/action-items" },
+      dataSource: "Role-authorized action items",
+      privacyNote: "The preview uses totals only and does not expose private task notes.",
     },
     {
       icon: BookOpen,
@@ -178,7 +204,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Suggested", value: snapshot.recommendedResources.length },
         { label: "Saved", value: savedResources },
       ],
-      cta: { label: "Open Resources", to: "/resources" },
+      cta: { label: "Open Resources", to: "/family/resources/recommended" },
+      dataSource: "Student-matched and saved resources",
+      privacyNote: liveStudentBoundary,
     },
     {
       icon: ShieldCheck,
@@ -190,11 +218,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Active consents", value: activeConsents },
         { label: "Privacy", value: "Invite-only" },
       ],
-      cta: {
-        label: "Manage Sharing",
-        to: "/students/$studentId",
-        params: { studentId: student.id },
-      },
+      cta: { label: "Manage Sharing", to: "/family/consent" },
+      dataSource: "Active consent records",
+      privacyNote: "Consent details remain in the full authorized student workspace.",
     },
     {
       icon: UserPlus,
@@ -207,11 +233,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Default", value: "Private" },
         { label: "Access", value: "Revocable" },
       ],
-      cta: {
-        label: "Manage Student Team",
-        to: "/students/$studentId",
-        params: { studentId: student.id },
-      },
+      cta: { label: "Manage Student Team", to: "/family/invites" },
+      dataSource: "Student-team access controls",
+      privacyNote: "No invite addresses or private team details appear in this preview.",
     },
     {
       icon: HeartHandshake,
@@ -224,7 +248,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Matched by", value: "Goals + interests" },
         { label: "Documents shared", value: "Never" },
       ],
-      cta: { label: "See Partner Matches", to: "/partners" },
+      cta: { label: "See Partner Matches", to: "/partner-network" },
+      dataSource: "Student goals and interests matched to public partner listings",
+      privacyNote: "Private documents are never shared with partner listings.",
     },
     {
       icon: MessageSquare,
@@ -236,7 +262,9 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Context", value: student.first_name },
         { label: "Visibility", value: "Team-scoped" },
       ],
-      cta: { label: "Open Channel", to: "/messages" },
+      cta: { label: "Open Channel", to: "/transition-channel" },
+      dataSource: "Role-scoped Transition Channel context",
+      privacyNote: "Message contents remain inside the full team-scoped channel.",
     },
   ];
 
@@ -315,12 +343,34 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
           description="Every card is connected to a real signed-in tool and reflects live student data or a truthful empty state."
         >
           <ToolPreviewGrid>
-            {cards.map((card) => (
-              <ToolPreviewCard key={card.title} {...card} />
+            {cards.map(({ dataSource, privacyNote, ...card }) => (
+              <ToolPreviewCard
+                key={card.title}
+                {...card}
+                onPreview={() =>
+                  setActivePreview({
+                    icon: card.icon,
+                    title: card.title,
+                    summary: card.summary ?? "Open this tool to see the full signed-in experience.",
+                    status: card.status,
+                    bullets: card.bullets,
+                    cta: card.cta,
+                    dataSource,
+                    privacyNote,
+                  })
+                }
+              />
             ))}
           </ToolPreviewGrid>
         </ToolPreviewSection>
       </div>
+
+      <LiveToolPreviewDrawer
+        preview={activePreview}
+        onOpenChange={(open) => {
+          if (!open) setActivePreview(null);
+        }}
+      />
     </section>
   );
 }

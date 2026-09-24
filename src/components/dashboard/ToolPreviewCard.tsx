@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, type LucideIcon } from "lucide-react";
+import { ArrowRight, Eye, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { toTitleCase } from "@/lib/title-case";
 
@@ -22,6 +22,8 @@ export interface ToolPreviewCardProps {
   bullets?: ToolPreviewBullet[];
   /** Deep-link CTA into the full tool. */
   cta: { label: string; to: string; params?: Record<string, string>; search?: Record<string, string> };
+  /** Opens an at-a-glance view without leaving the dashboard. */
+  onPreview?: () => void;
   /** Optional extra footer content. */
   footer?: ReactNode;
 }
@@ -42,6 +44,7 @@ export function ToolPreviewCard({
   summary,
   bullets,
   cta,
+  onPreview,
   footer,
 }: ToolPreviewCardProps) {
   return (
@@ -77,7 +80,21 @@ export function ToolPreviewCard({
         </dl>
       )}
       {footer && <div className="mt-2 px-3.5">{footer}</div>}
-      <div className="mt-auto flex items-center justify-end gap-2 border-t border-border/60 bg-muted/20 px-3.5 py-2">
+      <div
+        className={`mt-auto flex items-center gap-2 border-t border-border/60 bg-muted/20 px-3.5 py-2 ${
+          onPreview ? "justify-between" : "justify-end"
+        }`}
+      >
+        {onPreview && (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+            aria-label={`Preview ${title}`}
+          >
+            <Eye className="h-3.5 w-3.5" aria-hidden /> Preview
+          </button>
+        )}
         <Link
           to={cta.to as string}
           params={cta.params as never}

@@ -12,6 +12,8 @@ const LIVE_OVERVIEW = read("src/components/dashboard/LiveFamilyWorkspaceOverview
 const DOCUMENTS = read("src/routes/_authenticated/documents.tsx");
 const DEMO_MODE = read("src/routes/_authenticated/demo-mode.tsx");
 const FAMILY_UPLOAD = read("src/components/students/FamilyDocumentUpload.tsx");
+const TOOL_CARD = read("src/components/dashboard/ToolPreviewCard.tsx");
+const LIVE_DRAWER = read("src/components/dashboard/LiveToolPreviewDrawer.tsx");
 
 describe("live family dashboard and document truthfulness alignment", () => {
   it("puts the demo-shaped overview at the top of the real family dashboard", () => {
@@ -44,6 +46,38 @@ describe("live family dashboard and document truthfulness alignment", () => {
     expect(LIVE_OVERVIEW).toContain("snapshot.documents.length");
     expect(LIVE_OVERVIEW).toContain("snapshot.recommendedResources.length");
     expect(LIVE_OVERVIEW).toContain("snapshot.actionItems.filter");
+  });
+
+  it("supports preview-first navigation with real signed-in data", () => {
+    expect(TOOL_CARD).toContain("onPreview?: () => void");
+    expect(TOOL_CARD).toContain("aria-label={`Preview ${title}`}");
+    expect(LIVE_OVERVIEW).toContain("<LiveToolPreviewDrawer");
+    expect(LIVE_OVERVIEW).toContain("onPreview={() =>");
+    expect(LIVE_DRAWER).toContain('data-testid="live-tool-preview-drawer"');
+    expect(LIVE_DRAWER).toContain("Signed-In Preview");
+    expect(LIVE_DRAWER).toContain("Privacy boundary");
+    expect(LIVE_DRAWER).not.toMatch(/useDemo|DEMO_|@\/lib\/demo|Jordan Rivera/);
+  });
+
+  it("keeps sensitive document and message contents out of previews", () => {
+    expect(LIVE_OVERVIEW).toContain(
+      "Only document counts and workflow status appear here; file contents stay hidden.",
+    );
+    expect(LIVE_OVERVIEW).toContain("Message contents remain inside the full team-scoped channel.");
+    expect(LIVE_OVERVIEW).toContain("Private documents are never shared with partner listings.");
+  });
+
+  it("opens each family card's dedicated full tool", () => {
+    for (const route of [
+      "/family/action-items",
+      "/family/resources/recommended",
+      "/family/consent",
+      "/family/invites",
+      "/partner-network",
+      "/transition-channel",
+    ]) {
+      expect(LIVE_OVERVIEW).toContain(`to: "${route}"`);
+    }
   });
 
   it("derives the live readiness meter from real document categories", () => {
