@@ -41,10 +41,9 @@ export interface RoleSpec {
   passwordEnv: string;
   dashboard: string;
   dashboardTestId: RoleDashboardTestId; // data-testid rendered on or inside <main> when this role's dashboard is ready
-  mustSee: RegExp[];      // headings / labels that must render
-  mustNotSee: RegExp[];   // surfaces that would indicate a role leak
+  mustSee: RegExp[]; // headings / labels that must render
+  mustNotSee: RegExp[]; // privileged surfaces that would indicate a role leak
 }
-
 
 export const ROLES: RoleSpec[] = [
   {
@@ -56,7 +55,9 @@ export const ROLES: RoleSpec[] = [
     dashboard: "/dashboard",
     dashboardTestId: ROLE_DASHBOARD_TEST_IDS.student,
     mustSee: [/Next Best Step/i],
-    mustNotSee: [/caseload/i, /admin hub/i, /partner network/i],
+    // Partner Network discovery is intentionally shared; partner management is
+    // still denied by the direct-route checks for /partners-manage.
+    mustNotSee: [/caseload/i, /admin hub/i],
   },
   {
     key: "parent",
@@ -67,7 +68,9 @@ export const ROLES: RoleSpec[] = [
     dashboard: "/dashboard",
     dashboardTestId: ROLE_DASHBOARD_TEST_IDS.parent,
     mustSee: [/Pathway Progress/i],
-    mustNotSee: [/caseload/i, /partner network/i, /platform admin/i],
+    // Partner Network discovery is intentionally shared; partner management is
+    // still denied by the direct-route checks for /partners-manage.
+    mustNotSee: [/caseload/i, /platform admin/i],
   },
   {
     key: "educator",
@@ -78,7 +81,9 @@ export const ROLES: RoleSpec[] = [
     dashboard: "/caseload",
     dashboardTestId: ROLE_DASHBOARD_TEST_IDS.educator,
     mustSee: [/Caseload Overview/i],
-    mustNotSee: [/platform admin/i, /partner network/i],
+    // Partner Network discovery is intentionally shared; partner management is
+    // still denied by the direct-route checks for /partners-manage.
+    mustNotSee: [/platform admin/i],
   },
   {
     key: "school_admin",
@@ -124,7 +129,6 @@ export const ROLES: RoleSpec[] = [
     dashboardTestId: ROLE_DASHBOARD_TEST_IDS.owner,
     mustSee: [/Platform Admin/i],
     mustNotSee: [],
-
   },
 ];
 
