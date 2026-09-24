@@ -545,9 +545,11 @@ export function FamilyDocumentUpload({
 
         <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-          Files are stored privately and only available to {firstName}'s team. We log every
-          download to an audit trail you can review. Only the text-only copy you approve is saved;
-          the original file and its hidden metadata are not uploaded.
+          Before anything is saved, TransitionForward redacts detected personal identifiers from a
+          local text copy and shows the privacy-safe result for your approval. Files are stored
+          privately and only available to {firstName}'s team. We log every download to an audit
+          trail you can review. Only the text-only copy you approve is saved; the original file and
+          its hidden metadata are not uploaded.
         </p>
       </div>
       </>
@@ -691,4 +693,3 @@ export function StandardDocActions({
     </>
   );
 }
-

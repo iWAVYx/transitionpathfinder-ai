@@ -26,8 +26,6 @@ import {
 import { SiteShell } from "@/components/site/SiteShell";
 import { IllustratedEmptyState, type EmptyKind } from "@/components/empty/IllustratedEmptyState";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { WelcomeBanner } from "@/components/site/WelcomeBanner";
-import { RoleValueStrip } from "@/components/value/RoleValueStrip";
 import { AnnouncementsBanner } from "@/components/site/AnnouncementsBanner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -64,6 +62,7 @@ import { InvitePeopleCard } from "@/components/dashboard/InvitePeopleCard";
 import { ReadinessInsightsCard } from "@/components/students/ReadinessInsightsCard";
 import { RoleGuard } from "@/components/RoleGuard";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
+import { LiveFamilyWorkspaceOverview } from "@/components/dashboard/LiveFamilyWorkspaceOverview";
 import { AccessPendingCard } from "@/components/access/AccessPendingCard";
 import { useEntitlement } from "@/hooks/use-entitlement";
 
@@ -624,56 +623,37 @@ function DashboardPage() {
       <div className="demo-shell">
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
 
-        <div className="tf-cover px-6 py-8 sm:px-10 sm:py-10">
-          <p
-            className="tf-eyebrow"
-            data-dashboard-landmark="family"
-          >
-            Pathway Progress · {toTitleCase(friendly)}'s Workspace
-          </p>
-          <h1 className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-5xl">
-            Welcome back, {toTitleCase(friendly)}.
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground/75 sm:text-base">
-            Everything you need to keep the plan moving — next best step, journey, documents, meetings, and the Pathway Report.
-          </p>
-        </div>
+        {students.length > 1 && (
+          <div className="mb-6 flex justify-end">
+            <label className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+              Selected student
+              <select
+                value={selectedId ?? ""}
+                onChange={(e) => reload(e.target.value)}
+                className="rounded-full border bg-card px-4 py-2 text-sm normal-case tracking-normal text-foreground shadow-soft"
+              >
+                {students.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.first_name} {student.last_name ?? ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
 
-        
+        <LiveFamilyWorkspaceOverview firstName={friendly} snapshot={snap} />
 
-        <div className="mt-4">
+        <div className="mt-8">
           <AnnouncementsBanner />
-          <WelcomeBanner firstName={friendly} />
-          <RoleValueStrip role="family" className="mt-4" />
         </div>
 
-
-        <div className="mt-4">
+        <div className="mt-6">
           <InvitesInbox />
           <EntitlementGate />
           <NextBestAction surface="family" />
           <JourneyStrip surface="family" className="mt-4" />
           <OnboardingChecklist surface="family" className="mt-4" />
-        </div>
-
-        {/* Header band */}
-        <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">Your students</p>
-          </div>
-          {students.length > 1 && (
-            <select
-              value={selectedId ?? ""}
-              onChange={(e) => reload(e.target.value)}
-              className="rounded-full border bg-card px-4 py-2 text-sm shadow-soft"
-            >
-              {students.map((st) => (
-                <option key={st.id} value={st.id}>
-                  {st.first_name} {st.last_name ?? ""}
-                </option>
-              ))}
-            </select>
-          )}
         </div>
       </div>
 

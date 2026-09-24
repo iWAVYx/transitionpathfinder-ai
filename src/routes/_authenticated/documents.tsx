@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
-import { DocumentSignalsCard } from "@/components/documents/DocumentSignalsCard";
+import { buildLiveDocumentReadiness } from "@/lib/document-readiness";
 import { VisibilityBadge, PermissionLabel } from "@/components/permissions/VisibilityBadge";
 import {
   listAllDocuments,
@@ -148,13 +148,15 @@ function DocumentsHubPage() {
     return base;
   }, [rows]);
 
+  const readinessItems = useMemo(() => buildLiveDocumentReadiness(rows ?? []), [rows]);
+
   return (
     <SiteShell>
       <div className="demo-shell">
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <Breadcrumbs trail={[{ label: "Dashboard", to: "/dashboard" }, { label: "Documents" }]} />
         <div className="mt-4">
-          <DocumentReadinessMeter />
+          <DocumentReadinessMeter items={readinessItems} loading={rows === null} />
         </div>
       </div>
 
@@ -219,10 +221,6 @@ function DocumentsHubPage() {
         )}
 
         <MissingDocumentsChecklist rows={rows} className="mt-6" />
-
-        <DocumentSignalsCard className="mt-6" />
-
-
 
         <div className="mt-6 flex items-center gap-3">
           <div className="relative flex-1">
@@ -406,5 +404,3 @@ function EmptyState() {
     </div>
   );
 }
-
-
