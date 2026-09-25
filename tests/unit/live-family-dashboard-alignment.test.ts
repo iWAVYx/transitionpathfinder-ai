@@ -80,6 +80,41 @@ describe("live family dashboard and document truthfulness alignment", () => {
     }
   });
 
+  it("keeps shared tool navigation in the preview-first overview without legacy duplicates", () => {
+    for (const route of [
+      'to: "/students/$studentId"',
+      'to: "/pathway"',
+      'to: "/documents"',
+      'to: "/meetings"',
+    ]) {
+      expect(LIVE_OVERVIEW).toContain(route);
+    }
+
+    for (const legacyLink of [
+      'to="/students/$studentId"',
+      'to="/pathway"',
+      'to="/reports/$reportId"',
+      'actionHref="/documents"',
+      'actionHref="/meetings"',
+    ]) {
+      expect(DASHBOARD).not.toContain(legacyLink);
+    }
+
+    // Removing duplicate navigation must not remove the useful live detail
+    // sections or non-navigation report actions below the preview grid.
+    for (const retainedDetail of [
+      "<ProfileField",
+      "<ReportSections",
+      "handleDownloadPdf",
+      "handleCopyShare",
+      'title="Document Hub"',
+      "<DashboardCalendar",
+      'title={snap.upcomingMeeting ? "Next Meeting" : "Meeting Prep"}',
+    ]) {
+      expect(DASHBOARD).toContain(retainedDetail);
+    }
+  });
+
   it("derives the live readiness meter from real document categories", () => {
     const items = buildLiveDocumentReadiness([
       { doc_type: "current-iep" },
