@@ -3,15 +3,12 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getStudentVoiceResponses } from "@/lib/student-voice.functions";
 import {
-  Sparkles,
   ClipboardList,
   Target,
-  Calendar,
   CheckCircle2,
   Circle,
   PlayCircle,
   FileText,
-  GraduationCap,
   RefreshCw,
   Compass,
   MessageCircle,
@@ -29,9 +26,7 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
-import { StudentPathwaySections } from "@/components/dashboard/StudentPathwaySections";
-import { NextActionCard } from "@/components/next-actions/NextActionCard";
-import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
+import { LiveStudentWorkspaceOverview } from "@/components/dashboard/LiveStudentWorkspaceOverview";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 type Props = {
@@ -47,13 +42,10 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
     (a) => a.category === "student" || a.category === "family",
   );
   const openCount = myActions.filter((a) => a.status !== "complete").length;
-  const nextMeeting = snap.upcomingMeeting;
-
   if (!s) {
     return (
       <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.student}>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
-
           <p
             className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             data-dashboard-landmark="student"
@@ -65,9 +57,9 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
             Welcome, {toTitleCase(firstName)}.
           </h1>
           <p className="mt-3 text-base leading-relaxed text-foreground/75 sm:text-lg">
-            This account controls your own transition plan. We could not finish
-            connecting the student profile to your dashboard yet, but you do not
-            need to be added as a collaborator.
+            This account controls your own transition plan. We could not finish connecting the
+            student profile to your dashboard yet, but you do not{" "}
+            {"need to be added as a collaborator."}
           </p>
           <div className="mt-8 border-y border-border/70 py-5">
             <h2 className="font-display text-xl">Next Best Step</h2>
@@ -77,12 +69,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
               <li>Your goals, meetings, documents, and action items will appear here.</li>
             </ol>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                onClick={onReconnect}
-                disabled={!onReconnect}
-              >
+              <Button type="button" size="sm" onClick={onReconnect} disabled={!onReconnect}>
                 <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Reconnect My Profile
               </Button>
               <Button asChild variant="outline" size="sm">
@@ -101,243 +88,159 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
   return (
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.student}>
       <div className="demo-shell">
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-
-        <p
-          className="tf-eyebrow"
-          data-dashboard-landmark="student"
-        >
-          Next Best Step · Student Dashboard
-        </p>
-        <Breadcrumbs trail={[{ label: "My plan" }]} />
-        <RoleValueStrip role="student" className="mt-4" />
-
-
-
-        <div className="mt-6">
-          <NextBestAction surface="student" /><div className="mt-4"><JourneyStrip surface="student" /></div>
-          <OnboardingChecklist surface="student" className="mt-4" />
-        </div>
-
-        <div className="tf-cover mt-6 px-6 py-8 sm:px-10 sm:py-10">
-          <p className="tf-eyebrow">Your Transition Plan</p>
-          <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
-            Hi, {toTitleCase(s.preferred_name ?? s.first_name)}.
-          </h1>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg">
-            This is your space. Here's what your team is working on with you —
-            your goals, your meetings, and the next steps that move your plan forward.
+        <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+          <p className="tf-eyebrow" data-dashboard-landmark="student">
+            Next Best Step · Student Dashboard
           </p>
-          {s.student_voice_statement && (
-            <blockquote className="tf-pull mt-6">
-              "{s.student_voice_statement}"
-              <cite>In Your Words</cite>
-            </blockquote>
-          )}
-        </div>
+          <Breadcrumbs trail={[{ label: "My plan" }]} />
+          <RoleValueStrip role="student" className="mt-4" />
 
+          <div className="mt-6">
+            <LiveStudentWorkspaceOverview snapshot={snap} />
+          </div>
 
-        {/* Quick facts */}
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <FactCard
-            icon={<GraduationCap className="h-4 w-4" />}
-            label="Grade"
-            value={s.grade_band ?? "Not set"}
-          />
-          <FactCard
-            icon={<Sparkles className="h-4 w-4" />}
-            label="Readiness"
-            value={s.readiness_level ?? "Building it together"}
-          />
-          <FactCard
-            icon={<Calendar className="h-4 w-4" />}
-            label="Next meeting"
-            value={
-              nextMeeting?.scheduled_at
-                ? new Date(nextMeeting.scheduled_at).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                  })
-                : "Not scheduled"
-            }
-          />
-        </div>
-
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          {/* My goals */}
-          <section className="border-y border-border/70 py-5">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-xl">Your Goals</h2>
-              </div>
-              <Link to="/goals" className="text-xs font-medium text-primary hover:underline">
-                Open All Goals
-              </Link>
+          <div className="mt-6">
+            <NextBestAction surface="student" />
+            <div className="mt-4">
+              <JourneyStrip surface="student" />
             </div>
-            {snap.goals.length === 0 ? (
-              <p className="text-sm text-foreground/75">
-                No goals set yet. Your team will add goals to your plan soon.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {snap.goals.slice(0, 5).map((g) => (
-                  <li
-                    key={g.id}
-                    className="flex items-start justify-between gap-3 border-b border-border/60 py-3 last:border-b-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">{g.title}</p>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
-                        {g.category}
+            <OnboardingChecklist surface="student" className="mt-4" />
+          </div>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            {/* My goals */}
+            <section className="border-y border-border/70 py-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  <h2 className="font-display text-xl">Your Goals</h2>
+                </div>
+                <Link to="/goals" className="text-xs font-medium text-primary hover:underline">
+                  Open All Goals
+                </Link>
+              </div>
+              {snap.goals.length === 0 ? (
+                <p className="text-sm text-foreground/75">
+                  No goals set yet. Your team will add goals to your plan soon.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {snap.goals.slice(0, 5).map((g) => (
+                    <li
+                      key={g.id}
+                      className="flex items-start justify-between gap-3 border-b border-border/60 py-3 last:border-b-0"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{g.title}</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
+                          {g.category}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
+                        {g.status.replace(/-/g, " ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            {/* My action items */}
+            <section className="border-y border-border/70 py-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ClipboardList className="h-5 w-5 text-primary" />
+                  <h2 className="font-display text-xl">Next Best Steps</h2>
+                </div>
+                <span className="text-xs text-foreground/75">{openCount} open</span>
+              </div>
+              {myActions.length === 0 ? (
+                <p className="text-sm text-foreground/75">
+                  Nothing for you to do right now. Your team will add steps as your plan grows.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {myActions.slice(0, 7).map((a) => (
+                    <li
+                      key={a.id}
+                      className="flex items-start gap-3 border-b border-border/60 py-3 last:border-b-0"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => onToggleAction(a)}
+                        className="mt-0.5 shrink-0"
+                        aria-label={`Mark "${a.title}" as ${a.status === "complete" ? "not done" : "done"}`}
+                      >
+                        {a.status === "complete" ? (
+                          <CheckCircle2 className="h-5 w-5 text-primary" />
+                        ) : a.status === "in_progress" ? (
+                          <PlayCircle className="h-5 w-5 text-primary/70" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-foreground/75" />
+                        )}
+                      </button>
+                      <p
+                        className={
+                          a.status === "complete"
+                            ? "text-sm line-through text-foreground/75"
+                            : "text-sm font-medium"
+                        }
+                      >
+                        {a.title}
                       </p>
-                    </div>
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/75">
-                      {g.status.replace(/-/g, " ")}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
 
-          {/* My action items */}
-          <section className="border-y border-border/70 py-5">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ClipboardList className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-xl">Next Best Steps</h2>
+          {/* Explore — grade-band aware tools just for you */}
+          <ExploreForStudent gradeBand={s.grade_band} studentId={s.id} />
+
+          {/* Calendar — your meetings, prep steps, and team events */}
+          <div className="mt-6">
+            <DashboardCalendar studentId={s.id} compact title="Your calendar" />
+          </div>
+
+          {/* IEP summary in plain language */}
+          <div className="mt-6">
+            <MyIepSummaryCard studentId={s.id} />
+          </div>
+
+          {/* Latest report */}
+          <section className="mt-6 border-y border-border/70 py-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                  Your pathway report
+                </p>
+                <h2 className="mt-1 font-display text-2xl font-medium">
+                  {snap.latestReport ? "Latest report" : "Not generated yet"}
+                </h2>
+                {snap.latestReport && (
+                  <p className="mt-1 text-sm text-foreground/75">
+                    Created {new Date(snap.latestReport.created_at).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-              <span className="text-xs text-foreground/75">{openCount} open</span>
-            </div>
-            {myActions.length === 0 ? (
-              <p className="text-sm text-foreground/75">
-                Nothing for you to do right now. Your team will add steps as your plan grows.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {myActions.slice(0, 7).map((a) => (
-                  <li
-                    key={a.id}
-                    className="flex items-start gap-3 border-b border-border/60 py-3 last:border-b-0"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => onToggleAction(a)}
-                      className="mt-0.5 shrink-0"
-                      aria-label={`Mark "${a.title}" as ${a.status === "complete" ? "not done" : "done"}`}
-                    >
-                      {a.status === "complete" ? (
-                        <CheckCircle2 className="h-5 w-5 text-primary" />
-                      ) : a.status === "in_progress" ? (
-                        <PlayCircle className="h-5 w-5 text-primary/70" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-foreground/75" />
-                      )}
-                    </button>
-                    <p
-                      className={
-                        a.status === "complete"
-                          ? "text-sm line-through text-foreground/75"
-                          : "text-sm font-medium"
-                      }
-                    >
-                      {a.title}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
-
-        {/* Explore — grade-band aware tools just for you */}
-        <ExploreForStudent gradeBand={s.grade_band} studentId={s.id} />
-
-        {/* Calendar — your meetings, prep steps, and team events */}
-        <div className="mt-6">
-          <DashboardCalendar studentId={s.id} compact title="Your calendar" />
-        </div>
-
-
-        {/* IEP summary in plain language */}
-        <div className="mt-6">
-          <MyIepSummaryCard studentId={s.id} />
-        </div>
-
-        {/* Pathway Report — Student View sections (sample preview until a real report is generated) */}
-        <StudentPathwaySections
-          data={
-            s.student_voice_statement
-              ? { voiceQuote: s.student_voice_statement }
-              : undefined
-          }
-          isSample
-        />
-
-        {/* Interactive Next Actions */}
-        <NextActionCard
-          actions={DEMO_NEXT_ACTIONS.student}
-          recentlyCompleted={DEMO_RECENTLY_COMPLETED.student}
-          historyRoute="/student/history"
-          suggestionLabel="Open Student Voice"
-          suggestionRoute="/student-voice"
-        />
-
-        {/* Latest report */}
-        <section className="mt-6 border-y border-border/70 py-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                Your pathway report
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-medium">
-                {snap.latestReport ? "Latest report" : "Not generated yet"}
-              </h2>
-              {snap.latestReport && (
-                <p className="mt-1 text-sm text-foreground/75">
-                  Created {new Date(snap.latestReport.created_at).toLocaleDateString()}
+              {snap.latestReport ? (
+                <Button asChild>
+                  <Link to="/reports/$reportId" params={{ reportId: snap.latestReport.id }}>
+                    <FileText className="mr-1.5 h-4 w-4" /> Read it
+                  </Link>
+                </Button>
+              ) : (
+                <p className="max-w-sm text-sm text-foreground/75">
+                  A pathway report shows your strengths, interests, and what's next after high
+                  school. Your team will share it with you when it's ready.
                 </p>
               )}
             </div>
-            {snap.latestReport ? (
-              <Button asChild>
-                <Link to="/reports/$reportId" params={{ reportId: snap.latestReport.id }}>
-                  <FileText className="mr-1.5 h-4 w-4" /> Read it
-                </Link>
-              </Button>
-            ) : (
-              <p className="max-w-sm text-sm text-foreground/75">
-                A pathway report shows your strengths, interests, and what's next after high
-                school. Your team will share it with you when it's ready.
-              </p>
-            )}
-          </div>
-        </section>
-      </div>
+          </section>
+        </div>
       </div>
     </SiteShell>
-
-  );
-}
-
-function FactCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="border-y border-border/70 py-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground/75">
-        {icon}
-        {label}
-      </div>
-      <p className="mt-2 text-base font-medium text-foreground">{value}</p>
-    </div>
   );
 }
 

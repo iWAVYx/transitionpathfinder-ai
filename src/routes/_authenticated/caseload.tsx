@@ -45,12 +45,11 @@ import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
 import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
-
+import { LiveEducatorWorkspaceOverview } from "@/components/dashboard/LiveEducatorWorkspaceOverview";
 
 export const Route = createFileRoute("/_authenticated/caseload")({
   head: () => ({ meta: [{ title: "Caseload — TransitionForward" }] }),
@@ -166,145 +165,165 @@ function CaseloadPage() {
   return (
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.educator}>
       <div className="demo-shell">
-      <CaseloadRoleLandmark />
-      <div>
+        <CaseloadRoleLandmark />
+        <div>
+          <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
+            <PageContainer>
+              <Breadcrumbs trail={[{ label: "Caseload" }]} />
+              <RoleValueStrip role="educator" className="mt-4" />
 
-      <RoleGuard path="/caseload" fallback={<CaseloadAccessFallback />}>
-      <PageContainer>
+              <div className="mt-4 space-y-6 sm:space-y-8">
+                <LiveEducatorWorkspaceOverview students={rows} loading={loading} />
 
-        <Breadcrumbs trail={[{ label: "Caseload" }]} />
-        <RoleValueStrip role="educator" className="mt-4" />
+                <div className="flex justify-end">
+                  <Button asChild className="w-full sm:w-auto">
+                    <Link to="/students">
+                      <Plus className="h-4 w-4" /> Invite Student
+                    </Link>
+                  </Button>
+                </div>
 
+                {/* Primary: Next best action + onboarding */}
+                <div className="space-y-4">
+                  <NextBestAction surface="educator" />
+                  <div className="mt-4">
+                    <JourneyStrip surface="educator" />
+                  </div>
+                  <OnboardingChecklist surface="educator" />
+                </div>
 
-
-
-        <div className="mt-4 space-y-6 sm:space-y-8">
-          <PageHeader
-            eyebrow="Educator / Case Manager"
-            title="Caseload Overview"
-            description="Every student assigned to you — upcoming meetings, pending transition tasks, and Pathway Reports needing review."
-            action={
-              <Button asChild className="w-full sm:w-auto">
-                <Link to="/students"><Plus className="h-4 w-4" /> Invite Student</Link>
-              </Button>
-            }
-          />
-
-          {/* Primary: Next best action + onboarding */}
-          <div className="space-y-4">
-            <NextBestAction surface="educator" /><div className="mt-4"><JourneyStrip surface="educator" /></div>
-            <OnboardingChecklist surface="educator" />
-          </div>
-
-          {/* Summary KPIs */}
-          <StatGrid cols={3}>
-            <StatCard icon={<Users className="h-3.5 w-3.5" />} label="Students" value={summary.total} />
-            <StatCard
-              icon={<ClipboardList className="h-3.5 w-3.5" />}
-              label="Open Action Items"
-              value={summary.open}
-              tone={summary.open > 0 ? "warn" : "default"}
-            />
-            <button
-              type="button"
-              onClick={() => {
-                setFilter("no-report");
-                setQuery("");
-                if (typeof window !== "undefined") {
-                  document.getElementById("caseload-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }
-              }}
-              className="text-left rounded-2xl transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label="Filter to students missing a Pathway Report"
-            >
-              <StatCard
-                icon={<FileText className="h-3.5 w-3.5" />}
-                label="Missing Pathway Report"
-                value={summary.missingReport}
-                tone={summary.missingReport > 0 ? "warn" : "default"}
-                hint={summary.missingReport > 0 ? "Tap to filter" : undefined}
-              />
-            </button>
-          </StatGrid>
-
-          {/* Educator quick links — surfaces tied to caseload work */}
-          <div className="grid grid-cols-2 divide-y divide-border/60 border-y border-border/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            <EducatorQuickLink to="/teacher-portal" icon={<ShieldAlert className="h-4 w-4" />} label="Teacher Portal" desc="Milestones & compliance" />
-            <EducatorQuickLink to="/meeting-templates" icon={<ClipboardCheck className="h-4 w-4" />} label="Templates" desc="Agendas & checklists" />
-            <EducatorQuickLink to="/goals" icon={<Target className="h-4 w-4" />} label="Goal Tracker" desc="Transition goals" />
-          </div>
-
-
-          {/* Secondary: team calendar — collapsed on mobile to reduce density */}
-          <CollapsibleSection
-            title="Team Calendar"
-            description="Meetings, action items, and team-shared events across your caseload."
-            icon={<ClipboardList className="h-4 w-4 text-foreground/75" />}
-          >
-            <DashboardCalendar
-              title="Team Calendar"
-              subtitle="Meetings, action items, and team-shared events across your caseload."
-              studentOptions={rows.map((r) => ({
-                id: r.id,
-                name: `${r.first_name}${r.last_name ? ` ${r.last_name}` : ""}`,
-              }))}
-            />
-          </CollapsibleSection>
-
-          {/* Filters */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="relative min-w-0 flex-1 sm:min-w-[220px]">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-foreground/75" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search students or schools"
-                className="pl-8"
-              />
-            </div>
-            <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-              <SelectTrigger className="w-full sm:w-[220px]" aria-label="Filter caseload students"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Students</SelectItem>
-                <SelectItem value="today">Meeting Today</SelectItem>
-                <SelectItem value="this-week">Meeting This Week</SelectItem>
-                <SelectItem value="needs-attention">Open Action Items</SelectItem>
-                <SelectItem value="no-report">No Pathway Report</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Caseload list */}
-          <div id="caseload-list" className="scroll-mt-24 border-y border-border/70">
-            {loading ? (
-              <div className="flex items-center justify-center p-10 text-sm text-foreground/75">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
-              </div>
-            ) : filtered.length === 0 ? (
-              <EmptyState hasAny={rows.length > 0} />
-            ) : (
-              <ul className="divide-y">
-                {filtered.map((r) => (
-                  <CaseloadRow
-                    key={r.id}
-                    row={r}
-                    expanded={expandedId === r.id}
-                    onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
-                    onChanged={reload}
+                {/* Summary KPIs */}
+                <StatGrid cols={3}>
+                  <StatCard
+                    icon={<Users className="h-3.5 w-3.5" />}
+                    label="Students"
+                    value={summary.total}
                   />
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      </PageContainer>
-      </RoleGuard>
-      </div>
-      </div>
+                  <StatCard
+                    icon={<ClipboardList className="h-3.5 w-3.5" />}
+                    label="Open Action Items"
+                    value={summary.open}
+                    tone={summary.open > 0 ? "warn" : "default"}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilter("no-report");
+                      setQuery("");
+                      if (typeof window !== "undefined") {
+                        document
+                          .getElementById("caseload-list")
+                          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
+                    }}
+                    className="text-left rounded-2xl transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-label="Filter to students missing a Pathway Report"
+                  >
+                    <StatCard
+                      icon={<FileText className="h-3.5 w-3.5" />}
+                      label="Missing Pathway Report"
+                      value={summary.missingReport}
+                      tone={summary.missingReport > 0 ? "warn" : "default"}
+                      hint={summary.missingReport > 0 ? "Tap to filter" : undefined}
+                    />
+                  </button>
+                </StatGrid>
 
+                {/* Educator quick links — surfaces tied to caseload work */}
+                <div className="grid grid-cols-2 divide-y divide-border/60 border-y border-border/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                  <EducatorQuickLink
+                    to="/teacher-portal"
+                    icon={<ShieldAlert className="h-4 w-4" />}
+                    label="Teacher Portal"
+                    desc="Milestones & compliance"
+                  />
+                  <EducatorQuickLink
+                    to="/meeting-templates"
+                    icon={<ClipboardCheck className="h-4 w-4" />}
+                    label="Templates"
+                    desc="Agendas & checklists"
+                  />
+                  <EducatorQuickLink
+                    to="/goals"
+                    icon={<Target className="h-4 w-4" />}
+                    label="Goal Tracker"
+                    desc="Transition goals"
+                  />
+                </div>
+
+                {/* Secondary: team calendar — collapsed on mobile to reduce density */}
+                <CollapsibleSection
+                  title="Team Calendar"
+                  description="Meetings, action items, and team-shared events across your caseload."
+                  icon={<ClipboardList className="h-4 w-4 text-foreground/75" />}
+                >
+                  <DashboardCalendar
+                    title="Team Calendar"
+                    subtitle="Meetings, action items, and team-shared events across your caseload."
+                    studentOptions={rows.map((r) => ({
+                      id: r.id,
+                      name: `${r.first_name}${r.last_name ? ` ${r.last_name}` : ""}`,
+                    }))}
+                  />
+                </CollapsibleSection>
+
+                {/* Filters */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                  <div className="relative min-w-0 flex-1 sm:min-w-[220px]">
+                    <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-foreground/75" />
+                    <Input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Search students or schools"
+                      className="pl-8"
+                    />
+                  </div>
+                  <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+                    <SelectTrigger
+                      className="w-full sm:w-[220px]"
+                      aria-label="Filter caseload students"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Students</SelectItem>
+                      <SelectItem value="today">Meeting Today</SelectItem>
+                      <SelectItem value="this-week">Meeting This Week</SelectItem>
+                      <SelectItem value="needs-attention">Open Action Items</SelectItem>
+                      <SelectItem value="no-report">No Pathway Report</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Caseload list */}
+                <div id="caseload-list" className="scroll-mt-24 border-y border-border/70">
+                  {loading ? (
+                    <div className="flex items-center justify-center p-10 text-sm text-foreground/75">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading caseload…
+                    </div>
+                  ) : filtered.length === 0 ? (
+                    <EmptyState hasAny={rows.length > 0} />
+                  ) : (
+                    <ul className="divide-y">
+                      {filtered.map((r) => (
+                        <CaseloadRow
+                          key={r.id}
+                          row={r}
+                          expanded={expandedId === r.id}
+                          onToggle={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                          onChanged={reload}
+                        />
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </PageContainer>
+          </RoleGuard>
+        </div>
+      </div>
     </SiteShell>
   );
-
 }
 
 function CaseloadRoleLandmark() {
@@ -326,13 +345,19 @@ function CaseloadAccessFallback() {
   );
 }
 
-
-function EducatorQuickLink({ to, icon, label, desc }: { to: string; icon: React.ReactNode; label: string; desc: string }) {
+function EducatorQuickLink({
+  to,
+  icon,
+  label,
+  desc,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  desc: string;
+}) {
   return (
-    <Link
-      to={to}
-      className="group flex flex-col gap-1 px-2 py-3 transition hover:bg-muted/35"
-    >
+    <Link to={to} className="group flex flex-col gap-1 px-2 py-3 transition hover:bg-muted/35">
       <span className="flex items-center gap-1.5 text-xs font-medium text-foreground/75">
         {icon} {label}
       </span>
@@ -355,7 +380,9 @@ function EmptyState({ hasAny }: { hasAny: boolean }) {
       </p>
       {!hasAny && (
         <Button asChild className="mt-4">
-          <Link to="/students" hash="caseload-empty" aria-label="Add your first student"><Plus className="h-4 w-4" /> Add your first student</Link>
+          <Link to="/students" hash="caseload-empty" aria-label="Add your first student">
+            <Plus className="h-4 w-4" /> Add your first student
+          </Link>
         </Button>
       )}
     </div>
@@ -400,9 +427,18 @@ function CaseloadRow({
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Stat label="Goals" value={row.goal_count} />
-          <Stat label="Open Actions" value={row.open_action_items} tone={row.open_action_items > 0 ? "warn" : undefined} />
+          <Stat
+            label="Open Actions"
+            value={row.open_action_items}
+            tone={row.open_action_items > 0 ? "warn" : undefined}
+          />
           <Stat label="Report" value={row.latest_report_id ? "✓" : "—"} />
-          <Button size="sm" variant="ghost" onClick={onToggle} aria-label={expanded ? "Collapse row" : "Expand row"}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onToggle}
+            aria-label={expanded ? "Collapse row" : "Expand row"}
+          >
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
@@ -445,13 +481,23 @@ function CaseloadRow({
 function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: "warn" }) {
   return (
     <div className="text-center">
-      <p className={`text-sm font-semibold ${tone === "warn" ? "text-amber-600 dark:text-amber-400" : ""}`}>{value}</p>
+      <p
+        className={`text-sm font-semibold ${tone === "warn" ? "text-amber-600 dark:text-amber-400" : ""}`}
+      >
+        {value}
+      </p>
       <p className="text-[10px] uppercase tracking-wider text-foreground/75">{label}</p>
     </div>
   );
 }
 
-function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => void | Promise<void> }) {
+function Expanded({
+  row,
+  onChanged,
+}: {
+  row: CaseloadStudent;
+  onChanged: () => void | Promise<void>;
+}) {
   const addNote = useServerFn(addCaseManagerNote);
   const addAction = useServerFn(quickAssignActionItem);
   const fetchNotes = useServerFn(listStudentNotes);
@@ -461,7 +507,9 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
   const [actionTitle, setActionTitle] = useState("");
   const [actionPriority, setActionPriority] = useState<"low" | "medium" | "high">("medium");
   const [savingAction, setSavingAction] = useState(false);
-  const [notes, setNotes] = useState<Array<{ id: string; content: string; created_at: string; note_type: string }>>([]);
+  const [notes, setNotes] = useState<
+    Array<{ id: string; content: string; created_at: string; note_type: string }>
+  >([]);
 
   useEffect(() => {
     (async () => {
@@ -560,8 +608,13 @@ function Expanded({ row, onChanged }: { row: CaseloadStudent; onChanged: () => v
           maxLength={200}
         />
         <div className="flex items-center gap-2">
-          <Select value={actionPriority} onValueChange={(v) => setActionPriority(v as any)}>
-            <SelectTrigger className="w-full sm:w-[130px]"><SelectValue /></SelectTrigger>
+          <Select
+            value={actionPriority}
+            onValueChange={(v) => setActionPriority(v as "low" | "medium" | "high")}
+          >
+            <SelectTrigger className="w-full sm:w-[130px]">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>

@@ -1,10 +1,10 @@
 # Dashboard, Preview, and Full-Tool Parity Audit
 
-Updated: 2026-09-24
+Updated: 2026-09-25
 
-Baseline: `d293ce2fc02e67765891c4a2e371e00a96fbbbd8`
+Baseline: `7f4795c059f2e4de8a0cc5868c8cd7a27f55701f`
 
-Audit branch: `codex/audit-all-role-dashboard-tool-parity`
+Implementation branch: `codex/align-student-educator-live-dashboards`
 
 ## Product contract
 
@@ -20,6 +20,12 @@ The public `/demo/*` routes may use clearly labeled fictional sample data. A
 signed-in route must never silently reuse those fixtures. If real data does not
 exist, it must show a truthful empty state and explain how to add it.
 
+The Owner Admin exception is structural, not a lower standard: `/owner` is the
+Owner Hub **and the owner dashboard**. It is a private operating console for the
+founder and, later, specifically authorized TransitionForward IT/company staff.
+Do not add a separate owner dashboard route or a redundant Dashboard navigation
+item. Preview-first improvements belong inside the Owner Hub itself.
+
 ## Executive result
 
 - The demo interaction pattern is already strong for Student, Family,
@@ -27,36 +33,41 @@ exist, it must show a truthful empty state and explain how to add it.
   Preview and full-tool actions.
 - The 20 signed-in pages listed as missing in the prior version of this audit
   now exist. Most are connected to server functions and authorized data.
-- The primary family `/dashboard` is now the first complete implementation of
-  the intended pattern: demo-shaped layout, authorized snapshot data, a
-  privacy-conscious Preview action, and a separate full-tool action.
+- The primary Family, Student, and Educator workspaces now implement the
+  intended pattern: demo-shaped layout, authorized data, a privacy-conscious
+  Preview action, and a separate full-tool action.
 - The largest remaining issue is not missing routes. It is that the signed-in
   `/hubs/*` overview grids still import demo hooks and demo feature details.
   Five hubs also render demo next actions. Those surfaces look complete, but
   their numbers are not yet trustworthy as signed-in data.
-- The Student primary dashboard is mostly live but still renders demo next
-  actions and marks one Pathway section as sample.
+- Student sample next actions and sample Pathway content have been removed from
+  the signed-in dashboard. The Student dashboard and Student Hub now use the
+  authorized dashboard snapshot and honest empty states.
+- The Educator dashboard and Caseload Hub now use authorized caseload totals.
+  Their at-a-glance previews remain aggregate-first and hide student PII.
 - The Owner tools are the most operationally complete, but the Owner overview
-  does not yet follow the same card → Preview → full-tool interaction contract.
+  does not yet follow the same card → Preview → full-tool interaction contract
+  inside the Owner Hub. A separate owner dashboard must not be created.
 
 ## Role-by-role status
 
-| Role | Public demo | Primary real workspace | Card data | Preview data | Full tools | Current status |
-| --- | --- | --- | --- | --- | --- | --- |
-| Student | `/demo/student` | `/dashboard`, `/hubs/student` | Mixed | Demo-backed in hub | Routes exist; many are live | **Needs live-data alignment** |
-| Parent / Guardian | `/demo/family` | `/dashboard`, `/hubs/family` | Live on `/dashboard`; demo-backed in hub | Live on `/dashboard`; demo-backed in hub | Routes exist and are substantially live | **Primary dashboard aligned; duplicate hub remains** |
-| Educator / Case Manager | `/demo/educator` | `/caseload`, `/hubs/caseload` | Live in caseload; demo-backed in hub | Demo-backed in hub | Routes exist and are substantially live | **Needs live caseload adapter** |
-| School Admin | `/demo/school-admin` | `/school/overview`, `/hubs/school` | Live in school pages; demo-backed in hub | Demo-backed in hub | Routes exist and use school data functions | **Needs live school adapter** |
-| District Admin | `/demo/district-admin` | `/district/overview`, `/hubs/district` | Live in district pages; demo-backed in hub | Demo-backed in hub | Routes exist and use district data functions | **Needs live district adapter** |
-| Partner | `/demo/partner` | `/partners-manage`, `/hubs/partner` | Live in partner workspace; demo-backed in hub | Demo-backed in hub | Profile, opportunities, deadlines, resources, and impact exist | **Needs live partner adapter** |
-| Owner Admin | `/demo/owner` | `/owner`, `/hubs/admin` | Live in Owner Hub; mixed in platform hub | No consistent inline preview | Broad operational route set exists | **Needs overview interaction parity** |
+| Role                    | Public demo            | Primary real workspace                                                         | Card data                                     | Preview data                             | Full tools                                                     | Current status                                             |
+| ----------------------- | ---------------------- | ------------------------------------------------------------------------------ | --------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- |
+| Student                 | `/demo/student`        | `/dashboard`, `/hubs/student`                                                  | Live                                          | Live snapshot                            | Routes exist; many are live                                    | **Preview-first dashboard aligned**                        |
+| Parent / Guardian       | `/demo/family`         | `/dashboard`, `/hubs/family`                                                   | Live on `/dashboard`; demo-backed in hub      | Live on `/dashboard`; demo-backed in hub | Routes exist and are substantially live                        | **Primary dashboard aligned; duplicate hub remains**       |
+| Educator / Case Manager | `/demo/educator`       | `/caseload`, `/hubs/caseload`                                                  | Live caseload aggregates                      | Live, aggregate-first                    | Routes exist and are substantially live                        | **Preview-first dashboard aligned**                        |
+| School Admin            | `/demo/school-admin`   | `/school/overview`, `/hubs/school`                                             | Live in school pages; demo-backed in hub      | Demo-backed in hub                       | Routes exist and use school data functions                     | **Needs live school adapter**                              |
+| District Admin          | `/demo/district-admin` | `/district/overview`, `/hubs/district`                                         | Live in district pages; demo-backed in hub    | Demo-backed in hub                       | Routes exist and use district data functions                   | **Needs live district adapter**                            |
+| Partner                 | `/demo/partner`        | `/partners-manage`, `/hubs/partner`                                            | Live in partner workspace; demo-backed in hub | Demo-backed in hub                       | Profile, opportunities, deadlines, resources, and impact exist | **Needs live partner adapter**                             |
+| Owner Admin             | `/demo/owner`          | `/owner` (the Owner Hub is the dashboard), `/hubs/admin` (legacy platform hub) | Live in Owner Hub; mixed in platform hub      | No consistent inline preview             | Broad operational route set exists                             | **Needs in-Hub interaction parity; no separate dashboard** |
 
 ## Signed-in demo-data findings
 
 ### P0 — replace before calling all-role dashboards production-complete
 
-- `StudentOverviewGrid`, `ParentOverviewGrid`, and `EducatorOverviewGrid` call
-  `useDemoStudent` even when rendered from an authenticated hub.
+- `ParentOverviewGrid` still calls `useDemoStudent` when rendered from the
+  authenticated Family Hub. Student and Educator signed-in routes no longer
+  render their demo-backed overview grids.
 - `SchoolAdminOverviewGrid`, `DistrictAdminOverviewGrid`, and
   `PartnerOverviewGrid` call demo role-context hooks even when `isSample` is
   false.
@@ -64,9 +75,9 @@ exist, it must show a truthful empty state and explain how to add it.
 - `/hubs/family`, `/hubs/school`, `/hubs/district`, `/hubs/partner`, and
   `/hubs/admin` render `DEMO_NEXT_ACTIONS`; signed-in activity therefore can
   look real while being fictional.
-- `StudentDashboard` renders `DEMO_NEXT_ACTIONS.student` and passes `isSample`
-  to its Pathway section despite otherwise receiving a live
-  `DashboardSnapshot`.
+- The signed-in Student dashboard no longer renders `DEMO_NEXT_ACTIONS` or the
+  sample Pathway component. Those fixtures remain confined to explicit demo
+  routes.
 
 The correct fix is to preserve the card and drawer presentation while
 replacing their data inputs with role-specific live adapters. The demo paths
@@ -110,12 +121,14 @@ complete interactions, and visual parity with its demo preview.
 
 ### Package 2 — Student and Educator
 
-- Replace Student demo next actions and sample Pathway state with live values.
-- Build Student live previews from the authorized dashboard snapshot.
-- Adapt `getCaseload` and educator action/note/readiness functions into the
-  Educator cards and drawers.
-- Verify that selecting one student cannot expose another student's private
-  data outside the educator's permitted caseload.
+- [x] Replace Student demo next actions and sample Pathway state with live
+      values or truthful empty states.
+- [x] Build Student live previews from the authorized dashboard snapshot.
+- [x] Adapt `getCaseload` into Educator cards and aggregate-first drawers.
+- [x] Keep educator dashboard previews free of student names, documents,
+      message text, and other student PII.
+- [ ] Complete isolated-staging role, accessibility, and privacy acceptance for
+      the merged implementation SHA.
 
 ### Package 3 — School and District Admin
 
@@ -153,16 +166,17 @@ complete interactions, and visual parity with its demo preview.
 - [x] Primary Family dashboard uses authorized live snapshot data.
 - [x] Primary Family cards support real-data Preview without navigation.
 - [x] Family previews hide document and message contents.
-- [ ] Student signed-in dashboard contains no demo fixture data.
-- [ ] Educator signed-in dashboard and previews use permitted caseload data.
+- [x] Student signed-in dashboard contains no demo fixture data.
+- [x] Educator signed-in dashboard and previews use permitted caseload data.
 - [ ] School Admin signed-in dashboard and previews use selected-school data.
 - [ ] District Admin previews remain aggregate-first and PII-free.
 - [ ] Partner previews use the partner's real managed organization data.
-- [ ] Owner overview supports Preview and full-tool navigation consistently.
+- [ ] Owner Hub supports Preview and full-tool navigation consistently without
+      introducing a separate owner dashboard.
 - [ ] Every signed-in `/hubs/*` route contains no `useDemo*` or `DEMO_*` data.
 - [ ] Every advertised card reaches a usable full tool with honest states.
 - [ ] All seven roles pass dashboard, preview, navigation, role-guard,
-  accessibility, and privacy tests in isolated staging.
+      accessibility, and privacy tests in isolated staging.
 
 ## Safety boundaries
 

@@ -25,8 +25,8 @@ const RECENTLY_COMPLETED_STRIP = read("src/components/next-actions/RecentlyCompl
 describe("dashboard accessibility contrast contract", () => {
   it("uses the audited readable helper color throughout the student dashboard", () => {
     expect(STUDENT_DASHBOARD).not.toContain("text-muted-foreground");
-    expect(STUDENT_DASHBOARD).toContain(
-      '<p className="text-sm text-foreground/75">\n                No goals set yet.',
+    expect(STUDENT_DASHBOARD).toMatch(
+      /<p className="text-sm text-foreground\/75">\s*No goals set yet\./,
     );
     expect(STUDENT_DASHBOARD).toContain(
       '<span className="text-xs text-foreground/75">{openCount} open</span>',

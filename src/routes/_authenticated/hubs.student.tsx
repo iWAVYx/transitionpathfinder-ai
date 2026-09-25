@@ -7,7 +7,7 @@ import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
-import { StudentOverviewGrid } from "@/components/dashboard/role/StudentOverviewGrid";
+import { LiveStudentWorkspaceLoader } from "@/components/dashboard/LiveStudentWorkspaceOverview";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { ResumeWhereYouLeftOff } from "@/components/student/ResumeWhereYouLeftOff";
 import { getHub } from "@/lib/hubs/registry";
@@ -18,7 +18,11 @@ export const Route = createFileRoute("/_authenticated/hubs/student")({
   head: () => ({
     meta: [
       { title: "Student Planning Hub — TransitionForward" },
-      { name: "description", content: "Your space to share your voice, track your goals, prep for meetings, and see your Pathway Report." },
+      {
+        name: "description",
+        content:
+          "Your space to share your voice, track your goals, prep for meetings, and see your Pathway Report.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -30,7 +34,7 @@ function HubPage() {
     <SiteShell>
       <HubShell hub={getHub("student-planning")!} hideSpokes>
         <WorkspaceZone>
-          <StudentOverviewGrid />
+          <LiveStudentWorkspaceLoader />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Your Record"
@@ -43,7 +47,8 @@ function HubPage() {
               {
                 icon: History,
                 title: "My Access History",
-                description: "The full record of who has looked at your plan, downloaded a document, or updated a goal.",
+                description:
+                  "The full record of who has looked at your plan, downloaded a document, or updated a goal.",
                 to: "/student/history",
               },
             ]}
@@ -73,4 +78,3 @@ function HubPage() {
     </SiteShell>
   );
 }
-
