@@ -121,15 +121,16 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
 ## Exact-SHA acceptance
 
 Current consolidated isolated-staging acceptance snapshot: protected `main` SHA
-`274813670bf9aba20aafa32d601eff305a3f0a15` passed deployment run
-`35905590583` and consolidated Release Readiness run `35905951167`. Its
+`484827c0414bf4c7ce50b71e9bc5db23b1be1ebf` passed deployment run
+`36191255623` and consolidated Release Readiness run `36192088943`. Its
 push-time Build and SSR, accessibility, CT Seed v2, dashboard, role-guard,
 permission, RLS, cross-district RLS, and standard production-readiness checks
-all passed at exact-SHA parity. This snapshot includes the connected public
-feature routes and the 12 reviewed public visual baselines across mobile,
-tablet, and desktop. The Release Readiness artifact was sanitized before upload
-and passed the no-credential-artifact gate. The current evidence is recorded in
-`staging-acceptance-2026-09-23.md`; containment and prevention for the earlier
+all passed at exact-SHA parity. This snapshot includes the deeper live Pathway
+intake, preview-first real-data dashboard alignment, responsive and semantic
+cleanup, and eight reviewed Student, Educator, and School Admin visual
+baselines. The Release Readiness artifact was sanitized before upload and
+passed the no-credential-artifact gate. The current evidence is recorded in
+`staging-acceptance-2026-09-25.md`; containment and prevention for the earlier
 staging Playwright artifact incident are recorded in
 `staging-playwright-artifact-containment-2026-09-20.md`.
 

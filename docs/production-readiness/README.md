@@ -68,11 +68,15 @@ Documents:
 - `staging-acceptance-2026-09-22.md` — historical exact-SHA isolated-staging
   deployment, protected push checks, corrected homepage contrast and visual
   baseline, and full consolidated Release Readiness evidence for `7cdb7cdc`.
-- `staging-acceptance-2026-09-23.md` — current exact-SHA isolated-staging
+- `staging-acceptance-2026-09-23.md` — historical exact-SHA isolated-staging
   deployment, protected push checks, and full consolidated Release Readiness
   evidence for `27481367`, including the connected public feature routes and 12
   reviewed public visual baselines while retaining both historical synthetic
   malware-path proofs.
+- `staging-acceptance-2026-09-25.md` — current exact-SHA isolated-staging
+  deployment, all nine standard protected checks, and full consolidated Release
+  Readiness evidence for `484827c0` after the live dashboard and Pathway intake
+  alignment work.
 - `student-document-malware-proof-2026-09-22.md` — exact-SHA, one-attempt
   protected Cloudmersive proof for the synthetic `student-documents` clean and
   harmless-EICAR paths, with production approval deliberately left open.
