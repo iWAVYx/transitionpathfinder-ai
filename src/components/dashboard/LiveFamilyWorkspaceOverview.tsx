@@ -382,7 +382,7 @@ function SummaryItem({ label, value, detail }: { label: string; value: string; d
         {label}
       </dt>
       <dd className="mt-2 truncate font-display text-xl text-foreground">{value}</dd>
-      <p className="mt-1 truncate text-xs text-foreground/75">{detail}</p>
+      <dd className="mt-1 truncate text-xs text-foreground/75">{detail}</dd>
     </div>
   );
 }
