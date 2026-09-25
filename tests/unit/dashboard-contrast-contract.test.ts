@@ -9,6 +9,7 @@ const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").repla
 const STUDENT_DASHBOARD = read("src/components/dashboard/StudentDashboard.tsx");
 const FAMILY_DASHBOARD = read("src/routes/_authenticated/dashboard.tsx");
 const LIVE_FAMILY_OVERVIEW = read("src/components/dashboard/LiveFamilyWorkspaceOverview.tsx");
+const TOOL_PREVIEW_CARD = read("src/components/dashboard/ToolPreviewCard.tsx");
 const STAT_GRID = read("src/components/layout/StatGrid.tsx");
 const DASHBOARD_CALENDAR = read("src/components/dashboard/DashboardCalendar.tsx");
 const INVITE_PEOPLE_CARD = read("src/components/dashboard/InvitePeopleCard.tsx");
@@ -38,9 +39,14 @@ describe("dashboard accessibility contrast contract", () => {
   it("uses the audited readable helper color throughout the family dashboard", () => {
     expect(FAMILY_DASHBOARD).not.toContain("text-muted-foreground");
     expect(LIVE_FAMILY_OVERVIEW).not.toContain("text-muted-foreground");
+    expect(TOOL_PREVIEW_CARD).not.toContain("text-muted-foreground");
     expect(FAMILY_DASHBOARD).toContain("<LiveFamilyWorkspaceOverview");
     expect(FAMILY_DASHBOARD).toContain("tracking-[0.18em] text-foreground/75");
     expect(LIVE_FAMILY_OVERVIEW).toContain("text-foreground/75");
+    expect(TOOL_PREVIEW_CARD).toContain('className="mt-2 max-w-2xl text-sm text-foreground/75"');
+    expect(TOOL_PREVIEW_CARD).toContain(
+      'className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-foreground/75"',
+    );
     expect(FAMILY_DASHBOARD).toContain('className="mt-1 text-sm text-foreground/75"');
     expect(FAMILY_DASHBOARD).toContain(
       '<span className="italic text-foreground/75">Not set yet</span>',
