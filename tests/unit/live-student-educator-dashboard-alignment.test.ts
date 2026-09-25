@@ -44,6 +44,21 @@ describe("live Student dashboard alignment", () => {
       "Partners cannot see your private documents through this directory preview.",
     );
   });
+
+  it("keeps Student Voice and Goals navigation in the preview-first grid without legacy duplicates", () => {
+    for (const previewRoute of ['to: "/student-voice"', 'to: "/goals"']) {
+      expect(LIVE_STUDENT).toContain(previewRoute);
+    }
+
+    expect(STUDENT_DASHBOARD).not.toContain('to: "/student-voice"');
+    expect(STUDENT_DASHBOARD).not.toContain('to="/goals"');
+
+    // Removing duplicate navigation must not remove the live goal details or
+    // the remaining grade-aware Explore tools from the signed-in dashboard.
+    expect(STUDENT_DASHBOARD).toContain("snap.goals.slice(0, 5)");
+    expect(STUDENT_DASHBOARD).toContain("<ExploreForStudent gradeBand={s.grade_band} />");
+    expect(STUDENT_DASHBOARD).toContain('to: "/messages"');
+  });
 });
 
 describe("live Educator dashboard alignment", () => {
