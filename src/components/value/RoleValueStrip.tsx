@@ -25,13 +25,13 @@ export function RoleValueStrip({ role, headline, nextAction, className }: Props)
         className,
       )}
     >
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 basis-full sm:basis-auto sm:flex-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
           Why This Page Matters
         </p>
         <p className="mt-0.5 text-foreground/90">{headline ?? v.headline}</p>
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1.5 text-xs text-foreground/80">
+      <div className="flex w-full items-center gap-1.5 rounded-full bg-background/70 px-3 py-1.5 text-xs text-foreground/80 sm:w-auto">
         <ArrowRight className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
         <span>{nextAction ?? v.nextAction}</span>
       </div>
