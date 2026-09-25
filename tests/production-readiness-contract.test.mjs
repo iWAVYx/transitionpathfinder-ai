@@ -7,7 +7,7 @@ import { test } from "node:test";
 const AUDIT_PATH = "docs/production-readiness/audit-state.json";
 const audit = JSON.parse(readFileSync(AUDIT_PATH, "utf8"));
 const currentStagingEvidence = readFileSync(
-  "docs/production-readiness/staging-acceptance-2026-09-23.md",
+  "docs/production-readiness/staging-acceptance-2026-09-25.md",
   "utf8",
 );
 
@@ -45,15 +45,15 @@ function envEntries(path) {
 }
 
 test("audit is fail-closed until every production control is proven", () => {
-  const verifiedStagingSha = "274813670bf9aba20aafa32d601eff305a3f0a15";
+  const verifiedStagingSha = "484827c0414bf4c7ce50b71e9bc5db23b1be1ebf";
 
   assert.equal(audit.schemaVersion, 2);
-  assert.equal(audit.auditedAt, "2026-09-23");
+  assert.equal(audit.auditedAt, "2026-09-25");
   assert.match(audit.auditedMainSha, /^[a-f0-9]{40}$/);
   assert.equal(audit.auditedMainSha, verifiedStagingSha);
   assert.equal(audit.staging.exactDeploymentSha, verifiedStagingSha);
-  assert.equal(audit.staging.deploymentRun, 35905590583);
-  assert.equal(audit.staging.releaseReadinessRun, 35905951167);
+  assert.equal(audit.staging.deploymentRun, 36191255623);
+  assert.equal(audit.staging.releaseReadinessRun, 36192088943);
   assert.equal(audit.staging.releaseReadinessVerified, true);
   assert.equal(audit.staging.antivirusProvider, "cloudmersive");
   assert.equal(
@@ -107,19 +107,19 @@ test("audit is fail-closed until every production control is proven", () => {
 });
 
 test("current staging acceptance evidence matches the exact audited candidate", () => {
-  assert.match(currentStagingEvidence, /274813670bf9aba20aafa32d601eff305a3f0a15/);
-  assert.match(currentStagingEvidence, /35905590583/);
-  assert.match(currentStagingEvidence, /35905951167/);
+  assert.match(currentStagingEvidence, /484827c0414bf4c7ce50b71e9bc5db23b1be1ebf/);
+  assert.match(currentStagingEvidence, /36191255623/);
+  assert.match(currentStagingEvidence, /36192088943/);
   for (const protectedRun of [
-    35905471029,
-    35905471143,
-    35905471004,
-    35905470980,
-    35905470964,
-    35905471052,
-    35905471097,
-    35905470990,
-    35905471021,
+    36191215533,
+    36191215473,
+    36191215663,
+    36191215529,
+    36191215499,
+    36191215583,
+    36191215422,
+    36191215590,
+    36191215537,
   ]) {
     assert.match(
       currentStagingEvidence,
@@ -127,10 +127,10 @@ test("current staging acceptance evidence matches the exact audited candidate", 
       `current staging evidence must retain protected run ${protectedRun}`,
     );
   }
-  assert.match(currentStagingEvidence, /10771099833/);
+  assert.match(currentStagingEvidence, /10888658139/);
   assert.match(
     currentStagingEvidence,
-    /sha256:9446fa0a19b0789deb70f6000ed740fdbdbf8010e2a05b9418727283a73d5778/,
+    /sha256:9887d9c6f2c2783aefafb1d7d06419b6ccbd5305bf16b669b989b9fd177587cd/,
   );
   assert.match(currentStagingEvidence, /No antivirus workflow was dispatched or rerun/);
   assert.match(currentStagingEvidence, /Production remains \*\*NO-GO\*\*/);
