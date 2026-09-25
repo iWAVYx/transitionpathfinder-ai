@@ -1,7 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { getStudentVoiceResponses } from "@/lib/student-voice.functions";
 import {
   ClipboardList,
   Target,
@@ -13,7 +10,6 @@ import {
   Compass,
   MessageCircle,
   Bookmark,
-  Mic,
 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -115,9 +111,6 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
                   <Target className="h-5 w-5 text-primary" />
                   <h2 className="font-display text-xl">Your Goals</h2>
                 </div>
-                <Link to="/goals" className="text-xs font-medium text-primary hover:underline">
-                  Open All Goals
-                </Link>
               </div>
               {snap.goals.length === 0 ? (
                 <p className="text-sm text-foreground/75">
@@ -196,7 +189,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
           </div>
 
           {/* Explore — grade-band aware tools just for you */}
-          <ExploreForStudent gradeBand={s.grade_band} studentId={s.id} />
+          <ExploreForStudent gradeBand={s.grade_band} />
 
           {/* Calendar — your meetings, prep steps, and team events */}
           <div className="mt-6">
@@ -251,33 +244,9 @@ type ExploreTile = {
   body: string;
 };
 
-function ExploreForStudent({
-  gradeBand,
-  studentId,
-}: {
-  gradeBand: string | null;
-  studentId: string;
-}) {
+function ExploreForStudent({ gradeBand }: { gradeBand: string | null }) {
   const isMiddle = gradeBand === "6-8";
   const isHigh = gradeBand === "9-10" || gradeBand === "11-12";
-
-  // Phase 6D — read voice-response count so the Student Voice tile can
-  // nudge first-time students to add a reflection.
-  const fetchVoice = useServerFn(getStudentVoiceResponses);
-  const [voiceCount, setVoiceCount] = useState<number | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    fetchVoice({ data: { studentId } })
-      .then((r) => {
-        if (!cancelled) setVoiceCount(r.responses?.length ?? 0);
-      })
-      .catch(() => {
-        if (!cancelled) setVoiceCount(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [studentId, fetchVoice]);
 
   const tiles: ExploreTile[] = [];
   if (isMiddle) {
@@ -296,15 +265,6 @@ function ExploreForStudent({
       body: "Programs, internships, and pathways that match your goals and interests.",
     });
   }
-  tiles.push({
-    to: "/student-voice",
-    icon: <Mic className="h-5 w-5" />,
-    title: "Your Student Voice",
-    body:
-      voiceCount === 0
-        ? "Add your first reflection — your team will see it in your plan."
-        : "Add what's important to you so your team can plan around your goals.",
-  });
   tiles.push({
     to: "/messages",
     icon: <MessageCircle className="h-5 w-5" />,
