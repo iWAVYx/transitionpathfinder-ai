@@ -19,7 +19,6 @@ import {
   Loader2,
   Download,
   Share2,
-  FileText,
   GraduationCap,
 } from "lucide-react";
 
@@ -661,7 +660,7 @@ function DashboardPage() {
         <section className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Student Profile Card */}
           <div className="border-y border-border/70 py-5 sm:py-6 lg:py-8">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
+            <div className="flex items-start gap-3 sm:gap-4">
               <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 font-display text-xl font-medium text-primary ring-1 ring-primary/20 sm:h-16 sm:w-16 sm:text-2xl">
                   {s.first_name[0]}
@@ -683,14 +682,6 @@ function DashboardPage() {
                   )}
                 </div>
               </div>
-              <Link
-                to="/students/$studentId"
-                params={{ studentId: s.id }}
-                className="shrink-0 text-sm font-medium text-primary underline-offset-4 hover:underline"
-              >
-                <span className="hidden sm:inline">Open student hub →</span>
-                <span className="sm:hidden">Open →</span>
-              </Link>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -736,23 +727,8 @@ function DashboardPage() {
                   </p>
                 )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  to="/pathway"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:shadow-lift"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {snap.latestReport ? "Update report" : "Generate report"}
-                </Link>
-                {snap.latestReport && (
-                  <>
-                    <Link
-                      to="/reports/$reportId"
-                      params={{ reportId: snap.latestReport.id }}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
-                    >
-                      <FileText className="h-4 w-4" /> Open
-                    </Link>
+              {snap.latestReport && (
+                <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => handleDownloadPdf(snap.latestReport!.id)}
@@ -776,9 +752,8 @@ function DashboardPage() {
                     >
                       <Share2 className="h-4 w-4" /> Copy educator link
                     </button>
-                  </>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {snap.latestReport ? (
@@ -809,8 +784,6 @@ function DashboardPage() {
               title="Document Hub"
               subtitle="IEPs, assessments, evaluations — with status."
               icon={<FolderOpen className="h-5 w-5" />}
-              actionHref="/documents"
-              actionLabel="Manage"
             >
               {snap.documents.length === 0 ? (
                 <EmptyMini kind="documents" label="No documents yet. Upload the current IEP to get started." />
@@ -917,8 +890,6 @@ function DashboardPage() {
                   : "Get ready for the next PPT with a calm, one-page agenda."
               }
               icon={<Calendar className="h-5 w-5" />}
-              actionHref="/meetings"
-              actionLabel="All Meetings"
             >
               {!snap.upcomingMeeting ? (
                 <EmptyMini kind="meetings" label="No meeting scheduled. Add one to start prep." />
