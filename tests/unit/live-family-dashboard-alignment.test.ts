@@ -40,6 +40,15 @@ describe("live family dashboard and document truthfulness alignment", () => {
     }
   });
 
+  it("keeps Family summary labels and values valid inside the definition list", () => {
+    expect(LIVE_OVERVIEW).toContain(
+      '<dd className="mt-1 truncate text-xs text-foreground/75">{detail}</dd>',
+    );
+    expect(LIVE_OVERVIEW).not.toContain(
+      '<p className="mt-1 truncate text-xs text-foreground/75">{detail}</p>',
+    );
+  });
+
   it("keeps demo fixtures out of the signed-in overview", () => {
     expect(LIVE_OVERVIEW).toContain("import type { DashboardSnapshot }");
     expect(LIVE_OVERVIEW).not.toMatch(/useDemoStudent|DEMO_|@\/lib\/demo|Jordan Rivera/);
