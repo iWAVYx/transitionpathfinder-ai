@@ -11,7 +11,7 @@ const InputSchema = z.object({
 
 const ExtractSchema = z.object({
   student_first_name: z.string().default(""),
-  grade_band: z.enum(["9-10", "11-12", "post-secondary", "not-applicable", ""]).default(""),
+  grade_band: z.enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable", ""]).default(""),
   strengths: z.string().default(""),
   interests: z.string().default(""),
   needs: z.string().default(""),
@@ -22,6 +22,11 @@ const ExtractSchema = z.object({
   family_concerns: z.string().default(""),
   student_voice: z.string().default(""),
   educator_input: z.string().default(""),
+  assistive_technology: z.string().default(""),
+  accommodations: z.string().default(""),
+  services_received: z.string().default(""),
+  readiness_evidence: z.string().default(""),
+  evidence_source_dates: z.string().default(""),
 });
 
 export type IepExtract = z.infer<typeof ExtractSchema>;
@@ -43,7 +48,12 @@ Rules:
 - Use ONLY the student's first name. Never include last names, addresses, school names, dates of birth, or any other identifying detail.
 - If something is not in the text, leave that field as an empty string. Do not guess.
 - "current_goals" = transition / post-secondary IEP goals only, summarized as short bullet-style sentences separated by newlines.
-- "grade_band" must be exactly one of: "9-10", "11-12", "post-secondary", "not-applicable", or "" if unclear.
+- "assistive_technology" = devices, software, AAC, accessibility features, and any AT evaluation need explicitly stated in the text.
+- "accommodations" = accommodations explicitly documented in the source; do not infer new accommodations.
+- "services_received" = current related, school, vocational, clinical, or community services explicitly documented.
+- "readiness_evidence" = measurable transition-readiness performance, including prompting or conditions when stated.
+- "evidence_source_dates" = source labels and dates that are safe after redaction; omit identifying names and exact birth dates.
+- "grade_band" must be exactly one of: "6-8", "9-10", "11-12", "post-secondary", "not-applicable", or "" if unclear.
 - Keep each field under ~1500 characters.
 
 IEP TEXT:
@@ -61,8 +71,10 @@ ${privacySafeText.slice(0, 100_000)}
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("IEP extract failed", msg);
-      if (msg.includes("429")) throw new Error("The AI is busy right now. Please try again in a moment.");
-      if (msg.includes("402")) throw new Error("AI usage limit reached. Please add credits to continue.");
+      if (msg.includes("429"))
+        throw new Error("The AI is busy right now. Please try again in a moment.");
+      if (msg.includes("402"))
+        throw new Error("AI usage limit reached. Please add credits to continue.");
       throw new Error("We couldn't read this IEP. Try pasting the text directly.");
     }
   });

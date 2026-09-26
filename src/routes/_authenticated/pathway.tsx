@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerFn } from "@tanstack/react-start";
@@ -45,15 +45,18 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { getDashboardSnapshot } from "@/lib/golden-path.functions";
 import { createPathwayReport } from "@/lib/pathway.functions";
 import {
   PathwayIntakeFormSchema,
+  buildPathwayStudentPrefill,
   createPathwayIntakeDefaults,
   mergePathwayIntake,
   type PathwayIntakeFormValues as FormValues,
   type PathwayIntakeRole as Role,
 } from "@/lib/pathway-intake";
 import type { IepExtract } from "@/lib/iep-extract.functions";
+import { listStudents, type Student } from "@/lib/students.functions";
 import pathwayHero from "@/assets/pathway-hero.jpg";
 
 const ROLE_META: Record<Role, { title: string; subtitle: string; icon: typeof Users }> = {
@@ -98,8 +101,15 @@ export const Route = createFileRoute("/_authenticated/pathway")({
 
 function PathwayPage() {
   const generate = useServerFn(createPathwayReport);
+  const loadStudents = useServerFn(listStudents);
+  const loadSnapshot = useServerFn(getDashboardSnapshot);
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
+  const [connectedStudents, setConnectedStudents] = useState<Student[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(true);
+  const [studentLoadError, setStudentLoadError] = useState(false);
+  const [prefillLoading, setPrefillLoading] = useState(false);
+  const studentRequestRef = useRef(0);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(PathwayIntakeFormSchema),
@@ -108,8 +118,81 @@ function PathwayPage() {
   });
 
   const role = form.watch("submitter_role");
+  const connectedStudentId = form.watch("student_id");
+
+  const connectStudent = useCallback(
+    async (studentId: string, announce = true) => {
+      const currentRole = form.getValues("submitter_role");
+      const requestId = ++studentRequestRef.current;
+
+      // Clear every prior answer before the new profile request begins. This
+      // closes the loading window in which one student's draft could otherwise
+      // be submitted while a different student id was already selected.
+      form.reset({
+        ...createPathwayIntakeDefaults(),
+        submitter_role: currentRole,
+        student_id: studentId,
+      });
+      setPrefillLoading(true);
+      try {
+        const snapshot = await loadSnapshot({ data: { student_id: studentId } });
+        if (studentRequestRef.current !== requestId) return;
+        const prefill = buildPathwayStudentPrefill(snapshot);
+        if (!prefill) throw new Error("This student profile is not available.");
+
+        form.reset({
+          ...createPathwayIntakeDefaults(),
+          submitter_role: currentRole,
+          ...prefill,
+        });
+        if (announce) {
+          toast.success("Connected the student and loaded their current profile for review.");
+        }
+      } catch (error) {
+        if (studentRequestRef.current === requestId) {
+          form.setValue("student_id", undefined);
+          toast.error(error instanceof Error ? error.message : "Could not connect this student.");
+        }
+      } finally {
+        if (studentRequestRef.current === requestId) {
+          setPrefillLoading(false);
+        }
+      }
+    },
+    [form, loadSnapshot],
+  );
+
+  useEffect(() => {
+    let active = true;
+    loadStudents()
+      .then((result) => {
+        if (!active) return;
+        setConnectedStudents(result.students);
+        if (result.students.length === 1) {
+          void connectStudent(result.students[0].id, false);
+        }
+      })
+      .catch(() => {
+        if (active) setStudentLoadError(true);
+      })
+      .finally(() => {
+        if (active) setStudentsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [connectStudent, loadStudents]);
 
   const onSubmit = async (values: FormValues) => {
+    if (studentLoadError) {
+      toast.error("Student access could not be verified. Refresh before generating a report.");
+      return;
+    }
+    if (connectedStudents.length > 0 && !values.student_id) {
+      setStepIndex(1);
+      toast.error("Choose the connected student this report belongs to.");
+      return;
+    }
     try {
       // Merge new structured sections into existing backend fields so they
       // reach the AI without requiring a DB schema change.
@@ -138,6 +221,11 @@ function PathwayPage() {
       "family_concerns",
       "student_voice",
       "educator_input",
+      "assistive_technology",
+      "accommodations",
+      "services_received",
+      "readiness_evidence",
+      "evidence_source_dates",
     ];
     for (const k of fields) {
       const v = (e as Record<string, string>)[k];
@@ -151,6 +239,18 @@ function PathwayPage() {
 
   async function goNext() {
     if (stepIndex === 1) {
+      if (studentsLoading || prefillLoading) {
+        toast.info("Please wait while the connected student is loaded.");
+        return;
+      }
+      if (studentLoadError) {
+        toast.error("Student access could not be verified. Refresh to try again.");
+        return;
+      }
+      if (connectedStudents.length > 0 && !form.getValues("student_id")) {
+        toast.error("Choose the connected student this report belongs to.");
+        return;
+      }
       const ok = await form.trigger("student_first_name");
       if (!ok) return;
     }
@@ -213,7 +313,17 @@ function PathwayPage() {
               {stepIndex === 0 && (
                 <StepRole role={role} onPick={(r) => form.setValue("submitter_role", r)} />
               )}
-              {stepIndex === 1 && <StepAbout onExtracted={applyExtract} />}
+              {stepIndex === 1 && (
+                <StepAbout
+                  connectedStudents={connectedStudents}
+                  connectedStudentId={connectedStudentId}
+                  studentsLoading={studentsLoading}
+                  studentLoadError={studentLoadError}
+                  prefillLoading={prefillLoading}
+                  onStudentChange={(studentId) => void connectStudent(studentId)}
+                  onExtracted={applyExtract}
+                />
+              )}
               {stepIndex === 2 && <StepStrengths />}
               {stepIndex === 3 && <StepCareer />}
               {stepIndex === 4 && <StepLifeSkills />}
@@ -377,10 +487,75 @@ function StepRole({ role, onPick }: { role: Role; onPick: (r: Role) => void }) {
 
 /* ---------- Step 2: About ---------- */
 
-function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
+function StepAbout({
+  connectedStudents,
+  connectedStudentId,
+  studentsLoading,
+  studentLoadError,
+  prefillLoading,
+  onStudentChange,
+  onExtracted,
+}: {
+  connectedStudents: Student[];
+  connectedStudentId?: string;
+  studentsLoading: boolean;
+  studentLoadError: boolean;
+  prefillLoading: boolean;
+  onStudentChange: (studentId: string) => void;
+  onExtracted: (e: IepExtract) => void;
+}) {
   const form = useFormContext<FormValues>();
   return (
     <div className="space-y-6">
+      <input type="hidden" {...form.register("student_id")} />
+      <div className="rounded-2xl border border-primary/25 bg-primary/5 p-5">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Connected signed-in student
+          </p>
+        </div>
+        {studentsLoading ? (
+          <p className="mt-3 text-sm text-foreground/75" aria-live="polite">
+            Checking the students you are authorized to support…
+          </p>
+        ) : studentLoadError ? (
+          <p className="mt-3 text-sm text-destructive" role="alert">
+            Student access could not be verified. Refresh before creating a report.
+          </p>
+        ) : connectedStudents.length > 0 ? (
+          <div className="mt-3 space-y-2">
+            <Label htmlFor="pathway-connected-student">Student for this report</Label>
+            <Select
+              value={connectedStudentId ?? ""}
+              onValueChange={onStudentChange}
+              disabled={prefillLoading}
+            >
+              <SelectTrigger id="pathway-connected-student">
+                <SelectValue placeholder="Choose an authorized student…" />
+              </SelectTrigger>
+              <SelectContent>
+                {connectedStudents.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {[student.first_name, student.last_name].filter(Boolean).join(" ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs leading-relaxed text-foreground/70">
+              {prefillLoading
+                ? "Loading the current profile into a fresh intake…"
+                : "This securely links the new report to the live dashboard. Existing profile details are copied only as a starting point and must be reviewed before generation."}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm leading-relaxed text-foreground/75">
+            No connected student is available yet. You can complete this intake manually and link
+            the saved report after a student is connected.
+          </p>
+        )}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label="Student's first name"
@@ -404,6 +579,7 @@ function StepAbout({ onExtracted }: { onExtracted: (e: IepExtract) => void }) {
               <SelectValue placeholder="Select…" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="6-8">6th – 8th · BridgeForward</SelectItem>
               <SelectItem value="9-10">9th – 10th</SelectItem>
               <SelectItem value="11-12">11th – 12th</SelectItem>
               <SelectItem value="post-secondary">Post-secondary (18–21)</SelectItem>
@@ -588,6 +764,43 @@ function StepLifeSkills() {
         />
       </Field>
 
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field
+          label="Learning and decision preferences"
+          hint="How does the student understand choices, learn new routines, and make decisions best?"
+          why="The Pathway Engine should recommend a process the student can actually use, not only an outcome."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("learning_preferences")}
+            placeholder="e.g. sees two choices at a time, practices first, uses visual examples"
+          />
+        </Field>
+        <Field
+          label="Assistive technology"
+          hint="Devices, software, communication tools, accessibility features, or evaluations in use or needed."
+          why="Assistive technology can determine whether a pathway is accessible and which supports must travel into adult life."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("assistive_technology")}
+            placeholder="e.g. AAC, speech-to-text, visual timer, screen reader, AT evaluation needed"
+          />
+        </Field>
+      </div>
+
+      <Field
+        label="Accommodations that should carry forward"
+        hint="List the accommodations that are effective now and any that still need to be tested."
+        why="Keeping accommodations explicit helps families and teams compare school supports with training, work, and community settings."
+      >
+        <Textarea
+          rows={3}
+          {...form.register("accommodations")}
+          placeholder="e.g. extra processing time, reduced-distraction setting, written directions"
+        />
+      </Field>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label="Transportation"
@@ -739,6 +952,17 @@ function StepPlanningContext() {
             placeholder="e.g. Annual PPT on October 18; vocational rehabilitation application due in November"
           />
         </Field>
+        <Field
+          label="Information the team still needs to verify"
+          hint="Name uncertain, conflicting, outdated, or missing facts instead of asking the report to guess."
+          why="A trustworthy report separates known evidence from assumptions and assigns verification as a next step."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("information_to_verify")}
+            placeholder="e.g. confirm current reading data; ask whether travel training is available this semester"
+          />
+        </Field>
       </fieldset>
     </div>
   );
@@ -779,6 +1003,31 @@ function StepCurrentGoals({ role }: { role: Role }) {
           placeholder="One observation per line is perfect."
         />
       </Field>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field
+          label="Readiness evidence"
+          hint="Describe what the student can do now, the conditions, level of prompting, and any measurable result."
+          why="Specific evidence keeps readiness recommendations grounded in performance rather than impressions."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("readiness_evidence")}
+            placeholder="e.g. completed 4 of 5 job-site steps with one visual prompt"
+          />
+        </Field>
+        <Field
+          label="Evidence dates and sources"
+          hint="When was the information collected, and who or what produced it?"
+          why="Dates and sources show whether evidence is current enough for the next PPT and when it should be reviewed."
+        >
+          <Textarea
+            rows={3}
+            {...form.register("evidence_source_dates")}
+            placeholder="e.g. job coach log, Sep 18; family travel note, Sep 22"
+          />
+        </Field>
+      </div>
 
       <Field
         label="Family concerns or hopes"
