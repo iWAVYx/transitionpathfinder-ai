@@ -2,7 +2,7 @@
 
 Updated: 2026-09-26
 
-Implementation branch: `codex/align-family-hub-live-data`
+Implementation branch: `codex/link-pathway-intake-live-student`
 
 ## Product promise
 
@@ -26,7 +26,7 @@ complete fails this contract. Demo routes may use clearly labeled fictional data
 | Partner dashboard                              | Live organization and opportunity previews implemented                                    | Verify each profile, opportunity, deadline, resource, and impact save-and-refresh loop.                                                                                                        |
 | Owner Hub                                      | Preview-first private Owner Hub implemented                                               | `/owner` remains the one private owner dashboard; verify each protected operational full tool without exposing tenant records.                                                                 |
 | Public promises and links                      | Route alignment implemented                                                               | Re-audit each advertised promise whenever a full tool changes; partial tools must be labeled honestly.                                                                                         |
-| Pathway intake and Pathway Report              | Existing real workflow; depth audit required                                              | Intake captures enough student, family, educator, document, service, readiness, and preference evidence to produce transparent, individualized output.                                         |
+| Pathway intake and Pathway Report              | Live-student linkage and evidence-depth package implemented on the current branch         | Review and stage-test automatic student linkage, assistive-technology/accommodation inputs, dated readiness evidence, uncertainty handling, and dashboard visibility.                          |
 | IEP/PPT support                                | Existing pieces; full grounded workflow not yet accepted                                  | Upload/decode, plain-language explanation, student/family voice, educator goal/accommodation support, evidence citations, meeting preparation, and tough-conversation scripts work end to end. |
 | Sensitive document upload                      | Security controls implemented; new uploads remain intentionally paused                    | Browser privacy review creates a generic redacted artifact, user confirms it, malware scanning passes, quarantine/purge rules work, and authorized roles can use the safe result.              |
 | Redaction                                      | Implemented as defense in depth; staged acceptance still required before enabling uploads | Original file/name/metadata stay out of storage; only reviewed derived text proceeds; unsupported OCR/image formats fail closed.                                                               |
@@ -56,6 +56,13 @@ complete fails this contract. Demo routes may use clearly labeled fictional data
 
 ### Package B — Pathway intake and report depth
 
+- Connect each new intake and report to an explicitly selected, authorized
+  student; prefill a fresh draft from the live profile and clear it whenever
+  the student changes. **Implemented on the current branch.**
+- Add grades 6–8 plus explicit learning preferences, assistive technology,
+  accommodations, readiness evidence, evidence/source dates, and information
+  to verify without requiring a database migration. **Implemented on the
+  current branch.**
 - Map each intake question to a named Pathway Engine input and visible report section.
 - Cover strengths, preferences, interests, needs, communication, transportation, assistive technology, current services, family priorities, educator observations, readiness evidence, goals, deadlines, and uncertainty.
 - Show “information used,” missing/uncertain evidence, source dates, and review horizons in outputs.
