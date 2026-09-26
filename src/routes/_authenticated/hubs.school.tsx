@@ -8,8 +8,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
-import { NextActionCard } from "@/components/next-actions/NextActionCard";
-import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
+import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
+import { useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -18,7 +18,10 @@ export const Route = createFileRoute("/_authenticated/hubs/school")({
   head: () => ({
     meta: [
       { title: "School Implementation Hub — TransitionForward" },
-      { name: "description", content: "School-level oversight, team coordination, and implementation tools." },
+      {
+        name: "description",
+        content: "School-level oversight, team coordination, and implementation tools.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -26,11 +29,13 @@ export const Route = createFileRoute("/_authenticated/hubs/school")({
 });
 
 function HubPage() {
+  const { data, loading, orgId } = useSchoolDashboard();
+
   return (
     <SiteShell>
       <HubShell hub={getHub("school-implementation")!} hideSpokes>
         <WorkspaceZone>
-          <SchoolAdminOverviewGrid />
+          <SchoolAdminOverviewGrid liveData={data} selectedOrgId={orgId} loading={loading} />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Operations"
@@ -45,22 +50,25 @@ function HubPage() {
                 title: "Indicator 13 Compliance",
                 description: "Compliance rollup across the building, with files pending sign-off.",
                 to: "/school/overview",
-                status: "94% · on target",
-                tone: "success",
               },
               {
                 icon: ClipboardList,
                 title: "Transition Evidence Coverage",
-                description: "Which students have current transition assessments and evidence on file.",
+                description:
+                  "Which students have current transition assessments and evidence on file.",
                 to: "/school/reports",
-                status: "12 need re-eval",
-                tone: "warn",
+                status: data ? `${data.metrics.reports_count} report records` : undefined,
+                tone: data && data.metrics.reports_count === 0 ? "warn" : undefined,
               },
               {
                 icon: Users2,
                 title: "Team & Caseload Rollups",
                 description: "Educator caseloads, coverage, and shared students in one view.",
                 to: "/school/team",
+                status: data
+                  ? `${data.metrics.active_members} active · ${data.metrics.pending_members} pending`
+                  : undefined,
+                tone: data && data.metrics.pending_members > 0 ? "warn" : undefined,
               },
               {
                 icon: BarChart3,
@@ -77,7 +85,8 @@ function HubPage() {
               {
                 icon: History,
                 title: "Records & Disclosure History",
-                description: "Per-student audit trail of document access, sharing changes, and plan edits.",
+                description:
+                  "Per-student audit trail of document access, sharing changes, and plan edits.",
                 to: "/school/history",
               },
             ]}
@@ -89,9 +98,7 @@ function HubPage() {
           description="What building leaders need to review, approve, or invite this week."
           gap="tight"
         >
-          <NextActionCard
-            actions={DEMO_NEXT_ACTIONS.school_admin}
-            recentlyCompleted={DEMO_RECENTLY_COMPLETED.school_admin}
+          <NextActionCardServer
             historyRoute="/school/history"
             suggestionLabel="Open Readiness Trends"
             suggestionRoute="/school/readiness-trends"
