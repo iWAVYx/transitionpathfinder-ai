@@ -331,7 +331,11 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         <SummaryItem
           label="Documents"
           value={`${snapshot.documents.length} on file`}
-          detail={snapshot.documents[0]?.title ?? "Upload the current IEP"}
+          detail={
+            snapshot.documents.length > 0
+              ? "Private files available in Document Hub"
+              : "Upload the current IEP"
+          }
         />
         <SummaryItem label="Family Focus" value={familyFocus} detail="Guides the next best step" />
       </dl>
