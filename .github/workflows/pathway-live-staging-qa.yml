@@ -1,0 +1,147 @@
+name: Pathway Live Staging QA
+
+# Manual-only acceptance proof for the live Pathway workflow on the isolated
+# staging Worker. Pull-request code cannot invoke this workflow or receive its
+# protected credentials. One real AI report is generated from synthetic data,
+# verified across four roles, and removed at the end of the run.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "pathway-staging" to confirm the synthetic live Pathway test'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pathway-live-staging-qa
+  cancel-in-progress: false
+
+jobs:
+  pathway-live-staging:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
+      E2E_EXPECTED_BUILD_SHA: ${{ github.sha }}
+      LIVE_VERIFICATION: "true"
+      E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
+      E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
+      E2E_PARENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_EDUCATOR_EMAIL: e2e.educator@staging.transitionforwardct.test
+      E2E_EDUCATOR_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARTNER_EMAIL: e2e.partner@staging.transitionforwardct.test
+      E2E_PARTNER_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      PLAYWRIGHT_HTML_REPORT: playwright-report
+
+    steps:
+      - name: Confirm isolated staging intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "pathway-staging" ]; then
+            echo "Confirmation text did not match 'pathway-staging'." >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "This protected workflow may run only from main." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: bun run playwright:install
+
+      - name: Verify exact isolated staging deployment identity
+        run: |
+          node --input-type=module <<'NODE'
+          const response = await fetch(`${process.env.PLAYWRIGHT_BASE_URL}/api/public/env-health`);
+          if (!response.ok) throw new Error(`env-health returned ${response.status}`);
+          const health = await response.json();
+          const errors = [];
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.vite_app_env !== "staging") errors.push(`vite_app_env=${health.vite_app_env}`);
+          if (health.supabase_project_ref !== "qgrertkqbwanerqqemph") {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) {
+            errors.push(`is_production_project=${health.is_production_project}`);
+          }
+          if (health.stripe_mode !== "sandbox" || health.stripe_livemode !== false) {
+            errors.push(`stripe_mode=${health.stripe_mode}`);
+          }
+          if (health.isolation?.ok !== true) errors.push("isolation.ok=false");
+          if (health.git_commit_sha !== process.env.GITHUB_SHA) {
+            errors.push(`git_commit_sha=${health.git_commit_sha}`);
+          }
+          if (errors.length) throw new Error(`Staging identity check failed: ${errors.join(", ")}`);
+          console.log("Exact-SHA isolated staging identity verified.");
+          NODE
+
+      - name: Require protected staging credentials
+        env:
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$E2E_PARENT_PASSWORD" ] \
+            || [ -z "$STAGING_SUPABASE_URL" ] \
+            || [ -z "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Required protected staging credentials are missing." >&2
+            exit 1
+          fi
+          node --input-type=module <<'NODE'
+          const host = new URL(process.env.STAGING_SUPABASE_URL).hostname;
+          if (host !== "qgrertkqbwanerqqemph.supabase.co") {
+            throw new Error(`Refusing non-staging Supabase target: ${host}`);
+          }
+          console.log("Protected credentials target only the isolated staging project.");
+          NODE
+
+      - name: Authenticate the four synthetic acceptance roles
+        run: |
+          GITHUB_SHA="$E2E_EXPECTED_BUILD_SHA" bunx playwright test \
+            --project=dashboard-setup \
+            --reporter=list
+          for role in student parent educator partner; do
+            test -s "tests/e2e/.auth/${role}.json"
+          done
+
+      - name: Run protected Pathway live-staging acceptance
+        env:
+          RUN_PATHWAY_LIVE_STAGING_QA: "true"
+          PATHWAY_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          bunx playwright test
+          tests/e2e/release-readiness/pathway-live-staging.signedin.spec.ts
+          --project=release-signedin
+          --no-deps
+          --reporter=list,html
+
+      - name: Remove credential-bearing Playwright state
+        if: always()
+        run: rm -rf tests/e2e/.auth
+
+      - name: Sanitize diagnostic artifacts
+        id: sanitize-artifacts
+        if: always()
+        run: node tests/e2e/scripts/sanitize-playwright-artifacts.mjs playwright-report test-results
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.sanitize-artifacts.outcome == 'success' }}
+        with:
+          name: pathway-live-staging-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
