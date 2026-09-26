@@ -1,57 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { SiteShell } from "@/components/site/SiteShell";
-import { HubShell } from "@/components/hub/HubShell";
-import { DashboardSection } from "@/components/dashboard/DashboardSection";
-import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
-import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
-import { LaunchReadinessBoard } from "@/components/platform/LaunchReadinessBoard";
-import { NextActionCard } from "@/components/next-actions/NextActionCard";
-import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
-import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
+// The private /owner surface is both the Owner Hub and its dashboard.
+// Preserve this legacy URL as a protected compatibility redirect instead of
+// maintaining a second, demo-backed owner dashboard.
 export const Route = createFileRoute("/_authenticated/hubs/admin")({
-  beforeLoad: () => ensureRoleAccess(["admin"]),
+  beforeLoad: () => {
+    ensureRoleAccess(["admin"]);
+    throw redirect({ to: "/owner", replace: true });
+  },
   head: () => ({
-    meta: [
-      { title: "Platform Operations Hub — TransitionForward" },
-      { name: "description", content: "Platform-wide oversight, queues, and operations." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin Hub — TransitionForward" }, { name: "robots", content: "noindex" }],
   }),
-  component: HubPage,
 });
-
-function HubPage() {
-  return (
-    <SiteShell>
-      <HubShell hub={getHub("platform-operations")!}>
-        <WorkspaceZone>
-          <LaunchReadinessBoard />
-        </WorkspaceZone>
-        <DashboardSection
-          eyebrow="Activity / Next Steps"
-          title="Platform Next Actions"
-          description="Reviews, approvals, and platform health items that need admin attention."
-          gap="tight"
-        >
-          <NextActionCard
-            actions={DEMO_NEXT_ACTIONS.admin}
-            recentlyCompleted={DEMO_RECENTLY_COMPLETED.admin}
-            historyRoute="/owner/activity"
-            suggestionLabel="Open Launch Readiness"
-            suggestionRoute="/hubs/admin"
-          />
-        </DashboardSection>
-        <DashboardSection
-          eyebrow="Progress Band"
-          title="Stage Journey"
-          description="Where the platform sits across the transition rollout lifecycle."
-        >
-          <StageJourneyCard audience="admin" />
-        </DashboardSection>
-      </HubShell>
-    </SiteShell>
-  );
-}
