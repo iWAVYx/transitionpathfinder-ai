@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { DashboardErrorFallback } from "@/components/dashboard/DashboardErrorFallback";
 import {
@@ -44,7 +44,6 @@ export type OwnerNavItem = {
 
 type NavItem = OwnerNavItem;
 
-
 // Sections mirror the 10-section Admin Hub spec. Order matters — sidebar
 // renders groups in this declaration order, and "Overview" leads.
 export const OWNER_NAV: NavItem[] = [
@@ -56,13 +55,28 @@ export const OWNER_NAV: NavItem[] = [
   // 2. Access & Accounts
   { to: "/owner/users", label: "Manage users", icon: UserCog, group: "Access & Accounts" },
   { to: "/owner/admins", label: "Admin team", icon: Users, group: "Access & Accounts" },
-  { to: "/owner/support-access", label: "Exceptional access log", icon: Shield, group: "Access & Accounts" },
+  {
+    to: "/owner/support-access",
+    label: "Exceptional access log",
+    icon: Shield,
+    group: "Access & Accounts",
+  },
 
-  { to: "/owner/waitlist", label: "Review waitlist", icon: ClipboardList, group: "Access & Accounts" },
+  {
+    to: "/owner/waitlist",
+    label: "Review waitlist",
+    icon: ClipboardList,
+    group: "Access & Accounts",
+  },
   { to: "/owner/contacts", label: "Contact requests", icon: Mail, group: "Access & Accounts" },
 
   // 3. Organizations & Entitlements
-  { to: "/owner/organizations", label: "Manage organizations", icon: Building2, group: "Organizations" },
+  {
+    to: "/owner/organizations",
+    label: "Manage organizations",
+    icon: Building2,
+    group: "Organizations",
+  },
   { to: "/owner/pilot-packages", label: "Pilot packages", icon: Briefcase, group: "Organizations" },
 
   // 5. Content & Resources
@@ -70,43 +84,122 @@ export const OWNER_NAV: NavItem[] = [
   { to: "/owner/media", label: "Media library", icon: ImageIcon, group: "Content & Resources" },
   { to: "/owner/blog", label: "Blog & news", icon: Newspaper, group: "Content & Resources" },
   { to: "/owner/faqs", label: "FAQs", icon: HelpCircle, group: "Content & Resources" },
-  { to: "/owner/testimonials", label: "Testimonials", icon: MessageSquareQuote, group: "Content & Resources" },
-  { to: "/owner/resources", label: "Resource library", icon: BookOpen, group: "Content & Resources" },
-  { to: "/owner/resource-sources", label: "Resource sources", icon: BookOpen, group: "Content & Resources" },
-  { to: "/owner/bridgeforward-sources", label: "BridgeForward sources", icon: BookOpen, group: "Content & Resources" },
-  { to: "/owner/resource-review", label: "Resource review queue", icon: ClipboardCheck, group: "Content & Resources" },
-  { to: "/owner/content-health", label: "Content health", icon: ClipboardCheck, group: "Content & Resources" },
+  {
+    to: "/owner/testimonials",
+    label: "Testimonials",
+    icon: MessageSquareQuote,
+    group: "Content & Resources",
+  },
+  {
+    to: "/owner/resources",
+    label: "Resource library",
+    icon: BookOpen,
+    group: "Content & Resources",
+  },
+  {
+    to: "/owner/resource-sources",
+    label: "Resource sources",
+    icon: BookOpen,
+    group: "Content & Resources",
+  },
+  {
+    to: "/owner/bridgeforward-sources",
+    label: "BridgeForward sources",
+    icon: BookOpen,
+    group: "Content & Resources",
+  },
+  {
+    to: "/owner/resource-review",
+    label: "Resource review queue",
+    icon: ClipboardCheck,
+    group: "Content & Resources",
+  },
+  {
+    to: "/owner/content-health",
+    label: "Content health",
+    icon: ClipboardCheck,
+    group: "Content & Resources",
+  },
 
-  { to: "/owner/import-audit", label: "Import history", icon: History, group: "Content & Resources" },
+  {
+    to: "/owner/import-audit",
+    label: "Import history",
+    icon: History,
+    group: "Content & Resources",
+  },
 
   // 6. Partners & Opportunities
-  { to: "/owner/partner-network", label: "Partner network", icon: HeartHandshake, group: "Partners & Opportunities" },
-  { to: "/owner/partner-submissions", label: "Partner requests", icon: ClipboardList, group: "Partners & Opportunities" },
-  { to: "/owner/opportunities", label: "Approve opportunities", icon: Briefcase, group: "Partners & Opportunities" },
-  { to: "/owner/outreach", label: "Outreach pipeline", icon: HeartHandshake, group: "Partners & Opportunities" },
+  {
+    to: "/owner/partner-network",
+    label: "Partner network",
+    icon: HeartHandshake,
+    group: "Partners & Opportunities",
+  },
+  {
+    to: "/owner/partner-submissions",
+    label: "Partner requests",
+    icon: ClipboardList,
+    group: "Partners & Opportunities",
+  },
+  {
+    to: "/owner/opportunities",
+    label: "Approve opportunities",
+    icon: Briefcase,
+    group: "Partners & Opportunities",
+  },
+  {
+    to: "/owner/outreach",
+    label: "Outreach pipeline",
+    icon: HeartHandshake,
+    group: "Partners & Opportunities",
+  },
 
   // 7. PartnerForward Resource Manager
-  { to: "/owner/partnerforward-resources", label: "Incentives & supports", icon: Briefcase, group: "PartnerForward" },
+  {
+    to: "/owner/partnerforward-resources",
+    label: "Incentives & supports",
+    icon: Briefcase,
+    group: "PartnerForward",
+  },
 
   // 8. Product Operations
-  { to: "/owner/feedback", label: "Feedback", icon: MessageSquareQuote, group: "Product Operations" },
+  {
+    to: "/owner/feedback",
+    label: "Feedback",
+    icon: MessageSquareQuote,
+    group: "Product Operations",
+  },
   { to: "/owner/issues", label: "Issue tracker", icon: ClipboardList, group: "Product Operations" },
   { to: "/owner/beta-testers", label: "Beta testers", icon: Users, group: "Product Operations" },
-  { to: "/owner/testing", label: "QA test runs", icon: ClipboardCheck, group: "Product Operations" },
+  {
+    to: "/owner/testing",
+    label: "QA test runs",
+    icon: ClipboardCheck,
+    group: "Product Operations",
+  },
 
   // 9. Launch & Pilot Readiness
   { to: "/owner/launch", label: "Launch readiness", icon: ClipboardCheck, group: "Launch & Pilot" },
-  { to: "/owner/role-audit", label: "Role dashboard audit", icon: ClipboardCheck, group: "Launch & Pilot" },
+  {
+    to: "/owner/role-audit",
+    label: "Role dashboard audit",
+    icon: ClipboardCheck,
+    group: "Launch & Pilot",
+  },
   { to: "/owner/pitch", label: "Pitch deck", icon: Megaphone, group: "Launch & Pilot" },
   { to: "/owner/demo", label: "Demo workspace", icon: Activity, group: "Launch & Pilot" },
-
 
   // 10. System Health
   { to: "/owner/health", label: "System health", icon: Activity, group: "System Health" },
   { to: "/owner/emails", label: "Email delivery", icon: Mail, group: "System Health" },
   { to: "/owner/broadcasts", label: "Broadcasts", icon: Megaphone, group: "System Health" },
   { to: "/owner/iep-audit", label: "Document access audit", icon: Shield, group: "System Health" },
-  { to: "/owner/document-pipeline", label: "Document pipeline", icon: Activity, group: "System Health" },
+  {
+    to: "/owner/document-pipeline",
+    label: "Document pipeline",
+    icon: Activity,
+    group: "System Health",
+  },
 
   // Settings
   { to: "/owner/settings", label: "Site settings", icon: Settings, group: "Settings" },
@@ -255,14 +348,13 @@ export function OwnerShell({
             ))}
           </nav>
           <div className="border-t border-border px-3 py-3">
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/" })}
+            <Link
+              to="/"
               className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               Back to main app
-            </button>
+            </Link>
           </div>
         </aside>
 
@@ -272,23 +364,20 @@ export function OwnerShell({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h1 className="font-display text-2xl font-medium tracking-tight">{title}</h1>
-                {description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-                )}
+                {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
               </div>
               {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
             </div>
             {/* Mobile nav — buttons (not links) so tile hrefs in <main>
                 are never duplicated by nav anchors. */}
             <div className="mt-4 flex items-center gap-1.5 overflow-x-auto lg:hidden">
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/" })}
+              <Link
+                to="/"
                 className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Main app
-              </button>
+              </Link>
               <span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
               {OWNER_NAV.map((n) => {
                 const active =
@@ -313,7 +402,12 @@ export function OwnerShell({
               })}
             </div>
           </header>
-          <main data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION} data-testid={ROLE_DASHBOARD_TEST_IDS.owner} data-auth-state="ready" className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8">
+          <main
+            data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+            data-testid={ROLE_DASHBOARD_TEST_IDS.owner}
+            data-auth-state="ready"
+            className="flex-1 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 lg:py-8"
+          >
             {/* Stable role landmark — keeps the Platform Admin dashboard
                 regression matching /admin/i in every viewport, even before
                 the metric loaders resolve. Visible (not sr-only) so

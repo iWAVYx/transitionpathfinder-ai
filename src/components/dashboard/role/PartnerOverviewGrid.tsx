@@ -18,6 +18,7 @@ import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
+import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
 import {
   PartnerFeatureDrawer,
   type PartnerFeatureState,
@@ -25,10 +26,13 @@ import {
 import {
   getPartnerFeatureDetails,
   PARTNER_TILE_META_BY_PLAN,
+  type PartnerFeatureDetail,
   type PartnerFeatureId,
 } from "@/lib/demo/partner/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import { useDemoPartnerPlan } from "@/lib/demo/use-role-context";
+import type { PartnerWorkspace } from "@/lib/partner-workspace.functions";
+import { buildPartnerLivePreview } from "@/lib/dashboard/partner-live-preview";
 
 type Tile = {
   featureId: PartnerFeatureId;
@@ -126,7 +130,8 @@ const TILES: Tile[] = [
     title: "PartnerForward Incentives",
     status: "18 listed",
     tone: "success",
-    summary: "Grants, subsidies, and coaching that reward partners supporting transition-age youth.",
+    summary:
+      "Grants, subsidies, and coaching that reward partners supporting transition-age youth.",
     bullets: [
       { label: "Federal", value: "6" },
       { label: "State & local", value: "9" },
@@ -148,13 +153,36 @@ const TILES: Tile[] = [
   },
 ];
 
+const PARTNER_NETWORK_TILE: Tile = {
+  featureId: "partner-network",
+  icon: Sparkles,
+  title: "Partner Network",
+  status: "Open directory",
+  tone: "muted",
+  summary: "Review your organization's published directory presence without exposing student data.",
+  cta: { label: "Open Partner Network", to: "/partner-network" },
+};
+
 /**
  * Partner dashboard tiles. CRITICAL: partners MUST NOT see any student
  * PII, documents, voice, goals, meetings, or pathway reports. Every CTA
  * here points to partner-scoped surfaces only. The drawer header also
  * carries a persistent "No student data" reminder.
  */
-export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
+export function PartnerOverviewGrid({
+  isSample = false,
+  liveData = null,
+  loading = false,
+}: {
+  isSample?: boolean;
+  liveData?: PartnerWorkspace | null;
+  loading?: boolean;
+} = {}) {
+  if (isSample) return <SamplePartnerOverviewGrid />;
+  return <LivePartnerOverviewGrid data={liveData} loading={loading} />;
+}
+
+function SamplePartnerOverviewGrid() {
   const [openFeature, setOpenFeature] = useState<PartnerFeatureId | null>(null);
   const [state, setState] = useState<PartnerFeatureState>("ready");
   const { plan, planId } = useDemoPartnerPlan();
@@ -178,22 +206,26 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
           <PartnerTile
             key={tile.featureId}
             tile={tile}
-            isSample={isSample}
-            planId={planId}
+            detail={getPartnerFeatureDetails(planId)[tile.featureId]}
+            isSample
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
             }}
           />
         ))}
-        <PartnerNetworkTile role="partner" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
+        <PartnerNetworkTile
+          role="partner"
+          isSample
+          onPreview={() => setOpenFeature("partner-network")}
+        />
         <DemoTransitionChannelTile role="partner" contextId={planId} />
       </ToolPreviewGrid>
 
       <PartnerFeatureDrawer
         featureId={openFeature}
         icon={activeTile?.icon}
-        isSample={isSample}
+        isSample
         state={state}
         planId={planId}
         onRetry={() => {
@@ -212,9 +244,9 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
         <p className="flex items-start gap-2">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span>
-            <strong>Partners never see student data.</strong> No IEPs, no documents,
-            no student voice, no goals, no meetings, no pathway reports. Everything on
-            this dashboard is partner-scoped.
+            <strong>Partners never see student data.</strong> No IEPs, no documents, no student
+            voice, no goals, no meetings, no pathway reports. Everything on this dashboard is
+            partner-scoped.
           </span>
         </p>
       </div>
@@ -245,19 +277,132 @@ export function PartnerOverviewGrid({ isSample = false }: { isSample?: boolean }
   );
 }
 
+function LivePartnerOverviewGrid({
+  data,
+  loading,
+}: {
+  data: PartnerWorkspace | null;
+  loading: boolean;
+}) {
+  if (loading && !data) {
+    return <PartnerOverviewStatus title="Loading Partner Workspace…" />;
+  }
+
+  const preview = buildPartnerLivePreview(data);
+  if (!preview) {
+    return (
+      <PartnerOverviewStatus
+        title="No Partner Organization Is Connected Yet"
+        body="Create or connect your authorized organization to replace this empty state with live profile and opportunity previews."
+      />
+    );
+  }
+
+  const tiles = [...TILES, PARTNER_NETWORK_TILE].map((tile) => ({
+    ...tile,
+    tone: preview.tones[tile.featureId] ?? tile.tone,
+  }));
+
+  return (
+    <PartnerOverviewContent
+      eyebrow={`${preview.organization.name} · Partner Workspace`}
+      contextId={preview.organization.id}
+      tiles={tiles}
+      details={preview.details}
+    />
+  );
+}
+
+function PartnerOverviewStatus({ title, body }: { title: string; body?: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed bg-card p-8 text-center">
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
+      {body ? <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{body}</p> : null}
+    </div>
+  );
+}
+
+function PartnerOverviewContent({
+  eyebrow,
+  contextId,
+  tiles,
+  details,
+}: {
+  eyebrow: string;
+  contextId: string;
+  tiles: Tile[];
+  details: Record<PartnerFeatureId, PartnerFeatureDetail>;
+}) {
+  const [openFeature, setOpenFeature] = useState<PartnerFeatureId | null>(null);
+  const [state, setState] = useState<PartnerFeatureState>("ready");
+  const activeTile = tiles.find((tile) => tile.featureId === openFeature);
+  const activeDetail = openFeature ? details[openFeature] : null;
+
+  return (
+    <ToolPreviewSection
+      eyebrow={eyebrow}
+      title="Publish Opportunities. Reach The Right Families."
+      description="Preview real organization and opportunity status, then open the complete partner-scoped tool. No student records appear here."
+    >
+      <ToolPreviewGrid>
+        {tiles.map((tile) => (
+          <PartnerTile
+            key={tile.featureId}
+            tile={tile}
+            detail={details[tile.featureId]}
+            onPreview={() => {
+              setState("ready");
+              setOpenFeature(tile.featureId);
+            }}
+          />
+        ))}
+        <TransitionChannelTile role="partner" />
+      </ToolPreviewGrid>
+
+      <PartnerFeatureDrawer
+        featureId={openFeature}
+        icon={activeTile?.icon}
+        state={state}
+        detailOverride={activeDetail}
+        onRetry={() => {
+          setState("loading");
+          window.setTimeout(() => setState("ready"), 900);
+        }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setOpenFeature(null);
+            setState("ready");
+          }
+        }}
+      />
+
+      <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+        <p className="flex items-start gap-2">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <span>
+            <strong>Partners never see student data.</strong> These previews use only the signed-in
+            organization's profile and catalog. No IEPs, documents, messages, student voice, goals,
+            meetings, or Pathway Reports are loaded.
+          </span>
+        </p>
+      </div>
+      <span className="sr-only">Live partner context {contextId}</span>
+    </ToolPreviewSection>
+  );
+}
+
 function PartnerTile({
   tile,
+  detail,
   onPreview,
   isSample = false,
-  planId,
 }: {
   tile: Tile;
+  detail: PartnerFeatureDetail;
   onPreview: () => void;
   isSample?: boolean;
-  planId: "free" | "premium";
 }) {
   const Icon = tile.icon;
-  const detail = getPartnerFeatureDetails(planId)[tile.featureId];
   // Derive tile-facing metrics from the profile-specific detail so
   // switching the demo partner plan updates status + bullets everywhere.
   const status = detail.stats?.[0]?.value ?? tile.status;
@@ -265,10 +410,15 @@ function PartnerTile({
     detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
     tile.bullets ??
     [];
-  const ctaTo = isSample ? resolveDemoFeatureRoute("partner", tile.featureId) : (tile.cta.to as string);
+  const ctaTo = isSample
+    ? resolveDemoFeatureRoute("partner", tile.featureId)
+    : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <span
+        className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent"
+        aria-hidden
+      />
       <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -280,12 +430,16 @@ function PartnerTile({
         </div>
         <Pill tone={tile.tone}>{status}</Pill>
       </div>
-      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
+      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">
+        {tile.summary}
+      </p>
       {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
           {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
-              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
+              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {toTitleCase(b.label)}
+              </dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
             </div>
           ))}
@@ -331,4 +485,3 @@ function PartnerTile({
     </div>
   );
 }
-

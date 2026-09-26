@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
 import { Briefcase, Users, LineChart, CalendarClock, FileText, History } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -8,8 +10,8 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
-import { NextActionCard } from "@/components/next-actions/NextActionCard";
-import { DEMO_NEXT_ACTIONS, DEMO_RECENTLY_COMPLETED } from "@/lib/next-actions/demo-fixtures";
+import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
+import { getPartnerWorkspace, type PartnerWorkspace } from "@/lib/partner-workspace.functions";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -18,7 +20,10 @@ export const Route = createFileRoute("/_authenticated/hubs/partner")({
   head: () => ({
     meta: [
       { title: "Partner Opportunity Hub — TransitionForward" },
-      { name: "description", content: "Publish opportunities and access PartnerForward supports — no student PII." },
+      {
+        name: "description",
+        content: "Publish opportunities and access PartnerForward supports — no student PII.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -26,11 +31,34 @@ export const Route = createFileRoute("/_authenticated/hubs/partner")({
 });
 
 function HubPage() {
+  const loadWorkspace = useServerFn(getPartnerWorkspace);
+  const [workspace, setWorkspace] = useState<PartnerWorkspace | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    loadWorkspace({ data: {} })
+      .then((result) => {
+        if (active) setWorkspace(result);
+      })
+      .catch(() => {
+        if (active) setWorkspace(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [loadWorkspace]);
+
+  const approvedCount =
+    workspace?.opportunities.filter((opportunity) => opportunity.status === "approved").length ?? 0;
   return (
     <SiteShell>
       <HubShell hub={getHub("partner-opportunity")!} hideSpokes>
         <WorkspaceZone>
-          <PartnerOverviewGrid />
+          <PartnerOverviewGrid liveData={workspace} loading={loading} />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Operations"
@@ -45,16 +73,14 @@ function HubPage() {
                 title: "Opportunity Matches",
                 description: "How your published opportunities are matching student interest.",
                 to: "/partners-manage/opportunities",
-                status: "6 active",
-                tone: "success",
+                status: workspace ? `${approvedCount} active` : undefined,
+                tone: approvedCount > 0 ? "success" : undefined,
               },
               {
                 icon: Users,
                 title: "Student Fit Summaries",
                 description: "De-identified fit summaries from schools referring to your programs.",
                 to: "/opportunities",
-                status: "3 new",
-                tone: "warn",
               },
               {
                 icon: LineChart,
@@ -77,7 +103,8 @@ function HubPage() {
               {
                 icon: History,
                 title: "Connection History",
-                description: "Record of students connected to your org, resources shared, and referrals.",
+                description:
+                  "De-identified connection activity, resources shared, and referral progress.",
                 to: "/partner/history",
               },
             ]}
@@ -89,9 +116,7 @@ function HubPage() {
           description="Ranked by urgency — publish gaps, pending matches, and profile items surface first."
           gap="tight"
         >
-          <NextActionCard
-            actions={DEMO_NEXT_ACTIONS.partner}
-            recentlyCompleted={DEMO_RECENTLY_COMPLETED.partner}
+          <NextActionCardServer
             historyRoute="/partner/history"
             title="Your Partner Next Actions"
             eyebrow="What Needs Attention"
