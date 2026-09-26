@@ -27,6 +27,7 @@ import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import {
   getDistrictAdminFeatureDetails,
   type DistrictAdminFeatureId,
+  type DistrictAdminFeatureDetail,
   type DistrictProfileKey,
   type FeatureRow,
 } from "@/lib/demo/district-admin/feature-details";
@@ -36,12 +37,7 @@ import {
  * Parent / Educator drawer contract: loading · error · permission · empty · ready.
  * District is aggregate-only — never individual student records.
  */
-export type DistrictAdminFeatureState =
-  | "loading"
-  | "error"
-  | "permission"
-  | "empty"
-  | "ready";
+export type DistrictAdminFeatureState = "loading" | "error" | "permission" | "empty" | "ready";
 
 export function DistrictAdminFeatureDrawer({
   featureId,
@@ -51,6 +47,7 @@ export function DistrictAdminFeatureDrawer({
   state = "ready",
   onRetry,
   districtId = "regional-network",
+  detailOverride,
 }: {
   featureId: DistrictAdminFeatureId | null;
   icon?: LucideIcon;
@@ -59,8 +56,11 @@ export function DistrictAdminFeatureDrawer({
   state?: DistrictAdminFeatureState;
   onRetry?: () => void;
   districtId?: DistrictProfileKey;
+  detailOverride?: DistrictAdminFeatureDetail | null;
 }) {
-  const detail = featureId ? getDistrictAdminFeatureDetails(districtId)[featureId] : null;
+  const detail = featureId
+    ? (detailOverride ?? getDistrictAdminFeatureDetails(districtId)[featureId])
+    : null;
   const Icon = icon;
 
   return (
@@ -100,9 +100,7 @@ export function DistrictAdminFeatureDrawer({
             <div className="flex-1 space-y-6 px-6 py-6">
               {state === "loading" && <LoadingBody />}
               {state === "error" && <ErrorBody onRetry={onRetry} />}
-              {state === "permission" && (
-                <PermissionBody featureTitle={detail.title} />
-              )}
+              {state === "permission" && <PermissionBody featureTitle={detail.title} />}
               {state === "empty" && (
                 <EmptyBody
                   headline={detail.emptyHeadline}
@@ -137,11 +135,7 @@ export function DistrictAdminFeatureDrawer({
                     }
                     onClick={() => onOpenChange(false)}
                   >
-                    {toTitleCase(
-                      isSample
-                        ? `Preview ${detail.title}`
-                        : detail.primaryAction.label,
-                    )}
+                    {toTitleCase(isSample ? `Preview ${detail.title}` : detail.primaryAction.label)}
                     <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                   </Link>
                 )}
@@ -154,11 +148,7 @@ export function DistrictAdminFeatureDrawer({
   );
 }
 
-function ReadyBody({
-  detail,
-}: {
-  detail: NonNullable<ReturnType<typeof getDistrictAdminFeatureDetails>[DistrictAdminFeatureId]>;
-}) {
+function ReadyBody({ detail }: { detail: DistrictAdminFeatureDetail }) {
   return (
     <>
       {detail.stats && detail.stats.length > 0 && (
@@ -190,11 +180,7 @@ function ReadyBody({
       <section className="grid gap-3 sm:grid-cols-2">
         <MetaCard icon={Database} label="Data source" value={detail.dataSource} />
         <MetaCard icon={Target} label="What you can do" value={detail.what} />
-        <MetaCard
-          icon={Link2}
-          label="Connects to"
-          value={detail.connectsTo.join(" · ")}
-        />
+        <MetaCard icon={Link2} label="Connects to" value={detail.connectsTo.join(" · ")} />
       </section>
     </>
   );
@@ -239,20 +225,12 @@ function ErrorBody({ onRetry }: { onRetry?: () => void }) {
       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
         <AlertCircle className="h-5 w-5" aria-hidden />
       </div>
-      <h3 className="mt-3 font-display text-base font-medium">
-        We couldn't load this right now.
-      </h3>
+      <h3 className="mt-3 font-display text-base font-medium">We couldn't load this right now.</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         District aggregates are safe. Try again, or open the full page.
       </p>
       {onRetry && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-4"
-          onClick={onRetry}
-        >
+        <Button type="button" variant="outline" size="sm" className="mt-4" onClick={onRetry}>
           <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden /> Try Again
         </Button>
       )}
@@ -270,8 +248,8 @@ function PermissionBody({ featureTitle }: { featureTitle: string }) {
         Access needed to view {toTitleCase(featureTitle)}.
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Your role doesn't include this district-level view yet. Ask your
-        platform admin to expand district-admin access.
+        Your role doesn't include this district-level view yet. Ask your platform admin to expand
+        district-admin access.
       </p>
     </div>
   );
@@ -307,28 +285,24 @@ function FeatureRowItem({ row }: { row: FeatureRow }) {
     row.status === "ok"
       ? CheckCircle2
       : row.status === "warning" || row.status === "critical"
-      ? AlertCircle
-      : Circle;
+        ? AlertCircle
+        : Circle;
   const tone =
     row.status === "ok"
       ? "text-emerald-600 dark:text-emerald-400"
       : row.status === "critical"
-      ? "text-destructive"
-      : row.status === "warning"
-      ? "text-amber-600 dark:text-amber-400"
-      : "text-muted-foreground";
+        ? "text-destructive"
+        : row.status === "warning"
+          ? "text-amber-600 dark:text-amber-400"
+          : "text-muted-foreground";
   return (
     <li className="flex items-start gap-3 p-3">
       <StatusIcon className={`mt-0.5 h-4 w-4 shrink-0 ${tone}`} aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-foreground">{row.primary}</p>
-        {row.secondary && (
-          <p className="mt-0.5 text-xs text-muted-foreground">{row.secondary}</p>
-        )}
+        {row.secondary && <p className="mt-0.5 text-xs text-muted-foreground">{row.secondary}</p>}
       </div>
-      {row.meta && (
-        <span className="shrink-0 text-[11px] text-muted-foreground">{row.meta}</span>
-      )}
+      {row.meta && <span className="shrink-0 text-[11px] text-muted-foreground">{row.meta}</span>}
     </li>
   );
 }
@@ -351,4 +325,3 @@ function MetaCard({
     </div>
   );
 }
-

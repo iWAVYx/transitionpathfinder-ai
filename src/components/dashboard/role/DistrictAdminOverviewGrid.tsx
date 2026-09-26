@@ -8,6 +8,7 @@ import {
   Rocket,
   FileText,
   AlertTriangle,
+  Network,
   ArrowRight,
   Eye,
   type LucideIcon,
@@ -17,6 +18,7 @@ import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
+import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
 import {
   DistrictAdminFeatureDrawer,
   type DistrictAdminFeatureState,
@@ -24,10 +26,13 @@ import {
 import {
   getDistrictAdminFeatureDetails,
   DISTRICT_ADMIN_TILE_META_BY_DISTRICT,
+  type DistrictAdminFeatureDetail,
   type DistrictAdminFeatureId,
 } from "@/lib/demo/district-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import { useDemoDistrict } from "@/lib/demo/use-role-context";
+import type { DistrictDashboard } from "@/lib/district-admin.functions";
+import { buildDistrictAdminLivePreview } from "@/lib/dashboard/district-admin-live-preview";
 
 type Tile = {
   featureId: DistrictAdminFeatureId;
@@ -135,6 +140,16 @@ const TILES: Tile[] = [
   },
 ];
 
+const PARTNER_TILE: Tile = {
+  featureId: "partner-network",
+  icon: Network,
+  title: "Partner Network",
+  status: "Open directory",
+  tone: "muted",
+  summary: "Search verified programs and opportunities without inventing district-specific totals.",
+  cta: { label: "Open Partner Network", to: "/partner-network" },
+};
+
 /**
  * District Admin at-a-glance grid. Every tile:
  *  - has a Preview button that opens the shared DistrictAdminFeatureDrawer
@@ -142,22 +157,109 @@ const TILES: Tile[] = [
  *  - has a direct link into the full district-level workflow
  * All data is aggregate — never expose individual student records here.
  */
-export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
-  const [openFeature, setOpenFeature] = useState<DistrictAdminFeatureId | null>(null);
-  const [state, setState] = useState<DistrictAdminFeatureState>("ready");
-  const { district, districtId } = useDemoDistrict();
+export function DistrictAdminOverviewGrid({
+  isSample = false,
+  liveData = null,
+  selectedDistrictId,
+  loading = false,
+}: {
+  isSample?: boolean;
+  liveData?: DistrictDashboard | null;
+  selectedDistrictId?: string;
+  loading?: boolean;
+} = {}) {
+  if (isSample) return <SampleDistrictAdminOverviewGrid />;
+  return (
+    <LiveDistrictAdminOverviewGrid
+      data={liveData}
+      selectedDistrictId={selectedDistrictId}
+      loading={loading}
+    />
+  );
+}
 
+function SampleDistrictAdminOverviewGrid() {
+  const { district, districtId } = useDemoDistrict();
   const tileMeta = DISTRICT_ADMIN_TILE_META_BY_DISTRICT[districtId];
-  const tiles = TILES.map((t) => {
-    const m = tileMeta[t.featureId];
-    return m ? { ...t, status: m.status, tone: m.tone, bullets: m.bullets } : t;
+  const tiles = TILES.map((tile) => {
+    const meta = tileMeta[tile.featureId];
+    return meta ? { ...tile, status: meta.status, tone: meta.tone, bullets: meta.bullets } : tile;
   });
 
+  return (
+    <DistrictAdminOverviewContent
+      eyebrow={`${district.shortName} · District Workspace`}
+      contextId={districtId}
+      tiles={tiles}
+      details={getDistrictAdminFeatureDetails(districtId)}
+      isSample
+    />
+  );
+}
+
+function LiveDistrictAdminOverviewGrid({
+  data,
+  selectedDistrictId,
+  loading,
+}: {
+  data: DistrictDashboard | null;
+  selectedDistrictId?: string;
+  loading: boolean;
+}) {
+  if (loading && !data) {
+    return <DistrictAdminOverviewStatus title="Loading District Workspace…" />;
+  }
+
+  const preview = data ? buildDistrictAdminLivePreview(data, selectedDistrictId) : null;
+  if (!preview) {
+    return (
+      <DistrictAdminOverviewStatus
+        title="No District Workspace Is Connected Yet"
+        body="Create or connect an authorized district to replace this empty state with live aggregate previews."
+      />
+    );
+  }
+
+  return (
+    <DistrictAdminOverviewContent
+      eyebrow={`${preview.district.name} · District Workspace`}
+      contextId={preview.district.id}
+      tiles={[...TILES, PARTNER_TILE]}
+      details={preview.details}
+    />
+  );
+}
+
+function DistrictAdminOverviewStatus({ title, body }: { title: string; body?: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed bg-card p-8 text-center">
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
+      {body ? <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{body}</p> : null}
+    </div>
+  );
+}
+
+function DistrictAdminOverviewContent({
+  eyebrow,
+  contextId,
+  tiles,
+  details,
+  isSample = false,
+}: {
+  eyebrow: string;
+  contextId: string;
+  tiles: Tile[];
+  details: Record<DistrictAdminFeatureId, DistrictAdminFeatureDetail>;
+  isSample?: boolean;
+}) {
+  const [openFeature, setOpenFeature] = useState<DistrictAdminFeatureId | null>(null);
+  const [state, setState] = useState<DistrictAdminFeatureState>("ready");
   const activeTile = tiles.find((t) => t.featureId === openFeature);
+  const activeDetail = openFeature ? details[openFeature] : null;
 
   return (
     <ToolPreviewSection
-      eyebrow={`${district.shortName} · District Workspace`}
+      eyebrow={eyebrow}
       title="District Readiness And Adoption"
       description="Roll-ups across every connected school — implementation progress, readiness trends, and service gaps that need attention. Aggregate only — no private student records surfaced here."
     >
@@ -166,16 +268,26 @@ export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boo
           <DistrictAdminTile
             key={tile.featureId}
             tile={tile}
+            detail={details[tile.featureId]}
             isSample={isSample}
-            districtId={districtId}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
             }}
           />
         ))}
-        <PartnerNetworkTile role="district_admin" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
-        <DemoTransitionChannelTile role="district-admin" contextId={districtId} />
+        {isSample ? (
+          <>
+            <PartnerNetworkTile
+              role="district_admin"
+              isSample
+              onPreview={() => setOpenFeature("partner-network")}
+            />
+            <DemoTransitionChannelTile role="district-admin" contextId={contextId} />
+          </>
+        ) : (
+          <TransitionChannelTile role="district_admin" />
+        )}
       </ToolPreviewGrid>
 
       <DistrictAdminFeatureDrawer
@@ -183,7 +295,7 @@ export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boo
         icon={activeTile?.icon}
         isSample={isSample}
         state={state}
-        districtId={districtId}
+        detailOverride={activeDetail}
         onRetry={() => {
           setState("loading");
           window.setTimeout(() => setState("ready"), 900);
@@ -196,25 +308,25 @@ export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boo
         }}
       />
 
-      {openFeature && (
+      {isSample && openFeature && (
         <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center sm:justify-end sm:pr-6">
           <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background/95 p-1 text-[11px] shadow-lift backdrop-blur">
-            {(["ready", "loading", "empty", "error", "permission"] as DistrictAdminFeatureState[]).map(
-              (s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setState(s)}
-                  className={
-                    state === s
-                      ? "rounded-full bg-primary px-2.5 py-1 font-semibold text-primary-foreground"
-                      : "rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
-                  }
-                >
-                  {toTitleCase(s)}
-                </button>
-              ),
-            )}
+            {(
+              ["ready", "loading", "empty", "error", "permission"] as DistrictAdminFeatureState[]
+            ).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setState(s)}
+                className={
+                  state === s
+                    ? "rounded-full bg-primary px-2.5 py-1 font-semibold text-primary-foreground"
+                    : "rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
+                }
+              >
+                {toTitleCase(s)}
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -224,28 +336,30 @@ export function DistrictAdminOverviewGrid({ isSample = false }: { isSample?: boo
 
 function DistrictAdminTile({
   tile,
+  detail,
   onPreview,
   isSample = false,
-  districtId,
 }: {
   tile: Tile;
+  detail: DistrictAdminFeatureDetail;
   onPreview: () => void;
   isSample?: boolean;
-  districtId: "regional-network" | "local-district";
 }) {
   const Icon = tile.icon;
-  const detail = getDistrictAdminFeatureDetails(districtId)[tile.featureId];
-  // Derive tile-facing metrics from the profile-specific detail so
-  // switching the demo district updates status + bullets everywhere.
   const status = detail.stats?.[0]?.value ?? tile.status;
   const bullets =
     detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
     tile.bullets ??
     [];
-  const ctaTo = isSample ? resolveDemoFeatureRoute("district-admin", tile.featureId) : (tile.cta.to as string);
+  const ctaTo = isSample
+    ? resolveDemoFeatureRoute("district-admin", tile.featureId)
+    : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <span
+        className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent"
+        aria-hidden
+      />
       <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -257,12 +371,16 @@ function DistrictAdminTile({
         </div>
         <Pill tone={tile.tone}>{status}</Pill>
       </div>
-      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
+      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">
+        {tile.summary}
+      </p>
       {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
           {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
-              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
+              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {toTitleCase(b.label)}
+              </dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
             </div>
           ))}
@@ -294,4 +412,3 @@ function DistrictAdminTile({
     </div>
   );
 }
-

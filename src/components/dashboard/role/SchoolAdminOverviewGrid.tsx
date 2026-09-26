@@ -10,6 +10,7 @@ import {
   CalendarDays,
   LifeBuoy,
   Rocket,
+  Network,
   ArrowRight,
   Eye,
   type LucideIcon,
@@ -19,6 +20,7 @@ import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
+import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
 import {
   SchoolAdminFeatureDrawer,
   type SchoolAdminFeatureState,
@@ -26,10 +28,13 @@ import {
 import {
   getSchoolAdminFeatureDetails,
   SCHOOL_ADMIN_TILE_META_BY_SCHOOL,
+  type SchoolAdminFeatureDetail,
   type SchoolAdminFeatureId,
 } from "@/lib/demo/school-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import { useDemoSchool } from "@/lib/demo/use-role-context";
+import type { SchoolDashboard } from "@/lib/school-admin.functions";
+import { buildSchoolAdminLivePreview } from "@/lib/dashboard/school-admin-live-preview";
 
 type Tile = {
   featureId: SchoolAdminFeatureId;
@@ -163,6 +168,17 @@ const TILES: Tile[] = [
   },
 ];
 
+const PARTNER_TILE: Tile = {
+  featureId: "partner-network",
+  icon: Network,
+  title: "Partner Network",
+  status: "Open directory",
+  tone: "muted",
+  summary:
+    "Search current verified programs and opportunities without inventing school-specific totals.",
+  cta: { label: "Open Partner Network", to: "/partner-network" },
+};
+
 /**
  * School Admin at-a-glance grid. Every tile:
  *  - has a Preview button that opens the shared SchoolAdminFeatureDrawer
@@ -170,22 +186,106 @@ const TILES: Tile[] = [
  *  - has a direct link into the full building-level workflow
  * All data is aggregate — never expose individual student records here.
  */
-export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boolean } = {}) {
+export function SchoolAdminOverviewGrid({
+  isSample = false,
+  liveData = null,
+  selectedOrgId,
+  loading = false,
+}: {
+  isSample?: boolean;
+  liveData?: SchoolDashboard | null;
+  selectedOrgId?: string;
+  loading?: boolean;
+} = {}) {
+  if (isSample) return <SampleSchoolAdminOverviewGrid />;
+  return (
+    <LiveSchoolAdminOverviewGrid data={liveData} selectedOrgId={selectedOrgId} loading={loading} />
+  );
+}
+
+function SampleSchoolAdminOverviewGrid() {
+  const { school, schoolId } = useDemoSchool();
+  const tileMeta = SCHOOL_ADMIN_TILE_META_BY_SCHOOL[schoolId];
+  const tiles = TILES.map((tile) => {
+    const meta = tileMeta[tile.featureId];
+    return meta ? { ...tile, status: meta.status, tone: meta.tone, bullets: meta.bullets } : tile;
+  });
+  const details = getSchoolAdminFeatureDetails(schoolId);
+
+  return (
+    <SchoolAdminOverviewContent
+      eyebrow={`${school.shortName} · School Workspace`}
+      contextId={schoolId}
+      tiles={tiles}
+      details={details}
+      isSample
+    />
+  );
+}
+
+function LiveSchoolAdminOverviewGrid({
+  data,
+  selectedOrgId,
+  loading,
+}: {
+  data: SchoolDashboard | null;
+  selectedOrgId?: string;
+  loading: boolean;
+}) {
+  if (loading && !data) {
+    return <SchoolAdminOverviewStatus title="Loading School Workspace…" />;
+  }
+
+  const preview = data ? buildSchoolAdminLivePreview(data, selectedOrgId) : null;
+  if (!preview) {
+    return (
+      <SchoolAdminOverviewStatus
+        title="No School Workspace Is Connected Yet"
+        body="Create or connect an authorized school to replace this empty state with live aggregate previews."
+      />
+    );
+  }
+
+  return (
+    <SchoolAdminOverviewContent
+      eyebrow={`${preview.organization.name} · School Workspace`}
+      contextId={preview.organization.id}
+      tiles={[...TILES, PARTNER_TILE]}
+      details={preview.details}
+    />
+  );
+}
+
+function SchoolAdminOverviewStatus({ title, body }: { title: string; body?: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed bg-card p-8 text-center">
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
+      {body ? <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{body}</p> : null}
+    </div>
+  );
+}
+
+function SchoolAdminOverviewContent({
+  eyebrow,
+  contextId,
+  tiles,
+  details,
+  isSample = false,
+}: {
+  eyebrow: string;
+  contextId: string;
+  tiles: Tile[];
+  details: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail>;
+  isSample?: boolean;
+}) {
   const [openFeature, setOpenFeature] = useState<SchoolAdminFeatureId | null>(null);
   const [state, setState] = useState<SchoolAdminFeatureState>("ready");
-  const { school, schoolId } = useDemoSchool();
-
-  const tileMeta = SCHOOL_ADMIN_TILE_META_BY_SCHOOL[schoolId];
-  const tiles = TILES.map((t) => {
-    const m = tileMeta[t.featureId];
-    return m ? { ...t, status: m.status, tone: m.tone, bullets: m.bullets } : t;
-  });
-
   const activeTile = tiles.find((t) => t.featureId === openFeature);
+  const activeDetail = openFeature ? details[openFeature] : null;
 
   return (
     <ToolPreviewSection
-      eyebrow={`${school.shortName} · School Workspace`}
+      eyebrow={eyebrow}
       title="School-Level Implementation, In One View"
       description="Preview any tool inline. Every card explains what it does, what feeds it, and the next step you can take today. Aggregate only — no private student records surfaced here."
     >
@@ -194,16 +294,26 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
           <SchoolAdminTile
             key={tile.featureId}
             tile={tile}
+            detail={details[tile.featureId]}
             isSample={isSample}
-            schoolId={schoolId}
             onPreview={() => {
               setState(tile.defaultState ?? "ready");
               setOpenFeature(tile.featureId);
             }}
           />
         ))}
-        <PartnerNetworkTile role="school_admin" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
-        <DemoTransitionChannelTile role="school-admin" contextId={schoolId} />
+        {isSample ? (
+          <>
+            <PartnerNetworkTile
+              role="school_admin"
+              isSample
+              onPreview={() => setOpenFeature("partner-network")}
+            />
+            <DemoTransitionChannelTile role="school-admin" contextId={contextId} />
+          </>
+        ) : (
+          <TransitionChannelTile role="school_admin" />
+        )}
       </ToolPreviewGrid>
 
       <SchoolAdminFeatureDrawer
@@ -211,7 +321,7 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
         icon={activeTile?.icon}
         isSample={isSample}
         state={state}
-        schoolId={schoolId}
+        detailOverride={activeDetail}
         onRetry={() => {
           setState("loading");
           window.setTimeout(() => setState("ready"), 900);
@@ -224,25 +334,25 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
         }}
       />
 
-      {openFeature && (
+      {isSample && openFeature && (
         <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center sm:justify-end sm:pr-6">
           <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background/95 p-1 text-[11px] shadow-lift backdrop-blur">
-            {(["ready", "loading", "empty", "error", "permission"] as SchoolAdminFeatureState[]).map(
-              (s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setState(s)}
-                  className={
-                    state === s
-                      ? "rounded-full bg-primary px-2.5 py-1 font-semibold text-primary-foreground"
-                      : "rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
-                  }
-                >
-                  {toTitleCase(s)}
-                </button>
-              ),
-            )}
+            {(
+              ["ready", "loading", "empty", "error", "permission"] as SchoolAdminFeatureState[]
+            ).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setState(s)}
+                className={
+                  state === s
+                    ? "rounded-full bg-primary px-2.5 py-1 font-semibold text-primary-foreground"
+                    : "rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
+                }
+              >
+                {toTitleCase(s)}
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -252,28 +362,30 @@ export function SchoolAdminOverviewGrid({ isSample = false }: { isSample?: boole
 
 function SchoolAdminTile({
   tile,
+  detail,
   onPreview,
   isSample = false,
-  schoolId,
 }: {
   tile: Tile;
+  detail: SchoolAdminFeatureDetail;
   onPreview: () => void;
   isSample?: boolean;
-  schoolId: "comprehensive" | "specialized";
 }) {
   const Icon = tile.icon;
-  const detail = getSchoolAdminFeatureDetails(schoolId)[tile.featureId];
-  // Derive tile-facing metrics from the profile-specific detail so
-  // switching the demo school updates status + bullets everywhere.
   const status = detail.stats?.[0]?.value ?? tile.status;
   const bullets =
     detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
     tile.bullets ??
     [];
-  const ctaTo = isSample ? resolveDemoFeatureRoute("school-admin", tile.featureId) : (tile.cta.to as string);
+  const ctaTo = isSample
+    ? resolveDemoFeatureRoute("school-admin", tile.featureId)
+    : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <span
+        className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent"
+        aria-hidden
+      />
       <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -285,12 +397,16 @@ function SchoolAdminTile({
         </div>
         <Pill tone={tile.tone}>{status}</Pill>
       </div>
-      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
+      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">
+        {tile.summary}
+      </p>
       {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
           {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
-              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
+              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {toTitleCase(b.label)}
+              </dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
             </div>
           ))}
@@ -322,4 +438,3 @@ function SchoolAdminTile({
     </div>
   );
 }
-
