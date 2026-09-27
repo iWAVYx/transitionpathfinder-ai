@@ -307,6 +307,8 @@ function PathwayPage() {
           <FormProvider {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
+              data-testid="pathway-intake-form"
+              data-pathway-step={STEPS[stepIndex].id}
               className="mt-6 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8"
               noValidate
             >
@@ -450,6 +452,7 @@ function StepRole({ role, onPick }: { role: Role; onPick: (r: Role) => void }) {
             <button
               key={r}
               type="button"
+              data-testid={`pathway-role-${r}`}
               onClick={() => onPick(r)}
               className={cn(
                 "group flex h-full flex-col gap-3 rounded-2xl border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-soft",
@@ -531,7 +534,7 @@ function StepAbout({
               onValueChange={onStudentChange}
               disabled={prefillLoading}
             >
-              <SelectTrigger id="pathway-connected-student">
+              <SelectTrigger id="pathway-connected-student" data-testid="pathway-connected-student">
                 <SelectValue placeholder="Choose an authorized student…" />
               </SelectTrigger>
               <SelectContent>
@@ -1124,6 +1127,7 @@ function StepNav({
       <Button
         type="button"
         variant="ghost"
+        data-testid="pathway-back"
         onClick={onBack}
         disabled={stepIndex === 0 || submitting}
       >
@@ -1132,7 +1136,7 @@ function StepNav({
 
       {isLast ? (
         <div className="flex flex-col items-end gap-2">
-          <Button type="submit" size="lg" disabled={submitting}>
+          <Button type="submit" size="lg" data-testid="pathway-generate" disabled={submitting}>
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1150,7 +1154,7 @@ function StepNav({
           </p>
         </div>
       ) : (
-        <Button type="button" onClick={onNext} disabled={submitting}>
+        <Button type="button" data-testid="pathway-continue" onClick={onNext} disabled={submitting}>
           Continue <ArrowRight className="h-4 w-4" />
         </Button>
       )}

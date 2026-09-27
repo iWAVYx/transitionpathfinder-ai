@@ -10,10 +10,12 @@ on:
       - "tests/e2e/auth-roles.setup.ts"
       - "tests/e2e/helpers/roles.ts"
       - "tests/e2e/dashboard-regression.signedin.spec.ts"
+      - "tests/e2e/release-readiness/pathway-live-staging.signedin.spec.ts"
       - "tests/e2e/scripts/check-role-creds.mjs"
       - "vitest.config.ts"
       - "playwright.config.ts"
       - ".github/workflows/dashboard-regression.yml"
+      - ".github/workflows/pathway-live-staging-qa.yml"
   push:
     branches: [main]
   workflow_dispatch:
