@@ -1,9 +1,9 @@
 name: Pathway Live Staging QA
 
-# Manual-only acceptance proof for the live Pathway workflow on the isolated
-# staging Worker. Pull-request code cannot invoke this workflow or receive its
-# protected credentials. One real AI report is generated from synthetic data,
-# verified across four roles, and removed at the end of the run.
+# Manual-only acceptance proof for the live Pathway workflow. Ordinary staging
+# identity remains anchored to the isolated Cloudflare Worker. The AI request
+# runs only on the separate Lovable-hosted staging application because the
+# Lovable gateway credential must never move into GitHub or Cloudflare.
 on:
   workflow_dispatch:
     inputs:
@@ -25,7 +25,9 @@ jobs:
     environment: staging
     timeout-minutes: 30
     env:
-      PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
+      CLOUDFLARE_STAGING_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
+      PATHWAY_AI_BASE_URL: ${{ vars.STAGING_LOVABLE_AI_BASE_URL }}
+      PLAYWRIGHT_BASE_URL: ${{ vars.STAGING_LOVABLE_AI_BASE_URL }}
       E2E_EXPECTED_BUILD_SHA: ${{ github.sha }}
       LIVE_VERIFICATION: "true"
       E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
@@ -61,10 +63,10 @@ jobs:
       - name: Install Playwright browser
         run: bun run playwright:install
 
-      - name: Verify exact isolated staging deployment identity
+      - name: Verify Cloudflare staging control-plane identity
         run: |
           node --input-type=module <<'NODE'
-          const response = await fetch(`${process.env.PLAYWRIGHT_BASE_URL}/api/public/env-health`);
+          const response = await fetch(`${process.env.CLOUDFLARE_STAGING_BASE_URL}/api/public/env-health`);
           if (!response.ok) throw new Error(`env-health returned ${response.status}`);
           const health = await response.json();
           const errors = [];
@@ -84,7 +86,57 @@ jobs:
             errors.push(`git_commit_sha=${health.git_commit_sha}`);
           }
           if (errors.length) throw new Error(`Staging identity check failed: ${errors.join(", ")}`);
-          console.log("Exact-SHA isolated staging identity verified.");
+          console.log("Exact-SHA Cloudflare staging control plane verified.");
+          NODE
+
+      - name: Fail fast unless Lovable AI staging is ready
+        run: |
+          node --input-type=module <<'NODE'
+          const rawBaseUrl = process.env.PATHWAY_AI_BASE_URL?.trim();
+          if (!rawBaseUrl) {
+            throw new Error("STAGING_LOVABLE_AI_BASE_URL is not configured in the protected staging environment.");
+          }
+
+          const target = new URL(rawBaseUrl);
+          const expectedHost = "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app";
+          if (
+            target.protocol !== "https:" ||
+            target.hostname !== expectedHost ||
+            target.username ||
+            target.password ||
+            !["", "/"].includes(target.pathname) ||
+            target.search ||
+            target.hash
+          ) {
+            throw new Error(`Refusing unapproved Pathway AI staging target: ${target.hostname}`);
+          }
+
+          const response = await fetch(new URL("/api/public/env-health", target.origin));
+          if (!response.ok) throw new Error(`Lovable AI env-health returned ${response.status}`);
+          const health = await response.json();
+          const errors = [];
+          if (health.hostname !== expectedHost) errors.push(`hostname=${health.hostname}`);
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.vite_app_env !== "staging") errors.push(`vite_app_env=${health.vite_app_env}`);
+          if (health.supabase_project_ref !== "qgrertkqbwanerqqemph") {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) errors.push("is_production_project=true");
+          if (health.stripe_mode !== "sandbox" || health.stripe_livemode !== false) {
+            errors.push(`stripe_mode=${health.stripe_mode}`);
+          }
+          if (health.isolation?.ok !== true) errors.push("isolation.ok=false");
+          if (health.git_commit_sha !== process.env.GITHUB_SHA) {
+            errors.push(`git_commit_sha=${health.git_commit_sha}`);
+          }
+          if (health.ai_gateway_configured !== true) errors.push("ai_gateway_configured=false");
+          if (health.ai_runtime !== "lovable-managed") {
+            errors.push(`ai_runtime=${health.ai_runtime}`);
+          }
+          if (errors.length) {
+            throw new Error(`Lovable AI staging preflight failed: ${errors.join(", ")}`);
+          }
+          console.log("Exact-SHA isolated Lovable AI staging runtime verified.");
           NODE
 
       - name: Require protected staging credentials

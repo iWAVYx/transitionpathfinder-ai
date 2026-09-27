@@ -9,6 +9,8 @@ const spec = readFileSync(
 const pathwayRoute = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8");
 const reportRoute = readFileSync("src/routes/_authenticated/reports.$reportId.tsx", "utf8");
 const rolePolicy = readFileSync("src/lib/role-policy.ts", "utf8");
+const envHealth = readFileSync("src/routes/api/public/env-health.ts", "utf8");
+const envIdentity = readFileSync("src/lib/env-identity.ts", "utf8");
 const runbook = readFileSync("docs/pathway-live-staging-acceptance.md", "utf8");
 
 describe("protected Pathway live-staging acceptance", () => {
@@ -19,10 +21,15 @@ describe("protected Pathway live-staging acceptance", () => {
     expect(workflow).toContain("if: github.ref == 'refs/heads/main'");
     expect(workflow).toContain("environment: staging");
     expect(workflow).toContain("transitionforward-staging.caysi101.workers.dev");
+    expect(workflow).toContain("vars.STAGING_LOVABLE_AI_BASE_URL");
+    expect(workflow).toContain("Verify Cloudflare staging control-plane identity");
+    expect(workflow).toContain("Fail fast unless Lovable AI staging is ready");
     expect(workflow).toContain("health.git_commit_sha !== process.env.GITHUB_SHA");
     expect(workflow).toContain('health.supabase_project_ref !== "qgrertkqbwanerqqemph"');
     expect(workflow).toContain('health.stripe_mode !== "sandbox"');
     expect(workflow).toContain("health.isolation?.ok !== true");
+    expect(workflow).toContain("health.ai_gateway_configured !== true");
+    expect(workflow).toContain('health.ai_runtime !== "lovable-managed"');
     expect(workflow).not.toMatch(/supabase\s+(?:db\s+push|migration\s+up)/i);
   });
 
@@ -30,6 +37,8 @@ describe("protected Pathway live-staging acceptance", () => {
     expect(workflow).toContain("secrets.STAGING_SUPABASE_URL");
     expect(workflow).toContain("secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY");
     expect(workflow).toContain("secrets.STAGING_E2E_PASSWORD");
+    expect(workflow).not.toContain("secrets.LOVABLE_API_KEY");
+    expect(workflow).not.toContain("CLOUDFLARE_LOVABLE_API_KEY");
     expect(workflow).toContain('RUN_PATHWAY_LIVE_STAGING_QA: "true"');
     expect(workflow).toContain('Type "pathway-staging"');
     expect(workflow).toContain("sanitize-playwright-artifacts.mjs");
@@ -58,9 +67,10 @@ describe("protected Pathway live-staging acceptance", () => {
       expect(`${workflow}\n${spec}`).toContain(`e2e.${role}@staging.transitionforwardct.test`);
     }
     expect(spec).toContain('const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph"');
-    expect(spec).toContain(
-      'const STAGING_APP_HOST = "transitionforward-staging.caysi101.workers.dev"',
+    expect(`${workflow}\n${spec}\n${envIdentity}`).toContain(
+      "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app",
     );
+    expect(spec).toContain("const STAGING_AI_APP_HOST =");
     expect(spec).toContain('throw new Error("Refusing the production Supabase project")');
     expect(spec).toContain('first_name", "Robin"');
     expect(spec).toContain('last_name", "Staging"');
@@ -108,9 +118,22 @@ describe("protected Pathway live-staging acceptance", () => {
       "Partner",
       "One report generation per authorized run",
       "No migration, deployment, Lovable publish",
+      "Cloudflare remains the ordinary staging control plane",
+      "Production-safe reuse",
       "must not merge, deploy, publish, migrate, or touch production",
     ]) {
       expect(runbook).toContain(contract);
     }
+  });
+
+  it("publishes only non-sensitive AI readiness and supports a production-safe preflight", () => {
+    expect(envHealth).toContain('Boolean(process.env["LOVABLE_API_KEY"]?.trim())');
+    expect(envHealth).toContain('ai_runtime = ai_gateway_configured ? "lovable-managed"');
+    expect(envHealth).toContain("ai_gateway_configured,");
+    expect(envHealth).toContain("ai_runtime,");
+    expect(envHealth).not.toMatch(/LOVABLE_API_KEY\s*:/);
+    expect(runbook).toContain("read-only production preflight");
+    expect(runbook).toContain("production Supabase identity");
+    expect(runbook).toContain("live Stripe identity");
   });
 });

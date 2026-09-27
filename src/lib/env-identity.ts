@@ -15,8 +15,12 @@ export const PRODUCTION_HOSTNAMES = [
   "www.transitionforwardct.com",
 ];
 
+/** Lovable-hosted application runtime connected only to isolated staging. */
+export const STAGING_LOVABLE_AI_HOSTNAME =
+  "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app";
+
 /** Only these hostnames may serve the staging deployment. */
-export const STAGING_HOSTNAMES = ["e2e.transitionforwardct.com"];
+export const STAGING_HOSTNAMES = ["e2e.transitionforwardct.com", STAGING_LOVABLE_AI_HOSTNAME];
 const STAGING_HOSTNAME_PATTERNS = [/^transitionforward-staging\.[a-z0-9-]+\.workers\.dev$/i];
 
 export function isStagingHostname(hostname: string): boolean {

@@ -6,7 +6,7 @@ import type { Database, Json } from "../../../src/integrations/supabase/types";
 import { ROLES, type RoleSpec } from "../helpers/roles";
 
 const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph";
-const STAGING_APP_HOST = "transitionforward-staging.caysi101.workers.dev";
+const STAGING_AI_APP_HOST = "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app";
 const PRODUCTION_PROJECT_REF = "lrqcntqyekucamifpffs";
 const QA_NAME_PREFIX = "QA Pathway";
 const QA_COLLABORATOR_PREFIX = "pathway.qa.";
@@ -113,7 +113,7 @@ async function closeContext(context: BrowserContext) {
 }
 
 function expectStagingPage(page: Page) {
-  expect(new URL(page.url()).hostname).toBe(STAGING_APP_HOST);
+  expect(new URL(page.url()).hostname).toBe(STAGING_AI_APP_HOST);
 }
 
 async function expectStep(page: Page, step: string) {
@@ -148,8 +148,8 @@ test.beforeAll(async () => {
   if (supabaseUrl.includes(PRODUCTION_PROJECT_REF)) {
     throw new Error("Refusing the production Supabase project");
   }
-  if (appHost !== STAGING_APP_HOST) {
-    throw new Error(`Refusing non-staging application target: ${appHost}`);
+  if (appHost !== STAGING_AI_APP_HOST) {
+    throw new Error(`Refusing non-Lovable staging AI target: ${appHost}`);
   }
 
   admin = createClient<Database>(supabaseUrl, serviceRoleKey, {

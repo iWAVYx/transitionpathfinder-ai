@@ -2,8 +2,8 @@
  * Non-sensitive deployment identity health check.
  *
  * Returns only: app environment, deployment hostname, Supabase project ref,
- * Stripe mode, git commit SHA, and the isolation verdict. It never returns
- * keys, secrets, database URLs, or webhook secrets.
+ * Stripe mode, git commit SHA, AI-hosting readiness, and the isolation verdict.
+ * It never returns keys, secrets, database URLs, or webhook secrets.
  *
  * Staging and production deployments are both validated strictly. Any missing,
  * unknown, cross-environment, or unauditable identity value returns 503.
@@ -56,6 +56,8 @@ export const Route = createFileRoute("/api/public/env-health")({
           (import.meta.env["VITE_APP_BUILD_SHA"] as string | undefined) ??
           (import.meta.env["VITE_GIT_COMMIT_SHA"] as string | undefined) ??
           "unknown";
+        const ai_gateway_configured = Boolean(process.env["LOVABLE_API_KEY"]?.trim());
+        const ai_runtime = ai_gateway_configured ? "lovable-managed" : "unconfigured";
 
         // Any deployment that either claims staging or is served from a
         // staging hostname must satisfy the strict identity check.
@@ -133,6 +135,9 @@ export const Route = createFileRoute("/api/public/env-health")({
             stripe_public_mode: stripeProof.clientMode,
             stripe_server_mode: stripeProof.serverMode,
             stripe_livemode: stripe_mode === "unknown" ? null : stripe_mode === "live",
+            // Boolean/status-only proof. The key and all credential metadata stay private.
+            ai_gateway_configured,
+            ai_runtime,
             git_commit_sha,
             isolation,
           },
