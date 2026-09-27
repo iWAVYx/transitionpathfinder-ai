@@ -61,6 +61,26 @@ test("production health and Stripe client consume the same embedded public input
   assert.match(declaration, /livePaymentsClientToken: string/);
 });
 
+test("the isolated staging profile is explicit and preserves the shared production guard", () => {
+  assert.match(
+    viteConfig,
+    /isLovableSandbox\s*&&\s*appEnv\.trim\(\) === "staging"\s*&&\s*runtimeViteAppEnv === "staging"/,
+  );
+  assert.match(
+    viteConfig,
+    /preferLiveBuildInputs:\s*isLovableSandbox\s*&&\s*!isIsolatedLovableStaging/,
+  );
+  assert.match(viteConfig, /stagingOnlyBuild:\s*isIsolatedLovableStaging/);
+  assert.match(
+    viteConfig,
+    /assertLovablePublicBuildInputs\(publicBuildInputs,\s*\{[\s\S]*?appEnv:[\s\S]*?stagingOnlyBuild:/,
+  );
+  assert.match(
+    viteConfig,
+    /VITE_PAYMENTS_CLIENT_TOKEN:\s*inputs\.paymentsClientToken/,
+  );
+});
+
 test("evidence stays fail closed and does not authorize a production publish", () => {
   assert.match(evidence, /HTTP 503/);
   assert.match(evidence, /VITE_APP_ENV.*unknown/is);
