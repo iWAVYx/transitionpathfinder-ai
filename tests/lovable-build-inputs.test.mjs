@@ -100,6 +100,124 @@ test("Lovable shared builds fail closed when a reviewed public input is missing"
   );
 });
 
+test("isolated Lovable staging builds can keep payments disabled without inheriting live inputs", () => {
+  const inputs = resolvePublicBuildInputs({
+    runtimeEnv: {
+      VITE_APP_ENV: "staging",
+    },
+    publicBuildEnv: {
+      VITE_APP_ENV: "production",
+      VITE_PAYMENTS_CLIENT_TOKEN: LIVE_TOKEN,
+    },
+    livePublicBuildEnv: {
+      VITE_APP_ENV: "production",
+      VITE_PAYMENTS_CLIENT_TOKEN: LIVE_TOKEN,
+    },
+    stagingOnlyBuild: true,
+  });
+
+  assert.deepEqual(inputs, {
+    viteAppEnv: "staging",
+    paymentsClientToken: "",
+    sandboxPaymentsClientToken: "",
+    livePaymentsClientToken: "",
+  });
+  assert.doesNotThrow(() =>
+    assertLovablePublicBuildInputs(inputs, {
+      appEnv: "staging",
+      stagingOnlyBuild: true,
+    }),
+  );
+});
+
+test("isolated Lovable staging builds may embed only a sandbox public token", () => {
+  const inputs = resolvePublicBuildInputs({
+    runtimeEnv: {
+      VITE_APP_ENV: "staging",
+    },
+    sandboxPublicBuildEnv: {
+      VITE_PAYMENTS_CLIENT_TOKEN: SANDBOX_TOKEN,
+    },
+    livePublicBuildEnv: {
+      VITE_APP_ENV: "production",
+      VITE_PAYMENTS_CLIENT_TOKEN: LIVE_TOKEN,
+    },
+    stagingOnlyBuild: true,
+  });
+
+  assert.equal(inputs.paymentsClientToken, SANDBOX_TOKEN);
+  assert.equal(inputs.sandboxPaymentsClientToken, SANDBOX_TOKEN);
+  assert.equal(inputs.livePaymentsClientToken, "");
+  assert.doesNotThrow(() =>
+    assertLovablePublicBuildInputs(inputs, {
+      appEnv: "staging",
+      stagingOnlyBuild: true,
+    }),
+  );
+});
+
+test("isolated Lovable staging builds reject environment drift and live public inputs", () => {
+  assert.throws(
+    () =>
+      assertLovablePublicBuildInputs(
+        {
+          viteAppEnv: "production",
+          paymentsClientToken: LIVE_TOKEN,
+          sandboxPaymentsClientToken: "",
+          livePaymentsClientToken: LIVE_TOKEN,
+        },
+        { appEnv: "production", stagingOnlyBuild: true },
+      ),
+    /APP_ENV.*VITE_APP_ENV.*live Stripe public inputs/,
+  );
+});
+
+test("isolated Lovable staging builds reject live runtime Stripe inputs before bundling", () => {
+  const inputs = resolvePublicBuildInputs({
+    runtimeEnv: {
+      VITE_APP_ENV: "staging",
+      VITE_PAYMENTS_CLIENT_TOKEN: LIVE_TOKEN,
+      VITE_PAYMENTS_LIVE_CLIENT_TOKEN: LIVE_TOKEN,
+    },
+    stagingOnlyBuild: true,
+  });
+
+  assert.equal(inputs.paymentsClientToken, "");
+  assert.equal(inputs.livePaymentsClientToken, "");
+  assert.throws(
+    () =>
+      assertLovablePublicBuildInputs(inputs, {
+        appEnv: "staging",
+        runtimePaymentsClientTokenMode: "live",
+        runtimePaymentsClientTokenPresent: true,
+        runtimeLivePaymentsClientTokenPresent: true,
+        stagingOnlyBuild: true,
+      }),
+    /live Stripe public inputs are forbidden in isolated staging/,
+  );
+});
+
+test("isolated Lovable staging builds reject unrecognized generic runtime payment inputs", () => {
+  const inputs = resolvePublicBuildInputs({
+    runtimeEnv: {
+      VITE_APP_ENV: "staging",
+      VITE_PAYMENTS_CLIENT_TOKEN: "unrecognized_public_fixture",
+    },
+    stagingOnlyBuild: true,
+  });
+
+  assert.throws(
+    () =>
+      assertLovablePublicBuildInputs(inputs, {
+        appEnv: "staging",
+        runtimePaymentsClientTokenMode: "unknown",
+        runtimePaymentsClientTokenPresent: true,
+        stagingOnlyBuild: true,
+      }),
+    /live Stripe public inputs are forbidden in isolated staging/,
+  );
+});
+
 test("non-VITE compatibility aliases are ignored", () => {
   assert.deepEqual(
     resolvePublicBuildInputs({

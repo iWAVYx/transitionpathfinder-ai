@@ -26,6 +26,7 @@ export function resolvePublicBuildInputs({
   sandboxPublicBuildEnv = {},
   livePublicBuildEnv = {},
   preferLiveBuildInputs = false,
+  stagingOnlyBuild = false,
 } = {}) {
   const runtimePaymentsClientToken = firstNonEmpty(
     runtimeEnv.VITE_PAYMENTS_CLIENT_TOKEN,
@@ -36,23 +37,34 @@ export function resolvePublicBuildInputs({
     publicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN,
   );
 
+  const viteAppEnv = firstNonEmpty(
+    runtimeEnv.VITE_APP_ENV,
+    publicBuildEnv.VITE_APP_ENV,
+    preferLiveBuildInputs ? livePublicBuildEnv.VITE_APP_ENV : undefined,
+  );
+  const sandboxPaymentsClientToken = firstNonEmpty(
+    runtimeEnv.VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN,
+    runtimePaymentsMode === "sandbox" ? runtimePaymentsClientToken : undefined,
+    sandboxPublicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN,
+  );
+  const livePaymentsClientToken = stagingOnlyBuild
+    ? ""
+    : firstNonEmpty(
+        runtimeEnv.VITE_PAYMENTS_LIVE_CLIENT_TOKEN,
+        runtimePaymentsMode === "live" ? runtimePaymentsClientToken : undefined,
+        livePublicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN,
+      );
+
   return {
-    viteAppEnv: firstNonEmpty(
-      runtimeEnv.VITE_APP_ENV,
-      publicBuildEnv.VITE_APP_ENV,
-      preferLiveBuildInputs ? livePublicBuildEnv.VITE_APP_ENV : undefined,
-    ),
-    paymentsClientToken: selectedPaymentsClientToken,
-    sandboxPaymentsClientToken: firstNonEmpty(
-      runtimeEnv.VITE_PAYMENTS_SANDBOX_CLIENT_TOKEN,
-      runtimePaymentsMode === "sandbox" ? runtimePaymentsClientToken : undefined,
-      sandboxPublicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN,
-    ),
-    livePaymentsClientToken: firstNonEmpty(
-      runtimeEnv.VITE_PAYMENTS_LIVE_CLIENT_TOKEN,
-      runtimePaymentsMode === "live" ? runtimePaymentsClientToken : undefined,
-      livePublicBuildEnv.VITE_PAYMENTS_CLIENT_TOKEN,
-    ),
+    viteAppEnv,
+    // An isolated staging project must never inherit the tracked production
+    // public token simply because Vite's command mode is "production". Use
+    // the sandbox token when one exists; an empty value keeps payments off.
+    paymentsClientToken: stagingOnlyBuild
+      ? sandboxPaymentsClientToken
+      : selectedPaymentsClientToken,
+    sandboxPaymentsClientToken,
+    livePaymentsClientToken,
   };
 }
 
@@ -61,8 +73,50 @@ export function resolvePublicBuildInputs({
  * reviewed production label plus both public Stripe modes before that build
  * starts; no private credential is read or embedded here.
  */
-export function assertLovablePublicBuildInputs(inputs) {
+export function assertLovablePublicBuildInputs(
+  inputs,
+  {
+    appEnv = "",
+    runtimePaymentsClientTokenMode = "unknown",
+    runtimePaymentsClientTokenPresent = false,
+    runtimeLivePaymentsClientTokenPresent = false,
+    stagingOnlyBuild = false,
+  } = {},
+) {
   const errors = [];
+  if (stagingOnlyBuild) {
+    if (appEnv !== "staging") {
+      errors.push('APP_ENV must resolve to "staging"');
+    }
+    if (inputs.viteAppEnv !== "staging") {
+      errors.push('VITE_APP_ENV must resolve to "staging"');
+    }
+    if (
+      inputs.sandboxPaymentsClientToken &&
+      paymentsClientTokenMode(inputs.sandboxPaymentsClientToken) !== "sandbox"
+    ) {
+      errors.push("the optional staging Stripe publishable token must be sandbox-only");
+    }
+    if (
+      paymentsClientTokenMode(inputs.paymentsClientToken) === "live" ||
+      inputs.livePaymentsClientToken ||
+      runtimeLivePaymentsClientTokenPresent ||
+      (runtimePaymentsClientTokenPresent &&
+        runtimePaymentsClientTokenMode !== "sandbox")
+    ) {
+      errors.push("live Stripe public inputs are forbidden in isolated staging");
+    }
+    if (errors.length > 0) {
+      throw new Error(
+        `Lovable isolated-staging public build inputs are invalid: ${errors.join("; ")}.`,
+      );
+    }
+    return;
+  }
+
+  if (appEnv && appEnv !== "production") {
+    errors.push('APP_ENV must resolve to "production"');
+  }
   if (inputs.viteAppEnv !== "production") {
     errors.push('VITE_APP_ENV must resolve to "production"');
   }

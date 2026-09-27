@@ -22,9 +22,19 @@ export function resolvePublicBuildInputs(input?: {
   sandboxPublicBuildEnv?: PublicBuildEnvironment;
   livePublicBuildEnv?: PublicBuildEnvironment;
   preferLiveBuildInputs?: boolean;
+  stagingOnlyBuild?: boolean;
 }): PublicBuildInputs;
 
-export function assertLovablePublicBuildInputs(inputs: PublicBuildInputs): void;
+export function assertLovablePublicBuildInputs(
+  inputs: PublicBuildInputs,
+  options?: {
+    appEnv?: string;
+    runtimePaymentsClientTokenMode?: PaymentsEnvironment;
+    runtimePaymentsClientTokenPresent?: boolean;
+    runtimeLivePaymentsClientTokenPresent?: boolean;
+    stagingOnlyBuild?: boolean;
+  },
+): void;
 
 export function paymentsEnvironmentForHostname(
   hostname: string | undefined | null,
