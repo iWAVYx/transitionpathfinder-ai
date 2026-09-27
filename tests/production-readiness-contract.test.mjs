@@ -1028,6 +1028,11 @@ test("production identity fails closed and operator documents are complete", () 
     /process\.env\["GIT_COMMIT_SHA"\][\s\S]*?import\.meta\.env\["VITE_APP_BUILD_SHA"\]/,
   );
   assert.match(health, /evaluateStagingIdentity\(\{[\s\S]*?gitCommitSha: git_commit_sha/);
+  assert.match(health, /runtime_source_fingerprint/);
+  assert.match(health, /runtime_source_fingerprint_schema/);
+  assert.match(health, /runtime_source_fingerprint_algorithm: ["']sha256["']/);
+  assert.match(health, /\(stagingTarget \|\| productionTarget\) && !runtimeSourceIdentityOk/);
+  assert.match(health, /runtime source fingerprint is unavailable or invalid/);
 
   const stripeClient = read("src/lib/stripe.ts");
   assert.match(stripeClient, /selectPaymentsClientConfig\(\{/);

@@ -25,6 +25,10 @@ describe("protected Pathway live-staging acceptance", () => {
     expect(workflow).toContain("Verify Cloudflare staging control-plane identity");
     expect(workflow).toContain("Fail fast unless Lovable AI staging is ready");
     expect(workflow).toContain("health.git_commit_sha !== process.env.GITHUB_SHA");
+    expect(workflow.match(/health\.git_commit_sha !== process\.env\.GITHUB_SHA/g)).toHaveLength(1);
+    expect(workflow).toContain("Calculate reviewed runtime source fingerprint");
+    expect(workflow).toContain("runtimeSourceParityErrors");
+    expect(workflow).toContain("EXPECTED_RUNTIME_SOURCE_FINGERPRINT");
     expect(workflow).toContain('health.supabase_project_ref !== "qgrertkqbwanerqqemph"');
     expect(workflow).toContain('health.stripe_mode !== "sandbox"');
     expect(workflow).toContain("health.isolation?.ok !== true");
@@ -119,6 +123,7 @@ describe("protected Pathway live-staging acceptance", () => {
       "One report generation per authorized run",
       "No migration, deployment, Lovable publish",
       "Cloudflare remains the ordinary staging control plane",
+      "runtime-source fingerprint",
       "Production-safe reuse",
       "must not merge, deploy, publish, migrate, or touch production",
     ]) {
@@ -131,7 +136,12 @@ describe("protected Pathway live-staging acceptance", () => {
     expect(envHealth).toContain('ai_runtime = ai_gateway_configured ? "lovable-managed"');
     expect(envHealth).toContain("ai_gateway_configured,");
     expect(envHealth).toContain("ai_runtime,");
+    expect(envHealth).toContain("runtime_source_fingerprint,");
+    expect(envHealth).toContain('runtime_source_fingerprint_algorithm: "sha256"');
+    expect(envHealth).toContain("runtime source fingerprint is unavailable or invalid");
     expect(envHealth).not.toMatch(/LOVABLE_API_KEY\s*:/);
+    expect(runbook).toContain("one-way SHA-256 runtime-source fingerprint");
+    expect(runbook).toContain("exact release SHA when the production host is Git-connected");
     expect(runbook).toContain("read-only production preflight");
     expect(runbook).toContain("production Supabase identity");
     expect(runbook).toContain("live Stripe identity");

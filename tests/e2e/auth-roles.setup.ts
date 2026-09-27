@@ -44,6 +44,12 @@ async function readBuildMarker(page: Page) {
       document.body.getAttribute("data-app-build-sha") ??
       null,
     buildTime: document.querySelector('meta[name="app-build-time"]')?.getAttribute("content") ?? null,
+    runtimeSourceFingerprint:
+      document
+        .querySelector('meta[name="app-runtime-source-fingerprint"]')
+        ?.getAttribute("content") ??
+      document.body.getAttribute("data-app-runtime-source-fingerprint") ??
+      null,
     dashboardTestIdContract:
       document.querySelector('meta[name="dashboard-testid-contract"]')?.getAttribute("content") ??
       document.body.getAttribute("data-dashboard-testid-contract") ??
@@ -69,6 +75,18 @@ async function assertDeploymentParity(page: Page, role: RoleSpec, dumpDiagnostic
     throw new Error(
       `Deployed app build SHA does not match the commit under test. ` +
         `expected ${expectedSha}, got ${marker.buildSha}. Redeploy/publish PLAYWRIGHT_BASE_URL.`,
+    );
+  }
+  const expectedRuntimeSourceFingerprint = process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT?.trim();
+  if (
+    expectedRuntimeSourceFingerprint &&
+    marker.runtimeSourceFingerprint !== expectedRuntimeSourceFingerprint
+  ) {
+    await dumpDiagnostics?.("deployed-runtime-source-fingerprint-mismatch");
+    throw new Error(
+      `Deployed app runtime source does not match the reviewed application source. ` +
+        `expected ${expectedRuntimeSourceFingerprint}, ` +
+        `got ${marker.runtimeSourceFingerprint ?? "null"}. Rebuild PLAYWRIGHT_BASE_URL from the reviewed source.`,
     );
   }
 }

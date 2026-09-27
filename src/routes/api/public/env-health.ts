@@ -2,8 +2,9 @@
  * Non-sensitive deployment identity health check.
  *
  * Returns only: app environment, deployment hostname, Supabase project ref,
- * Stripe mode, git commit SHA, AI-hosting readiness, and the isolation verdict.
- * It never returns keys, secrets, database URLs, or webhook secrets.
+ * Stripe mode, git commit SHA, runtime source fingerprint, AI-hosting readiness,
+ * and the isolation verdict. It never returns keys, secrets, source files,
+ * database URLs, or webhook secrets.
  *
  * Staging and production deployments are both validated strictly. Any missing,
  * unknown, cross-environment, or unauditable identity value returns 503.
@@ -58,6 +59,23 @@ export const Route = createFileRoute("/api/public/env-health")({
           "unknown";
         const ai_gateway_configured = Boolean(process.env["LOVABLE_API_KEY"]?.trim());
         const ai_runtime = ai_gateway_configured ? "lovable-managed" : "unconfigured";
+        const runtime_source_fingerprint =
+          (import.meta.env["VITE_RUNTIME_SOURCE_FINGERPRINT"] as string | undefined) ?? "unknown";
+        const runtime_source_fingerprint_schema =
+          (import.meta.env["VITE_RUNTIME_SOURCE_FINGERPRINT_SCHEMA"] as string | undefined) ??
+          "unknown";
+        const rawRuntimeSourceFileCount = import.meta.env[
+          "VITE_RUNTIME_SOURCE_FILE_COUNT"
+        ] as unknown;
+        const runtime_source_file_count =
+          typeof rawRuntimeSourceFileCount === "number"
+            ? rawRuntimeSourceFileCount
+            : Number.parseInt(String(rawRuntimeSourceFileCount ?? ""), 10);
+        const runtimeSourceIdentityOk =
+          /^[a-f0-9]{64}$/.test(runtime_source_fingerprint) &&
+          runtime_source_fingerprint_schema === "transitionforward-runtime-source-v1" &&
+          Number.isSafeInteger(runtime_source_file_count) &&
+          runtime_source_file_count > 0;
 
         // Any deployment that either claims staging or is served from a
         // staging hostname must satisfy the strict identity check.
@@ -119,6 +137,13 @@ export const Route = createFileRoute("/api/public/env-health")({
           });
         }
 
+        if ((stagingTarget || productionTarget) && !runtimeSourceIdentityOk) {
+          isolation = {
+            ok: false,
+            errors: [...isolation.errors, "runtime source fingerprint is unavailable or invalid"],
+          };
+        }
+
         return Response.json(
           {
             app_env: app_env ?? "unknown",
@@ -138,6 +163,14 @@ export const Route = createFileRoute("/api/public/env-health")({
             // Boolean/status-only proof. The key and all credential metadata stay private.
             ai_gateway_configured,
             ai_runtime,
+            // A one-way source digest and count prove parity without exposing
+            // source paths, contents, environment values, or credentials.
+            runtime_source_fingerprint,
+            runtime_source_fingerprint_schema,
+            runtime_source_fingerprint_algorithm: "sha256",
+            runtime_source_file_count: Number.isSafeInteger(runtime_source_file_count)
+              ? runtime_source_file_count
+              : null,
             git_commit_sha,
             isolation,
           },
