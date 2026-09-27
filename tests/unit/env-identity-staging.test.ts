@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   PRODUCTION_PROJECT_REF,
+  STAGING_LOVABLE_AI_HOSTNAME,
   STAGING_PROJECT_REF,
   evaluateStagingIdentity,
   isStagingHostname,
@@ -206,6 +207,8 @@ describe("staging deployment identity", () => {
   it("recognizes allowed staging hostnames only", () => {
     expect(isStagingHostname("e2e.transitionforwardct.com")).toBe(true);
     expect(isStagingHostname("transitionforward-staging.acme.workers.dev")).toBe(true);
+    expect(isStagingHostname(STAGING_LOVABLE_AI_HOSTNAME)).toBe(true);
+    expect(isStagingHostname("id-preview--another-project.lovable.app")).toBe(false);
     expect(isStagingHostname("transitionforwardct.com")).toBe(false);
   });
 
