@@ -18,6 +18,7 @@ import {
   rewriteDateFnsImports,
 } from "./scripts/direct-date-fns-imports.mjs";
 import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
+import { createRuntimeSourceFingerprint } from "./scripts/runtime-source-fingerprint.mjs";
 import {
   assertLovablePublicBuildInputs,
   resolvePublicBuildInputs,
@@ -358,6 +359,7 @@ function serverClientOnlyRouteStubs(): Plugin {
 // the checked-out repository. If neither is available, retain the fail-closed
 // "dev" identity so production health cannot report a false positive.
 const appBuildSha = resolveBuildSha();
+const runtimeSource = createRuntimeSourceFingerprint();
 
 const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString();
 const appEnv = process.env.APP_ENV ?? "";
@@ -419,6 +421,11 @@ export default defineConfig({
       ),
       "import.meta.env.VITE_APP_BUILD_SHA": JSON.stringify(appBuildSha),
       "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(appBuildTime),
+      "import.meta.env.VITE_RUNTIME_SOURCE_FINGERPRINT": JSON.stringify(runtimeSource.fingerprint),
+      "import.meta.env.VITE_RUNTIME_SOURCE_FINGERPRINT_SCHEMA": JSON.stringify(
+        runtimeSource.schema,
+      ),
+      "import.meta.env.VITE_RUNTIME_SOURCE_FILE_COUNT": JSON.stringify(runtimeSource.fileCount),
     },
     // Keep Lovable's supported Vite application-build entrypoint, but release
     // the client and SSR graphs in child processes before Nitro creates the

@@ -58,6 +58,15 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Calculate reviewed runtime source fingerprint
+        run: |
+          fingerprint="$(node scripts/runtime-source-fingerprint.mjs --fingerprint)"
+          if ! printf '%s' "$fingerprint" | grep -Eq '^[a-f0-9]{64}$'; then
+            echo "Reviewed runtime source fingerprint is invalid." >&2
+            exit 1
+          fi
+          echo "EXPECTED_RUNTIME_SOURCE_FINGERPRINT=$fingerprint" >> "$GITHUB_ENV"
+
       - run: bun install --frozen-lockfile
 
       - name: Install Playwright browser
@@ -66,6 +75,8 @@ jobs:
       - name: Verify Cloudflare staging control-plane identity
         run: |
           node --input-type=module <<'NODE'
+          import { runtimeSourceParityErrors } from "./scripts/runtime-source-fingerprint.mjs";
+
           const response = await fetch(`${process.env.CLOUDFLARE_STAGING_BASE_URL}/api/public/env-health`);
           if (!response.ok) throw new Error(`env-health returned ${response.status}`);
           const health = await response.json();
@@ -85,13 +96,22 @@ jobs:
           if (health.git_commit_sha !== process.env.GITHUB_SHA) {
             errors.push(`git_commit_sha=${health.git_commit_sha}`);
           }
+          errors.push(...runtimeSourceParityErrors({
+            expectedFingerprint: process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT,
+            actualFingerprint: health.runtime_source_fingerprint,
+            schema: health.runtime_source_fingerprint_schema,
+            algorithm: health.runtime_source_fingerprint_algorithm,
+            fileCount: health.runtime_source_file_count,
+          }));
           if (errors.length) throw new Error(`Staging identity check failed: ${errors.join(", ")}`);
-          console.log("Exact-SHA Cloudflare staging control plane verified.");
+          console.log("Exact-SHA and runtime-source Cloudflare staging control plane verified.");
           NODE
 
       - name: Fail fast unless Lovable AI staging is ready
         run: |
           node --input-type=module <<'NODE'
+          import { runtimeSourceParityErrors } from "./scripts/runtime-source-fingerprint.mjs";
+
           const rawBaseUrl = process.env.PATHWAY_AI_BASE_URL?.trim();
           if (!rawBaseUrl) {
             throw new Error("STAGING_LOVABLE_AI_BASE_URL is not configured in the protected staging environment.");
@@ -126,9 +146,13 @@ jobs:
             errors.push(`stripe_mode=${health.stripe_mode}`);
           }
           if (health.isolation?.ok !== true) errors.push("isolation.ok=false");
-          if (health.git_commit_sha !== process.env.GITHUB_SHA) {
-            errors.push(`git_commit_sha=${health.git_commit_sha}`);
-          }
+          errors.push(...runtimeSourceParityErrors({
+            expectedFingerprint: process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT,
+            actualFingerprint: health.runtime_source_fingerprint,
+            schema: health.runtime_source_fingerprint_schema,
+            algorithm: health.runtime_source_fingerprint_algorithm,
+            fileCount: health.runtime_source_file_count,
+          }));
           if (health.ai_gateway_configured !== true) errors.push("ai_gateway_configured=false");
           if (health.ai_runtime !== "lovable-managed") {
             errors.push(`ai_runtime=${health.ai_runtime}`);
@@ -136,7 +160,7 @@ jobs:
           if (errors.length) {
             throw new Error(`Lovable AI staging preflight failed: ${errors.join(", ")}`);
           }
-          console.log("Exact-SHA isolated Lovable AI staging runtime verified.");
+          console.log("Exact runtime-source isolated Lovable AI staging runtime verified.");
           NODE
 
       - name: Require protected staging credentials

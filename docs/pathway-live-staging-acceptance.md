@@ -20,9 +20,10 @@ The database verification also confirms that the report and intake share the sam
 - Main branch only, after the exact commit has been deployed to staging.
 - Cloudflare remains the ordinary staging control plane at `transitionforward-staging.caysi101.workers.dev`; its exact SHA, isolation verdict, and sandbox identity must pass first.
 - The AI browser flow fails closed unless `STAGING_LOVABLE_AI_BASE_URL` names exactly `id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app`.
-- The Lovable-hosted target must report the same exact Git SHA, staging labels, sandbox Stripe identity, isolated staging Supabase project, `ai_gateway_configured=true`, and `ai_runtime=lovable-managed` before authentication or intake entry begins.
+- The Lovable-hosted target must report the exact runtime-source fingerprint calculated from the reviewed GitHub checkout, staging labels, sandbox Stripe identity, isolated staging Supabase project, `ai_gateway_configured=true`, and `ai_runtime=lovable-managed` before authentication or intake entry begins.
+- The runtime-source fingerprint is SHA-256 over the shipped application code, public assets, build scripts, dependency lockfile, and build configuration. It is calculated from the files at build time and cannot be supplied as a manual environment label. Database migrations, CI workflows, tests, documentation, and environment files remain under their separate controls and are intentionally outside this runtime digest.
 - Fail closed unless Supabase is exactly project `qgrertkqbwanerqqemph`.
-- Exact deployed Git SHA, staging application identity, sandbox Stripe identity, and staging isolation are checked before sign-in.
+- Exact Cloudflare Git SHA, matching runtime-source fingerprints on both hosts, staging application identity, sandbox Stripe identity, and staging isolation are checked before sign-in.
 - `LOVABLE_API_KEY` remains owned by Lovable Cloud. It is never copied to GitHub, Cloudflare, workflow inputs, browser code, or artifacts.
 - Only the four synthetic `@staging.transitionforwardct.test` identities are used.
 - One report generation per authorized run. The Student and Educator checks reuse that one report.
@@ -40,7 +41,7 @@ Cleanup runs in `afterAll`, including when a role assertion fails. GitHub concur
 ## How to run after review, merge, and exact-SHA staging deployment
 
 1. Set the non-secret protected environment variable `STAGING_LOVABLE_AI_BASE_URL` to the exact approved isolated Lovable staging origin. This is configuration, not an AI credential.
-2. Confirm both the Cloudflare staging Worker and isolated Lovable staging application serve the exact same reviewed `main` SHA.
+2. Confirm the Cloudflare staging Worker serves the exact reviewed `main` SHA and both Cloudflare and the isolated Lovable staging application report the runtime-source fingerprint calculated by the protected workflow.
 3. Open **Actions → Pathway Live Staging QA** on the repository's `main` branch.
 4. Choose **Run workflow**.
 5. Enter `pathway-staging` as the confirmation value.
@@ -49,7 +50,9 @@ Cleanup runs in `afterAll`, including when a role assertion fails. GitHub concur
 
 ## Production-safe reuse
 
-The public health response now exposes only two non-sensitive AI readiness fields: whether the server-only gateway is configured and the approved runtime label. It never exposes a key, credential identifier, or gateway response. A future, separately authorized read-only production preflight can use the same fields on the approved production Lovable origin while also requiring the production Supabase identity, live Stripe identity, exact release SHA, production hostname, and passing production isolation verdict.
+The public health response exposes non-sensitive AI readiness plus a one-way SHA-256 runtime-source fingerprint, its fixed schema, algorithm, and file count. It never exposes a key, credential identifier, source path, source content, environment value, or gateway response. The isolated Lovable staging copy is not Git-connected, so the fingerprint—not a manually entered commit label—is its authoritative code-parity proof.
+
+A future, separately authorized read-only production preflight can use the same fingerprint verifier on the approved production Lovable origin while also requiring the production Supabase identity, live Stripe identity, exact release SHA when the production host is Git-connected, production hostname, and passing production isolation verdict. A mismatch, absent digest, unknown schema, wrong algorithm, or invalid file count fails before authentication or any AI request.
 
 That production preflight must not reuse staging accounts, staging database credentials, or the staging workflow. It does not authorize an AI request, payment, publish, migration, or production change. Any later production AI smoke request remains a separate Owner-only authorization.
 

@@ -20,6 +20,7 @@ import { registerServiceWorker } from "@/pwa/register-sw";
 import {
   APP_BUILD_SHA,
   APP_BUILD_TIME,
+  APP_RUNTIME_SOURCE_FINGERPRINT,
   DASHBOARD_TESTID_CONTRACT_VERSION,
 } from "@/lib/build-info";
 import {
@@ -127,6 +128,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "google-site-verification", content: "mty7hJKViUPYrp94f2c2KJ9AF3OSH1F1Ee6TYzdshRE" },
       { name: "app-build-sha", content: APP_BUILD_SHA },
       { name: "app-build-time", content: APP_BUILD_TIME },
+      { name: "app-runtime-source-fingerprint", content: APP_RUNTIME_SOURCE_FINGERPRINT },
       { name: "dashboard-testid-contract", content: DASHBOARD_TESTID_CONTRACT_VERSION },
       { title: "TransitionForward" },
       { name: "description", content: "Student-centered transition planning for Connecticut families, students, and educators." },
@@ -223,7 +225,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
         />
         <HeadContent />
       </head>
-      <body data-app-build-sha={APP_BUILD_SHA} data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}>
+      <body
+        data-app-build-sha={APP_BUILD_SHA}
+        data-app-runtime-source-fingerprint={APP_RUNTIME_SOURCE_FINGERPRINT}
+        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+      >
         {children}
         <Scripts />
       </body>
@@ -277,4 +283,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

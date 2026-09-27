@@ -8,3 +8,6 @@ export const APP_BUILD_SHA =
   "dev";
 
 export const APP_BUILD_TIME = import.meta.env.VITE_APP_BUILD_TIME ?? "dev";
+
+export const APP_RUNTIME_SOURCE_FINGERPRINT =
+  import.meta.env.VITE_RUNTIME_SOURCE_FINGERPRINT ?? "unknown";
