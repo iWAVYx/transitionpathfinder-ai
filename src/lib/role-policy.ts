@@ -2,7 +2,13 @@
 // Used by SiteHeader (to hide nav) and RoleGuard (to redirect deep-links).
 
 export type RoleAudience =
-  "student" | "family" | "educator" | "school_admin" | "district_admin" | "admin" | "partner";
+  | "student"
+  | "family"
+  | "educator"
+  | "school_admin"
+  | "district_admin"
+  | "admin"
+  | "partner";
 
 export function audiencesForRoles(roles: string[]): Set<RoleAudience> {
   const out = new Set<RoleAudience>();
@@ -148,6 +154,28 @@ export function fallbackPathFor(roles: string[]): string {
   if (a.has("partner")) return "/partners-manage";
   if (a.has("family") || a.has("student")) return "/dashboard";
   return "/onboarding";
+}
+
+/** The visible workspace home used by shared navigation on every tool page. */
+export function dashboardHomeForRoles(
+  roles: string[],
+  isPlatformAdmin = false,
+): { to: string; label: string } {
+  const path = isPlatformAdmin ? "/admin" : fallbackPathFor(roles);
+  switch (path) {
+    case "/admin":
+      return { to: "/owner", label: "Owner Hub" };
+    case "/district/overview":
+      return { to: path, label: "District Dashboard" };
+    case "/school/overview":
+      return { to: path, label: "School Dashboard" };
+    case "/caseload":
+      return { to: path, label: "Educator Dashboard" };
+    case "/partners-manage":
+      return { to: path, label: "Partner Dashboard" };
+    default:
+      return { to: "/dashboard", label: "Dashboard" };
+  }
 }
 
 // Human-readable label for an audience — used in UI copy and toasts.
