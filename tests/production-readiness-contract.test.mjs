@@ -584,6 +584,8 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
   );
   assert.match(viteConfig, /process\.env\.LOVABLE_SANDBOX\s*===\s*["']1["']/);
   assert.match(viteConfig, /loadEnv\(requestedViteMode, process\.cwd\(\), ["']VITE_["']\)/);
+  assert.match(viteConfig, /isIsolatedLovableStagingBuild\(\{/);
+  assert.match(viteConfig, /publicBuildEnv,/);
   assert.match(
     viteConfig,
     /["']import\.meta\.env\.VITE_APP_ENV["']:\s*JSON\.stringify\(viteAppEnv\)/,

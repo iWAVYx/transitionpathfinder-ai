@@ -21,6 +21,7 @@ import { resolveBuildSha } from "./scripts/resolve-build-sha.mjs";
 import { createRuntimeSourceFingerprint } from "./scripts/runtime-source-fingerprint.mjs";
 import {
   assertLovablePublicBuildInputs,
+  isIsolatedLovableStagingBuild,
   paymentsClientTokenMode,
   resolvePublicBuildInputs,
 } from "./scripts/resolve-public-build-inputs.mjs";
@@ -365,17 +366,20 @@ const runtimeSource = createRuntimeSourceFingerprint();
 
 const appBuildTime = process.env.VITE_APP_BUILD_TIME ?? new Date().toISOString();
 const appEnv = process.env.APP_ENV ?? "";
-const runtimeViteAppEnv = process.env.VITE_APP_ENV?.trim() ?? "";
 const runtimePaymentsClientToken =
   process.env.VITE_PAYMENTS_CLIENT_TOKEN?.trim() ?? "";
 const runtimeLivePaymentsClientToken =
   process.env.VITE_PAYMENTS_LIVE_CLIENT_TOKEN?.trim() ?? "";
-const isIsolatedLovableStaging =
-  isLovableSandbox && appEnv.trim() === "staging" && runtimeViteAppEnv === "staging";
 const requestedViteMode = resolveRequestedViteMode();
 const publicBuildEnv = loadEnv(requestedViteMode, process.cwd(), "VITE_");
 const sandboxPublicBuildEnv = loadEnv("development", process.cwd(), "VITE_");
 const livePublicBuildEnv = loadEnv("production", process.cwd(), "VITE_");
+const isIsolatedLovableStaging = isIsolatedLovableStagingBuild({
+  isLovableSandbox,
+  appEnv,
+  runtimeEnv: process.env,
+  publicBuildEnv,
+});
 const publicBuildInputs = resolvePublicBuildInputs({
   runtimeEnv: process.env,
   publicBuildEnv,

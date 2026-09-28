@@ -16,6 +16,13 @@ export function paymentsClientTokenMode(
   token: string | undefined | null,
 ): PaymentsEnvironment;
 
+export function isIsolatedLovableStagingBuild(input?: {
+  isLovableSandbox?: boolean;
+  appEnv?: string;
+  runtimeEnv?: Record<string, string | undefined>;
+  publicBuildEnv?: PublicBuildEnvironment;
+}): boolean;
+
 export function resolvePublicBuildInputs(input?: {
   runtimeEnv?: Record<string, string | undefined>;
   publicBuildEnv?: PublicBuildEnvironment;

@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   assertLovablePublicBuildInputs,
+  isIsolatedLovableStagingBuild,
   paymentsClientTokenMode,
   paymentsEnvironmentForHostname,
   resolvePublicBuildInputs,
@@ -11,6 +12,45 @@ import {
 
 const SANDBOX_TOKEN = "pk_test_fixture";
 const LIVE_TOKEN = "pk_live_fixture";
+
+test("isolated Lovable staging detection accepts Vite's loaded staging label", () => {
+  assert.equal(
+    isIsolatedLovableStagingBuild({
+      isLovableSandbox: true,
+      appEnv: "staging",
+      publicBuildEnv: { VITE_APP_ENV: "staging" },
+    }),
+    true,
+  );
+});
+
+test("isolated Lovable staging detection fails closed on identity drift", () => {
+  assert.equal(
+    isIsolatedLovableStagingBuild({
+      isLovableSandbox: false,
+      appEnv: "staging",
+      publicBuildEnv: { VITE_APP_ENV: "staging" },
+    }),
+    false,
+  );
+  assert.equal(
+    isIsolatedLovableStagingBuild({
+      isLovableSandbox: true,
+      appEnv: "production",
+      publicBuildEnv: { VITE_APP_ENV: "staging" },
+    }),
+    false,
+  );
+  assert.equal(
+    isIsolatedLovableStagingBuild({
+      isLovableSandbox: true,
+      appEnv: "staging",
+      runtimeEnv: { VITE_APP_ENV: "production" },
+      publicBuildEnv: { VITE_APP_ENV: "staging" },
+    }),
+    false,
+  );
+});
 
 test("standard VITE inputs retain priority and empty values do not mask tracked inputs", () => {
   assert.deepEqual(

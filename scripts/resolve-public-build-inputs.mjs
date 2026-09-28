@@ -12,6 +12,24 @@ export function paymentsClientTokenMode(token) {
   return "unknown";
 }
 
+export function isIsolatedLovableStagingBuild({
+  isLovableSandbox = false,
+  appEnv = "",
+  runtimeEnv = {},
+  publicBuildEnv = {},
+} = {}) {
+  const viteAppEnv = firstNonEmpty(
+    runtimeEnv.VITE_APP_ENV,
+    publicBuildEnv.VITE_APP_ENV,
+  );
+
+  return (
+    isLovableSandbox &&
+    firstNonEmpty(appEnv) === "staging" &&
+    viteAppEnv === "staging"
+  );
+}
+
 /**
  * Resolve the public values that Vite embeds into the browser and SSR bundles.
  *
