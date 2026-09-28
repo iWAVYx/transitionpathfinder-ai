@@ -8,6 +8,7 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { LiveStudentWorkspaceLoader } from "@/components/dashboard/LiveStudentWorkspaceOverview";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { ResumeWhereYouLeftOff } from "@/components/student/ResumeWhereYouLeftOff";
 import { getHub } from "@/lib/hubs/registry";
@@ -35,6 +36,7 @@ function HubPage() {
       <HubShell hub={getHub("student-planning")!} hideSpokes>
         <WorkspaceZone>
           <LiveStudentWorkspaceLoader />
+          <DashboardWidgetBoard role="student" />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Your Record"

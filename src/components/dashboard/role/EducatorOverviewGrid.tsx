@@ -142,7 +142,7 @@ const TILES: Tile[] = [
     tone: "muted",
     summary: "Meetings and check-ins across your caseload — one calendar view.",
     bullets: [{ label: "Next 30 days", value: "7" }],
-    cta: { label: "Open Calendar", to: "/meetings" },
+    cta: { label: "Open Calendar", to: "/calendar" },
   },
   {
     featureId: "documents",

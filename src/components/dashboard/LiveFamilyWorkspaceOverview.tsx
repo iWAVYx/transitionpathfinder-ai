@@ -175,7 +175,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         { label: "Next event", value: meetingDate },
         { label: "Location", value: snapshot.upcomingMeeting?.location ?? "—" },
       ],
-      cta: { label: "Open Calendar", to: "/meetings" },
+      cta: { label: "Open Calendar", to: "/calendar" },
       dataSource: "Authorized meeting calendar",
       privacyNote: liveStudentBoundary,
     },

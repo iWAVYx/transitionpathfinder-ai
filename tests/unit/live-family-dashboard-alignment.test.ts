@@ -14,6 +14,7 @@ const DEMO_MODE = read("src/routes/_authenticated/demo-mode.tsx");
 const FAMILY_UPLOAD = read("src/components/students/FamilyDocumentUpload.tsx");
 const TOOL_CARD = read("src/components/dashboard/ToolPreviewCard.tsx");
 const LIVE_DRAWER = read("src/components/dashboard/LiveToolPreviewDrawer.tsx");
+const CALENDAR_PAGE = read("src/routes/_authenticated/calendar.tsx");
 
 describe("live family dashboard and document truthfulness alignment", () => {
   it("puts the demo-shaped overview at the top of the real family dashboard", () => {
@@ -94,7 +95,8 @@ describe("live family dashboard and document truthfulness alignment", () => {
       'to: "/students/$studentId"',
       'to: "/pathway"',
       'to: "/documents"',
-      'to: "/meetings"',
+      'to: "/ppt-prep"',
+      'to: "/calendar"',
     ]) {
       expect(LIVE_OVERVIEW).toContain(route);
     }
@@ -109,19 +111,20 @@ describe("live family dashboard and document truthfulness alignment", () => {
       expect(DASHBOARD).not.toContain(legacyLink);
     }
 
-    // Removing duplicate navigation must not remove the useful live detail
-    // sections or non-navigation report actions below the preview grid.
+    // Retain report actions while moving the full calendar into its tool.
     for (const retainedDetail of [
       "<ProfileField",
       "<ReportSections",
       "handleDownloadPdf",
       "handleCopyShare",
       'title="Document Hub"',
-      "<DashboardCalendar",
       'title={snap.upcomingMeeting ? "Next Meeting" : "Meeting Prep"}',
     ]) {
       expect(DASHBOARD).toContain(retainedDetail);
     }
+    expect(DASHBOARD).toContain('<DashboardWidgetBoard role="family"');
+    expect(DASHBOARD).not.toContain("<DashboardCalendar");
+    expect(CALENDAR_PAGE).toContain("<DashboardCalendar");
   });
 
   it("derives the live readiness meter from real document categories", () => {

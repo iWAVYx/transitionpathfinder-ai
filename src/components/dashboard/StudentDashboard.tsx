@@ -20,7 +20,7 @@ import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functio
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
-import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
 import { LiveStudentWorkspaceOverview } from "@/components/dashboard/LiveStudentWorkspaceOverview";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
@@ -93,6 +93,7 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
 
           <div className="mt-6">
             <LiveStudentWorkspaceOverview snapshot={snap} />
+            <DashboardWidgetBoard role="student" studentId={s.id} />
           </div>
 
           <div className="mt-6">
@@ -190,11 +191,6 @@ export function StudentDashboard({ firstName, snap, onToggleAction, onReconnect 
 
           {/* Explore — grade-band aware tools just for you */}
           <ExploreForStudent gradeBand={s.grade_band} />
-
-          {/* Calendar — your meetings, prep steps, and team events */}
-          <div className="mt-6">
-            <DashboardCalendar studentId={s.id} compact title="Your calendar" />
-          </div>
 
           {/* IEP summary in plain language */}
           <div className="mt-6">

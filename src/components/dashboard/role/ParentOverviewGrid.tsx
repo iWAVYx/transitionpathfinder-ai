@@ -108,7 +108,7 @@ const TILES: Tile[] = [
     tone: "muted",
     summary: "PPTs, IEP reviews, tours, and check-ins — one calendar for the family.",
     bullets: [{ label: "Next 30 days", value: "3" }],
-    cta: { label: "Open Calendar", to: "/meetings" },
+    cta: { label: "Open Calendar", to: "/calendar" },
   },
   {
     featureId: "action-items",

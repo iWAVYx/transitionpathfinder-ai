@@ -5,6 +5,7 @@ import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { LiveEducatorWorkspaceOverview } from "@/components/dashboard/LiveEducatorWorkspaceOverview";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 
 import { getHub } from "@/lib/hubs/registry";
@@ -32,6 +33,7 @@ function HubPage() {
       <HubShell hub={getHub("caseload-planning")!} hideSpokes>
         <WorkspaceZone>
           <LiveEducatorWorkspaceOverview />
+          <DashboardWidgetBoard role="educator" />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Activity / Next Steps"

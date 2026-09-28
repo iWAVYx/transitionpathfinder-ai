@@ -104,38 +104,31 @@ function parseDateOnly(input: string): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** List every student id the caller can access (owner OR accepted collaborator). */
+/** List student ids visible to the caller through the existing students RLS.
+ * This includes a student's own linked account and authorized school views,
+ * not just owners and invited collaborators. Never use a service-role client.
+ */
 async function listAccessibleStudentIds(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
-  userId: string,
+  studentId?: string,
 ): Promise<Array<{ id: string; name: string }>> {
-  const [ownedRes, collabRes] = await Promise.all([
-    supabase.from("students").select("id, first_name, last_name").eq("owner_id", userId),
-    supabase
-      .from("student_collaborators")
-      .select("student_id, students:student_id (id, first_name, last_name)")
-      .eq("user_id", userId)
-      .eq("status", "accepted"),
-  ]);
-
-  const map = new Map<string, string>();
-  for (const s of (ownedRes.data ?? []) as Array<{
+  let query = supabase
+    .from("students")
+    .select("id, first_name, last_name")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (studentId) query = query.eq("id", studentId);
+  const { data, error } = await query;
+  if (error) throw new Error("Could not load authorized calendar students.");
+  return ((data ?? []) as Array<{
     id: string;
     first_name: string;
     last_name: string | null;
-  }>) {
-    map.set(s.id, `${s.first_name}${s.last_name ? ` ${s.last_name}` : ""}`);
-  }
-  for (const c of (collabRes.data ?? []) as Array<{
-    students: { id: string; first_name: string; last_name: string | null } | null;
-  }>) {
-    const s = c.students;
-    if (s && !map.has(s.id)) {
-      map.set(s.id, `${s.first_name}${s.last_name ? ` ${s.last_name}` : ""}`);
-    }
-  }
-  return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }>).map((student) => ({
+    id: student.id,
+    name: `${student.first_name}${student.last_name ? ` ${student.last_name}` : ""}`,
+  }));
 }
 
 export const listCalendarEvents = createServerFn({ method: "POST" })
@@ -163,10 +156,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     const toIso = data.to ?? toIsoDate(defaultTo);
 
     // Resolve accessible students (filtered to one if requested).
-    const allStudents = await listAccessibleStudentIds(supabase, userId);
-    const students = data.student_id
-      ? allStudents.filter((s) => s.id === data.student_id)
-      : allStudents;
+    const students = await listAccessibleStudentIds(supabase, data.student_id);
     const ids = students.map((s) => s.id);
     const nameById = new Map(students.map((s) => [s.id, s.name]));
 
