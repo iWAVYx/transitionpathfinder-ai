@@ -9327,6 +9327,10 @@ export type Database = {
         Args: { _channel_id: string; _user_id: string }
         Returns: boolean
       }
+      is_linked_student_channel_participant: {
+        Args: { p_student_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_org_admin: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -9337,6 +9341,23 @@ export type Database = {
       }
       is_partner_only: { Args: { _user_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_student_channel_students: {
+        Args: Record<PropertyKey, never>
+        Returns: { student_id: string; student_name: string }[]
+      }
+      list_student_channel_recipients: {
+        Args: { p_student_id: string }
+        Returns: { user_id: string; display_name: string }[]
+      }
+      start_student_channel: {
+        Args: {
+          p_student_id: string
+          p_recipient_id: string
+          p_title: string
+          p_first_message: string
+        }
+        Returns: string
+      }
       issue_license_access_code: {
         Args: {
           _capacity: number

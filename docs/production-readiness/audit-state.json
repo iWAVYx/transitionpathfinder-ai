@@ -45,13 +45,13 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 198,
-    "latestCanonicalFile": "20260927210000_narrow_catalog_and_site_media_reads.sql",
+    "canonicalCount": 199,
+    "latestCanonicalFile": "20260928040000_atomic_student_channel_start.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 4
+    "pendingProductionCount": 5
   }
 }

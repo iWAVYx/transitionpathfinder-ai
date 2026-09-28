@@ -153,6 +153,26 @@ jobs:
           tests/security-finding-alignment.test.mjs
           tests/security-definer-routine-grants.test.mjs
           tests/channel-attachment-malware-gate.test.mjs
+          tests/channel-start-boundary.test.mjs
+
+      - name: Student channel-start RPC remains narrowly executable
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select has_function_privilege('authenticated',
+              'public.start_student_channel(uuid, uuid, text, text)', 'EXECUTE')
+              and not has_function_privilege('anon',
+                'public.start_student_channel(uuid, uuid, text, text)', 'EXECUTE')
+              and has_function_privilege('authenticated',
+                'public.list_student_channel_students()', 'EXECUTE')
+              and not has_function_privilege('anon',
+                'public.list_student_channel_students()', 'EXECUTE')
+              and has_function_privilege('authenticated',
+                'public.list_student_channel_recipients(uuid)', 'EXECUTE')
+              and not has_function_privilege('anon',
+                'public.list_student_channel_recipients(uuid)', 'EXECUTE')
+              and not has_function_privilege('authenticated',
+                'public.is_linked_student_channel_participant(uuid, uuid)', 'EXECUTE');
+          " | grep -qx t
 
       - name: Privileged HTTP cron is fail-closed after replay
         run: |
