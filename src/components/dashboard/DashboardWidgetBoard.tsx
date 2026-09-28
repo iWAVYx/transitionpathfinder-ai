@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { listCalendarEvents } from "@/lib/calendar.functions";
+import { widgetLinkDestination } from "@/lib/dashboard/dashboard-widget-navigation";
 import {
   WIDGETS_BY_ROLE,
   getDashboardWidgetPrefs,
@@ -175,23 +176,33 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
             const Icon = id === "actions" ? CheckSquare : id === "calendar" ? CalendarDays : Users;
             const calendarTool = role === "school_admin" ? "/school/calendar" : "/calendar";
             const toolPath = id === "actions" ? "/next-actions" : id === "calendar" ? calendarTool : "/meetings";
+            const toolDestination = widgetLinkDestination(role, toolPath);
             return (
               <div key={id} className="rounded-2xl border border-border bg-card p-5" data-testid={`dashboard-widget-${id}`}>
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="flex items-center gap-2 font-display text-lg"><Icon className="h-5 w-5 text-primary" aria-hidden />{option.title}</h3>
-                  <Link to={toolPath as never} className="text-xs font-semibold text-primary hover:underline">Open tool</Link>
+                  {toolDestination && (
+                    <Link to={toolDestination as never} className="text-xs font-semibold text-primary hover:underline">Open tool</Link>
+                  )}
                 </div>
                 {loading ? <p className="mt-4 text-sm text-foreground/75">Loading your data…</p>
                   : error ? <p className="mt-4 text-sm text-destructive">Could not load this widget.</p>
                     : entries.length === 0 ? <p className="mt-4 text-sm text-foreground/75">Nothing upcoming yet.</p>
                       : (
                         <ul className="mt-3 divide-y divide-border/60">
-                          {entries.map((entry) => (
-                            <li key={entry.id} className="py-2 text-sm">
-                              <Link to={entry.to as never} className="font-medium text-foreground hover:text-primary hover:underline">{entry.title}</Link>
-                              <p className="line-clamp-1 text-xs text-foreground/75">{entry.detail}</p>
-                            </li>
-                          ))}
+                          {entries.map((entry) => {
+                            const destination = widgetLinkDestination(role, entry.to);
+                            return (
+                              <li key={entry.id} className="py-2 text-sm">
+                                {destination ? (
+                                  <Link to={destination as never} className="font-medium text-foreground hover:text-primary hover:underline">{entry.title}</Link>
+                                ) : (
+                                  <span className="font-medium text-foreground">{entry.title}</span>
+                                )}
+                                <p className="line-clamp-1 text-xs text-foreground/75">{entry.detail}</p>
+                              </li>
+                            );
+                          })}
                         </ul>
                       )}
               </div>
