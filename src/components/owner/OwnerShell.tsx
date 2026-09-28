@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { isOwnerHubHomePath } from "@/lib/owner/owner-hub-home-path";
 import { toTitleCase } from "@/lib/title-case";
 import {
   DASHBOARD_TESTID_CONTRACT_VERSION,
@@ -218,6 +219,7 @@ export function OwnerShell({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isOwnerHubHome = isOwnerHubHomePath(location.pathname);
   const fetchRoles = useServerFn(getMyAdminRoles);
   const [status, setStatus] = useState<"checking" | "allowed" | "denied" | "error">("checking");
 
@@ -317,6 +319,7 @@ export function OwnerShell({
                 <ul className="space-y-0.5">
                   {OWNER_NAV.filter((n) => n.group === g).map((n) => {
                     const active =
+                      (n.to === "/owner" && isOwnerHubHome) ||
                       location.pathname === n.to ||
                       (n.to !== "/owner" && location.pathname.startsWith(n.to));
                     const Icon = n.icon;
@@ -361,7 +364,7 @@ export function OwnerShell({
         {/* Main */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="border-b border-border bg-background px-4 py-4 sm:px-6 sm:py-5">
-            {location.pathname !== "/owner" && (
+            {!isOwnerHubHome && (
               <Link
                 to="/owner"
                 className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
@@ -390,6 +393,7 @@ export function OwnerShell({
               <span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
               {OWNER_NAV.map((n) => {
                 const active =
+                  (n.to === "/owner" && isOwnerHubHome) ||
                   location.pathname === n.to ||
                   (n.to !== "/owner" && location.pathname.startsWith(n.to));
                 return (

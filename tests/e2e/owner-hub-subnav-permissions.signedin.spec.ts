@@ -60,8 +60,15 @@ async function reachedOwnerSurface(page: Page, route: string): Promise<boolean> 
   const path = new URL(page.url()).pathname;
   if (!path.startsWith("/owner")) return false;
   if (path !== route && !path.startsWith(`${route}/`)) return false;
-  const body = (await page.locator("body").innerText().catch(() => "")).toLowerCase();
-  if (/do not have permission|not authori[sz]ed|forbidden|sign in|checking admin access/.test(body)) {
+  const body = (
+    await page
+      .locator("body")
+      .innerText()
+      .catch(() => "")
+  ).toLowerCase();
+  if (
+    /do not have permission|not authori[sz]ed|forbidden|sign in|checking admin access/.test(body)
+  ) {
     return false;
   }
   return true;
@@ -78,10 +85,9 @@ for (const role of ROLES) {
       test(`cannot reach ${route}`, async ({ page }) => {
         await page.goto(route, { waitUntil: "networkidle" }).catch(() => {});
         const leaked = await reachedOwnerSurface(page, route);
-        expect(
-          leaked,
-          `${role.key} rendered owner sub-nav page ${route} (url=${page.url()})`,
-        ).toBe(false);
+        expect(leaked, `${role.key} rendered owner sub-nav page ${route} (url=${page.url()})`).toBe(
+          false,
+        );
       });
     }
   });
@@ -91,6 +97,20 @@ test.describe("Platform Admin — Owner Hub sub-nav resolves without redirects",
   const owner = ROLES.find((r) => r.key === "owner")!;
   test.skip(() => !existsSync(owner.storageState), "no owner storageState");
   test.use({ storageState: owner.storageState });
+
+  test("legacy /admin is Owner Hub home, not a tool with a self-return link", async ({ page }) => {
+    await page.goto("/admin", { waitUntil: "networkidle" });
+    await expect(page.locator('[data-dashboard-landmark="admin"]')).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to Owner Hub" })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Owner Hub", exact: true }).first(),
+    ).toHaveAttribute("aria-current", "page");
+  });
+
+  test("deeper Owner Hub tools retain their return link", async ({ page }) => {
+    await page.goto("/owner/users", { waitUntil: "networkidle" });
+    await expect(page.getByRole("link", { name: "Back to Owner Hub" })).toBeVisible();
+  });
 
   for (const route of OWNER_SUBNAV) {
     test(`owner reaches ${route}`, async ({ page }) => {
