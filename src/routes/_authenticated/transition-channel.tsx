@@ -81,6 +81,7 @@ import {
 } from "@/lib/channel-connection-requests.functions";
 import { audiencesForRoles, fallbackPathFor, type RoleAudience } from "@/lib/role-policy";
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
+import { StartStudentConversation } from "@/components/channels/StartStudentConversation";
 import { ChannelMuteToggle } from "@/components/channels/ChannelMuteToggle";
 import {
   SensitiveFilePrivacyReviewDialog,
@@ -912,6 +913,7 @@ function EmptyState({ icon: Icon, message }: { icon: React.ElementType; message:
 }
 
 function ChannelConversationTab({ search }: { search: FilterState }) {
+  const navigate = useNavigate();
   const listFn = useServerFn(listMyChannels);
   const msgsFn = useServerFn(listChannelMessages);
   const sendFn = useServerFn(sendChannelMessage);
@@ -954,7 +956,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     () => channels.find((c) => c.id === activeId) ?? null,
     [channels, activeId],
   );
-  const isAdmin = active?.member_role === "admin";
+  const isAdmin = active?.member_role === "admin" || active?.member_role === "owner";
 
   const messagesQuery = useQuery({
     queryKey: ["transition-channel-messages", activeId],
@@ -1149,20 +1151,40 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
         });
       }
     },
+    onError: (error: Error) => {
+      toast.error(error.message || "Could not send this message. It remains in the composer.");
+    },
   });
 
   const pinned = pinnedQuery.data?.pinned ?? [];
 
   return (
     <>
+      <StartStudentConversation onCreated={(channelId) => {
+        setActiveId(channelId);
+        setThreadParentId(null);
+        navigate({
+          to: "/transition-channel",
+          search: {
+            ...search,
+            tab: "channels",
+            unread: "all",
+            archived: "active",
+            student: undefined,
+            type: undefined,
+            org: undefined,
+            opportunity: undefined,
+          },
+        });
+      }} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[280px_1fr]">
         <aside className="max-h-[50vh] overflow-y-auto rounded-lg border bg-muted/30 md:max-h-[70vh]">
           {channelsQuery.isLoading ? (
             <div className="p-4 text-sm text-muted-foreground">Loading channels…</div>
           ) : channels.length === 0 ? (
             <div className="p-6 text-sm text-muted-foreground">
-              You don't have any channels matching your filters. Adjust filters or wait for your
-              team, family, or partner network channels to appear.
+              No channels match your filters. Adjust filters, or start a conversation with a
+              connected student-team member above.
             </div>
           ) : (
             <ul className="divide-y">
