@@ -25,7 +25,6 @@ import {
 } from "@/lib/school-admin.functions";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
-
 export function useSchoolDashboard() {
   const fetchDash = useServerFn(getSchoolDashboard);
   const [data, setData] = useState<SchoolDashboard | null>(null);
@@ -78,7 +77,7 @@ export function SchoolPageShell({
         <section className="mx-auto w-full max-w-7xl overflow-x-clip px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
           <Breadcrumbs
             trail={[
-              { label: "Dashboard", to: "/dashboard" },
+              { label: "School Dashboard", to: "/school/overview" },
               { label: "School Administration" },
               { label: title },
             ]}
@@ -119,8 +118,8 @@ export function SchoolPageShell({
                   Loading School Administration Data
                 </h2>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                  Gathering connected staff, students, and transition planning
-                  activity for your school.
+                  Gathering connected staff, students, and transition planning activity for your
+                  school.
                 </p>
                 <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -129,17 +128,18 @@ export function SchoolPageShell({
               </div>
             ) : !data?.is_school_admin || data.orgs.length === 0 ? (
               <CreateSchoolCard onCreated={() => window.location.reload()} />
-            ) : (() => {
+            ) : (
+              (() => {
                 const org = data.orgs.find((o) => o.id === orgId) ?? data.orgs[0];
                 return children(org, data);
-              })()}
+              })()
+            )}
           </div>
         </section>
       </RoleGuard>
     </SiteShell>
   );
 }
-
 
 function CreateSchoolCard({ onCreated }: { onCreated: () => void }) {
   const create = useServerFn(createSchoolForAdmin);
@@ -194,7 +194,9 @@ function CreateSchoolCard({ onCreated }: { onCreated: () => void }) {
         <div className="grid gap-1.5">
           <Label>Type</Label>
           <Select value={type} onValueChange={(v) => setType(v as typeof type)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="school">School</SelectItem>
               <SelectItem value="district">District</SelectItem>
@@ -205,11 +207,21 @@ function CreateSchoolCard({ onCreated }: { onCreated: () => void }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="org-city">City</Label>
-            <Input id="org-city" value={city} onChange={(e) => setCity(e.target.value)} maxLength={120} />
+            <Input
+              id="org-city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              maxLength={120}
+            />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="org-state">State</Label>
-            <Input id="org-state" value={state} onChange={(e) => setState(e.target.value)} maxLength={60} />
+            <Input
+              id="org-state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              maxLength={60}
+            />
           </div>
         </div>
         <div>

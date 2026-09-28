@@ -5,19 +5,13 @@ import { toast } from "sonner";
 import QRCode from "qrcode";
 
 import { Button } from "@/components/ui/button";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { SiteShell } from "@/components/site/SiteShell";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/security")({
   head: () => ({
-    meta: [
-      { title: "Security — TransitionForward" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Security — TransitionForward" }, { name: "robots", content: "noindex" }],
   }),
   component: SecurityPage,
 });
@@ -33,9 +27,7 @@ function SecurityPage() {
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [pendingFactorId, setPendingFactorId] = useState<string | null>(null);
-  const [pendingChallengeId, setPendingChallengeId] = useState<string | null>(
-    null,
-  );
+  const [pendingChallengeId, setPendingChallengeId] = useState<string | null>(null);
   const [otpauth, setOtpauth] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -45,7 +37,7 @@ function SecurityPage() {
   const refresh = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase.auth.mfa.listFactors();
-    setFactors(((data?.totp as Factor[]) ?? []));
+    setFactors((data?.totp as Factor[]) ?? []);
     setLoading(false);
   }, []);
 
@@ -115,108 +107,98 @@ function SecurityPage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="font-display text-3xl font-medium tracking-tight">
-        Security
-      </h1>
+    <SiteShell>
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <h1 className="font-display text-3xl font-medium tracking-tight">Security</h1>
 
-      <section className="mt-8 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <h2 className="font-display text-xl font-medium">
-          Two-factor authentication
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Add a time-based one-time code from an authenticator app
-          (1Password, Authy, Google Authenticator…) on top of your password.
-        </p>
+        <section className="mt-8 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
+          <h2 className="font-display text-xl font-medium">Two-factor authentication</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Add a time-based one-time code from an authenticator app (1Password, Authy, Google
+            Authenticator…) on top of your password.
+          </p>
 
-        {loading ? (
-          <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
-        ) : factors.filter((f) => f.status === "verified").length > 0 ? (
-          <ul className="mt-4 space-y-2">
-            {factors
-              .filter((f) => f.status === "verified")
-              .map((f) => (
-                <li
-                  key={f.id}
-                  className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm"
-                >
-                  <span>{f.friendly_name || "Authenticator app"}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => remove(f.id)}
+          {loading ? (
+            <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+          ) : factors.filter((f) => f.status === "verified").length > 0 ? (
+            <ul className="mt-4 space-y-2">
+              {factors
+                .filter((f) => f.status === "verified")
+                .map((f) => (
+                  <li
+                    key={f.id}
+                    className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm"
                   >
-                    Remove
-                  </Button>
-                </li>
-              ))}
-          </ul>
-        ) : !enrolling ? (
-          <Button type="button" className="mt-4" onClick={startEnroll}>
-            Set up authenticator app
-          </Button>
-        ) : null}
+                    <span>{f.friendly_name || "Authenticator app"}</span>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => remove(f.id)}>
+                      Remove
+                    </Button>
+                  </li>
+                ))}
+            </ul>
+          ) : !enrolling ? (
+            <Button type="button" className="mt-4" onClick={startEnroll}>
+              Set up authenticator app
+            </Button>
+          ) : null}
 
-        {enrolling && otpauth && (
-          <form onSubmit={finishEnroll} className="mt-6 space-y-4">
-            <div className="rounded-2xl bg-muted p-4">
-              <p className="text-sm font-medium">Scan with your app</p>
-              {qrDataUrl && (
-                <img
-                  src={qrDataUrl}
-                  alt="QR code for two-factor enrollment"
-                  className="mx-auto mt-3 size-44"
-                />
-              )}
-              <p className="mt-3 break-all text-center font-mono text-xs text-muted-foreground">
-                {secret}
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-sm">Then enter the 6-digit code:</p>
-              <InputOTP
-                maxLength={6}
-                value={code}
-                onChange={setCode}
-                aria-label="Confirmation code"
-              >
-                <InputOTPGroup>
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <InputOTPSlot key={i} index={i} />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                disabled={verifying || code.length !== 6}
-              >
-                {verifying ? "Verifying…" : "Confirm"}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setEnrolling(false);
-                  if (pendingFactorId) {
-                    supabase.auth.mfa.unenroll({ factorId: pendingFactorId });
-                  }
-                  setPendingFactorId(null);
-                  setPendingChallengeId(null);
-                  setOtpauth(null);
-                  setSecret(null);
-                  setQrDataUrl(null);
-                  setCode("");
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        )}
-      </section>
-    </main>
+          {enrolling && otpauth && (
+            <form onSubmit={finishEnroll} className="mt-6 space-y-4">
+              <div className="rounded-2xl bg-muted p-4">
+                <p className="text-sm font-medium">Scan with your app</p>
+                {qrDataUrl && (
+                  <img
+                    src={qrDataUrl}
+                    alt="QR code for two-factor enrollment"
+                    className="mx-auto mt-3 size-44"
+                  />
+                )}
+                <p className="mt-3 break-all text-center font-mono text-xs text-muted-foreground">
+                  {secret}
+                </p>
+              </div>
+              <div>
+                <p className="mb-2 text-sm">Then enter the 6-digit code:</p>
+                <InputOTP
+                  maxLength={6}
+                  value={code}
+                  onChange={setCode}
+                  aria-label="Confirmation code"
+                >
+                  <InputOTPGroup>
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <InputOTPSlot key={i} index={i} />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={verifying || code.length !== 6}>
+                  {verifying ? "Verifying…" : "Confirm"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setEnrolling(false);
+                    if (pendingFactorId) {
+                      supabase.auth.mfa.unenroll({ factorId: pendingFactorId });
+                    }
+                    setPendingFactorId(null);
+                    setPendingChallengeId(null);
+                    setOtpauth(null);
+                    setSecret(null);
+                    setQrDataUrl(null);
+                    setCode("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </section>
+      </div>
+    </SiteShell>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown, Shield } from "lucide-react";
+import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
 import { getProgramEligibility } from "@/lib/bridgeforward.functions";
-import { audiencesForRoles, type RoleAudience } from "@/lib/role-policy";
+import { audiencesForRoles, dashboardHomeForRoles, type RoleAudience } from "@/lib/role-policy";
 import { toTitleCase } from "@/lib/title-case";
 
 type NavLink = { to: string; label: string; desc?: string };
@@ -44,9 +44,21 @@ const navGroups: NavGroup[] = [
   {
     label: "Programs",
     items: [
-      { to: "/bridgeforward", label: "BridgeForward (6–8)", desc: "Middle-school bridge into high school." },
-      { to: "/programs/transitionforward", label: "TransitionForward (9–12)", desc: "High school planning through graduation." },
-      { to: "/partnerforward", label: "PartnerForward", desc: "Incentives & support for partner organizations." },
+      {
+        to: "/bridgeforward",
+        label: "BridgeForward (6–8)",
+        desc: "Middle-school bridge into high school.",
+      },
+      {
+        to: "/programs/transitionforward",
+        label: "TransitionForward (9–12)",
+        desc: "High school planning through graduation.",
+      },
+      {
+        to: "/partnerforward",
+        label: "PartnerForward",
+        desc: "Incentives & support for partner organizations.",
+      },
     ],
   },
   {
@@ -270,6 +282,7 @@ export function SiteHeader() {
 
   const showSignedInNav = Boolean(user && signedInNavAllowed);
   const signedInUser = showSignedInNav ? user : null;
+  const dashboardHome = dashboardHomeForRoles(roles, isPlatformAdmin);
 
   return (
     <header
@@ -293,19 +306,28 @@ export function SiteHeader() {
         </SmartLink>
 
         <nav aria-label="Primary" className="hidden min-w-0 items-center gap-0.5 xl:flex">
-        {navGroups.map((group) => (
-            <DropdownMenu key={group.label} onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}>
+          {navGroups.map((group) => (
+            <DropdownMenu
+              key={group.label}
+              onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}
+            >
               <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                 {group.label} <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" data-lenis-prevent className="max-h-[min(70vh,32rem)] min-w-64 overflow-y-auto overscroll-contain p-2">
+              <DropdownMenuContent
+                align="start"
+                data-lenis-prevent
+                className="max-h-[min(70vh,32rem)] min-w-64 overflow-y-auto overscroll-contain p-2"
+              >
                 {group.items.map((item) => (
                   <DropdownMenuItem key={item.to} asChild className="cursor-pointer">
                     <SmartLink
                       to={item.to}
                       className="flex flex-col items-start gap-0.5 rounded-lg px-3 py-2"
                     >
-                      <span className="text-sm font-medium text-foreground">{toTitleCase(item.label)}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {toTitleCase(item.label)}
+                      </span>
                       {item.desc && (
                         <span className="text-xs text-primary/75">{toTitleCase(item.desc)}</span>
                       )}
@@ -333,26 +355,21 @@ export function SiteHeader() {
               <NotificationsBell userId={signedInUser.id} />
 
               <SmartLink
-                to="/dashboard"
+                to={dashboardHome.to}
                 className="whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground lg:px-2.5"
               >
-                Dashboard
+                {dashboardHome.label}
               </SmartLink>
-
-              {isPlatformAdmin && (
-                <SmartLink
-                  to="/owner"
-                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/15 lg:px-2.5"
-                >
-                  <Shield className="h-3.5 w-3.5" /> Admin Hub
-                </SmartLink>
-              )}
 
               <DropdownMenu onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
                   More <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" data-lenis-prevent className="max-h-[min(70vh,32rem)] min-w-56 overflow-y-auto overscroll-contain p-1.5">
+                <DropdownMenuContent
+                  align="end"
+                  data-lenis-prevent
+                  className="max-h-[min(70vh,32rem)] min-w-56 overflow-y-auto overscroll-contain p-1.5"
+                >
                   {visibleUserGroups.map((group, idx) => (
                     <div key={group.label}>
                       {idx > 0 && <DropdownMenuSeparator />}
@@ -369,14 +386,12 @@ export function SiteHeader() {
                     </div>
                   ))}
                 </DropdownMenuContent>
-
               </DropdownMenu>
 
               <button
                 type="button"
                 onClick={() => signOut()}
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all hover:shadow-lift lg:px-3.5"
-
               >
                 Sign Out
               </button>
@@ -433,6 +448,19 @@ export function SiteHeader() {
             </div>
 
             <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
+              {signedInUser && (
+                <nav aria-label="Return to workspace" className="mb-5">
+                  <SmartLink
+                    to={dashboardHome.to}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
+                    activeProps={{ className: "bg-primary/15" }}
+                  >
+                    <LayoutDashboard className="h-4 w-4" aria-hidden />
+                    {dashboardHome.label}
+                  </SmartLink>
+                </nav>
+              )}
               <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Explore
               </p>
@@ -484,27 +512,6 @@ export function SiteHeader() {
                   <p className="mt-6 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Your Workspace
                   </p>
-                  <nav className="flex flex-col gap-0.5">
-                    <SmartLink
-                      to="/dashboard"
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                      activeProps={{ className: "text-foreground bg-muted" }}
-                    >
-                      <LayoutDashboard className="h-4 w-4" />
-                      Dashboard
-                    </SmartLink>
-                    {isPlatformAdmin && (
-                      <SmartLink
-                        to="/owner"
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/15"
-                      >
-                        <Shield className="h-4 w-4" />
-                        Admin Hub
-                      </SmartLink>
-                    )}
-                  </nav>
                   {visibleUserGroups.map((group) => (
                     <details key={group.label} className="group/menu mt-1 rounded-xl">
                       <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
@@ -526,10 +533,8 @@ export function SiteHeader() {
                       </div>
                     </details>
                   ))}
-
                 </>
               )}
-
             </div>
 
             <div className="border-t border-border/60 bg-muted/30 px-4 py-4">

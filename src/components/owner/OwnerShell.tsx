@@ -48,7 +48,7 @@ type NavItem = OwnerNavItem;
 // renders groups in this declaration order, and "Overview" leads.
 export const OWNER_NAV: NavItem[] = [
   // 1. Overview
-  { to: "/owner", label: "Dashboard", icon: LayoutDashboard, group: "Overview" },
+  { to: "/owner", label: "Owner Hub", icon: LayoutDashboard, group: "Overview" },
   { to: "/owner/analytics", label: "Analytics", icon: TrendingUp, group: "Overview" },
   { to: "/owner/activity", label: "Recent activity", icon: History, group: "Overview" },
 
@@ -361,6 +361,15 @@ export function OwnerShell({
         {/* Main */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="border-b border-border bg-background px-4 py-4 sm:px-6 sm:py-5">
+            {location.pathname !== "/owner" && (
+              <Link
+                to="/owner"
+                className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="h-4 w-4" aria-hidden />
+                Back to Owner Hub
+              </Link>
+            )}
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h1 className="font-display text-2xl font-medium tracking-tight">{title}</h1>

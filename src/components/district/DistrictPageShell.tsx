@@ -85,7 +85,7 @@ export function DistrictPageShell({
           <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
             <Breadcrumbs
               trail={[
-                { label: "Dashboard", to: "/dashboard" },
+                { label: "District Dashboard", to: "/district/overview" },
                 { label: "District Administration" },
                 { label: title },
               ]}
@@ -96,9 +96,7 @@ export function DistrictPageShell({
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                   District leadership
                 </p>
-                <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">
-                  {title}
-                </h1>
+                <h1 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">{title}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
               </div>
               {data && data.districts.length > 1 && (
@@ -128,8 +126,8 @@ export function DistrictPageShell({
                     Loading District Administration Data
                   </h2>
                   <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                    Aggregating schools, staff, and transition planning
-                    progress across your district.
+                    Aggregating schools, staff, and transition planning progress across your
+                    district.
                   </p>
                   <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -138,11 +136,13 @@ export function DistrictPageShell({
                 </div>
               ) : !data?.is_district_admin || data.districts.length === 0 ? (
                 <CreateDistrictCard onCreated={() => window.location.reload()} />
-              ) : (() => {
+              ) : (
+                (() => {
                   const district =
                     data.districts.find((d) => d.id === districtId) ?? data.districts[0];
                   return children(district, data);
-                })()}
+                })()
+              )}
             </div>
           </section>
         </RoleGuard>
@@ -151,7 +151,6 @@ export function DistrictPageShell({
     </div>
   );
 }
-
 
 function CreateDistrictCard({ onCreated }: { onCreated: () => void }) {
   const create = useServerFn(createDistrict);
@@ -186,9 +185,8 @@ function CreateDistrictCard({ onCreated }: { onCreated: () => void }) {
       <Building2 className="h-6 w-6 text-primary" />
       <h2 className="mt-3 font-display text-2xl">Set Up Your District</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Create your district workspace so you can connect schools, invite school
-        administrators and educators, and track implementation across your
-        district.
+        Create your district workspace so you can connect schools, invite school administrators and
+        educators, and track implementation across your district.
       </p>
       <form onSubmit={handleSubmit} className="mt-5 grid gap-4 sm:max-w-xl">
         <div className="grid gap-1.5">
@@ -224,11 +222,7 @@ function CreateDistrictCard({ onCreated }: { onCreated: () => void }) {
         </div>
         <div>
           <Button type="submit" disabled={saving || !name.trim()}>
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             Create District
           </Button>
         </div>
