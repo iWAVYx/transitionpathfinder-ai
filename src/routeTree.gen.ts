@@ -115,6 +115,7 @@ import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/em
 import { Route as DemoWorkspaceStageRouteImport } from './routes/demo_.workspace.$stage'
 import { Route as ApiPublicEnvHealthRouteImport } from './routes/api/public/env-health'
 import { Route as ApiPublicChannelDigestTickRouteImport } from './routes/api/public/channel-digest-tick'
+import { Route as ApiPublicBuildHealthRouteImport } from './routes/api/public/build-health'
 import { Route as AuthenticatedWorkspaceStageRouteImport } from './routes/_authenticated/workspace.$stage'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
 import { Route as AuthenticatedStudentHistoryRouteImport } from './routes/_authenticated/student.history'
@@ -772,6 +773,11 @@ const ApiPublicChannelDigestTickRoute =
     path: '/api/public/channel-digest-tick',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicBuildHealthRoute = ApiPublicBuildHealthRouteImport.update({
+  id: '/api/public/build-health',
+  path: '/api/public/build-health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWorkspaceStageRoute =
   AuthenticatedWorkspaceStageRouteImport.update({
     id: '/workspace/$stage',
@@ -1629,6 +1635,7 @@ export interface FileRoutesByFullPath {
   '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/api/public/build-health': typeof ApiPublicBuildHealthRoute
   '/api/public/channel-digest-tick': typeof ApiPublicChannelDigestTickRoute
   '/api/public/env-health': typeof ApiPublicEnvHealthRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -1846,6 +1853,7 @@ export interface FileRoutesByTo {
   '/student/history': typeof AuthenticatedStudentHistoryRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/api/public/build-health': typeof ApiPublicBuildHealthRoute
   '/api/public/channel-digest-tick': typeof ApiPublicChannelDigestTickRoute
   '/api/public/env-health': typeof ApiPublicEnvHealthRoute
   '/demo/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -2067,6 +2075,7 @@ export interface FileRoutesById {
   '/_authenticated/student/history': typeof AuthenticatedStudentHistoryRoute
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
   '/_authenticated/workspace/$stage': typeof AuthenticatedWorkspaceStageRoute
+  '/api/public/build-health': typeof ApiPublicBuildHealthRoute
   '/api/public/channel-digest-tick': typeof ApiPublicChannelDigestTickRoute
   '/api/public/env-health': typeof ApiPublicEnvHealthRoute
   '/demo_/workspace/$stage': typeof DemoWorkspaceStageRoute
@@ -2288,6 +2297,7 @@ export interface FileRouteTypes {
     | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
+    | '/api/public/build-health'
     | '/api/public/channel-digest-tick'
     | '/api/public/env-health'
     | '/demo/workspace/$stage'
@@ -2505,6 +2515,7 @@ export interface FileRouteTypes {
     | '/student/history'
     | '/students/$studentId'
     | '/workspace/$stage'
+    | '/api/public/build-health'
     | '/api/public/channel-digest-tick'
     | '/api/public/env-health'
     | '/demo/workspace/$stage'
@@ -2725,6 +2736,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student/history'
     | '/_authenticated/students/$studentId'
     | '/_authenticated/workspace/$stage'
+    | '/api/public/build-health'
     | '/api/public/channel-digest-tick'
     | '/api/public/env-health'
     | '/demo_/workspace/$stage'
@@ -2809,6 +2821,7 @@ export interface RootRouteChildren {
   ProgramsTransitionforwardRoute: typeof ProgramsTransitionforwardRoute
   ShareTokenRoute: typeof ShareTokenRoute
   GetStartedIndexRoute: typeof GetStartedIndexRoute
+  ApiPublicBuildHealthRoute: typeof ApiPublicBuildHealthRoute
   ApiPublicChannelDigestTickRoute: typeof ApiPublicChannelDigestTickRoute
   ApiPublicEnvHealthRoute: typeof ApiPublicEnvHealthRoute
   DemoWorkspaceStageRoute: typeof DemoWorkspaceStageRoute
@@ -3567,6 +3580,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/channel-digest-tick'
       fullPath: '/api/public/channel-digest-tick'
       preLoaderRoute: typeof ApiPublicChannelDigestTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/build-health': {
+      id: '/api/public/build-health'
+      path: '/api/public/build-health'
+      fullPath: '/api/public/build-health'
+      preLoaderRoute: typeof ApiPublicBuildHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/workspace/$stage': {
@@ -4832,6 +4852,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProgramsTransitionforwardRoute: ProgramsTransitionforwardRoute,
   ShareTokenRoute: ShareTokenRoute,
   GetStartedIndexRoute: GetStartedIndexRoute,
+  ApiPublicBuildHealthRoute: ApiPublicBuildHealthRoute,
   ApiPublicChannelDigestTickRoute: ApiPublicChannelDigestTickRoute,
   ApiPublicEnvHealthRoute: ApiPublicEnvHealthRoute,
   DemoWorkspaceStageRoute: DemoWorkspaceStageRoute,

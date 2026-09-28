@@ -7,16 +7,15 @@ const read = (path) => readFileSync(path, "utf8");
 const alignmentMigration = read(
   "supabase/migrations/20260907190000_security_finding_alignment.sql",
 );
+const publishGateMigration = read(
+  "supabase/migrations/20260927210000_narrow_catalog_and_site_media_reads.sql",
+);
 const priorHardening = read(
   "supabase/migrations/20260821230000_security_remediation_hardening.sql",
 );
 const formsServer = read("src/lib/forms.functions.ts");
-const inventorySql = read(
-  "docs/production-readiness/security-finding-inventory.sql",
-);
-const disposition = read(
-  "docs/production-readiness/security-finding-alignment-2026-09-07.md",
-);
+const inventorySql = read("docs/production-readiness/security-finding-inventory.sql");
+const disposition = read("docs/production-readiness/security-finding-alignment-2026-09-07.md");
 
 test("partner-only detection fails closed for every non-partner role", () => {
   assert.match(
@@ -46,25 +45,19 @@ test("previously applied security remediations remain canonical", () => {
     priorHardening,
     /can_access_student\(auth\.uid\(\), student_id\)[\s\S]*?note_type <> 'private_note'[\s\S]*?visibility <> 'private'/,
   );
-  assert.match(
-    priorHardening,
-    /REVOKE UPDATE ON public\.channel_attachments FROM authenticated/,
-  );
+  assert.match(priorHardening, /REVOKE UPDATE ON public\.channel_attachments FROM authenticated/);
   assert.match(
     priorHardening,
     /REVOKE SELECT \(contact_email, phone\)[\s\S]*?ON public\.partner_organizations FROM PUBLIC, anon, authenticated/,
   );
-  assert.match(
-    priorHardening,
-    /WHERE s\.review_status NOT IN \('archived', 'outdated'\)/,
-  );
+  assert.match(priorHardening, /WHERE s\.review_status NOT IN \('archived', 'outdated'\)/);
   assert.match(
     priorHardening,
     /REVOKE ALL ON FUNCTION public\.accept_invitation_by_token\(text\) FROM PUBLIC, anon/,
   );
 });
 
-test("signed-in form templates use an explicit column allowlist", () => {
+test("signed-in form templates use authenticated, explicit-column RPCs", () => {
   const reviewedColumns = [
     "slug",
     "title",
@@ -83,25 +76,22 @@ test("signed-in form templates use an explicit column allowlist", () => {
   for (const column of reviewedColumns) {
     assert.match(alignmentMigration, new RegExp(`\\b${column}\\b`));
   }
+  assert.match(alignmentMigration, /\) ON public\.form_templates TO authenticated/);
   assert.match(
-    alignmentMigration,
-    /\) ON public\.form_templates TO authenticated/,
+    publishGateMigration,
+    /CREATE OR REPLACE FUNCTION public\.list_available_form_templates\(\)[\s\S]*?RETURNS TABLE\([\s\S]*?slug text,[\s\S]*?title text,[\s\S]*?description text,[\s\S]*?audience text,[\s\S]*?category text,[\s\S]*?schema jsonb,[\s\S]*?created_at timestamptz,[\s\S]*?updated_at timestamptz/,
   );
   assert.match(
-    formsServer,
-    /FORM_TEMPLATE_SELECT\s*=\s*[\s\S]*?slug,title,description,audience,category,schema,created_at,updated_at/,
+    publishGateMigration,
+    /CREATE OR REPLACE FUNCTION public\.get_available_form_template\(_slug text\)[\s\S]*?WHERE auth\.uid\(\) IS NOT NULL/,
   );
-
+  assert.match(formsServer, /\.rpc\("list_available_form_templates"\)/);
   assert.equal(
-    (formsServer.match(/\.from\("form_templates"\)[\s\S]{0,160}?\.select\(FORM_TEMPLATE_SELECT\)/g) ?? [])
-      .length,
+    (formsServer.match(/\.rpc\("get_available_form_template"/g) ?? []).length,
     2,
-    "both form-template readers must use the reviewed column allowlist",
+    "list, detail, and completion flows must stay on reviewed template RPCs",
   );
-  assert.doesNotMatch(
-    formsServer,
-    /\.from\("form_templates"\)[\s\S]{0,160}?\.select\("\*"\)/,
-  );
+  assert.doesNotMatch(formsServer, /\.from\("form_templates"\)/);
 });
 
 test("catalog inventory is read-only and covers privileged routines and extensions", () => {

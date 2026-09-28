@@ -3,8 +3,11 @@
   "scope": "public-schema-security-definer-routines",
   "publicExecute": [],
   "anonymousExecute": [
-    "public.active_jurisdiction_version(text)",
     "public.consume_unsubscribe_token(text)",
+    "public.get_public_jurisdiction_pack(text)",
+    "public.list_public_high_school_program_tags()",
+    "public.list_public_partnerforward_incentive_categories()",
+    "public.list_public_plan_capacities()",
     "public.list_public_resource_sources()",
     "public.resolve_share_token(text)",
     "public.track_share_view(text)"
@@ -12,7 +15,6 @@
   "authenticatedExecute": [
     "public.accept_invitation_by_token(text)",
     "public.activate_license_allocation(uuid, uuid)",
-    "public.active_jurisdiction_version(text)",
     "public.attach_my_pathway_license_to_student(uuid)",
     "public.authorize(uuid, text, text, uuid)",
     "public.can_access_student(uuid, uuid)",
@@ -25,9 +27,11 @@
     "public.effective_entitlement_for_user(uuid)",
     "public.effective_org_access(uuid)",
     "public.ensure_student_self_profile()",
+    "public.get_available_form_template(text)",
     "public.get_invitation_share_token(uuid)",
     "public.get_partner_network_opportunity_contact_email(uuid)",
     "public.get_peer_profile(uuid)",
+    "public.get_public_jurisdiction_pack(text)",
     "public.has_active_entitlement(uuid, text)",
     "public.has_admin_role(uuid, admin_role)",
     "public.has_audience(uuid, text)",
@@ -44,6 +48,10 @@
     "public.issue_license_access_code(uuid, uuid, text, text, text, integer, boolean, timestamp with time zone)",
     "public.license_access_code_options(uuid)",
     "public.license_capacity(uuid, text)",
+    "public.list_available_form_templates()",
+    "public.list_public_high_school_program_tags()",
+    "public.list_public_partnerforward_incentive_categories()",
+    "public.list_public_plan_capacities()",
     "public.list_public_resource_sources()",
     "public.my_activated_license_role()",
     "public.my_sponsored_access()",
@@ -66,6 +74,7 @@
     "public.user_has_feature(uuid, text)"
   ],
   "clientExecuteForbidden": [
+    "public.active_jurisdiction_version(text)",
     "public.channel_retention_purge()",
     "public.delete_email(text, bigint)",
     "public.enforce_student_collaborator_accept()",
@@ -89,8 +98,8 @@
   ],
   "serviceRoleExecute": "all routines in scope",
   "notes": {
-    "anonymous": "Only reviewed public content, share-token, and unsubscribe entry points are callable without a session.",
-    "authenticated": "The allowlist contains caller-authorized RPCs and helpers required by row-level security; internal triggers and maintenance routines are excluded.",
+    "anonymous": "Only reviewed column-limited catalog content, share-token, and unsubscribe entry points are callable without a session.",
+    "authenticated": "The allowlist contains caller-authorized RPCs, narrow form-template readers, and helpers required by row-level security; internal triggers and maintenance routines are excluded.",
     "futureFunctions": "Every future SECURITY DEFINER routine must revoke PUBLIC and client-role execution before granting its reviewed callers."
   }
 }

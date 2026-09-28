@@ -1,9 +1,9 @@
 /**
  * Jurisdiction server functions.
  *
- * Reads the active versioned pack for a jurisdiction. Packs are public
- * reference content, so this uses a publishable-key client and the narrow
- * public SELECT policies on the jurisdiction tables.
+ * Reads the active versioned pack through a column-limited RPC. Anonymous
+ * product surfaces can consume reviewed reference content without receiving
+ * direct SELECT access to the underlying jurisdiction tables.
  */
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
@@ -44,37 +44,16 @@ export const getJurisdictionPack = createServerFn({ method: "GET" })
       },
     });
 
-    const { data: version } = await client
-      .from("jurisdiction_versions")
-      .select(
-        "id, version, effective_from, review_due, terminology, planning_rules, role_labels, privacy_requirements, jurisdictions(name)",
-      )
-      .eq("jurisdiction_code", data.code)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
+    const { data: packs, error } = await client.rpc("get_public_jurisdiction_pack", {
+      _code: data.code,
+    });
+    const version = packs?.[0];
 
-    if (!version) return CT_PACK;
-
-    const [{ data: agencies }, { data: sources }] = await Promise.all([
-      client
-        .from("jurisdiction_agencies")
-        .select("name, kind, url, description")
-        .eq("version_id", version.id)
-        .order("sort_order", { ascending: true }),
-      client
-        .from("jurisdiction_sources")
-        .select("title, url, publisher, last_verified_at")
-        .eq("version_id", version.id),
-    ]);
-
-    const name =
-      (version as unknown as { jurisdictions?: { name?: string } | null })
-        .jurisdictions?.name ?? CT_PACK.name;
+    if (error || !version) return CT_PACK;
 
     return {
-      code: data.code,
-      name,
+      code: version.code,
+      name: version.name,
       version: version.version as number,
       effectiveFrom: version.effective_from as string,
       reviewDue: (version.review_due as string | null) ?? null,
@@ -94,7 +73,7 @@ export const getJurisdictionPack = createServerFn({ method: "GET" })
         string,
         string | number | boolean | null
       >,
-      agencies: (agencies ?? []) as unknown as JurisdictionAgency[],
-      sources: (sources ?? []) as unknown as JurisdictionSource[],
+      agencies: (version.agencies ?? []) as unknown as JurisdictionAgency[],
+      sources: (version.sources ?? []) as unknown as JurisdictionSource[],
     };
   });
