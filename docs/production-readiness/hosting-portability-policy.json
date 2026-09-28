@@ -49,12 +49,12 @@
         "sha256": "03d25a10539bb65319e104d1169be19aa6c54a1df8ac7c41e16b095195496db3"
       },
       "authenticatedRoutes": {
-        "count": 138,
-        "sha256": "29851f22411669a694d6e9dd5bd6aab5a3a9d626cb91369e9164a3687f57d654"
+        "count": 139,
+        "sha256": "40f2de5928515e23002fe1833f0f01cf26652579e7b1938c462286cac250bf7f"
       },
       "serverFunctionFiles": {
-        "count": 117,
-        "sha256": "1e5a20619ba7bd9e984776465efdb67bf7d7054fe2b3bddad15ff983bb7906c2"
+        "count": 118,
+        "sha256": "577ea2ace3025eb63687f23608a60c21d757db26ff135407f7d25c3169073f40"
       },
       "privilegedRuntimeFiles": {
         "count": 62,

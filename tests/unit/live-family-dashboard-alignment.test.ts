@@ -95,7 +95,8 @@ describe("live family dashboard and document truthfulness alignment", () => {
       'to: "/students/$studentId"',
       'to: "/pathway"',
       'to: "/documents"',
-      'to: "/meetings"',
+      'to: "/ppt-prep"',
+      'to: "/calendar"',
     ]) {
       expect(LIVE_OVERVIEW).toContain(route);
     }
