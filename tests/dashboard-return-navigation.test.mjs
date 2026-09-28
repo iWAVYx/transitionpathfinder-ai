@@ -56,7 +56,9 @@ test("school and district breadcrumbs return to their own dashboards", () => {
 test("Owner Hub tools have a visible return link to the Owner Hub", () => {
   assert.match(
     ownerShell,
-    /location\.pathname !== "\/owner"[\s\S]*?<Link[\s\S]*?to="\/owner"[\s\S]*?Back to Owner Hub/,
+    /!isOwnerHubHome[\s\S]*?<Link[\s\S]*?to="\/owner"[\s\S]*?Back to Owner Hub/,
   );
+  assert.match(ownerShell, /isOwnerHubHomePath\(location\.pathname\)/);
+  assert.match(ownerShell, /n\.to === "\/owner" && isOwnerHubHome/g);
   assert.match(ownerShell, /to: "\/owner", label: "Owner Hub"/);
 });
