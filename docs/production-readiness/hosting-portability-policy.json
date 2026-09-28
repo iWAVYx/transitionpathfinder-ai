@@ -57,12 +57,12 @@
         "sha256": "1e5a20619ba7bd9e984776465efdb67bf7d7054fe2b3bddad15ff983bb7906c2"
       },
       "privilegedRuntimeFiles": {
-        "count": 61,
-        "sha256": "b59f97e471d66361bd48a12c3d7969b17955c6b643d4e73a523ab1a6352a710c"
+        "count": 62,
+        "sha256": "f28055fd8c726d6cf31069a80f12875904f26e65cdd7d0c40f12a76959c572bf"
       },
       "explicitEndpointFiles": {
-        "count": 11,
-        "sha256": "3e4b9dba31c85523010e064be8e726691303eba71dcd91dbf93987e3fdceb863"
+        "count": 12,
+        "sha256": "396ec76eb0f5b9fe208d98c87c2ae5bd3a691823c90807f7128acd24b6bd853d"
       }
     }
   },

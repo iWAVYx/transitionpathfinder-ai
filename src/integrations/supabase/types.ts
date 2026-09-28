@@ -9243,6 +9243,19 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_available_form_template: {
+        Args: { _slug: string }
+        Returns: {
+          audience: string
+          category: string
+          created_at: string
+          description: string | null
+          schema: Json
+          slug: string
+          title: string
+          updated_at: string
+        }[]
+      }
       get_invitation_share_token: {
         Args: { _invitation_id: string }
         Returns: string
@@ -9257,6 +9270,22 @@ export type Database = {
           avatar_url: string
           full_name: string
           id: string
+        }[]
+      }
+      get_public_jurisdiction_pack: {
+        Args: { _code?: string }
+        Returns: {
+          agencies: Json
+          code: string
+          effective_from: string
+          name: string
+          planning_rules: Json
+          privacy_requirements: Json
+          review_due: string | null
+          role_labels: Json
+          sources: Json
+          terminology: Json
+          version: number
         }[]
       }
       has_active_entitlement: {
@@ -9342,6 +9371,48 @@ export type Database = {
           available: number
           purchased: number
           reserved: number
+        }[]
+      }
+      list_available_form_templates: {
+        Args: never
+        Returns: {
+          audience: string
+          category: string
+          created_at: string
+          description: string | null
+          schema: Json
+          slug: string
+          title: string
+          updated_at: string
+        }[]
+      }
+      list_public_high_school_program_tags: {
+        Args: never
+        Returns: {
+          category: string | null
+          description: string | null
+          label: string
+          slug: string
+        }[]
+      }
+      list_public_partnerforward_incentive_categories: {
+        Args: never
+        Returns: {
+          description: string | null
+          disclaimer_required: boolean
+          label: string
+          slug: string
+        }[]
+      }
+      list_public_plan_capacities: {
+        Args: never
+        Returns: {
+          admin_seats: number
+          family_accounts_per_pathway: number
+          max_schools: number | null
+          pathway_licenses: number
+          plan_code: string
+          staff_seats: number
         }[]
       }
       list_public_resource_sources: {
