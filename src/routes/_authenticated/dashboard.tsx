@@ -53,7 +53,7 @@ import {
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
-import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { InvitesInbox } from "@/components/dashboard/InvitesInbox";
@@ -642,6 +642,7 @@ function DashboardPage() {
         )}
 
         <LiveFamilyWorkspaceOverview firstName={friendly} snapshot={snap} />
+        <DashboardWidgetBoard role="family" studentId={s?.id} />
 
         <div className="mt-8">
           <AnnouncementsBanner />
@@ -867,18 +868,6 @@ function DashboardPage() {
               )}
             </Panel>
           </div>
-
-          {/* Calendar — meetings, action items, prep deadlines, team events */}
-          <div className="mt-6">
-            <DashboardCalendar
-              studentId={s.id}
-              studentOptions={students.map((st) => ({
-                id: st.id,
-                name: `${st.first_name}${st.last_name ? ` ${st.last_name}` : ""}`,
-              }))}
-            />
-          </div>
-
 
           {/* Meeting Prep + Recommended Resources */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2">

@@ -10,6 +10,7 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { getPartnerWorkspace, type PartnerWorkspace } from "@/lib/partner-workspace.functions";
 import { getHub } from "@/lib/hubs/registry";
@@ -59,6 +60,7 @@ function HubPage() {
       <HubShell hub={getHub("partner-opportunity")!} hideSpokes>
         <WorkspaceZone>
           <PartnerOverviewGrid liveData={workspace} loading={loading} />
+          <DashboardWidgetBoard role="partner" />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Operations"

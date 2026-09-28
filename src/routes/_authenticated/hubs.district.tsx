@@ -15,6 +15,7 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { useDistrictDashboard } from "@/components/district/DistrictPageShell";
 import { getHub } from "@/lib/hubs/registry";
@@ -49,6 +50,7 @@ function HubPage() {
             selectedDistrictId={districtId}
             loading={loading}
           />
+          <DashboardWidgetBoard role="district_admin" />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Operations"

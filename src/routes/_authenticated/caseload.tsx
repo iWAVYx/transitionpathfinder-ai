@@ -43,10 +43,9 @@ import {
 import { NextBestAction } from "@/components/dashboard/NextBestAction";
 import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
-import { DashboardCalendar } from "@/components/dashboard/DashboardCalendar";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { StatGrid, StatCard } from "@/components/layout/StatGrid";
-import { CollapsibleSection } from "@/components/layout/CollapsibleSection";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 import { LiveEducatorWorkspaceOverview } from "@/components/dashboard/LiveEducatorWorkspaceOverview";
@@ -174,6 +173,7 @@ function CaseloadPage() {
 
               <div className="mt-4 space-y-6 sm:space-y-8">
                 <LiveEducatorWorkspaceOverview students={rows} loading={loading} />
+                <DashboardWidgetBoard role="educator" />
 
                 <div className="flex justify-end">
                   <Button asChild className="w-full sm:w-auto">
@@ -250,22 +250,6 @@ function CaseloadPage() {
                     desc="Transition goals"
                   />
                 </div>
-
-                {/* Secondary: team calendar — collapsed on mobile to reduce density */}
-                <CollapsibleSection
-                  title="Team Calendar"
-                  description="Meetings, action items, and team-shared events across your caseload."
-                  icon={<ClipboardList className="h-4 w-4 text-foreground/75" />}
-                >
-                  <DashboardCalendar
-                    title="Team Calendar"
-                    subtitle="Meetings, action items, and team-shared events across your caseload."
-                    studentOptions={rows.map((r) => ({
-                      id: r.id,
-                      name: `${r.first_name}${r.last_name ? ` ${r.last_name}` : ""}`,
-                    }))}
-                  />
-                </CollapsibleSection>
 
                 {/* Filters */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">

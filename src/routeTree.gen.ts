@@ -90,6 +90,7 @@ import { Route as AuthenticatedPartnerNetworkRouteImport } from './routes/_authe
 import { Route as AuthenticatedOwnerRouteImport } from './routes/_authenticated/owner'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedNextActionsRouteImport } from './routes/_authenticated/next-actions'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMeetingsRouteImport } from './routes/_authenticated/meetings'
 import { Route as AuthenticatedMeetingTemplatesRouteImport } from './routes/_authenticated/meeting-templates'
@@ -642,6 +643,12 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedNextActionsRoute =
+  AuthenticatedNextActionsRouteImport.update({
+    id: '/next-actions',
+    path: '/next-actions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -1480,6 +1487,7 @@ export interface FileRoutesByFullPath {
   '/meeting-templates': typeof AuthenticatedMeetingTemplatesRoute
   '/meetings': typeof AuthenticatedMeetingsRouteWithChildren
   '/messages': typeof AuthenticatedMessagesRoute
+  '/next-actions': typeof AuthenticatedNextActionsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
@@ -1699,6 +1707,7 @@ export interface FileRoutesByTo {
   '/meeting-templates': typeof AuthenticatedMeetingTemplatesRoute
   '/meetings': typeof AuthenticatedMeetingsRouteWithChildren
   '/messages': typeof AuthenticatedMessagesRoute
+  '/next-actions': typeof AuthenticatedNextActionsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/partner-network': typeof AuthenticatedPartnerNetworkRoute
@@ -1920,6 +1929,7 @@ export interface FileRoutesById {
   '/_authenticated/meeting-templates': typeof AuthenticatedMeetingTemplatesRoute
   '/_authenticated/meetings': typeof AuthenticatedMeetingsRouteWithChildren
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/next-actions': typeof AuthenticatedNextActionsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
@@ -2142,6 +2152,7 @@ export interface FileRouteTypes {
     | '/meeting-templates'
     | '/meetings'
     | '/messages'
+    | '/next-actions'
     | '/onboarding'
     | '/opportunities'
     | '/owner'
@@ -2361,6 +2372,7 @@ export interface FileRouteTypes {
     | '/meeting-templates'
     | '/meetings'
     | '/messages'
+    | '/next-actions'
     | '/onboarding'
     | '/opportunities'
     | '/partner-network'
@@ -2581,6 +2593,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meeting-templates'
     | '/_authenticated/meetings'
     | '/_authenticated/messages'
+    | '/_authenticated/next-actions'
     | '/_authenticated/onboarding'
     | '/_authenticated/opportunities'
     | '/_authenticated/owner'
@@ -3405,6 +3418,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/next-actions': {
+      id: '/_authenticated/next-actions'
+      path: '/next-actions'
+      fullPath: '/next-actions'
+      preLoaderRoute: typeof AuthenticatedNextActionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/messages': {
@@ -4570,6 +4590,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMeetingTemplatesRoute: typeof AuthenticatedMeetingTemplatesRoute
   AuthenticatedMeetingsRoute: typeof AuthenticatedMeetingsRouteWithChildren
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedNextActionsRoute: typeof AuthenticatedNextActionsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
@@ -4661,6 +4682,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMeetingTemplatesRoute: AuthenticatedMeetingTemplatesRoute,
   AuthenticatedMeetingsRoute: AuthenticatedMeetingsRouteWithChildren,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedNextActionsRoute: AuthenticatedNextActionsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,

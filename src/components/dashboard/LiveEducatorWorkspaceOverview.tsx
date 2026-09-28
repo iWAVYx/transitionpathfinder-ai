@@ -186,7 +186,7 @@ export function LiveEducatorWorkspaceOverview({
         { label: "Next 14 days", value: loading ? "—" : summary.meetingsSoon },
         { label: "Next 30 days", value: loading ? "—" : summary.upcomingMeetings },
       ],
-      cta: { label: "Open Calendar", to: "/meetings" },
+      cta: { label: "Open Calendar", to: "/calendar" },
       dataSource: "Upcoming meetings in your authorized caseload",
       privacyNote: aggregateBoundary,
     },

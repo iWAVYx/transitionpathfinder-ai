@@ -10,6 +10,7 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { LiveFamilyWorkspaceOverview } from "@/components/dashboard/LiveFamilyWorkspaceOverview";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { buildFamilyHubLiveState } from "@/lib/dashboard/family-live-hub";
 import { getDashboardSnapshot, type DashboardSnapshot } from "@/lib/golden-path.functions";
@@ -93,7 +94,10 @@ function HubPage() {
               </p>
             </div>
           ) : snapshot?.student ? (
-            <LiveFamilyWorkspaceOverview firstName={firstName} snapshot={snapshot} />
+            <>
+              <LiveFamilyWorkspaceOverview firstName={firstName} snapshot={snapshot} />
+              <DashboardWidgetBoard role="family" studentId={snapshot.student.id} />
+            </>
           ) : (
             <div className="border-y border-border/70 py-10 text-center">
               <p className="font-display text-xl">No connected student yet.</p>

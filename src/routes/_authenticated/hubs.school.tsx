@@ -8,6 +8,7 @@ import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
 import { useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { getHub } from "@/lib/hubs/registry";
@@ -36,6 +37,7 @@ function HubPage() {
       <HubShell hub={getHub("school-implementation")!} hideSpokes>
         <WorkspaceZone>
           <SchoolAdminOverviewGrid liveData={data} selectedOrgId={orgId} loading={loading} />
+          <DashboardWidgetBoard role="school_admin" />
         </WorkspaceZone>
         <DashboardSection
           eyebrow="Operations"

@@ -15,6 +15,7 @@ interface Props {
   title?: string;
   eyebrow?: string;
   description?: string;
+  defaultLimit?: number;
 }
 
 /**

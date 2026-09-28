@@ -187,7 +187,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
           value: snapshot.meetingPrep.filter((item) => !item.completed).length,
         },
       ],
-      cta: { label: "Open Meeting Prep", to: "/ppt-prep" },
+      cta: { label: "Open My Calendar", to: "/calendar" },
       dataSource: "Your meeting schedule and saved preparation items",
       privacyNote: studentBoundary,
     },
