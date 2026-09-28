@@ -143,6 +143,12 @@ for (const role of ROLES) {
         test("has no duplicate links in main content", async ({ page }) => {
           await page.goto(role.dashboard, { waitUntil: "networkidle" });
           await assertDashboardRouteReady(page, role);
+          if (["student", "parent", "educator"].includes(role.key)) {
+            // The feature card opens the full calendar; the optional widget is
+            // an at-a-glance preview even when real events have loaded.
+            await expect(page.getByTestId("dashboard-widget-board").locator('a[href="/calendar"]'))
+              .toHaveCount(0);
+          }
           const items = await collectInteractiveTargets(page);
           const hrefs = items
             .filter((i) => i.tag === "a" && i.href && i.href.startsWith("/"))
