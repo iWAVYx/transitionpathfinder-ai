@@ -178,6 +178,32 @@ complete interactions, and visual parity with its demo preview.
 - [ ] All seven roles pass dashboard, preview, navigation, role-guard,
       accessibility, and privacy tests in isolated staging.
 
+## Founder review notes — 2026-09-27
+
+The first signed-in Family dashboard review confirmed that the overall layout
+now resembles the demo much more closely. The following discrepancies remain
+explicit backlog items; they are not silently treated as complete:
+
+- [ ] Keep the current signed-in typography. It differs from the demo, but the
+      founder prefers it; future parity work must not replace it merely to make
+      the two surfaces identical.
+- [ ] Move the expanded sections below **Action Items** out of the dashboard
+      and into their dedicated full tools. The dashboard should retain the
+      preview card and concise live-data summary, while the full month/calendar
+      experience belongs on the Calendar/Meetings feature route.
+- [ ] Apply that same card → real-data Preview → dedicated full-tool boundary
+      to the other expanded sections currently embedded below Action Items.
+- [ ] Diagnose and fix Transition Channel creation in isolated staging: an
+      authorized user must be able to start a permitted private/group thread
+      and send the first message, with role membership, student scope,
+      retention, and sensitive-preview protections preserved.
+- [ ] Recheck these changes for every role rather than making a Family-only
+      visual correction.
+
+These observations refine the existing deep-tool package; they do not weaken
+the requirement that every dashboard preview use authorized real data and that
+every full tool be functional, role-scoped, and honestly labeled.
+
 ## Safety boundaries
 
 - Do not copy demo fixtures into signed-in adapters.

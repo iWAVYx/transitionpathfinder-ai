@@ -37,20 +37,11 @@ export type FormResponse = {
   updated_at: string;
 };
 
-// Keep the application query aligned with the database's reviewed column
-// grant. Adding a template column must be an explicit security decision rather
-// than becoming readable through select("*") automatically.
-const FORM_TEMPLATE_SELECT =
-  "slug,title,description,audience,category,schema,created_at,updated_at";
-
 export const listTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
-    const { data, error } = await supabase
-      .from("form_templates")
-      .select(FORM_TEMPLATE_SELECT)
-      .order("title", { ascending: true });
+    const { data, error } = await supabase.rpc("list_available_form_templates");
     if (error) {
       console.error("listTemplates failed", error);
       return { templates: [] as FormTemplate[] };
@@ -63,11 +54,10 @@ export const getTemplate = createServerFn({ method: "POST" })
   .validator((i: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(i))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: row, error } = await supabase
-      .from("form_templates")
-      .select(FORM_TEMPLATE_SELECT)
-      .eq("slug", data.slug)
-      .maybeSingle();
+    const { data: rows, error } = await supabase.rpc("get_available_form_template", {
+      _slug: data.slug,
+    });
+    const row = rows?.[0];
     if (error || !row) throw new Error("Form not found.");
     return row as unknown as FormTemplate;
   });
@@ -119,9 +109,18 @@ export const saveResponse = createServerFn({ method: "POST" })
     };
     let result;
     if (data.id) {
-      result = await supabase.from("form_responses").update(payload as any).eq("id", data.id).select("*").single();
+      result = await supabase
+        .from("form_responses")
+        .update(payload as any)
+        .eq("id", data.id)
+        .select("*")
+        .single();
     } else {
-      result = await supabase.from("form_responses").insert(payload as any).select("*").single();
+      result = await supabase
+        .from("form_responses")
+        .insert(payload as any)
+        .select("*")
+        .single();
     }
     if (result.error || !result.data) {
       console.error("saveResponse failed", result.error);
@@ -129,11 +128,10 @@ export const saveResponse = createServerFn({ method: "POST" })
     }
     if (data.status === "completed") {
       // Get the template title for the feed event
-      const { data: tpl } = await supabase
-        .from("form_templates")
-        .select("title")
-        .eq("slug", data.template_slug)
-        .maybeSingle();
+      const { data: templates } = await supabase.rpc("get_available_form_template", {
+        _slug: data.template_slug,
+      });
+      const tpl = templates?.[0];
       await supabase.from("feed_events").insert({
         student_id: data.student_id,
         actor_id: userId,
