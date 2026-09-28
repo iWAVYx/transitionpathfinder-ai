@@ -16,6 +16,7 @@ const evidence = read(
   "docs/production-readiness/isolated-lovable-publish-gate-alignment-2026-09-27.md",
 );
 const serverInventory = read("docs/release-readiness/inventory-server-and-data.md");
+const replayWorkflow = read(".github/workflows/migration-replay.yml");
 
 test("broad catalog reads are replaced by reviewed RPC surfaces", () => {
   for (const table of [
@@ -104,4 +105,20 @@ test("evidence remains draft-only and preserves the production no-go", () => {
   assert.match(evidence, /does not authorize[\s\S]*migration/i);
   assert.match(evidence, /does not authorize[\s\S]*publishing Lovable/i);
   assert.match(evidence, /exact source\s+fingerprint/i);
+});
+
+test("disposable migration replay proves the narrowed access boundary", () => {
+  assert.match(
+    replayWorkflow,
+    /not has_any_column_privilege\([\s\S]*?'authenticated',[\s\S]*?'public\.form_templates',[\s\S]*?'SELECT'/,
+  );
+  assert.match(
+    replayWorkflow,
+    /has_function_privilege\([\s\S]*?'authenticated',[\s\S]*?'public\.list_available_form_templates\(\)'/,
+  );
+  assert.match(
+    replayWorkflow,
+    /has_function_privilege\([\s\S]*?'anon',[\s\S]*?'public\.get_public_jurisdiction_pack\(text\)'/,
+  );
+  assert.match(replayWorkflow, /policyname = 'Public can read site-media'/);
 });

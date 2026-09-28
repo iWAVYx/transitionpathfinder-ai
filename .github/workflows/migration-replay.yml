@@ -363,18 +363,97 @@ jobs:
               'public.form_templates',
               'SELECT'
             )
-            and (
-              select bool_and(
-                has_column_privilege(
-                  'authenticated',
-                  'public.form_templates',
-                  column_name,
-                  'SELECT'
-                )
-              )
-              from information_schema.columns
-              where table_schema = 'public'
-                and table_name = 'form_templates'
+            and not has_any_column_privilege(
+              'authenticated',
+              'public.form_templates',
+              'SELECT'
+            )
+            and not has_function_privilege(
+              'anon',
+              'public.list_available_form_templates()',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'authenticated',
+              'public.list_available_form_templates()',
+              'EXECUTE'
+            )
+            and not has_function_privilege(
+              'anon',
+              'public.get_available_form_template(text)',
+              'EXECUTE'
+            )
+            and has_function_privilege(
+              'authenticated',
+              'public.get_available_form_template(text)',
+              'EXECUTE'
+            )
+            and not has_table_privilege(
+              'anon',
+              'public.jurisdictions',
+              'SELECT'
+            )
+            and not has_table_privilege(
+              'authenticated',
+              'public.jurisdictions',
+              'SELECT'
+            )
+            and has_function_privilege(
+              'anon',
+              'public.get_public_jurisdiction_pack(text)',
+              'EXECUTE'
+            )
+            and not has_table_privilege(
+              'anon',
+              'public.high_school_program_tags',
+              'SELECT'
+            )
+            and not has_table_privilege(
+              'authenticated',
+              'public.high_school_program_tags',
+              'SELECT'
+            )
+            and has_function_privilege(
+              'anon',
+              'public.list_public_high_school_program_tags()',
+              'EXECUTE'
+            )
+            and not has_table_privilege(
+              'anon',
+              'public.plan_capacities',
+              'SELECT'
+            )
+            and not has_table_privilege(
+              'authenticated',
+              'public.plan_capacities',
+              'SELECT'
+            )
+            and has_function_privilege(
+              'anon',
+              'public.list_public_plan_capacities()',
+              'EXECUTE'
+            )
+            and not has_table_privilege(
+              'anon',
+              'public.partnerforward_incentive_categories',
+              'SELECT'
+            )
+            and not has_table_privilege(
+              'authenticated',
+              'public.partnerforward_incentive_categories',
+              'SELECT'
+            )
+            and has_function_privilege(
+              'anon',
+              'public.list_public_partnerforward_incentive_categories()',
+              'EXECUTE'
+            )
+            and not exists (
+              select 1
+              from pg_policies
+              where schemaname = 'storage'
+                and tablename = 'objects'
+                and policyname = 'Public can read site-media'
             );" | grep -qx t
 
       - name: Capture read-only security catalog inventory

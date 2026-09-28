@@ -302,6 +302,12 @@ DO $verify_publish_gate_alignment$
 BEGIN
   IF pg_catalog.has_table_privilege('anon', 'public.jurisdictions', 'SELECT')
      OR pg_catalog.has_table_privilege('authenticated', 'public.jurisdictions', 'SELECT')
+     OR pg_catalog.has_table_privilege('anon', 'public.jurisdiction_versions', 'SELECT')
+     OR pg_catalog.has_table_privilege('authenticated', 'public.jurisdiction_versions', 'SELECT')
+     OR pg_catalog.has_table_privilege('anon', 'public.jurisdiction_agencies', 'SELECT')
+     OR pg_catalog.has_table_privilege('authenticated', 'public.jurisdiction_agencies', 'SELECT')
+     OR pg_catalog.has_table_privilege('anon', 'public.jurisdiction_sources', 'SELECT')
+     OR pg_catalog.has_table_privilege('authenticated', 'public.jurisdiction_sources', 'SELECT')
      OR pg_catalog.has_table_privilege('anon', 'public.high_school_program_tags', 'SELECT')
      OR pg_catalog.has_table_privilege('authenticated', 'public.high_school_program_tags', 'SELECT')
      OR pg_catalog.has_table_privilege('anon', 'public.plan_capacities', 'SELECT')
@@ -309,7 +315,9 @@ BEGIN
      OR pg_catalog.has_table_privilege('anon', 'public.partnerforward_incentive_categories', 'SELECT')
      OR pg_catalog.has_table_privilege('authenticated', 'public.partnerforward_incentive_categories', 'SELECT')
      OR pg_catalog.has_table_privilege('anon', 'public.form_templates', 'SELECT')
-     OR pg_catalog.has_table_privilege('authenticated', 'public.form_templates', 'SELECT') THEN
+     OR pg_catalog.has_table_privilege('authenticated', 'public.form_templates', 'SELECT')
+     OR pg_catalog.has_any_column_privilege('anon', 'public.form_templates', 'SELECT')
+     OR pg_catalog.has_any_column_privilege('authenticated', 'public.form_templates', 'SELECT') THEN
     RAISE EXCEPTION 'Broad catalog SELECT privilege remains after publish-gate alignment';
   END IF;
 
