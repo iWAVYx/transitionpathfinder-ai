@@ -62,9 +62,10 @@ test("production health and Stripe client consume the same embedded public input
 });
 
 test("the isolated staging profile is explicit and preserves the shared production guard", () => {
+  assert.match(viteConfig, /isIsolatedLovableStagingBuild\(\{/);
   assert.match(
     viteConfig,
-    /isLovableSandbox\s*&&\s*appEnv\.trim\(\) === "staging"\s*&&\s*runtimeViteAppEnv === "staging"/,
+    /isLovableSandbox,[\s\S]*?appEnv,[\s\S]*?runtimeEnv:\s*process\.env,[\s\S]*?publicBuildEnv,/,
   );
   assert.match(
     viteConfig,
