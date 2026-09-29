@@ -1,10 +1,10 @@
 # Chat history when removing a member
 
-Status: local integration on `codex/channel-history-removal-choice`, based on
+Status: published for review in [draft PR #197](https://github.com/iWAVYx/transitionpathfinder-ai/pull/197) on `codex/channel-history-removal-choice`, based on
 current main `e0312315`, including PR #193's source at `14d38bad` and the history
 choice. The production-readiness inventory conflicts are reconciled against
-main, preserving both pending migrations. No live database or GitHub branch has
-been changed; the remote PR remains a draft until publication is authorized.
+main, preserving both pending migrations. No live database has been changed.
+PR #193 remains open while the replacement is reviewed.
 
 The authorized person removing a collaborator, guardian, or team member must
 choose one of the following. The same choice is required when changing a team
@@ -56,7 +56,10 @@ The combined change passes TypeScript, all 1,099 unit tests across 100 files,
 11 embedded PostgreSQL scenarios and 55 channel-start, production-readiness,
 attachment and execute-grant contracts. The production build and service-worker
 generation pass locally.
-Full canonical replay and signed-in staging acceptance remain outstanding.
+Full canonical migration replay and its grant/RLS checks passed in
+[CI run 36519286408](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/36519286408)
+at `1259a69f` against a disposable PostgreSQL database. Signed-in staging
+acceptance remains outstanding.
 
 The database tests use an in-memory PostgreSQL engine, actual channel foundation
 migrations and both pending migrations, with a minimal student/auth fixture. They use
@@ -85,3 +88,10 @@ dom-serializer retain 4.5.0. The fast-uri override is patched from 3.1.6 to
 3.1.7 to resolve two high-severity audit findings. The high-severity audit gate
 passes; the complete audit still reports three moderate and two low findings
 in existing dependencies. No other dependency versions were changed.
+
+Hosting-boundary review: `src/lib/channel-history.functions.ts` adds one server-function
+file (119 total). Its three handlers require the existing Supabase authentication
+middleware and use the caller-scoped client under RLS, including attachment URL
+signing. It adds no public endpoint, privileged service-role client, secret, or
+new hosting dependency. Updated the source-inventory count and path hash; the
+existing production authorization restrictions remain in force.

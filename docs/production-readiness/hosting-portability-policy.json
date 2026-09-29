@@ -53,8 +53,8 @@
         "sha256": "40f2de5928515e23002fe1833f0f01cf26652579e7b1938c462286cac250bf7f"
       },
       "serverFunctionFiles": {
-        "count": 118,
-        "sha256": "577ea2ace3025eb63687f23608a60c21d757db26ff135407f7d25c3169073f40"
+        "count": 119,
+        "sha256": "96c8b16ebba3b850e379c1bf7929981830cefa3576e5814194079e4c2ad30237"
       },
       "privilegedRuntimeFiles": {
         "count": 62,
