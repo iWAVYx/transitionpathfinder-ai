@@ -20,7 +20,7 @@
 
 import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
-import { ROLES, type RoleKey } from "./helpers/roles";
+import { forbiddenDashboardText, ROLES, type RoleKey } from "./helpers/roles";
 
 // Routes that must be UNREACHABLE for each role even via direct URL.
 // Mirrors src/lib/role-policy.ts ROUTE_AUDIENCES. Keep in sync.
@@ -79,7 +79,7 @@ for (const role of ROLES) {
       }
       for (const re of role.mustNotSee) {
         await expect(
-          page.getByText(re).first(),
+          forbiddenDashboardText(page, re),
           `${role.key} dashboard leaked forbidden text /${re.source}/`,
         ).toHaveCount(0);
       }
