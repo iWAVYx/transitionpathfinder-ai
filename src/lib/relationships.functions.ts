@@ -1,3 +1,4 @@
+import { chatHistoryAccessSchema } from "@/lib/chat-history-access";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -97,11 +98,20 @@ export const respondToConnectionRequest = createServerFn({ method: "POST" })
       .object({
         relationship_id: z.string().uuid(),
         decision: z.enum(["approve", "decline", "revoke"]),
+        chat_history_access: chatHistoryAccessSchema.optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    if (data.decision === "revoke") {
+      const choice = chatHistoryAccessSchema.parse(data.chat_history_access);
+      const { error } = await supabase.rpc("remove_student_member", {
+        p_kind: "relationship", p_id: data.relationship_id, p_history_access: choice,
+      });
+      if (error) throw new Error("Could not revoke connection.");
+      return { ok: true };
+    }
     const status =
       data.decision === "approve"
         ? "approved"

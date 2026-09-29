@@ -195,11 +195,11 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(preWindowReport.status, "blocked");
   assert.deepEqual(preWindowReport.blockers, ["pending-production-migration"]);
   assert.equal(preWindowReport.appliedCount, 181);
-  assert.equal(preWindowReport.canonicalCount, 199);
+  assert.equal(preWindowReport.canonicalCount, 201);
   assert.equal(preWindowReport.directCoverageCount, 181);
   assert.equal(preWindowReport.supersededCount, 6);
   assert.equal(preWindowReport.excludedCount, 1);
-  assert.equal(preWindowReport.pendingCount, 11);
+  assert.equal(preWindowReport.pendingCount, 13);
   assert.deepEqual(preWindowReport.pending, [
     "20260821230000_security_remediation_hardening.sql",
     "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql",
@@ -212,6 +212,8 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260918190000_scope_student_policies_and_access_code_roles.sql",
     "20260927210000_narrow_catalog_and_site_media_reads.sql",
     "20260928030000_add_dashboard_widget_preferences.sql",
+    "20260928040000_atomic_student_channel_start.sql",
+    "20260929010000_student_channel_removal_history.sql",
   ]);
 
   const postWindowComparison = spawnSync(
@@ -228,11 +230,11 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(postWindowReport.status, "blocked");
   assert.deepEqual(postWindowReport.blockers, ["pending-production-migration"]);
   assert.equal(postWindowReport.appliedCount, 184);
-  assert.equal(postWindowReport.canonicalCount, 199);
+  assert.equal(postWindowReport.canonicalCount, 201);
   assert.equal(postWindowReport.directCoverageCount, 184);
   assert.equal(postWindowReport.supersededCount, 6);
   assert.equal(postWindowReport.excludedCount, 1);
-  assert.equal(postWindowReport.pendingCount, 8);
+  assert.equal(postWindowReport.pendingCount, 10);
   assert.deepEqual(postWindowReport.pending, [
     "20260907190000_security_finding_alignment.sql",
     "20260907224500_least_privilege_security_definer_grants.sql",
@@ -242,6 +244,8 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260918190000_scope_student_policies_and_access_code_roles.sql",
     "20260927210000_narrow_catalog_and_site_media_reads.sql",
     "20260928030000_add_dashboard_widget_preferences.sql",
+    "20260928040000_atomic_student_channel_start.sql",
+    "20260929010000_student_channel_removal_history.sql",
   ]);
 
   const currentProductionComparison = spawnSync(
@@ -258,17 +262,19 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(currentProductionReport.status, "blocked");
   assert.deepEqual(currentProductionReport.blockers, ["pending-production-migration"]);
   assert.equal(currentProductionReport.appliedCount, 187);
-  assert.equal(currentProductionReport.canonicalCount, 199);
+  assert.equal(currentProductionReport.canonicalCount, 201);
   assert.equal(currentProductionReport.directCoverageCount, 187);
   assert.equal(currentProductionReport.supersededCount, 6);
   assert.equal(currentProductionReport.excludedCount, 1);
-  assert.equal(currentProductionReport.pendingCount, 5);
+  assert.equal(currentProductionReport.pendingCount, 7);
   assert.deepEqual(currentProductionReport.pending, [
     "20260908000500_channel_attachment_malware_gate.sql",
     "20260909010000_create_private_channel_attachments_bucket.sql",
     "20260918190000_scope_student_policies_and_access_code_roles.sql",
     "20260927210000_narrow_catalog_and_site_media_reads.sql",
     "20260928030000_add_dashboard_widget_preferences.sql",
+    "20260928040000_atomic_student_channel_start.sql",
+    "20260929010000_student_channel_removal_history.sql",
   ]);
 
   assert.equal(audit.migrations.productionHistoryReadAt, "2026-09-17T23:54:44.631906Z");
@@ -282,7 +288,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   );
   assert.equal(audit.migrations.productionHistoryAppliedCount, 187);
   assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260914120000");
-  assert.equal(audit.migrations.pendingProductionCount, 5);
+  assert.equal(audit.migrations.pendingProductionCount, 7);
   assert.equal(audit.production.securityInventoryReadOnlyEvidenceVerified, true);
   assert.equal(
     audit.production.securityInventoryEvidence,

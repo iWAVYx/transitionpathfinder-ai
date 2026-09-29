@@ -614,7 +614,7 @@ export const getAttachmentDownloadUrl = createServerFn({ method: "POST" })
 
     const { data: signed, error } = await supabase.storage
       .from("channel-attachments")
-      .createSignedUrl(row.storage_path, 60 * 10, { download: row.file_name });
+      .createSignedUrl(row.storage_path, 60, { download: row.file_name });
     if (error) throw new Error(error.message);
     return { url: signed.signedUrl };
   });

@@ -14,6 +14,8 @@ on:
       - "tests/security-finding-alignment.test.mjs"
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
+      - "tests/database/channel-history-removal.test.mjs"
+      - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
       - "docs/production-readiness/security-finding-inventory.sql"
@@ -27,6 +29,8 @@ on:
       - "tests/security-finding-alignment.test.mjs"
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
+      - "tests/database/channel-history-removal.test.mjs"
+      - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
       - "docs/production-readiness/security-finding-inventory.sql"
@@ -63,6 +67,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+
+      - name: Test membership removal and frozen chat history without credentials
+        run: |
+          npm install --prefix "$RUNNER_TEMP/channel-history-tests" --ignore-scripts --no-save --package-lock=false @electric-sql/pglite@0.5.8
+          CHANNEL_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/channel-history-removal.test.mjs
 
       - name: Bootstrap Supabase-like roles and schemas
         run: |
@@ -153,6 +163,26 @@ jobs:
           tests/security-finding-alignment.test.mjs
           tests/security-definer-routine-grants.test.mjs
           tests/channel-attachment-malware-gate.test.mjs
+          tests/channel-start-boundary.test.mjs
+
+      - name: Student channel-start RPC remains narrowly executable
+        run: |
+          psql -v ON_ERROR_STOP=1 -tAc "
+            select has_function_privilege('authenticated',
+              'public.start_student_channel(uuid, uuid, text, text)', 'EXECUTE')
+              and not has_function_privilege('anon',
+                'public.start_student_channel(uuid, uuid, text, text)', 'EXECUTE')
+              and has_function_privilege('authenticated',
+                'public.list_student_channel_students()', 'EXECUTE')
+              and not has_function_privilege('anon',
+                'public.list_student_channel_students()', 'EXECUTE')
+              and has_function_privilege('authenticated',
+                'public.list_student_channel_recipients(uuid)', 'EXECUTE')
+              and not has_function_privilege('anon',
+                'public.list_student_channel_recipients(uuid)', 'EXECUTE')
+              and not has_function_privilege('authenticated',
+                'public.is_linked_student_channel_participant(uuid, uuid)', 'EXECUTE');
+          " | grep -qx t
 
       - name: Privileged HTTP cron is fail-closed after replay
         run: |
