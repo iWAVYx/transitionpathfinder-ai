@@ -1,34 +1,14 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Building2,
-  School,
-  BarChart3,
-  TrendingUp,
-  Rocket,
-  FileText,
-  AlertTriangle,
-  Network,
-  ArrowRight,
-  Eye,
-  type LucideIcon,
-} from "lucide-react";
+import { Building2, School, BarChart3, TrendingUp, Rocket, FileText, AlertTriangle, Network, ArrowRight, Eye, type LucideIcon } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
 import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
-import {
-  DistrictAdminFeatureDrawer,
-  type DistrictAdminFeatureState,
-} from "@/components/dashboard/district-admin/DistrictAdminFeatureDrawer";
-import {
-  getDistrictAdminFeatureDetails,
-  DISTRICT_ADMIN_TILE_META_BY_DISTRICT,
-  type DistrictAdminFeatureDetail,
-  type DistrictAdminFeatureId,
-} from "@/lib/demo/district-admin/feature-details";
+import { DistrictAdminFeatureDrawer, type DistrictAdminFeatureState } from "@/components/dashboard/district-admin/DistrictAdminFeatureDrawer";
+import { getDistrictAdminFeatureDetails, DISTRICT_ADMIN_TILE_META_BY_DISTRICT, type DistrictAdminFeatureDetail, type DistrictAdminFeatureId } from "@/lib/demo/district-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import { useDemoDistrict } from "@/lib/demo/use-role-context";
 import type { DistrictDashboard } from "@/lib/district-admin.functions";
@@ -160,10 +140,12 @@ const PARTNER_TILE: Tile = {
 export function DistrictAdminOverviewGrid({
   isSample = false,
   liveData = null,
+  hideOverview = false,
   selectedDistrictId,
   loading = false,
 }: {
   isSample?: boolean;
+  hideOverview?: boolean;
   liveData?: DistrictDashboard | null;
   selectedDistrictId?: string;
   loading?: boolean;
@@ -174,6 +156,7 @@ export function DistrictAdminOverviewGrid({
       data={liveData}
       selectedDistrictId={selectedDistrictId}
       loading={loading}
+      hideOverview={hideOverview}
     />
   );
 }
@@ -201,10 +184,12 @@ function LiveDistrictAdminOverviewGrid({
   data,
   selectedDistrictId,
   loading,
+  hideOverview,
 }: {
   data: DistrictDashboard | null;
   selectedDistrictId?: string;
   loading: boolean;
+  hideOverview: boolean;
 }) {
   if (loading && !data) {
     return <DistrictAdminOverviewStatus title="Loading District Workspace…" />;
@@ -224,7 +209,7 @@ function LiveDistrictAdminOverviewGrid({
     <DistrictAdminOverviewContent
       eyebrow={`${preview.district.name} · District Workspace`}
       contextId={preview.district.id}
-      tiles={[...TILES, PARTNER_TILE]}
+      tiles={[...TILES.filter((tile) => !hideOverview || tile.featureId !== "district-overview"), PARTNER_TILE]}
       details={preview.details}
     />
   );

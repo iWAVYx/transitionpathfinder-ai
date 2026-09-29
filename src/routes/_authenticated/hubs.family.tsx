@@ -1,18 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { FileText, Users2, BookOpen, ShieldCheck, HeartHandshake, History } from "lucide-react";
-
 import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
-import { DashboardSection } from "@/components/dashboard/DashboardSection";
-import { DashboardRowList } from "@/components/dashboard/DashboardRowList";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
-import { StageJourneyCard } from "@/components/dashboard/StageJourneyCard";
 import { LiveFamilyWorkspaceOverview } from "@/components/dashboard/LiveFamilyWorkspaceOverview";
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
-import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
-import { buildFamilyHubLiveState } from "@/lib/dashboard/family-live-hub";
 import { getDashboardSnapshot, type DashboardSnapshot } from "@/lib/golden-path.functions";
 import { getHub } from "@/lib/hubs/registry";
 import { getProfile } from "@/lib/profile.functions";
@@ -73,11 +66,9 @@ function HubPage() {
     };
   }, [loadProfile, loadSnapshot, loadStudents]);
 
-  const liveState = snapshot ? buildFamilyHubLiveState(snapshot) : null;
-
   return (
     <SiteShell>
-      <HubShell hub={getHub("family-planning")!} hideSpokes>
+      <HubShell hub={getHub("family-planning")!} hideSpokes hideRelatedLinks>
         <WorkspaceZone>
           {loading ? (
             <div className="border-y border-border/70 py-10 text-center" aria-live="polite">
@@ -107,94 +98,6 @@ function HubPage() {
             </div>
           )}
         </WorkspaceZone>
-        {liveState ? (
-          <>
-            <DashboardSection
-              eyebrow="Operations"
-              title="Documents, Meetings & Advocacy"
-              description="Live status from the tools that keep your student's plan moving."
-              gap="tight"
-            >
-              <DashboardRowList
-                rows={[
-                  {
-                    icon: FileText,
-                    title: "IEP & Transition Translator",
-                    description:
-                      "Plain-language summary of the current plan, goals, accommodations, and services.",
-                    to: "/documents",
-                    ...liveState.operations.documents,
-                  },
-                  {
-                    icon: Users2,
-                    title: "Meeting Prep",
-                    description:
-                      "Question sets for the case manager, school team, adult services, and your student.",
-                    to: "/meetings",
-                    ...liveState.operations.meeting,
-                  },
-                  {
-                    icon: HeartHandshake,
-                    title: "Family Priorities",
-                    description:
-                      "Share what matters most so the team plans around your family's goals.",
-                    to: "/family/priorities",
-                    ...liveState.operations.priorities,
-                  },
-                  {
-                    icon: ShieldCheck,
-                    title: "Consents & Releases",
-                    description: "Track signed consents and outstanding releases in one place.",
-                    to: "/family/consent",
-                    ...liveState.operations.consent,
-                  },
-                  {
-                    icon: BookOpen,
-                    title: "Advocacy Resources",
-                    description:
-                      "Know-your-rights guides, peer networks, and adult-services intake.",
-                    to: "/family/resources/recommended",
-                    ...liveState.operations.resources,
-                  },
-                  {
-                    icon: History,
-                    title: "Access & Activity History",
-                    description:
-                      "See who viewed, downloaded, edited, or shared your student's plan and documents.",
-                    to: "/family/history",
-                  },
-                ]}
-              />
-            </DashboardSection>
-            <DashboardSection
-              eyebrow="Activity / Next Steps"
-              title="Your Family Next Actions"
-              description="What needs your attention to keep the plan moving."
-              gap="tight"
-            >
-              <NextActionCardServer
-                historyRoute="/family/history"
-                title="Your Family Next Actions"
-                eyebrow="What Needs Attention"
-                description="Live actions and planning gaps from your authorized family workspace."
-                suggestionLabel="Open Family Priorities"
-                suggestionRoute="/family/priorities"
-              />
-            </DashboardSection>
-            <DashboardSection
-              eyebrow="Progress Band"
-              title="Stage Journey"
-              description="Where your student sits on the transition timeline."
-              gap="tight"
-            >
-              <StageJourneyCard
-                audience="family"
-                completedStages={liveState.completedStages}
-                currentStage={liveState.currentStage}
-              />
-            </DashboardSection>
-          </>
-        ) : null}
       </HubShell>
     </SiteShell>
   );

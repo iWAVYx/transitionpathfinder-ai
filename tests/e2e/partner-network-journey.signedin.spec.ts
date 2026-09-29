@@ -51,8 +51,7 @@ test.describe("partner network — full journey", () => {
     const partnerPage = await partner.newPage();
     await partnerPage.goto("/partners-manage/opportunities");
     await expect(partnerPage.getByTestId("partner-tier-meter")).toBeVisible();
-    await partnerPage.goto("/partners-manage");
-    await partnerPage.getByRole("button", { name: /create opportunity/i }).click();
+    await partnerPage.getByRole("link", { name: /create opportunity/i }).click();
     await partnerPage.getByLabel(/title/i).fill(oppTitle);
     await partnerPage.getByLabel(/description/i).fill("Hands-on culinary training for CT teens.");
     await partnerPage.getByRole("button", { name: /save.*draft/i }).click();

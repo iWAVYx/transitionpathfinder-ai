@@ -111,8 +111,8 @@ describe("live family dashboard and document truthfulness alignment", () => {
       expect(DASHBOARD).not.toContain(legacyLink);
     }
 
-    // Retain report actions while moving the full calendar into its tool.
-    for (const retainedDetail of [
+    // Full details stay in the preview cards’ dedicated tools.
+    for (const removedDetail of [
       "<ProfileField",
       "<ReportSections",
       "handleDownloadPdf",
@@ -120,7 +120,7 @@ describe("live family dashboard and document truthfulness alignment", () => {
       'title="Document Hub"',
       'title={snap.upcomingMeeting ? "Next Meeting" : "Meeting Prep"}',
     ]) {
-      expect(DASHBOARD).toContain(retainedDetail);
+      expect(DASHBOARD).not.toContain(removedDetail);
     }
     expect(DASHBOARD).toContain('<DashboardWidgetBoard role="family"');
     expect(DASHBOARD).not.toContain("<DashboardCalendar");

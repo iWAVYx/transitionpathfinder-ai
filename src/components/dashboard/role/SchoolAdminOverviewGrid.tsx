@@ -1,36 +1,14 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Building2,
-  Users,
-  ClipboardList,
-  FileText,
-  TrendingUp,
-  BookOpen,
-  CalendarDays,
-  LifeBuoy,
-  Rocket,
-  Network,
-  ArrowRight,
-  Eye,
-  type LucideIcon,
-} from "lucide-react";
+import { Building2, Users, ClipboardList, FileText, TrendingUp, BookOpen, CalendarDays, LifeBuoy, Rocket, Network, ArrowRight, Eye, type LucideIcon } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
 import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
 import { TransitionChannelTile } from "@/components/dashboard/TransitionChannelTile";
-import {
-  SchoolAdminFeatureDrawer,
-  type SchoolAdminFeatureState,
-} from "@/components/dashboard/school-admin/SchoolAdminFeatureDrawer";
-import {
-  getSchoolAdminFeatureDetails,
-  SCHOOL_ADMIN_TILE_META_BY_SCHOOL,
-  type SchoolAdminFeatureDetail,
-  type SchoolAdminFeatureId,
-} from "@/lib/demo/school-admin/feature-details";
+import { SchoolAdminFeatureDrawer, type SchoolAdminFeatureState } from "@/components/dashboard/school-admin/SchoolAdminFeatureDrawer";
+import { getSchoolAdminFeatureDetails, SCHOOL_ADMIN_TILE_META_BY_SCHOOL, type SchoolAdminFeatureDetail, type SchoolAdminFeatureId } from "@/lib/demo/school-admin/feature-details";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 import { useDemoSchool } from "@/lib/demo/use-role-context";
 import type { SchoolDashboard } from "@/lib/school-admin.functions";
@@ -189,17 +167,20 @@ const PARTNER_TILE: Tile = {
 export function SchoolAdminOverviewGrid({
   isSample = false,
   liveData = null,
+  hideOverview = false,
   selectedOrgId,
   loading = false,
 }: {
   isSample?: boolean;
+  hideOverview?: boolean;
   liveData?: SchoolDashboard | null;
   selectedOrgId?: string;
   loading?: boolean;
 } = {}) {
   if (isSample) return <SampleSchoolAdminOverviewGrid />;
   return (
-    <LiveSchoolAdminOverviewGrid data={liveData} selectedOrgId={selectedOrgId} loading={loading} />
+    <LiveSchoolAdminOverviewGrid data={liveData} selectedOrgId={selectedOrgId} loading={loading}
+      hideOverview={hideOverview} />
   );
 }
 
@@ -227,10 +208,12 @@ function LiveSchoolAdminOverviewGrid({
   data,
   selectedOrgId,
   loading,
+  hideOverview,
 }: {
   data: SchoolDashboard | null;
   selectedOrgId?: string;
   loading: boolean;
+  hideOverview: boolean;
 }) {
   if (loading && !data) {
     return <SchoolAdminOverviewStatus title="Loading School Workspace…" />;
@@ -250,7 +233,7 @@ function LiveSchoolAdminOverviewGrid({
     <SchoolAdminOverviewContent
       eyebrow={`${preview.organization.name} · School Workspace`}
       contextId={preview.organization.id}
-      tiles={[...TILES, PARTNER_TILE]}
+      tiles={[...TILES.filter((tile) => !hideOverview || tile.featureId !== "school-overview"), PARTNER_TILE]}
       details={preview.details}
     />
   );

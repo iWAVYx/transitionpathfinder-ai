@@ -128,7 +128,7 @@ export function LiveEducatorWorkspaceOverview({
         { label: "Needs attention", value: loading ? "—" : summary.needsAttention },
         { label: "Meeting ≤14d", value: loading ? "—" : summary.meetingsSoon },
       ],
-      cta: { label: "Open Caseload", to: "/caseload" },
+      cta: { label: "Open Caseload", to: "/caseload", search: { view: "students" } },
       dataSource: "Your role-authorized caseload",
       privacyNote: aggregateBoundary,
     },

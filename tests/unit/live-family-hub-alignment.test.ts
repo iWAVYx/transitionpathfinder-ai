@@ -95,8 +95,7 @@ describe("live Family Hub alignment", () => {
       "listStudents",
       "getProfile",
       "LiveFamilyWorkspaceOverview",
-      "NextActionCardServer",
-      "buildFamilyHubLiveState",
+      "DashboardWidgetBoard",
     ]) {
       expect(HUB).toContain(liveDependency);
     }
@@ -164,8 +163,9 @@ describe("live Family Hub alignment", () => {
     expect(OVERVIEW).toContain("Private files available in Document Hub");
   });
 
-  it("connects real progress to the shared Stage Journey", () => {
-    expect(HUB).toContain("completedStages={liveState.completedStages}");
-    expect(HUB).toContain("currentStage={liveState.currentStage}");
+  it("finishes the family workspace at the widgets without duplicate progress sections", () => {
+    expect(HUB).not.toContain("<StageJourneyCard");
+    expect(HUB).not.toContain("<NextActionCardServer");
+    expect(HUB).toMatch(/<\/WorkspaceZone>\s*<\/HubShell>/);
   });
 });
