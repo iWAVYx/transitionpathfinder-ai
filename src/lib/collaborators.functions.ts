@@ -1,3 +1,4 @@
+import { memberRemovalSchema } from "@/lib/chat-history-access";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
@@ -185,14 +186,12 @@ export const updateCollaboratorRole = createServerFn({ method: "POST" })
 
 export const removeCollaborator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => memberRemovalSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("student_collaborators")
-      .delete()
-      .eq("id", data.id);
-    if (error) throw new Error("Could not remove collaborator.");
+    const { error } = await context.supabase.rpc("remove_student_member", {
+      p_kind: "collaborator", p_id: data.id, p_history_access: data.chat_history_access,
+    });
+    if (error) throw new Error("Could not remove member. Your permissions or their membership may have changed.");
     return { ok: true };
   });
 

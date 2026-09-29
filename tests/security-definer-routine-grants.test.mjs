@@ -10,6 +10,8 @@ const allowlistPath = "docs/production-readiness/security-definer-execute-allowl
 
 const migration = readFileSync(migrationPath, "utf8");
 const alignmentMigration = readFileSync(alignmentMigrationPath, "utf8");
+const startMigration = readFileSync("supabase/migrations/20260928040000_atomic_student_channel_start.sql", "utf8");
+const historyMigration = readFileSync("supabase/migrations/20260929010000_student_channel_removal_history.sql", "utf8");
 const allowlist = JSON.parse(readFileSync(allowlistPath, "utf8"));
 
 function sortedUnique(values) {
@@ -19,24 +21,24 @@ function sortedUnique(values) {
 function cumulativeMigrationGrantsFor(role) {
   const grants = new Set();
   const statements =
-    `${migration}\n${alignmentMigration}`.match(
+    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}`.match(
       /(?:GRANT EXECUTE|REVOKE (?:ALL|EXECUTE)) ON FUNCTION public\.[^;]+;/g,
     ) ?? [];
 
   for (const statement of statements) {
-    const signature = statement
-      .match(/ON FUNCTION (public\.[^(]+\([^;]*?\))\s+(?:TO|FROM)/)?.[1]
-      ?.replaceAll("public.admin_role", "admin_role")
-      .replaceAll("public.app_role", "app_role");
-    if (!signature) continue;
+    const signatures = (statement.match(/public\.[\w]+\([^)]*\)/g) ?? [])
+      .map((signature) => signature.replaceAll("public.admin_role", "admin_role")
+        .replaceAll("public.app_role", "app_role").replace(/,\s*/g, ", "));
     const principals =
       statement
         .match(/\s(?:TO|FROM)\s+([^;]+);$/)?.[1]
         ?.split(",")
         .map((principal) => principal.trim()) ?? [];
     if (!principals.includes(role)) continue;
-    if (statement.startsWith("GRANT EXECUTE")) grants.add(signature);
-    else grants.delete(signature);
+    for (const signature of signatures) {
+      if (statement.startsWith("GRANT EXECUTE")) grants.add(signature);
+      else grants.delete(signature);
+    }
   }
 
   return [...grants];
@@ -56,8 +58,8 @@ test("privileged-routine allowlist is exact, unique, and fail closed", () => {
   }
 
   assert.equal(allowlist.anonymousExecute.length, 8);
-  assert.equal(allowlist.authenticatedExecute.length, 59);
-  assert.equal(allowlist.clientExecuteForbidden.length, 21);
+  assert.equal(allowlist.authenticatedExecute.length, 65);
+  assert.equal(allowlist.clientExecuteForbidden.length, 26);
 
   for (const signature of allowlist.anonymousExecute) {
     assert.ok(

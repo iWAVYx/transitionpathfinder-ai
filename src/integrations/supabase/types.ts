@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      channel_history_grants: {
+        Row: {
+          channel_id: string
+          user_id: string
+          title: string
+          removed_at: string
+        }
+        Insert: {
+          channel_id: string
+          user_id: string
+          title: string
+          removed_at: string
+        }
+        Update: {
+          channel_id?: string
+          user_id?: string
+          title?: string
+          removed_at?: string
+        }
+        Relationships: []
+      }
+      channel_history_messages: {
+        Row: {
+          channel_id: string
+          user_id: string
+          message_id: string
+          body: string
+          author_name: string
+          sent_at: string
+          parent_id: string | null
+        }
+        Insert: {
+          channel_id: string
+          user_id: string
+          message_id: string
+          body: string
+          author_name: string
+          sent_at: string
+          parent_id: string | null
+        }
+        Update: {
+          channel_id?: string
+          user_id?: string
+          message_id?: string
+          body?: string
+          author_name?: string
+          sent_at?: string
+          parent_id?: string | null
+        }
+        Relationships: []
+      }
+      channel_history_attachments: {
+        Row: {
+          channel_id: string
+          user_id: string
+          message_id: string
+          attachment_id: string
+          storage_path: string
+          storage_object_id: string
+          storage_updated_at: string | null
+          file_name: string
+        }
+        Insert: {
+          channel_id: string
+          user_id: string
+          message_id: string
+          attachment_id: string
+          storage_path: string
+          storage_object_id: string
+          storage_updated_at: string | null
+          file_name: string
+        }
+        Update: {
+          channel_id?: string
+          user_id?: string
+          message_id?: string
+          attachment_id?: string
+          storage_path?: string
+          storage_object_id?: string
+          storage_updated_at?: string | null
+          file_name?: string
+        }
+        Relationships: []
+      }
       access_code_redemptions: {
         Row: {
           code_id: string
@@ -9089,6 +9173,14 @@ export type Database = {
       }
     }
     Functions: {
+      remove_student_member: {
+        Args: { p_kind: string; p_id: string; p_history_access: string }
+        Returns: undefined
+      }
+      change_student_team_status: {
+        Args: { p_id: string; p_status: string; p_history_access: string; p_role?: string }
+        Returns: undefined
+      }
       accept_invitation_by_token: {
         Args: { _token: string }
         Returns: {
@@ -9330,6 +9422,10 @@ export type Database = {
         Args: { _channel_id: string; _user_id: string }
         Returns: boolean
       }
+      is_linked_student_channel_participant: {
+        Args: { p_student_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_org_admin: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -9340,6 +9436,23 @@ export type Database = {
       }
       is_partner_only: { Args: { _user_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_student_channel_students: {
+        Args: Record<PropertyKey, never>
+        Returns: { student_id: string; student_name: string }[]
+      }
+      list_student_channel_recipients: {
+        Args: { p_student_id: string }
+        Returns: { user_id: string; display_name: string }[]
+      }
+      start_student_channel: {
+        Args: {
+          p_student_id: string
+          p_recipient_id: string
+          p_title: string
+          p_first_message: string
+        }
+        Returns: string
+      }
       issue_license_access_code: {
         Args: {
           _capacity: number

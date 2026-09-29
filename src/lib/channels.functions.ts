@@ -39,6 +39,52 @@ export type ChannelMessage = {
   author_name: string | null;
 };
 
+/** Only students and people already linked to the same student may be offered
+ * as conversation starters; the RPC checks the JWT user again on every call. */
+export const listStartableStudentChannels = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("list_student_channel_students");
+    if (error) throw new Error("Could not load your student teams.");
+    return { students: data ?? [] };
+  });
+
+export const listStudentChannelRecipients = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ student_id: uuid }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase.rpc(
+      "list_student_channel_recipients",
+      { p_student_id: data.student_id },
+    );
+    if (error) throw new Error("Could not load this student team.");
+    return { recipients: rows ?? [] };
+  });
+
+export const startStudentChannel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({
+    student_id: uuid,
+    recipient_id: uuid,
+    title: z.string().trim().min(1).max(120),
+    first_message: z.string().trim().min(1).max(4000),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: channelId, error } = await context.supabase.rpc(
+      "start_student_channel",
+      {
+        p_student_id: data.student_id,
+        p_recipient_id: data.recipient_id,
+        p_title: data.title,
+        p_first_message: data.first_message,
+      },
+    );
+    if (error || !channelId) {
+      throw new Error("Could not start this conversation. Confirm both people still have student-team access.");
+    }
+    return { channel_id: channelId };
+  });
+
 export const listMyChannels = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

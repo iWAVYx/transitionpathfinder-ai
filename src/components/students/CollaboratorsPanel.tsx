@@ -1,3 +1,4 @@
+import { RemoveMemberDialog } from "./RemoveMemberDialog";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ export function CollaboratorsPanel({ studentId }: { studentId: string }) {
   const updateRole = useServerFn(updateCollaboratorRole);
   const remove = useServerFn(removeCollaborator);
 
+  const [removing, setRemoving] = useState<Collaborator | null>(null);
   const [rows, setRows] = useState<Collaborator[]>([]);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"viewer" | "editor">("viewer");
@@ -68,14 +70,14 @@ export function CollaboratorsPanel({ studentId }: { studentId: string }) {
     await reload();
   }
 
-  async function handleRemove(c: Collaborator) {
-    if (!confirm(`Remove ${c.invited_email} from this student?`)) return;
-    await remove({ data: { id: c.id } });
-    await reload();
-  }
 
   return (
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
+      {removing && <RemoveMemberDialog name={removing.invited_email} onCancel={() => setRemoving(null)}
+        onConfirm={async (choice) => {
+          await remove({ data: { id: removing.id, chat_history_access: choice } });
+          await reload();
+        }} /> }
       <div className="flex items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-2xl">Collaborators</h2>
@@ -153,7 +155,7 @@ export function CollaboratorsPanel({ studentId }: { studentId: string }) {
                     <SelectItem value="editor">Editor</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button size="sm" variant="ghost" onClick={() => handleRemove(c)}>
+                <Button size="sm" variant="ghost" aria-label={`Remove ${c.invited_email}`} onClick={() => setRemoving(c)}>
                   <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                 </Button>
               </div>

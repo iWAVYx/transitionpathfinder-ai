@@ -1,3 +1,4 @@
+import { memberRemovalSchema, chatHistoryAccessSchema } from "@/lib/chat-history-access";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -105,10 +106,12 @@ export const updateGuardian = createServerFn({ method: "POST" })
 
 export const deleteGuardian = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => memberRemovalSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("student_guardians").delete().eq("id", data.id);
-    if (error) throw new Error("Could not remove guardian.");
+    const { error } = await context.supabase.rpc("remove_student_member", {
+      p_kind: "guardian", p_id: data.id, p_history_access: data.chat_history_access,
+    });
+    if (error) throw new Error("Could not remove member. Your permissions or their membership may have changed.");
     return { ok: true };
   });
 
@@ -122,12 +125,22 @@ export const updateTeamMember = createServerFn({ method: "POST" })
           .enum(["teacher", "case_manager", "educator", "school_admin", "admin", "partner", "other"])
           .optional(),
         status: z.enum(["active", "inactive", "pending"]).optional(),
+        chat_history_access: chatHistoryAccessSchema.optional(),
       })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { id, ...patch } = data;
+    const { id, chat_history_access, ...patch } = data;
+    if (patch.status && patch.status !== "active") {
+      const choice = chatHistoryAccessSchema.parse(chat_history_access);
+      const { error } = await supabase.rpc("change_student_team_status", {
+        p_id: id, p_status: patch.status, p_role: patch.role_on_team,
+        p_history_access: choice,
+      });
+      if (error) throw new Error("Could not update team member.");
+      return { ok: true };
+    }
     const { error } = await supabase.from("student_team_members").update(patch).eq("id", id);
     if (error) {
       console.error("updateTeamMember failed", error);
@@ -138,9 +151,11 @@ export const updateTeamMember = createServerFn({ method: "POST" })
 
 export const deleteTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => memberRemovalSchema.parse(i))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("student_team_members").delete().eq("id", data.id);
-    if (error) throw new Error("Could not remove team member.");
+    const { error } = await context.supabase.rpc("remove_student_member", {
+      p_kind: "team", p_id: data.id, p_history_access: data.chat_history_access,
+    });
+    if (error) throw new Error("Could not remove member. Your permissions or their membership may have changed.");
     return { ok: true };
   });

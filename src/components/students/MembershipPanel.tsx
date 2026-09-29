@@ -1,3 +1,5 @@
+import { RemoveMemberDialog } from "./RemoveMemberDialog";
+import type { ChatHistoryAccess } from "@/lib/chat-history-access";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -44,6 +46,7 @@ export function MembershipPanel({ studentId }: { studentId: string }) {
   const saveTeam = useServerFn(updateTeamMember);
   const removeTeam = useServerFn(deleteTeamMember);
 
+  const [removing, setRemoving] = useState<{ id: string; name: string; kind: "guardian" | "team" | "status" } | null>(null);
   const [guardians, setGuardians] = useState<Guardian[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,7 +109,12 @@ export function MembershipPanel({ studentId }: { studentId: string }) {
     }
   }
 
-  async function commitTeam(id: string) {
+  async function commitTeam(id: string, choice?: ChatHistoryAccess) {
+    if (draft.status !== "active" && !choice) {
+      const member = team.find((t) => t.id === id);
+      setRemoving({ id, name: member?.full_name || member?.member_email || "team member", kind: "status" });
+      return;
+    }
     setSavingId(id);
     try {
       await saveTeam({
@@ -114,6 +122,7 @@ export function MembershipPanel({ studentId }: { studentId: string }) {
           id,
           role_on_team: draft.role_on_team as never,
           status: draft.status as never,
+          chat_history_access: choice,
         },
       });
       toast.success("Team member updated.");
@@ -121,34 +130,26 @@ export function MembershipPanel({ studentId }: { studentId: string }) {
       await reload();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed.");
+      if (choice) throw e;
     } finally {
       setSavingId(null);
     }
   }
 
-  async function handleRemoveGuardian(id: string) {
-    if (!confirm("Remove this guardian from the student?")) return;
-    try {
-      await removeGuardian({ data: { id } });
-      toast.success("Guardian removed.");
-      await reload();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Remove failed.");
-    }
-  }
-  async function handleRemoveTeam(id: string) {
-    if (!confirm("Remove this team member from the student?")) return;
-    try {
-      await removeTeam({ data: { id } });
-      toast.success("Team member removed.");
-      await reload();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Remove failed.");
-    }
-  }
 
   return (
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
+      {removing && <RemoveMemberDialog name={removing.name} updateStatus={removing.kind === "status"} onCancel={() => setRemoving(null)}
+        onConfirm={async (choice) => {
+          if (removing.kind === "status") {
+            await commitTeam(removing.id, choice);
+            return;
+          }
+          const remove = removing.kind === "guardian" ? removeGuardian : removeTeam;
+          await remove({ data: { id: removing.id, chat_history_access: choice } });
+          toast.success("Member removed.");
+          await reload();
+        }} /> }
       <div>
         <h2 className="font-display text-2xl">Student membership</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -254,7 +255,8 @@ export function MembershipPanel({ studentId }: { studentId: string }) {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleRemoveGuardian(g.id)}
+                          aria-label={`Remove ${g.full_name || g.guardian_email}`}
+                          onClick={() => setRemoving({ id: g.id, name: g.full_name || g.guardian_email, kind: "guardian" })}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                         </Button>
@@ -363,7 +365,8 @@ export function MembershipPanel({ studentId }: { studentId: string }) {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleRemoveTeam(t.id)}
+                          aria-label={`Remove ${t.full_name || t.member_email}`}
+                          onClick={() => setRemoving({ id: t.id, name: t.full_name || t.member_email, kind: "team" })}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                         </Button>
