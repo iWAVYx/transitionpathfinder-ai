@@ -1,5 +1,31 @@
 # TransitionForward — Readiness Roadmap
 
+## September 30 — demo parity and authorized staging release
+
+- Owner acceptance standard: any real-product feature represented in the demo
+  must match its signed-in layout, role applicability, navigation, and workflow.
+  Use shared components with clearly labeled sample data; simulated operations
+  must not imply real saves, invitations, appointments, or completed work.
+- This standard includes dashboards and Pathway Builder. Existing contextual
+  previews are incremental progress, not proof of full signed-in/demo parity.
+- Owner authorized publishing the current package to staging only, without
+  production deployment, merges, or database migrations. Release commit:
+  `96caed9f908a428dd7acbcc1189ef3157c2bcdd2` on PR #198.
+- Initial deployment was blocked by the staging environment's main-only rule.
+  Owner then authorized adding only `codex/dashboard-simplification` to the
+  staging branch allowlist. Retry run: `36671024084` succeeded. The public health
+  endpoint independently confirmed the exact SHA above, staging Supabase
+  `qgrertkqbwanerqqemph`, sandbox payments and `isolation.ok=true`.
+- Published browser smoke check: signed-in Family dashboard shows the simplified
+  five-tool menu plus account links; demo Pathway Builder opens with only Family
+  and Educator choices and eight shared steps. All-role dashboard regression
+  `36671273602` passed: 1,186 unit tests, all seven role sign-ins and all 84
+  dashboard checks across mobile/tablet/desktop. Broader parity acceptance remains
+  open. The temporary branch exception was removed after verification; staging
+  is back to main-only deployment eligibility with reviewer approval retained.
+- Staging health still reports AI runtime unconfigured. This release does not
+  constitute end-to-end AI generation/provider readiness or full roadmap delivery.
+
 ## September 29, 2026 — reconciled owner requirements
 
 ### Preserved follow-up: parent pilot and Pathway Report snapshot
