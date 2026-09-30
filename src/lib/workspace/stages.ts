@@ -114,7 +114,7 @@ export const WORKSPACE_STAGES: readonly WorkspaceStage[] = [
   {
     id: "start",
     label: "START",
-    title: "Getting Started",
+    title: "Pathway Builder",
     description:
       "Set the scene — who the student is, what grade band they're in, and what supports are already in place.",
     order: 1,

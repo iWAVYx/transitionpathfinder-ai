@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { DEMO_ROLES, DEMO_ROLE_ORDER } from "@/lib/demo/role-previews";
 import { DEMO_PROFILES, DEMO_PROFILE_ORDER } from "@/lib/demo/demo-profiles";
 
-
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
@@ -34,9 +33,7 @@ export const Route = createFileRoute("/demo")({
 function DemoHub() {
   return (
     <SiteShell>
-      
       <div className="container max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 space-y-14 animate-route-in">
-
         {/* HERO */}
         <section className="rounded-3xl border-2 border-dashed border-primary/30 bg-gradient-hero p-6 shadow-soft sm:p-10">
           <Badge variant="outline" className="border-primary text-primary">
@@ -46,31 +43,24 @@ function DemoHub() {
             One transition plan. Every role, one shared story.
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-            Explore three student journeys across BridgeForward and TransitionForward —
-            a Grade 7 middle-schooler, a Grade 9 early-planner, and a Grade 11
-            postsecondary-bound student. Switch students and roles to see how the plan
-            changes with age, goals, evidence, and support needs.
+            Explore three student journeys across BridgeForward and TransitionForward — a Grade 7
+            middle-schooler, a Grade 9 early-planner, and a Grade 11 postsecondary-bound student.
+            Switch students and roles to see how the plan changes with age, goals, evidence, and
+            support needs.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button asChild size="lg">
-              <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
-                Walk The Workspace Tour <ArrowRight className="ml-1.5 h-4 w-4" />
+              <Link to="/demo/intake">
+                Try The Pathway Builder <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link
-                to="/demo/workspace/$stage"
-                params={{ stage: "roadmap" }}
-                search={{ expand: true }}
-              >
-                Read The Pathway Report
-              </Link>
+              <Link to="/demo/report">Read The Pathway Report</Link>
             </Button>
             <Button asChild size="lg" variant="ghost">
               <Link to="/waitlist">Join The Waitlist</Link>
             </Button>
           </div>
-
         </section>
 
         {/* ROLE GRID */}
@@ -116,22 +106,18 @@ function DemoHub() {
           </div>
           <div className="space-y-6">
             <p className="text-muted-foreground">
-              Student, Family, and Educator previews share a fictional cohort of three
-              students — a Grade 7 middle-schooler on BridgeForward, a Grade 9 early
-              planner, and a Grade 11 postsecondary-bound student on TransitionForward.
-              Switch students from the header on any role preview to see how intake,
-              student voice, family priorities, educator input, the Pathway Report, and
-              30 / 60 / 90 next steps change with age and goals.
+              Student, Family, and Educator previews share a fictional cohort of three students — a
+              Grade 7 middle-schooler on BridgeForward, a Grade 9 early planner, and a Grade 11
+              postsecondary-bound student on TransitionForward. Switch students from the header on
+              any role preview to see how intake, student voice, family priorities, educator input,
+              the Pathway Report, and 30 / 60 / 90 next steps change with age and goals.
             </p>
 
             <div className="grid gap-4 sm:grid-cols-3">
               {DEMO_PROFILE_ORDER.map((id) => {
                 const p = DEMO_PROFILES[id];
                 return (
-                  <div
-                    key={id}
-                    className="rounded-2xl border bg-background/60 p-4"
-                  >
+                  <div key={id} className="rounded-2xl border bg-background/60 p-4">
                     <p className="font-display text-lg">{p.displayName}</p>
                     <p className="mt-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
                       {p.demographics.gradeLabel} ·{" "}
@@ -153,16 +139,12 @@ function DemoHub() {
 
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm" variant="outline">
-                <Link to="/demo/workspace/$stage" params={{ stage: "start" }}>
-                  <ClipboardList className="mr-1.5 h-4 w-4" /> Walk the Workspace Tour
+                <Link to="/demo/intake">
+                  <ClipboardList className="mr-1.5 h-4 w-4" /> Try the Pathway Builder
                 </Link>
               </Button>
               <Button asChild size="sm" variant="outline">
-                <Link
-                  to="/demo/workspace/$stage"
-                  params={{ stage: "roadmap" }}
-                  search={{ expand: true }}
-                >
+                <Link to="/demo/report">
                   <FileText className="mr-1.5 h-4 w-4" /> Read the Pathway Report
                 </Link>
               </Button>
@@ -170,11 +152,8 @@ function DemoHub() {
           </div>
         </section>
 
-
         {/* HOW IT WORKS */}
         <section id="workspace-tour">
-
-
           <div className="mb-4 flex items-baseline gap-3">
             <span className="font-mono text-xs font-semibold tracking-widest text-primary">03</span>
             <div className="h-px flex-1 bg-border" />
@@ -230,8 +209,6 @@ function DemoHub() {
     </SiteShell>
   );
 }
-
-
 
 function LayerCard({ index, title, body }: { index: string; title: string; body: string }) {
   return (

@@ -35,8 +35,24 @@ const DEMO_ROUTES = [
 // Mirror of forbidden routes per role from role-leak-nav.signedin.spec.ts.
 // Keep in sync with src/lib/role-policy.ts ROUTE_AUDIENCES.
 const FORBIDDEN_ROUTES: Record<RoleKey, string[]> = {
-  student: ["/caseload", "/teacher-portal", "/owner", "/admin", "/partners-manage", "/school", "/district"],
-  parent: ["/caseload", "/teacher-portal", "/owner", "/admin", "/partners-manage", "/school", "/district"],
+  student: [
+    "/caseload",
+    "/teacher-portal",
+    "/owner",
+    "/admin",
+    "/partners-manage",
+    "/school",
+    "/district",
+  ],
+  parent: [
+    "/caseload",
+    "/teacher-portal",
+    "/owner",
+    "/admin",
+    "/partners-manage",
+    "/school",
+    "/district",
+  ],
   educator: ["/owner", "/admin", "/partners-manage", "/district"],
   school_admin: ["/owner", "/admin", "/district", "/partners-manage", "/caseload"],
   district_admin: ["/owner", "/admin", "/partners-manage", "/caseload"],
@@ -88,10 +104,7 @@ function isIgnorableConsoleError(error: { text: string; url: string }) {
 
 for (const role of ROLES) {
   test.describe(`${role.label} /demo signed-in coverage`, () => {
-    test.skip(
-      () => !existsSync(role.storageState),
-      `no storageState for ${role.key}`,
-    );
+    test.skip(() => !existsSync(role.storageState), `no storageState for ${role.key}`);
     test.use({ storageState: role.storageState });
 
     for (const path of DEMO_ROUTES) {
@@ -108,9 +121,7 @@ for (const role of ROLES) {
         expect(resp?.status() ?? 0, `status for ${path}`).toBeLessThan(400);
 
         // Demo is public — signing in must not redirect away from /demo.
-        await expect(page).toHaveURL(
-          new RegExp(path.replace(/\//g, "\\/") + "\\/?$"),
-        );
+        await expect.poll(() => new URL(page.url()).pathname).toBe(path);
         await expect(page.locator("main, [role=main]").first()).toBeVisible();
 
         expect(
@@ -130,14 +141,8 @@ for (const role of ROLES) {
         const hrefs = await collectMainHrefs(page);
         for (const href of hrefs) {
           for (const bad of forbidden) {
-            const leaks =
-              href === bad ||
-              href.startsWith(`${bad}/`) ||
-              href.startsWith(`${bad}?`);
-            expect(
-              leaks,
-              `${role.key} on ${path} sees forbidden link ${href}`,
-            ).toBeFalsy();
+            const leaks = href === bad || href.startsWith(`${bad}/`) || href.startsWith(`${bad}?`);
+            expect(leaks, `${role.key} on ${path} sees forbidden link ${href}`).toBeFalsy();
           }
         }
       }
@@ -145,21 +150,18 @@ for (const role of ROLES) {
 
     test("role-view lens still switches while signed in", async ({ page }) => {
       await page.goto("/demo/report", { waitUntil: "domcontentloaded" });
-      const tablist = page
-        .getByRole("tablist", { name: /demo role view/i })
-        .first();
+      const tablist = page.getByRole("group", { name: /demo role view/i }).first();
       await expect(tablist).toBeVisible();
-      const parent = tablist.getByRole("tab", { name: /parent/i });
+      const parent = tablist.getByRole("button", { name: /parent/i });
       await parent.click();
-      await expect(parent).toHaveAttribute("aria-selected", "true");
+      await expect(parent).toHaveAttribute("aria-pressed", "true");
 
       await page.goto("/demo/hub", { waitUntil: "domcontentloaded" });
-      const hubTablist = page
-        .getByRole("tablist", { name: /demo role view/i })
-        .first();
-      await expect(
-        hubTablist.getByRole("tab", { name: /parent/i }),
-      ).toHaveAttribute("aria-selected", "true");
+      const hubTablist = page.getByRole("group", { name: /demo role view/i }).first();
+      await expect(hubTablist.getByRole("button", { name: /parent/i })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
     });
 
     test("connection audit page renders with feature map", async ({ page }) => {

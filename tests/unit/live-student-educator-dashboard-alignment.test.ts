@@ -36,17 +36,15 @@ describe("live Student dashboard alignment", () => {
   });
 
   it("keeps sensitive content outside at-a-glance previews", () => {
-    expect(LIVE_STUDENT).toContain(
-      "Document contents and personal information never appear in this dashboard preview.",
-    );
+    expect(LIVE_STUDENT).not.toContain('to: "/documents"');
     expect(LIVE_STUDENT).toContain("Message contents remain inside the full team-scoped channel.");
     expect(LIVE_STUDENT).toContain(
       "Partners cannot see your private documents through this directory preview.",
     );
   });
 
-  it("keeps Student Voice and Goals navigation in the preview-first grid without legacy duplicates", () => {
-    for (const previewRoute of ['to: "/student-voice"', 'to: "/goals"']) {
+  it("keeps Student Voice and student Pathway navigation in the preview-first grid without legacy duplicates", () => {
+    for (const previewRoute of ['to: "/student-voice"', 'to: "/pathway/student"']) {
       expect(LIVE_STUDENT).toContain(previewRoute);
     }
 

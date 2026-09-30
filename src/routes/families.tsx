@@ -130,7 +130,7 @@ const cards: Array<{
   {
     icon: Archive,
     t: "Hold Onto the History",
-    b: "Family history and documents are available; the full year-over-year assessment and work-sample vault is still being built.",
+    b: "Review recorded access and activity for the plan and documents. The full year-over-year assessment and work-sample archive is still being built.",
     featureId: "document-history",
   },
 ];

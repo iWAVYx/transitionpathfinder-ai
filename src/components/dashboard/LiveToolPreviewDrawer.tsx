@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Database, LockKeyhole, type LucideIcon } from "lucide-react";
+import { ArrowRight, LockKeyhole, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,8 @@ export type LiveToolPreview = {
   };
   dataSource: string;
   privacyNote: string;
+  details?: Array<{ label: string; value: string }>;
+  nextStep?: string;
 };
 
 export function LiveToolPreviewDrawer({
@@ -108,8 +110,18 @@ export function LiveToolPreviewDrawer({
                 )}
               </section>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <PreviewBoundary icon={Database} label="Data source" value={preview.dataSource} />
+              {preview.details?.length ? <section aria-label="Tool details">
+                <h3 className="text-sm font-semibold">What needs your attention</h3>
+                <dl className="mt-3 space-y-3">{preview.details.map((detail) => <div key={detail.label}>
+                  <dt className="text-xs font-medium text-foreground/70">{detail.label}</dt>
+                  <dd className="mt-1 text-sm leading-relaxed">{detail.value}</dd>
+                </div>)}</dl>
+              </section> : null}
+              <section className="rounded-xl border bg-muted/30 p-4">
+                <h3 className="text-sm font-semibold">Next step</h3>
+                <p className="mt-2 text-sm leading-relaxed">{preview.nextStep ?? `Use ${preview.cta.label.toLowerCase()} to review the details and make changes in this tool.`}</p>
+              </section>
+              <div>
                 <PreviewBoundary
                   icon={LockKeyhole}
                   label="Privacy boundary"

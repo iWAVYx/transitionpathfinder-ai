@@ -13,15 +13,13 @@ import {
   getDemoProfile,
   type DemoProfileId,
 } from "@/lib/demo/demo-profiles";
-import {
-  applyTokensDeep,
-  tokensForProfile,
-} from "@/lib/demo/student-tokens";
+import { applyTokensDeep, tokensForProfile } from "@/lib/demo/student-tokens";
 
 export type ParentFeatureId =
   | "student-profile"
   | "pathway-report"
   | "documents"
+  | "history"
   | "recommended-resources"
   | "action-items"
   | "calendar"
@@ -55,6 +53,41 @@ export type ParentFeatureDetail = {
 };
 
 const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
+  history: {
+    id: "history",
+    title: "Access & Activity History",
+    eyebrow: "Who accessed the plan",
+    summary:
+      "Review examples of recorded access to {studentShortName}'s plan and documents. This is an activity log, not a year-over-year assessment archive.",
+    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected.",
+    dataSource: "Fictional examples of authorized activity events",
+    primaryAction: { label: "Open Access & Activity History", to: "/family/history" },
+    connectsTo: ["IEP & Documents", "Sharing & Consent"],
+    stats: [
+      { label: "Example events", value: "3" },
+      { label: "Data", value: "Fictional sample" },
+    ],
+    rows: [
+      {
+        primary: "Plan viewed",
+        secondary: "Example: a connected family member opened the report.",
+        status: "ok",
+      },
+      {
+        primary: "Document downloaded",
+        secondary: "Example: an authorized team member downloaded a shared document.",
+        status: "muted",
+      },
+      {
+        primary: "Sharing updated",
+        secondary: "Example: the family reviewed access to the student's plan.",
+        status: "ok",
+      },
+    ],
+    emptyHeadline: "No activity recorded yet.",
+    emptyBody:
+      "Recorded activity appears here as authorized team members use the student's workspace.",
+  },
   "student-profile": {
     id: "student-profile",
     title: "Connected Student",
@@ -71,10 +104,23 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Team members", value: "4" },
     ],
     rows: [
-      { primary: "{studentDisplayName}", secondary: "Pronouns: {pronoun}/{possessive}", meta: "{gradeLabel}", status: "ok" },
-      { primary: "Case manager: {caseManager}", secondary: "Special education · lead", status: "ok" },
+      {
+        primary: "{studentDisplayName}",
+        secondary: "Pronouns: {pronoun}/{possessive}",
+        meta: "{gradeLabel}",
+        status: "ok",
+      },
+      {
+        primary: "Case manager: {caseManager}",
+        secondary: "Special education · lead",
+        status: "ok",
+      },
       { primary: "Related services", secondary: "Support team on file", status: "muted" },
-      { primary: "Strengths shared by {studentShortName}", secondary: "From Student Voice", status: "ok" },
+      {
+        primary: "Strengths shared by {studentShortName}",
+        secondary: "From Student Voice",
+        status: "ok",
+      },
       { primary: "Current interests", secondary: "{interestList}", status: "ok" },
     ],
     emptyHeadline: "No student connected yet.",
@@ -100,7 +146,11 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     rows: [
       { primary: "Snapshot & strengths", secondary: "Complete", status: "ok" },
       { primary: "Family priorities", secondary: "Complete", status: "ok" },
-      { primary: "{postSecondaryLabel}", secondary: "Draft ready · focus on {planningHorizon}", status: "ok" },
+      {
+        primary: "{postSecondaryLabel}",
+        secondary: "Draft ready · focus on {planningHorizon}",
+        status: "ok",
+      },
       { primary: "Supports & self-advocacy", secondary: "Needs one more input", status: "warning" },
       { primary: "Action plan for the next 90 days", secondary: "Draft ready", status: "ok" },
     ],
@@ -125,10 +175,29 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Shared with team", value: "3" },
     ],
     rows: [
-      { primary: "Current IEP for {studentShortName}", secondary: "PDF · shared with {caseManager}", meta: "{gradeLabel}", status: "ok" },
-      { primary: "Latest evaluation", secondary: "Awaiting upload", meta: "Family action", status: "warning" },
-      { primary: "Transition assessment", secondary: "PDF · shared by school", meta: "This term", status: "ok" },
-      { primary: "Family notes for the meeting", secondary: "Doc · private to family", status: "muted" },
+      {
+        primary: "Current IEP for {studentShortName}",
+        secondary: "PDF · shared with {caseManager}",
+        meta: "{gradeLabel}",
+        status: "ok",
+      },
+      {
+        primary: "Latest evaluation",
+        secondary: "Awaiting upload",
+        meta: "Family action",
+        status: "warning",
+      },
+      {
+        primary: "Transition assessment",
+        secondary: "PDF · shared by school",
+        meta: "This term",
+        status: "ok",
+      },
+      {
+        primary: "Family notes for the meeting",
+        secondary: "Doc · private to family",
+        status: "muted",
+      },
     ],
     emptyHeadline: "No documents on file yet.",
     emptyBody:
@@ -139,8 +208,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     id: "recommended-resources",
     title: "Recommended Resources",
     eyebrow: "Matched For You",
-    summary:
-      "Family-friendly guides matched to your student's grade, readiness, and priorities.",
+    summary: "Family-friendly guides matched to your student's grade, readiness, and priorities.",
     what: "Open a resource, save it for the next meeting, or share with a family member.",
     dataSource: "Pathway Report priorities · student grade & interests · CT resource library",
     primaryAction: { label: "Open Resources", to: "/resources/saved" },
@@ -153,7 +221,10 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { primary: "{postSecondaryLabel} — family guide", secondary: "Guide · 6 min read" },
       { primary: "Meeting Questions template", secondary: "Template · 1 page" },
       { primary: "Family guide for {gradeLabel}", secondary: "Guide · 10 min read" },
-      { primary: "Interest-matched guide: {primaryInterest}", secondary: "Guide · interest-matched" },
+      {
+        primary: "Interest-matched guide: {primaryInterest}",
+        secondary: "Guide · interest-matched",
+      },
       { primary: "Self-Advocacy Practice Cards", secondary: "Cards · 12 prompts" },
     ],
     emptyHeadline: "No matches yet — but that's about to change.",
@@ -177,10 +248,26 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Completed (all time)", value: "18" },
     ],
     rows: [
-      { primary: "Upload the latest IEP for {studentShortName}", secondary: "Family · due before {nextMeetingDate}", status: "warning" },
-      { primary: "Bring 3 questions to the {nextMeetingDate} {nextMeetingLabel}", secondary: "Family · due day before", status: "warning" },
-      { primary: "Confirm transportation for a {primaryInterest} visit", secondary: "Family · upcoming", status: "muted" },
-      { primary: "Practice one self-advocacy line with {studentShortName}", secondary: "Student · in progress", status: "ok" },
+      {
+        primary: "Upload the latest IEP for {studentShortName}",
+        secondary: "Family · due before {nextMeetingDate}",
+        status: "warning",
+      },
+      {
+        primary: "Bring 3 questions to the {nextMeetingDate} {nextMeetingLabel}",
+        secondary: "Family · due day before",
+        status: "warning",
+      },
+      {
+        primary: "Confirm transportation for a {primaryInterest} visit",
+        secondary: "Family · upcoming",
+        status: "muted",
+      },
+      {
+        primary: "Practice one self-advocacy line with {studentShortName}",
+        secondary: "Student · in progress",
+        status: "ok",
+      },
     ],
     emptyHeadline: "No action items right now.",
     emptyBody:
@@ -202,9 +289,23 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Next 30 days", value: "3" },
     ],
     rows: [
-      { primary: "{nextMeetingLabel}", secondary: "{nextMeetingDate} · 2:30 PM", meta: "{school}", status: "warning" },
-      { primary: "Visit a {primaryInterest} program", secondary: "Coming month", meta: "Family welcome", status: "muted" },
-      { primary: "Case manager check-in with {caseManager}", secondary: "15 min · virtual", status: "muted" },
+      {
+        primary: "{nextMeetingLabel}",
+        secondary: "{nextMeetingDate} · 2:30 PM",
+        meta: "{school}",
+        status: "warning",
+      },
+      {
+        primary: "Visit a {primaryInterest} program",
+        secondary: "Coming month",
+        meta: "Family welcome",
+        status: "muted",
+      },
+      {
+        primary: "Case manager check-in with {caseManager}",
+        secondary: "15 min · virtual",
+        status: "muted",
+      },
     ],
     emptyHeadline: "No meetings scheduled.",
     emptyBody:
@@ -215,8 +316,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     id: "meeting-prep",
     title: "Meeting Prep",
     eyebrow: "Before The Meeting",
-    summary:
-      "Family-ready questions and an agenda you can bring to the next IEP / PPT meeting.",
+    summary: "Family-ready questions and an agenda you can bring to the next IEP / PPT meeting.",
     what: "Add questions, review the agenda, and print a one-pager for the meeting.",
     dataSource: "Meeting template · Family Priorities · Pathway Report",
     primaryAction: { label: "Prep For Next Meeting", to: "/ppt-prep" },
@@ -227,11 +327,23 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Agenda items open", value: "2" },
     ],
     rows: [
-      { primary: "What supports move with {studentShortName} next year?", secondary: "Question · family", status: "ok" },
-      { primary: "Can {studentShortName} try more of {primaryInterest} this term?", secondary: "Question · family", status: "ok" },
+      {
+        primary: "What supports move with {studentShortName} next year?",
+        secondary: "Question · family",
+        status: "ok",
+      },
+      {
+        primary: "Can {studentShortName} try more of {primaryInterest} this term?",
+        secondary: "Question · family",
+        status: "ok",
+      },
       { primary: "Progress on self-advocacy goals?", secondary: "Question · family", status: "ok" },
       { primary: "Review {postSecondaryLabel}", secondary: "Agenda item", status: "muted" },
-      { primary: "Update self-advocacy goal", secondary: "Agenda item · needs owner", status: "warning" },
+      {
+        primary: "Update self-advocacy goal",
+        secondary: "Agenda item · needs owner",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No meeting prep started yet.",
     emptyBody:
@@ -242,8 +354,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     id: "consent",
     title: "Sharing & Consent",
     eyebrow: "You're In Control",
-    summary:
-      "Choose who can view or edit your student's plan. Revoke anytime.",
+    summary: "Choose who can view or edit your student's plan. Revoke anytime.",
     what: "Add a viewer or editor, copy a shareable family/educator link, and see who's had access.",
     dataSource: "You · your student when they reach age of majority",
     primaryAction: { label: "Manage Sharing", to: "/family/consent" },
@@ -255,7 +366,12 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     rows: [
       { primary: "{caseManager} · case manager", secondary: "Editor · {school}", status: "ok" },
       { primary: "Family advocate", secondary: "Viewer · recently added", status: "ok" },
-      { primary: "Family report link", secondary: "Anyone with the link · view only", meta: "Copy", status: "muted" },
+      {
+        primary: "Family report link",
+        secondary: "Anyone with the link · view only",
+        meta: "Copy",
+        status: "muted",
+      },
       { primary: "Previous case manager access", secondary: "Revoked", status: "muted" },
     ],
     emptyHeadline: "No one else has access yet.",
@@ -278,7 +394,12 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Pending", value: "1" },
     ],
     rows: [
-      { primary: "coach@example.org", secondary: "Editor · sent recently", meta: "Pending", status: "warning" },
+      {
+        primary: "coach@example.org",
+        secondary: "Editor · sent recently",
+        meta: "Pending",
+        status: "warning",
+      },
       { primary: "grandparent@example.org", secondary: "Viewer · joined", status: "ok" },
       { primary: "advocate@familyfirstct.org", secondary: "Viewer · joined", status: "ok" },
     ],
@@ -303,10 +424,30 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
       { label: "Application windows", value: "3" },
     ],
     rows: [
-      { primary: "{primaryPartnerRow}", secondary: "{primaryPartnerNote}", meta: "{gradeShort}", status: "ok" },
-      { primary: "Interest match: {primaryInterest}", secondary: "Age-appropriate · family welcome", meta: "Coming up", status: "ok" },
-      { primary: "Interest match: {secondaryInterest}", secondary: "Age-eligible next cycle", meta: "Coming up", status: "muted" },
-      { primary: "Local option near {region}", secondary: "Weekly · verified partner", meta: "This term", status: "ok" },
+      {
+        primary: "{primaryPartnerRow}",
+        secondary: "{primaryPartnerNote}",
+        meta: "{gradeShort}",
+        status: "ok",
+      },
+      {
+        primary: "Interest match: {primaryInterest}",
+        secondary: "Age-appropriate · family welcome",
+        meta: "Coming up",
+        status: "ok",
+      },
+      {
+        primary: "Interest match: {secondaryInterest}",
+        secondary: "Age-eligible next cycle",
+        meta: "Coming up",
+        status: "muted",
+      },
+      {
+        primary: "Local option near {region}",
+        secondary: "Weekly · verified partner",
+        meta: "This term",
+        status: "ok",
+      },
     ],
     emptyHeadline: "No partners matched yet.",
     emptyBody:

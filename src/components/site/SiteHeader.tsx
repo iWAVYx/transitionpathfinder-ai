@@ -1,8 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
+import { workspaceToolGroups } from "@/lib/workspace-tools";
 import { useServerFn } from "@tanstack/react-start";
-import { Menu, Sparkles, LayoutDashboard, LogOut, LogIn, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft,
+  Menu,
+  Sparkles,
+  LayoutDashboard,
+  LogOut,
+  LogIn,
+  ChevronDown,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,13 +33,11 @@ import { SmartLink } from "./SmartLink";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/profile.functions";
 import { getMyAdminRoles } from "@/lib/owner/owner.functions";
-import { getProgramEligibility } from "@/lib/bridgeforward.functions";
-import { audiencesForRoles, dashboardHomeForRoles, type RoleAudience } from "@/lib/role-policy";
+import { dashboardHomeForRoles } from "@/lib/role-policy";
 import { toTitleCase } from "@/lib/title-case";
 
 type NavLink = { to: string; label: string; desc?: string };
 type NavGroup = { label: string; items: NavLink[] };
-type UserNavGroup = NavGroup & { roles: RoleAudience[] };
 
 const navGroups: NavGroup[] = [
   {
@@ -77,117 +91,16 @@ const navSingles: NavLink[] = [
   { to: "/help", label: "Help & Contact" },
 ];
 
-const userGroups: UserNavGroup[] = [
-  // Educator / Case Manager — direct student/caseload support
-  {
-    label: "Caseload",
-    roles: ["educator"],
-    items: [
-      { to: "/caseload", label: "My Caseload" },
-      { to: "/teacher-portal", label: "Teacher Portal" },
-      { to: "/goals", label: "Goal Tracker" },
-      { to: "/documents", label: "Documents" },
-    ],
-  },
-
-  // Family + Student — their own profile/students
-  {
-    label: "Students",
-    roles: ["family", "admin"],
-    items: [
-      { to: "/students", label: "Students" },
-      { to: "/goals", label: "Goal Tracker" },
-      { to: "/documents", label: "Documents" },
-    ],
-  },
-  {
-    label: "Planning Tools",
-    roles: ["family", "educator", "student", "admin"],
-    items: [
-      { to: "/pathway", label: "Create Pathway Report" },
-      { to: "/reports", label: "Pathway Reports" },
-      { to: "/student-voice", label: "Student Voice" },
-      { to: "/ppt-prep", label: "PPT / IEP Meeting Prep" },
-      { to: "/meetings", label: "Meetings" },
-      { to: "/meeting-templates", label: "Meeting Templates" },
-      { to: "/bridgeforward", label: "BridgeForward (Middle School)" },
-      { to: "/trust", label: "Trust & Consent" },
-      { to: "/demo-mode", label: "Demo Mode" },
-    ],
-  },
-  {
-    label: "Collaboration",
-    roles: ["family", "educator", "admin", "partner"],
-    items: [
-      { to: "/messages", label: "Messages" },
-      { to: "/feed", label: "Feed" },
-      { to: "/forms", label: "Forms" },
-      { to: "/opportunities", label: "Opportunities" },
-    ],
-  },
-  {
-    label: "Insights",
-    roles: ["educator", "school_admin", "district_admin", "admin"],
-    items: [
-      { to: "/insights", label: "Insights" },
-      { to: "/analytics", label: "Analytics" },
-    ],
-  },
-  // School Administrator — school-level oversight (separate from Platform Admin)
-  {
-    label: "School Administration",
-    roles: ["school_admin", "admin"],
-    items: [
-      { to: "/school/overview", label: "School Overview" },
-      { to: "/school/team", label: "Staff & Team" },
-      { to: "/school/reports", label: "School Reports" },
-      { to: "/school/implementation", label: "Implementation" },
-    ],
-  },
-  // School District Administrator — district-level oversight across schools
-  {
-    label: "District Administration",
-    roles: ["district_admin", "admin"],
-    items: [
-      { to: "/district/overview", label: "District Overview" },
-      { to: "/district/schools", label: "Schools" },
-      { to: "/district/team", label: "People & Access" },
-      { to: "/district/reports", label: "District Reports" },
-    ],
-  },
-  // Partner Organization workspace — existing Partner Dashboard.
-  // PartnerForward is an Incentives & Support layer here, not a second dashboard.
-  {
-    label: "Partner Workspace",
-    roles: ["partner", "admin"],
-    items: [
-      { to: "/partners-manage", label: "Partner Profile & Opportunities" },
-      { to: "/partners-manage/impact", label: "Partner Impact" },
-      { to: "/partnerforward/incentives", label: "Incentives & Support (PartnerForward)" },
-    ],
-  },
-  // Account — visible to every signed-in user
-  {
-    label: "Account",
-    roles: ["student", "family", "educator", "school_admin", "district_admin", "admin", "partner"],
-    items: [
-      { to: "/settings", label: "Settings" },
-      { to: "/help", label: "Help & Support" },
-    ],
-  },
-];
-
 export function SiteHeader() {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const [roles, setRoles] = useState<string[]>([]);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
-  const [hasMS, setHasMS] = useState(false);
   const [signedInNavAllowed, setSignedInNavAllowed] = useState(false);
   const fetchRoles = useServerFn(getMyRoles);
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
-  const fetchElig = useServerFn(getProgramEligibility);
   const [openDropdowns, setOpenDropdowns] = useState(0);
 
   const isMenuOpen = open || openDropdowns > 0;
@@ -221,7 +134,6 @@ export function SiteHeader() {
     if (!user) {
       setRoles([]);
       setIsPlatformAdmin(false);
-      setHasMS(false);
       setSignedInNavAllowed(false);
       return;
     }
@@ -250,35 +162,15 @@ export function SiteHeader() {
       .catch(() => {
         if (!cancelled) setIsPlatformAdmin(false);
       });
-    fetchElig()
-      .then((res) => {
-        if (!cancelled) setHasMS(Boolean(res.hasMiddleSchoolStudent));
-      })
-      .catch(() => {
-        if (!cancelled) setHasMS(false);
-      });
     return () => {
       cancelled = true;
     };
-  }, [user, fetchRoles, fetchAdminRoles, fetchElig]);
+  }, [user, fetchRoles, fetchAdminRoles]);
 
-  const visibleUserGroups = useMemo(() => {
-    const audiences = audiencesForRoles(roles);
-    return userGroups
-      .filter((g) => g.roles.some((r) => audiences.has(r)))
-      .map((g) => ({
-        ...g,
-        items: g.items.filter((item) => {
-          // Hide BridgeForward entry from Planning Tools unless the user
-          // is connected to a grade 6–8 student (or is a platform admin).
-          if (item.to === "/bridgeforward" && !hasMS && !audiences.has("admin")) {
-            return false;
-          }
-          return true;
-        }),
-      }))
-      .filter((g) => g.items.length > 0);
-  }, [roles, hasMS]);
+  const visibleUserGroups = useMemo(
+    () => workspaceToolGroups(roles, isPlatformAdmin),
+    [roles, isPlatformAdmin],
+  );
 
   const showSignedInNav = Boolean(user && signedInNavAllowed);
   const signedInUser = showSignedInNav ? user : null;
@@ -363,7 +255,7 @@ export function SiteHeader() {
 
               <DropdownMenu onOpenChange={(v) => setOpenDropdowns((c) => c + (v ? 1 : -1))}>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground lg:px-2.5">
-                  More <ChevronDown className="h-3.5 w-3.5" />
+                  Tools <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
@@ -429,6 +321,10 @@ export function SiteHeader() {
             data-lenis-prevent
             className="flex w-[88%] max-w-sm flex-col gap-0 p-0 sm:max-w-sm"
           >
+            <SheetTitle className="sr-only">Site navigation</SheetTitle>
+            <SheetDescription className="sr-only">
+              Open a tool or return to your workspace.
+            </SheetDescription>
             <div className="border-b border-border/60 px-5 py-4">
               <SmartLink
                 to="/"
@@ -541,12 +437,12 @@ export function SiteHeader() {
               {signedInUser ? (
                 <div className="space-y-2">
                   <SmartLink
-                    to="/pathway"
+                    to={dashboardHome.to}
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
                   >
                     <Sparkles className="h-4 w-4" />
-                    Create a Pathway Report
+                    {dashboardHome.label}
                   </SmartLink>
                   <button
                     type="button"
@@ -584,6 +480,23 @@ export function SiteHeader() {
           </SheetContent>
         </Sheet>
       </div>
+      {showSignedInNav &&
+        !location.pathname.startsWith("/demo") &&
+        (location.pathname !== dashboardHome.to || location.searchStr) && (
+          <nav
+            aria-label="Return to dashboard"
+            className="border-t border-border/50 bg-background/95"
+          >
+            <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+              <SmartLink
+                to={dashboardHome.to}
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden /> Back to {dashboardHome.label}
+              </SmartLink>
+            </div>
+          </nav>
+        )}
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { SmartLink as Link } from "@/components/site/SmartLink";
 import { ArrowRight, ExternalLink } from "lucide-react";
 
 import {

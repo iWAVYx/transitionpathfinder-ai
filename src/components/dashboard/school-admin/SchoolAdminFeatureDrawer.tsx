@@ -6,7 +6,6 @@ import {
   Circle,
   Sparkles,
   Link2,
-  Database,
   Target,
   Inbox,
   Lock,
@@ -186,7 +185,6 @@ function ReadyBody({ detail }: { detail: SchoolAdminFeatureDetail }) {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
-        <MetaCard icon={Database} label="Data source" value={detail.dataSource} />
         <MetaCard icon={Target} label="What you can do" value={detail.what} />
         <MetaCard icon={Link2} label="Connects to" value={detail.connectsTo.join(" · ")} />
       </section>

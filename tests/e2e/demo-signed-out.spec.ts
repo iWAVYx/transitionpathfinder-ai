@@ -25,14 +25,7 @@ const DEMO_ROUTES = [
 ];
 
 // Routes that must remain auth-gated even when reached via demo navigation.
-const PROTECTED_PREFIXES = [
-  "/dashboard",
-  "/students",
-  "/reports",
-  "/owner",
-  "/admin",
-  "/settings",
-];
+const PROTECTED_PREFIXES = ["/dashboard", "/students", "/reports", "/owner", "/admin", "/settings"];
 
 test.describe("public /demo experience (signed out)", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -49,47 +42,43 @@ test.describe("public /demo experience (signed out)", () => {
       expect(resp?.status(), `status for ${path}`).toBeLessThan(400);
 
       // Did not get bounced to /login or /auth
-      await expect(page).toHaveURL(new RegExp(path.replace(/\//g, "\\/") + "\\/?$"));
+      await expect.poll(() => new URL(page.url()).pathname).toBe(path);
 
       // Main landmark present (page actually rendered, not a blank shell)
       await expect(page.locator("main, [role=main]").first()).toBeVisible();
 
       // No client-side runtime errors during load
-      expect(
-        consoleErrors.filter((e) => !/favicon|manifest|sourcemap/i.test(e)),
-      ).toEqual([]);
+      expect(consoleErrors.filter((e) => !/favicon|manifest|sourcemap/i.test(e))).toEqual([]);
     });
   }
 
   test("role-view lens switches and persists across steps", async ({ page }) => {
-    await page.goto("/demo/intake", { waitUntil: "domcontentloaded" });
+    await page.goto("/demo/voice", { waitUntil: "domcontentloaded" });
 
-    const tablist = page.getByRole("tablist", { name: /demo role view/i }).first();
+    const tablist = page.getByRole("group", { name: /demo role view/i }).first();
     await expect(tablist).toBeVisible();
 
-    const educatorTab = tablist.getByRole("tab", { name: /educator/i });
+    const educatorTab = tablist.getByRole("button", { name: /educator/i });
     await educatorTab.click();
-    await expect(educatorTab).toHaveAttribute("aria-selected", "true");
+    await expect(educatorTab).toHaveAttribute("aria-pressed", "true");
 
     // Navigate to another demo step — selection should persist via sessionStorage.
     await page.goto("/demo/report", { waitUntil: "domcontentloaded" });
-    const nextTablist = page
-      .getByRole("tablist", { name: /demo role view/i })
-      .first();
+    const nextTablist = page.getByRole("group", { name: /demo role view/i }).first();
     await expect(nextTablist).toBeVisible();
-    await expect(
-      nextTablist.getByRole("tab", { name: /educator/i }),
-    ).toHaveAttribute("aria-selected", "true");
+    await expect(nextTablist.getByRole("button", { name: /educator/i })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
 
     // Switch to Parent on this step and confirm it sticks on the hub.
-    await nextTablist.getByRole("tab", { name: /parent/i }).click();
+    await nextTablist.getByRole("button", { name: /parent/i }).click();
     await page.goto("/demo/hub", { waitUntil: "domcontentloaded" });
-    const hubTablist = page
-      .getByRole("tablist", { name: /demo role view/i })
-      .first();
-    await expect(
-      hubTablist.getByRole("tab", { name: /parent/i }),
-    ).toHaveAttribute("aria-selected", "true");
+    const hubTablist = page.getByRole("group", { name: /demo role view/i }).first();
+    await expect(hubTablist.getByRole("button", { name: /parent/i })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   test("connection audit page lists feature map", async ({ page }) => {
@@ -112,10 +101,7 @@ test.describe("public /demo experience (signed out)", () => {
       for (const href of hrefs) {
         if (!href.startsWith("/")) continue;
         for (const prefix of PROTECTED_PREFIXES) {
-          expect(
-            href.startsWith(prefix),
-            `${path} links to protected route ${href}`,
-          ).toBeFalsy();
+          expect(href.startsWith(prefix), `${path} links to protected route ${href}`).toBeFalsy();
         }
       }
     }

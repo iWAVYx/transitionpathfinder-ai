@@ -1,3 +1,4 @@
+import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -135,6 +136,7 @@ export function LiveEducatorWorkspaceOverview({
     {
       icon: Gauge,
       title: "Readiness & Evidence Gaps",
+      relatedActions: RELATED_TOOLS["educator:readiness"],
       status: loading ? "Loading" : `${summary.missingReports + summary.noGoals} signals`,
       tone: summary.missingReports + summary.noGoals > 0 ? "warning" : "success",
       summary: "Find missing report or goal evidence that may block a defensible transition plan.",
@@ -165,6 +167,7 @@ export function LiveEducatorWorkspaceOverview({
     {
       icon: FileText,
       title: "Pathway Reports",
+      relatedActions: RELATED_TOOLS["educator:pathway-reports"],
       status: loading ? "Loading" : `${summary.withReports} available`,
       tone: summary.missingReports === 0 && students.length > 0 ? "success" : "warning",
       summary: "Open the latest reports and see which student plans still need a first report.",
@@ -179,6 +182,7 @@ export function LiveEducatorWorkspaceOverview({
     {
       icon: CalendarDays,
       title: "Meetings & Calendar",
+      relatedActions: RELATED_TOOLS["educator:calendar"],
       status: loading ? "Loading" : `${summary.upcomingMeetings} next 30 days`,
       tone: "muted",
       summary: "Coordinate PPTs, IEP meetings, prep windows, and team follow-ups.",
@@ -340,6 +344,17 @@ export function LiveEducatorWorkspaceOverview({
                 {...card}
                 onPreview={() =>
                   setActivePreview({
+                    details: [
+                      {
+                        label: "Caseload coverage",
+                        value: `${students.length} students are connected to your caseload.`,
+                      },
+                      {
+                        label: "Planning gaps",
+                        value: `${summary.missingReports} students have no report; ${summary.noGoals} have no goals recorded.`,
+                      },
+                    ],
+                    nextStep: `${card.cta.label} to review the students who need attention and choose the next step for their plan.`,
                     icon: card.icon,
                     title: card.title,
                     summary:

@@ -1,3 +1,4 @@
+import { PartnerDirectoryPage } from "./PartnerDirectoryPage";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
@@ -34,7 +35,11 @@ import { Pill } from "@/components/ui/pill";
  *  - school_admin / district_admin: coverage + verification view
  *  - partner: de-identified demand signal for their own listings (no student PII)
  */
-export function PartnerNetworkPage({
+export function PartnerNetworkPage(props: { audienceOverride?: RoleAudience; demo?: boolean; bare?: boolean } = {}) {
+  return props.demo ? <DemoPartnerNetworkPage {...props} /> : <PartnerDirectoryPage signedIn />;
+}
+
+function DemoPartnerNetworkPage({
   audienceOverride,
   demo = false,
   bare = false,

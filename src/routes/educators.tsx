@@ -80,7 +80,7 @@ const cards: Array<{
   },
   {
     icon: Sparkles,
-    t: "Expert Drafted, Teacher Approved",
+    t: "Evidence-Informed Drafts, Educator Reviewed",
     b: "Pathway recommendations and plain-language report content are drafted for educator review rather than sent as final decisions.",
     featureId: "pathway-builder",
   },

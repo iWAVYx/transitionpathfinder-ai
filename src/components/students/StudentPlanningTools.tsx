@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from "react";
 import { ActionItemsPanel } from "@/components/students/ActionItemsPanel";
 import { AuditTrailPanel } from "@/components/students/AuditTrailPanel";
 import { CollaboratorsPanel } from "@/components/students/CollaboratorsPanel";
@@ -13,67 +14,91 @@ import { WhoCanSeeThisPanel } from "@/components/students/WhoCanSeeThisPanel";
 import type { Goal, Student } from "@/lib/students.functions";
 
 type Props = {
+  section: "plan" | "resources" | "team";
   student: Student | null;
   studentId: string;
   goals: Goal[];
   onChange: () => void | Promise<void>;
 };
 
-export function StudentPlanningTools({ student, studentId, goals, onChange }: Props) {
+export function StudentPlanningTools({ section, student, studentId, goals, onChange }: Props) {
   return (
-    <>
-      <div className="mt-6">
-        <GoalsEditor
-          studentId={studentId}
-          studentFirstName={student?.first_name ?? null}
-          goals={goals}
-          onChange={onChange}
-        />
-      </div>
-
-      <div className="mt-6">
-        <PathwayProgress studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <StudentVoicePanel studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <ActionItemsPanel studentId={studentId} />
-      </div>
-
-      {student && (
-        <div className="mt-6">
-          <ReadinessInsightsCard studentId={studentId} studentFirstName={student.first_name} />
-        </div>
+    <div className="mt-4 space-y-3">
+      {section === "plan" && (
+        <>
+          <ToolSection title="Goals" initiallyOpen>
+            <GoalsEditor
+              studentId={studentId}
+              studentFirstName={student?.first_name ?? null}
+              goals={goals}
+              onChange={onChange}
+            />
+          </ToolSection>
+          <ToolSection title="Student voice">
+            <StudentVoicePanel studentId={studentId} />
+          </ToolSection>
+          <ToolSection title="Action items">
+            <ActionItemsPanel studentId={studentId} />
+          </ToolSection>
+          <ToolSection title="Pathway progress">
+            <PathwayProgress studentId={studentId} />
+          </ToolSection>
+          {student && (
+            <ToolSection title="Readiness">
+              <ReadinessInsightsCard studentId={studentId} studentFirstName={student.first_name} />
+            </ToolSection>
+          )}
+        </>
       )}
+      {section === "resources" && (
+        <>
+          <ToolSection title="Recommended resources" initiallyOpen>
+            <RecommendedResourcesPanel studentId={studentId} />
+          </ToolSection>
+          <ToolSection title="Partner matches">
+            <RecommendedPartnersPanel studentId={studentId} />
+          </ToolSection>
+        </>
+      )}
+      {section === "team" && (
+        <>
+          <ToolSection title="Team members" initiallyOpen>
+            <MembershipPanel studentId={studentId} />
+            <CollaboratorsPanel studentId={studentId} />
+          </ToolSection>
+          <ToolSection title="Who can see this">
+            <WhoCanSeeThisPanel studentId={studentId} />
+          </ToolSection>
+          <ToolSection title="Counselor notes">
+            <CounselorNotesPanel studentId={studentId} />
+          </ToolSection>
+          <ToolSection title="Activity history">
+            <AuditTrailPanel studentId={studentId} />
+          </ToolSection>
+        </>
+      )}
+    </div>
+  );
+}
 
-      <div className="mt-6">
-        <RecommendedResourcesPanel studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <RecommendedPartnersPanel studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <MembershipPanel studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <WhoCanSeeThisPanel studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <CollaboratorsPanel studentId={studentId} />
-      </div>
-
-      <div className="mt-6">
-        <CounselorNotesPanel studentId={studentId} />
-      </div>
-
-      <AuditTrailPanel studentId={studentId} />
-    </>
+function ToolSection({
+  title,
+  initiallyOpen = false,
+  children,
+}: {
+  title: string;
+  initiallyOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(initiallyOpen);
+  return (
+    <details
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+      className="rounded-xl border bg-card p-4"
+    >
+      <summary className="cursor-pointer text-sm font-semibold">{title}</summary>
+      {open && <div className="mt-3">{children}</div>}
+    </details>
   );
 }

@@ -12,15 +12,13 @@
  */
 
 import type { StageId } from "@/lib/workspace/stages";
-import {
-  DEMO_ROLES,
-  DEMO_ROLE_ORDER,
-  type DemoRoleId,
-} from "@/lib/demo/role-previews";
+import { isDemoProfileId } from "./demo-profiles";
+import { DEMO_ROLES, DEMO_ROLE_ORDER, type DemoRoleId } from "@/lib/demo/role-previews";
 
 export type DemoWorkspaceSearch = {
   role?: DemoRoleId;
   expand?: boolean;
+  student?: string;
 };
 
 /** Coerce any incoming `role` search value into a valid DemoRoleId or undefined. */
@@ -39,13 +37,11 @@ export function coerceExpand(raw: unknown): boolean {
  * Build TanStack Router `<Link>` / `redirect()` args for a workspace stage,
  * preserving role and expand state when supplied.
  */
-export function workspaceStageHref(
-  stage: StageId,
-  search: DemoWorkspaceSearch = {},
-) {
+export function workspaceStageHref(stage: StageId, search: DemoWorkspaceSearch = {}) {
   const cleanSearch: Record<string, string | boolean> = {};
   if (search.role) cleanSearch.role = search.role;
   if (search.expand) cleanSearch.expand = true;
+  if (isDemoProfileId(search.student)) cleanSearch.student = search.student;
   return {
     to: "/demo/workspace/$stage" as const,
     params: { stage },
@@ -59,14 +55,17 @@ export function workspaceStageHref(
  * back returns to that role preview. Otherwise, back returns to the
  * Demo Overview.
  */
-export function backTargetFromWorkspace(
-  search: DemoWorkspaceSearch,
-): { to: string; label: string } {
+export function backTargetFromWorkspace(search: DemoWorkspaceSearch): {
+  to: string;
+  label: string;
+} {
   const role = coerceRole(search.role);
   if (role) {
     const preview = DEMO_ROLES[role];
     return {
-      to: preview.path,
+      to: isDemoProfileId(search.student)
+        ? `${preview.path}?student=${search.student}`
+        : preview.path,
       label: `Back To ${preview.label} Preview`,
     };
   }
@@ -84,8 +83,9 @@ export function legacyWorkspaceRedirect(
   incomingSearch: Record<string, unknown> | undefined,
 ) {
   const role = coerceRole(incomingSearch?.role);
+  const student = isDemoProfileId(incomingSearch?.student) ? incomingSearch.student : undefined;
   return {
-    ...workspaceStageHref(stage, { role, expand: true }),
+    ...workspaceStageHref(stage, { role, student, expand: true }),
     replace: true as const,
   };
 }

@@ -7,7 +7,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const STUDENT_DASHBOARD = read("src/components/dashboard/StudentDashboard.tsx");
-const WIDGET_BOARD = read("src/components/dashboard/DashboardWidgetBoard.tsx");
+const WIDGET_BOARD = read("src/components/dashboard/DashboardWidgetBoardView.tsx");
 const FAMILY_DASHBOARD = read("src/routes/_authenticated/dashboard.tsx");
 const LIVE_FAMILY_OVERVIEW = read("src/components/dashboard/LiveFamilyWorkspaceOverview.tsx");
 const TOOL_PREVIEW_CARD = read("src/components/dashboard/ToolPreviewCard.tsx");

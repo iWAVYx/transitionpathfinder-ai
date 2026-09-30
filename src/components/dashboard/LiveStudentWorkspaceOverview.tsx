@@ -1,3 +1,4 @@
+import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -5,12 +6,9 @@ import {
   CalendarDays,
   CheckSquare,
   FileText,
-  FolderOpen,
   HeartHandshake,
   MessageSquare,
   Mic,
-  Target,
-  UserRound,
 } from "lucide-react";
 
 import {
@@ -66,24 +64,6 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
 
   const cards: StudentWorkspaceCard[] = [
     {
-      icon: UserRound,
-      title: "My Student Profile",
-      status: formatGradeBand(student.grade_band),
-      summary:
-        "Your strengths, interests, support needs, school, and transition focus in one place.",
-      bullets: [
-        { label: "School", value: student.school ?? "Not set" },
-        { label: "Readiness", value: student.readiness_level ?? "Building" },
-      ],
-      cta: {
-        label: "Open My Profile",
-        to: "/students/$studentId",
-        params: { studentId: student.id },
-      },
-      dataSource: "Your authorized student profile",
-      privacyNote: studentBoundary,
-    },
-    {
       icon: FileText,
       title: "My Pathway Report",
       status: snapshot.latestReport ? "Ready to read" : "Not created yet",
@@ -103,7 +83,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
             to: "/reports/$reportId",
             params: { reportId: snapshot.latestReport.id },
           }
-        : { label: "Build My Pathway", to: "/pathway" },
+        : { label: "Open My Pathway", to: "/pathway/student" },
       dataSource: "Your latest authorized Pathway Report",
       privacyNote:
         "The preview shows report status only; private report content stays in the full report.",
@@ -126,21 +106,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
       dataSource: "Your saved Student Voice profile",
       privacyNote: studentBoundary,
     },
-    {
-      icon: Target,
-      title: "My Goals",
-      status: `${activeGoals} active`,
-      tone: activeGoals > 0 ? "default" : "muted",
-      summary:
-        "Track the education, employment, independent-living, and self-advocacy goals in your plan.",
-      bullets: [
-        { label: "Active", value: activeGoals },
-        { label: "All goals", value: snapshot.goals.length },
-      ],
-      cta: { label: "Open My Goals", to: "/goals" },
-      dataSource: "Goals in your authorized transition plan",
-      privacyNote: studentBoundary,
-    },
+
     {
       icon: CheckSquare,
       title: "My Next Actions",
@@ -155,25 +121,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
       dataSource: "Action items authorized for your student plan",
       privacyNote: "Only totals appear in this preview; full task details stay in the tool.",
     },
-    {
-      icon: FolderOpen,
-      title: "My Documents",
-      status: `${snapshot.documents.length} on file`,
-      tone: snapshot.documents.length > 0 ? "success" : "warning",
-      summary:
-        "Keep plan documents together with privacy review, redaction, and safe upload status.",
-      bullets: [
-        { label: "On file", value: snapshot.documents.length },
-        {
-          label: "Needs review",
-          value: snapshot.documents.filter((document) => document.status !== "linked").length,
-        },
-      ],
-      cta: { label: "Open Documents", to: "/documents" },
-      dataSource: "Your authorized document records",
-      privacyNote:
-        "Document contents and personal information never appear in this dashboard preview.",
-    },
+
     {
       icon: CalendarDays,
       title: "Meetings & Prep",
@@ -319,6 +267,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
                 {...card}
                 onPreview={() =>
                   setActivePreview({
+                    ...studentToolPreviewDetails(card.cta.to, snapshot),
                     icon: card.icon,
                     title: card.title,
                     summary:

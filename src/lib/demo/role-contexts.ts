@@ -41,10 +41,7 @@ export type SchoolProfile = {
   activityHeadline: string;
 };
 
-export const SCHOOL_PROFILE_ORDER: SchoolProfileId[] = [
-  "comprehensive",
-  "specialized",
-];
+export const SCHOOL_PROFILE_ORDER: SchoolProfileId[] = ["comprehensive", "specialized"];
 
 export const SCHOOL_PROFILES: Record<SchoolProfileId, SchoolProfile> = {
   comprehensive: {
@@ -61,7 +58,7 @@ export const SCHOOL_PROFILES: Record<SchoolProfileId, SchoolProfile> = {
     educators: 22,
     reportsComplete: 97,
     reportsInProgress: 31,
-    completionPct: 68,
+    completionPct: Math.round((97 / 168) * 100),
     quarterDelta: "+9% vs. last quarter",
     upcomingDeadlines: "12 PPTs · 4 wks",
     topSupportGap: "Travel training",
@@ -83,7 +80,7 @@ export const SCHOOL_PROFILES: Record<SchoolProfileId, SchoolProfile> = {
     educators: 18,
     reportsComplete: 71,
     reportsInProgress: 18,
-    completionPct: 82,
+    completionPct: Math.round((71 / 94) * 100),
     quarterDelta: "+5% vs. last quarter",
     upcomingDeadlines: "6 CBI trips · 3 wks",
     topSupportGap: "Agency coordination",
@@ -142,10 +139,7 @@ export type DistrictProfile = {
   activityHeadline: string;
 };
 
-export const DISTRICT_PROFILE_ORDER: DistrictProfileId[] = [
-  "regional-network",
-  "local-district",
-];
+export const DISTRICT_PROFILE_ORDER: DistrictProfileId[] = ["regional-network", "local-district"];
 
 export const DISTRICT_PROFILES: Record<DistrictProfileId, DistrictProfile> = {
   "regional-network": {
@@ -193,7 +187,10 @@ export function districtTilesFor(d: DistrictProfile): DashboardTile[] {
     {
       label: "Schools connected",
       value: `${d.schoolsConnected} of ${d.schools}`,
-      hint: d.schools === d.schoolsConnected ? "All onboarded" : `${d.schools - d.schoolsConnected} pending`,
+      hint:
+        d.schools === d.schoolsConnected
+          ? "All onboarded"
+          : `${d.schools - d.schoolsConnected} pending`,
     },
     {
       label: "District readiness",

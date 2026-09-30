@@ -1,3 +1,4 @@
+import { isAllowed } from "@/lib/role-policy";
 /**
  * Single source of truth for demo-mode feature previews.
  *
@@ -104,14 +105,17 @@ const ROLE_LABEL: Record<DemoRole, string> = {
 };
 
 export function isDemoRole(v: unknown): v is DemoRole {
-  return typeof v === "string" && v in REGISTRY;
+  return typeof v === "string" && Object.hasOwn(REGISTRY, v);
 }
 
-export function getDemoFeature(
-  role: DemoRole,
-  slug: string,
-): DemoFeatureDetail | null {
-  return REGISTRY[role]?.[slug] ?? null;
+export function getDemoFeature(role: DemoRole, slug: string): DemoFeatureDetail | null {
+  if (!isDemoRole(role) || !Object.hasOwn(REGISTRY[role], slug)) return null;
+  const detail = REGISTRY[role][slug];
+  const accountRole =
+    role === "family" ? "parent" : role === "owner" ? "admin" : role.replaceAll("-", "_");
+  // A preview must not advertise a signed-in action this role cannot use.
+  // Keep draft templates available for future own-record work, but do not publish them.
+  return isAllowed(detail.primaryAction.to, [accountRole]) ? detail : null;
 }
 
 export function demoRoleDashboardPath(role: DemoRole): string {
@@ -131,7 +135,7 @@ export function listDemoFeatures(): Array<{
   const out: Array<{ role: DemoRole; featureId: string; detail: DemoFeatureDetail }> = [];
   for (const role of Object.keys(REGISTRY) as DemoRole[]) {
     for (const [featureId, detail] of Object.entries(REGISTRY[role])) {
-      out.push({ role, featureId, detail });
+      if (getDemoFeature(role, featureId)) out.push({ role, featureId, detail });
     }
   }
   return out;
@@ -143,7 +147,7 @@ export function listDemoFeatures(): Array<{
  * dead-end a preview.
  */
 export function resolveDemoFeatureRoute(role: DemoRole, featureId: string): string {
-  if (REGISTRY[role]?.[featureId]) {
+  if (getDemoFeature(role, featureId)) {
     return `/demo/feature/${role}/${featureId}`;
   }
   return ROLE_DASHBOARD[role];

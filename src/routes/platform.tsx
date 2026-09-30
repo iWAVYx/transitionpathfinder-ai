@@ -429,8 +429,8 @@ function PlatformPage() {
             <DemoStep
               step="1"
               icon={<ClipboardIcon className="h-5 w-5" />}
-              title="Sample Intake"
-              body="The guided transition-planning interview a family completed — strengths, interests, concerns, and student voice for the selected journey."
+              title="Pathway Builder"
+              body="Try the same guided questions as the signed-in Pathway Builder with fictional answers, then review how those inputs inform a plan."
               to="/demo/intake"
             />
             <DemoStep
@@ -443,8 +443,8 @@ function PlatformPage() {
             <DemoStep
               step="3"
               icon={<HubIcon className="h-5 w-5" />}
-              title="Student Hub"
-              body="The ongoing workspace where the family, case manager, and team track goals and documents over time."
+              title="Student Dashboard"
+              body="The student’s workspace for their voice, report, action items, calendar, resources, and team conversations."
               to="/demo/student"
             />
           </div>

@@ -6,9 +6,7 @@ import {
   ClipboardCheck,
   BookmarkCheck,
   CalendarDays,
-  FileText,
   Target,
-  FolderOpen,
   ArrowRight,
   Eye,
   type LucideIcon,
@@ -77,19 +75,7 @@ const TILES: Tile[] = [
     ],
     cta: { label: "Open Action Items", to: "/action-items" },
   },
-  {
-    featureId: "meeting-prep",
-    icon: FileText,
-    title: "Meeting Prep",
-    status: "Prep Now",
-    tone: "default",
-    summary: "Walk into your PPT with the questions and goals you want on the table.",
-    bullets: [
-      { label: "Questions ready", value: "3" },
-      { label: "Next meeting", value: "Sep 15" },
-    ],
-    cta: { label: "Prep For Meeting", to: "/ppt-prep" },
-  },
+
   {
     featureId: "calendar",
     icon: CalendarDays,
@@ -109,16 +95,6 @@ const TILES: Tile[] = [
     summary: "Guides, checklists, and tools you or your team bookmarked.",
     bullets: [{ label: "Added this month", value: "2" }],
     cta: { label: "Open Saved Resources", to: "/resources/saved" },
-  },
-  {
-    featureId: "documents",
-    icon: FolderOpen,
-    title: "Documents Shared With Me",
-    status: "4 files",
-    tone: "muted",
-    summary: "IEPs, evaluations, and family notes your team shared with you.",
-    bullets: [{ label: "New this month", value: "1" }],
-    cta: { label: "Open Documents", to: "/documents" },
   },
 ];
 
@@ -149,10 +125,13 @@ export function StudentOverviewGrid({ isSample = false }: { isSample?: boolean }
             onPreview={() => setOpenFeature(tile.featureId)}
           />
         ))}
-        <PartnerNetworkTile role="student" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
+        <PartnerNetworkTile
+          role="student"
+          isSample={isSample}
+          onPreview={() => setOpenFeature("partner-network")}
+        />
         <DemoTransitionChannelTile role="student" contextId={profileId} />
       </ToolPreviewGrid>
-
 
       <StudentFeatureDrawer
         featureId={openFeature}
@@ -178,6 +157,7 @@ function StudentTile({
   isSample?: boolean;
 }) {
   const Icon = tile.icon;
+  const { profileId } = useDemoStudent();
   // Derive tile-facing metrics from the profile-specific detail so
   // switching the demo profile updates status + bullets everywhere.
   const status = detail.stats?.[0]?.value ?? tile.status;
@@ -185,10 +165,15 @@ function StudentTile({
     detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
     tile.bullets ??
     [];
-  const ctaTo = isSample ? resolveDemoFeatureRoute("student", tile.featureId) : (tile.cta.to as string);
+  const ctaTo = isSample
+    ? resolveDemoFeatureRoute("student", tile.featureId)
+    : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <span
+        className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent"
+        aria-hidden
+      />
       <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -200,12 +185,16 @@ function StudentTile({
         </div>
         <Pill tone={tile.tone}>{status}</Pill>
       </div>
-      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
+      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">
+        {tile.summary}
+      </p>
       {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
           {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
-              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
+              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {toTitleCase(b.label)}
+              </dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
             </div>
           ))}
@@ -227,16 +216,19 @@ function StudentTile({
         </button>
         <Link
           to={ctaTo}
+          search={isSample ? { student: profileId } : undefined}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
           {toTitleCase(tile.cta.label)}
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+            aria-hidden
+          />
         </Link>
       </div>
     </div>
   );
 }
-
 
 // Keep the previously used Compass import referenced in case of future extension.
 void Compass;

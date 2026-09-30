@@ -1,11 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DEMO_FEATURE_MAP, type DemoElementId } from "@/lib/demo/feature-map";
 import { SiteShell } from "@/components/site/SiteShell";
-import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
-import {
-  PublicationPage,
-  PublicationCallout,
-} from "@/components/publication/PublicationPage";
+import { PublicationPage, PublicationCallout } from "@/components/publication/PublicationPage";
 
 export const Route = createFileRoute("/demo_/connection")({
   head: () => ({
@@ -32,7 +28,6 @@ function DemoConnectionPage() {
   const ids = Object.keys(DEMO_FEATURE_MAP) as DemoElementId[];
   return (
     <SiteShell>
-      <DemoRoleLens />
       <div className="demo-shell eh-issue">
         <PublicationPage
           kicker="Internal · Audit"
@@ -41,13 +36,14 @@ function DemoConnectionPage() {
           folio="internal"
         >
           <PublicationCallout kind="source" title="Internal Audit — Not Linked From Nav">
-            This page is noindexed and not linked from the marketing navigation. Use it
-            to confirm the demo accurately mirrors the signed-in product and that nothing
-            overpromises.
+            This page is noindexed and not linked from the marketing navigation. Use it to confirm
+            the demo accurately mirrors the signed-in product and that nothing overpromises.
           </PublicationCallout>
 
           <p className="text-sm mb-4">
-            <Link to="/demo" className="underline">← Back to the demo overview</Link>
+            <Link to="/demo" className="underline">
+              ← Back to the demo overview
+            </Link>
           </p>
 
           <div className="overflow-x-auto">
@@ -75,7 +71,9 @@ function DemoConnectionPage() {
                       <td className="px-3 py-2 text-xs">{entry.dataSource}</td>
                       <td className="px-3 py-2 text-xs">{entry.nextAction}</td>
                       <td className="px-3 py-2">
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLASS[entry.status]}`}>
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLASS[entry.status]}`}
+                        >
                           {entry.status}
                         </span>
                       </td>

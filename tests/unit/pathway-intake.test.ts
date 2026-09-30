@@ -76,7 +76,7 @@ describe("live Pathway intake", () => {
 
   it("keeps every richer field connected from the visible form through persistence and generation", () => {
     const root = resolve(__dirname, "../..");
-    const route = readFileSync(resolve(root, "src/routes/_authenticated/pathway.tsx"), "utf8");
+    const route = readFileSync(resolve(root, "src/routes/_authenticated/pathway.tsx"), "utf8") + readFileSync(resolve(root, "src/components/pathway/PathwayBuilderSteps.tsx"), "utf8");
     const server = readFileSync(resolve(root, "src/lib/pathway.functions.ts"), "utf8");
 
     for (const field of PATHWAY_ENGINE_CONTEXT_FIELDS) {

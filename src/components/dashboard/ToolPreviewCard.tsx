@@ -31,6 +31,8 @@ export interface ToolPreviewCardProps {
   onPreview?: () => void;
   /** Optional extra footer content. */
   footer?: ReactNode;
+  /** Related tools that are already available to this card's audience. */
+  relatedActions?: { label: string; to: string }[];
 }
 
 const TONE: Record<NonNullable<ToolPreviewCardProps["tone"]>, string> = {
@@ -51,6 +53,7 @@ export function ToolPreviewCard({
   cta,
   onPreview,
   footer,
+  relatedActions,
 }: ToolPreviewCardProps) {
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
@@ -98,6 +101,7 @@ export function ToolPreviewCard({
         </dl>
       )}
       {footer && <div className="mt-2 px-3.5">{footer}</div>}
+      <RelatedToolLinks actions={relatedActions} />
       <div
         className={`mt-auto flex items-center gap-2 border-t border-border/60 bg-muted/20 px-3.5 py-2 ${
           onPreview ? "justify-between" : "justify-end"
@@ -162,5 +166,37 @@ export function ToolPreviewSection({
       {description && <p className="mt-2 max-w-2xl text-sm text-foreground/75">{description}</p>}
       <div className="mt-5 sm:mt-6">{children}</div>
     </section>
+  );
+}
+
+export function RelatedToolLinks({
+  actions,
+  sample = false,
+  studentId,
+}: {
+  actions?: Array<{ label: string; to: string; demoTo?: string }>;
+  sample?: boolean;
+  studentId?: string;
+}) {
+  if (!actions?.length) return null;
+  return (
+    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 px-3.5 text-xs">
+      {actions.map((action) => {
+        const destination = sample ? (action.demoTo ?? action.to) : action.to;
+        const to =
+          sample && studentId
+            ? `${destination}${destination.includes("?") ? "&" : "?"}student=${encodeURIComponent(studentId)}`
+            : destination;
+        return (
+          <Link
+            key={action.to}
+            to={to}
+            className="font-medium text-primary underline underline-offset-4"
+          >
+            {action.label}
+          </Link>
+        );
+      })}
+    </div>
   );
 }

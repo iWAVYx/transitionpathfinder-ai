@@ -1,3 +1,5 @@
+import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
+import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
 import {
   BookOpen,
   CalendarDays,
@@ -91,6 +93,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: Users,
       title: "Connected Student",
+      relatedActions: RELATED_TOOLS["family:student-profile"],
       status: grade,
       summary: "One shared snapshot — school, team, strengths, interests, and support needs.",
       bullets: [
@@ -132,6 +135,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: FolderOpen,
       title: "IEP & Documents",
+      relatedActions: RELATED_TOOLS["family:documents"],
       status: `${snapshot.documents.length} on file`,
       tone: snapshot.documents.length > 0 ? "success" : "warning",
       summary: "Upload IEPs, evaluations, and family notes with privacy review and clear status.",
@@ -197,6 +201,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: BookOpen,
       title: "Recommended Resources",
+      relatedActions: RELATED_TOOLS["family:recommended-resources"],
       status: `${snapshot.recommendedResources.length} matched`,
       tone: "muted",
       summary: "Guides and tools tuned to grade, readiness, goals, and family priorities.",
@@ -353,6 +358,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
                 {...card}
                 onPreview={() =>
                   setActivePreview({
+                    ...studentToolPreviewDetails(card.cta.to, snapshot),
                     icon: card.icon,
                     title: card.title,
                     summary: card.summary ?? "Open this tool to see the full signed-in experience.",

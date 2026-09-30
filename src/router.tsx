@@ -22,6 +22,8 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    getScrollRestorationKey: (location) => location.href,
+    scrollRestorationBehavior: "instant",
     defaultPreloadStaleTime: 0,
     // Knowledge: router config MUST set defaultErrorComponent so every
     // loader without an explicit errorComponent still lands on a

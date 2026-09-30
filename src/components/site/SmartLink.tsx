@@ -1,11 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-/**
- * A Link that scrolls to the top (or reloads) when clicked while already
- * on the target route. Use this for nav/header links so repeated clicks
- * feel like a fresh page load.
- */
+/** Shared navigation link; returning to a page preserves its saved position. */
 export function SmartLink({
   to,
   reload,
@@ -19,16 +15,12 @@ export function SmartLink({
 } & Omit<ComponentPropsWithoutRef<typeof Link>, "to" | "onClick"> & {
     onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isCurrent = pathname === to;
+  const href = useRouterState({ select: (s) => s.location.href });
+  const isCurrent = href === to && !rest.search && !rest.hash;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isCurrent) {
-      if (reload) {
-        window.location.reload();
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+    if (isCurrent && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+      e.preventDefault();
     }
     onClick?.(e);
   };

@@ -6,7 +6,7 @@ const spec = readFileSync(
   "tests/e2e/release-readiness/pathway-live-staging.signedin.spec.ts",
   "utf8",
 );
-const pathwayRoute = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8");
+const pathwayRoute = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8") + readFileSync("src/components/pathway/PathwayBuilderSteps.tsx", "utf8");
 const reportRoute = readFileSync("src/routes/_authenticated/reports.$reportId.tsx", "utf8");
 const rolePolicy = readFileSync("src/lib/role-policy.ts", "utf8");
 const envHealth = readFileSync("src/routes/api/public/env-health.ts", "utf8");

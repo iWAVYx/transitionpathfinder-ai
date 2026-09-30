@@ -6,6 +6,7 @@ export type PublicFeatureRoute =
   | "/demo/documents"
   | "/demo/educator"
   | "/demo/family"
+  | "/demo/feature/family/history"
   | "/demo/intake"
   | "/demo/meeting"
   | "/demo/opportunities"
@@ -168,11 +169,11 @@ export const PUBLIC_FEATURES = {
     id: "document-history",
     status: "partial",
     statusLabel: "Partially available",
-    previewRoute: "/demo/documents",
+    previewRoute: "/demo/feature/family/history",
     liveRoute: "/family/history",
     liveAudiences: ["Family", "Admin"],
     availability:
-      "Family history and document views exist; the complete year-over-year assessment and work-sample vault is still being built.",
+      "Access and activity history records workspace events. It is not yet a complete year-over-year assessment and work-sample archive.",
   },
 } as const satisfies Record<string, PublicFeatureContract>;
 

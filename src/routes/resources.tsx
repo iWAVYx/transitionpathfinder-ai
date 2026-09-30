@@ -170,6 +170,7 @@ const EMPTY_FILTERS: Filters = {
 // ───────────────────────── Topic icons
 
 const TOPIC_ICON: Record<ResourceTopic, typeof Compass> = {
+  "assistive-technology": Wrench,
   "transition-planning": Compass,
   "iep-ppt": ClipboardList,
   "self-advocacy": Heart,
@@ -1127,17 +1128,15 @@ function RecommendedTab({
           </div>
           <div>
             <h2 className="font-display text-2xl font-medium tracking-tight">
-              Personalized for the Active Student Profile
+              Explore Common Transition Resources
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-              Recommendations update as you add goals, interests, uploaded
-              documents, family concerns, and readiness scores to a student's
-              profile. Connect a profile to power this section.
+              These are general library suggestions. Open a connected student's Resources & Partners tab for recommendations based on their saved planning information.
             </p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full bg-background px-3 py-1 font-medium">Detected: employment goal</span>
-              <span className="rounded-full bg-background px-3 py-1 font-medium">Detected: independent living</span>
-              <span className="rounded-full bg-background px-3 py-1 font-medium">Detected: self-advocacy at IEP</span>
+              <span className="rounded-full bg-background px-3 py-1 font-medium">Employment</span>
+              <span className="rounded-full bg-background px-3 py-1 font-medium">Independent living</span>
+              <span className="rounded-full bg-background px-3 py-1 font-medium">Self-advocacy</span>
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link
@@ -1147,8 +1146,7 @@ function RecommendedTab({
                 Open student profiles
               </Link>
               <Link
-                to="/pathways/$pathwayId"
-                params={{ pathwayId: "intake" }}
+                to="/pathway"
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-muted"
               >
                 Start a pathway report
@@ -1477,7 +1475,7 @@ function ResourceCard({
           {r.author ? ` · ${r.author}` : ""}
         </p>
         <h3 className={`mt-0.5 font-display font-medium leading-snug tracking-tight ${compact ? "text-sm" : "text-lg"}`}>
-          {toTitleCase(r.title)}
+          {r.link ? <a href={r.link} className="hover:underline">{toTitleCase(r.title)}</a> : toTitleCase(r.title)}
         </h3>
         <p className={`mt-1 leading-relaxed text-muted-foreground ${compact ? "text-xs line-clamp-2" : "text-sm line-clamp-3"}`}>
           {r.description}
@@ -1529,7 +1527,7 @@ function ResourceCard({
               rel="noopener noreferrer"
               className={`inline-flex items-center justify-center gap-1.5 rounded-full bg-primary font-semibold text-primary-foreground shadow-soft hover:shadow-lift ${compact ? "px-3 py-1.5 text-[11px]" : "px-4 py-2 text-xs"}`}
             >
-              {fmt.verb} <ExternalLink className="h-3 w-3" />
+              {fmt.verb} (new tab) <ExternalLink className="h-3 w-3" />
             </a>
           ) : null}
           <button

@@ -56,18 +56,11 @@ test.describe("demo Pathway Report — depth contract", () => {
 
     for (const audience of AUDIENCES) {
       test(`${p.id} — depth holds under ${audience} audience frame`, async ({ page }) => {
-        // Seed the demo-role-view sessionStorage on the same origin BEFORE
-        // navigating so useDemoRoleView hydrates directly into the target
-        // audience — no click race, no flake.
-        await page.goto(`/demo/report?student=${p.id}`, { waitUntil: "domcontentloaded" });
-        await page.evaluate((role) => {
-          window.sessionStorage.setItem("demo-role-view", role);
-        }, audience);
-        await page.reload({ waitUntil: "domcontentloaded" });
+        // URL state is authoritative so bookmarks and history preserve the lens.
+        await page.goto(`/demo/report?student=${p.id}&role=${audience}`, {
+          waitUntil: "domcontentloaded",
+        });
 
-        // Wait for useDemoRoleView hydration to swap the audience frame
-        // before running depth assertions — avoids a "still on student"
-        // race on slow CI runners.
         const report = page.locator(`[data-demo-report-audience="${audience}"]`);
         await expect(report).toBeVisible({ timeout: 10_000 });
 

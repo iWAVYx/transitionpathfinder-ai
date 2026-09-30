@@ -10,7 +10,7 @@ import {
   mergePathwayIntake,
 } from "../../src/lib/pathway-intake";
 
-const ROUTE = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8");
+const ROUTE = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8") + readFileSync("src/components/pathway/PathwayBuilderSteps.tsx", "utf8");
 const SERVER = readFileSync("src/lib/pathway.functions.ts", "utf8");
 const IEP_EXTRACT = readFileSync("src/lib/iep-extract.functions.ts", "utf8");
 
