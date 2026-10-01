@@ -35,7 +35,6 @@ describe("demo nav helpers", () => {
       params: { stage: "roadmap" },
       search: { role: "family", expand: true },
     });
-
   });
 
   it("backTargetFromWorkspace returns role preview when role is set", () => {
@@ -62,5 +61,23 @@ describe("demo nav helpers", () => {
       search: { expand: true },
       replace: true,
     });
+  });
+
+  it("keeps the selected sample student in stage and dashboard return links", () => {
+    expect(backTargetFromWorkspace({ role: "family", student: "sam" }).to).toBe(
+      "/demo/family?student=sam",
+    );
+    expect(workspaceStageHref("roadmap", { role: "educator", student: "riley" }).search).toEqual({
+      role: "educator",
+      student: "riley",
+    });
+    expect(legacyWorkspaceRedirect("roadmap", { role: "family", student: "sam" }).search).toEqual({
+      role: "family",
+      student: "sam",
+      expand: true,
+    });
+    expect(backTargetFromWorkspace({ role: "student", student: "not-a-sample" }).to).toBe(
+      "/demo/student",
+    );
   });
 });

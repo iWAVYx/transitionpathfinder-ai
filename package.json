@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1216 --expose-gc' vite build && node scripts/generate-service-worker.mjs",
+    "build:isolated-staging": "APP_ENV=staging VITE_APP_ENV=staging LOVABLE_SANDBOX=1 vite build && LOVABLE_SANDBOX=1 node scripts/generate-service-worker.mjs",
     "build:staging": "NODE_OPTIONS=--max-old-space-size=4096 vite build && node scripts/generate-service-worker.mjs",
     "build:production": "NODE_OPTIONS=--max-old-space-size=4096 vite build && node scripts/generate-service-worker.mjs",
     "build:dev": "NODE_OPTIONS='--max-semi-space-size=4 --max-old-space-size=1216 --expose-gc' vite build --mode development && node scripts/generate-service-worker.mjs",
@@ -113,7 +114,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "2.21.0",
+    "@lovable.dev/vite-tanstack-config": "2.23.1",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.1",
@@ -151,7 +152,7 @@
     "postcss": "8.5.23",
     "sharp": "0.35.4",
     "socket.io-parser": "4.2.7",
-    "undici": "7.29.0",
+    "undici": "7.29.1",
     "ws": "8.21.0"
   }
 }

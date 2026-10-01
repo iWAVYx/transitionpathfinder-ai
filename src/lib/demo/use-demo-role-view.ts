@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  DEMO_ROLE_ORDER,
-  type DemoRoleId,
-} from "@/lib/demo/role-previews";
+import { DEMO_ROLE_ORDER, type DemoRoleId } from "@/lib/demo/role-previews";
 
 const STORAGE_KEY = "demo-role-view";
 const EVENT = "demo-role-view-changed";
@@ -42,7 +39,7 @@ function writeStored(id: DemoRoleId) {
  * across components so DemoRoleLens instances, workspace pages, and role
  * previews all stay in sync in the signed-out demo.
  */
-export function useDemoRoleView(): {
+export function useDemoRoleView(allowedRoles: readonly DemoRoleId[] = DEMO_ROLE_ORDER): {
   role: DemoRoleId;
   setRole: (id: DemoRoleId) => void;
   hydrated: boolean;
@@ -62,12 +59,18 @@ export function useDemoRoleView(): {
     return () => window.removeEventListener(EVENT, onChange);
   }, []);
 
-  const setRole = useCallback((id: DemoRoleId) => {
-    setRoleState(id);
-    writeStored(id);
-  }, []);
+  const setRole = useCallback(
+    (id: DemoRoleId) => {
+      if (!allowedRoles.includes(id)) return;
+      setRoleState(id);
+      writeStored(id);
+    },
+    [allowedRoles],
+  );
 
-  return { role, setRole, hydrated };
+  // A saved dashboard perspective must not become an unsupported tool lens.
+  const applicableRole = allowedRoles.includes(role) ? role : (allowedRoles[0] ?? "student");
+  return { role: applicableRole, setRole, hydrated };
 }
 
 export function rememberLastWorkspaceStage(stage: string) {

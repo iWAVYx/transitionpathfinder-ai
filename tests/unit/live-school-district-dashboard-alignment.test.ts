@@ -133,10 +133,10 @@ describe("signed-in School and District preview alignment", () => {
     expect(serialized).not.toContain("Hidden");
   });
 
-  it("keeps authenticated hubs off demo fixtures and uses live next actions", () => {
+  it("keeps authenticated hubs off demo fixtures and uses live widgets", () => {
     for (const hub of [SCHOOL_HUB, DISTRICT_HUB]) {
       expect(hub).not.toMatch(/DEMO_NEXT_ACTIONS|DEMO_RECENTLY_COMPLETED|demo-fixtures/);
-      expect(hub).toContain("<NextActionCardServer");
+      expect(hub).toContain("<DashboardWidgetBoard");
     }
     expect(SCHOOL_HUB).toContain("useSchoolDashboard()");
     expect(SCHOOL_HUB).toContain("liveData={data}");

@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 
 import { PUBLIC_FEATURES } from "@/lib/public-feature-contract";
 import { ROUTE_AUDIENCES } from "@/lib/role-policy";
+import { getDemoFeature, isDemoRole } from "@/lib/demo/feature-routes";
+import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
 
 const ROOT = resolve(__dirname, "../..");
 const ROUTES_DIR = resolve(ROOT, "src/routes");
@@ -11,6 +13,9 @@ const AUTH_ROUTES_DIR = resolve(ROUTES_DIR, "_authenticated");
 
 function pathnameHasRoute(pathname: string): boolean {
   const segments = pathname.replace(/^\//, "").split("/").filter(Boolean);
+  if (segments[0] === "demo" && segments[1] === "feature" && isDemoRole(segments[2])) {
+    return !!getDemoFeature(segments[2], segments[3]);
+  }
   if (segments.length === 0) return existsSync(resolve(ROUTES_DIR, "index.tsx"));
 
   const flat = segments.join(".");
@@ -33,6 +38,35 @@ function pathnameHasRoute(pathname: string): boolean {
 }
 
 describe("public feature promise contract", () => {
+  it("surfaces every family and educator card's advertised live tool on that role's dashboard", () => {
+    for (const [role, component] of [
+      ["families", "Family"],
+      ["educators", "Educator"],
+    ] as const) {
+      const audienceSource = readFileSync(resolve(ROOT, `src/routes/${role}.tsx`), "utf8");
+      const overview = readFileSync(
+        resolve(ROOT, `src/components/dashboard/Live${component}WorkspaceOverview.tsx`),
+        "utf8",
+      );
+      const audience = component.toLowerCase();
+      const related = Object.entries(RELATED_TOOLS)
+        .filter(([key]) => key.startsWith(`${audience}:`))
+        .flatMap(([, actions]) => actions.map((action) => action.to));
+      const destinations = [...overview.matchAll(/to: "([^"]+)"/g)]
+        .map((match) => match[1])
+        .concat(related);
+      for (const [, featureId] of audienceSource.matchAll(/featureId: "([^"]+)"/g)) {
+        const feature = PUBLIC_FEATURES[featureId as keyof typeof PUBLIC_FEATURES];
+        expect(
+          destinations.some(
+            (destination) =>
+              destination === feature.liveRoute || destination.startsWith(`${feature.liveRoute}/`),
+          ),
+          `${role}: ${featureId}`,
+        ).toBe(true);
+      }
+    }
+  });
   it("connects every advertised feature to a real preview and signed-in route", () => {
     for (const feature of Object.values(PUBLIC_FEATURES)) {
       expect(pathnameHasRoute(feature.previewRoute), `${feature.id} preview`).toBe(true);

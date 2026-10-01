@@ -14,7 +14,7 @@
 
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { existsSync } from "node:fs";
-import { ROLES, VIEWPORTS } from "./helpers/roles";
+import { ROLES, VIEWPORTS, forbiddenDashboardText } from "./helpers/roles";
 
 async function attachMainDiagnostic(
   page: Page,
@@ -135,7 +135,7 @@ for (const role of ROLES) {
             await expect(main.getByText(re).first()).toBeVisible({ timeout: 10_000 });
           }
           for (const re of role.mustNotSee) {
-            await expect(main.getByText(re)).toHaveCount(0);
+            await expect(forbiddenDashboardText(main, re)).toHaveCount(0);
           }
           await assertNoHorizontalScroll(page, `${role.key} ${vp.label}`);
         });

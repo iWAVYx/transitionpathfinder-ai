@@ -255,14 +255,14 @@ function HomePage() {
           className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl blob-drift"
         />
 
-        <div className="mx-auto max-w-7xl px-4 pb-32 pt-28 sm:px-6 sm:pb-40 sm:pt-32 lg:px-8 lg:pb-56 lg:pt-40">
+        <div className="mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24 lg:px-8 lg:pb-36 lg:pt-28">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-foreground">
               {hero.eyebrow}
             </p>
-            <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            <h1 className="mt-5 font-display text-4xl font-medium leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               {hero.headline_lead}{" "}
-              <span className="relative inline-block whitespace-nowrap bg-gradient-to-r from-brand-teal to-brand-gold bg-clip-text not-italic text-transparent">
+              <span className="relative inline-block sm:whitespace-nowrap bg-gradient-to-r from-brand-teal to-brand-gold bg-clip-text not-italic text-transparent">
                 {hero.headline_accent.replace(/-/g, "\u2011")}
                 <svg
                   aria-hidden="true"
@@ -940,7 +940,7 @@ function HomePage() {
           <Sparkle className="h-full w-full" />
         </FloatingShape>
         <Starburst className="pointer-events-none absolute right-6 bottom-8 hidden h-24 w-24 text-background/30 lg:block" />
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
           <div className="max-w-2xl text-background">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/80">
               Be part of the first cohort
@@ -1108,7 +1108,7 @@ function RoleCard({
       search={search as never}
       params={params as never}
       aria-label={`${label}: ${cta}`}
-      className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group flex h-full flex-col rounded-3xl border border-border/60 bg-card p-4 shadow-soft sm:p-5 transition-all hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <span
         className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toneStyles[tone]} text-foreground`}
@@ -1678,7 +1678,7 @@ function PathwayTile({
       )}
       <div
         className={`absolute inset-x-0 bottom-0 text-background ${
-          compact ? "p-4 sm:p-5" : size === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6"
+          compact ? "p-4 sm:p-5" : size === "lg" ? "p-4 sm:p-6" : "p-4 sm:p-5"
         }`}
       >
         <h3

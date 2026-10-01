@@ -59,7 +59,6 @@ import {
   EVT_DENSITY_SET,
   EVT_OUTLINE_SET,
   configureReportPrefsPusher,
-  flushReportPrefs,
   queueReportPrefsUpdate,
   resetCollapsedBlocks,
   setBlockCollapsed,
@@ -245,7 +244,10 @@ export function ReportView({
   const fetchVoice = useServerFn(getStudentVoiceResponses);
   const [voiceResponses, setVoiceResponses] = useState<StudentVoiceResponse[]>([]);
   useEffect(() => {
-    if (!studentId) return;
+    if (demo || !studentId) {
+      setVoiceResponses([]);
+      return;
+    }
     let cancelled = false;
     fetchVoice({ data: { studentId } })
       .then((r) => {
@@ -257,7 +259,7 @@ export function ReportView({
     return () => {
       cancelled = true;
     };
-  }, [studentId, fetchVoice]);
+  }, [demo, studentId, fetchVoice]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -288,8 +290,8 @@ export function ReportView({
 
   // Configure the debounced server pusher, then hydrate once from server.
   useEffect(() => {
-    if (!user) return;
-    configureReportPrefsPusher((patch) => pushPrefs({ data: patch }));
+    if (demo || !user) return;
+    const disconnect = configureReportPrefsPusher((patch) => pushPrefs({ data: patch }));
     let cancelled = false;
     fetchPrefs()
       .then((prefs) => {
@@ -323,9 +325,9 @@ export function ReportView({
       });
     return () => {
       cancelled = true;
-      flushReportPrefs();
+      disconnect();
     };
-  }, [user, fetchPrefs, pushPrefs]);
+  }, [demo, user, fetchPrefs, pushPrefs]);
 
 
   // Mirror user-driven density changes to the server (skips initial mount).
@@ -1414,7 +1416,7 @@ export function ReportView({
       {/* ============ Opportunity matches ============ */}
       {!hasV2 && r.opportunity_matches && r.opportunity_matches.length > 0 && (
         <Block id="sec-opportunities" title="Opportunities to Explore" icon={<MapIcon className="h-5 w-5" />}>
-          {studentId && (
+          {!demo && studentId && (
             <div className="mb-5">
               <OpportunityPipelineSummary studentId={studentId} studentDisplayName={name} />
             </div>
@@ -1454,7 +1456,7 @@ export function ReportView({
           Organizations from the TransitionForward network matched to {name}'s pathway goals,
           interests, county, and support needs.
         </p>
-        <ReportPartnerSuggestions studentId={studentId} />
+        {demo ? <p className="text-sm text-muted-foreground">Sample report: live student partner matching is available in your signed-in workspace.</p> : <ReportPartnerSuggestions studentId={studentId} />}
       </Block>
             </>
           ),

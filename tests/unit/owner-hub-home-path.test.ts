@@ -3,7 +3,7 @@ import { isOwnerHubHomePath } from "@/lib/owner/owner-hub-home-path";
 
 describe("Owner Hub home navigation", () => {
   it.each(["/owner", "/owner/", "/admin", "/admin/"])(
-    "treats %s as the Owner Hub dashboard",
+    "treats %s as the Owner Hub management home",
     (pathname) => {
       expect(isOwnerHubHomePath(pathname)).toBe(true);
     },

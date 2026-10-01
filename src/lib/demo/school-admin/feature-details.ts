@@ -69,14 +69,30 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     connectsTo: ["Report Completion", "Readiness Trends", "Implementation Progress"],
     stats: [
       { label: "Students on IEPs", value: "168" },
-      { label: "Reports complete", value: "68%" },
+      { label: "Reports complete", value: "58%" },
       { label: "Active educators", value: "22" },
     ],
     rows: [
-      { primary: "Riverbend Comprehensive HS · Fall 2026", secondary: "Building lead: Dr. Nguyen · 1,420 total enrollment", status: "ok" },
-      { primary: "Next best step: unblock 6 G12 reports", secondary: "Blocked on transition assessment · owner: Ms. Patel", status: "warning" },
-      { primary: "Readiness domains on track", secondary: "3 of 4 · self-advocacy trending up", status: "ok" },
-      { primary: "Family engagement", secondary: "72% of families active this month", status: "ok" },
+      {
+        primary: "Riverbend Comprehensive HS · Fall 2026",
+        secondary: "Building lead: Dr. Nguyen · 1,420 total enrollment",
+        status: "ok",
+      },
+      {
+        primary: "Next best step: unblock 6 G12 reports",
+        secondary: "Blocked on transition assessment · owner: Ms. Patel",
+        status: "warning",
+      },
+      {
+        primary: "Readiness domains on track",
+        secondary: "3 of 4 · self-advocacy trending up",
+        status: "ok",
+      },
+      {
+        primary: "Family engagement",
+        secondary: "72% of families active this month",
+        status: "ok",
+      },
     ],
     emptyHeadline: "Your school is being connected.",
     emptyBody:
@@ -100,10 +116,27 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     ],
     rows: [
       { primary: "Ms. Patel · case manager", secondary: "Caseload of 18 · G11–G12", status: "ok" },
-      { primary: "Mr. Ortiz · case manager", secondary: "Caseload of 21 · G10 · overloaded", status: "warning" },
-      { primary: "Ms. Alvarez · transition coordinator", secondary: "Building-wide caseload of 168", status: "ok" },
-      { primary: "j.reid@riverbendhs.org", secondary: "Pending · sent Sep 3", meta: "Case manager", status: "warning" },
-      { primary: "Unassigned students", secondary: "3 in G10 · need a case manager", status: "warning" },
+      {
+        primary: "Mr. Ortiz · case manager",
+        secondary: "Caseload of 21 · G10 · overloaded",
+        status: "warning",
+      },
+      {
+        primary: "Ms. Alvarez · transition coordinator",
+        secondary: "Building-wide caseload of 168",
+        status: "ok",
+      },
+      {
+        primary: "j.reid@riverbendhs.org",
+        secondary: "Pending · sent Sep 3",
+        meta: "Case manager",
+        status: "warning",
+      },
+      {
+        primary: "Unassigned students",
+        secondary: "3 in G10 · need a case manager",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No staff added yet.",
     emptyBody:
@@ -127,10 +160,22 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     ],
     rows: [
       { primary: "G12 · 46 students", secondary: "88% on pace · 5 behind", status: "ok" },
-      { primary: "G11 · 58 students", secondary: "72% on pace · 12 behind · top gap: travel training", status: "warning" },
-      { primary: "G10 · 44 students", secondary: "77% on pace · 7 behind · 3 unassigned", status: "warning" },
+      {
+        primary: "G11 · 58 students",
+        secondary: "72% on pace · 12 behind · top gap: travel training",
+        status: "warning",
+      },
+      {
+        primary: "G10 · 44 students",
+        secondary: "77% on pace · 7 behind · 3 unassigned",
+        status: "warning",
+      },
       { primary: "G9 · 20 students", secondary: "Baseline year · 90% on pace", status: "ok" },
-      { primary: "Mr. Ortiz caseload", secondary: "21 students · caseload overloaded", status: "warning" },
+      {
+        primary: "Mr. Ortiz caseload",
+        secondary: "21 students · caseload overloaded",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No planning progress yet.",
     emptyBody:
@@ -153,11 +198,27 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Missing", value: "6" },
     ],
     rows: [
-      { primary: "G12 · 41 of 46 complete", secondary: "5 blocked on transition assessment", status: "warning" },
-      { primary: "G11 · 34 of 58 complete", secondary: "9 in general-ed teacher input", status: "warning" },
+      {
+        primary: "G12 · 41 of 46 complete",
+        secondary: "5 blocked on transition assessment",
+        status: "warning",
+      },
+      {
+        primary: "G11 · 34 of 58 complete",
+        secondary: "9 in general-ed teacher input",
+        status: "warning",
+      },
       { primary: "G10 · 22 of 44 complete", secondary: "Baseline year · on plan", status: "muted" },
-      { primary: "Blocker: educator input", secondary: "Owner: 3 case managers · due this week", status: "warning" },
-      { primary: "Blocker: family document upload", secondary: "Owner: family · 6 students", status: "warning" },
+      {
+        primary: "Blocker: educator input",
+        secondary: "Owner: 3 case managers · due this week",
+        status: "warning",
+      },
+      {
+        primary: "Blocker: family document upload",
+        secondary: "Owner: family · 6 students",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No reports drafted yet.",
     emptyBody:
@@ -171,7 +232,8 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     summary:
       "How the 168 IEP students are moving across employment, education, independent living, and self-advocacy — aggregate only.",
     what: "Spot common gaps at the grade-band level and route resources or training to close them.",
-    dataSource: "Student Voice rollups · educator input · readiness scoring · no individual records shown",
+    dataSource:
+      "Student Voice rollups · educator input · readiness scoring · no individual records shown",
     primaryAction: { label: "Open Readiness Trends", to: "/school/readiness-trends" },
     connectsTo: ["Resource Usage", "Support Needs", "Report Completion"],
     stats: [
@@ -180,10 +242,26 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Critical", value: "8%" },
     ],
     rows: [
-      { primary: "Self-advocacy · trending up", secondary: "+9 pts vs last term (large cohort)", status: "ok" },
-      { primary: "Employment readiness · flat", secondary: "G12 cohort at 61% · WBL slots limited", status: "warning" },
-      { primary: "Independent living · watch", secondary: "G11 cohort down 4 pts · travel training gap", status: "warning" },
-      { primary: "Post-secondary education · strong", secondary: "All grade bands ≥ 74%", status: "ok" },
+      {
+        primary: "Self-advocacy · trending up",
+        secondary: "+9 pts vs last term (large cohort)",
+        status: "ok",
+      },
+      {
+        primary: "Employment readiness · flat",
+        secondary: "G12 cohort at 61% · WBL slots limited",
+        status: "warning",
+      },
+      {
+        primary: "Independent living · watch",
+        secondary: "G11 cohort down 4 pts · travel training gap",
+        status: "warning",
+      },
+      {
+        primary: "Post-secondary education · strong",
+        secondary: "All grade bands ≥ 74%",
+        status: "ok",
+      },
     ],
     emptyHeadline: "Not enough data for trends yet.",
     emptyBody:
@@ -209,8 +287,16 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { primary: "PPT Meeting Questions", secondary: "Family · 62 opens", status: "ok" },
       { primary: "Age-of-Majority Guide", secondary: "Family · 41 opens", status: "ok" },
       { primary: "Employment Readiness Toolkit", secondary: "Staff · 28 opens", status: "ok" },
-      { primary: "Travel Training Toolkit", secondary: "Recommended · 2 opens · G11 gap flagged", status: "warning" },
-      { primary: "Adult Services Handoff Guide", secondary: "Recommended · 0 opens in G12", status: "warning" },
+      {
+        primary: "Travel Training Toolkit",
+        secondary: "Recommended · 2 opens · G11 gap flagged",
+        status: "warning",
+      },
+      {
+        primary: "Adult Services Handoff Guide",
+        secondary: "Recommended · 0 opens in G12",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No resource activity yet.",
     emptyBody:
@@ -221,8 +307,7 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     id: "calendar",
     title: "Calendar",
     eyebrow: "School-Wide Dates",
-    summary:
-      "Meetings, deadlines, and staff PDs across a comprehensive high school — one view.",
+    summary: "Meetings, deadlines, and staff PDs across a comprehensive high school — one view.",
     what: "See what's this week for the building and export dates to your school calendar.",
     dataSource: "PPT scheduling · staff training calendar · report deadlines",
     primaryAction: { label: "Open Calendar", to: "/school/calendar" },
@@ -233,11 +318,28 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Report deadlines", value: "12" },
     ],
     rows: [
-      { primary: "PPT block · G12 cohort", secondary: "Sep 15 · 8:00 AM–3:00 PM", meta: "Room 214", status: "warning" },
+      {
+        primary: "PPT block · G12 cohort",
+        secondary: "Sep 15 · 8:00 AM–3:00 PM",
+        meta: "Room 214",
+        status: "warning",
+      },
       { primary: "Case manager sync", secondary: "Sep 16 · 3:15 PM", status: "muted" },
-      { primary: "Transition planning PD (all-staff)", secondary: "Sep 22 · 2:00 PM", status: "muted" },
-      { primary: "12 PPTs due within 4 weeks", secondary: "Distributed across 9 case managers", status: "warning" },
-      { primary: "Q1 report deadline", secondary: "Oct 1 · all G12 reports due", status: "warning" },
+      {
+        primary: "Transition planning PD (all-staff)",
+        secondary: "Sep 22 · 2:00 PM",
+        status: "muted",
+      },
+      {
+        primary: "12 PPTs due within 4 weeks",
+        secondary: "Distributed across 9 case managers",
+        status: "warning",
+      },
+      {
+        primary: "Q1 report deadline",
+        secondary: "Oct 1 · all G12 reports due",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No school events scheduled.",
     emptyBody:
@@ -260,16 +362,39 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Training", value: "3" },
     ],
     rows: [
-      { primary: "G11 travel training gap", secondary: "Top gap · 12 students affected · recommend: add community mobility unit", status: "critical" },
-      { primary: "Mr. Ortiz caseload overloaded (21)", secondary: "Recommend: rebalance by Oct 1", status: "warning" },
-      { primary: "G10 has 3 unassigned students", secondary: "Recommend: reassign or add a case manager", status: "warning" },
-      { primary: "Employment readiness plateauing in G12", secondary: "Recommend: WBL coordinator PD", status: "warning" },
-      { primary: "Adult services handoff guide unused", secondary: "Recommend: 20-min all-staff walkthrough", status: "warning" },
-      { primary: "Family upload lag on 6 IEPs", secondary: "Recommend: family outreach nudges", status: "warning" },
+      {
+        primary: "G11 travel training gap",
+        secondary: "Top gap · 12 students affected · recommend: add community mobility unit",
+        status: "critical",
+      },
+      {
+        primary: "Mr. Ortiz caseload overloaded (21)",
+        secondary: "Recommend: rebalance by Oct 1",
+        status: "warning",
+      },
+      {
+        primary: "G10 has 3 unassigned students",
+        secondary: "Recommend: reassign or add a case manager",
+        status: "warning",
+      },
+      {
+        primary: "Employment readiness plateauing in G12",
+        secondary: "Recommend: WBL coordinator PD",
+        status: "warning",
+      },
+      {
+        primary: "Adult services handoff guide unused",
+        secondary: "Recommend: 20-min all-staff walkthrough",
+        status: "warning",
+      },
+      {
+        primary: "Family upload lag on 6 IEPs",
+        secondary: "Recommend: family outreach nudges",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No support flags right now.",
-    emptyBody:
-      "Support needs appear as blockers, staffing gaps, or usage dips are detected.",
+    emptyBody: "Support needs appear as blockers, staffing gaps, or usage dips are detected.",
   },
 
   implementation: {
@@ -288,12 +413,24 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Students connected", value: "168 of 175" },
     ],
     rows: [
-      { primary: "Staff onboarding", secondary: "22 of 25 complete · 3 pending invites", status: "ok" },
+      {
+        primary: "Staff onboarding",
+        secondary: "22 of 25 complete · 3 pending invites",
+        status: "ok",
+      },
       { primary: "Roster import", secondary: "Complete · Aug 25", status: "ok" },
       { primary: "Family launch communications", secondary: "Sent · Aug 30", status: "ok" },
       { primary: "First PPT block scheduled", secondary: "Sep 15", status: "ok" },
-      { primary: "Milestone: publish G12 cohort of Pathway Reports", secondary: "Owner: case managers · due Oct 1", status: "warning" },
-      { primary: "Milestone: district readiness review", secondary: "Owner: Dr. Nguyen · Oct 15", status: "muted" },
+      {
+        primary: "Milestone: publish G12 cohort of Pathway Reports",
+        secondary: "Owner: case managers · due Oct 1",
+        status: "warning",
+      },
+      {
+        primary: "Milestone: district readiness review",
+        secondary: "Owner: Dr. Nguyen · Oct 15",
+        status: "muted",
+      },
     ],
     emptyHeadline: "Launch hasn't started yet.",
     emptyBody:
@@ -316,14 +453,33 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Coverage gaps", value: "2" },
     ],
     rows: [
-      { primary: "Oakwood Animal Rescue · vocational strand", secondary: "MOU active · 6 students placed", meta: "Verified", status: "ok" },
-      { primary: "Capital CC Applied Tech · dual enrollment", secondary: "3 juniors enrolled this term", meta: "Verified", status: "ok" },
-      { primary: "Youth Employment Services · summer track", secondary: "12 students eligible", meta: "MOU renews Oct", status: "warning" },
-      { primary: "Coverage gap · independent-living support", secondary: "No verified partner in service area", meta: "Recruit", status: "critical" },
+      {
+        primary: "Oakwood Animal Rescue · vocational strand",
+        secondary: "MOU active · 6 students placed",
+        meta: "Verified",
+        status: "ok",
+      },
+      {
+        primary: "Capital CC Applied Tech · dual enrollment",
+        secondary: "3 juniors enrolled this term",
+        meta: "Verified",
+        status: "ok",
+      },
+      {
+        primary: "Youth Employment Services · summer track",
+        secondary: "12 students eligible",
+        meta: "MOU renews Oct",
+        status: "warning",
+      },
+      {
+        primary: "Coverage gap · independent-living support",
+        secondary: "No verified partner in service area",
+        meta: "Recruit",
+        status: "critical",
+      },
     ],
     emptyHeadline: "No partner coverage yet.",
-    emptyBody:
-      "As Riverbend refers students and MOUs post, coverage will show up here.",
+    emptyBody: "As Riverbend refers students and MOUs post, coverage will show up here.",
   },
 };
 
@@ -342,14 +498,30 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     connectsTo: ["Report Completion", "Readiness Trends", "Implementation Progress"],
     stats: [
       { label: "Students on IEPs", value: "94" },
-      { label: "Reports complete", value: "82%" },
+      { label: "Reports complete", value: "76%" },
       { label: "Team members", value: "18" },
     ],
     rows: [
-      { primary: "Northgate Specialized Learning Center · Fall 2026", secondary: "Director: Ms. Cortez · full IEP caseload (94/94)", status: "ok" },
-      { primary: "Next best step: schedule 4 adult-services warm handoffs", secondary: "Ages 18–22 · owner: transition team", status: "warning" },
-      { primary: "Community-based instruction", secondary: "6 CBI outings in next 3 weeks", status: "ok" },
-      { primary: "Family partnership", secondary: "88% of families in weekly contact", status: "ok" },
+      {
+        primary: "Northgate Specialized Learning Center · Fall 2026",
+        secondary: "Director: Ms. Cortez · full IEP caseload (94/94)",
+        status: "ok",
+      },
+      {
+        primary: "Next best step: schedule 4 adult-services warm handoffs",
+        secondary: "Ages 18–22 · owner: transition team",
+        status: "warning",
+      },
+      {
+        primary: "Community-based instruction",
+        secondary: "6 CBI outings in next 3 weeks",
+        status: "ok",
+      },
+      {
+        primary: "Family partnership",
+        secondary: "88% of families in weekly contact",
+        status: "ok",
+      },
     ],
     emptyHeadline: "Your program is being connected.",
     emptyBody:
@@ -373,10 +545,19 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     ],
     rows: [
       { primary: "Ms. Cortez · program director", secondary: "Program-wide access", status: "ok" },
-      { primary: "Mr. Diaz · lead job coach", secondary: "12 students in community placements", status: "ok" },
+      {
+        primary: "Mr. Diaz · lead job coach",
+        secondary: "12 students in community placements",
+        status: "ok",
+      },
       { primary: "Dr. Hall · SLP", secondary: "Serves 41 students · AAC lead", status: "ok" },
       { primary: "Ms. Lin · OT", secondary: "Serves 33 students", status: "ok" },
-      { primary: "k.harper@northgate.org", secondary: "Pending · sent Sep 6", meta: "Transition coordinator", status: "warning" },
+      {
+        primary: "k.harper@northgate.org",
+        secondary: "Pending · sent Sep 6",
+        meta: "Transition coordinator",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No team added yet.",
     emptyBody:
@@ -399,15 +580,30 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Ready for PPT", value: "14" },
     ],
     rows: [
-      { primary: "Ages 18–22 · 34 students", secondary: "88% on pace · 4 need adult-services handoff", status: "warning" },
-      { primary: "Ages 16–17 · 30 students", secondary: "93% on pace · CBI plans set", status: "ok" },
-      { primary: "Ages 14–15 · 30 students", secondary: "100% on pace · introductory year", status: "ok" },
+      {
+        primary: "Ages 18–22 · 34 students",
+        secondary: "88% on pace · 4 need adult-services handoff",
+        status: "warning",
+      },
+      {
+        primary: "Ages 16–17 · 30 students",
+        secondary: "93% on pace · CBI plans set",
+        status: "ok",
+      },
+      {
+        primary: "Ages 14–15 · 30 students",
+        secondary: "100% on pace · introductory year",
+        status: "ok",
+      },
       { primary: "AAC caseload (Dr. Hall)", secondary: "12 students · 100% on pace", status: "ok" },
-      { primary: "Job-coach caseload (Mr. Diaz)", secondary: "12 students · 2 mid-cycle placements", status: "ok" },
+      {
+        primary: "Job-coach caseload (Mr. Diaz)",
+        secondary: "12 students · 2 mid-cycle placements",
+        status: "ok",
+      },
     ],
     emptyHeadline: "No planning progress yet.",
-    emptyBody:
-      "Planning status appears as the team begins drafting reports and scheduling PPTs.",
+    emptyBody: "Planning status appears as the team begins drafting reports and scheduling PPTs.",
   },
 
   "report-completion": {
@@ -426,15 +622,34 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Missing", value: "5" },
     ],
     rows: [
-      { primary: "Ages 18–22 · 30 of 34 complete", secondary: "4 blocked on agency coordination", status: "warning" },
-      { primary: "Ages 16–17 · 26 of 30 complete", secondary: "3 blocked on OT/PT input", status: "warning" },
-      { primary: "Ages 14–15 · 15 of 30 complete", secondary: "Introductory year · on plan", status: "muted" },
-      { primary: "Blocker: agency coordination", secondary: "Owner: transition team · 4 handoffs pending", status: "warning" },
-      { primary: "Blocker: OT input queue", secondary: "Owner: Ms. Lin · 3 students", status: "warning" },
+      {
+        primary: "Ages 18–22 · 30 of 34 complete",
+        secondary: "4 blocked on agency coordination",
+        status: "warning",
+      },
+      {
+        primary: "Ages 16–17 · 26 of 30 complete",
+        secondary: "3 blocked on OT/PT input",
+        status: "warning",
+      },
+      {
+        primary: "Ages 14–15 · 15 of 30 complete",
+        secondary: "Introductory year · on plan",
+        status: "muted",
+      },
+      {
+        primary: "Blocker: agency coordination",
+        secondary: "Owner: transition team · 4 handoffs pending",
+        status: "warning",
+      },
+      {
+        primary: "Blocker: OT input queue",
+        secondary: "Owner: Ms. Lin · 3 students",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No reports drafted yet.",
-    emptyBody:
-      "Report completion appears as the team publishes first drafts of Pathway Reports.",
+    emptyBody: "Report completion appears as the team publishes first drafts of Pathway Reports.",
   },
 
   "readiness-trends": {
@@ -444,7 +659,8 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     summary:
       "How the 94 students are moving across employment, education, independent living, and self-advocacy — small-cohort resolution.",
     what: "Spot cohort-level gaps and route related-service or CBI resources to close them.",
-    dataSource: "Student Voice rollups · discipline input · readiness scoring · no individual records shown",
+    dataSource:
+      "Student Voice rollups · discipline input · readiness scoring · no individual records shown",
     primaryAction: { label: "Open Readiness Trends", to: "/school/readiness-trends" },
     connectsTo: ["Resource Usage", "Support Needs", "Report Completion"],
     stats: [
@@ -453,10 +669,26 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Critical", value: "6%" },
     ],
     rows: [
-      { primary: "Independent living · trending up", secondary: "+11 pts · CBI outings driving gains", status: "ok" },
-      { primary: "Employment readiness · steady", secondary: "Ages 18–22 at 72% · WBL slots stable", status: "ok" },
-      { primary: "Self-advocacy · watch", secondary: "AAC users cohort down 3 pts · voice output practice needed", status: "warning" },
-      { primary: "Post-secondary transition · gap", secondary: "Ages 18–22 · 5 without confirmed adult day placement", status: "critical" },
+      {
+        primary: "Independent living · trending up",
+        secondary: "+11 pts · CBI outings driving gains",
+        status: "ok",
+      },
+      {
+        primary: "Employment readiness · steady",
+        secondary: "Ages 18–22 at 72% · WBL slots stable",
+        status: "ok",
+      },
+      {
+        primary: "Self-advocacy · watch",
+        secondary: "AAC users cohort down 3 pts · voice output practice needed",
+        status: "warning",
+      },
+      {
+        primary: "Post-secondary transition · gap",
+        secondary: "Ages 18–22 · 5 without confirmed adult day placement",
+        status: "critical",
+      },
     ],
     emptyHeadline: "Not enough data for trends yet.",
     emptyBody:
@@ -481,9 +713,21 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     rows: [
       { primary: "Adult Services Handoff Guide", secondary: "Team · 34 opens", status: "ok" },
       { primary: "AAC in the Community Toolkit", secondary: "Team · 22 opens", status: "ok" },
-      { primary: "Age-of-Majority Guide (plain language)", secondary: "Family · 19 opens", status: "ok" },
-      { primary: "Person-Centered Planning Facilitator Guide", secondary: "Recommended · 3 opens · gap flagged", status: "warning" },
-      { primary: "Guardianship Alternatives Guide", secondary: "Recommended · 1 open · ages 17+ gap", status: "warning" },
+      {
+        primary: "Age-of-Majority Guide (plain language)",
+        secondary: "Family · 19 opens",
+        status: "ok",
+      },
+      {
+        primary: "Person-Centered Planning Facilitator Guide",
+        secondary: "Recommended · 3 opens · gap flagged",
+        status: "warning",
+      },
+      {
+        primary: "Guardianship Alternatives Guide",
+        secondary: "Recommended · 1 open · ages 17+ gap",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No resource activity yet.",
     emptyBody:
@@ -506,11 +750,31 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "CBI outings", value: "6" },
     ],
     rows: [
-      { primary: "CBI outing · downtown transit training", secondary: "Sep 15 · 9:00 AM · 6 students", status: "ok" },
-      { primary: "Agency visit · DDS regional office", secondary: "Sep 17 · 1:00 PM · 4 families", status: "warning" },
-      { primary: "Multidisciplinary team meeting", secondary: "Sep 18 · 3:00 PM · full team", status: "muted" },
-      { primary: "6 CBI outings in next 3 weeks", secondary: "Community-based instruction schedule", status: "ok" },
-      { primary: "Q1 exit-planning deadline", secondary: "Oct 1 · ages 18–22 cohort", status: "warning" },
+      {
+        primary: "CBI outing · downtown transit training",
+        secondary: "Sep 15 · 9:00 AM · 6 students",
+        status: "ok",
+      },
+      {
+        primary: "Agency visit · DDS regional office",
+        secondary: "Sep 17 · 1:00 PM · 4 families",
+        status: "warning",
+      },
+      {
+        primary: "Multidisciplinary team meeting",
+        secondary: "Sep 18 · 3:00 PM · full team",
+        status: "muted",
+      },
+      {
+        primary: "6 CBI outings in next 3 weeks",
+        secondary: "Community-based instruction schedule",
+        status: "ok",
+      },
+      {
+        primary: "Q1 exit-planning deadline",
+        secondary: "Oct 1 · ages 18–22 cohort",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No program events scheduled.",
     emptyBody:
@@ -533,15 +797,34 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Related services", value: "2" },
     ],
     rows: [
-      { primary: "Adult-services handoffs behind", secondary: "Top gap · 4 students in ages 18–22 · recommend: DDS liaison time", status: "critical" },
-      { primary: "OT input queue backed up", secondary: "3 report drafts waiting · recommend: OT scheduling audit", status: "warning" },
-      { primary: "CBI transportation constraint", secondary: "1 outing per week cap · recommend: van share with sister program", status: "warning" },
-      { primary: "AAC voice output PD needed", secondary: "Team-wide · recommend: 60-min PD with Dr. Hall", status: "warning" },
-      { primary: "Person-centered planning underutilized", secondary: "Recommend: facilitator training for 3 staff", status: "warning" },
+      {
+        primary: "Adult-services handoffs behind",
+        secondary: "Top gap · 4 students in ages 18–22 · recommend: DDS liaison time",
+        status: "critical",
+      },
+      {
+        primary: "OT input queue backed up",
+        secondary: "3 report drafts waiting · recommend: OT scheduling audit",
+        status: "warning",
+      },
+      {
+        primary: "CBI transportation constraint",
+        secondary: "1 outing per week cap · recommend: van share with sister program",
+        status: "warning",
+      },
+      {
+        primary: "AAC voice output PD needed",
+        secondary: "Team-wide · recommend: 60-min PD with Dr. Hall",
+        status: "warning",
+      },
+      {
+        primary: "Person-centered planning underutilized",
+        secondary: "Recommend: facilitator training for 3 staff",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No support flags right now.",
-    emptyBody:
-      "Support needs appear as blockers, staffing gaps, or usage dips are detected.",
+    emptyBody: "Support needs appear as blockers, staffing gaps, or usage dips are detected.",
   },
 
   implementation: {
@@ -560,13 +843,29 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Students connected", value: "94 of 94" },
     ],
     rows: [
-      { primary: "Team onboarding", secondary: "18 of 19 complete · 1 pending invite", status: "ok" },
+      {
+        primary: "Team onboarding",
+        secondary: "18 of 19 complete · 1 pending invite",
+        status: "ok",
+      },
       { primary: "Roster import", secondary: "Complete · Aug 22", status: "ok" },
       { primary: "AAC access review", secondary: "Complete · Sep 5", status: "ok" },
       { primary: "CBI schedule published", secondary: "6 outings across 3 weeks", status: "ok" },
-      { primary: "Adult-services partner list confirmed", secondary: "DDS · BRS · local voc program", status: "ok" },
-      { primary: "Milestone: exit-planning cohort published", secondary: "Owner: transition team · due Oct 1", status: "warning" },
-      { primary: "Milestone: district readiness review", secondary: "Owner: Ms. Cortez · Oct 15", status: "muted" },
+      {
+        primary: "Adult-services partner list confirmed",
+        secondary: "DDS · BRS · local voc program",
+        status: "ok",
+      },
+      {
+        primary: "Milestone: exit-planning cohort published",
+        secondary: "Owner: transition team · due Oct 1",
+        status: "warning",
+      },
+      {
+        primary: "Milestone: district readiness review",
+        secondary: "Owner: Ms. Cortez · Oct 15",
+        status: "muted",
+      },
     ],
     emptyHeadline: "Launch hasn't started yet.",
     emptyBody:
@@ -589,10 +888,30 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
       { label: "Coverage gaps", value: "1" },
     ],
     rows: [
-      { primary: "Riverbend Culinary Arts · weekly CBI", secondary: "6 students placed", meta: "Verified", status: "ok" },
-      { primary: "DDS regional office · adult-services intake", secondary: "Confirmed for exit cohort", meta: "MOU active", status: "ok" },
-      { primary: "BRS · pre-employment services", secondary: "4 students enrolled", meta: "Verified", status: "ok" },
-      { primary: "Coverage gap · assistive-tech vendor", secondary: "Sourcing partner in service area", meta: "Recruit", status: "warning" },
+      {
+        primary: "Riverbend Culinary Arts · weekly CBI",
+        secondary: "6 students placed",
+        meta: "Verified",
+        status: "ok",
+      },
+      {
+        primary: "DDS regional office · adult-services intake",
+        secondary: "Confirmed for exit cohort",
+        meta: "MOU active",
+        status: "ok",
+      },
+      {
+        primary: "BRS · pre-employment services",
+        secondary: "4 students enrolled",
+        meta: "Verified",
+        status: "ok",
+      },
+      {
+        primary: "Coverage gap · assistive-tech vendor",
+        secondary: "Sourcing partner in service area",
+        meta: "Recruit",
+        status: "warning",
+      },
     ],
     emptyHeadline: "No partner coverage yet.",
     emptyBody:
@@ -611,10 +930,8 @@ export const SCHOOL_ADMIN_FEATURE_DETAILS_BY_SCHOOL: Record<
 };
 
 /** Back-compat: default export = comprehensive school. */
-export const SCHOOL_ADMIN_FEATURE_DETAILS: Record<
-  SchoolAdminFeatureId,
-  SchoolAdminFeatureDetail
-> = COMPREHENSIVE;
+export const SCHOOL_ADMIN_FEATURE_DETAILS: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> =
+  COMPREHENSIVE;
 
 export function getSchoolAdminFeatureDetails(
   schoolId: SchoolProfileKey,
@@ -651,7 +968,7 @@ export const SCHOOL_ADMIN_TILE_META_BY_SCHOOL: Record<
       status: "168 IEPs",
       tone: "default",
       bullets: [
-        { label: "Reports complete", value: "68%" },
+        { label: "Reports complete", value: "58%" },
         { label: "Active staff", value: "22" },
       ],
     },
@@ -725,7 +1042,7 @@ export const SCHOOL_ADMIN_TILE_META_BY_SCHOOL: Record<
       status: "94 IEPs",
       tone: "default",
       bullets: [
-        { label: "Reports complete", value: "82%" },
+        { label: "Reports complete", value: "76%" },
         { label: "Team members", value: "18" },
       ],
     },

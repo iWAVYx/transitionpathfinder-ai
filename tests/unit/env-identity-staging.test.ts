@@ -221,3 +221,26 @@ describe("staging deployment identity", () => {
     expect(stripeModeFromToken(undefined)).toBe("unknown");
   });
 });
+
+describe("isolated Lovable fingerprint identity", () => {
+  const isolated = {
+    ...OK, hostname: STAGING_LOVABLE_AI_HOSTNAME, gitCommitSha: "dev",
+    runtimeSourceFingerprint: "a".repeat(64),
+    runtimeSourceSchema: "transitionforward-runtime-source-v1",
+    runtimeSourceFileCount: 1060,
+  };
+  it("accepts computed source identity only on the exact isolated host", () => {
+    expect(evaluateStagingIdentity(isolated).ok).toBe(true);
+    for (const hostname of ["e2e.transitionforwardct.com", "transitionforward-staging.caysi101.workers.dev", "localhost", "transitionforwardct.com"])
+      expect(evaluateStagingIdentity({ ...isolated, hostname }).ok).toBe(false);
+  });
+  it("rejects invalid fingerprint evidence and preserves other isolation gates", () => {
+    for (const patch of [
+      { runtimeSourceFingerprint: "unknown" }, { runtimeSourceSchema: "unknown" },
+      { runtimeSourceFileCount: 0 }, { runtimeSourceFileCount: 1.5 },
+      { stripeMode: "unknown" as const }, { stripeMode: "live" as const },
+      { supabaseProjectRef: PRODUCTION_PROJECT_REF }, { appEnv: "production" },
+      { productionSecretsPresent: ["STRIPE_LIVE_API_KEY"] },
+    ]) expect(evaluateStagingIdentity({ ...isolated, ...patch }).ok).toBe(false);
+  });
+});

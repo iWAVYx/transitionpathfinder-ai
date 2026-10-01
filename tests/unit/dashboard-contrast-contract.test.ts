@@ -7,6 +7,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const STUDENT_DASHBOARD = read("src/components/dashboard/StudentDashboard.tsx");
+const WIDGET_BOARD = read("src/components/dashboard/DashboardWidgetBoardView.tsx");
 const FAMILY_DASHBOARD = read("src/routes/_authenticated/dashboard.tsx");
 const LIVE_FAMILY_OVERVIEW = read("src/components/dashboard/LiveFamilyWorkspaceOverview.tsx");
 const TOOL_PREVIEW_CARD = read("src/components/dashboard/ToolPreviewCard.tsx");
@@ -25,15 +26,9 @@ const RECENTLY_COMPLETED_STRIP = read("src/components/next-actions/RecentlyCompl
 describe("dashboard accessibility contrast contract", () => {
   it("uses the audited readable helper color throughout the student dashboard", () => {
     expect(STUDENT_DASHBOARD).not.toContain("text-muted-foreground");
-    expect(STUDENT_DASHBOARD).toMatch(
-      /<p className="text-sm text-foreground\/75">\s*No goals set yet\./,
-    );
-    expect(STUDENT_DASHBOARD).toContain(
-      '<span className="text-xs text-foreground/75">{openCount} open</span>',
-    );
-    expect(STUDENT_DASHBOARD).toContain(
-      "Nothing for you to do right now. Your team will add steps as your plan grows.",
-    );
+    expect(STUDENT_DASHBOARD).toContain("text-base leading-relaxed text-foreground/75");
+    expect(WIDGET_BOARD).not.toContain("text-muted-foreground");
+    expect(WIDGET_BOARD).toContain("line-clamp-2 text-sm text-foreground/75");
   });
 
   it("uses the audited readable helper color throughout the family dashboard", () => {
@@ -47,10 +42,7 @@ describe("dashboard accessibility contrast contract", () => {
     expect(TOOL_PREVIEW_CARD).toContain(
       'className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-foreground/75"',
     );
-    expect(FAMILY_DASHBOARD).toContain('className="mt-1 text-sm text-foreground/75"');
-    expect(FAMILY_DASHBOARD).toContain(
-      '<span className="italic text-foreground/75">Not set yet</span>',
-    );
+    expect(WIDGET_BOARD).toContain("text-sm text-foreground/75");
   });
 
   it("keeps canonical educator KPI labels and hints readable", () => {
@@ -78,16 +70,11 @@ describe("dashboard accessibility contrast contract", () => {
     );
   });
 
-  it("keeps educator quick-link labels and descriptions readable", () => {
-    const quickLinkStart = CASELOAD.indexOf("function EducatorQuickLink");
-    const quickLinkEnd = CASELOAD.indexOf("function EmptyState", quickLinkStart);
-    const quickLink = CASELOAD.slice(quickLinkStart, quickLinkEnd);
-
-    expect(quickLinkStart).toBeGreaterThan(-1);
-    expect(quickLinkEnd).toBeGreaterThan(quickLinkStart);
-    expect(quickLink).not.toContain("text-muted-foreground");
-    expect(quickLink).toContain("text-xs font-medium text-foreground/75");
-    expect(quickLink).toContain("text-[11px] text-foreground/75 group-hover:text-foreground");
+  it("keeps educator tool previews and caseload helper text readable", () => {
+    const overview = read("src/components/dashboard/LiveEducatorWorkspaceOverview.tsx");
+    expect(overview).not.toContain("text-muted-foreground");
+    expect(CASELOAD).not.toContain("text-muted-foreground");
+    expect(TOOL_PREVIEW_CARD).toContain("text-foreground/75");
   });
 
   it("keeps every student IEP and pathway helper state readable", () => {

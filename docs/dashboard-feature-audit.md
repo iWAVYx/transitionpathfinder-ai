@@ -20,11 +20,14 @@ The public `/demo/*` routes may use clearly labeled fictional sample data. A
 signed-in route must never silently reuse those fixtures. If real data does not
 exist, it must show a truthful empty state and explain how to add it.
 
-The Owner Admin exception is structural, not a lower standard: `/owner` is the
-Owner Hub **and the owner dashboard**. It is a private operating console for the
-founder and, later, specifically authorized TransitionForward IT/company staff.
+The Owner Admin exception is structural: `/owner` is the **Owner Hub for website
+management only**. It is a private operating console for the founder and,
+later, specifically authorized TransitionForward IT/company staff. It does not
+have a role dashboard view. Keep website content, users, reviews, analytics,
+site settings, system health, and launch controls in this management console.
 Do not add a separate owner dashboard route or a redundant Dashboard navigation
-item. Preview-first improvements belong inside the Owner Hub itself.
+item. The simplified role-dashboard layout and dashboard widgets apply to the
+six planning roles only; exclude the Owner Hub from those changes.
 
 ## Executive result
 
@@ -46,7 +49,7 @@ item. Preview-first improvements belong inside the Owner Hub itself.
 - The Educator dashboard and Caseload Hub now use authorized caseload totals.
   Their at-a-glance previews remain aggregate-first and hide student PII.
 - The Owner Hub now follows the same card → Preview → full-tool interaction
-  contract without creating a separate owner dashboard.
+  contract within its website-management console, without a role dashboard view.
 
 ## Role-by-role status
 
@@ -58,7 +61,7 @@ item. Preview-first improvements belong inside the Owner Hub itself.
 | School Admin            | `/demo/school-admin`   | `/school/overview`, `/hubs/school`                                             | Live selected-school aggregates | Live selected-school aggregates | Routes exist and use school data functions                     | **Preview-first dashboard aligned**                    |
 | District Admin          | `/demo/district-admin` | `/district/overview`, `/hubs/district`                                         | Live district aggregates        | Live, aggregate-first           | Routes exist and use district data functions                   | **Preview-first dashboard aligned**                    |
 | Partner                 | `/demo/partner`        | `/partners-manage`, `/hubs/partner`                                            | Live organization/catalog data  | Live, partner-scoped            | Profile, opportunities, deadlines, resources, and impact exist | **Preview-first dashboard aligned**                    |
-| Owner Admin             | `/demo/owner`          | `/owner` (the Owner Hub is the dashboard); `/hubs/admin` redirects to `/owner` | Live aggregate operations       | Live aggregate operations       | Broad operational route set exists                             | **Preview-first Owner Hub aligned**                    |
+| Owner Admin             | `/demo/owner`          | `/owner` (website management only); `/hubs/admin` redirects to `/owner` | Live aggregate operations       | Live aggregate operations       | Broad operational route set exists                             | **Preview-first Owner Hub aligned**                    |
 
 ## Signed-in demo-data findings
 

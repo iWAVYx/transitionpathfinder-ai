@@ -7,7 +7,6 @@ import {
   Circle,
   Sparkles,
   Link2,
-  Database,
   Target,
   ShieldCheck,
   Workflow,
@@ -27,7 +26,8 @@ import {
   type DemoRole,
 } from "@/lib/demo/feature-routes";
 import { augmentFeature } from "@/lib/demo/feature-augment";
-
+import { useDemoSchool, useDemoDistrict, useDemoPartnerPlan } from "@/lib/demo/use-role-context";
+import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 /**
  * Dedicated demo feature page shell. Mirrors the same visual contract
@@ -50,7 +50,20 @@ export function DemoFeatureShell({
   detail: DemoFeatureDetail;
   richModule?: React.ReactNode;
 }) {
-  const backTo = demoRoleDashboardPath(role);
+  const { profileId } = useDemoStudent();
+  const { schoolId } = useDemoSchool();
+  const { districtId } = useDemoDistrict();
+  const { planId } = useDemoPartnerPlan();
+  const organizationSearch =
+    role === "school-admin"
+      ? `?school=${schoolId}`
+      : role === "district-admin"
+        ? `?district=${districtId}`
+        : role === "partner"
+          ? `?plan=${planId}`
+          : "";
+  const planningRole = role === "family" || role === "student" || role === "educator";
+  const backTo = `${demoRoleDashboardPath(role)}${planningRole ? `?student=${profileId}` : organizationSearch}`;
   const backLabel = demoRoleDashboardLabel(role);
   const augmented = augmentFeature(role, detail);
 
@@ -93,12 +106,12 @@ export function DemoFeatureShell({
               <Button
                 asChild
                 size="lg"
-                className="shadow-elegant"
+                className="h-auto min-h-11 max-w-full whitespace-normal text-center shadow-elegant"
                 data-testid="demo-feature-primary-action-header"
               >
                 <Link to={detail.primaryAction.to as never}>
                   <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
-                  Open In Your Workspace: {toTitleCase(detail.primaryAction.label)}
+                  {toTitleCase(detail.primaryAction.label)}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
@@ -118,7 +131,6 @@ export function DemoFeatureShell({
               </span>
             </div>
           )}
-
         </header>
 
         {richModule && <div className="mt-8">{richModule}</div>}
@@ -128,10 +140,7 @@ export function DemoFeatureShell({
             {detail.stats && detail.stats.length > 0 && (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {detail.stats.map((s) => (
-                  <div
-                    key={s.label}
-                    className="rounded-xl border bg-card p-3 text-center"
-                  >
+                  <div key={s.label} className="rounded-xl border bg-card p-3 text-center">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {s.label}
                     </p>
@@ -150,7 +159,6 @@ export function DemoFeatureShell({
               </div>
             )}
 
-
             <section
               className="rounded-2xl border border-primary/25 bg-primary/5 p-5"
               data-testid="demo-feature-next-step"
@@ -158,9 +166,7 @@ export function DemoFeatureShell({
               <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                 <Zap className="h-3 w-3" aria-hidden /> Next Recommended Step
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-foreground">
-                {augmented.nextStep}
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">{augmented.nextStep}</p>
             </section>
 
             <section>
@@ -194,7 +200,6 @@ export function DemoFeatureShell({
               )}
             </section>
 
-
             <section
               className="rounded-2xl border bg-muted/20 p-5"
               data-testid="demo-feature-connected-to"
@@ -202,9 +207,7 @@ export function DemoFeatureShell({
               <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 <Workflow className="h-3 w-3" aria-hidden /> Connected To The Pathway Report
               </h2>
-              <p className="mt-2 text-sm text-foreground/80">
-                {augmented.pathwayRelationCopy}
-              </p>
+              <p className="mt-2 text-sm text-foreground/80">{augmented.pathwayRelationCopy}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {detail.connectsTo.map((c) => (
                   <span
@@ -222,11 +225,13 @@ export function DemoFeatureShell({
               data-testid="demo-feature-feeds-into"
             >
               <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                <ListChecks className="h-3 w-3" aria-hidden /> Feeds Into
+                <ListChecks className="h-3 w-3" aria-hidden />
+                {role === "family" && detail.id === "history" ? "Related records" : "Feeds Into"}
               </h2>
               <p className="mt-2 text-sm text-foreground/80">
-                Updates here surface in these other TransitionForward
-                surfaces so the whole team stays aligned.
+                {role === "family" && detail.id === "history"
+                  ? "Review recorded activity alongside the documents and sharing permissions it relates to."
+                  : "Updates here surface in these other TransitionForward surfaces so the whole team stays aligned."}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {augmented.feedsInto.map((c) => (
@@ -242,13 +247,8 @@ export function DemoFeatureShell({
           </div>
 
           <aside className="space-y-3">
-            <MetaCard icon={Database} label="Data source" value={detail.dataSource} />
             <MetaCard icon={Target} label="What you can do" value={detail.what} />
-            <MetaCard
-              icon={Link2}
-              label="Connects to"
-              value={detail.connectsTo.join(" · ")}
-            />
+            <MetaCard icon={Link2} label="Connects to" value={detail.connectsTo.join(" · ")} />
             <MetaCard
               icon={ShieldCheck}
               label="Who can see this"
@@ -260,31 +260,29 @@ export function DemoFeatureShell({
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-muted/30 p-5">
           <div>
             <p className="text-sm text-muted-foreground">
-              This is a demo preview using sample data. In your workspace
-              this page shows live info from your team.
+              This is a demo preview using sample data. In your workspace this page shows live info
+              from your team.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              data-testid="demo-feature-secondary-action"
-            >
+            <Button asChild variant="outline" size="sm" data-testid="demo-feature-secondary-action">
               <Link to={backTo as never}>
                 <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
                 Back to {backLabel}
               </Link>
             </Button>
             {detail.primaryAction && (
-              <Button asChild data-testid="demo-feature-primary-action" className="shadow-elegant">
+              <Button
+                asChild
+                data-testid="demo-feature-primary-action"
+                className="h-auto min-h-11 max-w-full whitespace-normal text-center shadow-elegant"
+              >
                 <Link to={detail.primaryAction.to as never}>
                   <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
                   {toTitleCase(detail.primaryAction.label)}
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
-
             )}
           </div>
         </div>
@@ -293,11 +291,7 @@ export function DemoFeatureShell({
   );
 }
 
-function FeatureRowItem({
-  row,
-}: {
-  row: DemoFeatureDetail["rows"][number];
-}) {
+function FeatureRowItem({ row }: { row: DemoFeatureDetail["rows"][number] }) {
   const StatusIcon =
     row.status === "ok"
       ? CheckCircle2
@@ -317,13 +311,9 @@ function FeatureRowItem({
       <StatusIcon className={cn("mt-0.5 h-4 w-4 shrink-0", tone)} aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-foreground">{row.primary}</p>
-        {row.secondary && (
-          <p className="mt-0.5 text-xs text-muted-foreground">{row.secondary}</p>
-        )}
+        {row.secondary && <p className="mt-0.5 text-xs text-muted-foreground">{row.secondary}</p>}
       </div>
-      {row.meta && (
-        <span className="shrink-0 text-[11px] text-muted-foreground">{row.meta}</span>
-      )}
+      {row.meta && <span className="shrink-0 text-[11px] text-muted-foreground">{row.meta}</span>}
     </li>
   );
 }
@@ -333,7 +323,7 @@ function MetaCard({
   label,
   value,
 }: {
-  icon: typeof Database;
+  icon: typeof CheckCircle2;
   label: string;
   value: string;
 }) {

@@ -581,7 +581,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     packageJson,
     /--max-semi-space-size=4 --max-old-space-size=1216 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
-  assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.21\.0"/);
+  assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.23\.1"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);

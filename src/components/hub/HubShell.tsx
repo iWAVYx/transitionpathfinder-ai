@@ -7,7 +7,6 @@ import { toTitleCase } from "@/lib/title-case";
 import { HubSpokeGrid } from "./HubSpokeGrid";
 import { RelatedLinksRail } from "./RelatedLinksRail";
 
-
 interface Props {
   hub: HubDefinition;
   /** Optional extra content rendered between the compact header and the spokes. */
@@ -20,6 +19,8 @@ interface Props {
    * the spokes because it has no OverviewGrid of its own.
    */
   hideSpokes?: boolean;
+  /** Keep role dashboards focused on their own workspace and widgets. */
+  hideRelatedLinks?: boolean;
 }
 
 /**
@@ -50,7 +51,7 @@ const ROLE_ACCENTS: Record<
  * so every downstream tile / pill / gradient / button using those tokens
  * picks up the role tint automatically.
  */
-export function HubShell({ hub, children, hideSpokes = false }: Props) {
+export function HubShell({ hub, children, hideSpokes = false, hideRelatedLinks = false }: Props) {
   const accent = ROLE_ACCENTS[hub.id];
   const style = accent
     ? ({
@@ -121,7 +122,6 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
           rhythm so sections read as distinct rather than one long stack. */}
       <div className="mt-6 space-y-10 sm:mt-8 sm:space-y-12">{children}</div>
 
-
       {/* Optional spokes — only for hubs without a polished OverviewGrid. */}
       {!hideSpokes && (
         <section className="mt-10">
@@ -141,9 +141,11 @@ export function HubShell({ hub, children, hideSpokes = false }: Props) {
       )}
 
       {/* Related rail */}
-      <section className="mt-10">
-        <RelatedLinksRail hub={hub} />
-      </section>
+      {!hideRelatedLinks && (
+        <section className="mt-10">
+          <RelatedLinksRail hub={hub} />
+        </section>
+      )}
     </div>
   );
 }

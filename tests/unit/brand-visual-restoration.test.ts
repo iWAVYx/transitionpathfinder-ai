@@ -109,9 +109,9 @@ describe("recovered Lovable visual update", () => {
     expect(ONBOARDING_CHECKLIST).not.toContain("text-muted-foreground");
     expect(PAGE_HEADER).toContain("text-foreground/75 sm:text-[15px]");
     expect(STUDENT_DASHBOARD).toContain(
-      "font-semibold uppercase tracking-wider text-foreground/75",
+      "text-base leading-relaxed text-foreground/75",
     );
-    expect(DISTRICT_OVERVIEW).toContain("text-brand-warning-text dark:text-amber-300");
+    expect(DISTRICT_OVERVIEW).toContain("<DistrictAdminOverviewGrid liveData={d}");
     expect(DISTRICT_SCHOOLS).toContain("text-brand-warning-text dark:text-amber-300");
   });
 });

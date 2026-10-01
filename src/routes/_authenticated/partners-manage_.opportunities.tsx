@@ -188,7 +188,7 @@ function PartnerOpportunitiesPage() {
             </p>
           </div>
           <Button asChild>
-            <Link to="/partners-manage">
+            <Link to="/partners-manage" search={{ view: "opportunities" }}>
               <Plus className="h-4 w-4" /> Create opportunity
             </Link>
           </Button>

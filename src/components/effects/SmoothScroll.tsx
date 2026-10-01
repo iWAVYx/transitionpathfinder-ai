@@ -48,7 +48,7 @@ export function SmoothScroll() {
       e.preventDefault();
       const headerOffset = 72;
       lenis.scrollTo(el, { offset: -headerOffset });
-      if (history.replaceState) history.replaceState(null, "", `#${id}`);
+      if (history.replaceState) history.replaceState(history.state, "", `#${id}`);
     };
     document.addEventListener("click", onClick);
 

@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authenticated/partner-network")({
       {
         name: "description",
         content:
-          "Vetted community partners, explainable matches, and de-identified referral flow.",
+          "Search partner organizations and community programs by services, location and pathway.",
       },
       { name: "robots", content: "noindex" },
     ],

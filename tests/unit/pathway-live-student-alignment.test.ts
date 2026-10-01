@@ -10,7 +10,7 @@ import {
   mergePathwayIntake,
 } from "../../src/lib/pathway-intake";
 
-const ROUTE = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8");
+const ROUTE = readFileSync("src/routes/_authenticated/pathway.tsx", "utf8") + readFileSync("src/components/pathway/PathwayBuilderSteps.tsx", "utf8");
 const SERVER = readFileSync("src/lib/pathway.functions.ts", "utf8");
 const IEP_EXTRACT = readFileSync("src/lib/iep-extract.functions.ts", "utf8");
 
@@ -115,7 +115,7 @@ describe("live-student Pathway intake alignment", () => {
   });
 
   it("authorizes and links both intake and report at creation time", () => {
-    expect(SERVER).toContain("student_id: z.string().uuid().optional()");
+    expect(readFileSync("src/lib/pathway-generation-contract.ts", "utf8")).toContain("student_id: z.string().uuid().optional()");
     expect(SERVER).toContain('action: "edit"');
     expect(SERVER).toContain("resourceId: data.student_id");
     expect(SERVER.match(/student_id: data\.student_id \?\? null/g)).toHaveLength(2);

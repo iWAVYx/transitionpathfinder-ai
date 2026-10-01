@@ -24,7 +24,7 @@ export function SiteShell({
       <main
         id="main-content"
         tabIndex={-1}
-        className="site-shell-main flex-1 focus:outline-none"
+        className={`site-shell-main flex-1 focus:outline-none ${testId && !location.pathname.startsWith("/owner") ? "planning-dashboard" : ""}`}
         style={{ minHeight: "60vh" }}
         data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
         data-testid={testId ?? undefined}

@@ -7,7 +7,7 @@ import AxeBuilder from "@axe-core/playwright";
  * The demo report is now a static, age-aware report surface rather than the
  * older ReportView outline/collapsible reader. These checks intentionally
  * validate the current contract: clean axe results, unique page landmarks,
- * accessible role tabs, and accessible demo-student switching.
+ * accessible role toggle buttons, and accessible demo-student switching.
  */
 
 const REPORT_URL = "/demo/report";
@@ -78,20 +78,24 @@ for (const vp of VIEWPORTS) {
 test.describe("report a11y — current interaction contract", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("role lens exposes accessible tab semantics", async ({ page }) => {
+  test("role lens exposes accessible toggle-button semantics", async ({ page }) => {
     await gotoReport(page);
 
-    const tablist = page.getByRole("tablist", { name: /demo role view/i });
-    await expect(tablist).toBeVisible();
+    const roleGroup = page.getByRole("group", { name: /demo role view/i });
+    await expect(roleGroup).toBeVisible();
 
-    const tabs = tablist.getByRole("tab");
+    const tabs = roleGroup.getByRole("button");
     expect(await tabs.count()).toBeGreaterThan(1);
-    await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1);
+    await expect(roleGroup.locator('button[aria-pressed="true"]')).toHaveCount(1);
 
     for (let i = 0; i < (await tabs.count()); i++) {
       const tab = tabs.nth(i);
-      await expect(tab).toHaveAttribute("aria-selected", /true|false/);
+      await expect(tab).toHaveAttribute("aria-pressed", /true|false/);
       expect((await tab.innerText()).trim()).toBeTruthy();
+      await tab.focus();
+      await tab.press("Enter");
+      await expect(tab).toHaveAttribute("aria-pressed", "true");
+      await expect(roleGroup.locator('button[aria-pressed="true"]')).toHaveCount(1);
     }
   });
 
@@ -145,7 +149,7 @@ for (const vp of VIEWPORTS) {
         /pathway report/i,
       );
       await expect(
-        page.getByRole("tablist", { name: /demo role view/i }),
+        page.getByRole("group", { name: /demo role view/i }),
       ).toBeVisible();
     });
   });

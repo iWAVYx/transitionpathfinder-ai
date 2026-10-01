@@ -14,30 +14,68 @@ import { SCHOOL_ADMIN_FEATURE_DETAILS } from "@/lib/demo/school-admin/feature-de
 import { DISTRICT_ADMIN_FEATURE_DETAILS } from "@/lib/demo/district-admin/feature-details";
 import { PARTNER_FEATURE_DETAILS } from "@/lib/demo/partner/feature-details";
 import { OWNER_FEATURE_DETAILS } from "@/lib/demo/owner/feature-details";
-import {
-  augmentFeature,
-  type ExtendedDemoRole,
-  type BaseDetail,
-} from "@/lib/demo/feature-augment";
+import { augmentFeature, type ExtendedDemoRole, type BaseDetail } from "@/lib/demo/feature-augment";
 
 /** Vocabulary of legitimate TransitionForward platform primitives. Every
  *  feature must connect to at least one of these so nothing is orphaned. */
 const PLATFORM_PRIMITIVES = [
-  "Pathway Report", "Student Voice", "Voice", "Intake", "Documents",
-  "IEP", "Assessment", "Report Card", "Readiness", "Goals",
-  "Action Items", "Calendar", "Meeting", "Meeting Prep", "Resources",
-  "Recommended Resources", "Saved Resources", "Opportunities", "Programs",
-  "Partner", "Consent", "Sharing", "Sharing & Consent", "Case Manager",
-  "Caseload", "Team", "Profile", "Compliance", "Notifications",
-  "Analytics", "Implementation", "Rollout", "School", "District",
-  "Service", "Application", "Progress", "Incentive", "Report", "Support",
-  "Usage", "Role Audit", "Activity Log", "Testing", "Demo Hub",
-  "District Reports", "Blog",
+  "Pathway Report",
+  "Student Voice",
+  "Voice",
+  "Intake",
+  "Documents",
+  "IEP",
+  "Assessment",
+  "Report Card",
+  "Readiness",
+  "Goals",
+  "Action Items",
+  "Calendar",
+  "Meeting",
+  "Meeting Prep",
+  "Resources",
+  "Recommended Resources",
+  "Saved Resources",
+  "Opportunities",
+  "Programs",
+  "Partner",
+  "Consent",
+  "Sharing",
+  "Sharing & Consent",
+  "Case Manager",
+  "Caseload",
+  "Team",
+  "Profile",
+  "Compliance",
+  "Notifications",
+  "Analytics",
+  "Implementation",
+  "Rollout",
+  "School",
+  "District",
+  "Service",
+  "Application",
+  "Progress",
+  "Incentive",
+  "Report",
+  "Support",
+  "Usage",
+  "Role Audit",
+  "Activity Log",
+  "Testing",
+  "Demo Hub",
+  "District Reports",
+  "Blog",
 ];
 
 // PII vocabulary partners must never touch.
 const PARTNER_FORBIDDEN = [
-  "IEP", "Student Voice", "Pathway Report", "goal", "assessment", "evaluation",
+  "IEP",
+  "Student Voice",
+  "Pathway Report",
+  "goal",
+  "assessment",
+  "evaluation",
 ];
 
 const REGISTRIES = [
@@ -103,11 +141,21 @@ describe("demo feature-detail audit", () => {
             expect(aug.secondaryAction.to).not.toBe(d.primaryAction.to);
             // permissionNote is role-shaped
             expect(aug.permissionNote.length).toBeGreaterThan(30);
-            // feedsInto lists at least two downstream surfaces
-            expect(aug.feedsInto.length).toBeGreaterThanOrEqual(2);
+            // Partner previews list actual public-program connections, without
+            // inventing access to private reports or consent management.
+            expect(aug.feedsInto.length).toBeGreaterThanOrEqual(role === "partner" ? 1 : 2);
+            if (role === "partner") {
+              expect(aug.feedsInto).not.toContain("Pathway Report");
+              expect(aug.feedsInto).not.toContain("Sharing & Consent");
+            }
             // pathwayRelation is one of the six vocabulary values
             expect([
-              "feeds", "generated-from", "reviews", "acts-on", "tracks", "supports",
+              "feeds",
+              "generated-from",
+              "reviews",
+              "acts-on",
+              "tracks",
+              "supports",
             ]).toContain(aug.pathwayRelation);
             // pathwayRelationCopy is a real sentence
             expect(aug.pathwayRelationCopy.length).toBeGreaterThan(40);
@@ -142,12 +190,12 @@ describe("demo feature-detail audit", () => {
         // forbidden surfaces as a boundary statement.
         const text = aug.nextStep.toLowerCase();
         for (const forbidden of PARTNER_FORBIDDEN) {
-          expect(text.includes(forbidden.toLowerCase()), `${id} nextStep mentions "${forbidden}"`).toBe(
-            false,
-          );
+          expect(
+            text.includes(forbidden.toLowerCase()),
+            `${id} nextStep mentions "${forbidden}"`,
+          ).toBe(false);
         }
       });
-
     }
   });
 

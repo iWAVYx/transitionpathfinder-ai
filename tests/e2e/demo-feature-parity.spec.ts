@@ -15,6 +15,7 @@
  *
  * Runs anonymously — /demo/** is a public surface.
  */
+import { getDemoFeature } from "../../src/lib/demo/feature-routes";
 import { test, expect } from "@playwright/test";
 import { STUDENT_FEATURE_DETAILS } from "../../src/lib/demo/student/feature-details";
 import { PARENT_FEATURE_DETAILS } from "../../src/lib/demo/parent/feature-details";
@@ -43,7 +44,10 @@ const ROLE_DASHBOARD: Record<Role, string> = {
   owner: "/demo/owner",
 };
 
-const REGISTRY: Record<Role, Record<string, { title: string; primaryAction?: { label: string; to: string } }>> = {
+const REGISTRY: Record<
+  Role,
+  Record<string, { title: string; primaryAction?: { label: string; to: string } }>
+> = {
   student: STUDENT_FEATURE_DETAILS,
   family: PARENT_FEATURE_DETAILS,
   educator: EDUCATOR_FEATURE_DETAILS,
@@ -56,6 +60,7 @@ const REGISTRY: Record<Role, Record<string, { title: string; primaryAction?: { l
 for (const role of Object.keys(REGISTRY) as Role[]) {
   test.describe(`demo feature parity — ${role}`, () => {
     for (const [slug, detail] of Object.entries(REGISTRY[role])) {
+      if (!getDemoFeature(role, slug)) continue;
       test(`${role}/${slug} renders shared shell and wired actions`, async ({ page }) => {
         const url = `/demo/feature/${role}/${slug}`;
         await page.goto(url, { waitUntil: "domcontentloaded" });
@@ -69,7 +74,11 @@ for (const role of Object.keys(REGISTRY) as Role[]) {
 
         const back = page.getByTestId("back-to-role-dashboard");
         await expect(back).toBeVisible();
-        expect(await back.getAttribute("href")).toBe(ROLE_DASHBOARD[role]);
+        const backUrl = new URL((await back.getAttribute("href"))!, page.url());
+        expect(backUrl.pathname).toBe(ROLE_DASHBOARD[role]);
+        if (["student", "family", "educator"].includes(role)) {
+          expect(backUrl.searchParams.get("student")).toBe("jordan");
+        }
 
         // (2) New enrichment slots — Next Step, Connected To, Feeds Into
         await expect(page.getByTestId("demo-feature-next-step")).toBeVisible();
@@ -93,9 +102,9 @@ for (const role of Object.keys(REGISTRY) as Role[]) {
         // (4) Footer "Back to …" behaves — clicking returns to role dashboard
         const secondary = page.getByTestId("demo-feature-secondary-action");
         await expect(secondary).toBeVisible();
-        expect(await secondary.getAttribute("href")).toBe(ROLE_DASHBOARD[role]);
+        expect(await secondary.getAttribute("href")).toBe(await back.getAttribute("href"));
         await secondary.click();
-        await page.waitForURL(`**${ROLE_DASHBOARD[role]}`);
+        await expect.poll(() => new URL(page.url()).pathname).toBe(ROLE_DASHBOARD[role]);
         expect(new URL(page.url()).pathname).toBe(ROLE_DASHBOARD[role]);
       });
     }
@@ -104,4 +113,14 @@ for (const role of Object.keys(REGISTRY) as Role[]) {
 
 function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+for (const slug of ["documents", "meeting-prep"]) {
+  test(`student/${slug} does not advertise an unavailable signed-in tool`, async ({ page }) => {
+    await page.goto(`/demo/feature/student/${slug}`);
+    await expect(page.getByRole("heading", { name: "Preview not available" })).toBeVisible();
+    await expect(page.getByTestId("demo-feature-primary-action-header")).toHaveCount(0);
+    await page.getByRole("link", { name: "Back to demo dashboards" }).click();
+    await expect.poll(() => new URL(page.url()).pathname).toBe("/demo");
+  });
 }

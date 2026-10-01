@@ -1,3 +1,4 @@
+import type { Locator, Page } from "@playwright/test";
 /**
  * Shared role table for the dashboard regression suite.
  *
@@ -137,3 +138,18 @@ export const VIEWPORTS = [
   { label: "tablet", width: 820, height: 1180 },
   { label: "desktop", width: 1440, height: 900 },
 ] as const;
+
+// This exact, static denial is explanatory copy, not a private student surface.
+// Anchoring the entire notice means extra data or differently worded content
+// still fails the text guard. Forbidden-link and direct-route checks remain intact.
+const PARTNER_PRIVACY_NOTICE = new RegExp(
+  "^" +
+    "Partners never see student data. These previews use only the signed-in organization's profile and catalog. No IEPs, documents, messages, student voice, goals, meetings, or Pathway Reports are loaded."
+      .replace(/\./g, "\\.")
+      .replace(/\s+/g, "\\s+") +
+    "$",
+);
+
+export function forbiddenDashboardText(scope: Page | Locator, pattern: RegExp) {
+  return scope.getByText(pattern).filter({ hasNotText: PARTNER_PRIVACY_NOTICE });
+}

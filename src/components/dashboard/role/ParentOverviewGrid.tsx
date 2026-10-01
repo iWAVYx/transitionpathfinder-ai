@@ -1,3 +1,4 @@
+import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -16,17 +17,14 @@ import {
 } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
 import { Pill } from "@/components/ui/pill";
-import { ToolPreviewSection, ToolPreviewGrid } from "../ToolPreviewCard";
+import { ToolPreviewSection, ToolPreviewGrid, RelatedToolLinks } from "../ToolPreviewCard";
 import { PartnerNetworkTile } from "@/components/partner-network/PartnerNetworkTile";
 import { DemoTransitionChannelTile } from "@/components/demo/DemoTransitionChannelTile";
 import {
   ParentFeatureDrawer,
   type ParentFeatureState,
 } from "@/components/dashboard/parent/ParentFeatureDrawer";
-import {
-  getParentFeatureDetails,
-  type ParentFeatureId,
-} from "@/lib/demo/parent/feature-details";
+import { getParentFeatureDetails, type ParentFeatureId } from "@/lib/demo/parent/feature-details";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { resolveDemoFeatureRoute } from "@/lib/demo/feature-routes";
 
@@ -189,7 +187,11 @@ export function ParentOverviewGrid({ isSample = false }: { isSample?: boolean } 
             }}
           />
         ))}
-        <PartnerNetworkTile role="family" isSample={isSample} onPreview={() => setOpenFeature("partner-network")} />
+        <PartnerNetworkTile
+          role="family"
+          isSample={isSample}
+          onPreview={() => setOpenFeature("partner-network")}
+        />
         <DemoTransitionChannelTile role="family" contextId={profileId} />
       </ToolPreviewGrid>
 
@@ -238,7 +240,15 @@ export function ParentOverviewGrid({ isSample = false }: { isSample?: boolean } 
   );
 }
 
-function ParentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPreview: () => void; isSample?: boolean }) {
+function ParentTile({
+  tile,
+  onPreview,
+  isSample = false,
+}: {
+  tile: Tile;
+  onPreview: () => void;
+  isSample?: boolean;
+}) {
   const Icon = tile.icon;
   const { profileId } = useDemoStudent();
   const detail = getParentFeatureDetails(profileId)[tile.featureId];
@@ -247,10 +257,15 @@ function ParentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPrevi
     detail.stats?.slice(0, 2).map((s) => ({ label: s.label, value: s.value ?? "—" })) ??
     tile.bullets ??
     [];
-  const ctaTo = isSample ? resolveDemoFeatureRoute("family", tile.featureId) : (tile.cta.to as string);
+  const ctaTo = isSample
+    ? resolveDemoFeatureRoute("family", tile.featureId)
+    : (tile.cta.to as string);
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-      <span className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" aria-hidden />
+      <span
+        className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/30 to-transparent"
+        aria-hidden
+      />
       <div className="flex items-start justify-between gap-2 px-3.5 pt-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
@@ -262,17 +277,26 @@ function ParentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPrevi
         </div>
         <Pill tone={tile.tone}>{status}</Pill>
       </div>
-      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">{tile.summary}</p>
+      <p className="mt-1.5 line-clamp-2 px-3.5 text-[13px] leading-snug text-muted-foreground">
+        {tile.summary}
+      </p>
       {bullets.length > 0 && (
         <dl className="mx-3.5 mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
           {bullets.slice(0, 4).map((b) => (
             <div key={b.label} className="flex min-w-0 flex-col">
-              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{toTitleCase(b.label)}</dt>
+              <dt className="truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {toTitleCase(b.label)}
+              </dt>
               <dd className="truncate text-[13px] font-semibold text-foreground">{b.value}</dd>
             </div>
           ))}
         </dl>
       )}
+      <RelatedToolLinks
+        actions={RELATED_TOOLS[`family:${tile.featureId}`]}
+        sample={isSample}
+        studentId={profileId}
+      />
       <p className="mt-2 px-3.5 text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground">
         {detail.rows.length} items · {detail.connectsTo.length} connected
       </p>
@@ -287,6 +311,7 @@ function ParentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPrevi
         </button>
         <Link
           to={ctaTo}
+          search={isSample ? { student: profileId } : undefined}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
         >
           {toTitleCase(tile.cta.label)}
@@ -299,4 +324,3 @@ function ParentTile({ tile, onPreview, isSample = false }: { tile: Tile; onPrevi
     </div>
   );
 }
-

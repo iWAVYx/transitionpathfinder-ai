@@ -85,7 +85,7 @@ describe("Partner and Owner live-dashboard parity", () => {
   it("keeps demo fixtures out of the signed-in Partner Hub", () => {
     const hub = read("src/routes/_authenticated/hubs.partner.tsx");
     expect(hub).toContain("getPartnerWorkspace");
-    expect(hub).toContain("NextActionCardServer");
+    expect(hub).toContain("DashboardWidgetBoard");
     expect(hub).not.toContain("DEMO_NEXT_ACTIONS");
     expect(hub).not.toContain("DEMO_RECENTLY_COMPLETED");
   });

@@ -33,13 +33,17 @@ export function setBlockCollapsed(id: string, collapsed: boolean) {
   queueReportPrefsUpdate({ collapsed_blocks: Array.from(collapsedSet) });
 }
 
-export function configureReportPrefsPusher(
-  fn: (patch: ReportViewerPrefs) => Promise<unknown>,
-) {
+export function configureReportPrefsPusher(fn: (patch: ReportViewerPrefs) => Promise<unknown>) {
   pusher = fn;
+  return () => {
+    if (pusher !== fn) return;
+    flushReportPrefs();
+    pusher = null;
+  };
 }
 
 export function queueReportPrefsUpdate(patch: ReportViewerPrefs) {
+  if (!pusher) return;
   pending = { ...pending, ...patch };
   if (timer) clearTimeout(timer);
   timer = setTimeout(flushReportPrefs, 600);

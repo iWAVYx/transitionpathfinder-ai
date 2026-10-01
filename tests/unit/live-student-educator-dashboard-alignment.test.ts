@@ -36,28 +36,24 @@ describe("live Student dashboard alignment", () => {
   });
 
   it("keeps sensitive content outside at-a-glance previews", () => {
-    expect(LIVE_STUDENT).toContain(
-      "Document contents and personal information never appear in this dashboard preview.",
-    );
+    expect(LIVE_STUDENT).not.toContain('to: "/documents"');
     expect(LIVE_STUDENT).toContain("Message contents remain inside the full team-scoped channel.");
     expect(LIVE_STUDENT).toContain(
       "Partners cannot see your private documents through this directory preview.",
     );
   });
 
-  it("keeps Student Voice and Goals navigation in the preview-first grid without legacy duplicates", () => {
-    for (const previewRoute of ['to: "/student-voice"', 'to: "/goals"']) {
+  it("keeps Student Voice and student Pathway navigation in the preview-first grid without legacy duplicates", () => {
+    for (const previewRoute of ['to: "/student-voice"', 'to: "/pathway/student"']) {
       expect(LIVE_STUDENT).toContain(previewRoute);
     }
 
     expect(STUDENT_DASHBOARD).not.toContain('to: "/student-voice"');
     expect(STUDENT_DASHBOARD).not.toContain('to="/goals"');
 
-    // Removing duplicate navigation must not remove the live goal details or
-    // the remaining grade-aware Explore tools from the signed-in dashboard.
-    expect(STUDENT_DASHBOARD).toContain("snap.goals.slice(0, 5)");
-    expect(STUDENT_DASHBOARD).toContain("<ExploreForStudent gradeBand={s.grade_band} />");
-    expect(STUDENT_DASHBOARD).toContain('to: "/messages"');
+    expect(STUDENT_DASHBOARD).not.toContain("snap.goals.slice(0, 5)");
+    expect(STUDENT_DASHBOARD).not.toContain("<ExploreForStudent");
+    expect(STUDENT_DASHBOARD).toContain('<DashboardWidgetBoard role="student"');
   });
 });
 
@@ -90,8 +86,8 @@ describe("live Educator dashboard alignment", () => {
   });
 });
 
-describe("Owner Hub dashboard contract", () => {
-  it("treats /owner and the Owner Hub as the owner dashboard", () => {
+describe("Owner Hub management contract", () => {
+  it("keeps /owner as the website-management hub", () => {
     expect(OWNER_ROUTE).toContain('title: "Admin Hub — TransitionForward"');
     expect(OWNER_ROUTE).toContain("component: OwnerDashboardPage");
     expect(OWNER_PAGE).toContain('title="Admin Hub"');

@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "react";
@@ -57,6 +59,7 @@ const StudentPlanningTools = lazy(() =>
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
+  validateSearch: z.object({ tab: z.enum(["overview", "documents", "plan", "resources", "team", "partners", "opportunities"]).catch("overview") }),
   component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
 
@@ -108,6 +111,9 @@ function StudentPanelLoading() {
 
 function StudentDetailPage() {
   const { studentId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const activeTab = tab === "partners" || tab === "opportunities" ? "resources" : tab;
 
   const fetchStudent = useServerFn(getStudent);
   const fetchDocs = useServerFn(listDocuments);
@@ -239,7 +245,7 @@ function StudentDetailPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                  Student hub
+                  Student dashboard
                 </p>
                 <h1 className="mt-1 font-display text-2xl font-medium tracking-tight sm:text-4xl">
                   {student ? `${student.first_name} ${student.last_name ?? ""}` : "Loading…"}
@@ -279,8 +285,8 @@ function StudentDetailPage() {
             />
             <StatTile
               icon={<Compass className="h-4 w-4" />}
-              label="Pathway"
-              value="In progress"
+              label="Grade"
+              value={student?.grade_band ?? "Not set"}
               small
             />
             <StatTile
@@ -291,6 +297,19 @@ function StudentDetailPage() {
             />
           </div>
 
+        </header>
+
+        <Tabs value={activeTab} onValueChange={(tab) => navigate({ search: { tab: tab as typeof activeTab }, resetScroll: false })} className="mt-5">
+          <TabsList className="flex h-auto flex-wrap justify-start gap-1">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="plan">Goals & Actions</TabsTrigger>
+            <TabsTrigger value="resources">Resources & Partners</TabsTrigger>
+            <TabsTrigger value="team">Team & Access</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <details className="mt-4 rounded-xl border p-4">
+              <summary className="cursor-pointer text-sm font-semibold">Profile completeness & support</summary>
           <StudentPanelBoundary name="profile-support">
             <Suspense fallback={<StudentPanelLoading />}>
               <StudentProfileSupport
@@ -301,7 +320,7 @@ function StudentDetailPage() {
               />
             </Suspense>
           </StudentPanelBoundary>
-        </header>
+            </details>
 
         {/* PATHWAY REPORT — single CTA loop */}
         <StudentPanelBoundary name="pathway-report">
@@ -313,34 +332,8 @@ function StudentDetailPage() {
           </Suspense>
         </StudentPanelBoundary>
 
-        {/* HUB CARDS */}
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <HubCard
-            to="/feed"
-            icon={<Activity className="h-4 w-4" />}
-            title="Feed"
-            desc="Everything that's happened on this plan, newest first."
-          />
-          <HubCard
-            to="/messages"
-            icon={<MessageSquare className="h-4 w-4" />}
-            title="Messages"
-            desc="Ask a question, share a reflection, or follow up."
-          />
-          <HubCard
-            to="/meetings"
-            icon={<Calendar className="h-4 w-4" />}
-            title="Meetings"
-            desc="Prep for the next PPT or IEP — agenda, questions, actions."
-          />
-          <HubCard
-            to="/forms"
-            icon={<ClipboardList className="h-4 w-4" />}
-            title="Forms"
-            desc="Family input, interest surveys, life-skills checklists."
-          />
-        </div>
-
+          </TabsContent>
+          <TabsContent value="documents">
         {/* DOCUMENTS */}
         <div className="mt-10" data-testid="student-document-section">
           <FamilyDocumentUpload
@@ -415,16 +408,17 @@ function StudentDetailPage() {
           </div>
         )}
 
-        <StudentPanelBoundary name="planning-tools">
-          <Suspense fallback={<StudentPanelLoading />}>
-            <StudentPlanningTools
-              student={student}
-              studentId={studentId}
-              goals={goals}
-              onChange={reload}
-            />
-          </Suspense>
-        </StudentPanelBoundary>
+          </TabsContent>
+          {(["plan", "resources", "team"] as const).map((section) => (
+            <TabsContent key={section} value={section}>
+              <StudentPanelBoundary name="planning-tools">
+                <Suspense fallback={<StudentPanelLoading />}>
+                  <StudentPlanningTools section={section} student={student} studentId={studentId} goals={goals} onChange={reload} />
+                </Suspense>
+              </StudentPanelBoundary>
+            </TabsContent>
+          ))}
+        </Tabs>
       </section>
     </SiteShell>
   );
@@ -457,30 +451,5 @@ function StatTile({
         {value}
       </p>
     </div>
-  );
-}
-
-function HubCard({
-  to,
-  icon,
-  title,
-  desc,
-}: {
-  to: "/feed" | "/messages" | "/meetings" | "/forms";
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className="group rounded-2xl border bg-card p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
-    >
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        {icon}
-      </div>
-      <p className="mt-3 font-display text-base">{title}</p>
-      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
-    </Link>
   );
 }

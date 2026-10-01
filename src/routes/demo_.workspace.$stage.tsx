@@ -1,3 +1,4 @@
+import { DemoPathwayBuilder } from "@/components/demo/DemoPathwayBuilder";
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
@@ -14,21 +15,10 @@ import {
   type StageId,
   type WorkspaceStage,
 } from "@/lib/workspace/stages";
-import {
-  DEMO_ROLES,
-  DEMO_ROLE_ORDER,
-  type DemoRoleId,
-} from "@/lib/demo/role-previews";
-import {
-  backTargetFromWorkspace,
-  coerceExpand,
-  coerceRole,
-} from "@/lib/demo/nav";
-import {
-  rememberLastWorkspaceStage,
-  useDemoRoleView,
-} from "@/lib/demo/use-demo-role-view";
-import { isWorkspaceRoleId, resolveDemoRoleDestination } from "@/lib/demo/role-routing";
+import { DEMO_ROLES, DEMO_ROLE_ORDER, type DemoRoleId } from "@/lib/demo/role-previews";
+import { backTargetFromWorkspace, coerceExpand, coerceRole } from "@/lib/demo/nav";
+import { rememberLastWorkspaceStage } from "@/lib/demo/use-demo-role-view";
+import { useDemoPlanningRole } from "@/lib/demo/use-demo-planning-role";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 
 const STAGE_IDS = WORKSPACE_STAGES.map((s) => s.id) as [StageId, ...StageId[]];
@@ -72,8 +62,13 @@ export const Route = createFileRoute("/demo_/workspace/$stage")({
       ],
     };
   },
-  component: DemoWorkspaceStagePage,
+  component: DemoWorkspaceEntry,
 });
+
+function DemoWorkspaceEntry() {
+  const { stage } = Route.useParams();
+  return stage === "start" ? <DemoPathwayBuilder /> : <DemoWorkspaceStagePage />;
+}
 
 function DemoWorkspaceStagePage() {
   const { stage: stageId } = Route.useParams();
@@ -82,7 +77,7 @@ function DemoWorkspaceStagePage() {
   const navigate = useNavigate();
   const expanded = search.expand === true;
   const { profile } = useDemoStudent();
-  const { role: viewRole } = useDemoRoleView();
+  const { role: viewRole, setRole } = useDemoPlanningRole(profile.id);
 
   // Remember the current stage so non-workspace role dashboards can send
   // the visitor back to where they were when they return to a workspace role.
@@ -92,8 +87,8 @@ function DemoWorkspaceStagePage() {
 
   const hrefFor = (s: WorkspaceStage) => {
     const params = new URLSearchParams();
-    if (search.role) params.set("role", search.role);
-    if (search.student) params.set("student", search.student);
+    params.set("role", viewRole);
+    params.set("student", profile.id);
     const qs = params.toString();
     return `/demo/workspace/${s.id}${qs ? `?${qs}` : ""}`;
   };
@@ -105,17 +100,6 @@ function DemoWorkspaceStagePage() {
       search: { ...search, ...(next ? { expand: true as const } : { expand: undefined }) },
       replace: false,
     });
-  };
-
-  const handleRoleSelect = (next: DemoRoleId) => {
-    if (isWorkspaceRoleId(next)) return; // stay in place; content updates via viewRole
-    // Non-workspace roles exit the workspace → their canonical dashboard.
-    const dest = resolveDemoRoleDestination({
-      currentPath: `/demo/workspace/${stageId}`,
-      targetRole: next,
-      studentId: search.student ?? undefined,
-    });
-    navigate({ to: dest.to, search: dest.search });
   };
 
   const productLabel =
@@ -135,13 +119,13 @@ function DemoWorkspaceStagePage() {
 
   return (
     <SiteShell>
-      <DemoRoleLens onSelectRole={handleRoleSelect} />
+      <DemoRoleLens selectedRole={viewRole} onSelectRole={setRole} />
       <WorkspaceShell
         activeStageId={stageId}
         hrefFor={hrefFor}
         eyebrow="Transition Workspace · Public Demo"
         eyebrowAside={profileBanner}
-        backTo={backTargetFromWorkspace(search)}
+        backTo={backTargetFromWorkspace({ ...search, role: viewRole, student: profile.id })}
         className="gap-3 py-3 lg:py-4"
       >
         <WorkspaceRolePerspective role={viewRole} stageId={stageId} />
@@ -152,7 +136,6 @@ function DemoWorkspaceStagePage() {
           onExpandChange={setExpanded}
           profile={profile}
         />
-        
       </WorkspaceShell>
     </SiteShell>
   );

@@ -24,6 +24,7 @@ export type ResourceAudience =
 
 
 export type ResourceTopic =
+  | "assistive-technology"
   | "transition-planning"
   | "iep-ppt"
   | "self-advocacy"
@@ -71,6 +72,7 @@ export type Resource = {
 };
 
 export const TOPIC_META: Record<ResourceTopic, { label: string; description: string }> = {
+  "assistive-technology": { label: "Assistive Technology & Accessible Learning", description: "Communication, accessible reading, device trials, and evidence for supports that help students participate." },
   "transition-planning": {
     label: "Transition Planning Basics",
     description:
@@ -148,6 +150,39 @@ export const AUDIENCE_META: Record<ResourceAudience, string> = {
 
 
 export const RESOURCES: Resource[] = [
+  {
+    id: "ct-at-implementation", title: "Connecticut: putting assistive technology into practice",
+    description: "Plan how a student will use assistive technology, who will support it, and what evidence the team will collect.",
+    whyItHelps: "Bring concrete questions about tasks, supports, training and progress to the PPT.",
+    format: "guide", audiences: ["family", "teacher", "admin"], topics: ["assistive-technology", "iep-ppt", "ct-resources"],
+    readingLevel: "professional", location: "connecticut", time: "deep", estimatedTime: "Reference guide", source: "Connecticut State Department of Education",
+    link: "https://portal.ct.gov/SDE/Publications/Assistive-Technology-Guidelines-Section-1-For-Ages-3-22/Documentation-Implementation-And-Effectiveness",
+  },
+  {
+    id: "ct-tech-act-trials", title: "Connecticut Tech Act: explore and try assistive technology",
+    description: "Find assistive-technology demonstrations and device-loan services. Contact the program to confirm options and availability.",
+    whyItHelps: "A device trial can help the student and team identify useful supports before choosing equipment.",
+    format: "agency", audiences: ["student", "family", "teacher"], topics: ["assistive-technology", "ct-resources", "independent-living"],
+    readingLevel: "family", location: "connecticut", time: "quick", estimatedTime: "Service directory", source: "Connecticut Tech Act Project",
+    link: "https://cttechact.com/category/services/",
+  },
+  {
+    id: "asha-aac-evidence", title: "AAC: communication options and assessment guidance",
+    description: "Explore augmentative and alternative communication approaches with a speech-language professional, including assessment and participation needs.",
+    whyItHelps: "Use the guidance to discuss communication across school, home, community and work settings.",
+    format: "guide", audiences: ["family", "teacher"], topics: ["assistive-technology", "self-advocacy", "teacher-tools"],
+    readingLevel: "professional", location: "national", time: "deep", estimatedTime: "Reference guide", source: "American Speech-Language-Hearing Association",
+    link: "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/",
+  },
+  {
+    id: "bookshare-accessible-reading", title: "Bookshare: eligibility for accessible ebooks",
+    description: "Check qualifying print-disability requirements and how to access books in formats that support reading.",
+    whyItHelps: "Discuss reading barriers and accessible materials with the school team using the provider's current eligibility guidance.",
+    format: "guide", audiences: ["student", "family", "teacher"], topics: ["assistive-technology", "postsecondary"],
+    readingLevel: "family", location: "national", time: "quick", estimatedTime: "Eligibility guide", source: "Bookshare",
+    link: "https://www.bookshare.org/help-and-learning-articles/who-qualifies-for-bookshare",
+  },
+
   // ───────────────────────── Transition Planning Basics
   {
     id: "tp-1",

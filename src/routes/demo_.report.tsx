@@ -1,13 +1,14 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
 import { PathwayReport, type DemoReportAudience } from "@/components/demo/PathwayReport";
-import { WorkspaceRolePerspective } from "@/components/demo/WorkspaceRolePerspective";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { type DemoRoleId } from "@/lib/demo/role-previews";
-import { useDemoRoleView } from "@/lib/demo/use-demo-role-view";
-import { resolveDemoRoleDestination } from "@/lib/demo/role-routing";
+import { useDemoPlanningRole } from "@/lib/demo/use-demo-planning-role";
+import { demoRoleDashboardLabel, demoRoleDashboardPath } from "@/lib/demo/feature-routes";
+
+import { BuilderSampleReport } from "@/components/demo/BuilderSampleReport";
 
 export const Route = createFileRoute("/demo_/report")({
   head: () => ({
@@ -20,8 +21,18 @@ export const Route = createFileRoute("/demo_/report")({
       },
     ],
   }),
-  component: DemoReportPage,
+  component: DemoReportRoute,
 });
+
+function DemoReportRoute() {
+  const search = useRouterState({ select: (state) => state.location.search }) as Record<
+    string,
+    unknown
+  >;
+  if (search.example === "builder")
+    return <BuilderSampleReport audience={search.role === "educator" ? "educator" : "family"} />;
+  return <DemoReportPage />;
+}
 
 /**
  * Map any DemoRoleId to the three audiences the Pathway Report supports.
@@ -34,25 +45,21 @@ function toReportAudience(role: DemoRoleId): DemoReportAudience {
   return "educator";
 }
 
-
 function DemoReportPage() {
   const { profile } = useDemoStudent();
-  const navigate = useNavigate();
-  const { role: viewRole } = useDemoRoleView();
-
-  const handleRoleSelect = (next: DemoRoleId) => {
-    const dest = resolveDemoRoleDestination({
-      currentPath: "/demo/report",
-      targetRole: next,
-      studentId: profile.id,
-    });
-    navigate({ to: dest.to, search: dest.search });
-  };
+  const { role: viewRole, setRole } = useDemoPlanningRole(profile.id);
 
   return (
     <SiteShell>
-      <DemoRoleLens onSelectRole={handleRoleSelect} />
+      <DemoRoleLens selectedRole={viewRole} onSelectRole={setRole} />
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <Link
+          to={demoRoleDashboardPath(viewRole)}
+          search={{ student: profile.id }}
+          className="mb-5 inline-block text-sm font-medium text-primary hover:underline"
+        >
+          ← Back to {demoRoleDashboardLabel(viewRole)}
+        </Link>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -62,18 +69,15 @@ function DemoReportPage() {
               Age-Aware Pathway Generation
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Choose a fictional student to see how the pathway engine
-              tailors the report to their grade, product, evidence, and
-              voice — while filtering out themes that don't belong yet.
+              Choose a fictional student to see how the pathway engine tailors the report to their
+              grade, product, evidence, and voice — while filtering out themes that don't belong
+              yet.
             </p>
           </div>
           <StudentSwitcher />
         </div>
-        <WorkspaceRolePerspective role={viewRole} stageId="roadmap" />
         <PathwayReport profile={profile} audience={toReportAudience(viewRole)} />
-
       </div>
     </SiteShell>
   );
 }
-

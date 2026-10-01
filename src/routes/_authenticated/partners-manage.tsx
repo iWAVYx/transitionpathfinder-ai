@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { PartnerOverviewGrid } from "@/components/dashboard/role/PartnerOverviewGrid";
+import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState } from "react";
@@ -39,9 +42,7 @@ import {
   type PartnerWorkspace,
   type PartnerOrg,
 } from "@/lib/partner-workspace.functions";
-import { NextBestAction } from "@/components/dashboard/NextBestAction";
-import { JourneyStrip } from "@/components/dashboard/JourneyStrip";
-import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+
 import { OpportunityStatusStats } from "@/components/dashboard/OpportunityStatusStats";
 import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
@@ -54,6 +55,7 @@ export const Route = createFileRoute("/_authenticated/partners-manage")({
   head: () => ({ meta: [{ title: "Partner Workspace — TransitionForward" }] }),
   beforeLoad: () => ensureRoleAccess(["partner", "admin"]),
   errorComponent: dashboardErrorComponent("partner"),
+  validateSearch: z.object({ view: z.enum(["opportunities"]).optional().catch(undefined) }),
   component: () => (
     <RoleGuard path="/partners-manage" fallback={<PartnerDashboardFallback />}>
       <PartnerManagePage />
@@ -87,8 +89,8 @@ function PartnerDashboardFallback() {
           Partner Dashboard
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Loading your organization, active opportunities, and applicants —
-          this may take a moment on first load.
+          Loading your organization, active opportunities, and applicants — this may take a moment
+          on first load.
         </p>
       </div>
       <div className="flex min-h-[40vh] items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -100,6 +102,7 @@ function PartnerDashboardFallback() {
 }
 
 function PartnerManagePage() {
+  const { view } = Route.useSearch();
   const fetchWs = useServerFn(getPartnerWorkspace);
   const createOp = useServerFn(createOpportunity);
   const updateOp = useServerFn(updateOpportunity);
@@ -109,7 +112,10 @@ function PartnerManagePage() {
   const [ws, setWs] = useState<PartnerWorkspace | null>(null);
   const [loading, setLoading] = useState(true);
   const [orgId, setOrgId] = useState<string | undefined>(undefined);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(view === "opportunities");
+  useEffect(() => {
+    if (view === "opportunities") setShowForm(true);
+  }, [view]);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -194,7 +200,6 @@ function PartnerManagePage() {
     return (
       <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
         <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
-
           <p
             className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             data-dashboard-landmark="partner"
@@ -213,7 +218,6 @@ function PartnerManagePage() {
     return (
       <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-
           <p
             className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
             data-dashboard-landmark="partner"
@@ -239,10 +243,42 @@ function PartnerManagePage() {
 
   const org = ws.selected_org!;
 
+  if (view !== "opportunities") {
+    return (
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+          <p className="tf-eyebrow" data-dashboard-landmark="partner">
+            Partner Workspace — Opportunities
+          </p>
+          <Breadcrumbs trail={[{ label: "Partner Workspace" }]} />
+          {ws.orgs.length > 1 && (
+            <div className="mt-6 flex justify-end">
+              <Select value={orgId} onValueChange={(id) => reload(id)}>
+                <SelectTrigger className="w-full sm:w-64" aria-label="Partner organization">
+                  <SelectValue placeholder="Organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ws.orgs.map((organization) => (
+                    <SelectItem key={organization.id} value={organization.id}>
+                      {organization.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <div className="mt-6">
+            <PartnerOverviewGrid liveData={ws} loading={loading} />
+            <DashboardWidgetBoard role="partner" />
+          </div>
+        </div>
+      </SiteShell>
+    );
+  }
+
   return (
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.partner}>
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary"
           data-dashboard-landmark="partner"
@@ -251,10 +287,13 @@ function PartnerManagePage() {
         </p>
         <Breadcrumbs trail={[{ label: "Partner Workspace" }]} />
 
-        <div className="mt-6">
-          <NextBestAction surface="partner" /><div className="mt-4"><JourneyStrip surface="partner" /></div>
-          <OnboardingChecklist surface="partner" className="mt-4" />
-        </div>
+        <Link
+          to="/partners-manage"
+          search={{}}
+          className="mt-6 inline-block text-sm font-semibold text-primary hover:underline"
+        >
+          Back to dashboard
+        </Link>
 
         <header className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:justify-between">
           <div className="col-span-2 min-w-0 sm:col-span-1">
@@ -266,7 +305,9 @@ function PartnerManagePage() {
             </h1>
             <p className="mt-1 inline-flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <VerifiedPill status={org.verified_status} />
-              <span className="truncate">{[org.city, org.state].filter(Boolean).join(", ") || "Location not set"}</span>
+              <span className="truncate">
+                {[org.city, org.state].filter(Boolean).join(", ") || "Location not set"}
+              </span>
             </p>
           </div>
           <div className="col-span-2 flex gap-2 sm:col-span-1 sm:justify-end">
@@ -302,14 +343,12 @@ function PartnerManagePage() {
               Incentives & Support
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Tax credits, grants, sponsorships, inclusive-hiring resources,
-              and accessibility supports — plain language, with links to
-              authoritative sources.
+              Tax credits, grants, sponsorships, inclusive-hiring resources, and accessibility
+              supports — plain language, with links to authoritative sources.
             </p>
           </div>
           <Sparkles className="h-5 w-5 shrink-0 text-primary" />
         </Link>
-
 
         <Tabs defaultValue="opportunities" className="mt-6">
           <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
@@ -325,10 +364,9 @@ function PartnerManagePage() {
             <OpportunityStatusStats opps={ws.opportunities} />
             <PartnerImpactSummaryCard orgId={org.id} />
 
-
             <div className="flex justify-end">
               <Button onClick={() => setShowForm((s) => !s)}>
-                <Plus className="mr-1 h-4 w-4" /> Create Opportunity
+                <Plus className="mr-1 h-4 w-4" /> {showForm ? "Close editor" : "Create Opportunity"}
               </Button>
             </div>
 
@@ -337,22 +375,31 @@ function PartnerManagePage() {
                 <h2 className="font-display text-lg font-medium">Create Opportunity</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-medium text-muted-foreground">Title</label>
+                    <label
+                      htmlFor="opportunity-title"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Title
+                    </label>
                     <Input
+                      id="opportunity-title"
                       value={form.title}
                       onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                       placeholder="Summer internship in healthcare"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Type</label>
+                    <label
+                      htmlFor="opportunity-type"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Type
+                    </label>
                     <Select
                       value={form.opportunity_type}
-                      onValueChange={(v) =>
-                        setForm((f) => ({ ...f, opportunity_type: v }))
-                      }
+                      onValueChange={(v) => setForm((f) => ({ ...f, opportunity_type: v }))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="opportunity-type">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -365,65 +412,87 @@ function PartnerManagePage() {
                     </Select>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Location</label>
+                    <label
+                      htmlFor="opportunity-location"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Location
+                    </label>
                     <Input
+                      id="opportunity-location"
                       value={form.location}
                       onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
                       placeholder="Hartford, CT"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Age range</label>
+                    <label
+                      htmlFor="opportunity-age-range"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      Age range
+                    </label>
                     <Input
+                      id="opportunity-age-range"
                       value={form.age_range}
                       onChange={(e) => setForm((f) => ({ ...f, age_range: e.target.value }))}
                       placeholder="16–22"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">
+                    <label
+                      htmlFor="opportunity-url"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
                       Application URL
                     </label>
                     <Input
+                      id="opportunity-url"
                       value={form.application_url}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, application_url: e.target.value }))
-                      }
+                      onChange={(e) => setForm((f) => ({ ...f, application_url: e.target.value }))}
                       placeholder="https://"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-medium text-muted-foreground">
+                    <label
+                      htmlFor="opportunity-eligibility"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
                       Eligibility
                     </label>
                     <Input
+                      id="opportunity-eligibility"
                       value={form.eligibility}
                       onChange={(e) => setForm((f) => ({ ...f, eligibility: e.target.value }))}
                       placeholder="Open to students with IEPs ages 16+"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-medium text-muted-foreground">
+                    <label
+                      htmlFor="opportunity-description"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
                       Description
                     </label>
                     <Textarea
+                      id="opportunity-description"
                       rows={4}
                       value={form.description}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, description: e.target.value }))
-                      }
+                      onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                       placeholder="What students will do, learn, and gain."
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">
+                    <label
+                      htmlFor="opportunity-email"
+                      className="text-xs font-medium text-muted-foreground"
+                    >
                       Contact email
                     </label>
                     <Input
+                      id="opportunity-email"
                       value={form.contact_email}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, contact_email: e.target.value }))
-                      }
+                      onChange={(e) => setForm((f) => ({ ...f, contact_email: e.target.value }))}
                       placeholder="programs@example.org"
                     />
                   </div>
@@ -486,11 +555,7 @@ function PartnerManagePage() {
                             <Archive className="mr-1 h-3.5 w-3.5" /> Archive
                           </Button>
                         )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(o.id)}
-                        >
+                        <Button size="sm" variant="ghost" onClick={() => handleDelete(o.id)}>
                           <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
@@ -501,8 +566,8 @@ function PartnerManagePage() {
             </section>
 
             <p className="text-xs text-muted-foreground">
-              Drafts are private. Submit for review when ready — the TransitionForward team
-              approves listings before they appear in family- and student-facing search.{" "}
+              Drafts are private. Submit for review when ready — the TransitionForward team approves
+              listings before they appear in family- and student-facing search.{" "}
               <Link to="/help" className="underline">
                 Questions?
               </Link>
@@ -510,10 +575,7 @@ function PartnerManagePage() {
           </TabsContent>
 
           <TabsContent value="profile" className="mt-4">
-            <ProfileEditor
-              org={org}
-              onSaved={() => reload(org.id)}
-            />
+            <ProfileEditor org={org} onSaved={() => reload(org.id)} />
           </TabsContent>
         </Tabs>
       </div>
@@ -582,9 +644,8 @@ function FirstRunSetup({
       <Briefcase className="h-7 w-7 text-primary" />
       <h1 className="mt-3 font-display text-2xl font-medium">Set up your partner workspace</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Tell us about your organization. We'll create your workspace and you can start
-        drafting opportunities right away. A real person reviews each listing before it's
-        published publicly.
+        Tell us about your organization. We'll create your workspace and you can start drafting
+        opportunities right away. A real person reviews each listing before it's published publicly.
       </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -690,10 +751,7 @@ function ProfileEditor({ org, onSaved }: { org: PartnerOrg; onSaved: () => void 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="text-xs font-medium text-muted-foreground">Name</label>
-          <Input
-            value={v.name}
-            onChange={(e) => setV((s) => ({ ...s, name: e.target.value }))}
-          />
+          <Input value={v.name} onChange={(e) => setV((s) => ({ ...s, name: e.target.value }))} />
         </div>
         <div>
           <label className="text-xs font-medium text-muted-foreground">Website</label>
@@ -712,17 +770,11 @@ function ProfileEditor({ org, onSaved }: { org: PartnerOrg; onSaved: () => void 
         </div>
         <div>
           <label className="text-xs font-medium text-muted-foreground">City</label>
-          <Input
-            value={v.city}
-            onChange={(e) => setV((s) => ({ ...s, city: e.target.value }))}
-          />
+          <Input value={v.city} onChange={(e) => setV((s) => ({ ...s, city: e.target.value }))} />
         </div>
         <div>
           <label className="text-xs font-medium text-muted-foreground">State</label>
-          <Input
-            value={v.state}
-            onChange={(e) => setV((s) => ({ ...s, state: e.target.value }))}
-          />
+          <Input value={v.state} onChange={(e) => setV((s) => ({ ...s, state: e.target.value }))} />
         </div>
         <div className="sm:col-span-2">
           <label className="text-xs font-medium text-muted-foreground">Address</label>
