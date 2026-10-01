@@ -1,3 +1,4 @@
+import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -106,6 +107,7 @@ function DashboardErrorShell({ message }: { message: string | null }) {
 
 function DashboardPageGuarded() {
   return (
+    <OwnerWorkspaceGate>
     <RoleGuard
       path="/dashboard"
       allow={["family", "student", "educator", "admin"]}
@@ -116,6 +118,7 @@ function DashboardPageGuarded() {
         <DashboardPage />
       </DashboardErrorBoundary>
     </RoleGuard>
+    </OwnerWorkspaceGate>
   );
 }
 
@@ -223,6 +226,10 @@ function DashboardPage() {
     fetchRoles()
       .then((r) => {
         const aud = audiencesForRoles(r.roles);
+        if (aud.has("admin")) {
+          navigate({ to: "/owner", replace: true });
+          return;
+        }
         const studentOnly = aud.size > 0 && aud.has("student") && aud.size === 1;
         setIsStudentOnly(studentOnly);
         if (studentOnly) {

@@ -39,6 +39,10 @@ const TYPE_META: Record<
   CalendarEventType,
   { label: string; dot: string; chip: string }
 > = {
+  prep: { label: "Prep", dot: "bg-amber-500", chip: "bg-amber-500/10 text-amber-700 ring-amber-500/25" },
+  deadline: { label: "Deadlines", dot: "bg-rose-500", chip: "bg-rose-500/10 text-rose-700 ring-rose-500/25" },
+  team: { label: "Team events", dot: "bg-violet-500", chip: "bg-violet-500/10 text-violet-700 ring-violet-500/25" },
+  personal: { label: "Personal", dot: "bg-emerald-500", chip: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/25" },
   meeting: {
     label: "Meetings",
     dot: "bg-primary",
@@ -164,6 +168,7 @@ function toIcs(events: CalendarEvent[]): string {
 
 export interface TransitionCalendarProps {
   events: CalendarEvent[];
+  eventTypes?: CalendarEventType[];
   initialView?: CalendarView;
   /** Called when the user clicks Add Event; if omitted, button is hidden. */
   onAddEvent?: () => void;
@@ -182,6 +187,7 @@ export interface TransitionCalendarProps {
 
 export function TransitionCalendar({
   events,
+  eventTypes = ["meeting", "action-item", "document", "report", "opportunity", "milestone", "program"],
   initialView = "month",
   onAddEvent,
   addEventHref,
@@ -390,7 +396,7 @@ export function TransitionCalendar({
         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Filter By Type
         </span>
-        {(Object.keys(TYPE_META) as CalendarEventType[]).map((t) => {
+        {eventTypes.map((t) => {
           const meta = TYPE_META[t];
           const on = activeTypes.has(t);
           return (

@@ -47,6 +47,8 @@ import {
   type CalendarEvent as IcsEvent,
 } from "@/lib/calendar-events";
 
+import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
+
 const TIMEZONES = [
   { value: "America/New_York", label: "Eastern" },
   { value: "America/Chicago", label: "Central" },
@@ -394,6 +396,7 @@ export function DashboardCalendar({
         </div>
       </div>
 
+      {compact ? <>
       <div className="mt-4 flex items-center justify-between">
         <button
           type="button"
@@ -479,6 +482,27 @@ export function DashboardCalendar({
           );
         })}
       </div>
+
+      </> : (
+        <div className="mt-4">
+          <TransitionCalendar
+            events={filteredEvents.map((event) => ({
+              id: event.id,
+              title: event.title,
+              start: `${event.event_date}T${event.all_day ? "00:00:00" : event.start_time || "00:00:00"}`,
+              location: event.location ?? undefined,
+              allDay: event.all_day,
+              type: event.kind === "action" ? "action-item" : event.kind,
+              scope: event.student_name ?? undefined,
+              description: event.detail ?? undefined,
+              owner: event.owner_name ?? undefined,
+            }))}
+            eventTypes={["meeting", "action-item", "prep", "deadline", "team", "personal"]}
+            emptyStateTitle={loading ? "Loading calendar…" : "Nothing on the calendar yet."}
+            emptyStateBody="Meetings, action items, preparation deadlines, and your private or team events appear here."
+          />
+        </div>
+      )}
 
       <div className="mt-6">
         <div className="flex items-center justify-between">

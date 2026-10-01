@@ -12,6 +12,29 @@ export function paymentsClientTokenMode(token) {
   return "unknown";
 }
 
+// Hosted preview builds may omit server-only APP_ENV. Recover it only from
+// an explicit staging label paired with the exact isolated backend identity.
+export function resolveLovableBuildAppEnv({ runtimeEnv = {}, publicBuildEnv = {} } = {}) {
+  const explicit = firstNonEmpty(runtimeEnv.APP_ENV);
+  if (explicit) return explicit;
+  const label = firstNonEmpty(runtimeEnv.VITE_APP_ENV, publicBuildEnv.VITE_APP_ENV);
+  if (label !== "staging") return "";
+  const publicUrl = firstNonEmpty(runtimeEnv.VITE_SUPABASE_URL, publicBuildEnv.VITE_SUPABASE_URL);
+  const serverUrl = firstNonEmpty(runtimeEnv.SUPABASE_URL);
+  const isolatedUrl = "https://qgrertkqbwanerqqemph.supabase.co";
+  const isIsolated = (value) => {
+    try {
+      const url = new URL(value);
+      return url.origin === isolatedUrl && !url.username && !url.password &&
+        url.pathname === "/" && !url.search && !url.hash;
+    } catch { return false; }
+  };
+  if (!isIsolated(publicUrl) || (serverUrl && !isIsolated(serverUrl))) {
+    throw new Error("Hosted staging build requires the exact isolated staging Supabase identity.");
+  }
+  return "staging";
+}
+
 export function isIsolatedLovableStagingBuild({
   isLovableSandbox = false,
   appEnv = "",

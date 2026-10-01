@@ -5,8 +5,13 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { DemoPathwayBuilder } from "../../src/components/demo/DemoPathwayBuilder";
 
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ to, children, ...props }: ComponentPropsWithoutRef<"a"> & { to: string }) => (
-    <a href={to} {...props}>
+  Link: ({
+    to,
+    search,
+    children,
+    ...props
+  }: ComponentPropsWithoutRef<"a"> & { to: string; search?: Record<string, string> }) => (
+    <a href={search ? `${to}?${new URLSearchParams(search)}` : to} {...props}>
       {children}
     </a>
   ),
@@ -58,7 +63,7 @@ describe("shared Pathway Builder demo", () => {
     await screen.findByRole("region", { name: "How your inputs inform the report" });
     expect(
       screen.getByRole("link", { name: "Read the sample Pathway Report" }).getAttribute("href"),
-    ).toBe("/demo/report");
+    ).toBe("/demo/report?example=builder&role=family");
     expect(screen.getByText(/separate prepared example/)).not.toBeNull();
   });
 

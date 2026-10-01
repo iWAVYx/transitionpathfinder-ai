@@ -2,6 +2,325 @@
 
 ## September 30 — demo parity and authorized staging release
 
+### Immediate dependency: isolated Lovable AI staging
+
+- GitHub alignment resumed: PR #198 is open/draft/mergeable; previous remote
+  failures were the dependency audit and four obsolete report role-tab
+  assertions. Updated only brace-expansion patch resolutions and undici's
+  security pin; frozen Bun 1.3.3 install and high-severity audit pass. Updated
+  accessibility assertions to the existing role toggle-button group and added
+  keyboard activation/selection checks. TypeScript and 1,201 unit tests pass.
+  Fresh browser CI is still required. These dependency changes supersede v6 as
+  the final release candidate; do not claim deployed v5/v6 fingerprint parity
+  with the current candidate. Stage the reviewed work in PR #198 without merge
+  or deployment, then align both staging hosts after approval.
+
+- Owner/calendar candidate v6 prepared: local full release build and diff check
+  pass, following 1,201 unit tests and TypeScript. Archive comparison confirms
+  only six runtime files differ from verified v5 (owner routing plus calendar).
+  Fingerprint `1e96f50c62b5141cc01718f7fb5029fde7d4f64b34fa8d4a7d3e206648ade750`,
+  1,061 files. No environment files, migrations or credentials included. Private
+  staging sync/build instructions include owner direct-dashboard/refresh/home
+  routing, ordinary family access and full calendar desktop/mobile checks.
+  Hosted deployment and browser checks are not performed yet. This does not
+  satisfy protected-main/cross-host report-acceptance prerequisites.
+
+- Owner routing fix implemented locally: `/dashboard` previously checked only
+  ordinary roles and let family/student roles override its admin redirect.
+  New OwnerWorkspaceGate checks authoritative platform-admin status before any
+  family dashboard mounts, routes owners/admins to `/owner`, and offers retry
+  on lookup failure. The admin-role server function now propagates query errors
+  instead of treating them as no admin membership. Ordinary admin audience also
+  takes precedence over family in the legacy dashboard resolver. Three behavior
+  regressions cover owner redirect/no family mount, normal family access and
+  retry after error. Browser/sign-in verification and deployment remain pending;
+  this local fix is not part of the verified Lovable v5 archive.
+
+- Post-smoke acceptance preparation: full current local Vitest suite passed
+  1,198 tests across 116 files. Reviewed the protected acceptance workflow:
+  main-only, exact Cloudflare SHA and cross-host source parity are mandatory.
+  These gates are not yet met by the separate Lovable v5 archive and current
+  local calendar candidate. No live report generated. Read-only PR #198 status
+  attempt timed out in automatic permission review (not a safety denial), so
+  current remote review/check status is unverified. Next finish candidate review
+  and source alignment before requesting any previously unauthorized merge or
+  staging deployment; preserve all existing workflow gates.
+
+- PASSED — owner-reported external staging synthetic AI smoke test:
+  October 1, 2026 at 4:40:09 PM America/New_York; 1,113 ms latency,
+  seven synthetic identifiers removed, no records saved. This verifies a
+  successful real managed-provider response through the fixed-input redaction
+  flow and owner UI. Full Pathway Report generation, evidence quality,
+  persistence, role visibility and exports remain unverified by this probe.
+  Next align the reviewed source across the acceptance targets and validate
+  a fictional student/report workflow in staging. No production AI or payment
+  transaction is implied by this result.
+
+- Next-step owner synthetic AI probe reviewed: `/owner/health`, button
+  "Run synthetic AI test". Authenticated platform_owner required; fixed
+  fictional redacted input, Gemini 2.5 Flash, 20-second timeout, no database
+  writes or user uploads. Live run remains NOT performed: browser access to
+  the isolated preview was blocked, so owner execution is required. Capture
+  the displayed pass/latency/redaction count or exact failure once; do not
+  retry automatically or treat this probe as full report acceptance.
+
+- RESOLVED — owner supplied external signed-in v5 health: approved hostname,
+  both staging labels, isolated backend `qgrertkqbwanerqqemph`, public/server/
+  overall Stripe modes `sandbox`, livemode false, managed AI configured, exact
+  fingerprint `2d7a8285dd6e38bc6cac7aba8d3ef9c2f7b33d077e613018ce9d9878a7d1fec0`,
+  1,060 files, and isolation.ok true with no errors. Commit remains honestly
+  reported as `dev`; the explicitly approved exact-host fingerprint policy
+  provides identity for this non-Git-connected preview. Stripe mode setup and
+  external v5 identity readiness are complete. This is configuration evidence,
+  not proof of working checkout, credential account pairing, AI generation or
+  full release acceptance. Next scope the owner-only synthetic AI smoke test;
+  protected cross-host acceptance still requires reviewed-source alignment.
+  Production is unchanged; no transactions or AI calls performed in this check.
+
+- Owner relayed v5 workspace health after payment setup: staging labels/backend,
+  public and server Stripe test modes, exact v5 digest/1,060 files, and only a
+  localhost-hostname failure. This is reported internal evidence, not external
+  acceptance. External health navigation was blocked by the browser client;
+  owner-signed-in external JSON remains required to confirm sandbox modes and
+  isolation.ok on the approved hostname after the hosted rebuild. No checkout,
+  credential validity/account-pairing test or AI request has been performed.
+
+- Owner explicitly authorized sandbox Stripe linking/configuration and a
+  staging-only source-fingerprint identity policy. Implemented the identity
+  exception only for the exact isolated Lovable hostname, both staging labels,
+  exact staging backend and valid computed fingerprint/schema/file count.
+  Stripe and forbidden-secret checks remain mandatory; other staging hosts
+  and production retain Git identity rules. Twenty staging identity checks
+  pass. Prepared v5 archive from v4 plus only the two identity/health files,
+  excluding newer calendar changes; expected fingerprint
+  `2d7a8285dd6e38bc6cac7aba8d3ef9c2f7b33d077e613018ce9d9878a7d1fec0`.
+  Browser auto-review denied opening the exact authorized Lovable project,
+  citing broad-origin exposure. No workaround attempted. Stripe configuration
+  remains unperformed; consolidated owner/Lovable handoff prepared. No keys
+  retrieved, new connection established, publish, migration or AI request.
+
+- Stop repeating the resolved preview activation investigation: owner supplied
+  external v4 proof already. Later copied build-status replies do not reopen it.
+  Stripe sandbox configuration and genuine hosted build metadata remain the
+  distinct pending readiness questions; advance independent roadmap work.
+- Calendar parity follow-up implemented locally: full DashboardCalendar now
+  renders the same TransitionCalendar month/week/agenda surface as role demos.
+  Real loading/mutations, organization and student scope, visibility selection,
+  timezone-aware existing exports and event-management controls remain in the
+  signed-in wrapper; compact dashboard calendars retain their compact grid.
+  Shared calendar supports actual prep/deadline/team/personal kinds without
+  disguising them as sample categories. Focused rendering/context tests pass.
+  Browser visual comparison and signed-in end-to-end verification are pending;
+  do not mark all-tool parity complete. This is newer local source than v4 and
+  has not been deployed or included in the already verified v4 archive.
+
+- Readiness configuration preflight prepared after external v4 confirmation:
+  inspect authentic hosted-build commit metadata and this isolated project's
+  existing sandbox Stripe connection before configuring anything. Code requires
+  both sandbox public-token and server-credential proof; a public token alone
+  cannot pass health. Do not assume workspace HEAD is the hosted build commit
+  or substitute the GitHub SHA. Read-only instructions saved as
+  `/private/tmp/transitionforward-staging-readiness-preflight.txt`; external
+  settings access remains a user-assisted step. No new runtime source changes.
+
+- External v4 activation CONFIRMED by the owner's pasted signed-in health
+  response: exact fingerprint
+  `6dfbe39fb72b798e35e5cb89002160e85673faec6cca0dd1ca28d4f569871a9d`,
+  1,060 files, approved external hostname, both staging labels, isolated backend
+  `qgrertkqbwanerqqemph`, and managed AI configured. Source synchronization and
+  hosted-preview activation are complete for v4. Health still fails on TWO
+  distinct items: Stripe mode unknown and git_commit_sha `dev`. Next resolve
+  staging-only payment proof and authentic hosted build identity; never label
+  the copied source with a fabricated GitHub commit. Fingerprint remains the
+  authoritative cross-host code-parity evidence. Protected end-to-end acceptance
+  also still requires alignment with the reviewed Cloudflare release. No AI
+  request or production action was performed to obtain this evidence.
+
+- Hosted build completion reported by Lovable: 2026-10-01 15:10:15 UTC,
+  "build OK", no errors; no version/build identifier supplied. Earlier old
+  health observations are not proof this completed build failed to activate.
+  A new-tab external health check after this report was blocked by the browser
+  client (`ERR_BLOCKED_BY_CLIENT`), so external v4 activation remains unverified.
+  Next owner-signed-in fresh health response must confirm v4/1,060 files before
+  escalating activation to Lovable support. Do not repeat builds/source sync
+  solely because the agent browser cannot complete this check.
+
+- v4 follow-up: Lovable reports a successful frozen install and build:dev with
+  APP_ENV and LOVABLE_SANDBOX removed, unchanged v4 fingerprint/1,060 files,
+  staging backend and no actual live Stripe token in the built output. The
+  platform-hosted build was still expected to run after its reply. External
+  browser reload during this check still displayed the old 1,028-file health
+  response; a follow-up request with a fresh query was blocked by the browser
+  client. Therefore external v4 activation remains unverified (including the
+  possibility of a stale response); do not infer another source failure from
+  this observation. Next obtain completion of the platform-hosted build and
+  confirm external health shows `6dfbe39fb72b798e35e5cb89002160e85673faec6cca0dd1ca28d4f569871a9d`.
+
+- October 1 hosted-preview root cause and v4 correction: Lovable reports its
+  fixed hosted command is `build:dev`; manually building another script never
+  activates that output externally. Added narrowly scoped build-time recovery
+  of missing APP_ENV from an explicit staging VITE label and the exact isolated
+  backend URL. Explicit APP_ENV is preserved, conflicting backend URLs fail,
+  and production/payment guards remain intact. The development-mode full build
+  passes with APP_ENV omitted and the existing Lovable workspace marker, using
+  dummy credentials; TypeScript and 27 focused checks pass. Prepared v4 runtime
+  archive and instructions. Hosted activation and frozen install remain to be
+  verified by Lovable; external health and Stripe readiness remain open. No
+  deployment, migration, AI call, secret change or production action performed.
+
+- October 1 v3 remote report: owner relayed a successful frozen Bun install,
+  unchanged 1,060-file v3 fingerprint before/after a successful 22.8-second
+  `build:isolated-staging` build, and the correct staging backend. Internal
+  health reports v3, managed AI configured, Stripe unknown and localhost
+  rejected. A conflicting "Build unsuccessful" platform banner remains
+  unexplained. Independent signed-in browser reload of the approved external
+  health URL STILL returned `4283df949d630f0800e4d6f698d191251ed98782c33e697e5154083adc972fe0`,
+  1,028 files and commit `dev`. External hostname and staging backend are
+  correct. Therefore the internal successful build has not been verified on
+  the external private preview; Stripe is not its only outstanding issue.
+  Next diagnose private-preview serving/activation and the conflicting banner
+  without publishing. Do not repeat source synchronization or modify guards
+  solely to fix a routing/activation problem. No AI call or production action.
+
+- October 1 local reconciliation: adopted the exported 2.23.1 build-package
+  manifest/lock and generated staging types after reviewing the complete diff.
+  Verified the package tarball against the official npm integrity value before
+  installing that package locally. The new `build:isolated-staging` command
+  explicitly supplies both staging labels and the Lovable build flag; ordinary
+  production scripts and guards are unchanged. TypeScript and 26 focused
+  build/source-identity checks pass, and a local full build with inert backend
+  overrides succeeds. This does not prove a fresh Bun frozen install or a remote
+  Lovable build. Replacement archive v3 has 1,060 files and fingerprint
+  `95330a31a8e43f0036c69f9bd25a32fb96c35d30d24a3de3bbd56e4b7e74f29c`.
+  Next perform a frozen install and explicit staging build in the isolated
+  project, then verify external health. No merge, deployment, migration,
+  production access or AI request was performed.
+
+- Reviewed owner-provided `transitionforward-staging-build-failure_v2.zip`:
+  `vite.config.ts` and `scripts/resolve-public-build-inputs.mjs` match the
+  supplied archive byte-for-byte. The recorded failing command is
+  `bun run build:dev`, with no explicit staging variable assignments recorded;
+  the log demonstrates production-profile selection, but does not establish
+  the inherited build environment. Bun is 1.3.3 and Node is v22.22.0.
+  Package changes are limited to the Lovable config upgrade 2.21.0 -> 2.23.1,
+  its registry/integrity metadata and additional optional router-generator peer.
+  Generated types retain the channel-history tables and RPCs (reordered), add
+  relationship metadata and removal helpers, change some nullability, and omit
+  `email_queue_dispatch`. Thus the type diff is not merely formatting and does
+  not justify a migration or blind replacement. The source does contain the
+  staging-safe profile; build-time label delivery and the three managed-file
+  differences remain separate issues. No imported source or dependency changes
+  were applied during this review.
+
+- Latest isolated-workspace report: frozen dependency installation failed;
+  Lovable reportedly rewrites `@lovable.dev/vite-tanstack-config` from 2.21.0
+  to 2.23.1 in `package.json` and `bun.lock`, and regenerates
+  `src/integrations/supabase/types.ts` from its attached backend. Reported digest
+  is `3bdb89fb3063a73101cc278104a1bf68767447c08fdc9e1fe369f945557dce13`
+  across 1,060 files. These three actual files/diffs must be obtained and
+  reviewed before deciding whether to adopt the platform dependency version or
+  reconcile generated types. Local source and installed build config remain
+  2.21.0. A generated-type difference may expose schema drift; do not overwrite
+  reviewed types blindly or migrate to make a fingerprint match. Do not exclude
+  these files from the digest or approve a new digest solely to bypass parity.
+  No further remote build, preview refresh, dependency update or AI test has
+  been verified. Next obtain a read-only export of the three files plus package
+  manager versions, review differences locally, and test a reviewed candidate.
+
+- Follow-up build diagnosis: Lovable reported the full build selected the
+  production profile and automatic dependency installation changed `bun.lock`.
+  The supplied archive already includes the isolated-staging profile; all 1,060
+  archive files still match the local checkout and its fingerprint remains
+  `ddee81697a0fccd79073a39cdc921fb98c779a0369bda8c10711f1ef2bfb743b`.
+  Nineteen focused build-profile checks pass. A local full Vite build with
+  `LOVABLE_SANDBOX=1 APP_ENV=staging VITE_APP_ENV=staging` succeeded using
+  inert local backend overrides. This supports a build-process environment
+  mismatch, not a need to require production labels or live keys. Next restore
+  the archive lockfile in the isolated workspace, use a frozen dependency
+  install, and supply both staging labels explicitly to its full-build command.
+  Do not accept a changed digest or relabel production to force a pass.
+
+- September 30 source-sync follow-up: the owner relayed Lovable's successful
+  archive checksum and byte-for-byte workspace comparison: runtime fingerprint
+  `ddee81697a0fccd79073a39cdc921fb98c779a0369bda8c10711f1ef2bfb743b`,
+  1,060 files. Lovable reported a restarted development preview/home HTTP 200,
+  not a completed full build; a restart log error remains uninvestigated.
+  Independent browser refresh of the approved external preview health URL still
+  returned the previous `4283df…72fe0` fingerprint, 1,028 files and commit `dev`.
+  Its hostname is the correct allowed preview hostname, not localhost. Therefore
+  workspace synchronization is reported complete but externally served source
+  parity is NOT verified. Next resolve the private preview restart/build or
+  routing discrepancy, then verify the full expected fingerprint externally.
+  Stripe remains unknown. Lovable's own history commit must not be represented
+  as the GitHub source commit; the runtime fingerprint proves code parity.
+  No publishing, AI requests, secrets, migrations or production changes made.
+
+- Configure/verify AI staging before claiming generated-report parity, not after
+  the remaining roadmap. Cloudflare UI staging reporting AI unconfigured is not
+  evidence that production AI is unavailable. The approved AI test target is the
+  separate Lovable isolated-staging project pinned by pathway-live-staging-qa.yml.
+- Do not copy production's managed AI credential into Cloudflare or GitHub.
+  Synchronize the isolated Lovable project's runtime source, verify staging
+  Supabase/sandbox payment identity, then run its owner-only synthetic AI smoke
+  test and the existing exact-source Pathway staging workflow.
+- Read-only health verification of the isolated preview returned Unauthorized.
+  After owner sign-in, browser health verified managed AI is already configured
+  (`ai_gateway_configured=true`, `ai_runtime=lovable-managed`), both environment
+  labels are staging, and the database is `qgrertkqbwanerqqemph`.
+  Current blockers: Stripe mode unknown; commit identity `dev`; runtime fingerprint
+  `4283df949d630f0800e4d6f698d191251ed98782c33e697e5154083adc972fe0`
+  across 1,028 files, different from the deployed Cloudflare release. Isolation
+  remains false. No AI call, secret change, payment setup or production change
+  was performed. Next: synchronize the reviewed runtime source, resolve exact
+  build identity and staging-only payment configuration, then run synthetic AI
+  acceptance. Do not disable the existing acceptance guards to skip these gaps.
+
+- Post-release viewer parity: Pathway Builder's prepared-report links now open
+  the actual ReportView with the matching Maya baseline, selected Family/Educator
+  audience, demo mode, no student identifier and no save/regenerate callbacks.
+  The notice distinguishes prepared content from edited answers. Browser verified
+  rendering and return to the builder's saved eighth step. Other three-profile
+  demo report views still use the older demo renderer and need reconciliation.
+  No public generation endpoint is enabled; public abuse controls and configured
+  AI runtime remain dependencies. This follow-up remains local.
+
+- Post-release generation preparation: extracted the live intake schema, report
+  schema and prompt into a shared contract, and the model call into a server-only
+  content generator with no database writes. The authenticated handler retains
+  authorization, entitlements and persistence. Provider output is explicitly
+  validated rather than cast. Mocked-provider tests cover missing configuration,
+  invalid input/output and preservation of richer builder context. No public AI
+  endpoint or provider configuration was introduced; sample-only access controls
+  and actual-provider validation remain open.
+
+- Post-release report reuse prerequisite: shared ReportView demo mode now skips
+  live student-voice requests, opportunity pipeline and student partner matching,
+  plus server preference hydration. Live preference pushers disconnect on unmount
+  and ignore subsequent unsynced changes, preventing a prior signed-in report's
+  callback from receiving demo interactions. Lifecycle regression added;
+  1,189 unit tests and TypeScript pass locally.
+- Generation dependency confirmed in code: createPathwayReport requires the
+  configured AI provider and writes authenticated intake/report records. It must
+  not be called from the public demo. A separate sample-only generation boundary
+  and configured staging AI runtime remain required for actual engine parity.
+
+- Post-release input handoff: submitting the demo builder now renders an
+  input-based planning draft in the real report's shared stage body. Submitted
+  voice, goals, supports, family/educator input and reported evidence populate
+  their sections; omitted fields remain explicitly missing. Removed the duplicate
+  input-summary list. Browser verified the fictional Maya draft after eight steps.
+  1,188 unit tests pass, including changed-input and markup-escaping coverage.
+  This is local, deterministic input organization, not readiness assessment,
+  verified evidence or live engine recommendations. Full generated-report parity
+  remains open; the separately labeled prepared report is still available.
+
+- Post-release local parity pass: extracted the real Pathway Builder's cover,
+  hero image, heading, progress wording and form styling into shared presentation
+  used by both builders. Demo retains sample labeling and a prepared-report link;
+  live retains saved reports. Questions and role applicability remain shared.
+  This follow-up is not included in deployed `96caed9f`. Input-to-generated-report
+  parity remains open; presentation sharing does not close that requirement.
+
 - Owner acceptance standard: any real-product feature represented in the demo
   must match its signed-in layout, role applicability, navigation, and workflow.
   Use shared components with clearly labeled sample data; simulated operations

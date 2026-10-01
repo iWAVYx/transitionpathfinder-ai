@@ -15,6 +15,10 @@
  */
 
 export type CalendarEventType =
+  | "prep"
+  | "deadline"
+  | "team"
+  | "personal"
   | "meeting"
   | "action-item"
   | "document"

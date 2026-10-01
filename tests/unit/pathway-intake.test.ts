@@ -82,7 +82,7 @@ describe("live Pathway intake", () => {
     for (const field of PATHWAY_ENGINE_CONTEXT_FIELDS) {
       expect(route, `${field} visible form control`).toContain(`form.register("${field}")`);
       expect(server, `${field} persistence`).toContain(`${field}: data.${field} || null`);
-      expect(server, `${field} report generation`).toContain(`intake.${field}`);
+      expect(readFileSync(resolve("src/lib/pathway-generation-contract.ts"), "utf8"), `${field} report generation`).toContain(`intake.${field}`);
     }
   });
 });

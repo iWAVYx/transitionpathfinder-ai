@@ -115,7 +115,7 @@ describe("live-student Pathway intake alignment", () => {
   });
 
   it("authorizes and links both intake and report at creation time", () => {
-    expect(SERVER).toContain("student_id: z.string().uuid().optional()");
+    expect(readFileSync("src/lib/pathway-generation-contract.ts", "utf8")).toContain("student_id: z.string().uuid().optional()");
     expect(SERVER).toContain('action: "edit"');
     expect(SERVER).toContain("resourceId: data.student_id");
     expect(SERVER.match(/student_id: data\.student_id \?\? null/g)).toHaveLength(2);

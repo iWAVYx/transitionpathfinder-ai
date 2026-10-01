@@ -1,9 +1,15 @@
 export type PaymentsEnvironment = "sandbox" | "live" | "unknown";
 
 export interface PublicBuildEnvironment {
+  VITE_SUPABASE_URL?: string;
   VITE_APP_ENV?: string;
   VITE_PAYMENTS_CLIENT_TOKEN?: string;
 }
+
+export function resolveLovableBuildAppEnv(input?: {
+  runtimeEnv?: Record<string, string | undefined>;
+  publicBuildEnv?: PublicBuildEnvironment;
+}): string;
 
 export interface PublicBuildInputs {
   viteAppEnv: string;

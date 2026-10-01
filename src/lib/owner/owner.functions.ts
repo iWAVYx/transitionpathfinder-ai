@@ -206,10 +206,11 @@ export const getMyAdminRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("admin_roles")
       .select("role, granted_at")
       .eq("user_id", userId);
+    if (error) throw new Error("Could not verify platform administrator access.");
     const roles = (data ?? []).map((r: any) => r.role as AdminRole);
     return {
       roles,

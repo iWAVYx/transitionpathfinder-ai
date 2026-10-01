@@ -124,6 +124,9 @@ export const Route = createFileRoute("/api/public/env-health")({
             stripeMode: stripe_mode,
             gitCommitSha: git_commit_sha,
             productionSecretsPresent: FORBIDDEN_IN_STAGING.filter((name) => !!process.env[name]),
+            runtimeSourceFingerprint: runtime_source_fingerprint,
+            runtimeSourceSchema: runtime_source_fingerprint_schema,
+            runtimeSourceFileCount: runtime_source_file_count,
           });
         } else if (productionTarget) {
           isolation = evaluateProductionIdentity({

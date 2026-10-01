@@ -62,6 +62,9 @@ export function appEnv(): AppEnv {
 }
 
 export interface StagingIdentityInput {
+  runtimeSourceFingerprint?: string;
+  runtimeSourceSchema?: string;
+  runtimeSourceFileCount?: number;
   appEnv: string | undefined | null;
   viteAppEnv: string | undefined | null;
   hostname: string;
@@ -221,7 +224,15 @@ export function evaluateStagingIdentity(input: StagingIdentityInput): IdentityVe
     errors.push(`"${input.hostname}" is not an allowed staging hostname.`);
   }
 
-  if (!/^[a-f0-9]{40}$/i.test(input.gitCommitSha ?? "")) {
+  const isolatedSourceIdentity =
+    input.hostname === STAGING_LOVABLE_AI_HOSTNAME &&
+    input.appEnv === "staging" && input.viteAppEnv === "staging" &&
+    input.supabaseProjectRef === STAGING_PROJECT_REF &&
+    /^[a-f0-9]{64}$/.test(input.runtimeSourceFingerprint ?? "") &&
+    input.runtimeSourceSchema === "transitionforward-runtime-source-v1" &&
+    Number.isSafeInteger(input.runtimeSourceFileCount) &&
+    (input.runtimeSourceFileCount ?? 0) > 0;
+  if (!isolatedSourceIdentity && !/^[a-f0-9]{40}$/i.test(input.gitCommitSha ?? "")) {
     errors.push("GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA.");
   }
 

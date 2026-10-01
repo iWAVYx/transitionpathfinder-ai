@@ -333,3 +333,16 @@ test("missing, malformed, or cross-environment tokens fail closed", () => {
     { environment: "live", clientToken: "" },
   );
 });
+
+test("hosted preview recovers missing APP_ENV only with explicit isolated identity", async () => {
+  const { resolveLovableBuildAppEnv } = await import('../scripts/resolve-public-build-inputs.mjs');
+  const publicBuildEnv = { VITE_APP_ENV: 'staging', VITE_SUPABASE_URL: 'https://qgrertkqbwanerqqemph.supabase.co' };
+  assert.equal(resolveLovableBuildAppEnv({ publicBuildEnv }), 'staging');
+  assert.equal(resolveLovableBuildAppEnv({ runtimeEnv: { APP_ENV: 'production' }, publicBuildEnv }), 'production');
+  assert.equal(resolveLovableBuildAppEnv({ publicBuildEnv: { ...publicBuildEnv, VITE_APP_ENV: 'production' } }), '');
+  assert.equal(resolveLovableBuildAppEnv(), '');
+  for (const url of ['', 'https://lrqcntqyekucamifpffs.supabase.co', 'https://qgrertkqbwanerqqemph.supabase.co.evil.test', 'http://qgrertkqbwanerqqemph.supabase.co']) {
+    assert.throws(() => resolveLovableBuildAppEnv({ publicBuildEnv: { ...publicBuildEnv, VITE_SUPABASE_URL: url } }), /exact isolated/);
+  }
+  assert.throws(() => resolveLovableBuildAppEnv({ publicBuildEnv, runtimeEnv: { SUPABASE_URL: 'https://lrqcntqyekucamifpffs.supabase.co' } }), /exact isolated/);
+});

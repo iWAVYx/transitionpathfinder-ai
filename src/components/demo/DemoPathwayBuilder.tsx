@@ -12,8 +12,6 @@ import {
 } from "@/lib/pathway-intake";
 import {
   STEPS,
-  stepHeading,
-  stepSubhead,
   Stepper,
   ProgressBar,
   StepRole,
@@ -26,6 +24,13 @@ import {
   StepVoices,
   StepNav,
 } from "@/components/pathway/PathwayBuilderSteps";
+
+import {
+  PathwayBuilderHeader,
+  PATHWAY_FORM_CLASS,
+} from "@/components/pathway/PathwayBuilderHeader";
+
+import { DemoInputPlanningDraft } from "./DemoInputPlanningDraft";
 
 const DRAFT_KEY = "tf:demo:pathway-builder:v1";
 const DraftSchema = z.object({
@@ -89,75 +94,72 @@ export function DemoPathwayBuilder() {
   }
   return (
     <SiteShell>
-      <div className="demo-shell mx-auto w-full max-w-4xl px-4 py-6 sm:px-6">
+      <div className="demo-shell mx-auto w-full max-w-4xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
         <Link to="/demo" className="text-sm font-medium text-primary hover:underline">
           ← Back to demo
         </Link>
-        <header className="my-5 rounded-2xl border bg-card p-5 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-            Pathway Builder · Sample only · Step {step + 1} of {STEPS.length}
-          </p>
-          <h1 className="mt-2 font-display text-3xl">{stepHeading(step, role)}</h1>
-          <p className="mt-2 text-sm text-foreground/75">{stepSubhead(step, true)}</p>
-          <p className="mt-3 text-sm text-foreground/75">
-            Try the same questions as the signed-in Pathway Builder with fictional answers. Family
-            and educator perspectives are available here; other roles have separate tools.
-          </p>
-        </header>
-        <Stepper
-          current={step}
-          onJump={(index) => {
-            if (index < step) {
-              setStep(index);
-              setReview(null);
-            }
-          }}
-        />
-        <ProgressBar pct={Math.round((step / STEPS.length) * 100)} />
-        <FormProvider {...form}>
-          <form
-            className="mt-5 rounded-2xl border bg-card p-4 sm:p-6"
-            onSubmit={form.handleSubmit(setReview)}
-            data-testid="demo-pathway-builder"
-            noValidate
-          >
-            {step === 0 && (
-              <StepRole
-                role={role}
-                allowedRoles={["family", "educator"]}
-                onPick={(value) => form.setValue("submitter_role", value)}
-              />
-            )}
-            {step === 1 && (
-              <StepAbout
-                demo
-                connectedStudents={[]}
-                studentsLoading={false}
-                studentLoadError={false}
-                prefillLoading={false}
-                onStudentChange={() => {}}
-                onExtracted={() => {}}
-              />
-            )}
-            {step === 2 && <StepStrengths />}
-            {step === 3 && <StepCareer />}
-            {step === 4 && <StepLifeSkills />}
-            {step === 5 && <StepPlanningContext />}
-            {step === 6 && <StepCurrentGoals role={role} />}
-            {step === 7 && <StepVoices role={role} />}
-            <StepNav
-              demo
-              stepIndex={step}
-              total={STEPS.length}
-              onBack={() => {
-                setStep((value) => Math.max(0, value - 1));
+        <PathwayBuilderHeader step={step} role={role} demo />
+        <p className="mt-4 text-sm text-foreground/75">
+          Try the same questions as the signed-in Pathway Builder with fictional answers. Family and
+          educator perspectives are available here; other roles have separate tools.
+        </p>
+        <div className="pt-8">
+          <Stepper
+            current={step}
+            onJump={(index) => {
+              if (index < step) {
+                setStep(index);
                 setReview(null);
-              }}
-              onNext={() => void next()}
-              submitting={false}
-            />
-          </form>
-        </FormProvider>
+              }
+            }}
+          />
+          <ProgressBar pct={Math.round((step / STEPS.length) * 100)} />
+          <FormProvider {...form}>
+            <form
+              className={PATHWAY_FORM_CLASS}
+              onSubmit={form.handleSubmit(setReview)}
+              data-testid="demo-pathway-builder"
+              noValidate
+            >
+              {step === 0 && (
+                <StepRole
+                  role={role}
+                  allowedRoles={["family", "educator"]}
+                  onPick={(value) => form.setValue("submitter_role", value)}
+                />
+              )}
+              {step === 1 && (
+                <StepAbout
+                  demo
+                  connectedStudents={[]}
+                  studentsLoading={false}
+                  studentLoadError={false}
+                  prefillLoading={false}
+                  onStudentChange={() => {}}
+                  onExtracted={() => {}}
+                />
+              )}
+              {step === 2 && <StepStrengths />}
+              {step === 3 && <StepCareer />}
+              {step === 4 && <StepLifeSkills />}
+              {step === 5 && <StepPlanningContext />}
+              {step === 6 && <StepCurrentGoals role={role} />}
+              {step === 7 && <StepVoices role={role} />}
+              <StepNav
+                demo
+                stepIndex={step}
+                total={STEPS.length}
+                onBack={() => {
+                  setStep((value) => Math.max(0, value - 1));
+                  setReview(null);
+                }}
+                onNext={() => void next()}
+                submitting={false}
+              />
+            </form>
+          </FormProvider>
+        </div>
+        {review && <DemoInputPlanningDraft values={review} />}
         {review && (
           <section
             className="mt-5 rounded-2xl border bg-card p-5"
@@ -165,58 +167,13 @@ export function DemoPathwayBuilder() {
             aria-live="polite"
           >
             <h2 className="font-display text-2xl">How these inputs inform the report</h2>
-            <dl className="mt-4 space-y-4 text-sm">
-              {[
-                [
-                  "Strengths and interests → pathway exploration",
-                  [review.strengths, review.interests].filter(Boolean).join(" · "),
-                ],
-                [
-                  "Goals → education, work and daily-life planning",
-                  [
-                    review.career_goals,
-                    review.education_goals,
-                    review.desired_postsecondary_outcomes,
-                  ]
-                    .filter(Boolean)
-                    .join(" · "),
-                ],
-                [
-                  "Supports → feasibility and accommodations",
-                  [
-                    review.supports,
-                    review.assistive_technology,
-                    review.accommodations,
-                    review.transportation_needs,
-                  ]
-                    .filter(Boolean)
-                    .join(" · "),
-                ],
-                [
-                  "Evidence and uncertainty → team review",
-                  [
-                    review.readiness_evidence,
-                    review.evidence_source_dates,
-                    review.information_to_verify,
-                  ]
-                    .filter(Boolean)
-                    .join(" · "),
-                ],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt className="font-semibold">{label}</dt>
-                  <dd className="mt-1 whitespace-pre-wrap break-words text-foreground/75">
-                    {value || "Not added yet — the team would need more information."}
-                  </dd>
-                </div>
-              ))}
-            </dl>
             <p className="mt-4 text-sm">
-              Your edits above update this input review. The report below is a separate prepared
+              Your edits above update the planning draft. The linked report is a separate prepared
               example; it is not generated from these edits.
             </p>
             <Link
               to="/demo/report"
+              search={{ example: "builder", role }}
               className="mt-3 inline-block font-semibold text-primary underline"
             >
               Read the sample Pathway Report

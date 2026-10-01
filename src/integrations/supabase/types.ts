@@ -14,90 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      channel_history_grants: {
-        Row: {
-          channel_id: string
-          user_id: string
-          title: string
-          removed_at: string
-        }
-        Insert: {
-          channel_id: string
-          user_id: string
-          title: string
-          removed_at: string
-        }
-        Update: {
-          channel_id?: string
-          user_id?: string
-          title?: string
-          removed_at?: string
-        }
-        Relationships: []
-      }
-      channel_history_messages: {
-        Row: {
-          channel_id: string
-          user_id: string
-          message_id: string
-          body: string
-          author_name: string
-          sent_at: string
-          parent_id: string | null
-        }
-        Insert: {
-          channel_id: string
-          user_id: string
-          message_id: string
-          body: string
-          author_name: string
-          sent_at: string
-          parent_id: string | null
-        }
-        Update: {
-          channel_id?: string
-          user_id?: string
-          message_id?: string
-          body?: string
-          author_name?: string
-          sent_at?: string
-          parent_id?: string | null
-        }
-        Relationships: []
-      }
-      channel_history_attachments: {
-        Row: {
-          channel_id: string
-          user_id: string
-          message_id: string
-          attachment_id: string
-          storage_path: string
-          storage_object_id: string
-          storage_updated_at: string | null
-          file_name: string
-        }
-        Insert: {
-          channel_id: string
-          user_id: string
-          message_id: string
-          attachment_id: string
-          storage_path: string
-          storage_object_id: string
-          storage_updated_at: string | null
-          file_name: string
-        }
-        Update: {
-          channel_id?: string
-          user_id?: string
-          message_id?: string
-          attachment_id?: string
-          storage_path?: string
-          storage_object_id?: string
-          storage_updated_at?: string | null
-          file_name?: string
-        }
-        Relationships: []
-      }
       access_code_redemptions: {
         Row: {
           code_id: string
@@ -1784,6 +1700,128 @@ export type Database = {
             columns: ["target_partner_organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_history_attachments: {
+        Row: {
+          attachment_id: string
+          channel_id: string
+          file_name: string
+          message_id: string
+          storage_object_id: string
+          storage_path: string
+          storage_updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attachment_id: string
+          channel_id: string
+          file_name: string
+          message_id: string
+          storage_object_id: string
+          storage_path: string
+          storage_updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attachment_id?: string
+          channel_id?: string
+          file_name?: string
+          message_id?: string
+          storage_object_id?: string
+          storage_path?: string
+          storage_updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_history_attachments_attachment_id_fkey"
+            columns: ["attachment_id"]
+            isOneToOne: false
+            referencedRelation: "channel_attachments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_history_attachments_channel_id_user_id_message_id_fkey"
+            columns: ["channel_id", "user_id", "message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_history_messages"
+            referencedColumns: ["channel_id", "user_id", "message_id"]
+          },
+        ]
+      }
+      channel_history_grants: {
+        Row: {
+          channel_id: string
+          removed_at: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          removed_at: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          removed_at?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_history_grants_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_history_messages: {
+        Row: {
+          author_name: string
+          body: string
+          channel_id: string
+          message_id: string
+          parent_id: string | null
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name: string
+          body: string
+          channel_id: string
+          message_id: string
+          parent_id?: string | null
+          sent_at: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          body?: string
+          channel_id?: string
+          message_id?: string
+          parent_id?: string | null
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_history_messages_channel_id_user_id_fkey"
+            columns: ["channel_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "channel_history_grants"
+            referencedColumns: ["channel_id", "user_id"]
+          },
+          {
+            foreignKeyName: "channel_history_messages_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
             referencedColumns: ["id"]
           },
         ]
@@ -7633,6 +7671,38 @@ export type Database = {
         }
         Relationships: []
       }
+      student_channel_removals: {
+        Row: {
+          history_access: string
+          removed_at: string
+          removed_by: string | null
+          student_id: string
+          user_id: string
+        }
+        Insert: {
+          history_access: string
+          removed_at?: string
+          removed_by?: string | null
+          student_id: string
+          user_id: string
+        }
+        Update: {
+          history_access?: string
+          removed_at?: string
+          removed_by?: string | null
+          student_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_channel_removals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_collaborators: {
         Row: {
           created_at: string
@@ -9173,14 +9243,6 @@ export type Database = {
       }
     }
     Functions: {
-      remove_student_member: {
-        Args: { p_kind: string; p_id: string; p_history_access: string }
-        Returns: undefined
-      }
-      change_student_team_status: {
-        Args: { p_id: string; p_status: string; p_history_access: string; p_role?: string }
-        Returns: undefined
-      }
       accept_invitation_by_token: {
         Args: { _token: string }
         Returns: {
@@ -9217,6 +9279,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      apply_student_chat_removal: {
+        Args: { p_history: string; p_student: string; p_user: string }
+        Returns: undefined
+      }
       attach_my_pathway_license_to_student: {
         Args: { _student_id: string }
         Returns: boolean
@@ -9239,9 +9305,22 @@ export type Database = {
         Args: { _student_id: string; _user_id: string }
         Returns: boolean
       }
+      can_read_chat_history_attachment: {
+        Args: { p_path: string }
+        Returns: boolean
+      }
       can_view_document: {
         Args: { _document_id: string; _user_id: string }
         Returns: boolean
+      }
+      change_student_team_status: {
+        Args: {
+          p_history_access: string
+          p_id: string
+          p_role?: string
+          p_status: string
+        }
+        Returns: undefined
       }
       channel_retention_purge: {
         Args: never
@@ -9288,7 +9367,6 @@ export type Database = {
           via: string
         }[]
       }
-      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
@@ -9344,7 +9422,7 @@ export type Database = {
           audience: string
           category: string
           created_at: string
-          description: string | null
+          description: string
           schema: Json
           slug: string
           title: string
@@ -9376,7 +9454,7 @@ export type Database = {
           name: string
           planning_rules: Json
           privacy_requirements: Json
-          review_due: string | null
+          review_due: string
           role_labels: Json
           sources: Json
           terminology: Json
@@ -9436,23 +9514,6 @@ export type Database = {
       }
       is_partner_only: { Args: { _user_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
-      list_student_channel_students: {
-        Args: Record<PropertyKey, never>
-        Returns: { student_id: string; student_name: string }[]
-      }
-      list_student_channel_recipients: {
-        Args: { p_student_id: string }
-        Returns: { user_id: string; display_name: string }[]
-      }
-      start_student_channel: {
-        Args: {
-          p_student_id: string
-          p_recipient_id: string
-          p_title: string
-          p_first_message: string
-        }
-        Returns: string
-      }
       issue_license_access_code: {
         Args: {
           _capacity: number
@@ -9495,7 +9556,7 @@ export type Database = {
           audience: string
           category: string
           created_at: string
-          description: string | null
+          description: string
           schema: Json
           slug: string
           title: string
@@ -9505,8 +9566,8 @@ export type Database = {
       list_public_high_school_program_tags: {
         Args: never
         Returns: {
-          category: string | null
-          description: string | null
+          category: string
+          description: string
           label: string
           slug: string
         }[]
@@ -9514,7 +9575,7 @@ export type Database = {
       list_public_partnerforward_incentive_categories: {
         Args: never
         Returns: {
-          description: string | null
+          description: string
           disclaimer_required: boolean
           label: string
           slug: string
@@ -9525,7 +9586,7 @@ export type Database = {
         Returns: {
           admin_seats: number
           family_accounts_per_pathway: number
-          max_schools: number | null
+          max_schools: number
           pathway_licenses: number
           plan_code: string
           staff_seats: number
@@ -9545,6 +9606,20 @@ export type Database = {
           source_type: string
           source_url: string
           topic_focus: string[]
+        }[]
+      }
+      list_student_channel_recipients: {
+        Args: { p_student_id: string }
+        Returns: {
+          display_name: string
+          user_id: string
+        }[]
+      }
+      list_student_channel_students: {
+        Args: never
+        Returns: {
+          student_id: string
+          student_name: string
         }[]
       }
       move_to_dlq: {
@@ -9620,6 +9695,10 @@ export type Database = {
       redeem_access_code: { Args: { _code: string }; Returns: Json }
       release_expired_license_allocations: { Args: never; Returns: number }
       release_expired_license_reservations: { Args: never; Returns: number }
+      remove_student_member: {
+        Args: { p_history_access: string; p_id: string; p_kind: string }
+        Returns: undefined
+      }
       reserve_license_allocation: {
         Args: {
           _beneficiary_email?: string
@@ -9678,6 +9757,15 @@ export type Database = {
       }
       sponsoring_org_for: {
         Args: { _license_type: string; _org_id: string }
+        Returns: string
+      }
+      start_student_channel: {
+        Args: {
+          p_first_message: string
+          p_recipient_id: string
+          p_student_id: string
+          p_title: string
+        }
         Returns: string
       }
       storage_can_read_student_doc: {
@@ -9906,12 +9994,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9935,11 +10023,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9960,11 +10048,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9985,11 +10073,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10002,11 +10090,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

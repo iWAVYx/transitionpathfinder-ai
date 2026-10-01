@@ -1,4 +1,4 @@
-import { STEPS, stepHeading, stepSubhead, Stepper, ProgressBar, StepRole, StepAbout, StepStrengths, StepCareer, StepLifeSkills, StepPlanningContext, StepCurrentGoals, StepVoices, StepNav, TrustRow } from "@/components/pathway/PathwayBuilderSteps";
+import { STEPS, Stepper, ProgressBar, StepRole, StepAbout, StepStrengths, StepCareer, StepLifeSkills, StepPlanningContext, StepCurrentGoals, StepVoices, StepNav, TrustRow } from "@/components/pathway/PathwayBuilderSteps";
 import { getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles } from "@/lib/role-policy";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -60,7 +60,7 @@ import {
 } from "@/lib/pathway-intake";
 import type { IepExtract } from "@/lib/iep-extract.functions";
 import { listStudents, type Student } from "@/lib/students.functions";
-import pathwayHero from "@/assets/pathway-hero.jpg";
+import { PathwayBuilderHeader, PATHWAY_FORM_CLASS } from "@/components/pathway/PathwayBuilderHeader";
 
 export const Route = createFileRoute("/_authenticated/pathway")({
   head: () => ({
@@ -260,32 +260,7 @@ function PathwayPage() {
       <div className="demo-shell">
         <section className="mx-auto max-w-4xl px-4 pt-6 sm:px-6 lg:px-8">
           <Breadcrumbs trail={[{ label: "Pathway Builder" }]} />
-          <div className="tf-cover relative mt-5 overflow-hidden px-5 py-6 sm:px-8 sm:py-8">
-            <div className="absolute inset-y-0 right-0 hidden w-1/2 md:block">
-              <img
-                src={pathwayHero}
-                alt=""
-                aria-hidden
-                width={1600}
-                height={900}
-                className="h-full w-full object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black_45%)]"
-              />
-            </div>
-            <div className="relative">
-              <p className="tf-eyebrow">
-                Pathway Builder · Step {stepIndex + 1} of {STEPS.length} · {progressPct}% Complete
-              </p>
-              <h1 className="mt-4 max-w-2xl font-display text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-                {stepHeading(stepIndex, role)}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                {stepSubhead(stepIndex)}{" "}
-                <Link to="/reports" className="font-semibold text-foreground hover:underline">
-                  See your saved reports →
-                </Link>
-              </p>
-            </div>
-          </div>
+          <PathwayBuilderHeader step={stepIndex} role={role} />
         </section>
 
         <section className="mx-auto max-w-4xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
@@ -297,7 +272,7 @@ function PathwayPage() {
               onSubmit={form.handleSubmit(onSubmit)}
               data-testid="pathway-intake-form"
               data-pathway-step={STEPS[stepIndex].id}
-              className="mt-6 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8"
+              className={PATHWAY_FORM_CLASS}
               noValidate
             >
               {stepIndex === 0 && (

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
@@ -7,6 +7,8 @@ import { useDemoStudent } from "@/lib/demo/use-demo-student";
 import { type DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoPlanningRole } from "@/lib/demo/use-demo-planning-role";
 import { demoRoleDashboardLabel, demoRoleDashboardPath } from "@/lib/demo/feature-routes";
+
+import { BuilderSampleReport } from "@/components/demo/BuilderSampleReport";
 
 export const Route = createFileRoute("/demo_/report")({
   head: () => ({
@@ -19,8 +21,18 @@ export const Route = createFileRoute("/demo_/report")({
       },
     ],
   }),
-  component: DemoReportPage,
+  component: DemoReportRoute,
 });
+
+function DemoReportRoute() {
+  const search = useRouterState({ select: (state) => state.location.search }) as Record<
+    string,
+    unknown
+  >;
+  if (search.example === "builder")
+    return <BuilderSampleReport audience={search.role === "educator" ? "educator" : "family"} />;
+  return <DemoReportPage />;
+}
 
 /**
  * Map any DemoRoleId to the three audiences the Pathway Report supports.
