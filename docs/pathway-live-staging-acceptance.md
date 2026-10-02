@@ -19,7 +19,7 @@ The database verification also confirms that the report and intake share the sam
 - Protected GitHub `staging` environment only.
 - Main branch only, after the exact commit has been deployed to staging.
 - Cloudflare remains the ordinary staging control plane at `transitionforward-staging.caysi101.workers.dev`; its exact SHA, isolation verdict, and sandbox identity must pass first.
-- The AI browser flow fails closed unless `STAGING_LOVABLE_AI_BASE_URL` names exactly `id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app`.
+- The AI browser flow fails closed unless `STAGING_LOVABLE_AI_BASE_URL` names exactly `preview--gentle-forward-reach.lovable.app`.
 - The Lovable-hosted target must report the exact runtime-source fingerprint calculated from the reviewed GitHub checkout, staging labels, sandbox Stripe identity, isolated staging Supabase project, `ai_gateway_configured=true`, and `ai_runtime=lovable-managed` before authentication or intake entry begins.
 - The runtime-source fingerprint is SHA-256 over the shipped application code, public assets, build scripts, dependency lockfile, and build configuration. It is calculated from the files at build time and cannot be supplied as a manual environment label. Database migrations, CI workflows, tests, documentation, and environment files remain under their separate controls and are intentionally outside this runtime digest.
 - Fail closed unless Supabase is exactly project `qgrertkqbwanerqqemph`.

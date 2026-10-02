@@ -15,9 +15,11 @@ export const PRODUCTION_HOSTNAMES = [
   "www.transitionforwardct.com",
 ];
 
-/** Lovable-hosted application runtime connected only to isolated staging. */
+/** Current editor-linked preview for isolated staging project 95c97302-11c6-4e89-bac3-2c68b970dd3d.
+ * Exact hostname only: the former id-preview alias serves a stale build.
+ */
 export const STAGING_LOVABLE_AI_HOSTNAME =
-  "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app";
+  "preview--gentle-forward-reach.lovable.app";
 
 /** Only these hostnames may serve the staging deployment. */
 export const STAGING_HOSTNAMES = ["e2e.transitionforwardct.com", STAGING_LOVABLE_AI_HOSTNAME];
