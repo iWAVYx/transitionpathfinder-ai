@@ -3,7 +3,8 @@ const mocks = vi.hoisted(() => ({
   generate: vi.fn(),
   gateway: vi.fn(() => vi.fn(() => "test-model")),
 }));
-vi.mock("ai", () => ({
+vi.mock("ai", async (importOriginal) => ({
+  ...await importOriginal<typeof import("ai")>(),
   generateText: mocks.generate,
   Output: { object: (value: unknown) => value },
 }));
@@ -34,8 +35,16 @@ it("rejects malformed provider output instead of treating it as a report", async
   mocks.generate.mockResolvedValue({ experimental_output: { unsupported: "content" } });
   await expect(generateIntakeReport(input, "test-only")).rejects.toThrow();
   expect(mocks.generate).toHaveBeenCalledWith(
-    expect.objectContaining({ prompt: buildPrompt(input) }),
+    expect.objectContaining({
+      prompt: buildPrompt(input),
+      system: expect.stringContaining('"career_pathways"'),
+    }),
   );
+  const system = mocks.generate.mock.calls[0][0].system;
+  const schema = JSON.parse(system.slice(system.indexOf("\n") + 1));
+  expect(schema.properties.thirty_day_plan.minItems).toBe(4);
+  expect(schema.properties.confidence_level.enum).toEqual(["low", "moderate", "high"]);
+  expect(system).not.toContain("Screen reader");
 });
 it("rejects invalid intake before contacting the provider", async () => {
   await expect(
