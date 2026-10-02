@@ -4,9 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAuthorized } from "./authz";
 import { requireFeatureEntitlement } from "./entitlement-guard";
 import { FREE_TIER_OPPORTUNITY_CAP } from "./partner-tier-config";
+import { opportunityEditSchema } from "./partner-opportunity-edit";
 
 export const TIER_CAP_REACHED = "TIER_CAP_REACHED";
-
 
 export type PartnerOrg = {
   id: string;
@@ -33,6 +33,7 @@ export type PartnerOpportunity = {
   application_url: string | null;
   contact_email: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 export type PartnerWorkspace = {
@@ -42,8 +43,7 @@ export type PartnerWorkspace = {
   opportunities: PartnerOpportunity[];
 };
 
-const ORG_SELECT =
-  "id, name, type, verified_status, website, contact_email, city, state, address";
+const ORG_SELECT = "id, name, type, verified_status, website, contact_email, city, state, address";
 
 // DB-allowed statuses for partner_opportunities
 const OPP_STATUS = ["draft", "pending_review", "approved", "inactive"] as const;
@@ -62,18 +62,17 @@ const OPP_TYPE = [
 
 export const getPartnerWorkspace = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}),
-  )
+  .validator((i: unknown) => z.object({ org_id: z.string().uuid().optional() }).parse(i ?? {}))
   .handler(async ({ data, context }): Promise<PartnerWorkspace> => {
     const { supabase, userId } = context;
 
     // Membership check runs under the user's RLS context (cannot be spoofed).
-    const { data: memberships } = await supabase
+    const { data: memberships, error: membershipError } = await supabase
       .from("organization_memberships")
       .select("organization_id")
       .eq("user_id", userId)
       .eq("status", "active");
+    if (membershipError) throw new Error("Could not load partner membership. Please try again.");
     const orgIds = (memberships ?? []).map((m: { organization_id: string }) => m.organization_id);
     if (orgIds.length === 0) {
       return { is_partner: false, orgs: [], selected_org: null, opportunities: [] };
@@ -84,26 +83,28 @@ export const getPartnerWorkspace = createServerFn({ method: "POST" })
     // an active member of these specific orgs.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: orgsData } = await supabaseAdmin
+    const { data: orgsData, error: organizationError } = await supabaseAdmin
       .from("organizations")
       .select(ORG_SELECT)
       .in("id", orgIds)
       .in("type", ["partner", "agency"]);
+    if (organizationError)
+      throw new Error("Could not load partner organizations. Please try again.");
     const orgs = (orgsData ?? []) as PartnerOrg[];
     if (orgs.length === 0) {
       return { is_partner: false, orgs: [], selected_org: null, opportunities: [] };
     }
 
-    const selected =
-      (data.org_id && orgs.find((o) => o.id === data.org_id)) || orgs[0];
+    const selected = (data.org_id && orgs.find((o) => o.id === data.org_id)) || orgs[0];
 
-    const { data: opps } = await supabaseAdmin
+    const { data: opps, error: opportunityError } = await supabaseAdmin
       .from("partner_opportunities")
       .select(
-        "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, contact_email, created_at",
+        "id, organization_id, title, description, opportunity_type, status, location, age_range, eligibility, application_url, contact_email, created_at, updated_at",
       )
       .eq("organization_id", selected.id)
       .order("created_at", { ascending: false });
+    if (opportunityError) throw new Error("Could not load opportunities. Please try again.");
 
     return {
       is_partner: true,
@@ -207,6 +208,60 @@ export const updateOpportunity = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Edits never publish or bypass review; RLS still enforces organization access. */
+export const editOpportunityDetails = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => opportunityEditSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertAuthorized(
+      { supabase, userId, action: "publish_opportunity", resourceType: "partner_capability" },
+      "Your partner tier doesn't allow editing opportunities.",
+    );
+    const { id, expected_updated_at, ...fields } = data;
+    const { data: saved, error } = await supabase
+      .from("partner_opportunities")
+      .update(fields)
+      .eq("id", id)
+      .eq("status", "draft")
+      .eq("updated_at", expected_updated_at)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error("Could not save the opportunity. Please try again.");
+    if (!saved)
+      throw new Error(
+        "This listing changed or is no longer an editable draft. Close the editor and refresh the list before trying again.",
+      );
+    return { ok: true };
+  });
+
+export const withdrawOpportunityForEditing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    opportunityEditSchema.pick({ id: true, expected_updated_at: true }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await assertAuthorized(
+      { supabase, userId, action: "publish_opportunity", resourceType: "partner_capability" },
+      "Your partner tier doesn't allow editing opportunities.",
+    );
+    const { data: saved, error } = await supabase
+      .from("partner_opportunities")
+      .update({ status: "draft" })
+      .eq("id", data.id)
+      .eq("status", "pending_review")
+      .eq("updated_at", data.expected_updated_at)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error("Could not withdraw the submission. Please try again.");
+    if (!saved)
+      throw new Error(
+        "This listing changed or is no longer pending review. Refresh the list before trying again.",
+      );
+    return { ok: true };
+  });
+
 export const deleteOpportunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
@@ -307,4 +362,3 @@ export const updatePartnerOrgProfile = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
-

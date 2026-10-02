@@ -245,12 +245,25 @@ export function TransitionCalendar({
   const showFocusRail = Boolean(nextUp || prepPool.length || reminders.length);
 
 
-  const step = view === "month" ? "month" : view === "week" ? "week" : "week";
+  const agendaEvents = useMemo(() => {
+    const start = startOfWeek(cursor);
+    const end = addDays(start, 7);
+    return filtered.filter((event) => {
+      const time = new Date(event.start).getTime();
+      return time >= start.getTime() && time < end.getTime();
+    });
+  }, [filtered, cursor]);
+
   function shift(delta: -1 | 1) {
     setCursor((c) => {
       const n = new Date(c);
-      if (step === "month") n.setMonth(n.getMonth() + delta);
-      else n.setDate(n.getDate() + delta * 7);
+      if (view === "month") {
+        // Clamp the day before advancing so Jan 31 cannot roll into March.
+        n.setDate(1);
+        n.setMonth(n.getMonth() + delta);
+        const lastDay = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate();
+        n.setDate(Math.min(c.getDate(), lastDay));
+      } else n.setDate(n.getDate() + delta * 7);
       return startOfDay(n);
     });
   }
@@ -433,14 +446,16 @@ export function TransitionCalendar({
 
       {/* Body */}
       <div className="p-3 sm:p-4">
-        {filtered.length === 0 ? (
+        {view === "agenda" ? (
+          agendaEvents.length ? <AgendaView events={agendaEvents} /> : (
+            <EmptyState title="No events this week." body="Try another week or adjust your event filters." />
+          )
+        ) : filtered.length === 0 ? (
           <EmptyState title={emptyStateTitle} body={emptyStateBody} />
         ) : view === "month" ? (
           <MonthView cursor={cursor} eventsByDay={eventsByDay} />
-        ) : view === "week" ? (
-          <WeekView cursor={cursor} eventsByDay={eventsByDay} />
         ) : (
-          <AgendaView events={filtered} />
+          <WeekView cursor={cursor} eventsByDay={eventsByDay} />
         )}
       </div>
 
@@ -624,7 +639,7 @@ function AgendaView({ events }: { events: CalendarEvent[] }) {
     groups.set(key, list);
   }
   return (
-    <ol className="space-y-4">
+    <ol className="space-y-4" aria-label="Events this week">
       {Array.from(groups.entries()).map(([k, list]) => {
         const d = new Date(k);
         const isToday = sameDay(d, startOfDay(new Date()));

@@ -10,6 +10,7 @@ import {
   Trash2,
   Plus,
   ExternalLink,
+  Pencil,
 } from "lucide-react";
 import { z } from "zod";
 
@@ -28,7 +29,9 @@ import {
   getPartnerWorkspace,
   updateOpportunity,
   deleteOpportunity,
+  withdrawOpportunityForEditing,
   type PartnerWorkspace,
+  type PartnerOpportunity,
 } from "@/lib/partner-workspace.functions";
 import {
   getPartnerTierUsage,
@@ -37,6 +40,7 @@ import {
 import { TierUsageMeter } from "@/components/partners/TierUsageMeter";
 import { opportunityStatusLabel } from "@/lib/opportunity-status";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
+import { OpportunityEditDialog } from "@/components/partners/OpportunityEditDialog";
 
 type StatusFilter = "all" | "draft" | "pending_review" | "approved" | "inactive";
 
@@ -89,13 +93,18 @@ function PartnerOpportunitiesPage() {
   const loadUsage = useServerFn(getPartnerTierUsage);
   const updateOp = useServerFn(updateOpportunity);
   const deleteOp = useServerFn(deleteOpportunity);
+  const withdrawOp = useServerFn(withdrawOpportunityForEditing);
 
   const [ws, setWs] = useState<PartnerWorkspace | null>(null);
   const [usage, setUsage] = useState<PartnerTierUsage | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<PartnerOpportunity | null>(null);
+  const [withdrawing, setWithdrawing] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   async function reload() {
     setLoading(true);
+    setLoadError(null);
     try {
       const w = await loadWs({ data: {} });
       setWs(w);
@@ -110,7 +119,7 @@ function PartnerOpportunitiesPage() {
         setUsage(null);
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not load opportunities.");
+      setLoadError(e instanceof Error ? e.message : "Could not load opportunities.");
     } finally {
       setLoading(false);
     }
@@ -145,6 +154,21 @@ function PartnerOpportunitiesPage() {
     }
   }
 
+  async function withdraw(opportunity: PartnerOpportunity) {
+    if (withdrawing) return;
+    setWithdrawing(opportunity.id);
+    try {
+      await withdrawOp({ data: { id: opportunity.id, expected_updated_at: opportunity.updated_at } });
+      toast.success("Submission withdrawn. Open Drafts to edit it.");
+      await reload();
+      await navigate({ search: { status: "draft" } });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not withdraw submission.");
+    } finally {
+      setWithdrawing(null);
+    }
+  }
+
   const filtered = useMemo(() => {
     const opps = ws?.opportunities ?? [];
     if (status === "all") return opps;
@@ -168,6 +192,8 @@ function PartnerOpportunitiesPage() {
   return (
     <SiteShell>
       <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        {editing && <OpportunityEditDialog key={`${editing.id}:${editing.updated_at}`} opportunity={editing}
+          onClose={() => setEditing(null)} onSaved={() => { setEditing(null); toast.success("Draft changes saved"); reload(); }} />}
         <Breadcrumbs
           trail={[
             { label: "Partner Workspace", to: "/partners-manage" },
@@ -186,17 +212,29 @@ function PartnerOpportunitiesPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Every opportunity your organization has created — publish, unpublish, or edit.
             </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Edit drafts here, then submit for review. To change an active listing, unpublish it and restore it to draft first.
+              {" "}Pending submissions can be withdrawn to draft for changes.
+            </p>
           </div>
+          <div className="flex flex-wrap gap-2">
+          <Button variant="outline" disabled={loading} onClick={() => reload()}>Refresh list</Button>
           <Button asChild>
             <Link to="/partners-manage" search={{ view: "opportunities" }}>
               <Plus className="h-4 w-4" /> Create opportunity
             </Link>
           </Button>
+          </div>
         </header>
 
         {loading ? (
           <div className="flex justify-center py-16">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : loadError ? (
+          <div className="mt-8 rounded-2xl border bg-card p-6">
+            <p role="alert" className="text-sm text-destructive">{loadError}</p>
+            <Button variant="outline" className="mt-3" onClick={() => reload()}>Try again</Button>
           </div>
         ) : !ws?.is_partner ? (
           <div className="mt-8 rounded-2xl border bg-card p-8 text-center shadow-soft">
@@ -268,6 +306,13 @@ function PartnerOpportunitiesPage() {
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
+                        {o.status === "pending_review" && <Button size="sm" variant="outline"
+                          disabled={withdrawing !== null} onClick={() => withdraw(o)}>
+                          {withdrawing === o.id ? "Withdrawing…" : "Withdraw to draft"}
+                        </Button>}
+                        {o.status === "draft" && <Button size="sm" variant="outline" onClick={() => setEditing(o)}>
+                          <Pencil className="h-3.5 w-3.5" /> Edit
+                        </Button>}
                         {o.application_url && (
                           <Button asChild size="sm" variant="ghost">
                             <a
@@ -319,6 +364,7 @@ function PartnerOpportunitiesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => remove(o.id)}
+                          aria-label={`Delete ${o.title}`}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
