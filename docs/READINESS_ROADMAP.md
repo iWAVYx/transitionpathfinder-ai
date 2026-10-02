@@ -4,6 +4,24 @@
 
 ### Immediate dependency: isolated Lovable AI staging
 
+- October 2 next review batch: calendar month navigation clamps month-end dates;
+  agenda Previous/Next/Today follows the selected week. Tool return links use
+  the shared role/owner resolver, including owners who also hold a family role.
+  Partner draft editing covers listing details with caller RLS, draft status,
+  and original-revision predicates; pending submissions can be withdrawn to
+  draft without overwriting a concurrent approval. Failed workspace reads show
+  retryable errors instead of empty/setup states. No schema change is required.
+  Sixty-eight focused tests, 18 lifecycle/navigation contracts, TypeScript, and
+  whitespace checks pass. Signed-in database save/review acceptance and full
+  keyboard/mobile checks remain open; this batch is not merged or deployed.
+
+- October 2 PR201 preview follow-through: reviewed release is on Cloudflare
+  staging and synced in the isolated Lovable workspace. The external preview
+  last showed PR200. Used the documented Shift+Refresh environment restart and
+  confirmed Live preview is enabled. External health tab control times out;
+  current fingerprint/isolation verification remains pending, as does the one
+  authorized synthetic report test. Production is untouched.
+
 - October 2 controlled PR #199 retry: hosted Lovable health confirmed the
   `21458248…fe4cf7` fingerprint, 1,062 files, managed AI and passing isolation.
   One authorized fictional Robin Staging retry failed at 03:11:19 Eastern;

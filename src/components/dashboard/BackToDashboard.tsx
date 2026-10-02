@@ -3,13 +3,14 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyRoles } from "@/lib/profile.functions";
-import { fallbackPathFor } from "@/lib/role-policy";
+import { getMyAdminRoles } from "@/lib/owner/owner.functions";
+import { dashboardHomeForRoles } from "@/lib/role-policy";
 import { cn } from "@/lib/utils";
 
 type BackToDashboardProps = {
   /** Override the destination. When omitted, resolves from the viewer's roles. */
   to?: string;
-  /** Override the visible label. Defaults to "Back to dashboard". */
+  /** Override the visible label. Otherwise reflects the resolved workspace. */
   label?: string;
   className?: string;
 };
@@ -22,39 +23,43 @@ type BackToDashboardProps = {
  *
  * Destination resolution:
  *   1. `to` prop, if provided.
- *   2. The viewer's role fallback path (fallbackPathFor).
- *   3. "/dashboard" while roles are loading, so the link is never dead.
+ *   2. The same role and platform-owner home used by the site header.
+ *   3. The guarded "/dashboard" entry if workspace lookup is unavailable.
  */
-export function BackToDashboard({
-  to,
-  label = "Back to dashboard",
-  className,
-}: BackToDashboardProps) {
+export function BackToDashboard({ to, label, className }: BackToDashboardProps) {
   const loadRoles = useServerFn(getMyRoles);
-  const [resolved, setResolved] = useState<string>(to ?? "/dashboard");
+  const loadAdminRoles = useServerFn(getMyAdminRoles);
+  const [home, setHome] = useState({ to: "/dashboard", label: "workspace" });
 
   useEffect(() => {
     if (to) {
-      setResolved(to);
       return;
     }
     let cancelled = false;
-    loadRoles()
-      .then((result) => {
-        if (cancelled) return;
-        setResolved(fallbackPathFor(result?.roles ?? []));
-      })
-      .catch(() => {
-        /* keep the safe /dashboard default */
-      });
+    setHome({ to: "/dashboard", label: "workspace" });
+    Promise.allSettled([loadRoles(), loadAdminRoles()]).then(([roles, admin]) => {
+      if (cancelled) return;
+      // An unavailable owner lookup must not choose a planning-role home.
+      // The guarded dashboard entry can resolve/retry that check safely.
+      if (admin.status !== "fulfilled") return;
+      setHome(
+        dashboardHomeForRoles(
+          roles.status === "fulfilled" ? (roles.value?.roles ?? []) : [],
+          Boolean(admin.value.isPlatformAdmin),
+        ),
+      );
+    });
     return () => {
       cancelled = true;
     };
-  }, [to, loadRoles]);
+  }, [to, loadRoles, loadAdminRoles]);
+
+  const destination = to ?? home.to;
+  const homeLabel = to ? (to === "/owner" ? "Owner Hub" : "dashboard") : home.label;
 
   return (
     <Link
-      to={resolved as never}
+      to={destination as never}
       data-testid="back-to-dashboard"
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground",
@@ -62,7 +67,7 @@ export function BackToDashboard({
       )}
     >
       <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-      {label}
+      {label ?? `Back to ${homeLabel}`}
     </Link>
   );
 }
