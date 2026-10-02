@@ -72,7 +72,7 @@ describe("protected Pathway live-staging acceptance", () => {
     }
     expect(spec).toContain('const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph"');
     expect(`${workflow}\n${spec}\n${envIdentity}`).toContain(
-      "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app",
+      "preview--gentle-forward-reach.lovable.app",
     );
     expect(spec).toContain("const STAGING_AI_APP_HOST =");
     expect(spec).toContain('throw new Error("Refusing the production Supabase project")');
