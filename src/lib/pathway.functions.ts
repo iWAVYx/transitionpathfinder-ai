@@ -23,6 +23,7 @@ import {
 import { IntakeSchema, type PathwayReport } from "./pathway-generation-contract";
 export type { IntakeInput, PathwayReport } from "./pathway-generation-contract";
 import { generateIntakeReport, INTAKE_REPORT_MODEL } from "./pathway-generation.server";
+import { pathwayGenerationDiagnostics } from "./pathway-generation-diagnostics";
 
 export const createPathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -90,7 +91,7 @@ export const createPathwayReport = createServerFn({ method: "POST" })
       report = await generateIntakeReport(data, apiKey);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error("AI generation failed", msg);
+      console.error("AI generation failed", pathwayGenerationDiagnostics(err));
       if (msg.includes("429"))
         throw new Error("The AI is busy right now. Please try again in a moment.");
       if (msg.includes("402"))
