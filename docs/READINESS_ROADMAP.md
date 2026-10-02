@@ -4,6 +4,81 @@
 
 ### Immediate dependency: isolated Lovable AI staging
 
+- October 2 diagnosis: read isolated Lovable Cloud server logs (two-day window).
+  October 1 at 20:20:18 Eastern records `AI generation failed No object
+  generated: response did not match schema.` The log gives no invalid-field
+  details, so the specific schema violation remains unknown. Added LOCAL
+  allowlisted diagnostics for report section, validation code and finish reason;
+  no raw provider output, student values or validation messages are logged.
+  Six focused tests pass, including privacy and circular-cause handling. Report
+  validation remains strict. No new AI request, deployment, model change or
+  database cleanup occurred. Next reviewed staging update should include these
+  diagnostics and the persistent error UI before one controlled reproduction.
+
+- Pathway failure follow-up (local, not deployed): generation errors now remain
+  in an accessible inline alert with the existing answers preserved and a
+  new-tab link to check saved reports before retrying. Previously the only
+  feedback was a transient toast. Source inspection confirms intake insertion
+  precedes AI generation. The connectivity smoke uses Gemini Flash while full
+  report generation uses Gemini Pro with structured output; smoke success does
+  not prove this separate generation path. No provider/model change or retry
+  was made. Hosted server diagnostics are still required to identify the
+  actual failure and any orphaned synthetic intake.
+
+- October 1 evening manual Family Pathway acceptance: confirmed Pat's family
+  workspace with Robin Staging on the AI-enabled Lovable preview. Builder
+  offered only the parent/caregiver role and selected the authorized student.
+  Completed all eight steps with explicitly fictional culinary/training goals,
+  assistive technology, accommodations, transport, evidence caveats, and voices.
+  Submitted ONE generation request. The busy state ended without navigating to
+  a report; a separate signed-in `/reports` tab showed "No reports yet".
+  Generation/persistence acceptance FAILED; exact server cause is not yet known.
+  The completed form remains open for diagnosis. No retry, actual document
+  upload, cross-role sharing, or production action performed. Database intake
+  residue has not been verified; do not claim no records were saved merely
+  because the report library is empty. Student/Educator/Partner checks remain
+  pending. Browser logs showed hydration warnings but do not establish the
+  cause of the generation failure.
+
+- October 1 signed-in browser acceptance: agent access to the existing Lovable
+  preview tab now works. Reloading the stale `/dashboard` tab redirected the
+  current platform-admin account to `/owner`. Home-page Dashboard navigation
+  and browser back/forward returned to Owner Hub. The signed-in `/calendar`
+  rendered Month, Week, and Agenda; each view switched successfully, Next
+  advanced October to November, Today restored October, and Back to Owner Hub
+  navigated to `/owner`. These are owner-session checks, not proof of ordinary
+  family access, mobile visual parity, or the four-role Pathway acceptance.
+  Requested a browser handoff to the synthetic family account before creating
+  any Pathway test records. No account roles or calendar events changed.
+
+- Authorized release alignment: PR #198 merged to main at
+  `008987c7d8579d58f0d6b84ecdad8e73313fa399`; merged source matches reviewed
+  candidate exactly. Cloudflare staging deployment run 36933000013 succeeded
+  after normal protected approval. Independent external health confirms exact
+  merged SHA, fingerprint `a0627d5c86181e18d38d4b0e1e8a2a1cd52920dc543d53cda3f7e24c90511c3b`,
+  1,061 files, isolated backend, sandbox Stripe and isolation.ok true. Cloudflare
+  AI remains intentionally unconfigured; managed AI stays on Lovable. Matching
+  Lovable sync is complete: the user's signed-in external health response
+  confirms the same full fingerprint and 1,061 files, sandbox public/server
+  Stripe, managed AI configured, and isolation.ok true. No production publish
+  or migrations run.
+
+- October 1 protected Pathway acceptance attempt:
+  [run 36935831656](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/36935831656).
+  Configured the non-secret staging environment variable
+  `STAGING_LOVABLE_AI_BASE_URL` to the approved private preview origin and
+  approved the normal staging gate for the authorized synthetic test.
+  Frozen install and Cloudflare exact-SHA/runtime-source identity passed.
+  Lovable preflight returned HTTP 401 because the preview requires platform
+  sign-in. The run stopped before application authentication, report
+  generation, or database writes. Full Family/Student/Educator/Partner
+  acceptance remains BLOCKED, not passed. Next: use a supported authenticated
+  preview testing mechanism or perform the synthetic acceptance in an
+  authorized signed-in browser; do not publish the preview or export personal
+  session credentials to bypass this gate. Owner routing and calendar browser
+  acceptance also remain pending. Earlier progress entries below are historical
+  and are superseded by this release and acceptance status.
+
 - GitHub alignment resumed: PR #198 is open/draft/mergeable; previous remote
   failures were the dependency audit and four obsolete report role-tab
   assertions. Updated only brace-expansion patch resolutions and undici's

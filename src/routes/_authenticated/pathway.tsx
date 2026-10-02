@@ -81,6 +81,7 @@ function PathwayPage() {
   const loadSnapshot = useServerFn(getDashboardSnapshot);
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [connectedStudents, setConnectedStudents] = useState<Student[]>([]);
   const [studentsLoading, setStudentsLoading] = useState(true);
   const [studentLoadError, setStudentLoadError] = useState(false);
@@ -178,6 +179,7 @@ function PathwayPage() {
       return;
     }
     try {
+      setGenerationError(null);
       // Merge new structured sections into existing backend fields so they
       // reach the AI without requiring a DB schema change.
       const merged = mergePathwayIntake(values);
@@ -188,7 +190,9 @@ function PathwayPage() {
         search: { welcome: 1 } as never,
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong.");
+      const message = err instanceof Error ? err.message : "Something went wrong.";
+      setGenerationError(message);
+      toast.error(message);
     }
   };
 
@@ -295,6 +299,20 @@ function PathwayPage() {
               {stepIndex === 5 && <StepPlanningContext />}
               {stepIndex === 6 && <StepCurrentGoals role={role} />}
               {stepIndex === 7 && <StepVoices role={role} />}
+
+              {generationError && (
+                <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
+                  <p className="font-semibold">The report could not be completed</p>
+                  <p className="mt-1">{generationError}</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Your answers are still in this form. Check your saved reports before trying
+                    again in case the request completed after the connection was interrupted.
+                  </p>
+                  <a href="/reports" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block underline">
+                    Check saved reports in a new tab
+                  </a>
+                </div>
+              )}
 
               <StepNav
                 stepIndex={stepIndex}
