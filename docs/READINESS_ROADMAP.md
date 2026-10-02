@@ -4,6 +4,33 @@
 
 ### Immediate dependency: isolated Lovable AI staging
 
+- October 2 controlled PR #199 retry: hosted Lovable health confirmed the
+  `21458248…fe4cf7` fingerprint, 1,062 files, managed AI and passing isolation.
+  One authorized fictional Robin Staging retry failed at 03:11:19 Eastern;
+  the persistent error rendered and answers remained. Server diagnostics show
+  finishReason `stop`, `invalid_type`/`invalid_enum_value`, and mismatches across
+  25 report sections. No additional retry submitted. Installed compatible
+  provider defaults structured outputs off and sends `json_object` without
+  the schema. Local fix now explicitly supplies the JSON Schema derived from
+  ReportSchema as model instructions while preserving output validation, model,
+  and gateway configuration. Six focused tests pass. This is a candidate fix,
+  not a successful generation result; staging validation and intake cleanup
+  remain outstanding.
+
+- October 2 authorized diagnostics release: PR #199 merged as
+  `9d81e868020f4899ff2395ca1d6cac1df0bfea5b`. Cloudflare staging deployment
+  [36975448406](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/36975448406)
+  succeeded; external health verifies that exact SHA, sandbox Stripe,
+  isolation.ok true, and runtime fingerprint
+  `214582486469f3515cff4df40a4a458fca283a588b64308068c8b53f98fe4cf7`
+  (1,062 files). Uploaded the matching archive to the isolated Lovable project
+  and submitted the user-authorized sync/build instructions. Lovable reports
+  exact fingerprint parity before/after sync, frozen install and build:dev,
+  with environment files and backend preserved. External preview health opening
+  failed with browser ERR_BLOCKED_BY_CLIENT; hosted parity remains unverified.
+  The one authorized synthetic retry has not yet been submitted. Production
+  remains untouched.
+
 - October 2 diagnosis: read isolated Lovable Cloud server logs (two-day window).
   October 1 at 20:20:18 Eastern records `AI generation failed No object
   generated: response did not match schema.` The log gives no invalid-field
