@@ -99,6 +99,7 @@ export function SiteHeader() {
   const [roles, setRoles] = useState<string[]>([]);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [signedInNavAllowed, setSignedInNavAllowed] = useState(false);
+  const [workspaceLoaded, setWorkspaceLoaded] = useState(false);
   const fetchRoles = useServerFn(getMyRoles);
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
   const [openDropdowns, setOpenDropdowns] = useState(0);
@@ -135,10 +136,14 @@ export function SiteHeader() {
       setRoles([]);
       setIsPlatformAdmin(false);
       setSignedInNavAllowed(false);
+      setWorkspaceLoaded(false);
       return;
     }
     let cancelled = false;
     setSignedInNavAllowed(false);
+    setWorkspaceLoaded(false);
+    setRoles([]);
+    setIsPlatformAdmin(false);
     supabase.auth.mfa
       .getAuthenticatorAssuranceLevel()
       .then(({ data }) => {
@@ -148,20 +153,18 @@ export function SiteHeader() {
       .catch(() => {
         if (!cancelled) setSignedInNavAllowed(false);
       });
-    fetchRoles()
-      .then((res) => {
-        if (!cancelled) setRoles(res.roles);
-      })
-      .catch(() => {
-        if (!cancelled) setRoles([]);
-      });
-    fetchAdminRoles()
-      .then((res) => {
-        if (!cancelled) setIsPlatformAdmin(Boolean(res.isPlatformAdmin));
-      })
-      .catch(() => {
-        if (!cancelled) setIsPlatformAdmin(false);
-      });
+    // Resolve both identities before exposing any role menu. A fast planning
+    // lookup must not briefly show a family/educator workspace to an owner.
+    Promise.allSettled([fetchRoles(), fetchAdminRoles()]).then(([profile, owner]) => {
+      if (cancelled) return;
+      if (owner.status === "fulfilled") {
+        setIsPlatformAdmin(Boolean(owner.value.isPlatformAdmin));
+        setRoles(profile.status === "fulfilled" ? profile.value.roles : []);
+      }
+      // If owner lookup fails, keep the neutral guarded dashboard entry and
+      // Account links; do not guess a planning role until it can be verified.
+      setWorkspaceLoaded(true);
+    });
     return () => {
       cancelled = true;
     };
@@ -172,7 +175,7 @@ export function SiteHeader() {
     [roles, isPlatformAdmin],
   );
 
-  const showSignedInNav = Boolean(user && signedInNavAllowed);
+  const showSignedInNav = Boolean(user && signedInNavAllowed && workspaceLoaded);
   const signedInUser = showSignedInNav ? user : null;
   const dashboardHome = dashboardHomeForRoles(roles, isPlatformAdmin);
 
