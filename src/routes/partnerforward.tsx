@@ -1,3 +1,4 @@
+import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FaqSection } from "@/components/site/FaqSection";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/partnerforward")({
       },
     ],
   }),
-  component: PartnerForwardPage,
+  component: () => <RoutePageOutlet><PartnerForwardPage /></RoutePageOutlet>,
 });
 
 const PARTNER_FAQ = [

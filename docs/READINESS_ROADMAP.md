@@ -1,5 +1,28 @@
 # TransitionForward — Readiness Roadmap
 
+## October 3 — verified PR206 release and complete parent-route audit
+
+- PR206 merged as 6a48e241a8e7076feb30615ccd4509e105fbb0d0 with user approval.
+  Cloudflare staging run 37135158997 succeeded; isolated Lovable sync, frozen
+  install, build and existing staging publication update succeeded. Both external
+  hosts verify c249a3898d02c0075814d29bc1575c4b5b87128819f17d9367ccb5b940cd5f62,
+  1,064 files, staging backend, sandbox Stripe and isolation.ok true. Post-merge
+  build, report accessibility and credential-free readiness audit passed.
+- One newly authorized synthetic run 37135760600 FAILED later at /pathway/family.
+  Report rendering and all persisted intake/report linkage, summary and model
+  assertions passed. The builder parent masks its family child route. Student,
+  Educator and Partner report checks were skipped. Cleanup hook reported no
+  failure; credential removal and sanitized artifact upload succeeded. No
+  independent remaining-row audit or additional generation was performed.
+- Complete generated parent-page inventory found seven more missing outlets:
+  Pathway (family/student), Documents (review), Forms (detail), Meetings (detail),
+  legacy Admin (org management), Blog (article), PartnerForward (incentives).
+  Candidate shared RoutePageOutlet preserves landing pages and existing
+  beforeLoad/child guards. Thirteen real-router/inventory regressions and five
+  role/access contracts passed locally. Staging release is not yet authorized.
+- Full signed-in role/data acceptance remains open. All original requirements
+  remain tracked; parent pilot/report snapshot stay deferred. Production untouched.
+
 ## October 3 — stable staging and live report routing acceptance
 
 - PR205 merged as d970ba66d803c0bce9fe39a6e43182d2f5162033 with explicit user

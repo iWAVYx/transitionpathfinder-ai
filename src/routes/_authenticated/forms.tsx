@@ -1,3 +1,4 @@
+import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/forms")({
       },
     ],
   }),
-  component: () => (<RoleGuard path="/forms"><FormsPage /></RoleGuard>),
+  component: () => (<RoutePageOutlet><RoleGuard path="/forms"><FormsPage /></RoleGuard></RoutePageOutlet>),
 });
 
 const AUDIENCE_LABEL: Record<string, string> = {

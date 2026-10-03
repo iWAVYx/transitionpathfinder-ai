@@ -1,3 +1,4 @@
+import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { OwnerDashboardPage } from "@/components/owner/OwnerDashboardPage";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
@@ -15,5 +16,5 @@ export const Route = createFileRoute("/_authenticated/admin")({
   },
   head: () => ({ meta: [{ title: "Admin Hub — TransitionForward" }] }),
   errorComponent: dashboardErrorComponent("owner"),
-  component: OwnerDashboardPage,
+  component: () => <RoutePageOutlet><OwnerDashboardPage /></RoutePageOutlet>,
 });
