@@ -48,7 +48,7 @@
   sandbox Stripe, source fingerprint and production-secret gates remain enforced.
   Publishing this isolated staging project is NOT yet authorized. Release review,
   exact archive sync and explicit staging-only publish approval must precede it.
-  Cloudflare AI proxy base URL must be updated to the exact stable staging origin
+  Protected live-QA workflow base URL must be updated to the exact stable staging origin
   under that release authorization; then verify both runtime fingerprints and
   isolation before the already authorized single synthetic retry.
 
