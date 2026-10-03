@@ -1,3 +1,4 @@
+import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState, type FormEvent } from "react";
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/meetings")({
       },
     ],
   }),
-  component: () => (<RoleGuard path="/meetings"><MeetingsPage /></RoleGuard>),
+  component: () => (<RoutePageOutlet><RoleGuard path="/meetings"><MeetingsPage /></RoleGuard></RoutePageOutlet>),
 });
 
 function MeetingsPage() {

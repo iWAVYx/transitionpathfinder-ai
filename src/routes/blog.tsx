@@ -1,3 +1,4 @@
+import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/blog")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: BlogIndexPage,
+  component: () => <RoutePageOutlet><BlogIndexPage /></RoutePageOutlet>,
 });
 
 function BlogIndexPage() {
