@@ -1,3 +1,4 @@
+import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { STEPS, Stepper, ProgressBar, StepRole, StepAbout, StepStrengths, StepCareer, StepLifeSkills, StepPlanningContext, StepCurrentGoals, StepVoices, StepNav, TrustRow } from "@/components/pathway/PathwayBuilderSteps";
 import { getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles } from "@/lib/role-policy";
@@ -67,9 +68,9 @@ export const Route = createFileRoute("/_authenticated/pathway")({
     meta: [{ title: "Create a Pathway Report — TransitionForward" }],
   }),
   component: () => (
-    <RoleGuard path="/pathway">
+    <RoutePageOutlet><RoleGuard path="/pathway">
       <PathwayPage />
-    </RoleGuard>
+    </RoleGuard></RoutePageOutlet>
   ),
 });
 
