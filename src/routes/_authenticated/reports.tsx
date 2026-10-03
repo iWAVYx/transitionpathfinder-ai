@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useChildMatches, useRouter } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
@@ -12,8 +12,15 @@ import { deleteReport, listMyReports, type ReportListRow } from "@/lib/pathway.f
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "My Pathway Reports — TransitionForward" }] }),
-  component: () => (<RoleGuard path="/reports"><ReportsPage /></RoleGuard>),
+  component: ReportsRoute,
 });
+
+function ReportsRoute() {
+  const hasChildRoute = useChildMatches({ select: (matches) => matches.length > 0 });
+  // The library is also the parent of /reports/$reportId. Let the detail route
+  // render its own role guard and page instead of masking it with the library.
+  return hasChildRoute ? <Outlet /> : <RoleGuard path="/reports"><ReportsPage /></RoleGuard>;
+}
 
 type SortKey = "newest" | "oldest" | "name";
 
