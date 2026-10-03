@@ -6,7 +6,7 @@ import type { Database, Json } from "../../../src/integrations/supabase/types";
 import { ROLES, type RoleSpec } from "../helpers/roles";
 
 const STAGING_PROJECT_REF = "qgrertkqbwanerqqemph";
-const STAGING_AI_APP_HOST = "preview--gentle-forward-reach.lovable.app";
+const STAGING_AI_APP_HOST = "gentle-forward-reach.lovable.app";
 const PRODUCTION_PROJECT_REF = "lrqcntqyekucamifpffs";
 const QA_NAME_PREFIX = "QA Pathway";
 const QA_COLLABORATOR_PREFIX = "pathway.qa.";

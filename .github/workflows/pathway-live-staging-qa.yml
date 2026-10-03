@@ -118,7 +118,7 @@ jobs:
           }
 
           const target = new URL(rawBaseUrl);
-          const expectedHost = "preview--gentle-forward-reach.lovable.app";
+          const expectedHost = "gentle-forward-reach.lovable.app";
           if (
             target.protocol !== "https:" ||
             target.hostname !== expectedHost ||

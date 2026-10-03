@@ -31,6 +31,27 @@
   do not equate them with all-role live acceptance. Preserve every older roadmap
   item, including deferred parent pilot and Pathway Report snapshot work.
 
+## October 3 — stable isolated staging deployment candidate
+
+- PR204 merged/deployed on Cloudflare: c4f921fee911fd0c39e448df2679f95050c65474,
+  runtime 8c8f49e9…419b273 /1,064 files, isolation passing. Lovable sync and
+  build match; shared preview aliases still serve PR199/PR202 after refresh.
+- User approved creating a new seven-day preview link with comments disabled.
+  Link https://lovable.dev/preview/Ls0AwI1cYxFobrUWXsRG2FdHMgszPxTa resolves
+  to id-preview, whose existing authenticated health still serves PR199.
+  This did not activate the current source. No AI retry used.
+- Read-only Publish panel shows this isolated project is Not published, selected
+  address gentle-forward-reach.lovable.app, visible to anyone with the link,
+  and No security issues found. Production domains/backend are separate.
+  Candidate targets only this exact stable staging hostname and aligns live-QA
+  workflow/test gates. Stale preview aliases remain rejected; backend identity,
+  sandbox Stripe, source fingerprint and production-secret gates remain enforced.
+  Publishing this isolated staging project is NOT yet authorized. Release review,
+  exact archive sync and explicit staging-only publish approval must precede it.
+  Protected live-QA workflow base URL must be updated to the exact stable staging origin
+  under that release authorization; then verify both runtime fingerprints and
+  isolation before the already authorized single synthetic retry.
+
 ## September 30 — demo parity and authorized staging release
 
 ### Immediate dependency: isolated Lovable AI staging

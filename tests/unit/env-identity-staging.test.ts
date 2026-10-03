@@ -211,6 +211,8 @@ describe("staging deployment identity", () => {
     expect(isStagingHostname("id-preview--another-project.lovable.app")).toBe(false);
     expect(isStagingHostname("id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app")).toBe(false);
     expect(isStagingHostname("preview--another-project.lovable.app")).toBe(false);
+    expect(isStagingHostname("preview--gentle-forward-reach.lovable.app")).toBe(false);
+    expect(isStagingHostname("another-project.lovable.app")).toBe(false);
     expect(isStagingHostname("transitionforwardct.com")).toBe(false);
   });
 
@@ -233,7 +235,7 @@ describe("isolated Lovable fingerprint identity", () => {
   };
   it("accepts computed source identity only on the exact isolated host", () => {
     expect(evaluateStagingIdentity(isolated).ok).toBe(true);
-    for (const hostname of ["e2e.transitionforwardct.com", "transitionforward-staging.caysi101.workers.dev", "localhost", "transitionforwardct.com", "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app", "preview--another-project.lovable.app"])
+    for (const hostname of ["e2e.transitionforwardct.com", "transitionforward-staging.caysi101.workers.dev", "localhost", "transitionforwardct.com", "id-preview--95c97302-11c6-4e89-bac3-2c68b970dd3d.lovable.app", "preview--another-project.lovable.app", "preview--gentle-forward-reach.lovable.app", "another-project.lovable.app"])
       expect(evaluateStagingIdentity({ ...isolated, hostname }).ok).toBe(false);
   });
   it("rejects invalid fingerprint evidence and preserves other isolation gates", () => {
