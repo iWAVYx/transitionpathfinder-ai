@@ -1,5 +1,28 @@
 # TransitionForward — Readiness Roadmap
 
+## October 3 — stable staging and live report routing acceptance
+
+- PR205 merged as d970ba66d803c0bce9fe39a6e43182d2f5162033 with explicit user
+  authorization. Cloudflare staging run 37129711915 succeeded; the isolated
+  Lovable project was synchronized, built and published only at
+  https://gentle-forward-reach.lovable.app. Both external hosts verified
+  fingerprint eac8cbc0a821b0742f4477a5dfca15e26e5dcd3cae7360261fbb002e1f32ab29,
+  1,064 files, staging backend, sandbox Stripe and isolation.ok true.
+- Single authorized synthetic workflow 37130817534 FAILED after generating a
+  saved report: its detail URL renders the library because the parent route
+  does not render its child outlet. The artifact shows the new synthetic report
+  and summary. All four sign-ins and both identity gates passed. Student,
+  Educator and Partner report checks were skipped, not passed.
+- The test database cleanup hook reported no failure; credential removal and
+  sanitized artifact upload succeeded. No independent remaining-row audit was
+  performed. One AI retry is consumed; no duplicate generation was requested.
+- Candidate fix renders the shared child outlet for individual reports while
+  retaining the existing detail role guard and library behavior. Actual-router
+  regressions cover direct opening and library → detail → Back navigation.
+  Staging release and another AI generation require explicit authorization.
+- Production remains untouched. Full signed-in acceptance for every role and
+  the older note register remain open; parent pilot/report snapshot stay deferred.
+
 ## October 3 — cross-role navigation and PR203 release
 
 - User authorized PR203 merge, both staging updates and one synthetic retry.
