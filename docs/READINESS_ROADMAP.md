@@ -1,5 +1,36 @@
 # TransitionForward — Readiness Roadmap
 
+## October 3 — cross-role navigation and PR203 release
+
+- User authorized PR203 merge, both staging updates and one synthetic retry.
+  Merged commit `4031379624e5c7637caf5f6944eef67f03fb8cf4`; Cloudflare staging
+  run 37124901954 succeeded. External health verifies fingerprint
+  `c9377aaba2bc5e702c8b7916e7787c04b0a66e5430caa89cf1f803be5e54ca82`,
+  1,064 files, staging backend and sandbox Stripe, isolation.ok true.
+  Lovable exact sync, frozen install and build passed. Supported editor
+  Shift+Refresh and existing runtime restart were attempted. External health
+  still serves PR202 (73baaf47…421620), despite current workspace source.
+  External activation remains unresolved; the authorized retry is unused.
+  No new AI request until both external identities match; no support request.
+- Scope explicitly includes every role dashboard, Tools menu and tool return
+  navigation: student, family, educator/case manager, school administrator,
+  district administrator and partner. Owner Hub stays website management only.
+  65 focused checks passed across nine suites: published demo/live dashboard
+  alignment, all six role menu destinations against actual dashboard actions,
+  role authorization and route existence, shared calendar period navigation,
+  owner/multi-role returns and unavailable role lookups. These are code/component
+  checks; live signed-in acceptance for non-family roles remains open.
+- Found and fixed locally: SiteHeader previously resolved ordinary roles before
+  owner identity, briefly exposing the wrong planning workspace to mixed-role
+  owners. Header now waits for both lookups, clears old role state on account
+  change, and uses the guarded entry if owner lookup fails. Eight component
+  checks pass, including delayed owner resolution and all six planning roles.
+  This follow-up is draft PR204 (https://github.com/iWAVYx/transitionpathfinder-ai/pull/204), separate from deployed PR203; awaits review/release authorization.
+- Existing shared router restores positions by full location href, covering role
+  pages and tool navigation. Family browser checks were already recorded below;
+  do not equate them with all-role live acceptance. Preserve every older roadmap
+  item, including deferred parent pilot and Pathway Report snapshot work.
+
 ## September 30 — demo parity and authorized staging release
 
 ### Immediate dependency: isolated Lovable AI staging
