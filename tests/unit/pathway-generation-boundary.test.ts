@@ -43,6 +43,11 @@ it("rejects malformed provider output instead of treating it as a report", async
   const system = mocks.generate.mock.calls[0][0].system;
   const schema = JSON.parse(system.slice(system.indexOf("\n") + 1));
   expect(schema.properties.thirty_day_plan.minItems).toBe(4);
+  expect(schema.properties.iep_translator.minItems).toBe(1);
+  expect(schema.properties.iep_translator.items.properties.connected_services.maxItems).toBe(4);
+  expect(schema.properties.iep_translator.items.properties.connected_services.minItems).toBeUndefined();
+  expect(schema.required).not.toContain("iep_translator");
+  expect(schema.properties.iep_translator.description).toContain("Omit this section");
   expect(schema.properties.confidence_level.enum).toEqual(["low", "moderate", "high"]);
   expect(system).not.toContain("Screen reader");
 });

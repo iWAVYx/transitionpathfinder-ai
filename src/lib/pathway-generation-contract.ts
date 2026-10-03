@@ -168,18 +168,22 @@ export const ReportSchema = z.object({
   iep_translator: z
     .array(
       z.object({
-        goal_text: z.string(),
+        goal_text: z.string().trim().min(1),
         plain_meaning: z.string(),
-        connected_services: z.array(z.string()).min(1).max(4),
-        questions_to_ask: z.array(z.string()).min(1).max(4),
+        connected_services: z
+          .array(z.string().trim().min(1))
+          .max(4)
+          .describe("Only services explicitly supplied in the intake; use an empty array when no connected service is documented."),
+        questions_to_ask: z.array(z.string().trim().min(1)).min(1).max(4),
         what_student_should_know: z.string(),
         connected_to_real_life: z.string(),
         missing_information: z.array(z.string()).max(4),
       }),
     )
-    .min(2)
+    .min(1)
     .max(6)
-    .optional(),
+    .optional()
+    .describe("Translate only actual IEP goal text supplied in the intake. Omit this section when no actual goal text is available; never invent or duplicate goals to fill the array."),
 
   /* ---------- NEW: Data gaps ---------- */
   data_gaps: z
@@ -319,7 +323,7 @@ Upcoming meetings / deadlines: ${intake.upcoming_meetings || "(not provided)"}
 
 Generate the FULL TransitionForward Pathway Report — the flagship deliverable of this platform. It must feel personalized, professional, parent-friendly, student-centered, and teacher-usable. NEVER generic. Tie EVERY recommendation back to this student's specific interests, strengths, and stated needs.
 
-Fill in EVERY top-level field of the schema. The schema is large on purpose. Be specific, not exhaustive — short, concrete bullets are better than long abstract ones. Use Connecticut-aware language (CT community colleges, CT technical high schools, Bureau of Rehabilitation Services / BRS, DDS, Level Up) when reasonable, but never invent specific program names you cannot verify.
+Fill every required top-level field of the schema. Include optional sections only when there is a supported basis in the intake. The schema is large on purpose. Be specific, not exhaustive — short, concrete bullets are better than long abstract ones. Use Connecticut-aware language (CT community colleges, CT technical high schools, Bureau of Rehabilitation Services / BRS, DDS, Level Up) when reasonable, but never invent specific program names you cannot verify.
 
 Guidance for major sections:
 - student_snapshot: warm hero card. readiness_level is one of "emerging" | "developing" | "progressing" | "ready". student_voice_quote should sound like the student.
@@ -328,7 +332,7 @@ Guidance for major sections:
 - recommended_pathways: 3-5 pathways spanning best-fit / backup / exploration / stretch / support-needed.
 - career_matches: 3-6 cluster cards.
 - readiness_scorecard: 6-14 categories from Self-advocacy, Career awareness, Job readiness, Communication, Independent living, Transportation, Financial literacy, Postsecondary readiness, Technology, Executive functioning, Social skills, Community participation, Daily routines, Problem-solving. Be supportive — never harsh.
-- iep_translator: paraphrase from current_goals/intake; translate into plain English; flag missing info.
+- iep_translator: translate only actual IEP goal text supplied in current_goals/intake. If no actual IEP goal text was supplied, omit this optional section and identify the missing IEP in data_gaps. Draft planning ideas, fictional observations, and statements that no IEP was supplied are not current IEP goals. If exactly one actual goal was supplied, return one translation. Include only explicitly supplied connected services; use an empty connected_services array when none are documented. Never invent or duplicate goals or services to fill an array. Flag missing information and keep draft recommendations clearly separate from existing IEP content.
 - data_gaps: be honest about what the intake did not provide.
 - student_voice_prompts: addressed TO the student in first person ("What do I want…").
 - family_action_plan: practical, doable, time-horizoned.

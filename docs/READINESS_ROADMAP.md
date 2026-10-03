@@ -4,6 +4,29 @@
 
 ### Immediate dependency: isolated Lovable AI staging
 
+- PR202 is merged as `9dcd4db40feb35a6f18199d339e40386de007566` and Cloudflare
+  staging run 37072227116 succeeded. External health on both hosts confirms
+  fingerprint `73baaf47991c51cd6d3f681fcf5088a76a74df2725b6a3394a2348c734421620`
+  / 1,064 files, isolated staging backend and sandbox Stripe. Lovable managed
+  AI is configured and isolation.ok true. User supplied fresh external health.
+  Family browser acceptance verifies calendar Agenda Next/Today, dashboard
+  returns and existing Documents/PPT Prep destinations; owner/partner database
+  acceptance remains open.
+
+- The one authorized synthetic generation after PR202 parity failed at
+  2026-10-02 21:36:38 Eastern. Persistent UI error retains all answers; the
+  saved-report library shows no report. Safe server diagnostics contain only
+  finishReason `stop`, section `iep_translator`, validation code `too_small`.
+  The log does not identify which nested bound failed. No second AI call made;
+  possible persisted synthetic intake cleanup is unverified.
+  Candidate fix aligns the IEP translation contract with available evidence:
+  omit the optional section when no actual IEP goal is supplied, accept one
+  supplied goal and zero documented services, keep array maximums and require
+  nonblank goals/services/questions. Prompt distinguishes draft ideas from
+  existing IEP content. Ten focused generation/diagnostic tests, TypeScript
+  and whitespace checks pass. Live success is not yet proven; review, release
+  and authorization for another synthetic generation remain pending.
+
 - October 2 next review batch: calendar month navigation clamps month-end dates;
   agenda Previous/Next/Today follows the selected week. Tool return links use
   the shared role/owner resolver, including owners who also hold a family role.
