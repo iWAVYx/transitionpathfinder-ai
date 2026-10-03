@@ -7,8 +7,11 @@
   run 37124901954 succeeded. External health verifies fingerprint
   `c9377aaba2bc5e702c8b7916e7787c04b0a66e5430caa89cf1f803be5e54ca82`,
   1,064 files, staging backend and sandbox Stripe, isolation.ok true.
-  Lovable exact sync, frozen install and build passed. External activation
-  remains pending; no new AI request until both external identities match.
+  Lovable exact sync, frozen install and build passed. Supported editor
+  Shift+Refresh and existing runtime restart were attempted. External health
+  still serves PR202 (73baaf47…421620), despite current workspace source.
+  External activation remains unresolved; the authorized retry is unused.
+  No new AI request until both external identities match; no support request.
 - Scope explicitly includes every role dashboard, Tools menu and tool return
   navigation: student, family, educator/case manager, school administrator,
   district administrator and partner. Owner Hub stays website management only.
@@ -22,7 +25,7 @@
   owners. Header now waits for both lookups, clears old role state on account
   change, and uses the guarded entry if owner lookup fails. Eight component
   checks pass, including delayed owner resolution and all six planning roles.
-  This follow-up is separate from the deployed PR203 and awaits review/release.
+  This follow-up is draft PR204 (https://github.com/iWAVYx/transitionpathfinder-ai/pull/204), separate from deployed PR203; awaits review/release authorization.
 - Existing shared router restores positions by full location href, covering role
   pages and tool navigation. Family browser checks were already recorded below;
   do not equate them with all-role live acceptance. Preserve every older roadmap
