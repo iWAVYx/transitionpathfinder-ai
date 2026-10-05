@@ -57,3 +57,15 @@ A future, separately authorized read-only production preflight can use the same 
 That production preflight must not reuse staging accounts, staging database credentials, or the staging workflow. It does not authorize an AI request, payment, publish, migration, or production change. Any later production AI smoke request remains a separate Owner-only authorization.
 
 This document does not authorize those later steps. The package must be reviewed first, and the current task must not merge, deploy, publish, migrate, or touch production.
+
+## Next acceptance: PPT Family and Educator packets
+
+This is a prepared acceptance plan, not evidence that it has run. Release PR210 to both isolated staging hosts and confirm exact source parity before execution. Use only the named synthetic staging Family/Educator accounts and synthetic student/report fixtures; do not use real IEPs or real student details. Keep credentials in protected staging configuration. No production requests.
+
+- Generate at most one packet per Family and Educator account (two total); no automatic retry or duplicate click. Reuse the same authorized synthetic report context with role-appropriate concerns/outcomes. A failure stops that case for diagnosis.
+- Confirm the form exposes labeled report/date/concerns/outcomes controls; each account can select only an accessible report.
+- Assess the returned packet against its actual schema: 4–7 agenda topics, 4–8 questions, 3–6 evidence requests, 3–6 scripts, opening and stalled-meeting script. Verify student/report specifics, both Family/Educator perspectives, measurable progress questions, realistic next steps and explicit missing evidence. Do not equate word count or valid JSON with sophisticated content.
+- Confirm persisted packet ID and caller ownership, reload the canonical saved URL, and compare saved/rendered content without another generation. Verify another unauthorized synthetic identity cannot load it.
+- Inspect print/PDF layout for complete agenda/questions/evidence/scripts, readable page breaks and absence of interactive buttons. Cancel the print dialog if needed; do not assume the existence of a print button proves export quality.
+- Verify role-aware return navigation and scroll/state where applicable. Other roles must retain their existing access rules; this plan does not add private planning tools to Student/Partner/School/District/Owner workspaces.
+- Remove only explicitly disposable run-scoped synthetic packets/fixtures, audit remaining row counts and sanitize credential-bearing diagnostic artifacts. Record each role result, quality findings, source identity, AI call count and cleanup result separately. Unrun checks remain open.
