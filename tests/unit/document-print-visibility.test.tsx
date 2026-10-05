@@ -12,7 +12,7 @@ it("preserves the approved logo and document identity without navigation", () =>
   expect(template.content.querySelector('img[alt="TransitionForward"]')?.getAttribute("src")).toBe("/brand/transitionforward-wordmark.png");
   expect(template.content.querySelector("nav, button")).toBeNull();
   expect(template.content.querySelector("[data-document-print-header]")?.classList.contains("hidden")).toBe(false);
-  expect(template.content.textContent).toContain("Meeting preparation");
+  expect(template.content.textContent).toContain("Meeting Preparation");
 });
 
 it("document visibility overrides the site-hiding rule at higher specificity", () => {

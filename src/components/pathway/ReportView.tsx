@@ -379,7 +379,7 @@ export function ReportView({
         ? `A plan for ${name}.`
         : audience === "student"
           ? `Your plan, ${name}.`
-          : `Meeting guide — ${name}`,
+          : `Meeting Guide — ${name}`,
     [audience, name],
   );
 
@@ -796,7 +796,7 @@ export function ReportView({
 
       <div className="mt-6 border-l-2 border-amber-400/50 pl-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-300">
-          Draft guide · Check with your team
+          Draft Guide · Check with Your Team
         </p>
         <div className="mt-1 ai-disclaimer-bare">
           <AIDisclaimer variant="inline" className="!border-0 !bg-transparent !p-0 !shadow-none" />
@@ -811,8 +811,8 @@ export function ReportView({
       {/* ============ Executive Summary ============ */}
       <section className="mt-10 page-break exec-summary">
         <PublicationPage
-          kicker="At a glance"
-          chapter="At a glance"
+          kicker="At a Glance"
+          chapter="At a Glance"
           dek="The big picture — what we know, where things are headed, and where to start."
           folio="p. 01"
         >

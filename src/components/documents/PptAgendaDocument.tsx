@@ -36,7 +36,7 @@ export function PptAgendaDocument({
       <div className="rounded-3xl bg-gradient-hero p-5 shadow-soft sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          Your meeting guide for {toTitleCase(name)}
+          Your Meeting Guide for {toTitleCase(name)}
         </h1>
         <p className="mt-4 text-base leading-relaxed text-foreground/80">{agenda.opening_note}</p>
       </div>
@@ -54,7 +54,7 @@ export function PptAgendaDocument({
                 {item.minutes} min
               </span>
               <div>
-                <p className="font-display text-base font-medium">{item.title}</p>
+                <p className="font-display text-base font-medium">{toTitleCase(item.title)}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{item.purpose}</p>
               </div>
             </li>
@@ -89,7 +89,7 @@ export function PptAgendaDocument({
       </Block>
 
       <div data-document-callout className="mt-10 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If the conversation gets stuck</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If the Conversation Gets Stuck</p>
         <p className="mt-3 font-display text-lg italic text-foreground/90">{agenda.if_things_get_stuck}</p>
       </div>
 
@@ -104,7 +104,7 @@ export function PptAgendaDocument({
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div data-document-section className="mt-6">
-      <h2 className="font-display text-2xl font-medium tracking-tight">{title}</h2>
+      <h2 className="font-display text-2xl font-medium tracking-tight">{toTitleCase(title)}</h2>
       <div className="mt-4">{children}</div>
     </div>
   );
