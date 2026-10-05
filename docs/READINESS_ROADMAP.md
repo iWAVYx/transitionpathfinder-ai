@@ -1389,3 +1389,7 @@ School and district PDF exports now share branded Letter-page layout, uniform ti
 ## Dashboard Card Link Audit — October 5, 2026
 
 Every linked label must lead to an existing role-authorized destination relevant to its card category. Checked primary card destinations for Family, Student, Educator, School Admin, District Admin and Partner against registered routes and permissions. Checked shared related links and real demo counterparts. Moved Family Goals & Progress from Connected Student to Pathway Report in shared demo/live mapping. Demo related links without a dedicated demo destination now remain absent rather than falling back to a signed-in route. Thirty-six focused checks passed. Owner remains management-only; no role dashboard added. Signed-in browser acceptance and release remain open.
+
+## Widget Category Navigation — October 5, 2026
+
+Calendar widget event titles now resolve within the role’s Calendar feature rather than switching to meeting preparation based on event kind. Meeting widget titles remain within meeting tools. Demo Calendar and Meeting entries follow the same category rule and retain selected-student context. Existing preview-only calendar behavior is preserved where direct links were intentionally suppressed; role widget availability is unchanged. Twenty-seven focused navigation tests pass. No release or signed-in acceptance claim.

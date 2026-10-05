@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { listCalendarEvents } from "@/lib/calendar.functions";
-import { widgetLinkDestination } from "@/lib/dashboard/dashboard-widget-navigation";
+import { widgetEventDestination, widgetLinkDestination } from "@/lib/dashboard/dashboard-widget-navigation";
 import {
   WIDGETS_BY_ROLE,
   getDashboardWidgetPrefs,
@@ -98,14 +98,7 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
                   day: "numeric",
                   timeZone: "UTC",
                 }).format(new Date(`${event.event_date}T12:00:00Z`)),
-                to: widgetLinkDestination(
-                  role,
-                  role === "school_admin"
-                    ? calendarTool
-                    : event.kind === "meeting" && role !== "student"
-                      ? "/meetings"
-                      : "/calendar",
-                ),
+                to: widgetEventDestination(role, id === "meetings" ? "meetings" : "calendar"),
               }));
       return [
         id,
