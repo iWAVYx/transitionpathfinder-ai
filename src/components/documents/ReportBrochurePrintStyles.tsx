@@ -20,6 +20,21 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-printed-goals] .uppercase { text-transform: none; letter-spacing: normal; }
       body:has(.report-root) .report-root [data-report-printed-goals] > section { break-inside: avoid; }
       body:has(.report-root) .report-root .pub-page-runninghead { display: none !important; }
+      body:has(.report-root) .report-root .pub-spread { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.2in; }
+      body:has(.report-root) .report-root .pub-spread > * { min-width: 0; }
+      body:has(.report-root) .report-root .pub-spread-side {
+        border-top: 0; border-left: 1px solid #ded8e7; padding-top: 0; padding-left: 0.15in;
+      }
+      body:has(.report-root) .report-root [class*="line-clamp-"] {
+        display: block !important; -webkit-line-clamp: unset !important;
+        overflow: visible !important; max-height: none !important;
+      }
+      body:has(.report-root) .report-root .truncate {
+        white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
+      }
+      body:has(.report-root) .report-root [data-document-caution] { break-inside: avoid; }
+      body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; }
+      body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
       body:has(.report-root) .report-root .pub-page-opener { margin-bottom: 0.12in !important; }
       body:has(.report-root) .report-root .pub-page-rule { margin-top: 0.1in !important; }
       body:has(.report-root) .report-root .pub-page-body h2,

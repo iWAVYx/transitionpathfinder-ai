@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     alias: { "@": resolve("src") },
   });
@@ -37,7 +37,7 @@ for (const role of ["Family", "Educator"]) {
       const field = renderToStaticMarkup(createElement(components.PrintedFieldValue, { value: note }));
       const watermark = renderToStaticMarkup(createElement(components.DocumentWatermark));
       const header = renderToStaticMarkup(createElement(components.DocumentPrintHeader, { title: `${role} meeting plan — sample` }));
-      const styles = [components.DocumentPrintStyles, components.DocumentViewStyles].map((component) => renderToStaticMarkup(createElement(component))).join("");
+      const styles = [components.DocumentPrintStyles, components.DocumentViewStyles, components.MeetingDocumentStyles].map((component) => renderToStaticMarkup(createElement(component))).join("");
       await page.setContent(`<html><head><base href="http://document-fixture.test"><style>
         body { margin: 16px; font-family: sans-serif; }
         [data-brand-logo] { display: flex; align-items: center; gap: 8px; }
@@ -47,7 +47,7 @@ for (const role of ["Family", "Educator"]) {
         @media print { [data-document-field-value] { display: block; white-space: pre-wrap; overflow-wrap: anywhere; } textarea { display: none; } }
       </style></head><body>
         <header>Site navigation</header><main class="site-shell-main"><div>Dashboard breadcrumb</div>
-        <section data-generated-document data-print-document>${styles}${watermark}${header}
+        <section data-meeting-document data-generated-document data-print-document>${styles}${watermark}${header}
           <h1>A meeting plan for a sample student</h1>
           <p>Sample content for a layout check. No student records or AI requests are used.</p>
           <header data-section-heading><h2>Questions to discuss</h2></header>

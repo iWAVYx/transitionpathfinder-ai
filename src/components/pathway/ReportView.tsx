@@ -794,7 +794,7 @@ export function ReportView({
         />
       </section>
 
-      <div className="mt-6 border-l-2 border-amber-400/50 pl-4">
+      <div data-document-caution className="mt-6 border-l-2 border-amber-400/50 pl-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-300">
           Draft Guide · Check with Your Team
         </p>

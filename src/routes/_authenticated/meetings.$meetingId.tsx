@@ -1,3 +1,5 @@
+import { MeetingDocumentStyles } from "@/components/documents/MeetingDocumentStyles";
+import { toTitleCase } from "@/lib/title-case";
 import { PrintedFieldValue } from "@/components/documents/PrintedFieldValue";
 import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
@@ -179,17 +181,18 @@ function MeetingDetailPage() {
         />
       </div>
 
-      <section data-generated-document data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <section data-meeting-document data-generated-document data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
         <DocumentWatermark />
         <DocumentViewStyles />
         <DocumentPrintStyles />
+        <MeetingDocumentStyles />
         <DocumentPrintHeader title="Meeting notes" />
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {meeting.kind} Meeting · {meeting.status}
             </p>
-            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight">{meeting.title}</h1>
+            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight">{toTitleCase(meeting.title)}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {meeting.scheduled_at ? new Date(meeting.scheduled_at).toLocaleString() : "Unscheduled"}
               {meeting.location ? ` · ${meeting.location}` : ""}
@@ -229,7 +232,7 @@ function MeetingDetailPage() {
             <header className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 font-display text-lg">
                 <ClipboardList className="h-4 w-4 text-primary" />
-                Agenda & checklist
+                Agenda & Checklist
               </h2>
               <div className="flex flex-wrap items-center gap-2 print:hidden">
                 {templates.length > 0 ? (
@@ -313,6 +316,7 @@ function MeetingDetailPage() {
                     <div className="min-w-0 flex-1">
                       <p className={cn("font-medium", a.completed && "line-through")}>
                         <span className="text-muted-foreground">{i + 1}.</span> {a.title}
+                        <span data-meeting-agenda-status className="ml-2 text-xs text-muted-foreground">{a.completed ? "Completed" : "To Discuss"}</span>
                       </p>
                       {a.notes ? (
                         <p className="mt-0.5 text-xs text-muted-foreground">{a.notes}</p>
@@ -364,7 +368,7 @@ function MeetingDetailPage() {
 
             <h3 className="mt-8 flex items-center gap-2 font-display text-base">
               <Sparkles className="h-4 w-4 text-primary" />
-              Student voice
+              Student Voice
             </h3>
             <textarea
               rows={3}
@@ -377,7 +381,7 @@ function MeetingDetailPage() {
             />
               <PrintedFieldValue value={meeting.student_voice} />
 
-            <h3 className="mt-6 font-display text-base">Family concerns</h3>
+            <h3 className="mt-6 font-display text-base">Family Concerns</h3>
             <textarea
               rows={3}
               aria-label="Family concerns"
@@ -389,10 +393,10 @@ function MeetingDetailPage() {
             />
               <PrintedFieldValue value={meeting.family_concerns} />
 
-            <h3 className="mt-6 font-display text-base">Teacher progress notes</h3>
+            <h3 className="mt-6 font-display text-base">Educator Notes</h3>
             <textarea
               rows={3}
-              aria-label="Teacher progress notes"
+              aria-label="Educator Notes"
               value={meeting.teacher_notes ?? ""}
               onChange={(e) => setMeeting({ ...meeting, teacher_notes: e.target.value })}
               onBlur={(e) => saveField("teacher_notes", e.target.value)}
@@ -404,11 +408,11 @@ function MeetingDetailPage() {
 
           {/* Side rail */}
           <div className="space-y-6">
-            <div className="rounded-2xl border bg-card p-5 shadow-soft">
+            <div data-meeting-short-section className="rounded-2xl border bg-card p-5 shadow-soft">
               <header className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-display text-lg">
                   <MessageSquare className="h-4 w-4 text-primary" />
-                  Questions to ask
+                  Questions to Discuss
                 </h2>
                 <AddInline
                   label="Add"
@@ -426,6 +430,7 @@ function MeetingDetailPage() {
                       {q.asker_role}
                     </span>
                     <p className="mt-1">{q.question}</p>
+                    {q.answer?.trim() && <p className="mt-2 text-sm"><strong>Team Response: </strong>{q.answer}</p>}
                   </li>
                 ))}
                 {questions.length === 0 && (
@@ -434,11 +439,11 @@ function MeetingDetailPage() {
               </ul>
             </div>
 
-            <div className="rounded-2xl border bg-card p-5 shadow-soft">
+            <div data-meeting-short-section className="rounded-2xl border bg-card p-5 shadow-soft">
               <header className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-display text-lg">
                   <CheckSquare className="h-4 w-4 text-primary" />
-                  Follow-up action items
+                  Next Steps
                 </h2>
                 <AddInline
                   label="Add"
@@ -475,8 +480,12 @@ function MeetingDetailPage() {
                         <option value="in-progress">In progress</option>
                         <option value="done">Done</option>
                       </select>
-                      <span className="hidden print:inline text-xs">{a.status === "in-progress" ? "In progress" : a.status === "done" ? "Done" : "Open"}</span>
+                      <span data-meeting-action-status className="hidden print:inline text-xs">{a.status === "in-progress" ? "In progress" : a.status === "done" ? "Done" : "Open"}</span>
                     </div>
+                    {(a.assignee_role || a.due_date) && <p className="mt-1 text-xs text-muted-foreground">
+                      {a.assignee_role ? `Who: ${toTitleCase(a.assignee_role)}` : "Who: Not assigned"}
+                      {a.due_date ? ` · Due: ${a.due_date}` : " · Due date not set"}
+                    </p>}
                   </li>
                 ))}
                 {actions.length === 0 && (
@@ -491,15 +500,14 @@ function MeetingDetailPage() {
         <div className="mt-8 rounded-2xl border bg-card p-5 shadow-soft">
           <h2 className="flex items-center gap-2 font-display text-lg">
             <CheckSquare className="h-4 w-4 text-primary" />
-            After the meeting
+            Meeting Summary
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Capture what happened so the team — and the Pathway Report — stay in sync. Completing
-            the meeting promotes follow-ups into student action items.
+            Keep a shared record of the discussion, decisions and next steps.
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="text-sm sm:col-span-2">
-              <span className="mb-1 block font-medium">Meeting notes / summary</span>
+              <span className="mb-1 block font-medium">What We Discussed</span>
               <textarea
                 rows={3}
                 value={meeting.summary ?? ""}
@@ -511,7 +519,7 @@ function MeetingDetailPage() {
               <PrintedFieldValue value={meeting.summary} />
             </label>
             <label className="text-sm">
-              <span className="mb-1 block font-medium">Decisions made</span>
+              <span className="mb-1 block font-medium">Decisions Made</span>
               <textarea
                 rows={3}
                 value={meeting.decisions ?? ""}
@@ -523,7 +531,7 @@ function MeetingDetailPage() {
               <PrintedFieldValue value={meeting.decisions} />
             </label>
             <label className="text-sm">
-              <span className="mb-1 block font-medium">Documents to update</span>
+              <span className="mb-1 block font-medium">Documents to Update</span>
               <textarea
                 rows={3}
                 value={meeting.documents_to_update ?? ""}
@@ -535,7 +543,7 @@ function MeetingDetailPage() {
               <PrintedFieldValue value={meeting.documents_to_update} />
             </label>
             <label className="text-sm">
-              <span className="mb-1 block font-medium">Next meeting date</span>
+              <span className="mb-1 block font-medium">Next Meeting Date</span>
               <input
                 type="date"
                 value={meeting.next_meeting_date ?? ""}
@@ -543,7 +551,7 @@ function MeetingDetailPage() {
                 className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
               <PrintedFieldValue value={meeting.next_meeting_date} />
-              <span className="mt-1 block text-xs text-muted-foreground">
+              <span className="print:hidden mt-1 block text-xs text-muted-foreground">
                 Shown on the calendar so nothing slips.
               </span>
             </label>
