@@ -111,6 +111,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: FileText,
       title: "Pathway Report — Family View",
+      relatedActions: RELATED_TOOLS["family:pathway-report"],
       status: snapshot.latestReport ? "Ready to review" : "Not started",
       tone: snapshot.latestReport ? "success" : "warning",
       summary:
