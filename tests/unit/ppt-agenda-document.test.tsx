@@ -27,3 +27,11 @@ it("delegates linked-student actions to the route without altering document text
   fireEvent.click(screen.getAllByRole("button", { name: "+ Action" })[0]);
   expect(add).toHaveBeenCalledWith(agenda.questions_to_ask[0]);
 });
+
+it("sample mode blocks live action callbacks even if a student is accidentally supplied", () => {
+  const add = vi.fn();
+  render(<PptAgendaDocument sample name="Sample student" agenda={agenda} studentId="accidental-id" meetingDate={null} onAddAction={add} />);
+  expect(screen.queryByRole("button", { name: "+ Action" })).toBeNull();
+  expect(screen.getByText("Fictional Sample")).toBeTruthy();
+  expect(add).not.toHaveBeenCalled();
+});

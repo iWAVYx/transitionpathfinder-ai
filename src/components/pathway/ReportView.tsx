@@ -1,3 +1,4 @@
+import { SampleDocumentNotice } from "@/components/documents/SampleDocumentNotice";
 import { ReportBrochurePrintStyles } from "@/components/documents/ReportBrochurePrintStyles";
 import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
@@ -460,6 +461,7 @@ export function ReportView({
       <DocumentViewStyles />
       <ReportBrochurePrintStyles />
       <DocumentPrintHeader title="Pathway Report" />
+      {demo && <SampleDocumentNotice />}
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
         @media (min-width: 640px) {
@@ -723,7 +725,7 @@ export function ReportView({
           >
             <ChevronsDownUp className="h-4 w-4" /> Collapse
           </Button>
-          {onSaveToProfile && (
+          {!demo && onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "ghost"}
               size="sm"
@@ -739,7 +741,7 @@ export function ReportView({
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied" : "Share"}
           </Button>
-          {onRefresh && (
+          {!demo && onRefresh && (
             <Button
               variant="ghost"
               size="sm"

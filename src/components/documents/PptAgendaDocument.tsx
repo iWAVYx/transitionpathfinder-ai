@@ -1,3 +1,4 @@
+import { SampleDocumentNotice } from "./SampleDocumentNotice";
 import { PptBrochureStyles } from "./PptBrochureStyles";
 import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import type { ReactNode } from "react";
@@ -17,6 +18,7 @@ export function PptAgendaDocument({
   partnerContent,
   onAddAction,
   onReset,
+  sample = false,
 }: {
   name: string;
   agenda: PptAgenda;
@@ -25,6 +27,7 @@ export function PptAgendaDocument({
   partnerContent?: ReactNode;
   onAddAction?: (title: string) => Promise<void>;
   onReset?: () => void;
+  sample?: boolean;
 }) {
   return (
     <section data-generated-document data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
@@ -33,6 +36,7 @@ export function PptAgendaDocument({
       <DocumentPrintStyles />
       <PptBrochureStyles />
       <DocumentPrintHeader title="Meeting guide" />
+      {sample && <SampleDocumentNotice />}
       <div className="rounded-3xl bg-gradient-hero p-5 shadow-soft sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
@@ -70,11 +74,11 @@ export function PptAgendaDocument({
 
       <div data-document-columns>
       <Block title="Questions to ask">
-        <BulletList items={agenda.questions_to_ask} onAddAction={studentId ? onAddAction : undefined} />
+        <BulletList items={agenda.questions_to_ask} onAddAction={!sample && studentId ? onAddAction : undefined} />
       </Block>
 
       <Block title="What to bring">
-        <BulletList items={agenda.evidence_to_bring} onAddAction={studentId ? onAddAction : undefined} />
+        <BulletList items={agenda.evidence_to_bring} onAddAction={!sample && studentId ? onAddAction : undefined} />
       </Block>
 
       </div>

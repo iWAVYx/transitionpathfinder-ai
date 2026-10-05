@@ -12,6 +12,7 @@ it.each(["family", "educator"] as const)("%s demo renders and prints the real do
   const print = vi.spyOn(window, "print").mockImplementation(() => {});
   const { container } = render(<DemoMeetingGuide profile={profile} role={role} />);
   expect(container.querySelector("[data-ppt-print-packet]")).toBeTruthy();
+  expect(container.querySelector("[data-ppt-print-packet] [data-document-sample-notice]")).toBeTruthy();
   expect(screen.getByText(guide.opening_note)).toBeTruthy();
   expect(guide.opening_note).toContain("Fictional sample");
   expect(guide.questions_to_ask.join(" ")).toContain(profile.goals[0].title);

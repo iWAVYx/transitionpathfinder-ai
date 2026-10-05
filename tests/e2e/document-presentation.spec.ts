@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     alias: { "@": resolve("src") },
   });
@@ -48,6 +48,7 @@ for (const role of ["Family", "Educator"]) {
       </style></head><body>
         <header>Site navigation</header><main class="site-shell-main"><div>Dashboard breadcrumb</div>
         <section data-meeting-document data-generated-document data-print-document>${styles}${watermark}${header}
+          ${renderToStaticMarkup(createElement(components.SampleDocumentNotice))}
           <h1>A meeting plan for a sample student</h1>
           <p>Sample content for a layout check. No student records or AI requests are used.</p>
           <header data-section-heading><h2>Questions to discuss</h2></header>
@@ -67,6 +68,7 @@ for (const role of ["Family", "Educator"]) {
       await expect(page.locator("[data-document-watermark]")).toBeHidden();
       await expect(page.locator("[data-document-field-value]")).toBeHidden();
       await page.emulateMedia({ media: "print" });
+      await expect(page.locator("[data-document-sample-notice]")).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Meeting notes" })).toBeHidden();
       await expect(page.locator("[data-document-field-value]")).toBeVisible();
       await expect(page.locator("[data-document-field-value]")).toHaveText(note);
