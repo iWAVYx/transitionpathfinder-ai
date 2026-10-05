@@ -1,8 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
+## Standing rule for every role change
+
+For every feature, tool, workflow, navigation, content or layout change to any role, assess applicability across Student, Family/Guardian, Educator, School Admin, District Admin, Partner and Owner. Record which roles share the implementation, which need adapted behavior and which do not apply, with a reason. Prefer shared components and contracts for equivalent workflows; clearly distinguish demo sample data from signed-in records. Check role-specific destinations, empty/loading/error states, persistence, exports and responsive behavior where affected. Preserve permissions, privacy and Owner Hub management-only scope; sharing an implementation never grants another role access. Validate every affected role and note untested cases explicitly. Promote the same reviewed source through staging and separately authorized production releases with isolated environment configuration.
+
 ## Current release status — October 5, 2026
 
-- Cross-role follow-up: assess each Family/Guardian improvement for relevant Student, Educator, School, District and Partner equivalents while preserving authorization and Owner management-only scope. PPT follow-up corrects family-only copy/action categories, accessible labels and printable controls; live quality/persistence/export checks remain open.
+- Cross-role follow-up: assess changes to any role for relevant equivalents across all roles while preserving authorization and Owner management-only scope. PPT follow-up corrects family-only copy/action categories, accessible labels and printable controls; live quality/persistence/export checks remain open.
 - Dashboard widget follow-up (unreleased): shared demo/live view adds purpose, honest empty-state expectations and role-specific action guidance across six dashboard roles. Owner remains management-only. Demo and live share presentation/interaction contracts with clearly labeled sample data; production promotes the reviewed staging source with separate configuration.
 - PR207 merged as cca6afee56f3ec996f2f247d34fcdd1c9f40424d after explicit authorization. Both isolated staging hosts externally verify fingerprint c9d5ed4b05ba9ef91e04aac619f6120e646e064f050227b2c029e19cd72ce95f, 1,065 files, staging backend, sandbox payments and isolation.ok true. Cloudflare run 37268438803 succeeded; the existing Lovable staging website update completed. Production was not touched.
 - Seven-role signed-in access/navigation audit 37163132863 passed. Dashboard regression 37163132862 passed all 84 browser checks with seven role sign-ins. These checks make no AI calls and do not establish generation acceptance.
