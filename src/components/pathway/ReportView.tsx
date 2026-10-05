@@ -1,3 +1,4 @@
+import { ReportBrochurePrintStyles } from "@/components/documents/ReportBrochurePrintStyles";
 import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
@@ -378,7 +379,7 @@ export function ReportView({
         ? `A plan for ${name}.`
         : audience === "student"
           ? `Your plan, ${name}.`
-          : `PPT Prep packet — ${name}`,
+          : `Meeting guide — ${name}`,
     [audience, name],
   );
 
@@ -457,6 +458,7 @@ export function ReportView({
     >
       <DocumentWatermark />
       <DocumentViewStyles />
+      <ReportBrochurePrintStyles />
       <div className="print:hidden"><DocumentPrintHeader title="Pathway Report" /></div>
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
@@ -780,7 +782,7 @@ export function ReportView({
             whatThisMeans: `This report brings together everything we know about ${name} — intake answers, uploaded documents, ${name}'s own words, and family priorities — into one decision-supportive view.`,
             whyItMatters:
               "Transition planning fails most often because information is scattered across people and documents. This page is the shared starting point.",
-            recommendedNextStep: `Read the Executive Summary, then jump to "Bring To The Team" before the next meeting.`,
+            recommendedNextStep: `Start with "At a glance," then read "Bring To The Team" before the next meeting.`,
             questionsForTeam: [
               "Does this match what you're seeing day-to-day?",
               "What's missing that we should add before the next meeting?",
@@ -794,7 +796,7 @@ export function ReportView({
 
       <div className="mt-6 border-l-2 border-amber-400/50 pl-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-300">
-          Source Note · AI-Assisted Draft
+          Draft guide · Check with your team
         </p>
         <div className="mt-1 ai-disclaimer-bare">
           <AIDisclaimer variant="inline" className="!border-0 !bg-transparent !p-0 !shadow-none" />
@@ -809,8 +811,8 @@ export function ReportView({
       {/* ============ Executive Summary ============ */}
       <section className="mt-10 page-break exec-summary">
         <PublicationPage
-          kicker="Executive Summary"
-          chapter="Executive Summary"
+          kicker="At a glance"
+          chapter="At a glance"
           dek="The big picture — what we know, where things are headed, and where to start."
           folio="p. 01"
         >
@@ -1705,6 +1707,12 @@ export function ReportView({
 
 
         @media print {
+          body:has(.report-root) * { visibility: hidden; }
+          body:has(.report-root) .report-root,
+          body:has(.report-root) .report-root * { visibility: visible; }
+          body:has(.report-root) header:not(.report-root *),
+          body:has(.report-root) footer:not(.report-root *) { display: none !important; }
+          .site-shell-main:has(.report-root) > :not(.report-root):not(:has(.report-root)) { display: none !important; }
           /* Consistent margins + running header/footer on body pages */
           @page {
             size: Letter;

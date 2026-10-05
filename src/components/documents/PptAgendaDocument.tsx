@@ -1,3 +1,4 @@
+import { PptBrochureStyles } from "./PptBrochureStyles";
 import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import type { ReactNode } from "react";
 import type { PptAgenda } from "@/lib/ppt.functions";
@@ -30,13 +31,14 @@ export function PptAgendaDocument({
       <DocumentWatermark />
       <DocumentViewStyles />
       <DocumentPrintStyles />
-      <DocumentPrintHeader title="PPT Meeting Prep" />
+      <PptBrochureStyles />
+      <DocumentPrintHeader title="Meeting guide" />
       <div className="rounded-3xl bg-gradient-hero p-5 shadow-soft sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-          A Meeting Plan For {toTitleCase(name)}.
+          Your meeting guide for {toTitleCase(name)}
         </h1>
-        <p className="mt-4 text-base italic leading-relaxed text-foreground/80">{agenda.opening_note}</p>
+        <p className="mt-4 text-base leading-relaxed text-foreground/80">{agenda.opening_note}</p>
       </div>
 
       <div className="mt-6">
@@ -44,10 +46,10 @@ export function PptAgendaDocument({
       </div>
 
 
-      <Block title="Suggested agenda">
+      <Block title="Your meeting plan">
         <ol className="space-y-3">
           {agenda.agenda.map((item, i) => (
-            <li key={i} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card p-4">
+            <li key={i} data-document-agenda-item className="flex items-start gap-3">
               <span className="mt-0.5 inline-flex h-8 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
                 {item.minutes} min
               </span>
@@ -61,23 +63,25 @@ export function PptAgendaDocument({
       </Block>
 
       <div className={!studentId && !meetingDate ? "print:hidden" : undefined}>
-      <Block title="Partner contacts & deadlines">
+      <Block title="People to contact and key dates">
         {partnerContent}
       </Block>
       </div>
 
+      <div data-document-columns>
       <Block title="Questions to ask">
         <BulletList items={agenda.questions_to_ask} onAddAction={studentId ? onAddAction : undefined} />
       </Block>
 
-      <Block title="What to bring as evidence">
+      <Block title="What to bring">
         <BulletList items={agenda.evidence_to_bring} onAddAction={studentId ? onAddAction : undefined} />
       </Block>
 
-      <Block title="Language that works">
+      </div>
+      <Block title="Ways to say it">
         <ul className="mt-2 space-y-3">
           {agenda.language_that_works.map((s, i) => (
-            <li key={i} className="rounded-2xl border border-border/60 bg-card p-4 text-sm italic text-foreground/90">
+            <li key={i} data-document-script className="text-sm italic text-foreground/90">
               "{s}"
             </li>
           ))}
@@ -85,7 +89,7 @@ export function PptAgendaDocument({
       </Block>
 
       <div data-document-callout className="mt-10 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If things get stuck</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If the conversation gets stuck</p>
         <p className="mt-3 font-display text-lg italic text-foreground/90">{agenda.if_things_get_stuck}</p>
       </div>
 
@@ -99,8 +103,8 @@ export function PptAgendaDocument({
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="mt-10">
-      <h2 className="font-display text-2xl font-medium tracking-tight">{toTitleCase(title)}</h2>
+    <div data-document-section className="mt-6">
+      <h2 className="font-display text-2xl font-medium tracking-tight">{title}</h2>
       <div className="mt-4">{children}</div>
     </div>
   );

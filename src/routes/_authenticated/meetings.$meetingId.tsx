@@ -1,3 +1,4 @@
+import { PrintedFieldValue } from "@/components/documents/PrintedFieldValue";
 import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
@@ -230,7 +231,7 @@ function MeetingDetailPage() {
                 <ClipboardList className="h-4 w-4 text-primary" />
                 Agenda & checklist
               </h2>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 print:hidden">
                 {templates.length > 0 ? (
                   <div className="flex items-center gap-1">
                     <select
@@ -372,8 +373,9 @@ function MeetingDetailPage() {
               onChange={(e) => setMeeting({ ...meeting, student_voice: e.target.value })}
               onBlur={(e) => saveField("student_voice", e.target.value)}
               placeholder="What the student wants the team to know — in their own words."
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              className="print:hidden mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
+              <PrintedFieldValue value={meeting.student_voice} />
 
             <h3 className="mt-6 font-display text-base">Family concerns</h3>
             <textarea
@@ -383,8 +385,9 @@ function MeetingDetailPage() {
               onChange={(e) => setMeeting({ ...meeting, family_concerns: e.target.value })}
               onBlur={(e) => saveField("family_concerns", e.target.value)}
               placeholder="What the family most wants the team to hear."
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              className="print:hidden mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
+              <PrintedFieldValue value={meeting.family_concerns} />
 
             <h3 className="mt-6 font-display text-base">Teacher progress notes</h3>
             <textarea
@@ -394,8 +397,9 @@ function MeetingDetailPage() {
               onChange={(e) => setMeeting({ ...meeting, teacher_notes: e.target.value })}
               onBlur={(e) => saveField("teacher_notes", e.target.value)}
               placeholder="Observations and progress to share with the team."
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              className="print:hidden mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
+              <PrintedFieldValue value={meeting.teacher_notes} />
           </div>
 
           {/* Side rail */}
@@ -465,12 +469,13 @@ function MeetingDetailPage() {
                           });
                           reload();
                         }}
-                        className="rounded-full border bg-card px-2 py-0.5 text-[11px]"
+                        className="rounded-full border bg-card px-2 py-0.5 text-[11px] print:hidden"
                       >
                         <option value="open">Open</option>
                         <option value="in-progress">In progress</option>
                         <option value="done">Done</option>
                       </select>
+                      <span className="hidden print:inline text-xs">{a.status === "in-progress" ? "In progress" : a.status === "done" ? "Done" : "Open"}</span>
                     </div>
                   </li>
                 ))}
@@ -501,8 +506,9 @@ function MeetingDetailPage() {
                 onChange={(e) => setMeeting({ ...meeting, summary: e.target.value })}
                 onBlur={(e) => saveField("summary", e.target.value)}
                 placeholder="What was discussed, who attended, key context."
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.summary} />
             </label>
             <label className="text-sm">
               <span className="mb-1 block font-medium">Decisions made</span>
@@ -512,8 +518,9 @@ function MeetingDetailPage() {
                 onChange={(e) => setMeeting({ ...meeting, decisions: e.target.value })}
                 onBlur={(e) => saveField("decisions", e.target.value)}
                 placeholder="Services agreed to, placement changes, accommodations confirmed."
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.decisions} />
             </label>
             <label className="text-sm">
               <span className="mb-1 block font-medium">Documents to update</span>
@@ -523,8 +530,9 @@ function MeetingDetailPage() {
                 onChange={(e) => setMeeting({ ...meeting, documents_to_update: e.target.value })}
                 onBlur={(e) => saveField("documents_to_update", e.target.value)}
                 placeholder="e.g. IEP draft, transition plan, consent form."
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.documents_to_update} />
             </label>
             <label className="text-sm">
               <span className="mb-1 block font-medium">Next meeting date</span>
@@ -532,8 +540,9 @@ function MeetingDetailPage() {
                 type="date"
                 value={meeting.next_meeting_date ?? ""}
                 onChange={(e) => saveNextMeetingDate(e.target.value)}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.next_meeting_date} />
               <span className="mt-1 block text-xs text-muted-foreground">
                 Shown on the calendar so nothing slips.
               </span>
@@ -541,7 +550,7 @@ function MeetingDetailPage() {
           </div>
 
           {meeting.student_id && (
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3 print:hidden">
               <p className="text-xs text-muted-foreground max-w-md">
                 Pull the meeting notes, decisions, and family/teacher context
                 into the Pathway Report as grounded evidence.
@@ -604,7 +613,7 @@ function AddInline({
     );
   }
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1 print:hidden">
       <input
         aria-label={placeholder}
         autoFocus
