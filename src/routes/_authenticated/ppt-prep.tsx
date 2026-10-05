@@ -194,14 +194,14 @@ function PptPrepPage() {
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           Pick a Pathway Report, tell us what you most want from this meeting, and we'll
-          draft a one-page agenda, the right questions to ask, and a few scripts you can
+          draft a detailed agenda, evidence-focused questions, and family and educator scripts you can
           borrow word-for-word.
         </p>
 
         <InfoBox label="What's a PPT meeting?" className="mt-6">
           <p>
             A <Term definition={GLOSSARY.PPT}>PPT</Term> (Planning &amp; Placement Team) meeting
-            is where your student's school team and family sit down together to review the{" "}
+            is where the student, family and school team sit down together to review the{" "}
             <Term definition={GLOSSARY.IEP}>IEP</Term> — goals, services,{" "}
             <Term definition={GLOSSARY.Accommodations}>accommodations</Term>, and what's coming next.
           </p>
@@ -273,12 +273,12 @@ function PptPrepPage() {
         ) : (
         <div className="mt-10 space-y-5 rounded-3xl border border-border/60 bg-card p-6 shadow-soft sm:p-8">
           <div>
-            <Label className="mb-1.5 inline-block">Pathway Report to build from</Label>
+            <Label htmlFor="ppt-report" className="mb-1.5 inline-block">Pathway Report to build from</Label>
             {loadingReports ? (
               <p className="text-sm text-muted-foreground">Loading your reports…</p>
             ) : (
               <Select onValueChange={setReportId}>
-                <SelectTrigger><SelectValue placeholder="Choose a report…" /></SelectTrigger>
+                <SelectTrigger id="ppt-report" aria-label="Pathway Report to build from"><SelectValue placeholder="Choose a report…" /></SelectTrigger>
                 <SelectContent>
                   {reports.map((r) => (
                     <SelectItem key={r.id} value={r.id}>
@@ -293,20 +293,20 @@ function PptPrepPage() {
           </div>
 
           <div>
-            <Label className="mb-1.5 inline-block">Meeting date (optional)</Label>
-            <Input value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} placeholder="e.g. May 14, 2026" />
+            <Label htmlFor="ppt-date" className="mb-1.5 inline-block">Meeting date (optional)</Label>
+            <Input id="ppt-date" value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} placeholder="e.g. May 14, 2026" />
           </div>
 
           <div>
-            <Label className="mb-1.5 inline-block">What's on your mind going in?</Label>
+            <Label htmlFor="ppt-concerns" className="mb-1.5 inline-block">What's on your mind going in?</Label>
             <p className="mb-1.5 text-xs text-muted-foreground">The concerns or questions you don't want to forget to raise.</p>
-            <Textarea rows={3} value={topConcerns} onChange={(e) => setTopConcerns(e.target.value)} />
+            <Textarea id="ppt-concerns" rows={3} value={topConcerns} onChange={(e) => setTopConcerns(e.target.value)} />
           </div>
 
           <div>
-            <Label className="mb-1.5 inline-block">What do you want to walk out with?</Label>
+            <Label htmlFor="ppt-outcomes" className="mb-1.5 inline-block">What do you want to walk out with?</Label>
             <p className="mb-1.5 text-xs text-muted-foreground">Decisions, services, or commitments you're hoping for.</p>
-            <Textarea rows={3} value={desiredOutcomes} onChange={(e) => setDesiredOutcomes(e.target.value)} />
+            <Textarea id="ppt-outcomes" rows={3} value={desiredOutcomes} onChange={(e) => setDesiredOutcomes(e.target.value)} />
           </div>
 
           <Button onClick={onGenerate} disabled={generating || !reportId} className="w-full">
@@ -379,7 +379,7 @@ function AgendaView({
       </Block>
 
       <Block title="Questions to ask">
-        <BulletList items={agenda.questions_to_ask} studentId={studentId} category="family" />
+        <BulletList items={agenda.questions_to_ask} studentId={studentId} category="team" />
       </Block>
 
       <Block title="What to bring as evidence">
@@ -401,7 +401,7 @@ function AgendaView({
         <p className="mt-3 font-display text-lg italic text-foreground/90">{agenda.if_things_get_stuck}</p>
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-3">
+      <div className="mt-10 flex flex-wrap gap-3 print:hidden">
         <Button onClick={onReset} variant="outline">Prep another meeting</Button>
         <Button onClick={() => window.print()}>Print / save as PDF</Button>
       </div>
@@ -445,7 +445,7 @@ function BulletList({
                     data: {
                       student_id: studentId,
                       title: it.slice(0, 200),
-                      category: category ?? "family",
+                      category: category ?? "team",
                       priority: "medium",
                     },
                   });
@@ -454,7 +454,7 @@ function BulletList({
                   toast.error(e instanceof Error ? e.message : "Could not add.");
                 }
               }}
-              className="shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted"
+              className="print:hidden shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted"
             >
               + Action
             </button>
