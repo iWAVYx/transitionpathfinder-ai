@@ -1393,3 +1393,7 @@ Every linked label must lead to an existing role-authorized destination relevant
 ## Widget Category Navigation — October 5, 2026
 
 Calendar widget event titles now resolve within the role’s Calendar feature rather than switching to meeting preparation based on event kind. Meeting widget titles remain within meeting tools. Demo Calendar and Meeting entries follow the same category rule and retain selected-student context. Existing preview-only calendar behavior is preserved where direct links were intentionally suppressed; role widget availability is unchanged. Twenty-seven focused navigation tests pass. No release or signed-in acceptance claim.
+
+## Demo Meeting Guide Parity — October 5, 2026
+
+Family and Educator meeting-prep demo pages now render PptAgendaDocument, the same branded on-screen/export layout used by signed-in PPT prep. Prepared fictional content follows the selected sample student's goal and support context with role-appropriate scripts. It makes no AI calls, saves no records and exposes no add-action or generation controls; printing remains available. Empty contact/date sections are omitted when no content exists. Twenty-five focused tests and TypeScript passed. This closes renderer parity for those demo pages, not full-product parity or signed-in release acceptance.

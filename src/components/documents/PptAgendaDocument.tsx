@@ -24,7 +24,7 @@ export function PptAgendaDocument({
   meetingDate: string | null;
   partnerContent?: ReactNode;
   onAddAction?: (title: string) => Promise<void>;
-  onReset: () => void;
+  onReset?: () => void;
 }) {
   return (
     <section data-generated-document data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
@@ -62,11 +62,11 @@ export function PptAgendaDocument({
         </ol>
       </Block>
 
-      <div className={!studentId && !meetingDate ? "print:hidden" : undefined}>
+      {(partnerContent || studentId || meetingDate) && <div className={!studentId && !meetingDate ? "print:hidden" : undefined}>
       <Block title="People to contact and key dates">
         {partnerContent}
       </Block>
-      </div>
+      </div>}
 
       <div data-document-columns>
       <Block title="Questions to ask">
@@ -94,7 +94,7 @@ export function PptAgendaDocument({
       </div>
 
       <div className="mt-10 flex flex-wrap gap-3 print:hidden">
-        <Button onClick={onReset} variant="outline">Prep another meeting</Button>
+        {onReset && <Button onClick={onReset} variant="outline">Prep another meeting</Button>}
         <Button onClick={() => window.print()}>Print / save as PDF</Button>
       </div>
     </section>
