@@ -1,3 +1,4 @@
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { FileText, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
@@ -68,11 +69,12 @@ export function IepTranslatorCard({
   const d: Required<IepTranslatorData> = { ...SAMPLE, ...(data ?? {}) };
 
   return (
-    <section
+    <section data-generated-document
       aria-labelledby="iep-translator-title"
       className="mt-6 rounded-3xl border bg-card p-6 shadow-soft sm:p-8"
       data-testid="iep-translator-card"
     >
+      <DocumentViewStyles />
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border/60 pb-4">
         <div className="min-w-0">
           <p className="tf-eyebrow flex items-center gap-1">

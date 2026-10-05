@@ -1,3 +1,4 @@
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { FileText, Loader2, Sparkles } from "lucide-react";
@@ -59,7 +60,8 @@ export function MyIepSummaryCard({ studentId }: Props) {
   }, [studentId, listFn, summaryFn]);
 
   return (
-    <section className="rounded-3xl border bg-card p-6 shadow-soft">
+    <section data-generated-document className="rounded-3xl border bg-card p-6 shadow-soft">
+      <DocumentViewStyles />
       <div className="mb-3 flex items-center gap-2">
         <FileText className="h-5 w-5 text-primary" />
         <h2 className="font-display text-xl">Your IEP summary</h2>
