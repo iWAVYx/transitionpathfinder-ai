@@ -80,7 +80,7 @@ export function DashboardWidgetBoardView({
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             At a glance
           </p>
-          <h2 className="mt-1 font-display text-2xl font-medium">Your dashboard widgets</h2>
+          <h2 className="mt-1 font-display text-2xl font-medium">Your Dashboard Widgets</h2>
           <p className="mt-1 text-sm text-foreground/75">
             {sample
               ? "Sample summaries. Open a tool to explore the demo."
