@@ -51,6 +51,20 @@ describe("generation output and persistence boundaries", () => {
     const system = mocks.generate.mock.calls[0][0].system;
     expect(JSON.parse(system.split("\n").at(-1)).properties.agenda.minItems).toBe(4);
   });
+  it("grounds substantive PPT prep in supplied context without assuming a family caller", async () => {
+    mocks.generate.mockResolvedValue({ experimental_output: agenda });
+    const { context } = db("educator-synthetic");
+    await (createPptPrep as any)({ data: { report_id: reportId, top_concerns: "Review progress", desired_outcomes: "Agree on measurement" }, context });
+    const prompt = mocks.generate.mock.calls[0][0].prompt;
+    expect(prompt).toContain('"participant_concerns":"Review progress"');
+    expect(prompt).toContain('"desired_outcomes":"Agree on measurement"');
+    expect(prompt).toContain("Do not presume the caller is a parent");
+    expect(prompt).toContain("measurable baseline and success criteria");
+    expect(prompt).toContain("explicit Family or Educator labels");
+    expect(prompt).toContain("not a verified IEP or independent assessment");
+    expect(prompt).toContain("Do not invent diagnoses");
+    expect(prompt).not.toContain("infer from the Pathway Report");
+  });
   it.each([{ data: null, error: { message: "synthetic write failed" } }, { data: null, error: null }])("rejects a generated prep that was not saved", async saveResult => {
     mocks.generate.mockResolvedValue({ experimental_output: agenda });
     const { context } = db("family-synthetic", saveResult);
