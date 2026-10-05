@@ -1,5 +1,3 @@
-import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
-import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -175,10 +173,8 @@ function SnapshotPage() {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…
           </div>
         ) : latest ? (
-          <Card data-generated-document className="mt-6">
-            <DocumentViewStyles />
+          <Card className="mt-6">
             <CardHeader>
-              <DocumentPrintHeader title="Readiness Snapshot" />
               <CardTitle className="text-base">
                 Version {latest.version} · {new Date(latest.created_at).toLocaleDateString()}
               </CardTitle>

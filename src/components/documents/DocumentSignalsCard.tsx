@@ -1,4 +1,3 @@
-import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { Sparkles, AlertTriangle, CheckCircle2, FileSearch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toTitleCase } from "@/lib/title-case";
@@ -40,14 +39,13 @@ export function DocumentSignalsCard({
   className,
 }: DocumentSignalsCardProps) {
   return (
-    <section data-generated-document
+    <section
       className={cn(
         "rounded-2xl border bg-card p-5 shadow-soft sm:p-6",
         className,
       )}
       aria-labelledby="signals-heading"
     >
-      <DocumentViewStyles />
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="tf-eyebrow inline-flex items-center gap-1.5">

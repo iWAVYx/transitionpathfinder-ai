@@ -1,4 +1,3 @@
-import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { useEffect, useState } from "react";
 import {
   Sparkles,
@@ -113,8 +112,7 @@ export function ReadinessInsightsCard({
 
   if (loading && !insights) {
     return (
-      <div data-generated-document className={`${wrapBase} ${className ?? ""}`}>
-        <DocumentViewStyles />
+      <div className={`${wrapBase} ${className ?? ""}`}>
         <Header studentFirstName={studentFirstName} loading />
         <div className="mt-4 space-y-3">
           <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
@@ -127,8 +125,7 @@ export function ReadinessInsightsCard({
 
   if (error && !insights) {
     return (
-      <div data-generated-document className={`${wrapBase} ${className ?? ""}`}>
-        <DocumentViewStyles />
+      <div className={`${wrapBase} ${className ?? ""}`}>
         <Header studentFirstName={studentFirstName} />
         <div className="mt-4 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -152,8 +149,7 @@ export function ReadinessInsightsCard({
   if (compact) {
     const topStep = insights.friendly_next_steps[0];
     return (
-      <div data-generated-document className={`${wrapBase} ${className ?? ""}`}>
-        <DocumentViewStyles />
+      <div className={`${wrapBase} ${className ?? ""}`}>
         <Header studentFirstName={studentFirstName} onRefresh={() => void run()} refreshing={loading} />
         <p className="mt-3 text-sm leading-relaxed text-foreground/90">
           {insights.readiness_summary}
@@ -188,8 +184,7 @@ export function ReadinessInsightsCard({
   }
 
   return (
-    <div data-generated-document className={`${wrapBase} ${className ?? ""}`}>
-        <DocumentViewStyles />
+    <div className={`${wrapBase} ${className ?? ""}`}>
       <Header studentFirstName={studentFirstName} onRefresh={() => void run()} refreshing={loading} />
 
       <h3 className="mt-3 font-display text-xl font-medium tracking-tight sm:text-2xl">

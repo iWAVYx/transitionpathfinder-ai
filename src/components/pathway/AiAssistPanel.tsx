@@ -1,4 +1,3 @@
-import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Languages, Sparkles, Loader2, Undo2 } from "lucide-react";
@@ -63,8 +62,7 @@ export function AiAssistPanel({
   }
 
   return (
-    <div data-generated-document className="no-print mt-8 rounded-2xl border bg-card p-5 shadow-soft">
-      <DocumentViewStyles />
+    <div className="no-print mt-8 rounded-2xl border bg-card p-5 shadow-soft">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
         <h2 className="font-display text-lg">Pathway Assist</h2>

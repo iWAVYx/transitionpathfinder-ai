@@ -1,4 +1,3 @@
-import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { cn } from "@/lib/utils";
 import { Sparkles, Info } from "lucide-react";
 
@@ -30,11 +29,10 @@ interface Props {
 
 export function PlainLanguageCard({ sections = DEFAULT, className }: Props) {
   return (
-    <section data-generated-document
+    <section
       aria-label="Plain-language translation"
       className={cn("rounded-3xl border bg-card p-5 shadow-soft sm:p-6", className)}
     >
-      <DocumentViewStyles />
       <header className="mb-3 flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" aria-hidden />
         <div>
