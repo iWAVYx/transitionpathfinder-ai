@@ -1323,3 +1323,9 @@ Local first pass adds a compact print-only approved logo header and Letter margi
 ## User-facing language standard
 
 Every user-facing screen, message and generated output should use clear, respectful everyday language, concrete next steps and short sentences. Explain necessary acronyms and specialist terms on first use; retain accurate policy/evidence terms rather than changing their meaning. Avoid internal implementation language and unsupported promises. Assess applicability across all roles and demo/live versions. Shared structured-generation instructions now apply this standard to prose without altering schema keys, identifiers or permissions. Current PPT and partner-preparation copy is revised locally; the whole-product language audit remains open.
+
+## Screen and print document parity — PR211 follow-up
+
+The polished generated document is the on-screen product, not a print-only redesign. PPT, meeting notes and Pathway Reports now share compact approved branding and readable prose/wrapping rules in their actual document views. Meeting title/date details remain the same content on screen and paper; print removes controls and site chrome rather than hiding document headings. Preserve existing role permissions and the report's established presentation. The audit of other generated outputs and full multi-page acceptance remain open.
+
+Screen-view coverage extended to the existing Readiness Snapshot, IEP document-review view, shared plain-language explanation card and extracted-information card. These are presentation changes only; no snapshot/pilot workflow change, fake live data, new access or new generation. The shared cards retain their existing live/demo data contracts. Other generated-output views remain in the audit rather than being marked complete.

@@ -1,3 +1,4 @@
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -176,10 +177,11 @@ function MeetingDetailPage() {
         />
       </div>
 
-      <section data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <section data-generated-document data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <DocumentViewStyles />
         <DocumentPrintStyles />
-        <DocumentPrintHeader title={meeting.title} />
-        <div className="flex flex-wrap items-end justify-between gap-3 print:hidden">
+        <DocumentPrintHeader title="Meeting notes" />
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {meeting.kind} Meeting · {meeting.status}
@@ -216,15 +218,6 @@ function MeetingDetailPage() {
               </Button>
             )}
           </div>
-        </div>
-
-        <div className="mt-2 hidden print:block">
-          <h1 className="font-display text-3xl">{meeting.title}</h1>
-          <p className="text-sm">
-            {meeting.kind} ·{" "}
-            {meeting.scheduled_at ? new Date(meeting.scheduled_at).toLocaleString() : ""}
-            {meeting.location ? ` · ${meeting.location}` : ""}
-          </p>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-3">

@@ -1,3 +1,4 @@
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
@@ -346,12 +347,13 @@ function AgendaView({
   onReset: () => void;
 }) {
   return (
-    <section data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+    <section data-generated-document data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+      <DocumentViewStyles />
       <DocumentPrintStyles />
       <DocumentPrintHeader title="PPT Meeting Prep" />
-      <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10 print:bg-white print:p-0 print:shadow-none">
+      <div className="rounded-3xl bg-gradient-hero p-5 shadow-soft sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
-        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
+        <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">
           A Meeting Plan For {toTitleCase(name)}.
         </h1>
         <p className="mt-4 text-base italic leading-relaxed text-foreground/80">{agenda.opening_note}</p>

@@ -6,8 +6,8 @@ export function DocumentPrintStyles() {
       body:has([data-print-document]) * { visibility: hidden; }
       body:has([data-print-document]) [data-print-document],
       body:has([data-print-document]) [data-print-document] * { visibility: visible; }
-      body:has([data-print-document]) header,
-      body:has([data-print-document]) footer { display: none !important; }
+      body:has([data-print-document]) header:not([data-print-document] *),
+      body:has([data-print-document]) footer:not([data-print-document] *) { display: none !important; }
       .site-shell-main:has([data-print-document]) > :not([data-print-document]):not(:has([data-print-document])) { display: none !important; }
       [data-print-document] { max-width: none; padding: 0; font-size: 11pt; line-height: 1.5; text-align: left; color: #111; background: white; }
       [data-print-document] h1 { font-size: 24pt; }

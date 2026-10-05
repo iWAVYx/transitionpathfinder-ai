@@ -1,3 +1,5 @@
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
+import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -446,12 +448,14 @@ export function ReportView({
 
   return (
     <div className="report-shell">
-    <section
+    <section data-generated-document
       className={cn(
         "report-root mx-auto px-4 py-10 sm:px-6 lg:px-8",
         density === "compact" ? "report-compact max-w-[92rem]" : "max-w-6xl",
       )}
     >
+      <DocumentViewStyles />
+      <div className="print:hidden"><DocumentPrintHeader title="Pathway Report" /></div>
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
         @media (min-width: 640px) {

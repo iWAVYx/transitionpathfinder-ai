@@ -1,3 +1,5 @@
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
+import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useMemo, useState } from "react";
@@ -188,7 +190,9 @@ function ReviewPage() {
 
   return (
     <SiteShell>
-      <div className="container mx-auto max-w-4xl px-4 py-6 space-y-6">
+      <div data-generated-document className="container mx-auto max-w-4xl px-4 py-6 space-y-6">
+        <DocumentViewStyles />
+        <DocumentPrintHeader title="Document review" />
         <Breadcrumbs
           trail={[
             { label: "Dashboard", to: "/dashboard" },
