@@ -43,17 +43,15 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `supabase_admin`. PostgreSQL marks the extension non-relocatable. Finding
       9 remains open pending a reviewed platform-managed disposition; this
       evidence does not authorize moving, dropping, or reinstalling it.
-- [ ] Three canonical migrations remain pending in production:
+- [ ] Seven canonical migrations are absent from the saved 2026-09-17 production baseline (187 rows), reconciled locally on 2026-10-05:
       `20260908000500_channel_attachment_malware_gate.sql`,
-      `20260909010000_create_private_channel_attachments_bucket.sql`, and
-      `20260918190000_scope_student_policies_and_access_code_roles.sql`. The
-      first two belong to the attachment/antivirus release and remain blocked
-      on provider/privacy approval and separate production authorization. Both
-      synthetic staging upload paths are proven. The authorization-hardening migration
-      also requires its own reviewed production window. The three earlier
-      antivirus-independent security migrations were applied and verified in
-      the separately authorized 2026-09-17 window. See
-      `production-security-maintenance-2026-09-17.md`.
+      `20260909010000_create_private_channel_attachments_bucket.sql`,
+      `20260918190000_scope_student_policies_and_access_code_roles.sql`,
+      `20260927210000_narrow_catalog_and_site_media_reads.sql`,
+      `20260928030000_add_dashboard_widget_preferences.sql`,
+      `20260928040000_atomic_student_channel_start.sql`,
+      `20260929010000_student_channel_removal_history.sql`,
+      This is a saved-evidence comparison; production was not reread or changed. Reconfirm the ledger and review hashes, dependencies, rollback and invariants before an authorized window. Attachment migrations remain blocked on provider/privacy approval.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
 - [x] Isolated staging records

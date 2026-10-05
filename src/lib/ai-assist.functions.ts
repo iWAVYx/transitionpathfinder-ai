@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
@@ -187,7 +188,7 @@ ${reportJson}
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: NextStepsSchema }),
-        system,
+        system: await buildStructuredOutputSystem(NextStepsSchema, system),
         prompt,
       });
       // Validate AI response against schema as an output guardrail.

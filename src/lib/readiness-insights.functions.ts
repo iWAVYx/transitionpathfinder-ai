@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
@@ -227,9 +228,10 @@ ${JSON.stringify(extractionSnapshot)}`;
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: InsightsSchema }),
+        system: await buildStructuredOutputSystem(InsightsSchema),
         prompt,
       });
-      const insights = experimental_output as z.infer<typeof InsightsSchema>;
+      const insights = InsightsSchema.parse(experimental_output);
       return {
         ...insights,
         sources,

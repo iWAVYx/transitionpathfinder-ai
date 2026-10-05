@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
@@ -947,9 +948,10 @@ ${data.text.slice(0, 100_000)}
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: GoalsExtractSchema }),
+        system: await buildStructuredOutputSystem(GoalsExtractSchema),
         prompt,
       });
-      return { goals: (experimental_output as { goals: ExtractedGoal[] }).goals };
+      return { goals: GoalsExtractSchema.parse(experimental_output).goals };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("extractGoalsFromText failed", msg);
