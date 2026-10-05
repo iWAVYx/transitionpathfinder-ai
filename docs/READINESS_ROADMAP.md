@@ -1397,3 +1397,9 @@ Calendar widget event titles now resolve within the role’s Calendar feature ra
 ## Demo Meeting Guide Parity — October 5, 2026
 
 Family and Educator meeting-prep demo pages now render PptAgendaDocument, the same branded on-screen/export layout used by signed-in PPT prep. Prepared fictional content follows the selected sample student's goal and support context with role-appropriate scripts. It makes no AI calls, saves no records and exposes no add-action or generation controls; printing remains available. Empty contact/date sections are omitted when no content exists. Twenty-five focused tests and TypeScript passed. This closes renderer parity for those demo pages, not full-product parity or signed-in release acceptance.
+
+## Remaining Pathway Report Demo Parity — October 5, 2026
+
+Confirmed that the main age-aware demo renderer and the signed-in ReportView use distinct data contracts. An experimental conversion failed the product schema because some profiles have fewer team actions or education options than the product contract requires. Removed that experiment; do not invent entries to satisfy array minimums or replace Sam/Riley with a fixed Maya report. Before replacing the main demo renderer, reconcile these genuine data-shape differences while preserving age-appropriate options, source uncertainty, alternatives, conflicts and selected student. This remains open.
+
+The prepared Builder sample already uses ReportView. Its return link now preserves Family/Educator role, its notice heading uses title case, and demo metadata no longer implies an actual live AI generation. No schema, generation, real records or release changes.
