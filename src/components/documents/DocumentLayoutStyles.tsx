@@ -5,7 +5,7 @@ export function DocumentLayoutStyles() {
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h2,
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h3,
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h4 {
-      font-family: "Instrument Serif", Georgia, serif !important;
+      font-family: "Times New Roman", Times, serif !important;
       font-weight: 500 !important; line-height: 1.25 !important;
       text-align: left !important; text-transform: none !important;
       letter-spacing: normal !important; justify-content: flex-start !important;

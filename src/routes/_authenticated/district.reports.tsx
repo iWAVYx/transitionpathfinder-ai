@@ -22,7 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { loadJsPdf, loadJsPdfAutoTable } from "@/lib/browser-only-libs";
+import { createOrganizationReportPdf } from "@/lib/organization-report-pdf";
 import { cn } from "@/lib/utils";
 import {
   getDistrictReportMetrics,
@@ -396,34 +396,13 @@ function exportCsv(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: s
 
 async function exportPdf(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: string) {
   try {
-    const { jsPDF } = await loadJsPdf();
-    const autoTable = (await loadJsPdfAutoTable()).default;
     const { summary, schoolRows } = buildRows(district, w, rangeLabel);
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("District Report", 14, 18);
-    doc.setFontSize(11);
-    doc.text(district.name, 14, 26);
-    doc.setFontSize(9);
-    doc.text(
-      `Window: ${rangeLabel} · Generated ${new Date().toLocaleString()} · Aggregate metrics only`,
-      14,
-      32,
-    );
-
-    autoTable(doc, {
-      startY: 38,
-      head: [["Metric", "Value"]],
-      body: summary,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [30, 41, 59] },
-    });
-
-    autoTable(doc, {
-      head: [["School", "Students", "Reports", "Open Actions", "% with Report"]],
-      body: schoolRows,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [30, 41, 59] },
+    const doc = await createOrganizationReportPdf({
+      title: "District Report", organization: district.name, period: rangeLabel,
+      sections: [
+        { title: "At a Glance", headings: ["Measure", "Value"], rows: summary },
+        { title: "Schools", headings: ["School", "Students", "Reports", "Open Actions", "With a Report"], rows: schoolRows },
+      ],
     });
 
     doc.save(`${slug(district.name)}-district-report${filenameSuffix(w)}.pdf`);

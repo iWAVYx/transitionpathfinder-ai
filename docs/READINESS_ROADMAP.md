@@ -1377,3 +1377,11 @@ The same representative Family/Educator meeting guides remain two pages. Reviewe
 ## Preserve Lovable Visual Edits — October 5, 2026
 
 Preserved the owner’s Lovable demo heading edit, “Your Dashboard Widgets,” in the shared demo/signed-in widget board. Before any source/archive sync into Lovable, inspect builder changes and connected Git history, import and review pending edits, and reconcile conflicts with the current release branch. Do not replace builder source while unpreserved edits exist. A builder edit is not assumed to have reached GitHub automatically. Staging and production releases remain separately authorized.
+
+## Standing Demo Parity Review — October 5, 2026
+
+For every product change, assess all applicable roles and demo modes in the same change. Prefer shared components for layouts, labels, navigation and document rendering; use explicitly fictional demo data and preserve permissions. Record any missing counterpart as open work rather than claiming full parity. Check both views before release. Preserve pending Lovable visual edits before source sync.
+
+Confirmed: demo and signed-in widget boards share DashboardWidgetBoardView; BuilderSampleReport shares ReportView. Open: the demo meeting-prep preview remains a brief status list and does not yet demonstrate the polished PptAgendaDocument. Other legacy report/demo previews and school/district export demonstrations still require parity review. No blanket parity claim.
+
+School and district PDF exports now share branded Letter-page layout, uniform title-case headings, equal gutters, small watermark, wrapped tables and page counters. Existing role guards and source rows are unchanged. Three focused export tests pass, including complete multi-page data and empty-period handling. School and district fictional sample PDF pages were visually reviewed. Shared document headings use Times-family styling to match direct PDF export. No release, AI calls or database changes.
