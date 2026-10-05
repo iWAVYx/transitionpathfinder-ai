@@ -1,5 +1,77 @@
 # TransitionForward — Readiness Roadmap
 
+## Active Delivery Checklist — October 5, 2026
+
+This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.
+
+### 1. Finish the Current Document and Demo Package — In Progress
+
+- [x] Shared compact document styling, uniform title-case hierarchy, symmetric margins, branding and small export watermark for PPT, meeting summaries and Pathway Reports.
+- [x] Complete printed meeting fields and report goals, including content hidden by screen controls; branded school/district PDF exports with page counters.
+- [x] Family/Educator demo meeting guides use the signed-in document renderer with fictional, selected-student content and role-appropriate scripts.
+- [x] Dashboard card route/permission checks across six roles; corrected family goal-link placement and widget category destinations; demo links retain appropriate context.
+- [x] Preserve the owner’s Lovable heading edit in Git. Require reconciliation of builder edits before subsequent source sync.
+- [x] Demo builder return-role/draft restoration and accessible role selection; printable sample notices and sample-mode action guards.
+- [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
+- [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211; latest recorded head b3ebc1b6. Unit and role-guard checks passed; latest build/report-a11y checks running when read. Signed-in E2E was skipped, not passed.
+
+Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
+
+### 2. Verify the Reviewed Package in Isolated Staging — Pending Release Authorization
+
+- [ ] Obtain specific authorization for the reviewed merge/staging release; first preserve any new Lovable visual edits.
+- [ ] Match reviewed source/build identity on Cloudflare and Lovable; verify staging backend, sandbox payments and isolation health.
+- [ ] Exercise every applicable role’s cards, linked words, Tools menu, return navigation, refresh/back/forward and saved page position on desktop/mobile.
+- [ ] Check actual generation, reopening, permission denial and export for each permitted role/output with separately authorized synthetic AI calls and cleanup evidence.
+- [ ] Verify Owner Hub stays management-only; include mixed-role/account-switching cases.
+
+Exit: exact-release evidence recorded, with no skipped role counted as passed. Same reviewed source is the future production candidate; environment settings remain isolated.
+
+### 3. Expand Partner and Resource Coverage — Next Product Workstream
+
+- [ ] Complete searchable partner profiles, opportunities, partner editing and owner review, including pagination and source/review dates.
+- [ ] Cover after-school, enrichment, extracurricular, BridgeForward and PartnerForward pathways with realistic age/region/accessibility/fee/transport options.
+- [ ] Expand readable assistive-technology resources, useful content/source links and owner editing.
+- [ ] Finalize the outreach draft and sender/offer details together; then separately authorize sending and work toward 25 verified partner relationships. No relationship is counted from research alone.
+
+Exit: functional directory/resource journeys and documented coverage gaps; verified relationship count has evidence. Includes TF-02–TF-04, TF-06 and TF-08.
+
+### 4. Deepen Evidence-Based Planning — Planned
+
+- [ ] Prove document/IEP upload, scan, extraction and human review feed Pathway Reports, explanations, PPT packets and relevant regenerated outputs.
+- [ ] Strengthen engine provenance, rules/versioning, input-sensitivity and feasibility checks; preserve evidence gaps and human review.
+- [ ] Improve family/educator goals, accommodations, tough-conversation scripts and source-backed support using current official policy/practice references.
+- [ ] Complete progress monitoring: baseline, measures, dated observations, supports, reporting, sharing and neat exports; validate against current CT guidance.
+
+Exit: role-appropriate, evidence-linked outputs and progress journeys validated; do not claim legal/IP uniqueness or CT-SEDS integration without evidence. Includes TF-07, TF-10, TF-16 and TF-18–TF-20.
+
+### 5. Complete Management, Access and Communication — Planned
+
+- [ ] Audit every Owner Hub create/edit/review/archive function: resources, partners, opportunities, users, content, outreach and health.
+- [ ] Validate district/school licensing, codes, invitations and requests; distinguish district access from outside-district waitlisting. Review affordable pricing against current primary-source comparisons.
+- [ ] Strengthen Transition Channel communication patterns, notifications, sharing and member removal/history choice; review useful scheduling/forms workflows within the existing feature.
+- [ ] Design and validate private/group conferencing after provider, privacy, permissions, accessibility and cost decisions.
+
+Exit: actual management/access/communication flows work with role boundaries. Includes TF-05, TF-09, TF-12, TF-15, TF-17 and TF-22.
+
+### 6. Close Production Readiness and Release — NO-GO Until Gates Pass
+
+- [ ] Reconcile security findings, provider/privacy approvals, malware handling, legal/retention and data access.
+- [ ] Close billing, email, observability, operations, backup/rollback and missing migration requirements with evidence.
+- [ ] Run exact-release acceptance; review production configuration separately from staging; record final GO/NO-GO.
+- [ ] Obtain explicit authorization for each production migration/publish/DNS window and verify afterward.
+
+Exit: every applicable box in docs/production-readiness/release-checklist.md has evidence and the authorized production release succeeds. Code/build checks alone do not clear these gates.
+
+### Deferred Follow-Up — Preserved
+
+- [ ] After the current roadmap, recover and reconcile all prior parent-pilot and Pathway Report snapshot notes, then agree implementation with the owner. This remains separate from the six milestones and is not permission to launch/contact participants.
+
+### How We Handle Findings Without Losing Direction
+
+Keep the current milestone active until its exit criteria are met. Fix findings that block that milestone or protect data/access immediately; record other findings under the milestone that owns them. Do not silently expand scope or mark local work as staging/production complete. Every feature change includes applicable role and demo review. Give the owner the current milestone, completed items, open items and next concrete action at each checkpoint.
+
 ## Standing rule for every role change
 
 For every feature, tool, workflow, navigation, content or layout change to any role, assess applicability across Student, Family/Guardian, Educator, School Admin, District Admin, Partner and Owner. Record which roles share the implementation, which need adapted behavior and which do not apply, with a reason. Prefer shared components and contracts for equivalent workflows; clearly distinguish demo sample data from signed-in records. Check role-specific destinations, empty/loading/error states, persistence, exports and responsive behavior where affected. Preserve permissions, privacy and Owner Hub management-only scope; sharing an implementation never grants another role access. Validate every affected role and note untested cases explicitly. Promote the same reviewed source through staging and separately authorized production releases with isolated environment configuration.
