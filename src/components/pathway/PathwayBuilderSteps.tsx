@@ -196,6 +196,7 @@ export function StepRole({
               key={r}
               type="button"
               data-testid={`pathway-role-${r}`}
+              aria-pressed={active}
               onClick={() => onPick(r)}
               className={cn(
                 "group flex h-full flex-col gap-3 rounded-2xl border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-soft",

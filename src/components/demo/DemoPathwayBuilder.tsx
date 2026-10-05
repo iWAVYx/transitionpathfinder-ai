@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -47,6 +47,9 @@ const DraftSchema = z.object({
 
 /** The real builder fields, with fictional local answers and no server calls. */
 export function DemoPathwayBuilder() {
+  const search = useRouterState({ select: state => state.location.search }) as Record<string, unknown>;
+  const requested = search.role;
+  const requestedRole = requested === "family" || requested === "educator" ? requested : undefined;
   const [step, setStep] = useState(0);
   const [review, setReview] = useState<PathwayIntakeFormValues | null>(null);
   const [restored, setRestored] = useState(false);
@@ -56,7 +59,7 @@ export function DemoPathwayBuilder() {
       ...createPathwayIntakeDefaults(),
       ...DEMO_INTAKE,
       student_id: undefined,
-      submitter_role: "family",
+      submitter_role: requestedRole ?? "family",
     },
   });
   useEffect(() => {
@@ -70,8 +73,10 @@ export function DemoPathwayBuilder() {
     } catch {
       // A blocked store or old draft must not prevent using the public demo.
     }
+    // An explicit eligible URL perspective wins, without discarding the saved answers or step.
+    if (requestedRole) form.setValue("submitter_role", requestedRole);
     setRestored(true);
-  }, [form]);
+  }, [form, requestedRole]);
   useEffect(() => {
     if (!restored) return;
     const save = () => {
