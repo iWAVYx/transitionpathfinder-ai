@@ -1,0 +1,223 @@
+name: PPT Live Staging QA
+
+# Manual-only acceptance proof for the live PPT workflow. Ordinary staging
+# identity remains anchored to the isolated Cloudflare Worker. The AI request
+# runs only on the separate Lovable-hosted staging application because the
+# Lovable gateway credential must never move into GitHub or Cloudflare.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "ppt-staging" to confirm the synthetic live PPT test'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ppt-live-staging-qa
+  cancel-in-progress: false
+
+jobs:
+  ppt-live-staging:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_STAGING_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
+      PATHWAY_AI_BASE_URL: ${{ vars.STAGING_LOVABLE_AI_BASE_URL }}
+      PLAYWRIGHT_BASE_URL: ${{ vars.STAGING_LOVABLE_AI_BASE_URL }}
+      E2E_EXPECTED_BUILD_SHA: ${{ github.sha }}
+      LIVE_VERIFICATION: "true"
+      E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
+      E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
+      E2E_PARENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_EDUCATOR_EMAIL: e2e.educator@staging.transitionforwardct.test
+      E2E_EDUCATOR_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_PARTNER_EMAIL: e2e.partner@staging.transitionforwardct.test
+      E2E_PARTNER_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      PLAYWRIGHT_HTML_REPORT: playwright-report
+
+    steps:
+      - name: Confirm isolated staging intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "ppt-staging" ]; then
+            echo "Confirmation text did not match 'ppt-staging'." >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "This protected workflow may run only from main." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Calculate reviewed runtime source fingerprint
+        run: |
+          fingerprint="$(node scripts/runtime-source-fingerprint.mjs --fingerprint)"
+          if ! printf '%s' "$fingerprint" | grep -Eq '^[a-f0-9]{64}$'; then
+            echo "Reviewed runtime source fingerprint is invalid." >&2
+            exit 1
+          fi
+          echo "EXPECTED_RUNTIME_SOURCE_FINGERPRINT=$fingerprint" >> "$GITHUB_ENV"
+
+      - run: bun install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: bun run playwright:install
+
+      - name: Verify Cloudflare staging control-plane identity
+        run: |
+          node --input-type=module <<'NODE'
+          import { runtimeSourceParityErrors } from "./scripts/runtime-source-fingerprint.mjs";
+
+          const response = await fetch(`${process.env.CLOUDFLARE_STAGING_BASE_URL}/api/public/env-health`);
+          if (!response.ok) throw new Error(`env-health returned ${response.status}`);
+          const health = await response.json();
+          const errors = [];
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.vite_app_env !== "staging") errors.push(`vite_app_env=${health.vite_app_env}`);
+          if (health.supabase_project_ref !== "qgrertkqbwanerqqemph") {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) {
+            errors.push(`is_production_project=${health.is_production_project}`);
+          }
+          if (health.stripe_mode !== "sandbox" || health.stripe_livemode !== false) {
+            errors.push(`stripe_mode=${health.stripe_mode}`);
+          }
+          if (health.isolation?.ok !== true) errors.push("isolation.ok=false");
+          if (health.git_commit_sha !== process.env.GITHUB_SHA) {
+            errors.push(`git_commit_sha=${health.git_commit_sha}`);
+          }
+          errors.push(...runtimeSourceParityErrors({
+            expectedFingerprint: process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT,
+            actualFingerprint: health.runtime_source_fingerprint,
+            schema: health.runtime_source_fingerprint_schema,
+            algorithm: health.runtime_source_fingerprint_algorithm,
+            fileCount: health.runtime_source_file_count,
+          }));
+          if (errors.length) throw new Error(`Staging identity check failed: ${errors.join(", ")}`);
+          console.log("Exact-SHA and runtime-source Cloudflare staging control plane verified.");
+          NODE
+
+      - name: Fail fast unless Lovable AI staging is ready
+        run: |
+          node --input-type=module <<'NODE'
+          import { runtimeSourceParityErrors } from "./scripts/runtime-source-fingerprint.mjs";
+
+          const rawBaseUrl = process.env.PATHWAY_AI_BASE_URL?.trim();
+          if (!rawBaseUrl) {
+            throw new Error("STAGING_LOVABLE_AI_BASE_URL is not configured in the protected staging environment.");
+          }
+
+          const target = new URL(rawBaseUrl);
+          const expectedHost = "gentle-forward-reach.lovable.app";
+          if (
+            target.protocol !== "https:" ||
+            target.hostname !== expectedHost ||
+            target.username ||
+            target.password ||
+            !["", "/"].includes(target.pathname) ||
+            target.search ||
+            target.hash
+          ) {
+            throw new Error(`Refusing unapproved PPT AI staging target: ${target.hostname}`);
+          }
+
+          const response = await fetch(new URL("/api/public/env-health", target.origin));
+          if (!response.ok) throw new Error(`Lovable AI env-health returned ${response.status}`);
+          const health = await response.json();
+          const errors = [];
+          if (health.hostname !== expectedHost) errors.push(`hostname=${health.hostname}`);
+          if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
+          if (health.vite_app_env !== "staging") errors.push(`vite_app_env=${health.vite_app_env}`);
+          if (health.supabase_project_ref !== "qgrertkqbwanerqqemph") {
+            errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
+          }
+          if (health.is_production_project !== false) errors.push("is_production_project=true");
+          if (health.stripe_mode !== "sandbox" || health.stripe_livemode !== false) {
+            errors.push(`stripe_mode=${health.stripe_mode}`);
+          }
+          if (health.isolation?.ok !== true) errors.push("isolation.ok=false");
+          errors.push(...runtimeSourceParityErrors({
+            expectedFingerprint: process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT,
+            actualFingerprint: health.runtime_source_fingerprint,
+            schema: health.runtime_source_fingerprint_schema,
+            algorithm: health.runtime_source_fingerprint_algorithm,
+            fileCount: health.runtime_source_file_count,
+          }));
+          if (health.ai_gateway_configured !== true) errors.push("ai_gateway_configured=false");
+          if (health.ai_runtime !== "lovable-managed") {
+            errors.push(`ai_runtime=${health.ai_runtime}`);
+          }
+          if (errors.length) {
+            throw new Error(`Lovable AI staging preflight failed: ${errors.join(", ")}`);
+          }
+          console.log("Exact runtime-source isolated Lovable AI staging runtime verified.");
+          NODE
+
+      - name: Require protected staging credentials
+        env:
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$E2E_PARENT_PASSWORD" ] \
+            || [ -z "$STAGING_SUPABASE_URL" ] \
+            || [ -z "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Required protected staging credentials are missing." >&2
+            exit 1
+          fi
+          node --input-type=module <<'NODE'
+          const host = new URL(process.env.STAGING_SUPABASE_URL).hostname;
+          if (host !== "qgrertkqbwanerqqemph.supabase.co") {
+            throw new Error(`Refusing non-staging Supabase target: ${host}`);
+          }
+          console.log("Protected credentials target only the isolated staging project.");
+          NODE
+
+      - name: Authenticate the four synthetic acceptance roles
+        run: |
+          GITHUB_SHA="$E2E_EXPECTED_BUILD_SHA" bunx playwright test \
+            --project=dashboard-setup \
+            --reporter=list
+          for role in student parent educator partner; do
+            test -s "tests/e2e/.auth/${role}.json"
+          done
+
+      - name: Run protected PPT live-staging acceptance
+        env:
+          RUN_PPT_LIVE_STAGING_QA: "true"
+          PPT_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+        run: >-
+          bunx playwright test
+          tests/e2e/release-readiness/ppt-live-staging.signedin.spec.ts
+          --project=release-signedin
+          --no-deps
+          --reporter=list,html
+
+      - name: Remove credential-bearing Playwright state
+        if: always()
+        run: rm -rf tests/e2e/.auth
+
+      - name: Sanitize diagnostic artifacts
+        id: sanitize-artifacts
+        if: always()
+        run: node tests/e2e/scripts/sanitize-playwright-artifacts.mjs playwright-report test-results
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.sanitize-artifacts.outcome == 'success' }}
+        with:
+          name: ppt-live-staging-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
