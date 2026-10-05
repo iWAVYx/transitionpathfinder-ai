@@ -120,6 +120,7 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
   ) as Record<DashboardWidgetId, WidgetContent>;
   return (
     <DashboardWidgetBoardView
+      role={role}
       widgets={widgets}
       available={WIDGETS_BY_ROLE[role]}
       data={data}

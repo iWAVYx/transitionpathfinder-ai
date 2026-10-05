@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowDown, ArrowUp, CalendarDays, CheckSquare, Settings2, Users } from "lucide-react";
-import type { DashboardWidgetId } from "@/lib/dashboard/dashboard-widget-prefs.functions";
+import type { DashboardWidgetId, DashboardWidgetRole } from "@/lib/dashboard/dashboard-widget-prefs.functions";
 
 export type WidgetContent = {
   entries: Array<{ id: string; title: string; detail?: string | null; to: string | null }>;
@@ -9,6 +9,32 @@ export type WidgetContent = {
   error?: boolean;
   toolDestination: string | null;
 };
+const ACTION_SETUP: Record<DashboardWidgetRole, string> = {
+  family: "Start with a connected student and Pathway Report, then review the next steps available in your family workspace.",
+  student: "Review your pathway and student tools to find the next step toward your goals.",
+  educator: "Review your connected students and caseload tools to identify planning and follow-up priorities.",
+  school_admin: "Review your school workspace for access requests, team coordination and planning priorities.",
+  district_admin: "Review your district workspace for school access, licensing and organization priorities.",
+  partner: "Review your partner profile and listed opportunities to keep information current and useful.",
+};
+const WIDGET_GUIDANCE: Record<DashboardWidgetId, { summary: string; emptyTitle: string; details: string[] }> = {
+  actions: {
+    summary: "Priorities from your tools, with the context and next step for each item.",
+    emptyTitle: "No active actions to show",
+    details: ["Your available next steps appear here as you use your workspace.", "Each item includes its priority or timing and a route to the relevant tool."],
+  },
+  calendar: {
+    summary: "Your next scheduled dates, collected in one place.",
+    emptyTitle: "No upcoming calendar events",
+    details: ["Future events appear here in date order; cancelled events are excluded.", "Use the Calendar tool card to review dates and the options available to your role."],
+  },
+  meetings: {
+    summary: "Upcoming meetings, with dates and access to the meeting workspace.",
+    emptyTitle: "No upcoming meetings",
+    details: ["Scheduled meeting events appear here when they are added to your calendar.", "Use your meeting tools to organize questions, evidence and follow-up before the next conversation."],
+  },
+};
+
 const OPTIONS: Array<{ id: DashboardWidgetId; title: string }> = [
   { id: "actions", title: "Next actions" },
   { id: "calendar", title: "Upcoming calendar" },
@@ -17,6 +43,7 @@ const OPTIONS: Array<{ id: DashboardWidgetId; title: string }> = [
 
 export function DashboardWidgetBoardView({
   widgets,
+  role,
   available,
   data,
   update,
@@ -26,6 +53,7 @@ export function DashboardWidgetBoardView({
   sample = false,
 }: {
   widgets: DashboardWidgetId[];
+  role: DashboardWidgetRole;
   available: DashboardWidgetId[];
   data: Record<DashboardWidgetId, WidgetContent>;
   update: (widgets: DashboardWidgetId[]) => void;
@@ -148,7 +176,7 @@ export function DashboardWidgetBoardView({
             return (
               <div
                 key={id}
-                className="rounded-2xl border border-border bg-card p-5 sm:p-6"
+                className="min-w-0 rounded-2xl border border-border bg-card p-5 sm:p-6"
                 data-testid={`dashboard-widget-${id}`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -165,12 +193,24 @@ export function DashboardWidgetBoardView({
                     </Link>
                   )}
                 </div>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+                  {WIDGET_GUIDANCE[id].summary}
+                </p>
                 {loading ? (
                   <p className="mt-4 text-sm text-foreground/75">Loading your data…</p>
                 ) : error ? (
                   <p className="mt-4 text-sm text-destructive">Could not load this widget.</p>
                 ) : entries.length === 0 ? (
-                  <p className="mt-4 text-sm text-foreground/75">Nothing upcoming yet.</p>
+                  <div className="mt-4 rounded-xl border border-dashed border-border bg-muted/20 p-4">
+                    <p className="text-sm font-medium">{WIDGET_GUIDANCE[id].emptyTitle}</p>
+                    <ul className="mt-2 space-y-2 text-sm leading-relaxed text-foreground/75">
+                      {WIDGET_GUIDANCE[id].details.map((detail) => <li key={detail}>{detail}</li>)}
+                    </ul>
+                    {id === "actions" && <p className="mt-3 text-sm leading-relaxed text-foreground/75">{ACTION_SETUP[role]}</p>}
+                    <p className="mt-3 text-xs text-foreground/75">
+                      {sample ? "This demo view has no sample items in this widget." : "This widget will update when matching items are available."}
+                    </p>
+                  </div>
                 ) : (
                   <ul className="mt-3 divide-y divide-border/60">
                     {entries.map((entry) => {

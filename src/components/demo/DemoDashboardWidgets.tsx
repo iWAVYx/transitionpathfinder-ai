@@ -39,6 +39,7 @@ export function DemoDashboardWidgets({ role }: { role: Exclude<DemoRoleId, "owne
   const actions = DEMO_NEXT_ACTIONS[widgetRole as NextActionRole] ?? [];
   return (
     <DashboardWidgetBoardView
+      role={widgetRole}
       sample
       widgets={widgets}
       available={WIDGETS_BY_ROLE[widgetRole]}
