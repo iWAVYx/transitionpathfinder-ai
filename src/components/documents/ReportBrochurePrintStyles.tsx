@@ -4,7 +4,7 @@ export function ReportBrochurePrintStyles() {
     @media print {
       /* A consistent body page keeps the corner mark and page count stable. */
       @page report-brochure {
-        size: Letter; margin: 0.7in 0.65in 0.85in 0.65in;
+        size: Letter; margin: 0.5in;
         @top-left { content: "TransitionForward"; font: 600 8.5pt sans-serif; color: #6b7280; }
         @bottom-left { content: "Pathway Report"; font: 400 8.5pt sans-serif; color: #9ca3af; }
         @bottom-right { content: counter(page) " / " counter(pages); font: 500 8.5pt sans-serif; color: #6b7280; }

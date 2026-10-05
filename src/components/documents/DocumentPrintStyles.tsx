@@ -3,7 +3,7 @@ export function DocumentPrintStyles() {
   return <style>{`
     @media print {
       @page {
-        size: Letter; margin: 0.65in;
+        size: Letter; margin: 0.5in;
         @bottom-right { content: counter(page); font: 9pt sans-serif; color: #666; }
       }
       body:has([data-print-document]) { background: white !important; }

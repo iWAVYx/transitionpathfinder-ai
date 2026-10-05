@@ -7,7 +7,6 @@ export function MeetingDocumentStyles() {
     [data-meeting-document] [data-meeting-action-status],
     [data-meeting-document] [data-meeting-agenda-status] { display: none; }
     @media print {
-      [data-meeting-document] { padding-left: 30px !important; }
       [data-meeting-document] [data-document-watermark] {
         top: 0; bottom: auto; left: 0; width: 20px; height: 20px;
       }

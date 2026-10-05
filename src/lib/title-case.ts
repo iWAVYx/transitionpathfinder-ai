@@ -5,7 +5,7 @@
 // - Handles hyphen/slash compounds piece-by-piece.
 
 const SMALL = new Set([
-  "a", "an", "and", "as", "at", "but", "by", "for", "if", "in", "nor",
+  "a", "an", "and", "as", "at", "but", "by", "for", "from", "if", "in", "nor",
   "of", "on", "or", "per", "the", "to", "vs", "via", "with",
 ]);
 

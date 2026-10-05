@@ -73,6 +73,16 @@ for (const role of ["Family", "Educator"]) {
       expect(await page.locator("[data-document-field-value]").evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
       await expect(page.locator("[data-document-watermark]")).toBeVisible();
       expect(await page.locator("[data-document-watermark]").evaluate((element) => Number(getComputedStyle(element).opacity))).toBeLessThanOrEqual(0.1);
+      const geometry = await page.locator("[data-generated-document]").evaluate((element) => {
+        const style = getComputedStyle(element);
+        const headings = Array.from(element.querySelectorAll("h1,h2,h3,h4"));
+        return { left: style.paddingLeft, right: style.paddingRight,
+          fonts: headings.map((heading) => getComputedStyle(heading).fontFamily),
+          aligned: headings.every((heading) => getComputedStyle(heading).textAlign === "left") };
+      });
+      expect(geometry.left).toBe(geometry.right);
+      expect(new Set(geometry.fonts).size).toBe(1);
+      expect(geometry.aligned).toBe(true);
       await expect(page.locator("[data-document-print-header]")).toBeVisible();
       await expect(page.locator("[data-section-heading]")).toBeVisible();
       await expect(page.locator("[data-document-note]")).toBeVisible();

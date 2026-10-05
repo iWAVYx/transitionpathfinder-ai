@@ -89,8 +89,8 @@ export function PptAgendaDocument({
       </Block>
 
       <div data-document-callout className="mt-10 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If the Conversation Gets Stuck</p>
-        <p className="mt-3 font-display text-lg italic text-foreground/90">{agenda.if_things_get_stuck}</p>
+        <h2 className="font-display font-medium text-primary">If the Conversation Gets Stuck</h2>
+        <p className="mt-3 text-sm text-foreground/90">{agenda.if_things_get_stuck}</p>
       </div>
 
       <div className="mt-10 flex flex-wrap gap-3 print:hidden">

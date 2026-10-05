@@ -187,8 +187,8 @@ function MeetingDetailPage() {
         <DocumentPrintStyles />
         <MeetingDocumentStyles />
         <DocumentPrintHeader title="Meeting notes" />
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
+        <div data-document-title-block className="flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {meeting.kind} Meeting · {meeting.status}
             </p>
@@ -198,7 +198,7 @@ function MeetingDetailPage() {
               {meeting.location ? ` · ${meeting.location}` : ""}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="print:hidden flex flex-wrap gap-2">
             <Button variant="outline" onClick={pullFromProfile} disabled={pulling}>
               <Wand2 className="h-4 w-4" />
               {pulling ? "Pulling…" : "Pull from profile"}
@@ -592,7 +592,7 @@ function MeetingDetailPage() {
 
       <style>{`
         @media print {
-          @page { size: Letter; margin: 0.65in; }
+          @page { size: Letter; margin: 0.5in; }
           .print\\:hidden { display: none !important; }
           body { background: white !important; }
         }
