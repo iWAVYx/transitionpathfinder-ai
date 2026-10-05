@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     alias: { "@": resolve("src") },
   });
@@ -33,6 +33,7 @@ for (const role of ["Family", "Educator"]) {
           contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png",
         });
       });
+      const watermark = renderToStaticMarkup(createElement(components.DocumentWatermark));
       const header = renderToStaticMarkup(createElement(components.DocumentPrintHeader, { title: `${role} meeting plan — sample` }));
       const styles = [components.DocumentPrintStyles, components.DocumentViewStyles].map((component) => renderToStaticMarkup(createElement(component))).join("");
       await page.setContent(`<html><head><base href="http://document-fixture.test"><style>
@@ -42,7 +43,7 @@ for (const role of ["Family", "Educator"]) {
         [data-print-document] { max-width: 760px; margin: auto; }
       </style></head><body>
         <header>Site navigation</header><main class="site-shell-main"><div>Dashboard breadcrumb</div>
-        <section data-generated-document data-print-document>${styles}${header}
+        <section data-generated-document data-print-document>${styles}${watermark}${header}
           <h1>A meeting plan for a sample student</h1>
           <p>Sample content for a layout check. No student records or AI requests are used.</p>
           <header data-section-heading><h2>Questions to discuss</h2></header>
@@ -58,7 +59,10 @@ for (const role of ["Family", "Educator"]) {
       await expect(page.getByRole("button", { name: "Save action" })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       expect(await page.locator("[data-brand-logo] img").evaluateAll((images) => images.every((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+      await expect(page.locator("[data-document-watermark]")).toBeHidden();
       await page.emulateMedia({ media: "print" });
+      await expect(page.locator("[data-document-watermark]")).toBeVisible();
+      expect(await page.locator("[data-document-watermark]").evaluate((element) => Number(getComputedStyle(element).opacity))).toBeLessThanOrEqual(0.1);
       await expect(page.locator("[data-document-print-header]")).toBeVisible();
       await expect(page.locator("[data-section-heading]")).toBeVisible();
       await expect(page.locator("[data-document-note]")).toBeVisible();

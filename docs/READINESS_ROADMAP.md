@@ -1335,3 +1335,9 @@ Four credential-free browser cases cover shared Family/Educator document present
 ## Full PPT document pagination check — October 5, 2026
 
 Extracted the actual PPT presentation into a pure document renderer; account actions remain in the guarded route with the same student, team category, priority and error feedback. Two synthetic full-length documents were rendered locally to four-page PDFs, with no AI calls or account/database access. Every page was rendered and visually inspected. Checks confirmed all agenda/questions/evidence/scripts/closing content, safe horizontal text margins, readable approved logo, page numbers, no external site chrome and a clean paper background. Closing callouts are kept together. This is synthetic layout acceptance, not a new live-generation quality run. Meeting-summary and Pathway Report pagination remain open.
+
+## Export watermark request
+
+Actual printable documents (PPT, meeting summaries, Pathway Reports) now include a small decorative approved-logo watermark in export, hidden on screen. Use restrained opacity and preserve text legibility, approved mark proportions and existing permissions. The mark complements the document's visible branding; it is not proof of verification, authorship or compliance. Check its position in paginated PDFs before closing acceptance.
+
+Watermark QA: verified on every page of both four-page synthetic PPT documents. The first outside-margin position was clipped by Chromium and was corrected to a faint lower-corner mark inside the printable area. Approved icon proportions preserved; screen-hidden/export-visible behavior and decorative accessibility semantics covered by tests. TypeScript, 20 focused tests and four browser cases passed. Meeting-summary and Pathway Report watermark/pagination visual acceptance remain open.

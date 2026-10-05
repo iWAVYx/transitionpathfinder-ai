@@ -1,3 +1,4 @@
+import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
@@ -178,6 +179,7 @@ function MeetingDetailPage() {
       </div>
 
       <section data-generated-document data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <DocumentWatermark />
         <DocumentViewStyles />
         <DocumentPrintStyles />
         <DocumentPrintHeader title="Meeting notes" />

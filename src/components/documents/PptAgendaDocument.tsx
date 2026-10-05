@@ -1,3 +1,4 @@
+import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import type { ReactNode } from "react";
 import type { PptAgenda } from "@/lib/ppt.functions";
 import { DocumentViewStyles } from "./DocumentViewStyles";
@@ -26,6 +27,7 @@ export function PptAgendaDocument({
 }) {
   return (
     <section data-generated-document data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+      <DocumentWatermark />
       <DocumentViewStyles />
       <DocumentPrintStyles />
       <DocumentPrintHeader title="PPT Meeting Prep" />

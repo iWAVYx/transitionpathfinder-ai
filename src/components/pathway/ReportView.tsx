@@ -1,3 +1,4 @@
+import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
 import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
 import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { BrandLogo } from "@/components/brand/BrandLogo";
@@ -454,6 +455,7 @@ export function ReportView({
         density === "compact" ? "report-compact max-w-[92rem]" : "max-w-6xl",
       )}
     >
+      <DocumentWatermark />
       <DocumentViewStyles />
       <div className="print:hidden"><DocumentPrintHeader title="Pathway Report" /></div>
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
