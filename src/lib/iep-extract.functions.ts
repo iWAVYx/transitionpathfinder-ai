@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
@@ -65,9 +66,10 @@ ${privacySafeText.slice(0, 100_000)}
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: ExtractSchema }),
+        system: await buildStructuredOutputSystem(ExtractSchema),
         prompt,
       });
-      return { extract: experimental_output as IepExtract };
+      return { extract: ExtractSchema.parse(experimental_output) };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("IEP extract failed", msg);

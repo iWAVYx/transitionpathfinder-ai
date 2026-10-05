@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 /**
  * Slice D8 — Lovable AI Gateway recommendation generator (DORMANT, server-only).
  *
@@ -145,7 +146,7 @@ function defaultRunModel(config: CreateShadowGeneratorConfig): RunModel {
     const modelId = config.model ?? "google/gemini-3-flash-preview";
     const { experimental_output } = await generateText({
       model: gateway(modelId),
-      system,
+      system: await buildStructuredOutputSystem(AiRecBatch, system),
       prompt,
       experimental_output: Output.object({ schema: AiRecBatch }),
     });

@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
@@ -841,9 +842,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       const { experimental_output } = await generateText({
         model: gateway(REGEN_MODEL),
         experimental_output: Output.object({ schema: PathwayReportV2 }),
+        system: await buildStructuredOutputSystem(PathwayReportV2),
         prompt: buildV2Prompt(ctx),
       });
-      v2 = experimental_output as z.infer<typeof PathwayReportV2>;
+      v2 = PathwayReportV2.parse(experimental_output);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("v2 regeneration failed", msg);
@@ -861,9 +863,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         const retry = await generateText({
           model: gateway(REGEN_MODEL),
           experimental_output: Output.object({ schema: PathwayReportV2 }),
+          system: await buildStructuredOutputSystem(PathwayReportV2),
           prompt: retryPrompt,
         });
-        const v2b = retry.experimental_output as z.infer<typeof PathwayReportV2>;
+        const v2b = PathwayReportV2.parse(retry.experimental_output);
         if (
           !isWeakSummary(v2b.plain_language_summary) &&
           !isWeakSummary(v2b.professional_summary)

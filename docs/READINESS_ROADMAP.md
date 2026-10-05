@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Current release status — October 5, 2026
+
+- PR207 merged as cca6afee56f3ec996f2f247d34fcdd1c9f40424d after explicit authorization. Both isolated staging hosts externally verify fingerprint c9d5ed4b05ba9ef91e04aac619f6120e646e064f050227b2c029e19cd72ce95f, 1,065 files, staging backend, sandbox payments and isolation.ok true. Cloudflare run 37268438803 succeeded; the existing Lovable staging website update completed. Production was not touched.
+- Seven-role signed-in access/navigation audit 37163132863 passed. Dashboard regression 37163132862 remains in progress. These checks make no AI calls and do not establish generation acceptance.
+- Generation follow-up is local and unreleased: structured generators explicitly transmit their JSON schemas and validate returned objects. PPT prep now reports persistence failure instead of returning an unsaved success. Thirty focused tests and TypeScript pass locally using the bundled Node runtime.
+- Role/output acceptance remains explicit: Family and Educator need Pathway creation/regeneration, PPT prep, document/IEP extraction, evidence and next-step outputs verified live. Student needs permitted report, forms, goals and export workflows; Partner needs profile/opportunity management; School and District administrators need organization/readiness/export workflows; Owner needs management and its diagnostic generator. Role restrictions must remain intact; private planning tools are not added to roles that do not permit them.
+- Initial Family Pathway generation, saved report linkage and rendering passed in run 37135760600 before the nested-route failure fixed by PR207. Subsequent Student/Educator/Partner checks were skipped. This is not all-role live acceptance. New generator changes still require review and authorized staging release before live validation.
+- All earlier roadmap items remain tracked below, including deferred parent pilot and Pathway Report snapshot work. No outreach, production release or migration is authorized by this update.
+
 ## October 3 — verified PR206 release and complete parent-route audit
 
 - PR206 merged as 6a48e241a8e7076feb30615ccd4509e105fbb0d0 with user approval.

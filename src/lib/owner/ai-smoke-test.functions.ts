@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { generateText, Output } from "ai";
 import { z } from "zod";
@@ -71,6 +72,7 @@ export const runOwnerAiSmokeTest = createServerFn({ method: "POST" })
       const { experimental_output } = await generateText({
         model: gateway(OWNER_AI_SMOKE_MODEL),
         experimental_output: Output.object({ schema: SmokeResponseSchema }),
+        system: await buildStructuredOutputSystem(SmokeResponseSchema),
         prompt,
         abortSignal: AbortSignal.timeout(20_000),
       });

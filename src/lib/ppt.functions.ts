@@ -1,3 +1,4 @@
+import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText, Output } from "ai";
@@ -36,6 +37,12 @@ const AgendaSchema = z.object({
 });
 
 export type PptAgenda = z.infer<typeof AgendaSchema>;
+
+class PptPrepSaveError extends Error {
+  constructor() {
+    super("The meeting prep was generated, but couldn't be saved. It is not in your saved preps.");
+  }
+}
 
 export const createPptPrep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -76,9 +83,10 @@ Generate a PPT meeting prep packet. Make every question and script specific to $
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: AgendaSchema }),
+        system: await buildStructuredOutputSystem(AgendaSchema),
         prompt,
       });
-      const agenda = experimental_output as PptAgenda;
+      const agenda = AgendaSchema.parse(experimental_output);
       const studentId = (report as unknown as { student_id: string | null }).student_id;
 
       // Persist so the agenda survives reloads / device switches.
@@ -97,16 +105,20 @@ Generate a PPT meeting prep packet. Make every question and script specific to $
         })
         .select("id")
         .single();
-      if (saveErr) console.error("PPT prep save failed", saveErr);
+      if (saveErr || !saved) {
+        console.error("PPT prep persistence failed");
+        throw new PptPrepSaveError();
+      }
 
       return {
-        id: saved?.id ?? null,
+        id: saved.id,
         agenda,
         studentName: name,
         studentId,
         meetingDate: data.meeting_date || null,
       };
     } catch (err) {
+      if (err instanceof PptPrepSaveError) throw err;
       const msg = err instanceof Error ? err.message : String(err);
       console.error("PPT prep generation failed", msg);
       if (msg.includes("429")) throw new Error("The AI is busy right now. Please try again in a moment.");
