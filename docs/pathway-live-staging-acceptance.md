@@ -69,3 +69,9 @@ This is a prepared acceptance plan, not evidence that it has run. Release PR210 
 - Inspect print/PDF layout for complete agenda/questions/evidence/scripts, readable page breaks and absence of interactive buttons. Cancel the print dialog if needed; do not assume the existence of a print button proves export quality.
 - Verify role-aware return navigation and scroll/state where applicable. Other roles must retain their existing access rules; this plan does not add private planning tools to Student/Partner/School/District/Owner workspaces.
 - Remove only explicitly disposable run-scoped synthetic packets/fixtures, audit remaining row counts and sanitize credential-bearing diagnostic artifacts. Record each role result, quality findings, source identity, AI call count and cleanup result separately. Unrun checks remain open.
+
+## PPT execution evidence — October 5, 2026
+
+PR210 release 0ff2f1020a394301695295d9e93a2d0ad9eec41c reached both staging hosts with fingerprint a4ceab280b4686b913a96ff6ef63a470ca7ad603484ca42317b73aeac771efd1 / 1,066 files and passing external isolation. Protected run 37344887842 passed Family and Educator generation, owner/report linkage, saved reload, opposite-account denial and PDF creation. Exactly two generation calls were used without retries. Cleanup completed, including an independent zero-row check for generated PPT packets; report/intake deletion succeeded but no independent zero-count audit is claimed.
+
+Visual review of both four-page PDFs found site chrome/floating controls, marketing footer, an orphaned heading and empty partner setup content. Content review found mislabeled speaker perspective and an unsupported additional-services premise. Technical acceptance passed; content and polished export acceptance remain open. The follow-up is shared for both authorized PPT roles, with no access expansion to other roles. No additional AI call is authorized by this result.

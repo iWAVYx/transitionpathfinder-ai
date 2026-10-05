@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
@@ -500,8 +501,7 @@ export function ReportView({
       <div className="print-cover hidden print:block" aria-hidden>
         <div className="print-cover-frame">
           <header className="print-cover-brand">
-            <span className="print-cover-mark" aria-hidden />
-            <span className="print-cover-brand-text">TransitionForward</span>
+            <BrandLogo size="sm" />
           </header>
 
           <div className="print-cover-body">

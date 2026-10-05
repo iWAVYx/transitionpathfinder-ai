@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { CalendarHeart, Sparkles, Trash2, History } from "lucide-react";
 import { z } from "zod";
 
+import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
+import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
@@ -194,8 +196,8 @@ function PptPrepPage() {
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           Pick a Pathway Report, tell us what you most want from this meeting, and we'll
-          draft a detailed agenda, evidence-focused questions, and family and educator scripts you can
-          borrow word-for-word.
+          draft a meeting plan, questions about progress and supports, and suggested wording
+          for families and educators to adapt.
         </p>
 
         <InfoBox label="What's a PPT meeting?" className="mt-6">
@@ -344,8 +346,10 @@ function AgendaView({
   onReset: () => void;
 }) {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
+    <section data-print-document data-ppt-print-packet className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+      <DocumentPrintStyles />
+      <DocumentPrintHeader title="PPT Meeting Prep" />
+      <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10 print:bg-white print:p-0 print:shadow-none">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
         <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
           A Meeting Plan For {toTitleCase(name)}.
@@ -374,9 +378,11 @@ function AgendaView({
         </ol>
       </Block>
 
+      <div className={!studentId && !meetingDate ? "print:hidden" : undefined}>
       <Block title="Partner contacts & deadlines">
         <MeetingPrepPartners studentId={studentId} meetingDate={meetingDate} />
       </Block>
+      </div>
 
       <Block title="Questions to ask">
         <BulletList items={agenda.questions_to_ask} studentId={studentId} category="team" />

@@ -1,3 +1,5 @@
+import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
+import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useRef, useState } from "react";
@@ -174,7 +176,9 @@ function MeetingDetailPage() {
         />
       </div>
 
-      <section ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      <section data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <DocumentPrintStyles />
+        <DocumentPrintHeader title={meeting.title} />
         <div className="flex flex-wrap items-end justify-between gap-3 print:hidden">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">

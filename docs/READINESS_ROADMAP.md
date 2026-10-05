@@ -4,6 +4,12 @@
 
 For every feature, tool, workflow, navigation, content or layout change to any role, assess applicability across Student, Family/Guardian, Educator, School Admin, District Admin, Partner and Owner. Record which roles share the implementation, which need adapted behavior and which do not apply, with a reason. Prefer shared components and contracts for equivalent workflows; clearly distinguish demo sample data from signed-in records. Check role-specific destinations, empty/loading/error states, persistence, exports and responsive behavior where affected. Preserve permissions, privacy and Owner Hub management-only scope; sharing an implementation never grants another role access. Validate every affected role and note untested cases explicitly. Promote the same reviewed source through staging and separately authorized production releases with isolated environment configuration.
 
+## PPT quality follow-up — October 5, 2026
+
+PR210 is released to both isolated staging hosts with fingerprint a4ceab280b4686b913a96ff6ef63a470ca7ad603484ca42317b73aeac771efd1 / 1,066 files and passing external isolation. Protected run 37344887842 passed both Family and Educator technical cases using exactly two synthetic generations. Ownership, report linkage, saved reopening and opposite-account denial passed; cleanup included a zero-row check for generated packets.
+
+PDF/content review leaves polished export and speaker accuracy open. The local follow-up scopes printing to packet content, avoids splitting list items and orphaned headings, hides fully empty partner setup in print and clarifies that Family/Educator labels identify speakers. This implementation applies to every existing authorized PPT consumer through the shared route/generator; Student, Partner and administrative/Owner roles receive no additional access. TypeScript and 13 focused tests passed. Browser visual checks and another separately authorized AI check remain pending; production unchanged.
+
 ## Current release status — October 5, 2026
 
 - Cross-role follow-up: assess changes to any role for relevant equivalents across all roles while preserving authorization and Owner management-only scope. PPT follow-up corrects family-only copy/action categories, accessible labels and printable controls; live quality/persistence/export checks remain open.
@@ -1307,3 +1313,13 @@ modifications to `_authenticated/route.tsx`, auth, or 2FA.
   user-facing flow without a DB write is the student self-invite mailto,
   which is intentional — a fake "Send invite" button would violate the
   no-inert-button rule, and a real self-invite is queued under P1.
+
+## Generated-document presentation standard — October 5, 2026
+
+Every generated document/export must use readable text, clear hierarchy, generous but economical line spacing, stable margins, sensible page breaks, no clipped/overlapping text and no site navigation/marketing/floating controls. Incorporate the approved logo where the format supports it, without stretching or inventing a replacement mark. Preserve source/evidence caveats and distinguish demo data. Assess all applicable roles and demo/live versions; branding never expands access.
+
+Local first pass adds a compact print-only approved logo header and Letter margins to PPT packets, plus the approved logo on the Pathway Report print cover. Meeting notes now share the compact logo header and document-only print rules. Progress-monitoring exports, document/IEP explanations and other generated tools remain explicitly in the export audit; no claim of completed visual acceptance for all outputs. Browser/PDF visual verification remains required before closing this work.
+
+## User-facing language standard
+
+Every user-facing screen, message and generated output should use clear, respectful everyday language, concrete next steps and short sentences. Explain necessary acronyms and specialist terms on first use; retain accurate policy/evidence terms rather than changing their meaning. Avoid internal implementation language and unsupported promises. Assess applicability across all roles and demo/live versions. Shared structured-generation instructions now apply this standard to prose without altering schema keys, identifiers or permissions. Current PPT and partner-preparation copy is revised locally; the whole-product language audit remains open.

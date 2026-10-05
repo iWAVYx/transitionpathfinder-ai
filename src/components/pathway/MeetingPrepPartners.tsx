@@ -158,8 +158,8 @@ export function MeetingPrepPartners({
           </>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
-            Add a meeting date above and we'll lay out a week-by-week prep timeline with
-            calendar reminders you can share.
+            Choose a meeting date when preparing a new meeting plan to see suggested
+            preparation dates and calendar reminders.
           </p>
         )}
       </section>
@@ -169,8 +169,8 @@ export function MeetingPrepPartners({
           Partner contacts to have on hand
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Bring these names to the PPT — they're matched to the student's interests, county, and
-          support needs.
+          Review suggested organizations based on the student's interests, county, and
+          support needs. Contact them to confirm availability and whether their services are a good fit.
         </p>
         {!studentId ? (
           <p className="mt-3 text-sm text-muted-foreground">
