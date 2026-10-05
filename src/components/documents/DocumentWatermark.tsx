@@ -13,7 +13,7 @@ export function DocumentWatermark() {
           pointer-events: none; user-select: none;
           print-color-adjust: exact; -webkit-print-color-adjust: exact;
         }
-        .report-root [data-document-watermark] { bottom: 0.15in; left: 0.15in; }
+        .report-root [data-document-watermark] { top: 0.05in; bottom: auto; left: 0.05in; width: 20px; height: 20px; }
       }
     `}</style>
     <img data-document-watermark src={BRAND_ICON_SRC} width={28} height={28} alt="" aria-hidden="true" />

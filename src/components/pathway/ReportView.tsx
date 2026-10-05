@@ -459,7 +459,7 @@ export function ReportView({
       <DocumentWatermark />
       <DocumentViewStyles />
       <ReportBrochurePrintStyles />
-      <div className="print:hidden"><DocumentPrintHeader title="Pathway Report" /></div>
+      <DocumentPrintHeader title="Pathway Report" />
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
         @media (min-width: 640px) {
@@ -1228,28 +1228,26 @@ export function ReportView({
       {/* ============ Postsecondary Goal Breakdown ============ */}
       {r.postsecondary_goals && r.postsecondary_goals.length > 0 && (
         <Block id="sec-goals" title="Postsecondary Goal Breakdown" icon={<Target className="h-5 w-5" />}>
-          <Accordion type="multiple" className="border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
+          <Accordion type="multiple" className="print:hidden border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.postsecondary_goals.map((g, i) => (
               <AccordionItem key={i} value={`goal-${i}`} className="px-5">
                 <AccordionTrigger className="text-left">
                   <span className="font-display text-lg">{toTitleCase(g.area)}</span>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="grid gap-3 pb-2 sm:grid-cols-2">
-                    <Labeled label="Current Status">{g.current_status}</Labeled>
-                    <Labeled label="Suggested Direction">{g.suggested_direction}</Labeled>
-                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
-                    <Labeled label="Draft Measurable Goal">
-                      <span className="italic">{g.measurable_goal_language}</span>
-                    </Labeled>
-                    <MiniCard label="Next Steps" items={g.next_steps} compact />
-                    <MiniCard label="Who Supports" items={g.who_supports} compact />
-                    <MiniCard label="Evidence Needed" items={g.evidence_needed} compact />
-                  </div>
+                  <GoalDetails goal={g} />
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
+          <div data-report-printed-goals className="hidden print:block">
+            {r.postsecondary_goals.map((goal, i) => (
+              <section key={i} className="mt-5">
+                <h3 className="font-display text-lg">{toTitleCase(goal.area)}</h3>
+                <GoalDetails goal={goal} />
+              </section>
+            ))}
+          </div>
         </Block>
       )}
             </>
@@ -1741,15 +1739,6 @@ export function ReportView({
             }
           }
 
-          /* Cover page: full bleed, no running headers/footers */
-          @page :first {
-            margin: 0;
-            @top-left { content: ""; }
-            @top-right { content: ""; }
-            @bottom-left { content: ""; }
-            @bottom-right { content: ""; }
-          }
-
           /* Section name shows in running header (set per-section below) */
           .report-section h2 { string-set: doc-section content(text); }
 
@@ -1762,9 +1751,9 @@ export function ReportView({
           .no-print { display: none !important; }
           .report-root { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
 
-          /* ---------- Cover page ---------- */
+          /* ---------- Legacy cover (replaced by the shared document header) ---------- */
           .print-cover {
-            display: block !important;
+            display: none !important;
             page-break-after: always;
             break-after: page;
             page: cover;
@@ -2758,10 +2747,11 @@ function PlanBlock({
 
   return (
     <Block id="sec-thirty-day" title="30 / 60 / 90-Day Action Plan" icon={<Calendar className="h-5 w-5" />}>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="print:hidden flex flex-wrap items-center gap-3">
         <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
         <p className="text-xs text-muted-foreground">{meta.tagline}</p>
       </div>
+      <p data-report-plan-period className="hidden print:block mt-3 font-semibold">{meta.label} · {meta.tagline}</p>
       <ol className="mt-5 space-y-4">
         {steps.map((step) => (
           <RichPlanStepCard key={`${horizon}-${step.week}`} step={step} />
@@ -2772,3 +2762,20 @@ function PlanBlock({
 }
 
 
+
+/** Shared goal detail content: screen controls never determine what the PDF includes. */
+function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postsecondary_goals"]>[number] }) {
+  return (
+<div className="grid gap-3 pb-2 sm:grid-cols-2">
+                    <Labeled label="Where Things Stand">{g.current_status}</Labeled>
+                    <Labeled label="A Possible Next Step">{g.suggested_direction}</Labeled>
+                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
+                    <Labeled label="Draft Goal to Discuss">
+                      <span className="italic">{g.measurable_goal_language}</span>
+                    </Labeled>
+                    <MiniCard label="Next Steps" items={g.next_steps} compact />
+                    <MiniCard label="People Who Can Help" items={g.who_supports} compact />
+                    <MiniCard label="Information to Gather" items={g.evidence_needed} compact />
+                  </div>
+  );
+}

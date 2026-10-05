@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     alias: { "@": resolve("src") },
   });
@@ -33,6 +33,8 @@ for (const role of ["Family", "Educator"]) {
           contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png",
         });
       });
+      const note = "A dated observation and the agreed next step.\n".repeat(90) + "Final follow-up: confirm the review date.";
+      const field = renderToStaticMarkup(createElement(components.PrintedFieldValue, { value: note }));
       const watermark = renderToStaticMarkup(createElement(components.DocumentWatermark));
       const header = renderToStaticMarkup(createElement(components.DocumentPrintHeader, { title: `${role} meeting plan — sample` }));
       const styles = [components.DocumentPrintStyles, components.DocumentViewStyles].map((component) => renderToStaticMarkup(createElement(component))).join("");
@@ -41,6 +43,8 @@ for (const role of ["Family", "Educator"]) {
         [data-brand-logo] { display: flex; align-items: center; gap: 8px; }
         [data-brand-logo] img { height: 32px; width: auto; max-width: 100%; }
         [data-print-document] { max-width: 760px; margin: auto; }
+        [data-document-field-value] { display: none; }
+        @media print { [data-document-field-value] { display: block; white-space: pre-wrap; overflow-wrap: anywhere; } textarea { display: none; } }
       </style></head><body>
         <header>Site navigation</header><main class="site-shell-main"><div>Dashboard breadcrumb</div>
         <section data-generated-document data-print-document>${styles}${watermark}${header}
@@ -49,6 +53,7 @@ for (const role of ["Family", "Educator"]) {
           <header data-section-heading><h2>Questions to discuss</h2></header>
           <ul><li>Which supports help the student complete the next task?</li><li>Who will record progress and when will the team review it?</li></ul>
           <p>Long reference: ${"sample-reference-".repeat(25)}</p>
+          <textarea aria-label="Meeting notes">Short editing viewport</textarea>${field}
           <footer data-document-note>Planning guidance; check the student's current records.</footer>
           <button>Save action</button><div class="print:hidden">Interactive setup guidance</div>
         </section></main><footer data-site-footer>Marketing footer</footer>
@@ -60,7 +65,12 @@ for (const role of ["Family", "Educator"]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       expect(await page.locator("[data-brand-logo] img").evaluateAll((images) => images.every((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
       await expect(page.locator("[data-document-watermark]")).toBeHidden();
+      await expect(page.locator("[data-document-field-value]")).toBeHidden();
       await page.emulateMedia({ media: "print" });
+      await expect(page.getByRole("textbox", { name: "Meeting notes" })).toBeHidden();
+      await expect(page.locator("[data-document-field-value]")).toBeVisible();
+      await expect(page.locator("[data-document-field-value]")).toHaveText(note);
+      expect(await page.locator("[data-document-field-value]").evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
       await expect(page.locator("[data-document-watermark]")).toBeVisible();
       expect(await page.locator("[data-document-watermark]").evaluate((element) => Number(getComputedStyle(element).opacity))).toBeLessThanOrEqual(0.1);
       await expect(page.locator("[data-document-print-header]")).toBeVisible();
