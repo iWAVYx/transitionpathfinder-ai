@@ -1,8 +1,4 @@
-import { SampleDocumentNotice } from "@/components/documents/SampleDocumentNotice";
-import { ReportBrochurePrintStyles } from "@/components/documents/ReportBrochurePrintStyles";
-import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
-import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
-import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
+import { PathwayDocumentPresentation } from "@/components/documents/PathwayDocumentPresentation";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -457,11 +453,7 @@ export function ReportView({
         density === "compact" ? "report-compact max-w-[92rem]" : "max-w-6xl",
       )}
     >
-      <DocumentWatermark />
-      <DocumentViewStyles />
-      <ReportBrochurePrintStyles />
-      <DocumentPrintHeader title="Pathway Report" />
-      {demo && <SampleDocumentNotice />}
+      <PathwayDocumentPresentation sample={demo} />
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
         @media (min-width: 640px) {

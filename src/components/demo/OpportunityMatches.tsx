@@ -1,3 +1,4 @@
+import type { DemoProfile } from "@/lib/demo/demo-profiles";
 import { useMemo } from "react";
 import { CheckCircle2, ShieldAlert, Sparkles, Info } from "lucide-react";
 import { matchOpportunities, type OpportunityMatch } from "@/lib/demo/opportunity-matcher";
@@ -37,8 +38,17 @@ const KIND_LABEL: Record<string, string> = {
  * viewers can see WHY the matcher hid it (age band, product track, or
  * disallowed theme).
  */
-export function OpportunityMatches({ compact = false, limit }: { compact?: boolean; limit?: number } = {}) {
+export function OpportunityMatches({ compact = false, limit, profile }: { compact?: boolean; limit?: number; profile?: DemoProfile } = {}) {
+  if (!profile) return <SelectedOpportunityMatches compact={compact} limit={limit} />;
+  return <ProfileOpportunityMatches compact={compact} limit={limit} profile={profile} />;
+}
+
+function SelectedOpportunityMatches(props: { compact?: boolean; limit?: number }) {
   const { profile } = useDemoStudent();
+  return <ProfileOpportunityMatches {...props} profile={profile} />;
+}
+
+function ProfileOpportunityMatches({ compact = false, limit, profile }: { compact?: boolean; limit?: number; profile: DemoProfile }) {
   const matches = useMemo(() => matchOpportunities(profile), [profile]);
 
   const visibleAll = matches.filter((m) => m.band !== "filtered_out");

@@ -1,5 +1,9 @@
+import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
+import { PathwayDocumentPresentation } from "@/components/documents/PathwayDocumentPresentation";
+import { PathwayReportBody } from "@/components/pathway/report/PathwayReportBody";
+import { toTitleCase } from "@/lib/title-case";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   generatePathwayReport,
   type AlternativePathway,
@@ -74,7 +78,8 @@ function audienceFrame(
  * Age-aware Pathway Report renderer.
  *
  * Reads a fictional DemoProfile, runs it through the pure pathway engine,
- * and lays out the seven required explanation sections + the filtered
+ * and uses the live report document/stage presentation for the seven
+ * required explanation sections + the filtered
  * pathway options. Every screen element is derived from the profile, so
  * switching students in the header immediately swaps the report.
  *
@@ -91,23 +96,76 @@ export function PathwayReport({
 }) {
   const report = generatePathwayReport(profile);
   const frame = audienceFrame(audience, profile);
+  const blocks = (...sections: ReportBlock["section"][]) => (
+    <ReportBlocks blocks={report.blocks.filter((block) => sections.includes(block.section))} />
+  );
   return (
-    <section
-      aria-label={`Pathway report for ${profile.shortName} (${audience} view)`}
-      data-demo-report-profile={profile.id}
-      data-demo-report-audience={audience}
-      className="space-y-8"
-    >
-      <ReportHeader report={report} profile={profile} />
-      <AudienceFrame frame={frame} />
-      <ReportBlocks blocks={report.blocks} />
-      <NextStepsList steps={report.nextSteps} />
-      <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
-      <AlternativePathways items={report.alternativePathways} />
-      <ConflictsList items={report.conflicts} shortName={profile.shortName} />
-      <OpportunityMatches compact limit={3} />
-      <RevisitFooter report={report} profile={profile} />
-    </section>
+    <div className="report-shell">
+      <section
+        aria-label={`Pathway report for ${profile.shortName} (${audience} view)`}
+        data-demo-report-profile={profile.id}
+        data-demo-report-audience={audience}
+        data-generated-document
+        data-print-document
+        data-age-aware-report
+        className="report-root mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-6 lg:px-8"
+      >
+        <style>{`
+          @media print {
+            [data-age-aware-report] [data-demo-report-header] > div {
+              display: grid !important; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+              align-items: start; gap: 0.15in;
+            }
+            [data-age-aware-report] [data-demo-report-header] * { text-align: left !important; }
+            [data-age-aware-report] [data-demo-report-header] .items-end { align-items: start !important; }
+            [data-age-aware-report] .report-stage { background: none !important; padding: 0 !important; break-before: auto !important; page-break-before: auto !important; }
+            [data-age-aware-report] .report-stage::before,
+            [data-age-aware-report] .report-stage::after,
+            [data-age-aware-report] .report-stage > header::before { display: none !important; }
+            [data-age-aware-report] [data-demo-report-section],
+            [data-age-aware-report] [data-demo-pathway-option],
+            [data-age-aware-report] [data-demo-alt-pathway],
+            [data-age-aware-report] [data-demo-review-summary],
+            [data-age-aware-report] [data-demo-next-step] { break-inside: avoid !important; }
+            [data-age-aware-report] [data-demo-report-section] > div,
+            [data-age-aware-report] [data-demo-pathway-option] > div { padding: 0.1in !important; }
+            [data-age-aware-report] .report-stage > header { break-after: avoid; }
+            [data-age-aware-report] [data-document-columns] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            [data-age-aware-report] [data-single-report-block] { grid-template-columns: minmax(0, 1fr) !important; }
+          }
+        `}</style>
+        <DocumentPrintStyles />
+        <PathwayDocumentPresentation sample />
+        <ReportHeader report={report} profile={profile} />
+        <AudienceFrame frame={frame} />
+        <PathwayReportBody
+          stageCopy={{ action: {
+            title: "Next Steps",
+            description: "Use each recommendation's original timeframe and review date to plan with your team.",
+          } }}
+          sections={{
+            student_snapshot: blocks("what_we_know"),
+            educator_action_plan: blocks("ahead_beside_behind"),
+            data_gaps: blocks("evidence", "unknowns"),
+            recommended_pathways: <>
+              {blocks("why_it_fits")}
+              <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
+              <AlternativePathways items={report.alternativePathways} />
+            </>,
+            next_steps_30_90_180_365: <>
+              {blocks("what_to_do_next")}
+              <NextStepsList steps={report.nextSteps} />
+            </>,
+            partner_matches: <OpportunityMatches compact limit={3} profile={profile} />,
+          }}
+          appendix={<div data-demo-review-summary className="space-y-4">
+            {blocks("when_to_revisit")}
+            <ConflictsList items={report.conflicts} shortName={profile.shortName} />
+            <RevisitFooter report={report} profile={profile} />
+          </div>}
+        />
+      </section>
+    </div>
   );
 }
 
@@ -125,7 +183,7 @@ function AudienceFrame({
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
         {frame.eyebrow}
       </p>
-      <h2 className="mt-1 text-lg font-semibold text-foreground">{frame.heading}</h2>
+      <h2 className="mt-1 text-lg font-semibold text-foreground">{toTitleCase(frame.heading)}</h2>
       <p className="mt-1 text-sm text-foreground/80">{frame.body}</p>
     </div>
   );
@@ -140,14 +198,14 @@ function ReportHeader({
   profile: DemoProfile;
 }) {
   return (
-    <header className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <header data-demo-report-header className="rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Pathway Report · Fictional Demo
           </p>
           <h1 className="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
-            {report.headline}
+            {toTitleCase(report.headline)}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{report.subheadline}</p>
           <p className="mt-3 max-w-2xl text-sm text-foreground/80">{report.focus}.</p>
@@ -170,11 +228,11 @@ function ReportHeader({
 
 function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className={`grid gap-4 ${blocks.length > 1 ? "md:grid-cols-2" : ""}`} data-document-columns data-single-report-block={blocks.length === 1 || undefined}>
       {blocks.map((b) => (
         <Card key={b.section} data-demo-report-section={b.section}>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">{b.heading}</CardTitle>
+            <h3 className="text-base">{toTitleCase(b.heading)}</h3>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-foreground/85">
             {b.body && <p>{b.body}</p>}
@@ -191,7 +249,7 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
                 className="rounded-md border border-dashed border-amber-400/60 bg-amber-50/60 p-3 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100"
               >
                 <p className="font-semibold uppercase tracking-wide">
-                  Missing / Uncertain
+                  What We Still Need to Know
                 </p>
                 <p className="mt-1">{b.missing.reason}</p>
                 {b.missing.needed.length > 0 && (
@@ -221,7 +279,7 @@ function NextStepsList({ steps }: { steps: EnrichedNextStep[] }) {
           included
         </p>
       </div>
-      <ul className="grid gap-3 md:grid-cols-2">
+      <ul className="grid gap-3 md:grid-cols-2" data-document-columns>
         {steps.map((s) => (
           <li
             key={s.id}
@@ -229,13 +287,13 @@ function NextStepsList({ steps }: { steps: EnrichedNextStep[] }) {
             className="rounded-lg border border-border bg-card p-4 shadow-sm"
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm font-semibold text-foreground">{s.title}</p>
+              <h3 className="text-sm font-semibold text-foreground">{toTitleCase(s.title)}</h3>
               <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-wider">
                 Review in {s.reviewByMonths} mo
               </Badge>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {TIMEFRAME_LABEL[s.timeframe]} · Owner: {OWNER_LABEL[s.owner]}
+              {TIMEFRAME_LABEL[s.timeframe]} · Who Can Help: {OWNER_LABEL[s.owner]}
             </p>
             <p className="mt-2 text-sm text-foreground/85">{s.detail}</p>
           </li>
@@ -250,14 +308,14 @@ function AlternativePathways({ items }: { items: AlternativePathway[] }) {
   return (
     <section aria-label="Alternative pathways" className="space-y-3">
       <h2 className="text-lg font-semibold text-foreground">Alternative Pathways</h2>
-      <ul className="grid gap-3 md:grid-cols-2">
+      <ul className="grid gap-3 md:grid-cols-2" data-document-columns>
         {items.map((a) => (
           <li
             key={a.id}
             data-demo-alt-pathway={a.id}
             className="rounded-lg border border-border bg-muted/40 p-4"
           >
-            <p className="text-sm font-semibold text-foreground">{a.title}</p>
+            <h3 className="text-sm font-semibold text-foreground">{toTitleCase(a.title)}</h3>
             <p className="mt-1 text-sm text-foreground/80">
               <span className="font-semibold text-foreground/70">When to consider:</span>{" "}
               {a.whenToConsider}
@@ -302,7 +360,7 @@ function ConflictsList({
           >
             <p>{c.summary}</p>
             <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
-              Resolution owner · {OWNER_LABEL[c.resolutionOwner]}
+              Who Can Help Resolve This · {OWNER_LABEL[c.resolutionOwner]}
             </p>
           </li>
         ))}
@@ -323,7 +381,7 @@ function PathwayOptions({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pathway Options</CardTitle>
+          <h3 className="text-base">Pathway Options</h3>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -343,12 +401,12 @@ function PathwayOptions({
           {options.length} age-appropriate {options.length === 1 ? "option" : "options"}
         </p>
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2" data-document-columns>
         {options.map((opt) => (
           <Card key={opt.id} data-demo-pathway-option={opt.id}>
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between gap-3">
-                <CardTitle className="text-base leading-snug">{opt.title}</CardTitle>
+                <h3 className="text-base leading-snug">{toTitleCase(opt.title)}</h3>
                 <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-wider">
                   {CATEGORY_LABEL[opt.category]}
                 </Badge>

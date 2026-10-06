@@ -12,6 +12,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Dashboard card route/permission checks across six roles; corrected family goal-link placement and widget category destinations; demo links retain appropriate context.
 - [x] Preserve the owner’s Lovable heading edit in Git. Require reconciliation of builder edits before subsequent source sync.
 - [x] Demo builder return-role/draft restoration and accessible role selection; printable sample notices and sample-mode action guards.
+- [x] Age-aware Sam/Riley/Jordan reports share live document styling and stage layout; original options, evidence gaps, alternatives/conflicts and review timing preserved. Full reader parity remains open.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
 - [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211; latest recorded head b3ebc1b6. Unit and role-guard checks passed; latest build/report-a11y checks running when read. Signed-in E2E was skipped, not passed.
@@ -1531,3 +1532,16 @@ Regression example: four report rows across three students, with two students co
 - [ ] Assess the separate School/District dashboard and report-library queries for the same completeness issues. This change applies to report metrics used in the report screen/PDF/CSV; it does not claim every organization query is now paginated.
 
 Pagination is not a database snapshot: stable counts cannot detect every concurrent edit that preserves row totals. A transactional/snapshot reporting approach remains a possible follow-up if required by usage volume. Current milestone remains the document/demo package; main age-aware demo report parity and final full-report pagination review are still open.
+
+
+## Age-Aware Demo Report Presentation — October 5, 2026
+
+- [x] Sam, Riley and Jordan now use the same document presentation component and stage-body renderer as the live Pathway Report: shared branding, title hierarchy, print typography, sample notice and export watermark.
+- [x] Preserve every existing explanation, evidence bullet, pathway option, alternative, conflict and review horizon. No production report schema was loosened and no additional recommendations/deadlines were invented. The shared action-stage heading supports source-defined timing instead of claiming fixed 30/90/180/365-day plans.
+- [x] Opportunity cards accept the report's explicit fictional profile instead of silently reading a potentially different router/storage selection.
+- [x] Semantic title-case section headings, balanced document columns, full-width single-section rows, compact print header and intact printed recommendation/review cards. Changes are confined to report documents and their shared presentation components.
+- [x] Full unit suite: 144 files / 1,360 tests passed; TypeScript verification passed. Credential-free browser fixture: 18 viewport checks (three profiles × three audiences × 375/1440 pixels), no horizontal overflow, expected heading typography. Three Family sample PDFs rendered; all pages reviewed at contact-sheet scale. No site navigation/footer text appeared in extracted PDFs.
+- [ ] Complete full demo/live reader parity: the main demo still retains its age-aware content renderer, while the live reader has additional generated sections and interactive controls. Shared styling/stage layout does not close this whole milestone.
+- [ ] Further compact the full report pagination and review all final audiences against a fresh application build. Current offline visual checks used current components plus the existing built app stylesheet; Family samples remained 8/8/9 pages. Student/Educator markup and viewport checks passed, but their final PDFs were not individually reviewed in this slice.
+
+No database/AI requests, accounts, merges, deployments, migrations or production changes were made for this slice. Current next step remains the main demo/live reader contract reconciliation and final document package validation.

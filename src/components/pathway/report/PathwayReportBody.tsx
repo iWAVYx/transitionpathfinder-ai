@@ -14,7 +14,7 @@
  * explicit "Appendix" heading.
  */
 import type { ReactNode } from "react";
-import { WORKSPACE_STAGES, type PathwayReportSectionId, REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
+import { WORKSPACE_STAGES, type PathwayReportSectionId, type StageId, REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
 
 /**
  * Node(s) already rendered for each report section. Multiple JSX
@@ -28,6 +28,8 @@ export type PathwayReportSections = Partial<
 
 export interface PathwayReportBodyProps {
   sections: PathwayReportSections;
+  /** Preserve source-defined horizons instead of relabelling them as fixed day plans. */
+  stageCopy?: Partial<Record<StageId, { title: string; description: string }>>;
   /** Non-stage content rendered under an Appendix heading. */
   appendix?: ReactNode;
 }
@@ -46,7 +48,7 @@ function isEmpty(node: ReactNode | ReactNode[] | undefined): boolean {
   return false;
 }
 
-export function PathwayReportBody({ sections, appendix }: PathwayReportBodyProps) {
+export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayReportBodyProps) {
   return (
     <div className="pathway-report-body">
       {WORKSPACE_STAGES.map((stage) => {
@@ -68,10 +70,10 @@ export function PathwayReportBody({ sections, appendix }: PathwayReportBodyProps
                 Stage {stage.order} · {stage.label}
               </p>
               <h2 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {stage.title}
+                {stageCopy?.[stage.id]?.title ?? stage.title}
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                {stage.description}
+                {stageCopy?.[stage.id]?.description ?? stage.description}
               </p>
             </header>
             <div className="report-stage-sections space-y-6">
