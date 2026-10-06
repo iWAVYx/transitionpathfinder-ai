@@ -1,3 +1,4 @@
+import { reportRecordsByStudent, reportCountsForStudents } from "./report-record-counts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -33,6 +34,7 @@ export type DistrictSchool = {
   pending_members: number;
   students_count: number;
   reports_count: number;
+  students_with_report: number;
   open_actions: number;
   needs_followup: boolean;
 };
@@ -267,11 +269,7 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
             : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
         ]);
 
-      const reportsByStudent = new Set(
-        (reportRows ?? [])
-          .map((r) => r.student_id)
-          .filter((x): x is string => !!x),
-      );
+      const reportsByStudent = reportRecordsByStudent(reportRows ?? []);
       const goalsByStudent = new Set(
         (goalRows ?? [])
           .filter((g) => g.status !== "met" && !!g.student_id)
@@ -288,7 +286,7 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
 
       for (const s of schoolRows ?? []) {
         const ids = studentsByOrg.get(s.id) ?? [];
-        const reports = ids.filter((id) => reportsByStudent.has(id)).length;
+        const { reports_count: reports, students_with_report: covered } = reportCountsForStudents(ids, reportsByStudent);
         const openActs = ids.reduce((n, id) => n + (actionsByStudent.get(id) ?? 0), 0);
         const m = memByOrg.get(s.id) ?? { active: 0, pending: 0, admins: 0, educators: 0 };
         const needs = ids.length === 0 || (ids.length > 0 && reports === 0);
@@ -302,6 +300,7 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
           pending_members: m.pending,
           students_count: ids.length,
           reports_count: reports,
+          students_with_report: covered,
           open_actions: openActs,
           needs_followup: needs,
         });
@@ -634,6 +633,7 @@ export type DistrictReportWindow = {
     name: string;
     students_count: number;
     reports_count: number;
+    students_with_report: number;
     open_actions: number;
   }>;
 };
@@ -729,9 +729,7 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
     const actionRows = (actionsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
     const goalRows = (goalsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
 
-    const reportsByStudent = new Set(
-      reportRows.map((r) => r.student_id).filter((x): x is string => !!x),
-    );
+    const reportsByStudent = reportRecordsByStudent(reportRows);
     const goalsByStudent = new Set(
       goalRows
         .filter((g) => g.status !== "met" && !!g.student_id)
@@ -752,12 +750,12 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
 
     const perSchool = schools.map((s) => {
       const ids = studentsByOrg.get(s.id) ?? [];
-      const reports = ids.filter((id) => reportsByStudent.has(id)).length;
+      const { reports_count: reports, students_with_report: covered } = reportCountsForStudents(ids, reportsByStudent);
       const openActs = ids.reduce((n, id) => n + (actionsByStudent.get(id) ?? 0), 0);
       studentsTotal += ids.length;
       reportsTotal += reports;
       openActionsTotal += openActs;
-      withReportTotal += reports;
+      withReportTotal += covered;
       withGoalsTotal += ids.filter((id) => goalsByStudent.has(id)).length;
       withActionsTotal += ids.filter((id) => (actionsByStudent.get(id) ?? 0) > 0).length;
       return {
@@ -765,6 +763,7 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
         name: s.name,
         students_count: ids.length,
         reports_count: reports,
+        students_with_report: covered,
         open_actions: openActs,
       };
     });

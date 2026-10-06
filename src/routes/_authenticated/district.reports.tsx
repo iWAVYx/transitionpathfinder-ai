@@ -214,7 +214,7 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
                     {win.schools.map((s) => {
                       const pct =
                         s.students_count > 0
-                          ? Math.round((s.reports_count / s.students_count) * 100)
+                          ? Math.round((s.students_with_report / s.students_count) * 100)
                           : 0;
                       return (
                         <tr key={s.id}>
@@ -362,7 +362,7 @@ function buildRows(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: s
     ["% Students with Open Actions", `${m.pct_with_actions}%`],
   ];
   const schoolRows = w.schools.map((s) => {
-    const pct = s.students_count > 0 ? Math.round((s.reports_count / s.students_count) * 100) : 0;
+    const pct = s.students_count > 0 ? Math.round((s.students_with_report / s.students_count) * 100) : 0;
     return [s.name, s.students_count, s.reports_count, s.open_actions, `${pct}%`];
   });
   return { summary, schoolRows };

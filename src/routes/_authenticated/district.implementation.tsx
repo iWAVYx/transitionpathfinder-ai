@@ -29,7 +29,7 @@ type Stage = "onboarding" | "active" | "mature";
 
 function stageFor(s: DistrictSchool): Stage {
   if (s.active_members === 0 || s.students_count === 0) return "onboarding";
-  const ratio = s.students_count > 0 ? s.reports_count / s.students_count : 0;
+  const ratio = s.students_count > 0 ? s.students_with_report / s.students_count : 0;
   if (ratio >= 0.6 && s.active_members >= 3) return "mature";
   return "active";
 }

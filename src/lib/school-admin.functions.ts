@@ -1,3 +1,4 @@
+import { reportRecordsByStudent } from "./report-record-counts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -697,11 +698,7 @@ export const getSchoolReportMetrics = createServerFn({ method: "POST" })
       status: string;
     }>;
 
-    const reportsByStudent = new Map<string, number>();
-    for (const r of reportRows) {
-      if (!r.student_id) continue;
-      reportsByStudent.set(r.student_id, (reportsByStudent.get(r.student_id) ?? 0) + 1);
-    }
+    const reportsByStudent = reportRecordsByStudent(reportRows);
     const openActionsByStudent = new Map<string, number>();
     for (const a of actionRows) {
       if (!a.student_id || a.status === "complete") continue;
