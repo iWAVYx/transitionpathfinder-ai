@@ -17,7 +17,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Dedicated age-aware Student Voice section with shared live quote presentation, exact profile answers and role-safe contents links; live Student responses are no longer truncated to three.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y; supporting-text contrast and nested sample-notice semantics are corrected and locally verified in the current slice. Newly flagged dependency advisories were patched with compatible overrides. Code head 73d742ca passed both clean build jobs, hosted report-a11y, unit, role-guard and static readiness audits. Complete draft-diff review remains open. Signed-in E2E was skipped, not passed.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y; supporting-text contrast and nested sample-notice semantics are corrected and locally verified in the current slice. Newly flagged dependency advisories were patched with compatible overrides. Code head 43d57cf4 passed hosted unit, report-a11y, role-guard and static readiness audits; both clean build jobs stopped at newly reported sharp/shell-quote advisories before building. Compatible patched overrides are prepared; fresh clean-build verification and complete draft-diff review remain open. Signed-in E2E was skipped, not passed.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -1653,3 +1653,11 @@ Remaining reader reconciliation:
 | Goals and Role Support | Detailed goal language and family/educator support sections. | Preserve source goal titles/status/horizons and the engine's supplied owners/actions; reconcile presentation without padding a live schema with invented fields. |
 
 Milestone 1 remains open. Full report compaction and final per-page review also remain open. No merge, release, deployment, publication, migration, account/data change or AI request occurred.
+
+
+## Compatible Security Patches for Fresh PR Checks — October 6, 2026
+
+- Student Voice head `43d57cf4` passed hosted unit, report accessibility, role-guard and credential-free/static readiness checks. Both clean build jobs stopped at the dependency audit before compilation: newly indexed advisories GHSA-wq5f-xc86-pv6w (sharp) and GHSA-pqg4-j6r4-53mv (shell-quote).
+- Updated exact overrides to sharp 0.35.5 and shell-quote 1.11.0. Lockfile changes are limited to those packages and sharp's matching platform/libvips binaries; no unrelated upgrades. The upstream sharp patch includes librsvg 2.63.2.
+- An isolated temporary frozen install passed (1,039 platform-applicable packages), the high/critical audit exited successfully, and patched image encoding/decoding plus shell quote/parse smoke checks passed. The shared repository dependency installation was not modified. Fresh hosted clean-build verification remains open.
+- No audit bypass, source synchronization, release, deployment, migration, AI request or production action occurred. Existing source archives/fingerprints must not be reused for this changed dependency manifest/lockfile.
