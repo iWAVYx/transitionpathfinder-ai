@@ -21,6 +21,11 @@ for (const id of ["sam","riley","jordan"] as const) {
       expect(html).toContain('data-report-stage="action"');
       expect(html).toContain('data-report-stage="voice"');
       expect(html).toContain('href="#section-student_voice"');
+      expect(html).toContain('href="#section-strengths_preferences_interests_needs"');
+      for (const value of [...profile.learning.strengths, ...profile.learning.learningPreferences, ...profile.learning.interests,
+        ...profile.learning.supportNeeds, ...(profile.learning.sensoryNotes ?? []), profile.learning.communicationStyle]) {
+        expect(html).toContain(escaped(value));
+      }
       for (const response of profile.voice) {
         expect(html).toContain(escaped(response.prompt));
         expect(html).toContain(escaped(response.answer));
@@ -68,5 +73,12 @@ it("does not invent student responses or an empty voice destination", () => {
   const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="educator" />);
   expect(html).not.toContain('href="#section-student_voice"');
   expect(html).not.toContain('data-report-voice-response=');
-  expect(html).not.toContain('data-report-stage="voice"');
+  expect(html).not.toContain('id="section-student_voice"');
+});
+
+it("does not invent learning details or a contents target for an empty profile", () => {
+  const profile = { ...getDemoProfile("sam"), learning: { diagnosis: [], strengths: [], interests: [], supportNeeds: [], learningPreferences: [], communicationStyle: "" } };
+  const html = renderToStaticMarkup(<PathwayReport profile={profile} />);
+  expect(html).not.toContain('href="#section-strengths_preferences_interests_needs"');
+  expect(html).not.toContain('data-report-profile-details=');
 });

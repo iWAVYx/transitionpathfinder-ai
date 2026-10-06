@@ -1,3 +1,4 @@
+import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { ReportContents } from "@/components/documents/ReportContents";
@@ -922,7 +923,7 @@ export function ReportView({
             dek="A multi-dimensional profile to ground every goal conversation."
             folio="p. 03"
           >
-            {[
+            <ReportProfileDetails groups={[
               { label: "Strengths", items: r.spin_analysis.strengths },
               { label: "Preferences", items: r.spin_analysis.preferences },
               { label: "Interests", items: r.spin_analysis.interests },
@@ -931,12 +932,7 @@ export function ReportView({
               { label: "Barriers", items: r.spin_analysis.barriers },
               { label: "Environmental Supports", items: r.spin_analysis.environmental_supports },
               { label: "Areas for Growth", items: r.spin_analysis.areas_for_growth },
-            ].map(({ label, items }) => (
-              <div key={label} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
-                <BulletList items={items} />
-              </div>
-            ))}
+            ]} />
             <PublicationCallout kind="means">
               <p>{r.spin_analysis.what_this_means}</p>
             </PublicationCallout>

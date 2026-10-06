@@ -14,7 +14,7 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
   it(`${id}/${audience} contents links land on exactly one actual report section`, () => {
     const {container} = render(<PathwayReport profile={getDemoProfile(id)} audience={audience} />);
     const links = screen.getByRole('navigation', {name: 'Table of contents'}).querySelectorAll('a');
-    expect(links.length).toBe(8);
+    expect(links.length).toBe(9);
     expect(screen.getByRole('link', {name:'Next Steps', exact:true})).toBeTruthy();
     for (const link of links) {
       expect(container.querySelectorAll(link.getAttribute('href')!).length).toBe(1);

@@ -1,3 +1,4 @@
+import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
 import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
@@ -102,6 +103,15 @@ export function PathwayReport({
 }) {
   const report = generatePathwayReport(profile);
   const frame = audienceFrame(audience, profile);
+  const learningGroups = [
+    { label: "Strengths", items: profile.learning.strengths },
+    { label: "Learning Preferences", items: profile.learning.learningPreferences },
+    { label: "Interests", items: profile.learning.interests },
+    { label: "Support Needs", items: profile.learning.supportNeeds },
+    { label: "Sensory Preferences", items: profile.learning.sensoryNotes ?? [] },
+    { label: "Communication Style", items: profile.learning.communicationStyle ? [profile.learning.communicationStyle] : [] },
+  ];
+  const hasLearningDetails = learningGroups.some(group => group.items.length > 0);
   const blocks = (...sections: ReportBlock["section"][]) => (
     <ReportBlocks blocks={report.blocks.filter((block) => sections.includes(block.section))} />
   );
@@ -148,6 +158,7 @@ export function PathwayReport({
         <ReportContents items={[
           { id: "section-student_snapshot", label: "Student Snapshot" },
           ...(profile.voice.length > 0 ? [{ id: "section-student_voice", label: `In ${profile.shortName}'s Voice` }] : []),
+          ...(hasLearningDetails ? [{ id: "section-strengths_preferences_interests_needs", label: "Strengths and Supports" }] : []),
           { id: "section-educator_action_plan", label: "How Your Team Can Help" },
           { id: "section-data_gaps", label: "Evidence and What We Still Need" },
           { id: "section-recommended_pathways", label: "Recommended Pathways and Alternatives" },
@@ -171,6 +182,12 @@ export function PathwayReport({
                 id: `${profile.id}-voice-${index}`, prompt: response.prompt, answer: response.answer,
               }))} />
             </PublicationPage></DocumentSectionTitle> : null,
+            strengths_preferences_interests_needs: hasLearningDetails ? <DocumentSectionTitle title={REPORT_SECTION_LABELS.strengths_preferences_interests_needs}>
+              <PublicationPage kicker="Strengths and Supports" chapter={REPORT_SECTION_LABELS.strengths_preferences_interests_needs}
+                dek={`These details come from ${profile.shortName}'s fictional sample profile. Use them to discuss what helps with learning and participation.`}>
+                <ReportProfileDetails groups={learningGroups} />
+              </PublicationPage>
+            </DocumentSectionTitle> : null,
             educator_action_plan: blocks("ahead_beside_behind"),
             data_gaps: blocks("evidence", "unknowns"),
             recommended_pathways: <>

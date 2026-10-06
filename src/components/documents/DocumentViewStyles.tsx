@@ -8,6 +8,16 @@ export function DocumentViewStyles() {
     [data-generated-document] [data-document-print-header] { display: block; }
     [data-generated-document] [data-document-print-header] img { max-width: 100%; object-fit: contain; }
     [data-generated-document] table { width: 100%; }
+    [data-generated-document] [data-report-profile-details] {
+      display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem;
+    }
+    [data-generated-document] [data-report-profile-group] {
+      min-width: 0; padding: 0.75rem 0; border-bottom: 1px solid var(--pub-rule-soft);
+    }
+    [data-generated-document] [data-report-profile-group] h3 { margin: 0; }
+    @media (min-width: 640px) {
+      [data-generated-document] [data-report-profile-details] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     /* Repeated student answers share one text axis and even row spacing. */
     [data-generated-document] [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.75rem; }
     [data-generated-document] [data-report-voice-response] .pub-pullquote {

@@ -187,9 +187,25 @@ for (const width of [390, 768, 1440]) {
         }
         expect(new Set(rows.map(row => row.left)).size).toBe(1);
       };
+      const checkProfileSpacing = async (columns: number) => {
+        const grid = page.locator("[data-report-profile-details]");
+        const geometry = await grid.evaluate(element => ({
+          columns: getComputedStyle(element).gridTemplateColumns.split(" ").map(Number.parseFloat),
+          groups: Array.from(element.children).map(group => {
+            const style = getComputedStyle(group);
+            return { width: group.getBoundingClientRect().width, top: style.paddingTop, bottom: style.paddingBottom };
+          }),
+        }));
+        expect(geometry.columns).toHaveLength(columns);
+        if (columns === 2) expect(Math.abs(geometry.columns[0] - geometry.columns[1])).toBeLessThan(1);
+        for (const group of geometry.groups) expect(group.top).toBe(group.bottom);
+        expect(Math.max(...geometry.groups.map(group => group.width)) - Math.min(...geometry.groups.map(group => group.width))).toBeLessThan(1);
+      };
+      await checkProfileSpacing(width < 640 ? 1 : 2);
       await checkVoiceSpacing();
       await page.emulateMedia({ media: "print" });
       await checkVoiceSpacing();
+      await checkProfileSpacing(2);
       expect(await page.locator("[data-document-watermark]").evaluate(element => {
         const rect = element.getBoundingClientRect();
         return Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;
