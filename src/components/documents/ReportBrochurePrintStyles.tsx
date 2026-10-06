@@ -110,7 +110,8 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root .truncate {
         white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
       }
-      body:has(.report-root) .report-root [data-document-caution] { break-inside: avoid; }
+      body:has(.report-root) .report-root [data-document-caution],
+      body:has(.report-root) .report-root [data-document-closing][data-document-closing] { break-inside: avoid !important; }
       body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; }
       body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
       body:has(.report-root) .report-root .pub-page-opener {

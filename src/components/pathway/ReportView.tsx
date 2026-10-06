@@ -1,3 +1,5 @@
+import { ReportV2Sections } from "@/components/pathway/ReportV2Sections";
+import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
 import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS as READINESS_LABEL } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
@@ -170,8 +172,8 @@ export function ReportView({
   studentId?: string;
   extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
   /**
-   * When the report has been regenerated into the v2 schema, the route also
-   * renders <ReportV2Sections />. Set this to suppress the v1 sections that
+   * When the report has been regenerated into the v2 schema, the reader
+   * renders its detailed sections inside the printable document. Suppress the v1 sections that
    * v2 re-renders (IEP translator, family/educator action plans, meeting
    * prep toolkit, opportunity matches) so the document doesn't duplicate.
    */
@@ -1518,8 +1520,13 @@ export function ReportView({
         />
       </section>
 
+      {hasV2 && <>
+        <ReportV2Sections content={report} audience={audience} studentName={name} />
+        <ReportV2InputsUsed content={report} />
+      </>}
+
       {/* ============ Closing note (formal) ============ */}
-      <section className="report-section mt-10">
+      <section data-document-closing className="report-section mt-10">
         <div className="border-y border-primary/30 py-8 sm:py-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             A closing note for {name}

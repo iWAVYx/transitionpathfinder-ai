@@ -38,8 +38,7 @@ import {
   type ShareTokenRow,
   type Student,
 } from "@/lib/students.functions";
-import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
-import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
+import { RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
 import { EvidenceUsedPanel } from "@/components/pathway/EvidenceUsedPanel";
 import { PathwayReportLayout } from "@/components/pathway/report/PathwayReportLayout";
 import { isV2 } from "@/lib/pathway-v2";
@@ -336,19 +335,6 @@ function ReportDetailPage() {
         }
       />
 
-      {/* v2 additive sections — only render once the report has been regenerated into v2 */}
-      {isV2(state.report) && (
-        <>
-          <ReportV2Sections
-            content={state.report}
-            audience={audience}
-            studentName={state.name}
-          />
-          <section className={`mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
-            <ReportV2InputsUsed content={state.report} />
-          </section>
-        </>
-      )}
       </PathwayReportLayout>
 
       {/* Regenerate CTA + evidence-used side panel */}

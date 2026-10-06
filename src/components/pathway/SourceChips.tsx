@@ -37,21 +37,21 @@ export function SourceChips({
   }
   return (
     <ul
-      className={cn("flex flex-wrap gap-1.5", className)}
+      className={cn("flex flex-wrap gap-1.5 print:block", className)}
       aria-label="Sources that informed this recommendation"
     >
       {sources.map((s, i) => (
         <li key={`${s.kind}-${s.id ?? i}`}>
           <Badge
             variant="secondary"
-            className="text-[10px] font-medium"
+            className="text-[10px] font-medium print:block print:whitespace-normal print:border-0 print:bg-transparent print:px-0"
             title={s.label}
           >
             <span className="font-semibold uppercase tracking-wider opacity-70">
               {KIND_LABEL[s.kind] ?? s.kind}
             </span>
             <span className="mx-1 opacity-40">·</span>
-            <span className="truncate max-w-[18ch]">{s.label}</span>
+            <span className="truncate max-w-[18ch] print:max-w-none print:whitespace-normal print:inline">{s.label}</span>
           </Badge>
         </li>
       ))}

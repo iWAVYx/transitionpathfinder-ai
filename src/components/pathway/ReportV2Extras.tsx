@@ -235,8 +235,7 @@ export function ReportV2ExtrasBody({
                   <li key={i} className="py-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        {/* Urbanist eyebrow */}
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans mb-0.5">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans mb-0.5">
                           Domain
                         </p>
                         {/* Instrument Serif headline */}
@@ -435,7 +434,7 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
       present: Boolean(inputs.readiness_at || inputs.readiness_category_count),
     },
     {
-      label: "Action Items in Flight",
+      label: "Open Action Items",
       hint: inputs.action_item_ids?.length ? `${inputs.action_item_ids.length} open` : undefined,
       present: !!inputs.action_item_ids?.length,
     },
@@ -478,7 +477,6 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
     <section
       id="v2-inputs-used"
       aria-label="Sources used in this report"
-      className="no-print"
     >
       <PublicationPage
         kicker="Sources"
@@ -491,29 +489,26 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
         </div>
 
         {/* Editorial details/summary accordion */}
-        <details
-          open={open}
-          onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-          id="v2-inputs-used-body"
-        >
-          <summary
-            className="cursor-pointer select-none list-none border-b border-[color:var(--pub-rule-soft)] pb-3 mb-1 flex items-center justify-between text-sm font-semibold text-foreground"
+        <div>
+          <button
+            type="button"
+            onClick={() => setOpen(value => !value)}
+            aria-controls="v2-inputs-used-body"
+            className="print:hidden w-full cursor-pointer border-b border-[color:var(--pub-rule-soft)] pb-3 mb-1 flex items-center justify-between text-sm font-semibold text-foreground"
             aria-expanded={open}
           >
             <span>{open ? "Hide sources" : "Show all sources"}</span>
             <span className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
               {presentCount} / {rows.length} present
             </span>
-          </summary>
-
-          <PublicationSidebar label="Inputs Used">
+          </button>
+          <div id="v2-inputs-used-body" data-report-source-details className={open ? undefined : "hidden print:block"}>
+          <PublicationSidebar as="div" label="Inputs Used">
             <ul className="grid gap-1 sm:grid-cols-2">
               {rows.map((row, i) => (
                 <li
                   key={i}
-                  className={`border-b border-[color:var(--pub-rule-soft)] py-3 flex items-start gap-2 ${
-                    row.present ? "" : "opacity-50"
-                  }`}
+                  className="border-b border-[color:var(--pub-rule-soft)] py-3 flex items-start gap-2"
                 >
                   {row.present ? (
                     <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-emerald-600 dark:text-emerald-400" />
@@ -521,8 +516,7 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
                     <Circle className="mt-0.5 h-4 w-4 flex-none text-muted-foreground" />
                   )}
                   <div>
-                    {/* Urbanist eyebrow */}
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+                    <p className="text-sm font-medium text-foreground">
                       {row.label}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -533,7 +527,8 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
               ))}
             </ul>
           </PublicationSidebar>
-        </details>
+          </div>
+        </div>
       </PublicationPage>
     </section>
   );

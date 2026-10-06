@@ -115,15 +115,18 @@ export function PublicationPullQuote({
 export function PublicationSidebar({
   label,
   children,
+  as: Container = "aside",
 }: {
   label: string;
   children: ReactNode;
+  /** Inline document information is not a separate complementary landmark. */
+  as?: "aside" | "div";
 }) {
   return (
-    <aside className="pub-sidebar">
+    <Container className="pub-sidebar">
       <p className="pub-sidebar-label">{label}</p>
       <div className="pub-sidebar-body">{children}</div>
-    </aside>
+    </Container>
   );
 }
 

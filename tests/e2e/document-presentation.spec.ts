@@ -12,11 +12,20 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
     plugins: [{ name: "explicit-document-fixture", setup(builder) {
+      builder.onResolve({ filter: /^@tanstack\/react-start$/ }, () => ({ path: "start", namespace: "offline" }));
+      builder.onLoad({ filter: /^start$/, namespace: "offline" }, () => ({ contents: "export function useServerFn(fn){return fn;}" }));
+      builder.onResolve({ filter: /\.functions$/ }, args => ({
+        path: args.path.startsWith("@/") ? resolve("src", args.path.slice(2) + ".ts") : resolve(args.resolveDir, args.path + ".ts"), namespace: "offline-functions",
+      }));
+      builder.onLoad({ filter: /.*/, namespace: "offline-functions" }, args => {
+        const names = [...readFileSync(args.path, "utf8").matchAll(/export\s+(?:async\s+)?(?:const|function|type|interface|class)\s+(\w+)/g)].map(match => match[1]);
+        return { contents: [...new Set(names)].map(name => `export const ${name}=()=>{throw new Error("Document QA forbids server calls");};`).join("\n") };
+      });
       builder.onResolve({ filter: /use-demo-student$/ }, () => ({ path: "selection", namespace: "offline" }));
       builder.onLoad({ filter: /.*/, namespace: "offline" }, () => ({ contents: 'export function useDemoStudent(){throw new Error("Document QA requires an explicit fictional profile");}' }));
     } }],
@@ -285,3 +294,74 @@ for (const width of [390, 768, 1440]) {
     }
   });
 }
+
+
+test("newer report plans and collapsed sources stay inside the printable document for every audience", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.fulfill({ status: 404, body: "" });
+  });
+  const plan = (role: string) => ({ intro: `Fictional ${role} planning steps`, horizons: {
+    thirty_day: [`${role} thirty day action`], ninety_day: [`${role} ninety day action`],
+    six_month: [`${role} six month action`], one_year: [`${role} one year action`],
+  } });
+  const report = { ...components.DEMO_STUDENTS.maya.report, schema_version: 2,
+    student_action_plan: plan("Student"), family_action_plan_v2: plan("Family"), educator_action_plan_v2: plan("Educator"),
+    employment_pathway_recs: [{ title: "explore a supported job visit", summary: "Fictional career exploration example.",
+      why: "A dated fictional observation supports discussing this option.", next_action: "Confirm an accessible visit before scheduling.",
+      owner_role: "case_manager", timeframe: "30_day", discuss_at_next_meeting: true,
+      sources: [{ kind: "profile", label: "Fictional profile observation" }],
+    }],
+    inputs_used: { profile: true, intake: true, student_voice_keys: ["fictional-response"], generated_at: "2026-10-06T12:00:00Z" },
+  };
+  for (const audience of ["student", "family", "educator"]) {
+    await page.emulateMedia({ media: "screen" });
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Maya", report, demo: true, hasV2: true, initialAudience: audience }));
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    const recommendation = page.locator("[data-report-recommendation]");
+    const rationale = recommendation.locator("[data-report-recommendation-details]");
+    if (audience !== "educator") await expect(rationale).toBeHidden();
+    const sources = page.locator("#v2-inputs-used-body");
+    await expect(sources).toBeHidden();
+    const toggle = page.getByRole("button", { name: /Show all sources/ });
+    // Export the default closed screen panel; every source must still print.
+    await page.emulateMedia({ media: "print" });
+    await expect(sources).toBeVisible();
+    await expect(rationale).toBeVisible();
+    expect(await recommendation.evaluate(element => Math.abs(element.getBoundingClientRect().width - element.parentElement!.getBoundingClientRect().width))).toBeLessThan(1);
+    await expect(recommendation.getByText("A dated fictional observation supports discussing this option.", { exact: true })).toBeVisible();
+    await expect(recommendation.getByText("Confirm an accessible visit before scheduling.", { exact: true })).toBeVisible();
+    await expect(recommendation.getByText("Case manager", { exact: true })).toBeVisible();
+    await expect(recommendation.getByRole("button")).toBeHidden();
+    if (audience === "student") await expect(recommendation.getByText("Information Used", { exact: true })).toHaveCount(0);
+    else {
+      await expect(recommendation.getByText("Information Used", { exact: true })).toBeVisible();
+      if (audience === "family") await expect(recommendation.getByText("Fictional profile observation", { exact: true })).toHaveCount(0);
+      else await expect(recommendation.getByText("Fictional profile observation", { exact: true })).toBeVisible();
+    }
+    await expect(toggle).toBeHidden();
+    expect(await sources.evaluate(element => !!element.closest(".report-root"))).toBe(true);
+    for (const role of ["Student", "Family", "Educator"]) {
+      const allowed = role === "Family" || (role === "Educator" ? audience === "educator" : audience !== "educator");
+      for (const horizon of ["thirty day", "ninety day", "six month", "one year"]) {
+        const item = page.getByText(`${role} ${horizon} action`, { exact: true });
+        if (allowed) {
+          await expect(item).toBeVisible();
+          expect(await item.evaluate(element => !!element.closest(".report-root"))).toBe(true);
+        } else await expect(item).toHaveCount(0);
+      }
+    }
+    await expect(sources.getByText("Student Voice", { exact: true })).toBeVisible();
+    await expect(sources.getByText("1 response", { exact: true })).toBeVisible();
+    expect(await sources.textContent()).not.toContain("fictional-response");
+    const sourceAudit = await new AxeBuilder({ page }).include("#v2-inputs-used").analyze();
+    expect(sourceAudit.violations.map(violation => violation.id)).toEqual([]);
+  }
+});
