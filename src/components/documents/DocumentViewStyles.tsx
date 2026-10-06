@@ -30,6 +30,17 @@ export function DocumentViewStyles() {
     @media (min-width: 640px) {
       [data-generated-document] [data-report-readiness-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+    [data-generated-document] [data-report-recorded-goals] { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    [data-generated-document] [data-report-recorded-goal] { min-width: 0; display: flex; flex-direction: column; padding: 1rem; border: 1px solid var(--pub-rule-soft); }
+    [data-generated-document] [data-report-recorded-goal] h3 { margin: 0; }
+    [data-generated-document] [data-report-recorded-goal-title] { margin: 0.5rem 0 0.75rem; }
+    [data-generated-document] [data-report-recorded-goal] [data-report-goal-details] { margin-top: auto; }
+    [data-generated-document] [data-report-recorded-goal] dl { margin: 0; min-width: 0; }
+    [data-generated-document] [data-report-recorded-goal] dt { font-size: 0.75rem; font-weight: 600; }
+    [data-generated-document] [data-report-recorded-goal] dd { margin: 0.25rem 0 0; font-size: 0.875rem; }
+    @media (min-width: 640px) {
+      [data-generated-document] [data-report-recorded-goals] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     /* Repeated student answers share one text axis and even row spacing. */
     [data-generated-document] [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.75rem; }
     [data-generated-document] [data-report-voice-response] .pub-pullquote {

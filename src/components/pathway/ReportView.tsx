@@ -1,3 +1,4 @@
+import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
 import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS as READINESS_LABEL } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
@@ -2621,7 +2622,7 @@ function PlanBlock({
 /** Shared goal detail content: screen controls never determine what the PDF includes. */
 function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postsecondary_goals"]>[number] }) {
   return (
-<div data-report-goal-details className="grid gap-3 pb-2 sm:grid-cols-2">
+<ReportGoalDetails>
                     <Labeled label="Where Things Stand">{g.current_status}</Labeled>
                     <Labeled label="A Possible Next Step">{g.suggested_direction}</Labeled>
                     <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
@@ -2631,6 +2632,6 @@ function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postseconda
                     <MiniCard label="Next Steps" items={g.next_steps} compact />
                     <MiniCard label="People Who Can Help" items={g.who_supports} compact />
                     <MiniCard label="Information to Gather" items={g.evidence_needed} compact />
-                  </div>
+                  </ReportGoalDetails>
   );
 }

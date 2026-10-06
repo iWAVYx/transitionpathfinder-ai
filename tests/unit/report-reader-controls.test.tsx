@@ -15,7 +15,7 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
   it(`${id}/${audience} contents links land on exactly one actual report section`, () => {
     const {container} = render(<PathwayReport profile={getDemoProfile(id)} audience={audience} />);
     const links = screen.getByRole('navigation', {name: 'Table of contents'}).querySelectorAll('a');
-    expect(links.length).toBe(10);
+    expect(links.length).toBe(11);
     const profile = getDemoProfile(id);
     const readiness = container.querySelector('#section-readiness_scorecard')!;
     const rows = readiness.querySelectorAll('[data-report-readiness-row]');
@@ -26,6 +26,15 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
     expect(readiness.querySelector('[data-demo-readiness-overall]')!.textContent).toContain(READINESS_LABELS[profile.readiness.overall]);
     expect(rows[1].textContent).toContain(profile.demographics.gradeNumber < 11 ? 'Career Exploration' : 'Work Preparation');
     expect(readiness.querySelector('[role="progressbar"]')).toBeNull();
+    const goals = container.querySelectorAll('[data-report-recorded-goal]');
+    expect(goals).toHaveLength(profile.goals.length);
+    const statuses = {not_started:'Not Started',in_progress:'In Progress',on_track:'On Track',needs_review:'Needs Review'};
+    const horizons = {next_semester:'Next Semester',this_year:'This Year',next_year:'Next Year','2_to_3_years':'2–3 Years'};
+    for (const [i, goal] of profile.goals.entries()) {
+      expect(goals[i].querySelector('[data-report-recorded-goal-title]')!.textContent).toBe(goal.title);
+      expect(goals[i].querySelectorAll('dd')[0].textContent).toBe(statuses[goal.status]);
+      expect(goals[i].querySelectorAll('dd')[1].textContent).toBe(horizons[goal.horizon]);
+    }
     expect(screen.getByRole('link', {name:'Next Steps', exact:true})).toBeTruthy();
     for (const link of links) {
       expect(container.querySelectorAll(link.getAttribute('href')!).length).toBe(1);
@@ -87,4 +96,14 @@ it("links saved student responses only when that response section is shown", () 
   const items = liveReportContents(report, "Maya", { hasStudentVoiceResponses: true });
   expect(items.filter(item => item.id === "sec-your-voice")).toEqual([{id: "sec-your-voice", label: "Your Voice in This Plan"}]);
   expect(items.some(item => item.id === "sec-student-voice")).toBe(true);
+});
+
+it('preserves a review-needed goal and its original multi-year horizon', () => {
+  const profile = {...getDemoProfile('jordan'), goals: [{area:'education' as const,title:'Review the program with the student.',status:'needs_review' as const,horizon:'2_to_3_years' as const}]};
+  const {container} = render(<PathwayReport profile={profile} audience="family" />);
+  const goal = container.querySelector('[data-report-recorded-goal]')!;
+  expect(goal.querySelector('[data-report-recorded-goal-title]')!.textContent).toBe(profile.goals[0].title);
+  expect(goal.textContent).toContain('Needs Review');
+  expect(goal.textContent).toContain('2–3 Years');
+  expect(goal.textContent).not.toContain('30 days');
 });

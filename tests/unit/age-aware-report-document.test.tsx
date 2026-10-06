@@ -29,6 +29,8 @@ for (const id of ["sam","riley","jordan"] as const) {
       expect(html).toContain('href="#section-readiness_scorecard"');
       expect(html).toContain(escaped(profile.readiness.notes ?? ""));
       expect(html).toContain('This sample does not include scored assessments or evidence for each band.');
+      expect(html).toContain('href="#section-postsecondary_goals"');
+      for (const goal of profile.goals) expect(html).toContain(escaped(goal.title));
       for (const response of profile.voice) {
         expect(html).toContain(escaped(response.prompt));
         expect(html).toContain(escaped(response.answer));
@@ -84,4 +86,10 @@ it("does not invent learning details or a contents target for an empty profile",
   const html = renderToStaticMarkup(<PathwayReport profile={profile} />);
   expect(html).not.toContain('href="#section-strengths_preferences_interests_needs"');
   expect(html).not.toContain('data-report-profile-details=');
+});
+
+it("omits a goals destination when the sample has no recorded goals", () => {
+  const html = renderToStaticMarkup(<PathwayReport profile={{...getDemoProfile("sam"), goals: []}} />);
+  expect(html).not.toContain('href="#section-postsecondary_goals"');
+  expect(html).not.toContain('data-report-recorded-goal=');
 });

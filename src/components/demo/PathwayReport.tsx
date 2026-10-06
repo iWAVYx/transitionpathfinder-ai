@@ -1,3 +1,4 @@
+import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
 import { ReportReadinessRow, ReadinessBadge } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
@@ -21,7 +22,7 @@ import {
   type PathwayOption,
   type ReportBlock,
 } from "@/lib/demo/pathway-engine";
-import type { DemoProfile } from "@/lib/demo/demo-profiles";
+import type { DemoPathwayGoal, DemoProfile } from "@/lib/demo/demo-profiles";
 import { OpportunityMatches } from "@/components/demo/OpportunityMatches";
 
 const OWNER_LABEL: Record<EnrichedNextStep["owner"], string> = {
@@ -43,6 +44,13 @@ const CATEGORY_LABEL: Record<PathwayOption["category"], string> = {
   enrichment: "Enrichment",
   independent_living: "Independent Living",
   advocacy: "Self-Advocacy",
+};
+
+const GOAL_STATUS_LABEL: Record<DemoPathwayGoal["status"], string> = {
+  not_started: "Not Started", in_progress: "In Progress", on_track: "On Track", needs_review: "Needs Review",
+};
+const GOAL_HORIZON_LABEL: Record<DemoPathwayGoal["horizon"], string> = {
+  next_semester: "Next Semester", this_year: "This Year", next_year: "Next Year", "2_to_3_years": "2–3 Years",
 };
 
 /** Workstream 1.1 audiences the demo report can be framed for. */
@@ -163,13 +171,19 @@ export function PathwayReport({
           { id: "section-educator_action_plan", label: "How Your Team Can Help" },
           { id: "section-data_gaps", label: "Evidence and What We Still Need" },
           { id: "section-readiness_scorecard", label: "Readiness Snapshot" },
+          ...(profile.goals.length > 0 ? [{ id: "section-postsecondary_goals", label: "Goals to Discuss" }] : []),
           { id: "section-recommended_pathways", label: "Recommended Pathways and Alternatives" },
           { id: "section-next_steps_30_90_180_365", label: "Next Steps" },
           { id: "section-partner_matches", label: "Opportunities to Explore" },
           { id: "report-appendix", label: "Review Notes and When to Revisit" },
         ]} />
         <PathwayReportBody
-          stageCopy={{ action: {
+          stageCopy={{ roadmap: {
+            title: "Pathway and Goals",
+            description: profile.demographics.gradeNumber < 11
+              ? "Explore school choices, interests and skills with your team, then agree on goals that fit your next stage."
+              : "Connect school, work and daily-living goals with realistic pathways and supports.",
+          }, action: {
             title: "Next Steps",
             description: "Use each recommendation's original timeframe and review date to plan with your team.",
           } }}
@@ -209,6 +223,23 @@ export function PathwayReport({
                 <p className="mt-3 text-sm text-muted-foreground">Review current observations with the student and team before agreeing on goals or supports. This sample does not include scored assessments or evidence for each band.</p>
               </PublicationPage>
             </DocumentSectionTitle>,
+            postsecondary_goals: profile.goals.length > 0 ? <DocumentSectionTitle title="Goals to Discuss">
+              <PublicationPage kicker="Goals to Discuss" chapter="Goals to Discuss"
+                dek={`These goals are recorded in ${profile.shortName}'s fictional sample profile. Review them with the student and team; they are not an agreed IEP or a new assessment.`}>
+                <div data-report-recorded-goals>
+                  {profile.goals.map((goal, index) => <section key={`${goal.area}-${index}`} data-report-recorded-goal>
+                    <h3>{goal.area === "education" ? "School and Learning" : goal.area === "employment"
+                      ? profile.demographics.gradeNumber < 11 ? "Career Exploration" : "Work Preparation"
+                      : goal.area === "living" ? "Daily Living" : "Self-Advocacy"}</h3>
+                    <p data-report-recorded-goal-title>{goal.title}</p>
+                    <ReportGoalDetails>
+                      <dl><dt>Where Things Stand</dt><dd>{GOAL_STATUS_LABEL[goal.status]}</dd></dl>
+                      <dl><dt>Planning Timeframe</dt><dd>{GOAL_HORIZON_LABEL[goal.horizon]}</dd></dl>
+                    </ReportGoalDetails>
+                  </section>)}
+                </div>
+              </PublicationPage>
+            </DocumentSectionTitle> : null,
             recommended_pathways: <>
               {blocks("why_it_fits")}
               <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />

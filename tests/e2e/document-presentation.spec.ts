@@ -221,6 +221,23 @@ for (const width of [390, 768, 1440]) {
           expect(header.top).toBeLessThan(1);
         }
       };
+      const checkGoalSpacing = async (columns: number) => {
+        const layout = await page.locator('[data-report-recorded-goals]').evaluate(element => ({
+          columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
+          cards: Array.from(element.children).map(card => {
+            const s = getComputedStyle(card), rect = card.getBoundingClientRect();
+            return { width: rect.width, top: s.paddingTop, bottom: s.paddingBottom, left: s.paddingLeft, right: s.paddingRight,
+              clipped: card.scrollWidth > card.clientWidth + 1 };
+          }),
+        }));
+        expect(layout.columns).toBe(columns);
+        expect(layout.cards).toHaveLength(4);
+        expect(Math.max(...layout.cards.map(card => card.width)) - Math.min(...layout.cards.map(card => card.width))).toBeLessThan(1);
+        for (const card of layout.cards) {
+          expect(card.top).toBe(card.bottom); expect(card.left).toBe(card.right); expect(card.clipped).toBe(false);
+        }
+      };
+      await checkGoalSpacing(width < 640 ? 1 : 2);
       await checkReadinessSpacing(width < 640 ? 1 : 2);
       await checkProfileSpacing(width < 640 ? 1 : 2);
       await checkVoiceSpacing();
@@ -228,6 +245,7 @@ for (const width of [390, 768, 1440]) {
       await checkVoiceSpacing();
       await checkProfileSpacing(2);
       await checkReadinessSpacing(2);
+      await checkGoalSpacing(2);
       expect(await page.locator("[data-document-watermark]").evaluate(element => {
         const rect = element.getBoundingClientRect();
         return Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;
