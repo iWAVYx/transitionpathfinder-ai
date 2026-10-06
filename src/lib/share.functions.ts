@@ -1,20 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
 import { projectSharedReport } from "@/lib/shared-report-projection";
 
-// Public, unauthenticated share-token resolver.
-// Uses anon key — RLS + the security-definer resolver function gate access.
-function publicClient() {
-  const url = process.env.SUPABASE_URL!;
-  const anon = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  return createClient(url, anon, { auth: { persistSession: false } });
-}
-
+// Public application entry point; the database RPCs are server-only.
+// The token resolver still checks revocation/expiry and binds the report and
+// audience. Never replace this with a public-key client or direct table reads.
 export const resolveShareToken = createServerFn({ method: "POST" })
   .validator((i: unknown) => z.object({ token: z.string().min(8).max(128) }).parse(i))
   .handler(async ({ data }) => {
-    const sb = publicClient();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sb = supabaseAdmin;
     const { data: rows, error } = await sb.rpc("resolve_share_token", { _token: data.token });
     if (error || !rows || rows.length === 0) {
       return { ok: false as const };

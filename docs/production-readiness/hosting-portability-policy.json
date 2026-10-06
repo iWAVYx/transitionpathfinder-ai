@@ -57,13 +57,18 @@
         "sha256": "96c8b16ebba3b850e379c1bf7929981830cefa3576e5814194079e4c2ad30237"
       },
       "privilegedRuntimeFiles": {
-        "count": 62,
-        "sha256": "f28055fd8c726d6cf31069a80f12875904f26e65cdd7d0c40f12a76959c572bf"
+        "count": 63,
+        "sha256": "eef7a2018dc3d1d726a85cb0fdcacbab7f224f8c8a7f1a2365bc7a053a217337"
       },
       "explicitEndpointFiles": {
         "count": 12,
         "sha256": "396ec76eb0f5b9fe208d98c87c2ae5bd3a691823c90807f7128acd24b6bd853d"
       }
+    },
+    "draftReview": {
+      "observedAt": "2026-10-06",
+      "baseDraftSha": "6ec011e6",
+      "change": "src/lib/share.functions.ts now lazily uses the existing server-only Supabase client for token-authorized RPCs before document projection. No new host, credential type, database binding or production authorization. Deployment acceptance and the prepared grant migration remain separately gated."
     }
   },
   "requestBoundary": {

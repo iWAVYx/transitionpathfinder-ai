@@ -1,3 +1,4 @@
+import { getLegacyReportSnapshot } from "@/lib/report-snapshot-contract";
 import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
 import { ReportV2Sections } from "@/components/pathway/ReportV2Sections";
 import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
@@ -398,7 +399,11 @@ function ReportViewReader({
     await copyLink();
   };
 
-  const r = displayReport;
+  // Newer identity fields are rendered by ReportV2SnapshotHeader. Do not feed
+  // them into the legacy snapshot sections or invent missing legacy details.
+  const r = useMemo(() => ({
+    ...displayReport, student_snapshot: getLegacyReportSnapshot(displayReport),
+  }), [displayReport]);
 
   // Executive Summary inputs (derived, no new data required)
   const topStrengths = (r.strengths_snapshot ?? []).slice(0, 3);

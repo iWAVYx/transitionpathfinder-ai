@@ -8,7 +8,7 @@ vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   };
   return builder;
 } }));
-vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({ rpc: mocks.rpc }) }));
+vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { rpc: mocks.rpc } }));
 import { resolveShareToken } from "../../src/lib/share.functions";
 import { DEMO_STUDENTS } from "../../src/lib/demo-data";
 beforeEach(() => mocks.rpc.mockReset());

@@ -381,3 +381,27 @@ test("shared readers keep their designated audience and do not offer generation 
     await expect(page.getByRole("heading", { name: expected, exact: true })).toBeVisible();
   }
 });
+
+
+test("regenerated identity snapshots render without empty legacy labels for every audience", async ({ page }) => {
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const report = { ...components.DEMO_STUDENTS.maya.report, schema_version: 2,
+    student_snapshot: { display_name: "Maya Rivera", grade: "12", school: "Fictional School", plan_type: "IEP",
+      headline: "A recorded identity snapshot", last_updated: "2026-10-06" },
+    plain_language_summary: "Fictional plain-language planning summary.",
+    professional_summary: "Fictional professional planning summary.",
+  };
+  for (const audience of ["student", "family", "educator"]) {
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Maya", report, demo: true, hasV2: true, initialAudience: audience,
+    }));
+    await page.setContent(`<html><body>${body}</body></html>`);
+    await expect(page.locator("#sec-snapshot")).toHaveCount(0);
+    await expect(page.locator('a[href="#sec-snapshot"]')).toHaveCount(0);
+    await expect(page.getByText("Grade 12", { exact: true })).toBeVisible();
+    await expect(page.getByText("Fictional School", { exact: true })).toBeVisible();
+    await expect(page.getByText("A recorded identity snapshot", { exact: true })).toBeVisible();
+    await expect(page.getByText(audience === "educator" ? "Fictional professional planning summary." : "Fictional plain-language planning summary.", { exact: true })).toBeVisible();
+    await expect(page.getByText("Where Maya Is Now", { exact: true })).toHaveCount(0);
+  }
+});
