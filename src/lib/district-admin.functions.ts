@@ -1,3 +1,4 @@
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { reportRecordsByStudent, reportCountsForStudents } from "./report-record-counts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -647,6 +648,9 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
         from: z.string().datetime().optional(),
         to: z.string().datetime().optional(),
       })
+      .refine((value) => !value.from || !value.to || Date.parse(value.from) <= Date.parse(value.to), {
+        message: "The end date must be on or after the start date.",
+      })
       .parse(i),
   )
   .handler(async ({ data, context }): Promise<DistrictReportWindow> => {
@@ -656,12 +660,13 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
       throw new Error("Not authorized for this district.");
     }
 
-    const { data: schoolRows } = await supabaseAdmin
+    const schools = await readReportPages((from, to) => supabaseAdmin
       .from("organizations")
-      .select("id, name")
+      .select("id, name", { count: "exact" })
       .eq("parent_organization_id", data.district_id)
-      .order("name");
-    const schools = (schoolRows ?? []) as Array<{ id: string; name: string }>;
+      .order("name")
+      .order("id")
+      .range(from, to));
     const schoolIds = schools.map((s) => s.id);
 
     if (schoolIds.length === 0) {
@@ -681,10 +686,12 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
       };
     }
 
-    const { data: orgStudents } = await supabaseAdmin
+    const orgStudents = await readReportBatches(schoolIds, (batch, from, to) => supabaseAdmin
       .from("students")
-      .select("id, organization_id")
-      .in("organization_id", schoolIds);
+      .select("id, organization_id", { count: "exact" })
+      .in("organization_id", batch)
+      .order("id")
+      .range(from, to));
     const studentsByOrg = new Map<string, string[]>();
     for (const s of orgStudents ?? []) {
       if (!s.organization_id) continue;
@@ -701,33 +708,20 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
       return out;
     };
 
-    const [reportsRes, actionsRes, goalsRes] = await Promise.all([
-      allStudentIds.length
-        ? applyWindow(
-            supabaseAdmin.from("pathway_reports").select("student_id, created_at").in("student_id", allStudentIds),
-          )
-        : Promise.resolve({ data: [] as Array<{ student_id: string | null }> }),
-      allStudentIds.length
-        ? applyWindow(
-            supabaseAdmin
-              .from("action_items")
-              .select("student_id, status, created_at")
-              .in("student_id", allStudentIds),
-          )
-        : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
-      allStudentIds.length
-        ? applyWindow(
-            supabaseAdmin
-              .from("goals")
-              .select("student_id, status, created_at")
-              .in("student_id", allStudentIds),
-          )
-        : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
+    const [reportRows, actionRows, goalRows] = await Promise.all([
+      readReportBatches<{ student_id: string | null }>(allStudentIds, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("pathway_reports")
+          .select("student_id, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
+      readReportBatches<{ student_id: string | null; status: string }>(allStudentIds, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("action_items")
+          .select("student_id, status, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
+      readReportBatches<{ student_id: string | null; status: string }>(allStudentIds, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("goals")
+          .select("student_id, status, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
     ]);
-
-    const reportRows = (reportsRes.data ?? []) as Array<{ student_id: string | null }>;
-    const actionRows = (actionsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
-    const goalRows = (goalsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
 
     const reportsByStudent = reportRecordsByStudent(reportRows);
     const goalsByStudent = new Set(

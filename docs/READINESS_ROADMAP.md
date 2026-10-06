@@ -1519,3 +1519,15 @@ Shared CSV escaping handles commas, quotes, carriage returns and newlines, and t
 Resolved the audited School/District report-count mismatch. Shared pure helper counts actual report rows per student. District reporting and dashboard school rows now expose total reports_count plus students_with_report; aggregate percentages remain distinct student coverage. District progress sorting, school percentages in screen/PDF/CSV and implementation-stage ratio use students_with_report, avoiding inflated completion from multiple report records. School report aggregation reuses the same row-count helper with its existing coverage calculation. Existing queried records, period filters and authorization stay unchanged; no schema migration.
 
 Regression example: four report rows across three students, with two students covered, produces four reports and 67% coverage—not 133%. Tests also cover outside/unlinked rows, empty schools and duplicate supplied IDs. Nineteen focused checks pass; TypeScript validation recorded separately. Existing demo fictional scenarios contain one report per covered student and require no numerical change; they are not evidence of live acceptance. Dataset pagination/query-error handling and signed-in export acceptance remain further audit work.
+
+
+## School and District Report Query Completeness — October 5, 2026
+
+- [x] School/District report metrics paginate organizations, students, reports, actions and goals with exact counts and a unique ID ordering tie-breaker. Large organization/student filters are split into batches of 100 IDs.
+- [x] Failed or incomplete loads throw a friendly error instead of presenting/exporting partial totals or zero metrics. Count changes during pagination also request a retry. Authorized, genuinely empty organizations still return zero metrics.
+- [x] School membership denial and access-check failure no longer return a successful empty report. Existing School/District membership boundaries remain in place before service-admin data reads. Server validators reject reversed reporting dates.
+- [x] Synthetic tests cover 1,250 records, exact page multiples, later-page failures, missing/changing counts, incomplete pages, filter batching, access denial, empty organizations and query failures. Targeted unit suite: 34 tests passed; TypeScript verification passed.
+- [ ] Validate these report loaders with authorized signed-in staging accounts after release. No live database reads or AI calls were made for this change.
+- [ ] Assess the separate School/District dashboard and report-library queries for the same completeness issues. This change applies to report metrics used in the report screen/PDF/CSV; it does not claim every organization query is now paginated.
+
+Pagination is not a database snapshot: stable counts cannot detect every concurrent edit that preserves row totals. A transactional/snapshot reporting approach remains a possible follow-up if required by usage volume. Current milestone remains the document/demo package; main age-aware demo report parity and final full-report pagination review are still open.

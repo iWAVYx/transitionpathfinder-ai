@@ -1,3 +1,4 @@
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { reportRecordsByStudent } from "./report-record-counts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -598,13 +599,16 @@ export const getSchoolReportMetrics = createServerFn({ method: "POST" })
         from: z.string().datetime().optional(),
         to: z.string().datetime().optional(),
       })
+      .refine((value) => !value.from || !value.to || Date.parse(value.from) <= Date.parse(value.to), {
+        message: "The end date must be on or after the start date.",
+      })
       .parse(i),
   )
   .handler(async ({ data, context }): Promise<SchoolReportWindow> => {
     const { supabase } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: mem } = await supabase
+    const { data: mem, error: membershipError } = await supabase
       .from("organization_memberships")
       .select("id")
       .eq("organization_id", data.organization_id)
@@ -612,37 +616,16 @@ export const getSchoolReportMetrics = createServerFn({ method: "POST" })
       .eq("status", "active")
       .in("role_within_org", ["admin", "owner", "school_admin"])
       .maybeSingle();
-    if (!mem) {
-      return {
-        from: data.from ?? null,
-        to: data.to ?? null,
-        metrics: {
-          students_count: 0,
-          reports_count: 0,
-          open_actions: 0,
-          active_goals: 0,
-          pct_with_report: 0,
-          pct_with_goals: 0,
-          pct_with_actions: 0,
-          avg_open_actions_per_student: 0,
-        },
-        students: [],
-      };
-    }
+    if (membershipError) throw new Error("School access could not be checked. Please try again.");
+    if (!mem) throw new Error("Not authorized for this school.");
 
-    const { data: studentRows } = await supabaseAdmin
+    const students = await readReportPages((from, to) => supabaseAdmin
       .from("students")
-      .select("id, first_name, last_name, preferred_name, grade_band")
+      .select("id, first_name, last_name, preferred_name, grade_band", { count: "exact" })
       .eq("organization_id", data.organization_id)
-      .order("created_at", { ascending: false });
-
-    const students = (studentRows ?? []) as Array<{
-      id: string;
-      first_name: string | null;
-      last_name: string | null;
-      preferred_name: string | null;
-      grade_band: string | null;
-    }>;
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to));
     const ids = students.map((s) => s.id);
 
     if (ids.length === 0) {
@@ -670,33 +653,20 @@ export const getSchoolReportMetrics = createServerFn({ method: "POST" })
       return out;
     };
 
-    const [reportsRes, actionsRes, goalsRes] = await Promise.all([
-      applyWindow(
-        supabaseAdmin.from("pathway_reports").select("student_id, created_at").in("student_id", ids),
-      ),
-      applyWindow(
-        supabaseAdmin
-          .from("action_items")
-          .select("student_id, status, created_at")
-          .in("student_id", ids),
-      ),
-      applyWindow(
-        supabaseAdmin
-          .from("goals")
-          .select("student_id, status, created_at")
-          .in("student_id", ids),
-      ),
+    const [reportRows, actionRows, goalRows] = await Promise.all([
+      readReportBatches<{ student_id: string | null }>(ids, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("pathway_reports")
+          .select("student_id, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
+      readReportBatches<{ student_id: string | null; status: string }>(ids, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("action_items")
+          .select("student_id, status, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
+      readReportBatches<{ student_id: string | null; status: string }>(ids, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("goals")
+          .select("student_id, status, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
     ]);
-
-    const reportRows = (reportsRes.data ?? []) as Array<{ student_id: string | null }>;
-    const actionRows = (actionsRes.data ?? []) as Array<{
-      student_id: string | null;
-      status: string;
-    }>;
-    const goalRows = (goalsRes.data ?? []) as Array<{
-      student_id: string | null;
-      status: string;
-    }>;
 
     const reportsByStudent = reportRecordsByStudent(reportRows);
     const openActionsByStudent = new Map<string, number>();
