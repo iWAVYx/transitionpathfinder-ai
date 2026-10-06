@@ -1,3 +1,4 @@
+import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS as READINESS_LABEL } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
@@ -106,13 +107,6 @@ const READINESS_PCT: Record<string, number> = {
   developing: 45,
   progressing: 70,
   ready: 92,
-};
-
-const READINESS_LABEL: Record<string, string> = {
-  emerging: "Emerging",
-  developing: "Developing",
-  progressing: "Progressing",
-  ready: "Ready",
 };
 
 const PATHWAY_TYPE_LABEL: Record<string, string> = {
@@ -1163,11 +1157,7 @@ export function ReportView({
             folio="p. 04"
           >
             {r.readiness_scorecard.map((row) => (
-              <div key={row.category} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">{toTitleCase(row.category)}</p>
-                  <ReadinessBadge level={row.level} compact />
-                </div>
+              <ReportReadinessRow key={row.category} title={toTitleCase(row.category)} level={row.level}>
                 <Progress
                   value={READINESS_PCT[row.level] ?? 50}
                   className="mt-2 h-1.5"
@@ -1181,7 +1171,7 @@ export function ReportView({
                   <p><strong>Growth step:</strong> {row.growth_activity}</p>
                   <p className="mt-1"><strong>Possible goal:</strong> {row.suggested_goal}</p>
                 </PublicationCallout>
-              </div>
+              </ReportReadinessRow>
             ))}
           </PublicationPage>
         </Block>
@@ -2355,35 +2345,6 @@ function Labeled({ label, children }: { label: string; children: React.ReactNode
       <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
       <p className="text-sm text-foreground/80">{children}</p>
     </div>
-  );
-}
-
-function ReadinessBadge({
-  level,
-  compact = false,
-}: {
-  level: string;
-  compact?: boolean;
-}) {
-  const tone =
-    level === "ready"
-      ? "bg-primary/15 text-primary border-primary/30"
-      : level === "progressing"
-        ? "bg-sky-soft/40 text-foreground border-border"
-        : level === "developing"
-          ? "bg-muted text-foreground border-border"
-          : "bg-amber-100/60 text-amber-900 border-amber-300/60 dark:bg-amber-950/30 dark:text-amber-200";
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium",
-        tone,
-        compact ? "text-[11px]" : "",
-      )}
-    >
-      <Sparkles className="h-3 w-3" />
-      {READINESS_LABEL[level] ?? level}
-    </span>
   );
 }
 

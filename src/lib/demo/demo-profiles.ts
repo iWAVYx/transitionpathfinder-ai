@@ -241,7 +241,7 @@ const jordan: DemoProfile = {
       living: "progressing",
       advocacy: "emerging",
     },
-    notes: "Age of majority conversation is a near-term milestone.",
+    notes: "Plan a conversation about decision-making rights at age 18.",
   },
   stage: {
     product: "transitionforward",
@@ -418,7 +418,7 @@ const sam: DemoProfile = {
       advocacy: "emerging",
     },
     notes:
-      "Postsecondary and employment are age-inappropriate as primary focus — engine should not surface adult employment.",
+      "Focus on school choices, interests and confidence for now. Explore careers through activities rather than adult job placement.",
   },
   stage: {
     product: "bridgeforward",
@@ -614,7 +614,7 @@ const riley: DemoProfile = {
       advocacy: "emerging",
     },
     notes:
-      "Employment focus is age-appropriate only as exposure/exploration, not as job placement.",
+      "Explore careers through visits and activities for now, rather than job placement.",
   },
   stage: {
     product: "transitionforward",

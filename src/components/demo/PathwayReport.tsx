@@ -1,3 +1,4 @@
+import { ReportReadinessRow, ReadinessBadge } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
@@ -161,6 +162,7 @@ export function PathwayReport({
           ...(hasLearningDetails ? [{ id: "section-strengths_preferences_interests_needs", label: "Strengths and Supports" }] : []),
           { id: "section-educator_action_plan", label: "How Your Team Can Help" },
           { id: "section-data_gaps", label: "Evidence and What We Still Need" },
+          { id: "section-readiness_scorecard", label: "Readiness Snapshot" },
           { id: "section-recommended_pathways", label: "Recommended Pathways and Alternatives" },
           { id: "section-next_steps_30_90_180_365", label: "Next Steps" },
           { id: "section-partner_matches", label: "Opportunities to Explore" },
@@ -190,6 +192,23 @@ export function PathwayReport({
             </DocumentSectionTitle> : null,
             educator_action_plan: blocks("ahead_beside_behind"),
             data_gaps: blocks("evidence", "unknowns"),
+            readiness_scorecard: <DocumentSectionTitle title={REPORT_SECTION_LABELS.readiness_scorecard}>
+              <PublicationPage kicker="Readiness Snapshot" chapter={REPORT_SECTION_LABELS.readiness_scorecard}
+                dek="These recorded sample bands are conversation starters, not grades or assessment scores.">
+                <div data-demo-readiness-overall className="flex flex-wrap items-start justify-between gap-3">
+                  <h3>Overall Readiness</h3><ReadinessBadge level={profile.readiness.overall} compact />
+                </div>
+                <div data-report-readiness-grid>
+                  {([
+                    ["education", "School and Learning"],
+                    ["employment", profile.demographics.gradeNumber < 11 ? "Career Exploration" : "Work Preparation"],
+                    ["living", "Daily Living"], ["advocacy", "Self-Advocacy"],
+                  ] as const).map(([area, title]) => <ReportReadinessRow key={area} title={title} level={profile.readiness.byArea[area]} />)}
+                </div>
+                {profile.readiness.notes && <p className="mt-3 text-sm text-muted-foreground">{profile.readiness.notes}</p>}
+                <p className="mt-3 text-sm text-muted-foreground">Review current observations with the student and team before agreeing on goals or supports. This sample does not include scored assessments or evidence for each band.</p>
+              </PublicationPage>
+            </DocumentSectionTitle>,
             recommended_pathways: <>
               {blocks("why_it_fits")}
               <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />

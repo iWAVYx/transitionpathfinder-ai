@@ -26,6 +26,9 @@ for (const id of ["sam","riley","jordan"] as const) {
         ...profile.learning.supportNeeds, ...(profile.learning.sensoryNotes ?? []), profile.learning.communicationStyle]) {
         expect(html).toContain(escaped(value));
       }
+      expect(html).toContain('href="#section-readiness_scorecard"');
+      expect(html).toContain(escaped(profile.readiness.notes ?? ""));
+      expect(html).toContain('This sample does not include scored assessments or evidence for each band.');
       for (const response of profile.voice) {
         expect(html).toContain(escaped(response.prompt));
         expect(html).toContain(escaped(response.answer));

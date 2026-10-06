@@ -66,6 +66,11 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-report-plan-step] .rounded-2xl { padding: 0.08in !important; }
 
+      body:has(.report-root) .report-root [data-report-readiness-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.08in 0.16in !important; }
+      body:has(.report-root) .report-root [data-report-readiness-grid] [data-report-readiness-row] { break-inside: avoid; }
+      body:has(.report-root) .report-root [data-report-readiness-heading][data-report-readiness-heading] h3,
+      body:has(.report-root) .report-root [data-demo-readiness-overall][data-demo-readiness-overall] h3 { margin-top: 0 !important; }
+      body:has(.report-root) .report-root[data-age-aware-report] .pub-page:has([data-report-readiness-grid]) { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-profile-details] {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.08in 0.16in !important;
       }

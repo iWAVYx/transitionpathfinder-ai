@@ -18,6 +18,18 @@ export function DocumentViewStyles() {
     @media (min-width: 640px) {
       [data-generated-document] [data-report-profile-details] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+    [data-generated-document] [data-report-readiness-row] { min-width: 0; }
+    [data-generated-document] [data-report-readiness-heading],
+    [data-generated-document] [data-demo-readiness-overall] {
+      display: grid !important; grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start; gap: 0.75rem;
+    }
+    [data-generated-document] [data-report-readiness-heading] h3,
+    [data-generated-document] [data-demo-readiness-overall] h3 { margin: 0; }
+    [data-generated-document] [data-report-readiness-grid] { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    @media (min-width: 640px) {
+      [data-generated-document] [data-report-readiness-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     /* Repeated student answers share one text axis and even row spacing. */
     [data-generated-document] [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.75rem; }
     [data-generated-document] [data-report-voice-response] .pub-pullquote {

@@ -201,11 +201,33 @@ for (const width of [390, 768, 1440]) {
         for (const group of geometry.groups) expect(group.top).toBe(group.bottom);
         expect(Math.max(...geometry.groups.map(group => group.width)) - Math.min(...geometry.groups.map(group => group.width))).toBeLessThan(1);
       };
+      const checkReadinessSpacing = async (columns: number) => {
+        const layout = await page.locator('[data-report-readiness-grid]').evaluate(element => ({
+          columns: getComputedStyle(element).gridTemplateColumns.split(' ').map(Number.parseFloat),
+          widths: Array.from(element.children).map(child => child.getBoundingClientRect().width),
+          clipped: Array.from(element.children).some(child => child.scrollWidth > child.clientWidth + 1),
+        }));
+        expect(layout.columns).toHaveLength(columns);
+        expect(layout.widths).toHaveLength(4);
+        expect(Math.max(...layout.widths) - Math.min(...layout.widths)).toBeLessThan(1);
+        expect(layout.clipped).toBe(false);
+        const headers = await page.locator('[data-report-readiness-heading], [data-demo-readiness-overall]').evaluateAll(elements => elements.map(element => {
+          const box = element.getBoundingClientRect(), title = element.querySelector('h3')!.getBoundingClientRect(), badge = element.querySelector('span')!.getBoundingClientRect();
+          return { left: Math.abs(title.left - box.left), right: Math.abs(badge.right - box.right), top: Math.abs(title.top - badge.top) };
+        }));
+        for (const header of headers) {
+          expect(header.left).toBeLessThan(1);
+          expect(header.right).toBeLessThan(1);
+          expect(header.top).toBeLessThan(1);
+        }
+      };
+      await checkReadinessSpacing(width < 640 ? 1 : 2);
       await checkProfileSpacing(width < 640 ? 1 : 2);
       await checkVoiceSpacing();
       await page.emulateMedia({ media: "print" });
       await checkVoiceSpacing();
       await checkProfileSpacing(2);
+      await checkReadinessSpacing(2);
       expect(await page.locator("[data-document-watermark]").evaluate(element => {
         const rect = element.getBoundingClientRect();
         return Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;

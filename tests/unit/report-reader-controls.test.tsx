@@ -1,3 +1,4 @@
+import { READINESS_LABELS } from "../../src/components/documents/ReportReadinessRow";
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -14,7 +15,17 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
   it(`${id}/${audience} contents links land on exactly one actual report section`, () => {
     const {container} = render(<PathwayReport profile={getDemoProfile(id)} audience={audience} />);
     const links = screen.getByRole('navigation', {name: 'Table of contents'}).querySelectorAll('a');
-    expect(links.length).toBe(9);
+    expect(links.length).toBe(10);
+    const profile = getDemoProfile(id);
+    const readiness = container.querySelector('#section-readiness_scorecard')!;
+    const rows = readiness.querySelectorAll('[data-report-readiness-row]');
+    expect(rows).toHaveLength(4);
+    for (const [i, area] of (['education','employment','living','advocacy'] as const).entries()) {
+      expect(rows[i].textContent).toContain(READINESS_LABELS[profile.readiness.byArea[area]]);
+    }
+    expect(readiness.querySelector('[data-demo-readiness-overall]')!.textContent).toContain(READINESS_LABELS[profile.readiness.overall]);
+    expect(rows[1].textContent).toContain(profile.demographics.gradeNumber < 11 ? 'Career Exploration' : 'Work Preparation');
+    expect(readiness.querySelector('[role="progressbar"]')).toBeNull();
     expect(screen.getByRole('link', {name:'Next Steps', exact:true})).toBeTruthy();
     for (const link of links) {
       expect(container.querySelectorAll(link.getAttribute('href')!).length).toBe(1);
