@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n"), resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     alias: { "@": resolve("src") },
   });
@@ -98,3 +98,33 @@ for (const role of ["Family", "Educator"]) {
     });
   }
 }
+
+
+test("report print layout keeps long content readable without screen-size chapter spacing", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiledCss = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiledCss.sources });
+  const css = compiledCss.build(scanner.scan());
+  const note = "A dated observation records the student's progress, support and agreed next step. ".repeat(80) + "Final review: bring the dated evidence to the team.";
+  const body = renderToStaticMarkup(createElement(components.PathwayReportBody, {
+    sections: {
+      student_snapshot: createElement("p", { "data-long-report-content": true }, note),
+      data_gaps: createElement("p", { "data-report-evidence": true }, "Evidence remains incomplete. Ask for a current observation before making a decision."),
+    },
+  }));
+  const printStyles = renderToStaticMarkup(createElement(components.ReportBrochurePrintStyles));
+  const headingStyles = renderToStaticMarkup(createElement(components.DocumentViewStyles));
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  await page.setContent(`<html><head><style>${css}</style></head><body><div class="report-shell"><section class="report-root" data-generated-document>${printStyles}${headingStyles}${body}</section></div></body></html>`);
+  const content = page.locator("[data-long-report-content]");
+  await expect(content).toHaveText(note);
+  await page.emulateMedia({ media: "print" });
+  await expect(content).toHaveText(note);
+  expect(await content.evaluate(element => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
+  expect(await page.locator(".report-stage > header").evaluateAll(headers => headers.every(header => header.getBoundingClientRect().height < 130))).toBe(true);
+  expect(await content.evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(14);
+  expect(await page.locator(".report-stage h2").evaluateAll(headings => headings.every(heading => getComputedStyle(heading).textAlign === "left"))).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});

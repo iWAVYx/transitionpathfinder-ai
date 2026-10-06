@@ -1559,3 +1559,15 @@ No database/AI requests, accounts, merges, deployments, migrations or production
 - [ ] Full demo/live reader and contents coverage for additional newer report sections remains open; this slice does not unify their different report data contracts. Final pagination/compaction and signed-in exact-release acceptance remain open. Current demo Family fixture PDFs are still 8/8/9 pages.
 
 This remains part of milestone 1. Nothing was merged, deployed, migrated or sent to AI, and no production/account data was used. The same shared controls apply wherever the live reader is authorized, including all three supported document audiences.
+
+
+## Print Chapter Spacing and Pagination — October 5, 2026
+
+- [x] Shared report print rules reduce chapter padding, section gaps and publication-sheet gutters; remove decorative stage rails/numbers in print; retain readable body type, uniform headings, branding and the small watermark. Screen layouts and report content are unchanged.
+- [x] Current-source stylesheet compiled locally with the project's Tailwind runtime for offline before/after checks. This is a stylesheet/component fixture, not a complete application build or signed-in acceptance.
+- [x] Prepared live report fixture: Student/Family/Educator each decreased from 35 to 34 pages. Age-aware Family fixtures: Sam 8 → 7, Riley 8 → 6, Jordan 9 → 7 pages. These are fixture-specific results, not a promise about all generated reports.
+- [x] Before/after document markup matches after excluding style tags. PDF body-word multiset checks found no missing occurrences across all six compared PDFs, with recurring running headers/footers excluded by page-body bounds. Demo Student/Educator markup and all nine audience/profile viewport/navigation/export-control checks also passed.
+- [x] Full Family report and all three age-aware Family PDFs reviewed at contact-sheet scale. Five browser document regression checks passed, including a new current-stylesheet long-content print test; TypeScript passed. No external services were used.
+- [ ] Further compact the full live report and finish final per-page review for every export audience. The prepared report remains long at 34 pages; additional reader/data-contract parity work is still open. This slice does not close milestone 1 or authorize a release.
+
+The next work remains the document/demo package: finish remaining reader parity and meaningful compaction, then review a concrete staging candidate. No merge, deployment, migration, production change or AI request occurred.

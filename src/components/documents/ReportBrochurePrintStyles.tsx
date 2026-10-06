@@ -10,9 +10,22 @@ export function ReportBrochurePrintStyles() {
         @bottom-right { content: counter(page) " / " counter(pages); font: 500 8.5pt sans-serif; color: #6b7280; }
       }
       body:has(.report-root) .report-root { page: report-brochure; }
-      body:has(.report-root) .report-root .report-stage { margin-top: 0.2in !important; }
+      body:has(.report-root) .report-root .report-stage {
+        margin-top: 0.16in !important; padding: 0 !important;
+        break-before: auto !important; break-after: auto !important;
+      }
+      body:has(.report-root) .report-root .report-stage::before,
+      body:has(.report-root) .report-root .report-stage > header::before,
+      body:has(.report-root) .report-root .report-stage > header::after,
+      body:has(.report-root) .report-root [data-report-section]::before { display: none !important; }
+      body:has(.report-root) .report-root .report-stage-sections > * + * { margin-top: 0.12in !important; }
+      body:has(.report-root) .report-root .report-stage > header p {
+        margin-top: 0.03in !important; margin-bottom: 0 !important;
+        font-size: 9.5pt !important; line-height: 1.35 !important;
+      }
+      body:has(.report-root) .report-root .report-stage > header h2 { margin-top: 0.04in !important; }
       body:has(.report-root) .report-root .report-stage > header {
-        margin-bottom: 0.12in !important; padding-top: 0.12in !important; break-inside: avoid;
+        margin-bottom: 0.08in !important; padding: 0.08in 0 !important; break-inside: avoid; break-after: avoid;
       }
       body:has(.report-root) .report-root #sec-thirty-day ol > li {
         padding-top: 0.12in !important; padding-bottom: 0.12in !important;
@@ -77,7 +90,7 @@ export function ReportBrochurePrintStyles() {
         min-height: 0 !important; height: auto !important;
         break-before: auto !important; break-after: auto !important; break-inside: auto !important;
         page-break-before: auto !important; page-break-after: auto !important; page-break-inside: auto !important;
-        padding: 0.2in !important; margin: 0.15in 0 !important;
+        padding: 0.12in !important; margin: 0.08in 0 !important;
       }
       body:has(.report-root) .report-root .eh-chapter { break-inside: avoid !important; }
     }
