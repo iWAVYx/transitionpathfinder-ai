@@ -119,10 +119,24 @@ export function PathwayReport({
     { label: "Support Needs", items: profile.learning.supportNeeds },
     { label: "Sensory Preferences", items: profile.learning.sensoryNotes ?? [] },
     { label: "Communication Style", items: profile.learning.communicationStyle ? [profile.learning.communicationStyle] : [] },
+    { label: "Helpful Settings", items: [profile.environment.idealSchoolFeel, profile.environment.classSizePreference, ...profile.environment.environmentsToSeek].filter(Boolean) },
+    { label: "Settings to Avoid", items: profile.environment.environmentsToAvoid },
   ];
   const hasLearningDetails = learningGroups.some(group => group.items.length > 0);
+  const travelLabels = { family_car: "Family Car", school_bus: "School Bus", public_transit: "Public Transit", walk_or_bike: "Walking or Biking", rideshare: "Rideshare" };
+  const familyGroups = [
+    { label: "Family Priorities", items: profile.family.keyConsiderations },
+    { label: "Travel and Scheduling", items: [
+      ...(profile.family.transportation.length > 0 ? [`Travel options: ${profile.family.transportation.map(mode => travelLabels[mode]).join(", ")}.`] : []),
+      profile.family.transportationNote, profile.family.workingParentSchedule,
+    ].filter((item): item is string => !!item) },
+  ];
+  const hasFamilyContext = familyGroups.some(group => group.items.length > 0);
+  const detailedActionSummaries = new Set(report.nextSteps.map(step =>
+    `[${TIMEFRAME_LABEL[step.timeframe]} · ${OWNER_LABEL[step.owner]}] ${step.title} — ${step.detail}`));
   const blocks = (...sections: ReportBlock["section"][]) => (
-    <ReportBlocks blocks={report.blocks.filter((block) => sections.includes(block.section))} />
+    <ReportBlocks blocks={report.blocks.filter((block) => sections.includes(block.section)).map(block =>
+      block.section === "what_to_do_next" ? { ...block, bullets: block.bullets?.filter(bullet => !detailedActionSummaries.has(bullet)) } : block)} />
   );
   return (
     <div className="report-shell">
@@ -168,6 +182,7 @@ export function PathwayReport({
           { id: "section-student_snapshot", label: "Student Snapshot" },
           ...(profile.voice.length > 0 ? [{ id: "section-student_voice", label: `In ${profile.shortName}'s Voice` }] : []),
           ...(hasLearningDetails ? [{ id: "section-strengths_preferences_interests_needs", label: "Strengths and Supports" }] : []),
+          ...(hasFamilyContext ? [{ id: "section-family_action_plan", label: "Family Context" }] : []),
           { id: "section-educator_action_plan", label: "How Your Team Can Help" },
           { id: "section-data_gaps", label: "Evidence and What We Still Need" },
           { id: "section-readiness_scorecard", label: "Readiness Snapshot" },
@@ -178,7 +193,9 @@ export function PathwayReport({
           { id: "report-appendix", label: "Review Notes and When to Revisit" },
         ]} />
         <PathwayReportBody
-          stageCopy={{ roadmap: {
+          stageCopy={{ family: {
+            title: "Family Context", description: "Consider family priorities, travel options and scheduling when planning next steps together.",
+          }, roadmap: {
             title: "Pathway and Goals",
             description: profile.demographics.gradeNumber < 11
               ? "Explore school choices, interests and skills with your team, then agree on goals that fit your next stage."
@@ -202,6 +219,12 @@ export function PathwayReport({
               <PublicationPage kicker="Strengths and Supports" chapter={REPORT_SECTION_LABELS.strengths_preferences_interests_needs}
                 dek={`These details come from ${profile.shortName}'s fictional sample profile. Use them to discuss what helps with learning and participation.`}>
                 <ReportProfileDetails groups={learningGroups} />
+              </PublicationPage>
+            </DocumentSectionTitle> : null,
+            family_action_plan: hasFamilyContext ? <DocumentSectionTitle title="Family Context">
+              <PublicationPage kicker="Family Context" chapter="Family Context"
+                dek={`These details are recorded in ${profile.shortName}'s fictional sample profile. Discuss what is practical for the family before agreeing on next steps.`}>
+                <ReportProfileDetails groups={familyGroups} />
               </PublicationPage>
             </DocumentSectionTitle> : null,
             educator_action_plan: blocks("ahead_beside_behind"),

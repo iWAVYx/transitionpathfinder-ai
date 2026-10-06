@@ -188,7 +188,7 @@ for (const width of [390, 768, 1440]) {
         expect(new Set(rows.map(row => row.left)).size).toBe(1);
       };
       const checkProfileSpacing = async (columns: number) => {
-        const grid = page.locator("[data-report-profile-details]");
+        const grid = page.locator("#section-strengths_preferences_interests_needs [data-report-profile-details]");
         const geometry = await grid.evaluate(element => ({
           columns: getComputedStyle(element).gridTemplateColumns.split(" ").map(Number.parseFloat),
           groups: Array.from(element.children).map(group => {
@@ -257,11 +257,23 @@ for (const width of [390, 768, 1440]) {
       await checkActionSpacing();
       await checkGoalSpacing(width < 640 ? 1 : 2);
       await checkReadinessSpacing(width < 640 ? 1 : 2);
+      const checkFamilySpacing = async (columns: number) => {
+        const grid = await page.locator('#section-family_action_plan [data-report-profile-details]').evaluate(element => ({
+          columns: getComputedStyle(element).gridTemplateColumns.split(' ').map(Number.parseFloat),
+          groups: Array.from(element.children).map(child => ({width: child.getBoundingClientRect().width, clipped: child.scrollWidth > child.clientWidth + 1})),
+        }));
+        expect(grid.columns).toHaveLength(columns);
+        expect(grid.groups).toHaveLength(2);
+        expect(Math.abs(grid.groups[0].width-grid.groups[1].width)).toBeLessThan(1);
+        expect(grid.groups.every(group => !group.clipped)).toBe(true);
+      };
+      await checkFamilySpacing(width < 640 ? 1 : 2);
       await checkProfileSpacing(width < 640 ? 1 : 2);
       await checkVoiceSpacing();
       await page.emulateMedia({ media: "print" });
       await checkVoiceSpacing();
       await checkProfileSpacing(2);
+      await checkFamilySpacing(2);
       await checkReadinessSpacing(2);
       await checkGoalSpacing(2);
       await checkActionSpacing();

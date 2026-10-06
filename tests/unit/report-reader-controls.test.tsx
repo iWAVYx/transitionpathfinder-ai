@@ -16,7 +16,7 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
   it(`${id}/${audience} contents links land on exactly one actual report section`, () => {
     const {container} = render(<PathwayReport profile={getDemoProfile(id)} audience={audience} />);
     const links = screen.getByRole('navigation', {name: 'Table of contents'}).querySelectorAll('a');
-    expect(links.length).toBe(11);
+    expect(links.length).toBe(12);
     const profile = getDemoProfile(id);
     const readiness = container.querySelector('#section-readiness_scorecard')!;
     const rows = readiness.querySelectorAll('[data-report-readiness-row]');

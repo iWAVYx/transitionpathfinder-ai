@@ -31,13 +31,20 @@ for (const id of ["sam","riley","jordan"] as const) {
       expect(html).toContain('This sample does not include scored assessments or evidence for each band.');
       expect(html).toContain('href="#section-postsecondary_goals"');
       for (const goal of profile.goals) expect(html).toContain(escaped(goal.title));
+      for (const value of [profile.environment.idealSchoolFeel, profile.environment.classSizePreference,
+        ...profile.environment.environmentsToSeek, ...profile.environment.environmentsToAvoid,
+        ...profile.family.keyConsiderations, profile.family.transportationNote, profile.family.workingParentSchedule].filter(Boolean)) {
+        expect(html).toContain(escaped(value!));
+      }
+      expect(html).toContain('href="#section-family_action_plan"');
       for (const response of profile.voice) {
         expect(html).toContain(escaped(response.prompt));
         expect(html).toContain(escaped(response.answer));
       }
       for (const block of report.blocks) {
         expect(html).toContain(escaped(block.body));
-        for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
+        // Actions are rendered once in owner groups, not repeated as summary bullets.
+        if (block.section !== "what_to_do_next") for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
         if (block.missing) {
           expect(html).toContain(escaped(block.missing.reason));
           for (const needed of block.missing.needed) expect(html).toContain(escaped(needed));
@@ -82,7 +89,9 @@ it("does not invent student responses or an empty voice destination", () => {
 });
 
 it("does not invent learning details or a contents target for an empty profile", () => {
-  const profile = { ...getDemoProfile("sam"), learning: { diagnosis: [], strengths: [], interests: [], supportNeeds: [], learningPreferences: [], communicationStyle: "" } };
+  const profile = { ...getDemoProfile("sam"), learning: { diagnosis: [], strengths: [], interests: [], supportNeeds: [], learningPreferences: [], communicationStyle: "" },
+    environment: {idealSchoolFeel: "", classSizePreference: "", environmentsToSeek: [], environmentsToAvoid: []},
+    family: {...getDemoProfile("sam").family, keyConsiderations: [], transportation: [], transportationNote: undefined, workingParentSchedule: undefined} };
   const html = renderToStaticMarkup(<PathwayReport profile={profile} />);
   expect(html).not.toContain('href="#section-strengths_preferences_interests_needs"');
   expect(html).not.toContain('data-report-profile-details=');
@@ -92,4 +101,26 @@ it("omits a goals destination when the sample has no recorded goals", () => {
   const html = renderToStaticMarkup(<PathwayReport profile={{...getDemoProfile("sam"), goals: []}} />);
   expect(html).not.toContain('href="#section-postsecondary_goals"');
   expect(html).not.toContain('data-report-recorded-goal=');
+});
+
+it("does not manufacture family constraints or an empty family destination", () => {
+  const base = getDemoProfile("sam");
+  const profile = {...base, family: {...base.family, keyConsiderations: [], transportation: [], transportationNote: undefined, workingParentSchedule: undefined}};
+  const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="family" />);
+  expect(html).not.toContain('href="#section-family_action_plan"');
+  expect(html).not.toContain('data-report-stage="family"');
+});
+
+it("preserves a summary note that is not an exact duplicate of a detailed action", () => {
+  const profile = getDemoProfile("sam");
+  const report = generatePathwayReport(profile);
+  const block = report.blocks.find(block => block.section === "what_to_do_next")!;
+  block.bullets = [...(block.bullets ?? []), "Discuss travel before choosing the schedule."];
+  const spy = vi.spyOn(engine, "generatePathwayReport").mockReturnValue(report);
+  try {
+    const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="family" />);
+    expect(html).toContain("Discuss travel before choosing the schedule.");
+    expect(html).not.toContain(escaped(block.bullets[0]));
+    for (const step of report.nextSteps) expect(html).toContain(escaped(step.detail));
+  } finally { spy.mockRestore(); }
 });
