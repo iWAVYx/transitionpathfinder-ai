@@ -1,3 +1,4 @@
+import { reportExportReady, organizationCsvCell } from "@/lib/organization-report-export";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useMemo, useState } from "react";
@@ -58,6 +59,7 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
   const [to, setTo] = useState<Date | undefined>(undefined);
   const [win, setWin] = useState<DistrictReportWindow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadedOrganization, setLoadedOrganization] = useState<string | null>(null);
 
   const fromIso = useMemo(() => (from ? startOfDay(from).toISOString() : undefined), [from]);
   const toIso = useMemo(() => (to ? endOfDay(to).toISOString() : undefined), [to]);
@@ -66,11 +68,14 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setWin(null);
+      setLoadedOrganization(null);
+      if (fromIso && toIso && fromIso > toIso) { setLoading(false); return; }
       try {
         const w = await fetchMetrics({
           data: { district_id: district.id, from: fromIso, to: toIso },
         });
-        if (!cancelled) setWin(w);
+        if (!cancelled) { setWin(w); setLoadedOrganization(district.id); }
       } catch {
         if (!cancelled) toast.error("Could not load reporting metrics.");
       } finally {
@@ -81,6 +86,8 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
       cancelled = true;
     };
   }, [district.id, fromIso, toIso, fetchMetrics]);
+
+  const canExport = reportExportReady({ loading, loadedOrganization, organization: district.id, window: win, from: fromIso, to: toIso });
 
   const rangeLabel =
     from && to
@@ -112,21 +119,22 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
           <p className="text-xs text-muted-foreground">
             Showing aggregate metrics for <span className="font-medium">{rangeLabel}</span>.
           </p>
+          {fromIso && toIso && fromIso > toIso && <p role="alert" className="text-sm text-destructive">Choose an end date on or after the start date.</p>}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             variant="outline"
-            disabled={!win}
-            onClick={() => win && exportCsv(district, win, rangeLabel)}
+            disabled={!canExport}
+            onClick={() => canExport && win && exportCsv(district, win, rangeLabel)}
           >
             <Download className="h-3.5 w-3.5" /> Export CSV
           </Button>
           <Button
             size="sm"
             variant="outline"
-            disabled={!win}
-            onClick={() => win && exportPdf(district, win, rangeLabel)}
+            disabled={!canExport}
+            onClick={() => canExport && win && exportPdf(district, win, rangeLabel)}
           >
             <FileDown className="h-3.5 w-3.5" /> Export PDF
           </Button>
@@ -371,10 +379,7 @@ function filenameSuffix(w: DistrictReportWindow) {
 function exportCsv(district: DistrictOrg, w: DistrictReportWindow, rangeLabel: string) {
   try {
     const { summary, schoolRows } = buildRows(district, w, rangeLabel);
-    const esc = (v: unknown) => {
-      const s = String(v ?? "");
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
+    const esc = organizationCsvCell;
     const lines: string[] = [];
     lines.push("District Report — Aggregate Metrics");
     summary.forEach((r) => lines.push(r.map(esc).join(",")));
