@@ -17,6 +17,13 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root #sec-thirty-day ol > li {
         padding-top: 0.12in !important; padding-bottom: 0.12in !important;
       }
+      /* Keep complete weeks together, but give their details balanced columns. */
+      body:has(.report-root) .report-root [data-report-plan-step] { break-inside: avoid !important; }
+      body:has(.report-root) .report-root [data-report-plan-details] {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 0.15in !important; align-items: start;
+      }
+      body:has(.report-root) .report-root [data-report-plan-details] > * { min-width: 0; max-width: none !important; }
       body:has(.report-root) .report-root [data-report-printed-goals] .uppercase { text-transform: none; letter-spacing: normal; }
       body:has(.report-root) .report-root [data-report-printed-goals] > section { break-inside: avoid; }
       body:has(.report-root) .report-root .pub-page-runninghead { display: none !important; }

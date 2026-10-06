@@ -54,7 +54,7 @@ export function PlanHorizonTabs({
 
 export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
   return (
-    <li className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
+    <li data-report-plan-step className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
       <div className="flex flex-wrap items-start gap-4">
         <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center border border-primary/40 text-primary">
           <span className="text-[8px] font-semibold uppercase tracking-[0.18em] opacity-80">Week</span>
@@ -72,7 +72,7 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
         </div>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
+      <div data-report-plan-details className="mt-4 grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
         <ul className="space-y-2">
           {step.details.map((d) => (
             <li key={d} className="flex items-start gap-2 text-sm leading-relaxed">
