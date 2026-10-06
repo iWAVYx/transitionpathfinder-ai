@@ -81,9 +81,9 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-profile-group] { break-inside: avoid; }
       body:has(.report-root) .report-root [data-report-profile-group] ul { margin-top: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-profile-group] li + li { margin-top: 0.03in !important; }
-      /* Keep the short sample profile together with its introduction. */
-      body:has(.report-root) .report-root[data-age-aware-report] .pub-page:has([data-report-profile-details]) { break-inside: avoid !important; }
-      body:has(.report-root) .report-root [data-report-profile-group] h3 { margin-top: 0 !important; }
+      /* Keep each category intact; longer profiles may continue onto the next page. */
+      body:has(.report-root) .report-root[data-age-aware-report] #section-family_context .pub-page { break-inside: avoid !important; }
+      body:has(.report-root) .report-root [data-report-profile-group][data-report-profile-group] h3 { margin-top: 0 !important; margin-bottom: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-voice-response] { break-inside: avoid; }
       body:has(.report-root) .report-root [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.08in !important; }
       body:has(.report-root) .report-root [data-report-voice-response] .pub-pullquote { margin: 0 !important; padding: 0.06in 0.1in !important; }

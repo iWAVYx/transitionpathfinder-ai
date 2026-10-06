@@ -1,5 +1,5 @@
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
-import { ReportReadinessRow, ReadinessBadge } from "@/components/documents/ReportReadinessRow";
+import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
@@ -134,9 +134,24 @@ export function PathwayReport({
   const hasFamilyContext = familyGroups.some(group => group.items.length > 0);
   const detailedActionSummaries = new Set(report.nextSteps.map(step =>
     `[${TIMEFRAME_LABEL[step.timeframe]} · ${OWNER_LABEL[step.owner]}] ${step.title} — ${step.detail}`));
+  const detailedProfileSummaries = new Set([
+    `Strengths — ${profile.learning.strengths.slice(0, 4).join(", ")}.`,
+    `Interests — ${profile.learning.interests.slice(0, 4).join(", ")}.`,
+    `Supports that work — ${profile.learning.supportNeeds.slice(0, 4).join(", ")}.`,
+    `Ideal school feel — ${profile.environment.idealSchoolFeel}.`,
+  ]);
+  const detailedFitSummaries = new Set([
+    `Readiness overall: ${READINESS_LABELS[profile.readiness.overall]}. By area — education: ${READINESS_LABELS[profile.readiness.byArea.education]}, employment: ${READINESS_LABELS[profile.readiness.byArea.employment]}, living: ${READINESS_LABELS[profile.readiness.byArea.living]}, advocacy: ${READINESS_LABELS[profile.readiness.byArea.advocacy]}.`,
+    `Environment fit — seek ${profile.environment.environmentsToSeek.join("; ")}. Avoid ${profile.environment.environmentsToAvoid.join("; ")}.`,
+  ]);
   const blocks = (...sections: ReportBlock["section"][]) => (
     <ReportBlocks blocks={report.blocks.filter((block) => sections.includes(block.section)).map(block =>
-      block.section === "what_to_do_next" ? { ...block, bullets: block.bullets?.filter(bullet => !detailedActionSummaries.has(bullet)) } : block)} />
+      ({ ...block, bullets: block.bullets?.filter(bullet => {
+        const repeats = block.section === "what_to_do_next" ? detailedActionSummaries
+          : block.section === "what_we_know" ? detailedProfileSummaries
+          : block.section === "why_it_fits" ? detailedFitSummaries : undefined;
+        return !repeats?.has(bullet);
+      }) }))} />
   );
   return (
     <div className="report-shell">

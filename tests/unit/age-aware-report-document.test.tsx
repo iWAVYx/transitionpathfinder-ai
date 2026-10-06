@@ -44,7 +44,8 @@ for (const id of ["sam","riley","jordan"] as const) {
       for (const block of report.blocks) {
         expect(html).toContain(escaped(block.body));
         // Actions are rendered once in owner groups, not repeated as summary bullets.
-        if (block.section !== "what_to_do_next") for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
+        if (!["what_to_do_next", "what_we_know", "why_it_fits"].includes(block.section)) for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
+        if (block.section === "why_it_fits") expect(html).toContain(escaped(block.bullets![0]));
         if (block.missing) {
           expect(html).toContain(escaped(block.missing.reason));
           for (const needed of block.missing.needed) expect(html).toContain(escaped(needed));
@@ -122,5 +123,23 @@ it("preserves a summary note that is not an exact duplicate of a detailed action
     expect(html).toContain("Discuss travel before choosing the schedule.");
     expect(html).not.toContain(escaped(block.bullets[0]));
     for (const step of report.nextSteps) expect(html).toContain(escaped(step.detail));
+  } finally { spy.mockRestore(); }
+});
+
+it("preserves unmatched snapshot and pathway-fit notes while omitting exact repeated facts", () => {
+  const profile = getDemoProfile("sam");
+  const report = generatePathwayReport(profile);
+  for (const section of ["what_we_know", "why_it_fits"] as const) {
+    const block = report.blocks.find(block => block.section === section)!;
+    block.bullets = [...(block.bullets ?? []), `Keep this distinct ${section} observation.`];
+  }
+  const spy = vi.spyOn(engine, "generatePathwayReport").mockReturnValue(report);
+  try {
+    const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="family" />);
+    expect(html).toContain("Keep this distinct what_we_know observation.");
+    expect(html).toContain("Keep this distinct why_it_fits observation.");
+    const snapshot = report.blocks.find(block => block.section === "what_we_know")!;
+    expect(html).not.toContain(escaped(snapshot.bullets![0]));
+    for (const value of [...profile.learning.strengths, ...profile.learning.interests, ...profile.learning.supportNeeds]) expect(html).toContain(escaped(value));
   } finally { spy.mockRestore(); }
 });
