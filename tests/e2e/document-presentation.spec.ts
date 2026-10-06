@@ -237,6 +237,24 @@ for (const width of [390, 768, 1440]) {
           expect(card.top).toBe(card.bottom); expect(card.left).toBe(card.right); expect(card.clipped).toBe(false);
         }
       };
+      const checkActionSpacing = async () => {
+        const cards = await page.locator('[data-demo-next-step]').evaluateAll(elements => elements.map(element => {
+          const style = getComputedStyle(element);
+          return { left: style.paddingLeft, right: style.paddingRight, top: style.paddingTop, bottom: style.paddingBottom,
+            clipped: element.scrollWidth > element.clientWidth + 1 };
+        }));
+        expect(cards).toHaveLength(4);
+        // Sam has one action per owner: each uses the available width.
+        const grids = await page.locator('[data-demo-action-group] ul').evaluateAll(elements => elements.map(element => getComputedStyle(element).gridTemplateColumns.split(' ').length));
+        expect(grids).toEqual([1, 1, 1, 1]);
+        const headers = await page.locator('[data-demo-action-heading]').evaluateAll(elements => elements.map(element => {
+          const box = element.getBoundingClientRect(), title = element.querySelector('h4')!.getBoundingClientRect(), badge = element.querySelector('div')!.getBoundingClientRect();
+          return { left: Math.abs(title.left-box.left), right: Math.abs(badge.right-box.right) };
+        }));
+        for (const header of headers) { expect(header.left).toBeLessThan(1); expect(header.right).toBeLessThan(1); }
+        for (const card of cards) { expect(card.left).toBe(card.right); expect(card.top).toBe(card.bottom); expect(card.clipped).toBe(false); }
+      };
+      await checkActionSpacing();
       await checkGoalSpacing(width < 640 ? 1 : 2);
       await checkReadinessSpacing(width < 640 ? 1 : 2);
       await checkProfileSpacing(width < 640 ? 1 : 2);
@@ -246,6 +264,7 @@ for (const width of [390, 768, 1440]) {
       await checkProfileSpacing(2);
       await checkReadinessSpacing(2);
       await checkGoalSpacing(2);
+      await checkActionSpacing();
       expect(await page.locator("[data-document-watermark]").evaluate(element => {
         const rect = element.getBoundingClientRect();
         return Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;

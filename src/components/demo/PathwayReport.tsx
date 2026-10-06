@@ -72,20 +72,20 @@ function audienceFrame(
       return {
         eyebrow: "For Family",
         heading: `What this means for ${name}'s family`,
-        body: `A plain-language read on what the engine recommended for ${name}, what the next family conversation could be, and what to bring to the next planning meeting.`,
+        body: `Review ${name}'s goals, supports and options together. Start with the family and shared next steps, then discuss them with the student and school team.`,
       };
     case "educator":
       return {
         eyebrow: "For Educator",
         heading: `What this means for ${name}'s team`,
-        body: `The team-facing view: which supports are already working, where evidence is thin, and how the recommendations connect to ${name}'s current IEP goals.`,
+        body: `Review ${name}'s recorded strengths, supports and evidence gaps. Start with the school team's next steps and agree on follow-up with the student and family.`,
       };
     case "student":
     default:
       return {
         eyebrow: "For You",
         heading: `Your Pathway, ${name}`,
-        body: `Written for you first. Every option below was filtered against your grade, your voice, and what you've said matters most right now.`,
+        body: `Start with your goals and what helps you learn. Your next steps come first, followed by the things you can plan together with your family and school team.`,
       };
   }
 }
@@ -247,7 +247,7 @@ export function PathwayReport({
             </>,
             next_steps_30_90_180_365: <>
               {blocks("what_to_do_next")}
-              <NextStepsList steps={report.nextSteps} />
+              <NextStepsList steps={report.nextSteps} audience={audience} />
             </>,
             partner_matches: <OpportunityMatches compact limit={3} profile={profile} />,
           }}
@@ -361,37 +361,36 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
   );
 }
 
-function NextStepsList({ steps }: { steps: EnrichedNextStep[] }) {
+function NextStepsList({ steps, audience }: { steps: EnrichedNextStep[]; audience: DemoReportAudience }) {
   if (steps.length === 0) return null;
+  const focus = audience === "educator" ? "school_team" : audience;
+  const owners = Array.from(new Set<EnrichedNextStep["owner"]>([focus, "shared", "student", "family", "school_team"]));
+  const groups = owners.map(owner => ({ owner, steps: steps.filter(step => step.owner === owner) })).filter(group => group.steps.length > 0);
+  const groupLabel: Record<EnrichedNextStep["owner"], string> = {
+    student: "For the Student", family: "For the Family", school_team: "For the School Team", shared: "To Plan Together",
+  };
   return (
     <section aria-label="Recommended next steps" className="space-y-3">
-      <div className="flex items-baseline justify-between gap-4">
+      <div data-demo-action-summary className="flex flex-wrap items-baseline justify-between gap-4">
         <h2 className="text-lg font-semibold text-foreground">Next Steps</h2>
-        <p className="text-xs text-muted-foreground">
-          {steps.length} recommendation{steps.length === 1 ? "" : "s"} · review-by
-          included
-        </p>
+        <p className="text-xs text-muted-foreground">{steps.length} recommendation{steps.length === 1 ? "" : "s"} · review timing included</p>
       </div>
-      <ul className="grid gap-3 md:grid-cols-2" data-document-columns>
-        {steps.map((s) => (
-          <li
-            key={s.id}
-            data-demo-next-step={s.id}
-            className="rounded-lg border border-border bg-card p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-sm font-semibold text-foreground">{toTitleCase(s.title)}</h3>
-              <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-wider">
-                Review in {s.reviewByMonths} mo
-              </Badge>
+      {!steps.some(step => step.owner === focus) && <p data-demo-no-role-action className="text-sm text-muted-foreground">
+        No separate {OWNER_LABEL[focus].toLowerCase()} step is recorded in this sample. Start with the shared actions and agree on who can help.
+      </p>}
+      {groups.map(group => <section key={group.owner} data-demo-action-group={group.owner} className="space-y-3">
+        <h3 className="text-primary">{groupLabel[group.owner]}</h3>
+        <ul className={`grid gap-3 ${group.steps.length > 1 ? "md:grid-cols-2" : "grid-cols-1"}`} data-document-columns data-single-report-block={group.steps.length === 1 || undefined}>
+          {group.steps.map(s => <li key={s.id} data-demo-next-step={s.id} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+            <div data-demo-action-heading className="flex flex-wrap items-start justify-between gap-3">
+              <h4 className="text-sm font-semibold text-foreground">{toTitleCase(s.title)}</h4>
+              <Badge variant="outline" className="text-[10px]">Review in {s.reviewByMonths} mo</Badge>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {TIMEFRAME_LABEL[s.timeframe]} · Who Can Help: {OWNER_LABEL[s.owner]}
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{TIMEFRAME_LABEL[s.timeframe]} · Who Can Help: {OWNER_LABEL[s.owner]}</p>
             <p className="mt-2 text-sm text-foreground/85">{s.detail}</p>
-          </li>
-        ))}
-      </ul>
+          </li>)}
+        </ul>
+      </section>)}
     </section>
   );
 }

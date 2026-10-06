@@ -1,3 +1,4 @@
+import { generatePathwayReport } from "../../src/lib/demo/pathway-engine";
 import { READINESS_LABELS } from "../../src/components/documents/ReportReadinessRow";
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
@@ -35,6 +36,19 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
       expect(goals[i].querySelectorAll('dd')[0].textContent).toBe(statuses[goal.status]);
       expect(goals[i].querySelectorAll('dd')[1].textContent).toBe(horizons[goal.horizon]);
     }
+    const sourceSteps = generatePathwayReport(profile).nextSteps;
+    const actionGroups = container.querySelectorAll('[data-demo-action-group]');
+    const focus = audience === 'educator' ? 'school_team' : audience;
+    expect(actionGroups[0].getAttribute('data-demo-action-group')).toBe(sourceSteps.some(step => step.owner === focus) ? focus : 'shared');
+    expect(container.querySelectorAll('[data-demo-next-step]')).toHaveLength(sourceSteps.length);
+    for (const step of sourceSteps) {
+      const cards = container.querySelectorAll(`[data-demo-next-step="${step.id}"]`);
+      expect(cards).toHaveLength(1);
+      expect(cards[0].closest('[data-demo-action-group]')!.getAttribute('data-demo-action-group')).toBe(step.owner);
+      expect(cards[0].textContent).toContain(step.detail);
+      expect(cards[0].textContent).toContain(`Review in ${step.reviewByMonths} mo`);
+    }
+    expect(!!container.querySelector('[data-demo-no-role-action]')).toBe(!sourceSteps.some(step => step.owner === focus));
     expect(screen.getByRole('link', {name:'Next Steps', exact:true})).toBeTruthy();
     for (const link of links) {
       expect(container.querySelectorAll(link.getAttribute('href')!).length).toBe(1);

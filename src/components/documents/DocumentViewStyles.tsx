@@ -41,6 +41,17 @@ export function DocumentViewStyles() {
     @media (min-width: 640px) {
       [data-generated-document] [data-report-recorded-goals] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+    [data-generated-document] [data-demo-action-heading] {
+      display: grid !important; grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.75rem; align-items: start;
+    }
+    [data-generated-document] [data-demo-action-heading] h4 { margin: 0; }
+    [data-generated-document] [data-demo-action-summary] { display: block !important; }
+    @media (min-width: 640px), print {
+      [data-generated-document] [data-demo-action-summary] {
+        display: grid !important; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; align-items: start;
+      }
+    }
     /* Repeated student answers share one text axis and even row spacing. */
     [data-generated-document] [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.75rem; }
     [data-generated-document] [data-report-voice-response] .pub-pullquote {
