@@ -16,7 +16,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Shared demo/live contents and PDF controls; validated targets across three audiences, hidden-version link filtering and print cleanup.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y; supporting-text contrast and nested sample-notice semantics are corrected and locally verified in the current slice. Await new hosted checks. Signed-in E2E was skipped, not passed.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y; supporting-text contrast and nested sample-notice semantics are corrected and locally verified in the current slice. Fresh checks then stopped at newly flagged dependency advisories; compatible patch overrides are prepared and audited. Await checks using the new lockfile. Signed-in E2E was skipped, not passed.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -1585,3 +1585,14 @@ The next work remains the document/demo package: finish remaining reader parity 
 - [ ] Milestone 1 remains open: finish age-aware demo/live reader data-contract parity and meaningful full-report compaction/per-page review. Exact-release signed-in acceptance remains milestone 2 after specific release authorization.
 
 No merge, deployment, publication, migration, production/account change or AI request occurred. The complete TF-01–TF-26 scope and deferred parent-pilot/snapshot follow-up remain in this roadmap.
+
+
+## Dependency Audit Gate — October 5, 2026
+
+Fresh hosted checks on 0bf3ac66 stopped before application compilation at the high/critical dependency audit. Keep the audit gate intact: compatible exact overrides now resolve seroval 1.5.4 → 1.6.3 and source-map-js 1.2.1 → 1.2.2. Only those two lock entries and overrides changed; no framework upgrade or unrelated dependency churn.
+
+- [x] Verified patched versions against [Seroval typed-array advisory](https://github.com/advisories/GHSA-jp82-f5mq-hwhp), [Seroval thenable advisory](https://github.com/advisories/GHSA-p6vx-979v-rg4c) and [source-map-js advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q). Both overrides fit the installed consumers' declared compatible ranges.
+- [x] Temporary manifest/lock resolution and frozen lockfile-only verification passed; bun audit --audit-level=high exited successfully. Shared node_modules and environment files were not modified.
+- [ ] Fresh CI clean install, build, unit and accessibility checks must pass using the updated lock. Local document checks above used the prior installed dependencies; do not treat them as patch-version compatibility checks.
+
+This is a release-candidate blocker fix inside milestone 1, not authorization to update staging or production. Any future archive/source fingerprint will change because package.json and bun.lock changed; do not reuse an older release identity.
