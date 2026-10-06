@@ -1620,3 +1620,14 @@ This scoped change remains in draft PR211. It is not a merge, staging/production
 - [ ] Full report remains long at 33 pages. Further review of goal/action grouping and final per-page acceptance across audiences remains open; main age-aware demo/live data-contract parity is also open. Keep milestone 1 active.
 
 Prior watermark code head cbaa3bd2 passed both clean builds, hosted report accessibility, unit, role guards and static readiness audits. Signed-in/live checks were skipped. This spacing slice is a new draft candidate and needs its own hosted checks. No merge, deployment, publication, migration, production/account change or AI request occurred.
+
+
+## Goal and Action Document Grouping — October 6, 2026
+
+- [x] Printed goal details use explicit equal columns with compact gaps, field spacing and supporting-list padding. Weekly plan panels reduce spacing around their heading, details, family/educator actions and readiness summary. Complete goals and weekly actions remain together where they fit; long text is still fully included.
+- [x] Changes are print-only and scoped to the report document. Shared live/prepared-demo reader receives the same rules for Student/Family/Educator; no dashboard layout, report generation, role permission or screen content changed. Top-right watermark remains intact.
+- [x] Actual prepared report markup matches its baseline after excluding styles and added data hooks. PDF body-word multisets match with no missing/added words for all three audiences; fixtures remain 33 pages each. This refinement improves internal spacing without a further page-count reduction.
+- [x] Eight document browser checks and TypeScript passed. Offline age-aware demo checks passed 18 viewport checks and nine navigation/PDF-control flows across Sam/Riley/Jordan and all three audiences. Selected Family goal/action pages rendered and reviewed at readable size. No accounts, external services, database or AI requests were used.
+- [ ] Main age-aware demo/live data-contract reconciliation and full final per-page report review remain open. Next substantial milestone-1 work is reader/content parity; retain full-report compaction as an open requirement.
+
+Prior spacing head 93a23ce5 passed both hosted clean builds, report accessibility, unit, role guards and static readiness audits. Signed-in/live checks remained skipped. This grouping refinement is a new draft candidate with hosted checks pending; it does not authorize a merge, staging/production deployment, publication or migration.

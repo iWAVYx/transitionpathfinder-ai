@@ -2666,7 +2666,7 @@ function PlanBlock({
 /** Shared goal detail content: screen controls never determine what the PDF includes. */
 function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postsecondary_goals"]>[number] }) {
   return (
-<div className="grid gap-3 pb-2 sm:grid-cols-2">
+<div data-report-goal-details className="grid gap-3 pb-2 sm:grid-cols-2">
                     <Labeled label="Where Things Stand">{g.current_status}</Labeled>
                     <Labeled label="A Possible Next Step">{g.suggested_direction}</Labeled>
                     <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>

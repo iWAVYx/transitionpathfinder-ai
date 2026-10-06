@@ -47,6 +47,25 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-details] > * { min-width: 0; max-width: none !important; }
       body:has(.report-root) .report-root [data-report-printed-goals] .uppercase { text-transform: none; letter-spacing: normal; }
       body:has(.report-root) .report-root [data-report-printed-goals] > section { break-inside: avoid; }
+      body:has(.report-root) .report-root [data-report-goal-details] {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 0.08in !important; padding-bottom: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-goal-details] > * { margin-top: 0 !important; min-width: 0; }
+      body:has(.report-root) .report-root [data-report-goal-details] p + p,
+      body:has(.report-root) .report-root [data-report-plan-step] p + p { margin-top: 0.04in !important; }
+      body:has(.report-root) .report-root [data-report-goal-details] .rounded-2xl {
+        padding: 0.06in 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-heading] { gap: 0.08in !important; }
+      body:has(.report-root) .report-root [data-report-plan-details],
+      body:has(.report-root) .report-root [data-report-plan-actions],
+      body:has(.report-root) .report-root [data-report-plan-readiness] { margin-top: 0.08in !important; }
+      body:has(.report-root) .report-root [data-report-plan-actions] {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; gap: 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step] .rounded-2xl { padding: 0.08in !important; }
+
       body:has(.report-root) .report-root .pub-page-runninghead { display: none !important; }
       body:has(.report-root) .report-root .pub-spread { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.2in; }
       body:has(.report-root) .report-root .pub-spread > * { min-width: 0; }

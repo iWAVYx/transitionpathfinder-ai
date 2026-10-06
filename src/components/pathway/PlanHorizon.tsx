@@ -55,7 +55,7 @@ export function PlanHorizonTabs({
 export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
   return (
     <li data-report-plan-step className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
-      <div className="flex flex-wrap items-start gap-4">
+      <div data-report-plan-heading className="flex flex-wrap items-start gap-4">
         <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center border border-primary/40 text-primary">
           <span className="text-[8px] font-semibold uppercase tracking-[0.18em] opacity-80">Week</span>
           <span className="font-display text-xl leading-none">{step.week}</span>
@@ -90,7 +90,7 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
       </div>
 
       {(step.familyActions?.length || step.teacherActions?.length) && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div data-report-plan-actions className="mt-4 grid gap-3 sm:grid-cols-2">
           {step.familyActions && step.familyActions.length > 0 && (
             <ActionList
               title="Family actions"
@@ -111,7 +111,7 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
       )}
 
       {step.readiness && (
-        <div className="mt-3">
+        <div data-report-plan-readiness className="mt-3">
           <ReadinessTile readiness={step.readiness} />
         </div>
       )}
