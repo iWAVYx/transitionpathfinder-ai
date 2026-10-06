@@ -31,7 +31,12 @@ export function ReportBrochurePrintStyles() {
         margin-top: 0.03in !important; margin-bottom: 0 !important;
         font-size: 9.5pt !important; line-height: 1.35 !important;
       }
-      body:has(.report-root) .report-root .report-stage > header h2 { margin-top: 0.04in !important; }
+      body:has(.report-root) .report-root .report-stage > header h2 {
+        margin: 0.04in 0 !important; font-size: 16pt !important; line-height: 1.2 !important;
+      }
+      body:has(.report-root) .report-root .report-stage > header > p:first-child {
+        font-size: 8.5pt !important; line-height: 1.25 !important;
+      }
       body:has(.report-root) .report-root .report-stage > header {
         margin-bottom: 0.08in !important; padding: 0.08in 0 !important; break-inside: avoid; break-after: avoid;
       }
@@ -82,7 +87,7 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-profile-group] ul { margin-top: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-profile-group] li + li { margin-top: 0.03in !important; }
       /* Keep each category intact; longer profiles may continue onto the next page. */
-      body:has(.report-root) .report-root[data-age-aware-report] #section-family_context .pub-page { break-inside: avoid !important; }
+      body:has(.report-root) .report-root[data-age-aware-report] #section-family_action_plan .pub-page { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-profile-group][data-report-profile-group] h3 { margin-top: 0 !important; margin-bottom: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-voice-response] { break-inside: avoid; }
       body:has(.report-root) .report-root [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.08in !important; }
@@ -108,7 +113,10 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-document-caution] { break-inside: avoid; }
       body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; }
       body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
-      body:has(.report-root) .report-root .pub-page-opener { margin-bottom: 0.12in !important; }
+      body:has(.report-root) .report-root .pub-page-opener {
+        margin-bottom: 0.12in !important; break-inside: avoid; break-after: avoid !important;
+        page-break-after: avoid !important;
+      }
       body:has(.report-root) .report-root .pub-page-rule { margin-top: 0.1in !important; }
       /* Keep subsection labels with their explanation when a page fills up. */
       body:has(.report-root) .report-root h2,
