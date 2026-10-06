@@ -81,6 +81,10 @@ for (const role of ["Family", "Educator"]) {
       expect(await page.locator("[data-document-field-value]").evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
       await expect(page.locator("[data-document-watermark]")).toBeVisible();
       expect(await page.locator("[data-document-watermark]").evaluate((element) => Number(getComputedStyle(element).opacity))).toBeLessThanOrEqual(0.1);
+      expect(await page.locator("[data-document-watermark]").evaluate(element => {
+        const style = getComputedStyle(element), rect = element.getBoundingClientRect();
+        return style.position === "fixed" && style.right === "0px" && Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;
+      })).toBe(true);
       const geometry = await page.locator("[data-generated-document]").evaluate((element) => {
         const style = getComputedStyle(element);
         const headings = Array.from(element.querySelectorAll("h1,h2,h3,h4"));
@@ -161,6 +165,12 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("main aside")).toHaveCount(0);
       const result = await new AxeBuilder({ page }).include("[data-generated-document]").analyze();
       expect(result.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target), summaries: violation.nodes.map(node => node.failureSummary) }))).toEqual([]);
+      await page.emulateMedia({ media: "print" });
+      expect(await page.locator("[data-document-watermark]").evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        return Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;
+      })).toBe(true);
+      await page.emulateMedia({ media: "screen" });
     }
   });
 }

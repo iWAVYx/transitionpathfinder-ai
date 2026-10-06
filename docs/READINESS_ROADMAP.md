@@ -1596,3 +1596,16 @@ Fresh hosted checks on 0bf3ac66 stopped before application compilation at the hi
 - [x] Code head 73d742ca passed both hosted clean build jobs, unit tests, report-a11y, role-guard matrix, CT seed static audit and credential-free readiness audit with the updated lock. Signed-in E2E/role-leak, permission regression, live seed audit and Supabase preview remained skipped. Local document checks above used the prior installed dependencies; patched-dependency compatibility evidence comes from the clean hosted jobs.
 
 This is a release-candidate blocker fix inside milestone 1, not authorization to update staging or production. Any future archive/source fingerprint will change because package.json and bun.lock changed; do not reuse an older release identity.
+
+
+## Top-Right Export Watermarks — October 6, 2026
+
+Standing owner preference: all documents, reports and visual exports use a small, faint approved logo watermark in the top-right corner. Apply this to every applicable role and demo/live renderer, including future export surfaces.
+
+- [x] Shared document watermark and report/meeting layout overrides now anchor top/right and clear left/bottom placement. Existing size, opacity, decorative accessibility semantics and print-only visibility are retained.
+- [x] School/District generated PDFs place the mark in the top-right printable margin on every page, calculated from page width. Regular header branding stays separate.
+- [x] Seven focused unit checks, eight browser presentation/accessibility checks and TypeScript passed. Browser assertions check actual top-right geometry for Family/Educator meeting fixtures and Student/Family/Educator sample reports at phone/tablet/desktop widths. Organization PDF checks cover every page of a long synthetic export.
+- [x] Regenerated three prepared report audience PDFs offline; selected Family page visually confirms top-right placement. No account, database or AI requests were made.
+- [ ] Apply the same preference to any additional visual export surface introduced by the remaining roadmap. CSV/plain-data downloads do not support graphic watermarks; preserve their machine-readable content.
+
+This scoped change remains in draft PR211. It is not a merge, staging/production deployment, publication or migration. Milestone 1 reader parity and full-report compaction remain open.

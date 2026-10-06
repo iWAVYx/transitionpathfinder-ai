@@ -29,7 +29,7 @@ export function DocumentLayoutStyles() {
       body:has([data-generated-document]) [data-generated-document][data-generated-document] h3,
       body:has([data-generated-document]) [data-generated-document][data-generated-document] h4 { font-size: 11.5pt !important; }
       body:has([data-generated-document]) [data-generated-document][data-generated-document] [data-document-watermark] {
-        top: 0; bottom: auto; left: 0; width: 20px; height: 20px;
+        top: 0; right: 0; bottom: auto; left: auto; width: 20px; height: 20px;
       }
       body:has([data-generated-document]) [data-generated-document][data-generated-document] [data-document-columns],
       body:has([data-generated-document]) [data-generated-document][data-generated-document] .pub-spread { gap: 24px !important; }

@@ -8,7 +8,7 @@ export function MeetingDocumentStyles() {
     [data-meeting-document] [data-meeting-agenda-status] { display: none; }
     @media print {
       [data-meeting-document] [data-document-watermark] {
-        top: 0; bottom: auto; left: 0; width: 20px; height: 20px;
+        top: 0; right: 0; bottom: auto; left: auto; width: 20px; height: 20px;
       }
       [data-meeting-document] .rounded-2xl {
         border: 0; border-bottom: 1px solid #ded8e7; border-radius: 0;

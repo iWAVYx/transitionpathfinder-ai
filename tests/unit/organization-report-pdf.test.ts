@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
@@ -33,4 +33,18 @@ it("rejects a heading that would leave too little space for a readable table", (
 it("clearly identifies an empty reporting period without inventing rows", () => {
   const doc = buildOrganizationReportPdf({ title: "District Report", organization: "Fictional District", period: "October 2026", sections: [{ title: "Schools", headings: ["School", "Students"], rows: [] }] }, runtime, branding);
   expect(doc.output()).toContain("No records in this reporting period.");
+});
+
+
+it("places the decorative watermark at the top right of every exported page", () => {
+  const images = vi.spyOn(jsPDF.API, "addImage");
+  try {
+    const doc = buildOrganizationReportPdf({ title: "District Report", organization: "Fictional District", period: "October 2026", sections: [{ title: "Schools", headings: ["School", "Students"], rows: Array.from({length: 90}, (_, i) => [`School ${i + 1}`, i]) }] }, runtime, branding);
+    const marks = images.mock.calls.filter(call => call[4] === 5.3 && call[5] === 5.3);
+    expect(marks).toHaveLength(doc.getNumberOfPages());
+    for (const call of marks) {
+      expect(call[2]).toBeCloseTo(doc.internal.pageSize.getWidth() - 12.7 - 5.3, 2);
+      expect(call[3]).toBeCloseTo(12.7, 2);
+    }
+  } finally { images.mockRestore(); }
 });

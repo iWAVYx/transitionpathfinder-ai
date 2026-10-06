@@ -81,7 +81,7 @@ export function buildOrganizationReportPdf(input: OrganizationReportPdfInput, ru
   const pages = doc.getNumberOfPages();
   for (let page = 1; page <= pages; page++) {
     doc.setPage(page);
-    doc.addImage(branding.watermark, "PNG", outer, outer, 5.3, 5.3);
+    doc.addImage(branding.watermark, "PNG", doc.internal.pageSize.getWidth() - outer - 5.3, outer, 5.3, 5.3);
     doc.addImage(branding.icon, "PNG", left, outer, 6, 6);
     doc.addImage(branding.logo, "PNG", left + 8, outer, 36, 6);
     doc.setTextColor(36, 42, 51).setFont("times", "normal").setFontSize(22);
