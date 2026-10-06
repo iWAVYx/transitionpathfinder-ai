@@ -365,3 +365,19 @@ test("newer report plans and collapsed sources stay inside the printable documen
     expect(sourceAudit.violations.map(violation => violation.id)).toEqual([]);
   }
 });
+
+
+test("shared readers keep their designated audience and do not offer generation controls", async ({ page }) => {
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["family", "educator"]) {
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Maya", report: components.DEMO_STUDENTS.maya.report,
+      initialAudience: "student", fixedAudience: audience, readOnly: true,
+    }));
+    await page.setContent(`<html><body>${body}</body></html>`);
+    await expect(page.getByRole("tablist", { name: "Choose a report view" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Pathway Assist", exact: true })).toHaveCount(0);
+    const expected = audience === "family" ? "A Plan for Maya." : "Meeting Guide — Maya";
+    await expect(page.getByRole("heading", { name: expected, exact: true })).toBeVisible();
+  }
+});

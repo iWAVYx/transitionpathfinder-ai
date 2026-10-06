@@ -23,19 +23,26 @@ export const Route = createFileRoute("/share/$token")({
 function SharedReportPage() {
   const { token } = Route.useParams();
   const resolve = useServerFn(resolveShareToken);
-  const [state, setState] = useState<
+  const [result, setResult] = useState<{ token: string; state:
     | { kind: "loading" }
     | { kind: "missing" }
     | { kind: "ok"; audience: "family" | "educator"; report: PathwayReport }
-  >({ kind: "loading" });
+  } | null>(null);
+  const state = result?.token === token ? result.state : { kind: "loading" as const };
 
   useEffect(() => {
+    let cancelled = false;
     resolve({ data: { token } })
       .then((r) => {
-        if (r.ok) setState({ kind: "ok", audience: r.audience, report: r.report });
-        else setState({ kind: "missing" });
+        if (cancelled) return;
+        setResult({ token, state: r.ok
+          ? { kind: "ok", audience: r.audience, report: r.report }
+          : { kind: "missing" } });
       })
-      .catch(() => setState({ kind: "missing" }));
+      .catch(() => {
+        if (!cancelled) setResult({ token, state: { kind: "missing" } });
+      });
+    return () => { cancelled = true; };
   }, [resolve, token]);
 
   if (state.kind === "loading") {
@@ -70,9 +77,12 @@ function SharedReportPage() {
       <div className="report-shell eh-issue">
         <ReportChapterPager />
         <ReportView
+          key={token}
           name="this student"
           report={state.report}
           initialAudience={state.audience}
+          fixedAudience={state.audience}
+          readOnly
         />
       </div>
     </SiteShell>

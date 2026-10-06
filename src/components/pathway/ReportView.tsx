@@ -3,6 +3,7 @@ import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
 import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS as READINESS_LABEL } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
+import { useReportStudentVoice } from "@/hooks/use-report-student-voice";
 import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { ReportContents } from "@/components/documents/ReportContents";
@@ -60,10 +61,6 @@ import {
   getReportViewerPrefs,
   updateReportViewerPrefs,
 } from "@/lib/ui-prefs.functions";
-import {
-  getStudentVoiceResponses,
-  type StudentVoiceResponse,
-} from "@/lib/student-voice.functions";
 import { STUDENT_VOICE_PROMPTS } from "@/lib/student-voice-prompts";
 import {
   EVT_BLOCKS_HYDRATE,
@@ -146,6 +143,8 @@ export function ReportView({
   onReset,
   resetLabel = "Create another report",
   initialAudience,
+  fixedAudience,
+  readOnly = false,
   onSaveToProfile,
   saveLabel,
   saved,
@@ -164,6 +163,10 @@ export function ReportView({
   onReset?: () => void;
   resetLabel?: string;
   initialAudience?: Audience;
+  /** Shared links retain the audience chosen by their owner. */
+  fixedAudience?: Audience;
+  /** Shared readers cannot invoke report-generation assistance. */
+  readOnly?: boolean;
   onSaveToProfile?: () => void;
   saveLabel?: string;
   saved?: boolean;
@@ -188,8 +191,9 @@ export function ReportView({
 }) {
 
   // Workstream 1 (verified): Pathway Report audience precedence.
+  // Shared links always retain fixedAudience. Otherwise:
   // Order = 1) explicit ?view=/?audience= in URL, 2) authorized origin
-  // (initialAudience passed by caller — dashboard route, share token, etc.),
+  // (initialAudience passed by caller — dashboard route, demo, etc.),
   // 3) Student View fallback. Centralized in resolveReportAudience so every
   // entry point (dashboard, share, demo) applies the same rules and invalid
   // values fall through safely instead of leaking into state.
@@ -202,10 +206,12 @@ export function ReportView({
         urlAudience = raw;
       }
     }
-    return resolveReportAudience([urlAudience, initialAudience]);
-  }, [initialAudience]);
-  const [audience, setAudienceState] = useState<Audience>(initialResolved);
+    return resolveReportAudience([fixedAudience, urlAudience, initialAudience]);
+  }, [fixedAudience, initialAudience]);
+  const [selectedAudience, setAudienceState] = useState<Audience>(initialResolved);
+  const audience = fixedAudience ?? selectedAudience;
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
+    if (fixedAudience) return;
     setAudienceState(a);
     onAudienceChange?.(a);
     if (options?.syncUrl && typeof window !== "undefined" && !onAudienceChange) {
@@ -227,25 +233,7 @@ export function ReportView({
 
   // Phase 6D — fetch the student's saved voice answers so the Student
   // audience tab can show "Your Voice in this plan" with their own words.
-  const fetchVoice = useServerFn(getStudentVoiceResponses);
-  const [voiceResponses, setVoiceResponses] = useState<StudentVoiceResponse[]>([]);
-  useEffect(() => {
-    if (demo || !studentId) {
-      setVoiceResponses([]);
-      return;
-    }
-    let cancelled = false;
-    fetchVoice({ data: { studentId } })
-      .then((r) => {
-        if (!cancelled) setVoiceResponses(r.responses ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setVoiceResponses([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [demo, studentId, fetchVoice]);
+  const voiceResponses = useReportStudentVoice(studentId, demo);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -564,7 +552,7 @@ export function ReportView({
             <p className="fb-dek">{subheading}</p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <div className="tf-audience" role="tablist" aria-label="Choose a report view">
+              {!fixedAudience && <div className="tf-audience" role="tablist" aria-label="Choose a report view">
                 <button
                   type="button"
                   role="tab"
@@ -592,7 +580,7 @@ export function ReportView({
                 >
                   Educator
                 </button>
-              </div>
+              </div>}
               {confidenceLabel && (
                 <span className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/85 ring-1 ring-white/20">
                   <ShieldCheck className="h-3.5 w-3.5" /> {confidenceLabel}
@@ -1596,7 +1584,7 @@ export function ReportView({
       </footer>
 
 
-      {!demo && (
+      {!demo && !readOnly && (
         <AiAssistPanel
           studentName={name}
           report={report}
