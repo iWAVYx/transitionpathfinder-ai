@@ -14,6 +14,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Demo builder return-role/draft restoration and accessible role selection; printable sample notices and sample-mode action guards.
 - [x] Age-aware Sam/Riley/Jordan reports share live document styling and stage layout; original options, evidence gaps, alternatives/conflicts and review timing preserved. Full reader parity remains open.
 - [x] Shared demo/live contents and PDF controls; validated targets across three audiences, hidden-version link filtering and print cleanup.
+- [x] Dedicated age-aware Student Voice section with shared live quote presentation, exact profile answers and role-safe contents links; live Student responses are no longer truncated to three.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
 - [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y; supporting-text contrast and nested sample-notice semantics are corrected and locally verified in the current slice. Newly flagged dependency advisories were patched with compatible overrides. Code head 73d742ca passed both clean build jobs, hosted report-a11y, unit, role-guard and static readiness audits. Complete draft-diff review remains open. Signed-in E2E was skipped, not passed.
@@ -1631,3 +1632,24 @@ Prior watermark code head cbaa3bd2 passed both clean builds, hosted report acces
 - [ ] Main age-aware demo/live data-contract reconciliation and full final per-page report review remain open. Next substantial milestone-1 work is reader/content parity; retain full-report compaction as an open requirement.
 
 Prior spacing head 93a23ce5 passed both hosted clean builds, report accessibility, unit, role guards and static readiness audits. Signed-in/live checks remained skipped. This grouping refinement is a new draft candidate with hosted checks pending; it does not authorize a merge, staging/production deployment, publication or migration.
+
+
+## Student Voice Demo/Live Reader Reconciliation — October 6, 2026
+
+- [x] Age-aware Sam/Riley/Jordan reports now include the missing canonical Student Voice stage and a valid contents destination. Each Student/Family/Educator demo renders that selected fictional profile's saved prompts/answers verbatim through the same quote renderer used by the signed-in Student report.
+- [x] No answers, goals, assessments, recommendations or timelines are generated/inferred for this addition. Empty voice input produces no fabricated quotes or empty contents link. Existing explanations, evidence gaps, recommendations, alternatives, conflicts, review timing and selected-student context are preserved.
+- [x] Signed-in Student response presentation retains every available response rather than silently limiting the list to three. Its saved-response section now has a contents link only when shown. Existing response fetching/access checks and Student-only saved-response visibility are unchanged; this does not grant additional Family/Educator access to saved live responses.
+- [x] Shared quote print styling keeps each prompt/answer together where it fits, uses readable compact type and preserves the top-right watermark. The repeated panel title reuses the stage heading. Fictional status remains inside the document.
+- [x] Verification: 147 unit files / 1,385 tests and TypeScript passed; eight document browser checks passed. Offline demos passed 18 viewport checks and nine navigation/PDF-control flows. All eight contents destinations are unique across nine profile/audience combinations; the new section contains every source response. No original paragraph, quote, definition field or subheading was missing from the compared demo markup.
+- [x] All saved prompt/answer pairs were found in three Family sample PDFs and their Student Voice pages were visually reviewed. With the additional section, Sam/Riley/Jordan Family samples are now 8/7/8 pages. Previous source content remains present; this is offline fixture evidence, not signed-in acceptance.
+
+Remaining reader reconciliation:
+
+| Area | Actual reader | Age-aware demo / next action |
+| --- | --- | --- |
+| Student Voice | Shared quote renderer; available saved responses in Student view; generated reflection prompts separate. | Dedicated shared quotes now present for every demo audience. Other live audience visibility requires an applicable access/UX review, not automatic expansion. |
+| Strengths and Supports | Detailed strengths/preferences/interests/needs section. | Summary exists; expose the selected profile's actual learning/support fields without invented analysis. |
+| Readiness | Generated scorecard includes evidence and next steps. | Profile bands exist; show those supplied values without fabricating percentages, evidence or calibrated scores. |
+| Goals and Role Support | Detailed goal language and family/educator support sections. | Preserve source goal titles/status/horizons and the engine's supplied owners/actions; reconcile presentation without padding a live schema with invented fields. |
+
+Milestone 1 remains open. Full report compaction and final per-page review also remain open. No merge, release, deployment, publication, migration, account/data change or AI request occurred.

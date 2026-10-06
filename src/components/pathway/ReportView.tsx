@@ -1,3 +1,4 @@
+import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { ReportContents } from "@/components/documents/ReportContents";
 import { ReportPdfButton } from "@/components/documents/ReportPdfButton";
@@ -775,7 +776,7 @@ export function ReportView({
 
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <ReportContents items={liveReportContents(r, name, { hasV2, hasLinkedStudent: !!studentId, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
+      <ReportContents items={liveReportContents(r, name, { hasV2, hasLinkedStudent: !!studentId, hasStudentVoiceResponses: audience === "student" && voiceResponses.length > 0, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
 
 
       {/* ============ Executive Summary ============ */}
@@ -883,14 +884,11 @@ export function ReportView({
             dek="These are your own words from Student Voice — they help shape this plan."
             folio="p. 05"
           >
-            {voiceResponses.slice(0, 3).map((vr) => {
-              const prompt = STUDENT_VOICE_PROMPTS.find((p) => p.key === vr.prompt_key);
-              return (
-                <PublicationPullQuote key={vr.id} attribution={prompt?.question ?? vr.prompt_key}>
-                  "{vr.response_text}"
-                </PublicationPullQuote>
-              );
-            })}
+            <StudentVoiceQuotes responses={voiceResponses.map(vr => ({
+              id: vr.id,
+              prompt: STUDENT_VOICE_PROMPTS.find(p => p.key === vr.prompt_key)?.question ?? vr.prompt_key,
+              answer: vr.response_text,
+            }))} />
           </PublicationPage>
         </Block>
       )}

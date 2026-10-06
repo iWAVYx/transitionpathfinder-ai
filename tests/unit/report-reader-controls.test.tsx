@@ -14,7 +14,7 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
   it(`${id}/${audience} contents links land on exactly one actual report section`, () => {
     const {container} = render(<PathwayReport profile={getDemoProfile(id)} audience={audience} />);
     const links = screen.getByRole('navigation', {name: 'Table of contents'}).querySelectorAll('a');
-    expect(links.length).toBe(7);
+    expect(links.length).toBe(8);
     expect(screen.getByRole('link', {name:'Next Steps', exact:true})).toBeTruthy();
     for (const link of links) {
       expect(container.querySelectorAll(link.getAttribute('href')!).length).toBe(1);
@@ -68,4 +68,12 @@ it('the shared spine links have targets in the report body', () => {
   const present = new Set(['student_snapshot','next_steps_30_90_180_365'] as const);
   const {container} = render(<><PathwayReportSpine presentSections={present}/><PathwayReportBody sections={{student_snapshot:<p>Snapshot</p>,next_steps_30_90_180_365:<p>Actions</p>}} /></>);
   for (const link of container.querySelectorAll('nav a')) expect(container.querySelectorAll(link.getAttribute('href')!).length).toBe(1);
+});
+
+it("links saved student responses only when that response section is shown", () => {
+  const report = DEMO_STUDENTS.maya.report;
+  expect(liveReportContents(report, "Maya").some(item => item.id === "sec-your-voice")).toBe(false);
+  const items = liveReportContents(report, "Maya", { hasStudentVoiceResponses: true });
+  expect(items.filter(item => item.id === "sec-your-voice")).toEqual([{id: "sec-your-voice", label: "Your Voice in This Plan"}]);
+  expect(items.some(item => item.id === "sec-student-voice")).toBe(true);
 });

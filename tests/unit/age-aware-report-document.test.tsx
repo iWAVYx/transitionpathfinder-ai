@@ -19,6 +19,12 @@ for (const id of ["sam","riley","jordan"] as const) {
       expect(html).toContain('data-document-watermark');
       expect(html).toContain('data-report-stage="roadmap"');
       expect(html).toContain('data-report-stage="action"');
+      expect(html).toContain('data-report-stage="voice"');
+      expect(html).toContain('href="#section-student_voice"');
+      for (const response of profile.voice) {
+        expect(html).toContain(escaped(response.prompt));
+        expect(html).toContain(escaped(response.answer));
+      }
       for (const block of report.blocks) {
         expect(html).toContain(escaped(block.body));
         for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
@@ -54,4 +60,13 @@ it("keeps a structured missing-evidence marker visible instead of filling it", (
     expect(html.includes(escaped(report.blocks[1].missing.reason))).toBe(true);
     expect(html.includes(escaped(report.blocks[1].missing.needed[0]))).toBe(true);
   } finally {spy.mockRestore();}
+});
+
+
+it("does not invent student responses or an empty voice destination", () => {
+  const profile = { ...getDemoProfile("sam"), voice: [] };
+  const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="educator" />);
+  expect(html).not.toContain('href="#section-student_voice"');
+  expect(html).not.toContain('data-report-voice-response=');
+  expect(html).not.toContain('data-report-stage="voice"');
 });

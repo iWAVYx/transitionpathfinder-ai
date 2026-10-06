@@ -1,3 +1,7 @@
+import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
+import { REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
+import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
+import { PublicationPage } from "@/components/publication/PublicationPage";
 import { ReportContents } from "@/components/documents/ReportContents";
 import { ReportPdfButton } from "@/components/documents/ReportPdfButton";
 import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
@@ -143,6 +147,7 @@ export function PathwayReport({
         <div className="no-print print:hidden flex justify-end"><ReportPdfButton size="sm" className="bg-demo-primary" /></div>
         <ReportContents items={[
           { id: "section-student_snapshot", label: "Student Snapshot" },
+          ...(profile.voice.length > 0 ? [{ id: "section-student_voice", label: `In ${profile.shortName}'s Voice` }] : []),
           { id: "section-educator_action_plan", label: "How Your Team Can Help" },
           { id: "section-data_gaps", label: "Evidence and What We Still Need" },
           { id: "section-recommended_pathways", label: "Recommended Pathways and Alternatives" },
@@ -157,6 +162,15 @@ export function PathwayReport({
           } }}
           sections={{
             student_snapshot: blocks("what_we_know"),
+            student_voice: profile.voice.length > 0 ? <DocumentSectionTitle title={REPORT_SECTION_LABELS.student_voice}><PublicationPage
+              kicker="In Their Own Words"
+              chapter={REPORT_SECTION_LABELS.student_voice}
+              dek={`These are ${profile.shortName}'s saved answers in this fictional example. Use them when discussing the options in this report.`}
+            >
+              <StudentVoiceQuotes responses={profile.voice.map((response, index) => ({
+                id: `${profile.id}-voice-${index}`, prompt: response.prompt, answer: response.answer,
+              }))} />
+            </PublicationPage></DocumentSectionTitle> : null,
             educator_action_plan: blocks("ahead_beside_behind"),
             data_gaps: blocks("evidence", "unknowns"),
             recommended_pathways: <>

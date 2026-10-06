@@ -3,8 +3,8 @@ export type ReportContentsItem = { id: string; label: string };
 
 /** Links must match the sections rendered for this report version. */
 export function liveReportContents(report: PathwayReport, name: string, {
-  hasV2 = false, hasLinkedStudent = false, extraItems,
-}: { hasV2?: boolean; hasLinkedStudent?: boolean; extraItems?: ReportContentsItem[] } = {}): ReportContentsItem[] {
+  hasV2 = false, hasLinkedStudent = false, hasStudentVoiceResponses = false, extraItems,
+}: { hasV2?: boolean; hasLinkedStudent?: boolean; hasStudentVoiceResponses?: boolean; extraItems?: ReportContentsItem[] } = {}): ReportContentsItem[] {
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
   items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
@@ -18,6 +18,7 @@ export function liveReportContents(report: PathwayReport, name: string, {
   if (!hasV2 && report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP / Transition Plan Translator" });
   if (!hasV2 && report.teacher_action_plan) items.push({ id: "sec-educator-plan", label: "Educator / Case Manager Action Plan" });
   if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What We Still Need to Know" });
+  if (hasStudentVoiceResponses) items.push({ id: "sec-your-voice", label: "Your Voice in This Plan" });
   if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s Voice` });
   if (!hasV2 && report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family Action Plan" });
   if (!hasV2 && report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP Meeting Prep" });

@@ -66,6 +66,13 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-report-plan-step] .rounded-2xl { padding: 0.08in !important; }
 
+      body:has(.report-root) .report-root [data-report-voice-response] { break-inside: avoid; }
+      body:has(.report-root) .report-root [data-report-voice-response] .pub-pullquote { margin: 0.08in 0 !important; }
+      body:has(.report-root) .report-root [data-report-voice-response] blockquote { font-size: 12pt !important; line-height: 1.4 !important; }
+      body:has(.report-root) .report-root [data-report-voice-response] figcaption {
+        font-size: 9.5pt !important; line-height: 1.35 !important;
+        text-transform: none !important; letter-spacing: normal !important;
+      }
       body:has(.report-root) .report-root .pub-page-runninghead { display: none !important; }
       body:has(.report-root) .report-root .pub-spread { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.2in; }
       body:has(.report-root) .report-root .pub-spread > * { min-width: 0; }
