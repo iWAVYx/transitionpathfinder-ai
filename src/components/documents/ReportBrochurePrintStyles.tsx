@@ -19,6 +19,14 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root .report-stage > header::after,
       body:has(.report-root) .report-root [data-report-section]::before { display: none !important; }
       body:has(.report-root) .report-root .report-stage-sections > * + * { margin-top: 0.12in !important; }
+      /* Document sections should not inherit the screen's large chapter gaps. */
+      body:has(.report-root) .report-root .report-block { margin-top: 0.12in !important; }
+      body:has(.report-root) .report-root [data-report-block-heading] {
+        margin-bottom: 0.08in !important; padding-bottom: 0.06in !important;
+      }
+      body:has(.report-root) .report-root [data-report-detail-row] {
+        padding-top: 0.08in !important; padding-bottom: 0.08in !important;
+      }
       body:has(.report-root) .report-root .report-stage > header p {
         margin-top: 0.03in !important; margin-bottom: 0 !important;
         font-size: 9.5pt !important; line-height: 1.35 !important;

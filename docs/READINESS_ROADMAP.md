@@ -1609,3 +1609,14 @@ Standing owner preference: all documents, reports and visual exports use a small
 - [ ] Apply the same preference to any additional visual export surface introduced by the remaining roadmap. CSV/plain-data downloads do not support graphic watermarks; preserve their machine-readable content.
 
 This scoped change remains in draft PR211. It is not a merge, staging/production deployment, publication or migration. Milestone 1 reader parity and full-report compaction remain open.
+
+
+## Report Section Spacing — October 6, 2026
+
+- [x] Printed actual report sections no longer inherit large screen chapter gaps. Section-heading margins/dividers and supporting detail-row padding are compacted through explicit document hooks; screen layouts, font sizes, report fields and role permissions are unchanged.
+- [x] Prepared Student/Family/Educator report fixtures each decreased from 34 to 33 pages. Before/after markup matches after excluding style tags and the new data attributes. PDF body-word multisets match across all three audiences, with running headers/footers excluded. No report content was removed.
+- [x] Eight document browser checks and TypeScript passed. Separate offline demo checks passed 18 viewport checks and nine navigation/PDF-control flows across three profiles and three audiences. Prepared demo uses the same actual report reader; main age-aware demos retain the shared print presentation and their original content renderer.
+- [x] Family export reviewed at full contact-sheet scale and its compacted snapshot page at readable size. Communication details remain with their label; the top-right watermark remains visible and unobtrusive. This is synthetic component/PDF evidence, not signed-in acceptance.
+- [ ] Full report remains long at 33 pages. Further review of goal/action grouping and final per-page acceptance across audiences remains open; main age-aware demo/live data-contract parity is also open. Keep milestone 1 active.
+
+Prior watermark code head cbaa3bd2 passed both clean builds, hosted report accessibility, unit, role guards and static readiness audits. Signed-in/live checks were skipped. This spacing slice is a new draft candidate and needs its own hosted checks. No merge, deployment, publication, migration, production/account change or AI request occurred.

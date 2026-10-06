@@ -847,16 +847,16 @@ export function ReportView({
               { label: "Learning Preferences", items: r.student_snapshot.learning_preferences },
               { label: "Family Priorities", items: r.student_snapshot.family_priorities },
             ].map(({ label, items }) => (
-              <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-4">
+              <div key={label} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
                 <BulletList items={items} />
               </div>
             ))}
-            <div className="border-b border-[color:var(--pub-rule-soft)] py-4">
+            <div data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">Communication Style</p>
               <p className="mt-2 text-sm text-foreground/80">{r.student_snapshot.communication_style}</p>
             </div>
-            <div className="border-b border-[color:var(--pub-rule-soft)] py-4">
+            <div data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">Where {name} Is Now</p>
               <p className="mt-2 text-sm text-foreground/80">{r.student_snapshot.current_transition_status}</p>
             </div>
@@ -934,7 +934,7 @@ export function ReportView({
               { label: "Environmental Supports", items: r.spin_analysis.environmental_supports },
               { label: "Areas for Growth", items: r.spin_analysis.areas_for_growth },
             ].map(({ label, items }) => (
-              <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-4">
+              <div key={label} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
                 <BulletList items={items} />
               </div>
@@ -1169,7 +1169,7 @@ export function ReportView({
             folio="p. 04"
           >
             {r.readiness_scorecard.map((row) => (
-              <div key={row.category} className="border-b border-[color:var(--pub-rule-soft)] py-4">
+              <div key={row.category} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-primary">{toTitleCase(row.category)}</p>
                   <ReadinessBadge level={row.level} compact />
@@ -2234,7 +2234,7 @@ function Block({
       data-collapsed={collapsible && collapsed ? "true" : "false"}
       className="report-section report-block mt-14 page-break scroll-mt-24"
     >
-      <div className="mb-6 border-b border-border/60 pb-4">
+      <div data-report-block-heading className="mb-6 border-b border-border/60 pb-4">
         {collapsible ? (
           <button
             type="button"
