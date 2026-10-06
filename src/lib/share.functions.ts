@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
-import type { PathwayReport } from "@/lib/pathway.functions";
+import { projectSharedReport } from "@/lib/shared-report-projection";
 
 // Public, unauthenticated share-token resolver.
 // Uses anon key — RLS + the security-definer resolver function gate access.
@@ -20,12 +20,15 @@ export const resolveShareToken = createServerFn({ method: "POST" })
       return { ok: false as const };
     }
     const r = rows[0] as { report_id: string; audience: string; content: unknown; created_at: string };
-    // Fire-and-forget view tracking
+    const audience = z.enum(["family", "educator"]).safeParse(r.audience);
+    const report = projectSharedReport(r.content);
+    if (!audience.success || !report) return { ok: false as const };
+    // Track only links with a valid audience and a renderable document.
     await sb.rpc("track_share_view", { _token: data.token });
     return {
       ok: true as const,
-      audience: r.audience as "family" | "educator",
-      report: r.content as PathwayReport,
+      audience: audience.data,
+      report,
       created_at: r.created_at,
     };
   });

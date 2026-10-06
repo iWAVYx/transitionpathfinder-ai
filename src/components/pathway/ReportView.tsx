@@ -1,3 +1,4 @@
+import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
 import { ReportV2Sections } from "@/components/pathway/ReportV2Sections";
 import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
@@ -137,7 +138,14 @@ export type ReportMeta = {
   graduationYear?: string | number | null;
 };
 
-export function ReportView({
+export function ReportView(props: Parameters<typeof ReportViewReader>[0]) {
+  return <ReportSessionBoundary report={props.report} studentId={props.studentId} studentName={props.name}
+    demo={props.demo} readOnly={props.readOnly}>
+    <ReportViewReader {...props} />
+  </ReportSessionBoundary>;
+}
+
+function ReportViewReader({
   name,
   report,
   onReset,
