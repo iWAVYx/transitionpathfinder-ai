@@ -67,10 +67,11 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-step] .rounded-2xl { padding: 0.08in !important; }
 
       body:has(.report-root) .report-root [data-report-voice-response] { break-inside: avoid; }
-      body:has(.report-root) .report-root [data-report-voice-response] .pub-pullquote { margin: 0.08in 0 !important; }
+      body:has(.report-root) .report-root [data-report-voice-response] + [data-report-voice-response] { margin-top: 0.08in !important; }
+      body:has(.report-root) .report-root [data-report-voice-response] .pub-pullquote { margin: 0 !important; padding: 0.06in 0.1in !important; }
       body:has(.report-root) .report-root [data-report-voice-response] blockquote { font-size: 12pt !important; line-height: 1.4 !important; }
       body:has(.report-root) .report-root [data-report-voice-response] figcaption {
-        font-size: 9.5pt !important; line-height: 1.35 !important;
+        margin-top: 0.04in !important; font-size: 9.5pt !important; line-height: 1.35 !important;
         text-transform: none !important; letter-spacing: normal !important;
       }
       body:has(.report-root) .report-root .pub-page-runninghead { display: none !important; }

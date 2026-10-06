@@ -165,7 +165,31 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("main aside")).toHaveCount(0);
       const result = await new AxeBuilder({ page }).include("[data-generated-document]").analyze();
       expect(result.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target), summaries: violation.nodes.map(node => node.failureSummary) }))).toEqual([]);
+      // Repeated answers should align with their questions and have equal gutters.
+      const checkVoiceSpacing = async () => {
+        const rows = await page.locator("[data-report-voice-response] figure").evaluateAll(figures => figures.map(figure => {
+          const style = getComputedStyle(figure), quote = figure.querySelector("blockquote")!, prompt = figure.querySelector("figcaption")!;
+          return {
+            left: quote.getBoundingClientRect().left, promptLeft: prompt.getBoundingClientRect().left,
+            right: quote.getBoundingClientRect().right, promptRight: prompt.getBoundingClientRect().right,
+            top: style.paddingTop, bottom: style.paddingBottom, start: style.paddingLeft, end: style.paddingRight,
+            margin: style.marginTop, marker: getComputedStyle(quote, "::before").display,
+          };
+        }));
+        expect(rows).toHaveLength(3);
+        for (const row of rows) {
+          expect(Math.abs(row.left - row.promptLeft)).toBeLessThan(1);
+          expect(Math.abs(row.right - row.promptRight)).toBeLessThan(1);
+          expect(row.top).toBe(row.bottom);
+          expect(row.start).toBe(row.end);
+          expect(row.margin).toBe("0px");
+          expect(row.marker).toBe("none");
+        }
+        expect(new Set(rows.map(row => row.left)).size).toBe(1);
+      };
+      await checkVoiceSpacing();
       await page.emulateMedia({ media: "print" });
+      await checkVoiceSpacing();
       expect(await page.locator("[data-document-watermark]").evaluate(element => {
         const rect = element.getBoundingClientRect();
         return Math.abs(rect.top) < 1 && Math.abs(rect.right - window.innerWidth) < 1;
