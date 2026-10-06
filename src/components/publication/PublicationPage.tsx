@@ -10,6 +10,7 @@
  * the `.eh-issue` shell that already wraps demo + report routes.
  */
 import type { ReactNode } from "react";
+import { useDocumentSectionTitle, sameDocumentHeading } from "@/components/documents/DocumentSectionTitle";
 
 interface PublicationPageProps {
   /** Issue title shown in the upper running head (e.g. "Pathway Workbook"). */
@@ -46,6 +47,9 @@ export function PublicationPage({
   displayStyle = "auto",
   children,
 }: PublicationPageProps) {
+  const sectionTitle = useDocumentSectionTitle();
+  const headingAlreadyShown = sameDocumentHeading(sectionTitle, chapter);
+  const Heading = sectionTitle ? "h3" : "h1";
   const isOneWord = chapter.trim().split(/\s+/).length === 1;
   const useMono =
     displayStyle === "mono" || (displayStyle === "auto" && isOneWord);
@@ -60,12 +64,12 @@ export function PublicationPage({
 
       <div className="pub-page-opener">
         {kicker && <p className="pub-page-kicker">{kicker}</p>}
-        <h1
+        {!headingAlreadyShown && <Heading
           className="pub-page-title"
           data-display={useMono ? "mono" : "title"}
         >
           {chapter}
-        </h1>
+        </Heading>}
         {dek && <p className="pub-page-dek">{dek}</p>}
         <div className="pub-page-rule" aria-hidden />
       </div>

@@ -16,7 +16,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Shared demo/live contents and PDF controls; validated targets across three audiences, hidden-version link filtering and print cleanup.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211; latest recorded head b3ebc1b6. Unit and role-guard checks passed; latest build/report-a11y checks running when read. Signed-in E2E was skipped, not passed.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y; supporting-text contrast and nested sample-notice semantics are corrected and locally verified in the current slice. Await new hosted checks. Signed-in E2E was skipped, not passed.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -1571,3 +1571,17 @@ This remains part of milestone 1. Nothing was merged, deployed, migrated or sent
 - [ ] Further compact the full live report and finish final per-page review for every export audience. The prepared report remains long at 34 pages; additional reader/data-contract parity work is still open. This slice does not close milestone 1 or authorize a release.
 
 The next work remains the document/demo package: finish remaining reader parity and meaningful compaction, then review a concrete staging candidate. No merge, deployment, migration, production change or AI request occurred.
+
+
+## Report Heading Clarity and Accessible Supporting Text — October 5, 2026
+
+- [x] Actual report sections reuse their existing heading rather than repeating the same title in a nested publication panel. Matching ignores case/whitespace only; distinct subheadings remain and use h3 under the report's h2. Standalone publication pages retain their main heading. This applies to Student/Family/Educator live document audiences and the prepared demo that uses the actual reader.
+- [x] All paragraphs, lists, definition fields, quotes and captions match the prior fixture markup across all three audiences. Seven repeated panel titles are removed; no generated fields, recommendations or evidence are removed.
+- [x] Print rules keep section headings and publication labels with their following content. The Communication Style label now shares a page with its explanation in all three prepared report PDFs. Fixtures remain 34 pages each; this slice improves hierarchy and pagination quality, not total report length.
+- [x] Address the latest PR accessibility failures: sample notices use note semantics rather than a complementary landmark nested inside main; shared document supporting text uses the opaque theme-aware muted token rather than shell transparency mixing. Changes apply only inside actual generated-document surfaces, including their samples.
+- [x] Local verification: 146 unit files / 1,379 tests passed; TypeScript passed; eight credential-free document browser tests passed. Axe checks found zero violations for the Sam sample across Student/Family/Educator at phone/tablet/desktop widths. Separate current-component checks passed 18 viewport and nine navigation/PDF-control flows across Sam/Riley/Jordan and all three audiences. No external requests were permitted in these browser fixtures.
+- [x] Regenerated all three prepared audience PDFs and three age-aware Family PDFs; PDF body-word checks permit only the seven intentionally removed duplicate titles. Selected Family pages inspected visually; this does not replace full per-page review of every audience.
+- [ ] Recheck hosted PR accessibility/build checks on the new commit. Prior head 7fe2c6e7 passed build/unit/role-guard but failed report-a11y (low-contrast supporting text and nested sample-notice landmark); these failures are addressed locally. Signed-in tests remained skipped, not passed.
+- [ ] Milestone 1 remains open: finish age-aware demo/live reader data-contract parity and meaningful full-report compaction/per-page review. Exact-release signed-in acceptance remains milestone 2 after specific release authorization.
+
+No merge, deployment, publication, migration, production/account change or AI request occurred. The complete TF-01–TF-26 scope and deferred parent-pilot/snapshot follow-up remain in this roadmap.

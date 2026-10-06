@@ -57,6 +57,14 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
       body:has(.report-root) .report-root .pub-page-opener { margin-bottom: 0.12in !important; }
       body:has(.report-root) .report-root .pub-page-rule { margin-top: 0.1in !important; }
+      /* Keep subsection labels with their explanation when a page fills up. */
+      body:has(.report-root) .report-root h2,
+      body:has(.report-root) .report-root h3,
+      body:has(.report-root) .report-root h4,
+      body:has(.report-root) .report-root .pub-page-body p.font-semibold.uppercase {
+        break-inside: avoid !important; break-after: avoid !important;
+        page-break-after: avoid !important;
+      }
       body:has(.report-root) .report-root .pub-page-body h2,
       body:has(.report-root) .report-root .pub-page-body h3 { margin-top: 0.15in !important; }
 

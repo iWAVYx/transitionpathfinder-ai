@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
@@ -11,9 +12,14 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx';", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
+    external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
+    plugins: [{ name: "explicit-document-fixture", setup(builder) {
+      builder.onResolve({ filter: /use-demo-student$/ }, () => ({ path: "selection", namespace: "offline" }));
+      builder.onLoad({ filter: /.*/, namespace: "offline" }, () => ({ contents: 'export function useDemoStudent(){throw new Error("Document QA requires an explicit fictional profile");}' }));
+    } }],
   });
   const compiled = { exports: {} };
   new Function("module", "exports", "require", result.outputFiles[0].text)(compiled, compiled.exports, createRequire(resolve("package.json")));
@@ -110,7 +116,9 @@ test("report print layout keeps long content readable without screen-size chapte
   const note = "A dated observation records the student's progress, support and agreed next step. ".repeat(80) + "Final review: bring the dated evidence to the team.";
   const body = renderToStaticMarkup(createElement(components.PathwayReportBody, {
     sections: {
-      student_snapshot: createElement("p", { "data-long-report-content": true }, note),
+      student_snapshot: createElement("div", { className: "pub-page-body" },
+        createElement("p", { className: "font-semibold uppercase", "data-report-label": true }, "Communication Style"),
+        createElement("p", { "data-long-report-content": true }, note)),
       data_gaps: createElement("p", { "data-report-evidence": true }, "Evidence remains incomplete. Ask for a current observation before making a decision."),
     },
   }));
@@ -125,6 +133,34 @@ test("report print layout keeps long content readable without screen-size chapte
   expect(await content.evaluate(element => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
   expect(await page.locator(".report-stage > header").evaluateAll(headers => headers.every(header => header.getBoundingClientRect().height < 130))).toBe(true);
   expect(await content.evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(14);
+  expect(await page.locator("[data-report-label]").evaluate(element => getComputedStyle(element).breakAfter)).toBe("avoid");
+  expect(await page.locator(".report-stage h2").evaluateAll(headings => headings.every(heading => getComputedStyle(heading).breakAfter === "avoid"))).toBe(true);
   expect(await page.locator(".report-stage h2").evaluateAll(headings => headings.every(heading => getComputedStyle(heading).textAlign === "left"))).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+
+for (const width of [390, 768, 1440]) {
+  test(`sample report document has accessible text and note semantics at ${width}px`, async ({ page }) => {
+    const require = createRequire(resolve("package.json"));
+    const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+      base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+    });
+    const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+    const css = compiled.build(scanner.scan());
+    await page.setViewportSize({ width, height: 900 });
+    await page.route("**/*", route => {
+      const pathname = new URL(route.request().url()).pathname;
+      if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+      return route.fulfill({ status: 404, body: "" });
+    });
+    for (const audience of ["student", "family", "educator"]) {
+      const body = renderToStaticMarkup(createElement(components.PathwayReport, { profile: components.getDemoProfile("sam"), audience }));
+      await page.setContent(`<html lang="en"><head><title>Fictional Pathway Report</title><base href="http://document-fixture.test"><style>${css}</style></head><body><main class="report-shell">${body}</main></body></html>`);
+      await expect(page.locator("[data-document-sample-notice][role=note]")).toBeVisible();
+      await expect(page.locator("main aside")).toHaveCount(0);
+      const result = await new AxeBuilder({ page }).include("[data-generated-document]").analyze();
+      expect(result.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target), summaries: violation.nodes.map(node => node.failureSummary) }))).toEqual([]);
+    }
+  });
+}

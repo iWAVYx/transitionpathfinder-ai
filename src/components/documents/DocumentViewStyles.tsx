@@ -8,5 +8,9 @@ export function DocumentViewStyles() {
     [data-generated-document] [data-document-print-header] { display: block; }
     [data-generated-document] [data-document-print-header] img { max-width: 100%; object-fit: contain; }
     [data-generated-document] table { width: 100%; }
+    /* Use the opaque, theme-aware text token instead of shell opacity mixing. */
+    [data-generated-document][data-generated-document] .text-muted-foreground {
+      color: var(--muted-foreground) !important;
+    }
   `}</style></>;
 }

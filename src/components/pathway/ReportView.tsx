@@ -1,3 +1,4 @@
+import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { ReportContents } from "@/components/documents/ReportContents";
 import { ReportPdfButton } from "@/components/documents/ReportPdfButton";
 import { liveReportContents } from "@/lib/report-contents";
@@ -2283,7 +2284,7 @@ function Block({
         id={contentId}
         className={cn("report-block-content", collapsible && collapsed ? "hidden print:block" : "")}
       >
-        {children}
+        <DocumentSectionTitle title={title}>{children}</DocumentSectionTitle>
       </div>
     </section>
   );
