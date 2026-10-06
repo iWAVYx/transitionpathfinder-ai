@@ -1,3 +1,5 @@
+import { ReportContents } from "@/components/documents/ReportContents";
+import { ReportPdfButton } from "@/components/documents/ReportPdfButton";
 import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
 import { PathwayDocumentPresentation } from "@/components/documents/PathwayDocumentPresentation";
 import { PathwayReportBody } from "@/components/pathway/report/PathwayReportBody";
@@ -138,6 +140,16 @@ export function PathwayReport({
         <PathwayDocumentPresentation sample />
         <ReportHeader report={report} profile={profile} />
         <AudienceFrame frame={frame} />
+        <div className="no-print print:hidden flex justify-end"><ReportPdfButton size="sm" className="bg-demo-primary" /></div>
+        <ReportContents items={[
+          { id: "section-student_snapshot", label: "Student Snapshot" },
+          { id: "section-educator_action_plan", label: "How Your Team Can Help" },
+          { id: "section-data_gaps", label: "Evidence and What We Still Need" },
+          { id: "section-recommended_pathways", label: "Recommended Pathways and Alternatives" },
+          { id: "section-next_steps_30_90_180_365", label: "Next Steps" },
+          { id: "section-partner_matches", label: "Opportunities to Explore" },
+          { id: "report-appendix", label: "Review Notes and When to Revisit" },
+        ]} />
         <PathwayReportBody
           stageCopy={{ action: {
             title: "Next Steps",

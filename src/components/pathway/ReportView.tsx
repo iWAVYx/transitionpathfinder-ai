@@ -1,9 +1,11 @@
+import { ReportContents } from "@/components/documents/ReportContents";
+import { ReportPdfButton } from "@/components/documents/ReportPdfButton";
+import { liveReportContents } from "@/lib/report-contents";
 import { PathwayDocumentPresentation } from "@/components/documents/PathwayDocumentPresentation";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
-  Download,
   BookmarkPlus,
   Users,
   GraduationCap,
@@ -222,24 +224,6 @@ export function ReportView({
   const { user } = useAuth();
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
-
-  /**
-   * "Download as PDF" — renders the magazine-handbook reader view rather
-   * than the plain document print. Adds `print-magazine` to <body> so the
-   * scoped print CSS below preserves chapter openers, paper sheets, pull
-   * quotes, and editorial typography. Cleans up after the print dialog.
-   */
-  const downloadMagazinePdf = useCallback(() => {
-    if (typeof window === "undefined") return;
-    document.body.classList.add("print-magazine");
-    const cleanup = () => {
-      document.body.classList.remove("print-magazine");
-      window.removeEventListener("afterprint", cleanup);
-    };
-    window.addEventListener("afterprint", cleanup);
-    // Allow the class to apply before invoking the print dialog.
-    window.setTimeout(() => window.print(), 60);
-  }, []);
 
   // Phase 6D — fetch the student's saved voice answers so the Student
   // audience tab can show "Your Voice in this plan" with their own words.
@@ -745,16 +729,7 @@ export function ReportView({
               {refreshing ? "Refreshing…" : "Refresh"}
             </Button>
           )}
-          <Button
-            variant="default"
-            size="sm"
-            onClick={downloadMagazinePdf}
-            aria-label="Download Pathway Report as PDF in magazine-handbook reader view"
-            className="bg-demo-primary"
-            title="Renders the magazine-handbook reader view: chapter openers, pull quotes, and editorial layout."
-          >
-            <Download className="h-4 w-4" /> Download as PDF
-          </Button>
+          <ReportPdfButton size="sm" className="bg-demo-primary" />
         </div>
       </div>
 
@@ -799,7 +774,7 @@ export function ReportView({
 
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
+      <ReportContents items={liveReportContents(r, name, { hasV2, hasLinkedStudent: !!studentId, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
 
 
       {/* ============ Executive Summary ============ */}
@@ -1072,6 +1047,7 @@ export function ReportView({
       {/* ============ Teacher / case manager plan ============ */}
       {!hasV2 && r.teacher_action_plan && (
         <Block
+          id="sec-educator-plan"
           title="Educator / Case Manager Action Plan"
           icon={<GraduationCap className="h-5 w-5" />}
         >
@@ -1649,9 +1625,7 @@ export function ReportView({
             {resetLabel}
           </Button>
         )}
-        <Button onClick={downloadMagazinePdf} aria-label="Download Pathway Report as PDF in magazine-handbook reader view">
-          <Download className="h-4 w-4" /> Download as PDF
-        </Button>
+        <ReportPdfButton />
       </div>
 
       <style>{`
@@ -2327,75 +2301,6 @@ function MetaField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DocumentContents({
-  report,
-  name,
-  hasLinkedStudent,
-  extraItems,
-}: {
-  report: PathwayReport;
-  name: string;
-  hasLinkedStudent?: boolean;
-  extraItems?: { id: string; label: string }[];
-}) {
-
-  const items: { id: string; label: string }[] = [];
-  if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
-  items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
-  if (report.spin_analysis) items.push({ id: "sec-spin", label: "Strengths, Preferences, Interests & Needs" });
-  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Transition Readiness Scorecard" });
-  if (report.recommended_pathways?.length) items.push({ id: "sec-pathways", label: "Recommended Pathways" });
-  if (report.career_matches?.length) items.push({ id: "sec-careers", label: "Career & Life Pathway Matches" });
-  if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary Goal Breakdown" });
-  items.push({ id: "sec-education", label: "Education & Training Options" });
-  items.push({ id: "sec-life-skills", label: "Life Skills to Focus On" });
-  if (report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP / Transition Plan Translator" });
-  if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What We Still Need to Know" });
-  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s Voice` });
-  if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family Action Plan" });
-  if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP Meeting Prep" });
-  if (hasLinkedStudent) items.push({ id: "sec-partner-suggestions", label: "Partner Suggestions" });
-  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to Explore" });
-  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress Timeline" });
-  items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
-  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
-
-  if (extraItems) items.push(...extraItems);
-
-  return (
-
-    <nav
-      aria-label="Table of contents"
-      className="no-print mt-10 border-t border-[color:var(--pub-rule-soft,theme(colors.border))] pt-6"
-    >
-      <div className="flex items-baseline justify-between border-b border-dotted border-[color:var(--pub-rule-soft,theme(colors.border))] pb-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-          Contents
-        </p>
-        <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {items.length} sections
-        </p>
-      </div>
-      <ol className="grid gap-x-10 gap-y-1 pt-4 sm:grid-cols-2">
-        {items.map((it, i) => (
-          <li key={it.id} className="flex items-baseline gap-3 text-sm">
-            <span className="font-mono text-[11px] tabular-nums text-primary/80">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <a
-              href={`#${it.id}`}
-              className="group flex flex-1 items-baseline gap-2 py-1 text-foreground/85 transition-colors hover:text-foreground"
-            >
-              <span className="truncate">{it.label}</span>
-              <span aria-hidden className="flex-1 translate-y-[-2px] border-b border-dotted border-border/60" />
-              <span className="font-mono text-[10px] text-muted-foreground">→</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
 
 
 function BulletList({ items, compact = false }: { items: string[]; compact?: boolean }) {

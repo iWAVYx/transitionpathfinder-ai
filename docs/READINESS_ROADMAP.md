@@ -13,6 +13,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Preserve the owner’s Lovable heading edit in Git. Require reconciliation of builder edits before subsequent source sync.
 - [x] Demo builder return-role/draft restoration and accessible role selection; printable sample notices and sample-mode action guards.
 - [x] Age-aware Sam/Riley/Jordan reports share live document styling and stage layout; original options, evidence gaps, alternatives/conflicts and review timing preserved. Full reader parity remains open.
+- [x] Shared demo/live contents and PDF controls; validated targets across three audiences, hidden-version link filtering and print cleanup.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
 - [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211; latest recorded head b3ebc1b6. Unit and role-guard checks passed; latest build/report-a11y checks running when read. Signed-in E2E was skipped, not passed.
@@ -1545,3 +1546,16 @@ Pagination is not a database snapshot: stable counts cannot detect every concurr
 - [ ] Further compact the full report pagination and review all final audiences against a fresh application build. Current offline visual checks used current components plus the existing built app stylesheet; Family samples remained 8/8/9 pages. Student/Educator markup and viewport checks passed, but their final PDFs were not individually reviewed in this slice.
 
 No database/AI requests, accounts, merges, deployments, migrations or production changes were made for this slice. Current next step remains the main demo/live reader contract reconciliation and final document package validation.
+
+
+## Shared Report Navigation and PDF Controls — October 5, 2026
+
+- [x] Live and age-aware sample readers use the same numbered contents-list component and PDF button. The control explains that the browser print dialog offers Save as PDF; it does not imply a direct file download or save to a student record.
+- [x] Every age-aware contents link has a unique actual destination across Sam/Riley/Jordan × Student/Family/Educator. Shared stage-section wrappers now expose the canonical anchors already expected by the report spine; existing sec-* destinations remain intact.
+- [x] The live contents builder respects hasV2: hidden legacy family plans, meeting prep, educator plans, IEP translator and opportunities are excluded. The original educator/case-manager action plan now has a destination and a contents entry.
+- [x] PDF mode cleans up after printing, a print API failure or unmount; a pending dialog is cancelled if its control unmounts. Decorative navigation arrows are excluded from accessible link names, and long labels can wrap.
+- [x] Final unit suite: 145 files / 1,374 tests passed. TypeScript passed. Actual live-reader server render: every contents link valid for all three audiences in both original/newer report modes (19/14 entries for the prepared fixture).
+- [x] Offline interactive browser: 18 viewport checks and nine navigation/PDF-control flows passed. Three Family PDFs retain the Fictional Sample notice and exclude controls/site navigation; native print was stubbed for action checks and PDFs rendered separately. All requests were served from local fixtures/assets.
+- [ ] Full demo/live reader and contents coverage for additional newer report sections remains open; this slice does not unify their different report data contracts. Final pagination/compaction and signed-in exact-release acceptance remain open. Current demo Family fixture PDFs are still 8/8/9 pages.
+
+This remains part of milestone 1. Nothing was merged, deployed, migrated or sent to AI, and no production/account data was used. The same shared controls apply wherever the live reader is authorized, including all three supported document audiences.

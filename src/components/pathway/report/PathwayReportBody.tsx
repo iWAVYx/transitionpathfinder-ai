@@ -1,3 +1,4 @@
+import { reportSectionAnchorId } from "./PathwayReportSpine";
 /**
  * PathwayReportBody — stage-grouped orchestrator for the Pathway Report.
  *
@@ -80,6 +81,7 @@ export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayRepo
               {rendered.map(({ sectionId, node }) => (
                 <div
                   key={sectionId}
+                  id={reportSectionAnchorId(sectionId)}
                   data-report-section={sectionId}
                   aria-label={REPORT_SECTION_LABELS[sectionId]}
                 >
