@@ -1522,8 +1522,8 @@ function ReportViewReader({
       </section>
 
       {hasV2 && <>
-        <ReportV2Sections content={report} audience={audience} studentName={name} />
-        <ReportV2InputsUsed content={report} />
+        <ReportV2Sections content={displayReport} audience={audience} studentName={name} />
+        <ReportV2InputsUsed content={displayReport} />
       </>}
 
       {/* ============ Closing note (formal) ============ */}
