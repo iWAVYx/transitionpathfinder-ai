@@ -1,3 +1,4 @@
+import { reportSourceLabels } from "@/lib/report-source-summary";
 import { reportNextStepPreview } from "@/lib/report-next-step-preview";
 import { reportPrintPlans } from "@/lib/report-print-plans";
 import { getLegacyReportSnapshot } from "@/lib/report-snapshot-contract";
@@ -744,18 +745,18 @@ function ReportViewReader({
       />
 
       {/* ============ Where Things Stand — decision-supportive opener ============ */}
-      <section className="mt-8 page-break">
+      <section data-report-source-opener className="mt-8 page-break">
         <ValueCallout
           data={{
-            whatThisMeans: `This report brings together everything we know about ${name} — intake answers, uploaded documents, ${name}'s own words, and family priorities — into one decision-supportive view.`,
+            whatThisMeans: `This report is a planning draft for ${name}. Review its information and recommendations with the student and team, and add anything that is missing.`,
             whyItMatters:
-              "Transition planning fails most often because information is scattered across people and documents. This page is the shared starting point.",
-            recommendedNextStep: `Start with "At a glance," then read "Bring To The Team" before the next meeting.`,
+              "A shared planning draft helps the student and team compare priorities and decide what to do next.",
+            recommendedNextStep: `Start with "At a Glance," then review the next steps with your team before the next meeting.`,
             questionsForTeam: [
               "Does this match what you're seeing day-to-day?",
               "What's missing that we should add before the next meeting?",
             ],
-            informationUsed: ["Intake", "Uploaded documents", "Student Voice", "Goals", "Readiness scores"],
+            informationUsed: reportSourceLabels(report),
             owner: "team",
             timeframe: "before the next PPT",
           }}

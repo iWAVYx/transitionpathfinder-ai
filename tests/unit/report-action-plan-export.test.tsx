@@ -91,3 +91,19 @@ for (const audience of ["student", "family", "educator"] as const) for (const de
     expect(container.querySelector('[data-report-section="family_action_plan"]')).toBeNull();
   });
 }
+
+for (const audience of ["student", "family", "educator"] as const) for (const demo of [false, true]) {
+  it(`${audience}/${demo ? "demo" : "live"} opener reports only recorded sources`, () => {
+    const base = { ...DEMO_STUDENTS.maya.report, inputs_used: undefined, inputs_used_summary: undefined };
+    const { container, rerender } = render(<ReportView name="Maya" report={base} demo={demo} initialAudience={audience} />);
+    const opener = () => container.querySelector("[data-report-source-opener]")!.textContent!;
+    expect(opener()).toContain("The source list was not recorded");
+    expect(opener()).not.toContain("Uploaded documents");
+    expect(opener()).not.toContain("Readiness scores");
+    rerender(<ReportView name="Maya" report={{ ...base, inputs_used_summary: { intake: true, goal_count: 2 } } as typeof base} demo={demo} initialAudience={audience} />);
+    expect(opener()).toContain("Pathway Builder Responses · Transition Goals");
+    expect(opener()).not.toContain("Student Voice");
+    expect(opener()).not.toContain("IEP Documents");
+    expect(mocks.server).not.toHaveBeenCalled();
+  });
+}
