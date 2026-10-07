@@ -1901,3 +1901,14 @@ Broader document compaction and remaining roadmap items stay open. No merge, dep
 - All 15 existing offline document browser checks passed. Three current audience PDF fixtures remain 29 pages with complete recorded actions/goals, correct counters, grouped closing details and no text outside checked margins. No full unit/TypeScript rerun was needed for this spacing-only adjustment.
 
 Changes remain in draft PR #211 pending review and authorized release. Broader roadmap work remains open. No merge, deployment, migration, AI call, account change or production operation occurred.
+
+
+## Local Review: Complete Goal Blocks and Print Spacing — October 7, 2026
+
+- Tightened printed legacy goal sections with smaller inter-section/list gaps, 1.3 body leading and uniform 9pt field headings while preserving the 10.5pt main text. Complete goal blocks explicitly avoid internal page breaks. Screen layout and age-aware sample goal layout remain unchanged.
+- Enforced the same Title Case/normal letter spacing for goal field headings, including Next Steps, People Who Can Help and Information to Gather, so supporting groups match the other goal labels.
+- Fresh Student/Family/Educator fixtures retain all four complete supplied goals within individual pages: education on page 15, employment on 16, independent living and community/transportation together on 17. Two goals now share a page. Overall fixtures still run 29 pages; this is not a total-page-count reduction or completed compaction milestone.
+- Normalized PDF body-word counters match the pre-change fixture exactly across all three audiences; recorded actions and goal fields remain present, counters are correct and no extracted text crosses checked margins. Changed goal pages were visually reviewed. All 15 existing offline document browser checks passed. Full unit/TypeScript checks were not repeated for this print-only CSS adjustment.
+- GitHub again rejected the pending draft push with an internal server error. The preceding disclaimer commit and this work are retained locally; remote review updates remain pending until a successful push. No alternate branch or force push was attempted.
+
+Broader sparse-page compaction, demo/live reconciliation and remaining roadmap work stay open. No merge, deployment, migration, AI call, account change or production operation occurred.

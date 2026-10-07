@@ -100,8 +100,8 @@ export function ReportBrochurePrintStyles() {
         gap: 0.15in !important; align-items: start;
       }
       body:has(.report-root) .report-root [data-report-plan-details] > * { min-width: 0; max-width: none !important; }
-      body:has(.report-root) .report-root [data-report-printed-goals] .uppercase { text-transform: none; letter-spacing: normal; }
-      body:has(.report-root) .report-root [data-report-printed-goals] > section { break-inside: avoid; }
+      body:has(.report-root) .report-root [data-report-printed-goals] .uppercase { text-transform: none !important; letter-spacing: normal !important; }
+      body:has(.report-root) .report-root [data-report-printed-goals] > section { break-inside: avoid !important; page-break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-goal-details] {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: 0.08in !important; padding-bottom: 0 !important;
@@ -111,6 +111,23 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-step] p + p { margin-top: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-goal-details] .rounded-2xl {
         padding: 0.06in 0 !important;
+      }
+      /* Complete goal blocks can share a page without reducing their main text. */
+      body:has(.report-root) .report-root [data-report-printed-goals] > section {
+        margin-top: 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-printed-goals] [data-report-goal-details] p,
+      body:has(.report-root) .report-root [data-report-printed-goals] [data-report-goal-details] li {
+        line-height: 1.3 !important;
+      }
+      body:has(.report-root) .report-root [data-report-printed-goals] [data-report-goal-details] > div > p:first-child {
+        font-size: 9pt !important; line-height: 1.25 !important;
+      }
+      body:has(.report-root) .report-root [data-report-printed-goals] [data-report-goal-details] li + li {
+        margin-top: 0.04in !important;
+      }
+      body:has(.report-root) .report-root [data-report-printed-goals] [data-report-goal-details] ul {
+        margin-top: 0.03in !important;
       }
       body:has(.report-root) .report-root [data-report-plan-heading] { gap: 0.08in !important; }
       body:has(.report-root) .report-root [data-report-plan-details],
