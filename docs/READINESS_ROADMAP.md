@@ -26,6 +26,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Export every supplied 30/60/90-day period independently of the selected screen tab; omit only complete identical repeated steps while retaining changed actions, owners, outcomes and readiness details.
 - [x] Student/Family pathway previews use a single authorized student selection, recorded summaries and matching opportunity context; remove fabricated live status panels and restricted Student navigation.
 - [x] Legacy report action-plan presentation preserves recorded week/action pairs across audiences and live/demo modes; retire the synthetic twelve-week fallback and retain explicitly supplied detailed plans.
+- [x] Fresh three-audience PDF fixtures verify recorded actions/goals, margins and counters; fix sparse footer page, label/value continuity, readiness badge wrapping and compound acronym capitalization. Broader pagination acceptance remains open.
 - [x] Shared partner suggestions remain tied to the current student across PPT prep and report views, including superseded requests and error recovery.
 - [x] Saved student answers and resolved share links remain tied to the current student/token; shared readers retain their designated audience and hide generation controls.
 - [x] Reset temporary report/translation/suggestion state on report-context changes and reject superseded assist results.
@@ -1869,3 +1870,15 @@ Still open: source/demo/live generated-action reconciliation, complete document 
 - Hosted checks passed on previous head ff0aaaee; live/signed-in checks remained skipped. This new head requires fresh hosted review.
 
 Still open: richer generated-plan contract/evidence, full age-aware demo/live reader reconciliation, full-PDF compaction/per-page acceptance, other exports and separately authorized staging release/migration acceptance. No merge, deployment, migration, outreach, AI call or production change is included. The full roadmap and deferred parent pilot/report snapshot scope remain intact.
+
+
+## Draft Review: Fresh PDF Pagination and Shared Label Continuity — October 6, 2026
+
+- Generated fresh offline Student/Family/Educator PDF fixtures from the current source-faithful reader. Found a mostly empty closing page, tightened supporting footer typography/padding without changing its content, kept equal metadata columns and retained the ending marker with the footer. The current fixtures improved from 30 to 29 pages each.
+- Kept shared report field labels with their values in print and normalized their text with the existing Title Case helper. Fixed an observed “Who Should Help” label orphan on an opportunity continuation page. No opportunity or report text was removed.
+- Prevented readiness badges from splitting words under narrow headings and allowed opportunity headers to wrap naturally. Corrected compound Title Case handling to preserve supplied acronyms such as Pre-ETS and IEP/PPT, including outside the document reader.
+- Supporting footer values remain readable at 9pt, footer headings at 8.5pt and main report text at 10.5pt. Reduced heading tracking keeps metadata columns visually separated; CSS page margins and the faint top-right mark remain in place.
+- PDF checks across all three audience fixtures: every recorded action and goal field found, correct page counters, grouped closing information/end marker and no extracted text outside checked outer margins. Multi-column PDF text was read by column to avoid falsely treating interleaved extraction as missing content. Full Family contact sheets and targeted document pages were visually reviewed; watermark and action-page layout were checked. These fictional fixtures are not signed-in staging acceptance or real student exports.
+- Local evidence: 166 unit files / 1,507 tests, TypeScript and 15 credential-free document browser checks passed, including paper-width footer clipping/type tests, label continuity and badge wrapping. Previous head 94b8f22d passed hosted builds, unit, accessibility, role guards, static readiness/CT checks and disposable migration replay; live/signed-in/RLS checks were skipped. Fresh hosted review for this batch remains pending.
+
+Still open: broader compact pagination and sparse pages, age-aware demo/live reader reconciliation, other report/document exports, richer generated-plan evidence and separately authorized staging release/migration acceptance. Fixing these observed issues does not close all per-page acceptance. No merge, deployment, migration, AI call, account change, outreach or production operation occurred. The complete roadmap and deferred parent pilot/report snapshot scope remain intact.

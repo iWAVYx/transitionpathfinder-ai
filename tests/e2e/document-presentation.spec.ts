@@ -457,6 +457,7 @@ test("projected newer shared reports retain permitted plans and source counts on
 });
 
 test("document-control labels stay grouped with readable values for each report audience", async ({ page }) => {
+  await page.setViewportSize({ width: 720, height: 1000 });
   const require = createRequire(resolve("package.json"));
   const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
     base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
@@ -488,6 +489,19 @@ test("document-control labels stay grouped with readable values for each report 
     expect(geometry.keep).toBe("avoid");
     expect(Math.max(...geometry.widths) - Math.min(...geometry.widths)).toBeLessThan(1);
     expect(Math.max(...geometry.tops) - Math.min(...geometry.tops)).toBeLessThan(1);
+    const typography = await details.evaluate(element => ({
+      label: parseFloat(getComputedStyle(element.querySelector("p")!).fontSize),
+      value: parseFloat(getComputedStyle(element.querySelector("p + p")!).fontSize),
+      valueLine: parseFloat(getComputedStyle(element.querySelector("p + p")!).lineHeight),
+    }));
+    expect(await details.evaluate(element => Array.from(element.querySelectorAll("p")).every(paragraph => paragraph.scrollWidth <= paragraph.clientWidth + 1))).toBe(true);
+    expect(typography.label).toBeGreaterThanOrEqual(11.3);
+    expect(typography.value).toBeGreaterThanOrEqual(12);
+    expect(typography.valueLine).toBeGreaterThanOrEqual(15);
+    expect(await page.locator("[data-report-document-footer] > div:last-child").evaluate(element => getComputedStyle(element).breakBefore)).toBe("avoid");
+    expect(await page.locator("[data-report-labeled-field]").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakInside === "avoid" && getComputedStyle(element.querySelector("p")!).breakAfter === "avoid"))).toBe(true);
+    const badges = page.locator("#sec-opportunities .inline-flex:has(svg)");
+    expect(await badges.evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).whiteSpace === "nowrap" && getComputedStyle(element).flexShrink === "0"))).toBe(true);
     await expect(details.getByText(/AI-drafted from the student's/)).toBeVisible();
     await expect(details.getByText("Fictional sample only. No real student records.", { exact: true })).toBeVisible();
   }

@@ -1391,7 +1391,7 @@ function ReportViewReader({
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
               <div key={i} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
                       {toTitleCase(o.category)}
@@ -2352,8 +2352,8 @@ function HorizonCard({ label, items }: { label: string; items: string[] }) {
 
 function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="mt-2 first:mt-0">
-      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
+    <div data-report-labeled-field className="mt-2 first:mt-0">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{toTitleCase(label)}</p>
       <p className="text-sm text-foreground/80">{children}</p>
     </div>
   );

@@ -166,6 +166,10 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-document-caution],
       body:has(.report-root) .report-root [data-document-closing][data-document-closing] { break-inside: avoid !important; }
+      /* The page margin already supplies closing space; avoid a padding-only tail page. */
+      body:has(.report-root) .report-root:has(> [data-report-document-footer]) {
+        padding-bottom: 0 !important;
+      }
       /* Keep document-control labels with their values across page breaks. */
       body:has(.report-root) .report-root [data-report-document-footer] {
         margin-top: 0.12in !important;
@@ -183,6 +187,25 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-document-details] p:first-child {
         break-after: avoid !important; page-break-after: avoid !important;
       }
+      body:has(.report-root) .report-root [data-report-document-footer] > div:last-child {
+        padding: 0.04in 0.06in !important; break-before: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-footer] > div:last-child p {
+        font-size: 8.5pt !important; line-height: 1.2 !important;
+      }
+      /* Supporting document details should not become a mostly empty last page. */
+      body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] {
+        gap: 0.12in !important; padding: 0.06in !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] p {
+        font-size: 9pt !important; line-height: 1.25 !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] p + p {
+        margin-top: 0.04in !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] p:first-child {
+        font-size: 8.5pt !important; line-height: 1.2 !important; letter-spacing: 0.1em !important;
+      }
       body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; }
       body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
       body:has(.report-root) .report-root .pub-page-opener {
@@ -190,6 +213,12 @@ export function ReportBrochurePrintStyles() {
         page-break-after: avoid !important;
       }
       body:has(.report-root) .report-root .pub-page-rule { margin-top: 0.1in !important; }
+      body:has(.report-root) .report-root [data-report-labeled-field] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-labeled-field] > p:first-child {
+        break-after: avoid !important; page-break-after: avoid !important;
+      }
       /* Keep subsection labels with their explanation when a page fills up. */
       body:has(.report-root) .report-root h2,
       body:has(.report-root) .report-root h3,
