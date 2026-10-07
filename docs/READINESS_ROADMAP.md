@@ -1882,3 +1882,13 @@ Still open: richer generated-plan contract/evidence, full age-aware demo/live re
 - Local evidence: 166 unit files / 1,507 tests, TypeScript and 15 credential-free document browser checks passed, including paper-width footer clipping/type tests, label continuity and badge wrapping. Previous head 94b8f22d passed hosted builds, unit, accessibility, role guards, static readiness/CT checks and disposable migration replay; live/signed-in/RLS checks were skipped. Fresh hosted review for this batch remains pending.
 
 Still open: broader compact pagination and sparse pages, age-aware demo/live reader reconciliation, other report/document exports, richer generated-plan evidence and separately authorized staging release/migration acceptance. Fixing these observed issues does not close all per-page acceptance. No merge, deployment, migration, AI call, account change, outreach or production operation occurred. The complete roadmap and deferred parent pilot/report snapshot scope remain intact.
+
+
+## Draft Review: Compact Planning Disclaimer — October 7, 2026
+
+- Tightened the shared Pathway Report planning disclaimer on screen and in print: less card padding, a smaller heading-to-paragraph gap, tighter paragraph leading and less space above the footer. Disclaimer wording, body font size, role data, watermark and layout remain intact.
+- Applies to Student/Family/Educator readers and their applicable demo/export modes through the shared renderer. Printed disclaimer headings remain readable at 9pt and body text at 10.5pt.
+- Existing 15 offline document browser checks passed. Fresh three-audience PDF fixtures remain 29 pages with recorded actions and goal fields present, correct counters, grouped closing details and no extracted text beyond checked outer margins. The refreshed fictional closing-page preview was visually reviewed.
+- Full unit/TypeScript checks were not repeated for this spacing-only change; the previous batch passed 1,507 unit tests and TypeScript. Hosted checks for previous head 3f0efb8a passed builds, unit, accessibility, role guards, static readiness/CT checks and disposable migration replay; live/signed-in checks remained skipped. New-head hosted checks remain pending.
+
+Broader document compaction and remaining roadmap items stay open. No merge, deployment, migration, AI call, account change or production operation occurred.

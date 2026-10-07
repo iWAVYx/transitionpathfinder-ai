@@ -172,10 +172,20 @@ export function ReportBrochurePrintStyles() {
       }
       /* Keep document-control labels with their values across page breaks. */
       body:has(.report-root) .report-root [data-report-document-footer] {
-        margin-top: 0.12in !important;
+        margin-top: 0.08in !important;
       }
       body:has(.report-root) .report-root [data-report-document-footer] > div {
         padding: 0.1in !important;
+      }
+      body:has(.report-root) .report-root [data-report-planning-disclaimer][data-report-planning-disclaimer] {
+        padding: 0.06in !important;
+      }
+      body:has(.report-root) .report-root [data-report-planning-disclaimer] > p:first-child {
+        font-size: 9pt !important; line-height: 1.2 !important; letter-spacing: 0.1em !important;
+        break-after: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-planning-disclaimer] > p + p {
+        margin-top: 0.04in !important; line-height: 1.3 !important;
       }
       body:has(.report-root) .report-root [data-report-document-details] {
         gap: 0.16in !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
