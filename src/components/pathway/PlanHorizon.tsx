@@ -17,6 +17,8 @@ export function PlanHorizonTabs({
   const horizons: PlanHorizon[] = ["thirty", "sixty", "ninety"];
   return (
     <div
+      role="group"
+      aria-label="Action Plan Timeframe"
       className={cn(
         "inline-flex divide-x divide-[color:var(--pub-rule-soft,theme(colors.border))] border-y border-[color:var(--pub-rule-soft,theme(colors.border))]",
         className,

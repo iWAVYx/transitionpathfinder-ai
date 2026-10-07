@@ -492,3 +492,49 @@ test("document-control labels stay grouped with readable values for each report 
     await expect(details.getByText("Fictional sample only. No real student records.", { exact: true })).toBeVisible();
   }
 });
+
+test("complete action-plan export includes later periods for every audience without repeating identical steps", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.fulfill({ status: 404, body: "" });
+  });
+  const step = (week: number, action: string) => ({ week, action, focus: "Recorded Next Step", owner: "School Team",
+    time: "20 minutes", details: [`Recorded detail ${week}`], outcome: `Recorded outcome ${week}`,
+    familyActions: [`Recorded family action ${week}`], teacherActions: [`Recorded educator action ${week}`],
+  });
+  const first = step(1, "First month step"), second = step(5, "Second month step"), third = step(9, "Third month step");
+  const plans = { thirty: [first], sixty: [first, second], ninety: [first, second, third] };
+  for (const audience of ["student", "family", "educator"]) {
+    await page.emulateMedia({ media: "screen" });
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Maya", report: components.DEMO_STUDENTS.maya.report, demo: true, initialAudience: audience, extendedPlans: plans,
+    }));
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    const section = page.locator("#sec-thirty-day");
+    const exported = section.locator("[data-report-complete-plan]");
+    await expect(exported).toBeHidden();
+    await expect(section.getByRole("group", { name: "Action Plan Timeframe" })).toBeVisible();
+    await expect(section.getByText("First month step", { exact: true }).first()).toBeVisible();
+    await expect(section.getByText("Second month step", { exact: true })).toBeHidden();
+    await page.emulateMedia({ media: "print" });
+    await expect(exported).toBeVisible();
+    await expect(section.getByRole("group", { name: "Action Plan Timeframe" })).toBeHidden();
+    await expect(exported.locator("[data-report-plan-step]")).toHaveCount(3);
+    for (const item of [first, second, third]) {
+      await expect(exported.getByText(item.action, { exact: true })).toBeVisible();
+      await expect(exported.getByText(item.details[0], { exact: true })).toBeVisible();
+      await expect(exported.getByText(item.outcome, { exact: true })).toBeVisible();
+      await expect(exported.getByText(item.familyActions[0], { exact: true })).toBeVisible();
+      await expect(exported.getByText(item.teacherActions[0], { exact: true })).toBeVisible();
+    }
+    await expect(exported.locator("[data-report-export-period]")).toHaveCount(3);
+    expect(await page.locator(".pub-pullquote blockquote").first().evaluate(element => getComputedStyle(element, "::before").display)).toBe("none");
+  }
+});

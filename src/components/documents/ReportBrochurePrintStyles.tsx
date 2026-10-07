@@ -97,6 +97,10 @@ export function ReportBrochurePrintStyles() {
         margin-top: 0.04in !important; font-size: 9.5pt !important; line-height: 1.35 !important;
         text-transform: none !important; letter-spacing: normal !important;
       }
+      /* The decorative oversized quote can cross the page's top margin. */
+      body:has(.report-root) .report-root .pub-pullquote blockquote::before {
+        display: none !important;
+      }
       body:has(.report-root) .report-root .pub-page-runninghead { display: none !important; }
       body:has(.report-root) .report-root .pub-spread { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.2in; }
       body:has(.report-root) .report-root .pub-spread > * { min-width: 0; }

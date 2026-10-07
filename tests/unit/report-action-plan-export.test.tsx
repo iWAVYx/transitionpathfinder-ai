@@ -1,0 +1,33 @@
+// @vitest-environment jsdom
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { DEMO_STUDENTS } from "../../src/lib/demo-data";
+const mocks = vi.hoisted(() => ({ server: vi.fn() }));
+vi.mock("@tanstack/react-start", () => ({ useServerFn: () => mocks.server }));
+vi.mock("@/hooks/use-auth", () => ({ useAuth: () => ({ user: null }) }));
+vi.mock("@/lib/ui-prefs.functions", () => ({ getReportViewerPrefs: {}, updateReportViewerPrefs: {} }));
+vi.mock("@/lib/student-voice.functions", () => ({ getStudentVoiceResponses: {} }));
+vi.mock("@/components/pathway/ConnectToPlan", () => ({ ConnectToPlan: () => null }));
+vi.mock("@/components/pathway/ReportPartnerSuggestions", () => ({ ReportPartnerSuggestions: () => null }));
+vi.mock("@/components/pathway/ReportPhase4Sections", () => ({ ReportPhase4Sections: () => null, getPhase4TocItems: () => [] }));
+vi.mock("@/components/opportunities/OpportunityPipelineSummary", () => ({ OpportunityPipelineSummary: () => null }));
+vi.mock("@/components/pathway/AiAssistPanel", () => ({ AiAssistPanel: () => null }));
+import { ReportView } from "../../src/components/pathway/ReportView";
+beforeEach(() => { mocks.server.mockReset(); mocks.server.mockImplementation(() => { throw new Error("Reader fixture forbids server calls"); }); });
+afterEach(cleanup);
+it("retains a complete unchanged export when the on-screen period is changed", () => {
+  const step = (week: number, action: string) => ({ week, focus: "Recorded step", action, owner: "Student", time: "20 minutes", details: [action], outcome: action });
+  const first = step(1, "First month action"), second = step(5, "Second month action"), third = step(9, "Third month action");
+  const plans = { thirty: [first], sixty: [first, second], ninety: [first, second, third] };
+  const { container } = render(<ReportView name="Maya" report={DEMO_STUDENTS.maya.report} demo extendedPlans={plans} />);
+  const exported = container.querySelector("[data-report-complete-plan]")!;
+  const before = exported.innerHTML;
+  const section = container.querySelector("#sec-thirty-day")!;
+  const selected = section.querySelector("ol.print\\:hidden")!;
+  expect(selected.querySelectorAll("[data-report-plan-step]")).toHaveLength(1);
+  fireEvent.click(screen.getByText("90 Days", { selector: "span" }));
+  expect(section.querySelector("ol.print\\:hidden")!.querySelectorAll("[data-report-plan-step]")).toHaveLength(3);
+  expect(exported.innerHTML).toBe(before);
+  expect(exported.querySelectorAll("[data-report-plan-step]")).toHaveLength(3);
+  expect(mocks.server).not.toHaveBeenCalled();
+});

@@ -1,3 +1,4 @@
+import { reportPrintPlans } from "@/lib/report-print-plans";
 import { getLegacyReportSnapshot } from "@/lib/report-snapshot-contract";
 import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
 import { ReportV2Sections } from "@/components/pathway/ReportV2Sections";
@@ -2615,12 +2616,24 @@ function PlanBlock({
         <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
         <p className="text-xs text-muted-foreground">{meta.tagline}</p>
       </div>
-      <p data-report-plan-period className="hidden print:block mt-3 font-semibold">{meta.label} · {meta.tagline}</p>
-      <ol className="mt-5 space-y-4">
-        {steps.map((step) => (
-          <RichPlanStepCard key={`${horizon}-${step.week}`} step={step} />
+      <ol className="print:hidden mt-5 space-y-4">
+        {steps.map((step, index) => (
+          <RichPlanStepCard key={`${horizon}-${step.week}-${index}`} step={step} />
         ))}
       </ol>
+      <div className="hidden print:block" data-report-complete-plan>
+        {reportPrintPlans(plans).map(({ horizon: period, steps: periodSteps }) => (
+          <section key={period} data-report-export-period={period}>
+            <h3 data-report-plan-period className="mt-3 font-semibold">{HORIZON_META[period].label}</h3>
+            <p className="text-sm">{HORIZON_META[period].tagline}</p>
+            {periodSteps.length ? <ol className="mt-3 space-y-4">
+              {periodSteps.map((step, index) => <RichPlanStepCard key={`${period}-${step.week}-${index}`} step={step} />)}
+            </ol> : <p className="mt-2 text-sm">
+              {plans[period].length ? "This period repeats the steps shown above." : "No steps are recorded for this period."}
+            </p>}
+          </section>
+        ))}
+      </div>
     </Block>
   );
 }
