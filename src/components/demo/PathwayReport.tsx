@@ -287,7 +287,7 @@ export function PathwayReport({
               {blocks("what_to_do_next")}
               <NextStepsList steps={report.nextSteps} audience={audience} />
             </>,
-            partner_matches: <OpportunityMatches compact limit={3} profile={profile} />,
+            partner_matches: <OpportunityMatches reportView profile={profile} />,
           }}
           appendix={<div data-demo-review-summary className="space-y-4">
             {blocks("when_to_revisit")}

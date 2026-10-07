@@ -4,6 +4,9 @@ import { PathwayReport } from "../../src/components/demo/PathwayReport";
 import { getDemoProfile } from "../../src/lib/demo/demo-profiles";
 import * as engine from "../../src/lib/demo/pathway-engine";
 import { generatePathwayReport } from "../../src/lib/demo/pathway-engine";
+import { OpportunityMatches } from "../../src/components/demo/OpportunityMatches";
+import * as opportunityMatcher from "../../src/lib/demo/opportunity-matcher";
+import { matchOpportunities } from "../../src/lib/demo/opportunity-matcher";
 import { toTitleCase } from "../../src/lib/title-case";
 
 const escaped = (text: string) => renderToStaticMarkup(<span>{text}</span>).slice(6,-7);
@@ -159,3 +162,38 @@ for (const audience of ["student", "family", "educator"] as const) {
     expect(html).not.toContain('href="#section-student_voice"');
   });
 }
+
+for (const id of ["sam", "riley", "jordan"] as const) for (const audience of ["student", "family", "educator"] as const) {
+  it(`${id}/${audience} keeps every eligible sample opportunity and its cautions in the report`, () => {
+    const profile = getDemoProfile(id);
+    const matches = matchOpportunities(profile);
+    const html = renderToStaticMarkup(<PathwayReport profile={profile} audience={audience} />);
+    const visible = matches.filter(match => match.band !== "filtered_out");
+    expect((html.match(/data-report-opportunity="/g) ?? []).length).toBe(visible.length);
+    for (const match of visible) {
+      expect(html).toContain(escaped(match.opportunity.title));
+      expect(html).toContain(escaped(match.opportunity.summary));
+      for (const text of [...match.fitReasons, ...match.gapReasons]) expect(html).toContain(escaped(text));
+    }
+    for (const match of matches.filter(match => match.band === "filtered_out")) expect(html).not.toContain(`data-report-opportunity="${match.opportunity.id}"`);
+    expect(html).toContain("Confirm availability, eligibility and supports");
+    expect(html).not.toContain("Opportunities Hidden By Age-Safeguards");
+  });
+}
+
+it("report opportunities retain complete results even with compact preview props", () => {
+  const profile = getDemoProfile("sam");
+  const matches = matchOpportunities(profile).filter(match => match.band !== "filtered_out");
+  expect(matches.length).toBeGreaterThan(1);
+  const html = renderToStaticMarkup(<OpportunityMatches profile={profile} reportView compact limit={1} />);
+  expect((html.match(/data-report-opportunity="/g) ?? []).length).toBe(matches.length);
+  for (const match of matches) for (const gap of match.gapReasons) expect(html).toContain(escaped(gap));
+});
+it("report opportunities show an honest empty state without inappropriate options", () => {
+  const spy = vi.spyOn(opportunityMatcher, "matchOpportunities").mockReturnValue([]);
+  try {
+    const html = renderToStaticMarkup(<PathwayReport profile={getDemoProfile("sam")} audience="student" />);
+    expect(html).toContain("No age-appropriate sample opportunities are listed for this profile.");
+    expect(html).not.toContain('data-report-opportunity="');
+  } finally { spy.mockRestore(); }
+});

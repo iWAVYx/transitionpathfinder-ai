@@ -38,44 +38,48 @@ const KIND_LABEL: Record<string, string> = {
  * viewers can see WHY the matcher hid it (age band, product track, or
  * disallowed theme).
  */
-export function OpportunityMatches({ compact = false, limit, profile }: { compact?: boolean; limit?: number; profile?: DemoProfile } = {}) {
-  if (!profile) return <SelectedOpportunityMatches compact={compact} limit={limit} />;
-  return <ProfileOpportunityMatches compact={compact} limit={limit} profile={profile} />;
+export function OpportunityMatches({ compact = false, limit, profile, reportView = false }: { compact?: boolean; limit?: number; profile?: DemoProfile; reportView?: boolean } = {}) {
+  if (!profile) return <SelectedOpportunityMatches compact={compact} limit={limit} reportView={reportView} />;
+  return <ProfileOpportunityMatches compact={compact} limit={limit} profile={profile} reportView={reportView} />;
 }
 
-function SelectedOpportunityMatches(props: { compact?: boolean; limit?: number }) {
+function SelectedOpportunityMatches(props: { compact?: boolean; limit?: number; reportView?: boolean }) {
   const { profile } = useDemoStudent();
   return <ProfileOpportunityMatches {...props} profile={profile} />;
 }
 
-function ProfileOpportunityMatches({ compact = false, limit, profile }: { compact?: boolean; limit?: number; profile: DemoProfile }) {
+function ProfileOpportunityMatches({ compact = false, limit, profile, reportView = false }: { compact?: boolean; limit?: number; profile: DemoProfile; reportView?: boolean }) {
   const matches = useMemo(() => matchOpportunities(profile), [profile]);
 
   const visibleAll = matches.filter((m) => m.band !== "filtered_out");
-  const visible = typeof limit === "number" ? visibleAll.slice(0, limit) : visibleAll;
+  const visible = !reportView && typeof limit === "number" ? visibleAll.slice(0, limit) : visibleAll;
   const hidden = matches.filter((m) => m.band === "filtered_out");
 
   return (
-    <section className="mt-8 rounded-2xl border border-border bg-card p-5" aria-label="Explainable opportunity matches">
+    <section data-report-opportunity-matches={reportView || undefined} className="mt-8 rounded-2xl border border-border bg-card p-5" aria-label={reportView ? "Opportunities to explore" : "Explainable opportunity matches"}>
       <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-foreground">
-            Explainable Matches For {profile.shortName}
+            {reportView ? `Opportunities to Explore for ${profile.shortName}` : `Explainable Matches For ${profile.shortName}`}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Ranked using {profile.shortName}'s emphasized themes, interests, goal areas, and
             environment preferences. All partners are fictional demo data.
+            {reportView && " Confirm availability, eligibility and supports with a provider before choosing an option."}
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <Sparkles className="h-3 w-3" />
-          {visible.length} shown · {hidden.length} filtered
+          {reportView ? `${visible.length} sample ${visible.length === 1 ? "option" : "options"}` : `${visible.length} shown · ${hidden.length} filtered`}
         </span>
       </header>
 
+      {reportView && visible.length === 0 && <p className="text-sm text-muted-foreground">
+        No age-appropriate sample opportunities are listed for this profile. Review the student’s interests and support needs with the team before exploring options.
+      </p>}
       <ul className="space-y-3">
         {visible.map((m) => (
-          <li key={m.opportunity.id} className="rounded-xl border border-border bg-background p-4">
+          <li key={m.opportunity.id} data-report-opportunity={reportView ? m.opportunity.id : undefined} className="rounded-xl border border-border bg-background p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-foreground">{m.opportunity.title}</h3>
@@ -87,9 +91,9 @@ function ProfileOpportunityMatches({ compact = false, limit, profile }: { compac
                 <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${BAND_STYLES[m.band]}`}>
                   {BAND_LABEL[m.band]}
                 </span>
-                <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                {!reportView && <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                   Score {m.score}
-                </span>
+                </span>}
               </div>
             </div>
             <p className="mt-2 text-sm text-foreground/90">{m.opportunity.summary}</p>
@@ -110,7 +114,7 @@ function ProfileOpportunityMatches({ compact = false, limit, profile }: { compac
               </div>
             )}
 
-            {!compact && m.gapReasons.length > 0 && (
+            {(reportView || !compact) && m.gapReasons.length > 0 && (
               <div className="mt-3">
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   What To Watch
@@ -129,7 +133,7 @@ function ProfileOpportunityMatches({ compact = false, limit, profile }: { compac
         ))}
       </ul>
 
-      {!compact && hidden.length > 0 && (
+      {!reportView && !compact && hidden.length > 0 && (
         <details className="mt-4 rounded-xl border border-dashed border-border bg-muted/30 p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground">
             {hidden.length} Opportunities Hidden By Age-Safeguards
