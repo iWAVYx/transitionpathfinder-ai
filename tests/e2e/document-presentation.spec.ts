@@ -455,3 +455,40 @@ test("projected newer shared reports retain permitted plans and source counts on
     }
   }
 });
+
+test("document-control labels stay grouped with readable values for each report audience", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.fulfill({ status: 404, body: "" });
+  });
+  for (const audience of ["student", "family", "educator"]) {
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Maya", report: components.DEMO_STUDENTS.maya.report, demo: true, initialAudience: audience,
+      meta: { reportId: "FICTIONAL-REPORT", confidentiality: "Fictional sample only. No real student records." },
+    }));
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.emulateMedia({ media: "screen" });
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    const details = page.locator("[data-report-document-details]");
+    await expect(details.getByText("How This Was Prepared", { exact: true })).toBeVisible();
+    expect(await details.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.emulateMedia({ media: "print" });
+    const geometry = await details.evaluate(element => {
+      const children = Array.from(element.children).map(child => child.getBoundingClientRect());
+      return { keep: getComputedStyle(element).breakInside, widths: children.map(child => child.width), tops: children.map(child => child.top) };
+    });
+    expect(geometry.keep).toBe("avoid");
+    expect(Math.max(...geometry.widths) - Math.min(...geometry.widths)).toBeLessThan(1);
+    expect(Math.max(...geometry.tops) - Math.min(...geometry.tops)).toBeLessThan(1);
+    await expect(details.getByText(/AI-drafted from the student's/)).toBeVisible();
+    await expect(details.getByText("Fictional sample only. No real student records.", { exact: true })).toBeVisible();
+  }
+});

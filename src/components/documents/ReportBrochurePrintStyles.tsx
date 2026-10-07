@@ -112,6 +112,23 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-document-caution],
       body:has(.report-root) .report-root [data-document-closing][data-document-closing] { break-inside: avoid !important; }
+      /* Keep document-control labels with their values across page breaks. */
+      body:has(.report-root) .report-root [data-report-document-footer] {
+        margin-top: 0.12in !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-footer] > div {
+        padding: 0.1in !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-details] {
+        gap: 0.16in !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-details] > div {
+        min-width: 0; break-inside: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-document-details] p:first-child {
+        break-after: avoid !important; page-break-after: avoid !important;
+      }
       body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; }
       body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
       body:has(.report-root) .report-root .pub-page-opener {

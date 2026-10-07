@@ -1539,7 +1539,7 @@ function ReportViewReader({
       </section>
 
       {/* ============ Document footer / control ============ */}
-      <footer className="mt-10 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
+      <footer data-report-document-footer className="mt-10 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
         <div className="border-b border-border/60 bg-amber-50/40 px-6 py-5 sm:px-8 dark:bg-amber-950/10">
           <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
             <ShieldCheck className="h-3.5 w-3.5" /> Planning Disclaimer
@@ -1552,7 +1552,7 @@ function ReportViewReader({
             team based on the school's own evaluations and the student's IEP.
           </p>
         </div>
-        <div className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
+        <div data-report-document-details className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Document
