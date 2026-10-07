@@ -365,8 +365,12 @@ function buildBlocks(profile: DemoProfile): ReportBlock[] {
     },
     {
       section: "evidence",
-      heading: "Evidence We're Using",
-      body: `The pathway below is grounded in ${evidence.length} pieces of evidence and ${voice.length} of ${profile.shortName}'s own responses. Nothing here is speculation.`,
+      heading: "Sample Information Used",
+      body: `This fictional profile includes ${evidence.length} sample evidence ${evidence.length === 1 ? "item" : "items"} and ${voice.length} sample student ${voice.length === 1 ? "response" : "responses"}. Recommendations are starting points to review with the student and team, not verified findings.`,
+      ...(evidence.length === 0 ? { missing: {
+        reason: "No sample evidence items are recorded for this profile.",
+        needed: ["Gather current observations or documents before confirming recommendations."],
+      } } : {}),
       bullets: evidence.map(
         (e) => `${e.title} — ${e.source}, ${e.date}. ${e.summary}`,
       ),
@@ -374,7 +378,7 @@ function buildBlocks(profile: DemoProfile): ReportBlock[] {
     {
       section: "unknowns",
       heading: "What We Don't Know Yet",
-      body: "Honest unknowns keep the plan credible. The team will close these before the next revisit.",
+      body: "These questions identify information still needed. Agree with the student and team on what to gather and when to review it.",
       bullets: unknowns,
     },
     {

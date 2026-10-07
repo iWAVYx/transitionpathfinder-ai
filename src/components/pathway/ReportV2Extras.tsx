@@ -1,4 +1,4 @@
-import { summarizeReportInputs, type ReportInputsSummary } from "@/lib/report-source-summary";
+import { recordedReportInputs } from "@/lib/report-source-summary";
 /**
  * v2.1 additive Pathway Report sections.
  *
@@ -33,7 +33,6 @@ import {
   type ReadinessIndicator,
   type ConfidenceInfo,
   type NeedsReviewFlag,
-  type InputsUsed,
 } from "@/lib/pathway-v2";
 import type { V2Audience } from "@/components/pathway/ReportV2Sections";
 import {
@@ -389,15 +388,13 @@ function SpinList({
 export function ReportV2InputsUsed({ content }: { content: unknown }) {
   const [open, setOpen] = useState(false);
   if (!isV2(content)) return null;
-  const r = content as Record<string, unknown>;
-  const rawInputs = r.inputs_used as InputsUsed | undefined;
-  const inputs = rawInputs ? summarizeReportInputs(rawInputs) : r.inputs_used_summary as ReportInputsSummary | undefined;
+  const inputs = recordedReportInputs(content);
   if (!inputs) return null;
 
   type Row = { label: string; hint?: string; present: boolean };
   const rows: Row[] = [
     { label: "Student Profile",       present: Boolean(inputs.profile) },
-    { label: "Intake Responses",      present: Boolean(inputs.intake) },
+    { label: "Pathway Builder Responses",      present: Boolean(inputs.intake) },
     {
       label: "Student Voice",
       hint: inputs.student_voice_count
@@ -413,9 +410,9 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
       present: !!inputs.iep_document_count,
     },
     {
-      label: "IEP Extractions",
+      label: "IEP Document Summaries",
       hint: inputs.iep_extraction_count
-        ? `${inputs.iep_extraction_count} extraction${inputs.iep_extraction_count === 1 ? "" : "s"}`
+        ? `${inputs.iep_extraction_count} ${inputs.iep_extraction_count === 1 ? "summary" : "summaries"}`
         : undefined,
       present: !!inputs.iep_extraction_count,
     },
@@ -465,8 +462,9 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
   ];
 
   const presentCount = rows.filter((row) => row.present).length;
-  const generatedAt = inputs.generated_at
-    ? new Date(inputs.generated_at).toLocaleString(undefined, {
+  const generatedDate = inputs.generated_at ? new Date(inputs.generated_at) : null;
+  const generatedAt = generatedDate && !Number.isNaN(generatedDate.getTime())
+    ? generatedDate.toLocaleString(undefined, {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -483,7 +481,7 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
       <PublicationPage
         kicker="Sources"
         chapter="Sources Used in This Report"
-        dek={`${presentCount} of ${rows.length} data sources contributed${generatedAt ? ` · generated ${generatedAt}` : ""}.`}
+        dek={`${presentCount} of ${rows.length} source categories are recorded for this report${generatedAt ? ` · generated ${generatedAt}` : ""}.`}
         folio="p. 06"
       >
         <div className="flex items-center gap-2 mb-4 text-primary">
@@ -522,7 +520,7 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
                       {row.label}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {row.hint ?? (row.present ? "Provided" : "Not provided")}
+                      {row.hint ?? (row.present ? "Recorded for this report" : "Not recorded for this report")}
                     </p>
                   </div>
                 </li>

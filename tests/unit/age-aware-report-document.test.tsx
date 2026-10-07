@@ -143,3 +143,19 @@ it("preserves unmatched snapshot and pathway-fit notes while omitting exact repe
     for (const value of [...profile.learning.strengths, ...profile.learning.interests, ...profile.learning.supportNeeds]) expect(html).toContain(escaped(value));
   } finally { spy.mockRestore(); }
 });
+
+for (const audience of ["student", "family", "educator"] as const) {
+  it(`${audience} distinguishes sample information and keeps absent evidence visible`, () => {
+    const profile = { ...getDemoProfile("sam"), evidence: [], voice: [] };
+    const html = renderToStaticMarkup(<PathwayReport profile={profile} audience={audience} />);
+    expect(html).toContain("Sample Information Used");
+    expect(html).toContain("0 sample evidence items and 0 sample student responses");
+    expect(html).toContain("not verified findings");
+    expect(html).toContain('data-demo-report-missing="evidence"');
+    expect(html).toContain("No sample evidence items are recorded for this profile.");
+    expect(html).toContain("Gather current observations or documents before confirming recommendations.");
+    expect(html).not.toContain("Nothing here is speculation");
+    expect(html).not.toContain("The team will close these");
+    expect(html).not.toContain('href="#section-student_voice"');
+  });
+}
