@@ -34,7 +34,7 @@ it("removes an earlier shared report while the next token resolves", async () =>
   expect(report.textContent).toBe("Current report");
   expect(report.getAttribute("data-audience")).toBe("family");
   expect(report.getAttribute("data-readonly")).toBe("true");
-  expect(report.getAttribute("data-v2")).toBe("undefined");
+  expect(report.getAttribute("data-v2")).toBe("true");
 });
 it("ignores a previous token's late success", async () => {
   const first = deferred(), second = deferred();
@@ -45,7 +45,7 @@ it("ignores a previous token's late success", async () => {
   await act(async () => first.resolve(response("Outdated report")));
   expect(screen.getByText("Current report")).toBeTruthy();
   expect(screen.queryByText("Outdated report")).toBeNull();
-  expect(screen.getByTestId("report").getAttribute("data-v2")).toBe("undefined");
+  expect(screen.getByTestId("report").getAttribute("data-v2")).toBe("false");
 });
 it("ignores a previous token's late error", async () => {
   const first = deferred(), second = deferred();

@@ -1,3 +1,4 @@
+import { summarizeReportInputs, type ReportInputsSummary } from "@/lib/report-source-summary";
 /**
  * v2.1 additive Pathway Report sections.
  *
@@ -389,7 +390,8 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
   const [open, setOpen] = useState(false);
   if (!isV2(content)) return null;
   const r = content as Record<string, unknown>;
-  const inputs = r.inputs_used as InputsUsed | undefined;
+  const rawInputs = r.inputs_used as InputsUsed | undefined;
+  const inputs = rawInputs ? summarizeReportInputs(rawInputs) : r.inputs_used_summary as ReportInputsSummary | undefined;
   if (!inputs) return null;
 
   type Row = { label: string; hint?: string; present: boolean };
@@ -398,31 +400,31 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
     { label: "Intake Responses",      present: Boolean(inputs.intake) },
     {
       label: "Student Voice",
-      hint: inputs.student_voice_keys?.length
-        ? `${inputs.student_voice_keys.length} response${inputs.student_voice_keys.length === 1 ? "" : "s"}`
+      hint: inputs.student_voice_count
+        ? `${inputs.student_voice_count} response${inputs.student_voice_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.student_voice_keys?.length,
+      present: !!inputs.student_voice_count,
     },
     {
       label: "IEP Documents",
-      hint: inputs.iep_doc_ids?.length
-        ? `${inputs.iep_doc_ids.length} document${inputs.iep_doc_ids.length === 1 ? "" : "s"}`
+      hint: inputs.iep_document_count
+        ? `${inputs.iep_document_count} document${inputs.iep_document_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.iep_doc_ids?.length,
+      present: !!inputs.iep_document_count,
     },
     {
       label: "IEP Extractions",
-      hint: inputs.iep_extraction_ids?.length
-        ? `${inputs.iep_extraction_ids.length} extraction${inputs.iep_extraction_ids.length === 1 ? "" : "s"}`
+      hint: inputs.iep_extraction_count
+        ? `${inputs.iep_extraction_count} extraction${inputs.iep_extraction_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.iep_extraction_ids?.length,
+      present: !!inputs.iep_extraction_count,
     },
     {
       label: "Transition Goals",
-      hint: inputs.goal_ids?.length
-        ? `${inputs.goal_ids.length} goal${inputs.goal_ids.length === 1 ? "" : "s"}`
+      hint: inputs.goal_count
+        ? `${inputs.goal_count} goal${inputs.goal_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.goal_ids?.length,
+      present: !!inputs.goal_count,
     },
     {
       label: "Readiness Check",
@@ -435,25 +437,25 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
     },
     {
       label: "Open Action Items",
-      hint: inputs.action_item_ids?.length ? `${inputs.action_item_ids.length} open` : undefined,
-      present: !!inputs.action_item_ids?.length,
+      hint: inputs.action_item_count ? `${inputs.action_item_count} open` : undefined,
+      present: !!inputs.action_item_count,
     },
     {
       label: "Meeting Prep Notes",
-      hint: inputs.meeting_prep_ids?.length
-        ? `${inputs.meeting_prep_ids.length} note${inputs.meeting_prep_ids.length === 1 ? "" : "s"}`
+      hint: inputs.meeting_prep_count
+        ? `${inputs.meeting_prep_count} note${inputs.meeting_prep_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.meeting_prep_ids?.length,
+      present: !!inputs.meeting_prep_count,
     },
     {
       label: "Saved Resources",
-      hint: inputs.saved_resource_ids?.length ? `${inputs.saved_resource_ids.length} saved` : undefined,
-      present: !!inputs.saved_resource_ids?.length,
+      hint: inputs.saved_resource_count ? `${inputs.saved_resource_count} saved` : undefined,
+      present: !!inputs.saved_resource_count,
     },
     {
       label: "Partner Matches",
-      hint: inputs.partner_match_ids?.length ? `${inputs.partner_match_ids.length} matched` : undefined,
-      present: !!inputs.partner_match_ids?.length,
+      hint: inputs.partner_match_count ? `${inputs.partner_match_count} matched` : undefined,
+      present: !!inputs.partner_match_count,
     },
     {
       label: "Family Priorities",

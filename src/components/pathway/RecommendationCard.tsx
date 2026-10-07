@@ -1,3 +1,4 @@
+import type { ReportSourceCount } from "@/lib/report-source-summary";
 import { ChevronDown, CalendarClock, UserRound } from "lucide-react";
 import { useId, useState } from "react";
 import { toTitleCase } from "@/lib/title-case";
@@ -28,7 +29,7 @@ export function RecommendationCard({
   audience,
   defaultOpen = false,
 }: {
-  rec: PillarRec;
+  rec: PillarRec & ReportSourceCount;
   audience: "student" | "family" | "educator";
   defaultOpen?: boolean;
 }) {
@@ -75,13 +76,14 @@ export function RecommendationCard({
             </p>
             <p className="mt-1 text-sm">{rec.why}</p>
           </div>
-          {audience !== "student" && rec.sources.length > 0 && (
+          {audience !== "student" && (rec.sources.length > 0 || (rec.source_count ?? 0) > 0) && (
             <div>
               <p className="text-xs font-semibold text-foreground">
                 Information Used
               </p>
               <SourceChips
                 sources={rec.sources}
+                sourceCount={rec.source_count}
                 collapsed={audience === "family"}
                 className="mt-1"
               />

@@ -25,7 +25,7 @@ test("raw share RPCs are restricted to the trusted server with atomic effective-
 test("the application retains token authorization and projection without a browser-key fallback", () => {
   assert.match(caller, /const \{ supabaseAdmin \} = await import\("@\/integrations\/supabase\/client.server"\)/);
   assert.match(caller, /sb.rpc\("resolve_share_token", \{ _token: data.token \}\)/);
-  assert.match(caller, /projectSharedReport\(r.content\)/);
+  assert.match(caller, /projectSharedReport\(r.content, audience.data\)/);
   assert.doesNotMatch(caller, /SUPABASE_PUBLISHABLE_KEY|createClient|\.from\(/);
   assert.match(original, /WHERE st.token = _token\s+AND st.revoked = false\s+AND \(st.expires_at IS NULL OR st.expires_at > now\(\)\)/);
   assert.doesNotMatch(migration, /CREATE OR REPLACE FUNCTION|UPDATE public\.|DELETE FROM|INSERT INTO/i);

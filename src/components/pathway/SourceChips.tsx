@@ -20,17 +20,20 @@ const KIND_LABEL: Record<string, string> = {
 export function SourceChips({
   sources,
   collapsed = false,
+  sourceCount,
   className,
 }: {
   sources: SourceRef[] | undefined;
   collapsed?: boolean;
+  sourceCount?: number;
   className?: string;
 }) {
-  if (!sources?.length) return null;
+  const count = sources?.length || (Number.isInteger(sourceCount) && sourceCount! > 0 ? sourceCount! : 0);
+  if (!count || (!collapsed && !sources?.length)) return null;
   if (collapsed) {
     return (
       <p className={cn("text-[11px] text-muted-foreground", className)}>
-        Based on {sources.length} source{sources.length === 1 ? "" : "s"} from this
+        Based on {count} source{count === 1 ? "" : "s"} from this
         student's profile and inputs.
       </p>
     );
@@ -40,7 +43,7 @@ export function SourceChips({
       className={cn("flex flex-wrap gap-1.5 print:block", className)}
       aria-label="Sources that informed this recommendation"
     >
-      {sources.map((s, i) => (
+      {sources?.map((s, i) => (
         <li key={`${s.kind}-${s.id ?? i}`}>
           <Badge
             variant="secondary"

@@ -1,3 +1,4 @@
+import type { ReportSourceCount } from "@/lib/report-source-summary";
 /**
  * v2 Pathway Report sections — rendered alongside the legacy `ReportView`
  * when the report content opted into `schema_version: 2`.
@@ -68,12 +69,12 @@ export function ReportV2Sections({
   const r = content as Record<string, unknown>;
 
   const iep = r.iep_plan_summary as IepPlanSummary | undefined;
-  const eduRecs = (r.postsecondary_education_recs as PillarRec[] | undefined) ?? [];
-  const empRecs = (r.employment_pathway_recs as PillarRec[] | undefined) ?? [];
-  const ilRecs = (r.independent_living_recs as PillarRec[] | undefined) ?? [];
-  const commRecs = (r.community_participation_recs as PillarRec[] | undefined) ?? [];
-  const resourceMatches = (r.resource_matches as ResourceMatch[] | undefined) ?? [];
-  const partnerMatches = (r.partner_matches as PartnerMatch[] | undefined) ?? [];
+  const eduRecs = (r.postsecondary_education_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const empRecs = (r.employment_pathway_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const ilRecs = (r.independent_living_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const commRecs = (r.community_participation_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const resourceMatches = (r.resource_matches as (ResourceMatch & ReportSourceCount)[] | undefined) ?? [];
+  const partnerMatches = (r.partner_matches as (PartnerMatch & ReportSourceCount)[] | undefined) ?? [];
   const gaps = (r.missing_information_v2 as MissingInfo[] | undefined) ?? [];
   const studentPlan = r.student_action_plan as ActionPlan | undefined;
   const familyPlan = r.family_action_plan_v2 as ActionPlan | undefined;
@@ -270,6 +271,7 @@ export function ReportV2Sections({
                   {audience !== "student" && (
                     <SourceChips
                       sources={m.sources}
+                      sourceCount={m.source_count}
                       collapsed={audience === "family"}
                       className="mt-2"
                     />
@@ -322,6 +324,7 @@ export function ReportV2Sections({
                   {audience !== "student" && (
                     <SourceChips
                       sources={m.sources}
+                      sourceCount={m.source_count}
                       collapsed={audience === "family"}
                       className="mt-2"
                     />
@@ -468,7 +471,7 @@ function PillarRecsBlock({
   title: string;
   audience: V2Audience;
   message?: string;
-  recs: PillarRec[];
+  recs: (PillarRec & ReportSourceCount)[];
 }) {
   const ordered = useMemo(() => {
     return [...recs].sort((a, b) => {

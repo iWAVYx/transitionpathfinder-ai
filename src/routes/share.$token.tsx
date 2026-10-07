@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { SiteShell } from "@/components/site/SiteShell";
 import { ReportView } from "@/components/pathway/ReportView";
 import { ReportChapterPager } from "@/components/pathway/ReportChapterPager";
+import { isV2 } from "@/lib/pathway-v2";
 import { resolveShareToken } from "@/lib/share.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
@@ -80,6 +81,7 @@ function SharedReportPage() {
           key={token}
           name="this student"
           report={state.report}
+          hasV2={isV2(state.report)}
           initialAudience={state.audience}
           fixedAudience={state.audience}
           readOnly

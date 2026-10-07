@@ -16,8 +16,9 @@ export const resolveShareToken = createServerFn({ method: "POST" })
     }
     const r = rows[0] as { report_id: string; audience: string; content: unknown; created_at: string };
     const audience = z.enum(["family", "educator"]).safeParse(r.audience);
-    const report = projectSharedReport(r.content);
-    if (!audience.success || !report) return { ok: false as const };
+    if (!audience.success) return { ok: false as const };
+    const report = projectSharedReport(r.content, audience.data);
+    if (!report) return { ok: false as const };
     // Track only links with a valid audience and a renderable document.
     await sb.rpc("track_share_view", { _token: data.token });
     return {

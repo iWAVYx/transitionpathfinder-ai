@@ -28,13 +28,13 @@ it.each(["student", "family", "educator"] as const)("shows the translated newer 
   render(<ReportView name="Maya" report={report as any} hasV2 initialAudience={audience} />);
   const summary = audience === "educator" ? report.professional_summary : report.plain_language_summary;
   expect(screen.getByText(summary)).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "Apply Fixture Translation" }));
+  fireEvent.click(screen.getByText("Apply Fixture Translation", { selector: "button" }));
   expect(screen.getByText(`Translated: ${summary}`)).toBeTruthy();
   expect(screen.queryByText(summary)).toBeNull();
   expect(screen.getByText("Translated: A recorded headline")).toBeTruthy();
   expect(screen.getByText("Translated: A recorded family plan")).toBeTruthy();
   expect(screen.getByText("Grade 12")).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "Reset Fixture Translation" }));
+  fireEvent.click(screen.getByText("Reset Fixture Translation", { selector: "button" }));
   expect(screen.getByText(summary)).toBeTruthy();
   expect(screen.queryByText(`Translated: ${summary}`)).toBeNull();
   expect(screen.getByText("A recorded family plan")).toBeTruthy();

@@ -47,3 +47,15 @@ it("rejects invalid tokens before any database request", async () => {
   await expect((resolveShareToken as any)({ data: { token: "short" } })).rejects.toThrow();
   expect(mocks.rpc).not.toHaveBeenCalled();
 });
+
+it.each(["family", "educator"] as const)("uses the token's %s audience when projecting newer content", async audience => {
+  const { richerSharedFixture } = await import("../fixtures/shared-report");
+  mocks.rpc.mockResolvedValueOnce({ data: [{ audience, content: richerSharedFixture() }], error: null });
+  mocks.rpc.mockResolvedValueOnce({ data: null, error: null });
+  const result = await call();
+  expect(result.ok).toBe(true);
+  expect(result.report.schema_version).toBe(2);
+  expect(result.report.educator_action_plan_v2 !== undefined).toBe(audience === "educator");
+  expect(result.report.student_action_plan !== undefined).toBe(audience === "family");
+  expect(JSON.stringify(result)).not.toContain("a1111111");
+});

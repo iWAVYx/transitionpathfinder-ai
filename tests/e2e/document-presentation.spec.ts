@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -403,5 +403,55 @@ test("regenerated identity snapshots render without empty legacy labels for ever
     await expect(page.getByText("A recorded identity snapshot", { exact: true })).toBeVisible();
     await expect(page.getByText(audience === "educator" ? "Fictional professional planning summary." : "Fictional plain-language planning summary.", { exact: true })).toBeVisible();
     await expect(page.getByText("Where Maya Is Now", { exact: true })).toHaveCount(0);
+  }
+});
+
+
+test("projected newer shared reports retain permitted plans and source counts on screen and in print", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.fulfill({ status: 404, body: "" });
+  });
+  for (const audience of ["family", "educator"]) {
+    const report = components.projectSharedReport(components.richerSharedFixture(), audience);
+    expect(report).toBeTruthy();
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "this student", report, hasV2: true, initialAudience: "student", fixedAudience: audience, readOnly: true,
+    }));
+    expect(body).not.toMatch(/a1111111|private-answer-key|Private notes|Hidden message/);
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ media: "screen" });
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+      await expect(page.getByText(audience === "family" ? "Family summary" : "Educator summary", { exact: true })).toBeVisible();
+      await expect(page.getByRole("tab")).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await expect(page.locator("#v2-inputs-used-body")).toBeHidden();
+      await page.emulateMedia({ media: "print" });
+      const sources = page.locator("#v2-inputs-used-body");
+      await expect(sources).toBeVisible();
+      await expect(sources.getByText("1 response", { exact: true })).toBeVisible();
+      await expect(sources.getByText("1 document", { exact: true })).toBeVisible();
+      await expect(sources.getByText("2 goals", { exact: true })).toBeVisible();
+      const rec = page.locator("[data-report-recommendation]");
+      await expect(rec.getByText("Discuss a visit", { exact: true })).toBeVisible();
+      if (audience === "family") {
+        await expect(rec.getByText(/Based on 1 source/)).toBeVisible();
+        await expect(page.getByText("A recorded profile observation", { exact: true })).toHaveCount(0);
+        await expect(page.getByText("Educator steps", { exact: true })).toHaveCount(0);
+      } else {
+        await expect(rec.getByText("A recorded profile observation", { exact: true })).toBeVisible();
+        await expect(page.getByText("Student steps", { exact: true })).toHaveCount(0);
+      }
+      await expect(page.getByText("Family steps", { exact: true }).first()).toBeVisible();
+      expect(await new AxeBuilder({ page }).include("#v2-inputs-used").analyze().then(result => result.violations.map(item => item.id))).toEqual([]);
+    }
   }
 });
