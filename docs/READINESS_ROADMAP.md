@@ -1,6 +1,6 @@
 # TransitionForward — Readiness Roadmap
 
-## Active Delivery Checklist — October 5, 2026
+## Active Delivery Checklist — Updated October 7, 2026
 
 This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.
 
@@ -8,7 +8,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 
 - [x] Shared compact document styling, uniform title-case hierarchy, symmetric margins, branding and small export watermark for PPT, meeting summaries and Pathway Reports.
 - [x] Complete printed meeting fields and report goals, including content hidden by screen controls; branded school/district PDF exports with page counters.
-- [x] Family/Educator demo meeting guides use the signed-in document renderer with fictional, selected-student content and role-appropriate scripts.
+- [x] Family/Educator demo meeting guides use the signed-in document renderer with fictional, selected-student content and role-appropriate scripts. Native PDF review: two pages per standard guide; four-page long-content fixture retains every supplied field, readable wrapping and top-right watermark. Actual live generation acceptance remains open.
 - [x] Dashboard card route/permission checks across six roles; corrected family goal-link placement and widget category destinations; demo links retain appropriate context.
 - [x] Preserve the owner’s Lovable heading edit in Git. Require reconciliation of builder edits before subsequent source sync.
 - [x] Demo builder return-role/draft restoration and accessible role selection; printable sample notices and sample-mode action guards.
@@ -37,7 +37,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [ ] Review and explicitly authorize staging release/migration acceptance for the share boundary; live multilingual/semantic acceptance remains open. Prepared source and disposable CI replay do not change live database protection.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `faa70478` passed both hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. Fresh print-layout-head checks remain pending. Signed-in/live checks were skipped, not passed. Further document/export and report/student-switch review remains open.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `f5554de8` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. Fresh follow-up-head checks remain pending. Signed-in/live checks were skipped, not passed. Further document/export and report/student-switch review remains open.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -1925,3 +1925,23 @@ Broader sparse-page compaction, demo/live reconciliation and remaining roadmap w
 - Hosted checks on f5554de8 passed clean builds, unit, report accessibility, role guards, static readiness/CT audits and disposable PostgreSQL replay. Signed-in, live staging and RLS checks were skipped and remain open.
 
 Still open: native PPT PDF pagination, remaining role exports, full demo/live generated-action reconciliation and specifically authorized staging release/migration acceptance. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, AI call, account change, outreach or production operation occurred.
+
+
+## Draft Review: Native PPT PDFs and Remaining Export Inventory — October 7, 2026
+
+- Rendered the actual shared PPT document with existing fictional demo content for Family and Educator, plus a deliberately long Family fixture. Standard guides each span two Letter pages; the long fixture spans four. Visually reviewed all eight pages, then regenerated/reviewed them after a sample-copy correction. Faint logo marks appear at the top right of every page; no site navigation or action buttons appear.
+- Verified every supplied opening, agenda purpose, question, evidence item, script and closing paragraph in the PDF text and found no body text beyond checked half-inch margins. Extraction comparison normalizes whitespace and equivalent apostrophe glyphs; visual review confirms typography. A long unbroken reference wraps and can continue in its evidence column on the next page; no content was removed to force a shorter export. This is fixture-level PDF evidence, not acceptance of every live generated guide.
+- Fixed awkward demo wording such as “discuss explore…” by framing the exact selected goal/support as quoted source text. Family/Educator sample guides retain their actual profile goal wording rather than lowercasing it. The signed-in shared renderer/layout is unchanged; generated provider content is not rewritten by this helper.
+- Seven focused tests passed across the existing demo-guide and School/District PDF suites. The preceding full offline browser suite passed 16 tests. Full unit/TypeScript checks were not repeated for this small sample-copy change; new-head hosted review remains pending.
+
+| Export family | Applicable consumers | Current evidence | Remaining acceptance |
+| --- | --- | --- | --- |
+| Pathway Report reader | Permitted Student/Family/Educator and designated shared readers; applicable samples | Three source-faithful 29-page fixtures, browser coverage for legacy/newer/shared readers | Broader pagination, age-aware reader reconciliation and live role exports |
+| PPT Meeting Guide | Permitted Family/Educator; corresponding demos | Actual shared-renderer browser checks plus native standard/long PDF review | Live generation, save/reopen, role content and linked partner/date outputs |
+| Meeting Notes | Existing authorized meeting participants | Shared styles, full note values and status/print-control checks | Actual saved meeting export with signed-in permissions and native full-PDF review |
+| School/District reports | Authorized School/District administrative views | Shared branded table generator; seven focused tests above include its four layout cases | Native multi-page visual review and current-organization signed-in acceptance |
+| Owner administrative CSV/XLSX | Authorized management exports | Identified separately from document/PDF presentation | Data/scope acceptance; CSV remains structured data rather than a brochure |
+
+A separate `pathway-pdf.functions.ts` sample generator has no import/caller in current source. It is unused legacy code, not a reviewed user-facing export; it was not invoked or altered. The inventory is scoped to export families identified in this audit, not a claim that every tool is export-complete.
+
+All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, AI call, account change, outreach or production operation occurred.

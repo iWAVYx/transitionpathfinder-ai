@@ -15,6 +15,7 @@ it.each(["family", "educator"] as const)("%s demo renders and prints the real do
   expect(container.querySelector("[data-ppt-print-packet] [data-document-sample-notice]")).toBeTruthy();
   expect(screen.getByText(guide.opening_note)).toBeTruthy();
   expect(guide.opening_note).toContain("Fictional sample");
+  expect(guide.opening_note).toContain(profile.goals[0].title);
   expect(guide.questions_to_ask.join(" ")).toContain(profile.goals[0].title);
   expect(guide.language_that_works.every(script => script.startsWith(role === "family" ? "Family:" : "Educator:"))).toBe(true);
   expect(screen.queryByRole("button", { name: "+ Action" })).toBeNull();
