@@ -559,3 +559,41 @@ test("complete action-plan export includes later periods for every audience with
     expect(await page.locator(".pub-pullquote blockquote").first().evaluate(element => getComputedStyle(element, "::before").display)).toBe("none");
   }
 });
+
+
+test("recorded action plans stay readable without fabricated detail in every audience", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.fulfill({ status: 404, body: "" });
+  });
+
+  const report = { ...components.DEMO_STUDENTS.maya.report, thirty_day_plan: [
+    { week: 1, action: "Discuss the student's recorded interests and support needs with the team." },
+    { week: 4, action: "Review the recorded progress and agree on the next step together." },
+  ] };
+  for (const audience of ["student", "family", "educator"]) for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Maya", report, demo: true, initialAudience: audience }));
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    const section = page.locator("#sec-thirty-day");
+    for (const media of ["screen", "print"] as const) {
+      await page.emulateMedia({ media });
+      const plan = media === "screen" ? section.locator("ol.print\\:hidden") : section.locator("[data-report-complete-plan]");
+      await expect(plan).toBeVisible();
+      await expect(plan.locator("[data-report-plan-step]")).toHaveCount(2);
+      for (const action of report.thirty_day_plan) await expect(plan.getByText(action.action, { exact: true })).toBeVisible();
+      for (const marker of ["meta", "details", "actions", "readiness"]) await expect(plan.locator(`[data-report-plan-${marker}]`)).toHaveCount(0);
+      expect(await plan.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+      expect(await plan.locator("h3").first().evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(14);
+    }
+    await expect(section.locator('[data-report-export-period="sixty"], [data-report-export-period="ninety"]')).toHaveCount(0);
+    await expect(section.getByRole("group", { name: "Action Plan Timeframe" })).toHaveCount(0);
+  }
+});

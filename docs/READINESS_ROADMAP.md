@@ -25,6 +25,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Keep newer report details, permitted collapsed recommendation fields and complete source summaries inside the actual printable document; preserve audience filtering.
 - [x] Export every supplied 30/60/90-day period independently of the selected screen tab; omit only complete identical repeated steps while retaining changed actions, owners, outcomes and readiness details.
 - [x] Student/Family pathway previews use a single authorized student selection, recorded summaries and matching opportunity context; remove fabricated live status panels and restricted Student navigation.
+- [x] Legacy report action-plan presentation preserves recorded week/action pairs across audiences and live/demo modes; retire the synthetic twelve-week fallback and retain explicitly supplied detailed plans.
 - [x] Shared partner suggestions remain tied to the current student across PPT prep and report views, including superseded requests and error recovery.
 - [x] Saved student answers and resolved share links remain tied to the current student/token; shared readers retain their designated audience and hide generation controls.
 - [x] Reset temporary report/translation/suggestion state on report-context changes and reject superseded assist results.
@@ -1855,3 +1856,16 @@ Milestone 1 remains open. Full report compaction and final per-page review also 
 - Previous reviewed head f88f5738 passed hosted clean builds, unit, report accessibility, role guards, static readiness/CT checks and disposable migration replay. Live/signed-in/RLS checks were skipped. Hosted checks for this new change remain pending.
 
 Still open: source/demo/live generated-action reconciliation, complete document compaction/per-page review, remaining exports and separately authorized staging acceptance. This batch does not deploy, migrate, change accounts, call AI or touch production. The full TF-01–TF-26 register and deferred parent pilot/report snapshot scope remain intact.
+
+
+## Draft Review: Source-Faithful Report Action Plans — October 6, 2026
+
+- Removed the reader's synthetic twelve-week fallback. The legacy report contract records week/action pairs for 30 days; the reader now preserves every supplied pair without truncation, invented owners, durations, outcomes, readiness associations or added family/educator tasks. Separate recorded role plans retain their own timing and content.
+- The same rule applies to Student, Family and Educator audiences, in both live and demo reader modes. Explicitly supplied detailed plans retain all their fields and complete 30/60/90-day exports. Newer-format and age-aware sample plans retain their existing source-defined horizons.
+- Screen and export headings match the available plan. Legacy-only readers do not offer fabricated 60/90-day tabs or export periods, and absent actions show an honest empty message. The shared outline uses “Action Plan.” Changing reports clears the selected timeframe.
+- Shared step cards omit absent metadata/detail panels and use Title Case for support headings. They preserve source wording, the compact styling and existing branding/watermark treatment.
+- Local evidence: 165 unit files / 1,506 tests, TypeScript and 15 credential-free document browser tests passed. Tests cover all three audiences in live/demo modes, empty plans, every supplied action, unchanged source data, context resets and mobile/desktop screen/print readability. No provider, account or live backend calls occurred.
+- Prior complete-fixture PDF page counts (41) and body-word comparisons describe earlier source that included the synthetic fallback; they are not current export evidence for this source change. Fresh full-PDF pagination/visual acceptance remains open. Current browser checks validate print CSS but do not create or verify final PDF pagination.
+- Hosted checks passed on previous head ff0aaaee; live/signed-in checks remained skipped. This new head requires fresh hosted review.
+
+Still open: richer generated-plan contract/evidence, full age-aware demo/live reader reconciliation, full-PDF compaction/per-page acceptance, other exports and separately authorized staging release/migration acceptance. No merge, deployment, migration, outreach, AI call or production change is included. The full roadmap and deferred parent pilot/report snapshot scope remain intact.

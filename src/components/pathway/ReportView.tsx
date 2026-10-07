@@ -79,7 +79,8 @@ import {
 } from "@/lib/report-view-prefs";
 
 import { toTitleCase } from "@/lib/title-case";
-import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
+import { HORIZON_META, type PlanHorizon } from "@/lib/demo-extended-plans";
+import { recordedReportPlans } from "@/lib/report-recorded-plans";
 import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
 import {
   ReportPhase4Sections,
@@ -1363,7 +1364,7 @@ function ReportViewReader({
       <Block id="sec-life-skills" title="Life Skills to Focus On" icon={<Lightbulb className="h-5 w-5" />}>
         <BulletList items={r.life_skills_focus} />
       </Block>
-      {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
+      {/* ============ Recorded action plan ============ */}
       <PlanBlock report={r} extendedPlans={extendedPlans} />
       {/* ============ Phase 4 — Self-Advocacy + Independent Living + Role Next Steps + Sources ============ */}
       {demoStudentId && (
@@ -2386,7 +2387,7 @@ function ReportTOC({
   if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "PPT Prep" });
   if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities" });
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
-  items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
+  items.push({ id: "sec-thirty-day", label: "Action Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Human Review" });
   if (extraItems) items.push(...extraItems);
   void audience;
@@ -2598,10 +2599,9 @@ function PlanBlock({
   const [horizon, setHorizon] = useState<PlanHorizon>("thirty");
   const meta = HORIZON_META[horizon];
 
-  // Always render a rich 30/60/90 view. If no curated plan was provided
-  // (signed-in / real reports), synthesize one from the report itself so
-  // each horizon reflects this student's actual goals and action plan.
-  const plans = extendedPlans ?? buildExtendedPlansFromReport(report);
+  // Presentation must not add commitments or assessment claims to recorded data.
+  const plans = extendedPlans ?? recordedReportPlans(report);
+  useEffect(() => { setHorizon("thirty"); }, [report, extendedPlans]);
 
   const steps = plans[horizon];
   const counts: Record<PlanHorizon, number> = {
@@ -2611,18 +2611,19 @@ function PlanBlock({
   };
 
   return (
-    <Block id="sec-thirty-day" title="30 / 60 / 90-Day Action Plan" icon={<Calendar className="h-5 w-5" />}>
+    <Block id="sec-thirty-day" title={extendedPlans ? "30 / 60 / 90-Day Action Plan" : "30-Day Action Plan"} icon={<Calendar className="h-5 w-5" />}>
       <div className="print:hidden flex flex-wrap items-center gap-3">
-        <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
+        {extendedPlans && <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />}
         <p className="text-xs text-muted-foreground">{meta.tagline}</p>
       </div>
+      {!steps.length && <p className="print:hidden mt-4 text-sm">No steps are recorded for this period.</p>}
       <ol className="print:hidden mt-5 space-y-4">
         {steps.map((step, index) => (
           <RichPlanStepCard key={`${horizon}-${step.week}-${index}`} step={step} />
         ))}
       </ol>
       <div className="hidden print:block" data-report-complete-plan>
-        {reportPrintPlans(plans).map(({ horizon: period, steps: periodSteps }) => (
+        {reportPrintPlans(plans).filter(({ horizon: period }) => extendedPlans || period === "thirty").map(({ horizon: period, steps: periodSteps }) => (
           <section key={period} data-report-export-period={period}>
             <h3 data-report-plan-period className="mt-3 font-semibold">{HORIZON_META[period].label}</h3>
             <p className="text-sm">{HORIZON_META[period].tagline}</p>

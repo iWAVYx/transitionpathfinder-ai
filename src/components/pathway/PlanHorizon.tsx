@@ -67,14 +67,14 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
             {step.focus}
           </p>
           <h3 className="mt-1 font-display text-lg leading-snug text-foreground">{step.action}</h3>
-          <div data-report-plan-meta className="mt-3 flex flex-wrap gap-2 text-xs">
-            <Chip icon={<UserRound className="h-3 w-3" />}>{step.owner}</Chip>
-            <Chip icon={<Clock className="h-3 w-3" />}>{step.time}</Chip>
-          </div>
+          {(step.owner || step.time) && <div data-report-plan-meta className="mt-3 flex flex-wrap gap-2 text-xs">
+            {step.owner && <Chip icon={<UserRound className="h-3 w-3" />}>{step.owner}</Chip>}
+            {step.time && <Chip icon={<Clock className="h-3 w-3" />}>{step.time}</Chip>}
+          </div>}
         </div>
       </div>
 
-      <div data-report-plan-details className="mt-4 grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
+      {(step.details.length > 0 || step.outcome) && <div data-report-plan-details className="mt-4 grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
         <ul className="space-y-2">
           {step.details.map((d) => (
             <li key={d} className="flex items-start gap-2 text-sm leading-relaxed">
@@ -83,19 +83,19 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
             </li>
           ))}
         </ul>
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-3 text-xs leading-relaxed text-foreground/85 dark:bg-emerald-950/10 sm:max-w-[18rem]">
+        {step.outcome && <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-3 text-xs leading-relaxed text-foreground/85 dark:bg-emerald-950/10 sm:max-w-[18rem]">
           <p data-report-plan-label className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-            <Trophy className="h-3 w-3" /> Success looks like
+            <Trophy className="h-3 w-3" /> What Success Looks Like
           </p>
           <p className="mt-1">{step.outcome}</p>
-        </div>
-      </div>
+        </div>}
+      </div>}
 
       {(step.familyActions?.length || step.teacherActions?.length) && (
         <div data-report-plan-actions className="mt-4 grid gap-3 sm:grid-cols-2">
           {step.familyActions && step.familyActions.length > 0 && (
             <ActionList
-              title="Family actions"
+              title="Family Actions"
               icon={<Users className="h-3 w-3" />}
               tone="primary"
               items={step.familyActions}
@@ -103,7 +103,7 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
           )}
           {step.teacherActions && step.teacherActions.length > 0 && (
             <ActionList
-              title="Teacher / case manager actions"
+              title="Teacher / Case Manager Actions"
               icon={<GraduationCap className="h-3 w-3" />}
               tone="amber"
               items={step.teacherActions}
