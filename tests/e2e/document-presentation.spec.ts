@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -609,5 +609,78 @@ test("recorded action plans stay readable without fabricated detail in every aud
     }
     await expect(section.locator('[data-report-export-period="sixty"], [data-report-export-period="ninety"]')).toHaveCount(0);
     await expect(section.getByRole("group", { name: "Action Plan Timeframe" })).toHaveCount(0);
+  }
+});
+
+
+test("actual PPT guide preserves content and symmetric layout in sample and recorded modes", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    return pathname.startsWith("/brand/")
+      ? route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" })
+      : route.fulfill({ status: 404, body: "" });
+  });
+  for (const role of ["Family", "Educator"]) {
+    const agenda = {
+      opening_note: `${role}: review the student's strengths and dated observations together.`,
+      agenda: ["Student Voice", "Progress Review", "Supports to Try", "Agreed Next Steps"].map((title, i) => ({ title, minutes: 5 + i, purpose: `Discuss ${title.toLowerCase()} using the student's current records. ` + "Keep the student's preferences and documented support needs visible. ".repeat(8) })),
+      questions_to_ask: Array.from({ length: 4 }, (_, i) => `${role} question ${i + 1}: who will record the observation and review the next step?`),
+      evidence_to_bring: ["Dated work samples", "Current support plan", "Observation reference: " + "sample-reference-".repeat(35)],
+      language_that_works: Array.from({ length: 3 }, (_, i) => `${role} script ${i + 1}: can we agree on the evidence, the support to try and a review date?`),
+      if_things_get_stuck: "Pause and restate the student's priorities. Ask the team to record areas of agreement and the evidence still needed.",
+    };
+    const exactFields = [agenda.opening_note, ...agenda.agenda.map(item => item.purpose), ...agenda.questions_to_ask, ...agenda.evidence_to_bring, agenda.if_things_get_stuck];
+    for (const width of [390, 1024]) {
+      const modeGeometry: unknown[] = [];
+      for (const sample of [false, true]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.emulateMedia({ media: "screen" });
+        const markup = renderToStaticMarkup(createElement(components.PptAgendaDocument, {
+          name: "Fictional Student", agenda, studentId: sample ? null : "fictional-student", meetingDate: null, sample,
+          partnerContent: sample ? undefined : createElement("p", null, "Fictional contact: confirm availability with the recorded support team."),
+          onAddAction: async () => { throw new Error("No record writes during document QA"); },
+        }));
+        await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body>${markup}</body></html>`);
+        const doc = page.locator("[data-ppt-print-packet]");
+        await expect(doc.getByRole("heading", { name: "Your Meeting Guide for Fictional Student" })).toBeVisible();
+        await expect(doc.getByRole("heading", { name: "Your Meeting Plan", exact: true })).toBeVisible();
+        await expect(page.locator("[data-document-sample-notice]")).toHaveCount(sample ? 1 : 0);
+        await expect(doc.getByRole("button", { name: "+ Action", exact: true })).toHaveCount(sample ? 0 : 7);
+        for (const field of exactFields) await expect(doc.getByText(field, { exact: true })).toBeVisible();
+        for (const script of agenda.language_that_works) await expect(doc.getByText(`"${script}"`, { exact: true })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        const geometry = await doc.locator("[data-document-columns]").evaluate(element => {
+          const style = getComputedStyle(element);
+          const children = Array.from(element.children).map(child => child.getBoundingClientRect().width);
+          return { columns: style.gridTemplateColumns, children };
+        });
+        if (width === 1024) expect(Math.abs(geometry.children[0] - geometry.children[1])).toBeLessThan(1);
+        modeGeometry.push(geometry);
+        if (role === "Family" && width === 1024 && sample) {
+          await page.screenshot({ path: test.info().outputPath("ppt-meeting-guide-screen.png"), fullPage: true });
+        }
+        await page.emulateMedia({ media: "print" });
+        for (const field of exactFields) await expect(doc.getByText(field, { exact: true })).toBeVisible();
+        await expect(doc.getByRole("button", { name: "Print / save as PDF" })).toBeHidden();
+        if (!sample) await expect(doc.getByRole("button", { name: "+ Action", exact: true }).first()).toBeHidden();
+        await expect(doc.locator("[data-document-watermark]")).toBeVisible();
+        expect(await doc.locator("[data-document-watermark]").evaluate(element => {
+          const style = getComputedStyle(element);
+          return style.position === "fixed" && style.top === "0px" && style.right === "0px" && Number(style.opacity) <= 0.1;
+        })).toBe(true);
+        expect(await doc.locator("[data-document-columns]").evaluate(element => {
+          const widths = Array.from(element.children).map(child => child.getBoundingClientRect().width);
+          return Math.abs(widths[0] - widths[1]) < 1;
+        })).toBe(true);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+      expect(modeGeometry[0]).toEqual(modeGeometry[1]);
+    }
   }
 });

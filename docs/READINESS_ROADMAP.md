@@ -1915,3 +1915,13 @@ Broader sparse-page compaction, demo/live reconciliation and remaining roadmap w
 
 
 **Remote sync recovered — October 7, 2026:** The authorized draft-branch push succeeded through 72f1a528 after the earlier GitHub server errors. Both the tighter disclaimer and complete-goal spacing changes are now included in draft PR #211. Fresh hosted review remains pending; no merge or deployment occurred.
+
+
+## Draft Review: Actual PPT Meeting Guide Presentation — October 7, 2026
+
+- Closed a browser-coverage gap: prior meeting-document checks rendered a generic fixture. The offline suite now renders the actual shared PPT Meeting Guide with fictional Family/Educator content, sample and linked-guide props, and mobile/desktop widths. Applicable real/demo routes use this renderer; this does not assert that every role can access PPT Prep.
+- Checks retain all supplied opening, agenda purposes, questions, evidence and closing text, plus scripts; long unbroken references do not cause horizontal overflow. Support columns have equal widths and identical geometry across sample/recorded modes. Sample guides omit action controls; printed guides hide all action/print controls and show the faint top-right watermark. A fictional sample screen preview was captured and reviewed.
+- All 16 offline document browser checks passed; the new actual-guide check passed again after aligning fixture props with the existing demo and linked-guide callers. No product behavior changed in this batch. Full unit/TypeScript checks were not repeated for this browser-test addition.
+- Hosted checks on f5554de8 passed clean builds, unit, report accessibility, role guards, static readiness/CT audits and disposable PostgreSQL replay. Signed-in, live staging and RLS checks were skipped and remain open.
+
+Still open: native PPT PDF pagination, remaining role exports, full demo/live generated-action reconciliation and specifically authorized staging release/migration acceptance. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, AI call, account change, outreach or production operation occurred.
