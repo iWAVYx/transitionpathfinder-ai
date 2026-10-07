@@ -77,3 +77,34 @@ describe("PathwayReportBody", () => {
     }
   });
 });
+
+
+describe("source-defined empty section handling", () => {
+  it("omits nested empty fragments in stages and appendix", () => {
+    const html = renderToStaticMarkup(<PathwayReportBody sections={{
+      student_snapshot: <div>Recorded snapshot</div>,
+      family_action_plan: <>{null}<>{false}{[]}</></>,
+      educator_action_plan: <>{false}</>,
+      next_steps_30_90_180_365: [null, <>{undefined}</>],
+    }} appendix={<>{null}<>{false}</></>} />);
+    expect(stageOrder(html)).toEqual(["start"]);
+    expect(sectionOrder(html)).toEqual(["student_snapshot"]);
+    expect(html).not.toContain('id="report-appendix"');
+    expect(html).not.toContain("Supporting Notes");
+  });
+  it("preserves a recorded step and an explicit empty-data explanation inside fragments", () => {
+    const html = renderToStaticMarkup(<PathwayReportBody sections={{
+      family_action_plan: <>{null}<p>No separate family step is recorded. Agree on support with the team.</p></>,
+      next_steps_30_90_180_365: <>{false}<><p>Recorded next step and original timeframe.</p></></>,
+    }} appendix={<><p>Evidence still needs team review.</p></>} />);
+    expect(sectionOrder(html)).toEqual(["family_action_plan", "next_steps_30_90_180_365"]);
+    expect(html).toContain("No separate family step is recorded.");
+    expect(html).toContain("Recorded next step and original timeframe.");
+    expect(html).toContain("Evidence still needs team review.");
+  });
+  it("does not treat a meaningful zero value as missing data", () => {
+    const html = renderToStaticMarkup(<PathwayReportBody sections={{ data_gaps: <>0</> }} />);
+    expect(sectionOrder(html)).toEqual(["data_gaps"]);
+    expect(html).toContain(">0<");
+  });
+});

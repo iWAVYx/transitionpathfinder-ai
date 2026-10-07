@@ -73,3 +73,21 @@ it("resets the selected horizon when a different report replaces a detailed plan
   expect(section.querySelector("ol.print\\:hidden")!.textContent).toContain("New report action");
   expect(section.textContent).not.toContain("Previous report action");
 });
+
+for (const audience of ["student", "family", "educator"] as const) for (const demo of [false, true]) {
+  it(`${audience}/${demo ? "demo" : "live"} summary uses the source-defined role plan and avoids empty stages`, () => {
+    const base = DEMO_STUDENTS.maya.report;
+    const report = { ...base, family_action_plan: undefined, educator_action_plan: undefined,
+      student_action_plan: { horizons: { thirty_day: ["Recorded student next step"] } },
+      family_action_plan_v2: { horizons: { thirty_day: ["Recorded family next step"] } },
+      educator_action_plan_v2: { horizons: { thirty_day: ["Recorded educator next step"] } },
+    };
+    const { container } = render(<ReportView name="Maya" report={report} demo={demo} hasV2 initialAudience={audience} />);
+    const summary = container.querySelector(".exec-summary")!;
+    expect(summary.textContent).toContain(`Recorded ${audience} next step`);
+    for (const other of ["student", "family", "educator"].filter(role => role !== audience)) expect(summary.textContent).not.toContain(`Recorded ${other} next step`);
+    expect(summary.textContent).toContain("Next 30 Days");
+    expect(summary.textContent).not.toContain("Start Here This Week");
+    expect(container.querySelector('[data-report-section="family_action_plan"]')).toBeNull();
+  });
+}

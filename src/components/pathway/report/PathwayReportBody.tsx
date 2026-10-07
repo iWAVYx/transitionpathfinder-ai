@@ -14,7 +14,7 @@ import { reportSectionAnchorId } from "./PathwayReportSpine";
  * the `appendix` slot and rendered below the stage body under an
  * explicit "Appendix" heading.
  */
-import type { ReactNode } from "react";
+import { Fragment, isValidElement, type ReactNode } from "react";
 import { WORKSPACE_STAGES, type PathwayReportSectionId, type StageId, REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
 
 /**
@@ -46,6 +46,9 @@ export function reportStageAnchorId(stageId: string): string {
 function isEmpty(node: ReactNode | ReactNode[] | undefined): boolean {
   if (node === undefined || node === null || node === false) return true;
   if (Array.isArray(node)) return node.every(isEmpty);
+  if (isValidElement<{ children?: ReactNode }>(node) && node.type === Fragment) {
+    return isEmpty(node.props.children);
+  }
   return false;
 }
 
@@ -92,7 +95,7 @@ export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayRepo
           </section>
         );
       })}
-      {appendix && (
+      {!isEmpty(appendix) && (
         <section
           id="report-appendix"
           className="report-stage mt-14 page-break"

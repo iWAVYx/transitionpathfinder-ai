@@ -1,3 +1,4 @@
+import { reportNextStepPreview } from "@/lib/report-next-step-preview";
 import { reportPrintPlans } from "@/lib/report-print-plans";
 import { getLegacyReportSnapshot } from "@/lib/report-snapshot-contract";
 import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
@@ -412,12 +413,7 @@ function ReportViewReader({
   const bestFitPathway =
     r.recommended_pathways?.find((p) => p.type === "best-fit") ??
     r.recommended_pathways?.[0];
-  const topNextSteps = (() => {
-    const fromPlan = r.family_action_plan?.this_week ?? [];
-    if (fromPlan.length >= 3) return fromPlan.slice(0, 3);
-    const fromBestFit = bestFitPathway?.action_steps?.thirty_day ?? [];
-    return [...fromPlan, ...fromBestFit].slice(0, 3);
-  })();
+  const nextStepPreview = reportNextStepPreview(r, audience, hasV2);
   const today = new Date().toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -808,11 +804,11 @@ function ReportViewReader({
               </div>
             }
             side={
-              <PublicationSidebar label="Start Here This Week">
-                {topNextSteps.length > 0 ? (
-                  <PublicationChecklist items={topNextSteps} />
+              <PublicationSidebar label={nextStepPreview.label}>
+                {nextStepPreview.items.length > 0 ? (
+                  <PublicationChecklist items={nextStepPreview.items} />
                 ) : (
-                  <p className="text-sm text-muted-foreground">See the 30-Day Plan below.</p>
+                  <p className="text-sm text-muted-foreground">No next steps are recorded for this view. Review the Action Plan with your team.</p>
                 )}
               </PublicationSidebar>
             }

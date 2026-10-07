@@ -325,6 +325,12 @@ test("newer report plans and collapsed sources stay inside the printable documen
     await page.emulateMedia({ media: "screen" });
     const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Maya", report, demo: true, hasV2: true, initialAudience: audience }));
     await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    const summary = page.locator(".exec-summary");
+    const ownRole = audience[0].toUpperCase() + audience.slice(1);
+    await expect(summary.getByText(`${ownRole} thirty day action`, { exact: true })).toBeVisible();
+    for (const role of ["Student", "Family", "Educator"].filter(role => role !== ownRole)) {
+      await expect(summary.getByText(`${role} thirty day action`, { exact: true })).toHaveCount(0);
+    }
     const recommendation = page.locator("[data-report-recommendation]");
     const rationale = recommendation.locator("[data-report-recommendation-details]");
     if (audience !== "educator") await expect(rationale).toBeHidden();
@@ -351,7 +357,8 @@ test("newer report plans and collapsed sources stay inside the printable documen
     for (const role of ["Student", "Family", "Educator"]) {
       const allowed = role === "Family" || (role === "Educator" ? audience === "educator" : audience !== "educator");
       for (const horizon of ["thirty day", "ninety day", "six month", "one year"]) {
-        const item = page.getByText(`${role} ${horizon} action`, { exact: true });
+        const planId = role === "Student" ? "v2-student-plan" : role === "Family" ? "v2-family-plan" : "v2-edu-plan";
+        const item = page.locator(`#${planId}`).getByText(`${role} ${horizon} action`, { exact: true });
         if (allowed) {
           await expect(item).toBeVisible();
           expect(await item.evaluate(element => !!element.closest(".report-root"))).toBe(true);
