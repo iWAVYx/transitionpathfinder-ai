@@ -1541,12 +1541,12 @@ function ReportViewReader({
       </section>
 
       {/* ============ Document footer / control ============ */}
-      <footer data-report-document-footer className="mt-6 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
-        <div data-report-planning-disclaimer className="border-b border-border/60 bg-amber-50/40 px-4 py-3 sm:px-6 dark:bg-amber-950/10">
+      <footer data-report-document-footer className="mt-4 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
+        <div data-report-planning-disclaimer className="border-b border-border/60 bg-amber-50/40 px-3 py-2 sm:px-4 dark:bg-amber-950/10">
           <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
             <ShieldCheck className="h-3.5 w-3.5" /> Planning Disclaimer
           </p>
-          <p className="mt-1 text-sm leading-normal text-foreground/80">
+          <p className="mt-0.5 text-xs leading-snug text-foreground/80">
             This Pathway Report is a planning document — <strong>not a legal determination,
             clinical diagnosis, eligibility decision, or placement order</strong>. It is meant
             to organize a conversation between the student, family, and school team. Final

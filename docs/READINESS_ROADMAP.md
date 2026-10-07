@@ -1892,3 +1892,12 @@ Still open: broader compact pagination and sparse pages, age-aware demo/live rea
 - Full unit/TypeScript checks were not repeated for this spacing-only change; the previous batch passed 1,507 unit tests and TypeScript. Hosted checks for previous head 3f0efb8a passed builds, unit, accessibility, role guards, static readiness/CT checks and disposable migration replay; live/signed-in checks remained skipped. New-head hosted checks remain pending.
 
 Broader document compaction and remaining roadmap items stay open. No merge, deployment, migration, AI call, account change or production operation occurred.
+
+
+## Draft Review: More Compact Planning Disclaimer — October 7, 2026
+
+- Applied the owner's follow-up for a visibly tighter disclaimer: reduced screen padding and footer separation again; printed padding is now 0.03in, heading spacing 0.02in, heading 8.5pt and body 9.5pt with 1.2 line height. All disclaimer wording remains intact.
+- Measured the actual shared Family-reader block against the preceding markup at the same widths: print height 121.7px to 97.1px (20% shorter); screen height approximately 9% shorter at mobile and desktop widths. Exact normalized disclaimer text matches before/after and no block overflow was found. Captured a focused, fresh print preview to make the change visible.
+- All 15 existing offline document browser checks passed. Three current audience PDF fixtures remain 29 pages with complete recorded actions/goals, correct counters, grouped closing details and no text outside checked margins. No full unit/TypeScript rerun was needed for this spacing-only adjustment.
+
+Changes remain in draft PR #211 pending review and authorized release. Broader roadmap work remains open. No merge, deployment, migration, AI call, account change or production operation occurred.
