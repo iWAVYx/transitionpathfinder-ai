@@ -68,10 +68,18 @@ function MeetingDetailPage() {
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement | null>(null);
+  const loadSequence = useRef(0);
+  const activeMeetingId = useRef(meetingId);
+  activeMeetingId.current = meetingId;
 
-  const reload = () =>
-    get({ data: { id: meetingId } })
+  const reload = () => {
+    // A completed action from the previous page must not reload its old record.
+    if (meetingId !== activeMeetingId.current) return Promise.resolve();
+    const sequence = ++loadSequence.current;
+    return get({ data: { id: meetingId } })
       .then((r) => {
+        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current) return;
+        if (r.meeting.id !== meetingId) throw new Error("The meeting returned does not match this page. Please reopen it.");
         setMeeting(r.meeting);
         setAgenda(r.agenda);
         setQuestions(r.questions);
@@ -79,14 +87,24 @@ function MeetingDetailPage() {
         setLoadError(null);
       })
       .catch((err) => {
+        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current) return;
         setLoadError(err instanceof Error ? err.message : "Couldn't load this meeting.");
       });
+  };
 
   useEffect(() => {
+    let cancelled = false;
+    setMeeting(null);
+    setAgenda([]);
+    setQuestions([]);
+    setActions([]);
+    setLoadError(null);
+    setPulling(false);
     reload();
     listTpl()
-      .then((r) => setTemplates(r.templates))
+      .then((r) => { if (!cancelled) setTemplates(r.templates); })
       .catch(() => {});
+    return () => { cancelled = true; loadSequence.current += 1; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingId]);
 
@@ -94,13 +112,13 @@ function MeetingDetailPage() {
     field: "student_voice" | "family_concerns" | "teacher_notes" | "summary" | "decisions" | "documents_to_update",
     value: string,
   ) => {
-    if (!meeting) return;
+    if (!meeting || meeting.id !== activeMeetingId.current) return;
     setMeeting({ ...meeting, [field]: value });
     await update({ data: { id: meeting.id, [field]: value } as never });
   };
 
   const saveNextMeetingDate = async (value: string) => {
-    if (!meeting) return;
+    if (!meeting || meeting.id !== activeMeetingId.current) return;
     const next = value || null;
     setMeeting({ ...meeting, next_meeting_date: next });
     await update({ data: { id: meeting.id, next_meeting_date: next } });
@@ -111,7 +129,8 @@ function MeetingDetailPage() {
   }
 
   async function pullFromProfile() {
-    if (!meeting) return;
+    if (!meeting || meeting.id !== activeMeetingId.current) return;
+    const sequence = loadSequence.current;
     setPulling(true);
     try {
       const s = await fetchStudent({ data: { id: meeting.student_id } });
@@ -120,6 +139,7 @@ function MeetingDetailPage() {
         family_priorities?: string | null;
         support_needs_summary?: string | null;
       };
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
       const patch: Partial<Pick<Meeting, "student_voice" | "family_concerns" | "teacher_notes">> = {};
       if (!meeting.student_voice && extra.student_voice_statement) {
         patch.student_voice = extra.student_voice_statement;
@@ -135,12 +155,14 @@ function MeetingDetailPage() {
         return;
       }
       await update({ data: { id: meeting.id, ...patch } as never });
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
       setMeeting({ ...meeting, ...patch });
       toast.success("Pulled from student profile.");
     } catch (err) {
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
       toast.error(err instanceof Error ? err.message : "Could not pull from profile.");
     } finally {
-      setPulling(false);
+      if (meeting.id === activeMeetingId.current && sequence === loadSequence.current) setPulling(false);
     }
   }
 
@@ -161,7 +183,7 @@ function MeetingDetailPage() {
     );
   }
 
-  if (!meeting) {
+  if (!meeting || meeting.id !== meetingId) {
     return (
       <SiteShell>
         <p className="mx-auto max-w-3xl p-10 text-sm text-muted-foreground">Loading…</p>
