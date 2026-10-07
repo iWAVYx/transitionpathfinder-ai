@@ -508,6 +508,7 @@ test("complete action-plan export includes later periods for every audience with
   const step = (week: number, action: string) => ({ week, action, focus: "Recorded Next Step", owner: "School Team",
     time: "20 minutes", details: [`Recorded detail ${week}`], outcome: `Recorded outcome ${week}`,
     familyActions: [`Recorded family action ${week}`], teacherActions: [`Recorded educator action ${week}`],
+    readiness: { category: "Self-Advocacy", level: "developing", metric: `Recorded progress measure ${week}` },
   });
   const first = step(1, "First month step"), second = step(5, "Second month step"), third = step(9, "Third month step");
   const plans = { thirty: [first], sixty: [first, second], ninety: [first, second, third] };
@@ -527,6 +528,26 @@ test("complete action-plan export includes later periods for every audience with
     await expect(exported).toBeVisible();
     await expect(section.getByRole("group", { name: "Action Plan Timeframe" })).toBeHidden();
     await expect(exported.locator("[data-report-plan-step]")).toHaveCount(3);
+    const firstStep = exported.locator("[data-report-plan-step]").first();
+    const printType = await firstStep.evaluate(element => ({
+      label: parseFloat(getComputedStyle(element.querySelector("[data-report-plan-label]")!).fontSize),
+      body: parseFloat(getComputedStyle(element.querySelector("[data-report-plan-details] li")!).fontSize),
+      week: element.querySelector("[data-report-plan-week]")!.getBoundingClientRect().width,
+    }));
+    expect(printType.label).toBeGreaterThanOrEqual(12);
+    expect(printType.body).toBeGreaterThanOrEqual(14);
+    expect(printType.week).toBeLessThan(40);
+    const columns = await firstStep.evaluate(element => {
+      const details = element.querySelector("[data-report-plan-details]")!.getBoundingClientRect();
+      const actions = element.querySelector("[data-report-plan-actions]")!.getBoundingClientRect();
+      const readiness = element.querySelector("[data-report-plan-readiness]")!.getBoundingClientRect();
+      return { widths: [details.width, actions.width, readiness.width], right: [actions.left, readiness.left], overflow: element.scrollWidth > element.clientWidth };
+    });
+    expect(Math.max(...columns.widths) - Math.min(...columns.widths)).toBeLessThan(1);
+    expect(Math.abs(columns.right[0] - columns.right[1])).toBeLessThan(1);
+    expect(columns.overflow).toBe(false);
+
+
     for (const item of [first, second, third]) {
       await expect(exported.getByText(item.action, { exact: true })).toBeVisible();
       await expect(exported.getByText(item.details[0], { exact: true })).toBeVisible();

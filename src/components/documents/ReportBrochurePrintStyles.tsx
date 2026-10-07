@@ -43,6 +43,56 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root #sec-thirty-day ol > li {
         padding-top: 0.12in !important; padding-bottom: 0.12in !important;
       }
+      /* Compact planning cards without shrinking their main text or losing fields. */
+      body:has(.report-root) .report-root #sec-thirty-day ol > [data-report-plan-step] {
+        padding-top: 0.08in !important; padding-bottom: 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-week] {
+        width: 0.34in !important; height: 0.34in !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-heading] h3 {
+        margin-top: 0.03in !important; font-size: 12pt !important; line-height: 1.3 !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-meta] { margin-top: 0.04in !important; }
+      body:has(.report-root) .report-root [data-report-plan-label][data-report-plan-label] {
+        font-size: 9pt !important; line-height: 1.3 !important; letter-spacing: 0.04em !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-details] li + li,
+      body:has(.report-root) .report-root [data-report-plan-actions] li + li { margin-top: 0.04in !important; }
+      body:has(.report-root) .report-root [data-report-plan-readiness] .grid { margin-top: 0.04in !important; gap: 0.06in !important; }
+      body:has(.report-root) .report-root [data-report-plan-step] {
+        padding-left: 0.12in !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step] p,
+      body:has(.report-root) .report-root [data-report-plan-step] li { line-height: 1.35 !important; }
+      body:has(.report-root) .report-root [data-report-plan-step] [data-report-plan-label][data-report-plan-label] { line-height: 1.3 !important; }
+      body:has(.report-root) .report-root [data-report-export-period] > p { break-after: avoid !important; page-break-after: avoid !important; }
+      body:has(.report-root) .report-root [data-report-export-period] > ol { break-before: avoid !important; }
+      /* Full planning cards use two balanced columns rather than four tall rows. */
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in; align-items: start;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) > [data-report-plan-heading] { grid-column: 1 / -1; }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) > [data-report-plan-details] {
+        grid-column: 1; grid-row: 2 / span 2; display: block !important; margin-top: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) [data-report-plan-details] > div { margin-top: 0.08in !important; }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) > [data-report-plan-actions] {
+        grid-column: 2; grid-row: 2; grid-template-columns: minmax(0, 1fr) !important; margin-top: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) > [data-report-plan-readiness] {
+        grid-column: 2; grid-row: 3; margin-top: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) [data-report-plan-readiness] .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) [data-report-plan-readiness] .grid > div:last-child { grid-column: 1 / -1; }
+      body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) .rounded-2xl {
+        padding: 0.04in !important;
+      }
+      body:has(.report-root) .report-root [data-report-complete-plan] ol > [data-report-plan-step] + [data-report-plan-step] { margin-top: 0.06in !important; }
+      body:has(.report-root) .report-root [data-report-plan-actions] li { gap: 0.04in !important; }
       /* Keep complete weeks together, but give their details balanced columns. */
       body:has(.report-root) .report-root [data-report-plan-step] { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-plan-details] {
