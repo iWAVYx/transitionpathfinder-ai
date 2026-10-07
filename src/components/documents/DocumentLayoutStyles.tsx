@@ -14,6 +14,19 @@ export function DocumentLayoutStyles() {
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h1 { font-size: clamp(1.5rem, 3vw, 1.9rem) !important; }
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h2 { font-size: 1.25rem !important; }
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h3, body:has([data-generated-document]) [data-generated-document][data-generated-document] h4 { font-size: 1rem !important; }
+    /* Major sections share a restrained band; subsections use a lighter rule. */
+    [data-generated-document] h2 {
+      padding: 8px 12px; border-left: 3px solid #6b3a91;
+      border-bottom: 1px solid #ded3e8; background: #f7f2fa;
+      color: #512875; box-sizing: border-box; width: 100%; min-width: 0;
+      print-color-adjust: exact; -webkit-print-color-adjust: exact;
+      break-after: avoid; page-break-after: avoid;
+    }
+    [data-generated-document] h3 {
+      padding-bottom: 6px; border-bottom: 1px solid #ded3e8;
+      color: var(--foreground, #242a33); break-after: avoid; page-break-after: avoid;
+    }
+    [data-generated-document] .section-number { flex-shrink: 0; white-space: nowrap; }
     [data-generated-document] header { text-align: left !important; justify-content: space-between !important; }
     [data-generated-document] [data-document-title-block] { width: 100%; text-align: left; }
     [data-generated-document] [data-document-columns],
@@ -21,6 +34,9 @@ export function DocumentLayoutStyles() {
     [data-generated-document] [data-document-columns] > *,
     [data-generated-document] .pub-spread > * { min-width: 0; }
     @media print {
+      [data-generated-document] h2 { padding: 6px 10px; }
+      [data-generated-document] h3 { padding-bottom: 4px; color: #512875; }
+
       body:has([data-generated-document]) [data-generated-document][data-generated-document] {
         padding-left: 24px !important; padding-right: 24px !important; box-sizing: border-box;
       }

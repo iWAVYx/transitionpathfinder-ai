@@ -58,8 +58,11 @@ export function buildOrganizationReportPdf(input: OrganizationReportPdfInput, ru
 
   for (const section of input.sections) {
     if (nextY + 35 > height - outer) { doc.addPage(); nextY = start; }
-    doc.setFont("times", "normal").setFontSize(15).setTextColor(91, 42, 134);
-    doc.text(toTitleCase(section.title), left, nextY);
+    // Match the major-section bands in the shared screen/print documents.
+    doc.setFillColor(247, 242, 250).rect(left, nextY - 6, width, 9, "F");
+    doc.setFillColor(107, 58, 145).rect(left, nextY - 6, 0.8, 9, "F");
+    doc.setFont("times", "normal").setFontSize(15).setTextColor(81, 40, 117);
+    doc.text(toTitleCase(section.title), left + 2.4, nextY);
     runtime.table(doc, {
       startY: nextY + 5,
       margin: { top: start, left, right: left, bottom: outer + 7 },
