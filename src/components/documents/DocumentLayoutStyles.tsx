@@ -1,6 +1,16 @@
 /** One heading hierarchy and balanced page geometry for actual document outputs. */
 export function DocumentLayoutStyles() {
   return <style>{`
+    @media print {
+      [data-generated-document] [data-value-callout-row]:not([data-value-callout-row="questionsForTeam"]),
+      [data-generated-document] [data-value-callout-question] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      [data-generated-document] [data-value-callout-label] {
+        break-after: avoid !important; page-break-after: avoid !important;
+      }
+    }
+
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h1,
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h2,
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h3,

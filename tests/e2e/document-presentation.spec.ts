@@ -810,6 +810,11 @@ test("complete recorded team questions retain role visibility on screen and in p
         for (const media of ["screen", "print"] as const) {
           await page.emulateMedia({ media });
           const section = page.locator("[data-report-team-questions]");
+          if (media === "print") {
+            expect(await section.locator('[data-value-callout-row="recommendedNextStep"]').evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
+            expect(await section.locator('[data-value-callout-row="questionsForTeam"]').evaluate(element => getComputedStyle(element).breakInside)).not.toBe("avoid");
+            expect(await section.locator('[data-value-callout-question]').evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
+          }
           for (let i = 1; i <= 10; i++) await expect(section.getByText(`Recorded team question ${i}?`, { exact: true })).toBeVisible();
           expect(await section.getByText("Recorded educator question?", { exact: true }).count()).toBe(audience === "educator" ? 1 : 0);
           expect(await section.getByText("Recorded family question?", { exact: true }).count()).toBe(audience === "student" ? 0 : 1);
