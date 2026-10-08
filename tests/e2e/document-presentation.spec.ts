@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -462,7 +462,7 @@ test("projected newer shared reports retain permitted plans and source counts on
       const rec = page.locator("[data-report-recommendation]");
       await expect(rec.getByText("Discuss a visit", { exact: true })).toBeVisible();
       if (audience === "family") {
-        await expect(rec.getByText(/Based on 1 source/)).toBeVisible();
+        await expect(rec.getByText(/Information from 1 recorded source/)).toBeVisible();
         await expect(page.getByText("A recorded profile observation", { exact: true })).toHaveCount(0);
         await expect(page.getByText("Educator steps", { exact: true })).toHaveCount(0);
       } else {
@@ -700,6 +700,35 @@ test("actual PPT guide preserves content and symmetric layout in sample and reco
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       }
       expect(modeGeometry[0]).toEqual(modeGeometry[1]);
+    }
+  }
+});
+
+test("complete source labels and counts remain readable on screen and in print", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  const label = ("A complete recorded observation: " + "Evidence".repeat(26)).slice(0, 240);
+  const body = renderToStaticMarkup(createElement("div", { className: "report-shell" }, createElement("section", { className: "report-root p-4", "data-generated-document": true },
+    createElement(components.DocumentViewStyles),
+    createElement(components.SourceChips, { sources: [{ kind: "iep_extraction", label, id: "private-record" }] }),
+    createElement(components.SourceChips, { sources: [], sourceCount: 2 }),
+  )));
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body>${body}</body></html>`);
+    for (const media of ["screen", "print"] as const) {
+      await page.emulateMedia({ media });
+      const source = page.getByText(label, { exact: true });
+      await expect(source).toBeVisible();
+      expect(await source.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+      await expect(page.getByText("Information from 2 recorded sources.", { exact: true })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      expect(await page.locator("body").textContent()).not.toContain("private-record");
     }
   }
 });
