@@ -24,7 +24,7 @@ test.beforeAll(async () => {
       }));
       builder.onLoad({ filter: /.*/, namespace: "offline-functions" }, args => {
         const names = [...readFileSync(args.path, "utf8").matchAll(/export\s+(?:async\s+)?(?:const|function|type|interface|class)\s+(\w+)/g)].map(match => match[1]);
-        return { contents: [...new Set(names)].map(name => `export const ${name}=()=>{throw new Error("Document QA forbids server calls");};`).join("\n") };
+        return { contents: [...new Set(names)].map(name => name === "SUPPORTED_LANGUAGES" ? "export const SUPPORTED_LANGUAGES=[];" : `export const ${name}=()=>{throw new Error("Document QA forbids server calls");};`).join("\n") };
       });
       builder.onResolve({ filter: /use-demo-student$/ }, () => ({ path: "selection", namespace: "offline" }));
       builder.onLoad({ filter: /.*/, namespace: "offline" }, () => ({ contents: 'export function useDemoStudent(){throw new Error("Document QA requires an explicit fictional profile");}' }));
@@ -858,6 +858,42 @@ test("qualitative readiness and recorded confidence stay readable without invent
         await expect(confidence.getByText(original.confidence.rationale, { exact: true })).toBeVisible();
         await expect(confidence.getByText(original.confidence.caveats[0], { exact: true })).toBeVisible();
         expect(await confidence.textContent()).not.toContain("comprehensive and recent");
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+    }
+  }
+});
+
+
+test("complete best-fit explanation matches screen and print for planning and shared readers", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const explanation = "A recorded observation explains how the student's interests and support needs inform this direction. ".repeat(20) + "Final recorded consideration: review the visit with the team.";
+  const original = components.richerSharedFixture();
+  original.recommended_pathways[0].why_it_fits = explanation;
+  for (const audience of ["student", "family", "educator"]) for (const mode of audience === "student" ? ["demo", "live"] : ["demo", "live", "shared"]) {
+    const shared = mode === "shared";
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Fictional Student", report, hasV2: true, demo: mode === "demo", readOnly: shared,
+      initialAudience: audience, fixedAudience: shared ? audience : undefined,
+    }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body>${body}</body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        const paragraph = page.locator("[data-report-best-fit-explanation]");
+        await expect(paragraph).toHaveText(explanation);
+        expect(await paragraph.evaluate(element => {
+          const style = getComputedStyle(element);
+          return { complete: element.scrollHeight <= element.clientHeight + 1, clamp: style.webkitLineClamp };
+        })).toEqual({ complete: true, clamp: "none" });
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       }
     }

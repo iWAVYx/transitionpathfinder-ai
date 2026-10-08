@@ -801,7 +801,7 @@ function ReportViewReader({
                   <div className="mt-6 border-t border-[color:var(--pub-rule-soft)] pt-4">
                     <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Best-Fit Direction</p>
                     <p className="font-display text-lg leading-snug">{toTitleCase(bestFitPathway.title)}</p>
-                    <p className="mt-1 text-sm text-muted-foreground line-clamp-4">{bestFitPathway.why_it_fits}</p>
+                    <p data-report-best-fit-explanation className="mt-1 text-sm text-muted-foreground">{bestFitPathway.why_it_fits}</p>
                   </div>
                 )}
               </div>
