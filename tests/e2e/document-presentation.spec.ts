@@ -824,3 +824,42 @@ test("complete recorded team questions retain role visibility on screen and in p
     }
   }
 });
+
+test("qualitative readiness and recorded confidence stay readable without invented measurements", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const original = { ...components.richerSharedFixture(),
+    readiness_indicators: ["emerging", "developing", "progressing", "ready"].map(level => ({ domain: `Recorded ${level} area`, level, note: `Recorded ${level} observation` })),
+    confidence: { overall: "high", rationale: "Recorded explanation based on an earlier observation.", caveats: ["A current team review is still needed."] },
+  };
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared,
+      initialAudience: audience, fixedAudience: shared ? audience : undefined,
+    }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body>${body}</body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        const readiness = page.locator("#v2-readiness-indicators");
+        for (const level of ["emerging", "developing", "progressing", "ready"]) {
+          await expect(readiness.getByText(`Recorded ${level} area`, { exact: true })).toBeVisible();
+          await expect(readiness.getByText(`Recorded ${level} observation`, { exact: true })).toBeVisible();
+        }
+        expect(await readiness.locator('[style*="width"]').count()).toBe(0);
+        const confidence = page.locator("#v2-confidence");
+        await expect(confidence.getByText(original.confidence.rationale, { exact: true })).toBeVisible();
+        await expect(confidence.getByText(original.confidence.caveats[0], { exact: true })).toBeVisible();
+        expect(await confidence.textContent()).not.toContain("comprehensive and recent");
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+    }
+  }
+});

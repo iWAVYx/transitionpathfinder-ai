@@ -45,7 +45,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Complete recorded Bring To The Team questions without an eight-question cap; use newer report audience rules, preserve legacy question wording, and explain missing newer question data without legacy substitution. Focused native review now covers longer questions across all three planning audiences and both shared-reader views; short callout labels/values stay grouped in actual exported documents.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `27562f79` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `ec6860eb` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -2107,3 +2107,13 @@ Next: complete the remaining full draft diff, report contract and native paginat
 - Hosted head 27562f79 passed clean builds, unit, accessibility, role guards, static readiness/CT checks and disposable replay. Signed-in/live/RLS checks were skipped, not passed. Follow-up-head checks and complete draft review remain open.
 
 Next: remaining report contract/full-document review and complete draft diff, followed by specifically authorized staging release and role acceptance. The prepared share grant migration remains unapplied. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, real AI call, account change, outreach or production operation occurred.
+
+
+## Draft Review: Recorded Qualitative Readiness and Confidence — October 8, 2026
+
+- [x] Remove invented percentage bars from newer report readiness levels while preserving every recorded domain, level and note. Use neutral readiness/SPIN descriptions without assuming input provenance or freshness.
+- [x] Describe low/medium/high confidence as recorded in the report, preserve supplied rationale and caveats, and explicitly explain when supporting notes are missing. Apply the shared renderer across Student, Family and Educator demo/live views and fixed Family/Educator shared readers.
+- Verification: 176 unit files / 1,609 tests, TypeScript and all 20 offline document browser checks passed. Eleven new cases cover role/demo/shared behavior and missing confidence notes; mobile/desktop screen/print checks preserve all recorded readiness notes without percentage bars or horizontal overflow. Backend/provider requests are blocked.
+- Five fresh fictional actual-reader PDFs cover all three planning audiences and both shared audiences (31 pages for Student, 32 for the others in this stress fixture). Complete readiness notes, confidence rationale and caveats remain; native margins/counters pass. Ten affected pages were visually reviewed with uniform headings and top-right watermarks. This is focused readiness/confidence verification, not full-document pagination acceptance.
+- Hosted head ec6860eb passed applicable clean builds, unit, accessibility, role guards, static audits and disposable replay. Signed-in/live/RLS checks were skipped, not passed. Follow-up-head checks and complete draft review remain open.
+- Release boundary unchanged: no deployment, migration, publication, real provider calls or production changes.

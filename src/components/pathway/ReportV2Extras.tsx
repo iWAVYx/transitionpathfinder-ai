@@ -44,12 +44,12 @@ import {
 
 const LEVEL_META: Record<
   ReadinessIndicator["level"],
-  { label: string; pct: number; icon: typeof Circle; tone: string }
+  { label: string; icon: typeof Circle; tone: string }
 > = {
-  emerging:   { label: "Emerging",    pct: 20, icon: Circle,       tone: "text-muted-foreground" },
-  developing: { label: "Developing",  pct: 45, icon: CircleDashed,  tone: "text-amber-600" },
-  progressing:{ label: "Progressing", pct: 70, icon: CircleDot,     tone: "text-primary" },
-  ready:      { label: "Ready",       pct: 92, icon: CheckCircle2,  tone: "text-emerald-600" },
+  emerging:   { label: "Emerging", icon: Circle,       tone: "text-muted-foreground" },
+  developing: { label: "Developing", icon: CircleDashed,  tone: "text-amber-600" },
+  progressing:{ label: "Progressing", icon: CircleDot,     tone: "text-primary" },
+  ready:      { label: "Ready", icon: CheckCircle2,  tone: "text-emerald-600" },
 };
 
 const CONFIDENCE_META: Record<
@@ -59,17 +59,17 @@ const CONFIDENCE_META: Record<
   low: {
     label: "Low Confidence",
     calloutKind: "next",
-    description: "Treat this as a starting draft. Verify with the team before acting.",
+    description: "This report records low confidence. Review the explanation and any gaps with your team.",
   },
   medium: {
     label: "Medium Confidence",
     calloutKind: "means",
-    description: "Solid inputs; some sections still need team review.",
+    description: "This report records medium confidence. Review the explanation and any gaps with your team.",
   },
   high: {
     label: "High Confidence",
     calloutKind: "source",
-    description: "Inputs are comprehensive and recent.",
+    description: "This report records high confidence. Review the explanation and any gaps with your team.",
   },
 };
 
@@ -199,7 +199,7 @@ export function ReportV2ExtrasBody({
           <PublicationPage
             kicker="Section 02"
             chapter="Strengths, Preferences, Interests & Needs"
-            dek="Drawn from the student profile, Student Voice, and team input. These shape every recommendation below."
+            dek="Recorded strengths, preferences, interests and support needs to review with the student and team."
             folio="p. 02"
           >
             <div className="flex items-center gap-2 mb-4 text-primary">
@@ -221,7 +221,7 @@ export function ReportV2ExtrasBody({
           <PublicationPage
             kicker="Section 03"
             chapter="Readiness Indicators"
-            dek="Where the student is right now across the transition domains the team is tracking."
+            dek="Readiness levels recorded in this report. Review the notes and current information with your team."
             folio="p. 03"
           >
             <div className="flex items-center gap-2 mb-4 text-primary">
@@ -248,15 +248,6 @@ export function ReportV2ExtrasBody({
                         <Icon className="h-3.5 w-3.5" />
                         {meta.label}
                       </span>
-                    </div>
-                    <div
-                      className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted"
-                      aria-hidden
-                    >
-                      <div
-                        className="h-full rounded-full bg-primary transition-all"
-                        style={{ width: `${meta.pct}%` }}
-                      />
                     </div>
                   </li>
                 );
@@ -315,6 +306,9 @@ export function ReportV2ExtrasBody({
             >
               {confidence.rationale && (
                 <p className="text-sm mb-2">{confidence.rationale}</p>
+              )}
+              {!confidence.rationale && !confidence.caveats?.length && (
+                <p className="text-sm">No explanation or review notes are recorded for this confidence level.</p>
               )}
               {confidence.caveats?.length ? (
                 <ul className="list-disc pl-4 space-y-1 text-sm text-muted-foreground">
