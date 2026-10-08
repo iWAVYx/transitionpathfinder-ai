@@ -63,3 +63,29 @@ it("shared projections drop unsafe URLs rather than returning active links", () 
     expect(JSON.stringify(projected)).not.toMatch(/javascript:|data:text/);
   }
 });
+
+for (const audience of ["student", "family", "educator"] as const) {
+  it(`${audience} IEP summary does not infer that its source is the latest plan`, () => {
+    const report = fixture();
+    const html = renderToStaticMarkup(<ReportV2Sections content={report} audience={audience} studentName="Maya" />);
+    expect(html).toContain("This summary reflects information recorded in this report.");
+    expect(html).not.toContain("most recent IEP");
+    const caveat = "This summary uses an earlier uploaded plan; team review is pending.";
+    const changed = { ...report, iep_plan_summary: { ...report.iep_plan_summary, caveats: caveat } };
+    const withCaveat = renderToStaticMarkup(<ReportV2Sections content={changed} audience={audience} studentName="Maya" />);
+    expect(withCaveat).toContain(caveat);
+    expect(withCaveat).not.toContain("This summary reflects information recorded in this report.");
+  });
+}
+for (const audience of ["family", "educator"] as const) {
+  it(`${audience} shared IEP summary preserves the source caveat`, () => {
+    const base = fixture();
+    const caveat = "The source plan needs a current team review.";
+    const report = { ...base, iep_plan_summary: { ...base.iep_plan_summary, caveats: caveat } };
+    const projected = projectSharedReport(report, audience);
+    expect(projected).not.toBeNull();
+    const html = renderToStaticMarkup(<ReportV2Sections content={projected} audience={audience} studentName="this student" />);
+    expect(html).toContain(caveat);
+    expect(html).not.toContain("most recent IEP");
+  });
+}

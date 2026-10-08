@@ -44,7 +44,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [ ] Review and explicitly authorize staging release/migration acceptance for the share boundary; live multilingual/semantic acceptance remains open. Prepared source and disposable CI replay do not change live database protection.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `74d8462c` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. Fresh follow-up-head checks remain pending. Signed-in/live checks were skipped, not passed. Further document/export and report/student-switch review remains open.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `c2448aa8` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -2052,3 +2052,14 @@ Next: check remaining recorded resource/partner document fields and destinations
 - Previous pushed head c23f760e passed hosted clean builds, unit, accessibility, role guards, static readiness/CT checks and disposable replay. Signed-in/live/RLS checks were skipped, not passed. New-head hosted review remains pending.
 
 Next: finish broader age-aware/generated-report reconciliation and the draft diff/release-candidate review. Specifically authorized staging role acceptance/release and the prepared share grant migration remain open. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, real AI call, account change, outreach or production operation occurred.
+
+
+## Draft Review: Source-Faithful IEP Summary Wording — October 8, 2026
+
+- Removed the default claim that an IEP summary came from the most recent IEP on file. A report does not establish that the recorded plan is the latest one. The fallback now describes recorded report information and asks the reader to compare it with the source plan before agreeing on goals or supports. Any supplied caveat retains precedence and its exact wording.
+- The newer report introduction no longer promises that every recommendation has reasons, sources, next steps, owners and meeting flags. It invites the student and team to review recorded information and discuss next steps and questions. No generated/stored content or role access changed.
+- Applies through the shared Student/Family/Educator document renderer and designated Family/Educator shared readers, including applicable demo consumers. Five new actual-renderer/shared-projection cases verify neutral fallback wording and preservation of recorded caveats across those audiences.
+- Verification: 173 unit files / 1,580 tests, TypeScript and all 17 offline document browser checks passed. Native PDFs were not regenerated for this wording-only slice; previous native pagination/link evidence remains scoped to those fixtures. No backend/provider calls occurred.
+- Previous pushed head c2448aa8 passed hosted clean builds, unit, accessibility, role guards, static readiness/CT checks and disposable replay. Signed-in/live/RLS checks were skipped, not passed. Follow-up-head hosted checks and the complete draft review remain open.
+
+Next: complete the remaining age-aware/generated-report contract reconciliation and draft diff review before requesting a specifically authorized staging release and role-based acceptance. The prepared share grant migration remains unapplied. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, real AI call, account change, outreach or production operation occurred.

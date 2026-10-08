@@ -113,9 +113,9 @@ export function ReportV2Sections({
       <PublicationPullQuote attribution={audienceLabel[audience]}>
         <p className="font-display text-xl sm:text-2xl">{studentName}'s Full Pathway Report</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Every recommendation below explains why it was made, what informed it, what
-          should happen next, who should follow up, and whether it should be raised
-          at the next PPT / IEP meeting.
+          Review the recommendations and their recorded information with the student
+          and team. Discuss the next steps, who can help, and any questions to
+          bring to the next meeting.
         </p>
       </PublicationPullQuote>
 
@@ -127,7 +127,7 @@ export function ReportV2Sections({
           chapter="IEP / Transition Plan Summary"
           dek={
             iep.caveats ??
-            "Pulled from the most recent IEP on file. Please verify against the source document before any formal action."
+            "This summary reflects information recorded in this report. Compare it with the source plan before agreeing on goals or supports."
           }
         >
           <section id="v2-iep-summary">
