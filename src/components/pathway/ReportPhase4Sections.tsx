@@ -289,7 +289,7 @@ export function ReportPhase4Sections({
               </h2>
               <hr className="border-[color:var(--pub-rule-soft)] mb-2" />
               {sources.map((s, i) => (
-                <div key={i} className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                <div key={i} data-report-source-entry className="border-b border-[color:var(--pub-rule-soft)] py-3">
                   <p className="text-sm font-medium text-foreground/90">{s.label}</p>
                   <p className="text-xs text-muted-foreground">
                     {s.docType} · {s.pages} pp · {s.uploadedBy}
@@ -307,7 +307,7 @@ export function ReportPhase4Sections({
               </h2>
               <hr className="border-[color:var(--pub-rule-soft)] mb-2" />
               {intake.map((c, i) => (
-                <div key={i} className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                <div key={i} data-report-source-entry className="border-b border-[color:var(--pub-rule-soft)] py-3">
                   <p className="text-sm font-medium text-foreground/90">{c.category}</p>
                   <p className="text-xs text-muted-foreground">→ {c.flowsTo}</p>
                 </div>
@@ -316,6 +316,7 @@ export function ReportPhase4Sections({
           )}
 
           {/* Meta footer */}
+          <div data-report-source-closing>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <div>
               <p className="font-[Urbanist,sans-serif] text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -348,6 +349,7 @@ export function ReportPhase4Sections({
             This sample shows how different information can guide planning. In a real report,
             compare the summary with the source records and ask the team about missing or unclear information.
           </PublicationSource>
+          </div>
         </PublicationPage>
       </div>
     </>

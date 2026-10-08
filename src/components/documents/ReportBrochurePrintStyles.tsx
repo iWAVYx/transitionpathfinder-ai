@@ -95,6 +95,9 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-actions] li { gap: 0.04in !important; }
       /* Keep complete weeks together, but give their details balanced columns. */
       body:has(.report-root) .report-root [data-report-plan-step] { break-inside: avoid !important; }
+      body:has(.report-root) .report-root [data-report-source-entry] { break-inside: avoid !important; page-break-inside: avoid !important; }
+      body:has(.report-root) .report-root #sec-source-notes hr { break-after: avoid !important; page-break-after: avoid !important; }
+      body:has(.report-root) .report-root [data-report-source-closing] { break-inside: avoid !important; page-break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-plan-details] {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: 0.15in !important; align-items: start;

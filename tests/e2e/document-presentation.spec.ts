@@ -761,7 +761,7 @@ test("complete sample source index is readable for every planning audience", asy
     for (const audience of ["student", "family", "educator"]) {
       const body = renderToStaticMarkup(createElement("main", { className: "report-shell" },
         createElement("div", { className: "report-root", "data-generated-document": true },
-          createElement(components.DocumentViewStyles),
+          createElement(components.DocumentViewStyles), createElement(components.ReportBrochurePrintStyles),
           createElement(components.ReportPhase4Sections, { studentId, audience }))));
       for (const width of [390, 1024]) {
         await page.setViewportSize({ width, height: 900 });
@@ -769,6 +769,9 @@ test("complete sample source index is readable for every planning audience", asy
         for (const media of ["screen", "print"] as const) {
           await page.emulateMedia({ media });
           const source = page.locator("#sec-source-notes");
+          if (media === "print") {
+            expect(await source.locator("[data-report-source-entry]").evaluateAll(rows => rows.every(row => getComputedStyle(row).breakInside === "avoid"))).toBe(true);
+          }
           for (const item of components.DEMO_INTAKE_CATEGORIES[studentId]) {
             await expect(source.getByText(item.category, { exact: true })).toBeVisible();
           }
