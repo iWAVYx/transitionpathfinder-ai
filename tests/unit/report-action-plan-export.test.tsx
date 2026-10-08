@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { richerSharedFixture } from "../fixtures/shared-report";
 import { DEMO_STUDENTS } from "../../src/lib/demo-data";
 const mocks = vi.hoisted(() => ({ server: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => mocks.server }));
@@ -107,3 +108,42 @@ for (const audience of ["student", "family", "educator"] as const) for (const de
     expect(mocks.server).not.toHaveBeenCalled();
   });
 }
+
+for (const audience of ["student", "family", "educator"] as const) for (const demo of [false, true]) {
+  it(`${audience}/${demo ? "demo" : "live"} newer contents reach only rendered audience sections`, () => {
+    const report = richerSharedFixture();
+    const { container } = render(<ReportView name="Maya" report={report as unknown as Parameters<typeof ReportView>[0]["report"]} hasV2 demo={demo} initialAudience={audience} />);
+    const contents = screen.getByRole("navigation", { name: "Table of contents" });
+    const links = Array.from(contents.querySelectorAll('a[href^="#v2-"]'));
+    expect(links.length).toBeGreaterThan(5);
+    for (const link of links) expect(container.querySelectorAll(link.getAttribute("href")!)).toHaveLength(1);
+    for (const id of ["v2-iep-summary", "v2-emp", "v2-resources", "v2-partners", "v2-family-plan", "v2-inputs-used"]) expect(contents.querySelector(`a[href="#${id}"]`)).not.toBeNull();
+    expect(!!contents.querySelector('a[href="#v2-student-plan"]')).toBe(audience !== "educator");
+    expect(!!contents.querySelector('a[href="#v2-edu-plan"]')).toBe(audience === "educator");
+    expect(!!contents.querySelector('a[href="#v2-meeting-qs"]')).toBe(audience !== "student");
+    if (audience === "student") expect(container.querySelector("#v2-meeting-qs")).toBeNull();
+    expect(contents.querySelector('a[href="#v2-edu"]')).toBeNull();
+    expect(mocks.server).not.toHaveBeenCalled();
+  });
+}
+
+it("links every supplied newer section to one real reader destination", () => {
+  const base = richerSharedFixture();
+  const recs = base.employment_pathway_recs;
+  const report = { ...base,
+    spin: { strengths: ["Recorded strength"], preferences: [], interests: [], needs: [] },
+    readiness_indicators: [{ domain: "School", level: "developing", note: "Recorded observation" }],
+    needs_review_flags: [{ section: "Plan", reason: "Check with the team" }],
+    confidence: { overall: "medium", rationale: "Some information needs review" },
+    postsecondary_education_recs: recs, independent_living_recs: recs, community_participation_recs: recs,
+    missing_information_v2: [{ topic: "Current observation", why_it_matters: "Use current information", how_to_collect: "Ask the team", owner_role: "family" }],
+    cross_cutting_horizons: { thirty_day: ["Recorded step"], ninety_day: [], six_month: [], one_year: [] },
+  };
+  const { container } = render(<ReportView name="Maya" report={report as unknown as Parameters<typeof ReportView>[0]["report"]} hasV2 demo initialAudience="educator" />);
+  const contents = screen.getByRole("navigation", { name: "Table of contents" });
+  for (const section of container.querySelectorAll('[id^="v2-"]')) {
+    if (section.id === "v2-inputs-used-body") continue;
+    expect(contents.querySelectorAll(`a[href="#${section.id}"]`)).toHaveLength(1);
+  }
+  for (const link of contents.querySelectorAll('a[href^="#v2-"]')) expect(container.querySelectorAll(link.getAttribute("href")!)).toHaveLength(1);
+});

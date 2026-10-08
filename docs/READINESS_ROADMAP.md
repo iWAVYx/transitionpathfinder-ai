@@ -1,6 +1,6 @@
 # TransitionForward — Readiness Roadmap
 
-## Active Delivery Checklist — Updated October 7, 2026
+## Active Delivery Checklist — Updated October 8, 2026
 
 This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.
 
@@ -26,6 +26,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Export every supplied 30/60/90-day period independently of the selected screen tab; omit only complete identical repeated steps while retaining changed actions, owners, outcomes and readiness details.
 - [x] Student/Family pathway previews use a single authorized student selection, recorded summaries and matching opportunity context; remove fabricated live status panels and restricted Student navigation.
 - [x] Legacy report action-plan presentation preserves recorded week/action pairs across audiences and live/demo modes; retire the synthetic twelve-week fallback and retain explicitly supplied detailed plans.
+- [x] Actual newer report contents include supplied recommendation, role-plan, meeting-question and source sections; links follow audience visibility and empty filtered meeting-question sections are omitted.
 - [x] Sample report opportunities preserve every eligible match and caution across planning roles; actual report partner suggestions retain complete returned descriptions, explanations and conflicts.
 - [x] Age-aware samples identify fictional evidence and recommendations without guarantees; the actual source panel shares safe source metadata with the opener and reports absent categories as not recorded for this report.
 - [x] Report opener names only recorded generation inputs, supports counts-only shared sources, and distinguishes missing source metadata from an explicitly empty list across applicable role/live/demo readers.
@@ -2014,3 +2015,15 @@ Next: remaining age-aware/generated-report contract reconciliation and final dra
 - Previous pushed head dc059e82 passed hosted clean builds, unit, accessibility, role guards, static readiness/CT checks and disposable replay. Signed-in/live/RLS checks were skipped, not passed. New-head hosted review remains pending.
 
 Next: remaining age-aware/generated-report contract reconciliation and final draft review, then specifically authorized staging role acceptance/release and the prepared share grant migration. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, real AI call, account change, outreach or production operation occurred.
+
+
+## Draft Review: Newer Report Contents and Audience-Specific Questions — October 8, 2026
+
+- Found that the actual reader contents listed legacy sections but omitted the supplied newer recommendations, role action plans, meeting questions and recorded-source panel. Added data-driven newer-section contents in their render order, using actual anchor IDs and existing audience visibility. The selected audience is explicitly passed by the reader, including fixed-audience shared readers. No permission or projection changes were made.
+- Meeting question filtering now occurs before deciding whether its section exists. If no questions apply to the audience, both the empty heading and its contents link are omitted. Student sees Student/Team questions, Family excludes Educator questions and Educator retains the existing full question view. Source wording, question text and action-plan horizons remain unchanged.
+- This shared actual reader fix applies to Student/Family/Educator live/sample modes and permitted fixed Family/Educator shared views. Legacy and age-aware sample contents retain their existing real section destinations. No new Owner or Partner planning view is introduced; fuller age-aware/generated-report data-contract parity remains open.
+- Verification: 171 unit files / 1,562 tests and TypeScript passed. Six actual newer-reader audience/live/sample cases verify source, recommendation and permitted role-plan links, absent sections and filtered questions. A complete actual-reader fixture verifies every supplied newer destination; two pure cases cover absent versions/sections and source-preserving question filtering.
+- All 16 offline browser document checks passed, followed by two targeted checks with new actual contents clicks/unique-destination assertions across three audiences and projected Family/Educator shared readers at mobile/desktop widths. Backend/provider requests remain blocked. Contents are hidden in print; native PDFs were not regenerated for this navigation/empty-heading change, and prior native review remains scoped to its source.
+- Previous pushed head 824e316d passed hosted clean builds, unit, accessibility, role guards, static readiness/CT checks and disposable replay. Signed-in/live/RLS checks were skipped, not passed. New-head hosted review remains pending.
+
+Next: remaining age-aware/generated-report contract reconciliation and final draft diff review; specifically authorized staging role acceptance/release and the prepared share grant migration remain open. All six milestones, TF-01–TF-26 and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, real AI call, account change, outreach or production operation occurred.

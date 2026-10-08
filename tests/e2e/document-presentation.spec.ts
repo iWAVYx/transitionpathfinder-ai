@@ -325,6 +325,12 @@ test("newer report plans and collapsed sources stay inside the printable documen
     await page.emulateMedia({ media: "screen" });
     const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Maya", report, demo: true, hasV2: true, initialAudience: audience }));
     await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    const contents = page.getByRole("navigation", { name: "Table of contents" });
+    const targets = await contents.locator('a[href^="#v2-"]').evaluateAll(links => links.map(link => link.getAttribute("href")!));
+    expect(targets.length).toBeGreaterThan(2);
+    for (const target of targets) await expect(page.locator(target)).toHaveCount(1);
+    await contents.locator('a[href="#v2-family-plan"]').click();
+    await expect(page).toHaveURL(/#v2-family-plan$/);
     const summary = page.locator(".exec-summary");
     const ownRole = audience[0].toUpperCase() + audience.slice(1);
     await expect(summary.getByText(`${ownRole} thirty day action`, { exact: true })).toBeVisible();
@@ -437,6 +443,12 @@ test("projected newer shared reports retain permitted plans and source counts on
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ media: "screen" });
       await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+      const contents = page.getByRole("navigation", { name: "Table of contents" });
+      const targets = await contents.locator('a[href^="#v2-"]').evaluateAll(links => links.map(link => link.getAttribute("href")!));
+      expect(targets.length).toBeGreaterThan(2);
+      for (const target of targets) await expect(page.locator(target)).toHaveCount(1);
+      await contents.locator('a[href="#v2-family-plan"]').click();
+      await expect(page).toHaveURL(/#v2-family-plan$/);
       await expect(page.getByText(audience === "family" ? "Family summary" : "Educator summary", { exact: true })).toBeVisible();
       await expect(page.getByRole("tab")).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

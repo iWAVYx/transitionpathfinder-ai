@@ -1,10 +1,11 @@
+import { reportV2Contents, type PlanningReportAudience } from "./report-v2-contents";
 import type { PathwayReport } from "./pathway-generation-contract";
 export type ReportContentsItem = { id: string; label: string };
 
 /** Links must match the sections rendered for this report version. */
 export function liveReportContents(report: PathwayReport, name: string, {
-  hasV2 = false, hasLinkedStudent = false, hasStudentVoiceResponses = false, extraItems,
-}: { hasV2?: boolean; hasLinkedStudent?: boolean; hasStudentVoiceResponses?: boolean; extraItems?: ReportContentsItem[] } = {}): ReportContentsItem[] {
+  hasV2 = false, audience = "family", hasLinkedStudent = false, hasStudentVoiceResponses = false, extraItems,
+}: { hasV2?: boolean; audience?: PlanningReportAudience; hasLinkedStudent?: boolean; hasStudentVoiceResponses?: boolean; extraItems?: ReportContentsItem[] } = {}): ReportContentsItem[] {
   const items: { id: string; label: string }[] = [];
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
   items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
@@ -28,6 +29,7 @@ export function liveReportContents(report: PathwayReport, name: string, {
   items.push({ id: "sec-thirty-day", label: "Action Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
 
+  if (hasV2) items.push(...reportV2Contents(report, audience));
   if (extraItems) items.push(...extraItems);
 
   return items;

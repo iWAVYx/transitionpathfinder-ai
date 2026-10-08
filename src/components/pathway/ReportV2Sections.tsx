@@ -1,3 +1,4 @@
+import { reportMeetingQuestions } from "@/lib/report-v2-contents";
 import type { ReportSourceCount } from "@/lib/report-source-summary";
 /**
  * v2 Pathway Report sections — rendered alongside the legacy `ReportView`
@@ -83,6 +84,7 @@ export function ReportV2Sections({
   const meetingQs = r.meeting_prep_questions as
     | Array<{ question: string; for_audience: string; why?: string }>
     | undefined;
+  const visibleMeetingQs = reportMeetingQuestions(meetingQs, audience);
   const audMsgs = r.audience_messages as
     | { student?: Record<string, string>; family?: Record<string, string>; educator?: Record<string, string> }
     | undefined;
@@ -396,7 +398,7 @@ export function ReportV2Sections({
         />
       )}
 
-      {meetingQs?.length ? (
+      {visibleMeetingQs.length ? (
         <PublicationPage
           kicker="Section 12"
           chapter="Meeting Prep Questions"
@@ -404,14 +406,7 @@ export function ReportV2Sections({
         >
           <section id="v2-meeting-qs">
             <ul>
-              {meetingQs
-                .filter((q) =>
-                  audience === "student"
-                    ? q.for_audience === "student" || q.for_audience === "team"
-                    : audience === "family"
-                    ? q.for_audience !== "educator"
-                    : true,
-                )
+              {visibleMeetingQs
                 .map((q, i) => (
                   <li
                     key={i}

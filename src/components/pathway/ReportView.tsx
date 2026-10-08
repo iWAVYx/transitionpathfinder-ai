@@ -774,7 +774,7 @@ function ReportViewReader({
 
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <ReportContents items={liveReportContents(r, name, { hasV2, hasLinkedStudent: !!studentId, hasStudentVoiceResponses: audience === "student" && voiceResponses.length > 0, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
+      <ReportContents items={liveReportContents(r, name, { hasV2, audience, hasLinkedStudent: !!studentId, hasStudentVoiceResponses: audience === "student" && voiceResponses.length > 0, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
 
 
       {/* ============ Executive Summary ============ */}
