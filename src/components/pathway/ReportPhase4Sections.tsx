@@ -193,7 +193,7 @@ export function ReportPhase4Sections({
           {/* Voice pull-quotes */}
           {advocacyVoice.length > 0 && (
             <div className="mt-2 space-y-4">
-              {advocacyVoice.slice(0, 3).map((v, i) => (
+              {advocacyVoice.map((v, i) => (
                 <PublicationPullQuote key={i} attribution={`Prompt: ${v.prompt} · Shapes: ${v.affects}`}>
                   {v.response}
                 </PublicationPullQuote>
@@ -267,7 +267,7 @@ export function ReportPhase4Sections({
         >
           <PublicationChecklist items={next.steps} />
           <PublicationCallout kind="next">
-            Review these steps with your team before the next PPT. Each one traces directly to what this student told us.
+            These sample steps illustrate how a team could support this fictional student. In a real plan, agree on next steps with the student and team.
           </PublicationCallout>
         </PublicationPage>
       </div>
@@ -277,7 +277,7 @@ export function ReportPhase4Sections({
         <PublicationPage
           kicker="Section 04"
           chapter="Sources & Information Used"
-          dek="A transparent index of every input this report draws from. No source = no claim."
+          dek="Fictional documents, Pathway Builder responses and student reflections used in this sample. These are not verified student records."
           part="Part Four — Voice & Independence"
           folio="p. 04"
         >
@@ -285,7 +285,7 @@ export function ReportPhase4Sections({
           {sources.length > 0 && (
             <section>
               <h2 className="font-[Urbanist,sans-serif] text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--pub-accent)] mb-2">
-                Documents Reviewed
+                Sample Documents
               </h2>
               <hr className="border-[color:var(--pub-rule-soft)] mb-2" />
               {sources.map((s, i) => (
@@ -303,10 +303,10 @@ export function ReportPhase4Sections({
           {intake.length > 0 && (
             <section className="mt-6">
               <h2 className="font-[Urbanist,sans-serif] text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--pub-accent)] mb-2">
-                Intake Inputs
+                Sample Pathway Builder Responses
               </h2>
               <hr className="border-[color:var(--pub-rule-soft)] mb-2" />
-              {intake.slice(0, 6).map((c, i) => (
+              {intake.map((c, i) => (
                 <div key={i} className="border-b border-[color:var(--pub-rule-soft)] py-3">
                   <p className="text-sm font-medium text-foreground/90">{c.category}</p>
                   <p className="text-xs text-muted-foreground">→ {c.flowsTo}</p>
@@ -330,7 +330,7 @@ export function ReportPhase4Sections({
                 Prepared By
               </p>
               <p className="mt-1 text-sm text-foreground/85">
-                {preparedBy ?? "TransitionForward (AI-supported, human-reviewed)"}
+                {preparedBy ?? "TransitionForward Sample"}
               </p>
             </div>
             <div>
@@ -345,8 +345,8 @@ export function ReportPhase4Sections({
 
           <PublicationSource>
             <ClipboardList className="inline mr-1 h-3.5 w-3.5 shrink-0 align-text-bottom" />
-            Every claim in this report traces to one of the inputs above. If a section feels
-            off, check its source — and ask the team to add what's missing before the next PPT.
+            This sample shows how different information can guide planning. In a real report,
+            compare the summary with the source records and ask the team about missing or unclear information.
           </PublicationSource>
         </PublicationPage>
       </div>

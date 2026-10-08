@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts';", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -744,6 +744,38 @@ test("complete source labels and counts remain readable on screen and in print",
       await expect(page.getByText("Information from 2 recorded sources.", { exact: true })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       expect(await page.locator("body").textContent()).not.toContain("private-record");
+    }
+  }
+});
+
+
+test("complete sample source index is readable for every planning audience", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const studentId of ["jordan", "maya"]) {
+    for (const audience of ["student", "family", "educator"]) {
+      const body = renderToStaticMarkup(createElement("main", { className: "report-shell" },
+        createElement("div", { className: "report-root", "data-generated-document": true },
+          createElement(components.DocumentViewStyles),
+          createElement(components.ReportPhase4Sections, { studentId, audience }))));
+      for (const width of [390, 1024]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.setContent(`<html lang="en"><head><style>${css}</style></head><body>${body}</body></html>`);
+        for (const media of ["screen", "print"] as const) {
+          await page.emulateMedia({ media });
+          const source = page.locator("#sec-source-notes");
+          for (const item of components.DEMO_INTAKE_CATEGORIES[studentId]) {
+            await expect(source.getByText(item.category, { exact: true })).toBeVisible();
+          }
+          await expect(source.getByText("Sample Pathway Builder Responses", { exact: true })).toBeVisible();
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        }
+      }
     }
   }
 });
