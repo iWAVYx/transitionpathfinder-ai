@@ -782,3 +782,40 @@ test("complete sample source index is readable for every planning audience", asy
     }
   }
 });
+
+test("complete recorded team questions retain role visibility on screen and in print", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const questions = [
+    ...Array.from({ length: 10 }, (_, i) => ({ question: `Recorded team question ${i + 1}?`, for_audience: "team" })),
+    { question: "Recorded educator question?", for_audience: "educator" },
+    { question: "Recorded family question?", for_audience: "family" },
+  ];
+  for (const audience of ["student", "family", "educator"]) {
+    const original = { ...components.richerSharedFixture(), meeting_prep_questions: questions };
+    for (const shared of audience === "student" ? [false] : [false, true]) {
+      const report = shared ? components.projectSharedReport(original, audience) : original;
+      const body = renderToStaticMarkup(createElement(components.ReportView, {
+        name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared,
+        initialAudience: audience, fixedAudience: shared ? audience : undefined,
+      }));
+      for (const width of [390, 1024]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.setContent(`<html lang="en"><head><style>${css}</style></head><body>${body}</body></html>`);
+        for (const media of ["screen", "print"] as const) {
+          await page.emulateMedia({ media });
+          const section = page.locator("[data-report-team-questions]");
+          for (let i = 1; i <= 10; i++) await expect(section.getByText(`Recorded team question ${i}?`, { exact: true })).toBeVisible();
+          expect(await section.getByText("Recorded educator question?", { exact: true }).count()).toBe(audience === "educator" ? 1 : 0);
+          expect(await section.getByText("Recorded family question?", { exact: true }).count()).toBe(audience === "student" ? 0 : 1);
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        }
+      }
+    }
+  }
+});

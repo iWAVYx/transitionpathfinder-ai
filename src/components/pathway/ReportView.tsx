@@ -44,6 +44,7 @@ import {
   Search,
   RefreshCw,
 } from "lucide-react";
+import { reportTeamQuestions } from "@/lib/report-team-questions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
 import { Button } from "@/components/ui/button";
@@ -415,6 +416,7 @@ function ReportViewReader({
     r.recommended_pathways?.find((p) => p.type === "best-fit") ??
     r.recommended_pathways?.[0];
   const nextStepPreview = reportNextStepPreview(r, audience, hasV2);
+  const teamQuestions = reportTeamQuestions(r, audience, hasV2);
   const today = new Date().toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -1493,27 +1495,23 @@ function ReportViewReader({
       )}
 
       {/* ============ Bring To The Team — consolidated decision checklist ============ */}
-      <section className="report-section mt-10 page-break">
+      <section data-report-team-questions className="report-section mt-10 page-break">
         <div className="mb-3 flex items-center gap-2">
           <ListChecks className="h-5 w-5 text-primary" />
           <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>
         </div>
         <p className="mb-4 max-w-3xl text-sm text-muted-foreground">
-          Print this page and bring it to the next PPT. It pulls together every
-          open question and recommended next step from this report so the whole
-          team starts from the same list.
+          Bring these recorded questions to your next team meeting. Review the report’s
+          recommendations and Action Plan together, and agree on who can help with each next step.
         </p>
         <ValueCallout
           data={{
             ...CHAPTER_VALUE_DEFAULTS.bring_to_team,
-            questionsForTeam: [
-              ...(r.family_questions_for_ppt ?? []),
-              ...(r.meeting_prep_toolkit?.questions_to_ask ?? []),
-            ].slice(0, 8),
+            whatThisMeans: teamQuestions.length ? "Recorded questions for this report view, ready to discuss with your team." : "No meeting questions are recorded for this report view. Review the report and add your questions before the meeting.",
+            questionsForTeam: teamQuestions,
             recommendedNextStep: `Confirm an owner and a date for each next step before you leave the meeting.`,
             informationUsed: [
-              "This report's recommendations",
-              "Open questions from each chapter",
+              teamQuestions.length ? "Recorded meeting questions for this view" : "This report view",
               meta?.reportId ? `Doc ${meta.reportId}` : "",
             ].filter(Boolean) as string[],
           }}
