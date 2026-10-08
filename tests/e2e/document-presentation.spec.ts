@@ -451,6 +451,17 @@ test("projected newer shared reports retain permitted plans and source counts on
       await expect(page).toHaveURL(/#v2-family-plan$/);
       await expect(page.getByText(audience === "family" ? "Family summary" : "Educator summary", { exact: true })).toBeVisible();
       await expect(page.getByRole("tab")).toHaveCount(0);
+      const resourceLink = page.locator("#v2-resources").getByRole("link", { name: "Open Resource: Explore a supported visit" });
+      const partnerLink = page.locator("#v2-partners").getByRole("link", { name: "Open Program or Opportunity: Explore a supported visit" });
+      await expect(resourceLink).toHaveAttribute("href", "https://example.org/resources/support-guide");
+      await expect(partnerLink).toHaveAttribute("href", "https://example.org/programs/supported-visit");
+      for (const link of [resourceLink, partnerLink]) {
+        await expect(link).toHaveAttribute("target", "_blank");
+        await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+        await expect(link).toBeVisible();
+      }
+      await expect(page.locator("#v2-resources").getByText("Family", { exact: true })).toBeVisible();
+      await expect(page.locator("#v2-partners").getByText("Family", { exact: true })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await expect(page.locator("#v2-inputs-used-body")).toBeHidden();
       await page.emulateMedia({ media: "print" });
@@ -461,6 +472,10 @@ test("projected newer shared reports retain permitted plans and source counts on
       await expect(sources.getByText("2 goals", { exact: true })).toBeVisible();
       const rec = page.locator("[data-report-recommendation]");
       await expect(rec.getByText("Discuss a visit", { exact: true })).toBeVisible();
+      await expect(resourceLink).toBeVisible();
+      await expect(partnerLink).toBeVisible();
+      await expect(page.locator("#v2-resources").getByText("Family", { exact: true })).toBeVisible();
+      await expect(page.locator("#v2-partners").getByText("Family", { exact: true })).toBeVisible();
       if (audience === "family") {
         await expect(rec.getByText(/Information from 1 recorded source/)).toBeVisible();
         await expect(page.getByText("A recorded profile observation", { exact: true })).toHaveCount(0);

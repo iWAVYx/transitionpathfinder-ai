@@ -1,3 +1,4 @@
+import { reportWebDestination } from "@/lib/report-match-details";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, Loader2, MapPin, ShieldCheck, Star, AlertTriangle } from "lucide-react";
@@ -136,9 +137,9 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
             <span className="font-medium">Suggested next step:</span> {m.suggested_next_step}
           </p>
 
-          {m.website_url && (
+          {reportWebDestination(m.website_url) && (
             <a
-              href={m.website_url}
+              href={reportWebDestination(m.website_url)}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"

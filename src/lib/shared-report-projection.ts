@@ -1,3 +1,4 @@
+import { reportWebDestination } from "./report-match-details";
 import { ReportSchema, type PathwayReport } from "@/lib/pathway-generation-contract";
 import { PathwayReportV2, StudentSnapshot, type SourceRef } from "@/lib/pathway-v2";
 import { summarizeReportInputs } from "@/lib/report-source-summary";
@@ -51,11 +52,11 @@ export function projectSharedReport(content: unknown, audience: SharedReportAudi
     independent_living_recs: recommendations(r.independent_living_recs),
     community_participation_recs: recommendations(r.community_participation_recs),
     resource_matches: r.resource_matches?.map(item => ({
-      title: item.title, url: item.url, summary: item.summary, why: item.why,
+      title: item.title, url: reportWebDestination(item.url), summary: item.summary, why: item.why,
       next_action: item.next_action, owner_role: item.owner_role, ...sourceInfo(item.sources),
     })),
     partner_matches: r.partner_matches?.map(item => ({
-      title: item.title, organization: item.organization, why: item.why,
+      title: item.title, organization: item.organization, url: reportWebDestination(item.url), owner_role: item.owner_role, why: item.why,
       next_action: item.next_action, readiness_level: item.readiness_level, ...sourceInfo(item.sources),
     })),
     missing_information_v2: r.missing_information_v2,

@@ -1,3 +1,4 @@
+import { reportWebDestination, reportFollowUpRole } from "@/lib/report-match-details";
 import { reportMeetingQuestions } from "@/lib/report-v2-contents";
 import type { ReportSourceCount } from "@/lib/report-source-summary";
 /**
@@ -248,16 +249,7 @@ export function ReportV2Sections({
                     <p className="font-[Instrument_Serif,serif] text-base font-medium">
                       {m.title}
                     </p>
-                    {m.url && (
-                      <a
-                        href={m.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                      >
-                        Open <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
+                    <RecordedMatchLink url={m.url} title={m.title} label="Open Resource" />
                   </div>
                   {m.summary && (
                     <p className="mt-1 text-sm text-muted-foreground">{m.summary}</p>
@@ -270,6 +262,7 @@ export function ReportV2Sections({
                       {m.next_action}
                     </PublicationCallout>
                   </div>
+                  <RecordedFollowUp ownerRole={m.owner_role} />
                   {audience !== "student" && (
                     <SourceChips
                       sources={m.sources}
@@ -309,6 +302,7 @@ export function ReportV2Sections({
                         </p>
                       )}
                     </div>
+                    <RecordedMatchLink url={m.url} title={m.title} label="Open Program or Opportunity" />
                     {m.readiness_level && (
                       <Badge variant="outline" className="text-[10px] capitalize">
                         {m.readiness_level}
@@ -323,6 +317,7 @@ export function ReportV2Sections({
                       {m.next_action}
                     </PublicationCallout>
                   </div>
+                  <RecordedFollowUp ownerRole={m.owner_role} />
                   {audience !== "student" && (
                     <SourceChips
                       sources={m.sources}
@@ -491,6 +486,20 @@ function PillarRecsBlock({
       </section>
     </PublicationPage>
   );
+}
+
+function RecordedMatchLink({ url, title, label }: { url?: string; title: string; label: string }) {
+  const destination = reportWebDestination(url);
+  if (!destination) return null;
+  return <a href={destination} target="_blank" rel="noopener noreferrer"
+    aria-label={`${label}: ${title}`}
+    className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+    {label} <ExternalLink className="h-3 w-3 print:hidden" />
+  </a>;
+}
+function RecordedFollowUp({ ownerRole }: { ownerRole?: string }) {
+  const role = reportFollowUpRole(ownerRole);
+  return role ? <p className="mt-2 text-xs text-muted-foreground">Who Can Help: <strong className="text-foreground">{role}</strong></p> : null;
 }
 
 function ChipList({ label, items }: { label: string; items?: string[] }) {
