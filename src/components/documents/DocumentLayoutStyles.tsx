@@ -36,6 +36,29 @@ export function DocumentLayoutStyles() {
       padding-bottom: 6px; border-bottom: 1px solid #ded3e8;
       color: var(--foreground, #242a33); break-after: avoid; page-break-after: avoid;
     }
+    /* Chapter bands and their section bands share the same horizontal edge. */
+    .report-shell [data-generated-document] .report-stage > header {
+      padding-left: 0 !important; padding-right: 0 !important;
+    }
+    .report-shell [data-generated-document] .report-stage > header::before {
+      left: 0 !important;
+    }
+    /* Decorative markers must not create a different text inset for each title. */
+    [data-generated-document] :is(h2, h3, h4):has(> svg) { display: flex; }
+    [data-generated-document] :is(h2, h3, h4) > svg {
+      order: 1; margin-left: auto; flex-shrink: 0; align-self: center;
+    }
+    [data-generated-document] [data-report-block-heading] > :is(button, div) {
+      padding: 8px 12px; border-left: 3px solid #6b3a91;
+      border-bottom: 1px solid #ded3e8; background: #f7f2fa;
+      box-sizing: border-box; min-width: 0; gap: 8px;
+      print-color-adjust: exact; -webkit-print-color-adjust: exact;
+    }
+    [data-generated-document] [data-report-block-heading] > :is(button, div) > h2 {
+      order: -1; flex: 1; min-width: 0; width: auto;
+      padding: 0 !important; margin: 0 !important;
+      border: 0 !important; background: transparent !important;
+    }
     [data-generated-document] .section-number { flex-shrink: 0; white-space: nowrap; }
     [data-generated-document] header { text-align: left !important; justify-content: space-between !important; }
     [data-generated-document] [data-document-title-block] { width: 100%; text-align: left; }
@@ -45,6 +68,9 @@ export function DocumentLayoutStyles() {
     [data-generated-document] .pub-spread > * { min-width: 0; }
     @media print {
       [data-generated-document] h2 { padding: 6px 10px; }
+      [data-generated-document] [data-report-block-heading] > :is(button, div) {
+        padding: 6px 10px;
+      }
       [data-generated-document] h3 { padding-bottom: 4px; color: #512875; }
 
       body:has([data-generated-document]) [data-generated-document][data-generated-document] {

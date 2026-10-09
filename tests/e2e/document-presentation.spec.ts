@@ -66,6 +66,8 @@ for (const role of ["Family", "Educator"]) {
           ${renderToStaticMarkup(createElement(components.SampleDocumentNotice))}
           <h1>A meeting plan for a sample student</h1>
           <p>Sample content for a layout check. No student records or AI requests are used.</p>
+          <h3 data-heading-plain>Recorded Context</h3>
+          <h3 data-heading-icon><svg width="16" height="16" aria-hidden="true"><path d="M2 8h12" /></svg>Recorded Supports</h3>
           <div data-meeting-followups>
             <section data-meeting-short-section><header data-section-heading><h2>Questions to Discuss</h2></header>
               <ul><li>Which supports help the student complete the next task?</li><li>Who will record progress and when will the team review it?</li></ul>
@@ -92,7 +94,22 @@ for (const role of ["Family", "Educator"]) {
       expect(await page.locator("[data-brand-logo] img").evaluateAll((images) => images.every((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
       await expect(page.locator("[data-document-watermark]")).toBeHidden();
       await expect(page.locator("[data-document-field-value]")).toBeHidden();
+      const subheadingAlignment = async () => page.locator("[data-generated-document]").evaluate(root => {
+        const textLeft = (element: Element) => {
+          const node = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())!;
+          const range = document.createRange(); range.selectNodeContents(node);
+          return range.getBoundingClientRect().left;
+        };
+        const plain = root.querySelector("[data-heading-plain]")!, decorated = root.querySelector("[data-heading-icon]")!;
+        return { plain: textLeft(plain), decorated: textLeft(decorated), icon: decorated.querySelector("svg")!.getBoundingClientRect().left };
+      });
+      const screenAlignment = await subheadingAlignment();
+      expect(Math.abs(screenAlignment.plain - screenAlignment.decorated)).toBeLessThan(1);
+      expect(screenAlignment.icon).toBeGreaterThan(screenAlignment.decorated);
       await page.emulateMedia({ media: "print" });
+      const printAlignment = await subheadingAlignment();
+      expect(Math.abs(printAlignment.plain - printAlignment.decorated)).toBeLessThan(1);
+      expect(printAlignment.icon).toBeGreaterThan(printAlignment.decorated);
       await expect(page.locator("[data-document-sample-notice]")).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Meeting notes" })).toBeHidden();
       await expect(page.locator("[data-document-field-value]")).toBeVisible();
@@ -1107,6 +1124,65 @@ test("report contents reach unique sections in reading order for every planning 
         await expect(page.locator(target)).toBeVisible();
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});
+
+
+test("report heading text aligns with chapter margins across planning and shared readers", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    return pathname.startsWith("/brand/") ? route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" }) : route.fulfill({ status: 404, body: "" });
+  });
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const source = components.richerSharedFixture();
+    const report = shared ? components.projectSharedReport(source, audience) : source;
+    const markup = renderToStaticMarkup(createElement(components.ReportView, {
+      report, name: "Fictional Student", demo: !shared, readOnly: shared, hasV2: true,
+      initialAudience: audience, fixedAudience: shared ? audience : undefined,
+    }));
+    for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body>${markup}</body></html>`);
+      await page.emulateMedia({ media });
+      const measurements = await page.locator(".report-stage").evaluateAll(stages => {
+        const textLeft = (element: Element) => {
+          const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+          let node: Node | null;
+          while ((node = walker.nextNode())) if (node.textContent?.trim()) {
+            const range = document.createRange(); range.selectNodeContents(node);
+            return range.getBoundingClientRect().left;
+          }
+          return NaN;
+        };
+        return stages.flatMap(stage => {
+          const chapter = stage.querySelector(":scope > header > h2");
+          if (!chapter) return [];
+          return Array.from(stage.querySelectorAll("[data-report-block-heading] > :is(button,div)"))
+            .filter(control => control.getBoundingClientRect().height > 0)
+            .map(control => {
+              const title = control.querySelector("h2")!;
+              const box = control.getBoundingClientRect(), parent = control.parentElement!.getBoundingClientRect();
+              return { title: title.textContent, chapterLeft: textLeft(chapter), titleLeft: textLeft(title),
+                left: box.left, right: box.right, parentLeft: parent.left, parentRight: parent.right,
+                paddingLeft: getComputedStyle(control).paddingLeft, paddingRight: getComputedStyle(control).paddingRight };
+            });
+        });
+      });
+      expect(measurements.length).toBeGreaterThan(5);
+      for (const result of measurements) {
+        expect(Math.abs(result.titleLeft - result.chapterLeft), `${audience}/${shared}/${width}/${media}: ${JSON.stringify(result)}`).toBeLessThan(1);
+        expect(Math.abs(result.left - result.parentLeft)).toBeLessThan(1);
+        expect(Math.abs(result.right - result.parentRight)).toBeLessThan(1);
+        expect(result.paddingLeft).toBe(result.paddingRight);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   }
 });
