@@ -178,7 +178,14 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-recorded-goal][data-report-recorded-goal] h3 { margin-top: 0 !important; }
       body:has(.report-root) .report-root[data-age-aware-report] .pub-page:has([data-report-recorded-goals]) { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-readiness-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.08in 0.16in !important; }
-      body:has(.report-root) .report-root [data-report-readiness-grid] [data-report-readiness-row] { break-inside: avoid; }
+      /* Keep a readiness explanation with its growth step and suggested goal.
+         Long entries can still flow when they exceed a complete page. */
+      body:has(.report-root) .report-root [data-report-readiness-row],
+      body:has(.report-root) .report-root [data-report-profile-summary],
+      body:has(.report-root) .report-root [data-report-confidence],
+      body:has(.report-root) .report-root [data-report-evidence-gap][data-report-evidence-gap] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
       body:has(.report-root) .report-root [data-report-readiness-heading][data-report-readiness-heading] h3,
       body:has(.report-root) .report-root [data-demo-readiness-overall][data-demo-readiness-overall] h3 { margin-top: 0 !important; }
       body:has(.report-root) .report-root[data-age-aware-report] .pub-page:has([data-report-readiness-grid]) { break-inside: avoid !important; }

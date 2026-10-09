@@ -285,7 +285,7 @@ export function ReportV2ExtrasBody({
 
       {/* ── Confidence ───────────────────────────────────────────────── */}
       {confidence && (
-        <section id="v2-confidence">
+        <section id="v2-confidence" data-report-confidence>
           <PublicationPage
             chapter={CONFIDENCE_META[confidence.overall].label}
             dek={CONFIDENCE_META[confidence.overall].description}

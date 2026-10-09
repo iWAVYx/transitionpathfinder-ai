@@ -918,6 +918,7 @@ test("qualitative readiness and recorded confidence stay readable without invent
         await expect(confidence.getByText(original.confidence.rationale, { exact: true })).toBeVisible();
         await expect(confidence.getByText(original.confidence.caveats[0], { exact: true })).toBeVisible();
         expect(await confidence.textContent()).not.toContain("comprehensive and recent");
+        if (media === "print") expect(await confidence.evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       }
     }
@@ -1005,6 +1006,13 @@ test("legacy readiness has recorded levels and full details without percentage b
         await expect(readiness.getByRole("progressbar")).toHaveCount(0);
         for (const row of original.readiness_scorecard) {
           for (const field of [row.evidence, row.what_it_means, row.growth_activity, row.suggested_goal]) expect(await readiness.textContent()).toContain(field);
+        }
+        if (media === "print") {
+          for (const selector of ["[data-report-readiness-row]", "[data-report-profile-summary]", "[data-report-evidence-gap]"]) {
+            const grouping = await page.locator(selector).evaluateAll(elements => elements.map(element => getComputedStyle(element).breakInside));
+            expect(grouping.length).toBeGreaterThan(0);
+            expect(grouping.every(value => value === "avoid")).toBe(true);
+          }
         }
         expect(await page.locator(".pub-page-kicker").evaluateAll(elements => elements.some(element => /^Section \d+$/.test(element.textContent ?? "")))).toBe(false);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

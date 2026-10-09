@@ -64,11 +64,21 @@ for (const audience of ["family", "educator"] as const) {
 
 for (const audience of ["student", "family", "educator"] as const) {
   it(`${audience} reports an empty newer question list without falling back to legacy questions`, () => {
-    const report = { ...richerSharedFixture(), meeting_prep_questions: [], family_questions_for_ppt: ["Legacy-only question?"] };
+    const report = { ...richerSharedFixture(), meeting_prep_questions: [], meeting_prep_toolkit: undefined, family_questions_for_ppt: ["Legacy-only question?"] };
     const { container } = render(<ReportView name="Maya" report={report} hasV2 demo initialAudience={audience} />);
     const text = container.querySelector("[data-report-team-questions]")!.textContent ?? "";
     expect(text).toContain("No meeting questions are recorded for this report view.");
-    expect(text).not.toContain("Legacy-only question?");
+    expect(container.textContent).not.toContain("Legacy-only question?");
     expect(container.querySelector('[data-report-team-questions] a[href="#v2-meeting-qs"]')).toBeNull();
+  });
+}
+
+for (const audience of ["student", "family", "educator"] as const) {
+  it(`${audience} newer report without a toolkit renders only its newer meeting questions`, () => {
+    const report = { ...richerSharedFixture(), meeting_prep_toolkit: undefined, family_questions_for_ppt: ["Legacy-only question?"], meeting_prep_questions: questions };
+    const { container } = render(<ReportView name="Maya" report={report} hasV2 demo initialAudience={audience} />);
+    expect(container.textContent).not.toContain("Legacy-only question?");
+    expect(container.querySelector("#v2-meeting-qs")!.textContent).toContain("Recorded team question 10?");
+    expect(mocks.server).not.toHaveBeenCalled();
   });
 }

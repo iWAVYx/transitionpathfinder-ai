@@ -921,9 +921,11 @@ function ReportViewReader({
               { label: "Environmental Supports", items: r.spin_analysis.environmental_supports },
               { label: "Areas for Growth", items: r.spin_analysis.areas_for_growth },
             ]} />
-            <PublicationCallout kind="means">
-              <p>{r.spin_analysis.what_this_means}</p>
-            </PublicationCallout>
+            <div data-report-profile-summary>
+              <PublicationCallout kind="means">
+                <p>{r.spin_analysis.what_this_means}</p>
+              </PublicationCallout>
+            </div>
           </PublicationPage>
         </Block>
       )}
@@ -1010,13 +1012,13 @@ function ReportViewReader({
               }
             />
             <PublicationCallout kind="source">
-              <p>Tip: print this section as a one-page checklist to bring to the meeting.</p>
+              <p>Print this checklist and bring it to the meeting.</p>
             </PublicationCallout>
           </PublicationPage>
         </Block>
       )}
       {/* ============ Questions to bring (only when no toolkit) ============ */}
-      {!r.meeting_prep_toolkit && (
+      {!hasV2 && !r.meeting_prep_toolkit && (
         <Block title="Questions to Bring to the Next PPT" icon={<ListChecks className="h-5 w-5" />}>
           <BulletList items={r.family_questions_for_ppt} />
         </Block>
@@ -1121,6 +1123,7 @@ function ReportViewReader({
             {r.data_gaps.map((g, i) => (
               <div
                 key={i}
+                data-report-evidence-gap
                 className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
               >
                 <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
@@ -2322,7 +2325,7 @@ function MiniCard({
         accent ? "border-primary/30 bg-primary/5" : "border-border/60 bg-background",
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
+      <p data-document-subheading className="text-xs font-semibold text-foreground">{toTitleCase(label)}</p>
       <BulletList items={items} compact={compact} />
     </div>
   );
@@ -2340,7 +2343,7 @@ function HorizonCard({ label, items }: { label: string; items: string[] }) {
 function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div data-report-labeled-field className="mt-2 first:mt-0">
-      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{toTitleCase(label)}</p>
+      <p data-document-subheading className="text-xs font-semibold text-foreground">{toTitleCase(label)}</p>
       <p className="text-sm text-foreground/80">{children}</p>
     </div>
   );
