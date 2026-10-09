@@ -1,7 +1,35 @@
 /** Keep the report's editorial design while avoiding a separate page for every note. */
 export function ReportBrochurePrintStyles() {
   return <style>{`
+    /* A presentation table supplies a repeating print heading while keeping
+       the existing screen layout and document reading order. */
+    .report-root [data-report-pathway-pages],
+    .report-root [data-report-pathway-pages] > :is(thead, tbody),
+    .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr,
+    .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr > td {
+      display: block; width: 100%; border: 0; padding: 0; margin: 0;
+    }
     @media print {
+      body:has(.report-root) .report-root [data-report-pathway-pages] {
+        display: table !important; table-layout: fixed; border-collapse: collapse;
+        break-inside: auto !important; page-break-inside: auto !important;
+      }
+      body:has(.report-root) .report-root [data-report-pathway-pages] .pub-spread {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important; gap: 0.12in !important;
+      }
+      body:has(.report-root) .report-root [data-report-pathway-pages] .pub-spread-lead > div {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.06in 0.12in !important; align-items: start;
+      }
+      body:has(.report-root) .report-root [data-report-pathway-pages] [data-report-pathway-detail] {
+        padding-top: 0.04in !important; padding-bottom: 0.04in !important;
+      }
+      body:has(.report-root) .report-root [data-report-pathway-pages] .pub-checklist li + li { margin-top: 0.04in !important; }
+      body:has(.report-root) .report-root [data-report-pathway-pages] > thead { display: table-header-group !important; }
+      body:has(.report-root) .report-root [data-report-pathway-pages] > tbody { display: table-row-group !important; }
+      body:has(.report-root) .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr { display: table-row !important; }
+      body:has(.report-root) .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr > td { display: table-cell !important; vertical-align: top; }
+
       /* A consistent body page keeps the corner mark and page count stable. */
       @page report-brochure {
         size: Letter; margin: 0.5in;
@@ -101,8 +129,9 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-recommendation][data-report-recommendation] {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }
-      /* Keep short source summaries, role plans and closing details together.
+      /* Keep short action stages, source summaries, role plans and closing details together.
          Oversized records still flow across pages at the normal reading size. */
+      body:has(.report-root) .report-root .report-stage:has(#sec-thirty-day),
       body:has(.report-root) .report-root #v2-inputs-used,
       body:has(.report-root) .report-root .pub-page:has([data-report-role-plan]),
       body:has(.report-root) .report-root [data-report-closing-package] {

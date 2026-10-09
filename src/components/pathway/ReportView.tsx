@@ -1208,66 +1208,78 @@ function ReportViewReader({
           >
             {r.recommended_pathways.map((p) => (
               <div key={p.title} className="border-b border-[color:var(--pub-rule-soft)] py-6">
-                <div data-report-pathway-introduction>
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Badge
-                      variant={p.type === "best-fit" ? "default" : "secondary"}
-                      className="uppercase tracking-wider"
-                    >
-                      {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
-                    </Badge>
-                    <p className="font-display text-xl">{toTitleCase(p.title)}</p>
-                    {confidenceLabel && (
-                      <Badge variant="outline" className="gap-1 text-[11px]">
-                        <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
-                      </Badge>
-                    )}
-                    {r.student_snapshot?.readiness_level && (
-                      <Badge variant="outline" className="gap-1 text-[11px]">
-                        <Target className="h-3 w-3" /> Readiness:{" "}
-                        {READINESS_LABEL[r.student_snapshot.readiness_level] ??
-                          r.student_snapshot.readiness_level}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
-                </div>
-                <PublicationSpread
-                  lead={
-                    <div>
-                      {[
-                        { label: "Builds on These Strengths", items: p.related_strengths },
-                        { label: "Possible Barriers", items: p.possible_barriers },
-                        { label: "Supports Needed", items: p.supports_needed },
-                        { label: "At School", items: p.school_experiences },
-                        { label: "In the Community", items: p.community_experiences },
-                        { label: "Courses & Programs", items: p.courses_or_programs },
-                        { label: "Career Clusters", items: p.career_clusters },
-                        { label: "Credentials", items: p.credentials },
-                        { label: "Partner Resources", items: p.partner_resources },
-                      ].map(({ label, items }) => items?.length > 0 && (
-                        <div key={label} data-report-pathway-detail className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                          <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
-                          <BulletList items={items} compact />
+                <table role="presentation" data-report-pathway-pages>
+                  <thead data-report-pathway-introduction>
+                    <tr>
+                      <td>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <Badge
+                            variant={p.type === "best-fit" ? "default" : "secondary"}
+                            className="uppercase tracking-wider"
+                          >
+                            {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
+                          </Badge>
+                          <p className="font-display text-xl">{toTitleCase(p.title)}</p>
+                          {confidenceLabel && (
+                            <Badge variant="outline" className="gap-1 text-[11px]">
+                              <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
+                            </Badge>
+                          )}
+                          {r.student_snapshot?.readiness_level && (
+                            <Badge variant="outline" className="gap-1 text-[11px]">
+                              <Target className="h-3 w-3" /> Readiness:{" "}
+                              {READINESS_LABEL[r.student_snapshot.readiness_level] ??
+                                r.student_snapshot.readiness_level}
+                            </Badge>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  }
-                  side={
-                    <PublicationSidebar label="Action Steps">
-                      {[
-                        { label: "30 days", items: p.action_steps.thirty_day },
-                        { label: "90 days", items: p.action_steps.ninety_day },
-                        { label: "6 months", items: p.action_steps.six_month },
-                        { label: "1 year", items: p.action_steps.one_year },
-                      ].map(({ label, items }) => items.length > 0 && (
-                        <div key={label} className="mb-3">
-                          <PublicationChecklist title={toTitleCase(label)} items={items} />
-                        </div>
-                      ))}
-                    </PublicationSidebar>
-                  }
-                />
+                      </td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
+                        <PublicationSpread
+                          lead={
+                            <div>
+                              {[
+                                { label: "Builds on These Strengths", items: p.related_strengths },
+                                { label: "Possible Barriers", items: p.possible_barriers },
+                                { label: "Supports Needed", items: p.supports_needed },
+                                { label: "At School", items: p.school_experiences },
+                                { label: "In the Community", items: p.community_experiences },
+                                { label: "Courses & Programs", items: p.courses_or_programs },
+                                { label: "Career Clusters", items: p.career_clusters },
+                                { label: "Credentials", items: p.credentials },
+                                { label: "Partner Resources", items: p.partner_resources },
+                              ].map(({ label, items }) => items?.length > 0 && (
+                                <div key={label} data-report-pathway-detail className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                                  <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
+                                  <BulletList items={items} compact />
+                                </div>
+                              ))}
+                            </div>
+                          }
+                          side={
+                            <PublicationSidebar label="Action Steps">
+                              {[
+                                { label: "30 days", items: p.action_steps.thirty_day },
+                                { label: "90 days", items: p.action_steps.ninety_day },
+                                { label: "6 months", items: p.action_steps.six_month },
+                                { label: "1 year", items: p.action_steps.one_year },
+                              ].map(({ label, items }) => items.length > 0 && (
+                                <div key={label} className="mb-3">
+                                  <PublicationChecklist title={toTitleCase(label)} items={items} />
+                                </div>
+                              ))}
+                            </PublicationSidebar>
+                          }
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             ))}
           </PublicationPage>

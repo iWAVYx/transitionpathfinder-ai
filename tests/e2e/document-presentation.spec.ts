@@ -978,10 +978,28 @@ test("report introduction, recommendation and sidebar grouping is print-only acr
       expect(await page.locator(selector).count()).toBeGreaterThan(0);
       expect(await page.locator(selector).evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
     }
+    await expect(page.locator("[data-report-pathway-pages]")).toHaveCount(original.recommended_pathways.length);
+    for (const pathway of original.recommended_pathways) {
+      const table = page.locator("[data-report-pathway-pages]").filter({ hasText: pathway.title });
+      await expect(table).toHaveAttribute("role", "presentation");
+      expect(await table.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe("table-header-group");
+      const detailColumns = await table.locator(".pub-spread-lead > div").evaluate(element => {
+        const cards = Array.from(element.children).map(child => child.getBoundingClientRect());
+        return { display: getComputedStyle(element).display, columns: getComputedStyle(element).gridTemplateColumns.split(" ").length, widths: cards.map(card => card.width) };
+      });
+      expect(detailColumns.display).toBe("grid");
+      expect(detailColumns.columns).toBe(2);
+      expect(Math.max(...detailColumns.widths) - Math.min(...detailColumns.widths)).toBeLessThan(1);
+
+      for (const value of [pathway.why_it_fits, ...pathway.related_strengths, ...pathway.possible_barriers, ...pathway.supports_needed, ...pathway.school_experiences, ...pathway.community_experiences, ...pathway.courses_or_programs, ...pathway.career_clusters, ...pathway.credentials, ...pathway.partner_resources, ...Object.values(pathway.action_steps).flat()]) {
+        expect(await table.textContent()).toContain(value);
+      }
+    }
     expect(await page.locator(".pub-sidebar-label, .pub-callout-label").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakAfter === "avoid"))).toBe(true);
     expect(await page.locator(".pub-sidebar-body, .pub-callout-body").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakBefore === "avoid"))).toBe(true);
     await page.emulateMedia({ media: "screen" });
     expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
+    expect(await page.locator("[data-report-pathway-pages] > thead").evaluateAll(elements => elements.every(element => getComputedStyle(element).display === "block"))).toBe(true);
   }
 });
 
@@ -1013,7 +1031,7 @@ test("legacy readiness has recorded levels and full details without percentage b
             expect(grouping.length).toBeGreaterThan(0);
             expect(grouping.every(value => value === "avoid")).toBe(true);
           }
-          for (const selector of ["#v2-inputs-used", ".pub-page:has([data-report-role-plan])", "[data-report-closing-package]"]) {
+          for (const selector of [".report-stage:has(#sec-thirty-day)", "#v2-inputs-used", ".pub-page:has([data-report-role-plan])", "[data-report-closing-package]"]) {
             const grouping = await page.locator(selector).evaluateAll(elements => elements.map(element => getComputedStyle(element).breakInside));
             expect(grouping.length).toBeGreaterThan(0);
             expect(grouping.every(value => value === "avoid")).toBe(true);
