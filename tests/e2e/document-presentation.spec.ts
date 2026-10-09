@@ -987,3 +987,43 @@ test("printed goal follow-ups use balanced columns without changing screen detai
     }
   }
 });
+
+
+test("goal sections have distinct symmetric headings and readable long content", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const original = components.richerSharedFixture();
+    original.postsecondary_goals[0].area = "Education and Training with Recorded Interests, Support Needs and a Team Review Before Choosing the Next Learning Setting";
+    original.postsecondary_goals[0].evidence_needed.push("A complete dated observation describing the available support, what the student tried and what the student wants to review with the team before deciding on the next step.");
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
+      await page.emulateMedia({ media: "print" });
+      const goals = page.locator("[data-report-goal-section]");
+      expect(await goals.count()).toBe(original.postsecondary_goals.length);
+      await expect(goals.locator(":scope > h3")).toHaveCount(original.postsecondary_goals.length);
+      for (const geometry of await goals.locator(":scope > h3").evaluateAll(headings => headings.map(heading => {
+        const style = getComputedStyle(heading);
+        return { left: style.paddingLeft, right: style.paddingRight, background: style.backgroundColor, border: style.borderLeftWidth, font: parseFloat(style.fontSize), height: heading.clientHeight >= heading.scrollHeight - 1, align: style.textAlign };
+      }))) {
+        expect(geometry.left).toBe(geometry.right);
+        expect(geometry.background).toBe("rgb(247, 242, 250)");
+        expect(geometry.border).toBe("2px");
+        expect(geometry.font).toBeGreaterThanOrEqual(15);
+        expect(geometry.height).toBe(true);
+        expect(geometry.align).toBe("left");
+      }
+      expect(await goals.nth(1).evaluate(element => parseFloat(getComputedStyle(element).marginTop))).toBeGreaterThanOrEqual(15);
+      const last = original.postsecondary_goals[0].evidence_needed.at(-1);
+      expect(await goals.first().textContent()).toContain(last);
+      expect(await goals.locator("[data-report-goal-followups] li").evaluateAll(items => items.every(item => parseFloat(getComputedStyle(item).fontSize) >= 14))).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});

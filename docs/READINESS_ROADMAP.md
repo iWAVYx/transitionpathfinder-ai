@@ -1,10 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
-## Active Delivery Checklist — Updated October 8, 2026
+## Active Delivery Checklist — Updated October 9, 2026
 
 This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.
 
 ### 1. Finish the Current Document and Demo Package — In Progress
+
+Document acceptance requires clearly distinguished sections, uniform heading hierarchy, symmetric spacing/alignment and readable uncluttered typography. Apply this standard across all applicable role, demo, shared and export document views; do not shrink reading text to conceal pagination problems.
 
 - [x] Shared compact document styling, uniform title-case hierarchy, symmetric margins, branding and small export watermark for PPT, meeting summaries and Pathway Reports.
 - [x] Complete printed meeting fields and report goals, including content hidden by screen controls; branded school/district PDF exports with page counters.
@@ -45,7 +47,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 - [x] Complete recorded Bring To The Team questions without an eight-question cap; use newer report audience rules, preserve legacy question wording, and explain missing newer question data without legacy substitution. Focused native review now covers longer questions across all three planning audiences and both shared-reader views; short callout labels/values stay grouped in actual exported documents.
 - [ ] Reconcile the main age-aware demo report with the real report reader without fabricated fields, lost alternatives/conflicts, age-inappropriate options or replaced student context.
 - [ ] Complete final pagination/overflow review of the full Pathway Report for every supported document audience; assess remaining actual export types and demo counterparts. Goal follow-up panels now share a balanced three-column print row, reducing the reviewed stress exports by one page. Full-report spacing and compaction review remain open. Misleading legacy readiness percentage bars and resetting hardcoded section labels are now corrected; final compaction and full-reader reconciliation remain open.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `596161fb` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Head `ce30586a` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -2153,3 +2155,12 @@ Next: remaining report contract/full-document review and complete draft diff, fo
 - Regenerated five fictional actual-reader PDFs for Student/Family/Educator and fixed shared Family/Educator. For the same prior stress fixture each export is now 30 pages rather than 31. All four complete goal blocks retain every recorded field on one page; no goal field is missing. Native text checks use drawing-order extraction so columns do not falsely interleave sentences. All permitted team questions, prior callout/pathway/card grouping, margins and page counters pass. Fifteen goal/boundary pages were visually reviewed with top-right watermark retained. Goal sections still span three pages; this is focused compaction, not full-report acceptance.
 - Hosted head 596161fb passed applicable clean builds, unit, accessibility, role guards, static audits and disposable replay. Signed-in/live/RLS checks were skipped, not passed. Follow-up-head checks remain pending.
 - Next: remaining report contract/age-aware reconciliation and complete draft review; all broader roadmap milestones remain tracked. No merge, deployment, migration, real provider calls, account change or production operation occurred.
+
+
+## Draft Review: Clear Goal Boundaries, Symmetry and Readability — October 9, 2026
+
+- [x] Add restrained lavender goal-heading bands with equal side padding and a uniform gap between adjacent actual report goal sections. Keep the established heading/body font sizes, title wording, all recorded values and top-right watermark. Rules apply only to report print; screen accordion details and other site layouts stay unchanged.
+- Verification: TypeScript and all 25 offline document browser checks passed. The new role/shared check includes a long goal title and longer evidence note at 390/1024 widths, confirms every goal heading exists, equal left/right padding, aligned headings, consistent spacing, no clipped heading/overflow and readable existing font sizes. The focused case passed again after adding the explicit heading-count assertion. The preceding full unit suite remains 176 files / 1,617 tests; no data or unit logic changed.
+- Five fresh fictional actual-reader exports cover Student/Family/Educator and fixed shared Family/Educator, with long-title/note inputs. Each spans 30 pages; this fixture differs from the preceding normal-title example. Every recorded field in all four goal blocks remains complete and each goal stays on one page. Prior callout/pathway/card grouping, permitted team questions, native margins and counters pass. Fifteen affected goal/section-transition pages were visually reviewed after rendering; bands and three-column follow-up groups remain clear and readable. This is focused presentation verification, not all-document release acceptance.
+- Hosted head ce30586a passed applicable clean builds, unit, accessibility, role guards, static audits and disposable replay. Signed-in/live/RLS checks were skipped, not passed; follow-up-head checks remain pending.
+- Next: remaining demo/live report contract reconciliation and complete draft review, then specifically authorized staging release and role acceptance. All other roadmap milestones and deferred parent pilot/report snapshot remain tracked. No merge, deployment, migration, real provider calls, account change or production operation occurred.

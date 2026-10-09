@@ -136,6 +136,16 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-goal-details] .rounded-2xl {
         padding: 0.06in 0 !important;
       }
+      /* Give each printed goal a clear boundary without changing the reading size. */
+      body:has(.report-root) .report-root [data-report-goal-section] > h3 {
+        padding: 0.06in 0.1in !important; margin: 0 0 0.06in !important;
+        border-left: 2px solid #6b3a91; border-bottom: 1px solid #ded3e8;
+        background: #f7f2fa; color: #512875;
+        overflow-wrap: anywhere; print-color-adjust: exact; -webkit-print-color-adjust: exact;
+      }
+      body:has(.report-root) .report-root [data-report-goal-section] + [data-report-goal-section] {
+        margin-top: 0.16in !important;
+      }
       /* Complete goal blocks can share a page without reducing their main text. */
       body:has(.report-root) .report-root [data-report-printed-goals] > section {
         margin-top: 0.08in !important;

@@ -1183,7 +1183,7 @@ function ReportViewReader({
           </Accordion>
           <div data-report-printed-goals className="hidden print:block">
             {r.postsecondary_goals.map((goal, i) => (
-              <section key={i} className="mt-5">
+              <section data-report-goal-section key={i} className="mt-5">
                 <h3 className="font-display text-lg">{toTitleCase(goal.area)}</h3>
                 <GoalDetails goal={goal} />
               </section>
