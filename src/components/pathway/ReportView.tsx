@@ -2628,9 +2628,11 @@ function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postseconda
                     <Labeled label="Draft Goal to Discuss">
                       <span className="italic">{g.measurable_goal_language}</span>
                     </Labeled>
-                    <MiniCard label="Next Steps" items={g.next_steps} compact />
-                    <MiniCard label="People Who Can Help" items={g.who_supports} compact />
-                    <MiniCard label="Information to Gather" items={g.evidence_needed} compact />
+                    <div data-report-goal-followups className="contents">
+                      <MiniCard label="Next Steps" items={g.next_steps} compact />
+                      <MiniCard label="People Who Can Help" items={g.who_supports} compact />
+                      <MiniCard label="Information to Gather" items={g.evidence_needed} compact />
+                    </div>
                   </ReportGoalDetails>
   );
 }

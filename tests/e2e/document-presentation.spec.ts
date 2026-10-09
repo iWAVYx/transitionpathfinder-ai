@@ -952,3 +952,38 @@ test("legacy readiness has recorded levels and full details without percentage b
     }
   }
 });
+
+
+test("printed goal follow-ups use balanced columns without changing screen details", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["student", "family", "educator"]) for (const mode of audience === "student" ? ["demo", "live"] : ["demo", "live", "shared"]) {
+    const original = components.richerSharedFixture();
+    const shared = mode === "shared";
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: mode === "demo", readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
+      await page.emulateMedia({ media: "print" });
+      const goals = page.locator("[data-report-printed-goals]");
+      expect(await goals.locator("[data-report-goal-followups]").count()).toBe(original.postsecondary_goals.length);
+      for (const goal of original.postsecondary_goals) for (const value of [...goal.next_steps, ...goal.who_supports, ...goal.evidence_needed]) expect(await goals.textContent()).toContain(value);
+      const geometry = await goals.locator("[data-report-goal-followups]").evaluateAll(groups => groups.map(group => {
+        const rectangles = Array.from(group.children).map(child => child.getBoundingClientRect());
+        return { columns: getComputedStyle(group).gridTemplateColumns.split(" ").length, widths: rectangles.map(rect => rect.width), tops: rectangles.map(rect => rect.top) };
+      }));
+      for (const group of geometry) {
+        expect(group.columns).toBe(3);
+        expect(Math.max(...group.widths) - Math.min(...group.widths)).toBeLessThan(1);
+        expect(Math.max(...group.tops) - Math.min(...group.tops)).toBeLessThan(1);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await page.emulateMedia({ media: "screen" });
+      expect(await page.locator("[data-report-goal-followups]").evaluateAll(groups => groups.every(group => getComputedStyle(group).display === "contents"))).toBe(true);
+    }
+  }
+});

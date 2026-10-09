@@ -123,6 +123,14 @@ export function ReportBrochurePrintStyles() {
         gap: 0.08in !important; padding-bottom: 0 !important;
       }
       body:has(.report-root) .report-root [data-report-goal-details] > * { margin-top: 0 !important; min-width: 0; }
+      body:has(.report-root) .report-root [data-report-goal-followups] {
+        display: grid !important; grid-column: 1 / -1;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 0.12in !important; align-items: start;
+      }
+      body:has(.report-root) .report-root [data-report-goal-followups] > * {
+        min-width: 0; break-inside: avoid !important; page-break-inside: avoid !important;
+      }
       body:has(.report-root) .report-root [data-report-goal-details] p + p,
       body:has(.report-root) .report-root [data-report-plan-step] p + p { margin-top: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-goal-details] .rounded-2xl {
