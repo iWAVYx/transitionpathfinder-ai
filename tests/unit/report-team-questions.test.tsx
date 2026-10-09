@@ -38,7 +38,9 @@ for (const audience of ["student", "family", "educator"] as const) for (const de
     const report = { ...richerSharedFixture(), meeting_prep_questions: questions };
     const { container } = render(<ReportView name="Maya" report={report} hasV2 demo={demo} initialAudience={audience} />);
     const section = container.querySelector("[data-report-team-questions]")!;
-    const text = section.textContent ?? "";
+    expect(section.querySelector('a[href="#v2-meeting-qs"]')).not.toBeNull();
+    expect(section.textContent).not.toContain("Recorded team question 10?");
+    const text = container.querySelector("#v2-meeting-qs")!.textContent ?? "";
     expect(text).toContain("Recorded team question 10?");
     expect(text).toContain("Recorded student question?");
     expect(text.includes("Recorded family question?")).toBe(audience !== "student");
@@ -51,7 +53,8 @@ for (const audience of ["family", "educator"] as const) {
   it(`${audience} shared team checklist retains all permitted recorded questions`, () => {
     const report = projectSharedReport({ ...richerSharedFixture(), meeting_prep_questions: questions }, audience)!;
     const { container } = render(<ReportView name="this student" report={report} hasV2 readOnly fixedAudience={audience} initialAudience={audience} />);
-    const text = container.querySelector("[data-report-team-questions]")!.textContent ?? "";
+    expect(container.querySelector('[data-report-team-questions] a[href="#v2-meeting-qs"]')).not.toBeNull();
+    const text = container.querySelector("#v2-meeting-qs")!.textContent ?? "";
     expect(text).toContain("Recorded team question 10?");
     expect(text).toContain("Recorded family question?");
     expect(text.includes("Recorded educator question?")).toBe(audience === "educator");
@@ -66,5 +69,6 @@ for (const audience of ["student", "family", "educator"] as const) {
     const text = container.querySelector("[data-report-team-questions]")!.textContent ?? "";
     expect(text).toContain("No meeting questions are recorded for this report view.");
     expect(text).not.toContain("Legacy-only question?");
+    expect(container.querySelector('[data-report-team-questions] a[href="#v2-meeting-qs"]')).toBeNull();
   });
 }

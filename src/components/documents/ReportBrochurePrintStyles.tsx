@@ -325,6 +325,9 @@ export function ReportBrochurePrintStyles() {
         padding: 0.12in !important; margin: 0.08in 0 !important;
       }
       body:has(.report-root) .report-root .eh-chapter { break-inside: avoid !important; }
+      body:has(.report-root) .report-root [data-report-meeting-summary] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
     }
   `}</style>;
 }

@@ -848,7 +848,7 @@ test("complete recorded team questions retain role visibility on screen and in p
   const css = compiler.build(scanner.scan());
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   const questions = [
-    ...Array.from({ length: 10 }, (_, i) => ({ question: `Recorded team question ${i + 1}?`, for_audience: "team" })),
+    ...Array.from({ length: 10 }, (_, i) => ({ question: `Recorded team question ${i + 1}?`, for_audience: "team", why: `Context for recorded question ${i + 1}.` })),
     { question: "Recorded educator question?", for_audience: "educator" },
     { question: "Recorded family question?", for_audience: "family" },
   ];
@@ -866,14 +866,18 @@ test("complete recorded team questions retain role visibility on screen and in p
         for (const media of ["screen", "print"] as const) {
           await page.emulateMedia({ media });
           const section = page.locator("[data-report-team-questions]");
-          if (media === "print") {
-            expect(await section.locator('[data-value-callout-row="recommendedNextStep"]').evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
-            expect(await section.locator('[data-value-callout-row="questionsForTeam"]').evaluate(element => getComputedStyle(element).breakInside)).not.toBe("avoid");
-            expect(await section.locator('[data-value-callout-question]').evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
+          await expect(section.locator('a[href="#v2-meeting-qs"]')).toBeVisible();
+          await expect(section.locator('[data-value-callout-question]')).toHaveCount(0);
+          if (media === "print") expect(await section.evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
+          const questionsSection = page.locator("#v2-meeting-qs");
+          if (media === "print") expect(await questionsSection.locator("li").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
+          for (let i = 1; i <= 10; i++) {
+            await expect(page.getByText(`Recorded team question ${i}?`, { exact: true })).toHaveCount(1);
+            await expect(questionsSection.getByText(`Recorded team question ${i}?`, { exact: true })).toBeVisible();
+            expect(await questionsSection.getByText(`Context for recorded question ${i}.`, { exact: true }).count()).toBe(audience === "student" ? 0 : 1);
           }
-          for (let i = 1; i <= 10; i++) await expect(section.getByText(`Recorded team question ${i}?`, { exact: true })).toBeVisible();
-          expect(await section.getByText("Recorded educator question?", { exact: true }).count()).toBe(audience === "educator" ? 1 : 0);
-          expect(await section.getByText("Recorded family question?", { exact: true }).count()).toBe(audience === "student" ? 0 : 1);
+          expect(await questionsSection.getByText("Recorded educator question?", { exact: true }).count()).toBe(audience === "educator" ? 1 : 0);
+          expect(await questionsSection.getByText("Recorded family question?", { exact: true }).count()).toBe(audience === "student" ? 0 : 1);
           expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
         }
       }

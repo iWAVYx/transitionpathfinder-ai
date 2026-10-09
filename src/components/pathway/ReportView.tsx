@@ -1477,7 +1477,7 @@ function ReportViewReader({
       )}
 
       {/* ============ Bring To The Team — consolidated decision checklist ============ */}
-      <section id="report-team-questions" data-report-team-questions className="report-section mt-10 page-break">
+      <section id="report-team-questions" data-report-team-questions data-report-meeting-summary={hasV2 || undefined} className="report-section mt-10 page-break">
         <div className="mb-3 flex items-center gap-2">
           <ListChecks className="h-5 w-5 text-primary" />
           <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>
@@ -1490,7 +1490,7 @@ function ReportViewReader({
           data={{
             ...CHAPTER_VALUE_DEFAULTS.bring_to_team,
             whatThisMeans: teamQuestions.length ? "Recorded questions for this report view, ready to discuss with your team." : "No meeting questions are recorded for this report view. Review the report and add your questions before the meeting.",
-            questionsForTeam: teamQuestions,
+            questionsForTeam: hasV2 ? [] : teamQuestions,
             recommendedNextStep: `Confirm an owner and a date for each next step before you leave the meeting.`,
             informationUsed: [
               teamQuestions.length ? "Recorded meeting questions for this view" : "This report view",
@@ -1498,6 +1498,14 @@ function ReportViewReader({
             ].filter(Boolean) as string[],
           }}
         />
+        {hasV2 && teamQuestions.length > 0 && (
+          <p className="mt-3 text-sm">
+            <a href="#v2-meeting-qs" className="font-medium text-primary underline underline-offset-4">
+              Read Your Meeting Prep Questions
+            </a>
+            {" — including the recorded context for this report view."}
+          </p>
+        )}
       </section>
 
       {hasV2 && <>
