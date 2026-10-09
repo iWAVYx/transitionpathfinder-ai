@@ -299,7 +299,7 @@ const PATHWAY_CATALOG: PathwayOption[] = [
     title: "Lead one section of the annual PPT meeting",
     category: "advocacy",
     fitSummary:
-      "Student voice is the strongest predictor of postsecondary outcomes.",
+      "Sharing priorities at the meeting helps the team understand what matters to the student.",
     ahead: "Team shares the agenda and script template early.",
     beside: "Family rehearses the section with the student.",
     behind: "Debrief after the meeting — what to lead next year.",
@@ -386,7 +386,7 @@ function buildBlocks(profile: DemoProfile): ReportBlock[] {
       heading: "Why This Pathway Fits",
       body: fitNarrative(profile),
       bullets: [
-        `Age-appropriate for ${demographics.gradeLabel} — no themes that skip past where ${profile.shortName} actually is.`,
+        `Selected for the ${demographics.gradeLabel} sample. Review suitability and any participation requirements with ${profile.shortName} and the team.`,
         `Readiness overall: ${readinessLabel(readiness.overall)}. By area — education: ${readinessLabel(readiness.byArea.education)}, employment: ${readinessLabel(readiness.byArea.employment)}, living: ${readinessLabel(readiness.byArea.living)}, advocacy: ${readinessLabel(readiness.byArea.advocacy)}.`,
         `Environment fit — seek ${environment.environmentsToSeek.join("; ")}. Avoid ${environment.environmentsToAvoid.join("; ")}.`,
       ],
@@ -536,14 +536,15 @@ function deriveNextSteps(profile: DemoProfile): NextStep[] {
 }
 
 function fitNarrative(profile: DemoProfile): string {
-  const g = profile.demographics.gradeNumber;
-  if (g <= 8) {
-    return `At Grade 7, the right work is high-school exploration and confidence — not adult employment. Every option here is picked to give ${profile.shortName} real experience of what different high schools feel like, in the languages the family uses at home, on transportation that actually works.`;
+  const { gradeNumber, gradeLabel } = profile.demographics;
+  const name = profile.shortName;
+  if (gradeNumber <= 8) {
+    return `For ${name} in ${gradeLabel}, these sample options focus on exploring school choices, interests and helpful supports. Review the learning setting, language support and travel arrangements with the student, family and school team before choosing an option.`;
   }
-  if (g <= 10) {
-    return `Grade 9 is where CT transition planning formally begins. The right work is exploration, structured belonging in a big new school, and the first self-advocacy skills — not job placement or agency referrals. Every option below is age-appropriate exposure.`;
+  if (gradeNumber <= 10) {
+    return `For ${name} in ${gradeLabel}, these sample options focus on school pathways, structured extracurricular activities and practicing self-advocacy. Review the student's interests and support needs, then check program availability and participation requirements with the team.`;
   }
-  return `At Grade 11 with rights transferring next year, the pathway centers on postsecondary direction, meaningful paid work-based learning, and the adult-service connections ${profile.shortName} will lean on for years. Student voice at the PPT is the strongest predictor of outcomes — so ${profile.shortName} leads.`;
+  return `For ${name} in ${gradeLabel}, these sample options connect further education, supported work experience and daily-living goals. Include the student's priorities in planning, and confirm program eligibility, available supports and any decision-making questions with the team before agreeing on next steps.`;
 }
 
 function readinessLabel(band: string): string {
