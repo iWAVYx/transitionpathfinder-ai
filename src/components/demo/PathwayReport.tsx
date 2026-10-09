@@ -184,6 +184,9 @@ export function PathwayReport({
             [data-age-aware-report] [data-demo-report-section] > div,
             [data-age-aware-report] [data-demo-pathway-option] > div { padding: 0.1in !important; }
             [data-age-aware-report] .report-stage > header { break-after: avoid; }
+            body:has(.report-root) .report-root [data-report-opportunity-matches][data-report-opportunity-matches] {
+              break-inside: avoid !important; page-break-inside: avoid !important;
+            }
             [data-age-aware-report] [data-document-columns] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             [data-age-aware-report] [data-single-report-block] { grid-template-columns: minmax(0, 1fr) !important; }
           }

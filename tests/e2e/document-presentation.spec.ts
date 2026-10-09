@@ -1149,7 +1149,7 @@ test("report heading text aligns with chapter margins across planning and shared
     }));
     for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
       await page.setViewportSize({ width, height: 900 });
-      await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body>${markup}</body></html>`);
+      await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body><main class="site-shell-main">${markup}</main></body></html>`);
       await page.emulateMedia({ media });
       const measurements = await page.locator(".report-stage").evaluateAll(stages => {
         const textLeft = (element: Element) => {
@@ -1200,7 +1200,7 @@ test("sample report headings and content share balanced card margins for every a
     const markup = renderToStaticMarkup(createElement(components.PathwayReport, { profile: components.getDemoProfile(profile), audience }));
     for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
       await page.setViewportSize({ width, height: 900 });
-      await page.setContent(`<html><head><style>${css}</style></head><body>${markup}</body></html>`);
+      await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main">${markup}</main></body></html>`);
       await page.emulateMedia({ media });
       const cards = await page.locator("[data-demo-report-section]").evaluateAll(elements => elements.map(card => {
         const heading = card.querySelector("h3")!;
@@ -1216,6 +1216,13 @@ test("sample report headings and content share balanced card margins for every a
         expect(Math.abs(card.headingLeft - card.contentLeft), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
         expect(Math.abs(card.headingRight - card.contentRight), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
       }
+      const opportunities = await page.locator("[data-report-opportunity]").evaluateAll(cards => cards.map(card => {
+        const heading = card.querySelector("h3")!;
+        const summary = card.querySelector(":scope > p")!;
+        return { title: heading.textContent, headingLeft: heading.getBoundingClientRect().left, summaryLeft: summary.getBoundingClientRect().left };
+      }));
+      expect(opportunities.length).toBeGreaterThan(0);
+      for (const opportunity of opportunities) expect(Math.abs(opportunity.headingLeft - opportunity.summaryLeft), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(opportunity)}`).toBeLessThan(1);
       const overflow = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth,
         elements: Array.from(document.querySelectorAll("[data-generated-document] *")).filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 5).map(e => ({ tag: e.tagName, cls: e.className, right: e.getBoundingClientRect().right })) }));
       expect(overflow.scroll <= overflow.width, `${profile}/${audience}/${width}/${media}: ${JSON.stringify(overflow)}`).toBe(true);
