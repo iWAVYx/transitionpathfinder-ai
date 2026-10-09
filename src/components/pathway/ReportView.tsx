@@ -1141,9 +1141,9 @@ function ReportViewReader({
             <>
       {/* ============ Readiness scorecard ============ */}
       {r.readiness_scorecard && r.readiness_scorecard.length > 0 && (
-        <Block id="sec-readiness" title="Transition Readiness Scorecard" icon={<Target className="h-5 w-5" />}>
+        <Block id="sec-readiness" title="Readiness Snapshot" icon={<Target className="h-5 w-5" />}>
           <PublicationPage
-            chapter="Transition Readiness Scorecard"
+            chapter="Readiness Snapshot"
             dek="A strengths-based snapshot. These are conversation starters, not grades."
             folio="p. 04"
           >

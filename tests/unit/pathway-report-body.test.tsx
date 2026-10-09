@@ -71,6 +71,40 @@ describe("PathwayReportBody", () => {
     expect(html).toContain("Appendix");
   });
 
+  it("uses document wording without promising uploads, scores, fixed timeframes or missing appendix content", () => {
+    const workspaceTitles = WORKSPACE_STAGES.map(stage => stage.title);
+    const html = renderToStaticMarkup(<PathwayReportBody sections={{
+      student_snapshot: <p>Recorded student details</p>,
+      data_gaps: <p>Current information and open questions</p>,
+      readiness_scorecard: <p>Recorded qualitative levels</p>,
+      next_steps_30_90_180_365: <p>Next semester: recorded follow-up</p>,
+    }} appendix={<p>Recorded review note only</p>} />);
+    expect(html).toContain("About the Student");
+    expect(html).toContain("Readiness and Support");
+    expect(html).toContain("Next semester: recorded follow-up");
+    expect(html).toContain("Review additional notes and follow-up information included with this report.");
+    expect(html).not.toMatch(/Upload IEPs|Readiness Scorecard|30 \/ 90 \/ 180 \/ 365 Day Plan|Timeline, items flagged|nine-stage journey/);
+    expect(WORKSPACE_STAGES.map(stage => stage.title)).toEqual(workspaceTitles);
+    expect(workspaceTitles).toContain("Pathway Builder");
+    expect(workspaceTitles).toContain("Readiness Scorecard");
+  });
+
+  it("preserves caller-specific sample framing and original navigation targets", () => {
+    const html = renderToStaticMarkup(<PathwayReportBody sections={{
+      family_action_plan: <p>Recorded travel context</p>,
+      next_steps_30_90_180_365: <p>This semester</p>,
+    }} sectionLabels={{ family_action_plan: "Family Context" }} stageCopy={{ family: { title: "Family Context", description: "Discuss the recorded travel options." },
+      action: { title: "Sample Next Steps", description: "Use the recorded sample timeframes." } }} />);
+    expect(html).toContain("Family Context");
+    expect(html).toContain("Discuss the recorded travel options.");
+    expect(html).toContain("Sample Next Steps");
+    expect(html).toContain("Use the recorded sample timeframes.");
+    expect(html).toContain('aria-label="Family Context"');
+    expect(html).toContain('aria-label="Next Steps"');
+    expect(html).toContain('id="stage-family"');
+    expect(html).toContain('id="section-next_steps_30_90_180_365"');
+  });
+
   it("exposes a stable anchor id per stage", () => {
     for (const stage of WORKSPACE_STAGES) {
       expect(reportStageAnchorId(stage.id)).toBe(`stage-${stage.id}`);

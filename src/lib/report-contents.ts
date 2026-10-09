@@ -10,7 +10,7 @@ export function liveReportContents(report: PathwayReport, name: string, {
   if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
   items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
   if (report.spin_analysis) items.push({ id: "sec-spin", label: "Strengths, Preferences, Interests & Needs" });
-  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Transition Readiness Scorecard" });
+  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Readiness Snapshot" });
   if (report.recommended_pathways?.length) items.push({ id: "sec-pathways", label: "Recommended Pathways" });
   if (report.career_matches?.length) items.push({ id: "sec-careers", label: "Career & Life Pathway Matches" });
   if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary Goal Breakdown" });

@@ -17,6 +17,19 @@ import { reportSectionAnchorId } from "./PathwayReportSpine";
 import { Fragment, isValidElement, type ReactNode } from "react";
 import { WORKSPACE_STAGES, type PathwayReportSectionId, type StageId, REPORT_SECTION_LABELS } from "@/lib/workspace/stages";
 
+/** Report headings describe the document; workspace instructions stay in the workspace. */
+const REPORT_STAGE_COPY: Record<StageId, { title: string; description: string }> = {
+  start: { title: "About the Student", description: "Start with the student's current situation, interests and priorities for planning." },
+  voice: { title: "Student Voice", description: "Use the student's perspective to discuss strengths, preferences and helpful supports." },
+  family: { title: "Family Perspective", description: "Discuss family priorities and practical ways to support the next steps." },
+  school: { title: "School Team Insight", description: "Discuss how educators and case managers can support the student's goals." },
+  evidence: { title: "Documents and Evidence", description: "Review the information available for planning and any questions that need follow-up." },
+  ready: { title: "Readiness and Support", description: "Use the readiness information shown here to discuss strengths, support needs and areas to explore." },
+  roadmap: { title: "Pathway and Goals", description: "Discuss pathways and goals with the student and team before agreeing on next steps." },
+  action: { title: "Next Steps", description: "Plan follow-up using the timing and responsibilities shown in this report. Agree with the team on any details still needed." },
+  connect: { title: "Resources and Opportunities", description: "Explore relevant resources and opportunities, then check details and availability with the program or provider." },
+};
+
 /**
  * Node(s) already rendered for each report section. Multiple JSX
  * blocks may map to the same section (e.g. the primary meeting-prep
@@ -31,6 +44,8 @@ export interface PathwayReportBodyProps {
   sections: PathwayReportSections;
   /** Preserve source-defined horizons instead of relabelling them as fixed day plans. */
   stageCopy?: Partial<Record<StageId, { title: string; description: string }>>;
+  /** Match section names to the content supplied by this reader. */
+  sectionLabels?: Partial<Record<PathwayReportSectionId, string>>;
   /** Non-stage content rendered under an Appendix heading. */
   appendix?: ReactNode;
 }
@@ -52,7 +67,7 @@ function isEmpty(node: ReactNode | ReactNode[] | undefined): boolean {
   return false;
 }
 
-export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayReportBodyProps) {
+export function PathwayReportBody({ sections, appendix, stageCopy, sectionLabels }: PathwayReportBodyProps) {
   return (
     <div className="pathway-report-body">
       {WORKSPACE_STAGES.map((stage) => {
@@ -74,10 +89,10 @@ export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayRepo
                 Stage {stage.order} · {stage.label}
               </p>
               <h2 className="mt-2 font-display text-3xl tracking-tight sm:text-4xl">
-                {stageCopy?.[stage.id]?.title ?? stage.title}
+                {stageCopy?.[stage.id]?.title ?? REPORT_STAGE_COPY[stage.id].title}
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                {stageCopy?.[stage.id]?.description ?? stage.description}
+                {stageCopy?.[stage.id]?.description ?? REPORT_STAGE_COPY[stage.id].description}
               </p>
             </header>
             <div className="report-stage-sections space-y-6">
@@ -86,7 +101,11 @@ export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayRepo
                   key={sectionId}
                   id={reportSectionAnchorId(sectionId)}
                   data-report-section={sectionId}
-                  aria-label={REPORT_SECTION_LABELS[sectionId]}
+                  aria-label={sectionLabels?.[sectionId] ?? (
+                    sectionId === "readiness_scorecard" ? "Readiness Snapshot"
+                      : sectionId === "next_steps_30_90_180_365" ? "Next Steps"
+                      : REPORT_SECTION_LABELS[sectionId]
+                  )}
                 >
                   {Array.isArray(node) ? node : node}
                 </div>
@@ -112,9 +131,7 @@ export function PathwayReportBody({ sections, appendix, stageCopy }: PathwayRepo
               Supporting Notes
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Timeline, items flagged for human review, and other supporting
-              material that sits alongside — not inside — the nine-stage
-              journey.
+              Review additional notes and follow-up information included with this report.
             </p>
           </header>
           <div className="space-y-6">{appendix}</div>

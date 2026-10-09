@@ -208,6 +208,7 @@ export function PathwayReport({
           { id: "report-appendix", label: "Review Notes and When to Revisit" },
         ]} />
         <PathwayReportBody
+          sectionLabels={{ family_action_plan: "Family Context", educator_action_plan: "How Your Team Can Help" }}
           stageCopy={{ family: {
             title: "Family Context", description: "Consider family priorities, travel options and scheduling when planning next steps together.",
           }, roadmap: {
@@ -244,8 +245,8 @@ export function PathwayReport({
             </DocumentSectionTitle> : null,
             educator_action_plan: blocks("ahead_beside_behind"),
             data_gaps: blocks("evidence", "unknowns"),
-            readiness_scorecard: <DocumentSectionTitle title={REPORT_SECTION_LABELS.readiness_scorecard}>
-              <PublicationPage kicker="Readiness Snapshot" chapter={REPORT_SECTION_LABELS.readiness_scorecard}
+            readiness_scorecard: <DocumentSectionTitle title="Readiness Snapshot">
+              <PublicationPage kicker="Readiness Snapshot" chapter="Readiness Snapshot"
                 dek="These recorded sample bands are conversation starters, not grades or assessment scores.">
                 <div data-demo-readiness-overall className="flex flex-wrap items-start justify-between gap-3">
                   <h3>Overall Readiness</h3><ReadinessBadge level={profile.readiness.overall} compact />
