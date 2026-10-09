@@ -536,8 +536,8 @@ function PathwayOptions({
         {options.map((opt) => (
           <Card key={opt.id} data-demo-pathway-option={opt.id}>
             <CardHeader className="pb-2">
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="text-base leading-snug">{toTitleCase(opt.title)}</h3>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h3 className="min-w-0 text-base leading-snug">{toTitleCase(opt.title)}</h3>
                 <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-wider">
                   {CATEGORY_LABEL[opt.category]}
                 </Badge>

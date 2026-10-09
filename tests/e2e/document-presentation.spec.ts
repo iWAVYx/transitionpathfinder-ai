@@ -1186,3 +1186,39 @@ test("report heading text aligns with chapter margins across planning and shared
     }
   }
 });
+
+
+test("sample report headings and content share balanced card margins for every age and audience", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const profile of ["sam", "riley", "jordan"]) for (const audience of ["student", "family", "educator"]) {
+    const markup = renderToStaticMarkup(createElement(components.PathwayReport, { profile: components.getDemoProfile(profile), audience }));
+    for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body>${markup}</body></html>`);
+      await page.emulateMedia({ media });
+      const cards = await page.locator("[data-demo-report-section]").evaluateAll(elements => elements.map(card => {
+        const heading = card.querySelector("h3")!;
+        const header = heading.parentElement!;
+        const content = header.nextElementSibling!;
+        const h = heading.getBoundingClientRect(), c = content.getBoundingClientRect();
+        const style = getComputedStyle(content);
+        return { section: card.getAttribute("data-demo-report-section"), headingLeft: h.left, headingRight: h.right,
+          contentLeft: c.left + parseFloat(style.paddingLeft), contentRight: c.right - parseFloat(style.paddingRight) };
+      }));
+      expect(cards.length).toBeGreaterThan(0);
+      for (const card of cards) {
+        expect(Math.abs(card.headingLeft - card.contentLeft), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
+        expect(Math.abs(card.headingRight - card.contentRight), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
+      }
+      const overflow = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth,
+        elements: Array.from(document.querySelectorAll("[data-generated-document] *")).filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 5).map(e => ({ tag: e.tagName, cls: e.className, right: e.getBoundingClientRect().right })) }));
+      expect(overflow.scroll <= overflow.width, `${profile}/${audience}/${width}/${media}: ${JSON.stringify(overflow)}`).toBe(true);
+    }
+  }
+});

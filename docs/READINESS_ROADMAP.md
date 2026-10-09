@@ -2244,3 +2244,11 @@ Next: remaining report contract/full-document review and complete draft diff, fo
 - Verification: 27 offline document browser checks, TypeScript and diff whitespace checks passed. Five fresh synthetic actual/shared report PDFs retain all four goals and permitted questions, valid margins and counters (30 pages each). Targeted Family overview/goal pages were visually inspected; full visual review of all pages and signed-in acceptance remain open.
 - Prior head f7b62e4a passed applicable hosted checks; signed-in/live/RLS checks were skipped. Follow-up checks remain pending.
 - Next: finish generated-document visual/reader review, including sample headings, before separately authorized staging release. Broader roadmap and deferred parent-pilot/report-snapshot items remain tracked. No merge, deployment, migration, provider call or production operation occurred.
+
+
+## Draft Review: Demo Heading and Card Margins — October 9, 2026
+
+- [x] Check sample report card heading/content edges across Sam, Riley and Jordan in Student, Family and Educator views, at 390/1024 widths in screen and print media (36 combinations).
+- [x] Fix a pathway category badge overflowing a narrow print view by allowing its title row to wrap. Keep the complete title and category; no font reduction or clipped content.
+- Verification: all 28 offline document browser tests and TypeScript passed. Separate 18 screen checks at 375/1440 passed. Three fresh Family demo PDFs span 11/10/12 pages for Sam/Riley/Jordan; all four goals with recorded statuses/timeframes and page margins pass. Visually inspected the recommended-options page for each profile. This is targeted visual evidence, not complete review of all 33 pages or live role acceptance.
+- Prior head 6bd1a28a passed applicable hosted checks; live/signed-in/RLS checks were skipped. New head checks remain pending. Next: continue remaining full-document pagination/reader reconciliation and draft review before a separately authorized staging release. Broader roadmap and deferred parent-pilot/report-snapshot work remain tracked. No merge, deployment, migration or production operation occurred.
