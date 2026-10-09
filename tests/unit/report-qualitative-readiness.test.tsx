@@ -59,3 +59,23 @@ for (const overall of ["low", "medium", "high"]) {
     expect(container.querySelector("#v2-confidence")!.textContent).toContain("No explanation or review notes are recorded for this confidence level.");
   });
 }
+
+
+for (const audience of ["student", "family", "educator"] as const) for (const mode of audience === "student" ? ["demo", "live"] : ["demo", "live", "shared"]) {
+  it(`${audience} ${mode} legacy readiness preserves full recorded details without percentage fallbacks or reset section numbers`, () => {
+    const original = richerSharedFixture();
+    const snapshot = structuredClone(original);
+    const shared = mode === "shared";
+    const report = shared ? projectSharedReport(original, audience)! : original;
+    const { container } = render(<ReportView name="Maya" report={report} hasV2 demo={mode === "demo"} readOnly={shared} fixedAudience={shared ? audience : undefined} initialAudience={audience} />);
+    const readiness = container.querySelector("#sec-readiness")!;
+    expect(readiness.querySelector('[role="progressbar"]')).toBeNull();
+    for (const row of original.readiness_scorecard) {
+      for (const field of [row.evidence, row.what_it_means, row.growth_activity, row.suggested_goal]) expect(readiness.textContent).toContain(field);
+    }
+    expect(Array.from(container.querySelectorAll(".pub-page-kicker")).some(element => /^Section \d+$/.test(element.textContent ?? ""))).toBe(false);
+    expect(container.querySelector("#v2-meeting-qs") !== null).toBe(audience !== "student");
+    expect(original).toEqual(snapshot);
+    expect(mocks.server).not.toHaveBeenCalled();
+  });
+}

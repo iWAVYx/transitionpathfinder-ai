@@ -123,7 +123,6 @@ export function ReportV2Sections({
 
       {iep && (
         <PublicationPage
-          kicker="Section 01"
           chapter="IEP / Transition Plan Summary"
           dek={
             iep.caveats ??
@@ -197,7 +196,6 @@ export function ReportV2Sections({
 
       <PillarRecsBlock
         id="v2-edu"
-        sectionNum="02"
         icon={<BookOpen className="h-5 w-5" />}
         title="Postsecondary Education & Training Recommendations"
         audience={audience}
@@ -206,7 +204,6 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-emp"
-        sectionNum="03"
         icon={<Briefcase className="h-5 w-5" />}
         title="Employment Pathway Recommendations"
         audience={audience}
@@ -215,7 +212,6 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-il"
-        sectionNum="04"
         icon={<Home className="h-5 w-5" />}
         title="Independent Living Recommendations"
         audience={audience}
@@ -224,7 +220,6 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-comm"
-        sectionNum="05"
         icon={<Users className="h-5 w-5" />}
         title="Community Participation Recommendations"
         audience={audience}
@@ -234,7 +229,6 @@ export function ReportV2Sections({
 
       {resourceMatches.length > 0 && (
         <PublicationPage
-          kicker="Section 06"
           chapter="Resource Matches"
           dek="Resources matched to this student's interests, goals, and supports."
         >
@@ -280,7 +274,6 @@ export function ReportV2Sections({
 
       {partnerMatches.length > 0 && (
         <PublicationPage
-          kicker="Section 07"
           chapter="Partner / Opportunity Matches"
           dek="Programs, internships, and adult-service partners matched to this student."
         >
@@ -335,7 +328,6 @@ export function ReportV2Sections({
 
       {gaps.length > 0 && (
         <PublicationPage
-          kicker="Section 08"
           chapter="Missing Information & Planning Gaps"
           dek="Filling these in will make the next regeneration of this report sharper."
         >
@@ -368,7 +360,6 @@ export function ReportV2Sections({
       {(audience === "student" || audience === "family") && studentPlan && (
         <ActionPlanBlock
           id="v2-student-plan"
-          sectionNum="09"
           title="Student Action Plan"
           plan={studentPlan}
           pronoun="you"
@@ -377,7 +368,6 @@ export function ReportV2Sections({
       {familyPlan && (
         <ActionPlanBlock
           id="v2-family-plan"
-          sectionNum="10"
           title="Family Action Plan"
           plan={familyPlan}
           pronoun="your family"
@@ -386,7 +376,6 @@ export function ReportV2Sections({
       {audience === "educator" && eduPlan && (
         <ActionPlanBlock
           id="v2-edu-plan"
-          sectionNum="11"
           title="Educator / Case Manager Action Plan"
           plan={eduPlan}
           pronoun="the team"
@@ -395,7 +384,6 @@ export function ReportV2Sections({
 
       {visibleMeetingQs.length ? (
         <PublicationPage
-          kicker="Section 12"
           chapter="Meeting Prep Questions"
           dek="Bring these to the next PPT / IEP / transition meeting."
         >
@@ -427,7 +415,6 @@ export function ReportV2Sections({
 
       {cross && (
         <PublicationPage
-          kicker="Section 13"
           chapter="30 / 90 Day · 6-Month · 1-Year Plan"
           dek="A cross-cutting view of what should happen, when."
         >
@@ -449,14 +436,12 @@ export function ReportV2Sections({
 
 function PillarRecsBlock({
   id,
-  sectionNum,
   title,
   audience,
   message,
   recs,
 }: {
   id: string;
-  sectionNum: string;
   icon: React.ReactNode;
   title: string;
   audience: V2Audience;
@@ -473,7 +458,6 @@ function PillarRecsBlock({
   if (!recs.length) return null;
   return (
     <PublicationPage
-      kicker={`Section ${sectionNum}`}
       chapter={title}
       dek={message}
     >
@@ -524,20 +508,17 @@ function ChipList({ label, items }: { label: string; items?: string[] }) {
 
 function ActionPlanBlock({
   id,
-  sectionNum,
   title,
   plan,
   pronoun,
 }: {
   id: string;
-  sectionNum: string;
   title: string;
   plan: ActionPlan;
   pronoun: string;
 }) {
   return (
     <PublicationPage
-      kicker={`Section ${sectionNum}`}
       chapter={title}
       dek={plan.intro ?? `What ${pronoun} can do, broken out by timeframe.`}
     >

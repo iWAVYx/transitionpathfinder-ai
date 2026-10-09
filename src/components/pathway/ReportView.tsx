@@ -49,7 +49,6 @@ import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Accordion,
   AccordionContent,
@@ -108,13 +107,6 @@ import { resolveReportAudience } from "@/lib/report-role-precedence";
 
 
 type Audience = "student" | "family" | "educator";
-
-const READINESS_PCT: Record<string, number> = {
-  emerging: 20,
-  developing: 45,
-  progressing: 70,
-  ready: 92,
-};
 
 const PATHWAY_TYPE_LABEL: Record<string, string> = {
   "best-fit": "Best fit",
@@ -829,7 +821,6 @@ function ReportViewReader({
       {r.student_snapshot && (
         <Block id="sec-snapshot" title="Student Snapshot" icon={<Compass className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 01"
             chapter="Student Snapshot"
             dek={`A profile of ${name} — strengths, preferences, and transition status.`}
             folio="p. 02"
@@ -896,7 +887,6 @@ function ReportViewReader({
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
         <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 05"
             chapter={`In ${name}'s Voice`}
             dek={`Questions for ${name} to think through — alone, with family, or with a teacher.`}
             folio="p. 06"
@@ -917,7 +907,6 @@ function ReportViewReader({
       {r.spin_analysis && (
         <Block id="sec-spin" title="Strengths, Preferences, Interests & Needs" icon={<Sparkles className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 02"
             chapter="Strengths, Preferences, Interests & Needs"
             dek="A multi-dimensional profile to ground every goal conversation."
             folio="p. 03"
@@ -950,7 +939,6 @@ function ReportViewReader({
       {!hasV2 && r.family_action_plan && (
         <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 06"
             chapter="Family Action Plan"
             dek="A time-phased checklist for the family — from this week to graduation."
             folio="p. 07"
@@ -987,7 +975,6 @@ function ReportViewReader({
       {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 07"
             chapter="Next PPT / IEP Meeting Prep"
             dek="Print this page and bring it to the next PPT. One list — every open question and next step."
             folio="p. 08"
@@ -1156,18 +1143,12 @@ function ReportViewReader({
       {r.readiness_scorecard && r.readiness_scorecard.length > 0 && (
         <Block id="sec-readiness" title="Transition Readiness Scorecard" icon={<Target className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 03"
             chapter="Transition Readiness Scorecard"
             dek="A strengths-based snapshot. These are conversation starters, not grades."
             folio="p. 04"
           >
             {r.readiness_scorecard.map((row) => (
               <ReportReadinessRow key={row.category} title={toTitleCase(row.category)} level={row.level}>
-                <Progress
-                  value={READINESS_PCT[row.level] ?? 50}
-                  className="mt-2 h-1.5"
-                  aria-label={`${toTitleCase(row.category)} readiness: ${row.level}`}
-                />
                 <p className="mt-2 text-sm text-foreground/80">{row.evidence}</p>
                 <PublicationCallout kind="means">
                   <p>{row.what_it_means}</p>
@@ -1218,7 +1199,6 @@ function ReportViewReader({
       {r.recommended_pathways && r.recommended_pathways.length > 0 && (
         <Block id="sec-pathways" title="Recommended Pathways" icon={<RouteIcon className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 04"
             chapter="Recommended Pathways"
             dek="Multiple realistic directions — not just one. Each has supports, steps, and a timeline."
             folio="p. 05"

@@ -923,3 +923,32 @@ test("report introduction, recommendation and sidebar grouping is print-only acr
     expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
   }
 });
+
+
+test("legacy readiness has recorded levels and full details without percentage bars or reset chapter numbers", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const original = components.richerSharedFixture();
+  for (const audience of ["student", "family", "educator"]) for (const mode of audience === "student" ? ["demo", "live"] : ["demo", "live", "shared"]) {
+    const shared = mode === "shared";
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: mode === "demo", readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        const readiness = page.locator("#sec-readiness");
+        await expect(readiness.getByRole("progressbar")).toHaveCount(0);
+        for (const row of original.readiness_scorecard) {
+          for (const field of [row.evidence, row.what_it_means, row.growth_activity, row.suggested_goal]) expect(await readiness.textContent()).toContain(field);
+        }
+        expect(await page.locator(".pub-page-kicker").evaluateAll(elements => elements.some(element => /^Section \d+$/.test(element.textContent ?? "")))).toBe(false);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+    }
+  }
+});
