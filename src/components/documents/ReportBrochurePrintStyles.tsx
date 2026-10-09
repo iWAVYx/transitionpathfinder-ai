@@ -52,6 +52,9 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-report-plan-heading] h3 {
         margin-top: 0.03in !important; font-size: 12pt !important; line-height: 1.3 !important;
+        /* Each complete step is already grouped; its final heading must not
+           chain this step to the next step or following report chapter. */
+        break-after: auto !important; page-break-after: auto !important;
       }
       body:has(.report-root) .report-root [data-report-plan-meta] { margin-top: 0.04in !important; }
       body:has(.report-root) .report-root [data-report-plan-label][data-report-plan-label] {
@@ -184,6 +187,16 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-profile-summary],
       body:has(.report-root) .report-root [data-report-confidence],
       body:has(.report-root) .report-root [data-report-evidence-gap][data-report-evidence-gap] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-evidence-grid] {
+        display: grid !important; grid-template-columns: repeat(var(--report-evidence-columns, 3), minmax(0, 1fr)) !important; gap: 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-evidence-grid] > [data-report-evidence-gap][data-report-evidence-gap] {
+        grid-column: auto !important; margin: 0 !important; width: auto !important; min-width: 0 !important;
+        max-width: none !important; flex-basis: auto !important; padding: 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-stage="evidence"]:has([data-report-evidence-grid]) {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }
       body:has(.report-root) .report-root [data-report-readiness-heading][data-report-readiness-heading] h3,

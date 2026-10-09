@@ -1119,7 +1119,7 @@ function ReportViewReader({
           <p className="mb-4 text-sm text-muted-foreground">
             This report doesn't pretend to know everything. Here's what would sharpen it.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
+          <div data-report-evidence-grid style={{ "--report-evidence-columns": Math.min(3, r.data_gaps.length) } as React.CSSProperties} className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.data_gaps.map((g, i) => (
               <div
                 key={i}

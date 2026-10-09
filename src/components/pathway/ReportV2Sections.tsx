@@ -1,3 +1,4 @@
+import { toTitleCase } from "@/lib/title-case";
 import { reportWebDestination, reportFollowUpRole } from "@/lib/report-match-details";
 import { reportMeetingQuestions } from "@/lib/report-v2-contents";
 import type { ReportSourceCount } from "@/lib/report-source-summary";
@@ -395,8 +396,8 @@ export function ReportV2Sections({
                     key={i}
                     className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                   >
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-primary font-[Urbanist,sans-serif]">
-                      {q.for_audience}
+                    <p data-document-subheading className="text-[10px] font-semibold text-primary font-[Urbanist,sans-serif]">
+                      {toTitleCase(q.for_audience)}
                     </p>
                     <p className="mt-1 font-[Instrument_Serif,serif] text-base">
                       {q.question}

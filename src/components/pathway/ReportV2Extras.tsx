@@ -1,3 +1,4 @@
+import { toTitleCase } from "@/lib/title-case";
 import { recordedReportInputs } from "@/lib/report-source-summary";
 /**
  * v2.1 additive Pathway Report sections.
@@ -229,11 +230,11 @@ export function ReportV2ExtrasBody({
                 const meta = LEVEL_META[ind.level];
                 const Icon = meta.icon;
                 return (
-                  <li key={i} className="py-4">
+                  <li key={i} data-report-readiness-row className="py-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans mb-0.5">
-                          Domain
+                            <p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-0.5">
+                          Planning Area
                         </p>
                         {/* Instrument Serif headline */}
                         <p className="font-display text-base sm:text-lg">{ind.domain}</p>
@@ -270,8 +271,8 @@ export function ReportV2ExtrasBody({
                 <li key={i} className="py-4">
                   <PublicationCallout kind="next" title={f.section.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}>
                     {f.owner_role && (
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                        Follow-up: {f.owner_role.replace(/_/g, " ")}
+                      <p className="text-[11px] text-muted-foreground mb-1">
+                        Follow-up: {toTitleCase(f.owner_role.replace(/_/g, " "))}
                       </p>
                     )}
                     <p className="text-sm">{f.reason}</p>
@@ -349,8 +350,8 @@ function SpinList({
   return (
     <div>
       {/* Urbanist eyebrow */}
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans mb-1">
-        {label}
+      <p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-1">
+        {toTitleCase(label)}
       </p>
       <ul className="divide-y divide-[color:var(--pub-rule-soft)]">
         {items.map((t, i) => (
