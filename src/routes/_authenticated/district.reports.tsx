@@ -59,6 +59,8 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
   const [to, setTo] = useState<Date | undefined>(undefined);
   const [win, setWin] = useState<DistrictReportWindow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [loadedOrganization, setLoadedOrganization] = useState<string | null>(null);
 
   const fromIso = useMemo(() => (from ? startOfDay(from).toISOString() : undefined), [from]);
@@ -68,6 +70,7 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setLoadFailed(false);
       setWin(null);
       setLoadedOrganization(null);
       if (fromIso && toIso && fromIso > toIso) { setLoading(false); return; }
@@ -77,7 +80,7 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
         });
         if (!cancelled) { setWin(w); setLoadedOrganization(district.id); }
       } catch {
-        if (!cancelled) toast.error("Could not load reporting metrics.");
+        if (!cancelled) { setLoadFailed(true); toast.error("Could not load reporting metrics."); }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -85,7 +88,7 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
     return () => {
       cancelled = true;
     };
-  }, [district.id, fromIso, toIso, fetchMetrics]);
+  }, [district.id, fromIso, toIso, fetchMetrics, attempt]);
 
   const canExport = reportExportReady({ loading, loadedOrganization, organization: district.id, window: win, from: fromIso, to: toIso });
 
@@ -141,7 +144,12 @@ function ReportsContent({ district }: { district: DistrictOrg }) {
         </div>
       </div>
 
-      {loading || !win ? (
+      {fromIso && toIso && fromIso > toIso ? null : loadFailed && !loading ? (
+        <div role="alert" className="rounded-lg border p-6">
+          <p>We couldn't load this report. Please try again.</p>
+          <Button className="mt-3" onClick={() => setAttempt(current => current + 1)}>Try Again</Button>
+        </div>
+      ) : !canExport || !win ? (
         <div className="flex justify-center py-16">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
