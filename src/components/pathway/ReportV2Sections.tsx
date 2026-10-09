@@ -523,7 +523,7 @@ function ActionPlanBlock({
       chapter={title}
       dek={plan.intro ?? `What ${pronoun} can do, broken out by timeframe.`}
     >
-      <section id={id}>
+      <section id={id} data-report-role-plan>
         <PublicationSpread
           lead={
             <div className="space-y-6">

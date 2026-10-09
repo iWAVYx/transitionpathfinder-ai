@@ -1518,6 +1518,7 @@ function ReportViewReader({
         <ReportV2InputsUsed content={displayReport} />
       </>}
 
+      <div data-report-closing-package>
       {/* ============ Closing note (formal) ============ */}
       <section data-document-closing className="report-section mt-10">
         <div className="border-y border-primary/30 py-8 sm:py-10">
@@ -1587,6 +1588,7 @@ function ReportViewReader({
           </p>
         </div>
       </footer>
+      </div>
 
 
       {!demo && !readOnly && (

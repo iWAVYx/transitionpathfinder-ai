@@ -1013,6 +1013,13 @@ test("legacy readiness has recorded levels and full details without percentage b
             expect(grouping.length).toBeGreaterThan(0);
             expect(grouping.every(value => value === "avoid")).toBe(true);
           }
+          for (const selector of ["#v2-inputs-used", ".pub-page:has([data-report-role-plan])", "[data-report-closing-package]"]) {
+            const grouping = await page.locator(selector).evaluateAll(elements => elements.map(element => getComputedStyle(element).breakInside));
+            expect(grouping.length).toBeGreaterThan(0);
+            expect(grouping.every(value => value === "avoid")).toBe(true);
+          }
+          await expect(page.locator("[data-report-closing-package] [data-document-closing]")).toHaveCount(1);
+          await expect(page.locator("[data-report-closing-package] [data-report-document-footer]")).toHaveCount(1);
           const evidence = await page.locator("[data-report-evidence-grid]").evaluate(element => {
             const cards = [...element.children].map(card => card.getBoundingClientRect());
             return { display: getComputedStyle(element).display, widths: cards.map(card => card.width), tops: cards.map(card => card.top) };

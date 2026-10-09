@@ -101,6 +101,13 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-recommendation][data-report-recommendation] {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }
+      /* Keep short source summaries, role plans and closing details together.
+         Oversized records still flow across pages at the normal reading size. */
+      body:has(.report-root) .report-root #v2-inputs-used,
+      body:has(.report-root) .report-root .pub-page:has([data-report-role-plan]),
+      body:has(.report-root) .report-root [data-report-closing-package] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
       body:has(.report-root) .report-root .pub-sidebar-label,
       body:has(.report-root) .report-root .pub-callout-label {
         break-after: avoid !important; page-break-after: avoid !important;
