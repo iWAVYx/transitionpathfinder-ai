@@ -1229,3 +1229,44 @@ test("sample report headings and content share balanced card margins for every a
     }
   }
 });
+
+
+test("recorded opportunity headings stay aligned inside the site wrapper for all readers", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const names = ["Art Visit", "A Longer Recorded Community Learning Opportunity With Individual Support", "Library Visit", "Supported Garden Project"];
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const source = { ...components.richerSharedFixture(), opportunity_matches: names.map(name => ({
+      name, category: "enrichment", readiness_level: "developing", why_it_fits: "Recorded interest in art.",
+      what_student_gains: "Practice asking questions.", how_to_explore: "Discuss an accessible visit with the team.", who_helps: "Recorded support person",
+    })) };
+    const report = shared ? components.projectSharedReport(source, audience) : source;
+    expect(report).not.toBeNull();
+    const markup = renderToStaticMarkup(createElement(components.ReportView, {
+      report, name: "Fictional Student", demo: !shared, readOnly: shared, hasV2: false,
+      initialAudience: audience, fixedAudience: shared ? audience : undefined,
+    }));
+    for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main">${markup}</main></body></html>`);
+      await page.emulateMedia({ media });
+      const rows = await page.locator("#sec-opportunities h3").evaluateAll(headings => headings.map(heading => {
+        const card = heading.parentElement!.parentElement!.parentElement!;
+        const field = card.querySelector("[data-report-labeled-field]")!;
+        return { left: heading.getBoundingClientRect().left, fieldLeft: field.getBoundingClientRect().left, text: card.textContent };
+      }));
+      expect(rows).toHaveLength(4);
+      for (const row of rows) {
+        expect(Math.abs(row.left - row.fieldLeft), `${audience}/${shared}/${width}/${media}`).toBeLessThan(1);
+        expect(row.text).toContain("Discuss an accessible visit with the team.");
+        expect(row.text).toContain("Recorded support person");
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
