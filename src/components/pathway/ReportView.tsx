@@ -1479,8 +1479,10 @@ function ReportViewReader({
       {/* ============ Bring To The Team — consolidated decision checklist ============ */}
       <section id="report-team-questions" data-report-team-questions data-report-meeting-summary={hasV2 || undefined} className="report-section mt-10 page-break">
         <div className="mb-3 flex items-center gap-2">
-          <ListChecks className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>
+          <h2 className="font-display text-2xl tracking-tight">
+            Bring To The Team
+            <ListChecks className="h-5 w-5 text-primary" aria-hidden="true" />
+          </h2>
         </div>
         <p className="mb-4 max-w-3xl text-sm text-muted-foreground">
           Bring these recorded questions to your next team meeting. Review the report’s

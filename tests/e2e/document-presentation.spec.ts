@@ -1155,7 +1155,7 @@ test("report heading text aligns with chapter margins across planning and shared
       await page.setViewportSize({ width, height: 900 });
       await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body><main class="site-shell-main">${markup}</main></body></html>`);
       await page.emulateMedia({ media });
-      const labels = await page.locator("[data-generated-document] :is(.pub-callout-label, .pub-sidebar-label, .pub-checklist-title, [data-document-subheading])").evaluateAll(elements => elements.map(element => ({ transform: getComputedStyle(element).textTransform, spacing: getComputedStyle(element).letterSpacing, alignment: getComputedStyle(element).textAlign })));
+      const labels = await page.locator("[data-generated-document] :is(.pub-callout-label, .pub-sidebar-label, .pub-checklist-title, [data-document-subheading], [data-value-callout-label])").evaluateAll(elements => elements.map(element => ({ transform: getComputedStyle(element).textTransform, spacing: getComputedStyle(element).letterSpacing, alignment: getComputedStyle(element).textAlign })));
       if (media === "print") {
         const groups = await page.locator("[data-report-pathway-detail], .pub-sidebar .pub-checklist").evaluateAll(elements => elements.map(element => getComputedStyle(element).breakInside));
         expect(groups.length).toBeGreaterThan(0);

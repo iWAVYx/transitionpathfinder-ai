@@ -25,7 +25,7 @@ export function DocumentLayoutStyles() {
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h2 { font-size: 1.25rem !important; }
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h3, body:has([data-generated-document]) [data-generated-document][data-generated-document] h4 { font-size: 1rem !important; }
     /* Document labels use readable title styling instead of editorial all caps. */
-    [data-generated-document] :is(.pub-callout-label, .pub-sidebar-label, .pub-checklist-title, [data-document-subheading]) {
+    [data-generated-document] :is(.pub-callout-label, .pub-sidebar-label, .pub-checklist-title, [data-document-subheading], [data-value-callout-label]) {
       text-transform: none !important; letter-spacing: normal !important;
       text-align: left !important; font-weight: 600; line-height: 1.4;
     }
