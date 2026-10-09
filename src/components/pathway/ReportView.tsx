@@ -1225,28 +1225,30 @@ function ReportViewReader({
           >
             {r.recommended_pathways.map((p) => (
               <div key={p.title} className="border-b border-[color:var(--pub-rule-soft)] py-6">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <Badge
-                    variant={p.type === "best-fit" ? "default" : "secondary"}
-                    className="uppercase tracking-wider"
-                  >
-                    {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
-                  </Badge>
-                  <p className="font-display text-xl">{toTitleCase(p.title)}</p>
-                  {confidenceLabel && (
-                    <Badge variant="outline" className="gap-1 text-[11px]">
-                      <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
+                <div data-report-pathway-introduction>
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Badge
+                      variant={p.type === "best-fit" ? "default" : "secondary"}
+                      className="uppercase tracking-wider"
+                    >
+                      {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
                     </Badge>
-                  )}
-                  {r.student_snapshot?.readiness_level && (
-                    <Badge variant="outline" className="gap-1 text-[11px]">
-                      <Target className="h-3 w-3" /> Readiness:{" "}
-                      {READINESS_LABEL[r.student_snapshot.readiness_level] ??
-                        r.student_snapshot.readiness_level}
-                    </Badge>
-                  )}
+                    <p className="font-display text-xl">{toTitleCase(p.title)}</p>
+                    {confidenceLabel && (
+                      <Badge variant="outline" className="gap-1 text-[11px]">
+                        <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
+                      </Badge>
+                    )}
+                    {r.student_snapshot?.readiness_level && (
+                      <Badge variant="outline" className="gap-1 text-[11px]">
+                        <Target className="h-3 w-3" /> Readiness:{" "}
+                        {READINESS_LABEL[r.student_snapshot.readiness_level] ??
+                          r.student_snapshot.readiness_level}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
                 </div>
-                <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
                 <PublicationSpread
                   lead={
                     <div>

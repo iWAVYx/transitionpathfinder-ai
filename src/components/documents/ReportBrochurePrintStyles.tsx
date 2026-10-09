@@ -93,6 +93,19 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-report-complete-plan] ol > [data-report-plan-step] + [data-report-plan-step] { margin-top: 0.06in !important; }
       body:has(.report-root) .report-root [data-report-plan-actions] li { gap: 0.04in !important; }
+      /* Keep short report units intact; oversized content can still flow across pages. */
+      body:has(.report-root) .report-root [data-report-pathway-introduction],
+      body:has(.report-root) .report-root [data-report-recommendation][data-report-recommendation] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      body:has(.report-root) .report-root .pub-sidebar-label,
+      body:has(.report-root) .report-root .pub-callout-label {
+        break-after: avoid !important; page-break-after: avoid !important;
+      }
+      body:has(.report-root) .report-root .pub-sidebar-body,
+      body:has(.report-root) .report-root .pub-callout-body {
+        break-before: avoid !important; page-break-before: avoid !important;
+      }
       /* Keep complete weeks together, but give their details balanced columns. */
       body:has(.report-root) .report-root [data-report-plan-step] { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-source-entry] { break-inside: avoid !important; page-break-inside: avoid !important; }

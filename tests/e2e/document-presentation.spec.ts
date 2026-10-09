@@ -899,3 +899,27 @@ test("complete best-fit explanation matches screen and print for planning and sh
     }
   }
 });
+
+
+test("report introduction, recommendation and sidebar grouping is print-only across role readers", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const original = components.richerSharedFixture();
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
+    await page.emulateMedia({ media: "print" });
+    for (const selector of ["[data-report-pathway-introduction]", "[data-report-recommendation]"]) {
+      expect(await page.locator(selector).count()).toBeGreaterThan(0);
+      expect(await page.locator(selector).evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
+    }
+    expect(await page.locator(".pub-sidebar-label, .pub-callout-label").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakAfter === "avoid"))).toBe(true);
+    expect(await page.locator(".pub-sidebar-body, .pub-callout-body").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakBefore === "avoid"))).toBe(true);
+    await page.emulateMedia({ media: "screen" });
+    expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
+  }
+});
