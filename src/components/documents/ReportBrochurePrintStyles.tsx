@@ -137,7 +137,8 @@ export function ReportBrochurePrintStyles() {
         padding: 0.06in 0 !important;
       }
       /* Give each printed goal a clear boundary without changing the reading size. */
-      body:has(.report-root) .report-root [data-report-goal-section] > h3 {
+      body:has(.report-root) .report-root [data-report-goal-section] > h3,
+      body:has(.report-root) .report-root [data-report-recorded-goal] > h3 {
         padding: 0.06in 0.1in !important; margin: 0 0 0.06in !important;
         border-left: 2px solid #6b3a91; border-bottom: 1px solid #ded3e8;
         background: #f7f2fa; color: #512875;

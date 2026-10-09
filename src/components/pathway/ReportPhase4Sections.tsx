@@ -158,7 +158,6 @@ export function ReportPhase4Sections({
       {/* ============ Self-Advocacy Readiness ============ */}
       <div id="sec-self-advocacy-readiness" className="report-section scroll-mt-24 page-break">
         <PublicationPage
-          kicker="Section 01"
           chapter="Self-Advocacy Readiness"
           dek="How this student speaks up for what they need — and the scaffolds that help them do it."
           part="Part Four — Voice & Independence"
@@ -206,7 +205,6 @@ export function ReportPhase4Sections({
       {/* ============ Independent Living Readiness ============ */}
       <div id="sec-independent-living-readiness" className="report-section scroll-mt-24 page-break">
         <PublicationPage
-          kicker="Section 02"
           chapter="Independent Living Readiness"
           dek="What this student already does on their own, what they're working toward, and the supports that get them there."
           part="Part Four — Voice & Independence"
@@ -259,7 +257,6 @@ export function ReportPhase4Sections({
       {/* ============ Role-Specific Next Steps ============ */}
       <div id="sec-role-next-steps" className="report-section scroll-mt-24 page-break">
         <PublicationPage
-          kicker="Section 03"
           chapter={next.title}
           dek="Tailored to the view you're reading — switch views above to see the same plan from a different seat at the table."
           part="Part Four — Voice & Independence"
@@ -275,7 +272,6 @@ export function ReportPhase4Sections({
       {/* ============ Source Notes / Information Used ============ */}
       <div id="sec-source-notes" className="report-section scroll-mt-24 page-break">
         <PublicationPage
-          kicker="Section 04"
           chapter="Sources & Information Used"
           dek="Fictional documents, Pathway Builder responses and student reflections used in this sample. These are not verified student records."
           part="Part Four — Voice & Independence"

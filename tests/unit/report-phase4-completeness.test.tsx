@@ -21,6 +21,7 @@ for (const studentId of ["jordan", "maya"] as const) {
       for (const item of DEMO_VOICE[studentId].filter(v => /ask for help|adults to understand|meeting|comfortable|struggle/i.test(v.prompt))) {
         expect(root.querySelector("#sec-self-advocacy-readiness")?.textContent).toContain(item.response);
       }
+      expect(Array.from(root.querySelectorAll(".pub-page-kicker")).some(kicker => /^Section \d+$/.test(kicker.textContent ?? ""))).toBe(false);
       expect(sources).toContain("Sample Pathway Builder Responses");
       expect(sources).toContain("These are not verified student records.");
       expect(sources).toContain("TransitionForward Sample");

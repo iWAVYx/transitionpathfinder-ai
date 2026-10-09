@@ -285,6 +285,18 @@ for (const width of [390, 768, 1440]) {
       await checkFamilySpacing(2);
       await checkReadinessSpacing(2);
       await checkGoalSpacing(2);
+      const goalHeadings = await page.locator('[data-report-recorded-goal] > h3').evaluateAll(elements => elements.map(element => {
+        const style = getComputedStyle(element);
+        return { background: style.backgroundColor, border: style.borderLeftWidth, left: style.paddingLeft,
+          right: style.paddingRight, clipped: element.scrollWidth > element.clientWidth + 1 };
+      }));
+      expect(goalHeadings).toHaveLength(4);
+      for (const heading of goalHeadings) {
+        expect(heading.background).toBe('rgb(247, 242, 250)');
+        expect(heading.border).toBe('2px');
+        expect(heading.left).toBe(heading.right);
+        expect(heading.clipped).toBe(false);
+      }
       await checkActionSpacing();
       expect(await page.locator("[data-document-watermark]").evaluate(element => {
         const rect = element.getBoundingClientRect();
@@ -769,6 +781,7 @@ test("complete sample source index is readable for every planning audience", asy
         for (const media of ["screen", "print"] as const) {
           await page.emulateMedia({ media });
           const source = page.locator("#sec-source-notes");
+          expect(await page.locator('.pub-page-kicker').allTextContents()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^Section \d+$/)]));
           if (media === "print") {
             expect(await source.locator("[data-report-source-entry]").evaluateAll(rows => rows.every(row => getComputedStyle(row).breakInside === "avoid"))).toBe(true);
           }
