@@ -985,11 +985,22 @@ test("report introduction, recommendation and sidebar grouping is print-only acr
       expect(await table.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe("table-header-group");
       const detailColumns = await table.locator(".pub-spread-lead > div").evaluate(element => {
         const cards = Array.from(element.children).map(child => child.getBoundingClientRect());
-        return { display: getComputedStyle(element).display, columns: getComputedStyle(element).gridTemplateColumns.split(" ").length, widths: cards.map(card => card.width) };
+        return { display: getComputedStyle(element).display, columns: getComputedStyle(element).gridTemplateColumns.split(" ").length, widths: cards.map(card => card.width), tops: cards.map(card => card.top), bottoms: cards.map(card => card.bottom) };
       });
       expect(detailColumns.display).toBe("grid");
       expect(detailColumns.columns).toBe(2);
       expect(Math.max(...detailColumns.widths) - Math.min(...detailColumns.widths)).toBeLessThan(1);
+      for (let i = 0; i + 1 < detailColumns.tops.length; i += 2) {
+        expect(Math.abs(detailColumns.tops[i] - detailColumns.tops[i + 1])).toBeLessThan(1);
+        expect(Math.abs(detailColumns.bottoms[i] - detailColumns.bottoms[i + 1])).toBeLessThan(1);
+      }
+      const columnHeadings = await table.locator(".pub-spread").evaluate(element => {
+        const first = element.querySelector("[data-document-subheading]")!;
+        const action = element.querySelector(".pub-sidebar-label")!;
+        return [first.getBoundingClientRect().top, action.getBoundingClientRect().top];
+      });
+      expect(Math.abs(columnHeadings[0] - columnHeadings[1])).toBeLessThan(1);
+
 
       for (const value of [pathway.why_it_fits, ...pathway.related_strengths, ...pathway.possible_barriers, ...pathway.supports_needed, ...pathway.school_experiences, ...pathway.community_experiences, ...pathway.courses_or_programs, ...pathway.career_clusters, ...pathway.credentials, ...pathway.partner_resources, ...Object.values(pathway.action_steps).flat()]) {
         expect(await table.textContent()).toContain(value);

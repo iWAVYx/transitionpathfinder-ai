@@ -6,7 +6,7 @@ This is the current execution order. The detailed TF-01–TF-26 note register be
 
 ### 1. Finish the Current Document and Demo Package — In Progress
 
-Document acceptance requires clearly distinguished sections, uniform heading hierarchy, symmetric spacing/alignment and readable uncluttered typography. Apply this standard across all applicable role, demo, shared and export document views; do not shrink reading text to conceal pagination problems.
+Document acceptance requires clearly distinguished sections, uniform heading hierarchy, symmetric spacing/alignment, level heading starts and paired section dividers, and readable uncluttered typography. Apply this standard across all applicable role, demo, shared and export document views; do not shrink reading text to conceal pagination problems.
 
 - [x] Shared compact document styling, uniform title-case hierarchy, symmetric margins, branding and small export watermark for PPT, meeting summaries and Pathway Reports.
 - [x] Complete printed meeting fields and report goals, including content hidden by screen controls; branded school/district PDF exports with page counters.
@@ -2333,3 +2333,10 @@ Next: remaining report contract/full-document review and complete draft diff, fo
 - Full 178 unit files / 1,642 tests, TypeScript and 29 offline browser checks passed. Both affected cross-role checks passed again after the final column/stage adjustment. Fresh native verification covers all supplied recommendation values, repeated continuation titles, complete tested goals/questions, short action-stage grouping, source/closing fields, margins and counters across five readers. Final exports remain 30 pages each (150 total); all 47 distinct rendered page groups were visually reviewed across 12 sheets, with enlarged recommendation pages inspected.
 - Remaining: broader report compaction (including sparse preceding/continuation areas), demo/reader contract reconciliation, complete draft diff review and separately authorized staging/live generation acceptance. This fixes continuation context for the reviewed fixtures; it does not complete the wider document/release checklist. TF-01–TF-26 and deferred parent-pilot/report-snapshot work remain intact.
 - Hosted prior head `8d83a0f6` passed applicable clean builds, unit, report accessibility, role guards, static readiness/CT audits and disposable replay. Live/signed-in/RLS/Supabase Preview checks were skipped. No merge, deployment, migration, provider call or production operation occurred.
+
+
+### October 9, 2026 — Level Recommendation Section Headings and Divider Lines
+
+- Applied the owner's spacing correction to printed recommendations: paired detail sections now stretch to a shared divider baseline; row gaps use one consistent rule; the Action Steps heading and inset line up with the other two column headings. Reading fonts, complete source fields and role visibility remain unchanged.
+- Added cross-role geometry assertions for equal widths, level paired top/bottom boundaries and level action/detail heading starts. The affected offline browser case passed across all planning/shared readers; TypeScript passed. Fresh five-reader native checks retain all supplied recommendation fields and short action-stage grouping, complete tested goals/questions, margins and counters. Each export remains 30 pages. Enlarged recommendation pages 12–15 were visually inspected for even headings, divider lines and readable wrapping. This was focused visual review, not a new all-page acceptance claim.
+- Keep even/symmetric/level section spacing, heading alignment and divider treatment as document acceptance criteria for remaining document/demo work. Wider compaction, demo reconciliation and the complete draft/release review remain open. No merge, deployment, migration, provider call or production operation occurred.

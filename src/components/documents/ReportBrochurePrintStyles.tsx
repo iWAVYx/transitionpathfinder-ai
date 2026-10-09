@@ -19,7 +19,15 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-report-pathway-pages] .pub-spread-lead > div {
         display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.06in 0.12in !important; align-items: start;
+        gap: 0.08in 0.12in !important; align-items: stretch;
+      }
+      /* Match the action-column inset to the two detail columns; paired
+         detail cards stretch to a shared baseline for their divider rules. */
+      body:has(.report-root) .report-root [data-report-pathway-pages] .pub-spread-side {
+        border-left: 0 !important; padding-left: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-pathway-pages] .pub-sidebar {
+        padding: 0.04in 0 !important;
       }
       body:has(.report-root) .report-root [data-report-pathway-pages] [data-report-pathway-detail] {
         padding-top: 0.04in !important; padding-bottom: 0.04in !important;
