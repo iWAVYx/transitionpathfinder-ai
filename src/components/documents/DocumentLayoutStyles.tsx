@@ -24,6 +24,11 @@ export function DocumentLayoutStyles() {
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h1 { font-size: clamp(1.5rem, 3vw, 1.9rem) !important; }
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h2 { font-size: 1.25rem !important; }
     body:has([data-generated-document]) [data-generated-document][data-generated-document] h3, body:has([data-generated-document]) [data-generated-document][data-generated-document] h4 { font-size: 1rem !important; }
+    /* Document labels use readable title styling instead of editorial all caps. */
+    [data-generated-document] :is(.pub-callout-label, .pub-sidebar-label, .pub-checklist-title, [data-document-subheading]) {
+      text-transform: none !important; letter-spacing: normal !important;
+      text-align: left !important; font-weight: 600; line-height: 1.4;
+    }
     /* Major sections share a restrained band; subsections use a lighter rule. */
     [data-generated-document] h2 {
       padding: 8px 12px; border-left: 3px solid #6b3a91;
@@ -67,6 +72,8 @@ export function DocumentLayoutStyles() {
     [data-generated-document] [data-document-columns] > *,
     [data-generated-document] .pub-spread > * { min-width: 0; }
     @media print {
+      [data-generated-document] [data-report-pathway-detail],
+      [data-generated-document] .pub-sidebar .pub-checklist { break-inside: avoid !important; page-break-inside: avoid !important; }
       [data-generated-document] h2 { padding: 6px 10px; }
       [data-generated-document] [data-report-block-heading] > :is(button, div) {
         padding: 6px 10px;

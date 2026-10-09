@@ -840,7 +840,7 @@ function ReportViewReader({
               { label: "Family Priorities", items: r.student_snapshot.family_priorities },
             ].map(({ label, items }) => (
               <div key={label} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+                <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
                 <BulletList items={items} />
               </div>
             ))}
@@ -988,8 +988,8 @@ function ReportViewReader({
                     { label: "Goals to Review", items: r.meeting_prep_toolkit.goals_to_review },
                     { label: "Student Voice Prompts", items: r.meeting_prep_toolkit.student_voice_prompts },
                   ].map(({ label, items }) => (
-                    <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                      <PublicationChecklist title={label} items={items} />
+                    <div key={label} data-report-pathway-detail className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                      <PublicationChecklist title={toTitleCase(label)} items={items} />
                     </div>
                   ))}
                 </div>
@@ -1243,8 +1243,8 @@ function ReportViewReader({
                         { label: "Credentials", items: p.credentials },
                         { label: "Partner Resources", items: p.partner_resources },
                       ].map(({ label, items }) => items?.length > 0 && (
-                        <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+                        <div key={label} data-report-pathway-detail className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                          <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
                           <BulletList items={items} compact />
                         </div>
                       ))}
@@ -1259,7 +1259,7 @@ function ReportViewReader({
                         { label: "1 year", items: p.action_steps.one_year },
                       ].map(({ label, items }) => items.length > 0 && (
                         <div key={label} className="mb-3">
-                          <PublicationChecklist title={label} items={items} />
+                          <PublicationChecklist title={toTitleCase(label)} items={items} />
                         </div>
                       ))}
                     </PublicationSidebar>
@@ -2321,7 +2321,7 @@ function MiniCard({
 function HorizonCard({ label, items }: { label: string; items: string[] }) {
   return (
     <div className="rounded-2xl border bg-background p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+      <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
       <BulletList items={items} compact />
     </div>
   );
