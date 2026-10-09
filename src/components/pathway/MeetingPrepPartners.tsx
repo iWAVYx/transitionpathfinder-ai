@@ -96,7 +96,7 @@ export function MeetingPrepPartners({
     <div className="space-y-8">
       <section>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-display text-lg font-medium tracking-tight">Suggested deadlines</h3>
+          <h3 className="font-display text-lg font-medium tracking-tight">Suggested Deadlines</h3>
           {deadlines.parsed && (
             <div className="flex flex-wrap items-center gap-2">
               <Select value={tz} onValueChange={setTz}>
@@ -170,7 +170,7 @@ export function MeetingPrepPartners({
 
       <section>
         <h3 className="font-display text-lg font-medium tracking-tight">
-          Partner contacts to have on hand
+          Partner Contacts to Have on Hand
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
           Review suggested organizations based on the student's interests, county, and

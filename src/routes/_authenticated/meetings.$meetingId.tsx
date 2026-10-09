@@ -248,7 +248,7 @@ function MeetingDetailPage() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+        <div data-meeting-content className="mt-8 grid gap-6 lg:grid-cols-3">
           {/* Agenda */}
           <div className="lg:col-span-2 rounded-2xl border bg-card p-5 shadow-soft">
             <header className="flex flex-wrap items-center justify-between gap-2">
@@ -429,7 +429,7 @@ function MeetingDetailPage() {
           </div>
 
           {/* Side rail */}
-          <div className="space-y-6">
+          <div data-meeting-followups className="space-y-6">
             <div data-meeting-short-section className="rounded-2xl border bg-card p-5 shadow-soft">
               <header className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-display text-lg">
@@ -527,8 +527,8 @@ function MeetingDetailPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Keep a shared record of the discussion, decisions and next steps.
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm sm:col-span-2">
+          <div data-meeting-summary-fields className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label data-meeting-summary-field className="text-sm sm:col-span-2">
               <span className="mb-1 block font-medium">What We Discussed</span>
               <textarea
                 rows={3}
@@ -540,7 +540,7 @@ function MeetingDetailPage() {
               />
               <PrintedFieldValue value={meeting.summary} />
             </label>
-            <label className="text-sm">
+            <label data-meeting-summary-field className="text-sm">
               <span className="mb-1 block font-medium">Decisions Made</span>
               <textarea
                 rows={3}
@@ -552,7 +552,7 @@ function MeetingDetailPage() {
               />
               <PrintedFieldValue value={meeting.decisions} />
             </label>
-            <label className="text-sm">
+            <label data-meeting-summary-field className="text-sm">
               <span className="mb-1 block font-medium">Documents to Update</span>
               <textarea
                 rows={3}
@@ -564,7 +564,7 @@ function MeetingDetailPage() {
               />
               <PrintedFieldValue value={meeting.documents_to_update} />
             </label>
-            <label className="text-sm">
+            <label data-meeting-summary-field className="text-sm">
               <span className="mb-1 block font-medium">Next Meeting Date</span>
               <input
                 type="date"

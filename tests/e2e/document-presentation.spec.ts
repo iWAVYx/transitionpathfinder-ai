@@ -66,8 +66,18 @@ for (const role of ["Family", "Educator"]) {
           ${renderToStaticMarkup(createElement(components.SampleDocumentNotice))}
           <h1>A meeting plan for a sample student</h1>
           <p>Sample content for a layout check. No student records or AI requests are used.</p>
-          <header data-section-heading><h2>Questions to discuss</h2></header>
-          <ul><li>Which supports help the student complete the next task?</li><li>Who will record progress and when will the team review it?</li></ul>
+          <div data-meeting-followups>
+            <section data-meeting-short-section><header data-section-heading><h2>Questions to Discuss</h2></header>
+              <ul><li>Which supports help the student complete the next task?</li><li>Who will record progress and when will the team review it?</li></ul>
+            </section>
+            <section data-meeting-short-section><h2>Next Steps</h2><p>Bring the recorded observations to the next review.</p></section>
+          </div>
+          <div data-meeting-summary-fields style="display:grid">
+            <label data-meeting-summary-field><span>What We Discussed</span><p>Review the recorded support.</p></label>
+            <label data-meeting-summary-field><span>Decisions Made</span><p>Try the written checklist.</p></label>
+            <label data-meeting-summary-field><span>Documents to Update</span><p>Update the observation log.</p></label>
+            <label data-meeting-summary-field><span>Next Meeting Date</span><p>2026-11-02</p></label>
+          </div>
           <p>Long reference: ${"sample-reference-".repeat(25)}</p>
           <textarea aria-label="Meeting notes">Short editing viewport</textarea>${field}
           <footer data-document-note>Planning guidance; check the student's current records.</footer>
@@ -104,6 +114,22 @@ for (const role of ["Family", "Educator"]) {
       expect(geometry.left).toBe(geometry.right);
       expect(new Set(geometry.fonts).size).toBe(1);
       expect(geometry.aligned).toBe(true);
+      const followups = await page.locator("[data-meeting-followups]").evaluate(element => {
+        const children = Array.from(element.children).map(child => child.getBoundingClientRect());
+        return { widths: children.map(rect => rect.width), tops: children.map(rect => rect.top) };
+      });
+      expect(Math.abs(followups.widths[0] - followups.widths[1])).toBeLessThan(1);
+      expect(Math.abs(followups.tops[0] - followups.tops[1])).toBeLessThan(1);
+      const summaryFields = await page.locator("[data-meeting-summary-field]").evaluateAll(elements => elements.map(element => ({
+        width: element.getBoundingClientRect().width, top: element.getBoundingClientRect().top,
+        breakInside: getComputedStyle(element).breakInside,
+      })));
+      expect(summaryFields[0].width).toBeGreaterThan(summaryFields[1].width * 2);
+      for (const field of summaryFields.slice(1)) {
+        expect(Math.abs(field.width - summaryFields[1].width)).toBeLessThan(1);
+        expect(Math.abs(field.top - summaryFields[1].top)).toBeLessThan(1);
+        expect(field.breakInside).toBe("avoid");
+      }
       await expect(page.locator("[data-document-print-header]")).toBeVisible();
       await expect(page.locator("[data-section-heading]")).toBeVisible();
       await expect(page.locator("[data-document-note]")).toBeVisible();
