@@ -1477,7 +1477,7 @@ function ReportViewReader({
       )}
 
       {/* ============ Bring To The Team — consolidated decision checklist ============ */}
-      <section data-report-team-questions className="report-section mt-10 page-break">
+      <section id="report-team-questions" data-report-team-questions className="report-section mt-10 page-break">
         <div className="mb-3 flex items-center gap-2">
           <ListChecks className="h-5 w-5 text-primary" />
           <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>

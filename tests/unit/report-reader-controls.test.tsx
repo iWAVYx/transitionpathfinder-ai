@@ -107,7 +107,7 @@ it('the shared spine links have targets in the report body', () => {
 it("links saved student responses only when that response section is shown", () => {
   const report = DEMO_STUDENTS.maya.report;
   expect(liveReportContents(report, "Maya").some(item => item.id === "sec-your-voice")).toBe(false);
-  const items = liveReportContents(report, "Maya", { hasStudentVoiceResponses: true });
+  const items = liveReportContents(report, "Maya", { audience: "student", hasStudentVoiceResponses: true });
   expect(items.filter(item => item.id === "sec-your-voice")).toEqual([{id: "sec-your-voice", label: "Your Voice in This Plan"}]);
   expect(items.some(item => item.id === "sec-student-voice")).toBe(true);
 });
@@ -120,4 +120,26 @@ it('preserves a review-needed goal and its original multi-year horizon', () => {
   expect(goal.textContent).toContain('Needs Review');
   expect(goal.textContent).toContain('2–3 Years');
   expect(goal.textContent).not.toContain('30 days');
+});
+
+
+it("report contents follow the stage reader order, including sample appendices and team questions", () => {
+  const report = DEMO_STUDENTS.maya.report;
+  const extraItems = [{id: "sec-source-notes", label: "Sources & Information Used"}];
+  const ids = liveReportContents(report, "Maya", {audience: "student", hasStudentVoiceResponses: true, hasLinkedStudent: true, extraItems}).map(item => item.id);
+  expect(ids).toEqual([
+    "sec-snapshot", "sec-your-voice", "sec-student-voice", "sec-spin", "sec-strengths",
+    "sec-family-plan", "sec-meeting-prep", "sec-educator-plan", "sec-iep-translator", "sec-data-gaps",
+    "sec-readiness", "sec-goals", "sec-pathways", "sec-education", "sec-careers", "sec-life-skills",
+    "sec-thirty-day", "sec-source-notes", "sec-opportunities", "sec-partner-suggestions", "sec-timeline",
+    "sec-review", "report-team-questions",
+  ]);
+  expect(new Set(ids).size).toBe(ids.length);
+  expect(extraItems).toEqual([{id: "sec-source-notes", label: "Sources & Information Used"}]);
+});
+
+it.each(["family", "educator"] as const)("%s contents cannot advertise the Student-only saved-response section", audience => {
+  const items = liveReportContents(DEMO_STUDENTS.maya.report, "Maya", {audience, hasStudentVoiceResponses: true});
+  expect(items.some(item => item.id === "sec-your-voice")).toBe(false);
+  expect(items.some(item => item.id === "report-team-questions")).toBe(true);
 });
