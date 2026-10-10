@@ -8,6 +8,12 @@ export function DocumentViewStyles() {
     [data-generated-document] [data-document-print-header] { display: block; }
     [data-generated-document] [data-document-print-header] img { max-width: 100%; object-fit: contain; }
     [data-generated-document] table { width: 100%; }
+    /* Match the first detail heading when recommendations sit beside action steps. */
+    @media screen and (min-width: 880px) {
+      [data-generated-document] [data-report-pathway-pages] .pub-sidebar {
+        padding-top: 0.75rem; padding-bottom: 0.75rem;
+      }
+    }
     [data-generated-document] [data-report-profile-details] {
       display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem;
     }

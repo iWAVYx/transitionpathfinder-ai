@@ -968,10 +968,11 @@ test("report introduction, recommendation and sidebar grouping is print-only acr
   const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
   const css = compiler.build(scanner.scan());
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
-  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+  for (const audience of ["student", "family", "educator"]) for (const mode of audience === "student" ? ["demo", "live"] : ["demo", "live", "shared"]) {
+    const shared = mode === "shared";
     const original = components.richerSharedFixture();
     const report = shared ? components.projectSharedReport(original, audience) : original;
-    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: mode === "demo", readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
     await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
     await page.emulateMedia({ media: "print" });
     for (const selector of ["[data-report-pathway-introduction]", "[data-report-recommendation]"]) {
@@ -1011,6 +1012,19 @@ test("report introduction, recommendation and sidebar grouping is print-only acr
     await page.emulateMedia({ media: "screen" });
     expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
     expect(await page.locator("[data-report-pathway-pages] > thead").evaluateAll(elements => elements.every(element => getComputedStyle(element).display === "block"))).toBe(true);
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      if (width >= 880) {
+        const offsets = await page.locator("[data-report-pathway-pages]").evaluateAll(tables => tables.map(table => {
+          const detail = table.querySelector("[data-document-subheading]")!.getBoundingClientRect();
+          const action = table.querySelector(".pub-sidebar-label")!.getBoundingClientRect();
+          return Math.abs(detail.top - action.top);
+        }));
+        expect(offsets.every(offset => offset < 1)).toBe(true);
+      }
+    }
+
   }
 });
 
