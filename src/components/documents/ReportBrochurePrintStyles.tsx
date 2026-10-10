@@ -10,6 +10,8 @@ export function ReportBrochurePrintStyles() {
       display: block; width: 100%; border: 0; padding: 0; margin: 0;
     }
     @media print {
+      /* A screen framing rule before the named report page creates an empty PDF page. */
+      body:has(.report-root) .eh-issue:has(.report-root)::before { display: none !important; }
       body:has(.report-root) .report-root [data-report-pathway-pages] {
         display: table !important; table-layout: fixed; border-collapse: collapse;
         break-inside: auto !important; page-break-inside: auto !important;

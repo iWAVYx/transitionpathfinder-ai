@@ -976,6 +976,9 @@ test("report recommendations align in standalone and route wrappers across role 
     for (const wrapper of ["", "report-shell eh-issue"]) {
       await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main"><div class="${wrapper}">${body}</div></main></body></html>`);
       await page.emulateMedia({ media: "print" });
+      if (wrapper) {
+        expect(await page.locator(".eh-issue").evaluate(element => getComputedStyle(element, "::before").display)).toBe("none");
+      }
       const checkMarkerContrast = async () => {
         const ratios = await page.locator(".pub-checklist-tick").evaluateAll(markers => markers.map(marker => {
           const canvas = document.createElement("canvas"), ctx = canvas.getContext("2d")!;
@@ -1037,6 +1040,9 @@ test("report recommendations align in standalone and route wrappers across role 
       expect(await page.locator(".pub-sidebar-label, .pub-callout-label").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakAfter === "avoid"))).toBe(true);
       expect(await page.locator(".pub-sidebar-body, .pub-callout-body").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakBefore === "avoid"))).toBe(true);
       await page.emulateMedia({ media: "screen" });
+      if (wrapper) {
+        expect(await page.locator(".eh-issue").evaluate(element => getComputedStyle(element, "::before").display)).toBe("block");
+      }
       await checkMarkerContrast();
       expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
       expect(await page.locator("[data-report-pathway-pages] > thead").evaluateAll(elements => elements.every(element => getComputedStyle(element).display === "block"))).toBe(true);
