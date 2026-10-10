@@ -3,16 +3,16 @@ export function ReportBrochurePrintStyles() {
   return <style>{`
     /* A presentation table supplies a repeating print heading while keeping
        the existing screen layout and document reading order. */
-    .report-root [data-report-pathway-pages],
-    .report-root [data-report-pathway-pages] > :is(thead, tbody),
-    .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr,
-    .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr > td {
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages]),
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > :is(thead, tbody),
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > :is(thead, tbody) > tr,
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > :is(thead, tbody) > tr > td {
       display: block; width: 100%; border: 0; padding: 0; margin: 0;
     }
     @media print {
       /* A screen framing rule before the named report page creates an empty PDF page. */
       body:has(.report-root) .eh-issue:has(.report-root)::before { display: none !important; }
-      body:has(.report-root) .report-root [data-report-pathway-pages] {
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages]) {
         display: table !important; table-layout: fixed; border-collapse: collapse;
         break-inside: auto !important; page-break-inside: auto !important;
       }
@@ -35,10 +35,10 @@ export function ReportBrochurePrintStyles() {
         padding-top: 0.04in !important; padding-bottom: 0.04in !important;
       }
       body:has(.report-root) .report-root [data-report-pathway-pages] .pub-checklist li + li { margin-top: 0.04in !important; }
-      body:has(.report-root) .report-root [data-report-pathway-pages] > thead { display: table-header-group !important; }
-      body:has(.report-root) .report-root [data-report-pathway-pages] > tbody { display: table-row-group !important; }
-      body:has(.report-root) .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr { display: table-row !important; }
-      body:has(.report-root) .report-root [data-report-pathway-pages] > :is(thead, tbody) > tr > td { display: table-cell !important; vertical-align: top; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > thead { display: table-header-group !important; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > tbody { display: table-row-group !important; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > :is(thead, tbody) > tr { display: table-row !important; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages]) > :is(thead, tbody) > tr > td { display: table-cell !important; vertical-align: top; }
 
       /* A consistent body page keeps the corner mark and page count stable. */
       @page report-brochure {

@@ -1089,6 +1089,14 @@ test("legacy readiness has recorded levels and full details without percentage b
       for (const media of ["screen", "print"] as const) {
         await page.emulateMedia({ media });
         const readiness = page.locator("#sec-readiness");
+        const careers = page.locator("[data-report-career-pages]");
+        await expect(careers).toHaveCount(original.career_matches.length);
+        for (const career of original.career_matches) {
+          const table = careers.filter({ hasText: career.cluster });
+          await expect(table).toHaveAttribute("role", "presentation");
+          expect(await table.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
+          for (const value of [career.education_needed, career.work_environment, career.next_step, ...career.example_jobs, ...career.skills_required, ...career.accommodations]) expect(await table.textContent()).toContain(value);
+        }
         await expect(readiness.getByRole("progressbar")).toHaveCount(0);
         for (const row of original.readiness_scorecard) {
           for (const field of [row.evidence, row.what_it_means, row.growth_activity, row.suggested_goal]) expect(await readiness.textContent()).toContain(field);

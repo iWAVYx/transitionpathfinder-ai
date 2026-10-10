@@ -1316,38 +1316,44 @@ function ReportViewReader({
           <div className="divide-y divide-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.career_matches.map((c) => (
               <div key={c.cluster} data-report-career-match className="py-5">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
-                  <ReadinessBadge level={c.readiness_level} compact />
-                </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
-                  <MiniCard label="Example Jobs" items={c.example_jobs} compact />
-                  <MiniCard label="Skills Used" items={c.skills_required} compact />
-                </div>
-                <div className="mt-3 space-y-2 text-sm">
-                  <p>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                      Education / Training
-                    </span>
-                    <br />
-                    <span className="text-foreground/80">{c.education_needed}</span>
-                  </p>
-                  <p>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                      Work Environment
-                    </span>
-                    <br />
-                    <span className="text-foreground/80">{c.work_environment}</span>
-                  </p>
-                </div>
-                <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
-                <p className="mt-3 border-l-2 border-primary/30 pl-3 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                    Next Exploration Step
-                  </span>
-                  <br />
-                  {c.next_step}
-                </p>
+                <table role="presentation" data-report-career-pages>
+                  <thead><tr><td>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
+                      <ReadinessBadge level={c.readiness_level} compact />
+                    </div>
+                  </td></tr></thead>
+                  <tbody><tr><td>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
+                      <MiniCard label="Example Jobs" items={c.example_jobs} compact />
+                      <MiniCard label="Skills Used" items={c.skills_required} compact />
+                    </div>
+                    <div className="mt-3 space-y-2 text-sm">
+                      <p>
+                        <span data-document-subheading className="text-xs font-semibold text-primary">
+                          Education / Training
+                        </span>
+                        <br />
+                        <span className="text-foreground/80">{c.education_needed}</span>
+                      </p>
+                      <p>
+                        <span data-document-subheading className="text-xs font-semibold text-primary">
+                          Work Environment
+                        </span>
+                        <br />
+                        <span className="text-foreground/80">{c.work_environment}</span>
+                      </p>
+                    </div>
+                    <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
+                    <p className="mt-3 border-l-2 border-primary/30 pl-3 text-sm">
+                      <span data-document-subheading className="text-xs font-semibold text-foreground">
+                        Next Exploration Step
+                      </span>
+                      <br />
+                      {c.next_step}
+                    </p>
+                  </td></tr></tbody>
+                </table>
               </div>
             ))}
           </div>
