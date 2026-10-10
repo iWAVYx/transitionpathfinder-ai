@@ -1315,7 +1315,7 @@ function ReportViewReader({
         <Block id="sec-careers" title="Career & Life Pathway Matches" icon={<Briefcase className="h-5 w-5" />}>
           <div className="divide-y divide-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.career_matches.map((c) => (
-              <div key={c.cluster} className="py-5">
+              <div key={c.cluster} data-report-career-match className="py-5">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
                   <ReadinessBadge level={c.readiness_level} compact />

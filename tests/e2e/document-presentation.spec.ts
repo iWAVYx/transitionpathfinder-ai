@@ -620,7 +620,7 @@ test("complete action-plan export includes later periods for every audience with
     const body = renderToStaticMarkup(createElement(components.ReportView, {
       name: "Maya", report: components.DEMO_STUDENTS.maya.report, demo: true, initialAudience: audience, extendedPlans: plans,
     }));
-    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
     const section = page.locator("#sec-thirty-day");
     const exported = section.locator("[data-report-complete-plan]");
     await expect(exported).toBeHidden();
@@ -640,6 +640,15 @@ test("complete action-plan export includes later periods for every audience with
     expect(printType.label).toBeGreaterThanOrEqual(12);
     expect(printType.body).toBeGreaterThanOrEqual(14);
     expect(printType.week).toBeLessThan(40);
+    const weekLabel = await firstStep.locator("[data-report-plan-week] > span").first().evaluate(element => {
+      const range = document.createRange(); range.selectNodeContents(element);
+      const label = range.getBoundingClientRect(), badge = element.parentElement!.getBoundingClientRect();
+      return { lines: range.getClientRects().length, left: label.left - badge.left, right: badge.right - label.right, transform: getComputedStyle(element).textTransform };
+    });
+    expect(weekLabel.lines).toBe(1);
+    expect(weekLabel.left).toBeGreaterThanOrEqual(0);
+    expect(weekLabel.right).toBeGreaterThanOrEqual(0);
+    expect(weekLabel.transform).toBe("none");
     const columns = await firstStep.evaluate(element => {
       const details = element.querySelector("[data-report-plan-details]")!.getBoundingClientRect();
       const actions = element.querySelector("[data-report-plan-actions]")!.getBoundingClientRect();
@@ -1085,7 +1094,7 @@ test("legacy readiness has recorded levels and full details without percentage b
           for (const field of [row.evidence, row.what_it_means, row.growth_activity, row.suggested_goal]) expect(await readiness.textContent()).toContain(field);
         }
         if (media === "print") {
-          for (const selector of ["[data-report-readiness-row]", "[data-report-profile-summary]", "[data-report-evidence-gap]"]) {
+          for (const selector of ["[data-report-readiness-row]", "[data-report-profile-summary]", "[data-report-evidence-gap]", "[data-report-career-match]"]) {
             const grouping = await page.locator(selector).evaluateAll(elements => elements.map(element => getComputedStyle(element).breakInside));
             expect(grouping.length).toBeGreaterThan(0);
             expect(grouping.every(value => value === "avoid")).toBe(true);

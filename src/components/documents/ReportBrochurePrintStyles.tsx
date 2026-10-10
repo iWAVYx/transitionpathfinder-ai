@@ -88,6 +88,13 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-week] {
         width: 0.34in !important; height: 0.34in !important;
       }
+      body:has(.report-root) .report-root [data-report-plan-week] > span:first-child {
+        text-transform: none !important; letter-spacing: normal !important; white-space: nowrap;
+      }
+      /* Short career records stay with their title; oversized records can still flow. */
+      body:has(.report-root) .report-root [data-report-career-match] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
       body:has(.report-root) .report-root [data-report-plan-heading] h3 {
         margin-top: 0.03in !important; font-size: 12pt !important; line-height: 1.3 !important;
         /* Each complete step is already grouped; its final heading must not
