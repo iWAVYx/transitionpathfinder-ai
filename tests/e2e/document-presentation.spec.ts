@@ -962,7 +962,7 @@ test("complete best-fit explanation matches screen and print for planning and sh
 });
 
 
-test("report introduction, recommendation and sidebar grouping is print-only across role readers", async ({ page }) => {
+test("report recommendations align in standalone and route wrappers across role readers", async ({ page }) => {
   const require = createRequire(resolve("package.json"));
   const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
   const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
@@ -973,58 +973,86 @@ test("report introduction, recommendation and sidebar grouping is print-only acr
     const original = components.richerSharedFixture();
     const report = shared ? components.projectSharedReport(original, audience) : original;
     const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: mode === "demo", readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
-    await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
-    await page.emulateMedia({ media: "print" });
-    for (const selector of ["[data-report-pathway-introduction]", "[data-report-recommendation]"]) {
-      expect(await page.locator(selector).count()).toBeGreaterThan(0);
-      expect(await page.locator(selector).evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
-    }
-    await expect(page.locator("[data-report-pathway-pages]")).toHaveCount(original.recommended_pathways.length);
-    for (const pathway of original.recommended_pathways) {
-      const table = page.locator("[data-report-pathway-pages]").filter({ hasText: pathway.title });
-      await expect(table).toHaveAttribute("role", "presentation");
-      expect(await table.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe("table-header-group");
-      const detailColumns = await table.locator(".pub-spread-lead > div").evaluate(element => {
-        const cards = Array.from(element.children).map(child => child.getBoundingClientRect());
-        return { display: getComputedStyle(element).display, columns: getComputedStyle(element).gridTemplateColumns.split(" ").length, widths: cards.map(card => card.width), tops: cards.map(card => card.top), bottoms: cards.map(card => card.bottom) };
-      });
-      expect(detailColumns.display).toBe("grid");
-      expect(detailColumns.columns).toBe(2);
-      expect(Math.max(...detailColumns.widths) - Math.min(...detailColumns.widths)).toBeLessThan(1);
-      for (let i = 0; i + 1 < detailColumns.tops.length; i += 2) {
-        expect(Math.abs(detailColumns.tops[i] - detailColumns.tops[i + 1])).toBeLessThan(1);
-        expect(Math.abs(detailColumns.bottoms[i] - detailColumns.bottoms[i + 1])).toBeLessThan(1);
-      }
-      const columnHeadings = await table.locator(".pub-spread").evaluate(element => {
-        const first = element.querySelector("[data-document-subheading]")!;
-        const action = element.querySelector(".pub-sidebar-label")!;
-        return [first.getBoundingClientRect().top, action.getBoundingClientRect().top];
-      });
-      expect(Math.abs(columnHeadings[0] - columnHeadings[1])).toBeLessThan(1);
-
-
-      for (const value of [pathway.why_it_fits, ...pathway.related_strengths, ...pathway.possible_barriers, ...pathway.supports_needed, ...pathway.school_experiences, ...pathway.community_experiences, ...pathway.courses_or_programs, ...pathway.career_clusters, ...pathway.credentials, ...pathway.partner_resources, ...Object.values(pathway.action_steps).flat()]) {
-        expect(await table.textContent()).toContain(value);
-      }
-    }
-    expect(await page.locator(".pub-sidebar-label, .pub-callout-label").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakAfter === "avoid"))).toBe(true);
-    expect(await page.locator(".pub-sidebar-body, .pub-callout-body").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakBefore === "avoid"))).toBe(true);
-    await page.emulateMedia({ media: "screen" });
-    expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
-    expect(await page.locator("[data-report-pathway-pages] > thead").evaluateAll(elements => elements.every(element => getComputedStyle(element).display === "block"))).toBe(true);
-    for (const width of [390, 1024]) {
-      await page.setViewportSize({ width, height: 900 });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-      if (width >= 880) {
-        const offsets = await page.locator("[data-report-pathway-pages]").evaluateAll(tables => tables.map(table => {
-          const detail = table.querySelector("[data-document-subheading]")!.getBoundingClientRect();
-          const action = table.querySelector(".pub-sidebar-label")!.getBoundingClientRect();
-          return Math.abs(detail.top - action.top);
+    for (const wrapper of ["", "report-shell eh-issue"]) {
+      await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main"><div class="${wrapper}">${body}</div></main></body></html>`);
+      await page.emulateMedia({ media: "print" });
+      const checkMarkerContrast = async () => {
+        const ratios = await page.locator(".pub-checklist-tick").evaluateAll(markers => markers.map(marker => {
+          const canvas = document.createElement("canvas"), ctx = canvas.getContext("2d")!;
+          const rgba = (value: string) => {
+            ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = value; ctx.fillRect(0, 0, 1, 1);
+            return Array.from(ctx.getImageData(0, 0, 1, 1).data);
+          };
+          let background = [255, 255, 255];
+          const chain: Element[] = [];
+          for (let element: Element | null = marker; element; element = element.parentElement) chain.unshift(element);
+          for (const element of chain) {
+            const color = rgba(getComputedStyle(element).backgroundColor), alpha = color[3] / 255;
+            background = background.map((channel, i) => color[i] * alpha + channel * (1 - alpha));
+          }
+          const ink = rgba(getComputedStyle(marker).color), alpha = ink[3] / 255;
+          const foreground = background.map((channel, i) => ink[i] * alpha + channel * (1 - alpha));
+          const luminance = (color: number[]) => color.map(channel => {
+            const value = channel / 255; return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+          }).reduce((sum, value, i) => sum + value * [0.2126, 0.7152, 0.0722][i], 0);
+          const a = luminance(foreground), b = luminance(background);
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
         }));
-        expect(offsets.every(offset => offset < 1)).toBe(true);
+        expect(ratios.length).toBeGreaterThan(0);
+        expect(Math.min(...ratios), `${audience}/${mode}/${wrapper}: checklist contrast`).toBeGreaterThanOrEqual(3);
+      };
+      await checkMarkerContrast();
+      for (const selector of ["[data-report-pathway-introduction]", "[data-report-recommendation]"]) {
+        expect(await page.locator(selector).count()).toBeGreaterThan(0);
+        expect(await page.locator(selector).evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
+      }
+      await expect(page.locator("[data-report-pathway-pages]")).toHaveCount(original.recommended_pathways.length);
+      for (const pathway of original.recommended_pathways) {
+        const table = page.locator("[data-report-pathway-pages]").filter({ hasText: pathway.title });
+        await expect(table).toHaveAttribute("role", "presentation");
+        expect(await table.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe("table-header-group");
+        const detailColumns = await table.locator(".pub-spread-lead > div").evaluate(element => {
+          const cards = Array.from(element.children).map(child => child.getBoundingClientRect());
+          return { display: getComputedStyle(element).display, columns: getComputedStyle(element).gridTemplateColumns.split(" ").length, widths: cards.map(card => card.width), tops: cards.map(card => card.top), bottoms: cards.map(card => card.bottom) };
+        });
+        expect(detailColumns.display).toBe("grid");
+        expect(detailColumns.columns).toBe(2);
+        expect(Math.max(...detailColumns.widths) - Math.min(...detailColumns.widths)).toBeLessThan(1);
+        for (let i = 0; i + 1 < detailColumns.tops.length; i += 2) {
+          expect(Math.abs(detailColumns.tops[i] - detailColumns.tops[i + 1])).toBeLessThan(1);
+          expect(Math.abs(detailColumns.bottoms[i] - detailColumns.bottoms[i + 1])).toBeLessThan(1);
+        }
+        const columnHeadings = await table.locator(".pub-spread").evaluate(element => {
+          const first = element.querySelector("[data-document-subheading]")!;
+          const action = element.querySelector(".pub-sidebar-label")!;
+          return [first.getBoundingClientRect().top, action.getBoundingClientRect().top];
+        });
+        expect(Math.abs(columnHeadings[0] - columnHeadings[1])).toBeLessThan(1);
+
+
+        for (const value of [pathway.why_it_fits, ...pathway.related_strengths, ...pathway.possible_barriers, ...pathway.supports_needed, ...pathway.school_experiences, ...pathway.community_experiences, ...pathway.courses_or_programs, ...pathway.career_clusters, ...pathway.credentials, ...pathway.partner_resources, ...Object.values(pathway.action_steps).flat()]) {
+          expect(await table.textContent()).toContain(value);
+        }
+      }
+      expect(await page.locator(".pub-sidebar-label, .pub-callout-label").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakAfter === "avoid"))).toBe(true);
+      expect(await page.locator(".pub-sidebar-body, .pub-callout-body").evaluateAll(elements => elements.length > 0 && elements.every(element => getComputedStyle(element).breakBefore === "avoid"))).toBe(true);
+      await page.emulateMedia({ media: "screen" });
+      await checkMarkerContrast();
+      expect(await page.locator("[data-report-pathway-introduction]").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "auto"))).toBe(true);
+      expect(await page.locator("[data-report-pathway-pages] > thead").evaluateAll(elements => elements.every(element => getComputedStyle(element).display === "block"))).toBe(true);
+      for (const width of [390, 1024]) {
+        await page.setViewportSize({ width, height: 900 });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        if (width >= 880) {
+          const offsets = await page.locator("[data-report-pathway-pages]").evaluateAll(tables => tables.map(table => {
+            const detail = table.querySelector("[data-document-subheading]")!.getBoundingClientRect();
+            const action = table.querySelector(".pub-sidebar-label")!.getBoundingClientRect();
+            return Math.abs(detail.top - action.top);
+          }));
+          expect(offsets.every(offset => offset <= 1), `${audience}/${mode}/${wrapper}: ${offsets}`).toBe(true);
+        }
       }
     }
-
   }
 });
 

@@ -8,6 +8,7 @@ export function DocumentViewStyles() {
     [data-generated-document] [data-document-print-header] { display: block; }
     [data-generated-document] [data-document-print-header] img { max-width: 100%; object-fit: contain; }
     [data-generated-document] table { width: 100%; }
+    [data-generated-document] .pub-checklist-tick { background: var(--pub-accent, #5b2a86); }
     /* Match the first detail heading when recommendations sit beside action steps. */
     @media screen and (min-width: 880px) {
       [data-generated-document] [data-report-pathway-pages] .pub-sidebar {
