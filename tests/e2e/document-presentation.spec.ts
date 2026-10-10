@@ -903,7 +903,7 @@ test("qualitative readiness and recorded confidence stay readable without invent
   const css = compiler.build(scanner.scan());
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   const original = { ...components.richerSharedFixture(),
-    readiness_indicators: ["emerging", "developing", "progressing", "ready"].map(level => ({ domain: `Recorded ${level} area`, level, note: `Recorded ${level} observation` })),
+    readiness_indicators: [...["emerging", "developing", "progressing", "ready"].map(level => ({ domain: `Recorded ${level} area`, level, note: `Recorded ${level} observation` })), { domain: "Additional recorded area", level: "ready", note: "Additional recorded observation" }],
     confidence: { overall: "high", rationale: "Recorded explanation based on an earlier observation.", caveats: ["A current team review is still needed."] },
   };
   for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
@@ -914,13 +914,32 @@ test("qualitative readiness and recorded confidence stay readable without invent
     }));
     for (const width of [390, 1024]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body>${body}</body></html>`);
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
       for (const media of ["screen", "print"] as const) {
         await page.emulateMedia({ media });
         const readiness = page.locator("#v2-readiness-indicators");
         for (const level of ["emerging", "developing", "progressing", "ready"]) {
           await expect(readiness.getByText(`Recorded ${level} area`, { exact: true })).toBeVisible();
           await expect(readiness.getByText(`Recorded ${level} observation`, { exact: true })).toBeVisible();
+        }
+        await expect(readiness.getByText("Additional recorded observation", { exact: true })).toBeVisible();
+        expect(await readiness.locator("[data-report-section-icon]").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "none" : "flex");
+        const rows = readiness.locator("[data-report-readiness-row]");
+        const layout = await rows.evaluateAll(elements => elements.map(element => {
+          const rect = element.getBoundingClientRect();
+          return { x: rect.x, y: rect.y, width: rect.width, noteWidth: element.querySelector("p:last-child")!.getBoundingClientRect().width, fontSize: getComputedStyle(element.querySelector("p:last-child")!).fontSize };
+        }));
+        if (media === "print") {
+          expect(Math.abs(layout[0].y - layout[1].y)).toBeLessThan(1);
+          expect(Math.abs(layout[2].y - layout[3].y)).toBeLessThan(1);
+          expect(Math.abs(layout[0].width - layout[1].width)).toBeLessThan(1);
+          expect(layout[1].x).toBeGreaterThan(layout[0].x + layout[0].width);
+          expect(Math.abs(layout[4].width - (layout[1].x + layout[1].width - layout[0].x))).toBeLessThan(1);
+          expect(layout[0].fontSize).toBe("14px");
+          expect(layout.every(row => Math.abs(row.width - row.noteWidth) < 1)).toBe(true);
+        } else {
+          expect(layout.every(row => Math.abs(row.x - layout[0].x) < 1)).toBe(true);
+          expect(layout[1].y).toBeGreaterThan(layout[0].y);
         }
         expect(await readiness.locator('[style*="width"]').count()).toBe(0);
         const confidence = page.locator("#v2-confidence");

@@ -234,6 +234,28 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-recorded-goal][data-report-recorded-goal] h3 { margin-top: 0 !important; }
       body:has(.report-root) .report-root[data-age-aware-report] .pub-page:has([data-report-recorded-goals]) { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-readiness-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.08in 0.16in !important; }
+      body:has(.report-root) .report-root [data-report-section-icon] { display: none !important; }
+      /* Recorded indicators use equal print columns with aligned section rules.
+         Screen rows and the recorded levels/notes stay unchanged. */
+      body:has(.report-root) .report-root [data-report-readiness-indicators] {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in; align-items: stretch;
+      }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li {
+        min-width: 0; margin: 0 !important; padding: 0.06in 0 !important;
+        border-top: 1px solid #ded8e7 !important; border-bottom: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li > div {
+        display: grid !important; grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.04in 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li > div > div { display: contents !important; }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li > div > div > p { grid-column: 1 / -1; }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li > div > div > p:first-child { grid-column: 1; grid-row: 1; }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li > div > span { grid-column: 2; grid-row: 1; }
+      body:has(.report-root) .report-root [data-report-readiness-indicators] > li:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
       /* Keep a readiness explanation with its growth step and suggested goal.
          Long entries can still flow when they exceed a complete page. */
       body:has(.report-root) .report-root [data-report-readiness-row],

@@ -222,10 +222,10 @@ export function ReportV2ExtrasBody({
             dek="Readiness levels recorded in this report. Review the notes and current information with your team."
             folio="p. 03"
           >
-            <div className="flex items-center gap-2 mb-4 text-primary">
+            <div data-report-section-icon className="flex items-center gap-2 mb-4 text-primary">
               <Gauge className="h-5 w-5" />
             </div>
-            <ul className="divide-y divide-[color:var(--pub-rule-soft)]">
+            <ul data-report-readiness-indicators className="divide-y divide-[color:var(--pub-rule-soft)]">
               {readiness.map((ind, i) => {
                 const meta = LEVEL_META[ind.level];
                 const Icon = meta.icon;
@@ -292,7 +292,7 @@ export function ReportV2ExtrasBody({
             dek={CONFIDENCE_META[confidence.overall].description}
             folio="p. 05"
           >
-            <div className="flex items-center gap-2 mb-4 text-primary">
+            <div data-report-section-icon className="flex items-center gap-2 mb-4 text-primary">
               <CompassIcon className="h-5 w-5" />
             </div>
 
