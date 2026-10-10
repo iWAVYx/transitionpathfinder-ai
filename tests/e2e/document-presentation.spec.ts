@@ -379,7 +379,7 @@ test("newer report plans and collapsed sources stay inside the printable documen
   for (const audience of ["student", "family", "educator"]) {
     await page.emulateMedia({ media: "screen" });
     const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Maya", report, demo: true, hasV2: true, initialAudience: audience }));
-    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+    await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
     const contents = page.getByRole("navigation", { name: "Table of contents" });
     const targets = await contents.locator('a[href^="#v2-"]').evaluateAll(links => links.map(link => link.getAttribute("href")!));
     expect(targets.length).toBeGreaterThan(2);
@@ -402,6 +402,22 @@ test("newer report plans and collapsed sources stay inside the printable documen
     await page.emulateMedia({ media: "print" });
     await expect(sources).toBeVisible();
     await expect(rationale).toBeVisible();
+    const why = rationale.locator('[data-report-recommendation-field="why"]');
+    const next = rationale.locator('[data-report-recommendation-field="next"]');
+    const boxes = await Promise.all([why.boundingBox(), next.boundingBox()]);
+    expect(Math.abs(boxes[0]!.y - boxes[1]!.y)).toBeLessThan(1);
+    expect(Math.abs(boxes[0]!.width - boxes[1]!.width)).toBeLessThan(1);
+    expect(boxes[1]!.x).toBeGreaterThan(boxes[0]!.x + boxes[0]!.width);
+    const narrowLayout = await recommendation.evaluate(element => {
+      const copy = element.cloneNode(true) as HTMLElement;
+      element.after(copy);
+      const display = getComputedStyle(element.querySelector("[data-report-recommendation-details]")!).display;
+      copy.remove();
+      return display;
+    });
+    expect(narrowLayout).toBe("block");
+
+
     expect(await recommendation.evaluate(element => Math.abs(element.getBoundingClientRect().width - element.parentElement!.getBoundingClientRect().width))).toBeLessThan(1);
     await expect(recommendation.getByText("A dated fictional observation supports discussing this option.", { exact: true })).toBeVisible();
     await expect(recommendation.getByText("Confirm an accessible visit before scheduling.", { exact: true })).toBeVisible();
@@ -497,7 +513,7 @@ test("projected newer shared reports retain permitted plans and source counts on
     for (const width of [390, 1024]) {
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ media: "screen" });
-      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
       const contents = page.getByRole("navigation", { name: "Table of contents" });
       const targets = await contents.locator('a[href^="#v2-"]').evaluateAll(links => links.map(link => link.getAttribute("href")!));
       expect(targets.length).toBeGreaterThan(2);
@@ -527,6 +543,10 @@ test("projected newer shared reports retain permitted plans and source counts on
       await expect(sources.getByText("2 goals", { exact: true })).toBeVisible();
       const rec = page.locator("[data-report-recommendation]");
       await expect(rec.getByText("Discuss a visit", { exact: true })).toBeVisible();
+      const fields = await Promise.all(["why", "next"].map(field => rec.locator(`[data-report-recommendation-field="${field}"]`).boundingBox()));
+      expect(Math.abs(fields[0]!.y - fields[1]!.y)).toBeLessThan(1);
+      expect(Math.abs(fields[0]!.width - fields[1]!.width)).toBeLessThan(1);
+
       await expect(resourceLink).toBeVisible();
       await expect(partnerLink).toBeVisible();
       await expect(page.locator("#v2-resources").getByText("Family", { exact: true })).toBeVisible();

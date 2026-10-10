@@ -462,7 +462,7 @@ function PillarRecsBlock({
       chapter={title}
       dek={message}
     >
-      <section id={id}>
+      <section id={id} data-report-pillar-recommendations>
         <div className={ordered.length === 1 ? "grid gap-3" : "grid gap-3 sm:grid-cols-2"}>
           {ordered.map((rec, i) => (
             <RecommendationCard key={i} rec={rec} audience={audience} />

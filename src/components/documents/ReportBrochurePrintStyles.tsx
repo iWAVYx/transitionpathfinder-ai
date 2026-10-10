@@ -116,6 +116,21 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-step] [data-report-plan-label][data-report-plan-label] { line-height: 1.3 !important; }
       body:has(.report-root) .report-root [data-report-export-period] > p { break-after: avoid !important; page-break-after: avoid !important; }
       body:has(.report-root) .report-root [data-report-export-period] > ol { break-before: avoid !important; }
+      /* Full-width pillar recommendations pair explanation and next step.
+         Multiple narrow cards retain their existing stacked details. */
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child > [data-report-recommendation-details] {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in; padding: 0.08in !important; align-items: start;
+      }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field] {
+        min-width: 0; margin: 0 !important;
+      }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field="why"] { grid-column: 1; grid-row: 1; }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field="next"] { grid-column: 2; grid-row: 1; }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field="sources"] { grid-column: 1; grid-row: 2; }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field="owner"] { grid-column: 2; grid-row: 2; }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field] > p { margin: 0 !important; }
+      body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child [data-report-recommendation-field] > p + p { margin-top: 0.04in !important; }
       /* Full planning cards use two balanced columns rather than four tall rows. */
       body:has(.report-root) .report-root [data-report-plan-step]:has([data-report-plan-actions]):has([data-report-plan-readiness]) {
         display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));

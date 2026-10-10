@@ -70,14 +70,14 @@ export function RecommendationCard({
       </button>
 
         <div id={detailsId} data-report-recommendation-details className={cn("mt-3 space-y-3 rounded-xl border border-dashed bg-background/60 p-3 sm:p-4", !open && "hidden print:block")}>
-          <div>
+          <div data-report-recommendation-field="why">
             <p className="text-xs font-semibold text-foreground">
               Why This Fits
             </p>
             <p className="mt-1 text-sm">{rec.why}</p>
           </div>
           {audience !== "student" && (rec.sources.length > 0 || (rec.source_count ?? 0) > 0) && (
-            <div>
+            <div data-report-recommendation-field="sources">
               <p className="text-xs font-semibold text-foreground">
                 Information Used
               </p>
@@ -89,13 +89,13 @@ export function RecommendationCard({
               />
             </div>
           )}
-          <div>
+          <div data-report-recommendation-field="next">
             <p className="text-xs font-semibold text-foreground">
               Next Step
             </p>
             <p className="mt-1 text-sm">{rec.next_action}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div data-report-recommendation-field="owner" className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <UserRound className="h-3.5 w-3.5" />
             <span>
               Follow-up: <strong className="text-foreground">{OWNER_LABEL[rec.owner_role] ?? rec.owner_role}</strong>
