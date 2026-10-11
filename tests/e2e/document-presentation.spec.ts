@@ -1455,6 +1455,38 @@ test("sample report headings and content share balanced card margins for every a
         expect(row.span).toBe("1 / -1");
         expect(Math.abs(row.width - row.gridWidth)).toBeLessThan(1);
       }
+      const sourceReport = components.generatePathwayReport(sourceProfile);
+      const goals = page.locator("[data-report-recorded-goal]");
+      await expect(goals).toHaveCount(sourceProfile.goals.length);
+      for (let i = 0; i < sourceProfile.goals.length; i++) {
+        await expect(goals.nth(i).locator("[data-report-recorded-goal-title]")).toHaveText(sourceProfile.goals[i].title);
+        await expect(goals.nth(i).getByText("Where Things Stand", { exact: true })).toBeVisible();
+        await expect(goals.nth(i).getByText("Planning Timeframe", { exact: true })).toBeVisible();
+        const statusLabels: Record<string, string> = { not_started: "Not Started", in_progress: "In Progress", on_track: "On Track", needs_review: "Needs Review" };
+        const horizonLabels: Record<string, string> = { next_semester: "Next Semester", this_year: "This Year", next_year: "Next Year", "2_to_3_years": "2–3 Years" };
+        await expect(goals.nth(i).locator("dd")).toHaveText([statusLabels[sourceProfile.goals[i].status], horizonLabels[sourceProfile.goals[i].horizon]]);
+      }
+      const options = page.locator("[data-demo-pathway-option]");
+      await expect(options).toHaveCount(sourceReport.pathwayOptions.length);
+      for (const option of sourceReport.pathwayOptions) {
+        const card = page.locator(`[data-demo-pathway-option="${option.id}"]`);
+        expect((await card.locator("h3").innerText()).toLowerCase()).toBe(option.title.toLowerCase());
+        await expect(card.getByText(option.fitSummary, { exact: true })).toBeVisible();
+        await expect(card.locator("dd")).toHaveText([option.ahead, option.beside, option.behind]);
+      }
+      const alternatives = page.locator("[data-demo-alt-pathway]");
+      await expect(alternatives).toHaveCount(sourceReport.alternativePathways.length);
+      for (const alternative of sourceReport.alternativePathways) {
+        const card = page.locator(`[data-demo-alt-pathway="${alternative.id}"]`);
+        expect((await card.locator("h3").innerText()).toLowerCase()).toBe(alternative.title.toLowerCase());
+        await expect(card).toContainText(alternative.whenToConsider);
+      }
+      await expect(page.locator("[data-demo-conflict]")).toHaveCount(sourceReport.conflicts.length);
+      for (const conflict of sourceReport.conflicts) await expect(page.locator(`[data-demo-conflict="${conflict.id}"]`)).toContainText(conflict.summary);
+      if (!sourceReport.conflicts.length) {
+        await expect(page.locator('[data-demo-report-conflicts="none"]')).toContainText(`${sourceProfile.shortName}'s fictional sample`);
+        await expect(page.locator('[data-demo-report-conflicts="none"]')).not.toContainText("current evidence");
+      }
       const lead = page.locator("[data-demo-action-lead]");
       await expect(lead.locator('[data-demo-report-section="what_to_do_next"]')).toHaveCount(1);
       await expect(lead.locator("[data-demo-action-group]")).toHaveCount(1);
@@ -1748,4 +1780,17 @@ test("newer report chapters use section headings beneath the document title for 
       }
     }
   }
+});
+
+
+test("empty demo pathway options retain a chapter heading and honest filter notice", async ({ page }) => {
+  const profile = components.getDemoProfile("sam");
+  const filtered = { ...profile, stage: { ...profile.stage, emphasizedThemes: [] } };
+  expect(components.generatePathwayReport(filtered).pathwayOptions).toHaveLength(0);
+  const markup = renderToStaticMarkup(createElement(components.PathwayReport, { profile: filtered, audience: "family" }));
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  await page.setContent(`<html><body>${markup}</body></html>`);
+  await expect(page.getByRole("heading", { name: "Pathway Options", exact: true, level: 2 })).toHaveCount(1);
+  await expect(page.getByText(`No age-appropriate options matched the current filters for ${profile.shortName}.`, { exact: true })).toBeVisible();
+  await expect(page.locator("[data-demo-pathway-option]")).toHaveCount(0);
 });

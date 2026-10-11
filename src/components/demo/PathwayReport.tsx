@@ -494,9 +494,9 @@ function ConflictsList({
         aria-label="Conflicts and disagreements"
         data-demo-report-conflicts="none"
       >
-        No conflicts flagged in {shortName}'s current evidence. If the family, student,
-        or team disagrees with a recommendation, log it at the next PPT so the record stays
-        honest.
+        No conflicts are recorded in {shortName}'s fictional sample. In your own plan,
+        discuss any disagreements with the student and team, and record what needs
+        to be resolved.
       </div>
     );
   }
@@ -533,7 +533,7 @@ function PathwayOptions({
     return (
       <Card>
         <CardHeader>
-          <h3 className="text-base">Pathway Options</h3>
+          <h2 className="text-base">Pathway Options</h2>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
