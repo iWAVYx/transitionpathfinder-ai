@@ -116,6 +116,17 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-step] [data-report-plan-label][data-report-plan-label] { line-height: 1.3 !important; }
       body:has(.report-root) .report-root [data-report-export-period] > p { break-after: avoid !important; page-break-after: avoid !important; }
       body:has(.report-root) .report-root [data-report-export-period] > ol { break-before: avoid !important; }
+      /* Resource and partner explanations share equal print panels. */
+      body:has(.report-root) .report-root [data-report-match-entry] {
+        padding-top: 0.08in !important; padding-bottom: 0.08in !important;
+      }
+      body:has(.report-root) .report-root [data-report-match-details] {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in; align-items: stretch;
+      }
+      body:has(.report-root) .report-root [data-report-match-details] > .pub-callout {
+        min-width: 0; margin: 0 !important; padding: 0.08in 0.1in !important;
+      }
       /* Full-width pillar recommendations pair explanation and next step.
          Multiple narrow cards retain their existing stacked details. */
       body:has(.report-root) .report-root [data-report-pillar-recommendations] [data-report-recommendation]:only-child > [data-report-recommendation-details] {

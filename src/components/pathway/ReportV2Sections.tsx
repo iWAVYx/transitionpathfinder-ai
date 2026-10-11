@@ -238,18 +238,19 @@ export function ReportV2Sections({
               {resourceMatches.map((m, i) => (
                 <li
                   key={i}
+                  data-report-match-entry
                   className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="font-[Instrument_Serif,serif] text-base font-medium">
-                      {m.title}
+                    <p data-report-match-title className="font-[Instrument_Serif,serif] text-base font-medium">
+                      {toTitleCase(m.title)}
                     </p>
                     <RecordedMatchLink url={m.url} title={m.title} label="Open Resource" />
                   </div>
                   {m.summary && (
                     <p className="mt-1 text-sm text-muted-foreground">{m.summary}</p>
                   )}
-                  <div className="mt-2 space-y-1">
+                  <div data-report-match-details className="mt-2 space-y-1">
                     <PublicationCallout kind="means">
                       {m.why}
                     </PublicationCallout>
@@ -283,12 +284,13 @@ export function ReportV2Sections({
               {partnerMatches.map((m, i) => (
                 <li
                   key={i}
+                  data-report-match-entry
                   className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="font-[Instrument_Serif,serif] text-base font-medium">
-                        {m.title}
+                      <p data-report-match-title className="font-[Instrument_Serif,serif] text-base font-medium">
+                        {toTitleCase(m.title)}
                       </p>
                       {m.organization && (
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
@@ -303,7 +305,7 @@ export function ReportV2Sections({
                       </Badge>
                     )}
                   </div>
-                  <div className="mt-2 space-y-1">
+                  <div data-report-match-details className="mt-2 space-y-1">
                     <PublicationCallout kind="means">
                       {m.why}
                     </PublicationCallout>

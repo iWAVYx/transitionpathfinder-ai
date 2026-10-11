@@ -1440,3 +1440,56 @@ test("recorded opportunity headings stay aligned inside the site wrapper for all
     }
   }
 });
+
+
+test("resource and partner matches retain role content with consistent titles and balanced document spacing", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const original = components.richerSharedFixture();
+  original.partner_matches[0].organization = "DDS / PartnerForward";
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared,
+      initialAudience: audience, fixedAudience: shared ? audience : undefined,
+    }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        for (const section of ["#v2-resources", "#v2-partners"]) {
+          const entry = page.locator(section).locator("[data-report-match-entry]");
+          await expect(entry.locator("[data-report-match-title]")).toHaveText("Explore a Supported Visit");
+          await expect(entry.getByText("Recorded interests", { exact: true })).toBeVisible();
+          await expect(entry.getByText("Discuss a visit", { exact: true })).toBeVisible();
+          const panels = entry.locator("[data-report-match-details] > .pub-callout");
+          const boxes = await Promise.all([panels.nth(0).boundingBox(), panels.nth(1).boundingBox()]);
+          if (media === "print") {
+            expect(Math.abs(boxes[0]!.y - boxes[1]!.y)).toBeLessThan(1);
+            expect(Math.abs(boxes[0]!.width - boxes[1]!.width)).toBeLessThan(1);
+            expect(Math.abs(boxes[0]!.height - boxes[1]!.height)).toBeLessThan(1);
+            expect(boxes[1]!.x).toBeGreaterThan(boxes[0]!.x + boxes[0]!.width);
+          } else {
+            expect(Math.abs(boxes[0]!.x - boxes[1]!.x)).toBeLessThan(1);
+            expect(boxes[1]!.y).toBeGreaterThan(boxes[0]!.y);
+          }
+          if (audience === "student") await expect(entry.locator("[data-report-source-count]")).toHaveCount(0);
+          else if (audience === "family") {
+            await expect(entry.getByText("Information from 1 recorded source.", { exact: true })).toBeVisible();
+            await expect(entry.getByText("A recorded profile observation", { exact: true })).toHaveCount(0);
+          } else await expect(entry.getByText("A recorded profile observation", { exact: true })).toBeVisible();
+          await expect(entry.getByRole("link")).toHaveAttribute("target", "_blank");
+          await expect(entry.getByRole("link")).toHaveAttribute("rel", "noopener noreferrer");
+        }
+        await expect(page.locator("#v2-partners").getByText("DDS / PartnerForward", { exact: true })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+    }
+  }
+});
