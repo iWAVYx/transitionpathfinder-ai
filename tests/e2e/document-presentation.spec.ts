@@ -1397,6 +1397,22 @@ test("sample report headings and content share balanced card margins for every a
         expect(Math.abs(card.headingLeft - card.contentLeft), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
         expect(Math.abs(card.headingRight - card.contentRight), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
       }
+      const optionRows = await page.locator("[data-document-columns]:has(> [data-demo-pathway-option]), [data-document-columns]:has(> [data-demo-alt-pathway])").evaluateAll(grids => grids.map(grid => {
+        const children = [...grid.children], last = children.at(-1)!;
+        return { count: children.length, span: getComputedStyle(last).gridColumn,
+          width: last.getBoundingClientRect().width, gridWidth: grid.getBoundingClientRect().width };
+      }));
+      for (const row of optionRows) if (row.count % 2 && media === "print") {
+        expect(row.span).toBe("1 / -1");
+        expect(Math.abs(row.width - row.gridWidth)).toBeLessThan(1);
+      }
+      const lead = page.locator("[data-demo-action-lead]");
+      await expect(lead.locator('[data-demo-report-section="what_to_do_next"]')).toHaveCount(1);
+      await expect(lead.locator("[data-demo-action-group]")).toHaveCount(1);
+      if (media === "print") expect(await lead.evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
+      const opportunityHeader = page.locator("[data-report-opportunity-pages] > thead");
+      await expect(opportunityHeader.locator("h2")).toContainText(sourceProfile.shortName);
+      expect(await opportunityHeader.evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
       const evidenceLayout = await page.locator("[data-report-evidence-entries]").evaluate(element => {
         const rects = [...element.children].map(child => child.getBoundingClientRect());
         return { columns: getComputedStyle(element).gridTemplateColumns.split(" ").length,

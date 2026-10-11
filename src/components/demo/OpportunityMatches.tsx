@@ -55,83 +55,92 @@ function ProfileOpportunityMatches({ compact = false, limit, profile, reportView
   const visible = !reportView && typeof limit === "number" ? visibleAll.slice(0, limit) : visibleAll;
   const hidden = matches.filter((m) => m.band === "filtered_out");
 
+  const heading = (
+    <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">
+          {reportView ? `Opportunities to Explore for ${profile.shortName}` : `Explainable Matches For ${profile.shortName}`}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Ranked using {profile.shortName}'s emphasized themes, interests, goal areas, and
+          environment preferences. All partners are fictional demo data.
+          {reportView && " Confirm availability, eligibility and supports with a provider before choosing an option."}
+        </p>
+      </div>
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <Sparkles className="h-3 w-3" />
+        {reportView ? `${visible.length} sample ${visible.length === 1 ? "option" : "options"}` : `${visible.length} shown · ${hidden.length} filtered`}
+      </span>
+    </header>
+  );
+  const cards = (
+    <ul className="space-y-3">
+      {visible.map((m) => (
+        <li key={m.opportunity.id} data-report-opportunity={reportView ? m.opportunity.id : undefined} className="rounded-xl border border-border bg-background p-4">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-foreground">{m.opportunity.title}</h3>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {m.opportunity.provider} · {KIND_LABEL[m.opportunity.kind] ?? m.opportunity.kind} · {m.opportunity.region}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${BAND_STYLES[m.band]}`}>
+                {BAND_LABEL[m.band]}
+              </span>
+              {!reportView && <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                Score {m.score}
+              </span>}
+            </div>
+          </div>
+          <p className="mt-2 text-sm text-foreground/90">{m.opportunity.summary}</p>
+
+          {m.fitReasons.length > 0 && (
+            <div className="mt-3">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Why It Fits
+              </p>
+              <ul className="space-y-1">
+                {m.fitReasons.map((r, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-foreground/90">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {(reportView || !compact) && m.gapReasons.length > 0 && (
+            <div className="mt-3">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                What To Watch
+              </p>
+              <ul className="space-y-1">
+                {m.gapReasons.map((r, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
   return (
     <section data-report-opportunity-matches={reportView || undefined} className="mt-8 rounded-2xl border border-border bg-card p-5" aria-label={reportView ? "Opportunities to explore" : "Explainable opportunity matches"}>
-      <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            {reportView ? `Opportunities to Explore for ${profile.shortName}` : `Explainable Matches For ${profile.shortName}`}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ranked using {profile.shortName}'s emphasized themes, interests, goal areas, and
-            environment preferences. All partners are fictional demo data.
-            {reportView && " Confirm availability, eligibility and supports with a provider before choosing an option."}
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3 w-3" />
-          {reportView ? `${visible.length} sample ${visible.length === 1 ? "option" : "options"}` : `${visible.length} shown · ${hidden.length} filtered`}
-        </span>
-      </header>
-
-      {reportView && visible.length === 0 && <p className="text-sm text-muted-foreground">
-        No age-appropriate sample opportunities are listed for this profile. Review the student’s interests and support needs with the team before exploring options.
-      </p>}
-      <ul className="space-y-3">
-        {visible.map((m) => (
-          <li key={m.opportunity.id} data-report-opportunity={reportView ? m.opportunity.id : undefined} className="rounded-xl border border-border bg-background p-4">
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-foreground">{m.opportunity.title}</h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {m.opportunity.provider} · {KIND_LABEL[m.opportunity.kind] ?? m.opportunity.kind} · {m.opportunity.region}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${BAND_STYLES[m.band]}`}>
-                  {BAND_LABEL[m.band]}
-                </span>
-                {!reportView && <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                  Score {m.score}
-                </span>}
-              </div>
-            </div>
-            <p className="mt-2 text-sm text-foreground/90">{m.opportunity.summary}</p>
-
-            {m.fitReasons.length > 0 && (
-              <div className="mt-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Why It Fits
-                </p>
-                <ul className="space-y-1">
-                  {m.fitReasons.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-foreground/90">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {(reportView || !compact) && m.gapReasons.length > 0 && (
-              <div className="mt-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  What To Watch
-                </p>
-                <ul className="space-y-1">
-                  {m.gapReasons.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                      <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      {reportView ? <table role="presentation" data-report-opportunity-pages>
+        <thead><tr><td>{heading}</td></tr></thead>
+        <tbody><tr><td>
+          {visible.length === 0 && <p className="text-sm text-muted-foreground">
+            No age-appropriate sample opportunities are listed for this profile. Review the student’s interests and support needs with the team before exploring options.
+          </p>}
+          {cards}
+        </td></tr></tbody>
+      </table> : <>{heading}{cards}</>}
 
       {!reportView && !compact && hidden.length > 0 && (
         <details className="mt-4 rounded-xl border border-dashed border-border bg-muted/30 p-4">

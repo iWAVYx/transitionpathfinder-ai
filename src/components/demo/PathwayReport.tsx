@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ReportSourceEntry } from "@/components/documents/ReportSourceEntry";
 import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
@@ -300,10 +301,7 @@ export function PathwayReport({
               <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
               <AlternativePathways items={report.alternativePathways} />
             </>,
-            next_steps_30_90_180_365: <>
-              {blocks("what_to_do_next")}
-              <NextStepsList steps={report.nextSteps} audience={audience} />
-            </>,
+            next_steps_30_90_180_365: <NextStepsList steps={report.nextSteps} audience={audience} introduction={blocks("what_to_do_next")} />,
             partner_matches: <OpportunityMatches reportView profile={profile} />,
           }}
           appendix={<div data-demo-review-summary className="space-y-4">
@@ -418,36 +416,41 @@ function ReportBlocks({ blocks, evidence }: { blocks: ReportBlock[]; evidence: D
   );
 }
 
-function NextStepsList({ steps, audience }: { steps: EnrichedNextStep[]; audience: DemoReportAudience }) {
-  if (steps.length === 0) return null;
+function NextStepsList({ steps, audience, introduction }: { steps: EnrichedNextStep[]; audience: DemoReportAudience; introduction: ReactNode }) {
+  if (steps.length === 0) return <>{introduction}</>;
   const focus = audience === "educator" ? "school_team" : audience;
   const owners = Array.from(new Set<EnrichedNextStep["owner"]>([focus, "shared", "student", "family", "school_team"]));
   const groups = owners.map(owner => ({ owner, steps: steps.filter(step => step.owner === owner) })).filter(group => group.steps.length > 0);
   const groupLabel: Record<EnrichedNextStep["owner"], string> = {
     student: "For the Student", family: "For the Family", school_team: "For the School Team", shared: "To Plan Together",
   };
+  const renderGroup = (group: typeof groups[number]) => <section key={group.owner} data-demo-action-group={group.owner} className="space-y-3">
+    <h3 className="text-primary">{groupLabel[group.owner]}</h3>
+    <ul className={`grid gap-3 ${group.steps.length > 1 ? "md:grid-cols-2" : "grid-cols-1"}`} data-document-columns data-single-report-block={group.steps.length === 1 || undefined}>
+      {group.steps.map(s => <li key={s.id} data-demo-next-step={s.id} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+        <div data-demo-action-heading className="flex flex-wrap items-start justify-between gap-3">
+          <h4 className="text-sm font-semibold text-foreground">{toTitleCase(s.title)}</h4>
+          <Badge variant="outline" className="text-[10px]">Review in {s.reviewByMonths} mo</Badge>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">{TIMEFRAME_LABEL[s.timeframe]} · Who Can Help: {OWNER_LABEL[s.owner]}</p>
+        <p className="mt-2 text-sm text-foreground/85">{s.detail}</p>
+      </li>)}
+    </ul>
+  </section>;
   return (
     <section aria-label="Recommended next steps" className="space-y-3">
-      <div data-demo-action-summary className="flex flex-wrap items-baseline justify-between gap-4">
-        <h2 className="text-lg font-semibold text-foreground">Next Steps</h2>
-        <p className="text-xs text-muted-foreground">{steps.length} recommendation{steps.length === 1 ? "" : "s"} · review timing included</p>
+      <div data-demo-action-lead className="space-y-3">
+        {introduction}
+        <div data-demo-action-summary className="flex flex-wrap items-baseline justify-between gap-4">
+          <h2 className="text-lg font-semibold text-foreground">Next Steps</h2>
+          <p className="text-xs text-muted-foreground">{steps.length} recommendation{steps.length === 1 ? "" : "s"} · review timing included</p>
+        </div>
+        {!steps.some(step => step.owner === focus) && <p data-demo-no-role-action className="text-sm text-muted-foreground">
+          No separate {OWNER_LABEL[focus].toLowerCase()} step is recorded in this sample. Start with the shared actions and agree on who can help.
+        </p>}
+        {renderGroup(groups[0])}
       </div>
-      {!steps.some(step => step.owner === focus) && <p data-demo-no-role-action className="text-sm text-muted-foreground">
-        No separate {OWNER_LABEL[focus].toLowerCase()} step is recorded in this sample. Start with the shared actions and agree on who can help.
-      </p>}
-      {groups.map(group => <section key={group.owner} data-demo-action-group={group.owner} className="space-y-3">
-        <h3 className="text-primary">{groupLabel[group.owner]}</h3>
-        <ul className={`grid gap-3 ${group.steps.length > 1 ? "md:grid-cols-2" : "grid-cols-1"}`} data-document-columns data-single-report-block={group.steps.length === 1 || undefined}>
-          {group.steps.map(s => <li key={s.id} data-demo-next-step={s.id} className="rounded-lg border border-border bg-card p-4 shadow-sm">
-            <div data-demo-action-heading className="flex flex-wrap items-start justify-between gap-3">
-              <h4 className="text-sm font-semibold text-foreground">{toTitleCase(s.title)}</h4>
-              <Badge variant="outline" className="text-[10px]">Review in {s.reviewByMonths} mo</Badge>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">{TIMEFRAME_LABEL[s.timeframe]} · Who Can Help: {OWNER_LABEL[s.owner]}</p>
-            <p className="mt-2 text-sm text-foreground/85">{s.detail}</p>
-          </li>)}
-        </ul>
-      </section>)}
+      {groups.slice(1).map(renderGroup)}
     </section>
   );
 }
