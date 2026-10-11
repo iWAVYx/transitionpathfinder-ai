@@ -392,6 +392,7 @@ export function ReportV2Sections({
         <PublicationPage
           headingLevel="h2"
           chapter="Meeting Prep Questions"
+          repeatPrintHeader
           dek="Bring these to the next PPT / IEP / transition meeting."
         >
           <section id="v2-meeting-qs">

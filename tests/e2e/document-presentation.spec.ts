@@ -942,7 +942,15 @@ test("complete recorded team questions retain role visibility on screen and in p
           await expect(section.locator('[data-value-callout-question]')).toHaveCount(0);
           if (media === "print") expect(await section.evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
           const questionsSection = page.locator("#v2-meeting-qs");
+          const continuation = page.locator("[data-publication-continuation]");
+          await expect(continuation).toHaveCount(1);
+          await expect(continuation.locator("thead").getByRole("heading", { name: "Meeting Prep Questions", level: 2 })).toBeVisible();
+          expect(await continuation.evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table" : "block");
+          expect(await continuation.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
+          await expect(continuation.getByRole("columnheader")).toHaveCount(0);
+          if (media === "print") expect(await continuation.locator("tbody > tr").evaluate(element => getComputedStyle(element).breakInside)).toBe("auto");
           if (media === "print") expect(await questionsSection.locator("li").evaluateAll(elements => elements.every(element => getComputedStyle(element).breakInside === "avoid"))).toBe(true);
+          if (media === "print") expect(await questionsSection.locator("li").evaluateAll(elements => elements.every(element => parseFloat(getComputedStyle(element).paddingTop) <= 8 && parseFloat(getComputedStyle(element.querySelector("p.mt-1")!).fontSize) >= 14))).toBe(true);
           for (let i = 1; i <= 10; i++) {
             await expect(page.getByText(`Recorded team question ${i}?`, { exact: true })).toHaveCount(1);
             await expect(questionsSection.getByText(`Recorded team question ${i}?`, { exact: true })).toBeVisible();

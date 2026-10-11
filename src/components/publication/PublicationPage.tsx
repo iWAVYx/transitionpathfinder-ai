@@ -34,6 +34,8 @@ interface PublicationPageProps {
   displayStyle?: "auto" | "mono" | "title";
   /** Explicit hierarchy for a page embedded below a report title. */
   headingLevel?: "h1" | "h2" | "h3";
+  /** Repeat the section opener on report export continuation pages. */
+  repeatPrintHeader?: boolean;
   /** Page body. */
   children: ReactNode;
 }
@@ -48,6 +50,7 @@ export function PublicationPage({
   kicker,
   displayStyle = "auto",
   headingLevel,
+  repeatPrintHeader = false,
   children,
 }: PublicationPageProps) {
   const sectionTitle = useDocumentSectionTitle();
@@ -57,6 +60,20 @@ export function PublicationPage({
   const useMono =
     displayStyle === "mono" || (displayStyle === "auto" && isOneWord);
 
+  const opener = (
+    <div className="pub-page-opener">
+      {kicker && <p className="pub-page-kicker">{kicker}</p>}
+      {!headingAlreadyShown && <Heading
+        className="pub-page-title"
+        data-display={useMono ? "mono" : "title"}
+      >
+        {chapter}
+      </Heading>}
+      {dek && <p className="pub-page-dek">{dek}</p>}
+      <div className="pub-page-rule" aria-hidden />
+    </div>
+  );
+
   return (
     <article className="pub-page">
       <header className="pub-page-runninghead" aria-hidden={false}>
@@ -65,19 +82,13 @@ export function PublicationPage({
         {folio && <span className="pub-page-folio">{folio}</span>}
       </header>
 
-      <div className="pub-page-opener">
-        {kicker && <p className="pub-page-kicker">{kicker}</p>}
-        {!headingAlreadyShown && <Heading
-          className="pub-page-title"
-          data-display={useMono ? "mono" : "title"}
-        >
-          {chapter}
-        </Heading>}
-        {dek && <p className="pub-page-dek">{dek}</p>}
-        <div className="pub-page-rule" aria-hidden />
-      </div>
+      {repeatPrintHeader ? (
+        <table role="presentation" data-publication-continuation>
+          <thead><tr><td>{opener}</td></tr></thead>
+          <tbody><tr><td><div className="pub-page-body">{children}</div></td></tr></tbody>
+        </table>
+      ) : <>{opener}<div className="pub-page-body">{children}</div></>}
 
-      <div className="pub-page-body">{children}</div>
     </article>
   );
 }
