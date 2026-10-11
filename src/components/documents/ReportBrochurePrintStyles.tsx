@@ -91,7 +91,8 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-week] > span:first-child {
         text-transform: none !important; letter-spacing: normal !important; white-space: nowrap;
       }
-      /* Short career records stay with their title; oversized records can still flow. */
+      /* Short training sections and career records stay with their title; oversized content can still flow. */
+      body:has(.report-root) .report-root #sec-education,
       body:has(.report-root) .report-root [data-report-career-match] {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }

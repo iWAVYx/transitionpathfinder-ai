@@ -1128,6 +1128,8 @@ test("legacy readiness has recorded levels and full details without percentage b
       for (const media of ["screen", "print"] as const) {
         await page.emulateMedia({ media });
         const readiness = page.locator("#sec-readiness");
+        const education = page.locator("#sec-education");
+        for (const option of original.education_training_options) expect(await education.textContent()).toContain(option);
         const careers = page.locator("[data-report-career-pages]");
         await expect(careers).toHaveCount(original.career_matches.length);
         for (const career of original.career_matches) {
@@ -1141,7 +1143,7 @@ test("legacy readiness has recorded levels and full details without percentage b
           for (const field of [row.evidence, row.what_it_means, row.growth_activity, row.suggested_goal]) expect(await readiness.textContent()).toContain(field);
         }
         if (media === "print") {
-          for (const selector of ["[data-report-readiness-row]", "[data-report-profile-summary]", "[data-report-evidence-gap]", "[data-report-career-match]"]) {
+          for (const selector of ["#sec-education", "[data-report-readiness-row]", "[data-report-profile-summary]", "[data-report-evidence-gap]", "[data-report-career-match]"]) {
             const grouping = await page.locator(selector).evaluateAll(elements => elements.map(element => getComputedStyle(element).breakInside));
             expect(grouping.length).toBeGreaterThan(0);
             expect(grouping.every(value => value === "avoid")).toBe(true);
