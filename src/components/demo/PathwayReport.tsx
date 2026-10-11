@@ -1,3 +1,5 @@
+import { ReportOverview } from "@/components/documents/ReportOverview";
+import { demoReportNextStepPreview } from "@/lib/demo/report-overview";
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
 import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
@@ -197,6 +199,7 @@ export function PathwayReport({
         <AudienceFrame frame={frame} />
         <div className="no-print print:hidden flex justify-end"><ReportPdfButton size="sm" className="bg-demo-primary" /></div>
         <ReportContents items={[
+          { id: "demo-report-overview", label: "At a Glance" },
           { id: "section-student_snapshot", label: "Student Snapshot" },
           ...(profile.voice.length > 0 ? [{ id: "section-student_voice", label: `In ${profile.shortName}'s Voice` }] : []),
           ...(hasLearningDetails ? [{ id: "section-strengths_preferences_interests_needs", label: "Strengths and Supports" }] : []),
@@ -210,6 +213,11 @@ export function PathwayReport({
           { id: "section-partner_matches", label: "Opportunities to Explore" },
           { id: "report-appendix", label: "Review Notes and When to Revisit" },
         ]} />
+        <section id="demo-report-overview" className="mt-10 page-break exec-summary">
+          <ReportOverview summary={report.focus} strengths={profile.learning.strengths.slice(0, 3)}
+            direction={report.pathwayOptions[0] ? { label: "Direction to Explore", title: report.pathwayOptions[0].title, explanation: report.pathwayOptions[0].fitSummary } : undefined}
+            nextSteps={demoReportNextStepPreview(report.nextSteps, audience)} />
+        </section>
         <PathwayReportBody
           sectionLabels={{ family_action_plan: "Family Context", educator_action_plan: "How Your Team Can Help" }}
           stageCopy={{ family: {

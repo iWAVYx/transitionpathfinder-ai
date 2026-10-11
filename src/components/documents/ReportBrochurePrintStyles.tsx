@@ -117,6 +117,10 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-plan-step] [data-report-plan-label][data-report-plan-label] { line-height: 1.3 !important; }
       body:has(.report-root) .report-root [data-report-export-period] > p { break-after: avoid !important; page-break-after: avoid !important; }
       body:has(.report-root) .report-root [data-report-export-period] > ol { break-before: avoid !important; }
+      /* Keep the short overview and its recommendation explanation together. */
+      body:has(.report-root) .report-root .exec-summary:has([data-report-overview]) {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
       /* Resource and partner explanations share equal print panels. */
       body:has(.report-root) .report-root [data-report-match-entry] {
         padding-top: 0.08in !important; padding-bottom: 0.08in !important;

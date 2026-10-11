@@ -1,3 +1,4 @@
+import { ReportOverview } from "@/components/documents/ReportOverview";
 import { reportSourceLabels } from "@/lib/report-source-summary";
 import { reportNextStepPreview } from "@/lib/report-next-step-preview";
 import { reportPrintPlans } from "@/lib/report-print-plans";
@@ -773,42 +774,9 @@ function ReportViewReader({
 
       {/* ============ Executive Summary ============ */}
       <section className="mt-10 page-break exec-summary">
-        <PublicationPage
-          kicker="At a Glance"
-          chapter="At a Glance"
-          dek="The big picture — what we know, where things are headed, and where to start."
-          folio="p. 01"
-        >
-          <PublicationSpread
-            lead={
-              <div>
-                <p className="text-sm leading-relaxed text-foreground/85">{r.summary}</p>
-                {topStrengths.length > 0 && (
-                  <div className="mt-6">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Top Strengths</p>
-                    <PublicationChecklist items={topStrengths} />
-                  </div>
-                )}
-                {bestFitPathway && (
-                  <div className="mt-6 border-t border-[color:var(--pub-rule-soft)] pt-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Best-Fit Direction</p>
-                    <p className="font-display text-lg leading-snug">{toTitleCase(bestFitPathway.title)}</p>
-                    <p data-report-best-fit-explanation className="mt-1 text-sm text-muted-foreground">{bestFitPathway.why_it_fits}</p>
-                  </div>
-                )}
-              </div>
-            }
-            side={
-              <PublicationSidebar label={nextStepPreview.label}>
-                {nextStepPreview.items.length > 0 ? (
-                  <PublicationChecklist items={nextStepPreview.items} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">No next steps are recorded for this view. Review the Action Plan with your team.</p>
-                )}
-              </PublicationSidebar>
-            }
-          />
-        </PublicationPage>
+        <ReportOverview summary={r.summary} strengths={topStrengths}
+          direction={bestFitPathway ? { label: "Best-Fit Direction", title: bestFitPathway.title, explanation: bestFitPathway.why_it_fits } : undefined}
+          nextSteps={nextStepPreview} />
       </section>
 
 

@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -1492,6 +1492,54 @@ test("resource and partner matches retain role content with consistent titles an
         await expect(page.locator("#v2-partners").getByText("DDS / PartnerForward", { exact: true })).toBeVisible();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       }
+    }
+  }
+});
+
+
+test("demo and product overviews retain their own source content and role-specific action timing", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const css = compiler.build(new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources }).scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const sourceSteps = [
+    { id: "family", owner: "family", title: "Family observation", detail: "Family-only detail", timeframe: "this_year", reviewByMonths: 8 },
+    { id: "shared", owner: "shared", title: "Discuss supports together", detail: "Shared detail", timeframe: "this_semester", reviewByMonths: 5 },
+  ];
+  expect(components.demoReportNextStepPreview([{ ...sourceSteps[0], reviewByMonths: 1 }, sourceSteps[1]], "family")).toEqual({ label: "For the Family", items: ["Family observation — This Year · Review in 1 Month"] });
+  expect(components.demoReportNextStepPreview(sourceSteps, "student")).toEqual({ label: "Shared Next Steps", items: ["Discuss supports together — This Semester · Review in 5 Months"] });
+  expect(components.demoReportNextStepPreview(sourceSteps.slice(0, 1), "educator")).toEqual({ label: "Recorded Next Steps", items: [] });
+  for (const audience of ["student", "family", "educator"]) {
+    const fixtures = ["sam", "riley", "jordan"].map(id => {
+      const profile = components.getDemoProfile(id), report = components.generatePathwayReport(profile);
+      return { name: id, markup: renderToStaticMarkup(createElement(components.PathwayReport, { profile, audience })), summary: report.focus,
+        strengths: profile.learning.strengths.slice(0, 3), direction: report.pathwayOptions[0]?.fitSummary,
+        actions: components.demoReportNextStepPreview(report.nextSteps, audience), report };
+    });
+    const actual = components.richerSharedFixture();
+    fixtures.push({ name: "product", markup: renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report: actual, hasV2: true, initialAudience: audience })), summary: actual.summary, strengths: [], direction: undefined, actions: undefined, report: undefined } as any);
+    for (const fixture of fixtures) for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${fixture.markup}</div></main></body></html>`);
+      await page.emulateMedia({ media });
+      const overview = page.locator("[data-report-overview]");
+      await expect(overview).toHaveCount(1);
+      if (media === "print") expect(await overview.evaluate(element => getComputedStyle(element.closest(".exec-summary")!).breakInside)).toBe("avoid");
+      await expect(overview).toContainText(fixture.summary);
+      for (const strength of fixture.strengths) await expect(overview).toContainText(strength);
+      if (fixture.direction) await expect(overview).toContainText(fixture.direction);
+      if (fixture.actions) {
+        await expect(overview.locator(".pub-sidebar-label")).toHaveText(fixture.actions.label);
+        for (const action of fixture.actions.items) await expect(overview.locator(".pub-sidebar-body")).toContainText(action);
+        for (const option of fixture.report.pathwayOptions) await expect(page.locator(`[data-demo-pathway-option="${option.id}"]`)).toContainText(option.fitSummary);
+        for (const alternative of fixture.report.alternativePathways) await expect(page.locator(`[data-demo-alt-pathway="${alternative.id}"]`)).toContainText(alternative.whenToConsider);
+        for (const conflict of fixture.report.conflicts) await expect(page.locator(`[data-demo-conflict="${conflict.id}"]`)).toContainText(conflict.summary);
+        const anchor = page.locator('a[href="#demo-report-overview"]');
+        await expect(anchor).toHaveCount(1);
+      }
+      const spread = await overview.evaluate(element => { const lead = element.querySelector(".pub-spread-lead")!.getBoundingClientRect(), side = element.querySelector(".pub-spread-side")!.getBoundingClientRect(); return { topDifference: Math.abs(lead.top-side.top), overlap: lead.right > side.left+1, width: element.getBoundingClientRect().width }; });
+      if (media === "print" || width === 1024) { expect(spread.topDifference).toBeLessThan(1); expect(spread.overlap).toBe(false); }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   }
 });
