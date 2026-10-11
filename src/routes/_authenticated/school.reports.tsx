@@ -1,3 +1,4 @@
+import { reportExportReady, organizationCsvCell } from "@/lib/organization-report-export";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useMemo, useState } from "react";
@@ -22,7 +23,7 @@ import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolP
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { loadJsPdf, loadJsPdfAutoTable } from "@/lib/browser-only-libs";
+import { createOrganizationReportPdf } from "@/lib/organization-report-pdf";
 import { cn } from "@/lib/utils";
 import {
   getSchoolReportMetrics,
@@ -62,6 +63,9 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
   const [win, setWin] = useState<SchoolReportWindow | null>(null);
   const [reports, setReports] = useState<SchoolReportRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [loadedOrganization, setLoadedOrganization] = useState<string | null>(null);
 
   const fromIso = useMemo(() => (from ? startOfDay(from).toISOString() : undefined), [from]);
   const toIso = useMemo(() => (to ? endOfDay(to).toISOString() : undefined), [to]);
@@ -70,6 +74,11 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setLoadFailed(false);
+      setWin(null);
+      setReports([]);
+      setLoadedOrganization(null);
+      if (fromIso && toIso && fromIso > toIso) { setLoading(false); return; }
       try {
         const [w, r] = await Promise.all([
           fetchMetrics({ data: { organization_id: org.id, from: fromIso, to: toIso } }),
@@ -77,10 +86,11 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
         ]);
         if (!cancelled) {
           setWin(w);
+          setLoadedOrganization(org.id);
           setReports(r.reports);
         }
       } catch {
-        if (!cancelled) toast.error("Could not load school reports.");
+        if (!cancelled) { setLoadFailed(true); toast.error("Could not load school reports."); }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -88,7 +98,9 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
     return () => {
       cancelled = true;
     };
-  }, [org.id, fromIso, toIso, fetchMetrics, fetchReports]);
+  }, [org.id, fromIso, toIso, fetchMetrics, fetchReports, attempt]);
+
+  const canExport = reportExportReady({ loading, loadedOrganization, organization: org.id, window: win, from: fromIso, to: toIso });
 
   const rangeLabel =
     from && to
@@ -120,28 +132,34 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
           <p className="text-xs text-muted-foreground">
             Showing metrics for <span className="font-medium">{rangeLabel}</span>.
           </p>
+          {fromIso && toIso && fromIso > toIso && <p role="alert" className="text-sm text-destructive">Choose an end date on or after the start date.</p>}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             variant="outline"
-            disabled={!win}
-            onClick={() => win && exportCsv(org, win, rangeLabel)}
+            disabled={!canExport}
+            onClick={() => canExport && win && exportCsv(org, win, rangeLabel)}
           >
             <Download className="h-3.5 w-3.5" /> Export CSV
           </Button>
           <Button
             size="sm"
             variant="outline"
-            disabled={!win}
-            onClick={() => win && exportPdf(org, win, rangeLabel)}
+            disabled={!canExport}
+            onClick={() => canExport && win && exportPdf(org, win, rangeLabel)}
           >
             <FileDown className="h-3.5 w-3.5" /> Export PDF
           </Button>
         </div>
       </div>
 
-      {loading || !win ? (
+      {fromIso && toIso && fromIso > toIso ? null : loadFailed && !loading ? (
+        <div role="alert" className="rounded-lg border p-6">
+          <p>We couldn't load this report. Please try again.</p>
+          <Button className="mt-3" onClick={() => setAttempt(current => current + 1)}>Try Again</Button>
+        </div>
+      ) : !canExport || !win ? (
         <div className="flex justify-center py-16">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
@@ -488,10 +506,7 @@ function filenameSuffix(w: SchoolReportWindow) {
 function exportCsv(org: SchoolOrg, w: SchoolReportWindow, rangeLabel: string) {
   try {
     const { summary, studentRows } = buildRows(org, w, rangeLabel);
-    const esc = (v: unknown) => {
-      const s = String(v ?? "");
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
+    const esc = organizationCsvCell;
     const lines: string[] = [];
     lines.push("School Report — Aggregate Metrics");
     summary.forEach((r) => lines.push(r.map(esc).join(",")));
@@ -513,34 +528,13 @@ function exportCsv(org: SchoolOrg, w: SchoolReportWindow, rangeLabel: string) {
 
 async function exportPdf(org: SchoolOrg, w: SchoolReportWindow, rangeLabel: string) {
   try {
-    const { jsPDF } = await loadJsPdf();
-    const autoTable = (await loadJsPdfAutoTable()).default;
     const { summary, studentRows } = buildRows(org, w, rangeLabel);
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("School Report", 14, 18);
-    doc.setFontSize(11);
-    doc.text(org.name, 14, 26);
-    doc.setFontSize(9);
-    doc.text(
-      `Window: ${rangeLabel} · Generated ${new Date().toLocaleString()}`,
-      14,
-      32,
-    );
-
-    autoTable(doc, {
-      startY: 38,
-      head: [["Metric", "Value"]],
-      body: summary,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [30, 41, 59] },
-    });
-
-    autoTable(doc, {
-      head: [["Student", "Grade Band", "Reports", "Active Goals", "Open Actions"]],
-      body: studentRows,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [30, 41, 59] },
+    const doc = await createOrganizationReportPdf({
+      title: "School Report", organization: org.name, period: rangeLabel,
+      sections: [
+        { title: "At a Glance", headings: ["Measure", "Value"], rows: summary },
+        { title: "Students", headings: ["Student", "Grade Band", "Reports", "Active Goals", "Open Actions"], rows: studentRows },
+      ],
     });
 
     doc.save(`${slug(org.name)}-school-report${filenameSuffix(w)}.pdf`);

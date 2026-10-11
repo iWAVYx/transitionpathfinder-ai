@@ -61,8 +61,13 @@ export function MeetingPrepPartners({
   meetingDate: string | null;
 }) {
   const fetchMatches = useServerFn(matchPartnersForStudent);
-  const [items, setItems] = useState<PartnerMatch[] | null>(null);
-  const [errored, setErrored] = useState(false);
+  const [result, setResult] = useState<{
+    studentId: string; matches: PartnerMatch[]; errored: boolean;
+  } | null>(null);
+  // Never show suggestions from a different student while a request is pending.
+  const current = result?.studentId === studentId ? result : null;
+  const items = current?.matches ?? null;
+  const errored = current?.errored ?? false;
   const [tz, setTz] = useState<string>(() => {
     const browser = getBrowserTimezone();
     return isKnownTimezone(browser) ? browser : "America/New_York";
@@ -73,12 +78,11 @@ export function MeetingPrepPartners({
     let cancelled = false;
     fetchMatches({ data: { student_id: studentId, limit: 5 } })
       .then((r) => {
-        if (!cancelled) setItems(r.matches);
+        if (!cancelled) setResult({ studentId, matches: r.matches, errored: false });
       })
       .catch(() => {
         if (!cancelled) {
-          setItems([]);
-          setErrored(true);
+          setResult({ studentId, matches: [], errored: true });
         }
       });
     return () => {
@@ -92,7 +96,7 @@ export function MeetingPrepPartners({
     <div className="space-y-8">
       <section>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-display text-lg font-medium tracking-tight">Suggested deadlines</h3>
+          <h3 className="font-display text-lg font-medium tracking-tight">Suggested Deadlines</h3>
           {deadlines.parsed && (
             <div className="flex flex-wrap items-center gap-2">
               <Select value={tz} onValueChange={setTz}>
@@ -158,19 +162,19 @@ export function MeetingPrepPartners({
           </>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
-            Add a meeting date above and we'll lay out a week-by-week prep timeline with
-            calendar reminders you can share.
+            Choose a meeting date when preparing a new meeting plan to see suggested
+            preparation dates and calendar reminders.
           </p>
         )}
       </section>
 
       <section>
         <h3 className="font-display text-lg font-medium tracking-tight">
-          Partner contacts to have on hand
+          Partner Contacts to Have on Hand
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Bring these names to the PPT — they're matched to the student's interests, county, and
-          support needs.
+          Review suggested organizations based on the student's interests, county, and
+          support needs. Contact them to confirm availability and whether their services are a good fit.
         </p>
         {!studentId ? (
           <p className="mt-3 text-sm text-muted-foreground">

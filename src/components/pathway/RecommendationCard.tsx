@@ -1,5 +1,7 @@
+import type { ReportSourceCount } from "@/lib/report-source-summary";
 import { ChevronDown, CalendarClock, UserRound } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
+import { toTitleCase } from "@/lib/title-case";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SourceChips } from "@/components/pathway/SourceChips";
@@ -27,19 +29,20 @@ export function RecommendationCard({
   audience,
   defaultOpen = false,
 }: {
-  rec: PillarRec;
+  rec: PillarRec & ReportSourceCount;
   audience: "student" | "family" | "educator";
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen || audience === "educator");
+  const detailsId = useId();
   return (
-    <article className="rounded-2xl border bg-card p-4 shadow-soft transition-colors hover:border-primary/40 sm:p-5">
+    <article data-report-recommendation className="rounded-2xl border bg-card p-4 shadow-soft transition-colors hover:border-primary/40 sm:p-5">
       <header className="flex flex-wrap items-start justify-between gap-2">
-        <h4 className="text-sm font-semibold sm:text-base">{rec.title}</h4>
+        <h3 className="text-sm font-semibold sm:text-base">{toTitleCase(rec.title)}</h3>
         <div className="flex flex-wrap gap-1.5">
           {rec.timeframe && (
             <Badge variant="outline" className="text-[10px]">
-              <CalendarClock className="h-3 w-3" />
+              <CalendarClock className="print:hidden h-3 w-3" />
               {TIMEFRAME_LABEL[rec.timeframe]}
             </Badge>
           )}
@@ -56,8 +59,9 @@ export function RecommendationCard({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+        className="print:hidden mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
         aria-expanded={open}
+        aria-controls={detailsId}
       >
         <ChevronDown
           className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
@@ -65,40 +69,39 @@ export function RecommendationCard({
         {open ? "Hide rationale" : "Why this · what's next · who"}
       </button>
 
-      {open && (
-        <div className="mt-3 space-y-3 rounded-xl border border-dashed bg-background/60 p-3 sm:p-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Why this was recommended
+        <div id={detailsId} data-report-recommendation-details className={cn("mt-3 space-y-3 rounded-xl border border-dashed bg-background/60 p-3 sm:p-4", !open && "hidden print:block")}>
+          <div data-report-recommendation-field="why">
+            <p className="text-xs font-semibold text-foreground">
+              Why This Fits
             </p>
             <p className="mt-1 text-sm">{rec.why}</p>
           </div>
-          {audience !== "student" && rec.sources.length > 0 && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                What informed this
+          {audience !== "student" && (rec.sources.length > 0 || (rec.source_count ?? 0) > 0) && (
+            <div data-report-recommendation-field="sources">
+              <p className="text-xs font-semibold text-foreground">
+                Information Used
               </p>
               <SourceChips
                 sources={rec.sources}
+                sourceCount={rec.source_count}
                 collapsed={audience === "family"}
                 className="mt-1"
               />
             </div>
           )}
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Next action
+          <div data-report-recommendation-field="next">
+            <p className="text-xs font-semibold text-foreground">
+              Next Step
             </p>
             <p className="mt-1 text-sm">{rec.next_action}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div data-report-recommendation-field="owner" className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <UserRound className="h-3.5 w-3.5" />
             <span>
               Follow-up: <strong className="text-foreground">{OWNER_LABEL[rec.owner_role] ?? rec.owner_role}</strong>
             </span>
           </div>
         </div>
-      )}
     </article>
   );
 }

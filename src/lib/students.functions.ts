@@ -57,9 +57,9 @@ export const listStudents = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     if (error) {
       console.error("listStudents failed", error);
-      return { students: [] as Student[] };
+      return { students: [] as Student[], loadFailed: true };
     }
-    return { students: (data ?? []) as Student[] };
+    return { students: (data ?? []) as Student[], loadFailed: false };
   });
 
 export const getStudent = createServerFn({ method: "POST" })

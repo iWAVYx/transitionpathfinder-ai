@@ -7,6 +7,8 @@ export const RELATED_TOOLS: Record<string, RelatedTool[]> = {
       to: "/family/priorities",
       demoTo: "/demo/workspace/family?role=family",
     },
+  ],
+  "family:pathway-report": [
     { label: "Goals & Progress", to: "/goals", demoTo: "/demo/plan?role=family" },
   ],
   "family:documents": [

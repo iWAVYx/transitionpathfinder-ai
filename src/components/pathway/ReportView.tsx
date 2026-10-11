@@ -1,7 +1,27 @@
+import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
+import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
+import { ReportOverview } from "@/components/documents/ReportOverview";
+import { reportSourceLabels } from "@/lib/report-source-summary";
+import { reportNextStepPreview } from "@/lib/report-next-step-preview";
+import { reportPrintPlans } from "@/lib/report-print-plans";
+import { getLegacyReportSnapshot } from "@/lib/report-snapshot-contract";
+import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
+import { ReportV2Sections } from "@/components/pathway/ReportV2Sections";
+import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
+import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
+import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS as READINESS_LABEL } from "@/components/documents/ReportReadinessRow";
+import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
+import { useReportStudentVoice } from "@/hooks/use-report-student-voice";
+import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
+import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
+import { ReportContents } from "@/components/documents/ReportContents";
+import { ReportPdfButton } from "@/components/documents/ReportPdfButton";
+import { liveReportContents } from "@/lib/report-contents";
+import { PathwayDocumentPresentation } from "@/components/documents/PathwayDocumentPresentation";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
-  Download,
   BookmarkPlus,
   Users,
   GraduationCap,
@@ -27,11 +47,11 @@ import {
   Search,
   RefreshCw,
 } from "lucide-react";
+import { reportTeamQuestions } from "@/lib/report-team-questions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 import type { SupportedLanguage } from "@/lib/ai-assist.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Accordion,
   AccordionContent,
@@ -49,10 +69,6 @@ import {
   getReportViewerPrefs,
   updateReportViewerPrefs,
 } from "@/lib/ui-prefs.functions";
-import {
-  getStudentVoiceResponses,
-  type StudentVoiceResponse,
-} from "@/lib/student-voice.functions";
 import { STUDENT_VOICE_PROMPTS } from "@/lib/student-voice-prompts";
 import {
   EVT_BLOCKS_HYDRATE,
@@ -68,7 +84,8 @@ import {
 } from "@/lib/report-view-prefs";
 
 import { toTitleCase } from "@/lib/title-case";
-import { HORIZON_META, buildExtendedPlansFromReport, type PlanHorizon } from "@/lib/demo-extended-plans";
+import { HORIZON_META, type PlanHorizon } from "@/lib/demo-extended-plans";
+import { recordedReportPlans } from "@/lib/report-recorded-plans";
 import { PlanHorizonTabs, RichPlanStepCard } from "@/components/pathway/PlanHorizon";
 import {
   ReportPhase4Sections,
@@ -93,20 +110,6 @@ import { resolveReportAudience } from "@/lib/report-role-precedence";
 
 
 type Audience = "student" | "family" | "educator";
-
-const READINESS_PCT: Record<string, number> = {
-  emerging: 20,
-  developing: 45,
-  progressing: 70,
-  ready: 92,
-};
-
-const READINESS_LABEL: Record<string, string> = {
-  emerging: "Emerging",
-  developing: "Developing",
-  progressing: "Progressing",
-  ready: "Ready",
-};
 
 const PATHWAY_TYPE_LABEL: Record<string, string> = {
   "best-fit": "Best fit",
@@ -136,12 +139,21 @@ export type ReportMeta = {
   graduationYear?: string | number | null;
 };
 
-export function ReportView({
+export function ReportView(props: Parameters<typeof ReportViewReader>[0]) {
+  return <ReportSessionBoundary report={props.report} studentId={props.studentId} studentName={props.name}
+    demo={props.demo} readOnly={props.readOnly}>
+    <ReportViewReader {...props} />
+  </ReportSessionBoundary>;
+}
+
+function ReportViewReader({
   name,
   report,
   onReset,
   resetLabel = "Create another report",
   initialAudience,
+  fixedAudience,
+  readOnly = false,
   onSaveToProfile,
   saveLabel,
   saved,
@@ -160,6 +172,10 @@ export function ReportView({
   onReset?: () => void;
   resetLabel?: string;
   initialAudience?: Audience;
+  /** Shared links retain the audience chosen by their owner. */
+  fixedAudience?: Audience;
+  /** Shared readers cannot invoke report-generation assistance. */
+  readOnly?: boolean;
   onSaveToProfile?: () => void;
   saveLabel?: string;
   saved?: boolean;
@@ -168,8 +184,8 @@ export function ReportView({
   studentId?: string;
   extendedPlans?: import("@/lib/demo-extended-plans").ExtendedPlans;
   /**
-   * When the report has been regenerated into the v2 schema, the route also
-   * renders <ReportV2Sections />. Set this to suppress the v1 sections that
+   * When the report has been regenerated into the v2 schema, the reader
+   * renders its detailed sections inside the printable document. Suppress the v1 sections that
    * v2 re-renders (IEP translator, family/educator action plans, meeting
    * prep toolkit, opportunity matches) so the document doesn't duplicate.
    */
@@ -184,8 +200,9 @@ export function ReportView({
 }) {
 
   // Workstream 1 (verified): Pathway Report audience precedence.
+  // Shared links always retain fixedAudience. Otherwise:
   // Order = 1) explicit ?view=/?audience= in URL, 2) authorized origin
-  // (initialAudience passed by caller — dashboard route, share token, etc.),
+  // (initialAudience passed by caller — dashboard route, demo, etc.),
   // 3) Student View fallback. Centralized in resolveReportAudience so every
   // entry point (dashboard, share, demo) applies the same rules and invalid
   // values fall through safely instead of leaking into state.
@@ -198,10 +215,12 @@ export function ReportView({
         urlAudience = raw;
       }
     }
-    return resolveReportAudience([urlAudience, initialAudience]);
-  }, [initialAudience]);
-  const [audience, setAudienceState] = useState<Audience>(initialResolved);
+    return resolveReportAudience([fixedAudience, urlAudience, initialAudience]);
+  }, [fixedAudience, initialAudience]);
+  const [selectedAudience, setAudienceState] = useState<Audience>(initialResolved);
+  const audience = fixedAudience ?? selectedAudience;
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
+    if (fixedAudience) return;
     setAudienceState(a);
     onAudienceChange?.(a);
     if (options?.syncUrl && typeof window !== "undefined" && !onAudienceChange) {
@@ -221,45 +240,9 @@ export function ReportView({
   const fetchPrefs = useServerFn(getReportViewerPrefs);
   const pushPrefs = useServerFn(updateReportViewerPrefs);
 
-  /**
-   * "Download as PDF" — renders the magazine-handbook reader view rather
-   * than the plain document print. Adds `print-magazine` to <body> so the
-   * scoped print CSS below preserves chapter openers, paper sheets, pull
-   * quotes, and editorial typography. Cleans up after the print dialog.
-   */
-  const downloadMagazinePdf = useCallback(() => {
-    if (typeof window === "undefined") return;
-    document.body.classList.add("print-magazine");
-    const cleanup = () => {
-      document.body.classList.remove("print-magazine");
-      window.removeEventListener("afterprint", cleanup);
-    };
-    window.addEventListener("afterprint", cleanup);
-    // Allow the class to apply before invoking the print dialog.
-    window.setTimeout(() => window.print(), 60);
-  }, []);
-
   // Phase 6D — fetch the student's saved voice answers so the Student
   // audience tab can show "Your Voice in this plan" with their own words.
-  const fetchVoice = useServerFn(getStudentVoiceResponses);
-  const [voiceResponses, setVoiceResponses] = useState<StudentVoiceResponse[]>([]);
-  useEffect(() => {
-    if (demo || !studentId) {
-      setVoiceResponses([]);
-      return;
-    }
-    let cancelled = false;
-    fetchVoice({ data: { studentId } })
-      .then((r) => {
-        if (!cancelled) setVoiceResponses(r.responses ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setVoiceResponses([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [demo, studentId, fetchVoice]);
+  const voiceResponses = useReportStudentVoice(studentId, demo);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -374,7 +357,7 @@ export function ReportView({
         ? `A plan for ${name}.`
         : audience === "student"
           ? `Your plan, ${name}.`
-          : `PPT Prep packet — ${name}`,
+          : `Meeting Guide — ${name}`,
     [audience, name],
   );
 
@@ -416,19 +399,19 @@ export function ReportView({
     await copyLink();
   };
 
-  const r = displayReport;
+  // Newer identity fields are rendered by ReportV2SnapshotHeader. Do not feed
+  // them into the legacy snapshot sections or invent missing legacy details.
+  const r = useMemo(() => ({
+    ...displayReport, student_snapshot: getLegacyReportSnapshot(displayReport),
+  }), [displayReport]);
 
   // Executive Summary inputs (derived, no new data required)
   const topStrengths = (r.strengths_snapshot ?? []).slice(0, 3);
   const bestFitPathway =
     r.recommended_pathways?.find((p) => p.type === "best-fit") ??
     r.recommended_pathways?.[0];
-  const topNextSteps = (() => {
-    const fromPlan = r.family_action_plan?.this_week ?? [];
-    if (fromPlan.length >= 3) return fromPlan.slice(0, 3);
-    const fromBestFit = bestFitPathway?.action_steps?.thirty_day ?? [];
-    return [...fromPlan, ...fromBestFit].slice(0, 3);
-  })();
+  const nextStepPreview = reportNextStepPreview(r, audience, hasV2);
+  const teamQuestions = reportTeamQuestions(r, audience, hasV2);
   const today = new Date().toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -445,12 +428,13 @@ export function ReportView({
 
   return (
     <div className="report-shell">
-    <section
+    <section data-generated-document
       className={cn(
         "report-root mx-auto px-4 py-10 sm:px-6 lg:px-8",
         density === "compact" ? "report-compact max-w-[92rem]" : "max-w-6xl",
       )}
     >
+      <PathwayDocumentPresentation sample={demo} />
       {/* Scoped compact-density overrides — only apply when `.report-compact` is on the root */}
       <style>{`
         @media (min-width: 640px) {
@@ -500,8 +484,7 @@ export function ReportView({
       <div className="print-cover hidden print:block" aria-hidden>
         <div className="print-cover-frame">
           <header className="print-cover-brand">
-            <span className="print-cover-mark" aria-hidden />
-            <span className="print-cover-brand-text">TransitionForward</span>
+            <BrandLogo size="sm" />
           </header>
 
           <div className="print-cover-body">
@@ -578,7 +561,7 @@ export function ReportView({
             <p className="fb-dek">{subheading}</p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <div className="tf-audience" role="tablist" aria-label="Choose a report view">
+              {!fixedAudience && <div className="tf-audience" role="tablist" aria-label="Choose a report view">
                 <button
                   type="button"
                   role="tab"
@@ -606,7 +589,7 @@ export function ReportView({
                 >
                   Educator
                 </button>
-              </div>
+              </div>}
               {confidenceLabel && (
                 <span className="inline-flex items-center justify-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/85 ring-1 ring-white/20">
                   <ShieldCheck className="h-3.5 w-3.5" /> {confidenceLabel}
@@ -715,7 +698,7 @@ export function ReportView({
           >
             <ChevronsDownUp className="h-4 w-4" /> Collapse
           </Button>
-          {onSaveToProfile && (
+          {!demo && !readOnly && onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "ghost"}
               size="sm"
@@ -731,7 +714,7 @@ export function ReportView({
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied" : "Share"}
           </Button>
-          {onRefresh && (
+          {!demo && !readOnly && onRefresh && (
             <Button
               variant="ghost"
               size="sm"
@@ -743,16 +726,7 @@ export function ReportView({
               {refreshing ? "Refreshing…" : "Refresh"}
             </Button>
           )}
-          <Button
-            variant="default"
-            size="sm"
-            onClick={downloadMagazinePdf}
-            aria-label="Download Pathway Report as PDF in magazine-handbook reader view"
-            className="bg-demo-primary"
-            title="Renders the magazine-handbook reader view: chapter openers, pull quotes, and editorial layout."
-          >
-            <Download className="h-4 w-4" /> Download as PDF
-          </Button>
+          <ReportPdfButton size="sm" className="bg-demo-primary" />
         </div>
       </div>
 
@@ -768,27 +742,27 @@ export function ReportView({
       />
 
       {/* ============ Where Things Stand — decision-supportive opener ============ */}
-      <section className="mt-8 page-break">
+      <section data-report-source-opener className="mt-8 page-break">
         <ValueCallout
           data={{
-            whatThisMeans: `This report brings together everything we know about ${name} — intake answers, uploaded documents, ${name}'s own words, and family priorities — into one decision-supportive view.`,
+            whatThisMeans: `This report is a planning draft for ${name}. Review its information and recommendations with the student and team, and add anything that is missing.`,
             whyItMatters:
-              "Transition planning fails most often because information is scattered across people and documents. This page is the shared starting point.",
-            recommendedNextStep: `Read the Executive Summary, then jump to "Bring To The Team" before the next meeting.`,
+              "A shared planning draft helps the student and team compare priorities and decide what to do next.",
+            recommendedNextStep: `Start with "At a Glance," then review the next steps with your team before the next meeting.`,
             questionsForTeam: [
               "Does this match what you're seeing day-to-day?",
               "What's missing that we should add before the next meeting?",
             ],
-            informationUsed: ["Intake", "Uploaded documents", "Student Voice", "Goals", "Readiness scores"],
+            informationUsed: reportSourceLabels(report),
             owner: "team",
             timeframe: "before the next PPT",
           }}
         />
       </section>
 
-      <div className="mt-6 border-l-2 border-amber-400/50 pl-4">
+      <div data-document-caution className="mt-6 border-l-2 border-amber-400/50 pl-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-300">
-          Source Note · AI-Assisted Draft
+          Draft Guide · Check with Your Team
         </p>
         <div className="mt-1 ai-disclaimer-bare">
           <AIDisclaimer variant="inline" className="!border-0 !bg-transparent !p-0 !shadow-none" />
@@ -797,47 +771,14 @@ export function ReportView({
 
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <DocumentContents report={r} name={name} hasLinkedStudent={!!studentId} extraItems={demoStudentId ? getPhase4TocItems() : undefined} />
+      <ReportContents items={liveReportContents(r, name, { hasV2, audience, hasLinkedStudent: !!studentId, hasStudentVoiceResponses: audience === "student" && voiceResponses.length > 0, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
 
 
       {/* ============ Executive Summary ============ */}
       <section className="mt-10 page-break exec-summary">
-        <PublicationPage
-          kicker="Executive Summary"
-          chapter="Executive Summary"
-          dek="The big picture — what we know, where things are headed, and where to start."
-          folio="p. 01"
-        >
-          <PublicationSpread
-            lead={
-              <div>
-                <p className="text-sm leading-relaxed text-foreground/85">{r.summary}</p>
-                {topStrengths.length > 0 && (
-                  <div className="mt-6">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Top Strengths</p>
-                    <PublicationChecklist items={topStrengths} />
-                  </div>
-                )}
-                {bestFitPathway && (
-                  <div className="mt-6 border-t border-[color:var(--pub-rule-soft)] pt-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Best-Fit Direction</p>
-                    <p className="font-display text-lg leading-snug">{toTitleCase(bestFitPathway.title)}</p>
-                    <p className="mt-1 text-sm text-muted-foreground line-clamp-4">{bestFitPathway.why_it_fits}</p>
-                  </div>
-                )}
-              </div>
-            }
-            side={
-              <PublicationSidebar label="Start Here This Week">
-                {topNextSteps.length > 0 ? (
-                  <PublicationChecklist items={topNextSteps} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">See the 30-Day Plan below.</p>
-                )}
-              </PublicationSidebar>
-            }
-          />
-        </PublicationPage>
+        <ReportOverview summary={r.summary} strengths={topStrengths}
+          direction={bestFitPathway ? { label: "Best-Fit Direction", title: bestFitPathway.title, explanation: bestFitPathway.why_it_fits } : undefined}
+          nextSteps={nextStepPreview} />
       </section>
 
 
@@ -850,7 +791,6 @@ export function ReportView({
       {r.student_snapshot && (
         <Block id="sec-snapshot" title="Student Snapshot" icon={<Compass className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 01"
             chapter="Student Snapshot"
             dek={`A profile of ${name} — strengths, preferences, and transition status.`}
             folio="p. 02"
@@ -869,16 +809,16 @@ export function ReportView({
               { label: "Learning Preferences", items: r.student_snapshot.learning_preferences },
               { label: "Family Priorities", items: r.student_snapshot.family_priorities },
             ].map(({ label, items }) => (
-              <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+              <div key={label} data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
+                <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
                 <BulletList items={items} />
               </div>
             ))}
-            <div className="border-b border-[color:var(--pub-rule-soft)] py-4">
+            <div data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">Communication Style</p>
               <p className="mt-2 text-sm text-foreground/80">{r.student_snapshot.communication_style}</p>
             </div>
-            <div className="border-b border-[color:var(--pub-rule-soft)] py-4">
+            <div data-report-detail-row className="border-b border-[color:var(--pub-rule-soft)] py-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">Where {name} Is Now</p>
               <p className="mt-2 text-sm text-foreground/80">{r.student_snapshot.current_transition_status}</p>
             </div>
@@ -905,14 +845,11 @@ export function ReportView({
             dek="These are your own words from Student Voice — they help shape this plan."
             folio="p. 05"
           >
-            {voiceResponses.slice(0, 3).map((vr) => {
-              const prompt = STUDENT_VOICE_PROMPTS.find((p) => p.key === vr.prompt_key);
-              return (
-                <PublicationPullQuote key={vr.id} attribution={prompt?.question ?? vr.prompt_key}>
-                  "{vr.response_text}"
-                </PublicationPullQuote>
-              );
-            })}
+            <StudentVoiceQuotes responses={voiceResponses.map(vr => ({
+              id: vr.id,
+              prompt: STUDENT_VOICE_PROMPTS.find(p => p.key === vr.prompt_key)?.question ?? vr.prompt_key,
+              answer: vr.response_text,
+            }))} />
           </PublicationPage>
         </Block>
       )}
@@ -920,7 +857,6 @@ export function ReportView({
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
         <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 05"
             chapter={`In ${name}'s Voice`}
             dek={`Questions for ${name} to think through — alone, with family, or with a teacher.`}
             folio="p. 06"
@@ -941,12 +877,11 @@ export function ReportView({
       {r.spin_analysis && (
         <Block id="sec-spin" title="Strengths, Preferences, Interests & Needs" icon={<Sparkles className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 02"
             chapter="Strengths, Preferences, Interests & Needs"
             dek="A multi-dimensional profile to ground every goal conversation."
             folio="p. 03"
           >
-            {[
+            <ReportProfileDetails groups={[
               { label: "Strengths", items: r.spin_analysis.strengths },
               { label: "Preferences", items: r.spin_analysis.preferences },
               { label: "Interests", items: r.spin_analysis.interests },
@@ -955,15 +890,12 @@ export function ReportView({
               { label: "Barriers", items: r.spin_analysis.barriers },
               { label: "Environmental Supports", items: r.spin_analysis.environmental_supports },
               { label: "Areas for Growth", items: r.spin_analysis.areas_for_growth },
-            ].map(({ label, items }) => (
-              <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
-                <BulletList items={items} />
-              </div>
-            ))}
-            <PublicationCallout kind="means">
-              <p>{r.spin_analysis.what_this_means}</p>
-            </PublicationCallout>
+            ]} />
+            <div data-report-profile-summary>
+              <PublicationCallout kind="means">
+                <p>{r.spin_analysis.what_this_means}</p>
+              </PublicationCallout>
+            </div>
           </PublicationPage>
         </Block>
       )}
@@ -979,7 +911,6 @@ export function ReportView({
       {!hasV2 && r.family_action_plan && (
         <Block id="sec-family-plan" title="Family Action Plan" icon={<HeartHandshake className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 06"
             chapter="Family Action Plan"
             dek="A time-phased checklist for the family — from this week to graduation."
             folio="p. 07"
@@ -1016,7 +947,6 @@ export function ReportView({
       {!hasV2 && r.meeting_prep_toolkit && (
         <Block id="sec-meeting-prep" title="Next PPT / IEP Meeting Prep" icon={<ListChecks className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 07"
             chapter="Next PPT / IEP Meeting Prep"
             dek="Print this page and bring it to the next PPT. One list — every open question and next step."
             folio="p. 08"
@@ -1030,8 +960,8 @@ export function ReportView({
                     { label: "Goals to Review", items: r.meeting_prep_toolkit.goals_to_review },
                     { label: "Student Voice Prompts", items: r.meeting_prep_toolkit.student_voice_prompts },
                   ].map(({ label, items }) => (
-                    <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                      <PublicationChecklist title={label} items={items} />
+                    <div key={label} data-report-pathway-detail className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                      <PublicationChecklist title={toTitleCase(label)} items={items} />
                     </div>
                   ))}
                 </div>
@@ -1052,13 +982,13 @@ export function ReportView({
               }
             />
             <PublicationCallout kind="source">
-              <p>Tip: print this section as a one-page checklist to bring to the meeting.</p>
+              <p>Print this checklist and bring it to the meeting.</p>
             </PublicationCallout>
           </PublicationPage>
         </Block>
       )}
       {/* ============ Questions to bring (only when no toolkit) ============ */}
-      {!r.meeting_prep_toolkit && (
+      {!hasV2 && !r.meeting_prep_toolkit && (
         <Block title="Questions to Bring to the Next PPT" icon={<ListChecks className="h-5 w-5" />}>
           <BulletList items={r.family_questions_for_ppt} />
         </Block>
@@ -1070,6 +1000,7 @@ export function ReportView({
       {/* ============ Teacher / case manager plan ============ */}
       {!hasV2 && r.teacher_action_plan && (
         <Block
+          id="sec-educator-plan"
           title="Educator / Case Manager Action Plan"
           icon={<GraduationCap className="h-5 w-5" />}
         >
@@ -1109,7 +1040,7 @@ export function ReportView({
       )}
 
       {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
-      {audience === "educator" && !r.teacher_action_plan && (
+      {!hasV2 && audience === "educator" && !r.teacher_action_plan && (
         <Block title="Teacher Next Steps" icon={<GraduationCap className="h-5 w-5" />}>
           <BulletList items={r.teacher_next_steps} />
         </Block>
@@ -1158,20 +1089,21 @@ export function ReportView({
           <p className="mb-4 text-sm text-muted-foreground">
             This report doesn't pretend to know everything. Here's what would sharpen it.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
+          <div data-report-evidence-grid style={{ "--report-evidence-columns": Math.min(3, r.data_gaps.length) } as React.CSSProperties} className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.data_gaps.map((g, i) => (
-              <div
+              <ReportPlanningGap
+                title={g.item}
                 key={i}
+                data-report-evidence-gap
                 className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
               >
-                <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
                 <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
                 <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
                 <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
                 <Labeled label="A Question to Ask">
                   <span className="italic">{g.question_to_ask}</span>
                 </Labeled>
-              </div>
+              </ReportPlanningGap>
             ))}
           </div>
         </Block>
@@ -1182,24 +1114,14 @@ export function ReportView({
             <>
       {/* ============ Readiness scorecard ============ */}
       {r.readiness_scorecard && r.readiness_scorecard.length > 0 && (
-        <Block id="sec-readiness" title="Transition Readiness Scorecard" icon={<Target className="h-5 w-5" />}>
+        <Block id="sec-readiness" title="Readiness Snapshot" icon={<Target className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 03"
-            chapter="Transition Readiness Scorecard"
+            chapter="Readiness Snapshot"
             dek="A strengths-based snapshot. These are conversation starters, not grades."
             folio="p. 04"
           >
             {r.readiness_scorecard.map((row) => (
-              <div key={row.category} className="border-b border-[color:var(--pub-rule-soft)] py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">{toTitleCase(row.category)}</p>
-                  <ReadinessBadge level={row.level} compact />
-                </div>
-                <Progress
-                  value={READINESS_PCT[row.level] ?? 50}
-                  className="mt-2 h-1.5"
-                  aria-label={`${toTitleCase(row.category)} readiness: ${row.level}`}
-                />
+              <ReportReadinessRow key={row.category} title={toTitleCase(row.category)} level={row.level}>
                 <p className="mt-2 text-sm text-foreground/80">{row.evidence}</p>
                 <PublicationCallout kind="means">
                   <p>{row.what_it_means}</p>
@@ -1208,7 +1130,7 @@ export function ReportView({
                   <p><strong>Growth step:</strong> {row.growth_activity}</p>
                   <p className="mt-1"><strong>Possible goal:</strong> {row.suggested_goal}</p>
                 </PublicationCallout>
-              </div>
+              </ReportReadinessRow>
             ))}
           </PublicationPage>
         </Block>
@@ -1220,28 +1142,26 @@ export function ReportView({
       {/* ============ Postsecondary Goal Breakdown ============ */}
       {r.postsecondary_goals && r.postsecondary_goals.length > 0 && (
         <Block id="sec-goals" title="Postsecondary Goal Breakdown" icon={<Target className="h-5 w-5" />}>
-          <Accordion type="multiple" className="border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
+          <Accordion type="multiple" className="print:hidden border-y border-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.postsecondary_goals.map((g, i) => (
               <AccordionItem key={i} value={`goal-${i}`} className="px-5">
                 <AccordionTrigger className="text-left">
-                  <span className="font-display text-lg">{toTitleCase(g.area)}</span>
+                  <ReportGoalHeading as="span" title={g.area} />
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="grid gap-3 pb-2 sm:grid-cols-2">
-                    <Labeled label="Current Status">{g.current_status}</Labeled>
-                    <Labeled label="Suggested Direction">{g.suggested_direction}</Labeled>
-                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
-                    <Labeled label="Draft Measurable Goal">
-                      <span className="italic">{g.measurable_goal_language}</span>
-                    </Labeled>
-                    <MiniCard label="Next Steps" items={g.next_steps} compact />
-                    <MiniCard label="Who Supports" items={g.who_supports} compact />
-                    <MiniCard label="Evidence Needed" items={g.evidence_needed} compact />
-                  </div>
+                  <GoalDetails goal={g} />
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
+          <div data-report-printed-goals className="hidden print:block">
+            {r.postsecondary_goals.map((goal, i) => (
+              <section data-report-goal-section key={i} className="mt-5">
+                <ReportGoalHeading title={goal.area} />
+                <GoalDetails goal={goal} />
+              </section>
+            ))}
+          </div>
         </Block>
       )}
             </>
@@ -1252,71 +1172,84 @@ export function ReportView({
       {r.recommended_pathways && r.recommended_pathways.length > 0 && (
         <Block id="sec-pathways" title="Recommended Pathways" icon={<RouteIcon className="h-5 w-5" />}>
           <PublicationPage
-            kicker="Section 04"
             chapter="Recommended Pathways"
             dek="Multiple realistic directions — not just one. Each has supports, steps, and a timeline."
             folio="p. 05"
           >
             {r.recommended_pathways.map((p) => (
               <div key={p.title} className="border-b border-[color:var(--pub-rule-soft)] py-6">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <Badge
-                    variant={p.type === "best-fit" ? "default" : "secondary"}
-                    className="uppercase tracking-wider"
-                  >
-                    {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
-                  </Badge>
-                  <p className="font-display text-xl">{toTitleCase(p.title)}</p>
-                  {confidenceLabel && (
-                    <Badge variant="outline" className="gap-1 text-[11px]">
-                      <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
-                    </Badge>
-                  )}
-                  {r.student_snapshot?.readiness_level && (
-                    <Badge variant="outline" className="gap-1 text-[11px]">
-                      <Target className="h-3 w-3" /> Readiness:{" "}
-                      {READINESS_LABEL[r.student_snapshot.readiness_level] ??
-                        r.student_snapshot.readiness_level}
-                    </Badge>
-                  )}
-                </div>
-                <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
-                <PublicationSpread
-                  lead={
-                    <div>
-                      {[
-                        { label: "Builds on These Strengths", items: p.related_strengths },
-                        { label: "Possible Barriers", items: p.possible_barriers },
-                        { label: "Supports Needed", items: p.supports_needed },
-                        { label: "At School", items: p.school_experiences },
-                        { label: "In the Community", items: p.community_experiences },
-                        { label: "Courses & Programs", items: p.courses_or_programs },
-                        { label: "Career Clusters", items: p.career_clusters },
-                        { label: "Credentials", items: p.credentials },
-                        { label: "Partner Resources", items: p.partner_resources },
-                      ].map(({ label, items }) => items?.length > 0 && (
-                        <div key={label} className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
-                          <BulletList items={items} compact />
+                <table role="presentation" data-report-pathway-pages>
+                  <thead data-report-pathway-introduction>
+                    <tr>
+                      <td>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <Badge
+                            variant={p.type === "best-fit" ? "default" : "secondary"}
+                            className="uppercase tracking-wider"
+                          >
+                            {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
+                          </Badge>
+                          <p className="font-display text-xl">{toTitleCase(p.title)}</p>
+                          {confidenceLabel && (
+                            <Badge variant="outline" className="gap-1 text-[11px]">
+                              <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
+                            </Badge>
+                          )}
+                          {r.student_snapshot?.readiness_level && (
+                            <Badge variant="outline" className="gap-1 text-[11px]">
+                              <Target className="h-3 w-3" /> Readiness:{" "}
+                              {READINESS_LABEL[r.student_snapshot.readiness_level] ??
+                                r.student_snapshot.readiness_level}
+                            </Badge>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  }
-                  side={
-                    <PublicationSidebar label="Action Steps">
-                      {[
-                        { label: "30 days", items: p.action_steps.thirty_day },
-                        { label: "90 days", items: p.action_steps.ninety_day },
-                        { label: "6 months", items: p.action_steps.six_month },
-                        { label: "1 year", items: p.action_steps.one_year },
-                      ].map(({ label, items }) => items.length > 0 && (
-                        <div key={label} className="mb-3">
-                          <PublicationChecklist title={label} items={items} />
-                        </div>
-                      ))}
-                    </PublicationSidebar>
-                  }
-                />
+                      </td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p className="mb-4 text-sm text-foreground/80">{p.why_it_fits}</p>
+                        <PublicationSpread
+                          lead={
+                            <div>
+                              {[
+                                { label: "Builds on These Strengths", items: p.related_strengths },
+                                { label: "Possible Barriers", items: p.possible_barriers },
+                                { label: "Supports Needed", items: p.supports_needed },
+                                { label: "At School", items: p.school_experiences },
+                                { label: "In the Community", items: p.community_experiences },
+                                { label: "Courses & Programs", items: p.courses_or_programs },
+                                { label: "Career Clusters", items: p.career_clusters },
+                                { label: "Credentials", items: p.credentials },
+                                { label: "Partner Resources", items: p.partner_resources },
+                              ].map(({ label, items }) => items?.length > 0 && (
+                                <div key={label} data-report-pathway-detail className="border-b border-[color:var(--pub-rule-soft)] py-3">
+                                  <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
+                                  <BulletList items={items} compact />
+                                </div>
+                              ))}
+                            </div>
+                          }
+                          side={
+                            <PublicationSidebar label="Action Steps">
+                              {[
+                                { label: "30 days", items: p.action_steps.thirty_day },
+                                { label: "90 days", items: p.action_steps.ninety_day },
+                                { label: "6 months", items: p.action_steps.six_month },
+                                { label: "1 year", items: p.action_steps.one_year },
+                              ].map(({ label, items }) => items.length > 0 && (
+                                <div key={label} className="mb-3">
+                                  <PublicationChecklist title={toTitleCase(label)} items={items} />
+                                </div>
+                              ))}
+                            </PublicationSidebar>
+                          }
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             ))}
           </PublicationPage>
@@ -1352,39 +1285,45 @@ export function ReportView({
         <Block id="sec-careers" title="Career & Life Pathway Matches" icon={<Briefcase className="h-5 w-5" />}>
           <div className="divide-y divide-[color:var(--pub-rule-soft,theme(colors.border))]">
             {r.career_matches.map((c) => (
-              <div key={c.cluster} className="py-5">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
-                  <ReadinessBadge level={c.readiness_level} compact />
-                </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
-                  <MiniCard label="Example Jobs" items={c.example_jobs} compact />
-                  <MiniCard label="Skills Used" items={c.skills_required} compact />
-                </div>
-                <div className="mt-3 space-y-2 text-sm">
-                  <p>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                      Education / Training
-                    </span>
-                    <br />
-                    <span className="text-foreground/80">{c.education_needed}</span>
-                  </p>
-                  <p>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                      Work Environment
-                    </span>
-                    <br />
-                    <span className="text-foreground/80">{c.work_environment}</span>
-                  </p>
-                </div>
-                <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
-                <p className="mt-3 border-l-2 border-primary/30 pl-3 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                    Next Exploration Step
-                  </span>
-                  <br />
-                  {c.next_step}
-                </p>
+              <div key={c.cluster} data-report-career-match className="py-5">
+                <table role="presentation" data-report-career-pages>
+                  <thead><tr><td>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-display text-xl">{toTitleCase(c.cluster)}</h3>
+                      <ReadinessBadge level={c.readiness_level} compact />
+                    </div>
+                  </td></tr></thead>
+                  <tbody><tr><td>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
+                      <MiniCard label="Example Jobs" items={c.example_jobs} compact />
+                      <MiniCard label="Skills Used" items={c.skills_required} compact />
+                    </div>
+                    <div className="mt-3 space-y-2 text-sm">
+                      <p>
+                        <span data-document-subheading className="text-xs font-semibold text-primary">
+                          Education / Training
+                        </span>
+                        <br />
+                        <span className="text-foreground/80">{c.education_needed}</span>
+                      </p>
+                      <p>
+                        <span data-document-subheading className="text-xs font-semibold text-primary">
+                          Work Environment
+                        </span>
+                        <br />
+                        <span className="text-foreground/80">{c.work_environment}</span>
+                      </p>
+                    </div>
+                    <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
+                    <p className="mt-3 border-l-2 border-primary/30 pl-3 text-sm">
+                      <span data-document-subheading className="text-xs font-semibold text-foreground">
+                        Next Exploration Step
+                      </span>
+                      <br />
+                      {c.next_step}
+                    </p>
+                  </td></tr></tbody>
+                </table>
               </div>
             ))}
           </div>
@@ -1397,7 +1336,7 @@ export function ReportView({
       <Block id="sec-life-skills" title="Life Skills to Focus On" icon={<Lightbulb className="h-5 w-5" />}>
         <BulletList items={r.life_skills_focus} />
       </Block>
-      {/* ============ 30 / 60 / 90 Day Plan (always) ============ */}
+      {/* ============ Recorded action plan ============ */}
       <PlanBlock report={r} extendedPlans={extendedPlans} />
       {/* ============ Phase 4 — Self-Advocacy + Independent Living + Role Next Steps + Sources ============ */}
       {demoStudentId && (
@@ -1424,7 +1363,7 @@ export function ReportView({
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
               <div key={i} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
                       {toTitleCase(o.category)}
@@ -1520,7 +1459,7 @@ export function ReportView({
 
 
       {/* ============ Connect to plan: push items into Actions/Calendar ============ */}
-      {!demo && (
+      {!demo && !readOnly && (
         <ConnectToPlan
           report={displayReport}
           studentId={studentId}
@@ -1529,35 +1468,47 @@ export function ReportView({
       )}
 
       {/* ============ Bring To The Team — consolidated decision checklist ============ */}
-      <section className="report-section mt-10 page-break">
+      <section id="report-team-questions" data-report-team-questions data-report-meeting-summary={hasV2 || undefined} className="report-section mt-10 page-break">
         <div className="mb-3 flex items-center gap-2">
-          <ListChecks className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-2xl tracking-tight">Bring To The Team</h2>
+          <h2 className="font-display text-2xl tracking-tight">
+            Bring To The Team
+            <ListChecks className="h-5 w-5 text-primary" aria-hidden="true" />
+          </h2>
         </div>
         <p className="mb-4 max-w-3xl text-sm text-muted-foreground">
-          Print this page and bring it to the next PPT. It pulls together every
-          open question and recommended next step from this report so the whole
-          team starts from the same list.
+          Bring these recorded questions to your next team meeting. Review the report’s
+          recommendations and Action Plan together, and agree on who can help with each next step.
         </p>
         <ValueCallout
           data={{
             ...CHAPTER_VALUE_DEFAULTS.bring_to_team,
-            questionsForTeam: [
-              ...(r.family_questions_for_ppt ?? []),
-              ...(r.meeting_prep_toolkit?.questions_to_ask ?? []),
-            ].slice(0, 8),
+            whatThisMeans: teamQuestions.length ? "Recorded questions for this report view, ready to discuss with your team." : "No meeting questions are recorded for this report view. Review the report and add your questions before the meeting.",
+            questionsForTeam: hasV2 ? [] : teamQuestions,
             recommendedNextStep: `Confirm an owner and a date for each next step before you leave the meeting.`,
             informationUsed: [
-              "This report's recommendations",
-              "Open questions from each chapter",
+              teamQuestions.length ? "Recorded meeting questions for this view" : "This report view",
               meta?.reportId ? `Doc ${meta.reportId}` : "",
             ].filter(Boolean) as string[],
           }}
         />
+        {hasV2 && teamQuestions.length > 0 && (
+          <p className="mt-3 text-sm">
+            <a href="#v2-meeting-qs" className="font-medium text-primary underline underline-offset-4">
+              Read Your Meeting Prep Questions
+            </a>
+            {" — including the recorded context for this report view."}
+          </p>
+        )}
       </section>
 
+      {hasV2 && <>
+        <ReportV2Sections content={displayReport} audience={audience} studentName={name} />
+        <ReportV2InputsUsed content={displayReport} />
+      </>}
+
+      <div data-report-closing-package>
       {/* ============ Closing note (formal) ============ */}
-      <section className="report-section mt-10">
+      <section data-document-closing className="report-section mt-10">
         <div className="border-y border-primary/30 py-8 sm:py-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             A closing note for {name}
@@ -1569,12 +1520,12 @@ export function ReportView({
       </section>
 
       {/* ============ Document footer / control ============ */}
-      <footer className="mt-10 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
-        <div className="border-b border-border/60 bg-amber-50/40 px-6 py-5 sm:px-8 dark:bg-amber-950/10">
+      <footer data-report-document-footer className="mt-4 border-t-2 border-[color:var(--pub-rule-soft,theme(colors.border))]">
+        <div data-report-planning-disclaimer className="border-b border-border/60 bg-amber-50/40 px-3 py-2 sm:px-4 dark:bg-amber-950/10">
           <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
             <ShieldCheck className="h-3.5 w-3.5" /> Planning Disclaimer
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-foreground/80">
+          <p className="mt-0.5 text-xs leading-snug text-foreground/80">
             This Pathway Report is a planning document — <strong>not a legal determination,
             clinical diagnosis, eligibility decision, or placement order</strong>. It is meant
             to organize a conversation between the student, family, and school team. Final
@@ -1582,7 +1533,7 @@ export function ReportView({
             team based on the school's own evaluations and the student's IEP.
           </p>
         </div>
-        <div className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
+        <div data-report-document-details className="grid gap-6 px-6 py-6 sm:grid-cols-3 sm:px-8">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Document
@@ -1625,9 +1576,10 @@ export function ReportView({
           </p>
         </div>
       </footer>
+      </div>
 
 
-      {!demo && (
+      {!demo && !readOnly && (
         <AiAssistPanel
           studentName={name}
           report={report}
@@ -1644,14 +1596,12 @@ export function ReportView({
       )}
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
-        {onReset && (
+        {!readOnly && onReset && (
           <Button onClick={onReset} variant="outline">
             {resetLabel}
           </Button>
         )}
-        <Button onClick={downloadMagazinePdf} aria-label="Download Pathway Report as PDF in magazine-handbook reader view">
-          <Download className="h-4 w-4" /> Download as PDF
-        </Button>
+        <ReportPdfButton />
       </div>
 
       <style>{`
@@ -1699,6 +1649,12 @@ export function ReportView({
 
 
         @media print {
+          body:has(.report-root) * { visibility: hidden; }
+          body:has(.report-root) .report-root,
+          body:has(.report-root) .report-root * { visibility: visible; }
+          body:has(.report-root) header:not(.report-root *),
+          body:has(.report-root) footer:not(.report-root *) { display: none !important; }
+          .site-shell-main:has(.report-root) > :not(.report-root):not(:has(.report-root)) { display: none !important; }
           /* Consistent margins + running header/footer on body pages */
           @page {
             size: Letter;
@@ -1727,15 +1683,6 @@ export function ReportView({
             }
           }
 
-          /* Cover page: full bleed, no running headers/footers */
-          @page :first {
-            margin: 0;
-            @top-left { content: ""; }
-            @top-right { content: ""; }
-            @bottom-left { content: ""; }
-            @bottom-right { content: ""; }
-          }
-
           /* Section name shows in running header (set per-section below) */
           .report-section h2 { string-set: doc-section content(text); }
 
@@ -1748,9 +1695,9 @@ export function ReportView({
           .no-print { display: none !important; }
           .report-root { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
 
-          /* ---------- Cover page ---------- */
+          /* ---------- Legacy cover (replaced by the shared document header) ---------- */
           .print-cover {
-            display: block !important;
+            display: none !important;
             page-break-after: always;
             break-after: page;
             page: cover;
@@ -2262,7 +2209,7 @@ function Block({
       data-collapsed={collapsible && collapsed ? "true" : "false"}
       className="report-section report-block mt-14 page-break scroll-mt-24"
     >
-      <div className="mb-6 border-b border-border/60 pb-4">
+      <div data-report-block-heading className="mb-6 border-b border-border/60 pb-4">
         {collapsible ? (
           <button
             type="button"
@@ -2312,7 +2259,7 @@ function Block({
         id={contentId}
         className={cn("report-block-content", collapsible && collapsed ? "hidden print:block" : "")}
       >
-        {children}
+        <DocumentSectionTitle title={title}>{children}</DocumentSectionTitle>
       </div>
     </section>
   );
@@ -2330,75 +2277,6 @@ function MetaField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DocumentContents({
-  report,
-  name,
-  hasLinkedStudent,
-  extraItems,
-}: {
-  report: PathwayReport;
-  name: string;
-  hasLinkedStudent?: boolean;
-  extraItems?: { id: string; label: string }[];
-}) {
-
-  const items: { id: string; label: string }[] = [];
-  if (report.student_snapshot) items.push({ id: "sec-snapshot", label: "Student Snapshot" });
-  items.push({ id: "sec-strengths", label: "Strengths to Lead With" });
-  if (report.spin_analysis) items.push({ id: "sec-spin", label: "Strengths, Preferences, Interests & Needs" });
-  if (report.readiness_scorecard?.length) items.push({ id: "sec-readiness", label: "Transition Readiness Scorecard" });
-  if (report.recommended_pathways?.length) items.push({ id: "sec-pathways", label: "Recommended Pathways" });
-  if (report.career_matches?.length) items.push({ id: "sec-careers", label: "Career & Life Pathway Matches" });
-  if (report.postsecondary_goals?.length) items.push({ id: "sec-goals", label: "Postsecondary Goal Breakdown" });
-  items.push({ id: "sec-education", label: "Education & Training Options" });
-  items.push({ id: "sec-life-skills", label: "Life Skills to Focus On" });
-  if (report.iep_translator?.length) items.push({ id: "sec-iep-translator", label: "IEP / Transition Plan Translator" });
-  if (report.data_gaps?.length) items.push({ id: "sec-data-gaps", label: "What We Still Need to Know" });
-  if (report.student_voice_prompts?.length) items.push({ id: "sec-student-voice", label: `In ${name}'s Voice` });
-  if (report.family_action_plan) items.push({ id: "sec-family-plan", label: "Family Action Plan" });
-  if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "Next PPT / IEP Meeting Prep" });
-  if (hasLinkedStudent) items.push({ id: "sec-partner-suggestions", label: "Partner Suggestions" });
-  if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities to Explore" });
-  if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Progress Timeline" });
-  items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
-  if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Worth a Human Second Look" });
-
-  if (extraItems) items.push(...extraItems);
-
-  return (
-
-    <nav
-      aria-label="Table of contents"
-      className="no-print mt-10 border-t border-[color:var(--pub-rule-soft,theme(colors.border))] pt-6"
-    >
-      <div className="flex items-baseline justify-between border-b border-dotted border-[color:var(--pub-rule-soft,theme(colors.border))] pb-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-          Contents
-        </p>
-        <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {items.length} sections
-        </p>
-      </div>
-      <ol className="grid gap-x-10 gap-y-1 pt-4 sm:grid-cols-2">
-        {items.map((it, i) => (
-          <li key={it.id} className="flex items-baseline gap-3 text-sm">
-            <span className="font-mono text-[11px] tabular-nums text-primary/80">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <a
-              href={`#${it.id}`}
-              className="group flex flex-1 items-baseline gap-2 py-1 text-foreground/85 transition-colors hover:text-foreground"
-            >
-              <span className="truncate">{it.label}</span>
-              <span aria-hidden className="flex-1 translate-y-[-2px] border-b border-dotted border-border/60" />
-              <span className="font-mono text-[10px] text-muted-foreground">→</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
 
 
 function BulletList({ items, compact = false }: { items: string[]; compact?: boolean }) {
@@ -2437,7 +2315,7 @@ function MiniCard({
         accent ? "border-primary/30 bg-primary/5" : "border-border/60 bg-background",
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
+      <p data-document-subheading className="text-xs font-semibold text-foreground">{toTitleCase(label)}</p>
       <BulletList items={items} compact={compact} />
     </div>
   );
@@ -2446,7 +2324,7 @@ function MiniCard({
 function HorizonCard({ label, items }: { label: string; items: string[] }) {
   return (
     <div className="rounded-2xl border bg-background p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p>
+      <p data-document-subheading className="text-xs font-semibold text-primary">{toTitleCase(label)}</p>
       <BulletList items={items} compact />
     </div>
   );
@@ -2454,39 +2332,10 @@ function HorizonCard({ label, items }: { label: string; items: string[] }) {
 
 function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="mt-2 first:mt-0">
-      <p className="text-xs font-semibold uppercase tracking-wider text-foreground">{label}</p>
+    <div data-report-labeled-field className="mt-2 first:mt-0">
+      <p data-document-subheading className="text-xs font-semibold text-foreground">{toTitleCase(label)}</p>
       <p className="text-sm text-foreground/80">{children}</p>
     </div>
-  );
-}
-
-function ReadinessBadge({
-  level,
-  compact = false,
-}: {
-  level: string;
-  compact?: boolean;
-}) {
-  const tone =
-    level === "ready"
-      ? "bg-primary/15 text-primary border-primary/30"
-      : level === "progressing"
-        ? "bg-sky-soft/40 text-foreground border-border"
-        : level === "developing"
-          ? "bg-muted text-foreground border-border"
-          : "bg-amber-100/60 text-amber-900 border-amber-300/60 dark:bg-amber-950/30 dark:text-amber-200";
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium",
-        tone,
-        compact ? "text-[11px]" : "",
-      )}
-    >
-      <Sparkles className="h-3 w-3" />
-      {READINESS_LABEL[level] ?? level}
-    </span>
   );
 }
 
@@ -2518,7 +2367,7 @@ function ReportTOC({
   if (report.meeting_prep_toolkit) items.push({ id: "sec-meeting-prep", label: "PPT Prep" });
   if (report.opportunity_matches?.length) items.push({ id: "sec-opportunities", label: "Opportunities" });
   if (report.progress_timeline?.length) items.push({ id: "sec-timeline", label: "Timeline" });
-  items.push({ id: "sec-thirty-day", label: "30 / 60 / 90-Day Plan" });
+  items.push({ id: "sec-thirty-day", label: "Action Plan" });
   if (report.needs_human_review?.length) items.push({ id: "sec-review", label: "Human Review" });
   if (extraItems) items.push(...extraItems);
   void audience;
@@ -2730,10 +2579,9 @@ function PlanBlock({
   const [horizon, setHorizon] = useState<PlanHorizon>("thirty");
   const meta = HORIZON_META[horizon];
 
-  // Always render a rich 30/60/90 view. If no curated plan was provided
-  // (signed-in / real reports), synthesize one from the report itself so
-  // each horizon reflects this student's actual goals and action plan.
-  const plans = extendedPlans ?? buildExtendedPlansFromReport(report);
+  // Presentation must not add commitments or assessment claims to recorded data.
+  const plans = extendedPlans ?? recordedReportPlans(report);
+  useEffect(() => { setHorizon("thirty"); }, [report, extendedPlans]);
 
   const steps = plans[horizon];
   const counts: Record<PlanHorizon, number> = {
@@ -2743,18 +2591,51 @@ function PlanBlock({
   };
 
   return (
-    <Block id="sec-thirty-day" title="30 / 60 / 90-Day Action Plan" icon={<Calendar className="h-5 w-5" />}>
-      <div className="flex flex-wrap items-center gap-3">
-        <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />
+    <Block id="sec-thirty-day" title={extendedPlans ? "30 / 60 / 90-Day Action Plan" : "30-Day Action Plan"} icon={<Calendar className="h-5 w-5" />}>
+      <div className="print:hidden flex flex-wrap items-center gap-3">
+        {extendedPlans && <PlanHorizonTabs value={horizon} onChange={setHorizon} counts={counts} />}
         <p className="text-xs text-muted-foreground">{meta.tagline}</p>
       </div>
-      <ol className="mt-5 space-y-4">
-        {steps.map((step) => (
-          <RichPlanStepCard key={`${horizon}-${step.week}`} step={step} />
+      {!steps.length && <p className="print:hidden mt-4 text-sm">No steps are recorded for this period.</p>}
+      <ol className="print:hidden mt-5 space-y-4">
+        {steps.map((step, index) => (
+          <RichPlanStepCard key={`${horizon}-${step.week}-${index}`} step={step} />
         ))}
       </ol>
+      <div className="hidden print:block" data-report-complete-plan>
+        {reportPrintPlans(plans).filter(({ horizon: period }) => extendedPlans || period === "thirty").map(({ horizon: period, steps: periodSteps }) => (
+          <section key={period} data-report-export-period={period}>
+            <h3 data-report-plan-period className="mt-3 font-semibold">{HORIZON_META[period].label}</h3>
+            <p className="text-sm">{HORIZON_META[period].tagline}</p>
+            {periodSteps.length ? <ol className="mt-3 space-y-4">
+              {periodSteps.map((step, index) => <RichPlanStepCard key={`${period}-${step.week}-${index}`} step={step} />)}
+            </ol> : <p className="mt-2 text-sm">
+              {plans[period].length ? "This period repeats the steps shown above." : "No steps are recorded for this period."}
+            </p>}
+          </section>
+        ))}
+      </div>
     </Block>
   );
 }
 
 
+
+/** Shared goal detail content: screen controls never determine what the PDF includes. */
+function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postsecondary_goals"]>[number] }) {
+  return (
+<ReportGoalDetails>
+                    <Labeled label="Where Things Stand">{g.current_status}</Labeled>
+                    <Labeled label="A Possible Next Step">{g.suggested_direction}</Labeled>
+                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
+                    <Labeled label="Draft Goal to Discuss">
+                      <span className="italic">{g.measurable_goal_language}</span>
+                    </Labeled>
+                    <div data-report-goal-followups className="contents">
+                      <MiniCard label="Next Steps" items={g.next_steps} compact />
+                      <MiniCard label="People Who Can Help" items={g.who_supports} compact />
+                      <MiniCard label="Information to Gather" items={g.evidence_needed} compact />
+                    </div>
+                  </ReportGoalDetails>
+  );
+}

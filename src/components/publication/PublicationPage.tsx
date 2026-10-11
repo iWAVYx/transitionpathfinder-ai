@@ -10,6 +10,7 @@
  * the `.eh-issue` shell that already wraps demo + report routes.
  */
 import type { ReactNode } from "react";
+import { useDocumentSectionTitle, sameDocumentHeading } from "@/components/documents/DocumentSectionTitle";
 
 interface PublicationPageProps {
   /** Issue title shown in the upper running head (e.g. "Pathway Workbook"). */
@@ -31,6 +32,10 @@ interface PublicationPageProps {
    * editorial all-caps treatment; "title" forces the standard one.
    */
   displayStyle?: "auto" | "mono" | "title";
+  /** Explicit hierarchy for a page embedded below a report title. */
+  headingLevel?: "h1" | "h2" | "h3";
+  /** Repeat the section opener on report export continuation pages. */
+  repeatPrintHeader?: boolean;
   /** Page body. */
   children: ReactNode;
 }
@@ -44,11 +49,30 @@ export function PublicationPage({
   folio,
   kicker,
   displayStyle = "auto",
+  headingLevel,
+  repeatPrintHeader = false,
   children,
 }: PublicationPageProps) {
+  const sectionTitle = useDocumentSectionTitle();
+  const headingAlreadyShown = sameDocumentHeading(sectionTitle, chapter);
+  const Heading = headingLevel ?? (sectionTitle ? "h3" : "h1");
   const isOneWord = chapter.trim().split(/\s+/).length === 1;
   const useMono =
     displayStyle === "mono" || (displayStyle === "auto" && isOneWord);
+
+  const opener = (
+    <div className="pub-page-opener">
+      {kicker && <p className="pub-page-kicker">{kicker}</p>}
+      {!headingAlreadyShown && <Heading
+        className="pub-page-title"
+        data-display={useMono ? "mono" : "title"}
+      >
+        {chapter}
+      </Heading>}
+      {dek && <p className="pub-page-dek">{dek}</p>}
+      <div className="pub-page-rule" aria-hidden />
+    </div>
+  );
 
   return (
     <article className="pub-page">
@@ -58,19 +82,13 @@ export function PublicationPage({
         {folio && <span className="pub-page-folio">{folio}</span>}
       </header>
 
-      <div className="pub-page-opener">
-        {kicker && <p className="pub-page-kicker">{kicker}</p>}
-        <h1
-          className="pub-page-title"
-          data-display={useMono ? "mono" : "title"}
-        >
-          {chapter}
-        </h1>
-        {dek && <p className="pub-page-dek">{dek}</p>}
-        <div className="pub-page-rule" aria-hidden />
-      </div>
+      {repeatPrintHeader ? (
+        <table role="presentation" data-publication-continuation>
+          <thead><tr><td>{opener}</td></tr></thead>
+          <tbody><tr><td><div className="pub-page-body">{children}</div></td></tr></tbody>
+        </table>
+      ) : <>{opener}<div className="pub-page-body">{children}</div></>}
 
-      <div className="pub-page-body">{children}</div>
     </article>
   );
 }
@@ -111,15 +129,18 @@ export function PublicationPullQuote({
 export function PublicationSidebar({
   label,
   children,
+  as: Container = "aside",
 }: {
   label: string;
   children: ReactNode;
+  /** Inline document information is not a separate complementary landmark. */
+  as?: "aside" | "div";
 }) {
   return (
-    <aside className="pub-sidebar">
+    <Container className="pub-sidebar">
       <p className="pub-sidebar-label">{label}</p>
       <div className="pub-sidebar-body">{children}</div>
-    </aside>
+    </Container>
   );
 }
 

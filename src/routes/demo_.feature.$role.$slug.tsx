@@ -14,7 +14,7 @@ import {
 } from "@/lib/demo/educator/feature-details";
 import { DemoStudentVoicePreview } from "@/components/demo/DemoStudentVoicePreview";
 import { demoCalendarEvents } from "@/lib/demo/calendar-preview";
-import { FamilyMeetingPrepCard } from "@/components/dashboard/FamilyMeetingPrepCard";
+import { DemoMeetingGuide } from "@/components/demo/DemoMeetingGuide";
 // PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
 // it's intentionally omitted from the rich-module map below.
 import { PartnerNetworkPage } from "@/components/partner-network/PartnerNetworkPage";
@@ -22,7 +22,6 @@ import type { RoleAudience } from "@/lib/role-policy";
 import { PathwayReport } from "@/components/demo/PathwayReport";
 import { getDemoProfile, type DemoProfileId } from "@/lib/demo/demo-profiles";
 import { DemoPlanningActions } from "@/components/demo/DemoPlanningActions";
-import { demoFamilyMeetingPrep } from "@/lib/demo/meeting-preview";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
 import { type SampleCalendarRole } from "@/lib/calendar/sample-events";
 import { getDemoFeature, isDemoRole, type DemoRole } from "@/lib/demo/feature-routes";
@@ -189,7 +188,7 @@ function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId
       return null;
     case "family:meeting-prep":
       return (
-        <FamilyMeetingPrepCard isSample data={demoFamilyMeetingPrep(getDemoProfile(profileId))} />
+        <DemoMeetingGuide profile={getDemoProfile(profileId)} role="family" />
       );
     case "family:recommended-resources":
       return null; // Use the selected context's existing rows and metrics below.
@@ -209,7 +208,7 @@ function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId
     case "educator:action-items":
       return <DemoPlanningActions profile={getDemoProfile(profileId)} audience="educator" />;
     case "educator:meeting-prep":
-      return null; // Contextual meeting rows; do not substitute a fixed caseload timeline.
+      return <DemoMeetingGuide profile={getDemoProfile(profileId)} role="educator" />;
     // School Admin
     case "school-admin:report-completion":
       return null; // Use the selected context's existing rows and metrics below.

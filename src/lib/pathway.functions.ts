@@ -164,7 +164,7 @@ export const listMyReports = createServerFn({ method: "GET" })
       .limit(100);
     if (error) {
       console.error("listMyReports failed", error);
-      return { reports: [] as ReportListRow[] };
+      return { reports: [] as ReportListRow[], loadFailed: true };
     }
     type Row = {
       id: string;
@@ -207,7 +207,7 @@ export const listMyReports = createServerFn({ method: "GET" })
       student_id: r.student_id,
       linked_student_name: r.student_id ? (studentNameMap.get(r.student_id) ?? null) : null,
     }));
-    return { reports };
+    return { reports, loadFailed: false };
   });
 
 export const getReport = createServerFn({ method: "POST" })

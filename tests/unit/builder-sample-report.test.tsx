@@ -7,7 +7,7 @@ vi.mock("@/components/site/SiteShell", () => ({
   SiteShell: ({ children }: { children: ReactNode }) => children,
 }));
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
+  Link: ({ children, to, search }: { children: ReactNode; to: string; search?: Record<string, string> }) => <a href={search ? `${to}?${new URLSearchParams(search)}` : to}>{children}</a>,
 }));
 import { BuilderSampleReport } from "../../src/components/demo/BuilderSampleReport";
 it("opens the real report reader only with prepared sample content and demo controls", () => {
@@ -18,5 +18,5 @@ it("opens the real report reader only with prepared sample content and demo cont
   expect(props.onSaveToProfile).toBeUndefined();
   expect(props.onRefresh).toBeUndefined();
   expect(html).toContain("does not reflect your edits");
-  expect(html).toContain('href="/demo/intake"');
+  expect(html).toContain('href="/demo/intake?role=educator"');
 });

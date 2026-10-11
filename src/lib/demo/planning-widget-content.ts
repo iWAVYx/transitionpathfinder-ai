@@ -10,11 +10,13 @@ export function planningWidgetContent(
   const report = `/demo/report?${search}`;
   const owner = role === "educator" ? "school_team" : role;
   const events = demoCalendarEvents(role, profile);
-  const entry = (event: (typeof events)[number]) => ({
+  const calendar = `/demo/feature/${role}/calendar?student=${profile.id}`;
+  const meetings = role === "student" ? null : `/demo/feature/${role}/meeting-prep?student=${profile.id}`;
+  const entry = (event: (typeof events)[number], destination: string | null) => ({
     id: event.id,
     title: event.title,
     detail: "Illustrative sample — not a scheduled event or invitation.",
-    to: event.href ?? null,
+    to: destination,
   });
   return {
     actions: {
@@ -30,14 +32,13 @@ export function planningWidgetContent(
       toolDestination: report,
     },
     calendar: {
-      entries: events.map(entry),
-      toolDestination: `/demo/feature/${role}/calendar?student=${profile.id}`,
+      entries: events.map(event => entry(event, calendar)),
+      toolDestination: calendar,
     },
     meetings: {
       entries:
-        role === "student" ? [] : events.filter((event) => event.type === "meeting").map(entry),
-      toolDestination:
-        role === "student" ? null : `/demo/feature/${role}/meeting-prep?student=${profile.id}`,
+        role === "student" ? [] : events.filter((event) => event.type === "meeting").map(event => entry(event, meetings)),
+      toolDestination: meetings,
     },
   };
 }

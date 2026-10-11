@@ -40,7 +40,7 @@ function DistrictProgressPage() {
     >
       {(_district, d) => {
         const rows = [...d.schools].sort(
-          (a, b) => pct(a.reports_count, a.students_count) - pct(b.reports_count, b.students_count),
+          (a, b) => pct(a.students_with_report, a.students_count) - pct(b.students_with_report, b.students_count),
         );
         return (
           <div className="rounded-2xl border bg-card shadow-soft">
@@ -68,7 +68,7 @@ function DistrictProgressPage() {
                   </thead>
                   <tbody className="divide-y">
                     {rows.map((s) => {
-                      const p = pct(s.reports_count, s.students_count);
+                      const p = pct(s.students_with_report, s.students_count);
                       return (
                         <tr key={s.id}>
                           <td className="px-5 py-3">

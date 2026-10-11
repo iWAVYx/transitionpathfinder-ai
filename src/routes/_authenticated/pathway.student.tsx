@@ -1,6 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Compass, Loader2, FileText, ArrowRight } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -13,14 +11,7 @@ import {
   PathwayNextStepsCard,
 } from "@/components/pathway/PathwayConnectionsCard";
 import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
-import { PathwayTimeline } from "@/components/pathway/PathwayTimeline";
-import { MissingInputsPanel } from "@/components/pathway/MissingInputsPanel";
-import { ReadinessScorecard } from "@/components/pathway/ReadinessScorecard";
-import { RoleActionPlan } from "@/components/pathway/RoleActionPlan";
-import { PlainLanguageCard } from "@/components/pathway/PlainLanguageCard";
-import { CollaborationFlags } from "@/components/collaboration/CollaborationFlags";
-import { listStudents, type Student } from "@/lib/students.functions";
-import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
+import { useLinkedPathway } from "@/components/pathway/useLinkedPathway";
 
 
 export const Route = createFileRoute("/_authenticated/pathway/student")({
@@ -42,37 +33,12 @@ export const Route = createFileRoute("/_authenticated/pathway/student")({
 });
 
 function StudentPathwayPage() {
-  const loadStudents = useServerFn(listStudents);
-  const loadReports = useServerFn(listMyReports);
-
-  const [students, setStudents] = useState<Student[]>([]);
-  const [reports, setReports] = useState<ReportListRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [{ students }, { reports }] = await Promise.all([
-          loadStudents(),
-          loadReports(),
-        ]);
-        setStudents(students);
-        setReports(reports);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [loadStudents, loadReports]);
-
-  const latest = reports[0];
+  const { students, student, studentId, setStudentId, latest, loading, error, retry } = useLinkedPathway();
 
   return (
     <SiteShell>
       <main data-testid="student-pathway-page" className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "My Pathway" }]} />
-        <div className="mt-4">
-          <PathwayTimeline />
-        </div>
         <header className="mt-6 mb-6">
           <div className="flex items-center gap-3">
             <Compass className="h-7 w-7 text-primary" />
@@ -84,7 +50,21 @@ function StudentPathwayPage() {
           </p>
         </header>
 
-        {loading ? (
+        {!loading && !error && students.length > 1 && (
+          <div className="mb-6">
+            <label htmlFor="pathway-student" className="block text-sm font-medium">Student</label>
+            <select id="pathway-student" value={studentId} onChange={event => setStudentId(event.target.value)}
+              className="mt-2 w-full min-w-0 rounded-md border bg-background p-2">
+              {students.map(student => <option key={student.id} value={student.id}>{student.first_name} {student.last_name}</option>)}
+            </select>
+          </div>
+        )}
+        {error ? (
+          <div role="alert" className="rounded-lg border p-6">
+            <p>Your pathway could not be loaded. Please try again.</p>
+            <Button className="mt-3" onClick={retry}>Try Again</Button>
+          </div>
+        ) : loading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
@@ -100,17 +80,6 @@ function StudentPathwayPage() {
           </div>
         ) : latest ? (
           <div className="space-y-6">
-            <CollaborationFlags
-              flags={[
-                { key: "student_voice" },
-                { key: "parent_input" },
-                { key: "partner_match" },
-              ]}
-            />
-            <MissingInputsPanel />
-            <ReadinessScorecard />
-            <PlainLanguageCard />
-            <RoleActionPlan defaultRole="student" />
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -121,6 +90,7 @@ function StudentPathwayPage() {
                 <p className="text-sm text-muted-foreground">
                   Generated {new Date(latest.created_at).toLocaleDateString()}
                 </p>
+                <p className="text-sm">{latest.summary || "Open your report to review its recorded goals and next steps. A summary is not available here yet."}</p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>
                     <Link to="/reports/$reportId" params={{ reportId: latest.id }}>
@@ -128,7 +98,7 @@ function StudentPathwayPage() {
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/pathway">Update My Pathway</Link>
+                    <Link to="/student-voice">Update My Student Voice</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -136,22 +106,22 @@ function StudentPathwayPage() {
 
             <PathwayNextStepsCard role="student" hasReport />
             <PathwayConnectionsCard role="student" />
-            {students[0] && (
+            {student && (
               <OpportunityPipelineSummary
-                studentId={students[0].id}
-                studentDisplayName={students[0].first_name || undefined}
+                key={student.id}
+                studentId={student.id}
+                studentDisplayName={student.first_name || undefined}
               />)}
           </div>
         ) : (
           <div className="space-y-6">
-            <MissingInputsPanel />
             <div className="rounded-lg border border-dashed bg-muted/30 p-8 text-center">
               <h2 className="text-lg font-medium">No Pathway Report Yet</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Start your pathway to generate your first plan in your own words.
+                Share your interests and priorities, then ask your team about creating your first report.
               </p>
               <Button asChild className="mt-4">
-                <Link to="/pathway">Start my pathway</Link>
+                <Link to="/student-voice">Share My Student Voice</Link>
               </Button>
             </div>
             <PathwayNextStepsCard role="student" hasReport={false} />

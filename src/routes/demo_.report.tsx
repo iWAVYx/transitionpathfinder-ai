@@ -17,7 +17,7 @@ export const Route = createFileRoute("/demo_/report")({
       {
         name: "description",
         content:
-          "Public sample Pathway Report generated live from a fictional student profile. Sample data only.",
+          "Public sample Pathway Report based on a fictional student profile. Sample data only.",
       },
     ],
   }),
@@ -70,7 +70,7 @@ function DemoReportPage() {
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Choose a fictional student to see how the pathway engine tailors the report to their
-              grade, product, evidence, and voice — while filtering out themes that don't belong
+              grade, planning needs, sample information, and voice — while filtering out themes that don't belong
               yet.
             </p>
           </div>

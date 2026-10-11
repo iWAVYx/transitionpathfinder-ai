@@ -1,3 +1,4 @@
+import { reportWebDestination } from "@/lib/report-match-details";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, Loader2, MapPin, ShieldCheck, Star, AlertTriangle } from "lucide-react";
@@ -94,10 +95,10 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
           </div>
 
           {m.description && (
-            <p className="mt-1.5 line-clamp-3 text-sm text-muted-foreground">{m.description}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">{m.description}</p>
           )}
 
-          {m.reasons.length > 0 && (
+          {m.explanation.reasons.length > 0 && (
             <div className="mt-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span
@@ -114,7 +115,7 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
                 </span>
               </div>
               <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[12px] text-foreground/85">
-                {m.explanation.reasons.slice(0, 4).map((why, i) => (
+                {m.explanation.reasons.map((why, i) => (
                   <li key={i}>{why}</li>
                 ))}
               </ul>
@@ -125,7 +126,7 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
             <div className="mt-2 flex gap-2 rounded-md border border-amber-200 bg-amber-50/70 p-2">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-700" aria-hidden />
               <ul className="list-disc space-y-0.5 pl-4 text-[11px] text-amber-900">
-                {m.explanation.conflicts.slice(0, 3).map((c, i) => (
+                {m.explanation.conflicts.map((c, i) => (
                   <li key={i}>{c}</li>
                 ))}
               </ul>
@@ -136,9 +137,9 @@ export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) 
             <span className="font-medium">Suggested next step:</span> {m.suggested_next_step}
           </p>
 
-          {m.website_url && (
+          {reportWebDestination(m.website_url) && (
             <a
-              href={m.website_url}
+              href={reportWebDestination(m.website_url)}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"

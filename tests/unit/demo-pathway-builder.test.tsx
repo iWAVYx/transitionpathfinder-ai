@@ -4,7 +4,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { DemoPathwayBuilder } from "../../src/components/demo/DemoPathwayBuilder";
 
+const location = vi.hoisted(() => ({ role: undefined as unknown }));
 vi.mock("@tanstack/react-router", () => ({
+  useRouterState: ({ select }: { select: (state: unknown) => unknown }) => select({ location: { search: { role: location.role } } }),
   Link: ({
     to,
     search,
@@ -27,9 +29,31 @@ vi.mock("@/components/pathway/IepUpload", () => ({
 afterEach(() => {
   cleanup();
   sessionStorage.clear();
+  location.role = undefined;
 });
 
 describe("shared Pathway Builder demo", () => {
+  it("explicit educator return preserves saved answers and step while changing perspective", async () => {
+    const first = render(<DemoPathwayBuilder />);
+    fireEvent.click(screen.getByTestId("pathway-continue"));
+    fireEvent.change(await screen.findByPlaceholderText("First name only"), { target: { value: "Preserved Sample" } });
+    fireEvent.click(screen.getByTestId("pathway-continue"));
+    await waitFor(() => expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("25"));
+    first.unmount();
+    location.role = "educator";
+    render(<DemoPathwayBuilder />);
+    expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("25");
+    fireEvent.click(screen.getByTestId("pathway-back"));
+    expect((screen.getByPlaceholderText("First name only") as HTMLInputElement).value).toBe("Preserved Sample");
+    fireEvent.click(screen.getByTestId("pathway-back"));
+    expect(screen.getByTestId("pathway-role-educator").getAttribute("aria-pressed")).toBe("true");
+  });
+  it.each(["student", "partner", "owner", "district-admin"])("ignores unsupported URL role %s", role => {
+    location.role = role;
+    render(<DemoPathwayBuilder />);
+    expect(screen.getByTestId("pathway-role-family").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByTestId(`pathway-role-${role}`)).toBeNull();
+  });
   it("offers only eligible builder perspectives, preserves edited inputs through back/forward, and reviews without generating", async () => {
     render(<DemoPathwayBuilder />);
     expect(screen.getByTestId("pathway-role-family")).not.toBeNull();

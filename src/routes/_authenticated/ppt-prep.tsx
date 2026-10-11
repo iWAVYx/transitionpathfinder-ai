@@ -1,3 +1,4 @@
+import { PptAgendaDocument } from "@/components/documents/PptAgendaDocument";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
@@ -10,7 +11,6 @@ import { z } from "zod";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
-import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { Term, GLOSSARY } from "@/components/site/Term";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,7 @@ function PptPrepPage() {
   const loadPrep = useServerFn(getPptPrep);
   const listPreps = useServerFn(listPptPreps);
   const removePrep = useServerFn(deletePptPrep);
+  const addAction = useServerFn(createStudentActionItem);
 
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -172,11 +173,21 @@ function PptPrepPage() {
   if (agenda) {
     return (
       <SiteShell>
-        <AgendaView
+        <PptAgendaDocument
           name={agenda.studentName}
           agenda={agenda.agenda}
           studentId={agenda.studentId}
           meetingDate={agenda.meetingDate}
+          partnerContent={<MeetingPrepPartners studentId={agenda.studentId} meetingDate={agenda.meetingDate} />}
+          onAddAction={async (title) => {
+            if (!agenda.studentId) return;
+            try {
+              await addAction({ data: { student_id: agenda.studentId, title: title.slice(0, 200), category: "team", priority: "medium" } });
+              toast.success("Added to action items.");
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : "Could not add.");
+            }
+          }}
           onReset={onReset}
         />
       </SiteShell>
@@ -194,8 +205,8 @@ function PptPrepPage() {
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           Pick a Pathway Report, tell us what you most want from this meeting, and we'll
-          draft a detailed agenda, evidence-focused questions, and family and educator scripts you can
-          borrow word-for-word.
+          draft a meeting plan, questions about progress and supports, and suggested wording
+          for families and educators to adapt.
         </p>
 
         <InfoBox label="What's a PPT meeting?" className="mt-6">
@@ -327,140 +338,5 @@ function PptPrepPage() {
       </section>
       </div>
     </SiteShell>
-  );
-}
-
-function AgendaView({
-  name,
-  agenda,
-  studentId,
-  meetingDate,
-  onReset,
-}: {
-  name: string;
-  agenda: PptAgenda;
-  studentId: string | null;
-  meetingDate: string | null;
-  onReset: () => void;
-}) {
-  return (
-    <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
-        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          A Meeting Plan For {toTitleCase(name)}.
-        </h1>
-        <p className="mt-4 text-base italic leading-relaxed text-foreground/80">{agenda.opening_note}</p>
-      </div>
-
-      <div className="mt-6">
-        <AIDisclaimer />
-      </div>
-
-
-      <Block title="Suggested agenda">
-        <ol className="space-y-3">
-          {agenda.agenda.map((item, i) => (
-            <li key={i} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card p-4">
-              <span className="mt-0.5 inline-flex h-8 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
-                {item.minutes} min
-              </span>
-              <div>
-                <p className="font-display text-base font-medium">{item.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{item.purpose}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </Block>
-
-      <Block title="Partner contacts & deadlines">
-        <MeetingPrepPartners studentId={studentId} meetingDate={meetingDate} />
-      </Block>
-
-      <Block title="Questions to ask">
-        <BulletList items={agenda.questions_to_ask} studentId={studentId} category="team" />
-      </Block>
-
-      <Block title="What to bring as evidence">
-        <BulletList items={agenda.evidence_to_bring} studentId={studentId} category="team" />
-      </Block>
-
-      <Block title="Language that works">
-        <ul className="mt-2 space-y-3">
-          {agenda.language_that_works.map((s, i) => (
-            <li key={i} className="rounded-2xl border border-border/60 bg-card p-4 text-sm italic text-foreground/90">
-              "{s}"
-            </li>
-          ))}
-        </ul>
-      </Block>
-
-      <div className="mt-10 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If things get stuck</p>
-        <p className="mt-3 font-display text-lg italic text-foreground/90">{agenda.if_things_get_stuck}</p>
-      </div>
-
-      <div className="mt-10 flex flex-wrap gap-3 print:hidden">
-        <Button onClick={onReset} variant="outline">Prep another meeting</Button>
-        <Button onClick={() => window.print()}>Print / save as PDF</Button>
-      </div>
-    </section>
-  );
-}
-
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mt-10">
-      <h2 className="font-display text-2xl font-medium tracking-tight">{toTitleCase(title)}</h2>
-      <div className="mt-4">{children}</div>
-    </div>
-  );
-}
-
-function BulletList({
-  items,
-  studentId,
-  category,
-}: {
-  items: string[];
-  studentId?: string | null;
-  category?: "family" | "team" | "educator" | "student" | "school";
-}) {
-  const addAction = useServerFn(createStudentActionItem);
-  return (
-    <ul className="mt-2 space-y-2 text-sm leading-relaxed text-muted-foreground">
-      {items.map((it, i) => (
-        <li key={i} className="flex items-start justify-between gap-3">
-          <div className="flex gap-2">
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-            <span>{it}</span>
-          </div>
-          {studentId && (
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  await addAction({
-                    data: {
-                      student_id: studentId,
-                      title: it.slice(0, 200),
-                      category: category ?? "team",
-                      priority: "medium",
-                    },
-                  });
-                  toast.success("Added to action items.");
-                } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "Could not add.");
-                }
-              }}
-              className="print:hidden shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted"
-            >
-              + Action
-            </button>
-          )}
-        </li>
-      ))}
-    </ul>
   );
 }

@@ -1,3 +1,10 @@
+import { MeetingDocumentStyles } from "@/components/documents/MeetingDocumentStyles";
+import { toTitleCase } from "@/lib/title-case";
+import { PrintedFieldValue } from "@/components/documents/PrintedFieldValue";
+import { DocumentWatermark } from "@/components/documents/DocumentWatermark";
+import { DocumentViewStyles } from "@/components/documents/DocumentViewStyles";
+import { DocumentPrintHeader } from "@/components/documents/DocumentPrintHeader";
+import { DocumentPrintStyles } from "@/components/documents/DocumentPrintStyles";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useRef, useState } from "react";
@@ -61,10 +68,18 @@ function MeetingDetailPage() {
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement | null>(null);
+  const loadSequence = useRef(0);
+  const activeMeetingId = useRef(meetingId);
+  activeMeetingId.current = meetingId;
 
-  const reload = () =>
-    get({ data: { id: meetingId } })
+  const reload = () => {
+    // A completed action from the previous page must not reload its old record.
+    if (meetingId !== activeMeetingId.current) return Promise.resolve();
+    const sequence = ++loadSequence.current;
+    return get({ data: { id: meetingId } })
       .then((r) => {
+        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current) return;
+        if (r.meeting.id !== meetingId) throw new Error("The meeting returned does not match this page. Please reopen it.");
         setMeeting(r.meeting);
         setAgenda(r.agenda);
         setQuestions(r.questions);
@@ -72,14 +87,24 @@ function MeetingDetailPage() {
         setLoadError(null);
       })
       .catch((err) => {
+        if (sequence !== loadSequence.current || meetingId !== activeMeetingId.current) return;
         setLoadError(err instanceof Error ? err.message : "Couldn't load this meeting.");
       });
+  };
 
   useEffect(() => {
+    let cancelled = false;
+    setMeeting(null);
+    setAgenda([]);
+    setQuestions([]);
+    setActions([]);
+    setLoadError(null);
+    setPulling(false);
     reload();
     listTpl()
-      .then((r) => setTemplates(r.templates))
+      .then((r) => { if (!cancelled) setTemplates(r.templates); })
       .catch(() => {});
+    return () => { cancelled = true; loadSequence.current += 1; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingId]);
 
@@ -87,13 +112,13 @@ function MeetingDetailPage() {
     field: "student_voice" | "family_concerns" | "teacher_notes" | "summary" | "decisions" | "documents_to_update",
     value: string,
   ) => {
-    if (!meeting) return;
+    if (!meeting || meeting.id !== activeMeetingId.current) return;
     setMeeting({ ...meeting, [field]: value });
     await update({ data: { id: meeting.id, [field]: value } as never });
   };
 
   const saveNextMeetingDate = async (value: string) => {
-    if (!meeting) return;
+    if (!meeting || meeting.id !== activeMeetingId.current) return;
     const next = value || null;
     setMeeting({ ...meeting, next_meeting_date: next });
     await update({ data: { id: meeting.id, next_meeting_date: next } });
@@ -104,7 +129,8 @@ function MeetingDetailPage() {
   }
 
   async function pullFromProfile() {
-    if (!meeting) return;
+    if (!meeting || meeting.id !== activeMeetingId.current) return;
+    const sequence = loadSequence.current;
     setPulling(true);
     try {
       const s = await fetchStudent({ data: { id: meeting.student_id } });
@@ -113,6 +139,7 @@ function MeetingDetailPage() {
         family_priorities?: string | null;
         support_needs_summary?: string | null;
       };
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
       const patch: Partial<Pick<Meeting, "student_voice" | "family_concerns" | "teacher_notes">> = {};
       if (!meeting.student_voice && extra.student_voice_statement) {
         patch.student_voice = extra.student_voice_statement;
@@ -128,12 +155,14 @@ function MeetingDetailPage() {
         return;
       }
       await update({ data: { id: meeting.id, ...patch } as never });
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
       setMeeting({ ...meeting, ...patch });
       toast.success("Pulled from student profile.");
     } catch (err) {
+      if (meeting.id !== activeMeetingId.current || sequence !== loadSequence.current) return;
       toast.error(err instanceof Error ? err.message : "Could not pull from profile.");
     } finally {
-      setPulling(false);
+      if (meeting.id === activeMeetingId.current && sequence === loadSequence.current) setPulling(false);
     }
   }
 
@@ -154,7 +183,7 @@ function MeetingDetailPage() {
     );
   }
 
-  if (!meeting) {
+  if (!meeting || meeting.id !== meetingId) {
     return (
       <SiteShell>
         <p className="mx-auto max-w-3xl p-10 text-sm text-muted-foreground">Loading…</p>
@@ -174,19 +203,24 @@ function MeetingDetailPage() {
         />
       </div>
 
-      <section ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-3 print:hidden">
-          <div>
+      <section data-meeting-document data-generated-document data-print-document ref={printRef} className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <DocumentWatermark />
+        <DocumentViewStyles />
+        <DocumentPrintStyles />
+        <MeetingDocumentStyles />
+        <DocumentPrintHeader title="Meeting notes" />
+        <div data-document-title-block className="flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {meeting.kind} Meeting · {meeting.status}
             </p>
-            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight">{meeting.title}</h1>
+            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight">{toTitleCase(meeting.title)}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {meeting.scheduled_at ? new Date(meeting.scheduled_at).toLocaleString() : "Unscheduled"}
               {meeting.location ? ` · ${meeting.location}` : ""}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="print:hidden flex flex-wrap gap-2">
             <Button variant="outline" onClick={pullFromProfile} disabled={pulling}>
               <Wand2 className="h-4 w-4" />
               {pulling ? "Pulling…" : "Pull from profile"}
@@ -214,24 +248,15 @@ function MeetingDetailPage() {
           </div>
         </div>
 
-        <div className="mt-2 hidden print:block">
-          <h1 className="font-display text-3xl">{meeting.title}</h1>
-          <p className="text-sm">
-            {meeting.kind} ·{" "}
-            {meeting.scheduled_at ? new Date(meeting.scheduled_at).toLocaleString() : ""}
-            {meeting.location ? ` · ${meeting.location}` : ""}
-          </p>
-        </div>
-
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+        <div data-meeting-content className="mt-8 grid gap-6 lg:grid-cols-3">
           {/* Agenda */}
           <div className="lg:col-span-2 rounded-2xl border bg-card p-5 shadow-soft">
             <header className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 font-display text-lg">
                 <ClipboardList className="h-4 w-4 text-primary" />
-                Agenda & checklist
+                Agenda & Checklist
               </h2>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 print:hidden">
                 {templates.length > 0 ? (
                   <div className="flex items-center gap-1">
                     <select
@@ -313,6 +338,7 @@ function MeetingDetailPage() {
                     <div className="min-w-0 flex-1">
                       <p className={cn("font-medium", a.completed && "line-through")}>
                         <span className="text-muted-foreground">{i + 1}.</span> {a.title}
+                        <span data-meeting-agenda-status className="ml-2 text-xs text-muted-foreground">{a.completed ? "Completed" : "To Discuss"}</span>
                       </p>
                       {a.notes ? (
                         <p className="mt-0.5 text-xs text-muted-foreground">{a.notes}</p>
@@ -364,7 +390,7 @@ function MeetingDetailPage() {
 
             <h3 className="mt-8 flex items-center gap-2 font-display text-base">
               <Sparkles className="h-4 w-4 text-primary" />
-              Student voice
+              Student Voice
             </h3>
             <textarea
               rows={3}
@@ -373,10 +399,11 @@ function MeetingDetailPage() {
               onChange={(e) => setMeeting({ ...meeting, student_voice: e.target.value })}
               onBlur={(e) => saveField("student_voice", e.target.value)}
               placeholder="What the student wants the team to know — in their own words."
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              className="print:hidden mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
+              <PrintedFieldValue value={meeting.student_voice} />
 
-            <h3 className="mt-6 font-display text-base">Family concerns</h3>
+            <h3 className="mt-6 font-display text-base">Family Concerns</h3>
             <textarea
               rows={3}
               aria-label="Family concerns"
@@ -384,28 +411,30 @@ function MeetingDetailPage() {
               onChange={(e) => setMeeting({ ...meeting, family_concerns: e.target.value })}
               onBlur={(e) => saveField("family_concerns", e.target.value)}
               placeholder="What the family most wants the team to hear."
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              className="print:hidden mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
+              <PrintedFieldValue value={meeting.family_concerns} />
 
-            <h3 className="mt-6 font-display text-base">Teacher progress notes</h3>
+            <h3 className="mt-6 font-display text-base">Educator Notes</h3>
             <textarea
               rows={3}
-              aria-label="Teacher progress notes"
+              aria-label="Educator Notes"
               value={meeting.teacher_notes ?? ""}
               onChange={(e) => setMeeting({ ...meeting, teacher_notes: e.target.value })}
               onBlur={(e) => saveField("teacher_notes", e.target.value)}
               placeholder="Observations and progress to share with the team."
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              className="print:hidden mt-2 w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
+              <PrintedFieldValue value={meeting.teacher_notes} />
           </div>
 
           {/* Side rail */}
-          <div className="space-y-6">
-            <div className="rounded-2xl border bg-card p-5 shadow-soft">
+          <div data-meeting-followups className="space-y-6">
+            <div data-meeting-short-section className="rounded-2xl border bg-card p-5 shadow-soft">
               <header className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-display text-lg">
                   <MessageSquare className="h-4 w-4 text-primary" />
-                  Questions to ask
+                  Questions to Discuss
                 </h2>
                 <AddInline
                   label="Add"
@@ -423,6 +452,7 @@ function MeetingDetailPage() {
                       {q.asker_role}
                     </span>
                     <p className="mt-1">{q.question}</p>
+                    {q.answer?.trim() && <p className="mt-2 text-sm"><strong>Team Response: </strong>{q.answer}</p>}
                   </li>
                 ))}
                 {questions.length === 0 && (
@@ -431,11 +461,11 @@ function MeetingDetailPage() {
               </ul>
             </div>
 
-            <div className="rounded-2xl border bg-card p-5 shadow-soft">
+            <div data-meeting-short-section className="rounded-2xl border bg-card p-5 shadow-soft">
               <header className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-display text-lg">
                   <CheckSquare className="h-4 w-4 text-primary" />
-                  Follow-up action items
+                  Next Steps
                 </h2>
                 <AddInline
                   label="Add"
@@ -466,13 +496,18 @@ function MeetingDetailPage() {
                           });
                           reload();
                         }}
-                        className="rounded-full border bg-card px-2 py-0.5 text-[11px]"
+                        className="rounded-full border bg-card px-2 py-0.5 text-[11px] print:hidden"
                       >
                         <option value="open">Open</option>
                         <option value="in-progress">In progress</option>
                         <option value="done">Done</option>
                       </select>
+                      <span data-meeting-action-status className="hidden print:inline text-xs">{a.status === "in-progress" ? "In progress" : a.status === "done" ? "Done" : "Open"}</span>
                     </div>
+                    {(a.assignee_role || a.due_date) && <p className="mt-1 text-xs text-muted-foreground">
+                      {a.assignee_role ? `Who: ${toTitleCase(a.assignee_role)}` : "Who: Not assigned"}
+                      {a.due_date ? ` · Due: ${a.due_date}` : " · Due date not set"}
+                    </p>}
                   </li>
                 ))}
                 {actions.length === 0 && (
@@ -487,62 +522,65 @@ function MeetingDetailPage() {
         <div className="mt-8 rounded-2xl border bg-card p-5 shadow-soft">
           <h2 className="flex items-center gap-2 font-display text-lg">
             <CheckSquare className="h-4 w-4 text-primary" />
-            After the meeting
+            Meeting Summary
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Capture what happened so the team — and the Pathway Report — stay in sync. Completing
-            the meeting promotes follow-ups into student action items.
+            Keep a shared record of the discussion, decisions and next steps.
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm sm:col-span-2">
-              <span className="mb-1 block font-medium">Meeting notes / summary</span>
+          <div data-meeting-summary-fields className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label data-meeting-summary-field className="text-sm sm:col-span-2">
+              <span className="mb-1 block font-medium">What We Discussed</span>
               <textarea
                 rows={3}
                 value={meeting.summary ?? ""}
                 onChange={(e) => setMeeting({ ...meeting, summary: e.target.value })}
                 onBlur={(e) => saveField("summary", e.target.value)}
                 placeholder="What was discussed, who attended, key context."
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.summary} />
             </label>
-            <label className="text-sm">
-              <span className="mb-1 block font-medium">Decisions made</span>
+            <label data-meeting-summary-field className="text-sm">
+              <span className="mb-1 block font-medium">Decisions Made</span>
               <textarea
                 rows={3}
                 value={meeting.decisions ?? ""}
                 onChange={(e) => setMeeting({ ...meeting, decisions: e.target.value })}
                 onBlur={(e) => saveField("decisions", e.target.value)}
                 placeholder="Services agreed to, placement changes, accommodations confirmed."
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.decisions} />
             </label>
-            <label className="text-sm">
-              <span className="mb-1 block font-medium">Documents to update</span>
+            <label data-meeting-summary-field className="text-sm">
+              <span className="mb-1 block font-medium">Documents to Update</span>
               <textarea
                 rows={3}
                 value={meeting.documents_to_update ?? ""}
                 onChange={(e) => setMeeting({ ...meeting, documents_to_update: e.target.value })}
                 onBlur={(e) => saveField("documents_to_update", e.target.value)}
                 placeholder="e.g. IEP draft, transition plan, consent form."
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
+              <PrintedFieldValue value={meeting.documents_to_update} />
             </label>
-            <label className="text-sm">
-              <span className="mb-1 block font-medium">Next meeting date</span>
+            <label data-meeting-summary-field className="text-sm">
+              <span className="mb-1 block font-medium">Next Meeting Date</span>
               <input
                 type="date"
                 value={meeting.next_meeting_date ?? ""}
                 onChange={(e) => saveNextMeetingDate(e.target.value)}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                className="print:hidden w-full rounded-lg border bg-background px-3 py-2 text-sm"
               />
-              <span className="mt-1 block text-xs text-muted-foreground">
+              <PrintedFieldValue value={meeting.next_meeting_date} />
+              <span className="print:hidden mt-1 block text-xs text-muted-foreground">
                 Shown on the calendar so nothing slips.
               </span>
             </label>
           </div>
 
           {meeting.student_id && (
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3 print:hidden">
               <p className="text-xs text-muted-foreground max-w-md">
                 Pull the meeting notes, decisions, and family/teacher context
                 into the Pathway Report as grounded evidence.
@@ -576,7 +614,7 @@ function MeetingDetailPage() {
 
       <style>{`
         @media print {
-          @page { size: Letter; margin: 0.65in; }
+          @page { size: Letter; margin: 0.5in; }
           .print\\:hidden { display: none !important; }
           body { background: white !important; }
         }
@@ -605,7 +643,7 @@ function AddInline({
     );
   }
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1 print:hidden">
       <input
         aria-label={placeholder}
         autoFocus

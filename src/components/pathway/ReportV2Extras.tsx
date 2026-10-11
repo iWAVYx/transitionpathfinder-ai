@@ -1,3 +1,6 @@
+import { ReadinessBadge } from "@/components/documents/ReportReadinessRow";
+import { toTitleCase } from "@/lib/title-case";
+import { recordedReportInputs } from "@/lib/report-source-summary";
 /**
  * v2.1 additive Pathway Report sections.
  *
@@ -18,9 +21,7 @@ import {
   Gauge,
   History,
   CheckCircle2,
-  CircleDashed,
   Circle,
-  CircleDot,
   Database,
 } from "lucide-react";
 import { useState } from "react";
@@ -32,7 +33,6 @@ import {
   type ReadinessIndicator,
   type ConfidenceInfo,
   type NeedsReviewFlag,
-  type InputsUsed,
 } from "@/lib/pathway-v2";
 import type { V2Audience } from "@/components/pathway/ReportV2Sections";
 import {
@@ -42,16 +42,6 @@ import {
   PublicationSource,
 } from "@/components/publication/PublicationPage";
 
-const LEVEL_META: Record<
-  ReadinessIndicator["level"],
-  { label: string; pct: number; icon: typeof Circle; tone: string }
-> = {
-  emerging:   { label: "Emerging",    pct: 20, icon: Circle,       tone: "text-muted-foreground" },
-  developing: { label: "Developing",  pct: 45, icon: CircleDashed,  tone: "text-amber-600" },
-  progressing:{ label: "Progressing", pct: 70, icon: CircleDot,     tone: "text-primary" },
-  ready:      { label: "Ready",       pct: 92, icon: CheckCircle2,  tone: "text-emerald-600" },
-};
-
 const CONFIDENCE_META: Record<
   ConfidenceInfo["overall"],
   { label: string; calloutKind: "means" | "matters" | "next" | "source"; description: string }
@@ -59,17 +49,17 @@ const CONFIDENCE_META: Record<
   low: {
     label: "Low Confidence",
     calloutKind: "next",
-    description: "Treat this as a starting draft. Verify with the team before acting.",
+    description: "This report records low confidence. Review the explanation and any gaps with your team.",
   },
   medium: {
     label: "Medium Confidence",
     calloutKind: "means",
-    description: "Solid inputs; some sections still need team review.",
+    description: "This report records medium confidence. Review the explanation and any gaps with your team.",
   },
   high: {
     label: "High Confidence",
     calloutKind: "source",
-    description: "Inputs are comprehensive and recent.",
+    description: "This report records high confidence. Review the explanation and any gaps with your team.",
   },
 };
 
@@ -100,7 +90,7 @@ export function ReportV2SnapshotHeader({
   return (
     <section aria-label="Student snapshot">
       <PublicationPage
-        kicker="Section 01"
+        headingLevel="h2"
         chapter={snap?.display_name ?? studentName}
         dek="Student profile overview"
         folio="p. 01"
@@ -197,9 +187,10 @@ export function ReportV2ExtrasBody({
       {spin && (spin.strengths?.length || spin.preferences?.length || spin.interests?.length || spin.needs?.length) ? (
         <section id="v2-spin">
           <PublicationPage
-            kicker="Section 02"
+            repeatPrintHeader
+            headingLevel="h2"
             chapter="Strengths, Preferences, Interests & Needs"
-            dek="Drawn from the student profile, Student Voice, and team input. These shape every recommendation below."
+            dek="Recorded strengths, preferences, interests and support needs to review with the student and team."
             folio="p. 02"
           >
             <div className="flex items-center gap-2 mb-4 text-primary">
@@ -219,25 +210,22 @@ export function ReportV2ExtrasBody({
       {readiness.length > 0 && (
         <section id="v2-readiness-indicators">
           <PublicationPage
-            kicker="Section 03"
+            headingLevel="h2"
             chapter="Readiness Indicators"
-            dek="Where the student is right now across the transition domains the team is tracking."
+            dek="Readiness levels recorded in this report. Review the notes and current information with your team."
             folio="p. 03"
           >
-            <div className="flex items-center gap-2 mb-4 text-primary">
+            <div data-report-section-icon className="flex items-center gap-2 mb-4 text-primary">
               <Gauge className="h-5 w-5" />
             </div>
-            <ul className="divide-y divide-[color:var(--pub-rule-soft)]">
+            <ul data-report-readiness-indicators className="divide-y divide-[color:var(--pub-rule-soft)]">
               {readiness.map((ind, i) => {
-                const meta = LEVEL_META[ind.level];
-                const Icon = meta.icon;
                 return (
-                  <li key={i} className="py-4">
+                  <li key={i} data-report-readiness-row className="py-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        {/* Urbanist eyebrow */}
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans mb-0.5">
-                          Domain
+                            <p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-0.5">
+                          Planning Area
                         </p>
                         {/* Instrument Serif headline */}
                         <p className="font-display text-base sm:text-lg">{ind.domain}</p>
@@ -245,19 +233,7 @@ export function ReportV2ExtrasBody({
                           <p className="mt-1 text-sm text-muted-foreground">{ind.note}</p>
                         )}
                       </div>
-                      <span className={`inline-flex flex-none items-center gap-1 text-xs ${meta.tone}`}>
-                        <Icon className="h-3.5 w-3.5" />
-                        {meta.label}
-                      </span>
-                    </div>
-                    <div
-                      className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted"
-                      aria-hidden
-                    >
-                      <div
-                        className="h-full rounded-full bg-primary transition-all"
-                        style={{ width: `${meta.pct}%` }}
-                      />
+                      <ReadinessBadge level={ind.level} compact />
                     </div>
                   </li>
                 );
@@ -271,7 +247,7 @@ export function ReportV2ExtrasBody({
       {flags.length > 0 && (
         <section id="v2-needs-review">
           <PublicationPage
-            kicker="Section 04"
+            headingLevel="h2"
             chapter="Needs Review"
             dek="Sections the team should look at before this report is used at a meeting."
             folio="p. 04"
@@ -284,8 +260,8 @@ export function ReportV2ExtrasBody({
                 <li key={i} className="py-4">
                   <PublicationCallout kind="next" title={f.section.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}>
                     {f.owner_role && (
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                        Follow-up: {f.owner_role.replace(/_/g, " ")}
+                      <p className="text-[11px] text-muted-foreground mb-1">
+                        Follow-up: {toTitleCase(f.owner_role.replace(/_/g, " "))}
                       </p>
                     )}
                     <p className="text-sm">{f.reason}</p>
@@ -299,14 +275,14 @@ export function ReportV2ExtrasBody({
 
       {/* ── Confidence ───────────────────────────────────────────────── */}
       {confidence && (
-        <section id="v2-confidence">
+        <section id="v2-confidence" data-report-confidence>
           <PublicationPage
-            kicker="Section 05"
+            headingLevel="h2"
             chapter={CONFIDENCE_META[confidence.overall].label}
             dek={CONFIDENCE_META[confidence.overall].description}
             folio="p. 05"
           >
-            <div className="flex items-center gap-2 mb-4 text-primary">
+            <div data-report-section-icon className="flex items-center gap-2 mb-4 text-primary">
               <CompassIcon className="h-5 w-5" />
             </div>
 
@@ -316,6 +292,9 @@ export function ReportV2ExtrasBody({
             >
               {confidence.rationale && (
                 <p className="text-sm mb-2">{confidence.rationale}</p>
+              )}
+              {!confidence.rationale && !confidence.caveats?.length && (
+                <p className="text-sm">No explanation or review notes are recorded for this confidence level.</p>
               )}
               {confidence.caveats?.length ? (
                 <ul className="list-disc pl-4 space-y-1 text-sm text-muted-foreground">
@@ -361,8 +340,8 @@ function SpinList({
   return (
     <div>
       {/* Urbanist eyebrow */}
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans mb-1">
-        {label}
+      <p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-1">
+        {toTitleCase(label)}
       </p>
       <ul className="divide-y divide-[color:var(--pub-rule-soft)]">
         {items.map((t, i) => (
@@ -389,41 +368,40 @@ function SpinList({
 export function ReportV2InputsUsed({ content }: { content: unknown }) {
   const [open, setOpen] = useState(false);
   if (!isV2(content)) return null;
-  const r = content as Record<string, unknown>;
-  const inputs = r.inputs_used as InputsUsed | undefined;
+  const inputs = recordedReportInputs(content);
   if (!inputs) return null;
 
   type Row = { label: string; hint?: string; present: boolean };
   const rows: Row[] = [
     { label: "Student Profile",       present: Boolean(inputs.profile) },
-    { label: "Intake Responses",      present: Boolean(inputs.intake) },
+    { label: "Pathway Builder Responses",      present: Boolean(inputs.intake) },
     {
       label: "Student Voice",
-      hint: inputs.student_voice_keys?.length
-        ? `${inputs.student_voice_keys.length} response${inputs.student_voice_keys.length === 1 ? "" : "s"}`
+      hint: inputs.student_voice_count
+        ? `${inputs.student_voice_count} response${inputs.student_voice_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.student_voice_keys?.length,
+      present: !!inputs.student_voice_count,
     },
     {
       label: "IEP Documents",
-      hint: inputs.iep_doc_ids?.length
-        ? `${inputs.iep_doc_ids.length} document${inputs.iep_doc_ids.length === 1 ? "" : "s"}`
+      hint: inputs.iep_document_count
+        ? `${inputs.iep_document_count} document${inputs.iep_document_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.iep_doc_ids?.length,
+      present: !!inputs.iep_document_count,
     },
     {
-      label: "IEP Extractions",
-      hint: inputs.iep_extraction_ids?.length
-        ? `${inputs.iep_extraction_ids.length} extraction${inputs.iep_extraction_ids.length === 1 ? "" : "s"}`
+      label: "IEP Document Summaries",
+      hint: inputs.iep_extraction_count
+        ? `${inputs.iep_extraction_count} ${inputs.iep_extraction_count === 1 ? "summary" : "summaries"}`
         : undefined,
-      present: !!inputs.iep_extraction_ids?.length,
+      present: !!inputs.iep_extraction_count,
     },
     {
       label: "Transition Goals",
-      hint: inputs.goal_ids?.length
-        ? `${inputs.goal_ids.length} goal${inputs.goal_ids.length === 1 ? "" : "s"}`
+      hint: inputs.goal_count
+        ? `${inputs.goal_count} goal${inputs.goal_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.goal_ids?.length,
+      present: !!inputs.goal_count,
     },
     {
       label: "Readiness Check",
@@ -435,26 +413,26 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
       present: Boolean(inputs.readiness_at || inputs.readiness_category_count),
     },
     {
-      label: "Action Items in Flight",
-      hint: inputs.action_item_ids?.length ? `${inputs.action_item_ids.length} open` : undefined,
-      present: !!inputs.action_item_ids?.length,
+      label: "Open Action Items",
+      hint: inputs.action_item_count ? `${inputs.action_item_count} open` : undefined,
+      present: !!inputs.action_item_count,
     },
     {
       label: "Meeting Prep Notes",
-      hint: inputs.meeting_prep_ids?.length
-        ? `${inputs.meeting_prep_ids.length} note${inputs.meeting_prep_ids.length === 1 ? "" : "s"}`
+      hint: inputs.meeting_prep_count
+        ? `${inputs.meeting_prep_count} note${inputs.meeting_prep_count === 1 ? "" : "s"}`
         : undefined,
-      present: !!inputs.meeting_prep_ids?.length,
+      present: !!inputs.meeting_prep_count,
     },
     {
       label: "Saved Resources",
-      hint: inputs.saved_resource_ids?.length ? `${inputs.saved_resource_ids.length} saved` : undefined,
-      present: !!inputs.saved_resource_ids?.length,
+      hint: inputs.saved_resource_count ? `${inputs.saved_resource_count} saved` : undefined,
+      present: !!inputs.saved_resource_count,
     },
     {
       label: "Partner Matches",
-      hint: inputs.partner_match_ids?.length ? `${inputs.partner_match_ids.length} matched` : undefined,
-      present: !!inputs.partner_match_ids?.length,
+      hint: inputs.partner_match_count ? `${inputs.partner_match_count} matched` : undefined,
+      present: !!inputs.partner_match_count,
     },
     {
       label: "Family Priorities",
@@ -464,8 +442,9 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
   ];
 
   const presentCount = rows.filter((row) => row.present).length;
-  const generatedAt = inputs.generated_at
-    ? new Date(inputs.generated_at).toLocaleString(undefined, {
+  const generatedDate = inputs.generated_at ? new Date(inputs.generated_at) : null;
+  const generatedAt = generatedDate && !Number.isNaN(generatedDate.getTime())
+    ? generatedDate.toLocaleString(undefined, {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -478,12 +457,12 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
     <section
       id="v2-inputs-used"
       aria-label="Sources used in this report"
-      className="no-print"
     >
       <PublicationPage
+        headingLevel="h2"
         kicker="Sources"
         chapter="Sources Used in This Report"
-        dek={`${presentCount} of ${rows.length} data sources contributed${generatedAt ? ` · generated ${generatedAt}` : ""}.`}
+        dek={`${presentCount} of ${rows.length} source categories are recorded for this report${generatedAt ? ` · generated ${generatedAt}` : ""}.`}
         folio="p. 06"
       >
         <div className="flex items-center gap-2 mb-4 text-primary">
@@ -491,29 +470,26 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
         </div>
 
         {/* Editorial details/summary accordion */}
-        <details
-          open={open}
-          onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-          id="v2-inputs-used-body"
-        >
-          <summary
-            className="cursor-pointer select-none list-none border-b border-[color:var(--pub-rule-soft)] pb-3 mb-1 flex items-center justify-between text-sm font-semibold text-foreground"
+        <div>
+          <button
+            type="button"
+            onClick={() => setOpen(value => !value)}
+            aria-controls="v2-inputs-used-body"
+            className="print:hidden w-full cursor-pointer border-b border-[color:var(--pub-rule-soft)] pb-3 mb-1 flex items-center justify-between text-sm font-semibold text-foreground"
             aria-expanded={open}
           >
             <span>{open ? "Hide sources" : "Show all sources"}</span>
             <span className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
               {presentCount} / {rows.length} present
             </span>
-          </summary>
-
-          <PublicationSidebar label="Inputs Used">
+          </button>
+          <div id="v2-inputs-used-body" data-report-source-details className={open ? undefined : "hidden print:block"}>
+          <PublicationSidebar as="div" label="Inputs Used">
             <ul className="grid gap-1 sm:grid-cols-2">
               {rows.map((row, i) => (
                 <li
                   key={i}
-                  className={`border-b border-[color:var(--pub-rule-soft)] py-3 flex items-start gap-2 ${
-                    row.present ? "" : "opacity-50"
-                  }`}
+                  className="border-b border-[color:var(--pub-rule-soft)] py-3 flex items-start gap-2"
                 >
                   {row.present ? (
                     <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-emerald-600 dark:text-emerald-400" />
@@ -521,19 +497,19 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
                     <Circle className="mt-0.5 h-4 w-4 flex-none text-muted-foreground" />
                   )}
                   <div>
-                    {/* Urbanist eyebrow */}
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+                    <p className="text-sm font-medium text-foreground">
                       {row.label}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {row.hint ?? (row.present ? "Provided" : "Not provided")}
+                      {row.hint ?? (row.present ? "Recorded for this report" : "Not recorded for this report")}
                     </p>
                   </div>
                 </li>
               ))}
             </ul>
           </PublicationSidebar>
-        </details>
+          </div>
+        </div>
       </PublicationPage>
     </section>
   );
