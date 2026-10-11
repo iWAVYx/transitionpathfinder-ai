@@ -1,3 +1,4 @@
+import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { toTitleCase } from "@/lib/title-case";
 import { reportWebDestination, reportFollowUpRole } from "@/lib/report-match-details";
 import { reportMeetingQuestions } from "@/lib/report-v2-contents";
@@ -337,13 +338,11 @@ export function ReportV2Sections({
           <section id="v2-gaps">
             <ul>
               {gaps.map((g, i) => (
-                <li
+                <ReportPlanningGap
+                  as="li" title={g.topic}
                   key={i}
                   className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                 >
-                  <p className="font-[Instrument_Serif,serif] text-base font-medium">
-                    {g.topic}
-                  </p>
                   <PublicationCallout kind="matters">
                     {g.why_it_matters}
                   </PublicationCallout>
@@ -353,7 +352,7 @@ export function ReportV2Sections({
                   <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
                     Follow-up: {g.owner_role.replace("_", " ")}
                   </p>
-                </li>
+                </ReportPlanningGap>
               ))}
             </ul>
           </section>

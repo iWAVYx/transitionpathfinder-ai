@@ -1,3 +1,4 @@
+import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
 import { demoReportNextStepPreview } from "@/lib/demo/report-overview";
@@ -388,13 +389,11 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
               </ul>
             )}
             {b.missing && (
-              <div
+              <ReportPlanningGap
+                title="What We Still Need to Know"
                 data-demo-report-missing={b.section}
                 className="rounded-md border border-dashed border-amber-400/60 bg-amber-50/60 p-3 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100"
               >
-                <p className="font-semibold uppercase tracking-wide">
-                  What We Still Need to Know
-                </p>
                 <p className="mt-1">{b.missing.reason}</p>
                 {b.missing.needed.length > 0 && (
                   <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
@@ -403,7 +402,7 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
                     ))}
                   </ul>
                 )}
-              </div>
+              </ReportPlanningGap>
             )}
           </CardContent>
         </Card>

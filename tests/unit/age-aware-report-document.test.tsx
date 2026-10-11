@@ -78,6 +78,8 @@ it("keeps a structured missing-evidence marker visible instead of filling it", (
   try {
     const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="family" />);
     expect(html.includes('data-demo-report-missing="evidence"')).toBe(true);
+    expect(html).toContain('data-report-planning-gap');
+    expect(html).toContain('What We Still Need to Know</h3>');
     expect(html.includes(escaped(report.blocks[1].missing.reason))).toBe(true);
     expect(html.includes(escaped(report.blocks[1].missing.needed[0]))).toBe(true);
   } finally {spy.mockRestore();}

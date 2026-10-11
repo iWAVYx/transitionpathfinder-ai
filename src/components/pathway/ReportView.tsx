@@ -1,3 +1,4 @@
+import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
 import { reportSourceLabels } from "@/lib/report-source-summary";
@@ -1090,19 +1091,19 @@ function ReportViewReader({
           </p>
           <div data-report-evidence-grid style={{ "--report-evidence-columns": Math.min(3, r.data_gaps.length) } as React.CSSProperties} className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.data_gaps.map((g, i) => (
-              <div
+              <ReportPlanningGap
+                title={g.item}
                 key={i}
                 data-report-evidence-gap
                 className="rounded-2xl border border-amber-400/40 bg-amber-50/40 p-5 dark:bg-amber-950/10"
               >
-                <h3 className="font-display text-lg">{toTitleCase(g.item)}</h3>
                 <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
                 <Labeled label="Who Can Help">{g.who_can_help}</Labeled>
                 <Labeled label="How to Collect">{g.how_to_collect}</Labeled>
                 <Labeled label="A Question to Ask">
                   <span className="italic">{g.question_to_ask}</span>
                 </Labeled>
-              </div>
+              </ReportPlanningGap>
             ))}
           </div>
         </Block>

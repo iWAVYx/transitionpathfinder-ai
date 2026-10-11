@@ -1551,3 +1551,55 @@ test("demo and product overviews retain their own source content and role-specif
     }
   }
 });
+
+
+test("missing information retains recorded follow-up across planning, shared and empty demo reports", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const gap = { topic: "current travel observation", why_it_matters: "The earlier observation does not describe the current route.", how_to_collect: "Ask the team for a dated observation with the supports used.", owner_role: "school_team" };
+  const original = { ...components.richerSharedFixture(), missing_information_v2: [gap] };
+  for (const audience of ["student", "family", "educator"]) {
+    const profile = { ...components.getDemoProfile("sam"), evidence: [], voice: [] };
+    const fixtures = [{ markup: renderToStaticMarkup(createElement(components.PathwayReport, { profile, audience })), demo: true }];
+    for (const shared of audience === "student" ? [false] : [false, true]) {
+      const report = shared ? components.projectSharedReport(original, audience) : original;
+      fixtures.push({ markup: renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined })), demo: false });
+    }
+    for (const fixture of fixtures) for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ media });
+      await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${fixture.markup}</div></main></body></html>`);
+      const gaps = page.locator("[data-report-planning-gap]");
+      expect(await gaps.count()).toBeGreaterThan(0);
+      for (const card of await gaps.all()) {
+        await expect(card.locator(":scope > h3")).toHaveCount(1);
+        const layout = await card.evaluate(element => {
+          const heading = element.querySelector("h3")!;
+          return { overflow: element.scrollWidth > element.clientWidth, headingMargin: getComputedStyle(heading).marginLeft, breakInside: getComputedStyle(element).breakInside };
+        });
+        expect(layout.overflow).toBe(false);
+        expect(layout.headingMargin).toBe("0px");
+        if (media === "print") expect(layout.breakInside).toBe("avoid");
+      }
+      if (fixture.demo) {
+        const evidence = page.locator('[data-demo-report-missing="evidence"]');
+        await expect(evidence.getByRole("heading")).toHaveText("What We Still Need to Know");
+        await expect(evidence).toContainText("No sample evidence items are recorded for this profile.");
+        await expect(evidence).toContainText("Gather current observations or documents before confirming recommendations.");
+        await expect(page.locator("[data-report-voice-response]")).toHaveCount(0);
+      } else {
+        await expect(gaps.getByRole("heading", { name: "Current Travel Observation" })).toHaveCount(1);
+        const newerGap = gaps.filter({ has: page.getByRole("heading", { name: "Current Travel Observation" }) });
+        for (const field of [gap.why_it_matters, gap.how_to_collect]) await expect(newerGap).toContainText(field);
+        const legacy = page.locator("[data-report-evidence-gap]");
+        for (let i = 0; i < original.data_gaps.length; i++) {
+          for (const field of [original.data_gaps[i].why_it_matters, original.data_gaps[i].who_can_help, original.data_gaps[i].how_to_collect, original.data_gaps[i].question_to_ask].filter(Boolean)) expect(await legacy.nth(i).textContent()).toContain(field);
+        }
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});

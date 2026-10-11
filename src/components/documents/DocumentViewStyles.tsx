@@ -25,6 +25,8 @@ export function DocumentViewStyles() {
     @media (min-width: 640px) {
       [data-generated-document] [data-report-profile-details] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+    [data-generated-document] [data-report-planning-gap] { min-width: 0; }
+    [data-generated-document] [data-report-gap-heading] { margin: 0; }
     [data-generated-document] [data-report-readiness-row] { min-width: 0; }
     [data-generated-document] [data-report-readiness-heading],
     [data-generated-document] [data-demo-readiness-overall] {

@@ -287,6 +287,12 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root [data-report-readiness-indicators] > li:last-child:nth-child(odd) {
         grid-column: 1 / -1;
       }
+      body:has(.report-root) .report-root [data-report-planning-gap] {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      body:has(.report-root) .report-root [data-report-planning-gap] > [data-report-gap-heading] {
+        margin: 0 0 0.06in !important;
+      }
       /* Keep a readiness explanation with its growth step and suggested goal.
          Long entries can still flow when they exceed a complete page. */
       body:has(.report-root) .report-root [data-report-readiness-row],
