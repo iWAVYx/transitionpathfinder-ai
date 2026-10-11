@@ -1726,6 +1726,10 @@ test("newer report chapters use section headings beneath the document title for 
         expect(await chapters.count()).toBeGreaterThanOrEqual(10);
         await expect(chapters.locator("h1, h3")).toHaveCount(0);
         await expect(chapters.locator("h2")).toHaveCount(await chapters.count());
+        const recommendations = page.locator("[data-report-recommendation]");
+        expect(await recommendations.count()).toBeGreaterThan(0);
+        await expect(recommendations.locator(":scope > header > h3")).toHaveCount(await recommendations.count());
+        await expect(recommendations.locator("h4")).toHaveCount(0);
         const headings = chapters.locator("h2");
         for (const geometry of await headings.evaluateAll(nodes => nodes.map(node => {
           const style = getComputedStyle(node);

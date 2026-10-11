@@ -38,7 +38,7 @@ export function RecommendationCard({
   return (
     <article data-report-recommendation className="rounded-2xl border bg-card p-4 shadow-soft transition-colors hover:border-primary/40 sm:p-5">
       <header className="flex flex-wrap items-start justify-between gap-2">
-        <h4 className="text-sm font-semibold sm:text-base">{toTitleCase(rec.title)}</h4>
+        <h3 className="text-sm font-semibold sm:text-base">{toTitleCase(rec.title)}</h3>
         <div className="flex flex-wrap gap-1.5">
           {rec.timeframe && (
             <Badge variant="outline" className="text-[10px]">
