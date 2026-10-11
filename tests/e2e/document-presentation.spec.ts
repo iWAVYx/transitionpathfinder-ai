@@ -457,16 +457,37 @@ test("newer report plans and collapsed sources stay inside the printable documen
 test("shared readers keep their designated audience and do not offer generation controls", async ({ page }) => {
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   for (const audience of ["family", "educator"]) {
-    const body = renderToStaticMarkup(createElement(components.ReportView, {
+    const body = renderToStaticMarkup(createElement(components.ReportFixtureRouter, {}, createElement(components.ReportView, {
       name: "Maya", report: components.DEMO_STUDENTS.maya.report,
       initialAudience: "student", fixedAudience: audience, readOnly: true,
-    }));
+      studentId: "synthetic-student", onSaveToProfile: () => {}, onRefresh: () => {}, onReset: () => {},
+    })));
     await page.setContent(`<html><body>${body}</body></html>`);
     await expect(page.getByRole("tablist", { name: "Choose a report view" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Pathway Assist", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Save to Student Profile", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Refresh Pathway Report", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Turn recommendations into next steps", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Add to Actions", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Add to Calendar", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Print or save Pathway Report as PDF" }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Create another report", exact: true })).toHaveCount(0);
     const expected = audience === "family" ? "A Plan for Maya." : "Meeting Guide — Maya";
     await expect(page.getByRole("heading", { name: expected, exact: true })).toBeVisible();
   }
+  for (const audience of ["student", "family", "educator"]) {
+    const body = renderToStaticMarkup(createElement(components.ReportFixtureRouter, {}, createElement(components.ReportView, {
+      name: "Maya", report: components.DEMO_STUDENTS.maya.report, initialAudience: audience,
+      studentId: "synthetic-student", onSaveToProfile: () => {}, onRefresh: () => {}, onReset: () => {},
+    })));
+    await page.setContent(`<html><body>${body}</body></html>`);
+    await expect(page.getByRole("button", { name: "Save to Student Profile", exact: true })).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "Refresh Pathway Report", exact: true })).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "Create another report", exact: true })).toHaveCount(1);
+    await expect(page.getByRole("heading", { name: "Turn recommendations into next steps", exact: true })).toHaveCount(1);
+    expect(await page.getByRole("button", { name: "Add to Actions", exact: true }).count()).toBeGreaterThan(0);
+  }
+
 });
 
 

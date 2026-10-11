@@ -698,7 +698,7 @@ function ReportViewReader({
           >
             <ChevronsDownUp className="h-4 w-4" /> Collapse
           </Button>
-          {!demo && onSaveToProfile && (
+          {!demo && !readOnly && onSaveToProfile && (
             <Button
               variant={saved ? "outline" : "ghost"}
               size="sm"
@@ -714,7 +714,7 @@ function ReportViewReader({
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied" : "Share"}
           </Button>
-          {!demo && onRefresh && (
+          {!demo && !readOnly && onRefresh && (
             <Button
               variant="ghost"
               size="sm"
@@ -1459,7 +1459,7 @@ function ReportViewReader({
 
 
       {/* ============ Connect to plan: push items into Actions/Calendar ============ */}
-      {!demo && (
+      {!demo && !readOnly && (
         <ConnectToPlan
           report={displayReport}
           studentId={studentId}
@@ -1596,7 +1596,7 @@ function ReportViewReader({
       )}
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
-        {onReset && (
+        {!readOnly && onReset && (
           <Button onClick={onReset} variant="outline">
             {resetLabel}
           </Button>
