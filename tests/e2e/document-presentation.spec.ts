@@ -1377,6 +1377,7 @@ test("sample report headings and content share balanced card margins for every a
   const css = compiler.build(scanner.scan());
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   for (const profile of ["sam", "riley", "jordan"]) for (const audience of ["student", "family", "educator"]) {
+    const sourceProfile = components.getDemoProfile(profile);
     const markup = renderToStaticMarkup(createElement(components.PathwayReport, { profile: components.getDemoProfile(profile), audience }));
     for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
       await page.setViewportSize({ width, height: 900 });
@@ -1395,6 +1396,18 @@ test("sample report headings and content share balanced card margins for every a
       for (const card of cards) {
         expect(Math.abs(card.headingLeft - card.contentLeft), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
         expect(Math.abs(card.headingRight - card.contentRight), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
+      }
+      const entries = page.locator('[data-demo-report-section="evidence"] [data-report-source-entry]');
+      await expect(entries).toHaveCount(sourceProfile.evidence.length);
+      for (let i = 0; i < sourceProfile.evidence.length; i++) {
+        const item = sourceProfile.evidence[i], row = entries.nth(i);
+        await expect(row.locator("[data-report-source-title]")).toHaveText(item.title);
+        await expect(row.locator("[data-report-source-metadata]")).toHaveText(`${item.source} · ${item.date}`);
+        await expect(row.locator("[data-report-source-summary]")).toHaveText(item.summary);
+        expect(await row.innerHTML()).not.toContain(item.id);
+        const layout = await row.evaluate(element => ({ left: [...element.children].map(child => child.getBoundingClientRect().left), grouping: getComputedStyle(element).breakInside }));
+        expect(Math.max(...layout.left) - Math.min(...layout.left)).toBeLessThan(1);
+        if (media === "print") expect(layout.grouping).toBe("avoid");
       }
       const opportunities = await page.locator("[data-report-opportunity]").evaluateAll(cards => cards.map(card => {
         const heading = card.querySelector("h3")!;

@@ -1,3 +1,4 @@
+import { ReportSourceEntry } from "@/components/documents/ReportSourceEntry";
 import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
@@ -148,12 +149,14 @@ export function PathwayReport({
     `Readiness overall: ${READINESS_LABELS[profile.readiness.overall]}. By area — education: ${READINESS_LABELS[profile.readiness.byArea.education]}, employment: ${READINESS_LABELS[profile.readiness.byArea.employment]}, living: ${READINESS_LABELS[profile.readiness.byArea.living]}, advocacy: ${READINESS_LABELS[profile.readiness.byArea.advocacy]}.`,
     `Environment fit — seek ${profile.environment.environmentsToSeek.join("; ")}. Avoid ${profile.environment.environmentsToAvoid.join("; ")}.`,
   ]);
+  const detailedEvidenceSummaries = new Set(profile.evidence.map(item => `${item.title} — ${item.source}, ${item.date}. ${item.summary}`));
   const blocks = (...sections: ReportBlock["section"][]) => (
-    <ReportBlocks blocks={report.blocks.filter((block) => sections.includes(block.section)).map(block =>
+    <ReportBlocks evidence={profile.evidence} blocks={report.blocks.filter((block) => sections.includes(block.section)).map(block =>
       ({ ...block, bullets: block.bullets?.filter(bullet => {
         const repeats = block.section === "what_to_do_next" ? detailedActionSummaries
           : block.section === "what_we_know" ? detailedProfileSummaries
-          : block.section === "why_it_fits" ? detailedFitSummaries : undefined;
+          : block.section === "why_it_fits" ? detailedFitSummaries
+          : block.section === "evidence" ? detailedEvidenceSummaries : undefined;
         return !repeats?.has(bullet);
       }) }))} />
   );
@@ -371,7 +374,7 @@ function ReportHeader({
   );
 }
 
-function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
+function ReportBlocks({ blocks, evidence }: { blocks: ReportBlock[]; evidence: DemoProfile["evidence"] }) {
   return (
     <div className={`grid gap-4 ${blocks.length > 1 ? "md:grid-cols-2" : ""}`} data-document-columns data-single-report-block={blocks.length === 1 || undefined}>
       {blocks.map((b) => (
@@ -381,6 +384,8 @@ function ReportBlocks({ blocks }: { blocks: ReportBlock[] }) {
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-foreground/85">
             {b.body && <p>{b.body}</p>}
+            {b.section === "evidence" && evidence.map((item, index) => <ReportSourceEntry key={`${item.id}-${index}`}
+              title={item.title} details={`${item.source} · ${item.date}`}>{item.summary}</ReportSourceEntry>)}
             {b.bullets && b.bullets.length > 0 && (
               <ul className="list-disc space-y-1.5 pl-5">
                 {b.bullets.map((bl, i) => (

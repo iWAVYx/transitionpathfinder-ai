@@ -47,13 +47,15 @@ for (const id of ["sam","riley","jordan"] as const) {
       for (const block of report.blocks) {
         expect(html).toContain(escaped(block.body));
         // Actions are rendered once in owner groups, not repeated as summary bullets.
-        if (!["what_to_do_next", "what_we_know", "why_it_fits"].includes(block.section)) for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
+        if (!["what_to_do_next", "what_we_know", "why_it_fits", "evidence"].includes(block.section)) for (const bullet of block.bullets ?? []) expect(html).toContain(escaped(bullet));
         if (block.section === "why_it_fits") expect(html).toContain(escaped(block.bullets![0]));
         if (block.missing) {
           expect(html).toContain(escaped(block.missing.reason));
           for (const needed of block.missing.needed) expect(html).toContain(escaped(needed));
         }
       }
+      expect((html.match(/data-report-source-title=/g) ?? []).length).toBe(profile.evidence.length);
+      for (const item of profile.evidence) for (const field of [item.title, item.source, item.date, item.summary]) expect(html).toContain(escaped(field));
       for (const option of report.pathwayOptions) {
         expect(html).toContain(escaped(toTitleCase(option.title)));
         for (const text of [option.fitSummary,option.ahead,option.beside,option.behind]) expect(html).toContain(escaped(text));
@@ -197,5 +199,17 @@ it("report opportunities show an honest empty state without inappropriate option
     const html = renderToStaticMarkup(<PathwayReport profile={getDemoProfile("sam")} audience="student" />);
     expect(html).toContain("No age-appropriate sample opportunities are listed for this profile.");
     expect(html).not.toContain('data-report-opportunity="');
+  } finally { spy.mockRestore(); }
+});
+
+it("retains additional evidence notes without repeating structured recorded sources", () => {
+  const profile = getDemoProfile("sam");
+  const report = generatePathwayReport(profile);
+  report.blocks.find(block => block.section === "evidence")!.bullets!.push("Ask whether a newer observation is available.");
+  const spy = vi.spyOn(engine, "generatePathwayReport").mockReturnValue(report);
+  try {
+    const html = renderToStaticMarkup(<PathwayReport profile={profile} audience="family" />);
+    expect(html).toContain("Ask whether a newer observation is available.");
+    for (const item of profile.evidence) expect(html.split(escaped(item.summary)).length - 1).toBe(1);
   } finally { spy.mockRestore(); }
 });

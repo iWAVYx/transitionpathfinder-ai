@@ -1,3 +1,4 @@
+import { ReportSourceEntry } from "@/components/documents/ReportSourceEntry";
 import {
   ClipboardList,
 } from "lucide-react";
@@ -285,12 +286,7 @@ export function ReportPhase4Sections({
               </h2>
               <hr className="border-[color:var(--pub-rule-soft)] mb-2" />
               {sources.map((s, i) => (
-                <div key={i} data-report-source-entry className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                  <p className="text-sm font-medium text-foreground/90">{s.label}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {s.docType} · {s.pages} pp · {s.uploadedBy}
-                  </p>
-                </div>
+                <ReportSourceEntry key={i} title={s.label} details={`${s.docType} · ${s.pages} pp · ${s.uploadedBy}`} />
               ))}
             </section>
           )}
@@ -303,10 +299,7 @@ export function ReportPhase4Sections({
               </h2>
               <hr className="border-[color:var(--pub-rule-soft)] mb-2" />
               {intake.map((c, i) => (
-                <div key={i} data-report-source-entry className="border-b border-[color:var(--pub-rule-soft)] py-3">
-                  <p className="text-sm font-medium text-foreground/90">{c.category}</p>
-                  <p className="text-xs text-muted-foreground">→ {c.flowsTo}</p>
-                </div>
+                <ReportSourceEntry key={i} title={c.category} details={`→ ${c.flowsTo}`} />
               ))}
             </section>
           )}
