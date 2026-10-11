@@ -1487,6 +1487,13 @@ test("sample report headings and content share balanced card margins for every a
         await expect(page.locator('[data-demo-report-conflicts="none"]')).toContainText(`${sourceProfile.shortName}'s fictional sample`);
         await expect(page.locator('[data-demo-report-conflicts="none"]')).not.toContainText("current evidence");
       }
+      for (const section of ["strengths_preferences_interests_needs", "family_action_plan"]) {
+        const frame = page.locator(`#section-${section} [data-publication-continuation]`);
+        await expect(frame).toHaveAttribute("role", "presentation");
+        await expect(frame.locator(":scope > thead .pub-page-kicker")).toHaveCount(1);
+        await expect(frame.locator(":scope > thead .pub-page-dek")).toContainText(sourceProfile.shortName);
+        expect(await frame.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
+      }
       const review = await page.locator("[data-demo-review-summary]").evaluate(element => {
         const children = [...element.children];
         const rects = children.map(child => child.getBoundingClientRect());
@@ -1775,6 +1782,10 @@ test("newer report chapters use section headings beneath the document title for 
         expect(await chapters.count()).toBeGreaterThanOrEqual(10);
         await expect(chapters.locator("h1, h3")).toHaveCount(0);
         await expect(chapters.locator("h2")).toHaveCount(await chapters.count());
+        const spinFrame = page.locator("#v2-spin [data-publication-continuation]");
+        await expect(spinFrame).toHaveAttribute("role", "presentation");
+        await expect(spinFrame.locator(":scope > thead h2")).toHaveText("Strengths, Preferences, Interests & Needs");
+        expect(await spinFrame.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
         const recommendations = page.locator("[data-report-recommendation]");
         expect(await recommendations.count()).toBeGreaterThan(0);
         await expect(recommendations.locator(":scope > header > h3")).toHaveCount(await recommendations.count());

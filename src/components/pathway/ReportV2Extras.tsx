@@ -187,6 +187,7 @@ export function ReportV2ExtrasBody({
       {spin && (spin.strengths?.length || spin.preferences?.length || spin.interests?.length || spin.needs?.length) ? (
         <section id="v2-spin">
           <PublicationPage
+            repeatPrintHeader
             headingLevel="h2"
             chapter="Strengths, Preferences, Interests & Needs"
             dek="Recorded strengths, preferences, interests and support needs to review with the student and team."

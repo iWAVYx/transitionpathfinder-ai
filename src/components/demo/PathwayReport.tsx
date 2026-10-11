@@ -249,13 +249,13 @@ export function PathwayReport({
               }))} />
             </PublicationPage></DocumentSectionTitle> : null,
             strengths_preferences_interests_needs: hasLearningDetails ? <DocumentSectionTitle title={REPORT_SECTION_LABELS.strengths_preferences_interests_needs}>
-              <PublicationPage kicker="Strengths and Supports" chapter={REPORT_SECTION_LABELS.strengths_preferences_interests_needs}
+              <PublicationPage repeatPrintHeader kicker="Strengths and Supports" chapter={REPORT_SECTION_LABELS.strengths_preferences_interests_needs}
                 dek={`These details come from ${profile.shortName}'s fictional sample profile. Use them to discuss what helps with learning and participation.`}>
                 <ReportProfileDetails groups={learningGroups} />
               </PublicationPage>
             </DocumentSectionTitle> : null,
             family_action_plan: hasFamilyContext ? <DocumentSectionTitle title="Family Context">
-              <PublicationPage kicker="Family Context" chapter="Family Context"
+              <PublicationPage repeatPrintHeader kicker="Family Context" chapter="Family Context"
                 dek={`These details are recorded in ${profile.shortName}'s fictional sample profile. Discuss what is practical for the family before agreeing on next steps.`}>
                 <ReportProfileDetails groups={familyGroups} />
               </PublicationPage>
