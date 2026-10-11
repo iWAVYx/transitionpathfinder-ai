@@ -371,6 +371,7 @@ test("newer report plans and collapsed sources stay inside the printable documen
     six_month: [`${role} six month action`], one_year: [`${role} one year action`],
   } });
   const report = { ...components.DEMO_STUDENTS.maya.report, schema_version: 2,
+    teacher_action_plan: undefined, teacher_next_steps: ["Historical teacher step; not the newer role plan."],
     student_action_plan: plan("Student"), family_action_plan_v2: plan("Family"), educator_action_plan_v2: plan("Educator"),
     employment_pathway_recs: [{ title: "explore a supported job visit", summary: "Fictional career exploration example.",
       why: "A dated fictional observation supports discussing this option.", next_action: "Confirm an accessible visit before scheduling.",
@@ -383,6 +384,8 @@ test("newer report plans and collapsed sources stay inside the printable documen
     await page.emulateMedia({ media: "screen" });
     const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Maya", report, demo: true, hasV2: true, initialAudience: audience }));
     await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
+    await expect(page.getByRole("heading", { name: "Teacher Next Steps", exact: true })).toHaveCount(0);
+    await expect(page.getByText("Historical teacher step; not the newer role plan.", { exact: true })).toHaveCount(0);
     const contents = page.getByRole("navigation", { name: "Table of contents" });
     const targets = await contents.locator('a[href^="#v2-"]').evaluateAll(links => links.map(link => link.getAttribute("href")!));
     expect(targets.length).toBeGreaterThan(2);
@@ -451,6 +454,22 @@ test("newer report plans and collapsed sources stay inside the printable documen
     const sourceAudit = await new AxeBuilder({ page }).include("#v2-inputs-used").analyze();
     expect(sourceAudit.violations.map(violation => violation.id)).toEqual([]);
   }
+  // A missing newer role plan is not permission to substitute legacy teacher steps.
+  const missingPlan = renderToStaticMarkup(createElement(components.ReportView, {
+    name: "Maya", report: { ...report, educator_action_plan_v2: undefined }, demo: true, hasV2: true, initialAudience: "educator",
+  }));
+  await page.emulateMedia({ media: "screen" });
+  await page.setContent(`<html><body>${missingPlan}</body></html>`);
+  await expect(page.getByRole("heading", { name: "Teacher Next Steps", exact: true })).toHaveCount(0);
+  await expect(page.getByText("Historical teacher step; not the newer role plan.", { exact: true })).toHaveCount(0);
+  const legacy = renderToStaticMarkup(createElement(components.ReportView, {
+    name: "Maya", report: { ...components.DEMO_STUDENTS.maya.report, teacher_action_plan: undefined,
+      teacher_next_steps: ["Recorded legacy teacher next step."] }, demo: true, initialAudience: "educator",
+  }));
+  await page.setContent(`<html><body>${legacy}</body></html>`);
+  await expect(page.getByRole("heading", { name: "Teacher Next Steps", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Teacher Next Steps", exact: true }).locator("xpath=ancestor::section[1]").getByText("Recorded legacy teacher next step.", { exact: true })).toBeVisible();
+
 });
 
 

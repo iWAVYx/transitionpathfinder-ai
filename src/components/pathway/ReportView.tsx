@@ -1040,7 +1040,7 @@ function ReportViewReader({
       )}
 
       {/* ============ Teacher next steps (only when no teacher_action_plan) ============ */}
-      {audience === "educator" && !r.teacher_action_plan && (
+      {!hasV2 && audience === "educator" && !r.teacher_action_plan && (
         <Block title="Teacher Next Steps" icon={<GraduationCap className="h-5 w-5" />}>
           <BulletList items={r.teacher_next_steps} />
         </Block>
