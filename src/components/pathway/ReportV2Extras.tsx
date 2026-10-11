@@ -1,3 +1,4 @@
+import { ReadinessBadge } from "@/components/documents/ReportReadinessRow";
 import { toTitleCase } from "@/lib/title-case";
 import { recordedReportInputs } from "@/lib/report-source-summary";
 /**
@@ -20,9 +21,7 @@ import {
   Gauge,
   History,
   CheckCircle2,
-  CircleDashed,
   Circle,
-  CircleDot,
   Database,
 } from "lucide-react";
 import { useState } from "react";
@@ -42,16 +41,6 @@ import {
   PublicationSidebar,
   PublicationSource,
 } from "@/components/publication/PublicationPage";
-
-const LEVEL_META: Record<
-  ReadinessIndicator["level"],
-  { label: string; icon: typeof Circle; tone: string }
-> = {
-  emerging:   { label: "Emerging", icon: Circle,       tone: "text-muted-foreground" },
-  developing: { label: "Developing", icon: CircleDashed,  tone: "text-amber-600" },
-  progressing:{ label: "Progressing", icon: CircleDot,     tone: "text-primary" },
-  ready:      { label: "Ready", icon: CheckCircle2,  tone: "text-emerald-600" },
-};
 
 const CONFIDENCE_META: Record<
   ConfidenceInfo["overall"],
@@ -227,8 +216,6 @@ export function ReportV2ExtrasBody({
             </div>
             <ul data-report-readiness-indicators className="divide-y divide-[color:var(--pub-rule-soft)]">
               {readiness.map((ind, i) => {
-                const meta = LEVEL_META[ind.level];
-                const Icon = meta.icon;
                 return (
                   <li key={i} data-report-readiness-row className="py-4">
                     <div className="flex items-start justify-between gap-4">
@@ -242,10 +229,7 @@ export function ReportV2ExtrasBody({
                           <p className="mt-1 text-sm text-muted-foreground">{ind.note}</p>
                         )}
                       </div>
-                      <span className={`inline-flex flex-none items-center gap-1 text-xs ${meta.tone}`}>
-                        <Icon className="h-3.5 w-3.5" />
-                        {meta.label}
-                      </span>
+                      <ReadinessBadge level={ind.level} compact />
                     </div>
                   </li>
                 );

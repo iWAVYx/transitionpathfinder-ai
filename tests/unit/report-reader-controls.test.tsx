@@ -16,7 +16,10 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
   it(`${id}/${audience} contents links land on exactly one actual report section`, () => {
     const {container} = render(<PathwayReport profile={getDemoProfile(id)} audience={audience} />);
     const links = screen.getByRole('navigation', {name: 'Table of contents'}).querySelectorAll('a');
-    expect(links.length).toBe(12);
+    expect(links.length).toBe(13);
+    expect(links[0].getAttribute('href')).toBe('#demo-report-overview');
+    expect(container.querySelectorAll('h1')).toHaveLength(1);
+    expect(container.querySelector('#demo-report-overview h2')!.textContent).toBe('At a Glance');
     const profile = getDemoProfile(id);
     const readiness = container.querySelector('#section-readiness_scorecard')!;
     const rows = readiness.querySelectorAll('[data-report-readiness-row]');

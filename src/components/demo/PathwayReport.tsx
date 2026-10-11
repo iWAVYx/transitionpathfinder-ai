@@ -1,3 +1,4 @@
+import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
 import { demoReportNextStepPreview } from "@/lib/demo/report-overview";
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
@@ -278,9 +279,9 @@ export function PathwayReport({
                 dek={`These goals are recorded in ${profile.shortName}'s fictional sample profile. Review them with the student and team; they are not an agreed IEP or a new assessment.`}>
                 <div data-report-recorded-goals>
                   {profile.goals.map((goal, index) => <section key={`${goal.area}-${index}`} data-report-recorded-goal>
-                    <h3>{goal.area === "education" ? "School and Learning" : goal.area === "employment"
+                    <ReportGoalHeading title={goal.area === "education" ? "School and Learning" : goal.area === "employment"
                       ? profile.demographics.gradeNumber < 11 ? "Career Exploration" : "Work Preparation"
-                      : goal.area === "living" ? "Daily Living" : "Self-Advocacy"}</h3>
+                      : goal.area === "living" ? "Daily Living" : "Self-Advocacy"} />
                     <p data-report-recorded-goal-title>{goal.title}</p>
                     <ReportGoalDetails>
                       <dl><dt>Where Things Stand</dt><dd>{GOAL_STATUS_LABEL[goal.status]}</dd></dl>

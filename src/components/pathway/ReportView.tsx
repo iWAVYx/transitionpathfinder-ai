@@ -1,3 +1,4 @@
+import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
 import { reportSourceLabels } from "@/lib/report-source-summary";
 import { reportNextStepPreview } from "@/lib/report-next-step-preview";
@@ -1144,7 +1145,7 @@ function ReportViewReader({
             {r.postsecondary_goals.map((g, i) => (
               <AccordionItem key={i} value={`goal-${i}`} className="px-5">
                 <AccordionTrigger className="text-left">
-                  <span className="font-display text-lg">{toTitleCase(g.area)}</span>
+                  <ReportGoalHeading as="span" title={g.area} />
                 </AccordionTrigger>
                 <AccordionContent>
                   <GoalDetails goal={g} />
@@ -1155,7 +1156,7 @@ function ReportViewReader({
           <div data-report-printed-goals className="hidden print:block">
             {r.postsecondary_goals.map((goal, i) => (
               <section data-report-goal-section key={i} className="mt-5">
-                <h3 className="font-display text-lg">{toTitleCase(goal.area)}</h3>
+                <ReportGoalHeading title={goal.area} />
                 <GoalDetails goal={goal} />
               </section>
             ))}

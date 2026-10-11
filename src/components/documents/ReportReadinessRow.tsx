@@ -12,7 +12,7 @@ export function ReadinessBadge({ level, compact = false }: { level: string; comp
     : level === "progressing" || level === "approaching_independence" ? "bg-sky-soft/40 text-foreground border-border"
     : level === "developing" ? "bg-muted text-foreground border-border"
     : "bg-amber-100/60 text-amber-900 border-amber-300/60 dark:bg-amber-950/30 dark:text-amber-200";
-  return <span className={cn("inline-flex shrink-0 whitespace-nowrap items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium", tone, compact ? "text-[11px]" : "")}>
+  return <span data-report-readiness-level={level} className={cn("inline-flex shrink-0 whitespace-nowrap items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium", tone, compact ? "text-[11px]" : "")}>
     <Sparkles aria-hidden="true" className="h-3 w-3 shrink-0" />{READINESS_LABELS[level] ?? level}
   </span>;
 }

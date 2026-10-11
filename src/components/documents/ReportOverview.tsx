@@ -10,7 +10,7 @@ export type ReportOverviewProps = {
 
 /** Shared document overview; callers supply their own recorded content and role-specific preview. */
 export function ReportOverview({ summary, strengths, direction, nextSteps }: ReportOverviewProps) {
-  return <PublicationPage kicker="At a Glance" chapter="At a Glance"
+  return <PublicationPage kicker="At a Glance" chapter="At a Glance" headingLevel="h2"
     dek="The big picture — what we know, where things are headed, and where to start." folio="p. 01">
     <div data-report-overview className="pub-spread">
       <div className="pub-spread-lead"><div>

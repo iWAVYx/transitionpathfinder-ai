@@ -214,6 +214,8 @@ for (const width of [390, 768, 1440]) {
       const body = renderToStaticMarkup(createElement(components.PathwayReport, { profile: components.getDemoProfile("sam"), audience }));
       await page.setContent(`<html lang="en"><head><title>Fictional Pathway Report</title><base href="http://document-fixture.test"><style>${css}</style></head><body><main class="report-shell">${body}</main></body></html>`);
       await expect(page.locator("[data-document-sample-notice][role=note]")).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      await expect(page.locator("#demo-report-overview h2")).toHaveText("At a Glance");
       await expect(page.locator("main aside")).toHaveCount(0);
       const result = await new AxeBuilder({ page }).include("[data-generated-document]").analyze();
       expect(result.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => node.target), summaries: violation.nodes.map(node => node.failureSummary) }))).toEqual([]);
@@ -328,6 +330,7 @@ for (const width of [390, 768, 1440]) {
       await checkFamilySpacing(2);
       await checkReadinessSpacing(2);
       await checkGoalSpacing(2);
+      await expect(page.locator('[data-report-recorded-goal] > [data-report-goal-heading]')).toHaveCount(4);
       const goalHeadings = await page.locator('[data-report-recorded-goal] > h3').evaluateAll(elements => elements.map(element => {
         const style = getComputedStyle(element);
         return { background: style.backgroundColor, border: style.borderLeftWidth, left: style.paddingLeft,
@@ -941,6 +944,10 @@ test("qualitative readiness and recorded confidence stay readable without invent
         for (const level of ["emerging", "developing", "progressing", "ready"]) {
           await expect(readiness.getByText(`Recorded ${level} area`, { exact: true })).toBeVisible();
           await expect(readiness.getByText(`Recorded ${level} observation`, { exact: true })).toBeVisible();
+          const badge = readiness.locator(`[data-report-readiness-level="${level}"]`).first();
+          await expect(badge).toHaveText(level.charAt(0).toUpperCase() + level.slice(1));
+          await expect(badge.locator('svg[aria-hidden="true"]')).toHaveCount(1);
+          expect(await badge.evaluate(element => parseFloat(getComputedStyle(element).borderRadius) >= element.getBoundingClientRect().height / 2)).toBe(true);
         }
         await expect(readiness.getByText("Additional recorded observation", { exact: true })).toBeVisible();
         expect(await readiness.locator("[data-report-section-icon]").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "none" : "flex");
@@ -1190,6 +1197,7 @@ test("printed goal follow-ups use balanced columns without changing screen detai
       await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
       await page.emulateMedia({ media: "print" });
       const goals = page.locator("[data-report-printed-goals]");
+      await expect(goals.locator('[data-report-goal-heading]')).toHaveCount(original.postsecondary_goals.length);
       expect(await goals.locator("[data-report-goal-followups]").count()).toBe(original.postsecondary_goals.length);
       for (const goal of original.postsecondary_goals) for (const value of [...goal.next_steps, ...goal.who_supports, ...goal.evidence_needed]) expect(await goals.textContent()).toContain(value);
       const geometry = await goals.locator("[data-report-goal-followups]").evaluateAll(groups => groups.map(group => {

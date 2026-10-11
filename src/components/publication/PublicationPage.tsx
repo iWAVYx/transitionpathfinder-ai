@@ -32,6 +32,8 @@ interface PublicationPageProps {
    * editorial all-caps treatment; "title" forces the standard one.
    */
   displayStyle?: "auto" | "mono" | "title";
+  /** Explicit hierarchy for a page embedded below a report title. */
+  headingLevel?: "h1" | "h2" | "h3";
   /** Page body. */
   children: ReactNode;
 }
@@ -45,11 +47,12 @@ export function PublicationPage({
   folio,
   kicker,
   displayStyle = "auto",
+  headingLevel,
   children,
 }: PublicationPageProps) {
   const sectionTitle = useDocumentSectionTitle();
   const headingAlreadyShown = sameDocumentHeading(sectionTitle, chapter);
-  const Heading = sectionTitle ? "h3" : "h1";
+  const Heading = headingLevel ?? (sectionTitle ? "h3" : "h1");
   const isOneWord = chapter.trim().split(/\s+/).length === 1;
   const useMono =
     displayStyle === "mono" || (displayStyle === "auto" && isOneWord);
