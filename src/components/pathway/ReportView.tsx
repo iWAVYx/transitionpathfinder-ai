@@ -877,6 +877,7 @@ function ReportViewReader({
       {r.spin_analysis && (
         <Block id="sec-spin" title="Strengths, Preferences, Interests & Needs" icon={<Sparkles className="h-5 w-5" />}>
           <PublicationPage
+            repeatPrintHeader
             chapter="Strengths, Preferences, Interests & Needs"
             dek="A multi-dimensional profile to ground every goal conversation."
             folio="p. 03"

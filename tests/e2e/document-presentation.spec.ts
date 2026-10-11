@@ -942,7 +942,7 @@ test("complete recorded team questions retain role visibility on screen and in p
           await expect(section.locator('[data-value-callout-question]')).toHaveCount(0);
           if (media === "print") expect(await section.evaluate(element => getComputedStyle(element).breakInside)).toBe("avoid");
           const questionsSection = page.locator("#v2-meeting-qs");
-          const continuation = page.locator("[data-publication-continuation]");
+          const continuation = page.locator(".pub-page:has(#v2-meeting-qs) > [data-publication-continuation]");
           await expect(continuation).toHaveCount(1);
           await expect(continuation.locator("thead").getByRole("heading", { name: "Meeting Prep Questions", level: 2 })).toBeVisible();
           expect(await continuation.evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table" : "block");
@@ -1494,6 +1494,13 @@ test("sample report headings and content share balanced card margins for every a
         await expect(frame.locator(":scope > thead .pub-page-dek")).toContainText(sourceProfile.shortName);
         expect(await frame.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
       }
+      const categories = page.locator("[data-report-profile-details] [data-report-profile-category-pages]");
+      expect(await categories.count()).toBeGreaterThan(0);
+      for (const category of await categories.all()) {
+        await expect(category).toHaveAttribute("role", "presentation");
+        await expect(category.locator(":scope > thead h3")).toHaveCount(1);
+        expect(await category.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
+      }
       const review = await page.locator("[data-demo-review-summary]").evaluate(element => {
         const children = [...element.children];
         const rects = children.map(child => child.getBoundingClientRect());
@@ -1786,6 +1793,10 @@ test("newer report chapters use section headings beneath the document title for 
         await expect(spinFrame).toHaveAttribute("role", "presentation");
         await expect(spinFrame.locator(":scope > thead h2")).toHaveText("Strengths, Preferences, Interests & Needs");
         expect(await spinFrame.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
+        const spinCategory = spinFrame.locator("[data-report-profile-category-pages]");
+        await expect(spinCategory).toHaveCount(1);
+        await expect(spinCategory.locator(":scope > thead [data-document-subheading]")).toHaveText("Strengths");
+        expect(await spinCategory.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
         const recommendations = page.locator("[data-report-recommendation]");
         expect(await recommendations.count()).toBeGreaterThan(0);
         await expect(recommendations.locator(":scope > header > h3")).toHaveCount(await recommendations.count());
@@ -1821,4 +1832,45 @@ test("empty demo pathway options retain a chapter heading and honest filter noti
   await expect(page.getByRole("heading", { name: "Pathway Options", exact: true, level: 2 })).toHaveCount(1);
   await expect(page.getByText(`No age-appropriate options matched the current filters for ${profile.shortName}.`, { exact: true })).toBeVisible();
   await expect(page.locator("[data-demo-pathway-option]")).toHaveCount(0);
+});
+
+
+test("legacy profile context repeats in print while retaining its screen heading and source categories", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const original = { ...components.richerSharedFixture(), schema_version: 1, student_snapshot: components.DEMO_STUDENTS.maya.report.student_snapshot,
+      spin_analysis: { strengths: ["Recorded strength one", "Recorded strength two"], preferences: ["Written directions", "Quiet space"], interests: ["Recorded interest one", "Recorded interest two"], needs: ["Recorded need one", "Recorded need two"], motivators: ["Recorded motivator"], barriers: ["Recorded barrier"], environmental_supports: ["Recorded setting"], areas_for_growth: ["Recorded growth area"], what_this_means: "Discuss this recorded profile with the student and team." } };
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    expect(report).not.toBeNull();
+    const markup = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: false, demo: !shared, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body><div class="report-shell eh-issue">${markup}</div></body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        const section = page.locator("#sec-spin"), frame = section.locator("[data-publication-continuation]");
+        const context = frame.locator(":scope > thead [data-publication-parent-title]");
+        await expect(context).toHaveText("Strengths, Preferences, Interests & Needs");
+        if (media === "screen") {
+          await expect(context).toBeHidden();
+          await expect(section.getByRole("heading", { level: 2 })).toHaveCount(1);
+        } else {
+          await expect(context).toBeVisible();
+          await expect(section.getByRole("heading", { level: 2 })).toHaveCount(1);
+        }
+        expect(await frame.locator(":scope > thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
+        await expect(section.locator("[data-report-profile-category-pages]")).toHaveCount(8);
+        for (const [area, values] of Object.entries(original.spin_analysis)) {
+          if (area === "what_this_means") continue;
+          for (const value of values as string[]) await expect(section.getByText(value, { exact: true })).toBeVisible();
+        }
+        await expect(section.getByText(original.spin_analysis.what_this_means, { exact: true })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      }
+    }
+  }
 });

@@ -3,16 +3,16 @@ export function ReportBrochurePrintStyles() {
   return <style>{`
     /* A presentation table supplies a repeating print heading while keeping
        the existing screen layout and document reading order. */
-    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]),
-    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > :is(thead, tbody),
-    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > :is(thead, tbody) > tr,
-    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > :is(thead, tbody) > tr > td {
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]),
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > :is(thead, tbody),
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > :is(thead, tbody) > tr,
+    .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > :is(thead, tbody) > tr > td {
       display: block; width: 100%; border: 0; padding: 0; margin: 0;
     }
     @media print {
       /* A screen framing rule before the named report page creates an empty PDF page. */
       body:has(.report-root) .eh-issue:has(.report-root)::before { display: none !important; }
-      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) {
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) {
         display: table !important; table-layout: fixed; border-collapse: collapse;
         break-inside: auto !important; page-break-inside: auto !important;
       }
@@ -35,15 +35,21 @@ export function ReportBrochurePrintStyles() {
         padding-top: 0.04in !important; padding-bottom: 0.04in !important;
       }
       body:has(.report-root) .report-root [data-report-pathway-pages] .pub-checklist li + li { margin-top: 0.04in !important; }
-      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > thead { display: table-header-group !important; }
-      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > tbody { display: table-row-group !important; }
-      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > :is(thead, tbody) > tr { display: table-row !important; }
-      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation]) > :is(thead, tbody) > tr > td { display: table-cell !important; vertical-align: top; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > thead { display: table-header-group !important; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > tbody { display: table-row-group !important; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > :is(thead, tbody) > tr { display: table-row !important; }
+      body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > :is(thead, tbody) > tr > td { display: table-cell !important; vertical-align: top; }
 
-      /* The report's generic table-row guard must not keep an entire question
-         list together. Individual questions retain their own grouping rules. */
-      body:has(.report-root) .report-root [data-publication-continuation] > tbody > tr {
+      /* Let complete question/category lists continue across pages; their
+         individual entries retain the report's existing grouping rules. */
+      body:has(.report-root) .report-root :is([data-publication-continuation], [data-report-profile-category-pages]) > tbody > tr {
         break-inside: auto !important; page-break-inside: auto !important;
+      }
+
+      /* The repeating chapter heading replaces the legacy static print band.
+         The original section heading and its controls remain on screen. */
+      body:has(.report-root) .report-root #sec-spin:has([data-publication-parent-title]) > [data-report-block-heading] {
+        display: none !important;
       }
 
       /* The section band already provides separation. Keep repeated context

@@ -1,3 +1,4 @@
+import { ReportCategoryContinuation } from "@/components/documents/ReportCategoryContinuation";
 import { ReadinessBadge } from "@/components/documents/ReportReadinessRow";
 import { toTitleCase } from "@/lib/title-case";
 import { recordedReportInputs } from "@/lib/report-source-summary";
@@ -338,11 +339,10 @@ function SpinList({
     amber:   "bg-amber-500",
   };
   return (
-    <div>
-      {/* Urbanist eyebrow */}
-      <p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-1">
+    <div data-report-spin-group>
+      <ReportCategoryContinuation heading={<p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-1">
         {toTitleCase(label)}
-      </p>
+      </p>}>
       <ul className="divide-y divide-[color:var(--pub-rule-soft)]">
         {items.map((t, i) => (
           <li
@@ -354,6 +354,7 @@ function SpinList({
           </li>
         ))}
       </ul>
+      </ReportCategoryContinuation>
     </div>
   );
 }

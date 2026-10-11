@@ -56,6 +56,7 @@ export function PublicationPage({
   const sectionTitle = useDocumentSectionTitle();
   const headingAlreadyShown = sameDocumentHeading(sectionTitle, chapter);
   const Heading = headingLevel ?? (sectionTitle ? "h3" : "h1");
+  const RepeatedHeading = headingLevel ?? "h2";
   const isOneWord = chapter.trim().split(/\s+/).length === 1;
   const useMono =
     displayStyle === "mono" || (displayStyle === "auto" && isOneWord);
@@ -63,6 +64,7 @@ export function PublicationPage({
   const opener = (
     <div className="pub-page-opener">
       {kicker && <p className="pub-page-kicker">{kicker}</p>}
+      {repeatPrintHeader && headingAlreadyShown && !kicker && <RepeatedHeading data-publication-parent-title className="pub-page-title hidden print:block" data-display="title">{chapter}</RepeatedHeading>}
       {!headingAlreadyShown && <Heading
         className="pub-page-title"
         data-display={useMono ? "mono" : "title"}

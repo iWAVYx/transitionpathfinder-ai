@@ -34,3 +34,14 @@ it('nested sections use their own heading rather than another section title', ()
   const {container} = render(<DocumentSectionTitle title="Student Snapshot"><DocumentSectionTitle title="Next Steps"><PublicationPage chapter="Student Snapshot"><p>Different section context.</p></PublicationPage></DocumentSectionTitle></DocumentSectionTitle>);
   expect(container.querySelector('h3')?.textContent).toBe('Student Snapshot');
 });
+it('keeps repeated print context when the parent supplies the screen heading', () => {
+  const {container} = render(<section><h2>Strengths and Supports</h2><DocumentSectionTitle title="Strengths and Supports">
+    <PublicationPage repeatPrintHeader chapter="Strengths and Supports"><p>Recorded source text.</p></PublicationPage>
+  </DocumentSectionTitle></section>);
+  expect(container.querySelectorAll('h1,h2,h3')).toHaveLength(2);
+  const context = container.querySelector('[data-publication-continuation] > thead [data-publication-parent-title]');
+  expect(context?.textContent).toBe('Strengths and Supports');
+  expect(context?.classList.contains('hidden')).toBe(true);
+  expect(context?.classList.contains('print:block')).toBe(true);
+  expect(container.querySelectorAll('tbody p')).toHaveLength(1);
+});
