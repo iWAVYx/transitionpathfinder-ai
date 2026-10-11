@@ -218,6 +218,18 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root[data-age-aware-report] [data-document-columns] > :is([data-demo-pathway-option], [data-demo-alt-pathway]):last-child:nth-child(odd) {
         grid-column: 1 / -1;
       }
+      /* Keep review timing full-width, then pair the source-specific closing
+         notes at equal widths. Screen reading order and all text stay intact. */
+      body:has(.report-root) .report-root[data-age-aware-report] [data-demo-review-summary] {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in; align-items: stretch;
+      }
+      body:has(.report-root) .report-root[data-age-aware-report] [data-demo-review-summary] > * {
+        min-width: 0; margin: 0 !important;
+      }
+      body:has(.report-root) .report-root[data-age-aware-report] [data-demo-review-summary] > :first-child {
+        grid-column: 1 / -1;
+      }
       /* Give sample evidence equal columns, then let unanswered questions use
          the full width instead of leaving a tall empty neighboring panel. */
       body:has(.report-root) .report-root[data-age-aware-report] [data-document-columns]:has(> [data-demo-report-section="evidence"]) {

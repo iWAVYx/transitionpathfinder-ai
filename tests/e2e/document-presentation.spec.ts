@@ -1487,6 +1487,23 @@ test("sample report headings and content share balanced card margins for every a
         await expect(page.locator('[data-demo-report-conflicts="none"]')).toContainText(`${sourceProfile.shortName}'s fictional sample`);
         await expect(page.locator('[data-demo-report-conflicts="none"]')).not.toContainText("current evidence");
       }
+      const review = await page.locator("[data-demo-review-summary]").evaluate(element => {
+        const children = [...element.children];
+        const rects = children.map(child => child.getBoundingClientRect());
+        return { columns: getComputedStyle(element).gridTemplateColumns.split(" ").length,
+          widths: rects.map(rect => rect.width), tops: rects.map(rect => rect.top), bottoms: rects.map(rect => rect.bottom),
+          span: getComputedStyle(children[0]).gridColumn,
+          font: parseFloat(getComputedStyle(children[2].querySelector("p")!).fontSize) };
+      });
+      if (media === "print") {
+        expect(review.columns).toBe(2);
+        expect(review.span).toBe("1 / -1");
+        expect(review.widths[0]).toBeGreaterThan(review.widths[1] * 1.9);
+        expect(Math.abs(review.widths[1] - review.widths[2])).toBeLessThan(1);
+        expect(Math.abs(review.tops[1] - review.tops[2])).toBeLessThan(1);
+        expect(Math.abs(review.bottoms[1] - review.bottoms[2])).toBeLessThan(1);
+        expect(review.font).toBeGreaterThanOrEqual(14);
+      } else expect(review.tops[2]).toBeGreaterThan(review.bottoms[1]);
       const lead = page.locator("[data-demo-action-lead]");
       await expect(lead.locator('[data-demo-report-section="what_to_do_next"]')).toHaveCount(1);
       await expect(lead.locator("[data-demo-action-group]")).toHaveCount(1);
