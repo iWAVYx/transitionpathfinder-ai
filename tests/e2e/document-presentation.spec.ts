@@ -971,6 +971,7 @@ test("qualitative readiness and recorded confidence stay readable without invent
   };
   for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
     const report = shared ? components.projectSharedReport(original, audience) : original;
+    expect(report).toBeTruthy();
     const body = renderToStaticMarkup(createElement(components.ReportView, {
       name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared,
       initialAudience: audience, fixedAudience: shared ? audience : undefined,
@@ -1681,6 +1682,58 @@ test("missing information retains recorded follow-up across planning, shared and
         }
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});
+
+
+test("newer report chapters use section headings beneath the document title for all permitted readers", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const original = { ...components.richerSharedFixture(),
+      spin: { strengths: ["Recorded strength"], preferences: [], interests: [], needs: [] },
+      readiness_indicators: [{ domain: "Recorded planning area", level: "developing", note: "Recorded readiness note" }],
+      needs_review_flags: [{ section: "source_date", reason: "Confirm the recorded source date" }],
+      confidence: { overall: "high", rationale: "Recorded confidence explanation", caveats: [] },
+    };
+    original.iep_plan_summary.transition_goals = [{ area: "Education", goal_text: "Recorded transition goal", plain_language: "Recorded goal explanation" }];
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Fictional Student", report, hasV2: true, demo: !shared, readOnly: shared,
+      initialAudience: audience, fixedAudience: shared ? audience : undefined,
+    }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main><div class="report-shell eh-issue">${body}</div></main></body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        if (media === "screen") await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+        const chapters = page.locator('section[aria-label="Pathway Report — detailed sections"] .pub-page-opener, #v2-inputs-used .pub-page-opener');
+        expect(await chapters.count()).toBeGreaterThanOrEqual(10);
+        await expect(chapters.locator("h1, h3")).toHaveCount(0);
+        await expect(chapters.locator("h2")).toHaveCount(await chapters.count());
+        const headings = chapters.locator("h2");
+        for (const geometry of await headings.evaluateAll(nodes => nodes.map(node => {
+          const style = getComputedStyle(node);
+          return { padding: style.paddingLeft, align: style.textAlign, band: style.borderLeftWidth,
+            font: parseFloat(style.fontSize), fits: node.scrollWidth <= node.clientWidth + 1 };
+        }))) {
+          expect(geometry.padding).toBe(media === "print" ? "10px" : "12px");
+          expect(geometry.align).toBe("left");
+          expect(geometry.band).toBe("3px");
+          expect(geometry.font).toBeGreaterThanOrEqual(media === "print" ? 20 : 17.5);
+          expect(geometry.fits).toBe(true);
+        }
+        await expect(page.locator("#v2-iep-summary").getByRole("heading", { name: "Present Levels", level: 3 })).toBeVisible();
+        await expect(page.locator("#v2-iep-summary").getByRole("heading", { name: "Transition Goals", level: 3 })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
     }
   }
 });

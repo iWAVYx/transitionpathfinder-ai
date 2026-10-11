@@ -125,6 +125,7 @@ export function ReportV2Sections({
 
       {iep && (
         <PublicationPage
+          headingLevel="h2"
           chapter="IEP / Transition Plan Summary"
           dek={
             iep.caveats ??
@@ -142,7 +143,7 @@ export function ReportV2Sections({
 
             {iep.present_levels && (
               <div className="mt-4">
-                <h2 className="font-display text-lg">Present Levels</h2>
+                <h3 className="font-display text-lg">Present Levels</h3>
                 <hr className="my-2 border-t border-[color:var(--pub-rule-soft)]" />
                 <p className="text-sm whitespace-pre-wrap">{iep.present_levels}</p>
               </div>
@@ -150,7 +151,7 @@ export function ReportV2Sections({
 
             {iep.transition_goals?.length > 0 && (
               <div className="mt-6">
-                <h2 className="font-display text-lg">Transition Goals</h2>
+                <h3 className="font-display text-lg">Transition Goals</h3>
                 <hr className="my-2 border-t border-[color:var(--pub-rule-soft)]" />
                 <ul>
                   {iep.transition_goals.map((g, i) => (
@@ -231,6 +232,7 @@ export function ReportV2Sections({
 
       {resourceMatches.length > 0 && (
         <PublicationPage
+          headingLevel="h2"
           chapter="Resource Matches"
           dek="Resources matched to this student's interests, goals, and supports."
         >
@@ -277,6 +279,7 @@ export function ReportV2Sections({
 
       {partnerMatches.length > 0 && (
         <PublicationPage
+          headingLevel="h2"
           chapter="Partner / Opportunity Matches"
           dek="Programs, internships, and adult-service partners matched to this student."
         >
@@ -332,6 +335,7 @@ export function ReportV2Sections({
 
       {gaps.length > 0 && (
         <PublicationPage
+          headingLevel="h2"
           chapter="Missing Information & Planning Gaps"
           dek="Filling these in will make the next regeneration of this report sharper."
         >
@@ -386,6 +390,7 @@ export function ReportV2Sections({
 
       {visibleMeetingQs.length ? (
         <PublicationPage
+          headingLevel="h2"
           chapter="Meeting Prep Questions"
           dek="Bring these to the next PPT / IEP / transition meeting."
         >
@@ -417,6 +422,7 @@ export function ReportV2Sections({
 
       {cross && (
         <PublicationPage
+          headingLevel="h2"
           chapter="30 / 90 Day · 6-Month · 1-Year Plan"
           dek="A cross-cutting view of what should happen, when."
         >
@@ -460,6 +466,7 @@ function PillarRecsBlock({
   if (!recs.length) return null;
   return (
     <PublicationPage
+      headingLevel="h2"
       chapter={title}
       dek={message}
     >
@@ -521,6 +528,7 @@ function ActionPlanBlock({
 }) {
   return (
     <PublicationPage
+      headingLevel="h2"
       chapter={title}
       dek={plan.intro ?? `What ${pronoun} can do, broken out by timeframe.`}
     >

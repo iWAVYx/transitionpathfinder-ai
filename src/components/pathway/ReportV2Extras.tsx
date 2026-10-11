@@ -90,6 +90,7 @@ export function ReportV2SnapshotHeader({
   return (
     <section aria-label="Student snapshot">
       <PublicationPage
+        headingLevel="h2"
         chapter={snap?.display_name ?? studentName}
         dek="Student profile overview"
         folio="p. 01"
@@ -186,6 +187,7 @@ export function ReportV2ExtrasBody({
       {spin && (spin.strengths?.length || spin.preferences?.length || spin.interests?.length || spin.needs?.length) ? (
         <section id="v2-spin">
           <PublicationPage
+            headingLevel="h2"
             chapter="Strengths, Preferences, Interests & Needs"
             dek="Recorded strengths, preferences, interests and support needs to review with the student and team."
             folio="p. 02"
@@ -207,6 +209,7 @@ export function ReportV2ExtrasBody({
       {readiness.length > 0 && (
         <section id="v2-readiness-indicators">
           <PublicationPage
+            headingLevel="h2"
             chapter="Readiness Indicators"
             dek="Readiness levels recorded in this report. Review the notes and current information with your team."
             folio="p. 03"
@@ -243,6 +246,7 @@ export function ReportV2ExtrasBody({
       {flags.length > 0 && (
         <section id="v2-needs-review">
           <PublicationPage
+            headingLevel="h2"
             chapter="Needs Review"
             dek="Sections the team should look at before this report is used at a meeting."
             folio="p. 04"
@@ -272,6 +276,7 @@ export function ReportV2ExtrasBody({
       {confidence && (
         <section id="v2-confidence" data-report-confidence>
           <PublicationPage
+            headingLevel="h2"
             chapter={CONFIDENCE_META[confidence.overall].label}
             dek={CONFIDENCE_META[confidence.overall].description}
             folio="p. 05"
@@ -453,6 +458,7 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
       aria-label="Sources used in this report"
     >
       <PublicationPage
+        headingLevel="h2"
         kicker="Sources"
         chapter="Sources Used in This Report"
         dek={`${presentCount} of ${rows.length} source categories are recorded for this report${generatedAt ? ` · generated ${generatedAt}` : ""}.`}
