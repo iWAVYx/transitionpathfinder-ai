@@ -240,6 +240,7 @@ export function PathwayReport({
           sections={{
             student_snapshot: blocks("what_we_know"),
             student_voice: profile.voice.length > 0 ? <DocumentSectionTitle title={REPORT_SECTION_LABELS.student_voice}><PublicationPage
+              repeatPrintHeader
               kicker="In Their Own Words"
               chapter={REPORT_SECTION_LABELS.student_voice}
               dek={`These are ${profile.shortName}'s saved answers in this fictional example. Use them when discussing the options in this report.`}

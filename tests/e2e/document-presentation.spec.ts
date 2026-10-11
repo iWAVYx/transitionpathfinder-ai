@@ -1874,3 +1874,67 @@ test("legacy profile context repeats in print while retaining its screen heading
     }
   }
 });
+
+
+test("long profile categories use full print rows while short categories and screen order stay intact", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  for (const audience of ["student", "family", "educator"]) {
+    const base = components.getDemoProfile("sam");
+    const profile = { ...base, learning: { ...base.learning, strengths: Array.from({ length: 5 }, (_, i) => `Fictional long strength ${i + 1}: ${"Review the available support and student perspective with the team. ".repeat(5)}End strength ${i + 1}.`) },
+      family: { ...base.family, keyConsiderations: Array.from({ length: 6 }, (_, i) => `Fictional long family priority ${i + 1}: ${"Review the source plan, student perspective and available support with the team. ".repeat(7)}End priority ${i + 1}.`), transportationNote: `Fictional travel note: ${"Confirm the route, available support and family schedule before planning travel. ".repeat(7)}End travel note.` },
+      voice: Array.from({ length: 6 }, (_, i) => ({ prompt: `Fictional student prompt ${i + 1}?`, answer: `Fictional answer ${i + 1}: ${"I want to discuss the support that helps me learn and participate with my team. ".repeat(7)}End answer ${i + 1}.` })) };
+    const markup = renderToStaticMarkup(createElement(components.PathwayReport, { profile, audience }));
+    for (const width of [390, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body>${markup}</body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        const long = page.locator('[data-report-profile-group]:has(> [data-report-profile-long])');
+        await expect(long).toHaveCount(3);
+        for (const group of await long.all()) {
+          const layout = await group.evaluate(element => ({ span: getComputedStyle(element).gridColumn, width: element.getBoundingClientRect().width, parent: element.parentElement!.getBoundingClientRect().width }));
+          if (media === "print") {
+            expect(layout.span).toBe("1 / -1");
+            expect(Math.abs(layout.width - layout.parent)).toBeLessThan(1);
+          } else expect(layout.span).toBe("auto");
+        }
+        const short = page.locator('[data-report-profile-group]:not(:has(> [data-report-profile-wide]))').first();
+        expect(await short.evaluate(element => getComputedStyle(element).gridColumn)).toBe("auto");
+        await expect(page.locator("[data-report-voice-response]")).toHaveCount(profile.voice.length);
+        for (const response of profile.voice) {
+          await expect(page.getByText(`— ${response.prompt}`, { exact: true })).toHaveCount(1);
+          await expect(page.getByText(`"${response.answer}"`, { exact: true })).toBeVisible();
+        }
+        await expect(page.locator("#section-student_voice [data-publication-continuation] > thead .pub-page-kicker")).toHaveText("In Their Own Words");
+        for (const strength of profile.learning.strengths) await expect(page.locator("#section-strengths_preferences_interests_needs").getByText(strength, { exact: true })).toBeVisible();
+        await expect(page.locator("#section-family_action_plan").getByText(profile.family.transportationNote, { exact: true })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      }
+    }
+  }
+  for (const format of ["legacy", "newer"]) for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const long = Array.from({ length: 6 }, (_, i) => `Recorded long strength ${i + 1}: ${"Review recorded observations and support with the student and team before changing the plan. ".repeat(6)}End strength ${i + 1}.`);
+    const original = format === "legacy"
+      ? { ...components.DEMO_STUDENTS.maya.report, schema_version: 1, spin_analysis: { ...components.DEMO_STUDENTS.maya.report.spin_analysis, strengths: long } }
+      : { ...components.richerSharedFixture(), spin: { strengths: Array.from({ length: 8 }, (_, i) => `Recorded newer strength ${i + 1}: ${"Review recorded observations and support with the student and team. ".repeat(3)}`.slice(0, 185)), preferences: ["Recorded short preference"], interests: [], needs: [] } };
+    const report = shared ? components.projectSharedReport(original, audience) : original;
+    expect(report).not.toBeNull();
+    const markup = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: format === "newer", demo: !shared, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.setContent(`<html><head><style>${css}</style></head><body>${markup}</body></html>`);
+    for (const media of ["screen", "print"] as const) {
+      await page.emulateMedia({ media });
+      const section = page.locator(format === "legacy" ? "#sec-spin" : "#v2-spin");
+      const wide = section.locator(format === "legacy" ? '[data-report-profile-group]:has(> [data-report-profile-long])' : '[data-report-spin-group]:has(> [data-report-profile-long])');
+      await expect(wide).toHaveCount(1);
+      expect(await wide.evaluate(element => getComputedStyle(element).gridColumn)).toBe(media === "print" ? "1 / -1" : "auto");
+      await expect(wide.locator("li")).toHaveCount(format === "legacy" ? 6 : 8);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+
+});

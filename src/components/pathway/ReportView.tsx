@@ -840,7 +840,7 @@ function ReportViewReader({
           icon={<Quote className="h-5 w-5" />}
         >
           <PublicationPage
-            kicker="Student Edition"
+            repeatPrintHeader
             chapter="Your Voice in This Plan"
             dek="These are your own words from Student Voice — they help shape this plan."
             folio="p. 05"
@@ -857,6 +857,7 @@ function ReportViewReader({
       {r.student_voice_prompts && r.student_voice_prompts.length > 0 && (
         <Block id="sec-student-voice" title={`In ${name}'s Voice`} icon={<MessageSquareQuote className="h-5 w-5" />}>
           <PublicationPage
+            repeatPrintHeader
             chapter={`In ${name}'s Voice`}
             dek={`Questions for ${name} to think through — alone, with family, or with a teacher.`}
             folio="p. 06"

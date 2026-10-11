@@ -1,4 +1,4 @@
-import { ReportCategoryContinuation } from "@/components/documents/ReportCategoryContinuation";
+import { ReportCategoryContinuation, profileCategoryPrintSpans } from "@/components/documents/ReportCategoryContinuation";
 import { ReadinessBadge } from "@/components/documents/ReportReadinessRow";
 import { toTitleCase } from "@/lib/title-case";
 import { recordedReportInputs } from "@/lib/report-source-summary";
@@ -171,6 +171,13 @@ export function ReportV2ExtrasBody({
   const r = content as Record<string, unknown>;
   const spin       = r.spin as SPIN | undefined;
   const readiness  = (r.readiness_indicators as ReadinessIndicator[] | undefined) ?? [];
+  const spinGroups = [
+    { label: "Strengths", items: spin?.strengths ?? [], tone: "emerald" as const },
+    { label: "Preferences", items: spin?.preferences ?? [], tone: "primary" as const },
+    { label: "Interests", items: spin?.interests ?? [], tone: "violet" as const },
+    { label: "Needs / Supports", items: spin?.needs ?? [], tone: "amber" as const },
+  ].filter(group => group.items.length > 0);
+  const spinSpans = profileCategoryPrintSpans(spinGroups.map(group => group.items));
   const flags      = (r.needs_review_flags as NeedsReviewFlag[] | undefined) ?? [];
   const confidence = r.confidence as ConfidenceInfo | undefined;
 
@@ -198,10 +205,7 @@ export function ReportV2ExtrasBody({
               <Heart className="h-5 w-5" />
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <SpinList label="Strengths"      items={spin.strengths}   tone="emerald" />
-              <SpinList label="Preferences"    items={spin.preferences} tone="primary" />
-              <SpinList label="Interests"      items={spin.interests}   tone="violet" />
-              <SpinList label="Needs / Supports" items={spin.needs}     tone="amber" />
+              {spinGroups.map((group, index) => <SpinList key={group.label} {...group} fullWidth={spinSpans[index]} />)}
             </div>
           </PublicationPage>
         </section>
@@ -326,10 +330,12 @@ function SpinList({
   label,
   items,
   tone,
+  fullWidth,
 }: {
   label: string;
   items?: string[];
   tone: "emerald" | "primary" | "violet" | "amber";
+  fullWidth?: boolean;
 }) {
   if (!items?.length) return null;
   const dotTone: Record<typeof tone, string> = {
@@ -340,7 +346,7 @@ function SpinList({
   };
   return (
     <div data-report-spin-group>
-      <ReportCategoryContinuation heading={<p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-1">
+      <ReportCategoryContinuation fullWidth={fullWidth} items={items} heading={<p data-document-subheading className="text-[10px] font-semibold text-muted-foreground font-sans mb-1">
         {toTitleCase(label)}
       </p>}>
       <ul className="divide-y divide-[color:var(--pub-rule-soft)]">

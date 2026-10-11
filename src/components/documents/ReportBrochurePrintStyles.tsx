@@ -48,7 +48,7 @@ export function ReportBrochurePrintStyles() {
 
       /* The repeating chapter heading replaces the legacy static print band.
          The original section heading and its controls remain on screen. */
-      body:has(.report-root) .report-root #sec-spin:has([data-publication-parent-title]) > [data-report-block-heading] {
+      body:has(.report-root) .report-root :is(#sec-spin, #sec-your-voice, #sec-student-voice):has([data-publication-parent-title]) > [data-report-block-heading] {
         display: none !important;
       }
 
@@ -372,6 +372,10 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root[data-age-aware-report] .pub-page:has([data-report-readiness-grid]) { break-inside: avoid !important; }
       body:has(.report-root) .report-root [data-report-profile-details] {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.08in 0.16in !important;
+      }
+      /* Unmatched categories use the full print row; balanced neighbors stay paired. */
+      body:has(.report-root) .report-root :is([data-report-profile-group], [data-report-spin-group]):has(> [data-report-profile-wide]) {
+        grid-column: 1 / -1;
       }
       body:has(.report-root) .report-root [data-report-profile-group] { break-inside: avoid; }
       body:has(.report-root) .report-root [data-report-profile-group] ul { margin-top: 0.04in !important; }
