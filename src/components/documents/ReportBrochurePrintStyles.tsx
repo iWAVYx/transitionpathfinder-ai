@@ -195,6 +195,21 @@ export function ReportBrochurePrintStyles() {
       }
       /* Keep complete weeks together, but give their details balanced columns. */
       body:has(.report-root) .report-root [data-report-plan-step] { break-inside: avoid !important; }
+      /* Give sample evidence equal columns, then let unanswered questions use
+         the full width instead of leaving a tall empty neighboring panel. */
+      body:has(.report-root) .report-root[data-age-aware-report] [data-document-columns]:has(> [data-demo-report-section="evidence"]) {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+      body:has(.report-root) .report-root[data-age-aware-report] [data-report-evidence-entries] {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in; align-items: stretch;
+      }
+      body:has(.report-root) .report-root[data-age-aware-report] [data-report-evidence-entries] > [data-report-source-entry] {
+        min-width: 0; margin: 0 !important; padding: 0.06in 0 !important;
+      }
+      body:has(.report-root) .report-root[data-age-aware-report] [data-report-evidence-entries] > [data-report-source-entry]:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
       body:has(.report-root) .report-root [data-report-source-entry] { break-inside: avoid !important; page-break-inside: avoid !important; }
       body:has(.report-root) .report-root #sec-source-notes hr { break-after: avoid !important; page-break-after: avoid !important; }
       body:has(.report-root) .report-root [data-report-source-closing] { break-inside: avoid !important; page-break-inside: avoid !important; }

@@ -1397,6 +1397,18 @@ test("sample report headings and content share balanced card margins for every a
         expect(Math.abs(card.headingLeft - card.contentLeft), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
         expect(Math.abs(card.headingRight - card.contentRight), `${profile}/${audience}/${width}/${media}: ${JSON.stringify(card)}`).toBeLessThan(1);
       }
+      const evidenceLayout = await page.locator("[data-report-evidence-entries]").evaluate(element => {
+        const rects = [...element.children].map(child => child.getBoundingClientRect());
+        return { columns: getComputedStyle(element).gridTemplateColumns.split(" ").length,
+          widths: rects.map(rect => rect.width), tops: rects.map(rect => rect.top), bottoms: rects.map(rect => rect.bottom) };
+      });
+      if (media === "print") {
+        expect(evidenceLayout.columns).toBe(2);
+        expect(Math.abs(evidenceLayout.widths[0] - evidenceLayout.widths[1])).toBeLessThan(1);
+        expect(Math.abs(evidenceLayout.tops[0] - evidenceLayout.tops[1])).toBeLessThan(1);
+        expect(Math.abs(evidenceLayout.bottoms[0] - evidenceLayout.bottoms[1])).toBeLessThan(1);
+        if (sourceProfile.evidence.length % 2) expect(evidenceLayout.widths.at(-1)).toBeGreaterThan(evidenceLayout.widths[0] * 1.9);
+      } else expect(evidenceLayout.tops[1]).toBeGreaterThan(evidenceLayout.bottoms[0]);
       const entries = page.locator('[data-demo-report-section="evidence"] [data-report-source-entry]');
       await expect(entries).toHaveCount(sourceProfile.evidence.length);
       for (let i = 0; i < sourceProfile.evidence.length; i++) {

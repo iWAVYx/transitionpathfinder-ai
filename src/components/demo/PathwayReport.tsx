@@ -384,8 +384,10 @@ function ReportBlocks({ blocks, evidence }: { blocks: ReportBlock[]; evidence: D
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-foreground/85">
             {b.body && <p>{b.body}</p>}
-            {b.section === "evidence" && evidence.map((item, index) => <ReportSourceEntry key={`${item.id}-${index}`}
-              title={item.title} details={`${item.source} · ${item.date}`}>{item.summary}</ReportSourceEntry>)}
+            {b.section === "evidence" && evidence.length > 0 && <div data-report-evidence-entries className="space-y-3">
+              {evidence.map((item, index) => <ReportSourceEntry key={`${item.id}-${index}`}
+                title={item.title} details={`${item.source} · ${item.date}`}>{item.summary}</ReportSourceEntry>)}
+            </div>}
             {b.bullets && b.bullets.length > 0 && (
               <ul className="list-disc space-y-1.5 pl-5">
                 {b.bullets.map((bl, i) => (
