@@ -47,7 +47,7 @@ The main age-aware report retains its full-width recorded review timing, followe
 
 ## Other Demo Routes
 
-BuilderSampleReport uses the actual ReportView with a prepared fictional Maya baseline and explicitly says edits are not reflected. DemoMeetingGuide uses the actual PPT document renderer. Neither establishes that every main age-aware section already uses the saved-report renderer.
+BuilderSampleReport uses the actual ReportView with a prepared fictional Maya baseline and explicitly says edits are not reflected. Its notice is a subordinate heading; report-view changes preserve URL perspective and return to the last eligible Family/Educator builder role. Student report view does not become a builder submitter. DemoMeetingGuide uses the actual PPT document renderer. Neither establishes that every main age-aware section already uses the saved-report renderer.
 
 ## Review Evidence and Remaining Gates
 
@@ -76,6 +76,7 @@ All 36 offline browser cases and 22 native PDF fixtures pass their named checks.
 - [x] Reviewed sharing/update completion: creation and revocation report failures, serialize sharing operations and ignore departed results; linking/regeneration cannot notify the next report. Refreshed reports must match the requested ID. Thirteen additional synthetic action cases pass with mocked provider/mutation calls. Already-issued writes are not cancelled.
 - [x] Reviewed partner suggestion context and PPT provider destinations: hide old student matches/links during selection changes, ignore late results/errors and retain complete partner details. PPT links use the existing report URL validator; this creates no new shared/demo matching access. Eleven new synthetic regressions pass.
 - [x] Bounded generation-diff review: plain-language schema guidance, PPT speaker-direction instruction, translation completeness/reconstruction and report-list failure signaling. Five focused files / 28 tests pass; semantic/provider output quality remains unverified.
+- [x] Prepared builder report return-role/hierarchy finding: subordinate notice heading, explicit report-view URL state, eligible Family/Educator return links and actual router Back handoff. Five component and seven memory-router tests pass with report/destination renderers mocked; actual builder restoration retains its separate eight tests.
 - [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
 - [ ] Demonstrate optional IEP/confidence/history sections honestly with validated fictional data and the actual renderer, or clearly delimit the existing main-demo coverage.
 - [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
@@ -95,3 +96,6 @@ Sharing/update completion review (October 12): TypeScript and all 181 unit files
 
 
 Partner context/link review (October 12): TypeScript and all 181 unit files / 1,693 tests pass. Fictional mocked matches demonstrate context isolation and consistent destination validation, not provider availability, partner verification or outreach success. Existing role/server access and complete reasons/cautions remain unchanged. Document layout is unchanged.
+
+
+Prepared handoff verification (October 12): TypeScript and all 182 unit files / 1,704 tests pass. The sample does not become generated output from edited inputs, and no mutation/provider call is made. This fixes navigation and notice hierarchy while preserving the open dynamic-parity and live acceptance gates.
