@@ -17,20 +17,21 @@ import { confidenceBandLabel } from "@/lib/partner-match-explanation";
  */
 export function ReportPartnerSuggestions({ studentId }: { studentId?: string }) {
   const fetchMatches = useServerFn(matchPartnersForStudent);
-  const [items, setItems] = useState<PartnerMatch[] | null>(null);
-  const [errored, setErrored] = useState(false);
+  const [result, setResult] = useState<{ studentId: string; matches: PartnerMatch[]; errored: boolean } | null>(null);
+  const current = result?.studentId === studentId ? result : null;
+  const items = current?.matches ?? null;
+  const errored = current?.errored ?? false;
 
   useEffect(() => {
     if (!studentId) return;
     let cancelled = false;
     fetchMatches({ data: { student_id: studentId, limit: 6 } })
       .then((r) => {
-        if (!cancelled) setItems(r.matches);
+        if (!cancelled) setResult({ studentId, matches: r.matches, errored: false });
       })
       .catch(() => {
         if (!cancelled) {
-          setItems([]);
-          setErrored(true);
+          setResult({ studentId, matches: [], errored: true });
         }
       });
     return () => {

@@ -74,6 +74,7 @@ All 36 offline browser cases and 22 native PDF fixtures pass their named checks.
 - [x] Reviewed saved-report navigation for Student/Family/Educator: a separate page lifetime per report ID clears old document/sharing state and cancels scheduled print on departure; initial loads ignore late responses and reject mismatched report IDs. Ten synthetic route regressions pass without provider or mutation calls.
 - [x] Reviewed version restore context: version/report IDs must match before saving; report departure stops a pending fetch from starting a restore; only one restore runs at a time. Already-started writes remain on the original report and cannot notify/refresh the next one. Eight synthetic regressions pass with mocked writes.
 - [x] Reviewed sharing/update completion: creation and revocation report failures, serialize sharing operations and ignore departed results; linking/regeneration cannot notify the next report. Refreshed reports must match the requested ID. Thirteen additional synthetic action cases pass with mocked provider/mutation calls. Already-issued writes are not cancelled.
+- [x] Reviewed partner suggestion context and PPT provider destinations: hide old student matches/links during selection changes, ignore late results/errors and retain complete partner details. PPT links use the existing report URL validator; this creates no new shared/demo matching access. Eleven new synthetic regressions pass.
 - [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
 - [ ] Demonstrate optional IEP/confidence/history sections honestly with validated fictional data and the actual renderer, or clearly delimit the existing main-demo coverage.
 - [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
@@ -90,3 +91,6 @@ Version restore review (October 12): TypeScript and all 181 unit files / 1,669 t
 
 
 Sharing/update completion review (October 12): TypeScript and all 181 unit files / 1,682 tests pass. A full-run worker/timeouts interruption was resolved by rerunning the unchanged suite with two workers. These regressions test client completion context and feedback; live authorization, generated content quality and persistence remain separate acceptance gates. Demo data and document layout are unchanged.
+
+
+Partner context/link review (October 12): TypeScript and all 181 unit files / 1,693 tests pass. Fictional mocked matches demonstrate context isolation and consistent destination validation, not provider availability, partner verification or outreach success. Existing role/server access and complete reasons/cautions remain unchanged. Document layout is unchanged.

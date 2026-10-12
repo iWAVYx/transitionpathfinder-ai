@@ -63,3 +63,16 @@ it("does not fetch or expose prior matches when there is no linked student", asy
   expect(screen.getByText(/Link this report to a student profile/)).toBeTruthy();
   expect(state.fetch).toHaveBeenCalledTimes(1);
 });
+
+it.each(["javascript:alert(1)", "data:text/html,example", "/missing-provider", "https://user:password@example.org/", "not a URL"])("retains partner information without exposing an invalid website destination: %s", async website_url => {
+  state.fetch.mockResolvedValue({ matches: [{ ...partner("Recorded Partner"), website_url }] });
+  render(<MeetingPrepPartners studentId="first" meetingDate={null} />); await screen.findByText("Recorded Partner");
+  expect(screen.getByText("Confirm availability")).toBeTruthy(); expect(screen.queryByRole("link", { name: /Visit site/ })).toBeNull();
+});
+it("opens a recorded public provider website in a separate tab", async () => {
+  state.fetch.mockResolvedValue({ matches: [{ ...partner("Recorded Partner"), website_url: "https://example.org/program?source=meeting" }] });
+  render(<MeetingPrepPartners studentId="first" meetingDate={null} />); await screen.findByText("Recorded Partner");
+  const link = screen.getByRole("link", { name: /Visit site/ });
+  expect(link.getAttribute("href")).toBe("https://example.org/program?source=meeting"); expect(link.getAttribute("target")).toBe("_blank");
+  expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+});

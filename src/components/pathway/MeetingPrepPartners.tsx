@@ -1,3 +1,4 @@
+import { reportWebDestination } from "@/lib/report-match-details";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -233,9 +234,9 @@ export function MeetingPrepPartners({
                 <p className="mt-2 text-xs text-foreground/80">
                   <span className="font-medium">Ask about:</span> {m.suggested_next_step}
                 </p>
-                {m.website_url && (
+                {reportWebDestination(m.website_url) && (
                   <a
-                    href={m.website_url}
+                    href={reportWebDestination(m.website_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
