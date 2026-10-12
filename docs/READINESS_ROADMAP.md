@@ -1,8 +1,22 @@
 # TransitionForward — Readiness Roadmap
 
-## Active Delivery Checklist — Updated October 9, 2026
+## Active Delivery Checklist — Updated October 12, 2026
 
 This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.
+
+## Next Actions — October 12, 2026
+
+We are still in milestone 1. The recent route safeguards are locally verified in draft PR211; they have not been released. The full TF-01–TF-26 register and six milestones below remain the scope of record.
+
+| Order | Action | Completion evidence |
+| --- | --- | --- |
+| 1 — Now | Finish the remaining full draft review, grouped by generation/data boundaries, role/route behavior and document presentation. Fix milestone blockers; assign other findings to their existing milestone. | Record reviewed areas and unresolved findings; passing current-head checks. Do not call a bounded source review a complete PR review. |
+| 2 — Before release | Close remaining main-demo/product presentation gaps for goals, pathways and optional sections, preserving student identity, full source fields, alternatives/cautions and eligible roles. Use explicit fictional examples for any optional IEP/confidence/history coverage. | Source-to-renderer mapping, role/demo browser checks and relevant export review. Existing main-demo coverage is not complete parity; prepared builder reports do not reflect edited inputs. |
+| 3 — Release candidate | Consolidate the final review and exact source candidate with its acceptance plan. Preserve any new Lovable edits before syncing. | A concrete commit/fingerprint, reviewed open-gate list, affected-role matrix and planned synthetic call/cleanup limits. Current local baseline: 1,693 unit tests, 36 document browser cases and 22 most-recent native export fixtures; these are scoped evidence, not live acceptance. |
+| 4 — After specific authorization | Merge/release that candidate to isolated staging, verify matching Cloudflare/Lovable source and environment isolation, then exercise signed-in navigation, save/reopen, role denial, permitted generation and exports. | Exact-build evidence per applicable role; no skipped role counted as passed. AI requests need their own bounded authorization. Sharing grant changes follow server-caller release and separate migration authorization. Production is not part of this action. |
+| 5 — Next product workstream | Expand partner/resource coverage and management journeys, then evidence-based planning, Owner/access/communication and final production readiness in milestones 3–6. | Functional source-backed options, approved outreach and verified relationships; completed evidence and readiness gates. The 25-partner goal is not met by research alone. |
+
+Recent local checks now cover saved-report/PPT switching, pending version restores, sharing failure recovery/concurrency and student-bound partner suggestions. Student/Family/Educator inherit only applicable planning safeguards; School/District retain organization reporting, Partner retains directory/opportunity management, and Owner remains management-only. These fixes grant no new access. Parent pilot and Pathway Report snapshot remain deferred until the current roadmap is finished and their prior notes are reconciled.
 
 ### 1. Finish the Current Document and Demo Package — In Progress
 
@@ -67,7 +81,7 @@ Document acceptance requires clearly distinguished sections, uniform heading hie
 - [x] Keep the Educator legacy next-step fallback out of newer reports, including when a newer role plan is absent; retain it for genuine legacy reports.
 - [x] Correct newer report interior heading levels across applicable planning/shared/demo readers; verify one accessible screen title, level-two chapters, nested IEP details, consistent section bands, complete content and native pagination. Hidden cover titles are distinguished from screen headings.
 - [x] Repeat Meeting Prep Questions headings and purpose on exported continuation pages; retain all role-permitted questions/explanations, readable typography and compact print spacing. Five reviewed baseline readers remain 29 pages each.
-- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Current review vehicle: PR211. Prior head `82bdce52` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
+- [ ] Finish current PR build/accessibility checks and review the complete draft diff. Use the current Next Actions section above for execution order and current evidence; the older head below is historical. Current review vehicle: PR211. Prior head `82bdce52` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
 
@@ -2620,3 +2634,10 @@ Next: remaining report contract/full-document review and complete draft diff, fo
 - PPT partner websites now use the existing reportWebDestination validator, matching recorded report links. Complete public HTTP/HTTPS URLs retain their destination and separate-tab behavior; malformed, relative, credential-bearing and non-web destinations are omitted without removing partner details. No directory records or verification status were changed.
 - The fixes apply to existing permitted report/PPT callers; shared/demo readers still do not gain live student matching access. Eleven new synthetic checks pass, alongside prior completeness/context/link tests. TypeScript and all 181 unit files / 1,693 tests pass. Calls use fictional mocked partner results; this is not live partner availability, real account authorization or outreach verification.
 - No document typography or layout changed. The preceding 36 document browser cases and 22 native exports remain the presentation evidence and were not rerun. Previous ab0b72ae hosted checks have no failures/pending checks; live/signed-in/RLS/preview checks remain skipped. Follow-up head checks are pending. Remaining full draft review, equivalent demo/product presentation and authorized exact-build staging acceptance remain open. All TF01–TF26 and deferred parent pilot / report snapshot scope is intact. Nothing merged, deployed, migrated, sent to a provider or changed in production.
+
+
+### October 12, 2026 — Generation Review and Next-Action Consolidation
+
+Reviewed the PR210-to-draft changes in structured-output system guidance, PPT speaker-direction instructions, text-only translation and report-list failure signaling. No new source defect was identified in this bounded review. Five focused unit files / 28 tests pass for structured schema inventory, translation reconstruction/completeness, translated readers and snapshot contracts. This does not establish generated-content quality, legal compliance or multilingual semantic accuracy. No provider call was made. Current 765f6efb hosted report-a11y was still running at the check; other returned checks had no failure.
+
+The active roadmap now states ordered actions and their completion evidence without replacing the full note register or historical evidence. Remaining full-diff review, main-demo/product optional-section and equivalent presentation work, exact-build staging acceptance and separately authorized release/migration remain open. Production and deferred parent pilot/report snapshot remain separate. Nothing merged, deployed, migrated or changed in production.
