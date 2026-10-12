@@ -285,6 +285,16 @@ for (const width of [390, 768, 1440]) {
           }),
         }));
         expect(layout.columns).toBe(columns);
+        const facts = await page.locator('[data-report-recorded-goal] [data-report-goal-details]').evaluateAll(elements => elements.map(element => {
+          const labels = Array.from(element.querySelectorAll('[data-report-goal-fact] > [data-document-subheading]'));
+          return { columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
+            tops: labels.map(label => label.getBoundingClientRect().top),
+            clipped: labels.some(label => label.scrollWidth > label.clientWidth + 1) };
+        }));
+        for (const fact of facts) {
+          expect(fact.tops).toHaveLength(2); expect(fact.clipped).toBe(false);
+          if (fact.columns === 2) expect(Math.abs(fact.tops[0] - fact.tops[1])).toBeLessThan(1);
+        }
         expect(layout.cards).toHaveLength(4);
         expect(Math.max(...layout.cards.map(card => card.width)) - Math.min(...layout.cards.map(card => card.width))).toBeLessThan(1);
         for (const card of layout.cards) {
@@ -1464,7 +1474,7 @@ test("sample report headings and content share balanced card margins for every a
         await expect(goals.nth(i).getByText("Planning Timeframe", { exact: true })).toBeVisible();
         const statusLabels: Record<string, string> = { not_started: "Not Started", in_progress: "In Progress", on_track: "On Track", needs_review: "Needs Review" };
         const horizonLabels: Record<string, string> = { next_semester: "Next Semester", this_year: "This Year", next_year: "Next Year", "2_to_3_years": "2–3 Years" };
-        await expect(goals.nth(i).locator("dd")).toHaveText([statusLabels[sourceProfile.goals[i].status], horizonLabels[sourceProfile.goals[i].horizon]]);
+        await expect(goals.nth(i).locator("[data-report-goal-fact] > p:nth-child(2)")).toHaveText([statusLabels[sourceProfile.goals[i].status], horizonLabels[sourceProfile.goals[i].horizon]]);
       }
       const options = page.locator("[data-demo-pathway-option]");
       await expect(options).toHaveCount(sourceReport.pathwayOptions.length);

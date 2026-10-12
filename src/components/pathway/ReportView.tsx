@@ -1,3 +1,4 @@
+import { ReportGoalFact } from "@/components/documents/ReportGoalFact";
 import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
@@ -2627,12 +2628,12 @@ function PlanBlock({
 function GoalDetails({ goal: g }: { goal: NonNullable<PathwayReport["postsecondary_goals"]>[number] }) {
   return (
 <ReportGoalDetails>
-                    <Labeled label="Where Things Stand">{g.current_status}</Labeled>
-                    <Labeled label="A Possible Next Step">{g.suggested_direction}</Labeled>
-                    <Labeled label="Why It Matters">{g.why_it_matters}</Labeled>
-                    <Labeled label="Draft Goal to Discuss">
+                    <ReportGoalFact label="Where Things Stand">{g.current_status}</ReportGoalFact>
+                    <ReportGoalFact label="A Possible Next Step">{g.suggested_direction}</ReportGoalFact>
+                    <ReportGoalFact label="Why It Matters">{g.why_it_matters}</ReportGoalFact>
+                    <ReportGoalFact label="Draft Goal to Discuss">
                       <span className="italic">{g.measurable_goal_language}</span>
-                    </Labeled>
+                    </ReportGoalFact>
                     <div data-report-goal-followups className="contents">
                       <MiniCard label="Next Steps" items={g.next_steps} compact />
                       <MiniCard label="People Who Can Help" items={g.who_supports} compact />

@@ -1,3 +1,4 @@
+import { ReportGoalFact } from "@/components/documents/ReportGoalFact";
 import { ReportExpandableDetails } from "@/components/documents/ReportExpandableDetails";
 import type { ReactNode } from "react";
 import { ReportSourceEntry } from "@/components/documents/ReportSourceEntry";
@@ -291,8 +292,8 @@ export function PathwayReport({
                       : goal.area === "living" ? "Daily Living" : "Self-Advocacy"} />
                     <p data-report-recorded-goal-title>{goal.title}</p>
                     <ReportGoalDetails>
-                      <dl><dt>Where Things Stand</dt><dd>{GOAL_STATUS_LABEL[goal.status]}</dd></dl>
-                      <dl><dt>Planning Timeframe</dt><dd>{GOAL_HORIZON_LABEL[goal.horizon]}</dd></dl>
+                      <ReportGoalFact label="Where Things Stand">{GOAL_STATUS_LABEL[goal.status]}</ReportGoalFact>
+                      <ReportGoalFact label="Planning Timeframe">{GOAL_HORIZON_LABEL[goal.horizon]}</ReportGoalFact>
                     </ReportGoalDetails>
                   </section>)}
                 </div>

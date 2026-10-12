@@ -36,8 +36,8 @@ for (const id of ['sam','riley','jordan'] as const) for (const audience of ['stu
     const horizons = {next_semester:'Next Semester',this_year:'This Year',next_year:'Next Year','2_to_3_years':'2–3 Years'};
     for (const [i, goal] of profile.goals.entries()) {
       expect(goals[i].querySelector('[data-report-recorded-goal-title]')!.textContent).toBe(goal.title);
-      expect(goals[i].querySelectorAll('dd')[0].textContent).toBe(statuses[goal.status]);
-      expect(goals[i].querySelectorAll('dd')[1].textContent).toBe(horizons[goal.horizon]);
+      expect(goals[i].querySelectorAll('[data-report-goal-fact]')[0].children[1].textContent).toBe(statuses[goal.status]);
+      expect(goals[i].querySelectorAll('[data-report-goal-fact]')[1].children[1].textContent).toBe(horizons[goal.horizon]);
     }
     const sourceSteps = generatePathwayReport(profile).nextSteps;
     const actionGroups = container.querySelectorAll('[data-demo-action-group]');
