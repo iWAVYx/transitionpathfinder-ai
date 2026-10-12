@@ -29,6 +29,9 @@ function BuilderSampleReportReader({ audience }: { audience: "family" | "educato
             reflect your edits. Use the input-based draft in the builder to review those changes. No
             report is saved to your account.
           </p>
+          <Link to="/demo/report" search={{ example: "plan-details", role: builderAudience, view: builderAudience }} className="mt-3 inline-block text-sm font-medium text-primary underline">
+            See Sample Plan Details and Review Notes
+          </Link>
         </section>
         <ReportView
           name={sample.profile.first_name}

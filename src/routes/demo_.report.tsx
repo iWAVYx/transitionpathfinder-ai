@@ -1,3 +1,4 @@
+import { DemoOptionalReportSections } from "@/components/demo/DemoOptionalReportSections";
 import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
@@ -29,6 +30,11 @@ function DemoReportRoute() {
     string,
     unknown
   >;
+  if (search.example === "plan-details") {
+    const requested = search.view ?? search.audience ?? search.role;
+    const audience = requested === "student" || requested === "educator" ? requested : "family";
+    return <DemoOptionalReportSections audience={audience} builderRole={search.role === "educator" ? "educator" : "family"} />;
+  }
   if (search.example === "builder") {
     const explicitView = search.view ?? search.audience;
     const builderAudience = explicitView === "family" || explicitView === "educator"

@@ -46,3 +46,21 @@ it.each([
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(screen.getByText(/does not reflect your edits/)).toBeTruthy();
 });
+it.each(["family", "educator"])("prepared report opens the optional example and returns with eligible origin %s", async origin => {
+  const router = await mount(`/demo/report?example=builder&role=${origin}`);
+  fireEvent.click(await screen.findByRole("link", { name: "See Sample Plan Details and Review Notes" }));
+  await screen.findByRole("heading", { name: "Sample Plan Details and Review Notes" });
+  expect(router.state.location.search).toMatchObject({ example: "plan-details", role: origin, view: origin });
+  fireEvent.click(screen.getByRole("button", { name: "Student", exact: true }));
+  await act(async () => {}); expect(router.state.location.search).toMatchObject({ role: origin, view: "student" });
+  fireEvent.click(screen.getByRole("link", { name: /Back to Sample Pathway Report/ }));
+  await screen.findByText("Report view: student");
+  expect(router.state.location.search).toMatchObject({ example: "builder", role: origin, view: "student" });
+});
+it("unsupported optional preview URL roles do not become selectable views", async () => {
+  await mount("/demo/report?example=plan-details&role=owner&view=partner");
+  await screen.findByRole("heading", { name: "Sample Plan Details and Review Notes" });
+  expect(screen.getByRole("button", { name: "Family", exact: true }).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.queryByRole("button", { name: "Owner", exact: true })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Partner", exact: true })).toBeNull();
+});

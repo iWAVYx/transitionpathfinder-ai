@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -1944,4 +1944,36 @@ test("long profile categories use full print rows while short categories and scr
     }
   }
 
+});
+
+
+test("fictional optional report sections use actual role-aware document presentation", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const source = components.OPTIONAL_REPORT_EXAMPLE;
+  for (const audience of ["student", "family", "educator"]) {
+    const body = renderToStaticMarkup(createElement(components.DemoOptionalReportDocument, { audience }));
+    for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
+      await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ media });
+      await page.setContent(`<html><head><style>${css}</style></head><body><header>Site navigation fixture</header><main class="site-shell-main"><div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 print:contents"><a class="print:hidden">Return navigation fixture</a><div class="print:hidden">Role controls fixture</div>${body}</div></main><footer>Site footer fixture</footer></body></html>`);
+      if (media === "print") {
+        await expect(page.getByText("Site navigation fixture", { exact: true })).toBeHidden();
+        await expect(page.getByText("Site footer fixture", { exact: true })).toBeHidden();
+        await expect(page.getByText("Return navigation fixture", { exact: true })).toBeHidden();
+        await expect(page.getByText("Role controls fixture", { exact: true })).toBeHidden();
+      }
+      if (media === "screen") await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      await expect(page.locator("#v2-iep-summary")).toContainText(source.iep_plan_summary.present_levels);
+      await expect(page.locator("#v2-iep-summary")).toContainText(source.iep_plan_summary.transition_goals[0].goal_text);
+      await expect(page.locator("#v2-confidence")).toContainText(source.confidence.rationale);
+      await expect(page.getByText(source.change_summary, { exact: true })).toBeVisible();
+      if (audience === "educator") await expect(page.getByText(`In plain language: ${source.iep_plan_summary.transition_goals[0].plain_language}`, { exact: true })).toHaveCount(0);
+      else await expect(page.getByText(`In plain language: ${source.iep_plan_summary.transition_goals[0].plain_language}`, { exact: true })).toBeVisible();
+      await expect(page.getByText("No IEP was uploaded, extracted or reviewed.", { exact: false })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
 });
