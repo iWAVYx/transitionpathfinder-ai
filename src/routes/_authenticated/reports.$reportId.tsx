@@ -59,6 +59,11 @@ export const Route = createFileRoute("/_authenticated/reports/$reportId")({
 
 function ReportDetailPage() {
   const { reportId } = Route.useParams();
+  // Selection, sharing controls and print timers belong to one saved report.
+  return <ReportDetailReader key={reportId} reportId={reportId} />;
+}
+
+function ReportDetailReader({ reportId }: { reportId: string }) {
   const search = Route.useSearch();
   const [showWelcome, setShowWelcome] = useState(!!search.welcome);
   const fetchReport = useServerFn(getReport);
@@ -109,8 +114,14 @@ function ReportDetailPage() {
   const wrapWidth = density === "compact" ? "max-w-[92rem]" : "max-w-4xl";
 
   useEffect(() => {
+    let cancelled = false;
+    setState({ kind: "loading" });
+    setTokens([]);
+    setStudents([]);
     fetchReport({ data: { id: reportId } })
-      .then((r) =>
+      .then((r) => {
+        if (cancelled) return;
+        if (r.id !== reportId) throw new Error("Report not found.");
         setState({
           kind: "ok",
           name: r.student_first_name,
@@ -118,17 +129,18 @@ function ReportDetailPage() {
           studentId: r.student_id,
           reviewDate: (r as { review_date?: string | null }).review_date ?? null,
           lastUpdated: r.created_at,
-        }),
-      )
-      .catch((e) =>
-        setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" }),
-      );
+        });
+      })
+      .catch((e) => {
+        if (!cancelled) setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" });
+      });
     listTokens({ data: { report_id: reportId } })
-      .then((r) => setTokens(r.tokens))
+      .then((r) => { if (!cancelled) setTokens(r.tokens); })
       .catch(() => {});
     fetchStudents()
-      .then((r) => setStudents(r.students))
-      .catch(() => setStudents([]));
+      .then((r) => { if (!cancelled) setStudents(r.students); })
+      .catch(() => { if (!cancelled) setStudents([]); });
+    return () => { cancelled = true; };
   }, [fetchReport, listTokens, fetchStudents, reportId]);
 
   useEffect(() => {
