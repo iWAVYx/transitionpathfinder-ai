@@ -1,9 +1,8 @@
+import { ReportExpandableDetails } from "@/components/documents/ReportExpandableDetails";
 import type { ReportSourceCount } from "@/lib/report-source-summary";
-import { ChevronDown, CalendarClock, UserRound } from "lucide-react";
-import { useId, useState } from "react";
+import { CalendarClock, UserRound } from "lucide-react";
 import { toTitleCase } from "@/lib/title-case";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { SourceChips } from "@/components/pathway/SourceChips";
 import type { PillarRec } from "@/lib/pathway-v2";
 
@@ -33,8 +32,6 @@ export function RecommendationCard({
   audience: "student" | "family" | "educator";
   defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(defaultOpen || audience === "educator");
-  const detailsId = useId();
   return (
     <article data-report-recommendation className="rounded-2xl border bg-card p-4 shadow-soft transition-colors hover:border-primary/40 sm:p-5">
       <header className="flex flex-wrap items-start justify-between gap-2">
@@ -56,20 +53,8 @@ export function RecommendationCard({
 
       <p className="mt-2 text-sm text-foreground/90">{rec.summary}</p>
 
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="print:hidden mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-        aria-expanded={open}
-        aria-controls={detailsId}
-      >
-        <ChevronDown
-          className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
-        />
-        {open ? "Hide rationale" : "Why this · what's next · who"}
-      </button>
-
-        <div id={detailsId} data-report-recommendation-details className={cn("mt-3 space-y-3 rounded-xl border border-dashed bg-background/60 p-3 sm:p-4", !open && "hidden print:block")}>
+      <ReportExpandableDetails kind="recommendation" audience={audience} defaultOpen={defaultOpen}
+        className="mt-3 space-y-3 rounded-xl border border-dashed bg-background/60 p-3 sm:p-4">
           <div data-report-recommendation-field="why">
             <p className="text-xs font-semibold text-foreground">
               Why This Fits
@@ -101,7 +86,7 @@ export function RecommendationCard({
               Follow-up: <strong className="text-foreground">{OWNER_LABEL[rec.owner_role] ?? rec.owner_role}</strong>
             </span>
           </div>
-        </div>
+      </ReportExpandableDetails>
     </article>
   );
 }

@@ -1,3 +1,4 @@
+import { ReportExpandableDetails } from "@/components/documents/ReportExpandableDetails";
 import type { ReactNode } from "react";
 import { ReportSourceEntry } from "@/components/documents/ReportSourceEntry";
 import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
@@ -299,7 +300,7 @@ export function PathwayReport({
             </DocumentSectionTitle> : null,
             recommended_pathways: <>
               {blocks("why_it_fits")}
-              <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} />
+              <PathwayOptions options={report.pathwayOptions} shortName={profile.shortName} audience={audience} />
               <AlternativePathways items={report.alternativePathways} />
             </>,
             next_steps_30_90_180_365: <NextStepsList steps={report.nextSteps} audience={audience} introduction={blocks("what_to_do_next")} />,
@@ -526,9 +527,11 @@ function ConflictsList({
 function PathwayOptions({
   options,
   shortName,
+  audience,
 }: {
   options: PathwayOption[];
   shortName: string;
+  audience: DemoReportAudience;
 }) {
   if (options.length === 0) {
     return (
@@ -567,6 +570,7 @@ function PathwayOptions({
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-foreground/85">
               <p className="italic text-foreground/75">{opt.fitSummary}</p>
+              <ReportExpandableDetails kind="demo-option" audience={audience}>
               <dl className="grid gap-2 rounded-lg border border-border/70 bg-muted/40 p-3 text-xs">
                 <div>
                   <dt className="font-semibold uppercase tracking-wide text-muted-foreground">
@@ -587,6 +591,7 @@ function PathwayOptions({
                   <dd className="mt-0.5 text-foreground/85">{opt.behind}</dd>
                 </div>
               </dl>
+              </ReportExpandableDetails>
             </CardContent>
           </Card>
         ))}

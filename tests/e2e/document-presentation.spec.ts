@@ -1473,6 +1473,13 @@ test("sample report headings and content share balanced card margins for every a
         expect((await card.locator("h3").innerText()).toLowerCase()).toBe(option.title.toLowerCase());
         await expect(card.getByText(option.fitSummary, { exact: true })).toBeVisible();
         await expect(card.locator("dd")).toHaveText([option.ahead, option.beside, option.behind]);
+        const details = card.locator("[data-demo-option-details]");
+        if (media === "print" || audience === "educator") await expect(details).toBeVisible();
+        else await expect(details).toBeHidden();
+        const control = card.getByRole("button", { name: audience === "educator" ? "Hide Details" : "Show Details", includeHidden: true });
+        await expect(control).toHaveAttribute("aria-expanded", String(audience === "educator"));
+        if (media === "print") await expect(control).toBeHidden();
+        else await expect(control).toBeVisible();
       }
       const alternatives = page.locator("[data-demo-alt-pathway]");
       await expect(alternatives).toHaveCount(sourceReport.alternativePathways.length);
