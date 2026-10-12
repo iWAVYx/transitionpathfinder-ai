@@ -3,10 +3,11 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { webcrypto } from "node:crypto";
 import { goalTrackerItems } from "@/lib/goal-tracker-items";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-const state = vi.hoisted(() => ({ list: vi.fn(), report: vi.fn(), statuses: vi.fn(), save: vi.fn(), toast: vi.fn() }));
+const state = vi.hoisted(() => ({ list: vi.fn(), report: vi.fn(), statuses: vi.fn(), save: vi.fn(), toast: vi.fn(), roles: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { error: state.toast } }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: any) => fn }));
 vi.mock("@/lib/pathway.functions", () => ({ listMyReports: state.list }));
+vi.mock("@/lib/profile.functions", () => ({ getMyRoles: state.roles }));
 vi.mock("@/lib/ppt.functions", () => ({ getPathwayReport: state.report }));
 vi.mock("@/lib/goal-statuses.functions", () => ({ listGoalStatuses: state.statuses, upsertGoalStatus: state.save }));
 vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: any) => ({ options }), Link: ({ to, children }: any) => <a href={to}>{children}</a> }));
@@ -21,6 +22,7 @@ function deferred() { let resolve!: (value: any) => void; let reject!: (error: u
 beforeEach(() => {
   vi.stubGlobal("crypto", webcrypto);
   vi.clearAllMocks(); state.list.mockReset(); state.report.mockReset(); state.statuses.mockReset(); state.save.mockReset();
+  state.roles.mockReset(); state.roles.mockResolvedValue({ roles: ["guardian"] });
   localStorage.clear(); state.list.mockResolvedValue({ reports: rows, loadFailed: false });
   state.report.mockImplementation(({ data }: any) => Promise.resolve(report(data.id)));
   state.statuses.mockResolvedValue({ statuses: {} }); state.save.mockResolvedValue({ ok: true });
@@ -154,4 +156,49 @@ it("a current newer report shows its recorded action rather than retained older 
   render(<Page />); await screen.findByText("Current plan action");
   expect(screen.queryByText("Old plan step")).toBeNull();
   expect(screen.getByText("Current yearly action")).toBeTruthy();
+});
+
+function currentPlans() {
+  const horizons = (prefix: string) => ({thirty_day:[`${prefix} now`],ninety_day:[`${prefix} later`],six_month:[`${prefix} six months`],one_year:[`${prefix} year`]});
+  return {schema_version:2,family_action_plan_v2:{horizons:horizons("Family")},educator_action_plan_v2:{horizons:horizons("Educator")},student_action_plan:{horizons:horizons("Student")}};
+}
+it.each([["guardian", "Family", "Educator"], ["case_manager", "Educator", "Family"]])("%s receives its recorded plan without another role selector", async (role, expected, absent) => {
+  state.roles.mockResolvedValue({roles:[role]}); state.report.mockResolvedValue({...report("report-a"),content:currentPlans()});
+  render(<Page />); await screen.findByText(`${expected} now`);
+  expect(screen.getByText(`${expected} year`)).toBeTruthy(); expect(screen.queryByText(`${absent} now`)).toBeNull();
+  expect(screen.queryByRole("button", {name:`${absent} Plan`})).toBeNull(); expect(screen.queryByText("Student now")).toBeNull();
+});
+it("mixed-role accounts can switch only between their eligible recorded plans", async () => {
+  state.roles.mockResolvedValue({roles:["guardian","teacher"]}); state.report.mockResolvedValue({...report("report-a"),content:currentPlans()});
+  render(<Page />); await screen.findByText("Family now");
+  fireEvent.click(screen.getByRole("button",{name:"Educator Plan"})); await screen.findByText("Educator now");
+  expect(screen.queryByText("Family now")).toBeNull(); expect(screen.queryByText("Student now")).toBeNull();
+});
+it("planning-role failures block role plan loading and offer their own retry", async () => {
+  state.roles.mockRejectedValueOnce(new Error("Unavailable")); state.report.mockResolvedValue({...report("report-a"),content:currentPlans()});
+  render(<Page />); await screen.findByRole("button",{name:"Reload Planning View"}); expect(state.report).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button",{name:"Reload Planning View"})); await screen.findByText("Family now");
+});
+it("admin-only planning view does not imply Family or Educator membership", async () => {
+  state.roles.mockResolvedValue({roles:["admin"]}); state.report.mockResolvedValue({...report("report-a"),content:currentPlans()});
+  render(<Page />); await screen.findByText(/No next steps are available/);
+  expect(screen.queryByText("Family now")).toBeNull(); expect(screen.queryByText("Educator now")).toBeNull();
+});
+
+it("role lookup must finish before loading a role-specific report plan", async () => {
+  const pending = deferred(); state.roles.mockImplementationOnce(() => pending.promise);
+  render(<Page />); await waitFor(() => expect(state.roles).toHaveBeenCalledTimes(1));
+  expect(state.report).not.toHaveBeenCalled();
+  await act(async () => pending.resolve({roles:["teacher"]}));
+  await screen.findByText("report-a recorded step");
+});
+it("a late Family plan response cannot replace the selected Educator plan", async () => {
+  const old = deferred(); state.roles.mockResolvedValue({roles:["guardian","teacher"]});
+  state.report.mockImplementationOnce(() => old.promise).mockResolvedValue({...report("report-a"),content:currentPlans()});
+  render(<Page />); const educator = await screen.findByRole("button",{name:"Educator Plan"});
+  await waitFor(() => expect(state.report).toHaveBeenCalledTimes(1));
+  fireEvent.click(educator); await screen.findByText("Educator now");
+  await act(async () => old.resolve({...report("report-a"),content:currentPlans()}));
+  expect(screen.queryByText("Family now")).toBeNull();
+  expect(screen.getByRole("button",{name:"Educator Plan"}).getAttribute("aria-pressed")).toBe("true");
 });

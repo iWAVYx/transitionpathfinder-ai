@@ -10,6 +10,8 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getMyRoles } from "@/lib/profile.functions";
+import { audiencesForRoles } from "@/lib/role-policy";
 import { listMyReports } from "@/lib/pathway.functions";
 import { getPathwayReport } from "@/lib/ppt.functions";
 import { listGoalStatuses, upsertGoalStatus } from "@/lib/goal-statuses.functions";
@@ -39,6 +41,12 @@ function storageKey(reportId: string) {
 function GoalsPage() {
   const list = useServerFn(listMyReports);
   const fetchReport = useServerFn(getPathwayReport);
+  const fetchRoles = useServerFn(getMyRoles);
+  const [planningRoles, setPlanningRoles] = useState<("family" | "educator")[]>([]);
+  const [planningRole, setPlanningRole] = useState<"family" | "educator" | undefined>();
+  const [rolesLoading, setRolesLoading] = useState(true);
+  const [rolesError, setRolesError] = useState(false);
+  const [rolesAttempt, setRolesAttempt] = useState(0);
 
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +59,22 @@ function GoalsPage() {
   const [reportError, setReportError] = useState(false);
   const [reportAttempt, setReportAttempt] = useState(0);
   const [loadedId, setLoadedId] = useState<string | null>(null);
+  const planContext = `${selectedId}:${planningRole ?? "shared"}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    setRolesLoading(true);
+    setRolesError(false);
+    fetchRoles().then(({ roles }) => {
+      if (cancelled) return;
+      const audiences = audiencesForRoles(roles);
+      const available = (["family", "educator"] as const).filter(role => audiences.has(role));
+      setPlanningRoles(available);
+      setPlanningRole(current => current && available.includes(current) ? current : available[0]);
+    }).catch(() => { if (!cancelled) { setRolesError(true); setPlanningRoles([]); setPlanningRole(undefined); } })
+      .finally(() => { if (!cancelled) setRolesLoading(false); });
+    return () => { cancelled = true; };
+  }, [fetchRoles, rolesAttempt]);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,20 +98,20 @@ function GoalsPage() {
     setReportName("");
     setLoadedId(null);
     setReportError(false);
-    if (!selectedId) { setReportLoading(false); return; }
+    if (!selectedId || rolesLoading || rolesError) { setReportLoading(false); return; }
     setReportLoading(true);
     fetchReport({ data: { id: selectedId } }).then(async (result) => {
       if (cancelled) return;
       if (result.id !== selectedId) throw new Error("Report does not match selection");
-      const items = await goalTrackerItems(result.content);
+      const items = await goalTrackerItems(result.content, planningRole);
       if (cancelled) return;
       setGoalItems(items);
       setReportName(result.student_first_name);
-      setLoadedId(selectedId);
+      setLoadedId(planContext);
     }).catch(() => { if (!cancelled) setReportError(true); })
       .finally(() => { if (!cancelled) setReportLoading(false); });
     return () => { cancelled = true; };
-  }, [selectedId, fetchReport, reportAttempt]);
+  }, [selectedId, fetchReport, reportAttempt, planningRole, rolesLoading, rolesError, planContext]);
 
   return (
     <SiteShell>
@@ -116,8 +140,13 @@ function GoalsPage() {
           </p>
         </InfoBox>
 
-        {loading ? (
+        {loading || rolesLoading ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
+        ) : rolesError ? (
+          <div role="alert" className="mt-10 rounded-2xl border bg-card p-4">
+            <p className="text-sm">We couldn't confirm your planning view. Please try again.</p>
+            <Button variant="outline" className="mt-3" onClick={() => setRolesAttempt(attempt => attempt + 1)}>Reload Planning View</Button>
+          </div>
         ) : listError ? (
           <div role="alert" className="mt-10 rounded-2xl border bg-card p-4">
             <p className="text-sm">We couldn't load your Pathway Reports. Please try again.</p>
@@ -145,6 +174,13 @@ function GoalsPage() {
           </div>
         ) : (
           <>
+            {planningRoles.length > 1 && (
+              <div className="mt-8 flex flex-wrap items-center gap-2" role="group" aria-label="Your Planning View">
+                <span className="text-sm">Your Planning View</span>
+                {planningRoles.map(role => <Button key={role} variant={planningRole === role ? "default" : "outline"}
+                  aria-pressed={planningRole === role} onClick={() => setPlanningRole(role)}>{role === "family" ? "Family Plan" : "Educator Plan"}</Button>)}
+              </div>
+            )}
             <div className="mt-8 flex flex-wrap gap-2">
               {reports.map((r) => (
                 <button
@@ -171,10 +207,10 @@ function GoalsPage() {
                   <p className="text-sm">We couldn't open this report's next steps. Please try again.</p>
                   <Button variant="outline" className="mt-3" onClick={() => setReportAttempt(attempt => attempt + 1)}>Reload Next Steps</Button>
                 </div>
-              ) : reportLoading || !goalItems || loadedId !== selectedId ? (
+              ) : reportLoading || !goalItems || loadedId !== planContext ? (
                 <p className="text-sm text-muted-foreground">Opening report…</p>
               ) : (
-                <GoalList key={selectedId!} reportId={selectedId!} studentName={reportName} items={goalItems} />
+                <GoalList key={planContext} reportId={selectedId!} studentName={reportName} items={goalItems} />
               )}
             </div>
           </>
@@ -271,7 +307,7 @@ function GoalList({
   return (
     <div aria-busy={saving}>
       {Object.keys(statuses).some(id => !items.some(item => item.id === id)) && (
-        <p role="note" className="mb-4 rounded-2xl border bg-card p-4 text-sm">Earlier progress is still saved, but we couldn't reliably match it to these steps. Review the current steps before recording progress.</p>
+        <p role="note" className="mb-4 rounded-2xl border bg-card p-4 text-sm">Some saved progress couldn't be matched to the steps in this view. It remains saved. Review the current steps before recording progress.</p>
       )}
       {items.length === 0 && (
         <p className="mb-4 text-sm text-muted-foreground">No next steps are available in this tracker for this report. <Link to="/reports/$reportId" params={{ reportId }} className="underline">Open your Pathway Report</Link> to review its current plan.</p>

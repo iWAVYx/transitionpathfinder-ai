@@ -5,7 +5,7 @@ export type GoalTrackerItem = { id: string; group: string; label: string };
 /** Content identity prevents a reordered/rewritten step inheriting an index's progress.
  * Old position-only statuses cannot be matched safely without their original text.
  */
-export async function goalTrackerItems(content: unknown): Promise<GoalTrackerItem[]> {
+export async function goalTrackerItems(content: unknown, audience?: "family" | "educator"): Promise<GoalTrackerItem[]> {
   if (!content || typeof content !== "object" || Array.isArray(content)) throw new Error("Report steps are unavailable.");
   const report = content as Record<string, unknown>;
   const entries: { context: unknown[]; group: string; label: string }[] = [];
@@ -27,6 +27,14 @@ export async function goalTrackerItems(content: unknown): Promise<GoalTrackerIte
       ["six_month", "Next 6 months"], ["one_year", "Next year"]] as const;
     for (const [period, group] of periods) {
       for (const label of current.cross_cutting_horizons?.[period] ?? []) entries.push({ context: ["shared horizon", period], group, label });
+    }
+    const rolePlan = audience === "family" ? current.family_action_plan_v2
+      : audience === "educator" ? current.educator_action_plan_v2 : undefined;
+    for (const [period, label] of periods) {
+      for (const step of rolePlan?.horizons[period] ?? []) {
+        entries.push({ context: ["role plan", audience, period],
+          group: `${audience === "family" ? "Family" : "Educator"} plan: ${label}`, label: step });
+      }
     }
   } else {
     function strings(value: unknown): string[] {

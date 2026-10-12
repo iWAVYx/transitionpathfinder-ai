@@ -36,3 +36,13 @@ it("tracks complete current recommendations and all shared periods without retai
 it("invalid current recommendations fail rather than falling back to older steps", async () => {
   await expect(goalTrackerItems({schema_version:2,life_skills_focus:["Old"],postsecondary_education_recs:[{title:"Incomplete"}]})).rejects.toThrow();
 });
+
+it("role plan identities are separate from shared and other-role identical steps", async () => {
+  const horizons = {thirty_day:["Same step"],ninety_day:["Later"],six_month:["Six months"],one_year:["Year"]};
+  const content = {schema_version:2,cross_cutting_horizons:horizons,family_action_plan_v2:{horizons},educator_action_plan_v2:{horizons},student_action_plan:{horizons}};
+  const family = await goalTrackerItems(content,"family"); const educator = await goalTrackerItems(content,"educator");
+  expect(family).toHaveLength(8); expect(educator).toHaveLength(8);
+  expect(family[0].id).toBe(educator[0].id); expect(family[4].id).not.toBe(educator[4].id);
+  expect(family[4].group).toBe("Family plan: Next 30 days");
+  expect(await goalTrackerItems(content)).toHaveLength(4);
+});
