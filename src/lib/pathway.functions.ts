@@ -422,17 +422,19 @@ export const listReportVersions = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ report_id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: rows, error } = await supabase
-      .from("pathway_report_versions")
-      .select("id, version_number, change_summary, created_at, created_by")
-      .eq("report_id", data.report_id)
-      .order("version_number", { ascending: false })
-      .limit(50);
-    if (error) {
+    try {
+      const versions = await readReportPages<ReportVersionRow>((from, to) => supabase
+        .from("pathway_report_versions")
+        .select("id, version_number, change_summary, created_at, created_by", { count: "exact" })
+        .eq("report_id", data.report_id)
+        .order("version_number", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to));
+      return { versions, loadFailed: false };
+    } catch (error) {
       console.error("listReportVersions failed", error);
-      return { versions: [] as ReportVersionRow[] };
+      return { versions: [] as ReportVersionRow[], loadFailed: true };
     }
-    return { versions: (rows ?? []) as ReportVersionRow[] };
   });
 
 export const getReportVersion = createServerFn({ method: "POST" })

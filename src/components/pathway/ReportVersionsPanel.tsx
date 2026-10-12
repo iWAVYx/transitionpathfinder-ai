@@ -40,22 +40,30 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
   const update = useServerFn(updateReportContent);
   const [versions, setVersions] = useState<ReportVersionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+    setLoadError(false);
+    setVersions([]);
     list({ data: { report_id: reportId } })
-      .then((r) => alive && setVersions(r.versions))
-      .catch(() => alive && setVersions([]))
+      .then((r) => {
+        if (!alive) return;
+        if (r.loadFailed) throw new Error("History unavailable");
+        setVersions(r.versions);
+      })
+      .catch(() => { if (alive) { setVersions([]); setLoadError(true); } })
       .finally(() => alive && setLoading(false));
     return () => {
       alive = false;
     };
-  }, [list, reportId]);
+  }, [list, reportId, loadAttempt]);
 
   async function restore(versionId: string) {
-    if (!active.current || restoring.current) return;
+    if (!active.current || restoring.current || loading || loadError) return;
     restoring.current = true;
     setBusyId(versionId);
     try {
@@ -71,9 +79,9 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
       });
       if (!active.current) return;
       toast.success(`Restored version ${v.version_number}.`);
-      const r = await list({ data: { report_id: reportId } });
-      if (!active.current) return;
-      setVersions(r.versions);
+      setLoading(true);
+      setVersions([]);
+      setLoadAttempt(attempt => attempt + 1);
       onRestored?.();
     } catch (err) {
       if (active.current) toast.error(err instanceof Error ? err.message : "Could not restore.");
@@ -108,6 +116,11 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
       <div className="mt-5">
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading versions…</p>
+        ) : loadError ? (
+          <div role="alert" className="rounded-2xl border bg-background p-4">
+            <p className="text-sm">We couldn't load this report's earlier versions. Please try again.</p>
+            <Button variant="outline" className="mt-3" onClick={() => { setLoading(true); setLoadAttempt(attempt => attempt + 1); }}>Reload Version History</Button>
+          </div>
         ) : versions.length === 0 ? (
           <p className="rounded-2xl border border-dashed bg-background/60 px-4 py-6 text-center text-sm text-muted-foreground">
             No earlier versions yet. The first edit you save will start the history.

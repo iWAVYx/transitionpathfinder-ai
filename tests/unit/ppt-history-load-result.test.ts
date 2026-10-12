@@ -7,7 +7,7 @@ vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("../../src/lib/ai-gateway.server", () => ({ createLovableAiGatewayProvider: state.provider }));
 import { listPptPreps } from "@/lib/ppt.functions";
-import { listMyReports } from "@/lib/pathway.functions";
+import { listMyReports, listReportVersions } from "@/lib/pathway.functions";
 afterEach(() => { vi.restoreAllMocks(); state.provider.mockClear(); });
 function context(rows: any[], options: { failTable?: string; failFrom?: number; failBatch?: number; missingCount?: boolean } = {}) {
   const calls: { table: string; query: any; ids?: string[] }[] = [];
@@ -85,4 +85,26 @@ it("an empty report library does not query student names", async () => {
   const input = context([]);
   expect(await (listMyReports as any)({ context: input.context })).toEqual({ reports: [], loadFailed: false });
   expect(input.calls.map(c => c.table)).toEqual(["pathway_reports"]);
+});
+
+it("version history includes older pages scoped to the requested report", async () => {
+  const rows = Array.from({length: 605}, (_, i) => ({ id: `version-${i}`, version_number: 605-i, created_at:"2026-10-12",created_by:null,change_summary:null }));
+  const input = context(rows);
+  expect(await (listReportVersions as any)({data:{report_id:"report-a"},context:input.context})).toEqual({versions:rows,loadFailed:false});
+  expect(input.calls).toHaveLength(2);
+  for (const {table,query} of input.calls) {
+    expect(table).toBe("pathway_report_versions"); expect(query.eq).toHaveBeenCalledWith("report_id","report-a");
+    expect(query.order).toHaveBeenCalledWith("version_number",{ascending:false}); expect(query.order).toHaveBeenCalledWith("id",{ascending:false});
+    expect(query.select.mock.calls[0][1]).toEqual({count:"exact"});
+  }
+  expect(state.provider).not.toHaveBeenCalled();
+});
+it.each([{failTable:"pathway_report_versions",failFrom:500},{missingCount:true}])("failed/incomplete version pages do not expose partial history: %j", async options => {
+  vi.spyOn(console,"error").mockImplementation(() => {});
+  const input = context(Array.from({length:501}, (_,i)=>({id:`version-${i}`})),options);
+  expect(await (listReportVersions as any)({data:{report_id:"report-a"},context:input.context})).toEqual({versions:[],loadFailed:true});
+});
+it("a genuinely empty version history remains a successful empty result", async () => {
+  const input = context([]);
+  expect(await (listReportVersions as any)({data:{report_id:"report-a"},context:input.context})).toEqual({versions:[],loadFailed:false});
 });

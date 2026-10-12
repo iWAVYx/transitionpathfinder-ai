@@ -70,3 +70,36 @@ it("hides old version choices and ignores a late history response after selectio
   await act(async () => { finishOld({ versions: [row("old-version")] }); });
   expect(screen.queryByText("Saved old-version", { exact: false })).toBeNull(); expect(screen.getByText("Saved current-version", { exact: false })).toBeTruthy();
 });
+
+it.each(["flag", "reject"])("history %s failure has a reload action instead of empty-history copy", async mode => {
+  if (mode === "flag") state.list.mockResolvedValueOnce({versions:[],loadFailed:true});
+  else state.list.mockRejectedValueOnce(new Error("Unavailable"));
+  render(panel()); await screen.findByRole("alert");
+  expect(screen.queryByText(/No earlier versions yet/)).toBeNull(); expect(screen.queryByRole("button",{name:"Restore"})).toBeNull();
+  fireEvent.click(screen.getByRole("button",{name:"Reload Version History"}));
+  await screen.findByText("Saved report-a-version",{exact:false}); expect(screen.queryByRole("alert")).toBeNull();
+  expect(state.get).not.toHaveBeenCalled(); expect(state.update).not.toHaveBeenCalled();
+});
+it("successful empty history displays first-edit guidance", async () => {
+  state.list.mockResolvedValue({versions:[],loadFailed:false}); render(panel());
+  await screen.findByText(/No earlier versions yet/); expect(screen.queryByRole("alert")).toBeNull();
+});
+it.each(["flag","reject"])("successful restore still refreshes the document if history refresh %s fails", async mode => {
+  state.list.mockResolvedValueOnce({versions:[row("version-1")]});
+  if (mode === "flag") state.list.mockResolvedValueOnce({versions:[],loadFailed:true}); else state.list.mockRejectedValueOnce(new Error("Unavailable"));
+  state.get.mockResolvedValue(saved("version-1"));
+  render(panel()); fireEvent.click(await screen.findByRole("button",{name:"Restore"})); await screen.findByRole("alert");
+  expect(state.update).toHaveBeenCalledOnce(); expect(state.restored).toHaveBeenCalledOnce();
+  expect(state.success).toHaveBeenCalledWith("Restored version 1."); expect(state.error).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button",{name:"Reload Version History"})); await screen.findByRole("button",{name:"Restore"});
+  expect(state.update).toHaveBeenCalledOnce();
+});
+it("a pending history retry cannot populate a different report", async () => {
+  let finish!: (value:unknown) => void;
+  state.list.mockResolvedValueOnce({versions:[],loadFailed:true}).mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+  const view = render(panel()); await screen.findByRole("alert");
+  fireEvent.click(screen.getByRole("button",{name:"Reload Version History"})); await act(async()=>{});
+  view.rerender(panel("report-b")); await screen.findByText("Saved report-b-version",{exact:false});
+  await act(async()=>{finish({versions:[row("old-version")]});});
+  expect(screen.queryByText("Saved old-version",{exact:false})).toBeNull();
+});
