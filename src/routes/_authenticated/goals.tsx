@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Target, Sparkles } from "lucide-react";
@@ -211,60 +211,63 @@ function GoalList({
   items: { id: string; group: string; label: string }[];
 }) {
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const [statusLoading, setStatusLoading] = useState(true);
+  const [statusError, setStatusError] = useState(false);
+  const [statusAttempt, setStatusAttempt] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const activeRef = useRef(true);
+  const savingRef = useRef(false);
   const loadStatuses = useServerFn(listGoalStatuses);
   const saveStatus = useServerFn(upsertGoalStatus);
 
   useEffect(() => {
-    let cancelled = false;
-    // Optimistic load from cache, then reconcile with server.
-    try {
-      const raw = localStorage.getItem(storageKey(reportId));
-      if (raw) setStatuses(JSON.parse(raw) as Record<string, Status>);
-    } catch {
-      /* ignore */
-    }
-    loadStatuses({ data: { reportId } })
-      .then((res) => {
-        if (cancelled) return;
-        setStatuses(res.statuses);
-        try {
-          localStorage.setItem(storageKey(reportId), JSON.stringify(res.statuses));
-        } catch {
-          /* ignore */
-        }
-      })
-      .catch(() => {
-        /* keep cached values */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reportId, loadStatuses]);
+    activeRef.current = true;
+    return () => { activeRef.current = false; };
+  }, []);
 
-  const setStatus = (id: string, next: Status) => {
-    const previous = statuses[id] ?? "not-started";
-    setStatuses((prev) => {
-      const updated = { ...prev, [id]: next };
-      try {
-        localStorage.setItem(storageKey(reportId), JSON.stringify(updated));
-      } catch {
-        /* ignore */
-      }
-      return updated;
-    });
-    saveStatus({ data: { reportId, itemId: id, status: next } }).catch(() => {
-      toast.error("Couldn't save — reverted. Try again.");
-      setStatuses((prev) => {
-        const reverted = { ...prev, [id]: previous };
-        try {
-          localStorage.setItem(storageKey(reportId), JSON.stringify(reverted));
-        } catch {
-          /* ignore */
-        }
-        return reverted;
-      });
-    });
+  useEffect(() => {
+    let cancelled = false;
+    setStatusLoading(true);
+    setStatusError(false);
+    setStatuses({});
+    loadStatuses({ data: { reportId } }).then((result) => {
+      if (cancelled) return;
+      setStatuses(result.statuses);
+      try { localStorage.setItem(storageKey(reportId), JSON.stringify(result.statuses)); }
+      catch { /* Storage is optional; the server is the source of saved progress. */ }
+    }).catch(() => { if (!cancelled) setStatusError(true); })
+      .finally(() => { if (!cancelled) setStatusLoading(false); });
+    return () => { cancelled = true; };
+  }, [reportId, loadStatuses, statusAttempt]);
+
+  const setStatus = async (id: string, next: Status) => {
+    if (!activeRef.current || savingRef.current || statusLoading || statusError) return;
+    savingRef.current = true;
+    setSaving(true);
+    const updated = { ...statuses, [id]: next };
+    setStatuses(updated);
+    try {
+      await saveStatus({ data: { reportId, itemId: id, status: next } });
+      if (!activeRef.current) return;
+      try { localStorage.setItem(storageKey(reportId), JSON.stringify(updated)); }
+      catch { /* Storage is optional. */ }
+    } catch {
+      if (!activeRef.current) return;
+      setStatusError(true);
+      toast.error("We couldn't confirm this update. Reload your saved progress before trying again.");
+    } finally {
+      savingRef.current = false;
+      if (activeRef.current) setSaving(false);
+    }
   };
+
+  if (statusLoading) return <p className="text-sm text-muted-foreground">Loading saved progress…</p>;
+  if (statusError) return (
+    <div role="alert" className="rounded-2xl border bg-card p-4">
+      <p className="text-sm">We couldn't confirm your saved progress. Reload it before making another update.</p>
+      <Button variant="outline" className="mt-3" onClick={() => setStatusAttempt(attempt => attempt + 1)}>Reload Saved Progress</Button>
+    </div>
+  );
 
   const totals = items.reduce(
     (acc, it) => {
@@ -282,7 +285,8 @@ function GoalList({
   }, {});
 
   return (
-    <div>
+    <div aria-busy={saving}>
+      {saving && <p role="status" className="mb-3 text-sm text-muted-foreground">Saving progress…</p>}
       <div className="rounded-3xl bg-gradient-hero p-6 shadow-soft">
         <p className="font-display text-xl font-medium tracking-tight">{studentName}'s next steps</p>
         <div className="mt-4 grid grid-cols-3 gap-3 text-center">
@@ -322,7 +326,9 @@ function GoalList({
                         <button
                           key={s}
                           type="button"
-                          onClick={() => setStatus(it.id, s)}
+                          onClick={() => { void setStatus(it.id, s); }}
+                          disabled={saving}
+                          aria-pressed={current === s}
                           className={cn(
                             "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                             current === s

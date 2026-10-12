@@ -83,7 +83,8 @@ All 36 offline browser cases and 22 native PDF fixtures pass their named checks.
 - [x] Complete counted report/prep libraries and bounded linked-name batches; fail honestly rather than expose partial results. Eight synthetic server cases pass without provider calls.
 - [x] Actual report library honors load failure, offers retry and distinguishes genuine empty results; five synthetic component cases pass.
 - [x] Goal Tracker list/detail recovery and response/selection isolation; nine synthetic checks pass.
-- [ ] Close Goal Tracker status read/save and source-shape/stable-item findings. Older DashboardWidgets is unused; current-board role acceptance remains open.
+- [x] Goal Tracker status read/save recovery, confirmation-only caching, serialized current-page writes and departed-completion isolation; seven additional synthetic cases pass.
+- [ ] Close Goal Tracker source-shape/stable-item findings. Older DashboardWidgets is unused; current-board role acceptance remains open.
 - [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
 - [x] Demonstrate optional IEP/confidence/review and update-summary sections with schema-validated fictional data and actual product components. Linked from the prepared builder report, this is a section excerpt with no upload/extraction, full-history or live-record claim. Main age-aware profiles remain unchanged; full-report parity is still open.
 - [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
@@ -142,3 +143,13 @@ PPT setup recovery (October 12): TypeScript and all 186 unit files / 1,729 tests
 - Role policy continues to allow Goal Tracker for Family/Educator/Admin audiences only. Student, Partner and Owner receive no new access. The demo goal preview remains explicitly static, without live loading/save claims; document/demo renderers and presentation evidence are unchanged.
 - Repository caller search found no application import/use of the old DashboardWidgets component; the signed-in dashboard uses DashboardWidgetBoard. Treat the older summary as unused legacy code, not an active dashboard regression. Any removal/reuse requires review, and current-board role acceptance remains open.
 - Next bounded Goal Tracker review: server-status read failure versus cached/default values; concurrent/departed save completions; legacy/newer source-shape compatibility and stable goal identity. These findings are not resolved by report-load recovery. Whole draft/source reconciliation and exact-release staging gates remain open. No live write, provider call, merge, deployment or production operation was performed.
+
+
+## Goal Tracker Saved Progress Recovery — October 12, 2026
+
+- Saved progress now waits for a successful server read. Cached/default values no longer appear as confirmed totals after a failed read. Loading hides write controls; an error provides Reload Saved Progress without reopening the report.
+- Only one status save can run per mounted tracker. A ref guards rapid duplicate clicks, all status controls disable during the save, Saving progress is announced, and aria-pressed identifies the selected status. Local storage is updated only after successful reads/confirmed saves, not optimistic clicks.
+- Unconfirmed saves show an honest reload requirement instead of claiming a rollback proves the server value. A fresh server read reconciles the result before another change. Saves already sent cannot be cancelled; departed completions cannot alter the next report's UI/cache or show a stale notification. This is client-instance serialization, not cross-tab/device locking.
+- Seven new synthetic cases (16 total Goal Tracker recovery cases) cover failed cached reads, pending reads, rapid writes, confirmation-only caching, ambiguous save failure/reload, both departed save outcomes and stale status reads. TypeScript and all 188 unit files / 1,756 tests pass. No actual server write, account/provider operation or release was performed.
+- Existing Family/Educator/Admin route access remains intact; Student/Partner/Owner receive no new access. Demo goal previews remain static sample experiences, with no account-sync claim introduced. Document rendering is unchanged and earlier presentation evidence was not rerun for this state-only change.
+- Next source review remains Goal Tracker legacy/newer field compatibility and goal-item identity across regeneration/reordering. Real status persistence/RLS and concurrent device behavior need exact-release signed-in acceptance. Full draft, demo parity and release gates remain open; production is untouched.
