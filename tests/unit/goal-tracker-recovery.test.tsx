@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { webcrypto } from "node:crypto";
+import { goalTrackerItems } from "@/lib/goal-tracker-items";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 const state = vi.hoisted(() => ({ list: vi.fn(), report: vi.fn(), statuses: vi.fn(), save: vi.fn(), toast: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { error: state.toast } }));
@@ -17,12 +19,13 @@ const rows = [{ id: "report-a", student_first_name: "Sample A", grade_band: null
 function report(id: string) { return { id, student_first_name: id === "report-a" ? "Sample A" : "Sample B", content: { life_skills_focus: [`${id} recorded step`], education_training_options: [], career_pathways: [], thirty_day_plan: [] } }; }
 function deferred() { let resolve!: (value: any) => void; let reject!: (error: unknown) => void; const promise = new Promise<any>((a,b) => { resolve=a; reject=b; }); return { promise, resolve, reject }; }
 beforeEach(() => {
+  vi.stubGlobal("crypto", webcrypto);
   vi.clearAllMocks(); state.list.mockReset(); state.report.mockReset(); state.statuses.mockReset(); state.save.mockReset();
   localStorage.clear(); state.list.mockResolvedValue({ reports: rows, loadFailed: false });
   state.report.mockImplementation(({ data }: any) => Promise.resolve(report(data.id)));
   state.statuses.mockResolvedValue({ statuses: {} }); state.save.mockResolvedValue({ ok: true });
 });
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 it.each(["flag", "reject"])("report library %s failure shows reload instead of an empty tracker", async mode => {
   if (mode === "flag") state.list.mockResolvedValueOnce({ reports: [], loadFailed: true });
   else state.list.mockRejectedValueOnce(new Error("Unavailable"));
@@ -70,8 +73,9 @@ it("a departed list result cannot populate a new tracker instance", async () => 
 });
 
 it("failed saved progress reads do not display cached/default totals or allow writes", async () => {
+  const [item] = await goalTrackerItems(report("report-a").content);
   localStorage.setItem("tf:goal-status:report-a", JSON.stringify({ "life:0": "met" }));
-  state.statuses.mockRejectedValueOnce(new Error("Unavailable")).mockResolvedValueOnce({ statuses: { "life:0": "in-progress" } });
+  state.statuses.mockRejectedValueOnce(new Error("Unavailable")).mockResolvedValueOnce({ statuses: { [item.id]: "in-progress" } });
   render(<Page />); await screen.findByRole("alert");
   expect(screen.queryByText("Sample A's next steps")).toBeNull();
   expect(screen.queryByRole("button", { name: "Met" })).toBeNull(); expect(state.save).not.toHaveBeenCalled();
@@ -88,23 +92,25 @@ it("does not allow changes before the authoritative status read finishes", async
   expect(state.save).not.toHaveBeenCalled();
 });
 it("serializes rapid updates and caches only confirmed saves", async () => {
+  const [item] = await goalTrackerItems(report("report-a").content);
   const pending = deferred(); state.save.mockImplementationOnce(() => pending.promise);
   render(<Page />); const met = await screen.findByRole("button", { name: "Met" });
   const before = localStorage.getItem("tf:goal-status:report-a");
   fireEvent.click(met); fireEvent.click(screen.getByRole("button", { name: "In progress" }));
   expect(state.save).toHaveBeenCalledTimes(1);
-  expect(state.save).toHaveBeenCalledWith({ data: { reportId: "report-a", itemId: "life:0", status: "met" } });
+  expect(state.save).toHaveBeenCalledWith({ data: { reportId: "report-a", itemId: item.id, status: "met" } });
   expect(localStorage.getItem("tf:goal-status:report-a")).toBe(before);
   expect(met.hasAttribute("disabled")).toBe(true); expect(screen.getByRole("status").textContent).toBe("Saving progress…");
   await act(async () => pending.resolve({ ok: true }));
   expect(met.hasAttribute("disabled")).toBe(false);
-  expect(JSON.parse(localStorage.getItem("tf:goal-status:report-a")!)).toEqual({ "life:0": "met" });
+  expect(JSON.parse(localStorage.getItem("tf:goal-status:report-a")!)).toEqual({ [item.id]: "met" });
   fireEvent.click(screen.getByRole("button", { name: "In progress" }));
   await waitFor(() => expect(state.save).toHaveBeenCalledTimes(2));
 });
 it("an unconfirmed save requires reloading server progress before more changes", async () => {
+  const [item] = await goalTrackerItems(report("report-a").content);
   state.save.mockRejectedValueOnce(new Error("Network error"));
-  state.statuses.mockResolvedValueOnce({ statuses: {} }).mockResolvedValueOnce({ statuses: { "life:0": "met" } });
+  state.statuses.mockResolvedValueOnce({ statuses: {} }).mockResolvedValueOnce({ statuses: { [item.id]: "met" } });
   render(<Page />); fireEvent.click(await screen.findByRole("button", { name: "Met" }));
   await screen.findByRole("alert"); expect(screen.queryByRole("button", { name: "In progress" })).toBeNull();
   expect(JSON.parse(localStorage.getItem("tf:goal-status:report-a")!)).toEqual({});
@@ -128,4 +134,24 @@ it("superseded progress reads cannot change the next report's totals", async () 
   fireEvent.click(screen.getByRole("button", { name: "Sample B" })); await screen.findByText("report-b recorded step");
   await act(async () => pending.resolve({ statuses: { "life:0": "met" } }));
   expect(screen.getByRole("button", { name: "Not started" }).getAttribute("aria-pressed")).toBe("true");
+});
+
+it("old positional progress is preserved but not silently assigned to current steps", async () => {
+  state.statuses.mockResolvedValue({ statuses: { "life:0": "met" } });
+  render(<Page />); await screen.findByRole("note");
+  expect(screen.getByRole("button", { name: "Not started" }).getAttribute("aria-pressed")).toBe("true");
+  expect(JSON.parse(localStorage.getItem("tf:goal-status:report-a")!)).toEqual({ "life:0": "met" });
+  expect(state.save).not.toHaveBeenCalled();
+});
+it("malformed report steps use the report reload path", async () => {
+  state.report.mockResolvedValueOnce({ ...report("report-a"), content: {life_skills_focus:[42]} });
+  render(<Page />); await screen.findByRole("button", {name:"Reload Next Steps"});
+  expect(state.statuses).not.toHaveBeenCalled();
+});
+
+it("a current newer report shows its recorded action rather than retained older goals", async () => {
+  state.report.mockResolvedValueOnce({ ...report("report-a"), content: {schema_version:2,life_skills_focus:["Old plan step"],cross_cutting_horizons:{thirty_day:["Current plan action"],ninety_day:["Current later action"],six_month:["Current longer action"],one_year:["Current yearly action"]}} });
+  render(<Page />); await screen.findByText("Current plan action");
+  expect(screen.queryByText("Old plan step")).toBeNull();
+  expect(screen.getByText("Current yearly action")).toBeTruthy();
 });

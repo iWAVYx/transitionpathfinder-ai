@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Target, Sparkles } from "lucide-react";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { listMyReports } from "@/lib/pathway.functions";
 import { getPathwayReport } from "@/lib/ppt.functions";
 import { listGoalStatuses, upsertGoalStatus } from "@/lib/goal-statuses.functions";
-import type { PathwayReport } from "@/lib/pathway.functions";
+import { goalTrackerItems, type GoalTrackerItem } from "@/lib/goal-tracker-items";
 
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/goals")({
@@ -45,7 +45,7 @@ function GoalsPage() {
   const [listError, setListError] = useState(false);
   const [listAttempt, setListAttempt] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [report, setReport] = useState<PathwayReport | null>(null);
+  const [goalItems, setGoalItems] = useState<GoalTrackerItem[] | null>(null);
   const [reportName, setReportName] = useState<string>("");
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState(false);
@@ -70,40 +70,24 @@ function GoalsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setReport(null);
+    setGoalItems(null);
     setReportName("");
     setLoadedId(null);
     setReportError(false);
     if (!selectedId) { setReportLoading(false); return; }
     setReportLoading(true);
-    fetchReport({ data: { id: selectedId } }).then((result) => {
+    fetchReport({ data: { id: selectedId } }).then(async (result) => {
       if (cancelled) return;
       if (result.id !== selectedId) throw new Error("Report does not match selection");
-      setReport(result.content as PathwayReport);
+      const items = await goalTrackerItems(result.content);
+      if (cancelled) return;
+      setGoalItems(items);
       setReportName(result.student_first_name);
       setLoadedId(selectedId);
     }).catch(() => { if (!cancelled) setReportError(true); })
       .finally(() => { if (!cancelled) setReportLoading(false); });
     return () => { cancelled = true; };
   }, [selectedId, fetchReport, reportAttempt]);
-
-  const goalItems = useMemo(() => {
-    if (!report) return [] as { id: string; group: string; label: string }[];
-    const items: { id: string; group: string; label: string }[] = [];
-    report.life_skills_focus.forEach((s, i) => items.push({ id: `life:${i}`, group: "Life skills", label: s }));
-    report.education_training_options.forEach((s, i) =>
-      items.push({ id: `edu:${i}`, group: "Education & training", label: s }),
-    );
-    report.career_pathways.forEach((p, pi) =>
-      p.first_steps.forEach((s, si) =>
-        items.push({ id: `path:${pi}:${si}`, group: `Pathway: ${p.title}`, label: s }),
-      ),
-    );
-    report.thirty_day_plan.forEach((w) =>
-      items.push({ id: `30d:${w.week}`, group: "30-day plan", label: `Week ${w.week}: ${w.action}` }),
-    );
-    return items;
-  }, [report]);
 
   return (
     <SiteShell>
@@ -115,15 +99,15 @@ function GoalsPage() {
           Small Steps, Gently Tracked.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Every action from your Pathway Reports, in one place. Tap to mark something as
+          Track the recorded steps shown here from your Pathway Reports. Tap to mark something as
           in progress or met — your progress syncs to your account so it follows you across devices.
         </p>
 
         <InfoBox label="How does the tracker work?" className="mt-6 max-w-2xl">
           <p>
-            We pull the next steps from each Pathway Report you've created — life skills,
-            education and training, career pathways, and the 30-day plan — and lay them out
-            here so you can move them through <strong>Not started → In progress → Met</strong>
+            We show recorded steps from the selected Pathway Report. These can include life skills,
+            education and training, career pathways, living and community activities, and dated planning steps.
+            Move them through <strong>Not started → In progress → Met</strong>
             at your own pace.
           </p>
           <p className="mt-2">
@@ -187,7 +171,7 @@ function GoalsPage() {
                   <p className="text-sm">We couldn't open this report's next steps. Please try again.</p>
                   <Button variant="outline" className="mt-3" onClick={() => setReportAttempt(attempt => attempt + 1)}>Reload Next Steps</Button>
                 </div>
-              ) : reportLoading || !report || loadedId !== selectedId ? (
+              ) : reportLoading || !goalItems || loadedId !== selectedId ? (
                 <p className="text-sm text-muted-foreground">Opening report…</p>
               ) : (
                 <GoalList key={selectedId!} reportId={selectedId!} studentName={reportName} items={goalItems} />
@@ -286,6 +270,12 @@ function GoalList({
 
   return (
     <div aria-busy={saving}>
+      {Object.keys(statuses).some(id => !items.some(item => item.id === id)) && (
+        <p role="note" className="mb-4 rounded-2xl border bg-card p-4 text-sm">Earlier progress is still saved, but we couldn't reliably match it to these steps. Review the current steps before recording progress.</p>
+      )}
+      {items.length === 0 && (
+        <p className="mb-4 text-sm text-muted-foreground">No next steps are available in this tracker for this report. <Link to="/reports/$reportId" params={{ reportId }} className="underline">Open your Pathway Report</Link> to review its current plan.</p>
+      )}
       {saving && <p role="status" className="mb-3 text-sm text-muted-foreground">Saving progress…</p>}
       <div className="rounded-3xl bg-gradient-hero p-6 shadow-soft">
         <p className="font-display text-xl font-medium tracking-tight">{studentName}'s next steps</p>
