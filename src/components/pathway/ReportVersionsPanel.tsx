@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -21,6 +21,20 @@ export function ReportVersionsPanel({
   currentContent: PathwayReport;
   onRestored?: () => void;
 }) {
+  return <ReportVersionsReader key={reportId} reportId={reportId} currentContent={currentContent} onRestored={onRestored} />;
+}
+
+function ReportVersionsReader({ reportId, currentContent, onRestored }: {
+  reportId: string;
+  currentContent: PathwayReport;
+  onRestored?: () => void;
+}) {
+  const active = useRef(false);
+  const restoring = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const list = useServerFn(listReportVersions);
   const fetchVersion = useServerFn(getReportVersion);
   const update = useServerFn(updateReportContent);
@@ -41,9 +55,13 @@ export function ReportVersionsPanel({
   }, [list, reportId]);
 
   async function restore(versionId: string) {
+    if (!active.current || restoring.current) return;
+    restoring.current = true;
     setBusyId(versionId);
     try {
       const v = await fetchVersion({ data: { version_id: versionId } });
+      if (!active.current) return;
+      if (v.id !== versionId || v.report_id !== reportId) throw new Error("That version does not belong to this report.");
       await update({
         data: {
           report_id: reportId,
@@ -51,14 +69,17 @@ export function ReportVersionsPanel({
           change_summary: `Restored version ${v.version_number}`,
         },
       });
+      if (!active.current) return;
       toast.success(`Restored version ${v.version_number}.`);
       const r = await list({ data: { report_id: reportId } });
+      if (!active.current) return;
       setVersions(r.versions);
       onRestored?.();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not restore.");
+      if (active.current) toast.error(err instanceof Error ? err.message : "Could not restore.");
     } finally {
-      setBusyId(null);
+      restoring.current = false;
+      if (active.current) setBusyId(null);
     }
   }
 
@@ -108,7 +129,7 @@ export function ReportVersionsPanel({
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={busyId === v.id}
+                  disabled={busyId !== null}
                   onClick={() => restore(v.id)}
                 >
                   <RotateCcw className="h-4 w-4" />

@@ -72,6 +72,7 @@ All 36 offline browser cases and 22 native PDF fixtures pass their named checks.
 - [x] Reviewed Family/Educator demo meeting entry points: both use PptAgendaDocument with fictional source content, no linked student or action-write callbacks.
 - [x] Reviewed saved PPT load selection: superseded requests cannot replace the current guide, show an obsolete error or end its loading state. Returned IDs must match; stale guide/print controls are hidden while loading. Seven synthetic route tests pass without record writes.
 - [x] Reviewed saved-report navigation for Student/Family/Educator: a separate page lifetime per report ID clears old document/sharing state and cancels scheduled print on departure; initial loads ignore late responses and reject mismatched report IDs. Ten synthetic route regressions pass without provider or mutation calls.
+- [x] Reviewed version restore context: version/report IDs must match before saving; report departure stops a pending fetch from starting a restore; only one restore runs at a time. Already-started writes remain on the original report and cannot notify/refresh the next one. Eight synthetic regressions pass with mocked writes.
 - [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
 - [ ] Demonstrate optional IEP/confidence/history sections honestly with validated fictional data and the actual renderer, or clearly delimit the existing main-demo coverage.
 - [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
@@ -82,3 +83,6 @@ The load-state fix passes TypeScript and all 179 unit files / 1,651 tests. Exist
 
 
 Saved-report route verification passes TypeScript and all 180 unit files / 1,661 tests. This adds load/navigation isolation, not visual or source-content changes. The role tests use mocked authorized responses; they do not establish real account authorization, generation quality or staging acceptance. Prior a2dbdd52 hosted build/static checks pass; live/signed-in checks remain skipped.
+
+
+Version restore review (October 12): TypeScript and all 181 unit files / 1,669 tests pass. These mocked regressions verify UI context and complete content forwarded to the existing update function, not live server permission enforcement or actual persistence. They do not cancel a save already sent. No document styling, demo content or role authorization changed.
