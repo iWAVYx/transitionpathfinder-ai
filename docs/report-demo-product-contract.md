@@ -63,3 +63,18 @@ Remaining work: reconcile equivalent presentation using the recorded goal/recomm
 Shared category width hints use supplied text lengths without changing source order or recorded content. Short neighbors and comparable long neighbors remain paired; unmatched categories span the print row. Demo Student Voice and both applicable product voice chapters repeat their real heading and purpose. Student-only saved-answer visibility remains unchanged.
 
 All 36 offline browser cases and 22 native PDF fixtures pass their named checks. Complete long family notes, recorded prompts/reflections and profile arrays remain present, with continuation context and readable unchanged font sizes. Preloaded fictional saved answers are rendered only for Student, not Family/Educator or either fixed shared reader. This does not exercise live saved-answer fetching, database permissions, uploaded document decoding or AI generation. The native visual review covered 132 changed/relevant pages in 58 distinct groups; 84 unchanged baseline demo pages match pixel-for-pixel. Full draft review, equivalent demo/product reconciliation and exact-release signed-in staging acceptance remain open.
+
+
+## Draft Review Checklist — October 11, 2026
+
+- [x] Source mapping for goals, recommendations, optional IEP and confidence/history fields is recorded above. This documents required differences; it does not establish complete renderer parity.
+- [x] Reviewed builder/sample report handoff: shared real builder questions, Family/Educator eligibility, preserved local answers/step and explicit notice that the prepared report does not reflect edited inputs. No live generation/upload/save is demonstrated.
+- [x] Reviewed Family/Educator demo meeting entry points: both use PptAgendaDocument with fictional source content, no linked student or action-write callbacks.
+- [x] Reviewed saved PPT load selection: superseded requests cannot replace the current guide, show an obsolete error or end its loading state. Returned IDs must match; stale guide/print controls are hidden while loading. Seven synthetic route tests pass without record writes.
+- [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
+- [ ] Demonstrate optional IEP/confidence/history sections honestly with validated fictional data and the actual renderer, or clearly delimit the existing main-demo coverage.
+- [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
+- [ ] Perform specifically authorized exact-release signed-in staging checks for applicable planning/organization roles, save/reopen, navigation and exports. Static/local tests cannot close this gate.
+- [ ] Release the server-only sharing caller before a separately authorized staging grant migration and direct-RPC-denial acceptance.
+
+The load-state fix passes TypeScript and all 179 unit files / 1,651 tests. Existing document layout is unchanged, so the preceding browser/native review remains the presentation evidence. No new live generation, database writes, publication or production operation was performed.

@@ -89,26 +89,33 @@ function PptPrepPage() {
 
   // Hydrate saved prep from ?id= search param
   useEffect(() => {
-    if (!search.id) {
-      setAgenda(null);
+    let cancelled = false;
+    const selectedId = search.id;
+    setAgenda(null);
+    if (!selectedId) {
+      setHydrating(false);
       return;
     }
     setHydrating(true);
-    loadPrep({ data: { id: search.id } })
-      .then((row) =>
+    loadPrep({ data: { id: selectedId } })
+      .then((row) => {
+        if (cancelled) return;
+        if (row.id !== selectedId) throw new Error("Couldn't load that meeting prep.");
         setAgenda({
           id: row.id,
           agenda: row.agenda,
           studentName: row.studentName,
           studentId: row.studentId,
           meetingDate: row.meetingDate,
-        }),
-      )
+        });
+      })
       .catch((e) => {
+        if (cancelled) return;
         toast.error(e instanceof Error ? e.message : "Couldn't load that meeting prep.");
         navigate({ to: "/ppt-prep", search: {} });
       })
-      .finally(() => setHydrating(false));
+      .finally(() => { if (!cancelled) setHydrating(false); });
+    return () => { cancelled = true; };
   }, [search.id, loadPrep, navigate]);
 
   const onGenerate = async () => {
@@ -160,7 +167,7 @@ function PptPrepPage() {
     }
   };
 
-  if (hydrating) {
+  if (hydrating || (search.id && agenda?.id !== search.id)) {
     return (
       <SiteShell>
         <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
@@ -170,7 +177,7 @@ function PptPrepPage() {
     );
   }
 
-  if (agenda) {
+  if (agenda && agenda.id === (search.id ?? null)) {
     return (
       <SiteShell>
         <PptAgendaDocument
