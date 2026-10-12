@@ -73,6 +73,7 @@ All 36 offline browser cases and 22 native PDF fixtures pass their named checks.
 - [x] Reviewed saved PPT load selection: superseded requests cannot replace the current guide, show an obsolete error or end its loading state. Returned IDs must match; stale guide/print controls are hidden while loading. Seven synthetic route tests pass without record writes.
 - [x] Reviewed saved-report navigation for Student/Family/Educator: a separate page lifetime per report ID clears old document/sharing state and cancels scheduled print on departure; initial loads ignore late responses and reject mismatched report IDs. Ten synthetic route regressions pass without provider or mutation calls.
 - [x] Reviewed version restore context: version/report IDs must match before saving; report departure stops a pending fetch from starting a restore; only one restore runs at a time. Already-started writes remain on the original report and cannot notify/refresh the next one. Eight synthetic regressions pass with mocked writes.
+- [x] Reviewed sharing/update completion: creation and revocation report failures, serialize sharing operations and ignore departed results; linking/regeneration cannot notify the next report. Refreshed reports must match the requested ID. Thirteen additional synthetic action cases pass with mocked provider/mutation calls. Already-issued writes are not cancelled.
 - [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
 - [ ] Demonstrate optional IEP/confidence/history sections honestly with validated fictional data and the actual renderer, or clearly delimit the existing main-demo coverage.
 - [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
@@ -86,3 +87,6 @@ Saved-report route verification passes TypeScript and all 180 unit files / 1,661
 
 
 Version restore review (October 12): TypeScript and all 181 unit files / 1,669 tests pass. These mocked regressions verify UI context and complete content forwarded to the existing update function, not live server permission enforcement or actual persistence. They do not cancel a save already sent. No document styling, demo content or role authorization changed.
+
+
+Sharing/update completion review (October 12): TypeScript and all 181 unit files / 1,682 tests pass. A full-run worker/timeouts interruption was resolved by rerunning the unchanged suite with two workers. These regressions test client completion context and feedback; live authorization, generated content quality and persistence remain separate acceptance gates. Demo data and document layout are unchanged.

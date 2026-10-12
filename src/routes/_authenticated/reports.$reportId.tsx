@@ -1,7 +1,7 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Copy,
   Check,
@@ -64,6 +64,12 @@ function ReportDetailPage() {
 }
 
 function ReportDetailReader({ reportId }: { reportId: string }) {
+  const active = useRef(false);
+  const sharingBusy = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const search = Route.useSearch();
   const [showWelcome, setShowWelcome] = useState(!!search.welcome);
   const fetchReport = useServerFn(getReport);
@@ -154,12 +160,13 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
     setLinking(true);
     try {
       await linkStudent({ data: { report_id: reportId, student_id: studentId } });
+      if (!active.current) return;
       setState((s) => (s.kind === "ok" ? { ...s, studentId } : s));
       toast.success(studentId ? "Linked to student." : "Link removed.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not link.");
+      if (active.current) toast.error(err instanceof Error ? err.message : "Could not link.");
     } finally {
-      setLinking(false);
+      if (active.current) setLinking(false);
     }
   }
 
@@ -167,7 +174,10 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
     setRegenBusy(true);
     try {
       const res = await regenerate({ data: { report_id: reportId } });
+      if (!active.current) return;
       const fresh = await fetchReport({ data: { id: reportId } });
+      if (!active.current) return;
+      if (fresh.id !== reportId) throw new Error("Could not reopen the updated report.");
       setState({
         kind: "ok",
         name: fresh.student_first_name,
@@ -178,9 +188,9 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
       });
       toast.success(`Regenerated (v${res.version_number}). ${res.change_summary}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not regenerate.");
+      if (active.current) toast.error(err instanceof Error ? err.message : "Could not regenerate.");
     } finally {
-      setRegenBusy(false);
+      if (active.current) setRegenBusy(false);
     }
   }
 
@@ -189,21 +199,29 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
   }
 
 
-  async function generate(audience: "family" | "educator") {
+  async function updateSharing(action: () => Promise<unknown>, failure: string) {
+    if (!active.current || sharingBusy.current) return;
+    sharingBusy.current = true;
     setBusy(true);
     try {
-      await create({ data: { report_id: reportId, audience, expires_in_days: 30 } });
+      await action();
+      if (!active.current) return;
       const r = await listTokens({ data: { report_id: reportId } });
-      setTokens(r.tokens);
+      if (active.current) setTokens(r.tokens);
+    } catch (error) {
+      if (active.current) toast.error(error instanceof Error ? error.message : failure);
     } finally {
-      setBusy(false);
+      sharingBusy.current = false;
+      if (active.current) setBusy(false);
     }
   }
 
+  async function generate(audience: "family" | "educator") {
+    await updateSharing(() => create({ data: { report_id: reportId, audience, expires_in_days: 30 } }), "Could not create the share link. Please try again.");
+  }
+
   async function handleRevoke(id: string) {
-    await revoke({ data: { id } });
-    const r = await listTokens({ data: { report_id: reportId } });
-    setTokens(r.tokens);
+    await updateSharing(() => revoke({ data: { id } }), "Could not revoke the share link. Please try again.");
   }
 
   async function copyShareUrl(token: string) {
@@ -414,7 +432,10 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           currentContent={state.report}
           onRestored={async () => {
             try {
+              if (!active.current) return;
               const fresh = await fetchReport({ data: { id: reportId } });
+              if (!active.current) return;
+              if (fresh.id !== reportId) throw new Error("Could not reopen the restored report.");
               setState({
                 kind: "ok",
                 name: fresh.student_first_name,
@@ -426,7 +447,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
             } catch {
               /* toast already shown by panel */
             }
-            setVersionsKey((k) => k + 1);
+            if (active.current) setVersionsKey((k) => k + 1);
           }}
         />
       </section>
@@ -478,7 +499,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
                       {copiedId === t.token ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       {copiedId === t.token ? "Copied" : "Copy"}
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleRevoke(t.id)}>
+                    <Button variant="ghost" size="sm" disabled={busy} onClick={() => handleRevoke(t.id)}>
                       <Trash2 className="h-4 w-4" /> Revoke
                     </Button>
                   </li>
