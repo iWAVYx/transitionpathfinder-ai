@@ -158,9 +158,9 @@ export const listPptPreps = createServerFn({ method: "GET" })
       .limit(50);
     if (error) {
       console.error("listPptPreps failed", error);
-      return { preps: [] as PptPrepSummary[] };
+      return { preps: [] as PptPrepSummary[], loadFailed: true };
     }
-    return { preps: (data ?? []) as PptPrepSummary[] };
+    return { preps: (data ?? []) as PptPrepSummary[], loadFailed: false };
   });
 
 export const getPptPrep = createServerFn({ method: "POST" })

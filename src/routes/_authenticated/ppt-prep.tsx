@@ -69,6 +69,11 @@ function PptPrepPage() {
 
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [reportsError, setReportsError] = useState(false);
+  const [reportsAttempt, setReportsAttempt] = useState(0);
+  const [prepsLoading, setPrepsLoading] = useState(true);
+  const [prepsError, setPrepsError] = useState(false);
+  const [prepsAttempt, setPrepsAttempt] = useState(0);
   const [savedPreps, setSavedPreps] = useState<PptPrepSummary[]>([]);
   const [reportId, setReportId] = useState<string>("");
   const [meetingDate, setMeetingDate] = useState("");
@@ -79,13 +84,33 @@ function PptPrepPage() {
   const [hydrating, setHydrating] = useState(false);
 
   useEffect(() => {
-    list()
-      .then((r) => setReports(r.reports))
-      .finally(() => setLoadingReports(false));
-    listPreps()
-      .then((r) => setSavedPreps(r.preps))
-      .catch(() => {});
-  }, [list, listPreps]);
+    let cancelled = false;
+    setLoadingReports(true);
+    setReportsError(false);
+    list().then(result => {
+      if (cancelled) return;
+      if (result.loadFailed) throw new Error("Reports unavailable");
+      setReports(result.reports);
+      setReportId(current => result.reports.some(report => report.id === current) ? current : "");
+    }).catch(() => {
+      if (!cancelled) { setReportsError(true); setReports([]); setReportId(""); }
+    }).finally(() => { if (!cancelled) setLoadingReports(false); });
+    return () => { cancelled = true; };
+  }, [list, reportsAttempt]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setPrepsLoading(true);
+    setPrepsError(false);
+    setSavedPreps([]);
+    listPreps().then(result => {
+      if (cancelled) return;
+      if (result.loadFailed) throw new Error("Saved meeting preps unavailable");
+      setSavedPreps(result.preps);
+    }).catch(() => { if (!cancelled) setPrepsError(true); })
+      .finally(() => { if (!cancelled) setPrepsLoading(false); });
+    return () => { cancelled = true; };
+  }, [listPreps, prepsAttempt]);
 
   // Hydrate saved prep from ?id= search param
   useEffect(() => {
@@ -119,7 +144,7 @@ function PptPrepPage() {
   }, [search.id, loadPrep, navigate]);
 
   const onGenerate = async () => {
-    if (!reportId) {
+    if (loadingReports || reportsError || !reports.some(report => report.id === reportId)) {
       toast.error("Pick a Pathway Report first.");
       return;
     }
@@ -129,7 +154,7 @@ function PptPrepPage() {
         data: { report_id: reportId, meeting_date: meetingDate, top_concerns: topConcerns, desired_outcomes: desiredOutcomes },
       });
       // Refresh saved list so the new one appears when they come back.
-      listPreps().then((r) => setSavedPreps(r.preps)).catch(() => {});
+      setPrepsAttempt(current => current + 1);
       if (res.id) {
         // Navigate to the canonical URL so reload/share works.
         navigate({ to: "/ppt-prep", search: { id: res.id } });
@@ -229,7 +254,12 @@ function PptPrepPage() {
           </p>
         </InfoBox>
 
-        {savedPreps.length > 0 && (
+        {prepsLoading && <p className="mt-6 text-sm text-muted-foreground" role="status">Loading saved meeting preps…</p>}
+        {prepsError && <div className="mt-6 rounded-lg border p-4" role="alert">
+          <p>Your saved meeting preps could not be loaded. Please try again.</p>
+          <Button className="mt-3" variant="outline" onClick={() => setPrepsAttempt(current => current + 1)}>Reload Saved Meeting Preps</Button>
+        </div>}
+        {!prepsLoading && !prepsError && savedPreps.length > 0 && (
           <div className="mt-8 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
             <div className="flex items-center gap-2">
               <History className="h-4 w-4 text-primary" />
@@ -268,7 +298,10 @@ function PptPrepPage() {
           </div>
         )}
 
-        {!loadingReports && reports.length === 0 ? (
+        {reportsError ? <div className="mt-10 rounded-lg border p-6" role="alert">
+          <p>Your Pathway Reports could not be loaded. Please try again.</p>
+          <Button className="mt-3" variant="outline" onClick={() => setReportsAttempt(current => current + 1)}>Reload Pathway Reports</Button>
+        </div> : !loadingReports && reports.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
             <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
               <CalendarHeart className="h-6 w-6 text-primary" aria-hidden />
@@ -295,7 +328,7 @@ function PptPrepPage() {
             {loadingReports ? (
               <p className="text-sm text-muted-foreground">Loading your reports…</p>
             ) : (
-              <Select onValueChange={setReportId}>
+              <Select value={reportId} onValueChange={setReportId} disabled={loadingReports || generating}>
                 <SelectTrigger id="ppt-report" aria-label="Pathway Report to build from"><SelectValue placeholder="Choose a report…" /></SelectTrigger>
                 <SelectContent>
                   {reports.map((r) => (
@@ -327,7 +360,7 @@ function PptPrepPage() {
             <Textarea id="ppt-outcomes" rows={3} value={desiredOutcomes} onChange={(e) => setDesiredOutcomes(e.target.value)} />
           </div>
 
-          <Button onClick={onGenerate} disabled={generating || !reportId} className="w-full">
+          <Button onClick={onGenerate} disabled={generating || loadingReports || reportsError || !reportId} className="w-full">
             {generating ? "Drafting your meeting prep…" : "Generate meeting prep"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
@@ -336,7 +369,7 @@ function PptPrepPage() {
         </div>
         )}
 
-        {!(!loadingReports && reports.length === 0) && (
+        {!reportsError && !(!loadingReports && reports.length === 0) && (
           <div className="mt-6">
             <PreMeetingChecklist />
           </div>

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 const state = vi.hoisted(() => ({ id: "prep-a" as string | undefined, get: vi.fn(), list: vi.fn(), preps: vi.fn(), navigate: vi.fn(), error: vi.fn(), deniedWrite: vi.fn(() => { throw new Error("No writes during reader checks"); }) }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: unknown) => ({ options, useSearch: () => ({ id: state.id }) }), useNavigate: () => state.navigate, Link: ({ children, to }: any) => <a href={to}>{children}</a> }));
@@ -68,4 +68,49 @@ it("an older request cannot end the selected guide's loading state", async () =>
   expect(screen.queryByRole("button", { name: "Print Guide" })).toBeNull();
   await act(async () => { finishNext(record("prep-b")); });
   expect(screen.getByText("Notes for prep-b")).toBeTruthy();
+});
+
+const accessibleReport = { id: "report-a", student_first_name: "Sample Student", grade_band: "11-12", created_at: "2026-10-12T12:00:00Z" };
+it.each(["flag", "rejection"])("report load %s is not shown as an empty library and recovers without generation", async failure => {
+  state.id = undefined;
+  if (failure === "flag") state.list.mockResolvedValueOnce({ reports: [], loadFailed: true });
+  else state.list.mockRejectedValueOnce(new Error("Unavailable"));
+  state.list.mockResolvedValueOnce({ reports: [accessibleReport], loadFailed: false });
+  render(<Component />);
+  await screen.findByText("Your Pathway Reports could not be loaded. Please try again.");
+  expect(screen.queryByRole("link", { name: "Create a Pathway Report" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Generate meeting prep" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Reload Pathway Reports" }));
+  await screen.findByRole("combobox", { name: "Pathway Report to build from" });
+  expect(screen.queryByText("Your Pathway Reports could not be loaded. Please try again.")).toBeNull();
+  expect((screen.getByRole("button", { name: "Generate meeting prep" }) as HTMLButtonElement).disabled).toBe(true);
+  expect(state.deniedWrite).not.toHaveBeenCalled(); expect(state.list).toHaveBeenCalledTimes(2);
+});
+it.each(["flag", "rejection"])("saved-history %s can retry without discarding meeting notes", async failure => {
+  state.id = undefined; state.list.mockResolvedValue({ reports: [accessibleReport], loadFailed: false });
+  if (failure === "flag") state.preps.mockResolvedValueOnce({ preps: [], loadFailed: true });
+  else state.preps.mockRejectedValueOnce(new Error("Unavailable"));
+  state.preps.mockResolvedValueOnce({ preps: [{ id: "saved-prep", student_name: "Recovery Student", meeting_date: null, created_at: "2026-10-12T12:00:00Z" }], loadFailed: false });
+  render(<Component />); await screen.findByText("Your saved meeting preps could not be loaded. Please try again.");
+  fireEvent.change(screen.getByLabelText("What's on your mind going in?"), { target: { value: "Preserved meeting concern" } });
+  fireEvent.click(screen.getByRole("button", { name: "Reload Saved Meeting Preps" }));
+  await screen.findByRole("link", { name: /Recovery Student/ });
+  expect((screen.getByLabelText("What's on your mind going in?") as HTMLTextAreaElement).value).toBe("Preserved meeting concern");
+  expect(state.list).toHaveBeenCalledTimes(1); expect(state.preps).toHaveBeenCalledTimes(2); expect(state.deniedWrite).not.toHaveBeenCalled();
+});
+it("report and history failures recover independently", async () => {
+  state.id = undefined; state.list.mockResolvedValueOnce({ reports: [], loadFailed: true }).mockResolvedValueOnce({ reports: [accessibleReport], loadFailed: false });
+  state.preps.mockResolvedValue({ preps: [], loadFailed: true });
+  render(<Component />); await screen.findByRole("button", { name: "Reload Pathway Reports" });
+  await screen.findByRole("button", { name: "Reload Saved Meeting Preps" });
+  fireEvent.click(screen.getByRole("button", { name: "Reload Pathway Reports" }));
+  await screen.findByRole("combobox", { name: "Pathway Report to build from" });
+  expect(screen.getByRole("button", { name: "Reload Saved Meeting Preps" })).toBeTruthy();
+  expect(state.preps).toHaveBeenCalledTimes(1); expect(state.deniedWrite).not.toHaveBeenCalled();
+});
+it("a successful empty report library retains its honest first-report action", async () => {
+  state.id = undefined; state.list.mockResolvedValue({ reports: [], loadFailed: false });
+  render(<Component />); await screen.findByRole("link", { name: "Create a Pathway Report" });
+  expect(screen.queryByRole("button", { name: "Reload Pathway Reports" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Generate meeting prep" })).toBeNull();
 });
