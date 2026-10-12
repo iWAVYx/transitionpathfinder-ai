@@ -12,7 +12,7 @@ We are still in milestone 1. The recent route safeguards are locally verified in
 | --- | --- | --- |
 | 1 — Now | Finish the remaining full draft review, grouped by generation/data boundaries, role/route behavior and document presentation. Fix milestone blockers; assign other findings to their existing milestone. | Record reviewed areas and unresolved findings; passing current-head checks. Do not call a bounded source review a complete PR review. |
 | 2 — Before release | Close remaining main-demo/product presentation gaps for goals, pathways and optional sections, preserving student identity, full source fields, alternatives/cautions and eligible roles. Use explicit fictional examples for any optional IEP/confidence/history coverage. | Source-to-renderer mapping, role/demo browser checks and relevant export review. Existing main-demo coverage is not complete parity; prepared builder reports do not reflect edited inputs. |
-| 3 — Release candidate | Consolidate the final review and exact source candidate with its acceptance plan. Preserve any new Lovable edits before syncing. | A concrete commit/fingerprint, reviewed open-gate list, affected-role matrix and planned synthetic call/cleanup limits. Current local baseline: 1,735 unit tests, 37 document browser cases and 8 most-recent native export fixtures; these are scoped evidence, not live acceptance. |
+| 3 — Release candidate | Consolidate the final review and exact source candidate with its acceptance plan. Preserve any new Lovable edits before syncing. | A concrete commit/fingerprint, reviewed open-gate list, affected-role matrix and planned synthetic call/cleanup limits. Current local baseline: 1,740 unit tests, 37 document browser cases and 8 most-recent native export fixtures; these are scoped evidence, not live acceptance. |
 | 4 — After specific authorization | Merge/release that candidate to isolated staging, verify matching Cloudflare/Lovable source and environment isolation, then exercise signed-in navigation, save/reopen, role denial, permitted generation and exports. | Exact-build evidence per applicable role; no skipped role counted as passed. AI requests need their own bounded authorization. Sharing grant changes follow server-caller release and separate migration authorization. Production is not part of this action. |
 | 5 — Next product workstream | Expand partner/resource coverage and management journeys, then evidence-based planning, Owner/access/communication and final production readiness in milestones 3–6. | Functional source-backed options, approved outreach and verified relationships; completed evidence and readiness gates. The 25-partner goal is not met by research alone. |
 
@@ -84,6 +84,17 @@ Document acceptance requires clearly distinguished sections, uniform heading hie
 - [ ] Finish current PR build/accessibility checks and review the complete draft diff. Use the current Next Actions section above for execution order and current evidence; the older head below is historical. Current review vehicle: PR211. Prior head `82bdce52` passed hosted clean builds, unit, report-a11y, role-guard, static readiness/CT audits and disposable migration replay. The complete draft diff and fresh follow-up-head review remain open. Signed-in/live/RLS checks were skipped, not passed. Final document/export and role-based staging acceptance remain open.
 
 Exit: document/demo gaps above resolved or explicitly bounded with owner agreement, all required checks pass, and a concrete staging release candidate is ready. Includes TF-01, TF-11, TF-13, TF-14, TF-21, TF-23–TF-26 and later document-formatting notes.
+
+
+### Latest Verified Data and Recovery Work
+
+- [x] Saved report/PPT selection clears old document state, ignores late responses and rejects mismatched IDs.
+- [x] Version restoration, sharing and update completion stay with the original report; failures remain visible.
+- [x] Partner suggestions follow the selected student and validate external destinations.
+- [x] PPT setup has independent report/history reload paths and preserves meeting notes.
+- [x] Complete counted report/prep lists replace fixed record windows; linked names load in bounded batches.
+- [x] Report library distinguishes loading failure from a genuinely empty library and offers reload.
+- [ ] Apply the same honest list/detail recovery to Goal Tracker and the older dashboard summary.
 
 ### 2. Verify the Reviewed Package in Isolated Staging — Pending Release Authorization
 
@@ -2690,3 +2701,11 @@ The active roadmap now states ordered actions and their completion evidence with
 - Linked student names are read in deduplicated batches of at most 100 IDs with counted pages. A failed later record page, missing count or failed name batch returns the existing load-failed state, never a partial list presented as complete or empty success.
 - Synthetic handler checks cover 605 linked reports, 1,205 saved preps, seven name batches, caller scope on every prep page, genuine empty lists and later-page/name failures. TypeScript and all 186 unit files / 1,735 tests pass. Document markup and demo fixtures are unchanged; prior 37 browser cases and eight native PDFs remain the presentation evidence.
 - Pagination is not an atomic database snapshot: count changes are rejected, but equal-count concurrent edits are not proven stable. Complete-library loading also needs exact-release signed-in performance/RLS acceptance for large real histories. No provider request, database write, release or production operation was performed. Full draft review and roadmap release gates remain open.
+
+
+## Report Library Recovery and Next Consumers — October 12, 2026
+
+- The actual report library now treats the server load-failed flag and rejected calls as errors, with Reload Reports. It shows the first-report empty state only after a successful empty response. Retry results ignore a departed page; existing search, sorting, density, report links and deletion workflow are preserved.
+- Five synthetic component cases cover shared Family/Educator/Student contexts, successful retry, genuine empty results and a late retry after remount. RoleGuard is mocked: these tests verify the shared library, not actual role permissions. TypeScript and all 187 unit files / 1,740 tests pass. Document/demo renderers are unchanged; prior presentation evidence remains applicable.
+- Next immediate consumer review: Goal Tracker and the older DashboardWidgets summary still ignore listMyReports.loadFailed. Goal Tracker also lacks a guarded rejected/stale report-detail result. Record their retry/context handling as open milestone-1 work; do not count these as fixed by server pagination or the library change.
+- Draft PR211 remains unreleased. Complete draft/source reconciliation, exact candidate identity and authorized signed-in staging acceptance remain open. No provider call, real record mutation, merge, deployment or production operation was performed.
