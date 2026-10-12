@@ -1,3 +1,4 @@
+import { readReportPages } from "./report-query-pages";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -150,17 +151,19 @@ export const listPptPreps = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
-      .from("ppt_meeting_preps")
-      .select("id, student_name, meeting_date, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (error) {
+    try {
+      const preps = await readReportPages<PptPrepSummary>((from, to) => supabase
+        .from("ppt_meeting_preps")
+        .select("id, student_name, meeting_date, created_at", { count: "exact" })
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to));
+      return { preps, loadFailed: false };
+    } catch (error) {
       console.error("listPptPreps failed", error);
       return { preps: [] as PptPrepSummary[], loadFailed: true };
     }
-    return { preps: (data ?? []) as PptPrepSummary[], loadFailed: false };
   });
 
 export const getPptPrep = createServerFn({ method: "POST" })

@@ -1,3 +1,4 @@
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -155,17 +156,6 @@ export const listMyReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
-    const { data, error } = await supabase
-      .from("pathway_reports")
-      .select(
-        "id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band)",
-      )
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (error) {
-      console.error("listMyReports failed", error);
-      return { reports: [] as ReportListRow[], loadFailed: true };
-    }
     type Row = {
       id: string;
       created_at: string;
@@ -174,40 +164,39 @@ export const listMyReports = createServerFn({ method: "GET" })
       content: { summary?: string } | null;
       student_intakes: { student_first_name: string; grade_band: string | null } | null;
     };
-    const rows = (data ?? []) as unknown as Row[];
+    try {
+      const rows = await readReportPages<Row>(async (from, to) => {
+        const result = await supabase
+          .from("pathway_reports")
+          .select("id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band)", { count: "exact" })
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to);
+        return { ...result, data: result.data as unknown as Row[] | null };
+      });
+      const studentIds = rows.map((r) => r.student_id).filter((id): id is string => !!id);
+      const students = await readReportBatches<{ id: string; first_name: string; last_name: string | null }>(
+        studentIds, (ids, from, to) => supabase.from("students")
+          .select("id, first_name, last_name", { count: "exact" })
+          .in("id", ids).order("id", { ascending: true }).range(from, to),
+      );
+      const studentNameMap = new Map(students.map((student) => [student.id,
+        `${student.first_name}${student.last_name ? " " + student.last_name : ""}`]));
 
-    // Resolve linked student names in a single follow-up query.
-    const studentIds = Array.from(
-      new Set(rows.map((r) => r.student_id).filter((x): x is string => !!x)),
-    );
-    const studentNameMap = new Map<string, string>();
-    if (studentIds.length > 0) {
-      const { data: studs } = await supabase
-        .from("students")
-        .select("id, first_name, last_name")
-        .in("id", studentIds);
-      for (const s of studs ?? []) {
-        studentNameMap.set(
-          (s as { id: string }).id,
-          `${(s as { first_name: string }).first_name}${
-            (s as { last_name: string | null }).last_name
-              ? " " + (s as { last_name: string }).last_name
-              : ""
-          }`,
-        );
-      }
+      const reports: ReportListRow[] = rows.map((r) => ({
+        id: r.id,
+        created_at: r.created_at,
+        student_first_name: r.student_intakes?.student_first_name ?? "—",
+        grade_band: r.student_intakes?.grade_band ?? null,
+        summary: r.content?.summary ?? null,
+        student_id: r.student_id,
+        linked_student_name: r.student_id ? (studentNameMap.get(r.student_id) ?? null) : null,
+      }));
+      return { reports, loadFailed: false };
+    } catch (error) {
+      console.error("listMyReports failed", error);
+      return { reports: [] as ReportListRow[], loadFailed: true };
     }
-
-    const reports: ReportListRow[] = rows.map((r) => ({
-      id: r.id,
-      created_at: r.created_at,
-      student_first_name: r.student_intakes?.student_first_name ?? "—",
-      grade_band: r.student_intakes?.grade_band ?? null,
-      summary: r.content?.summary ?? null,
-      student_id: r.student_id,
-      linked_student_name: r.student_id ? (studentNameMap.get(r.student_id) ?? null) : null,
-    }));
-    return { reports, loadFailed: false };
   });
 
 export const getReport = createServerFn({ method: "POST" })

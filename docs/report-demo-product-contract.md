@@ -112,3 +112,11 @@ TypeScript, 185 unit files / 1,721 tests and 37 browser cases pass, with the fin
 
 
 PPT setup recovery (October 12): TypeScript and all 186 unit files / 1,729 tests pass. Only setup/list states and a load-result flag changed; caller scope, packet generation and document rendering remain unchanged. Existing report/prep row limits remain a separate complete-library/per-student-source review finding.
+
+
+## Complete Saved Planning Libraries — October 12, 2026
+
+- Replaced the 100-report and 50-meeting-prep windows with the existing counted pagination helper. Report pages retain the authenticated/RLS client; meeting-prep pages retain the explicit caller user filter. Newest-first ordering includes the unique record ID for ties. Applicable report-library, linked Student/Family planning and PPT setup consumers receive the same complete result without new role access.
+- Linked student names are read in deduplicated batches of at most 100 IDs with counted pages. A failed later record page, missing count or failed name batch returns the existing load-failed state, never a partial list presented as complete or empty success.
+- Synthetic handler checks cover 605 linked reports, 1,205 saved preps, seven name batches, caller scope on every prep page, genuine empty lists and later-page/name failures. TypeScript and all 186 unit files / 1,735 tests pass. Document markup and demo fixtures are unchanged; prior 37 browser cases and eight native PDFs remain the presentation evidence.
+- Pagination is not an atomic database snapshot: count changes are rejected, but equal-count concurrent edits are not proven stable. Complete-library loading also needs exact-release signed-in performance/RLS acceptance for large real histories. No provider request, database write, release or production operation was performed. Full draft review and roadmap release gates remain open.
