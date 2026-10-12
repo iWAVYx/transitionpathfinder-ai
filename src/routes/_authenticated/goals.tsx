@@ -42,33 +42,50 @@ function GoalsPage() {
 
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
+  const [listAttempt, setListAttempt] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [report, setReport] = useState<PathwayReport | null>(null);
   const [reportName, setReportName] = useState<string>("");
   const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState(false);
+  const [reportAttempt, setReportAttempt] = useState(0);
+  const [loadedId, setLoadedId] = useState<string | null>(null);
 
   useEffect(() => {
-    list()
-      .then((r) => {
-        setReports(r.reports);
-        if (r.reports[0]) setSelectedId(r.reports[0].id);
-      })
-      .finally(() => setLoading(false));
-  }, [list]);
+    let cancelled = false;
+    setLoading(true);
+    setListError(false);
+    list().then((result) => {
+      if (cancelled) return;
+      if (result.loadFailed) throw new Error("Reports unavailable");
+      setReports(result.reports);
+      setSelectedId(current => result.reports.some(row => row.id === current)
+        ? current : (result.reports[0]?.id ?? null));
+    }).catch(() => {
+      if (!cancelled) { setReports([]); setSelectedId(null); setListError(true); }
+    }).finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [list, listAttempt]);
 
   useEffect(() => {
-    if (!selectedId) {
-      setReport(null);
-      return;
-    }
+    let cancelled = false;
+    setReport(null);
+    setReportName("");
+    setLoadedId(null);
+    setReportError(false);
+    if (!selectedId) { setReportLoading(false); return; }
     setReportLoading(true);
-    fetchReport({ data: { id: selectedId } })
-      .then((r) => {
-        setReport(r.content as PathwayReport);
-        setReportName(r.student_first_name);
-      })
-      .finally(() => setReportLoading(false));
-  }, [selectedId, fetchReport]);
+    fetchReport({ data: { id: selectedId } }).then((result) => {
+      if (cancelled) return;
+      if (result.id !== selectedId) throw new Error("Report does not match selection");
+      setReport(result.content as PathwayReport);
+      setReportName(result.student_first_name);
+      setLoadedId(selectedId);
+    }).catch(() => { if (!cancelled) setReportError(true); })
+      .finally(() => { if (!cancelled) setReportLoading(false); });
+    return () => { cancelled = true; };
+  }, [selectedId, fetchReport, reportAttempt]);
 
   const goalItems = useMemo(() => {
     if (!report) return [] as { id: string; group: string; label: string }[];
@@ -117,6 +134,11 @@ function GoalsPage() {
 
         {loading ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
+        ) : listError ? (
+          <div role="alert" className="mt-10 rounded-2xl border bg-card p-4">
+            <p className="text-sm">We couldn't load your Pathway Reports. Please try again.</p>
+            <Button variant="outline" className="mt-3" onClick={() => setListAttempt(attempt => attempt + 1)}>Reload Reports</Button>
+          </div>
         ) : reports.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
             <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
@@ -145,6 +167,7 @@ function GoalsPage() {
                   key={r.id}
                   type="button"
                   onClick={() => setSelectedId(r.id)}
+                  aria-pressed={selectedId === r.id}
                   className={cn(
                     "rounded-full border px-4 py-2 text-sm transition-colors",
                     selectedId === r.id
@@ -159,10 +182,15 @@ function GoalsPage() {
             </div>
 
             <div className="mt-8">
-              {reportLoading || !report ? (
+              {reportError ? (
+                <div role="alert" className="rounded-2xl border bg-card p-4">
+                  <p className="text-sm">We couldn't open this report's next steps. Please try again.</p>
+                  <Button variant="outline" className="mt-3" onClick={() => setReportAttempt(attempt => attempt + 1)}>Reload Next Steps</Button>
+                </div>
+              ) : reportLoading || !report || loadedId !== selectedId ? (
                 <p className="text-sm text-muted-foreground">Opening report…</p>
               ) : (
-                <GoalList reportId={selectedId!} studentName={reportName} items={goalItems} />
+                <GoalList key={selectedId!} reportId={selectedId!} studentName={reportName} items={goalItems} />
               )}
             </div>
           </>

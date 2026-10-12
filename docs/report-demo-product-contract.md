@@ -82,7 +82,8 @@ All 36 offline browser cases and 22 native PDF fixtures pass their named checks.
 - [x] PPT setup lookup recovery: independent report/history failures and retry paths, preserved meeting notes, honest successful empty results and generation prerequisites. Six new UI and two mocked server cases pass; this does not prove completeness beyond existing 100-report/50-prep windows.
 - [x] Complete counted report/prep libraries and bounded linked-name batches; fail honestly rather than expose partial results. Eight synthetic server cases pass without provider calls.
 - [x] Actual report library honors load failure, offers retry and distinguishes genuine empty results; five synthetic component cases pass.
-- [ ] Close Goal Tracker and older dashboard-summary list/detail recovery findings recorded below.
+- [x] Goal Tracker list/detail recovery and response/selection isolation; nine synthetic checks pass.
+- [ ] Close Goal Tracker status read/save and source-shape/stable-item findings. Older DashboardWidgets is unused; current-board role acceptance remains open.
 - [ ] Reconcile remaining equivalent age-aware/product goal and pathway presentation while retaining all source-specific fields.
 - [x] Demonstrate optional IEP/confidence/review and update-summary sections with schema-validated fictional data and actual product components. Linked from the prepared builder report, this is a section excerpt with no upload/extraction, full-history or live-record claim. Main age-aware profiles remain unchanged; full-report parity is still open.
 - [ ] Complete the remaining full draft route/presentation diff review; the bounded reviews above do not cover the entire PR.
@@ -131,3 +132,13 @@ PPT setup recovery (October 12): TypeScript and all 186 unit files / 1,729 tests
 - Five synthetic component cases cover shared Family/Educator/Student contexts, successful retry, genuine empty results and a late retry after remount. RoleGuard is mocked: these tests verify the shared library, not actual role permissions. TypeScript and all 187 unit files / 1,740 tests pass. Document/demo renderers are unchanged; prior presentation evidence remains applicable.
 - Next immediate consumer review: Goal Tracker and the older DashboardWidgets summary still ignore listMyReports.loadFailed. Goal Tracker also lacks a guarded rejected/stale report-detail result. Record their retry/context handling as open milestone-1 work; do not count these as fixed by server pagination or the library change.
 - Draft PR211 remains unreleased. Complete draft/source reconciliation, exact candidate identity and authorized signed-in staging acceptance remain open. No provider call, real record mutation, merge, deployment or production operation was performed.
+
+
+## Goal Tracker Report Recovery — October 12, 2026
+
+- Goal Tracker now distinguishes failed report-library reads from genuine empty results and offers Reload Reports. The selected report has its own error and Reload Next Steps control; rejected loads no longer remain on Opening report indefinitely.
+- Superseded report successes/errors are ignored, response IDs must match the selection, old goals are hidden while a new selection loads, and a keyed GoalList resets report-specific status state. Report list retries retain an eligible selection. Existing goal item IDs, report content, status writes and role permissions are unchanged.
+- Nine synthetic component checks cover load-failed/rejected lists, genuine emptiness, rejected/mismatched details, independent retry, old successes/errors, hidden old goals/status and departed list results. TypeScript and all 188 unit files / 1,749 tests pass. RoleGuard/server functions are mocked; this is not real account, persistence or provider acceptance.
+- Role policy continues to allow Goal Tracker for Family/Educator/Admin audiences only. Student, Partner and Owner receive no new access. The demo goal preview remains explicitly static, without live loading/save claims; document/demo renderers and presentation evidence are unchanged.
+- Repository caller search found no application import/use of the old DashboardWidgets component; the signed-in dashboard uses DashboardWidgetBoard. Treat the older summary as unused legacy code, not an active dashboard regression. Any removal/reuse requires review, and current-board role acceptance remains open.
+- Next bounded Goal Tracker review: server-status read failure versus cached/default values; concurrent/departed save completions; legacy/newer source-shape compatibility and stable goal identity. These findings are not resolved by report-load recovery. Whole draft/source reconciliation and exact-release staging gates remain open. No live write, provider call, merge, deployment or production operation was performed.
