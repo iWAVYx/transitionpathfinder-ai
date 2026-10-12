@@ -17,6 +17,8 @@ import { getPathwayReport } from "@/lib/ppt.functions";
 import { listGoalStatuses, upsertGoalStatus } from "@/lib/goal-statuses.functions";
 import { goalTrackerItems, type GoalTrackerItem } from "@/lib/goal-tracker-items";
 
+import { EarlierProgressReview } from "@/components/pathway/EarlierProgressReview";
+import { earlierGoalProgress } from "@/lib/earlier-goal-progress";
 import { toTitleCase } from "@/lib/title-case";
 export const Route = createFileRoute("/_authenticated/goals")({
   head: () => ({ meta: [{ title: "Goal Tracker — TransitionForward" }] }),
@@ -261,20 +263,22 @@ function GoalList({
   }, [reportId, loadStatuses, statusAttempt]);
 
   const setStatus = async (id: string, next: Status) => {
-    if (!activeRef.current || savingRef.current || statusLoading || statusError) return;
+    if (!activeRef.current || savingRef.current || statusLoading || statusError || !items.some(item => item.id === id)) return false;
     savingRef.current = true;
     setSaving(true);
     const updated = { ...statuses, [id]: next };
     setStatuses(updated);
     try {
       await saveStatus({ data: { reportId, itemId: id, status: next } });
-      if (!activeRef.current) return;
+      if (!activeRef.current) return false;
       try { localStorage.setItem(storageKey(reportId), JSON.stringify(updated)); }
       catch { /* Storage is optional. */ }
+      return true;
     } catch {
-      if (!activeRef.current) return;
+      if (!activeRef.current) return false;
       setStatusError(true);
       toast.error("We couldn't confirm this update. Reload your saved progress before trying again.");
+      return false;
     } finally {
       savingRef.current = false;
       if (activeRef.current) setSaving(false);
@@ -288,6 +292,8 @@ function GoalList({
       <Button variant="outline" className="mt-3" onClick={() => setStatusAttempt(attempt => attempt + 1)}>Reload Saved Progress</Button>
     </div>
   );
+
+  const earlierEntries = earlierGoalProgress(statuses);
 
   const totals = items.reduce(
     (acc, it) => {
@@ -308,6 +314,14 @@ function GoalList({
     <div aria-busy={saving}>
       {Object.keys(statuses).some(id => !items.some(item => item.id === id)) && (
         <p role="note" className="mb-4 rounded-2xl border bg-card p-4 text-sm">Some saved progress couldn't be matched to the steps in this view. It remains saved. Review the current steps before recording progress.</p>
+      )}
+      {earlierEntries.length > 0 && items.length > 0 && (
+        <EarlierProgressReview entries={earlierEntries} items={items} statuses={statuses} saving={saving}
+          onApply={async (sourceId, targetId) => {
+            const source = earlierEntries.find(entry => entry.id === sourceId);
+            if (!source || !items.some(item => item.id === targetId)) return false;
+            return setStatus(targetId, source.status);
+          }} />
       )}
       {items.length === 0 && (
         <p className="mb-4 text-sm text-muted-foreground">No next steps are available in this tracker for this report. <Link to="/reports/$reportId" params={{ reportId }} className="underline">Open your Pathway Report</Link> to review its current plan.</p>

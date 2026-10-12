@@ -202,3 +202,62 @@ it("a late Family plan response cannot replace the selected Educator plan", asyn
   expect(screen.queryByText("Family now")).toBeNull();
   expect(screen.getByRole("button",{name:"Educator Plan"}).getAttribute("aria-pressed")).toBe("true");
 });
+
+it("earlier status recovery requires explicit source, destination and confirmation and preserves the original", async () => {
+  const [item] = await goalTrackerItems(report("report-a").content);
+  state.statuses.mockResolvedValue({statuses:{"life:0":"met",[item.id]:"in-progress"}});
+  render(<Page />); await screen.findByText("Review Earlier Progress");
+  const apply = screen.getByRole("button",{name:"Apply Reviewed Progress"}); expect(apply.hasAttribute("disabled")).toBe(true);
+  fireEvent.change(screen.getByLabelText("Earlier Entry"),{target:{value:"life:0"}});
+  fireEvent.change(screen.getByLabelText("Current Step"),{target:{value:item.id}});
+  expect(apply.hasAttribute("disabled")).toBe(true); expect(state.save).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("checkbox")); fireEvent.click(apply);
+  await screen.findByText(/The earlier entry is unchanged/);
+  expect(state.save).toHaveBeenCalledExactlyOnceWith({data:{reportId:"report-a",itemId:item.id,status:"met"}});
+  expect(JSON.parse(localStorage.getItem("tf:goal-status:report-a")!)).toEqual({"life:0":"met",[item.id]:"met"});
+});
+it("changing a reviewed destination clears confirmation before any write", async () => {
+  state.report.mockResolvedValue({...report("report-a"),content:{life_skills_focus:["First current step","Second current step"]}});
+  const items = await goalTrackerItems({life_skills_focus:["First current step","Second current step"]});
+  state.statuses.mockResolvedValue({statuses:{"edu:0":"met"}});
+  render(<Page />); await screen.findByText("Review Earlier Progress");
+  fireEvent.change(screen.getByLabelText("Earlier Entry"),{target:{value:"edu:0"}});
+  fireEvent.change(screen.getByLabelText("Current Step"),{target:{value:items[0].id}}); fireEvent.click(screen.getByRole("checkbox"));
+  fireEvent.change(screen.getByLabelText("Current Step"),{target:{value:items[1].id}});
+  expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(false);
+  expect(screen.getByRole("button",{name:"Apply Reviewed Progress"}).hasAttribute("disabled")).toBe(true); expect(state.save).not.toHaveBeenCalled();
+});
+it.each(["success","failure"])("reviewed-copy %s after report departure cannot affect the next report", async mode => {
+  const [item] = await goalTrackerItems(report("report-a").content); const pending = deferred();
+  state.statuses.mockResolvedValueOnce({statuses:{"life:0":"met"}}); state.save.mockImplementationOnce(()=>pending.promise);
+  render(<Page />); await screen.findByText("Review Earlier Progress");
+  fireEvent.change(screen.getByLabelText("Earlier Entry"),{target:{value:"life:0"}}); fireEvent.change(screen.getByLabelText("Current Step"),{target:{value:item.id}});
+  fireEvent.click(screen.getByRole("checkbox")); fireEvent.click(screen.getByRole("button",{name:"Apply Reviewed Progress"}));
+  fireEvent.click(screen.getByRole("button",{name:"Sample B"})); await screen.findByText("report-b recorded step");
+  await act(async()=>{if(mode==="success")pending.resolve({ok:true});else pending.reject(new Error("Late error"));});
+  expect(screen.queryByText(/The earlier entry is unchanged/)).toBeNull(); expect(state.toast).not.toHaveBeenCalled();
+  expect(state.save.mock.calls[0][0].data.reportId).toBe("report-a");
+});
+it("failed reviewed copies use saved-progress recovery and never change the earlier entry", async () => {
+  const [item] = await goalTrackerItems(report("report-a").content);
+  state.statuses.mockResolvedValue({statuses:{"life:0":"met"}}); state.save.mockRejectedValueOnce(new Error("Unavailable"));
+  render(<Page />); await screen.findByText("Review Earlier Progress");
+  fireEvent.change(screen.getByLabelText("Earlier Entry"),{target:{value:"life:0"}});fireEvent.change(screen.getByLabelText("Current Step"),{target:{value:item.id}});
+  fireEvent.click(screen.getByRole("checkbox"));fireEvent.click(screen.getByRole("button",{name:"Apply Reviewed Progress"}));
+  await screen.findByRole("button",{name:"Reload Saved Progress"});
+  expect(JSON.parse(localStorage.getItem("tf:goal-status:report-a")!)).toEqual({"life:0":"met"});
+  expect(screen.queryByText(/The earlier entry is unchanged/)).toBeNull();
+});
+
+it("a changed current status requires reviewing the copy again", async () => {
+  const [item] = await goalTrackerItems(report("report-a").content);
+  state.statuses.mockResolvedValue({statuses:{"life:0":"met"}});
+  render(<Page />); await screen.findByText("Review Earlier Progress");
+  fireEvent.change(screen.getByLabelText("Earlier Entry"),{target:{value:"life:0"}});
+  fireEvent.change(screen.getByLabelText("Current Step"),{target:{value:item.id}}); fireEvent.click(screen.getByRole("checkbox"));
+  fireEvent.click(screen.getByRole("button",{name:"In progress"}));
+  await waitFor(()=>expect(screen.getByRole("button",{name:"In progress"}).hasAttribute("disabled")).toBe(false));
+  expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(false);
+  expect(screen.getByRole("button",{name:"Apply Reviewed Progress"}).hasAttribute("disabled")).toBe(true);
+  expect(state.save).toHaveBeenCalledTimes(1);
+});
