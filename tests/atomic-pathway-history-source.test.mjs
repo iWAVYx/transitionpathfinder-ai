@@ -27,7 +27,7 @@ test("payload validation and migration-first rollout remain explicit without act
   assert.match(sql, /length\(_change_summary\) > 500/);
   const caller = readFileSync("src/lib/pathway.functions.ts", "utf8");
   assert.doesNotMatch(caller, /save_pathway_report_content_atomic/);
-  assert.match(plan, /No migration has been applied to staging or production and no caller has been switched/);
+  assert.match(plan, /No caller has been switched and production is unchanged/);
   assert.match(plan, /Never retry generation automatically/);
   assert.match(plan, /Local SQL text checks do not prove transaction or RLS behavior/);
 });

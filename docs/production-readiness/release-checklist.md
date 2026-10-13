@@ -209,7 +209,8 @@ remaining production boxes below.
 ### Prepared Transactional Report History — October 12, 2026
 
 - [x] Replay `20261012190000_atomic_pathway_report_content.sql` in disposable PostgreSQL; 12 behavioral cases verify owner/RLS, simultaneous-session conflict, snapshot/update failure rollback and effective grants. Both full canonical replays pass at test source cfd7f912. This does not establish hosted schema/RLS or application acceptance.
-- [ ] Specifically authorize isolated-staging migration application, then verify database behavior before switching both save/regenerate callers. No automatic old-write fallback, generation retry or fabricated schema verification. Follow [the acceptance plan](../pathway-transactional-history-plan.md).
+- [x] Specifically authorized isolated-staging history migration is applied; exact body/grants/ledger and nine rollback-only hosted SQL assertions pass with zero remaining fixtures. Follow [the evidence and acceptance plan](../pathway-transactional-history-plan.md).
+- [ ] Switch both save/regenerate callers with authenticated RPC/error tests, then complete separately authorized staging deployment and signed-in application acceptance. No automatic old-write fallback, generation retry or fabricated schema verification.
 - [ ] Inventory direct content/version writers and record limitations: current UI does not provide a client-observed revision; the operation is not an immutable audit trail. Exact-release role/provider/navigation/export acceptance remains open. Production migration/release requires separate authorization.
 
-The migration is prepared only, unapplied, and unused by current handlers. Its presence in this draft does not authorize a migration runner or deployment.
+The history migration is applied only to isolated staging under specific user authorization and remains unused by current handlers. Its presence in this draft does not authorize production migration, another pending migration, a bulk migration runner or deployment.

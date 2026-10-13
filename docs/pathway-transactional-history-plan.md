@@ -1,6 +1,6 @@
 # Transactional Pathway Report History
 
-Prepared October 12, 2026. No migration has been applied to staging or production and no caller has been switched. Existing save/regenerate behavior still uses separate snapshot and content requests.
+Prepared October 12, 2026; staging execution recorded October 13, 2026. The specifically authorized migration is applied to isolated staging only. No caller has been switched and production is unchanged. Existing save/regenerate behavior still uses separate snapshot and content requests.
 
 ## Prepared Database Operation
 
@@ -47,3 +47,17 @@ PATHWAY_HISTORY_PGLITE_MODULE=/absolute/path/pglite/dist/index.js node --test te
 ```
 
 Real multi-session execution is wired into `.github/workflows/migration-replay.yml` using its disposable service, `pg@8.16.3` installed under `RUNNER_TEMP`, and a throwaway database. Do not repoint that runner to a hosted database.
+
+## Authorized Hosted Staging Evidence — October 13, 2026
+
+The user approved this specific history migration and synthetic acceptance on isolated staging `qgrertkqbwanerqqemph`. The signed-in Supabase dashboard identified that exact project as `staging/E2E`, Healthy. Its normal branch label says main/PRODUCTION; project identity, rather than that branch label, establishes the approved isolated target. No production project was visited or changed.
+
+Preflight verified existing report/version tables with RLS enabled, the unique report/version constraint, actual hosted owner/team policies, synthetic QA Parent/Educator identities and absence of both the new function and ledger version. Only `20261012190000_atomic_pathway_report_content.sql` was applied; no bulk migration runner or other pending migration was used. Reviewed file SHA256: `20fd2d2c2c7efc8bd9d3695fef4f7cf86c3a92cd10f76aaf026b5be54400aea0`.
+
+Function creation/grants and the migration-ledger insertion committed together. Ledger statements retain the reviewed SQL without transaction wrappers; they are stored as one statement-array entry. Verification confirmed exact `pg_proc.prosrc` equality to the reviewed function body, SECURITY INVOKER, `search_path=pg_catalog`, authenticated execution and no PUBLIC/anonymous/service-role execution. Ledger version/name/source equality also passed. An automatic approval review rejected the initial proposed execution over the embedded ledger transaction wrapper; nothing ran then. Removing transaction wrappers from the ledger's stored source produced a single BEGIN/COMMIT submitted script that passed review. No function/grant changes were made to bypass that review.
+
+Nine hosted SQL assertions passed: Family and Educator owner saves and exact snapshots; each identity restoring exact prior saved content; four ordered versions; stale-content conflict with no extra snapshot; conflict after a direct edit without metadata; different-owner denial; missing-identity denial. The first fixture attempt found an ambiguous PL/pgSQL variable in the test script; the labeled/qualified fixture corrected it without changing the installed function. Final execution asserted all nine result rows before rollback. The archived [rollback-only SQL](production-readiness/atomic-history-staging-acceptance-2026-10-13.sql) records the executed fixture. Existing accounts/roles were unchanged. No persistent RLS policy, constraint or failure trigger was altered for hosted checks.
+
+Cleanup independently queried the run-scoped IDs after ROLLBACK: zero reports, zero report versions and zero intakes. No test record was committed. The evidence screenshot is `/private/tmp/tf-atomic-staging-acceptance.png`. No AI/provider request or charge occurred.
+
+Scope limits: SQL sessions set authenticated role and synthetic JWT claim settings; this is actual hosted SQL/RLS execution, not an authenticated browser login or PostgREST/RPC request. Simultaneous-session and injected rollback cases remain established in disposable PostgreSQL, not re-run by imposing failures on hosted tables. Linked-student collaborator policies, Student owner behavior, actual RPC size/timeout serialization, application save/regenerate/restore and committed reload still require their planned checks. Current handlers have not changed; the installed function is available but unused by the product. Next is both-caller source cutover and mocked SDK/error verification, followed by separately authorized staging deployment/application acceptance. Production application remains separately authorized.
