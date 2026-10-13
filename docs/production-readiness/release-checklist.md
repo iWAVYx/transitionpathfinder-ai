@@ -216,3 +216,5 @@ remaining production boxes below.
 - [ ] Inventory direct content/version writers and record limitations: current UI does not provide a client-observed revision; the operation is not an immutable audit trail. Exact-release role/provider/navigation/export acceptance remains open. Production migration/release requires separate authorization.
 
 The history migration is applied only to isolated staging under specific user authorization and remains unused by hosted handlers until deployment; draft callers now use it. Its presence in this draft does not authorize production migration, another pending migration, a bulk migration runner or deployment.
+
+- [ ] Reconcile atomic-history staging ledger representation with the canonical full-file hash before declaring migration history aligned. Previously checked wrapper-free ledger equality is not canonical-file hash equality; do not weaken production comparison or modify historical source to hide the difference. See [candidate review](../pr211-release-review.md).

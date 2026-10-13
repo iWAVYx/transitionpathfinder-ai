@@ -16,7 +16,7 @@ The candidate audit at [run 38347682610](https://github.com/iWAVYx/transitionpat
 
 Against the recorded September 17 production CSV, comparison remains BLOCKED with exactly nine pending production migrations, including this new function. Historical evidence dates, production applied count, alignment rules, reviewed variants/supersessions and staging-only exclusions are unchanged. No fresh production query or authorization is implied. The count correction does not waive, apply or approve any pending migration.
 
-All 68 credential-free readiness/security contract cases and 27 focused environment/testing-initialization unit cases pass locally after the correction. Previous source baseline passes all 200 unit files / 1,916 tests and TypeScript. Its hosted clean builds, unit, accessibility, role guards and disposable migration replay passed; signed-in/credentialed checks were skipped. Fresh CI confirmation of this audit repair remains to be recorded.
+All 68 credential-free readiness/security contract cases and 27 focused environment/testing-initialization unit cases pass locally after the correction. Previous source baseline passes all 200 unit files / 1,916 tests and TypeScript. Its hosted clean builds, unit, accessibility, role guards and disposable migration replay passed; signed-in/credentialed checks were skipped. The repaired [hosted readiness audit 38348269909](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/38348269909) passed at `6a5b69154779177dba1e56020def9762427f1150`. This confirms the static gate, not a production GO decision.
 
 ## Review Boundaries
 
@@ -25,6 +25,12 @@ All 68 credential-free readiness/security contract cases and 27 focused environm
 - Data scopes: reviewed pagination helper and goal-status diff retain exact counts, user/report filters, validation and honest failure behavior. School report metrics reject failed/missing active organization membership before scoped admin queries; District metrics retain district-admin authorization and child-school/student filtering. Stable counts do not establish a transactionally consistent read; broader dashboard/roster volume and hosted permissions remain open.
 - Sharing: server-only token RPC plus audience projection preserves fixed Family/Educator views; its grant migration is still a separate pending authorization after caller release. Direct RPC denial/revocation/expiry must be verified against the exact hosted candidate; the installed atomic-history function does not close this sharing gate.
 - Routes/presentation: prior bounded source, 39 browser cases and 19 native fixtures are evidence for named checks, not exhaustive review of every changed component/route. Main age-aware demo/product goals, recommendations and optional sections still need final reconciliation. Prepared builder reports explicitly do not reflect edited inputs, so dynamic demo/live parity is not declared complete.
+
+## Migration Ledger Representation — Reconciliation Open
+
+The authorized staging execution stored the history migration's source as one ledger entry without its outer BEGIN/COMMIT wrappers. The earlier verification compared this expected stored representation and the exact installed function body; it did not prove full-file canonical hash equality. The canonical comparator and baseline SQL hash complete file/statement text and executable tokens, including those wrappers, so this representation will not match the canonical file hash as-is.
+
+Reconcile this bookkeeping explicitly before declaring staging migration history aligned or preparing a release. Preserve the reviewed file and installed function; do not rewrite canonical migration history, waive the production comparator or invent a reviewed production variant. No additional ledger/database change occurred during this review. The function's previously verified body/grants and nine hosted SQL assertions remain scoped evidence, not proof of canonical-ledger alignment. The initial automatic-review rejection around embedded bookkeeping wrappers remains part of the execution record; a correction must be submitted as a concrete, safely validated bookkeeping action rather than hiding transaction text or re-executing the function.
 
 ## Applicable Role Acceptance
 
