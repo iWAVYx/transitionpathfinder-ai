@@ -23,7 +23,7 @@ import { PathwayReport } from "@/components/demo/PathwayReport";
 import { getDemoProfile, type DemoProfileId } from "@/lib/demo/demo-profiles";
 import { DemoPlanningActions } from "@/components/demo/DemoPlanningActions";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
-import { type SampleCalendarRole } from "@/lib/calendar/sample-events";
+import { type CalendarEvent, type SampleCalendarRole } from "@/lib/calendar/sample-events";
 import { getDemoFeature, isDemoRole, type DemoRole } from "@/lib/demo/feature-routes";
 import {
   getSchoolAdminFeatureDetails,
@@ -120,6 +120,12 @@ function DemoFeatureContent({ role, slug }: { role: DemoRole; slug: string }) {
       resetScroll: false,
     });
   }, [hydrated, demoRole, selected, profileId, navigate, location.pathname, location.hash]);
+  const { schoolId } = useDemoSchool();
+  const { districtId } = useDemoDistrict();
+  const { planId } = useDemoPartnerPlan();
+  const calendarEvents = slug === "calendar"
+    ? demoCalendarEvents(demoRole, getDemoProfile(profileId), undefined, { school: schoolId, district: districtId, plan: planId })
+    : [];
   const contextual = useContextualDetail(demoRole, slug) ?? getDemoFeature(demoRole, slug)!;
   const detail =
     slug === "calendar"
@@ -128,17 +134,17 @@ function DemoFeatureContent({ role, slug }: { role: DemoRole; slug: string }) {
           stats: [
             {
               label: "Sample events",
-              value: String(demoCalendarEvents(demoRole, getDemoProfile(profileId)).length),
+              value: String(calendarEvents.length),
             },
           ],
-          rows: demoCalendarEvents(demoRole, getDemoProfile(profileId)).map((event) => ({
+          rows: calendarEvents.map((event) => ({
             primary: event.title,
             secondary: event.description ?? "Illustrative event — see the sample calendar above.",
             meta: event.scope,
           })),
         }
       : contextual;
-  const richModule = renderRichModule(demoRole, slug, profileId);
+  const richModule = renderRichModule(demoRole, slug, profileId, calendarEvents);
   return <DemoFeatureShell role={demoRole} detail={detail} richModule={richModule} />;
 }
 
@@ -172,7 +178,7 @@ function useContextualDetail(role: DemoRole, slug: string) {
   return null;
 }
 
-function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId): React.ReactNode {
+function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId, calendarEvents: CalendarEvent[]): React.ReactNode {
   const key = `${role}:${slug}`;
   switch (key) {
     // Student
@@ -243,7 +249,7 @@ function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId
               reminders.
             </p>
             <TransitionCalendar
-              events={demoCalendarEvents(role, getDemoProfile(profileId))}
+              events={calendarEvents}
               sample
               initialView="month"
               eyebrow={eyebrowForRole(calRole)}
