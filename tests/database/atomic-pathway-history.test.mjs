@@ -34,7 +34,8 @@ before(async () => {
   if (real) {
     // The host is literal loopback; never accept an arbitrary connection URL.
     if (![undefined, "localhost", "127.0.0.1"].includes(process.env.PGHOST)) throw new Error("Disposable tests require loopback PGHOST");
-    const { Client } = await import(pathToFileURL(process.env.PATHWAY_HISTORY_PG_MODULE).href);
+    const pgModule = await import(pathToFileURL(process.env.PATHWAY_HISTORY_PG_MODULE).href);
+    const { Client } = pgModule.default ?? pgModule;
     const options = { host: "127.0.0.1", port: Number(process.env.PGPORT || 5432), user: process.env.PGUSER, password: process.env.PGPASSWORD, statement_timeout: 10000 };
     const admin = new Client({ ...options, database: "postgres" });
     await admin.connect();
