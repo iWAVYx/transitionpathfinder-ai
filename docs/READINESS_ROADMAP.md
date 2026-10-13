@@ -2922,3 +2922,5 @@ The active roadmap now states ordered actions and their completion evidence with
 - October 13: Fixed prepared-report → optional plan-details → report navigation to preserve Student/Family/Educator view and eligible Family/Educator builder return. Verified 22 offline tests; no new role access, generation or deployment. Full demo/product parity remains open.
 
 - October 13: Shared demo student switching explicitly preserves scroll position alongside role, selected profile, section hash and other URL context. All three planning roles have offline history regressions; exact browser scroll-position and live release acceptance remain open.
+
+- October 13: Demo role-switch routing preserves the selected student on shared tool previews and explicitly pins Student/Family/Educator perspective on workspace/report destinations. Partner/School/District still exit to their own dashboards; Owner remains separate management-only navigation. Browser release acceptance and full demo/live reconciliation remain open.

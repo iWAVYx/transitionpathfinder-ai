@@ -323,3 +323,10 @@ Runtime source: `5113ba283c6bc9a65d8afcae21a0bfc317c27fc21f0bd0dd9ce399e4a68e7a8
 Changing a fictional student now explicitly disables scroll reset in the shared useDemoStudent navigation. Student, Family and Educator regressions verify preserved role, other search parameters and section hash, an added history entry, and backward/forward restoration of the selected sample. The same selector is used by demo dashboards, workspace, reports and feature previews; no new roles or report access are introduced. These are offline router checks, not an exact pixel-position browser acceptance claim. That remains part of the signed-in/demo navigation release matrix.
 
 Runtime fingerprint: `1eaa3b9dac85b59439c11bb7a41f8bcf60a19353f912196cdcd601e9fb0ae736`, 1,128 files; hosted parity remains unverified.
+
+
+## Explicit Demo Role-Switch Context — October 13, 2026
+
+The centralized demo role-switch resolver now includes the selected fictional student when opening a shared feature supported by the target role. Planning workspace/report destinations also carry the selected Student/Family/Educator role explicitly rather than relying on browser storage during hydration. Partner/School/District switches still leave planning routes for their own canonical dashboards; Owner is not a selectable public role-switcher entry and remains separate management-only navigation. Nine additional routing matrix cases cover the three planning perspectives, supported tool handoffs and nonplanning exits. Exact browser scroll restoration and full role-based hosted acceptance remain open.
+
+Local runtime fingerprint: `dae23ecef213cd68752c1b229e4ec73054516d85e36bbcfe564e5245de81bbae`, 1,128 files; not deployed.
