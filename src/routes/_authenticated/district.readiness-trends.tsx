@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/district/readiness-trends"
 });
 
 function DistrictReadinessTrendsPage() {
-  const { data: dash, loading: dashLoading, districtId, reload } = useDistrictDashboard();
+  const { data: dash, loading: dashLoading, districtId, reload, recoverSelection } = useDistrictDashboard();
   const fetchTrends = useServerFn(getDistrictReadinessTrends);
   const { data: trend, loading: trendLoading, reload: reloadTrend } = useOrganizationDashboardLoad<ReadinessTrendData>(
     (id) => fetchTrends({ data: { district_id: id } }),
@@ -48,12 +48,13 @@ function DistrictReadinessTrendsPage() {
       loading={dashLoading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {() => (
         <div className="space-y-6">
           <SchoolComparisonChart schools={[]} />
           {!trendLoading && !trend ? (
-            <OrganizationLoadError onRetry={() => void reloadTrend()} />
+            <OrganizationLoadError onRetry={() => void reloadTrend()} onRecoverSelection={recoverSelection} />
           ) : (
             <TrendsView data={trend} loading={trendLoading} scopeLabel="district" />
           )}

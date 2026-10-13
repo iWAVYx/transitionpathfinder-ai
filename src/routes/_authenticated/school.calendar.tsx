@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/school/calendar")({
 });
 
 function SchoolCalendarPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/calendar"
@@ -36,6 +36,7 @@ function SchoolCalendarPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(org) => (
         <div className="space-y-6">

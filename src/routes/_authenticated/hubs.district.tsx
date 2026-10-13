@@ -27,14 +27,14 @@ export const Route = createFileRoute("/_authenticated/hubs/district")({
 });
 
 function HubPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
 
   return (
     <SiteShell>
       <HubShell hub={getHub("district-strategy")!} hideSpokes hideRelatedLinks>
         <WorkspaceZone>
           {!loading && !data ? (
-            <OrganizationLoadError onRetry={() => void reload()} />
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
           ) : (
             <>
               <DistrictAdminOverviewGrid

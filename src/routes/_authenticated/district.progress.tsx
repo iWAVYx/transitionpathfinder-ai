@@ -29,7 +29,7 @@ function pct(part: number, whole: number): number {
 }
 
 function DistrictProgressPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/progress"
@@ -39,6 +39,7 @@ function DistrictProgressPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(_district, d) => {
         const rows = [...d.schools].sort(

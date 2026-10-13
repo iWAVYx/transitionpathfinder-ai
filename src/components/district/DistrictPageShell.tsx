@@ -1,3 +1,4 @@
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { useState } from "react";
 import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { useServerFn } from "@tanstack/react-start";
@@ -29,13 +30,13 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useDistrictDashboard() {
   const fetchDash = useServerFn(getDistrictDashboard);
-  const { data, loading, id, reload, refreshIfCurrent } = useOrganizationDashboardSelection<DistrictDashboard>(
+  const { data, loading, id, reload, refreshIfCurrent, recoverSelection } = useOrganizationDashboardSelection<DistrictDashboard>(
     "district",
     (id) => fetchDash({ data: { district_id: id } }),
     (dashboard) => dashboard.selected_district_id,
     "Could not load district data.",
   );
-  return { data, loading, districtId: id, reload, refreshIfCurrent };
+  return { data, loading, districtId: id, reload, refreshIfCurrent, recoverSelection };
 }
 
 export function DistrictPageShell({
@@ -46,6 +47,7 @@ export function DistrictPageShell({
   loading,
   districtId,
   onSwitchDistrict,
+  onRecoverSelection,
   children,
 }: {
   path: string;
@@ -55,6 +57,7 @@ export function DistrictPageShell({
   loading: boolean;
   districtId: string | undefined;
   onSwitchDistrict: (id?: string) => void;
+  onRecoverSelection?: () => void;
   children: (district: DistrictOrg, data: DistrictDashboard) => React.ReactNode;
 }) {
   return (
@@ -120,18 +123,7 @@ export function DistrictPageShell({
                   </div>
                 </div>
               ) : !data ? (
-                <div role="alert" className="rounded-xl border p-5">
-                  <p className="text-sm text-foreground/75">
-                    District information could not be loaded. Please try again.
-                  </p>
-                  <Button
-                    className="mt-3"
-                    variant="outline"
-                    onClick={() => onSwitchDistrict(districtId)}
-                  >
-                    Retry
-                  </Button>
-                </div>
+                <OrganizationLoadError onRetry={() => onSwitchDistrict(districtId)} onRecoverSelection={onRecoverSelection} />
               ) : !data.is_district_admin || data.districts.length === 0 ? (
                 <CreateDistrictCard onCreated={() => window.location.reload()} />
               ) : (

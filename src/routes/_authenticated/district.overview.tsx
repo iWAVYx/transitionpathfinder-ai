@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/district/overview")({
 });
 
 function DistrictOverviewPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/overview"
@@ -30,6 +30,7 @@ function DistrictOverviewPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(_, d) => (
         <div className="space-y-6 sm:space-y-8">

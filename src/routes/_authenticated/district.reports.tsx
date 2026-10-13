@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/district/reports")({
 });
 
 function DistrictReportsPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/reports"
@@ -49,6 +49,7 @@ function DistrictReportsPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(district) => <ReportsContent district={district} />}
     </DistrictPageShell>

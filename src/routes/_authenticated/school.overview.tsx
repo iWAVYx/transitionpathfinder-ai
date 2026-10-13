@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/school/overview")({
 });
 
 function SchoolOverviewPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/overview"
@@ -36,6 +36,7 @@ function SchoolOverviewPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(org, d) => (
         <div className="space-y-6 sm:space-y-8">

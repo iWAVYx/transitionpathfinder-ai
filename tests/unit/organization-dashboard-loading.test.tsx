@@ -116,3 +116,15 @@ it("a dependent organization read waits for scope resolution and reloads after r
   rerender({ active: false }); expect(result.current.data).toBeNull();
   rerender({ active: true }); await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
 });
+
+
+it("organization page recovery is explicit and does not replace the Retry action", async () => {
+  const { OrganizationLoadError } = await import("@/components/dashboard/OrganizationLoadError");
+  const retry = vi.fn(); const recover = vi.fn();
+  const view = render(<OrganizationLoadError onRetry={retry} />);
+  expect(screen.queryByRole("button", { name: "Load an Available Workspace", exact: true })).toBeNull();
+  view.rerender(<OrganizationLoadError onRetry={retry} onRecoverSelection={recover} />);
+  expect(screen.getByText(/If this saved selection is no longer available/)).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Retry", exact: true })); expect(retry).toHaveBeenCalledOnce(); expect(recover).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Load an Available Workspace", exact: true })); expect(recover).toHaveBeenCalledOnce();
+});

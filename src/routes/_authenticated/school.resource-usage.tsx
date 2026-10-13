@@ -49,7 +49,7 @@ function fmtDate(iso: string | null): string {
 
 function SchoolResourceUsagePage() {
   const fetchUsage = useServerFn(getSchoolResourceUsage);
-  const { data, loading, reload } = useOrganizationDashboardSelection<SchoolResourceUsage>(
+  const { data, loading, reload, recoverSelection } = useOrganizationDashboardSelection<SchoolResourceUsage>(
     "school",
     (id) => fetchUsage({ data: { org_id: id } }),
     (result) => result.org_id,
@@ -84,7 +84,7 @@ function SchoolResourceUsagePage() {
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : !data ? (
-            <OrganizationLoadError onRetry={() => void reload()} />
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
           ) : !data.is_school_admin ? (
             <Empty title="No school linked yet" body="Set up your school in the Overview to track resource usage." />
           ) : data.team_size === 0 ? (

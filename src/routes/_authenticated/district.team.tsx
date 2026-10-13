@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/district/team")({
 });
 
 function DistrictTeamPage() {
-  const { data, loading, districtId, reload, refreshIfCurrent } = useDistrictDashboard();
+  const { data, loading, districtId, reload, refreshIfCurrent, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/team"
@@ -40,6 +40,7 @@ function DistrictTeamPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(district, d) => (
         <TeamBody key={district.id} districtId={district.id} dashboard={d} onChanged={refreshIfCurrent} />

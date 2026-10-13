@@ -91,5 +91,21 @@ export function useOrganizationDashboardSelection<T>(
     [reader.reload],
   );
 
-  return { ...reader, reload, refreshIfCurrent };
+  const recoverSelection = useCallback(async () => {
+    if (!alive.current || !current.current.active) return;
+    await navigate({
+      to: mountedPath.current,
+      // Explicit undefined prevents the role middleware from retaining the failed key.
+      search: (previous: Record<string, unknown>) => ({ ...previous, [key]: undefined }),
+      hash: location.hash,
+      resetScroll: false,
+    });
+  }, [navigate, key, location.hash]);
+
+  return {
+    ...reader,
+    reload,
+    refreshIfCurrent,
+    recoverSelection: requestedId ? recoverSelection : undefined,
+  };
 }

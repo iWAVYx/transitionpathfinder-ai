@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/school/team")({
 });
 
 function SchoolTeamPage() {
-  const { data, loading, orgId, reload, refreshIfCurrent } = useSchoolDashboard();
+  const { data, loading, orgId, reload, refreshIfCurrent, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/team"
@@ -50,6 +50,7 @@ function SchoolTeamPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(org, d) => <TeamPanel key={org.id} orgId={org.id} members={d.members} pending={d.pending_members} onChanged={() => refreshIfCurrent(org.id)} />}
     </SchoolPageShell>

@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/school/reports")({
 });
 
 function SchoolReportsPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/reports"
@@ -51,6 +51,7 @@ function SchoolReportsPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(org) => <ReportsContent org={org} />}
     </SchoolPageShell>

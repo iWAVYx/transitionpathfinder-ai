@@ -37,7 +37,7 @@ function gapsFor(s: DistrictSchool): { kind: GapKind; label: string }[] {
 }
 
 function DistrictServiceGapsPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/service-gaps"
@@ -47,6 +47,7 @@ function DistrictServiceGapsPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(_district, d) => {
         const flagged = d.schools

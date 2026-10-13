@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/school/readiness-trends")(
 
 function ReadinessTrendsPage() {
   const fetchTrends = useServerFn(getSchoolReadinessTrends);
-  const { data, loading, reload } = useOrganizationDashboardSelection<ReadinessTrendData>(
+  const { data, loading, reload, recoverSelection } = useOrganizationDashboardSelection<ReadinessTrendData>(
     "school",
     (id) => fetchTrends({ data: { org_id: id } }),
     (result) => result.org_id,
@@ -70,7 +70,7 @@ function ReadinessTrendsPage() {
         <SchoolNav />
         <div className="mt-6">
           {!loading && !data ? (
-            <OrganizationLoadError onRetry={() => void reload()} />
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
           ) : (
             <TrendsView data={data} loading={loading} scopeLabel="school" />
           )}

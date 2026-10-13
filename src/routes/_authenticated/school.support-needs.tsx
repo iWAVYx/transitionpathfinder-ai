@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/school/support-needs")({
 
 function SchoolSupportNeedsPage() {
   const fetchNeeds = useServerFn(getSchoolSupportNeeds);
-  const { data, loading, reload } = useOrganizationDashboardSelection<SchoolSupportNeeds>(
+  const { data, loading, reload, recoverSelection } = useOrganizationDashboardSelection<SchoolSupportNeeds>(
     "school",
     (id) => fetchNeeds({ data: { org_id: id } }),
     (result) => result.org_id,
@@ -78,7 +78,7 @@ function SchoolSupportNeedsPage() {
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : !data ? (
-            <OrganizationLoadError onRetry={() => void reload()} />
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
           ) : !data.is_school_admin ? (
             <EmptyCard
               title="No school linked yet"

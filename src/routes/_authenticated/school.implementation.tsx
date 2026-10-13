@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/school/implementation")({
 });
 
 function SchoolImplementationPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/implementation"
@@ -30,6 +30,7 @@ function SchoolImplementationPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(org, dash) => (
         <div className="space-y-6">

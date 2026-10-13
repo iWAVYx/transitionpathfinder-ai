@@ -61,7 +61,7 @@ const STAGE_META: Record<
 };
 
 function DistrictImplementationPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/implementation"
@@ -71,6 +71,7 @@ function DistrictImplementationPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(district, d) => {
         const byStage: Record<Stage, DistrictSchool[]> = {

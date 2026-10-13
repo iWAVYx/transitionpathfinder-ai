@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/hubs/school")({
 });
 
 function HubPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, recoverSelection } = useSchoolDashboard();
 
   const selectedOrgId = orgId ?? data?.selected_org_id ?? data?.orgs[0]?.id;
   return (
@@ -35,7 +35,7 @@ function HubPage() {
       <HubShell hub={getHub("school-implementation")!} hideSpokes hideRelatedLinks>
         <WorkspaceZone>
           {!loading && !data ? (
-            <OrganizationLoadError onRetry={() => void reload()} />
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
           ) : (
             <>
               <SchoolAdminOverviewGrid liveData={data} selectedOrgId={orgId} loading={loading} />

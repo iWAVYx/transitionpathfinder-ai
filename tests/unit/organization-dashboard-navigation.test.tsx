@@ -26,6 +26,7 @@ vi.mock("@/components/site/SiteFooter", () => ({ SiteFooter: () => null }));
 vi.mock("@/components/RoleGuard", () => ({ RoleGuard: () => null }));
 import { useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { useDistrictDashboard } from "@/components/district/DistrictPageShell";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import {
   schoolDashboardNavigation,
   districtDashboardNavigation,
@@ -59,6 +60,12 @@ for (const role of ["school", "district"] as const)
         <>
           <output data-testid="data">{JSON.stringify(reader.data)}</output>
           <output data-testid="loading">{String(reader.loading)}</output>
+          {!reader.loading && !reader.data && (
+            <OrganizationLoadError
+              onRetry={() => void reader.reload()}
+              onRecoverSelection={reader.recoverSelection}
+            />
+          )}
           <button onClick={() => void reader.reload(B)}>Select Second</button>
           <Link to={`/${role}/team`}>Tool</Link>
           <Link to={`/${role}/overview`}>Dashboard</Link>
@@ -141,6 +148,61 @@ for (const role of ["school", "district"] as const)
       await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
       expect(screen.getByTestId("data").textContent).toBe("null");
       expect(api.error).toHaveBeenCalledExactlyOnceWith(`Could not load ${role} data.`);
+    });
+    it("explicit recovery clears only the role selection and preserves hash/search/history", async () => {
+      fetch.mockResolvedValue(dashboard(A));
+      const { router, history } = await open(
+        `/${role}/overview?${key}=${B}&filter=open&preserved=keep#reports`,
+      );
+      await screen.findByRole("button", { name: "Load an Available Workspace", exact: true });
+      expect(screen.getByTestId("data").textContent).toBe("null");
+      expect(fetch).toHaveBeenCalledOnce();
+      fireEvent.click(
+        screen.getByRole("button", { name: "Load an Available Workspace", exact: true }),
+      );
+      await waitFor(() => expect(screen.getByTestId("data").textContent).toContain(A));
+      expect(fetch.mock.calls[1][0]).toEqual({ data: { [key]: undefined } });
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect((router.state.location.search as any)[key]).toBe(A);
+      expect((router.state.location.search as any).filter).toBe("open");
+      expect((router.state.location.search as any).preserved).toBe("keep");
+      expect(router.state.location.hash).toBe("reports");
+      expect(history.length).toBe(2);
+      await act(async () => history.back());
+      await waitFor(() => expect((router.state.location.search as any)[key]).toBe(B));
+      await screen.findByRole("button", { name: "Load an Available Workspace", exact: true });
+      expect(screen.getByTestId("data").textContent).toBe("null");
+    });
+    it("a failed default load stays a retryable error without recovery loops or stale rows", async () => {
+      fetch
+        .mockResolvedValueOnce(dashboard(A))
+        .mockRejectedValue(new Error("Private default error"));
+      const { router } = await open(`/${role}/overview?${key}=${B}#reports`);
+      fireEvent.click(
+        await screen.findByRole("button", { name: "Load an Available Workspace", exact: true }),
+      );
+      await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(screen.getByTestId("loading").textContent).toBe("false"));
+      expect(screen.getByTestId("data").textContent).toBe("null");
+      expect(screen.getByRole("alert").textContent).not.toContain("Private default error");
+      expect(
+        screen.queryByRole("button", { name: "Load an Available Workspace", exact: true }),
+      ).toBeNull();
+      expect((router.state.location.search as any)[key]).toBeUndefined();
+      expect(router.state.location.hash).toBe("reports");
+    });
+    it("a departed recovery callback cannot change Owner navigation or start a read", async () => {
+      fetch.mockResolvedValue(dashboard(A));
+      const { router } = await open(`/${role}/overview?${key}=${B}`);
+      await screen.findByRole("button", { name: "Load an Available Workspace", exact: true });
+      const recover = reader.recoverSelection!;
+      fireEvent.click(screen.getByRole("link", { name: "Owner", exact: true }));
+      await screen.findByText("Owner Management");
+      const calls = fetch.mock.calls.length;
+      await act(async () => recover());
+      expect(router.state.location.pathname).toBe("/owner");
+      expect((router.state.location.search as any)[key]).toBeUndefined();
+      expect(fetch).toHaveBeenCalledTimes(calls);
     });
     it("an old save callback cannot select or reload its departed organization", async () => {
       fetch.mockImplementation(async ({ data }: any) => dashboard(data[key] ?? A));

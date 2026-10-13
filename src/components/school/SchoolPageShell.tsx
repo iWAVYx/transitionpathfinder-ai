@@ -1,3 +1,4 @@
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { useState } from "react";
 import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { useServerFn } from "@tanstack/react-start";
@@ -28,13 +29,13 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useSchoolDashboard() {
   const fetchDash = useServerFn(getSchoolDashboard);
-  const { data, loading, id, reload, refreshIfCurrent } = useOrganizationDashboardSelection<SchoolDashboard>(
+  const { data, loading, id, reload, refreshIfCurrent, recoverSelection } = useOrganizationDashboardSelection<SchoolDashboard>(
     "school",
     (id) => fetchDash({ data: { org_id: id } }),
     (dashboard) => dashboard.selected_org_id,
     "Could not load school data.",
   );
-  return { data, loading, orgId: id, reload, refreshIfCurrent };
+  return { data, loading, orgId: id, reload, refreshIfCurrent, recoverSelection };
 }
 
 export function SchoolPageShell({
@@ -45,6 +46,7 @@ export function SchoolPageShell({
   loading,
   orgId,
   onSwitchOrg,
+  onRecoverSelection,
   children,
 }: {
   path: string;
@@ -54,6 +56,7 @@ export function SchoolPageShell({
   loading: boolean;
   orgId: string | undefined;
   onSwitchOrg: (id?: string) => void;
+  onRecoverSelection?: () => void;
   children: (org: SchoolOrg, data: SchoolDashboard) => React.ReactNode;
 }) {
   return (
@@ -112,18 +115,7 @@ export function SchoolPageShell({
                 </div>
               </div>
             ) : !data ? (
-              <div role="alert" className="rounded-xl border p-5">
-                <p className="text-sm text-foreground/75">
-                  School information could not be loaded. Please try again.
-                </p>
-                <Button
-                  className="mt-3"
-                  variant="outline"
-                  onClick={() => onSwitchOrg(orgId)}
-                >
-                  Retry
-                </Button>
-              </div>
+              <OrganizationLoadError onRetry={() => onSwitchOrg(orgId)} onRecoverSelection={onRecoverSelection} />
             ) : !data.is_school_admin || data.orgs.length === 0 ? (
               <CreateSchoolCard onCreated={() => window.location.reload()} />
             ) : (
