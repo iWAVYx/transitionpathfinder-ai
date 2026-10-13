@@ -1,3 +1,4 @@
+import { withVisibleSectionUpdates } from "./report-section-updates";
 import { reportWebDestination } from "./report-match-details";
 import { ReportSchema, type PathwayReport } from "@/lib/pathway-generation-contract";
 import { PathwayReportV2, StudentSnapshot, type SourceRef } from "@/lib/pathway-v2";
@@ -17,7 +18,7 @@ export function projectSharedReport(content: unknown, audience: SharedReportAudi
   if (raw.schema_version !== undefined && raw.schema_version !== 1 && raw.schema_version !== 2) return null;
   const snapshot = ReportSchema.shape.student_snapshot.safeParse(raw.student_snapshot);
   if (raw.schema_version !== 2) {
-    return snapshot.success ? { ...legacy.data, student_snapshot: snapshot.data } : null;
+    return snapshot.success ? withVisibleSectionUpdates(raw, { ...legacy.data, student_snapshot: snapshot.data }) : null;
   }
   const richer = PathwayReportV2.omit({ student_snapshot: true }).safeParse(raw);
   const identity = StudentSnapshot.safeParse(raw.student_snapshot);
@@ -38,7 +39,7 @@ export function projectSharedReport(content: unknown, audience: SharedReportAudi
   const iep = r.iep_plan_summary;
   // ReportView accepts the historical report type and separately validates the
   // newer identity snapshot before rendering it. The transport remains JSON.
-  return {
+  const projected = {
     ...legacy.data,
     schema_version: 2,
     student_snapshot: snapshot.success ? snapshot.data : identity.data,
@@ -77,4 +78,5 @@ export function projectSharedReport(content: unknown, audience: SharedReportAudi
     ...(audience === "family" ? { plain_language_summary: summary } : { professional_summary: summary }),
     change_summary: r.change_summary,
   } as unknown as PathwayReport;
+  return withVisibleSectionUpdates(raw, projected);
 }

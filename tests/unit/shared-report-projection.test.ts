@@ -65,3 +65,23 @@ it("fails closed without a supported audience", () => {
   expect(projectSharedReport(report(), "student" as any)).toBeNull();
   expect(projectSharedReport(report(), undefined as any)).toBeNull();
 });
+
+
+it.each(["family", "educator"] as const)("shared %s update status stays within its permitted fields", async audience => {
+  const { recordGeneratedSections, readSectionUpdates } = await import("../../src/lib/report-section-updates");
+  const original = recordGeneratedSections(undefined, richerSharedFixture(), "2026-10-12T18:00:00.000Z");
+  const projected = projectSharedReport(original, audience)!;
+  const fields = readSectionUpdates(projected)!.fields;
+  expect(fields.confidence).toBeUndefined();
+  expect(fields[audience === "family" ? "plain_language_summary" : "professional_summary"].operation).toBe("generated");
+  expect(fields.inputs_used).toBeUndefined();
+  if (audience === "family") expect(fields.educator_action_plan_v2).toBeUndefined();
+  else expect(fields.educator_action_plan_v2.operation).toBe("generated");
+  expect(JSON.stringify((projected as any).section_updates)).not.toMatch(/private-answer|a1111111|inputs_used/);
+});
+it("valid legacy section history survives sharing without backfilling older unknown fields", async () => {
+  const { recordSavedSections, readSectionUpdates } = await import("../../src/lib/report-section-updates");
+  const original = report();
+  const edited = recordSavedSections(original, { ...original, summary: "Edited summary" }, "2026-10-12T18:00:00.000Z");
+  expect(readSectionUpdates(projectSharedReport(edited, "family"))?.fields).toEqual({ summary: { operation: "saved", recorded_at: "2026-10-12T18:00:00.000Z" } });
+});

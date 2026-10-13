@@ -6,7 +6,7 @@ import { PathwayReportV2, StudentSnapshot } from "@/lib/pathway-v2";
 const PRESERVED_FIELDS = new Set([
   "type", "level", "readiness_level", "confidence_level", "overall", "status",
   "owner_role", "for_audience", "kind", "timeframe", "section", "blocks_section",
-  "schema_version", "id", "url", "href", "inputs_used", "source_doc_ids",
+  "section_updates", "schema_version", "id", "url", "href", "inputs_used", "source_doc_ids",
   "display_name", "student_first_name", "school", "district", "case_manager", "organization",
   "grade", "grade_level", "grade_band", "graduation_timeline", "plan_type",
   "generated_at", "last_updated", "readiness_at", "plan_date_start", "plan_date_end", "suggested_deadline",

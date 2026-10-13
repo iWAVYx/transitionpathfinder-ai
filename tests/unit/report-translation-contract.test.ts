@@ -69,3 +69,14 @@ it.each([null, {}, { ...legacy(), schema_version: 3 }])("rejects unsupported sou
 it("rejects oversized document text instead of truncating it", () => {
   expect(() => prepareReportTranslation({ ...legacy(), summary: "Long text ".repeat(15000) })).toThrow("too long");
 });
+
+
+it.each([legacy, rich])("preserves server section status while translating text without sending metadata to the provider", async fixture => {
+  const { recordGeneratedSections, readSectionUpdates } = await import("../../src/lib/report-section-updates");
+  const original = recordGeneratedSections(undefined, fixture(), "2026-10-12T18:00:00.000Z");
+  const prepared = prepareReportTranslation(original);
+  expect(JSON.stringify(prepared.texts)).not.toMatch(/section_updates|recorded_at|2026-10-12T18:00:00/);
+  const output = prepared.apply(translated(prepared));
+  expect(readSectionUpdates(output)).toEqual(readSectionUpdates(original));
+  expect(output.summary).toBe(`Translated: ${original.summary}`);
+});
