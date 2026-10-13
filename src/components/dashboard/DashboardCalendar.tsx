@@ -43,8 +43,8 @@ import {
 } from "@/lib/calendar.functions";
 import {
   buildGoogleCalendarUrl,
+  calendarRecordForExport as toIcsEvent,
   downloadDashboardIcs,
-  type CalendarEvent as IcsEvent,
 } from "@/lib/calendar-events";
 
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
@@ -144,22 +144,6 @@ function kindStyles(kind: TeamCalendarEvent["kind"]) {
         label: "Personal",
       };
   }
-}
-
-function toIcsEvent(ev: TeamCalendarEvent): IcsEvent {
-  return {
-    id: ev.id,
-    date: parseDate(ev.event_date),
-    title: ev.title,
-    detail: ev.detail,
-    kind: ev.kind === "meeting"
-      ? "meeting"
-      : ev.kind === "prep"
-        ? "prep"
-        : ev.kind === "action"
-          ? "action"
-          : "goal",
-  };
 }
 
 type OrgOption = { id: string; name: string };

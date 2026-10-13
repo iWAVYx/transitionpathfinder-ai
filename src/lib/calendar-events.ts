@@ -3,6 +3,7 @@
 // the upcoming PPT/IEP meeting, and a derived prep-deadline timeline that
 // mirrors the Meeting Prep page — and provides Google Calendar + .ics export.
 
+import type { TeamCalendarEvent } from "@/lib/calendar.functions";
 import type { DashboardSnapshot, ActionItemRow } from "@/lib/golden-path.functions";
 
 export type CalendarEventKind =
@@ -14,6 +15,9 @@ export type CalendarEventKind =
 export type CalendarEvent = {
   id: string;
   date: Date;
+  /** Present for saved calendar records; legacy date-only reminders omit it. */
+  allDay?: boolean;
+  endDate?: Date;
   title: string;
   detail: string;
   kind: CalendarEventKind;
@@ -26,6 +30,21 @@ export type CalendarEvent = {
   // Deep link inside the app, if applicable
   href?: string;
 };
+
+/** Preserve saved calendar dates/times; do not turn them into derived reminder slots. */
+export function calendarRecordForExport(ev: Pick<TeamCalendarEvent, "id" | "event_date" | "start_time" | "end_time" | "all_day" | "title" | "detail" | "kind">): CalendarEvent {
+  const [year, month, day] = ev.event_date.split("-").map(Number);
+  const at = (time?: string | null) => {
+    const [hour = 0, minute = 0, second = 0] = (time ?? "00:00:00").split(":").map(Number);
+    return new Date(year, month - 1, day, hour, minute, second);
+  };
+  return {
+    id: ev.id, date: at(ev.all_day ? null : ev.start_time),
+    endDate: !ev.all_day && ev.end_time ? at(ev.end_time) : undefined,
+    allDay: ev.all_day, title: ev.title, detail: ev.detail,
+    kind: ev.kind === "meeting" || ev.kind === "prep" || ev.kind === "action" ? ev.kind : "goal",
+  };
+}
 
 // ---- Date helpers ----------------------------------------------------------
 
@@ -164,13 +183,14 @@ function gcalDate(d: Date) {
 }
 
 export function buildGoogleCalendarUrl(ev: CalendarEvent, tz?: string) {
-  const start = gcalDate(ev.date);
-  const end = new Date(ev.date);
-  end.setDate(end.getDate() + 1);
+  const timed = ev.allDay === false;
+  const start = timed ? icsLocal(ev.date) : gcalDate(ev.date);
+  const end = timed ? ev.endDate ?? new Date(ev.date.getTime() + 30 * 60 * 1000) : new Date(ev.date);
+  if (!timed) end.setDate(end.getDate() + 1);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: ev.title,
-    dates: `${start}/${gcalDate(end)}`,
+    dates: `${start}/${timed ? icsLocal(end) : gcalDate(end)}`,
     details: ev.detail || "From TransitionForward",
   });
   if (tz) params.set("ctz", tz);
@@ -324,22 +344,24 @@ export function buildIcsForEvents(events: CalendarEvent[], tz?: string) {
   const stamp = icsStamp();
   const tzid = tz && VTIMEZONES[tz] ? tz : null;
   const vevents = events.map((ev, idx) => {
-    // Anchor each reminder to 9:00 AM local on its date with a 30-min window.
+    // Legacy date-only reminders retain their 9:00 AM slot; saved timed records retain their supplied clock times.
     // When TZID is present, Outlook/Apple/Google render it at 9 AM in that
     // timezone instead of as a floating all-day event.
-    const start = new Date(
+    const start = ev.allDay === false ? new Date(ev.date) : new Date(
       ev.date.getFullYear(),
       ev.date.getMonth(),
       ev.date.getDate(),
       9, 0, 0,
     );
-    const end = new Date(start.getTime() + 30 * 60 * 1000);
-    const dtStart = tzid
-      ? `DTSTART;TZID=${tzid}:${icsLocal(start)}`
-      : `DTSTART:${icsLocal(start)}`;
-    const dtEnd = tzid
-      ? `DTEND;TZID=${tzid}:${icsLocal(end)}`
-      : `DTEND:${icsLocal(end)}`;
+    const end = ev.endDate ?? new Date(start.getTime() + 30 * 60 * 1000);
+    const dtStart = ev.allDay
+      ? `DTSTART;VALUE=DATE:${gcalDate(ev.date)}`
+      : tzid ? `DTSTART;TZID=${tzid}:${icsLocal(start)}` : `DTSTART:${icsLocal(start)}`;
+    const nextDay = new Date(ev.date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const dtEnd = ev.allDay
+      ? `DTEND;VALUE=DATE:${gcalDate(nextDay)}`
+      : tzid ? `DTEND;TZID=${tzid}:${icsLocal(end)}` : `DTEND:${icsLocal(end)}`;
     return [
       "BEGIN:VEVENT",
       `UID:${ev.id}-${idx}@transitionforward`,

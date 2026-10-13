@@ -89,3 +89,8 @@ describe("organization calendar preview destinations", () => {
       .toEqual(demoCalendarEvents("school-admin", profile).map(event => event.href));
   });
 });
+
+it("the school report deadline opens the existing report-completion preview", () => {
+  const event = demoCalendarEvents("school-admin", getDemoProfile("sam"), undefined, { school: "specialized" }).find(event => event.id === "sa3");
+  expect(event?.href).toBe("/demo/feature/school-admin/report-completion?school=specialized");
+});
