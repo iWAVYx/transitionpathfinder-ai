@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { prepareReportTranslation } from "../../src/lib/report-translation-contract";
 import { DEMO_STUDENTS } from "../../src/lib/demo-data";
 const mocks = vi.hoisted(() => ({ server: vi.fn() }));
@@ -23,19 +23,28 @@ it.each(["student", "family", "educator"] as const)("shows the translated newer 
   const report = { ...structuredClone(DEMO_STUDENTS.maya.report), schema_version: 2,
     student_snapshot: { display_name: "Maya Rivera", grade: "12", headline: "A recorded headline" },
     plain_language_summary: "A recorded plain-language summary", professional_summary: "A recorded professional summary",
+    spin: { strengths: ["Current recorded strength"] },
     family_action_plan_v2: { intro: "A recorded family plan", horizons: { thirty_day: ["A recorded thirty-day action"], ninety_day: ["A recorded ninety-day action"], six_month: ["A recorded six-month action"], one_year: ["A recorded one-year action"] } },
   };
-  render(<ReportView name="Maya" report={report as any} hasV2 initialAudience={audience} />);
+  const { container } = render(<ReportView name="Maya" report={report as any} hasV2 initialAudience={audience} />);
   const summary = audience === "educator" ? report.professional_summary : report.plain_language_summary;
-  expect(screen.getByText(summary)).toBeTruthy();
+  expect(screen.getAllByText(summary)).toHaveLength(2);
+  const overview = within(container.querySelector('[data-report-overview]') as HTMLElement);
+  expect(overview.getByText(summary)).toBeTruthy();
+  expect(overview.getByText("Current recorded strength")).toBeTruthy();
+  expect(overview.queryByText("Best-Fit Direction")).toBeNull();
   fireEvent.click(screen.getByText("Apply Fixture Translation", { selector: "button" }));
-  expect(screen.getByText(`Translated: ${summary}`)).toBeTruthy();
+  expect(screen.getAllByText(`Translated: ${summary}`)).toHaveLength(2);
+  expect(overview.getByText(`Translated: ${summary}`)).toBeTruthy();
+  expect(overview.getByText("Translated: Current recorded strength")).toBeTruthy();
   expect(screen.queryByText(summary)).toBeNull();
   expect(screen.getByText("Translated: A recorded headline")).toBeTruthy();
   expect(screen.getByText("Translated: A recorded family plan")).toBeTruthy();
   expect(screen.getByText("Grade 12")).toBeTruthy();
   fireEvent.click(screen.getByText("Reset Fixture Translation", { selector: "button" }));
-  expect(screen.getByText(summary)).toBeTruthy();
+  expect(screen.getAllByText(summary)).toHaveLength(2);
+  expect(overview.getByText(summary)).toBeTruthy();
+  expect(overview.getByText("Current recorded strength")).toBeTruthy();
   expect(screen.queryByText(`Translated: ${summary}`)).toBeNull();
   expect(screen.getByText("A recorded family plan")).toBeTruthy();
   expect(mocks.server).not.toHaveBeenCalled();

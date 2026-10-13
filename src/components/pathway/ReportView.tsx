@@ -3,6 +3,7 @@ import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
 import { reportSourceLabels } from "@/lib/report-source-summary";
+import { reportOverviewContent } from "@/lib/report-overview-content";
 import { reportNextStepPreview } from "@/lib/report-next-step-preview";
 import { reportPrintPlans } from "@/lib/report-print-plans";
 import { getLegacyReportSnapshot } from "@/lib/report-snapshot-contract";
@@ -407,10 +408,7 @@ function ReportViewReader({
   }), [displayReport]);
 
   // Executive Summary inputs (derived, no new data required)
-  const topStrengths = (r.strengths_snapshot ?? []).slice(0, 3);
-  const bestFitPathway =
-    r.recommended_pathways?.find((p) => p.type === "best-fit") ??
-    r.recommended_pathways?.[0];
+  const overview = reportOverviewContent(r, audience, hasV2);
   const nextStepPreview = reportNextStepPreview(r, audience, hasV2);
   const teamQuestions = reportTeamQuestions(r, audience, hasV2);
   const today = new Date().toLocaleDateString(undefined, {
@@ -777,8 +775,7 @@ function ReportViewReader({
 
       {/* ============ Executive Summary ============ */}
       <section className="mt-10 page-break exec-summary">
-        <ReportOverview summary={r.summary} strengths={topStrengths}
-          direction={bestFitPathway ? { label: "Best-Fit Direction", title: bestFitPathway.title, explanation: bestFitPathway.why_it_fits } : undefined}
+        <ReportOverview {...overview}
           nextSteps={nextStepPreview} />
       </section>
 

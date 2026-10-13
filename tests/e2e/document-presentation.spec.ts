@@ -538,7 +538,10 @@ test("regenerated identity snapshots render without empty legacy labels for ever
     await expect(page.getByText("Grade 12", { exact: true })).toBeVisible();
     await expect(page.getByText("Fictional School", { exact: true })).toBeVisible();
     await expect(page.getByText("A recorded identity snapshot", { exact: true })).toBeVisible();
-    await expect(page.getByText(audience === "educator" ? "Fictional professional planning summary." : "Fictional plain-language planning summary.", { exact: true })).toBeVisible();
+    const summary = page.getByText(audience === "educator" ? "Fictional professional planning summary." : "Fictional plain-language planning summary.", { exact: true });
+    await expect(summary).toHaveCount(2);
+    await expect(summary.nth(0)).toBeVisible();
+    await expect(summary.nth(1)).toBeVisible();
     await expect(page.getByText("Where Maya Is Now", { exact: true })).toHaveCount(0);
   }
 });
@@ -573,7 +576,10 @@ test("projected newer shared reports retain permitted plans and source counts on
       for (const target of targets) await expect(page.locator(target)).toHaveCount(1);
       await contents.locator('a[href="#v2-family-plan"]').click();
       await expect(page).toHaveURL(/#v2-family-plan$/);
-      await expect(page.getByText(audience === "family" ? "Family summary" : "Educator summary", { exact: true })).toBeVisible();
+      const summaries = page.getByText(audience === "family" ? "Family summary" : "Educator summary", { exact: true });
+      await expect(summaries).toHaveCount(2);
+      await expect(summaries.nth(0)).toBeVisible();
+      await expect(summaries.nth(1)).toBeVisible();
       await expect(page.getByRole("tab")).toHaveCount(0);
       const resourceLink = page.locator("#v2-resources").getByRole("link", { name: "Open Resource: Explore a supported visit" });
       const partnerLink = page.locator("#v2-partners").getByRole("link", { name: "Open Program or Opportunity: Explore a supported visit" });
@@ -1049,13 +1055,13 @@ test("complete best-fit explanation matches screen and print for planning and sh
   const css = compiler.build(scanner.scan());
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   const explanation = "A recorded observation explains how the student's interests and support needs inform this direction. ".repeat(20) + "Final recorded consideration: review the visit with the team.";
-  const original = components.richerSharedFixture();
+  const original = structuredClone(components.DEMO_STUDENTS.maya.report);
   original.recommended_pathways[0].why_it_fits = explanation;
   for (const audience of ["student", "family", "educator"]) for (const mode of audience === "student" ? ["demo", "live"] : ["demo", "live", "shared"]) {
     const shared = mode === "shared";
     const report = shared ? components.projectSharedReport(original, audience) : original;
     const body = renderToStaticMarkup(createElement(components.ReportView, {
-      name: "Fictional Student", report, hasV2: true, demo: mode === "demo", readOnly: shared,
+      name: "Fictional Student", report, hasV2: false, demo: mode === "demo", readOnly: shared,
       initialAudience: audience, fixedAudience: shared ? audience : undefined,
     }));
     for (const width of [390, 1024]) {
@@ -1694,8 +1700,8 @@ test("demo and product overviews retain their own source content and role-specif
         strengths: profile.learning.strengths.slice(0, 3), direction: report.pathwayOptions[0]?.fitSummary,
         actions: components.demoReportNextStepPreview(report.nextSteps, audience), report };
     });
-    const actual = components.richerSharedFixture();
-    fixtures.push({ name: "product", markup: renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report: actual, hasV2: true, initialAudience: audience })), summary: actual.summary, strengths: [], direction: undefined, actions: undefined, report: undefined } as any);
+    const actual = { ...components.richerSharedFixture(), spin: { strengths: ["Current source strength"] } };
+    fixtures.push({ name: "product", markup: renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report: actual, hasV2: true, initialAudience: audience })), summary: audience === "educator" ? actual.professional_summary : actual.plain_language_summary, strengths: actual.spin.strengths, direction: undefined, actions: undefined, report: undefined } as any);
     for (const fixture of fixtures) for (const width of [390, 1024]) for (const media of ["screen", "print"] as const) {
       await page.setViewportSize({ width, height: 900 });
       await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${fixture.markup}</div></main></body></html>`);
@@ -1706,6 +1712,11 @@ test("demo and product overviews retain their own source content and role-specif
       await expect(overview).toContainText(fixture.summary);
       for (const strength of fixture.strengths) await expect(overview).toContainText(strength);
       if (fixture.direction) await expect(overview).toContainText(fixture.direction);
+      if (fixture.name === "product") {
+        await expect(overview).not.toContainText(actual.summary);
+        await expect(overview.locator('[data-report-best-fit-explanation]')).toHaveCount(0);
+        await expect(page.locator('#sec-pathways')).toContainText(actual.recommended_pathways[0].why_it_fits);
+      }
       if (fixture.actions) {
         await expect(overview.locator(".pub-sidebar-label")).toHaveText(fixture.actions.label);
         for (const action of fixture.actions.items) await expect(overview.locator(".pub-sidebar-body")).toContainText(action);
