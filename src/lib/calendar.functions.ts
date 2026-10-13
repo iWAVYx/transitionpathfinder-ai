@@ -112,6 +112,7 @@ async function listAccessibleStudentIds(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   studentId?: string,
+  organizationId?: string,
 ): Promise<Array<{ id: string; name: string }>> {
   let query = supabase
     .from("students")
@@ -119,6 +120,7 @@ async function listAccessibleStudentIds(
     .order("created_at", { ascending: false })
     .limit(500);
   if (studentId) query = query.eq("id", studentId);
+  if (organizationId) query = query.eq("organization_id", organizationId);
   const { data, error } = await query;
   if (error) throw new Error("Could not load authorized calendar students.");
   return ((data ?? []) as Array<{
@@ -138,6 +140,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       .object({
         // Optional: scope to a single student. Otherwise aggregate across all accessible students.
         student_id: z.string().uuid().optional(),
+        organization_id: z.string().uuid().optional(),
         // ISO date strings (YYYY-MM-DD). Defaults to a 6-month window centered on today.
         from: z.string().optional(),
         to: z.string().optional(),
@@ -147,6 +150,12 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ events: TeamCalendarEvent[] }> => {
     const { supabase, userId } = context;
 
+    if (data.organization_id) {
+      const { data: membership, error } = await supabase.from("organization_memberships")
+        .select("organization_id").eq("user_id", userId).eq("organization_id", data.organization_id)
+        .eq("status", "active").maybeSingle();
+      if (error || !membership) throw new Error("This organization calendar is unavailable.");
+    }
     const today = new Date();
     const defaultFrom = new Date(today);
     defaultFrom.setMonth(defaultFrom.getMonth() - 1);
@@ -156,7 +165,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     const toIso = data.to ?? toIsoDate(defaultTo);
 
     // Resolve accessible students (filtered to one if requested).
-    const students = await listAccessibleStudentIds(supabase, data.student_id);
+    const students = await listAccessibleStudentIds(supabase, data.student_id, data.organization_id);
     const ids = students.map((s) => s.id);
     const nameById = new Map(students.map((s) => [s.id, s.name]));
 
@@ -418,7 +427,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     }
 
     // Resource follow-ups the caller saved with a follow_up_date.
-    const { data: savedFollowups } = await supabase
+    const { data: savedFollowups } = data.organization_id ? { data: [] } : await supabase
       .from("saved_resources")
       .select("id, follow_up_date, resource:resources(id,title)")
       .eq("user_id", userId)
@@ -460,13 +469,17 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     }
 
     // Custom calendar_events visible to the caller (RLS handles visibility tiers).
-    const calRes = await supabase
+    let calendarQuery = supabase
       .from("calendar_events")
       .select(
         "id, owner_user_id, student_id, title, detail, event_date, visibility, event_type, start_time, end_time, all_day, location, meeting_link, color_label, status, related_organization_id, related_pathway_report_id, related_action_item_id, related_meeting_id",
       )
       .gte("event_date", fromIso)
       .lte("event_date", toIso);
+    if (data.organization_id) calendarQuery = calendarQuery.eq("related_organization_id", data.organization_id);
+    if (data.student_id) calendarQuery = calendarQuery.eq("student_id", data.student_id);
+    const calRes = await calendarQuery;
+    if (calRes.error) throw new Error("Could not load calendar events.");
 
     const otherOwnerIds = new Set<string>();
     for (const row of (calRes.data ?? []) as Array<{ owner_user_id: string }>) {

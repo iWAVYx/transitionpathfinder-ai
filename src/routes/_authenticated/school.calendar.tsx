@@ -35,13 +35,17 @@ function SchoolCalendarPage() {
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
     >
-      {() => (
+      {(org) => (
         <div className="space-y-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarDays className="h-4 w-4" aria-hidden />
             <span>Every school event on one calendar. Filters and export are available inside the calendar.</span>
           </div>
-          <DashboardCalendar />
+          <DashboardCalendar
+            organizationId={org.id}
+            organizationOptions={[{ id: org.id, name: org.name }]}
+            allowedVisibilities={["private", "school_team"]}
+          />
         </div>
       )}
     </SchoolPageShell>

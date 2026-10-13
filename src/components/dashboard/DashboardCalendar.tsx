@@ -151,6 +151,8 @@ type OrgOption = { id: string; name: string };
 type Props = {
   /** Scope the calendar to a single student. Omit for "all my collaborations." */
   studentId?: string | null;
+  /** Narrow the permitted view to one active organization membership. */
+  organizationId?: string | null;
   /** Compact mode shrinks day cells. */
   compact?: boolean;
   /** Override displayed title. */
@@ -180,11 +182,12 @@ const ALL_VISIBILITIES: CalendarVisibility[] = [
 ];
 
 export function DashboardCalendar(props: Props) {
-  return <DashboardCalendarSession key={props.studentId ?? "all-permitted-students"} {...props} />;
+  return <DashboardCalendarSession key={JSON.stringify([props.studentId ?? null, props.organizationId ?? null])} {...props} />;
 }
 
 function DashboardCalendarSession({
   studentId = null,
+  organizationId = null,
   compact = false,
   title = "Calendar",
   subtitle = "Meetings, action items, prep deadlines, and team events.",
@@ -220,7 +223,7 @@ function DashboardCalendarSession({
     setLoading(true);
     try {
       const res = await fetchEvents({
-        data: studentId ? { student_id: studentId } : {},
+        data: { ...(studentId ? { student_id: studentId } : {}), ...(organizationId ? { organization_id: organizationId } : {}) },
       });
       if (!current()) return;
       setEvents(res.events);
@@ -231,7 +234,7 @@ function DashboardCalendarSession({
     } finally {
       if (current()) setLoading(false);
     }
-  }, [fetchEvents, studentId]);
+  }, [fetchEvents, studentId, organizationId]);
 
   useEffect(() => {
     reload();
@@ -370,7 +373,7 @@ function DashboardCalendarSession({
             defaultVisibility={defaultVisibility ?? "private"}
             onCreate={async (input) => {
               try {
-                await createEvent({ data: input });
+                await createEvent({ data: { ...input, related_organization_id: organizationId ?? input.related_organization_id } });
               } catch (error) {
                 if (!alive.current) return;
                 throw error;

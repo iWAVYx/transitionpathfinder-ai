@@ -18,6 +18,12 @@ it("the real signed-in download control retains authorized record dates, times, 
   const revokeObjectURL = vi.fn();
   const OriginalURL = URL;
   vi.stubGlobal("URL", class extends OriginalURL { static createObjectURL = createObjectURL; static revokeObjectURL = revokeObjectURL; });
+  let cleanupUrl: (() => void) | undefined;
+  const originalTimeout = globalThis.setTimeout;
+  vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: any[]) => void, delay?: number, ...args: any[]) => {
+    if (delay === 2000) { cleanupUrl = () => callback(...args); return 0; }
+    return originalTimeout(callback, delay, ...args);
+  }) as typeof setTimeout);
   const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   render(<DashboardCalendar organizationOptions={[]} />);
   const exportButton = screen.getByRole("button", { name: "Export calendar as .ics file" });
@@ -36,6 +42,9 @@ it("the real signed-in download control retains authorized record dates, times, 
   expect(text).toContain("LOCATION:Room 2\\, North");
   expect(text).toContain("URL:https://meeting.example.test/room?id=abc");
   expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(2);
-  await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledWith("blob:calendar-fixture"), { timeout: 3000 });
+  expect(cleanupUrl).toBeDefined();
+  expect(revokeObjectURL).not.toHaveBeenCalled();
+  cleanupUrl!();
+  expect(revokeObjectURL).toHaveBeenCalledWith("blob:calendar-fixture");
   expect(api.create).not.toHaveBeenCalled(); expect(api.update).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
 });

@@ -62,3 +62,27 @@ for (const operation of ["delete", "complete", "create"] as const) it.each([fals
   await act(async () => failure ? pending.reject(new Error("Departed mutation")) : pending.resolve({}));
   expect(api.list).toHaveBeenCalledTimes(2); expect(api.error).not.toHaveBeenCalled(); expect(api.success).not.toHaveBeenCalled();
 });
+it("organization switching resets the calendar and discards a previous organization's late response", async () => {
+  const old = deferred(); const current = deferred(); api.list.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
+  const view = render(<DashboardCalendar organizationId="school-one" organizationOptions={[]} />);
+  await waitFor(() => expect(api.list).toHaveBeenCalledOnce());
+  view.rerender(<DashboardCalendar organizationId="school-two" organizationOptions={[]} />);
+  await waitFor(() => expect(api.list).toHaveBeenCalledTimes(2));
+  expect(api.list.mock.calls[1][0]).toEqual({ data: { organization_id: "school-two" } });
+  await act(async () => old.resolve({ events: [record("Old School Event")] }));
+  expect(screen.queryByText("Old School Event")).toBeNull();
+  expect(screen.getByRole("button", { name: "Export calendar as .ics file" }).hasAttribute("disabled")).toBe(true);
+  await act(async () => current.resolve({ events: [record("Current School Event")] }));
+  expect(screen.getAllByText("Current School Event").length).toBeGreaterThan(0);
+});
+it("a private event created from an organization calendar retains that organization without changing its visibility", async () => {
+  api.list.mockResolvedValue({ events: [] }); api.create.mockResolvedValue({});
+  render(<DashboardCalendar organizationId="selected-school" organizationOptions={[{ id: "selected-school", name: "Selected School" }]} allowedVisibilities={["private", "school_team"]} />);
+  await waitFor(() => expect(api.list).toHaveBeenCalledOnce());
+  fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Private School Note" } });
+  fireEvent.click(screen.getByRole("button", { name: "Add to calendar", exact: true }));
+  await waitFor(() => expect(api.create).toHaveBeenCalledOnce());
+  expect(api.create.mock.calls[0][0].data).toMatchObject({ title: "Private School Note", related_organization_id: "selected-school", visibility: "private" });
+  await waitFor(() => expect(api.list).toHaveBeenCalledTimes(2));
+  expect(api.list.mock.calls[1][0]).toEqual({ data: { organization_id: "selected-school" } });
+});
