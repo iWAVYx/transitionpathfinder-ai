@@ -1,3 +1,4 @@
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { createFileRoute } from "@tanstack/react-router";
@@ -9,6 +10,7 @@ import { DistrictPageShell, useDistrictDashboard } from "@/components/district/D
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/district/overview")({
+  ...districtDashboardNavigation,
   head: () => ({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),

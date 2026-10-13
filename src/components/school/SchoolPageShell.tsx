@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOrganizationDashboardLoad } from "@/hooks/use-organization-dashboard-load";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
@@ -28,12 +28,13 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useSchoolDashboard() {
   const fetchDash = useServerFn(getSchoolDashboard);
-  const { data, loading, id, reload } = useOrganizationDashboardLoad<SchoolDashboard>(
+  const { data, loading, id, reload, refreshIfCurrent } = useOrganizationDashboardSelection<SchoolDashboard>(
+    "school",
     (id) => fetchDash({ data: { org_id: id } }),
     (dashboard) => dashboard.selected_org_id,
     "Could not load school data.",
   );
-  return { data, loading, orgId: id, reload };
+  return { data, loading, orgId: id, reload, refreshIfCurrent };
 }
 
 export function SchoolPageShell({

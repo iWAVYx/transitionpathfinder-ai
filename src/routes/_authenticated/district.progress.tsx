@@ -1,3 +1,4 @@
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, ArrowRight } from "lucide-react";
 
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
 export const Route = createFileRoute("/_authenticated/district/progress")({
+  ...districtDashboardNavigation,
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [

@@ -1,3 +1,4 @@
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { History } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
 
 export const Route = createFileRoute("/_authenticated/school/history")({
+  ...schoolDashboardNavigation,
   head: () => ({
     meta: [
       { title: "School Records & Disclosure History — TransitionForward" },

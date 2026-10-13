@@ -1,3 +1,5 @@
+import { useOrganizationOperation } from "@/hooks/use-organization-operation";
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useState } from "react";
@@ -32,12 +34,13 @@ import {
 } from "@/lib/school-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/school/team")({
+  ...schoolDashboardNavigation,
   head: () => ({ meta: [{ title: "Staff & Team — TransitionForward" }] }),
   component: withRoleGuard(["school_admin", "admin"], SchoolTeamPage),
 });
 
 function SchoolTeamPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, refreshIfCurrent } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/team"
@@ -48,7 +51,7 @@ function SchoolTeamPage() {
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
     >
-      {(org, d) => <TeamPanel orgId={org.id} members={d.members} pending={d.pending_members} onChanged={() => reload(org.id)} />}
+      {(org, d) => <TeamPanel key={org.id} orgId={org.id} members={d.members} pending={d.pending_members} onChanged={() => refreshIfCurrent(org.id)} />}
     </SchoolPageShell>
   );
 }
@@ -69,6 +72,7 @@ function TeamPanel({
     | { kind: "remove"; member: TeamMember }
     | { kind: "role"; member: TeamMember; nextRole: "member" | "admin" | "school_admin" | "owner" };
 
+  const beginOperation = useOrganizationOperation(orgId);
   const invite = useServerFn(inviteSchoolTeammate);
   const updateMember = useServerFn(updateMembershipStatus);
   const [email, setEmail] = useState("");
@@ -81,15 +85,18 @@ function TeamPanel({
     e.preventDefault();
     if (!email.trim()) return;
     setSending(true);
+    const isCurrent = beginOperation();
     try {
       await invite({ data: { organization_id: orgId, email: email.trim(), role_within_org: role } });
+      if (!isCurrent()) return;
       toast.success("Teammate added.");
       setEmail("");
       onChanged();
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not add teammate.");
     } finally {
-      setSending(false);
+      if (isCurrent()) setSending(false);
     }
   }
 
@@ -97,11 +104,13 @@ function TeamPanel({
     const change = pendingChange;
     if (!change) return;
     setChangeBusy(true);
+    const isCurrent = beginOperation();
     try {
       if (change.kind === "remove") {
         await updateMember({
           data: { membership_id: change.member.membership_id, status: "removed" },
         });
+        if (!isCurrent()) return;
         toast.success("Teammate removed.");
       } else {
         await updateMember({
@@ -110,14 +119,26 @@ function TeamPanel({
             role_within_org: change.nextRole,
           },
         });
+        if (!isCurrent()) return;
         toast.success("Team access updated.");
       }
       setPendingChange(null);
       onChanged();
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not update team access.");
     } finally {
-      setChangeBusy(false);
+      if (isCurrent()) setChangeBusy(false);
+    }
+  }
+
+  async function handleApprove(membershipId: string) {
+    const isCurrent = beginOperation();
+    try {
+      await updateMember({ data: { membership_id: membershipId, status: "active" } });
+      if (isCurrent()) onChanged();
+    } catch (err) {
+      if (isCurrent()) toast.error(err instanceof Error ? err.message : "Could not approve teammate.");
     }
   }
 
@@ -166,7 +187,7 @@ function TeamPanel({
             {pending.map((m) => (
               <li key={m.membership_id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
                 <span>{m.full_name ?? m.email ?? "—"}</span>
-                <Button size="sm" variant="outline" onClick={() => updateMember({ data: { membership_id: m.membership_id, status: "active" } }).then(onChanged)}>
+                <Button size="sm" variant="outline" onClick={() => void handleApprove(m.membership_id)}>
                   Approve
                 </Button>
               </li>

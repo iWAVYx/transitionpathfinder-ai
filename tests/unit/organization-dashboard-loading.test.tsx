@@ -14,6 +14,13 @@ vi.mock("@/components/RoleGuard", () => ({ RoleGuard: ({ children }: any) => chi
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
 vi.mock("@/components/school/SchoolNav", () => ({ SchoolNav: () => null }));
 vi.mock("@/components/district/DistrictNav", () => ({ DistrictNav: () => null }));
+// Isolate loader behavior here; actual router/selection integration is covered separately.
+vi.mock("@/hooks/use-organization-dashboard-selection", async () => {
+  const { useOrganizationDashboardLoad } = await import("@/hooks/use-organization-dashboard-load");
+  return { useOrganizationDashboardSelection: (_role: string, fetch: any, selected: any, message: string) => ({
+    ...useOrganizationDashboardLoad(fetch, selected, message), refreshIfCurrent: vi.fn(),
+  }) };
+});
 import { SchoolPageShell, useSchoolDashboard } from "@/components/school/SchoolPageShell";
 import { DistrictPageShell, useDistrictDashboard } from "@/components/district/DistrictPageShell";
 function deferred() {
@@ -98,3 +105,14 @@ for (const role of ["school", "district"] as const) {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 }
+
+
+it("a dependent organization read waits for scope resolution and reloads after reactivation", async () => {
+  const { useOrganizationDashboardLoad } = await import("@/hooks/use-organization-dashboard-load");
+  const fetch = vi.fn().mockResolvedValue({ id: "selected" });
+  const { result, rerender } = renderHook(({ active }) => useOrganizationDashboardLoad(fetch, data => data.id, "Could not load.", { id: "selected", active }), { initialProps: { active: false } });
+  expect(fetch).not.toHaveBeenCalled(); expect(result.current.data).toBeNull();
+  rerender({ active: true }); await waitFor(() => expect(result.current.data).toEqual({ id: "selected" }));
+  rerender({ active: false }); expect(result.current.data).toBeNull();
+  rerender({ active: true }); await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+});

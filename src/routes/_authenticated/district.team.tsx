@@ -1,3 +1,5 @@
+import { useOrganizationOperation } from "@/hooks/use-organization-operation";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useState } from "react";
@@ -22,12 +24,13 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/district/team")({
+  ...districtDashboardNavigation,
   head: () => ({ meta: [{ title: "District Team — TransitionForward" }] }),
   component: withRoleGuard(["district_admin", "admin"], DistrictTeamPage),
 });
 
 function DistrictTeamPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, refreshIfCurrent } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/team"
@@ -39,7 +42,7 @@ function DistrictTeamPage() {
       onSwitchDistrict={(id) => reload(id)}
     >
       {(district, d) => (
-        <TeamBody districtId={district.id} dashboard={d} onChanged={reload} />
+        <TeamBody key={district.id} districtId={district.id} dashboard={d} onChanged={refreshIfCurrent} />
       )}
     </DistrictPageShell>
   );
@@ -54,6 +57,7 @@ function TeamBody({
   dashboard: ReturnType<typeof useDistrictDashboard>["data"] & object;
   onChanged: (id?: string) => void;
 }) {
+  const beginOperation = useOrganizationOperation(districtId);
   const invite = useServerFn(inviteDistrictTeammate);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"member" | "admin" | "district_admin">(
@@ -65,6 +69,7 @@ function TeamBody({
     e.preventDefault();
     if (!email.trim()) return;
     setSaving(true);
+    const isCurrent = beginOperation();
     try {
       await invite({
         data: {
@@ -73,13 +78,15 @@ function TeamBody({
           role_within_org: role,
         },
       });
+      if (!isCurrent()) return;
       toast.success("Teammate added.");
       setEmail("");
       onChanged(districtId);
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not invite.");
     } finally {
-      setSaving(false);
+      if (isCurrent()) setSaving(false);
     }
   }
 

@@ -1,3 +1,4 @@
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useState } from "react";
@@ -13,6 +14,7 @@ import { StaffProgressTable, type StaffProgressRow } from "@/components/implemen
 import { CompletionRingsBoard } from "@/components/implementation/CompletionRingsBoard";
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
+  ...schoolDashboardNavigation,
   head: () => ({ meta: [{ title: "Implementation — TransitionForward" }] }),
   component: withRoleGuard(["school_admin", "admin"], SchoolImplementationPage),
 });

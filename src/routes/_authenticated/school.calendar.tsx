@@ -1,3 +1,4 @@
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { CalendarDays } from "lucide-react";
@@ -8,6 +9,7 @@ import { ensureRoleAccess } from "@/lib/route-role-guard";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/school/calendar")({
+  ...schoolDashboardNavigation,
   head: () => ({
     meta: [
       { title: "School Calendar — TransitionForward" },

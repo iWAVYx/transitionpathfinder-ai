@@ -1,3 +1,4 @@
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { History } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
 import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
 
 export const Route = createFileRoute("/_authenticated/district/history")({
+  ...districtDashboardNavigation,
   head: () => ({
     meta: [
       { title: "District Records & Disclosure History — TransitionForward" },

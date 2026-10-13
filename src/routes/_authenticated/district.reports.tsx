@@ -1,3 +1,4 @@
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { reportExportReady, organizationCsvCell } from "@/lib/organization-report-export";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
@@ -32,6 +33,7 @@ import {
 } from "@/lib/district-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/district/reports")({
+  ...districtDashboardNavigation,
   head: () => ({ meta: [{ title: "District Reports — TransitionForward" }] }),
   component: withRoleGuard(["district_admin", "admin"], DistrictReportsPage),
 });

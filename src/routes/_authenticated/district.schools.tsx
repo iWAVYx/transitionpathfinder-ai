@@ -1,3 +1,5 @@
+import { useOrganizationOperation } from "@/hooks/use-organization-operation";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useState } from "react";
@@ -18,12 +20,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/district/schools")({
+  ...districtDashboardNavigation,
   head: () => ({ meta: [{ title: "District Schools — TransitionForward" }] }),
   component: withRoleGuard(["district_admin", "admin"], DistrictSchoolsPage),
 });
 
 function DistrictSchoolsPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, refreshIfCurrent } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/schools"
@@ -35,7 +38,7 @@ function DistrictSchoolsPage() {
       onSwitchDistrict={(id) => reload(id)}
     >
       {(district, d) => (
-        <SchoolsBody districtId={district.id} dashboard={d} onChanged={reload} />
+        <SchoolsBody key={district.id} districtId={district.id} dashboard={d} onChanged={refreshIfCurrent} />
       )}
     </DistrictPageShell>
   );
@@ -50,6 +53,7 @@ function SchoolsBody({
   dashboard: ReturnType<typeof useDistrictDashboard>["data"] & object;
   onChanged: (id?: string) => void;
 }) {
+  const beginOperation = useOrganizationOperation(districtId);
   const addSchool = useServerFn(addSchoolToDistrict);
   const removeSchool = useServerFn(removeSchoolFromDistrict);
   const [name, setName] = useState("");
@@ -61,6 +65,7 @@ function SchoolsBody({
     e.preventDefault();
     if (!name.trim()) return;
     setSaving(true);
+    const isCurrent = beginOperation();
     try {
       await addSchool({
         data: {
@@ -70,25 +75,30 @@ function SchoolsBody({
           state: stateVal.trim() || undefined,
         },
       });
+      if (!isCurrent()) return;
       toast.success("School added to district.");
       setName("");
       setCity("");
       setStateVal("");
       onChanged(districtId);
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not add school.");
     } finally {
-      setSaving(false);
+      if (isCurrent()) setSaving(false);
     }
   }
 
   async function handleRemove(schoolId: string, schoolName: string) {
     if (!confirm(`Unlink ${schoolName} from this district?`)) return;
+    const isCurrent = beginOperation();
     try {
       await removeSchool({ data: { district_id: districtId, school_id: schoolId } });
+      if (!isCurrent()) return;
       toast.success("School unlinked.");
       onChanged(districtId);
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not unlink.");
     }
   }

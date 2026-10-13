@@ -3,7 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 const state = vi.hoisted(() => ({ org: { id: "a", name: "School A" }, school: vi.fn(), district: vi.fn(), reports: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
-vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: unknown) => ({ options }), Link: ({ children }: any) => <a>{children}</a> }));
+vi.mock("@tanstack/react-router", async (importOriginal) => ({ ...await importOriginal<any>(), createFileRoute: () => (options: unknown) => ({ options }), Link: ({ children }: any) => <a>{children}</a> }));
 vi.mock("@/components/withRoleGuard", () => ({ withRoleGuard: (_: unknown, component: unknown) => component }));
 vi.mock("@/components/school/SchoolPageShell", () => ({
   useSchoolDashboard: () => ({ data: {}, loading: false, orgId: state.org.id, reload: vi.fn() }),

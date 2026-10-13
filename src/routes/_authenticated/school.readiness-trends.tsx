@@ -1,5 +1,7 @@
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { TrendingUp, Loader2 } from "lucide-react";
 
@@ -16,6 +18,7 @@ import {
 } from "@/lib/school-insights.functions";
 
 export const Route = createFileRoute("/_authenticated/school/readiness-trends")({
+  ...schoolDashboardNavigation,
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   head: () => ({
     meta: [
@@ -36,31 +39,20 @@ export const Route = createFileRoute("/_authenticated/school/readiness-trends")(
 
 function ReadinessTrendsPage() {
   const fetchTrends = useServerFn(getSchoolReadinessTrends);
-  const [data, setData] = useState<ReadinessTrendData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const d = await fetchTrends({ data: {} });
-        if (alive) setData(d);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [fetchTrends]);
+  const { data, loading, reload } = useOrganizationDashboardSelection<ReadinessTrendData>(
+    "school",
+    (id) => fetchTrends({ data: { org_id: id } }),
+    (result) => result.org_id,
+    "Could not load school information.",
+  );
 
   return (
     <SiteShell>
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs
           trail={[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "School Administration", to: "/school/overview" },
+            { label: "School Dashboard", to: "/school/overview" },
+            { label: "School Administration" },
             { label: "Readiness Trends" },
           ]}
         />
@@ -77,7 +69,11 @@ function ReadinessTrendsPage() {
         </header>
         <SchoolNav />
         <div className="mt-6">
-          <TrendsView data={data} loading={loading} scopeLabel="school" />
+          {!loading && !data ? (
+            <OrganizationLoadError onRetry={() => void reload()} />
+          ) : (
+            <TrendsView data={data} loading={loading} scopeLabel="school" />
+          )}
         </div>
       </section>
     </SiteShell>

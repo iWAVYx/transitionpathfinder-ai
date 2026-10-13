@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOrganizationDashboardLoad } from "@/hooks/use-organization-dashboard-load";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
@@ -29,12 +29,13 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useDistrictDashboard() {
   const fetchDash = useServerFn(getDistrictDashboard);
-  const { data, loading, id, reload } = useOrganizationDashboardLoad<DistrictDashboard>(
+  const { data, loading, id, reload, refreshIfCurrent } = useOrganizationDashboardSelection<DistrictDashboard>(
+    "district",
     (id) => fetchDash({ data: { district_id: id } }),
     (dashboard) => dashboard.selected_district_id,
     "Could not load district data.",
   );
-  return { data, loading, districtId: id, reload };
+  return { data, loading, districtId: id, reload, refreshIfCurrent };
 }
 
 export function DistrictPageShell({

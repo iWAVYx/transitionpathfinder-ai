@@ -1,3 +1,4 @@
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { reportExportReady, organizationCsvCell } from "@/lib/organization-report-export";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
@@ -34,6 +35,7 @@ import {
 } from "@/lib/school-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/school/reports")({
+  ...schoolDashboardNavigation,
   head: () => ({ meta: [{ title: "School Reports — TransitionForward" }] }),
   component: withRoleGuard(["school_admin", "admin"], SchoolReportsPage),
 });

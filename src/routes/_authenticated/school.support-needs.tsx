@@ -1,5 +1,7 @@
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { LifeBuoy, Loader2, AlertTriangle, FileText } from "lucide-react";
 
@@ -16,6 +18,7 @@ import {
 } from "@/lib/school-insights.functions";
 
 export const Route = createFileRoute("/_authenticated/school/support-needs")({
+  ...schoolDashboardNavigation,
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   head: () => ({
     meta: [
@@ -36,31 +39,20 @@ export const Route = createFileRoute("/_authenticated/school/support-needs")({
 
 function SchoolSupportNeedsPage() {
   const fetchNeeds = useServerFn(getSchoolSupportNeeds);
-  const [data, setData] = useState<SchoolSupportNeeds | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const d = await fetchNeeds({ data: {} });
-        if (alive) setData(d);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [fetchNeeds]);
+  const { data, loading, reload } = useOrganizationDashboardSelection<SchoolSupportNeeds>(
+    "school",
+    (id) => fetchNeeds({ data: { org_id: id } }),
+    (result) => result.org_id,
+    "Could not load school information.",
+  );
 
   return (
     <SiteShell>
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs
           trail={[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "School Administration", to: "/school/overview" },
+            { label: "School Dashboard", to: "/school/overview" },
+            { label: "School Administration" },
             { label: "Support Needs" },
           ]}
         />
@@ -85,7 +77,9 @@ function SchoolSupportNeedsPage() {
             <div className="flex justify-center py-16">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : !data || !data.is_school_admin ? (
+          ) : !data ? (
+            <OrganizationLoadError onRetry={() => void reload()} />
+          ) : !data.is_school_admin ? (
             <EmptyCard
               title="No school linked yet"
               body="Set up your school in the Overview to see students on your caseload here."

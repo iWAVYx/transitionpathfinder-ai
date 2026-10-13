@@ -1,3 +1,4 @@
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { Rocket, Sprout, Waypoints, TrendingUp } from "lucide-react";
 
@@ -11,6 +12,7 @@ import { ReportingDeadlinesCard } from "@/components/implementation/ReportingDea
 import { StaffProgressTable, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
 
 export const Route = createFileRoute("/_authenticated/district/implementation")({
+  ...districtDashboardNavigation,
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [
