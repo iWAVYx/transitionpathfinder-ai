@@ -1,6 +1,6 @@
 # Transactional Pathway Report History
 
-Prepared October 12, 2026. No migration has been applied and no caller has been switched. Existing save/regenerate behavior still uses separate snapshot and content requests.
+Prepared October 12, 2026. No migration has been applied to staging or production and no caller has been switched. Existing save/regenerate behavior still uses separate snapshot and content requests.
 
 ## Prepared Database Operation
 
@@ -29,3 +29,21 @@ Do not add a runtime toggle or enable a caller before the function exists and ac
 7. Verify matching Cloudflare/Lovable source identity, applicable role navigation/readers, saved reload, complete history, permitted sharing/export and cleanup counts. Record exact commit/fingerprint and each result separately. Reconcile builder edits before sync.
 
 Rolling source back after migration can reintroduce the old split-write risk; stop affected writes while diagnosing instead of claiming a safe fallback. The added function alone does not change current handlers or any stored record. The separate server-only share-grant migration remains its own authorization dependency.
+
+## Disposable Execution Evidence — October 12, 2026
+
+At test source commit `cfd7f9122b1e474a507c8c1fc91b58e6d7b06fdc`, all 12 cases passed in real PostgreSQL, with zero skips, in both [PR replay 38342745672](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/38342745672) and [branch replay 38342742641](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/38342742641). Both full canonical migration replays and their security checks passed. An earlier CI attempt exposed a CommonJS driver import problem; the corrected adapter was then exercised successfully.
+
+The behavioral suite creates a uniquely named disposable database on literal loopback only, reads the actual report foundation/update-policy/version/new-function migrations, and stubs the referenced identity/admin helpers. It verifies exact prior snapshots, sequential saves/restore, explicit owner denial even with broadened SELECT visibility, effective function grants, missing identity/report, malformed payloads, summary limits, full-content conflict without metadata, JSONB equality, snapshot constraint/uniqueness failure, raised/skipped update failure, restrictive update RLS and revoked UPDATE privileges. Failed cases leave both report content and history unchanged. Three independent sessions verify that a stale second save waits on the same report and fails with `40001` after the winner commits, while another report saves successfully. Connections are closed and the disposable database is dropped.
+
+Local PGlite executed 11 cases successfully and explicitly skipped the multi-session case. The separate 12 source/security checks also passed. This is disposable-database evidence, not hosted schema/RLS, PostgREST request size, actual handler integration, real account or AI acceptance. The helper stubs do not establish current hosted collaborator/admin policy correctness. No application package or lockfile was changed; pinned test runtimes are installed outside the project.
+
+Next remains an explicitly authorized isolated-staging migration, live database acceptance and then both-caller cutover with mocked SDK/error handling plus separately authorized staging release checks. Current handlers still use separate snapshot/content calls. The full-content comparison protects the server-observed revision only; stale client intent and direct/privileged writers remain documented limits.
+
+Local command (install the same pinned PGlite `0.5.8` outside the project first):
+
+```sh
+PATHWAY_HISTORY_PGLITE_MODULE=/absolute/path/pglite/dist/index.js node --test tests/database/atomic-pathway-history.test.mjs
+```
+
+Real multi-session execution is wired into `.github/workflows/migration-replay.yml` using its disposable service, `pg@8.16.3` installed under `RUNNER_TEMP`, and a throwaway database. Do not repoint that runner to a hosted database.

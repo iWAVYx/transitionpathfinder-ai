@@ -208,7 +208,7 @@ remaining production boxes below.
 
 ### Prepared Transactional Report History — October 12, 2026
 
-- [ ] Review and replay `20261012190000_atomic_pathway_report_content.sql` in disposable PostgreSQL; verify owner/RLS, simultaneous-session conflict, snapshot/update failure rollback and effective grants. Source checks are not database acceptance.
+- [x] Replay `20261012190000_atomic_pathway_report_content.sql` in disposable PostgreSQL; 12 behavioral cases verify owner/RLS, simultaneous-session conflict, snapshot/update failure rollback and effective grants. Both full canonical replays pass at test source cfd7f912. This does not establish hosted schema/RLS or application acceptance.
 - [ ] Specifically authorize isolated-staging migration application, then verify database behavior before switching both save/regenerate callers. No automatic old-write fallback, generation retry or fabricated schema verification. Follow [the acceptance plan](../pathway-transactional-history-plan.md).
 - [ ] Inventory direct content/version writers and record limitations: current UI does not provide a client-observed revision; the operation is not an immutable audit trail. Exact-release role/provider/navigation/export acceptance remains open. Production migration/release requires separate authorization.
 
