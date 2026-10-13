@@ -29,6 +29,7 @@ export const listStudentAuditTrail = createServerFn({ method: "POST" })
       .select("id, action, entity_type, entity_id, actor_id, actor_email, metadata, created_at")
       .eq("student_id", data.student_id)
       .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(data.limit ?? 50);
     if (error) throw new Error(error.message);
     return { entries: (rows ?? []) as AuditEntry[] };

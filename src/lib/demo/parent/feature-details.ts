@@ -59,7 +59,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     eyebrow: "Who accessed the plan",
     summary:
       "Review examples of recorded access to {studentShortName}'s plan and documents. This is an activity log, not a year-over-year assessment archive.",
-    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected.",
+    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected. The signed-in view shows up to 200 recent records; its counts and filters apply to those records.",
     dataSource: "Fictional examples of authorized activity events",
     primaryAction: { label: "Open Access & Activity History", to: "/family/history" },
     connectsTo: ["IEP & Documents", "Sharing & Consent"],

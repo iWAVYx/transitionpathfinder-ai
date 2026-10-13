@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import {
   Loader2,
   FileText,
@@ -26,33 +25,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { listStudents, type Student } from "@/lib/students.functions";
-import {
-  listStudentAuditTrail,
-  type AuditEntry,
-} from "@/lib/audit.functions";
+import { listStudentAuditTrail, type AuditEntry } from "@/lib/audit.functions";
 
 /* -------------------- filters -------------------- */
 
-export type HistoryFilterKey =
-  | "all"
-  | "documents"
-  | "sharing"
-  | "meetings"
-  | "plan";
+export type HistoryFilterKey = "all" | "documents" | "sharing" | "meetings" | "plan";
 
 const FILTERS: { key: HistoryFilterKey; label: string }[] = [
-  { key: "all", label: "All activity" },
+  { key: "all", label: "Recent Activity" },
   { key: "documents", label: "Documents" },
-  { key: "sharing", label: "Sharing & consent" },
+  { key: "sharing", label: "Sharing & Consent" },
   { key: "meetings", label: "Meetings" },
-  { key: "plan", label: "Plan & goals" },
+  { key: "plan", label: "Plan & Goals" },
 ];
 
 function classifyEntry(entry: AuditEntry): HistoryFilterKey {
@@ -78,8 +64,7 @@ function classifyEntry(entry: AuditEntry): HistoryFilterKey {
     a.includes("invite")
   )
     return "sharing";
-  if (t.includes("meeting") || t.includes("agenda") || t.includes("ppt"))
-    return "meetings";
+  if (t.includes("meeting") || t.includes("agenda") || t.includes("ppt")) return "meetings";
   if (
     t.includes("goal") ||
     t.includes("plan") ||
@@ -146,38 +131,119 @@ export type StudentActivityHistoryProps = {
   footer?: React.ReactNode;
 };
 
-export function StudentActivityHistory({
+export function StudentActivityHistory(props: StudentActivityHistoryProps) {
+  const loadStudents = useServerFn(listStudents);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [studentId, setStudentId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    setStudents([]);
+    setStudentId("");
+    void (async () => {
+      try {
+        const result = await loadStudents();
+        if (cancelled) return;
+        if (result.loadFailed) throw new Error("Student records could not be loaded.");
+        setStudents(result.students);
+        setStudentId(result.students[0]?.id ?? "");
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadStudents, attempt]);
+
+  if (loading)
+    return (
+      <div
+        data-testid={props.testId}
+        role="status"
+        className="flex items-center gap-2 text-foreground/75"
+      >
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Loading student records…
+      </div>
+    );
+  if (error)
+    return (
+      <div data-testid={props.testId}>
+        <HistoryLoadFailure
+          message="Student records could not be loaded. Please try again."
+          onRetry={() => setAttempt((value) => value + 1)}
+        />
+      </div>
+    );
+  if (!students.length)
+    return (
+      <div data-testid={props.testId}>
+        <EmptyState
+          title="No Student Record Available"
+          body="Once a student is linked to your account, their access history shows here."
+          cta={props.emptyCta ?? { label: "Go to dashboard", to: "/dashboard" }}
+        />
+      </div>
+    );
+
+  // A newly selected student starts with a fresh reader, filters and empty counts.
+  return (
+    <StudentHistoryReader
+      key={studentId}
+      {...props}
+      students={students}
+      studentId={studentId}
+      onStudentChange={setStudentId}
+    />
+  );
+}
+
+function StudentHistoryReader({
+  students,
+  studentId,
+  onStudentChange,
   emptyCta,
   testId,
   footer,
-}: StudentActivityHistoryProps) {
-  const loadStudents = useServerFn(listStudents);
+}: StudentActivityHistoryProps & {
+  students: Student[];
+  studentId: string;
+  onStudentChange: (id: string) => void;
+}) {
   const loadAudit = useServerFn(listStudentAuditTrail);
-
-  const [students, setStudents] = useState<Student[]>([]);
-  const [studentId, setStudentId] = useState<string>("");
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [tab, setTab] = useState<HistoryFilterKey>("all");
 
   useEffect(() => {
-    loadStudents()
-      .then(({ students }) => {
-        setStudents(students);
-        if (students[0]) setStudentId(students[0].id);
-        else setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [loadStudents]);
-
-  useEffect(() => {
-    if (!studentId) return;
+    let cancelled = false;
     setLoading(true);
-    loadAudit({ data: { student_id: studentId, limit: 200 } })
-      .then(({ entries }) => setEntries(entries))
-      .catch(() => toast.error("Could not load history"))
-      .finally(() => setLoading(false));
-  }, [studentId, loadAudit]);
+    setError(false);
+    setEntries([]);
+    void (async () => {
+      try {
+        const result = await loadAudit({ data: { student_id: studentId, limit: 200 } });
+        if (!cancelled) setEntries(result.entries);
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId, loadAudit, attempt]);
 
   const counts = useMemo(() => {
     const c: Record<HistoryFilterKey, number> = {
@@ -202,27 +268,18 @@ export function StudentActivityHistory({
   const activeStudent = students.find((s) => s.id === studentId) ?? null;
   const cta = emptyCta ?? { label: "Go to dashboard", to: "/dashboard" };
 
-  if (students.length === 0 && !loading) {
-    return (
-      <div data-testid={testId}>
-        <EmptyState
-          title="No student record available"
-          body="Once a student is linked to your account, their access history shows here."
-          cta={cta}
-        />
-      </div>
-    );
-  }
-
   return (
     <div data-testid={testId}>
       {students.length > 1 ? (
         <div className="mb-6 max-w-sm">
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <label
+            htmlFor="history-student"
+            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >
             Student
           </label>
-          <Select value={studentId} onValueChange={setStudentId}>
-            <SelectTrigger className="mt-1">
+          <Select value={studentId} onValueChange={onStudentChange}>
+            <SelectTrigger id="history-student" className="mt-1">
               <SelectValue placeholder="Choose a student" />
             </SelectTrigger>
             <SelectContent>
@@ -236,6 +293,10 @@ export function StudentActivityHistory({
         </div>
       ) : null}
 
+      <p className="mb-4 text-sm text-foreground/75">
+        Recent activity{activeStudent ? ` for ${activeStudent.first_name}` : ""}. This view shows up
+        to 200 records; counts and filters apply to those records.
+      </p>
       <Tabs value={tab} onValueChange={(v) => setTab(v as HistoryFilterKey)}>
         <TabsList className="flex flex-wrap gap-1">
           {FILTERS.map((f) => (
@@ -254,15 +315,20 @@ export function StudentActivityHistory({
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading history…
               </div>
+            ) : error ? (
+              <HistoryLoadFailure
+                message="History could not be loaded. Please try again."
+                onRetry={() => setAttempt((value) => value + 1)}
+              />
             ) : filtered.length === 0 ? (
               <EmptyState
-                title="Nothing to show yet"
+                title="No Recent Activity Available"
                 body={
                   activeStudent
-                    ? `No ${
+                    ? `No recent ${
                         f.key === "all" ? "" : f.label.toLowerCase() + " "
-                      }activity recorded yet for ${activeStudent.first_name}.`
-                    : "No activity recorded yet."
+                      }activity is available in this view for ${activeStudent.first_name}.`
+                    : "No recent activity is available in this view."
                 }
                 cta={cta}
               />
@@ -277,9 +343,7 @@ export function StudentActivityHistory({
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <div className="font-medium">
-                            {humanizeAction(e)}
-                          </div>
+                          <div className="font-medium">{humanizeAction(e)}</div>
                           <div className="text-xs text-muted-foreground">
                             {formatWhen(e.created_at)}
                           </div>
@@ -296,9 +360,7 @@ export function StudentActivityHistory({
                         !Array.isArray(e.metadata) &&
                         Object.keys(e.metadata as object).length > 0 ? (
                           <details className="mt-2 text-xs text-muted-foreground">
-                            <summary className="cursor-pointer select-none">
-                              Details
-                            </summary>
+                            <summary className="cursor-pointer select-none">Details</summary>
                             <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted/40 p-2 text-[11px] leading-snug">
                               {JSON.stringify(e.metadata, null, 2)}
                             </pre>
@@ -315,6 +377,17 @@ export function StudentActivityHistory({
       </Tabs>
 
       {footer}
+    </div>
+  );
+}
+
+function HistoryLoadFailure({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div role="alert" className="rounded-lg border p-5">
+      <p className="text-sm text-foreground/75">{message}</p>
+      <Button variant="outline" className="mt-3" onClick={onRetry}>
+        Retry
+      </Button>
     </div>
   );
 }
