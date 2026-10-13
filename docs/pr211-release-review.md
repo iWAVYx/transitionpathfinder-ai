@@ -309,3 +309,10 @@ This closes only the atomic-history ledger mismatch. Production remains unchange
 Reviewed the actual ReportIepSummary goal/support typography against common goal primitives. It now uses shared h4 goal headings, complete recorded text, permitted plain-language facts and Title Case support labels. Scoped print continuity fixes the native Present Levels orphan found during QA. No data/permission/source fields changed. Full 201-file / 1,920-test unit suite and TypeScript pass; all 40 browser cases pass, with final three affected cases rerun successfully. Eight matched native IEP examples / 180 pages preserve complete text, counts and margins; 166 unchanged body pages and all 14 changed pages were reviewed. See the detailed [demo/product contract](report-demo-product-contract.md).
 
 Local runtime source is now `a1903c29d4fbf5b4c518efffe8b3c0b3dee566c9bdf088a42b0407321ff59015`, 1,128 files. The earlier baseline fingerprint/file inventory remains historical. Neither host is declared synchronized to this delta, and no complete PR/demo parity or release approval is implied. The next candidate must incorporate this source and reconcile remote builder edits before a specifically authorized staging release.
+
+
+## Prepared Report View Handoff — October 13, 2026
+
+The prepared report now retains its selected Student, Family or Educator view when opening the fictional Plan Details and Review Notes excerpt and returning. Student view retains its eligible Family/Educator Pathway Builder return; it does not become a builder submitter. Direct links and role changes are covered by 22 offline router/component tests. This is navigation parity only: the prepared report remains a static fictional baseline, and full demo/product reconciliation and signed-in staging acceptance remain open.
+
+Runtime source: `5113ba283c6bc9a65d8afcae21a0bfc317c27fc21f0bd0dd9ce399e4a68e7a80`, 1,128 files. No hosted parity claim.

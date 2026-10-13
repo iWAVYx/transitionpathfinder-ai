@@ -39,7 +39,8 @@ function DemoReportRoute() {
     const explicitView = search.view ?? search.audience;
     const builderAudience = explicitView === "family" || explicitView === "educator"
       ? explicitView : search.role === "educator" ? "educator" : "family";
-    return <BuilderSampleReport audience={builderAudience} />;
+    const reportView = explicitView === "student" || explicitView === "family" || explicitView === "educator" ? explicitView : builderAudience;
+    return <BuilderSampleReport audience={builderAudience} view={reportView} />;
   }
   return <DemoReportPage />;
 }

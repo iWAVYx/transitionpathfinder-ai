@@ -64,3 +64,15 @@ it("unsupported optional preview URL roles do not become selectable views", asyn
   expect(screen.queryByRole("button", { name: "Owner", exact: true })).toBeNull();
   expect(screen.queryByRole("button", { name: "Partner", exact: true })).toBeNull();
 });
+
+it.each(["family", "educator"])("Student optional-detail round trip preserves %s builder eligibility", async origin => {
+  const router = await mount(`/demo/report?example=builder&role=${origin}&view=student`);
+  fireEvent.click(await screen.findByRole("link", { name: "See Sample Plan Details and Review Notes" }));
+  await screen.findByRole("heading", { name: "Sample Plan Details and Review Notes" });
+  expect(router.state.location.search).toMatchObject({ example: "plan-details", role: origin, view: "student" });
+  expect(screen.getByRole("button", { name: "Student", exact: true }).getAttribute("aria-pressed")).toBe("true");
+  fireEvent.click(screen.getByRole("link", { name: /Back to Sample Pathway Report/ }));
+  await screen.findByText("Report view: student");
+  expect(screen.getByRole("link", { name: "See Sample Plan Details and Review Notes" }).getAttribute("href")).toContain("view=student");
+  expect(screen.getByRole("link", { name: /Back to Pathway Builder/ }).getAttribute("href")).toContain(`role=${origin}`);
+});

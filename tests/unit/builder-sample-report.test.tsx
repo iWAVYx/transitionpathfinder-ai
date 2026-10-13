@@ -33,6 +33,7 @@ it.each(["family", "educator"] as const)("preserves eligible builder return role
     if (next !== "student") eligible = next;
     expect(screen.getByRole("link", { name: /Back to Pathway Builder/ }).getAttribute("href")).toBe(`/demo/intake?role=${eligible}`);
     const navigation = state.navigate.mock.calls.at(-1)![0];
+    expect(screen.getByRole("link", { name: "See Sample Plan Details and Review Notes" }).getAttribute("href")).toContain(`view=${next}`);
     expect(navigation.to).toBe("/demo/report"); expect(navigation.resetScroll).toBe(false);
     expect(navigation.search({ example: "builder", role: origin, preserved: "context" })).toEqual({ example: "builder", role: eligible, view: next, preserved: "context" });
   }
