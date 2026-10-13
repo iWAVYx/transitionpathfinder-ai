@@ -19,10 +19,20 @@ export const listStudentAuditTrail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>
     z
-      .object({ student_id: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() })
+      .object({
+        student_id: z.string().uuid(),
+        limit: z.number().int().min(1).max(200).optional(),
+        organization: z
+          .object({ scope: z.enum(["school", "district"]), id: z.string().uuid() })
+          .optional(),
+      })
       .parse(i),
   )
   .handler(async ({ data, context }) => {
+    if (data.organization) {
+      const { assertHistoryStudent } = await import("./organization-history.server");
+      await assertHistoryStudent(context, data.organization, data.student_id);
+    }
     const { supabase } = context;
     const { data: rows, error } = await supabase
       .from("audit_log")

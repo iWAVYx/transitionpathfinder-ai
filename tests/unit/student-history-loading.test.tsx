@@ -2,12 +2,15 @@
 import { StrictMode } from "react";
 import { afterEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-const api = vi.hoisted(() => ({ students: vi.fn(), audit: vi.fn() }));
+const api = vi.hoisted(() => ({ students: vi.fn(), audit: vi.fn(), organizationRoster: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<any>()),
   createFileRoute: () => (options: any) => ({ options }),
   Link: ({ to, children }: any) => <a href={to}>{children}</a>,
+}));
+vi.mock("@/lib/organization-history.functions", () => ({
+  getOrganizationHistoryRoster: api.organizationRoster,
 }));
 vi.mock("@/lib/students.functions", () => ({ listStudents: api.students }));
 vi.mock("@/lib/audit.functions", () => ({ listStudentAuditTrail: api.audit }));
@@ -26,6 +29,14 @@ vi.mock("@/components/ui/select", () => ({
   SelectContent: ({ children }: any) => children,
   SelectItem: ({ value, children }: any) => <option value={value}>{children}</option>,
 }));
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  createMemoryHistory,
+  RouterProvider,
+} from "@tanstack/react-router";
+import { OrganizationActivityHistory } from "@/components/history/OrganizationActivityHistory";
 import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
 import { Route as StudentRoute } from "@/routes/_authenticated/student.history";
 import { Route as FamilyRoute } from "@/routes/_authenticated/family.history";
@@ -67,6 +78,7 @@ afterEach(() => {
   cleanup();
   api.students.mockReset();
   api.audit.mockReset();
+  api.organizationRoster.mockReset();
 });
 it.each([false, true])(
   "switching students ignores old history successes/errors (%s)",
@@ -202,10 +214,127 @@ for (const [role, route] of [
     api.students.mockResolvedValue(roster);
     api.audit.mockRejectedValue(new Error("Private backend detail"));
     const Page = route.options.component as any;
-    render(<Page />);
+    if (role === "School" || role === "District") {
+      api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+      const root = createRootRoute();
+      const page = createRoute({
+        getParentRoute: () => root,
+        path: `/${role.toLowerCase()}/history`,
+        component: Page,
+        validateSearch: route.options.validateSearch,
+        search: route.options.search,
+      });
+      const key = role === "School" ? "org_id" : "district_id";
+      const router = createRouter({
+        routeTree: root.addChildren([page]),
+        history: createMemoryHistory({
+          initialEntries: [`/${role.toLowerCase()}/history?${key}=${A}`],
+        }),
+      });
+      await router.load();
+      render(<RouterProvider router={router} />);
+    } else render(<Page />);
     await screen.findByRole("alert");
     expect(screen.getByText(/This view shows up to 200 records/)).toBeTruthy();
     expect(screen.queryByText("No Recent Activity Available")).toBeNull();
     expect(screen.getByRole("button", { name: "Retry", exact: true })).toBeTruthy();
+    if (role === "School" || role === "District") {
+      expect(api.students).not.toHaveBeenCalled();
+      expect(api.audit).toHaveBeenCalledWith({
+        data: { student_id: A, limit: 200, organization: { scope: role.toLowerCase(), id: A } },
+      });
+    }
   });
 }
+
+async function organizationPage(scope: "school" | "district", explicit = true) {
+  const root = createRootRoute();
+  const key = scope === "school" ? "org_id" : "district_id";
+  const page = createRoute({
+    getParentRoute: () => root,
+    path: `/${scope}/history`,
+    component: () => <OrganizationActivityHistory scope={scope} />,
+  });
+  const router = createRouter({
+    routeTree: root.addChildren([page]),
+    history: createMemoryHistory({
+      initialEntries: [
+        `/${scope}/history${explicit ? `?${key}=${A}&filter=documents` : "?filter=documents"}#kept`,
+      ],
+    }),
+  });
+  await router.load();
+  render(<RouterProvider router={router} />);
+  return { router, key };
+}
+it.each(["school", "district"] as const)(
+  "%s history canonicalizes an authorized default without a generic student request",
+  async (scope) => {
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockResolvedValue({ entries: [] });
+    const { router, key } = await organizationPage(scope, false);
+    await screen.findByText(/This view shows up to 200 records/);
+    await waitFor(() =>
+      expect(router.state.location.search).toMatchObject({ [key]: A, filter: "documents" }),
+    );
+    expect(router.state.location.hash).toBe("kept");
+    expect(api.organizationRoster).toHaveBeenCalledOnce();
+    expect(api.students).not.toHaveBeenCalled();
+  },
+);
+it.each(["school", "district"] as const)(
+  "%s history hides departed organization activity and ignores its late failure",
+  async (scope) => {
+    const pending = deferred();
+    api.organizationRoster.mockImplementation(({ data }: any) =>
+      Promise.resolve({
+        organization_id: data.organization_id,
+        students: [
+          {
+            id: data.organization_id,
+            first_name: data.organization_id === A ? "First Student" : "Second Student",
+            last_name: null,
+          },
+        ],
+      }),
+    );
+    api.audit
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValue({ entries: [record("current_organization")] });
+    const { router, key } = await organizationPage(scope);
+    await waitFor(() => expect(api.audit).toHaveBeenCalledOnce());
+    await act(() => router.navigate({ to: `/${scope}/history`, search: { [key]: B } }));
+    await screen.findByText("Current organization — document");
+    await act(() => pending.reject(new Error("Departed private detail")));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByText("First Student")).toBeNull();
+    expect(api.audit).toHaveBeenLastCalledWith({
+      data: { student_id: B, limit: 200, organization: { scope, id: B } },
+    });
+    expect(api.students).not.toHaveBeenCalled();
+  },
+);
+it.each(["school", "district"] as const)(
+  "%s history offers explicit recovery without silently replacing a failed selection",
+  async (scope) => {
+    api.organizationRoster
+      .mockRejectedValueOnce(new Error("Private denied detail"))
+      .mockResolvedValue({ organization_id: B, students: [] });
+    const { router, key } = await organizationPage(scope);
+    await screen.findByRole("alert");
+    expect(api.organizationRoster).toHaveBeenCalledOnce();
+    expect(router.state.location.search).toMatchObject({ [key]: A, filter: "documents" });
+    expect(api.audit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Load an Available Workspace" }));
+    await screen.findByText("No Student Record Available");
+    await waitFor(() =>
+      expect(router.state.location.search).toMatchObject({ [key]: B, filter: "documents" }),
+    );
+    expect(router.state.location.hash).toBe("kept");
+    expect(api.organizationRoster).toHaveBeenLastCalledWith({
+      data: { scope, organization_id: undefined },
+    });
+    expect(api.audit).not.toHaveBeenCalled();
+    expect(api.students).not.toHaveBeenCalled();
+  },
+);

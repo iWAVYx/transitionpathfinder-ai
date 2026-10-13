@@ -6,7 +6,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
-import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
+import { OrganizationActivityHistory } from "@/components/history/OrganizationActivityHistory";
 
 export const Route = createFileRoute("/_authenticated/school/history")({
   ...schoolDashboardNavigation,
@@ -50,7 +50,8 @@ function SchoolHistoryPage() {
           </p>
         </header>
 
-        <StudentActivityHistory
+        <OrganizationActivityHistory
+          scope="school"
           emptyCta={{ label: "Open school overview", to: "/school/overview" }}
         />
 

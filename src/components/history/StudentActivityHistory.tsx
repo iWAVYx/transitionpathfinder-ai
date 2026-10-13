@@ -26,7 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { listStudents, type Student } from "@/lib/students.functions";
+import { listStudents } from "@/lib/students.functions";
+import type { HistoryStudent, HistoryOrganization } from "@/lib/organization-history.types";
 import { listStudentAuditTrail, type AuditEntry } from "@/lib/audit.functions";
 
 /* -------------------- filters -------------------- */
@@ -117,6 +118,8 @@ function formatWhen(iso: string): string {
 /* -------------------- component -------------------- */
 
 export type StudentActivityHistoryProps = {
+  roster?: HistoryStudent[];
+  organization?: HistoryOrganization;
   /**
    * Optional CTA route shown in the empty state (e.g. sharing settings for
    * families, caseload for educators). Falls back to /dashboard.
@@ -133,7 +136,7 @@ export type StudentActivityHistoryProps = {
 
 export function StudentActivityHistory(props: StudentActivityHistoryProps) {
   const loadStudents = useServerFn(listStudents);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<HistoryStudent[]>([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -147,6 +150,11 @@ export function StudentActivityHistory(props: StudentActivityHistoryProps) {
     setStudentId("");
     void (async () => {
       try {
+        if (props.roster) {
+          setStudents(props.roster);
+          setStudentId(props.roster[0]?.id ?? "");
+          return;
+        }
         const result = await loadStudents();
         if (cancelled) return;
         if (result.loadFailed) throw new Error("Student records could not be loaded.");
@@ -161,7 +169,7 @@ export function StudentActivityHistory(props: StudentActivityHistoryProps) {
     return () => {
       cancelled = true;
     };
-  }, [loadStudents, attempt]);
+  }, [loadStudents, attempt, props.roster]);
 
   if (loading)
     return (
@@ -197,7 +205,7 @@ export function StudentActivityHistory(props: StudentActivityHistoryProps) {
   // A newly selected student starts with a fresh reader, filters and empty counts.
   return (
     <StudentHistoryReader
-      key={studentId}
+      key={`${props.organization?.scope ?? "personal"}:${props.organization?.id ?? ""}:${studentId}`}
       {...props}
       students={students}
       studentId={studentId}
@@ -210,11 +218,12 @@ function StudentHistoryReader({
   students,
   studentId,
   onStudentChange,
+  organization,
   emptyCta,
   testId,
   footer,
 }: StudentActivityHistoryProps & {
-  students: Student[];
+  students: HistoryStudent[];
   studentId: string;
   onStudentChange: (id: string) => void;
 }) {
@@ -232,7 +241,9 @@ function StudentHistoryReader({
     setEntries([]);
     void (async () => {
       try {
-        const result = await loadAudit({ data: { student_id: studentId, limit: 200 } });
+        const result = await loadAudit({
+          data: { student_id: studentId, limit: 200, ...(organization ? { organization } : {}) },
+        });
         if (!cancelled) setEntries(result.entries);
       } catch {
         if (!cancelled) setError(true);
@@ -243,7 +254,7 @@ function StudentHistoryReader({
     return () => {
       cancelled = true;
     };
-  }, [studentId, loadAudit, attempt]);
+  }, [studentId, organization?.scope, organization?.id, loadAudit, attempt]);
 
   const counts = useMemo(() => {
     const c: Record<HistoryFilterKey, number> = {
