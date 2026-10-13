@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { randomUUID } from "node:crypto";
+import { historyMigrationSource, wrapperFreeHistorySource, historyLedgerReconciliationSql } from "./atomic-history-ledger-sql.mjs";
 const real = process.env.PATHWAY_HISTORY_POSTGRES === "1";
 let db, close, newSession;
 const owner = "00000000-0000-4000-8000-000000000001";
@@ -63,6 +64,8 @@ before(async () => {
       IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF;
       IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role; END IF;
     END $$;
+    CREATE SCHEMA supabase_migrations;
+    CREATE TABLE supabase_migrations.schema_migrations(version text PRIMARY KEY, statements text[], name text, created_by text);
     CREATE SCHEMA auth;
     CREATE TABLE auth.users (id uuid PRIMARY KEY);
     CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
@@ -88,6 +91,8 @@ beforeEach(async () => {
     INSERT INTO auth.users VALUES ('${owner}'),('${other}');
     INSERT INTO public.student_intakes(id,user_id,student_first_name) VALUES ('${intake}','${owner}','Fictional Student');`);
   for (const id of [report, secondReport]) await db.query("INSERT INTO public.pathway_reports(id,user_id,intake_id,model,content) VALUES ($1,$2,$3,'fixture',$4::jsonb)", [id, owner, intake, JSON.stringify(original)]);
+  await db.exec("TRUNCATE supabase_migrations.schema_migrations");
+  await db.query("INSERT INTO supabase_migrations.schema_migrations(version,name,statements,created_by) VALUES ('20261012190000','atomic_pathway_report_content',$1,'fixture-reviewer')", [[wrapperFreeHistorySource]]);
   await as(db);
 });
 test("owner save and restore retain exact previous content with ordered versions", async () => {
@@ -208,4 +213,46 @@ test("simultaneous sessions serialize the same report while unrelated report sav
     assert.equal(saved.versions.filter(v => v.report_id === report).length, 1);
     assert.deepEqual(saved.reports[0].content, next);
   } finally { await winner.exec("ROLLBACK"); }
+});
+
+async function installedDefinition() {
+  return (await db.query("SELECT pg_get_functiondef('public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)'::regprocedure) AS definition")).rows[0].definition;
+}
+async function ledgerRow() {
+  return (await db.query("SELECT version,name,statements,created_by FROM supabase_migrations.schema_migrations WHERE version='20261012190000'")).rows[0];
+}
+test("ledger reconciliation stores canonical text as data, preserving installed function and other ledger metadata", async () => {
+  await db.exec("RESET ROLE");
+  const definition = await installedDefinition();
+  await db.exec("INSERT INTO supabase_migrations.schema_migrations VALUES ('20000101000000',ARRAY['Unrelated fixture'],'unchanged','other')");
+  await db.exec(historyLedgerReconciliationSql);
+  const row = await ledgerRow();
+  assert.deepEqual(row.statements, [historyMigrationSource]);
+  assert.equal(row.created_by, "fixture-reviewer"); assert.equal(row.name, "atomic_pathway_report_content");
+  assert.equal(await installedDefinition(), definition);
+  assert.deepEqual((await db.query("SELECT statements FROM supabase_migrations.schema_migrations WHERE version='20000101000000'")).rows[0].statements, ["Unrelated fixture"]);
+  await db.exec(historyLedgerReconciliationSql);
+  assert.deepEqual(await ledgerRow(), row);
+});
+test("unexpected ledger source stops reconciliation without changing function or ledger", async () => {
+  await db.exec("RESET ROLE; UPDATE supabase_migrations.schema_migrations SET statements=ARRAY['Unexpected fixture'] WHERE version='20261012190000'");
+  const row = await ledgerRow(), definition = await installedDefinition();
+  await assert.rejects(db.exec(historyLedgerReconciliationSql), /Unexpected history ledger representation/);
+  assert.deepEqual(await ledgerRow(), row); assert.equal(await installedDefinition(), definition);
+});
+test("ledger update failure rolls back instead of partially recording canonical source", async () => {
+  await db.exec("RESET ROLE; ALTER TABLE supabase_migrations.schema_migrations ADD CONSTRAINT fixture_ledger_reject CHECK (position(E'BEGIN;\\n' in statements[1])=0)");
+  try {
+    const row = await ledgerRow(), definition = await installedDefinition();
+    await assert.rejects(db.exec(historyLedgerReconciliationSql), { code: "23514" });
+    assert.deepEqual(await ledgerRow(), row); assert.equal(await installedDefinition(), definition);
+  } finally { await db.exec("ALTER TABLE supabase_migrations.schema_migrations DROP CONSTRAINT fixture_ledger_reject"); }
+});
+test("changed function grants prevent a misleading ledger correction", async () => {
+  await db.exec("RESET ROLE; GRANT EXECUTE ON FUNCTION public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text) TO anon");
+  try {
+    const row = await ledgerRow();
+    await assert.rejects(db.exec(historyLedgerReconciliationSql), /differs from reviewed source or grants/);
+    assert.deepEqual(await ledgerRow(), row);
+  } finally { await db.exec("REVOKE EXECUTE ON FUNCTION public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text) FROM anon"); }
 });
