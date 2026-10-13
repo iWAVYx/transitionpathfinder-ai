@@ -79,3 +79,40 @@ for (const audience of ["student", "family", "educator"] as const) for (const mo
     expect(mocks.server).not.toHaveBeenCalled();
   });
 }
+
+
+for (const audience of ["student", "family", "educator"] as const) for (const shared of audience === "student" ? [false] : [false, true]) {
+  it(`${audience}/${shared ? "shared" : "planning"} cover and snapshot use newer confidence without reclassifying retained pathways`, () => {
+    const original = { ...richerSharedFixture(), confidence_level: "high", confidence: { overall: "low", rationale: "Current inputs need review." } };
+    const report = shared ? projectSharedReport(original, audience as "family" | "educator")! : original;
+    const { container } = render(<ReportView name="Maya" report={report as any} hasV2 readOnly={shared} initialAudience={audience} fixedAudience={shared ? audience : undefined} />);
+    expect(container.querySelector('.print-cover-footer-tag')!.textContent).toBe("Low Confidence");
+    expect(container.querySelector('.fb-cover')!.textContent).toContain("Low Confidence");
+    expect(container.querySelector('section[aria-label="Student Snapshot"]')!.textContent).toContain("Low Confidence");
+    expect(container.querySelector('#v2-confidence')!.textContent).toContain("Low Confidence");
+    const pathways = container.querySelector('#sec-pathways')!;
+    expect(pathways.textContent).not.toMatch(/High Confidence|Low Confidence/);
+    for (const pathway of original.recommended_pathways) {
+      expect(pathways.textContent).toContain(pathway.why_it_fits);
+    }
+    expect(mocks.server).not.toHaveBeenCalled();
+  });
+}
+it("does not show an older cover confidence when the newer confidence is absent", () => {
+  const report = { ...richerSharedFixture(), confidence_level: "high" };
+  const { container } = render(<ReportView name="Maya" report={report as any} hasV2 initialAudience="family" />);
+  expect(container.querySelector('.print-cover-footer-tag')).toBeNull();
+  expect(container.querySelector('.fb-cover')!.textContent).not.toMatch(/High Confidence|Lower Confidence|Low Confidence/);
+  expect(container.querySelector('section[aria-label="Student Snapshot"]')!.textContent).not.toContain("Confidence");
+});
+
+it("does not promote retained overall readiness into a newer summary or pathway badge", () => {
+  const report = { ...richerSharedFixture(), student_snapshot: { ...DEMO_STUDENTS.maya.report.student_snapshot, readiness_level: "ready" },
+    readiness_indicators: [{ domain: "Current recorded area", level: "emerging", note: "Current support is still needed." }] };
+  const { container } = render(<ReportView name="Maya" report={report as any} hasV2 initialAudience="family" />);
+  expect(container.querySelector('section[aria-label="Student Snapshot"]')!.textContent).not.toContain("Readiness");
+  expect(container.querySelector('#sec-pathways')!.textContent).not.toContain("Readiness:");
+  expect(container.querySelector('#sec-snapshot')!.textContent).toContain("Ready");
+  expect(container.querySelector('#v2-readiness-indicators')!.textContent).toContain("Emerging");
+  expect(container.querySelector('#v2-readiness-indicators')!.textContent).toContain("Current support is still needed.");
+});

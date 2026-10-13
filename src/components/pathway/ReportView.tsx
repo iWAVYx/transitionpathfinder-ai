@@ -3,6 +3,7 @@ import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
 import { ReportOverview } from "@/components/documents/ReportOverview";
 import { reportSourceLabels } from "@/lib/report-source-summary";
+import { reportConfidenceLabel } from "@/lib/report-confidence-label";
 import { reportOverviewContent } from "@/lib/report-overview-content";
 import { reportNextStepPreview } from "@/lib/report-next-step-preview";
 import { reportPrintPlans } from "@/lib/report-print-plans";
@@ -416,14 +417,7 @@ function ReportViewReader({
     month: "long",
     day: "numeric",
   });
-  const confidenceLabel =
-    r.confidence_level === "high"
-      ? "High confidence"
-      : r.confidence_level === "moderate"
-        ? "Moderate confidence"
-        : r.confidence_level
-          ? "Lower confidence"
-          : null;
+  const confidenceLabel = reportConfidenceLabel(r, hasV2);
 
   return (
     <div className="report-shell">
@@ -734,7 +728,7 @@ function ReportViewReader({
       <StudentSnapshotCard
         name={name}
         snapshot={r.student_snapshot}
-        readiness={r.student_snapshot?.readiness_level ?? null}
+        readiness={!hasV2 ? r.student_snapshot?.readiness_level ?? null : null}
         confidenceLabel={confidenceLabel}
         meta={meta}
         today={today}
@@ -1190,12 +1184,12 @@ function ReportViewReader({
                             {PATHWAY_TYPE_LABEL[p.type] ?? p.type}
                           </Badge>
                           <p className="font-display text-xl">{toTitleCase(p.title)}</p>
-                          {confidenceLabel && (
+                          {!hasV2 && confidenceLabel && (
                             <Badge variant="outline" className="gap-1 text-[11px]">
                               <ShieldCheck className="h-3 w-3" /> {confidenceLabel}
                             </Badge>
                           )}
-                          {r.student_snapshot?.readiness_level && (
+                          {!hasV2 && r.student_snapshot?.readiness_level && (
                             <Badge variant="outline" className="gap-1 text-[11px]">
                               <Target className="h-3 w-3" /> Readiness:{" "}
                               {READINESS_LABEL[r.student_snapshot.readiness_level] ??

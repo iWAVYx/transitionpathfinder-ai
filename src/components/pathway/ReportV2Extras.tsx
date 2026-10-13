@@ -1,3 +1,4 @@
+import { NEWER_CONFIDENCE_LABELS } from "@/lib/report-confidence-label";
 import { ReportCategoryContinuation, profileCategoryPrintSpans } from "@/components/documents/ReportCategoryContinuation";
 import { ReadinessBadge } from "@/components/documents/ReportReadinessRow";
 import { toTitleCase } from "@/lib/title-case";
@@ -48,17 +49,17 @@ const CONFIDENCE_META: Record<
   { label: string; calloutKind: "means" | "matters" | "next" | "source"; description: string }
 > = {
   low: {
-    label: "Low Confidence",
+    label: NEWER_CONFIDENCE_LABELS.low,
     calloutKind: "next",
     description: "This report records low confidence. Review the explanation and any gaps with your team.",
   },
   medium: {
-    label: "Medium Confidence",
+    label: NEWER_CONFIDENCE_LABELS.medium,
     calloutKind: "means",
     description: "This report records medium confidence. Review the explanation and any gaps with your team.",
   },
   high: {
-    label: "High Confidence",
+    label: NEWER_CONFIDENCE_LABELS.high,
     calloutKind: "source",
     description: "This report records high confidence. Review the explanation and any gaps with your team.",
   },

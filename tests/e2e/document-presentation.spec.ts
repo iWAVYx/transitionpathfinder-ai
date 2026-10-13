@@ -991,7 +991,8 @@ test("qualitative readiness and recorded confidence stay readable without invent
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   const original = { ...components.richerSharedFixture(),
     readiness_indicators: [...["emerging", "developing", "progressing", "ready"].map(level => ({ domain: `Recorded ${level} area`, level, note: `Recorded ${level} observation` })), { domain: "Additional recorded area", level: "ready", note: "Additional recorded observation" }],
-    confidence: { overall: "high", rationale: "Recorded explanation based on an earlier observation.", caveats: ["A current team review is still needed."] },
+    confidence_level: "high",
+    confidence: { overall: "low", rationale: "Recorded explanation based on an earlier observation.", caveats: ["A current team review is still needed."] },
   };
   for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
     const report = shared ? components.projectSharedReport(original, audience) : original;
@@ -1035,6 +1036,12 @@ test("qualitative readiness and recorded confidence stay readable without invent
         }
         expect(await readiness.locator('[style*="width"]').count()).toBe(0);
         const confidence = page.locator("#v2-confidence");
+        await expect(page.locator('.print-cover-footer-tag')).toHaveText("Low Confidence");
+        await expect(page.locator('.fb-cover')).toContainText("Low Confidence");
+        await expect(page.locator('section[aria-label="Student Snapshot"]')).toContainText("Low Confidence");
+        await expect(confidence.getByText("Low Confidence", { exact: true })).toBeVisible();
+        await expect(page.locator('#sec-pathways')).not.toContainText("High Confidence");
+        await expect(page.locator('#sec-pathways')).not.toContainText("Low Confidence");
         await expect(confidence.getByText(original.confidence.rationale, { exact: true })).toBeVisible();
         await expect(confidence.getByText(original.confidence.caveats[0], { exact: true })).toBeVisible();
         expect(await confidence.textContent()).not.toContain("comprehensive and recent");
