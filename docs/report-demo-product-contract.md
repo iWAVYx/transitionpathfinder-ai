@@ -290,3 +290,8 @@ PPT setup recovery (October 12): TypeScript and all 186 unit files / 1,729 tests
 ## Prepared Report View Handoff — October 13, 2026
 
 The prepared report now retains its selected Student, Family or Educator view when opening the fictional Plan Details and Review Notes excerpt and returning. Student view retains its eligible Family/Educator Pathway Builder return; it does not become a builder submitter. Direct links and role changes are covered by 22 offline router/component tests. This is navigation parity only: the prepared report remains a static fictional baseline, and full demo/product reconciliation and signed-in staging acceptance remain open.
+
+
+## Shared Demo Student Navigation — October 13, 2026
+
+Changing a fictional student now explicitly disables scroll reset in the shared useDemoStudent navigation. Student, Family and Educator regressions verify preserved role, other search parameters and section hash, an added history entry, and backward/forward restoration of the selected sample. The same selector is used by demo dashboards, workspace, reports and feature previews; no new roles or report access are introduced. These are offline router checks, not an exact pixel-position browser acceptance claim. That remains part of the signed-in/demo navigation release matrix.

@@ -73,6 +73,23 @@ describe("demo planning history", () => {
     expect(router.state.location.hash).toBe("report");
   });
 
+  it.each(["student", "family", "educator"])("%s sample changes preserve the current page area and URL context", async role => {
+    const router = open(`/demo/report?role=${role}&student=sam&expand=true#report-goals`);
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:sam`));
+    const navigate = vi.spyOn(router, "navigate");
+    fireEvent.click(screen.getByRole("button", { name: "Riley" }));
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:riley`));
+    expect(navigate).toHaveBeenCalledWith(expect.objectContaining({
+      to: "/demo/report", hash: "report-goals", replace: false, resetScroll: false,
+    }));
+    expect(router.state.location.search).toMatchObject({ role, student: "riley", expand: true });
+    expect(router.state.location.hash).toBe("report-goals");
+    router.history.back();
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:sam`));
+    router.history.forward();
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:riley`));
+  });
+
   it("pins old bookmarks to a supported perspective and sample so later choices cannot change their history", async () => {
     sessionStorage.setItem("demo-role-view", "partner");
     const router = open("/demo/report");
