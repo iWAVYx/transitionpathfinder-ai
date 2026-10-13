@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { calendarDayForInstant, shiftCalendarDay, validCalendarDay, validCalendarTimeZone } from "./calendar-day";
 import { readCalendarPages, readCalendarBatches } from "./calendar-query-pages";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -143,9 +144,10 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         student_id: z.string().uuid().optional(),
         organization_id: z.string().uuid().optional(),
         // ISO date strings (YYYY-MM-DD). Defaults to a 6-month window centered on today.
-        from: z.string().optional(),
-        to: z.string().optional(),
-      })
+        from: z.string().refine(validCalendarDay, "Choose a valid calendar date.").optional(),
+        to: z.string().refine(validCalendarDay, "Choose a valid calendar date.").optional(),
+        timezone: z.string().max(64).refine(validCalendarTimeZone, "Choose a valid timezone.").default("UTC"),
+      }).refine(value => !value.from || !value.to || value.from <= value.to, "The start date must come before the end date.")
       .parse(i),
   )
   .handler(async ({ data, context }): Promise<{ events: TeamCalendarEvent[] }> => {
@@ -162,8 +164,8 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     defaultFrom.setMonth(defaultFrom.getMonth() - 1);
     const defaultTo = new Date(today);
     defaultTo.setMonth(defaultTo.getMonth() + 6);
-    const fromIso = data.from ?? toIsoDate(defaultFrom);
-    const toIso = data.to ?? toIsoDate(defaultTo);
+    const fromIso = data.from ?? calendarDayForInstant(defaultFrom.toISOString(), data.timezone);
+    const toIso = data.to ?? calendarDayForInstant(defaultTo.toISOString(), data.timezone);
 
     // Resolve accessible students (filtered to one if requested).
     const students = await listAccessibleStudentIds(supabase, data.student_id, data.organization_id);
@@ -187,8 +189,8 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
           .select("id, student_id, title, kind, scheduled_at, location, status", { count: "exact" })
           .in("student_id", batch)
           .not("scheduled_at", "is", null)
-          .gte("scheduled_at", `${fromIso}T00:00:00`)
-          .lte("scheduled_at", `${toIso}T23:59:59`).order("id", { ascending: true }).range(from, to)).then(data => ({ data })),
+          .gte("scheduled_at", `${shiftCalendarDay(fromIso, -1)}T00:00:00Z`)
+          .lte("scheduled_at", `${shiftCalendarDay(toIso, 15)}T23:59:59Z`).order("id", { ascending: true }).range(from, to)).then(data => ({ data })),
       ]);
 
       for (const a of (actionsRes.data ?? []) as Array<{
@@ -241,8 +243,8 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       }>) {
         const d = parseDateOnly(m.scheduled_at);
         if (!d) continue;
-        const meetingDateIso = toIsoDate(d);
-        events.push({
+        const meetingDateIso = calendarDayForInstant(m.scheduled_at, data.timezone);
+        if (meetingDateIso >= fromIso && meetingDateIso <= toIso) events.push({
           id: `meeting-${m.id}`,
           kind: "meeting",
           event_type: m.kind === "iep" || m.kind === "ppt" ? "PPT / IEP Meeting" : "Transition Meeting",
@@ -273,9 +275,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
         // Derived prep deadlines (only for upcoming meetings).
         if (m.status === "upcoming") {
           for (const step of PREP_OFFSETS) {
-            const prep = new Date(d);
-            prep.setDate(prep.getDate() - step.offset);
-            const iso = toIsoDate(prep);
+            const iso = shiftCalendarDay(meetingDateIso, -step.offset);
             if (iso < fromIso || iso > toIso) continue;
             events.push({
               id: `prep-${m.id}-${step.offset}`,

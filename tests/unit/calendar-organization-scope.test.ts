@@ -11,7 +11,7 @@ const otherSchool = "22222222-2222-4222-8222-222222222222";
 const student = "33333333-3333-4333-8333-333333333333";
 const otherStudent = "44444444-4444-4444-8444-444444444444";
 function database(options: { membership?: boolean; errorTable?: string } = {}) {
-  const queries: Array<{ table: string; filters: Array<[string, string, any]>; range?: [number, number] }> = [];
+  const queries: Array<{ table: string; filters: Array<[string, string, any]>; range?: [number, number]; bounds?: Array<[string, string, string]> }> = [];
   const row = (id: string, organization: string | null, studentId: string | null) => ({ id, owner_user_id: "caller", student_id: studentId, title: id, detail: "", event_date: "2030-12-31", related_organization_id: organization, all_day: true, visibility: "private" });
   const tables: Record<string, any[]> = {
     organization_memberships: options.membership === false ? [] : [{ user_id: "caller", organization_id: school, status: "active" }],
@@ -25,11 +25,12 @@ function database(options: { membership?: boolean; errorTable?: string } = {}) {
     const result = () => {
       let data = tables[table] ?? [];
       for (const [op, field, value] of entry.filters) data = data.filter(row => op === "eq" ? row[field] === value : op === "in" ? value.includes(row[field]) : true);
+      for (const [op, field, value] of entry.bounds ?? []) data = data.filter(row => op === "gte" ? row[field] >= value : row[field] <= value);
       const count = data.length;
       if (entry.range) data = data.slice(entry.range[0], entry.range[1] + 1);
       return { data, count, error: table === options.errorTable ? { message: "private database detail" } : null };
     };
-    const q: any = { select: () => q, range: (from: number, to: number) => { entry.range = [from, to]; return q; }, order: () => q, limit: () => q, not: () => q, gte: () => q, lte: () => q, eq: (key: string, value: any) => { entry.filters.push(["eq", key, value]); return q; }, in: (key: string, value: any) => { entry.filters.push(["in", key, value]); return q; }, maybeSingle: async () => { const r = result(); return { ...r, data: r.data[0] ?? null }; }, then: (yes: any, no: any) => Promise.resolve(result()).then(yes, no) };
+    const q: any = { select: () => q, range: (from: number, to: number) => { entry.range = [from, to]; return q; }, order: () => q, limit: () => q, not: () => q, gte: (field: string, value: string) => { (entry.bounds ??= []).push(["gte", field, value]); return q; }, lte: (field: string, value: string) => { (entry.bounds ??= []).push(["lte", field, value]); return q; }, eq: (key: string, value: any) => { entry.filters.push(["eq", key, value]); return q; }, in: (key: string, value: any) => { entry.filters.push(["in", key, value]); return q; }, maybeSingle: async () => { const r = result(); return { ...r, data: r.data[0] ?? null }; }, then: (yes: any, no: any) => Promise.resolve(result()).then(yes, no) };
     return q;
   } };
   return { supabase, queries, tables };
@@ -117,4 +118,23 @@ it("organization choices retain every active caller membership beyond one page",
   expect(result.organizations).toHaveLength(1201);
   expect(result.organizations.at(-1)).toEqual({ id: "org-1200", name: "Organization 1200" });
   expect(db.queries.map(query => query.range)).toEqual([[0,499],[500,999],[1000,1499]]);
+});
+
+it("prep dates use the viewer day near DST midnight while meeting instants are retained", async () => {
+  const db = database();
+  db.tables.meetings = [{ id: "midnight", student_id: student, title: "Late Meeting", kind: "ppt", scheduled_at: "2026-03-09T03:30:00Z", status: "upcoming" }];
+  const result = await (listCalendarEvents as any)({ data: { from: "2026-03-01", to: "2026-03-08", timezone: "America/New_York" }, context: { supabase: db.supabase, userId: "caller" } });
+  expect(result.events.find((event: any) => event.id === "meeting-midnight")).toMatchObject({ event_date: "2026-03-08", start_at: "2026-03-09T03:30:00Z" });
+  expect(result.events.find((event: any) => event.id === "prep-midnight-1")).toMatchObject({ event_date: "2026-03-07", all_day: true });
+  expect(result.events.every((event: any) => event.event_date >= "2026-03-01" && event.event_date <= "2026-03-08")).toBe(true);
+});
+it("future meetings supply prep dates inside the requested window without leaking the outside meeting into it", async () => {
+  const db = database(); db.tables.meetings = [{ id: "future", student_id: student, title: "Future Meeting", kind: "ppt", scheduled_at: "2031-01-10T15:00:00Z", status: "upcoming" }];
+  const result = await invoke(db, { timezone: "America/New_York" });
+  expect(result.events.find((event: any) => event.id === "prep-future-14")).toMatchObject({ event_date: "2030-12-27" });
+  expect(result.events.some((event: any) => event.id === "meeting-future")).toBe(false);
+  expect(result.events.every((event: any) => event.event_date >= "2030-12-01" && event.event_date <= "2030-12-31")).toBe(true);
+});
+it.each([{ timezone: "Not/AZone" }, { from: "2030-02-30" }, { from: "2031-01-01", to: "2030-12-01" }])("invalid timezone/date windows are rejected before database reads: %o", async extra => {
+  const db = database(); await expect(invoke(db, extra)).rejects.toThrow(); expect(db.queries).toEqual([]);
 });

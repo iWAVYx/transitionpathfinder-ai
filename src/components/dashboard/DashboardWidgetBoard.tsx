@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { browserCalendarTimeZone, calendarDayForInstant } from "@/lib/calendar-day";
 import { listCalendarEvents } from "@/lib/calendar.functions";
 import { widgetEventDestination, widgetLinkDestination } from "@/lib/dashboard/dashboard-widget-navigation";
 import {
@@ -42,9 +43,10 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
     queryFn: () => loadPrefs({ data: { role } }),
   });
   const widgets = prefs.data?.widgets ?? WIDGETS_BY_ROLE[role];
+  const timezone = browserCalendarTimeZone();
   const calendar = useQuery({
-    queryKey: ["dashboard-widget-calendar", role, studentId],
-    queryFn: () => loadCalendar({ data: studentId ? { student_id: studentId } : {} }),
+    queryKey: ["dashboard-widget-calendar", role, studentId, timezone],
+    queryFn: () => loadCalendar({ data: { timezone, ...(studentId ? { student_id: studentId } : {}) } }),
     enabled: widgets.includes("calendar") || widgets.includes("meetings"),
     staleTime: 30_000,
   });
@@ -67,7 +69,7 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
     save.mutate(next);
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = calendarDayForInstant(new Date().toISOString(), timezone);
   const upcoming = (calendar.data?.events ?? [])
     .filter((event) => event.event_date >= today && event.event_status !== "cancelled")
     .sort((a, b) => a.event_date.localeCompare(b.event_date));

@@ -48,6 +48,7 @@ import {
   downloadDashboardIcs,
 } from "@/lib/calendar-events";
 
+import { browserCalendarTimeZone } from "@/lib/calendar-day";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
 
 const TIMEZONES = [
@@ -227,7 +228,7 @@ function DashboardCalendarSession({
     setLoading(true);
     try {
       const res = await fetchEvents({
-        data: { ...(studentId ? { student_id: studentId } : {}), ...(organizationId ? { organization_id: organizationId } : {}) },
+        data: { timezone: browserCalendarTimeZone(), ...(studentId ? { student_id: studentId } : {}), ...(organizationId ? { organization_id: organizationId } : {}) },
       });
       if (!current()) return;
       const rows = res.events.map(calendarRecordForDisplay);

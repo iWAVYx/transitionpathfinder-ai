@@ -27,7 +27,7 @@ it.each([false, true])("a prior student load cannot replace the new calendar or 
   expect(api.error).not.toHaveBeenCalled();
   await act(async () => current.resolve({ events: [record("Current Student Event")] }));
   expect(screen.getAllByText("Current Student Event").length).toBeGreaterThan(0);
-  expect(api.list.mock.calls[1][0]).toEqual({ data: { student_id: "student-b" } });
+  expect(api.list.mock.calls[1][0]).toEqual({ data: { timezone: expect.any(String), student_id: "student-b" } });
 });
 it("a student switch immediately removes loaded rows and old event controls while the next load is pending", async () => {
   const next = deferred(); api.list.mockResolvedValueOnce({ events: [record("Old Student Event")] }).mockReturnValueOnce(next.promise);
@@ -68,7 +68,7 @@ it("organization switching resets the calendar and discards a previous organizat
   await waitFor(() => expect(api.list).toHaveBeenCalledOnce());
   view.rerender(<DashboardCalendar organizationId="school-two" organizationOptions={[]} />);
   await waitFor(() => expect(api.list).toHaveBeenCalledTimes(2));
-  expect(api.list.mock.calls[1][0]).toEqual({ data: { organization_id: "school-two" } });
+  expect(api.list.mock.calls[1][0]).toEqual({ data: { timezone: expect.any(String), organization_id: "school-two" } });
   await act(async () => old.resolve({ events: [record("Old School Event")] }));
   expect(screen.queryByText("Old School Event")).toBeNull();
   expect(screen.getByRole("button", { name: "Export calendar as .ics file" }).hasAttribute("disabled")).toBe(true);
@@ -84,7 +84,7 @@ it("a private event created from an organization calendar retains that organizat
   await waitFor(() => expect(api.create).toHaveBeenCalledOnce());
   expect(api.create.mock.calls[0][0].data).toMatchObject({ title: "Private School Note", related_organization_id: "selected-school", visibility: "private" });
   await waitFor(() => expect(api.list).toHaveBeenCalledTimes(2));
-  expect(api.list.mock.calls[1][0]).toEqual({ data: { organization_id: "selected-school" } });
+  expect(api.list.mock.calls[1][0]).toEqual({ data: { timezone: expect.any(String), organization_id: "selected-school" } });
 });
 
 it("organization-choice errors are visible and retryable instead of pretending there are no organizations", async () => {
