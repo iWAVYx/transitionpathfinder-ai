@@ -18,6 +18,8 @@ export type CalendarEvent = {
   /** Present for saved calendar records; legacy date-only reminders omit it. */
   allDay?: boolean;
   endDate?: Date;
+  location?: string;
+  meetingLink?: string;
   title: string;
   detail: string;
   kind: CalendarEventKind;
@@ -32,7 +34,7 @@ export type CalendarEvent = {
 };
 
 /** Preserve saved calendar dates/times; do not turn them into derived reminder slots. */
-export function calendarRecordForExport(ev: Pick<TeamCalendarEvent, "id" | "event_date" | "start_time" | "end_time" | "all_day" | "title" | "detail" | "kind">): CalendarEvent {
+export function calendarRecordForExport(ev: Pick<TeamCalendarEvent, "id" | "event_date" | "start_time" | "end_time" | "all_day" | "title" | "detail" | "kind"> & Partial<Pick<TeamCalendarEvent, "location" | "meeting_link">>): CalendarEvent {
   const [year, month, day] = ev.event_date.split("-").map(Number);
   const at = (time?: string | null) => {
     const [hour = 0, minute = 0, second = 0] = (time ?? "00:00:00").split(":").map(Number);
@@ -42,6 +44,7 @@ export function calendarRecordForExport(ev: Pick<TeamCalendarEvent, "id" | "even
     id: ev.id, date: at(ev.all_day ? null : ev.start_time),
     endDate: !ev.all_day && ev.end_time ? at(ev.end_time) : undefined,
     allDay: ev.all_day, title: ev.title, detail: ev.detail,
+    location: ev.location ?? undefined, meetingLink: ev.meeting_link ?? undefined,
     kind: ev.kind === "meeting" || ev.kind === "prep" || ev.kind === "action" ? ev.kind : "goal",
   };
 }
@@ -191,8 +194,9 @@ export function buildGoogleCalendarUrl(ev: CalendarEvent, tz?: string) {
     action: "TEMPLATE",
     text: ev.title,
     dates: `${start}/${timed ? icsLocal(end) : gcalDate(end)}`,
-    details: ev.detail || "From TransitionForward",
+    details: [ev.detail || "From TransitionForward", ev.meetingLink ? `Meeting Link: ${ev.meetingLink}` : null].filter(Boolean).join("\n\n"),
   });
+  if (ev.location) params.set("location", ev.location);
   if (tz) params.set("ctz", tz);
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
@@ -370,6 +374,8 @@ export function buildIcsForEvents(events: CalendarEvent[], tz?: string) {
       dtEnd,
       `SUMMARY:${icsEscape(ev.title)}`,
       `DESCRIPTION:${icsEscape(ev.detail || "")}`,
+      ...(ev.location ? [`LOCATION:${icsEscape(ev.location)}`] : []),
+      ...(ev.meetingLink ? [`URL:${ev.meetingLink.replace(/[\r\n]/g, "")}`] : []),
       "BEGIN:VALARM",
       "ACTION:DISPLAY",
       `DESCRIPTION:Reminder: ${icsEscape(ev.title)}`,

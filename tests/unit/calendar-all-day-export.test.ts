@@ -43,3 +43,23 @@ it("saved timed records retain their recorded start and end in ICS and Google Ca
   expect(url.searchParams.get("dates")).toBe("20261013T141500/20261013T154500");
   expect(url.searchParams.get("ctz")).toBe("America/New_York");
 });
+
+it("saved event locations and meeting links remain complete in ICS and Google export values", () => {
+  const event = calendarRecordForExport({ id: "call", event_date: "2026-10-13", start_time: "14:00:00", end_time: "15:00:00", all_day: false, title: "Planning Conversation", detail: "Bring questions and recorded observations.", kind: "meeting", location: "Room 2, North; Entrance", meeting_link: "https://meeting.example.test/room?join=abc&source=calendar" });
+  const result = buildIcsForEvents([event]);
+  expect(result).toContain("LOCATION:Room 2\\, North\\; Entrance");
+  expect(result).toContain("URL:https://meeting.example.test/room?join=abc&source=calendar");
+  expect(result).toContain("DESCRIPTION:Bring questions and recorded observations.");
+  const url = new URL(buildGoogleCalendarUrl(event));
+  expect(url.searchParams.get("location")).toBe("Room 2, North; Entrance");
+  expect(url.searchParams.get("details")).toBe("Bring questions and recorded observations.\n\nMeeting Link: https://meeting.example.test/room?join=abc&source=calendar");
+});
+it("records without a location or meeting link do not acquire placeholder connection details", () => {
+  const event = calendarRecordForExport({ id: "day", event_date: "2026-10-13", start_time: null, end_time: null, all_day: true, title: "Review Day", detail: "", kind: "deadline", location: null, meeting_link: null });
+  const result = buildIcsForEvents([event]);
+  expect(result).not.toContain("LOCATION:");
+  expect(result).not.toContain("URL:");
+  const url = new URL(buildGoogleCalendarUrl(event));
+  expect(url.searchParams.has("location")).toBe(false);
+  expect(url.searchParams.get("details")).not.toContain("Meeting Link:");
+});
