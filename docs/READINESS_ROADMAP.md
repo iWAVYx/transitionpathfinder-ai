@@ -1,10 +1,10 @@
 # TransitionForward — Readiness Roadmap
 
-## Active Delivery Checklist — Updated October 12, 2026
+## Active Delivery Checklist — Updated October 13, 2026
 
 This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.
 
-## Next Actions — October 12, 2026
+## Next Actions — October 13, 2026
 
 We are still in milestone 1. The recent route safeguards are locally verified in draft PR211; they have not been released. The full TF-01–TF-26 register and six milestones below remain the scope of record.
 
@@ -2889,3 +2889,10 @@ The active roadmap now states ordered actions and their completion evidence with
 - In draft source, both report save and regeneration now use one shared authenticated atomic RPC. The old version-number query/snapshot insert/content PATCH sequence is removed from both callers. Existing owner checks, server-derived Generated/Saved metadata, restore behavior and manual/input-diff summaries remain; the database returns the actual positive integer version. No dashboard role gains access or new tools. Applicable authorized report owners share the fix; demo samples and read-only shared readers remain unchanged.
 - All 200 unit files / 1,916 tests and TypeScript pass; 12 scoped source/security checks pass. The affected handler/boundary files contain 38 cases, including actual Supabase SDK POST/body/caller-auth serialization with a large observed report, conflicts, missing RPC and thrown transport errors. Errors stop without a split-write fallback, reread-and-overwrite or generation retry; private database details are not exposed. These SDK fetches/provider calls are synthetic/mocked and never reach a live service. Prior 39 browser cases / 19 native export fixtures remain presentation evidence; no new presentation change required rerendering.
 - Next: full draft/exact-candidate review and specifically authorized staging deployment, then actual signed-in RPC/save/regenerate/restore/reload and applicable-role/linked-student acceptance. Staging already has the approved function, but the hosted product still runs older callers. Production must receive its separately authorized/verified migration before deploying this source. Hosted request limits/timeouts, direct writers and stale client intent remain open. No further migration, live record/provider/AI request, deployment, merge or production action occurred this turn. The full TF register, six milestones and deferred parent pilot/report snapshot remain intact.
+
+## October 13, 2026 — Candidate Readiness Audit and Review Ledger
+
+- Found and repaired the failed candidate readiness audit: the new history migration made the canonical inventory 203 while the machine-readable/pinned expectations still said 202. Updated explicit inventories preserve all existing alignment rules, applied-history evidence and exclusions. The recorded September 17 production comparison remains BLOCKED with nine pending migrations; no production query, migration approval or changed history is implied.
+- All 68 credential-free readiness/security contracts and 27 focused identity/initialization unit tests pass after the correction. Prior source baseline still has all 200 unit files / 1,916 tests, TypeScript and hosted clean-build/unit/accessibility/role-guard/replay evidence. Credentialed checks were skipped and remain open. Fresh CI audit confirmation is pending.
+- Added a concrete PR211 review ledger: source baseline 9eab37b5, local runtime fingerprint 9e57117c…3e01ed5 / 1,128 files, all 215 baseline changed paths grouped, bounded review areas, full role acceptance matrix and explicit release order. The inventory is not a completed full-PR review. Main-demo/product reconciliation and prepared-builder input/report parity remain open; “Your Dashboard Widgets” is preserved, and new Lovable edits still require reconciliation before sync.
+- Next: confirm the repaired CI audit, complete remaining grouped source/demo review and prepare a specifically authorized staging release. No release, provider/AI call, account/role change, migration or production operation occurred this turn. All six milestones, TF notes and deferred parent pilot/report snapshot remain tracked.
