@@ -1998,8 +1998,8 @@ test("fictional optional report sections use actual role-aware document presenta
       await expect(page.locator("#v2-iep-summary")).toContainText(source.iep_plan_summary.transition_goals[0].goal_text);
       await expect(page.locator("#v2-confidence")).toContainText(source.confidence.rationale);
       await expect(page.getByText(source.change_summary, { exact: true })).toBeVisible();
-      if (audience === "educator") await expect(page.getByText(`In plain language: ${source.iep_plan_summary.transition_goals[0].plain_language}`, { exact: true })).toHaveCount(0);
-      else await expect(page.getByText(`In plain language: ${source.iep_plan_summary.transition_goals[0].plain_language}`, { exact: true })).toBeVisible();
+      if (audience === "educator") await expect(page.getByText(source.iep_plan_summary.transition_goals[0].plain_language, { exact: true })).toHaveCount(0);
+      else await expect(page.getByText(source.iep_plan_summary.transition_goals[0].plain_language, { exact: true })).toBeVisible();
       await expect(page.getByText("No IEP was uploaded, extracted or reviewed.", { exact: false })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     }
@@ -2083,6 +2083,63 @@ test("section update history is scoped, readable and complete in print while fol
       const layout = await panel.locator('tbody tr').evaluateAll(rows => rows.map(row => { const cells = row.children; return { left: cells[0].getBoundingClientRect().x, right: cells[1].getBoundingClientRect().x, font: parseFloat(getComputedStyle(cells[1]).fontSize), aligned: getComputedStyle(cells[0]).textAlign === 'left' && getComputedStyle(cells[1]).textAlign === 'left' }; }));
       expect(layout.every(row => Math.abs(row.left - layout[0].left) < 1 && Math.abs(row.right - layout[0].right) < 1 && row.font >= 12 && row.aligned)).toBe(true);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("IEP goal headings and facts share level margins and readable typography across demo, product and fixed shares", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const iep = { ...components.OPTIONAL_REPORT_EXAMPLE.iep_plan_summary,
+    transition_goals: [{ ...components.OPTIONAL_REPORT_EXAMPLE.iep_plan_summary.transition_goals[0], area: "education and IEP planning" }] };
+  const variants = [
+    ...(["student", "family", "educator"] as const).map(audience => ({ audience, kind: "demo", shared: false })),
+    ...(["student", "family", "educator"] as const).map(audience => ({ audience, kind: "product", shared: false })),
+    ...(["family", "educator"] as const).map(audience => ({ audience, kind: "product", shared: true })),
+  ];
+  for (const { audience, kind, shared } of variants) {
+    const source = { ...components.richerSharedFixture(), iep_plan_summary: iep };
+    const report = shared ? components.projectSharedReport(source, audience) : source;
+    const body = kind === "demo"
+      ? renderToStaticMarkup(createElement(components.DemoOptionalReportDocument, { audience }))
+      : renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, demo: false, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    const expectedIep = kind === "demo" ? components.OPTIONAL_REPORT_EXAMPLE.iep_plan_summary : iep;
+    for (const width of [375, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html lang="en"><head><style>${css}</style></head><body><main>${body}</main></body></html>`);
+      for (const media of ["screen", "print"] as const) {
+        await page.emulateMedia({ media });
+        const summary = page.locator("#v2-iep-summary");
+        await expect(summary.getByRole("heading", { name: "Transition Goals", level: 3 })).toBeVisible();
+        if (media === "print") {
+          const present = summary.locator("[data-report-iep-present-levels]");
+          expect(await present.locator(":scope > h3").evaluate(element => getComputedStyle(element).breakAfter)).toBe("avoid");
+          expect(await present.locator(":scope > hr").evaluate(element => getComputedStyle(element).breakAfter)).toBe("avoid");
+        }
+        for (const label of ["Accommodations", "Services"]) {
+          const caption = summary.getByText(label, { exact: true });
+          await expect(caption).toBeVisible();
+          expect(await caption.evaluate(element => getComputedStyle(element).textTransform)).toBe("none");
+        }
+        const goals = summary.locator('li:has(> [data-report-goal-heading])');
+        await expect(goals).toHaveCount(expectedIep.transition_goals.length);
+        for (let index = 0; index < expectedIep.transition_goals.length; index++) {
+          const goal = goals.nth(index), sourceGoal = expectedIep.transition_goals[index];
+          await expect(goal.locator(":scope > h4[data-report-goal-heading]")).toBeVisible();
+          await expect(goal.locator("[data-report-recorded-goal-title]")).toHaveText(sourceGoal.goal_text);
+          expect(await goal.locator("[data-report-goal-fact]").count()).toBe(audience !== "educator" && sourceGoal.plain_language ? 1 : 0);
+          const dimensions = await goal.evaluate(element => {
+            const parts = [element.querySelector("h4"), element.querySelector("[data-report-recorded-goal-title]"), element.querySelector("[data-report-goal-fact]")].filter(Boolean) as HTMLElement[];
+            return parts.map(node => ({ left: node.getBoundingClientRect().left, font: parseFloat(getComputedStyle(node).fontSize), overflow: node.scrollWidth > node.clientWidth + 1 }));
+          });
+          expect(Math.max(...dimensions.map(x => x.left)) - Math.min(...dimensions.map(x => x.left))).toBeLessThanOrEqual(1);
+          expect(dimensions.every(x => x.font >= 12 && !x.overflow)).toBe(true);
+        }
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
     }
   }
 });
