@@ -149,3 +149,17 @@ it("District readiness uses the resolved district and displays no invented schoo
     expect(api.districtTrends.mock.calls.at(-1)?.[0]).toEqual({ data: { district_id: B } }),
   );
 });
+
+
+it.each([true, false])("Support Needs distinguishes an explicit total from a legacy preview (total=%s)", async known => {
+  api.support.mockResolvedValue({
+    org_id: A, is_school_admin: true, total_students: 600,
+    ...(known ? { total_needing_support: 63 } : {}),
+    needing_support: [{ student_id: "synthetic-student", first_name: "Synthetic Student", preferred_name: null, grade_band: "11", owner_name: null, avg_score: 45, weakest_category: "employment", weakest_score: 45, has_report: false }],
+  });
+  await open(Support, "/school/support-needs", "org_id");
+  await screen.findByText("Synthetic Student");
+  expect(screen.getByRole("heading", { name: known ? "63 of 600 Students Flagged" : "1 Student Shown" })).toBeTruthy();
+  if (known) expect(screen.getByText("Showing 1 of 63 flagged students, ordered by support need.")).toBeTruthy();
+  else expect(screen.queryByText(/Showing .* flagged students/)).toBeNull();
+});

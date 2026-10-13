@@ -101,13 +101,20 @@ function SchoolSupportNeedsPage() {
                 <div className="flex items-center gap-2">
                   <LifeBuoy className="h-4 w-4 text-primary" />
                   <h2 className="font-medium">
-                    {data.needing_support.length} of {data.total_students} flagged
+                    {data.total_needing_support === undefined
+                      ? `${data.needing_support.length} ${data.needing_support.length === 1 ? "Student" : "Students"} Shown`
+                      : `${data.total_needing_support} of ${data.total_students} ${data.total_students === 1 ? "Student" : "Students"} Flagged`}
                   </h2>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Threshold: avg &lt; 60 or any pillar &lt; 50, or no report yet.
+                  No report yet, average readiness below 60, or any readiness area below 50.
                 </p>
               </div>
+              {data.total_needing_support !== undefined && data.total_needing_support > data.needing_support.length && (
+                <p className="border-b px-5 py-3 text-sm text-foreground/75">
+                  Showing {data.needing_support.length} of {data.total_needing_support} flagged students, ordered by support need.
+                </p>
+              )}
               <ul className="divide-y">
                 {data.needing_support.map((r) => {
                   const name =
