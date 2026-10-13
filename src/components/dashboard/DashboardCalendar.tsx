@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays,
@@ -179,7 +179,11 @@ const ALL_VISIBILITIES: CalendarVisibility[] = [
   "public_event",
 ];
 
-export function DashboardCalendar({
+export function DashboardCalendar(props: Props) {
+  return <DashboardCalendarSession key={props.studentId ?? "all-permitted-students"} {...props} />;
+}
+
+function DashboardCalendarSession({
   studentId = null,
   compact = false,
   title = "Calendar",
@@ -189,6 +193,12 @@ export function DashboardCalendar({
   defaultVisibility,
   allowedVisibilities,
 }: Props) {
+  const alive = useRef(false);
+  const loadRequest = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; loadRequest.current += 1; };
+  }, []);
   const fetchEvents = useServerFn(listCalendarEvents);
   const createEvent = useServerFn(createCalendarEvent);
   const removeEvent = useServerFn(deleteCalendarEvent);
@@ -204,18 +214,22 @@ export function DashboardCalendar({
   const [filterKind, setFilterKind] = useState<string>("all");
 
   const reload = useCallback(async () => {
+    if (!alive.current) return;
+    const request = ++loadRequest.current;
+    const current = () => alive.current && request === loadRequest.current;
     setLoading(true);
     try {
       const res = await fetchEvents({
         data: studentId ? { student_id: studentId } : {},
       });
+      if (!current()) return;
       setEvents(res.events);
       const upcoming = res.events.find((e) => !isPastIso(e.event_date));
       if (upcoming) setCursor(startOfMonth(parseDate(upcoming.event_date)));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load calendar.");
+      if (current()) toast.error(err instanceof Error ? err.message : "Could not load calendar.");
     } finally {
-      setLoading(false);
+      if (current()) setLoading(false);
     }
   }, [fetchEvents, studentId]);
 
@@ -282,10 +296,11 @@ export function DashboardCalendar({
     const id = ev.id.slice("cal-".length);
     try {
       await removeEvent({ data: { id } });
+      if (!alive.current) return;
       setEvents((prev) => prev.filter((e) => e.id !== ev.id));
       toast.success("Event removed.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not delete.");
+      if (alive.current) toast.error(err instanceof Error ? err.message : "Could not delete.");
     }
   }
 
@@ -295,12 +310,13 @@ export function DashboardCalendar({
     const next = ev.event_status === "completed" ? "scheduled" : "completed";
     try {
       await updateEvent({ data: { id, status: next } });
+      if (!alive.current) return;
       setEvents((prev) =>
         prev.map((e) => (e.id === ev.id ? { ...e, event_status: next } : e)),
       );
       toast.success(next === "completed" ? "Marked complete." : "Reopened.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update event.");
+      if (alive.current) toast.error(err instanceof Error ? err.message : "Could not update event.");
     }
   }
 
@@ -353,7 +369,13 @@ export function DashboardCalendar({
             visibilityChoices={visibilityChoices}
             defaultVisibility={defaultVisibility ?? "private"}
             onCreate={async (input) => {
-              await createEvent({ data: input });
+              try {
+                await createEvent({ data: input });
+              } catch (error) {
+                if (!alive.current) return;
+                throw error;
+              }
+              if (!alive.current) return;
               setAddOpen(false);
               toast.success(
                 input.visibility === "private"
