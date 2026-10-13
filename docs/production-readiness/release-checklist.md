@@ -217,4 +217,4 @@ remaining production boxes below.
 
 The history migration is applied only to isolated staging under specific user authorization and remains unused by hosted handlers until deployment; draft callers now use it. Its presence in this draft does not authorize production migration, another pending migration, a bulk migration runner or deployment.
 
-- [ ] Reconcile atomic-history staging ledger representation with the canonical full-file hash before declaring migration history aligned. Previously checked wrapper-free ledger equality is not canonical-file hash equality; do not weaken production comparison or modify historical source to hide the difference. See [candidate review](../pr211-release-review.md).
+- [x] Reconcile the atomic-history staging ledger entry: both canonical hashes now match, installed function definition/configuration/grants remain unchanged; all 16 real disposable PostgreSQL cases pass. This closes one entry only, not full staging/production migration alignment. See [candidate review](../pr211-release-review.md).

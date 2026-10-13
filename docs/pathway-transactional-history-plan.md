@@ -77,3 +77,9 @@ The function exists on isolated staging; the hosted applications still serve old
 ## Ledger Hash Review Finding — October 13, 2026
 
 Review of `compare-production-migration-history.mjs` and baseline SQL confirms the previously stored wrapper-free ledger representation is not identical to the canonical full-file hash (BEGIN/COMMIT are included by that comparator). Earlier `migration_recorded` equality verified the intended stored representation, not canonical-file hash alignment. Exact function body/grants and hosted SQL behavior remain separately verified. Canonical ledger reconciliation is an open release gate; do not weaken the production comparator or silently alter applied migration source. No additional database change occurred during this review.
+
+## Ledger Hash Reconciliation Completed — October 13, 2026
+
+Corrected only the authorized staging history ledger entry using an atomic, guarded DO statement. Full canonical SQL is stored as text data and never re-executed. Both canonical statement and executable-code hashes now match; the installed function-definition hash is unchanged (`608213f8eb968032b2c78016069ef196`), invoker configuration and effective grants still pass. Exact hash values, tested correction source and hosted evidence are recorded in [the candidate review](pr211-release-review.md#ledger-reconciliation-execution--october-13-2026). No function/grant/RLS DDL or other migration was executed. Do not infer full staging history alignment or production approval from this one-row bookkeeping correction.
+
+All 16 disposable real PostgreSQL cases pass with zero skips in runs 38348726102 and 38348720997 at e1dfca66; local PGlite passes 15 and skips concurrency. Four added cases cover correction/idempotence, unexpected source, forced rollback and changed grants. All 68 credential-free static checks pass. Production, actual signed-in application acceptance and deployments remain unchanged/open as previously recorded.
