@@ -1,3 +1,5 @@
+import { ReportSectionUpdates } from "@/components/documents/ReportSectionUpdates";
+import { reportSectionHistory } from "@/lib/report-section-history";
 import { ReportGoalFact } from "@/components/documents/ReportGoalFact";
 import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
 import { ReportGoalHeading } from "@/components/documents/ReportGoalHeading";
@@ -418,6 +420,8 @@ function ReportViewReader({
     day: "numeric",
   });
   const confidenceLabel = reportConfidenceLabel(r, hasV2);
+  const contentsItems = liveReportContents(r, name, { hasV2, audience, hasLinkedStudent: !!studentId, hasStudentVoiceResponses: audience === "student" && voiceResponses.length > 0, extraItems: demoStudentId ? getPhase4TocItems() : undefined });
+  const sectionHistory = reportSectionHistory(displayReport, contentsItems, audience, hasV2, !!extendedPlans);
 
   return (
     <div className="report-shell">
@@ -764,7 +768,7 @@ function ReportViewReader({
 
 
       {/* ============ Inline numbered Table of Contents ============ */}
-      <ReportContents items={liveReportContents(r, name, { hasV2, audience, hasLinkedStudent: !!studentId, hasStudentVoiceResponses: audience === "student" && voiceResponses.length > 0, extraItems: demoStudentId ? getPhase4TocItems() : undefined })} />
+      <ReportContents items={contentsItems} />
 
 
       {/* ============ Executive Summary ============ */}
@@ -1501,6 +1505,7 @@ function ReportViewReader({
       </>}
 
       <div data-report-closing-package>
+      <ReportSectionUpdates rows={sectionHistory} sample={demo} />
       {/* ============ Closing note (formal) ============ */}
       <section data-document-closing className="report-section mt-10">
         <div className="border-y border-primary/30 py-8 sm:py-10">

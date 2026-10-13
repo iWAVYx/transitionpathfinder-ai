@@ -1,3 +1,4 @@
+import { ReportSectionUpdates } from "@/components/documents/ReportSectionUpdates";
 import { ReportPathwayHeading, ReportPathwaySummary } from "@/components/documents/ReportPathwayIntro";
 import { ReportGoalFact } from "@/components/documents/ReportGoalFact";
 import { ReportExpandableDetails } from "@/components/documents/ReportExpandableDetails";
@@ -314,6 +315,7 @@ export function PathwayReport({
             <RevisitFooter report={report} profile={profile} />
           </div>}
         />
+        <ReportSectionUpdates sample />
       </section>
     </div>
   );

@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { ReportPathwayHeading, ReportPathwaySummary } from './src/components/documents/ReportPathwayIntro.tsx'; export { RecommendationCard } from './src/components/pathway/RecommendationCard.tsx'; export { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { ReportPathwayHeading, ReportPathwaySummary } from './src/components/documents/ReportPathwayIntro.tsx'; export { RecommendationCard } from './src/components/pathway/RecommendationCard.tsx'; export { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { recordGeneratedSections, recordSavedSections } from './src/lib/report-section-updates.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -2050,6 +2050,39 @@ test("shared pathway introductions preserve long headings and recorded metadata 
     }));
     for (const difference of aligned) expect(difference).toBeLessThan(1);
     if (media === "print") expect(await page.locator('.pub-page').evaluate(element=>getComputedStyle(element).breakInside)).toBe("avoid");
+    }
+  }
+});
+
+
+test("section update history is scoped, readable and complete in print while folded on screen", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const css = compiler.build(new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources }).scan());
+  await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
+  const generated = components.recordGeneratedSections(undefined, components.richerSharedFixture(), "2026-10-01T12:00:00.000Z");
+  const source = components.recordSavedSections(generated, { ...generated, postsecondary_goals: generated.postsecondary_goals.map((goal, index) => index === 0 ? { ...goal, current_status: "Saved wording" } : goal) }, "2026-10-12T18:00:00.000Z");
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const report = shared ? components.projectSharedReport(source, audience) : source;
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, readOnly: shared, initialAudience: audience, fixedAudience: shared ? audience : undefined }));
+    expect(body).not.toContain(source.section_updates.write_id);
+    for (const width of [375, 1024]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.setContent(`<html><head><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue">${body}</div></main></body></html>`);
+      await page.emulateMedia({ media: "screen" });
+      const panel = page.locator('[data-report-section-updates]');
+      await expect(panel.getByRole('heading', { name: 'Section Update History' })).toBeVisible();
+      await expect(panel.getByRole('button', { name: 'Show Update Details' })).toHaveAttribute('aria-expanded', 'false');
+      await expect(panel.locator('[data-report-update-table]')).toBeHidden();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.emulateMedia({ media: "print" });
+      await expect(panel.locator('[data-report-update-table]')).toBeVisible();
+      await expect(panel.getByRole('button')).toBeHidden();
+      await expect(panel.locator('[data-report-update-field="postsecondary_goals"]')).toContainText('Saved · Oct 12, 2026');
+      await expect(panel.locator('[data-report-update-field="educator_action_plan_v2"]')).toHaveCount(audience === 'educator' ? 1 : 0);
+      const layout = await panel.locator('tbody tr').evaluateAll(rows => rows.map(row => { const cells = row.children; return { left: cells[0].getBoundingClientRect().x, right: cells[1].getBoundingClientRect().x, font: parseFloat(getComputedStyle(cells[1]).fontSize), aligned: getComputedStyle(cells[0]).textAlign === 'left' && getComputedStyle(cells[1]).textAlign === 'left' }; }));
+      expect(layout.every(row => Math.abs(row.left - layout[0].left) < 1 && Math.abs(row.right - layout[0].right) < 1 && row.font >= 12 && row.aligned)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   }
 });

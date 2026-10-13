@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { richerSharedFixture } from "../fixtures/shared-report";
 import { DEMO_STUDENTS } from "../../src/lib/demo-data";
 const mocks = vi.hoisted(() => ({ server: vi.fn() }));
@@ -13,6 +13,7 @@ vi.mock("@/components/pathway/ReportPartnerSuggestions", () => ({ ReportPartnerS
 vi.mock("@/components/pathway/ReportPhase4Sections", () => ({ ReportPhase4Sections: () => null, getPhase4TocItems: () => [] }));
 vi.mock("@/components/opportunities/OpportunityPipelineSummary", () => ({ OpportunityPipelineSummary: () => null }));
 vi.mock("@/components/pathway/AiAssistPanel", () => ({ AiAssistPanel: () => null }));
+import { recordGeneratedSections, recordSavedSections } from "../../src/lib/report-section-updates";
 import { projectSharedReport } from "../../src/lib/shared-report-projection";
 import { reportTeamQuestions } from "../../src/lib/report-team-questions";
 import { ReportView } from "../../src/components/pathway/ReportView";
@@ -116,3 +117,20 @@ it("does not promote retained overall readiness into a newer summary or pathway 
   expect(container.querySelector('#v2-readiness-indicators')!.textContent).toContain("Emerging");
   expect(container.querySelector('#v2-readiness-indicators')!.textContent).toContain("Current support is still needed.");
 });
+
+for (const audience of ["student", "family", "educator"] as const) for (const shared of audience === "student" ? [false] : [false, true]) {
+  it(`${audience}/${shared ? "shared" : "planning"} reader history contains only applicable recorded sections`, () => {
+    const generated = recordGeneratedSections(undefined, richerSharedFixture(), "2026-10-01T12:00:00.000Z");
+    const source = recordSavedSections(generated, { ...generated, postsecondary_goals: richerSharedFixture().postsecondary_goals!.map((goal, index) => index === 0 ? { ...goal, current_status: "Saved planning wording" } : goal) }, "2026-10-12T18:00:00.000Z");
+    const report = shared ? projectSharedReport(source, audience as "family" | "educator")! : source;
+    const { container } = render(<ReportView name="Maya" report={report as any} hasV2 readOnly={shared} initialAudience={audience} fixedAudience={shared ? audience : undefined} />);
+    const history = container.querySelector('[data-report-section-updates]')!;
+    fireEvent.click(within(history as HTMLElement).getByRole("button", { name: "Show Update Details" }));
+    expect(history.querySelector('[data-report-update-field="postsecondary_goals"]')!.textContent).toContain("Saved · Oct 12, 2026");
+    expect(!!history.querySelector('[data-report-update-field="educator_action_plan_v2"]')).toBe(audience === "educator");
+    expect(!!history.querySelector('[data-report-update-field="student_action_plan"]')).toBe(audience !== "educator");
+    expect(history.textContent).not.toMatch(/write_id|private-answer|a1111111|Saved planning wording/);
+    expect(history.querySelectorAll('time').length).toBeGreaterThan(5);
+    expect(mocks.server).not.toHaveBeenCalled();
+  });
+}
