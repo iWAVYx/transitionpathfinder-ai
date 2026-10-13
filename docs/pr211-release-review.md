@@ -337,3 +337,12 @@ Local runtime fingerprint: `dae23ecef213cd68752c1b229e4ec73054516d85e36bbcfe564e
 The controlled demo workspace sample now retains the existing section hash and explicitly disables scroll reset when expanding or collapsing. The actual route handler is exercised with a memory router for Student, Family and Educator; each case verifies URL role/student preservation, expansion state, an added history entry and back/forward restoration. Shell/body components are stubbed to isolate navigation. This does not establish exact pixel scroll restoration or unchanged height on collapse; those browser acceptance checks remain open. No document content, role access or layout was changed.
 
 Local runtime fingerprint: `9f128d92b5393066df60cc6a388fd8ee0f7c6fc3d2c45ca13e3f3ba5b76f8bde`, 1,128 files. Not deployed.
+
+
+## Departing Planning Page and Browser Scroll Review — October 13, 2026
+
+A credential-free Chrome fixture exposed a departing-page race: useDemoPlanningRole could observe an incoming dashboard location before unmounting and canonicalize it with stored planning state. Adding a role query changed the router's href-based restoration key, so a return link failed to restore the dashboard position. Canonicalization is now limited to actual planning pages and resolved pathnames. Dashboard, Builder and prepared excerpt destinations retain their own context rules. Three permanent memory-router regressions cover dashboard departure and backward/forward navigation.
+
+The reproducible `tests/e2e/demo-navigation-browser-check.cjs` loads the actual getRouter configuration, SmartLink and shared student/role hooks against synthetic long dashboard/report pages. It stubs routeTree, persistence and error UI, intercepts every browser request, and aborts other hosts. All six combinations of Student/Family/Educator and 375/1,280-pixel viewport width pass: new tool starts at the top, sample/role switching retains the 1,200-pixel report position, dashboard return restores its 900-pixel position, and back/forward restores both positions. No credentials, account changes, providers or record writes. This proves the named shared-navigation behavior, not actual dashboard layout, full tool/drawer interactions, all scroll containers or signed-in hosted acceptance. Those gates remain open.
+
+Local source fingerprint: `b4318e9d02d16b731931e712ff00b33ee310e638578e283d0e3bb9ec08af4815`, 1,128 files. Not deployed.
