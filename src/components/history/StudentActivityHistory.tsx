@@ -27,7 +27,12 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { HistoryStudent, HistoryOrganization } from "@/lib/organization-history.types";
-import { listHistoryStudents, listStudentAuditTrail, type AuditEntry } from "@/lib/audit.functions";
+import {
+  listHistoryStudents,
+  listStudentAuditPage,
+  type AuditCursor,
+  type AuditEntry,
+} from "@/lib/audit.functions";
 
 /* -------------------- filters -------------------- */
 
@@ -282,11 +287,22 @@ function StudentHistoryReader({
   studentId: string;
   onStudentChange: (id: string) => void;
 }) {
-  const loadAudit = useServerFn(listStudentAuditTrail);
+  const loadAudit = useServerFn(listStudentAuditPage);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [nextCursor, setNextCursor] = useState<AuditCursor | null>(null);
+  const [olderLoading, setOlderLoading] = useState(false);
+  const [olderError, setOlderError] = useState(false);
+  const pageBusy = useRef(false);
+  const alive = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const [tab, setTab] = useState<HistoryFilterKey>("all");
 
   useEffect(() => {
@@ -294,12 +310,17 @@ function StudentHistoryReader({
     setLoading(true);
     setError(false);
     setEntries([]);
+    setNextCursor(null);
+    setOlderError(false);
     void (async () => {
       try {
         const result = await loadAudit({
           data: { student_id: studentId, limit: 200, ...(organization ? { organization } : {}) },
         });
-        if (!cancelled) setEntries(result.entries);
+        if (!cancelled) {
+          setEntries(result.entries);
+          setNextCursor(result.next_cursor ?? null);
+        }
       } catch {
         if (!cancelled) setError(true);
       } finally {
@@ -310,6 +331,36 @@ function StudentHistoryReader({
       cancelled = true;
     };
   }, [studentId, organization?.scope, organization?.id, loadAudit, attempt]);
+
+  const loadOlder = async () => {
+    if (!alive.current || pageBusy.current || !nextCursor) return;
+    pageBusy.current = true;
+    setOlderLoading(true);
+    setOlderError(false);
+    try {
+      const result = await loadAudit({
+        data: {
+          student_id: studentId,
+          limit: 200,
+          ...(organization ? { organization } : {}),
+          cursor: nextCursor,
+        },
+      });
+      if (!alive.current) return;
+      setEntries((previous) => {
+        const known = new Set(previous.map((entry) => entry.id));
+        return [...previous, ...result.entries.filter((entry) => !known.has(entry.id))];
+      });
+      setNextCursor(result.next_cursor ?? null);
+    } catch {
+      if (alive.current) setOlderError(true);
+    } finally {
+      if (alive.current) {
+        pageBusy.current = false;
+        setOlderLoading(false);
+      }
+    }
+  };
 
   const counts = useMemo(() => {
     const c: Record<HistoryFilterKey, number> = {
@@ -360,8 +411,8 @@ function StudentHistoryReader({
       ) : null}
 
       <p className="mb-4 text-sm text-foreground/75">
-        Recent activity{activeStudent ? ` for ${activeStudent.first_name}` : ""}. This view shows up
-        to 200 records; counts and filters apply to those records.
+        Recent activity{activeStudent ? ` for ${activeStudent.first_name}` : ""}. This view loads up
+        to 200 records at a time. Counts and filters apply to the {entries.length} loaded records.
       </p>
       <Tabs value={tab} onValueChange={(v) => setTab(v as HistoryFilterKey)}>
         <TabsList className="flex flex-wrap gap-1">
@@ -442,6 +493,28 @@ function StudentHistoryReader({
         ))}
       </Tabs>
 
+      {!loading && !error && nextCursor && (
+        <div className="mt-4">
+          {olderError && (
+            <p role="alert" className="mb-2 text-sm">
+              Older activity could not be loaded. Your loaded records are still available. Please
+              try again.
+            </p>
+          )}
+          <Button variant="outline" disabled={olderLoading} onClick={() => void loadOlder()}>
+            {olderLoading
+              ? "Loading Older Activity…"
+              : olderError
+                ? "Retry Older Activity"
+                : "Load Older Activity"}
+          </Button>
+        </div>
+      )}
+      {!loading && !error && !nextCursor && entries.length > 0 && (
+        <p className="mt-4 text-sm text-muted-foreground">
+          No older recorded activity is available in this view.
+        </p>
+      )}
       {footer}
     </div>
   );

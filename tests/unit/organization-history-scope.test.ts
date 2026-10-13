@@ -15,7 +15,11 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 import { getOrganizationHistoryRoster } from "@/lib/organization-history.functions";
-import { listStudentAuditTrail, listHistoryStudents } from "@/lib/audit.functions";
+import {
+  listStudentAuditTrail,
+  listStudentAuditPage,
+  listHistoryStudents,
+} from "@/lib/audit.functions";
 const SCHOOL = "10000000-0000-4000-8000-000000000001";
 const OTHER = "10000000-0000-4000-8000-000000000002";
 const DISTRICT = "10000000-0000-4000-8000-000000000003";
@@ -28,6 +32,9 @@ type Query = {
   order?: string;
   single?: boolean;
   fields?: string;
+  limit?: number;
+  boundary?: string;
+  orders?: Array<[string, boolean]>;
 };
 function database(
   options: {
@@ -69,13 +76,28 @@ function database(
           data = data.filter((row) =>
             op === "eq" ? row[field] === value : value.includes(row[field]),
           );
-        if (entry.order)
-          data = [...data].sort((a, b) =>
-            String(a[entry.order!]).localeCompare(String(b[entry.order!])),
+        if (entry.boundary) {
+          const match = entry.boundary.match(
+            /^created_at\.lt\.(.+),and\(created_at\.eq\.(.+),id\.lt\.(.+)\)$/,
+          )!;
+          data = data.filter(
+            (row) =>
+              row.created_at < match[1] || (row.created_at === match[2] && row.id < match[3]),
           );
+        }
+        if (entry.orders)
+          data = [...data].sort((a, b) => {
+            for (const [field, ascending] of entry.orders!) {
+              const compared = String(a[field]).localeCompare(String(b[field]));
+              if (compared) return ascending ? compared : -compared;
+            }
+            return 0;
+          });
         const count = options.noCount?.(entry)
           ? null
           : data.length + (options.changedCount?.(entry) ? 1 : 0);
+        if (entry.limit !== undefined)
+          data = data.slice(0, Math.min(entry.limit, options.cap ?? entry.limit));
         if (entry.range)
           data = data.slice(
             entry.range[0],
@@ -99,15 +121,23 @@ function database(
           entry.filters.push(["in", field, value]);
           return q;
         },
-        order: (field: string) => {
+        order: (field: string, options?: { ascending: boolean }) => {
           entry.order = field;
+          (entry.orders ??= []).push([field, options?.ascending ?? true]);
           return q;
         },
         range: (from: number, to: number) => {
           entry.range = [from, to];
           return q;
         },
-        limit: () => q,
+        or: (boundary: string) => {
+          entry.boundary = boundary;
+          return q;
+        },
+        limit: (limit: number) => {
+          entry.limit = limit;
+          return q;
+        },
         maybeSingle: () => {
           entry.single = true;
           return Promise.resolve(result());
@@ -354,4 +384,130 @@ it.each(["missing-count", "second-page-failure", "changed-count"])(
 it("successful empty caller-visible history roster remains an empty success", async () => {
   const db = database();
   expect(await invoke(listHistoryStudents, db, {})).toEqual({ students: [], loadFailed: false });
+});
+
+const eventId = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const timestamp = "2030-01-01T12:00:00.123456Z";
+function auditEvents(db: ReturnType<typeof database>, count: number) {
+  db.tables.audit_log = Array.from({ length: count }, (_, n) => ({
+    id: eventId(n),
+    student_id: STUDENT,
+    created_at: timestamp,
+    action: "view",
+    entity_type: "document",
+    metadata: null,
+  }));
+}
+it("keyset pages traverse 603 equal-timestamp events exactly once and preserve timestamp precision", async () => {
+  const db = database();
+  auditEvents(db, 603);
+  let cursor: any = undefined;
+  const ids: string[] = [];
+  do {
+    const result = await invoke(listStudentAuditPage, db, {
+      student_id: STUDENT,
+      limit: 200,
+      ...(cursor ? { cursor } : {}),
+    });
+    expect(result.entries.length).toBeLessThanOrEqual(200);
+    ids.push(...result.entries.map((row: any) => row.id));
+    cursor = result.next_cursor;
+    if (cursor) expect(cursor.created_at).toBe(timestamp);
+  } while (cursor);
+  expect(ids).toHaveLength(603);
+  expect(new Set(ids).size).toBe(603);
+  expect(ids).toEqual([...db.tables.audit_log].reverse().map((row) => row.id));
+  for (const q of db.queries) {
+    expect(q.table).toBe("audit_log");
+    expect(q.counted).toBe(true);
+    expect(q.filters).toContainEqual(["eq", "student_id", STUDENT]);
+    expect(q.limit).toBe(201);
+    expect(q.orders).toEqual([
+      ["created_at", false],
+      ["id", false],
+    ]);
+  }
+});
+it("newer inserts do not shift the older boundary or repeat previously loaded rows", async () => {
+  const db = database();
+  auditEvents(db, 403);
+  const first = await invoke(listStudentAuditPage, db, { student_id: STUDENT });
+  db.tables.audit_log.push({
+    id: eventId(999),
+    student_id: STUDENT,
+    created_at: "2031-01-01T00:00:00Z",
+  });
+  const second = await invoke(listStudentAuditPage, db, {
+    student_id: STUDENT,
+    cursor: first.next_cursor,
+  });
+  const firstIds = new Set(first.entries.map((row: any) => row.id));
+  expect(second.entries).toHaveLength(200);
+  expect(second.entries.some((row: any) => firstIds.has(row.id) || row.id === eventId(999))).toBe(
+    false,
+  );
+});
+it.each([0, 1, 200, 201])(
+  "page size boundary %s describes whether older rows exist",
+  async (count) => {
+    const db = database();
+    auditEvents(db, count);
+    const result = await invoke(listStudentAuditPage, db, { student_id: STUDENT });
+    expect(result.entries).toHaveLength(Math.min(200, count));
+    expect(Boolean(result.next_cursor)).toBe(count > 200);
+  },
+);
+it.each(["student", "scope", "malformed-time", "malformed-id"])(
+  "invalid %s cursor is rejected before reads",
+  async (variant) => {
+    const db = database();
+    const cursor: any = { student_id: STUDENT, created_at: timestamp, id: eventId(1) };
+    if (variant === "student") cursor.student_id = OTHER;
+    if (variant === "scope") cursor.organization = { scope: "school", id: SCHOOL };
+    if (variant === "malformed-time") cursor.created_at = "2030-01-01,or(student_id.eq.private)";
+    if (variant === "malformed-id") cursor.id = "bad,student_id.eq.other";
+    await expect(
+      invoke(listStudentAuditPage, db, { student_id: STUDENT, cursor }),
+    ).rejects.toThrow();
+    expect(db.queries).toEqual([]);
+  },
+);
+it.each(["missing-count", "failure"])(
+  "%s audit page is not returned as an empty success",
+  async (variant) => {
+    const db = database({
+      noCount: () => variant === "missing-count",
+      fail: () => variant === "failure",
+    });
+    auditEvents(db, 3);
+    await expect(invoke(listStudentAuditPage, db, { student_id: STUDENT })).rejects.toThrow(
+      "History could not be fully loaded.",
+    );
+  },
+);
+it("organization membership is checked again before every older-page audit read", async () => {
+  const db = database();
+  student(db);
+  auditEvents(db, 203);
+  const organization = { scope: "school", id: SCHOOL };
+  const first = await invoke(listStudentAuditPage, db, { student_id: STUDENT, organization });
+  expect(first.next_cursor.organization).toEqual(organization);
+  const before = db.queries.filter((q) => q.table === "audit_log").length;
+  db.tables.organization_memberships[0].status = "removed";
+  await expect(
+    invoke(listStudentAuditPage, db, {
+      student_id: STUDENT,
+      organization,
+      cursor: first.next_cursor,
+    }),
+  ).rejects.toThrow("Workspace information");
+  expect(db.queries.filter((q) => q.table === "audit_log")).toHaveLength(before);
+});
+
+it("a capped partial audit page with a larger exact count fails instead of hiding older rows", async () => {
+  const db = database({ cap: 100 });
+  auditEvents(db, 303);
+  await expect(invoke(listStudentAuditPage, db, { student_id: STUDENT })).rejects.toThrow(
+    "History could not be fully loaded.",
+  );
 });

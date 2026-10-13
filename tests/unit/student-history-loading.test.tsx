@@ -14,6 +14,7 @@ vi.mock("@/lib/organization-history.functions", () => ({
 }));
 vi.mock("@/lib/audit.functions", () => ({
   listStudentAuditTrail: api.audit,
+  listStudentAuditPage: api.audit,
   listHistoryStudents: api.students,
 }));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => children }));
@@ -219,7 +220,7 @@ for (const [role, route] of historyRoutes) {
     api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
     await renderHistoryRoute(role, route);
     await screen.findByRole("alert");
-    expect(screen.getByText(/This view shows up to 200 records/)).toBeTruthy();
+    expect(screen.getByText(/This view loads up to 200 records/)).toBeTruthy();
     expect(screen.queryByText("No Recent Activity Available")).toBeNull();
     expect(screen.getByRole("button", { name: "Retry", exact: true })).toBeTruthy();
     if (role === "School" || role === "District") {
@@ -257,7 +258,7 @@ it.each(["school", "district"] as const)(
     api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
     api.audit.mockResolvedValue({ entries: [] });
     const { router, key } = await organizationPage(scope, false);
-    await screen.findByText(/This view shows up to 200 records/);
+    await screen.findByText(/This view loads up to 200 records/);
     await waitFor(() =>
       expect(router.state.location.search).toMatchObject({ [key]: A, filter: "documents" }),
     );
@@ -387,7 +388,7 @@ for (const [role, route] of historyRoutes) {
     expect(api.audit).not.toHaveBeenCalled();
     expect(router.state.location.search).toMatchObject({ student_id: missing });
     fireEvent.click(screen.getByRole("button", { name: "Choose an Available Student" }));
-    await screen.findByText(/This view shows up to 200 records/);
+    await screen.findByText(/This view loads up to 200 records/);
     expect(router.state.location.search).toMatchObject({ filter: "documents" });
     expect(router.state.location.search.student_id).toBeUndefined();
     expect(router.state.location.hash).toBe("kept");
@@ -409,5 +410,110 @@ for (const [role, route] of historyRoutes) {
   });
   it(`${role} history rejects malformed saved student IDs at route validation`, () => {
     expect(() => route.options.validateSearch({ student_id: "malformed" })).toThrow();
+  });
+}
+
+const olderCursor = {
+  student_id: A,
+  created_at: "2030-01-01T12:00:00Z",
+  id: "20000000-0000-4000-8000-000000000001",
+};
+it("older activity appends distinct rows, updates loaded counts and keeps the current filter", async () => {
+  api.students.mockResolvedValue(roster);
+  api.audit
+    .mockResolvedValueOnce({ entries: [record("initial_history")], next_cursor: olderCursor })
+    .mockResolvedValueOnce({
+      entries: [record("initial_history"), record("older_history")],
+      next_cursor: null,
+    });
+  render(<StudentActivityHistory />);
+  await screen.findByText("Initial history — document");
+  fireEvent.mouseDown(screen.getByRole("tab", { name: /Documents/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Load Older Activity" }));
+  await screen.findByText("Older history — document");
+  expect(screen.getAllByText("Initial history — document")).toHaveLength(1);
+  expect(screen.getByText(/Counts and filters apply to the 2 loaded records/)).toBeTruthy();
+  expect(screen.getByRole("tab", { name: /Documents/ }).getAttribute("aria-selected")).toBe("true");
+  expect(api.audit).toHaveBeenLastCalledWith({
+    data: { student_id: A, limit: 200, cursor: olderCursor },
+  });
+  expect(screen.queryByRole("button", { name: "Load Older Activity" })).toBeNull();
+  expect(screen.getByText("No older recorded activity is available in this view.")).toBeTruthy();
+});
+it("failed older reads preserve loaded rows and retry the same boundary", async () => {
+  api.students.mockResolvedValue(roster);
+  api.audit
+    .mockResolvedValueOnce({ entries: [record("initial_history")], next_cursor: olderCursor })
+    .mockRejectedValueOnce(new Error("private error"))
+    .mockResolvedValueOnce({ entries: [record("older_history")], next_cursor: null });
+  render(<StudentActivityHistory />);
+  await screen.findByText("Initial history — document");
+  fireEvent.click(screen.getByRole("button", { name: "Load Older Activity" }));
+  await screen.findByRole("alert");
+  expect(screen.getByText("Initial history — document")).toBeTruthy();
+  expect(screen.queryByText("private error")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Retry Older Activity" }));
+  await screen.findByText("Older history — document");
+  expect(api.audit.mock.calls[1]).toEqual(api.audit.mock.calls[2]);
+});
+it.each([false, true])(
+  "student changes discard an older-page success/error (%s)",
+  async (failure) => {
+    const pending = deferred();
+    api.students.mockResolvedValue(roster);
+    api.audit
+      .mockResolvedValueOnce({ entries: [record("initial_history")], next_cursor: olderCursor })
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValueOnce({ entries: [record("current_history")], next_cursor: null });
+    render(<StudentActivityHistory />);
+    await screen.findByText("Initial history — document");
+    fireEvent.click(screen.getByRole("button", { name: "Load Older Activity" }));
+    chooseSecond();
+    await screen.findByText("Current history — document");
+    await act(() =>
+      failure
+        ? pending.reject(new Error("departed"))
+        : pending.resolve({ entries: [record("old_history")], next_cursor: olderCursor }),
+    );
+    expect(screen.queryByText("Old history — document")).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Load Older Activity" })).toBeNull();
+  },
+);
+it("rapid older-page clicks start only one request and departure discards its completion", async () => {
+  const pending = deferred();
+  api.students.mockResolvedValue(roster);
+  api.audit
+    .mockResolvedValueOnce({ entries: [record("initial_history")], next_cursor: olderCursor })
+    .mockReturnValueOnce(pending.promise);
+  const view = render(<StudentActivityHistory />);
+  await screen.findByText("Initial history — document");
+  const button = screen.getByRole("button", { name: "Load Older Activity" });
+  fireEvent.click(button);
+  fireEvent.click(button);
+  expect(api.audit).toHaveBeenCalledTimes(2);
+  view.unmount();
+  await act(() => pending.resolve({ entries: [record("old_history")], next_cursor: null }));
+  expect(screen.queryByText("Old history — document")).toBeNull();
+});
+
+for (const [role, route] of historyRoutes) {
+  it(`${role} older activity keeps the original student and organization context`, async () => {
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    const organization =
+      role === "School" || role === "District" ? { scope: role.toLowerCase(), id: A } : undefined;
+    const cursor = { ...olderCursor, student_id: B, ...(organization ? { organization } : {}) };
+    api.audit
+      .mockResolvedValueOnce({ entries: [record("initial_history")], next_cursor: cursor })
+      .mockResolvedValueOnce({ entries: [record("older_history")], next_cursor: null });
+    await renderHistoryRoute(role, route, B);
+    await screen.findByText("Initial history — document");
+    fireEvent.click(screen.getByRole("button", { name: "Load Older Activity" }));
+    await screen.findByText("Older history — document");
+    expect(api.audit).toHaveBeenLastCalledWith({
+      data: { student_id: B, limit: 200, ...(organization ? { organization } : {}), cursor },
+    });
+    expect(screen.getByText(/Counts and filters apply to the 2 loaded records/)).toBeTruthy();
   });
 }
