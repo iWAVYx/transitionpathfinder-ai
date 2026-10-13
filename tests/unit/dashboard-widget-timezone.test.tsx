@@ -16,12 +16,12 @@ import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoar
 import { browserCalendarTimeZone } from "@/lib/calendar-day";
 afterEach(() => { cleanup(); state.queries = []; state.calendar.mockReset(); });
 it.each(["student", "family", "educator", "school_admin", "district_admin", "partner"] as const)("%s calendar query keeps viewer timezone and existing widget applicability", async role => {
-  render(<DashboardWidgetBoard role={role} studentId={role === "student" ? "student-one" : undefined} />);
+  render(<DashboardWidgetBoard role={role} organizationId={role === "school_admin" ? "school-one" : undefined} studentId={role === "student" ? "student-one" : undefined} />);
   const query = state.queries.find(options => options.queryKey[0] === "dashboard-widget-calendar");
-  expect(query.queryKey).toEqual(["dashboard-widget-calendar", role, role === "student" ? "student-one" : undefined, browserCalendarTimeZone()]);
+  expect(query.queryKey).toEqual(["dashboard-widget-calendar", role, role === "student" ? "student-one" : undefined, role === "school_admin" ? "school-one" : undefined, browserCalendarTimeZone()]);
   expect(query.enabled).toBe(role !== "district_admin" && role !== "partner");
   if (query.enabled) {
     state.calendar.mockResolvedValue({ events: [] }); await query.queryFn();
-    expect(state.calendar).toHaveBeenCalledWith({ data: { timezone: browserCalendarTimeZone(), ...(role === "student" ? { student_id: "student-one" } : {}) } });
+    expect(state.calendar).toHaveBeenCalledWith({ data: { timezone: browserCalendarTimeZone(), ...(role === "student" ? { student_id: "student-one" } : {}), ...(role === "school_admin" ? { organization_id: "school-one" } : {}) } });
   } else expect(state.calendar).not.toHaveBeenCalled();
 });

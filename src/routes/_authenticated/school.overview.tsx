@@ -35,11 +35,11 @@ function SchoolOverviewPage() {
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
     >
-      {(_, d) => (
+      {(org, d) => (
         <div className="space-y-6 sm:space-y-8">
           <RoleValueStrip role="school" />
           <SchoolAdminOverviewGrid liveData={d} selectedOrgId={orgId} hideOverview />
-          <DashboardWidgetBoard role="school_admin" />
+          <DashboardWidgetBoard role="school_admin" organizationId={org.id} />
         </div>
       )}
     </SchoolPageShell>

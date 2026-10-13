@@ -7,6 +7,7 @@ export type WidgetContent = {
   entries: Array<{ id: string; title: string; detail?: string | null; to: string | null }>;
   loading?: boolean;
   error?: boolean;
+  notice?: string;
   toolDestination: string | null;
 };
 const ACTION_SETUP: Record<DashboardWidgetRole, string> = {
@@ -171,7 +172,7 @@ export function DashboardWidgetBoardView({
         >
           {widgets.map((id) => {
             const option = OPTIONS.find((item) => item.id === id)!;
-            const { entries, loading, error, toolDestination } = data[id];
+            const { entries, loading, error, notice, toolDestination } = data[id];
             const Icon = id === "actions" ? CheckSquare : id === "calendar" ? CalendarDays : Users;
             return (
               <div
@@ -196,7 +197,9 @@ export function DashboardWidgetBoardView({
                 <p className="mt-2 text-sm leading-relaxed text-foreground/75">
                   {WIDGET_GUIDANCE[id].summary}
                 </p>
-                {loading ? (
+                {notice ? (
+                  <p role="status" className="text-sm text-foreground/75">{notice}</p>
+                ) : loading ? (
                   <p className="mt-4 text-sm text-foreground/75">Loading your data…</p>
                 ) : error ? (
                   <p className="mt-4 text-sm text-destructive">Could not load this widget.</p>

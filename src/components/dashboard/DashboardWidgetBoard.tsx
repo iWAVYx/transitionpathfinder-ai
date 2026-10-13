@@ -18,6 +18,7 @@ import { getNextActionsForMe } from "@/lib/next-actions/next-actions.functions";
 type Props = {
   role: DashboardWidgetRole;
   studentId?: string;
+  organizationId?: string;
 };
 
 const OPTIONS: Array<{ id: DashboardWidgetId; title: string }> = [
@@ -31,7 +32,7 @@ function safeRoute(path: string | undefined) {
 }
 
 /** Optional live summaries finish the dashboard below the tool cards. */
-export function DashboardWidgetBoard({ role, studentId }: Props) {
+export function DashboardWidgetBoard({ role, studentId, organizationId }: Props) {
   const queryClient = useQueryClient();
   const loadPrefs = useServerFn(getDashboardWidgetPrefs);
   const savePrefs = useServerFn(updateDashboardWidgetPrefs);
@@ -44,10 +45,11 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
   });
   const widgets = prefs.data?.widgets ?? WIDGETS_BY_ROLE[role];
   const timezone = browserCalendarTimeZone();
+  const waitingForOrganization = role === "school_admin" && !organizationId;
   const calendar = useQuery({
-    queryKey: ["dashboard-widget-calendar", role, studentId, timezone],
-    queryFn: () => loadCalendar({ data: { timezone, ...(studentId ? { student_id: studentId } : {}) } }),
-    enabled: widgets.includes("calendar") || widgets.includes("meetings"),
+    queryKey: ["dashboard-widget-calendar", role, studentId, organizationId, timezone],
+    queryFn: () => loadCalendar({ data: { timezone, ...(studentId ? { student_id: studentId } : {}), ...(organizationId ? { organization_id: organizationId } : {}) } }),
+    enabled: !waitingForOrganization && (widgets.includes("calendar") || widgets.includes("meetings")),
     staleTime: 30_000,
   });
   const actions = useQuery({
@@ -70,7 +72,7 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
   }
 
   const today = calendarDayForInstant(new Date().toISOString(), timezone);
-  const upcoming = (calendar.data?.events ?? [])
+  const upcoming = (waitingForOrganization ? [] : calendar.data?.events ?? [])
     .filter((event) => event.event_date >= today && event.event_status !== "cancelled")
     .sort((a, b) => a.event_date.localeCompare(b.event_date));
 
@@ -106,8 +108,9 @@ export function DashboardWidgetBoard({ role, studentId }: Props) {
         id,
         {
           entries,
+          notice: id !== "actions" && waitingForOrganization ? "A selected school is needed to show calendar events." : undefined,
           loading: id === "actions" ? actions.isLoading : calendar.isLoading,
-          error: id === "actions" ? actions.isError : calendar.isError,
+          error: id === "actions" ? actions.isError : !waitingForOrganization && calendar.isError,
           toolDestination: widgetLinkDestination(role, toolPath),
         },
       ];

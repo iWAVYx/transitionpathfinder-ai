@@ -26,12 +26,13 @@ export const Route = createFileRoute("/_authenticated/hubs/school")({
 function HubPage() {
   const { data, loading, orgId } = useSchoolDashboard();
 
+  const selectedOrgId = orgId ?? data?.selected_org_id ?? data?.orgs[0]?.id;
   return (
     <SiteShell>
       <HubShell hub={getHub("school-implementation")!} hideSpokes hideRelatedLinks>
         <WorkspaceZone>
           <SchoolAdminOverviewGrid liveData={data} selectedOrgId={orgId} loading={loading} />
-          <DashboardWidgetBoard role="school_admin" />
+          <DashboardWidgetBoard role="school_admin" organizationId={loading ? undefined : selectedOrgId} />
         </WorkspaceZone>
       </HubShell>
     </SiteShell>
