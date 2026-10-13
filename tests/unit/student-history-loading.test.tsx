@@ -12,8 +12,10 @@ vi.mock("@tanstack/react-router", async (importOriginal) => ({
 vi.mock("@/lib/organization-history.functions", () => ({
   getOrganizationHistoryRoster: api.organizationRoster,
 }));
-vi.mock("@/lib/students.functions", () => ({ listStudents: api.students }));
-vi.mock("@/lib/audit.functions", () => ({ listStudentAuditTrail: api.audit }));
+vi.mock("@/lib/audit.functions", () => ({
+  listStudentAuditTrail: api.audit,
+  listHistoryStudents: api.students,
+}));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => children }));
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
 vi.mock("@/components/RoleGuard", () => ({ RoleGuard: ({ children }: any) => children }));
@@ -202,38 +204,20 @@ it("Strict Mode replay does not accept an obsolete roster or audit result", asyn
   expect(screen.queryByText("Obsolete history — document")).toBeNull();
   expect(screen.queryByText("No Student Record Available")).toBeNull();
 });
-for (const [role, route] of [
+const historyRoutes = [
   ["Student", StudentRoute],
   ["Family", FamilyRoute],
   ["Educator", EducatorRoute],
   ["School", SchoolRoute],
   ["District", DistrictRoute],
   ["Partner", PartnerRoute],
-] as const) {
+] as const;
+for (const [role, route] of historyRoutes) {
   it(`${role} existing history page inherits recent-window and load-failure guidance`, async () => {
     api.students.mockResolvedValue(roster);
     api.audit.mockRejectedValue(new Error("Private backend detail"));
-    const Page = route.options.component as any;
-    if (role === "School" || role === "District") {
-      api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
-      const root = createRootRoute();
-      const page = createRoute({
-        getParentRoute: () => root,
-        path: `/${role.toLowerCase()}/history`,
-        component: Page,
-        validateSearch: route.options.validateSearch,
-        search: route.options.search,
-      });
-      const key = role === "School" ? "org_id" : "district_id";
-      const router = createRouter({
-        routeTree: root.addChildren([page]),
-        history: createMemoryHistory({
-          initialEntries: [`/${role.toLowerCase()}/history?${key}=${A}`],
-        }),
-      });
-      await router.load();
-      render(<RouterProvider router={router} />);
-    } else render(<Page />);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    await renderHistoryRoute(role, route);
     await screen.findByRole("alert");
     expect(screen.getByText(/This view shows up to 200 records/)).toBeTruthy();
     expect(screen.queryByText("No Recent Activity Available")).toBeNull();
@@ -338,3 +322,92 @@ it.each(["school", "district"] as const)(
     expect(api.students).not.toHaveBeenCalled();
   },
 );
+
+async function renderHistoryRoute(role: string, route: any, studentId?: string) {
+  const root = createRootRoute();
+  const path = `/${role.toLowerCase()}/history`;
+  const page = createRoute({
+    getParentRoute: () => root,
+    path,
+    component: route.options.component,
+    validateSearch: route.options.validateSearch,
+    search: route.options.search,
+  });
+  const key = role === "School" ? "org_id" : role === "District" ? "district_id" : undefined;
+  const query = new URLSearchParams({ filter: "documents" });
+  if (key) query.set(key, A);
+  if (studentId) query.set("student_id", studentId);
+  const router = createRouter({
+    routeTree: root.addChildren([
+      page,
+      createRoute({
+        getParentRoute: () => root,
+        path: "/owner",
+        component: () => <div>Management Destination</div>,
+      }),
+    ]),
+    history: createMemoryHistory({ initialEntries: [`${path}?${query}#kept`] }),
+  });
+  await router.load();
+  render(<RouterProvider router={router} />);
+  return router;
+}
+for (const [role, route] of historyRoutes) {
+  it(`${role} history restores a saved student and browser back/forward selection`, async () => {
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockImplementation(({ data }: any) =>
+      Promise.resolve({
+        entries: [record(data.student_id === A ? "first_history" : "second_history")],
+      }),
+    );
+    const router = await renderHistoryRoute(role, route, B);
+    await screen.findByText("Second history — document");
+    expect((screen.getByLabelText("Student") as HTMLSelectElement).value).toBe(B);
+    fireEvent.change(screen.getByLabelText("Student"), { target: { value: A } });
+    await screen.findByText("First history — document");
+    expect(router.state.location.search).toMatchObject({ student_id: A, filter: "documents" });
+    expect(router.state.location.hash).toBe("kept");
+    if (role === "School" || role === "District")
+      expect(router.state.location.search).toMatchObject({
+        [role === "School" ? "org_id" : "district_id"]: A,
+      });
+    await act(() => router.history.back());
+    await screen.findByText("Second history — document");
+    await act(() => router.history.forward());
+    await screen.findByText("First history — document");
+  });
+  it(`${role} unavailable saved student never reads another student's audit until explicit recovery`, async () => {
+    const missing = "10000000-0000-4000-8000-000000000099";
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockResolvedValue({ entries: [] });
+    const router = await renderHistoryRoute(role, route, missing);
+    await screen.findByText("The selected student is not available in this history view.");
+    expect(api.audit).not.toHaveBeenCalled();
+    expect(router.state.location.search).toMatchObject({ student_id: missing });
+    fireEvent.click(screen.getByRole("button", { name: "Choose an Available Student" }));
+    await screen.findByText(/This view shows up to 200 records/);
+    expect(router.state.location.search).toMatchObject({ filter: "documents" });
+    expect(router.state.location.search.student_id).toBeUndefined();
+    expect(router.state.location.hash).toBe("kept");
+    expect(api.audit.mock.calls[0][0].data.student_id).toBe(A);
+  });
+  it(`${role} history departure discards a pending audit completion`, async () => {
+    const pending = deferred();
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockReturnValueOnce(pending.promise);
+    const router = await renderHistoryRoute(role, route, B);
+    await waitFor(() => expect(api.audit).toHaveBeenCalledOnce());
+    await act(() => router.navigate({ to: "/owner" }));
+    await screen.findByText("Management Destination");
+    await act(() => pending.resolve({ entries: [record("departed_history")] }));
+    expect(screen.queryByText("Departed history — document")).toBeNull();
+    expect(api.audit).toHaveBeenCalledOnce();
+    expect(router.state.location.pathname).toBe("/owner");
+  });
+  it(`${role} history rejects malformed saved student IDs at route validation`, () => {
+    expect(() => route.options.validateSearch({ student_id: "malformed" })).toThrow();
+  });
+}

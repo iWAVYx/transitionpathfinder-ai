@@ -15,7 +15,7 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 import { getOrganizationHistoryRoster } from "@/lib/organization-history.functions";
-import { listStudentAuditTrail } from "@/lib/audit.functions";
+import { listStudentAuditTrail, listHistoryStudents } from "@/lib/audit.functions";
 const SCHOOL = "10000000-0000-4000-8000-000000000001";
 const OTHER = "10000000-0000-4000-8000-000000000002";
 const DISTRICT = "10000000-0000-4000-8000-000000000003";
@@ -309,4 +309,49 @@ it("default selection is authorized; explicit unavailable selection never falls 
   await expect(
     invoke(getOrganizationHistoryRoster, db, { scope: "school", organization_id: OTHER }),
   ).rejects.toThrow();
+});
+
+it("legacy-role history roster loads all caller-visible rows with a minimal projection", async () => {
+  const db = database();
+  for (let n = 0; n < 2103; n++)
+    db.tables.students.push({
+      id: `student-${n}`,
+      first_name: "Synthetic",
+      last_name: null,
+      owner_id: "private",
+      notes: "private",
+      organization_id: n % 2 ? OTHER : SCHOOL,
+    });
+  const result = await invoke(listHistoryStudents, db, {});
+  expect(result.students).toHaveLength(2103);
+  expect(result.loadFailed).toBe(false);
+  expect(Object.keys(result.students[0]).sort()).toEqual(["first_name", "id", "last_name"]);
+  expect(
+    db.queries.every(
+      (q) =>
+        q.table === "students" &&
+        q.counted &&
+        q.fields === "id, first_name, last_name" &&
+        q.filters.length === 0,
+    ),
+  ).toBe(true);
+});
+it.each(["missing-count", "second-page-failure", "changed-count"])(
+  "legacy history %s fails generically without successful partial/empty roster",
+  async (variant) => {
+    const db = database({
+      noCount: (q) => variant === "missing-count",
+      fail: (q) => variant === "second-page-failure" && q.range![0] > 0,
+      changedCount: (q) => variant === "changed-count" && q.range![0] > 0,
+    });
+    for (let n = 0; n < 1003; n++)
+      db.tables.students.push({ id: `student-${n}`, first_name: "Synthetic", last_name: null });
+    await expect(invoke(listHistoryStudents, db, {})).rejects.toThrow(
+      "Student records could not be fully loaded.",
+    );
+  },
+);
+it("successful empty caller-visible history roster remains an empty success", async () => {
+  const db = database();
+  expect(await invoke(listHistoryStudents, db, {})).toEqual({ students: [], loadFailed: false });
 });

@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Loader2,
@@ -26,9 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { listStudents } from "@/lib/students.functions";
 import type { HistoryStudent, HistoryOrganization } from "@/lib/organization-history.types";
-import { listStudentAuditTrail, type AuditEntry } from "@/lib/audit.functions";
+import { listHistoryStudents, listStudentAuditTrail, type AuditEntry } from "@/lib/audit.functions";
 
 /* -------------------- filters -------------------- */
 
@@ -119,6 +118,8 @@ function formatWhen(iso: string): string {
 
 export type StudentActivityHistoryProps = {
   roster?: HistoryStudent[];
+  requestedStudentId?: string;
+  onStudentSelection?: (id?: string) => void;
   organization?: HistoryOrganization;
   /**
    * Optional CTA route shown in the empty state (e.g. sharing settings for
@@ -134,8 +135,42 @@ export type StudentActivityHistoryProps = {
   footer?: React.ReactNode;
 };
 
+export function RoutedStudentActivityHistory(props: StudentActivityHistoryProps) {
+  const navigate = useNavigate();
+  const location = useRouterState({ select: (state) => state.location });
+  const mountedPath = useRef(location.pathname);
+  const currentLocation = useRef(location);
+  currentLocation.current = location;
+  const alive = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const requested = (location.search as Record<string, unknown>).student_id;
+  const requestedStudentId = typeof requested === "string" ? requested : undefined;
+  const onStudentSelection = (id?: string) => {
+    if (!alive.current || currentLocation.current.pathname !== mountedPath.current) return;
+    void navigate({
+      to: mountedPath.current,
+      search: (previous: Record<string, unknown>) => ({ ...previous, student_id: id }),
+      hash: currentLocation.current.hash,
+      resetScroll: false,
+    });
+  };
+  if (location.pathname !== mountedPath.current) return null;
+  return (
+    <StudentActivityHistory
+      {...props}
+      requestedStudentId={requestedStudentId}
+      onStudentSelection={onStudentSelection}
+    />
+  );
+}
+
 export function StudentActivityHistory(props: StudentActivityHistoryProps) {
-  const loadStudents = useServerFn(listStudents);
+  const loadStudents = useServerFn(listHistoryStudents);
   const [students, setStudents] = useState<HistoryStudent[]>([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -191,6 +226,26 @@ export function StudentActivityHistory(props: StudentActivityHistoryProps) {
         />
       </div>
     );
+  const activeStudentId = props.onStudentSelection
+    ? (props.requestedStudentId ?? students[0]?.id ?? "")
+    : studentId;
+  if (
+    props.requestedStudentId &&
+    !students.some((student) => student.id === props.requestedStudentId)
+  ) {
+    return (
+      <div role="alert" className="rounded-lg border p-4 text-sm">
+        <p>The selected student is not available in this history view.</p>
+        <Button
+          className="mt-3"
+          variant="outline"
+          onClick={() => props.onStudentSelection?.(undefined)}
+        >
+          Choose an Available Student
+        </Button>
+      </div>
+    );
+  }
   if (!students.length)
     return (
       <div data-testid={props.testId}>
@@ -205,11 +260,11 @@ export function StudentActivityHistory(props: StudentActivityHistoryProps) {
   // A newly selected student starts with a fresh reader, filters and empty counts.
   return (
     <StudentHistoryReader
-      key={`${props.organization?.scope ?? "personal"}:${props.organization?.id ?? ""}:${studentId}`}
+      key={`${props.organization?.scope ?? "personal"}:${props.organization?.id ?? ""}:${activeStudentId}`}
       {...props}
       students={students}
-      studentId={studentId}
-      onStudentChange={setStudentId}
+      studentId={activeStudentId}
+      onStudentChange={props.onStudentSelection ?? setStudentId}
     />
   );
 }

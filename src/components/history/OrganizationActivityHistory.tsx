@@ -8,7 +8,10 @@ import type {
 } from "@/lib/organization-history.types";
 import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
-import { StudentActivityHistory, type StudentActivityHistoryProps } from "./StudentActivityHistory";
+import {
+  RoutedStudentActivityHistory,
+  type StudentActivityHistoryProps,
+} from "./StudentActivityHistory";
 const selectedId = (data: OrganizationHistoryRoster) => data.organization_id;
 export function OrganizationActivityHistory({
   scope,
@@ -40,7 +43,7 @@ export function OrganizationActivityHistory({
       />
     );
   return (
-    <StudentActivityHistory
+    <RoutedStudentActivityHistory
       key={`${scope}:${state.data.organization_id}`}
       {...props}
       roster={state.data.students}

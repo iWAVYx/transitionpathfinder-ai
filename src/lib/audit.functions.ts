@@ -44,3 +44,27 @@ export const listStudentAuditTrail = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { entries: (rows ?? []) as AuditEntry[] };
   });
+
+/** Complete minimal caller-visible roster for existing unscoped history pages. */
+export const listHistoryStudents = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { readReportPages } = await import("./report-query-pages");
+    try {
+      const students = await readReportPages<import("./organization-history.types").HistoryStudent>(
+        (from, to) =>
+          context.supabase
+            .from("students")
+            .select("id, first_name, last_name", { count: "exact" })
+            .order("created_at", { ascending: false })
+            .order("id", { ascending: false })
+            .range(from, to),
+      );
+      return {
+        students: students.map(({ id, first_name, last_name }) => ({ id, first_name, last_name })),
+        loadFailed: false,
+      };
+    } catch {
+      throw new Error("Student records could not be fully loaded. Please try again.");
+    }
+  });
