@@ -330,3 +330,10 @@ Runtime fingerprint: `1eaa3b9dac85b59439c11bb7a41f8bcf60a19353f912196cdcd601e9fb
 The centralized demo role-switch resolver now includes the selected fictional student when opening a shared feature supported by the target role. Planning workspace/report destinations also carry the selected Student/Family/Educator role explicitly rather than relying on browser storage during hydration. Partner/School/District switches still leave planning routes for their own canonical dashboards; Owner is not a selectable public role-switcher entry and remains separate management-only navigation. Nine additional routing matrix cases cover the three planning perspectives, supported tool handoffs and nonplanning exits. Exact browser scroll restoration and full role-based hosted acceptance remain open.
 
 Local runtime fingerprint: `dae23ecef213cd68752c1b229e4ec73054516d85e36bbcfe564e5245de81bbae`, 1,128 files; not deployed.
+
+
+## Workspace Sample Expansion Navigation — October 13, 2026
+
+The controlled demo workspace sample now retains the existing section hash and explicitly disables scroll reset when expanding or collapsing. The actual route handler is exercised with a memory router for Student, Family and Educator; each case verifies URL role/student preservation, expansion state, an added history entry and back/forward restoration. Shell/body components are stubbed to isolate navigation. This does not establish exact pixel scroll restoration or unchanged height on collapse; those browser acceptance checks remain open. No document content, role access or layout was changed.
+
+Local runtime fingerprint: `9f128d92b5393066df60cc6a388fd8ee0f7c6fc3d2c45ca13e3f3ba5b76f8bde`, 1,128 files. Not deployed.

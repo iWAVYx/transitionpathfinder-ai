@@ -2924,3 +2924,5 @@ The active roadmap now states ordered actions and their completion evidence with
 - October 13: Shared demo student switching explicitly preserves scroll position alongside role, selected profile, section hash and other URL context. All three planning roles have offline history regressions; exact browser scroll-position and live release acceptance remain open.
 
 - October 13: Demo role-switch routing preserves the selected student on shared tool previews and explicitly pins Student/Family/Educator perspective on workspace/report destinations. Partner/School/District still exit to their own dashboards; Owner remains separate management-only navigation. Browser release acceptance and full demo/live reconciliation remain open.
+
+- October 13: Demo workspace sample expand/collapse preserves the section anchor and requests no scroll reset across Student/Family/Educator, with actual route-handler history regressions. Exact pixel scroll restoration and final role-based browser acceptance remain open. No document content or layout changes.
