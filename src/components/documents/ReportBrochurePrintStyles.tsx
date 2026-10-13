@@ -483,6 +483,8 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root .pub-page-body h2,
       body:has(.report-root) .report-root .pub-page-body h3 { margin-top: 0.15in !important; }
+      body:has(.report-root) .report-root [data-report-pathway-heading] > h3 { margin: 0 !important; }
+      body:has(.report-root) .report-root .pub-page:has([data-report-pillar-recommendations] [data-report-recommendation]:only-child) { break-inside: avoid !important; page-break-inside: avoid !important; }
 
       body:has(.report-root) .report-root .page-break,
       body:has(.report-root) .report-root .report-stage,

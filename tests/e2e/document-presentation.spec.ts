@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { ReportPathwayHeading, ReportPathwaySummary } from './src/components/documents/ReportPathwayIntro.tsx'; export { RecommendationCard } from './src/components/pathway/RecommendationCard.tsx'; export { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -1984,6 +1984,54 @@ test("fictional optional report sections use actual role-aware document presenta
       else await expect(page.getByText(`In plain language: ${source.iep_plan_summary.transition_goals[0].plain_language}`, { exact: true })).toBeVisible();
       await expect(page.getByText("No IEP was uploaded, extracted or reviewed.", { exact: false })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("shared pathway introductions preserve long headings and recorded metadata without mobile overflow", async ({ page }) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), { base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {} });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.fulfill({status:404,body:""}));
+  const title = "X".repeat(160), summary = "Recorded complete summary ".repeat(15);
+  for (const width of [375, 1200]) {
+    await page.emulateMedia({media:"screen"});
+    await page.setViewportSize({width,height:900});
+    const markup = renderToStaticMarkup(createElement("section", {"data-generated-document":true},
+      createElement(components.DocumentViewStyles),
+      createElement(components.ReportPathwayHeading, {title,badges:createElement("span",null,"Recorded Category")}),
+      createElement(components.ReportPathwaySummary, {kind:"fit"},summary),
+      createElement(components.RecommendationCard, {audience:"educator",rec:{title,summary,why:"Recorded reason",sources:[{kind:"profile",label:"Recorded profile"}],next_action:"Recorded next step",owner_role:"educator",timeframe:"90_day",discuss_at_next_meeting:true}})));
+    await page.setContent(`<html><head><style>${css}</style></head><body style="margin:0;padding:16px">${markup}</body></html>`);
+    await expect(page.locator('[data-report-pathway-heading] h3')).toHaveText([title,title]);
+    await expect(page.locator('[data-report-pathway-summary]')).toHaveText([summary.trim(),summary.trim()]);
+    await expect(page.getByText("Recorded Category",{exact:true})).toBeVisible();
+    await expect(page.getByText("Next 90 days",{exact:true})).toBeVisible();
+    await expect(page.getByText("Discuss at next meeting",{exact:true})).toBeVisible();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    const sizes = await page.locator('[data-report-pathway-heading] h3').evaluateAll(elements=>elements.map(element=>({font:getComputedStyle(element).fontSize,clipped:element.scrollWidth>element.clientWidth+1})));
+    expect(sizes[0].font).toBe(sizes[1].font);
+    for (const size of sizes) {
+      expect(size.clipped).toBe(false);
+      expect(parseFloat(size.font)).toBeGreaterThanOrEqual(14);
+      expect(parseFloat(size.font)).toBeLessThanOrEqual(16);
+    }
+    const shortCard = createElement(components.RecommendationCard,{audience:"family",rec:{title:"Option",summary:"Recorded summary",why:"Recorded why",sources:[],next_action:"Recorded step",owner_role:"family",discuss_at_next_meeting:true}});
+    const short = renderToStaticMarkup(createElement("section", {"data-generated-document":true,className:"report-root"},
+      createElement(components.DocumentViewStyles), createElement(components.ReportBrochurePrintStyles),
+      createElement("div",{className:"pub-page-body"},
+        createElement(components.ReportPathwayHeading,{title:"Recorded Option",badges:createElement("span",null,"Badge")}),
+        createElement("section",{className:"pub-page"}, createElement("div",{"data-report-pillar-recommendations":true},shortCard)))));
+    await page.setContent(`<html><head><style>${css}</style></head><body style="margin:0;padding:16px">${short}</body></html>`);
+    for (const media of ["screen","print"] as const) {
+    await page.emulateMedia({media});
+    const aligned = await page.locator('[data-report-pathway-heading]').evaluateAll(elements=>elements.map(element=>{
+      const title=element.querySelector('h3')!,badge=element.querySelector('[data-report-pathway-badges]')!;
+      return Math.abs(title.getBoundingClientRect().top-badge.getBoundingClientRect().top);
+    }));
+    for (const difference of aligned) expect(difference).toBeLessThan(1);
+    if (media === "print") expect(await page.locator('.pub-page').evaluate(element=>getComputedStyle(element).breakInside)).toBe("avoid");
     }
   }
 });

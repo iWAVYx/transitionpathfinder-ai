@@ -1,3 +1,4 @@
+import { ReportPathwayHeading, ReportPathwaySummary } from "@/components/documents/ReportPathwayIntro";
 import { ReportGoalFact } from "@/components/documents/ReportGoalFact";
 import { ReportExpandableDetails } from "@/components/documents/ReportExpandableDetails";
 import type { ReactNode } from "react";
@@ -562,15 +563,14 @@ function PathwayOptions({
         {options.map((opt) => (
           <Card key={opt.id} data-demo-pathway-option={opt.id}>
             <CardHeader className="pb-2">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <h3 className="min-w-0 text-base leading-snug">{toTitleCase(opt.title)}</h3>
+              <ReportPathwayHeading title={opt.title} badges={
                 <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-wider">
                   {CATEGORY_LABEL[opt.category]}
                 </Badge>
-              </div>
+              } />
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-foreground/85">
-              <p className="italic text-foreground/75">{opt.fitSummary}</p>
+              <ReportPathwaySummary kind="fit">{opt.fitSummary}</ReportPathwaySummary>
               <ReportExpandableDetails kind="demo-option" audience={audience}>
               <dl className="grid gap-2 rounded-lg border border-border/70 bg-muted/40 p-3 text-xs">
                 <div>

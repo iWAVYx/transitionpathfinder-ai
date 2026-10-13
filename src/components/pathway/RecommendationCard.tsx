@@ -1,7 +1,7 @@
+import { ReportPathwayHeading, ReportPathwaySummary } from "@/components/documents/ReportPathwayIntro";
 import { ReportExpandableDetails } from "@/components/documents/ReportExpandableDetails";
 import type { ReportSourceCount } from "@/lib/report-source-summary";
 import { CalendarClock, UserRound } from "lucide-react";
-import { toTitleCase } from "@/lib/title-case";
 import { Badge } from "@/components/ui/badge";
 import { SourceChips } from "@/components/pathway/SourceChips";
 import type { PillarRec } from "@/lib/pathway-v2";
@@ -34,9 +34,7 @@ export function RecommendationCard({
 }) {
   return (
     <article data-report-recommendation className="rounded-2xl border bg-card p-4 shadow-soft transition-colors hover:border-primary/40 sm:p-5">
-      <header className="flex flex-wrap items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold sm:text-base">{toTitleCase(rec.title)}</h3>
-        <div className="flex flex-wrap gap-1.5">
+      <ReportPathwayHeading as="header" title={rec.title} badges={<>
           {rec.timeframe && (
             <Badge variant="outline" className="text-[10px]">
               <CalendarClock className="print:hidden h-3 w-3" />
@@ -48,10 +46,9 @@ export function RecommendationCard({
               Discuss at next meeting
             </Badge>
           )}
-        </div>
-      </header>
+      </>} />
 
-      <p className="mt-2 text-sm text-foreground/90">{rec.summary}</p>
+      <ReportPathwaySummary kind="summary">{rec.summary}</ReportPathwaySummary>
 
       <ReportExpandableDetails kind="recommendation" audience={audience} defaultOpen={defaultOpen}
         className="mt-3 space-y-3 rounded-xl border border-dashed bg-background/60 p-3 sm:p-4">
