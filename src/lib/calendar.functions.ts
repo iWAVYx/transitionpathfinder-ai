@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { readCalendarPages, readCalendarBatches } from "./calendar-query-pages";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
@@ -114,15 +115,13 @@ async function listAccessibleStudentIds(
   studentId?: string,
   organizationId?: string,
 ): Promise<Array<{ id: string; name: string }>> {
-  let query = supabase
-    .from("students")
-    .select("id, first_name, last_name")
-    .order("created_at", { ascending: false })
-    .limit(500);
-  if (studentId) query = query.eq("id", studentId);
-  if (organizationId) query = query.eq("organization_id", organizationId);
-  const { data, error } = await query;
-  if (error) throw new Error("Could not load authorized calendar students.");
+  const data = await readCalendarPages((from, to) => {
+    let query = supabase.from("students")
+      .select("id, first_name, last_name", { count: "exact" }).order("id", { ascending: true }).range(from, to);
+    if (studentId) query = query.eq("id", studentId);
+    if (organizationId) query = query.eq("organization_id", organizationId);
+    return query;
+  });
   return ((data ?? []) as Array<{
     id: string;
     first_name: string;
@@ -174,20 +173,20 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
 
     if (ids.length > 0) {
       const [actionsRes, meetingsRes] = await Promise.all([
-        supabase
+        readCalendarBatches(ids, (batch, from, to) => supabase
           .from("action_items")
-          .select("id, student_id, title, description, due_date, priority, status, category")
-          .in("student_id", ids)
+          .select("id, student_id, title, description, due_date, priority, status, category", { count: "exact" })
+          .in("student_id", batch)
           .not("due_date", "is", null)
           .gte("due_date", fromIso)
-          .lte("due_date", toIso),
-        supabase
+          .lte("due_date", toIso).order("id", { ascending: true }).range(from, to)).then(data => ({ data })),
+        readCalendarBatches(ids, (batch, from, to) => supabase
           .from("meetings")
-          .select("id, student_id, title, kind, scheduled_at, location, status")
-          .in("student_id", ids)
+          .select("id, student_id, title, kind, scheduled_at, location, status", { count: "exact" })
+          .in("student_id", batch)
           .not("scheduled_at", "is", null)
           .gte("scheduled_at", `${fromIso}T00:00:00`)
-          .lte("scheduled_at", `${toIso}T23:59:59`),
+          .lte("scheduled_at", `${toIso}T23:59:59`).order("id", { ascending: true }).range(from, to)).then(data => ({ data })),
       ]);
 
       for (const a of (actionsRes.data ?? []) as Array<{
@@ -308,12 +307,12 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
 
       // Statutory + planning deadlines pulled from the student record:
       // annual IEP review, triennial reevaluation, graduation target.
-      const { data: studentDates } = await supabase
+      const studentDates = await readCalendarBatches(ids, (batch, from, to) => supabase
         .from("students")
         .select(
-          "id, iep_annual_review_date, iep_reevaluation_date, graduation_target_date",
+          "id, iep_annual_review_date, iep_reevaluation_date, graduation_target_date", { count: "exact" },
         )
-        .in("id", ids);
+        .in("id", batch).order("id", { ascending: true }).range(from, to));
       for (const s of (studentDates ?? []) as Array<{
         id: string;
         iep_annual_review_date: string | null;
@@ -383,13 +382,13 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
 
       // Surface "next meeting date" set on completed meetings as a deadline
       // so post-meeting follow-through doesn't get lost.
-      const { data: nextMeetings } = await supabase
+      const nextMeetings = await readCalendarBatches(ids, (batch, from, to) => supabase
         .from("meetings")
-        .select("id, student_id, title, next_meeting_date")
-        .in("student_id", ids)
+        .select("id, student_id, title, next_meeting_date", { count: "exact" })
+        .in("student_id", batch)
         .not("next_meeting_date", "is", null)
         .gte("next_meeting_date", fromIso)
-        .lte("next_meeting_date", toIso);
+        .lte("next_meeting_date", toIso).order("id", { ascending: true }).range(from, to));
       for (const nm of (nextMeetings ?? []) as Array<{
         id: string;
         student_id: string;
@@ -427,13 +426,13 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     }
 
     // Resource follow-ups the caller saved with a follow_up_date.
-    const { data: savedFollowups } = data.organization_id ? { data: [] } : await supabase
+    const savedFollowups = data.organization_id ? [] : await readCalendarPages((from, to) => supabase
       .from("saved_resources")
-      .select("id, follow_up_date, resource:resources(id,title)")
+      .select("id, follow_up_date, resource:resources(id,title)", { count: "exact" })
       .eq("user_id", userId)
       .not("follow_up_date", "is", null)
       .gte("follow_up_date", fromIso)
-      .lte("follow_up_date", toIso);
+      .lte("follow_up_date", toIso).order("id", { ascending: true }).range(from, to));
     for (const sr of (savedFollowups ?? []) as Array<{
       id: string;
       follow_up_date: string;
@@ -469,28 +468,28 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
     }
 
     // Custom calendar_events visible to the caller (RLS handles visibility tiers).
-    let calendarQuery = supabase
-      .from("calendar_events")
-      .select(
-        "id, owner_user_id, student_id, title, detail, event_date, visibility, event_type, start_time, end_time, all_day, location, meeting_link, color_label, status, related_organization_id, related_pathway_report_id, related_action_item_id, related_meeting_id",
-      )
-      .gte("event_date", fromIso)
-      .lte("event_date", toIso);
-    if (data.organization_id) calendarQuery = calendarQuery.eq("related_organization_id", data.organization_id);
-    if (data.student_id) calendarQuery = calendarQuery.eq("student_id", data.student_id);
-    const calRes = await calendarQuery;
-    if (calRes.error) throw new Error("Could not load calendar events.");
-
+    const calendarRows = await readCalendarPages((from, to) => {
+      let calendarQuery = supabase
+        .from("calendar_events")
+        .select(
+          "id, owner_user_id, student_id, title, detail, event_date, visibility, event_type, start_time, end_time, all_day, location, meeting_link, color_label, status, related_organization_id, related_pathway_report_id, related_action_item_id, related_meeting_id", { count: "exact" },
+        )
+        .gte("event_date", fromIso)
+        .lte("event_date", toIso);
+      if (data.organization_id) calendarQuery = calendarQuery.eq("related_organization_id", data.organization_id);
+      if (data.student_id) calendarQuery = calendarQuery.eq("student_id", data.student_id);
+      return calendarQuery.order("id", { ascending: true }).range(from, to);
+    });
     const otherOwnerIds = new Set<string>();
-    for (const row of (calRes.data ?? []) as Array<{ owner_user_id: string }>) {
+    for (const row of calendarRows as Array<{ owner_user_id: string }>) {
       if (row.owner_user_id !== userId) otherOwnerIds.add(row.owner_user_id);
     }
     let ownerNames = new Map<string, string>();
     if (otherOwnerIds.size > 0) {
-      const { data: profs } = await supabase
+      const profs = await readCalendarBatches(Array.from(otherOwnerIds), (batch, from, to) => supabase
         .from("profiles")
-        .select("id, full_name, email")
-        .in("id", Array.from(otherOwnerIds));
+        .select("id, full_name, email", { count: "exact" })
+        .in("id", batch).order("id", { ascending: true }).range(from, to));
       ownerNames = new Map(
         (profs ?? []).map((p: { id: string; full_name: string | null; email: string | null }) => [
           p.id,
@@ -499,7 +498,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
       );
     }
 
-    for (const row of (calRes.data ?? []) as Array<{
+    for (const row of calendarRows as Array<{
       id: string;
       owner_user_id: string;
       student_id: string | null;
@@ -710,15 +709,11 @@ export const listMyCalendarOrganizations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
+    const data = await readCalendarPages((from, to) => supabase
       .from("organization_memberships")
-      .select("organization_id, organizations:organization_id (id, name)")
-      .eq("user_id", userId)
-      .eq("status", "active");
-    if (error) {
-      console.error("listMyCalendarOrganizations", error);
-      return { organizations: [] as Array<{ id: string; name: string }> };
-    }
+      .select("id, organization_id, organizations:organization_id (id, name)", { count: "exact" })
+      .eq("user_id", userId).eq("status", "active")
+      .order("id", { ascending: true }).range(from, to));
     const orgs = ((data ?? []) as unknown as Array<{
       organizations: { id: string; name: string } | null;
     }>)
