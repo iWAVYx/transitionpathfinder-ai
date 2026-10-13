@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useOrganizationDashboardLoad } from "@/hooks/use-organization-dashboard-load";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
@@ -27,29 +28,12 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useSchoolDashboard() {
   const fetchDash = useServerFn(getSchoolDashboard);
-  const [data, setData] = useState<SchoolDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [orgId, setOrgId] = useState<string | undefined>(undefined);
-
-  async function reload(nextOrgId?: string) {
-    setLoading(true);
-    try {
-      const d = await fetchDash({ data: { org_id: nextOrgId } });
-      setData(d);
-      setOrgId(d.selected_org_id ?? undefined);
-    } catch {
-      toast.error("Could not load school data.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { data, loading, orgId, reload };
+  const { data, loading, id, reload } = useOrganizationDashboardLoad<SchoolDashboard>(
+    (id) => fetchDash({ data: { org_id: id } }),
+    (dashboard) => dashboard.selected_org_id,
+    "Could not load school data.",
+  );
+  return { data, loading, orgId: id, reload };
 }
 
 export function SchoolPageShell({
@@ -68,7 +52,7 @@ export function SchoolPageShell({
   data: SchoolDashboard | null;
   loading: boolean;
   orgId: string | undefined;
-  onSwitchOrg: (id: string) => void;
+  onSwitchOrg: (id?: string) => void;
   children: (org: SchoolOrg, data: SchoolDashboard) => React.ReactNode;
 }) {
   return (
@@ -126,7 +110,20 @@ export function SchoolPageShell({
                   <span>Loading School Workspace…</span>
                 </div>
               </div>
-            ) : !data?.is_school_admin || data.orgs.length === 0 ? (
+            ) : !data ? (
+              <div role="alert" className="rounded-xl border p-5">
+                <p className="text-sm text-foreground/75">
+                  School information could not be loaded. Please try again.
+                </p>
+                <Button
+                  className="mt-3"
+                  variant="outline"
+                  onClick={() => onSwitchOrg(orgId)}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : !data.is_school_admin || data.orgs.length === 0 ? (
               <CreateSchoolCard onCreated={() => window.location.reload()} />
             ) : (
               (() => {

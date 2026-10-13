@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useOrganizationDashboardLoad } from "@/hooks/use-organization-dashboard-load";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
@@ -28,29 +29,12 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useDistrictDashboard() {
   const fetchDash = useServerFn(getDistrictDashboard);
-  const [data, setData] = useState<DistrictDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [districtId, setDistrictId] = useState<string | undefined>(undefined);
-
-  async function reload(nextId?: string) {
-    setLoading(true);
-    try {
-      const d = await fetchDash({ data: { district_id: nextId } });
-      setData(d);
-      setDistrictId(d.selected_district_id ?? undefined);
-    } catch {
-      toast.error("Could not load district data.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { data, loading, districtId, reload };
+  const { data, loading, id, reload } = useOrganizationDashboardLoad<DistrictDashboard>(
+    (id) => fetchDash({ data: { district_id: id } }),
+    (dashboard) => dashboard.selected_district_id,
+    "Could not load district data.",
+  );
+  return { data, loading, districtId: id, reload };
 }
 
 export function DistrictPageShell({
@@ -69,7 +53,7 @@ export function DistrictPageShell({
   data: DistrictDashboard | null;
   loading: boolean;
   districtId: string | undefined;
-  onSwitchDistrict: (id: string) => void;
+  onSwitchDistrict: (id?: string) => void;
   children: (district: DistrictOrg, data: DistrictDashboard) => React.ReactNode;
 }) {
   return (
@@ -134,7 +118,20 @@ export function DistrictPageShell({
                     <span>Loading District Workspace…</span>
                   </div>
                 </div>
-              ) : !data?.is_district_admin || data.districts.length === 0 ? (
+              ) : !data ? (
+                <div role="alert" className="rounded-xl border p-5">
+                  <p className="text-sm text-foreground/75">
+                    District information could not be loaded. Please try again.
+                  </p>
+                  <Button
+                    className="mt-3"
+                    variant="outline"
+                    onClick={() => onSwitchDistrict(districtId)}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : !data.is_district_admin || data.districts.length === 0 ? (
                 <CreateDistrictCard onCreated={() => window.location.reload()} />
               ) : (
                 (() => {
