@@ -1,6 +1,6 @@
 # Transactional Pathway Report History
 
-Prepared October 12, 2026; staging execution recorded October 13, 2026. The specifically authorized migration is applied to isolated staging only. No caller has been switched and production is unchanged. Existing save/regenerate behavior still uses separate snapshot and content requests.
+Prepared October 12, 2026; staging execution recorded October 13, 2026. The specifically authorized migration is applied to isolated staging only. Both callers are switched only in draft source; neither hosted application has been deployed with this cutover. Production is unchanged; hosted save/regenerate behavior still uses separate snapshot and content requests.
 
 ## Prepared Database Operation
 
@@ -10,7 +10,7 @@ The function locks the owned report row, compares the complete content the serve
 
 Full-content comparison also detects changed content from writers that omit the section write marker. It does not protect stale client intent predating the server read: the current UI does not send an observed revision. It does not prevent later privileged/direct writes, make history immutable, or certify generated content. Existing direct version inserts do not acquire this report lock; until all active content/history writers are inventoried and coordinated, atomic version allocation across those writers is not guaranteed.
 
-## Caller Cutover — Still Open
+## Caller Cutover — Draft Source Prepared
 
 After separately authorized database acceptance, update both `updateReportContent` and `regeneratePathwayReport` together to call this function with the authenticated middleware client. Preserve their current owner checks, server-derived section metadata, generated/saved semantics, input-diff summaries and response shapes. Supply the exact content fetched by that operation as `_expected_content`, the metadata-stamped replacement as `_next_content`, and the existing summary capped at 500 characters. Restore continues through the same save handler and counts as Saved. No new roles or dashboard tools are introduced: Student/Family/Educator ownership rules and fixed share readers remain unchanged; Owner remains management only.
 
@@ -61,3 +61,15 @@ Nine hosted SQL assertions passed: Family and Educator owner saves and exact sna
 Cleanup independently queried the run-scoped IDs after ROLLBACK: zero reports, zero report versions and zero intakes. No test record was committed. The evidence screenshot is `/private/tmp/tf-atomic-staging-acceptance.png`. No AI/provider request or charge occurred.
 
 Scope limits: SQL sessions set authenticated role and synthetic JWT claim settings; this is actual hosted SQL/RLS execution, not an authenticated browser login or PostgREST/RPC request. Simultaneous-session and injected rollback cases remain established in disposable PostgreSQL, not re-run by imposing failures on hosted tables. Linked-student collaborator policies, Student owner behavior, actual RPC size/timeout serialization, application save/regenerate/restore and committed reload still require their planned checks. Current handlers have not changed; the installed function is available but unused by the product. Next is both-caller source cutover and mocked SDK/error verification, followed by separately authorized staging deployment/application acceptance. Production application remains separately authorized.
+
+## Draft Caller Cutover Verification — October 13, 2026
+
+Both `updateReportContent` and `regeneratePathwayReport` now call the shared `report-content-write.server.ts` boundary in draft source. The version-number read, separate snapshot insert and conditional report PATCH have been removed from these handlers. Ownership checks and server-derived section status still run as before; restores use the same save path and count as Saved. The RPC receives the exact full server-observed content and normalized replacement, with the existing manual/input-diff summary. A narrow typed RPC boundary reflects the verified staging signature without rewriting platform-generated database types or using an admin client.
+
+Exactly one RPC is issued per attempted save. Success requires a positive PostgreSQL-range integer version returned by the database. `40001` gives the existing plain-language reload message; other returned/thrown errors produce a generic save failure without revealing database details. There is no split-write fallback, automatic generation retry or reread-and-overwrite on conflict. Invalid content, JSON serialization failures and summaries exceeding 500 characters stop before a request.
+
+All 200 unit files / 1,916 tests and TypeScript pass; all 12 scoped source/security checks pass. Thirty-one actual-handler cases and seven boundary cases cover metadata/restore semantics, supplied/retained generation fields, early ownership denial, summaries, one-RPC success/conflicts/errors, invalid return versions and malformed inputs. Two actual Supabase SDK fixtures send a large observed report (216,000-character summary) as POST JSON with caller authorization and no content URL filter. Three additional SDK fixtures verify conflict, missing function and transport failure stop after the read plus one POST. Fetch is entirely mocked at `report-wire.fixture.test`; no network, account, provider, AI or database mutation occurred during these checks. This proves SDK serialization and handler behavior, not hosted request-size limits or actual signed-in application acceptance.
+
+No presentation component or demo sample changed. The shared save path applies to authorized report owners under existing role permissions; this is not a grant of planning tools to Partner/School/District/Owner. Existing demo samples remain fictional, and fixed shared readers remain read-only. Student/linked-student collaborator and role-specific signed-in acceptance are still open.
+
+The function exists on isolated staging; the hosted applications still serve older callers until a separately authorized deployment. Production release must be blocked until this exact function is applied and verified there under separate migration authorization, then the reviewed shared source is released. Do not hide a missing function with a fallback or an environment-specific implementation. The other prepared share-grant migration is a separate dependency. Full draft review, exact source parity, live RPC/save/regenerate/restore/reload acceptance, request limits/timeouts, direct writer inventory and stale client intent remain open.

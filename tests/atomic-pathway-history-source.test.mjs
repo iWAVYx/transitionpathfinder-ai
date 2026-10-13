@@ -21,13 +21,19 @@ test("lock and complete-content conflict check precede snapshot allocation and b
   assert.match(sql, /IF NOT FOUND THEN[\s\S]+Could not save the report/);
   assert.match(sql, /BEGIN;[\s\S]+COMMIT;\s*$/);
 });
-test("payload validation and migration-first rollout remain explicit without active callers", () => {
+test("payload validation and both-caller atomic cutover retain release gates", () => {
   assert.match(sql, /jsonb_typeof\(_expected_content\) IS DISTINCT FROM 'object'/);
   assert.match(sql, /jsonb_typeof\(_next_content\) IS DISTINCT FROM 'object'/);
   assert.match(sql, /length\(_change_summary\) > 500/);
   const caller = readFileSync("src/lib/pathway.functions.ts", "utf8");
-  assert.doesNotMatch(caller, /save_pathway_report_content_atomic/);
-  assert.match(plan, /No caller has been switched and production is unchanged/);
+  const helper = readFileSync("src/lib/report-content-write.server.ts", "utf8");
+  for (const handler of [caller.slice(caller.indexOf("export const updateReportContent"), caller.indexOf("export const listReportVersions")), caller.slice(caller.indexOf("export const regeneratePathwayReport"))]) {
+    assert.match(handler, /await writeReportContent\(/);
+    assert.doesNotMatch(handler, /\.insert\(|\.update\(|from\("pathway_report_versions"\)/);
+  }
+  assert.match(helper, /client.rpc\("save_pathway_report_content_atomic"/);
+  assert.doesNotMatch(helper, /supabaseAdmin|service_role|\.from\(/);
+  assert.match(plan, /Both callers are switched only in draft source; neither hosted application has been deployed with this cutover/);
   assert.match(plan, /Never retry generation automatically/);
   assert.match(plan, /Local SQL text checks do not prove transaction or RLS behavior/);
 });

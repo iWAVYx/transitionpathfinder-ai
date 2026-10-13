@@ -1,4 +1,5 @@
-import { recordGeneratedSections, recordSavedSections, previousReportWriteId } from "./report-section-updates";
+import { writeReportContent } from "./report-content-write.server";
+import { recordGeneratedSections, recordSavedSections } from "./report-section-updates";
 import { readReportPages, readReportBatches } from "./report-query-pages";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
@@ -374,17 +375,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
 
     const nextContent = recordSavedSections((current as { content: unknown }).content, data.content);
 
-    // Compute next version number from existing snapshots.
-    const { data: maxRow } = await supabase
-      .from("pathway_report_versions")
-      .select("version_number")
-      .eq("report_id", data.report_id)
-      .order("version_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const nextVersion = ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
-
-    // Snapshot the CURRENT content as the new version row before overwriting.
+    // The RPC preserves the observed content and replaces it atomically.
     // For v2 → v2 transitions, auto-fill change_summary from the input manifest diff
     // when the caller didn't provide one.
     let summary = data.change_summary || null;
@@ -396,35 +387,10 @@ export const updateReportContent = createServerFn({ method: "POST" })
         if (nextInputs) summary = diffInputsForChangeSummary(prevInputs, nextInputs);
       }
     }
-    const { error: vErr } = await supabase.from("pathway_report_versions").insert({
-      report_id: data.report_id,
-      version_number: nextVersion,
-      content: JSON.parse(JSON.stringify((current as { content: unknown }).content ?? {})),
-      change_summary: summary,
-      created_by: userId,
-    });
-
-    if (vErr) {
-      console.error("version snapshot failed", vErr);
-      throw new Error("Could not save a version snapshot.");
-    }
-
-    let write = supabase
-      .from("pathway_reports")
-      .update({ content: JSON.parse(JSON.stringify(nextContent)) })
-      .eq("id", data.report_id)
-      .eq("user_id", userId);
-    const priorWriteId = previousReportWriteId((current as { content: unknown }).content);
-    write = priorWriteId
-      ? write.eq("content->section_updates->>write_id", priorWriteId)
-      : write.is("content->section_updates->>write_id", null);
-    const { data: written, error: upErr } = await write.select("id").maybeSingle();
-    if (upErr) {
-      console.error("report content update failed", upErr);
-      throw new Error("Could not save the report.");
-    }
-
-    if (!written) throw new Error("This report changed while you were saving. Reload it before trying again.");
+    const nextVersion = await writeReportContent(
+      supabase, data.report_id, (current as { content: unknown }).content,
+      nextContent, summary, "save",
+    );
 
     return { ok: true, version_number: nextVersion };
   });
@@ -1043,44 +1009,9 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       weak_summary_flag,
     });
 
-    // Snapshot + overwrite via updateReportContent path (manual to avoid round-trip).
-    const { data: maxRow } = await supabase
-      .from("pathway_report_versions")
-      .select("version_number")
-      .eq("report_id", rep.id)
-      .order("version_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const nextVersion = ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
-
-    const { error: vErr } = await supabase.from("pathway_report_versions").insert({
-      report_id: rep.id,
-      version_number: nextVersion,
-      content: JSON.parse(JSON.stringify(prevContent)),
-      change_summary,
-      created_by: userId,
-    });
-    if (vErr) {
-      console.error("regen version snapshot failed", vErr);
-      throw new Error("Could not save a version snapshot.");
-    }
-
-    let write = supabase
-      .from("pathway_reports")
-      .update({ content: JSON.parse(JSON.stringify(nextContent)) })
-      .eq("id", rep.id)
-      .eq("user_id", userId);
-    const priorWriteId = previousReportWriteId(rep.content);
-    write = priorWriteId
-      ? write.eq("content->section_updates->>write_id", priorWriteId)
-      : write.is("content->section_updates->>write_id", null);
-    const { data: written, error: upErr } = await write.select("id").maybeSingle();
-    if (upErr) {
-      console.error("regen content write failed", upErr);
-      throw new Error("Could not save the regenerated report.");
-    }
-
-    if (!written) throw new Error("This report changed during generation. Reload it before trying again.");
+    const nextVersion = await writeReportContent(
+      supabase, rep.id, prevContent, nextContent, change_summary, "regenerate",
+    );
 
     return {
       ok: true as const,
