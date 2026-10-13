@@ -41,6 +41,8 @@ export type TeamCalendarEvent = {
   detail: string;
   /** ISO YYYY-MM-DD (local day) */
   event_date: string;
+  /** Original timestamp for scheduled meetings; retain its absolute instant. */
+  start_at?: string;
   start_time: string | null;
   end_time: string | null;
   all_day: boolean;
@@ -247,9 +249,10 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
           title: m.title || `${m.kind} meeting`,
           detail: m.location ? `Location: ${m.location}` : "Upcoming meeting",
           event_date: meetingDateIso,
+          start_at: m.scheduled_at,
           start_time: null,
           end_time: null,
-          all_day: true,
+          all_day: false,
           location: m.location,
           meeting_link: null,
           color_label: null,

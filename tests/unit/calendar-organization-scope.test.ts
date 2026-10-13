@@ -107,7 +107,7 @@ it("large meeting and next-meeting reads retain the final page", async () => {
   const result = await invoke(db);
   expect(result.events.filter((event: any) => event.id.startsWith("meeting-"))).toHaveLength(1203);
   expect(result.events.filter((event: any) => event.id.startsWith("nextmeeting-"))).toHaveLength(1203);
-  expect(result.events.some((event: any) => event.id === "meeting-meeting-1202")).toBe(true);
+  expect(result.events.find((event: any) => event.id === "meeting-meeting-1202")).toMatchObject({ start_at: "2030-12-20T14:00:00Z", all_day: false });
   expect(db.queries.filter(query => query.table === "meetings")).toHaveLength(6);
 });
 it("organization choices retain every active caller membership beyond one page", async () => {

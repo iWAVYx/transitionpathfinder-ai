@@ -18,6 +18,7 @@ export type CalendarEvent = {
   /** Present for saved calendar records; legacy date-only reminders omit it. */
   allDay?: boolean;
   endDate?: Date;
+  timeIsAbsolute?: boolean;
   location?: string;
   meetingLink?: string;
   title: string;
@@ -34,19 +35,29 @@ export type CalendarEvent = {
 };
 
 /** Preserve saved calendar dates/times; do not turn them into derived reminder slots. */
-export function calendarRecordForExport(ev: Pick<TeamCalendarEvent, "id" | "event_date" | "start_time" | "end_time" | "all_day" | "title" | "detail" | "kind"> & Partial<Pick<TeamCalendarEvent, "location" | "meeting_link">>): CalendarEvent {
+export function calendarRecordForExport(ev: Pick<TeamCalendarEvent, "id" | "event_date" | "start_time" | "end_time" | "all_day" | "title" | "detail" | "kind"> & Partial<Pick<TeamCalendarEvent, "location" | "meeting_link" | "start_at">>): CalendarEvent {
   const [year, month, day] = ev.event_date.split("-").map(Number);
   const at = (time?: string | null) => {
     const [hour = 0, minute = 0, second = 0] = (time ?? "00:00:00").split(":").map(Number);
     return new Date(year, month - 1, day, hour, minute, second);
   };
   return {
-    id: ev.id, date: at(ev.all_day ? null : ev.start_time),
+    id: ev.id, date: ev.start_at ? new Date(ev.start_at) : at(ev.all_day ? null : ev.start_time),
+    timeIsAbsolute: !!ev.start_at,
     endDate: !ev.all_day && ev.end_time ? at(ev.end_time) : undefined,
     allDay: ev.all_day, title: ev.title, detail: ev.detail,
     location: ev.location ?? undefined, meetingLink: ev.meeting_link ?? undefined,
     kind: ev.kind === "meeting" || ev.kind === "prep" || ev.kind === "action" ? ev.kind : "goal",
   };
+}
+
+/** Display a scheduled instant on the viewer's local calendar day, retaining the source timestamp. */
+export function calendarRecordForDisplay(ev: TeamCalendarEvent): TeamCalendarEvent {
+  if (!ev.start_at) return ev;
+  const date = new Date(ev.start_at);
+  if (Number.isNaN(date.getTime())) return ev;
+  return { ...ev, event_date: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+    start_time: `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`, all_day: false };
 }
 
 // ---- Date helpers ----------------------------------------------------------
@@ -187,13 +198,13 @@ function gcalDate(d: Date) {
 
 export function buildGoogleCalendarUrl(ev: CalendarEvent, tz?: string) {
   const timed = ev.allDay === false;
-  const start = timed ? icsLocal(ev.date) : gcalDate(ev.date);
+  const start = timed ? ev.timeIsAbsolute ? icsStamp(ev.date) : icsLocal(ev.date) : gcalDate(ev.date);
   const end = timed ? ev.endDate ?? new Date(ev.date.getTime() + 30 * 60 * 1000) : new Date(ev.date);
   if (!timed) end.setDate(end.getDate() + 1);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: ev.title,
-    dates: `${start}/${timed ? icsLocal(end) : gcalDate(end)}`,
+    dates: `${start}/${timed ? ev.timeIsAbsolute ? icsStamp(end) : icsLocal(end) : gcalDate(end)}`,
     details: [ev.detail || "From TransitionForward", ev.meetingLink ? `Meeting Link: ${ev.meetingLink}` : null].filter(Boolean).join("\n\n"),
   });
   if (ev.location) params.set("location", ev.location);
@@ -203,8 +214,7 @@ export function buildGoogleCalendarUrl(ev: CalendarEvent, tz?: string) {
 
 // ---- ICS export (all events) ----------------------------------------------
 
-function icsStamp() {
-  const d = new Date();
+function icsStamp(d = new Date()) {
   return (
     `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +
     `T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`
@@ -360,12 +370,12 @@ export function buildIcsForEvents(events: CalendarEvent[], tz?: string) {
     const end = ev.endDate ?? new Date(start.getTime() + 30 * 60 * 1000);
     const dtStart = ev.allDay
       ? `DTSTART;VALUE=DATE:${gcalDate(ev.date)}`
-      : tzid ? `DTSTART;TZID=${tzid}:${icsLocal(start)}` : `DTSTART:${icsLocal(start)}`;
+      : ev.timeIsAbsolute ? `DTSTART:${icsStamp(start)}` : tzid ? `DTSTART;TZID=${tzid}:${icsLocal(start)}` : `DTSTART:${icsLocal(start)}`;
     const nextDay = new Date(ev.date);
     nextDay.setDate(nextDay.getDate() + 1);
     const dtEnd = ev.allDay
       ? `DTEND;VALUE=DATE:${gcalDate(nextDay)}`
-      : tzid ? `DTEND;TZID=${tzid}:${icsLocal(end)}` : `DTEND:${icsLocal(end)}`;
+      : ev.timeIsAbsolute ? `DTEND:${icsStamp(end)}` : tzid ? `DTEND;TZID=${tzid}:${icsLocal(end)}` : `DTEND:${icsLocal(end)}`;
     return [
       "BEGIN:VEVENT",
       `UID:${ev.id}-${idx}@transitionforward`,

@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { transitionCalendarIcs } from "@/components/calendar/TransitionCalendar";
-import { buildIcsForEvents, calendarRecordForExport, buildGoogleCalendarUrl } from "@/lib/calendar-events";
+import { buildIcsForEvents, calendarRecordForExport, calendarRecordForDisplay, buildGoogleCalendarUrl } from "@/lib/calendar-events";
 
 it("shared calendar exports all-day dates without converting them to midnight appointments", () => {
   const result = transitionCalendarIcs([{ id: "day", title: "Review Day", type: "deadline", start: "2026-10-31T00:00:00", allDay: true }]);
@@ -62,4 +62,20 @@ it("records without a location or meeting link do not acquire placeholder connec
   const url = new URL(buildGoogleCalendarUrl(event));
   expect(url.searchParams.has("location")).toBe(false);
   expect(url.searchParams.get("details")).not.toContain("Meeting Link:");
+});
+
+it("scheduled meeting exports preserve the original offset timestamp as an absolute instant", () => {
+  const event = calendarRecordForExport({ id: "scheduled", event_date: "2026-10-13", start_at: "2026-10-13T23:30:00-04:00", start_time: null, end_time: null, all_day: false, title: "Scheduled Meeting", detail: "Recorded timestamp", kind: "meeting" });
+  const result = buildIcsForEvents([event], "America/Los_Angeles");
+  expect(result).toContain("DTSTART:20261014T033000Z");
+  expect(result).toContain("DTEND:20261014T040000Z");
+  expect(result).not.toContain("DTSTART;TZID=");
+  expect(new URL(buildGoogleCalendarUrl(event, "America/Los_Angeles")).searchParams.get("dates")).toBe("20261014T033000Z/20261014T040000Z");
+});
+it("scheduled display dates use the viewer-local day without replacing the source timestamp", () => {
+  const source = { id: "scheduled", event_date: "2026-10-13", start_at: "2026-10-13T23:30:00-04:00", start_time: null, all_day: false } as any;
+  const date = new Date(source.start_at);
+  const expected = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+  expect(calendarRecordForDisplay(source)).toMatchObject({ event_date: expected, start_at: source.start_at, start_time: `${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}:00`, all_day: false });
+  expect(source.event_date).toBe("2026-10-13");
 });

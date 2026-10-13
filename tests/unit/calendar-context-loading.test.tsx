@@ -86,3 +86,33 @@ it("a private event created from an organization calendar retains that organizat
   await waitFor(() => expect(api.list).toHaveBeenCalledTimes(2));
   expect(api.list.mock.calls[1][0]).toEqual({ data: { organization_id: "selected-school" } });
 });
+
+it("organization-choice errors are visible and retryable instead of pretending there are no organizations", async () => {
+  api.list.mockResolvedValue({ events: [] }); api.orgs.mockRejectedValueOnce(new Error("Private backend detail")).mockResolvedValueOnce({ organizations: [] });
+  render(<DashboardCalendar />);
+  const alert = await screen.findByRole("alert");
+  expect(alert.textContent).toContain("Organization choices could not be loaded.");
+  expect(alert.textContent).not.toContain("Private backend detail");
+  fireEvent.click(screen.getByRole("button", { name: "Retry Organization Choices" }));
+  await waitFor(() => expect(api.orgs).toHaveBeenCalledTimes(2));
+  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+  expect(screen.queryByText("Loading organization choices…")).toBeNull();
+  expect(api.create).not.toHaveBeenCalled();
+});
+it("a successful empty organization lookup does not show the failure notice", async () => {
+  api.list.mockResolvedValue({ events: [] }); api.orgs.mockResolvedValue({ organizations: [] });
+  render(<DashboardCalendar />);
+  await waitFor(() => expect(api.orgs).toHaveBeenCalledOnce());
+  await waitFor(() => expect(screen.queryByText("Loading organization choices…")).toBeNull());
+  expect(screen.queryByRole("alert")).toBeNull();
+});
+it("a departed organization lookup cannot replace pre-supplied choices with an error", async () => {
+  const pending = deferred(); api.list.mockResolvedValue({ events: [] }); api.orgs.mockReturnValue(pending.promise);
+  const view = render(<DashboardCalendar />);
+  await waitFor(() => expect(api.orgs).toHaveBeenCalledOnce());
+  view.rerender(<DashboardCalendar organizationOptions={[{ id: "provided", name: "Provided School" }]} />);
+  await act(async () => pending.reject(new Error("Obsolete org error")));
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.queryByText("Loading organization choices…")).toBeNull();
+  expect(api.orgs).toHaveBeenCalledOnce();
+});

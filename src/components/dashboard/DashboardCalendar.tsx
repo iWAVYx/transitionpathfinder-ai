@@ -44,6 +44,7 @@ import {
 import {
   buildGoogleCalendarUrl,
   calendarRecordForExport as toIcsEvent,
+  calendarRecordForDisplay,
   downloadDashboardIcs,
 } from "@/lib/calendar-events";
 
@@ -210,6 +211,9 @@ function DashboardCalendarSession({
 
   const [events, setEvents] = useState<TeamCalendarEvent[]>([]);
   const [orgs, setOrgs] = useState<OrgOption[]>(organizationOptions ?? []);
+  const [organizationError, setOrganizationError] = useState(false);
+  const [organizationsLoading, setOrganizationsLoading] = useState(organizationOptions === undefined);
+  const [organizationAttempt, setOrganizationAttempt] = useState(0);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<Date>(() => startOfMonth(new Date()));
   const [tz, setTz] = useState<string>(getBrowserTz);
@@ -226,8 +230,9 @@ function DashboardCalendarSession({
         data: { ...(studentId ? { student_id: studentId } : {}), ...(organizationId ? { organization_id: organizationId } : {}) },
       });
       if (!current()) return;
-      setEvents(res.events);
-      const upcoming = res.events.find((e) => !isPastIso(e.event_date));
+      const rows = res.events.map(calendarRecordForDisplay);
+      setEvents(rows);
+      const upcoming = rows.find((e) => !isPastIso(e.event_date));
       if (upcoming) setCursor(startOfMonth(parseDate(upcoming.event_date)));
     } catch (err) {
       if (current()) toast.error(err instanceof Error ? err.message : "Could not load calendar.");
@@ -243,18 +248,23 @@ function DashboardCalendarSession({
   useEffect(() => {
     if (organizationOptions !== undefined) {
       setOrgs(organizationOptions);
+      setOrganizationError(false);
+      setOrganizationsLoading(false);
       return;
     }
     let cancelled = false;
+    setOrganizationError(false);
+    setOrganizationsLoading(true);
     fetchOrgs()
       .then((r) => {
         if (!cancelled) setOrgs(r.organizations);
       })
-      .catch(() => {});
+      .catch(() => { if (!cancelled) { setOrgs([]); setOrganizationError(true); } })
+      .finally(() => { if (!cancelled) setOrganizationsLoading(false); });
     return () => {
       cancelled = true;
     };
-  }, [fetchOrgs, organizationOptions]);
+  }, [fetchOrgs, organizationOptions, organizationAttempt]);
 
   const filteredEvents = useMemo(() => {
     if (filterKind === "all") return events;
@@ -363,6 +373,11 @@ function DashboardCalendarSession({
               ))}
             </SelectContent>
           </Select>
+          {organizationsLoading && <span role="status" className="text-xs text-foreground/75">Loading organization choices…</span>}
+          {organizationError && <div role="alert" className="text-xs text-foreground/75">
+            Organization choices could not be loaded. Try again before adding an organization event.
+            <button type="button" className="ml-2 font-medium text-primary underline" onClick={() => setOrganizationAttempt(value => value + 1)}>Retry Organization Choices</button>
+          </div>}
           <AddEventPopover
             open={addOpen}
             onOpenChange={setAddOpen}
@@ -498,7 +513,7 @@ function DashboardCalendarSession({
             events={filteredEvents.map((event) => ({
               id: event.id,
               title: event.title,
-              start: `${event.event_date}T${event.all_day ? "00:00:00" : event.start_time || "00:00:00"}`,
+              start: event.start_at ?? `${event.event_date}T${event.all_day ? "00:00:00" : event.start_time || "00:00:00"}`,
               location: event.location ?? undefined,
               allDay: event.all_day,
               type: event.kind === "action" ? "action-item" : event.kind,
