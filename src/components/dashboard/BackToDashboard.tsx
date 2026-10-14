@@ -1,10 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { getMyRoles } from "@/lib/profile.functions";
-import { getMyAdminRoles } from "@/lib/owner/owner.functions";
-import { dashboardHomeForRoles } from "@/lib/role-policy";
+import { useAuth } from "@/hooks/use-auth";
+import { useWorkspaceNavigation } from "@/hooks/use-workspace-navigation";
 import { cn } from "@/lib/utils";
 
 type BackToDashboardProps = {
@@ -27,33 +24,26 @@ type BackToDashboardProps = {
  *   3. The guarded "/dashboard" entry if workspace lookup is unavailable.
  */
 export function BackToDashboard({ to, label, className }: BackToDashboardProps) {
-  const loadRoles = useServerFn(getMyRoles);
-  const loadAdminRoles = useServerFn(getMyAdminRoles);
-  const [home, setHome] = useState({ to: "/dashboard", label: "workspace" });
+  const { user, loading } = useAuth();
+  const viewerId = !loading && user ? user.id : null;
+  return (
+    <WorkspaceReturnLink
+      key={JSON.stringify([viewerId, Boolean(loading), to ?? null])}
+      viewerId={to ? null : viewerId}
+      to={to}
+      label={label}
+      className={className}
+    />
+  );
+}
 
-  useEffect(() => {
-    if (to) {
-      return;
-    }
-    let cancelled = false;
-    setHome({ to: "/dashboard", label: "workspace" });
-    Promise.allSettled([loadRoles(), loadAdminRoles()]).then(([roles, admin]) => {
-      if (cancelled) return;
-      // An unavailable owner lookup must not choose a planning-role home.
-      // The guarded dashboard entry can resolve/retry that check safely.
-      if (admin.status !== "fulfilled") return;
-      setHome(
-        dashboardHomeForRoles(
-          roles.status === "fulfilled" ? (roles.value?.roles ?? []) : [],
-          Boolean(admin.value.isPlatformAdmin),
-        ),
-      );
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [to, loadRoles, loadAdminRoles]);
-
+function WorkspaceReturnLink({
+  viewerId,
+  to,
+  label,
+  className,
+}: BackToDashboardProps & { viewerId: string | null }) {
+  const { home } = useWorkspaceNavigation(viewerId);
   const destination = to ?? home.to;
   const homeLabel = to ? (to === "/owner" ? "Owner Hub" : "dashboard") : home.label;
 
