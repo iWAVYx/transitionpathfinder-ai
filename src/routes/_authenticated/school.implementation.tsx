@@ -37,7 +37,7 @@ function SchoolImplementationPage() {
       {(org, dash) => (
         <div className="space-y-6">
           <CompletionRingsBoard />
-          <ReadinessScorecard orgId={org.id} />
+          <ReadinessScorecard key={org.id} orgId={org.id} />
           <SchoolImplementationExtras org={org} dash={dash} />
         </div>
       )}
@@ -49,18 +49,35 @@ function ReadinessScorecard({ orgId }: { orgId: string }) {
   const fetchReadiness = useServerFn(getSchoolReadiness);
   const [stats, setStats] = useState<SchoolReadiness | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
+    let cancelled = false;
+    setLoading(true);
+    setFailed(false);
+    setStats(null);
+    void (async () => {
       try {
-        setStats(await fetchReadiness({ data: { organization_id: orgId } }));
+        const result = await fetchReadiness({ data: { organization_id: orgId } });
+        if (!cancelled) setStats(result);
+      } catch {
+        if (!cancelled) setFailed(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orgId]);
+    return () => { cancelled = true; };
+  }, [orgId, fetchReadiness, attempt]);
+
+  if (failed) {
+    return <div role="alert" className="rounded-2xl border bg-card p-5 text-sm">
+      <p>Implementation metrics could not be loaded. Please try again.</p>
+      <button type="button" className="mt-2 underline" onClick={() => {
+        setFailed(false); setLoading(true); setAttempt(value => value + 1);
+      }}>Try Again</button>
+    </div>;
+  }
 
   if (loading || !stats) {
     return (
@@ -128,7 +145,7 @@ function Bar({ label, value }: { label: string; value: number }) {
         <span className="text-muted-foreground">{value}%</span>
       </div>
       <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-primary transition-[width]" style={{ width: `${Math.max(value, 2)}%` }} />
+        <div className="h-full bg-primary transition-[width]" style={{ width: `${value}%` }} />
       </div>
     </li>
   );
@@ -176,8 +193,8 @@ function SchoolImplementationExtras({ org, dash }: { org: SchoolOrg; dash: Schoo
     {
       key: "majority-reports",
       label: "Majority of students have a Pathway Report",
-      detail: "At least 60% of students on caseloads have an active Pathway Report.",
-      done: m.students_count > 0 && m.reports_count / m.students_count >= 0.6,
+      detail: "At least 60% of students on caseloads have a recorded Pathway Report.",
+      done: m.students_count > 0 && (m.students_with_report ?? 0) / m.students_count >= 0.6,
     },
   ];
 

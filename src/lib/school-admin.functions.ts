@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import {
   readOrganizationPages,
   readOrganizationBatches,
@@ -446,55 +448,85 @@ export type SchoolReportRow = {
   audience: string | null;
 };
 
+// Keep database fractional seconds when combining report pages from different student batches.
+function reportCreatedAtOrder(value: string) {
+  const fraction = value.match(/\.([0-9]+)(?:Z|[+-][0-9]{2}:?[0-9]{2})$/)?.[1] ?? "";
+  const wholeSecond = Date.parse(value.replace(/\.[0-9]+(?=(?:Z|[+-][0-9]{2}:?[0-9]{2})$)/, ""));
+  if (!Number.isFinite(wholeSecond)) throw organizationReadError();
+  return BigInt(wholeSecond) * 1_000_000n + BigInt(fraction.padEnd(9, "0").slice(0, 9));
+}
+
+async function assertSchoolReaderAccess(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  organizationId: string,
+) {
+  const { data: membership, error } = await supabase
+    .from("organization_memberships")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .in("role_within_org", ["admin", "owner", "school_admin"])
+    .maybeSingle();
+  if (error) throw new Error("School access could not be checked. Please try again.");
+  if (!membership) throw new Error("Not authorized for this school.");
+}
+
 export const listSchoolReports = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ organization_id: z.string().uuid() }).parse(i),
-  )
+  .validator((i: unknown) => z.object({ organization_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    await assertSchoolReaderAccess(context.supabase, context.userId, data.organization_id);
+    // Preserve the existing authorized school report-index projection, not document content access.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    // Verify the caller actually admins this org
-    const { data: mem } = await supabase
-      .from("organization_memberships")
-      .select("id")
-      .eq("organization_id", data.organization_id)
-      .eq("user_id", context.userId)
-      .eq("status", "active")
-      .in("role_within_org", ["admin", "owner", "school_admin"])
-      .maybeSingle();
-    if (!mem) return { reports: [] as SchoolReportRow[] };
-
-    const { data: students } = await supabaseAdmin
-      .from("students")
-      .select("id, first_name, last_name, preferred_name")
-      .eq("organization_id", data.organization_id);
-
-    const ids = (students ?? []).map((s) => s.id);
-    if (ids.length === 0) return { reports: [] as SchoolReportRow[] };
-
+    const students = await readOrganizationPages<{
+      id: string;
+      first_name: string | null;
+      last_name: string | null;
+      preferred_name: string | null;
+    }>((from, to) =>
+      supabaseAdmin
+        .from("students")
+        .select("id, first_name, last_name, preferred_name", { count: "exact" })
+        .eq("organization_id", data.organization_id)
+        .order("id")
+        .range(from, to),
+    );
+    const ids = students.map((student) => student.id);
     const nameMap = new Map(
-      (students ?? []).map((s) => [
-        s.id,
-        `${s.preferred_name ?? s.first_name ?? "Student"} ${s.last_name ?? ""}`.trim(),
+      students.map((student) => [
+        student.id,
+        `${student.preferred_name ?? student.first_name ?? "Student"} ${student.last_name ?? ""}`.trim(),
       ]),
     );
-
-    const { data: reports } = await supabaseAdmin
-      .from("pathway_reports")
-      .select("id, student_id, created_at")
-      .in("student_id", ids)
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    const rows: SchoolReportRow[] = (reports ?? [])
-      .filter((r) => !!r.student_id)
-      .map((r) => ({
-        id: r.id,
-        student_id: r.student_id as string,
-        student_name: nameMap.get(r.student_id as string) ?? "Student",
-        created_at: r.created_at,
+    const reports = await readOrganizationBatches<{
+      id: string;
+      student_id: string | null;
+      created_at: string;
+    }>(ids, (batch, from, to) =>
+      supabaseAdmin
+        .from("pathway_reports")
+        .select("id, student_id, created_at", { count: "exact" })
+        .in("student_id", batch)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to),
+    );
+    // Recombine student batches into one newest-first index, with a stable tie-breaker.
+    const reportTimes = new Map(reports.map(report => [report.id, reportCreatedAtOrder(report.created_at)]));
+    reports.sort((left, right) => {
+      const leftTime = reportTimes.get(left.id)!;
+      const rightTime = reportTimes.get(right.id)!;
+      return leftTime === rightTime ? right.id.localeCompare(left.id) : leftTime > rightTime ? -1 : 1;
+    });
+    const rows: SchoolReportRow[] = reports
+      .filter((report) => !!report.student_id)
+      .map((report) => ({
+        id: report.id,
+        student_id: report.student_id as string,
+        student_name: nameMap.get(report.student_id as string) ?? "Student",
+        created_at: report.created_at,
         audience: null,
       }));
     return { reports: rows };
@@ -510,68 +542,64 @@ export type SchoolReadiness = {
 
 export const getSchoolReadiness = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ organization_id: z.string().uuid() }).parse(i),
-  )
+  .validator((i: unknown) => z.object({ organization_id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }): Promise<SchoolReadiness> => {
-    const { supabase } = context;
+    await assertSchoolReaderAccess(context.supabase, context.userId, data.organization_id);
+    // Existing aggregate permission and assigned-school cohort; no private fields are selected.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: mem } = await supabase
-      .from("organization_memberships")
-      .select("id")
-      .eq("organization_id", data.organization_id)
-      .eq("user_id", context.userId)
-      .eq("status", "active")
-      .in("role_within_org", ["admin", "owner", "school_admin"])
-      .maybeSingle();
-    if (!mem) {
-      return {
-        total_students: 0,
-        with_pathway_report: 0,
-        with_open_action_items: 0,
-        with_active_goals: 0,
-        avg_open_actions_per_student: 0,
-      };
-    }
-
-    const { data: students } = await supabaseAdmin
-      .from("students")
-      .select("id")
-      .eq("organization_id", data.organization_id);
-    const ids = (students ?? []).map((s) => s.id);
-    if (ids.length === 0) {
-      return {
-        total_students: 0,
-        with_pathway_report: 0,
-        with_open_action_items: 0,
-        with_active_goals: 0,
-        avg_open_actions_per_student: 0,
-      };
-    }
-
-    const [{ data: reports }, { data: actions }, { data: goals }] = await Promise.all([
-      supabaseAdmin.from("pathway_reports").select("student_id").in("student_id", ids),
-      supabaseAdmin.from("action_items").select("student_id, status").in("student_id", ids),
-      supabaseAdmin.from("goals").select("student_id, status").in("student_id", ids),
+    const students = await readOrganizationPages<{ id: string }>((from, to) =>
+      supabaseAdmin
+        .from("students")
+        .select("id", { count: "exact" })
+        .eq("organization_id", data.organization_id)
+        .order("id")
+        .range(from, to),
+    );
+    const ids = students.map((student) => student.id);
+    const [reports, actions, goals] = await Promise.all([
+      readOrganizationBatches<{ student_id: string | null }>(ids, (batch, from, to) =>
+        supabaseAdmin
+          .from("pathway_reports")
+          .select("student_id", { count: "exact" })
+          .in("student_id", batch)
+          .order("id")
+          .range(from, to),
+      ),
+      readOrganizationBatches<{ student_id: string | null; status: string }>(
+        ids,
+        (batch, from, to) =>
+          supabaseAdmin
+            .from("action_items")
+            .select("student_id, status", { count: "exact" })
+            .in("student_id", batch)
+            .order("id")
+            .range(from, to),
+      ),
+      readOrganizationBatches<{ student_id: string | null; status: string }>(
+        ids,
+        (batch, from, to) =>
+          supabaseAdmin
+            .from("goals")
+            .select("student_id, status", { count: "exact" })
+            .in("student_id", batch)
+            .order("id")
+            .range(from, to),
+      ),
     ]);
-
-    const withReport = new Set((reports ?? []).map((r) => r.student_id).filter((x): x is string => !!x));
+    const withReport = new Set(
+      reports.map((report) => report.student_id).filter((id): id is string => !!id),
+    );
     const openByStudent = new Map<string, number>();
-    for (const a of actions ?? []) {
-      if (!a.student_id) continue;
-      if (a.status !== "complete") {
-        openByStudent.set(a.student_id, (openByStudent.get(a.student_id) ?? 0) + 1);
-      }
+    for (const action of actions) {
+      if (action.student_id && action.status !== "complete")
+        openByStudent.set(action.student_id, (openByStudent.get(action.student_id) ?? 0) + 1);
     }
     const withActiveGoals = new Set(
-      (goals ?? [])
-        .filter((g) => g.status !== "met" && !!g.student_id)
-        .map((g) => g.student_id as string),
+      goals
+        .filter((goal) => goal.status !== "met" && !!goal.student_id)
+        .map((goal) => goal.student_id as string),
     );
-
-    const totalOpen = Array.from(openByStudent.values()).reduce((n, v) => n + v, 0);
-
+    const totalOpen = [...openByStudent.values()].reduce((total, count) => total + count, 0);
     return {
       total_students: ids.length,
       with_pathway_report: withReport.size,
@@ -580,7 +608,6 @@ export const getSchoolReadiness = createServerFn({ method: "POST" })
       avg_open_actions_per_student: ids.length ? Math.round((totalOpen / ids.length) * 10) / 10 : 0,
     };
   });
-
 /* ---------- date-windowed report metrics ---------- */
 
 export type SchoolReportWindow = {

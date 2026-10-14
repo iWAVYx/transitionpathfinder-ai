@@ -73,3 +73,22 @@ for (const [role, route, loader] of [["school", SchoolRoute, state.school], ["di
     expect((screen.getByRole("button", { name: /Export PDF/ }) as HTMLButtonElement).disabled).toBe(false);
   });
 }
+
+it("school report index labels its 25-row preview separately from the complete returned count", async () => {
+  state.school.mockResolvedValue(windowFor("Recorded student"));
+  state.reports.mockResolvedValue({ reports: Array.from({ length: 125 }, (_, index) => ({ id: `report-${index}`, student_id: `student-${index}`, student_name: `Preview Student ${index}`, created_at: "2026-10-01T12:00:00Z", audience: null })) });
+  const Component = SchoolRoute.options.component!; render(<Component />);
+  await screen.findByText(/Showing the newest 25 of 125 report records/);
+  expect(screen.getByText("Preview Student 24")).toBeTruthy(); expect(screen.queryByText("Preview Student 25")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Show More Reports" }));
+  expect(screen.getByText(/Showing the newest 50 of 125 report records/)).toBeTruthy();
+  expect(screen.getByText("Preview Student 49")).toBeTruthy(); expect(screen.queryByText("Preview Student 50")).toBeNull();
+});
+it("school report-index failure disables the combined report view and retries", async () => {
+  state.school.mockResolvedValue(windowFor("Recorded student"));
+  state.reports.mockRejectedValueOnce(new Error("Private index failure")).mockResolvedValueOnce({ reports: [] });
+  const Component = SchoolRoute.options.component!; render(<Component />);
+  await screen.findByText("We couldn't load this report. Please try again.");
+  expect((screen.getByRole("button", { name: /Export CSV/ }) as HTMLButtonElement).disabled).toBe(true);
+  expect(document.body.textContent).not.toContain("Private index failure"); fireEvent.click(screen.getByRole("button", { name: "Try Again" })); await screen.findByText("Recorded student");
+});

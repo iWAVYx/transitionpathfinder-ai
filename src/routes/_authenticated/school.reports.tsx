@@ -67,6 +67,7 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
   const [to, setTo] = useState<Date | undefined>(undefined);
   const [win, setWin] = useState<SchoolReportWindow | null>(null);
   const [reports, setReports] = useState<SchoolReportRow[]>([]);
+  const [reportLimit, setReportLimit] = useState(25);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -82,6 +83,7 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
       setLoadFailed(false);
       setWin(null);
       setReports([]);
+      setReportLimit(25);
       setLoadedOrganization(null);
       if (fromIso && toIso && fromIso > toIso) { setLoading(false); return; }
       try {
@@ -294,7 +296,7 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
               <div>
                 <h2 className="font-display text-lg">Recent Pathway Reports</h2>
                 <p className="text-sm text-muted-foreground">
-                  Latest Pathway Reports across your students.
+                  Showing the newest {Math.min(reportLimit, reports.length)} of {reports.length} report records for this school. Individual reports follow student access rules.
                 </p>
               </div>
             </div>
@@ -305,7 +307,7 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
               </div>
             ) : (
               <ul className="divide-y">
-                {reports.slice(0, 25).map((r) => (
+                {reports.slice(0, reportLimit).map((r) => (
                   <li
                     key={r.id}
                     className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
@@ -324,6 +326,13 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
                   </li>
                 ))}
               </ul>
+            )}
+            {reportLimit < reports.length && (
+              <div className="border-t px-5 py-3">
+                <Button size="sm" variant="outline" onClick={() => setReportLimit(limit => Math.min(limit + 25, reports.length))}>
+                  Show More Reports
+                </Button>
+              </div>
             )}
           </div>
         </>
