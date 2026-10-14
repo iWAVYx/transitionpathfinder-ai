@@ -13,7 +13,7 @@ import { getDashboardSnapshot, seedDemoStudent, type DashboardSnapshot } from "@
 import { listStudents, ensureOwnStudentProfile } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
-import { ROLE_DASHBOARD_TEST_IDS, dashboardTestIdForDashboardHint, dashboardTestIdForProfileRole, type RoleDashboardTestId } from "@/lib/dashboard-testids";
+import { ROLE_DASHBOARD_TEST_IDS, dashboardTestIdForDashboardHint } from "@/lib/dashboard-testids";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -134,7 +134,6 @@ function DashboardRoleLandmarks() {
 
 function DashboardLoadingShell() {
   const { user } = useAuth();
-  const fetchProfile = useServerFn(getProfile);
   const dashboardHint =
     typeof window === "undefined"
       ? null
@@ -142,22 +141,7 @@ function DashboardLoadingShell() {
         window.localStorage.getItem("tf:e2e-dashboard-testid");
   const hintedDashboardTestId =
     dashboardTestIdForDashboardHint(dashboardHint) ?? dashboardTestIdForDashboardHint(user?.email);
-  const [testId, setTestId] = useState<RoleDashboardTestId | null>(hintedDashboardTestId);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchProfile()
-      .then((p) => {
-        if (!cancelled)
-          setTestId(dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId);
-      })
-      .catch(() => {
-        if (!cancelled) setTestId(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchProfile, hintedDashboardTestId]);
+  const testId = hintedDashboardTestId;
 
   return (
     <SiteShell dashboardTestId={testId ?? undefined}>

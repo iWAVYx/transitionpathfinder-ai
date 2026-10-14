@@ -9,6 +9,7 @@ const api = vi.hoisted(() => ({
   roles: vi.fn(),
   export: vi.fn(),
 }));
+vi.mock("@/hooks/use-auth", () => ({ useAuth: () => ({ user: { id: "caller", email: "caller@example.test" }, loading: false }) }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<any>()),
@@ -636,6 +637,7 @@ for (const [role, original] of historyRoutes) {
     fireEvent.click(screen.getByRole("button", { name: "Clear Invalid Selections" }));
     await screen.findByText("Permitted Role Destination");
     expect(api.roles).toHaveBeenCalledOnce();
+    expect(api.roles).toHaveBeenCalledWith({ data: { expected_viewer_id: "caller" } });
     expect(router.state.location.pathname).toBe("/dashboard");
     expect(api.students).not.toHaveBeenCalled();
     expect(api.organizationRoster).not.toHaveBeenCalled();
