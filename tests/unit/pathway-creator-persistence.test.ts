@@ -64,3 +64,19 @@ describe("authorized Pathway creators and saved-output identity", () => {
     expect(mocks.generate).toHaveBeenCalledTimes(1);
   });
 });
+
+
+it("rejects changed-viewer generation intent before entitlement, authorization, writes or AI", async () => {
+  const { context } = db("current-caller");
+  await expect((createPathwayReport as any)({ data: { ...input, expected_viewer_id: "previous-caller" }, context })).rejects.toThrow("sign-in changed");
+  expect(context.supabase.from).not.toHaveBeenCalled();
+  expect(mocks.entitlement).not.toHaveBeenCalled();
+  expect(mocks.authorize).not.toHaveBeenCalled();
+  expect(mocks.generate).not.toHaveBeenCalled();
+});
+it.each(["family", "educator"])("matching %s viewer intent never supplies record ownership", async role => {
+  const { context, queries } = db("actual-caller");
+  await (createPathwayReport as any)({ data: { ...input, submitter_role: role, expected_viewer_id: "actual-caller", user_id: "forged-owner" }, context });
+  expect(queries.student_intakes.insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: "actual-caller", submitter_role: role }));
+  expect(queries.pathway_reports.insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: "actual-caller" }));
+});

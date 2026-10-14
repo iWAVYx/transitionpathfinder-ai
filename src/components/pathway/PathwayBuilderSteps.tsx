@@ -242,9 +242,11 @@ export function StepAbout({
   prefillLoading,
   onStudentChange,
   onExtracted,
+  viewerId,
   demo = false,
 }: {
   demo?: boolean;
+  viewerId?: string;
   connectedStudents: Student[];
   connectedStudentId?: string;
   studentsLoading: boolean;
@@ -379,7 +381,7 @@ export function StepAbout({
               preview does not accept documents.
             </p>
           ) : (
-            <IepUpload onExtracted={onExtracted} />
+            <IepUpload onExtracted={onExtracted} viewerId={viewerId} />
           )}
         </div>
       </div>

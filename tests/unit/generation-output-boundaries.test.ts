@@ -84,14 +84,14 @@ describe("generation output and persistence boundaries", () => {
   });
   it("validates extracted IEP fields and fills declared defaults", async () => {
     mocks.generate.mockResolvedValue({ experimental_output: { student_first_name: "Sample", grade_band: "11-12" } });
-    const result = await (extractFromIep as any)({ data: { text: "Synthetic transition document. Written directions are provided." } });
+    const result = await (extractFromIep as any)({ data: { text: "Synthetic transition document. Written directions are provided." }, context: { userId: "synthetic-family" } });
     expect(result.extract.current_goals).toBe("");
     const schema = JSON.parse(mocks.generate.mock.calls[0][0].system.split("\n").at(-1));
     expect(schema.properties.grade_band.enum).toContain("11-12");
   });
   it("rejects an invalid extracted grade band", async () => {
     mocks.generate.mockResolvedValue({ experimental_output: { grade_band: "invented" } });
-    await expect((extractFromIep as any)({ data: { text: "Synthetic transition document with no identifying student information." } })).rejects.toThrow("couldn't read");
+    await expect((extractFromIep as any)({ data: { text: "Synthetic transition document with no identifying student information." }, context: { userId: "synthetic-family" } })).rejects.toThrow("couldn't read");
   });
   it("keeps next-step instructions and validates array bounds", async () => {
     mocks.generate.mockResolvedValue({ experimental_output: { this_week: [] } });
@@ -118,4 +118,15 @@ describe("generation output and persistence boundaries", () => {
     await expect((getPptPrep as any)({data:{id:savedId},context:{userId:"unrelated-synthetic",supabase:{from:()=>row}}})).rejects.toThrow("not found");
     expect(mocks.generate).not.toHaveBeenCalled();
   });
+});
+
+
+it("rejects departed IEP extraction intent before contacting the provider", async () => {
+  await expect((extractFromIep as any)({ data: { text: "Synthetic transition document with enough fictional text for this test.", expected_viewer_id: "previous-viewer" }, context: { userId: "current-viewer" } })).rejects.toThrow("sign-in changed");
+  expect(mocks.generate).not.toHaveBeenCalled();
+});
+it("accepts matching IEP viewer intent without including it in the prompt", async () => {
+  mocks.generate.mockResolvedValue({ experimental_output: { student_first_name: "Sample" } });
+  await (extractFromIep as any)({ data: { text: "Synthetic transition document with enough fictional text for this test.", expected_viewer_id: "synthetic-family" }, context: { userId: "synthetic-family" } });
+  expect(mocks.generate.mock.calls[0][0].prompt).not.toContain("synthetic-family");
 });

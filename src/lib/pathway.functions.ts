@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { writeReportContent } from "./report-content-write.server";
 import { recordGeneratedSections, recordSavedSections } from "./report-section-updates";
 import { readReportPages, readReportBatches } from "./report-query-pages";
@@ -31,8 +32,9 @@ import { pathwayGenerationDiagnostics } from "./pathway-generation-diagnostics";
 
 export const createPathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => IntakeSchema.parse(input))
+  .validator((input: unknown) => IntakeSchema.extend(viewerIntentSchema.shape).parse(input))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
 
