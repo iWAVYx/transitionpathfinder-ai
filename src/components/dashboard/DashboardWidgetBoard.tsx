@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardWidgetBoardView, type WidgetContent } from "./DashboardWidgetBoardView";
 import { useServerFn } from "@tanstack/react-start";
@@ -44,6 +45,19 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
   const { user, loading: authLoading } = useAuth();
   const userId = user?.id;
   const ready = !!userId && !authLoading;
+  const currentScope = useRef({ ready, userId, role });
+  currentScope.current = { ready, userId, role };
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  function assertViewer(expected: string | undefined) {
+    if (!currentScope.current.ready || currentScope.current.userId !== expected)
+      throw new Error("Your sign-in changed. Please try again.");
+  }
   const loadPrefs = useServerFn(getDashboardWidgetPrefs);
   const savePrefs = useServerFn(updateDashboardWidgetPrefs);
   const loadCalendar = useServerFn(listCalendarEvents);
@@ -53,7 +67,12 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
 
   const prefs = useQuery({
     queryKey: ["dashboard-widgets", role, userId],
-    queryFn: () => loadPrefs({ data: { role } }),
+    queryFn: async () => {
+      assertViewer(userId);
+      const result = await loadPrefs({ data: { role, expected_viewer_id: userId } });
+      assertViewer(userId);
+      return result;
+    },
     enabled: ready,
   });
   const widgets = prefs.data?.widgets ?? WIDGETS_BY_ROLE[role];
@@ -61,22 +80,34 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
   const waitingForOrganization = role === "school_admin" && !organizationId;
   const calendar = useQuery({
     queryKey: ["dashboard-widget-calendar", role, studentId, organizationId, timezone, userId],
-    queryFn: () =>
-      loadCalendar({
+    queryFn: async () => {
+      assertViewer(userId);
+      const result = await loadCalendar({
         data: {
           timezone,
+          expected_viewer_id: userId,
           ...(studentId ? { student_id: studentId } : {}),
           ...(organizationId ? { organization_id: organizationId } : {}),
         },
-      }),
+      });
+      assertViewer(userId);
+      return result;
+    },
     enabled:
-      !waitingForOrganization && (widgets.includes("calendar") || widgets.includes("meetings")),
+      ready &&
+      !waitingForOrganization &&
+      (widgets.includes("calendar") || widgets.includes("meetings")),
     staleTime: 30_000,
   });
   const actions = useQuery({
     queryKey: ["dashboard-widget-actions", role, studentId, userId],
     queryFn: async () => {
-      const result = await loadActions({ data: { role: role as "student" | "family" | "educator" | "partner", ...(studentId ? {student_id:studentId} : {}) } });
+      const result = await loadActions({
+        data: {
+          role: role as "student" | "family" | "educator" | "partner",
+          ...(studentId ? { student_id: studentId } : {}),
+        },
+      });
       if (result.viewer_id !== userId) throw new Error("Action preview could not be loaded.");
       return result;
     },
@@ -95,19 +126,47 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
     enabled: ready && organizationRole && !!organizationId && widgets.includes("actions"),
     staleTime: 30_000,
   });
+  type SaveIntent = { role: DashboardWidgetRole; viewerId: string; widgets: DashboardWidgetId[] };
+  function isCurrentIntent(intent: SaveIntent) {
+    const current = currentScope.current;
+    return (
+      mounted.current &&
+      current.ready &&
+      current.userId === intent.viewerId &&
+      current.role === intent.role
+    );
+  }
   const save = useMutation({
-    mutationFn: (next: DashboardWidgetId[]) => savePrefs({ data: { role, widgets: next } }),
-    onSuccess: (result) => {
-      queryClient.setQueryData(["dashboard-widgets", role, userId], result);
+    mutationFn: (intent: SaveIntent) =>
+      savePrefs({
+        data: { role: intent.role, widgets: intent.widgets, expected_viewer_id: intent.viewerId },
+      }),
+    onSuccess: (result, intent) => {
+      const queryKey = ["dashboard-widgets", intent.role, intent.viewerId];
+      if (!isCurrentIntent(intent)) {
+        void queryClient.invalidateQueries({ queryKey, refetchType: "none" });
+        return;
+      }
+      queryClient.setQueryData(queryKey, result);
       toast.success("Dashboard widgets saved.");
     },
-    onError: () => toast.error("Could not save dashboard widgets."),
+    onError: (_error, intent) => {
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-widgets", intent.role, intent.viewerId],
+        refetchType: "none",
+      });
+      if (isCurrentIntent(intent)) toast.error("Could not save dashboard widgets.");
+    },
   });
+  const savingHere =
+    save.isPending && save.variables?.viewerId === userId && save.variables?.role === role;
 
   function update(next: DashboardWidgetId[]) {
-    save.mutate(next);
+    if (!ready || !userId || savingHere) return;
+    save.mutate({ role, viewerId: userId, widgets: next });
   }
 
+  if (!ready) return <p role="status">Loading Your Dashboard Widgets…</p>;
   const today = calendarDayForInstant(new Date().toISOString(), timezone);
   const upcoming = (waitingForOrganization ? [] : (calendar.data?.events ?? []))
     .filter((event) => event.event_date >= today && event.event_status !== "cancelled")
@@ -201,7 +260,7 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
       available={WIDGETS_BY_ROLE[role]}
       data={data}
       update={update}
-      saving={save.isPending}
+      saving={savingHere}
       loadingPrefs={authLoading || prefs.isLoading}
       prefsError={prefs.isError}
     />

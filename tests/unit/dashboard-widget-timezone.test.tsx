@@ -24,6 +24,6 @@ it.each(["student", "family", "educator", "school_admin", "district_admin", "par
   expect(query.enabled).toBe(role !== "district_admin" && role !== "partner");
   if (query.enabled) {
     state.calendar.mockResolvedValue({ events: [] }); await query.queryFn();
-    expect(state.calendar).toHaveBeenCalledWith({ data: { timezone: browserCalendarTimeZone(), ...(role === "student" ? { student_id: "11111111-1111-4111-8111-111111111111" } : {}), ...(role === "school_admin" ? { organization_id: "school-one" } : {}) } });
+    expect(state.calendar).toHaveBeenCalledWith({ data: { expected_viewer_id: "caller", timezone: browserCalendarTimeZone(), ...(role === "student" ? { student_id: "11111111-1111-4111-8111-111111111111" } : {}), ...(role === "school_admin" ? { organization_id: "school-one" } : {}) } });
   } else expect(state.calendar).not.toHaveBeenCalled();
 });

@@ -140,6 +140,7 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
   .validator((i: unknown) =>
     z
       .object({
+        expected_viewer_id: z.string().min(1).max(100).optional(),
         // Optional: scope to a single student. Otherwise aggregate across all accessible students.
         student_id: z.string().uuid().optional(),
         organization_id: z.string().uuid().optional(),
@@ -152,6 +153,8 @@ export const listCalendarEvents = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<{ events: TeamCalendarEvent[] }> => {
     const { supabase, userId } = context;
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Please try again.");
 
     if (data.organization_id) {
       const { data: membership, error } = await supabase.from("organization_memberships")

@@ -29,7 +29,7 @@ it.each([false, true])("late previous-school completion cannot replace the curre
   view.rerender(node("school-b")); await screen.findByText("School B Event");
   await act(async () => failure ? old.reject(new Error("Old school error")) : old.resolve(result("School A Event")));
   expect(screen.queryByText("School A Event")).toBeNull(); expect(screen.queryByRole("alert")).toBeNull();
-  expect(api.calendar.mock.calls[1][0]).toEqual({ data: { timezone: browserCalendarTimeZone(), organization_id: "school-b" } });
+  expect(api.calendar.mock.calls[1][0]).toEqual({ data: { timezone: browserCalendarTimeZone(), organization_id: "school-b", expected_viewer_id: "caller" } });
 });
 it("switching a loaded school hides old entries immediately while the new school loads", async () => {
   const next = deferred(); api.calendar.mockResolvedValueOnce(result("School A Event")).mockReturnValueOnce(next.promise);
