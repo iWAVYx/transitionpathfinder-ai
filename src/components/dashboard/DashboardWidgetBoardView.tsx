@@ -21,6 +21,7 @@ export type WidgetContent = {
   windowLabel?: string;
   retry?: () => void;
   toolDestination: string | null;
+  toolSearch?: Record<string, string>;
 };
 const ACTION_SETUP: Record<DashboardWidgetRole, string> = {
   family:
@@ -217,6 +218,7 @@ export function DashboardWidgetBoardView({
                   {toolDestination && (
                     <Link
                       to={toolDestination as never}
+                      search={data[id].toolSearch as never}
                       className="text-xs font-semibold text-primary hover:underline"
                     >
                       Open tool

@@ -6,7 +6,10 @@ import { toast } from "sonner";
 import { NextActionCard } from "./NextActionCard";
 import { getNextActionsForMe, completeNextAction } from "@/lib/next-actions/next-actions.functions";
 
+import type { NextActionContext } from "@/lib/next-actions/action-context";
+
 interface Props {
+  context?: NextActionContext;
   historyRoute?: string;
   suggestionLabel?: string;
   suggestionRoute?: string;
@@ -19,10 +22,10 @@ interface Props {
 /**
  * Signed-in Next Actions card. Fetches the caller's active + recently
  * completed actions (stored rows merged with derived actions — draft
- * reports, upcoming meetings, evidence gaps) and wires the Complete
+ * reports and upcoming meetings) and wires the Complete
  * button through the RLS-protected server function.
  */
-export function NextActionCardServer(props: Props) {
+export function NextActionCardServer({ context, ...props }: Props) {
   const { user, loading } = useAuth();
   const viewerId = user?.id;
   const currentViewer = useRef<string | null>(null);
@@ -41,10 +44,10 @@ export function NextActionCardServer(props: Props) {
   const completingId = completion && completion.viewerId === viewerId ? completion.id : null;
 
   const q = useQuery({
-    queryKey: ["next-actions", "me", viewerId],
+    queryKey: ["next-actions", "me", viewerId, context?.role, context?.student_id],
     enabled: !!viewerId && !loading,
     queryFn: async () => {
-      const result = await fetchActions();
+      const result = await fetchActions({ data: context ?? {} });
       if (result.viewer_id !== viewerId) throw new Error("Your sign-in changed. Please try again.");
       return result;
     },

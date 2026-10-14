@@ -17,6 +17,7 @@ import {
   type DashboardWidgetId,
   type DashboardWidgetRole,
 } from "@/lib/dashboard/dashboard-widget-prefs.functions";
+import { personalActionToolSearch } from "@/lib/next-actions/action-context";
 import { getNextActionsForMe } from "@/lib/next-actions/next-actions.functions";
 
 import { getOrganizationWidgetActions } from "@/lib/dashboard/organization-widget-actions.functions";
@@ -186,6 +187,7 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
                 : actions.refetch()
               : calendar.refetch());
           },
+          toolSearch: id === "actions" ? personalActionToolSearch(role, studentId) : undefined,
           toolDestination:
             id === "actions" && organizationRole ? null : widgetLinkDestination(role, toolPath),
         },

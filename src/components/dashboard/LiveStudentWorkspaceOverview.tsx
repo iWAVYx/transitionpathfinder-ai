@@ -116,7 +116,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
 
     {
       icon: CheckSquare,
-      title: "My Next Actions",
+      title: "My Action Items",
       status: `${activeActions.length} open`,
       tone: activeActions.length > 0 ? "warning" : "success",
       summary: "See the small next steps you own and what your team is working on with you.",

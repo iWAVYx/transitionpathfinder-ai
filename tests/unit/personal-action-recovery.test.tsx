@@ -182,3 +182,29 @@ it("does not persist a derived suggestion through the stored-action mutation", a
   expect(api.complete).not.toHaveBeenCalled();
   expect(api.info).toHaveBeenCalled();
 });
+
+it("reloads for role and student changes without displaying the previous workspace", async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const first = "11111111-1111-4111-8111-111111111111";
+  const second = "22222222-2222-4222-8222-222222222222";
+  api.read.mockImplementation(async ({data}: any) => ({
+    active: [{id: "derived:test", title: `${data.role} ${data.student_id}`}],
+    recentlyCompleted: [], viewer_id: "caller",
+  }));
+  const view = (role: "family" | "educator", student_id: string) => (
+    <QueryClientProvider client={client}><NextActionCardServer context={{role,student_id}} /></QueryClientProvider>
+  );
+  const result = render(view("family",first));
+  await screen.findByText(`family ${first}`);
+  result.rerender(view("educator",first));
+  expect(screen.queryByText(`family ${first}`)).toBeNull();
+  await screen.findByText(`educator ${first}`);
+  result.rerender(view("educator",second));
+  expect(screen.queryByText(`educator ${first}`)).toBeNull();
+  await screen.findByText(`educator ${second}`);
+  expect(api.read).toHaveBeenNthCalledWith(1,{data:{role:"family",student_id:first}});
+  expect(api.read).toHaveBeenNthCalledWith(2,{data:{role:"educator",student_id:first}});
+  expect(api.read).toHaveBeenNthCalledWith(3,{data:{role:"educator",student_id:second}});
+  expect(client.getQueryData(["next-actions","me","caller","family",first])).toBeTruthy();
+  expect(client.getQueryData(["next-actions","me","caller","educator",second])).toBeTruthy();
+});

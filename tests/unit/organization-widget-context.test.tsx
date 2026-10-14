@@ -50,6 +50,7 @@ vi.mock("@/components/dashboard/DashboardWidgetBoardView", () => ({
         data.actions.entries.map((entry: any) => <p key={entry.id}>{entry.title}</p>)
       )}
       {data.actions.windowLabel && <p>{data.actions.windowLabel}</p>}
+      <div data-testid="action-tool-context">{JSON.stringify({to:data.actions.toolDestination, search:data.actions.toolSearch})}</div>
     </>
   ),
 }));
@@ -367,3 +368,20 @@ for (const role of ["student", "family", "educator", "partner"] as const) {
     expect(api.organization).not.toHaveBeenCalled();
   });
 }
+
+it.each(["family", "student", "educator", "partner"] as const)("%s passes the same role/student context to the feed and full tool", async role => {
+  api.personal.mockResolvedValue({viewer_id:"caller",active:[],recentlyCompleted:[]});
+  const queryClient = client();
+  render(<QueryClientProvider client={queryClient}><DashboardWidgetBoard role={role} studentId={A}/></QueryClientProvider>);
+  await waitFor(() => expect(api.personal).toHaveBeenCalledWith({data:{role,student_id:A}}));
+  expect(JSON.parse(screen.getByTestId("action-tool-context").textContent!)).toEqual({to:"/next-actions",search:{role,student_id:A}});
+  expect(api.organization).not.toHaveBeenCalled();
+});
+it.each(["school_admin", "district_admin"] as const)("%s does not offer a personal full-tool link", async role => {
+  api.organization.mockResolvedValue({...result("Scoped Action"),entries:[]});
+  const queryClient = client();
+  render(<QueryClientProvider client={queryClient}><DashboardWidgetBoard role={role} organizationId={A}/></QueryClientProvider>);
+  await waitFor(() => expect(api.organization).toHaveBeenCalledWith({data:{role,organization_id:A}}));
+  expect(JSON.parse(screen.getByTestId("action-tool-context").textContent!)).toEqual({to:null});
+  expect(api.personal).not.toHaveBeenCalled();
+});
