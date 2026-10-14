@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ import { ensureRoleAccess } from "@/lib/route-role-guard";
 
 export const Route = createFileRoute("/_authenticated/hubs/school")({
   ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/hubs/school"),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   head: () => ({
     meta: [

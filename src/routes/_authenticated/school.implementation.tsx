@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
@@ -15,6 +16,7 @@ import { CompletionRingsBoard } from "@/components/implementation/CompletionRing
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
   ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/school/implementation"),
   head: () => ({ meta: [{ title: "Implementation — TransitionForward" }] }),
   component: withRoleGuard(["school_admin", "admin"], SchoolImplementationPage),
 });

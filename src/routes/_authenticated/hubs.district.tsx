@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ import { ensureRoleAccess } from "@/lib/route-role-guard";
 
 export const Route = createFileRoute("/_authenticated/hubs/district")({
   ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/hubs/district"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [

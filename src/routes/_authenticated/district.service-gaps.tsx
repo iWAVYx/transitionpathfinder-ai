@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, FileText, UserPlus, ArrowRight } from "lucide-react";
@@ -10,6 +11,7 @@ import type { DistrictSchool } from "@/lib/district-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/district/service-gaps")({
   ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/service-gaps"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [

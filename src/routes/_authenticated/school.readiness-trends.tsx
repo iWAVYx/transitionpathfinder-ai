@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
@@ -19,6 +20,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/school/readiness-trends")({
   ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/school/readiness-trends"),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   head: () => ({
     meta: [

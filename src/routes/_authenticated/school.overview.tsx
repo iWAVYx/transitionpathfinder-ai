@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { SchoolAdminOverviewGrid } from "@/components/dashboard/role/SchoolAdminOverviewGrid";
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/school/overview")({
   ...schoolDashboardNavigation,
   head: () => ({ meta: [{ title: "School Overview — TransitionForward" }] }),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
-  errorComponent: dashboardErrorComponent("school_admin"),
+  errorComponent: organizationRouteErrorComponent("school", "/school/overview", dashboardErrorComponent("school_admin")),
   component: SchoolOverviewPage,
 });
 

@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { useOrganizationOperation } from "@/hooks/use-organization-operation";
 import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
@@ -21,6 +22,7 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/district/schools")({
   ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/schools"),
   head: () => ({ meta: [{ title: "District Schools — TransitionForward" }] }),
   component: withRoleGuard(["district_admin", "admin"], DistrictSchoolsPage),
 });

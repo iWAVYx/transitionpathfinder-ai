@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { Rocket, Sprout, Waypoints, TrendingUp } from "lucide-react";
@@ -13,6 +14,7 @@ import { StaffProgressTable, type StaffProgressRow } from "@/components/implemen
 
 export const Route = createFileRoute("/_authenticated/district/implementation")({
   ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/implementation"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [

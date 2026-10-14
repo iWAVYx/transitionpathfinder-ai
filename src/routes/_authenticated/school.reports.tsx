@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { reportExportReady, organizationCsvCell } from "@/lib/organization-report-export";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -36,6 +37,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/school/reports")({
   ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/school/reports"),
   head: () => ({ meta: [{ title: "School Reports — TransitionForward" }] }),
   component: withRoleGuard(["school_admin", "admin"], SchoolReportsPage),
 });

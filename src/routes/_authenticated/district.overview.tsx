@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/district/overview")({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
-  errorComponent: dashboardErrorComponent("district_admin"),
+  errorComponent: organizationRouteErrorComponent("district", "/district/overview", dashboardErrorComponent("district_admin")),
   component: withRoleGuard(["district_admin", "admin"], DistrictOverviewPage),
 });
 

@@ -1,3 +1,4 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/school/calendar")({
     ],
   }),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
-  errorComponent: dashboardErrorComponent("school_admin"),
+  errorComponent: organizationRouteErrorComponent("school", "/school/calendar", dashboardErrorComponent("school_admin")),
   component: withRoleGuard(["school_admin", "admin"], SchoolCalendarPage),
 });
 
