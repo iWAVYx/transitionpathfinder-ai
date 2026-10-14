@@ -343,3 +343,27 @@ it("signed-out widgets cannot display the previous user's action cache or make r
   expect(screen.queryByText("Signed In Action")).toBeNull();
   expect(api.organization).toHaveBeenCalledTimes(requests);
 });
+
+for (const role of ["student", "family", "educator", "partner"] as const) {
+  it(`${role} passes its explicit role and keeps a selected student's preview focused`, async () => {
+    api.personal.mockResolvedValue({
+      viewer_id: "caller",
+      recentlyCompleted: [],
+      active: [
+        { id: "current", title: "Selected Student Action", studentId: A, ctaRoute: "/reports" },
+        { id: "other", title: "Other Student Action", studentId: B, ctaRoute: "/reports" },
+        { id: "global", title: "Global Action", ctaRoute: "/reports" },
+      ],
+    });
+    render(
+      <QueryClientProvider client={client()}>
+        <DashboardWidgetBoard role={role} studentId={A} />
+      </QueryClientProvider>,
+    );
+    await screen.findByText("Selected Student Action");
+    expect(screen.queryByText("Other Student Action")).toBeNull();
+    expect(screen.getByText("Global Action")).toBeTruthy();
+    expect(api.personal).toHaveBeenCalledWith({ data: { role } });
+    expect(api.organization).not.toHaveBeenCalled();
+  });
+}

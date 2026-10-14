@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { audiencesForRoles } from "@/lib/role-policy";
+import { personalActionDestination, type PersonalActionRole } from "./personal-action-destination";
 import {
   readOrganizationPages,
   readOrganizationBatches,
@@ -105,8 +108,32 @@ function formatRole(role: string): string {
  */
 export const getNextActionsForMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator((input: unknown) =>
+    z
+      .object({ role: z.enum(["student", "family", "educator", "partner"]).optional() })
+      .optional()
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const roles = await readOrganizationPages<{ role: string }>((from, to) =>
+      supabase
+        .from("user_roles")
+        .select("id,role", { count: "exact" })
+        .eq("user_id", userId)
+        .order("id")
+        .range(from, to),
+    );
+    const audiences = audiencesForRoles(roles.map((row) => row.role));
+    // Owner is a management workspace, including accounts with secondary roles.
+    if (audiences.has("admin")) return { active: [], recentlyCompleted: [], viewer_id: userId };
+    const requested = data?.role;
+    if (requested && !audiences.has(requested))
+      throw new Error("This action workspace is not available for your role.");
+    const role: PersonalActionRole | undefined =
+      requested ??
+      (["educator", "family", "student", "partner"] as const).find((value) => audiences.has(value));
+    if (!role) return { active: [], recentlyCompleted: [], viewer_id: userId };
 
     const [rows, derived] = await Promise.all([
       readOrganizationPages<DbAction>(
@@ -122,10 +149,31 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
             .order("id")
             .range(from, to) as any,
       ),
-      deriveActionsFromState(supabase, userId),
+      deriveActionsFromState(supabase, userId, role),
     ]);
 
-    const stored = rows.map(toDomain);
+    const storedRows = rows
+      .filter(
+        (row) =>
+          !row.owner_role ||
+          row.owner_role === role ||
+          audiencesForRoles([row.owner_role]).has(role),
+      )
+      .map(toDomain);
+    const eligible = (action: NextAction): NextAction[] => {
+      const ctaRoute = personalActionDestination(role, action.ctaRoute);
+      if (!ctaRoute) return [];
+      const secondaryRoute = personalActionDestination(role, action.secondaryRoute);
+      return [
+        {
+          ...action,
+          ctaRoute,
+          secondaryRoute,
+          secondaryLabel: secondaryRoute ? action.secondaryLabel : undefined,
+        },
+      ];
+    };
+    const stored = storedRows.flatMap(eligible);
     // Only an active action for the exact same related record can replace a
     // suggestion. A completed older report must not hide a newer draft.
     const identity = (action: NextAction) => {
@@ -141,7 +189,10 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
     const seen = new Set(
       stored.filter((a) => a.status !== "completed" && a.status !== "dismissed").map(identity),
     );
-    const combined = [...stored, ...derived.filter((action) => !seen.has(identity(action)))];
+    const combined = [
+      ...stored,
+      ...derived.filter((action) => !seen.has(identity(action))),
+    ].flatMap(eligible);
 
     const active = combined.filter((a) => a.status !== "completed" && a.status !== "dismissed");
     const recentlyCompleted = combined.filter((a) => a.status === "completed").slice(0, 3);
@@ -151,14 +202,18 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
 
 /**
  * Caller-visible derivation pass — reads complete counted source lists and
- * emits synthetic Next Actions. Never writes to the DB. Role-specific destination eligibility remains a separate audit.
+ * emits synthetic Next Actions for the authenticated personal role. Never writes to the DB.
+ * Invitation-type and evidence-attachment handoffs remain a separate audit.
  */
 async function deriveActionsFromState(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   userId: string,
+  role: PersonalActionRole,
 ): Promise<NextAction[]> {
   const out: NextAction[] = [];
+
+  if (role === "partner") return out;
 
   // Draft pathway reports
   const reports = await readOrganizationPages<any>((from, to) =>
@@ -187,38 +242,42 @@ async function deriveActionsFromState(
   }
 
   // Pending invitations to this user
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("id", userId)
-    .maybeSingle();
-  if (profileError) throw organizationReadError();
-  if (profile?.email) {
-    const invites = await readOrganizationPages<any>((from, to) =>
-      supabase
-        .from("invitations")
-        .select("id,invitation_type", { count: "exact" })
-        .eq("email", profile.email)
-        .eq("status", "pending")
-        .order("id")
-        .range(from, to),
-    );
-    for (const i of invites ?? []) {
-      out.push({
-        id: `derived:invite:${i.id}`,
-        kind: "accept_invitation",
-        title: "Accept Pending Invitation",
-        reason:
-          "A pending invitation is available for review. Access depends on the invitation and your permissions.",
-        ownerLabel: "You",
-        ctaLabel: "Review Invitation",
-        ctaRoute: `/family/invites`,
-        status: "waiting",
-        urgency: "normal",
-        priority: 8,
-      });
+  if (role === "family") {
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profileError) throw organizationReadError();
+    if (profile?.email) {
+      const invites = await readOrganizationPages<any>((from, to) =>
+        supabase
+          .from("invitations")
+          .select("id,invitation_type", { count: "exact" })
+          .eq("email", profile.email)
+          .eq("status", "pending")
+          .order("id")
+          .range(from, to),
+      );
+      for (const i of invites ?? []) {
+        out.push({
+          id: `derived:invite:${i.id}`,
+          kind: "accept_invitation",
+          title: "Accept Pending Invitation",
+          reason:
+            "A pending invitation is available for review. Access depends on the invitation and your permissions.",
+          ownerLabel: "You",
+          ctaLabel: "Review Invitation",
+          ctaRoute: `/family/invites`,
+          status: "waiting",
+          urgency: "normal",
+          priority: 8,
+        });
+      }
     }
   }
+
+  if (role === "student") return out;
 
   // Upcoming meetings in next 14 days
   const in14 = new Date(Date.now() + 14 * 86_400_000).toISOString();

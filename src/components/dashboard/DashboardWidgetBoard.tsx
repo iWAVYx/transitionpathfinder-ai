@@ -75,7 +75,7 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
   const actions = useQuery({
     queryKey: ["dashboard-widget-actions", role, studentId, userId],
     queryFn: async () => {
-      const result = await loadActions();
+      const result = await loadActions({ data: { role: role as "student" | "family" | "educator" | "partner" } });
       if (result.viewer_id !== userId) throw new Error("Action preview could not be loaded.");
       return result;
     },

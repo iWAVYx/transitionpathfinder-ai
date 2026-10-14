@@ -1,10 +1,14 @@
 import { expect, it, vi } from "vitest";
 vi.mock("@tanstack/react-start", () => ({
   createServerFn: () => {
+    let validate = (data: any) => data;
     const builder: any = {
       middleware: () => builder,
-      validator: () => builder,
-      handler: (fn: any) => fn,
+      validator: (fn: any) => {
+        validate = fn;
+        return builder;
+      },
+      handler: (fn: any) => async (args: any) => fn({ ...args, data: validate(args.data) }),
     };
     return builder;
   },
@@ -13,6 +17,7 @@ vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth:
 import { getNextActionsForMe } from "@/lib/next-actions/next-actions.functions";
 function database(fail?: string, cap = 500, noCount = false) {
   const tables: Record<string, any[]> = {
+    user_roles: [{ id: "role", user_id: "caller", role: "parent" }],
     next_actions: [],
     pathway_reports: [],
     profiles: [{ id: "caller", email: "caller@example.invalid" }],
@@ -77,7 +82,8 @@ function database(fail?: string, cap = 500, noCount = false) {
   return {
     tables,
     queries,
-    call: () => getNextActionsForMe({ context: { supabase, userId: "caller" } } as any),
+    call: (data?: any) =>
+      getNextActionsForMe({ data, context: { supabase, userId: "caller" } } as any),
   };
 }
 const row = (id: string, extra: any = {}) => ({
@@ -166,4 +172,66 @@ it("does not display NaN for an invalid recorded date", async () => {
   const result = await db.call();
   expect(result.active[0].dueLabel).toBeUndefined();
   expect(result.active[0].urgency).toBe("normal");
+});
+
+it("fails closed on authenticated role lookup failures", async () => {
+  await expect(database("user_roles").call()).rejects.toThrow("could not be fully loaded");
+});
+it("rejects a requested role the caller does not have", async () => {
+  await expect(database().call({ role: "partner" })).rejects.toThrow("not available for your role");
+});
+it("validates the requested role rather than accepting unknown labels", async () => {
+  await expect(database().call({ role: "admin" })).rejects.toThrow();
+});
+for (const role of ["student", "partner", "school_admin", "district_admin", "admin", "other"])
+  it(`does not read family-only invitation or evidence sources for ${role}`, async () => {
+    const db = database();
+    db.tables.user_roles = [{ id: "role", user_id: "caller", role }];
+    db.tables.pathway_reports = [{ id: "report", student_id: "student", status: "draft" }];
+    const result = await db.call();
+    expect(
+      db.queries.some((q) =>
+        ["profiles", "invitations", "meetings", "students", "report_evidence_links"].includes(
+          q.table,
+        ),
+      ),
+    ).toBe(false);
+    expect(result.active.map((a) => a.id)).toEqual(
+      role === "student" ? ["derived:report:report"] : [],
+    );
+  });
+it("keeps Owner management-only even with a secondary family role", async () => {
+  const db = database();
+  db.tables.user_roles.push({ id: "owner", user_id: "caller", role: "admin" });
+  expect((await db.call({ role: "family" })).active).toEqual([]);
+  expect(db.queries.map((q) => q.table)).toEqual(["user_roles"]);
+});
+it("respects the selected personal role for a multi-role caller", async () => {
+  const db = database();
+  db.tables.user_roles.push({ id: "partner", user_id: "caller", role: "partner" });
+  db.tables.next_actions = [
+    row("family", { owner_role: "family" }),
+    row("partner", { owner_role: "partner", cta_route: "/partners-manage/profile" }),
+  ];
+  const result = await db.call({ role: "partner" });
+  expect(result.active.map((a) => a.id)).toEqual(["partner"]);
+  expect(db.queries.some((q) => q.table === "pathway_reports")).toBe(false);
+});
+it("does not let an unusable stored link suppress an eligible report suggestion", async () => {
+  const db = database();
+  db.tables.next_actions = [row("bad", { related_report_id: "report", cta_route: "/missing" })];
+  db.tables.pathway_reports = [{ id: "report", student_id: "student", status: "draft" }];
+  expect((await db.call()).active.map((a) => a.id)).toEqual(["derived:report:report"]);
+});
+it("removes ineligible primary and secondary links without inventing a fallback", async () => {
+  const db = database();
+  db.tables.next_actions = [
+    row("bad", { cta_route: "https://example.invalid" }),
+    row("other-role", { cta_route: "/partners-manage" }),
+    row("valid", { secondary_route: "/owner", secondary_label: "Manage" }),
+  ];
+  const result = await db.call();
+  expect(result.active.map((a) => a.id)).toEqual(["valid"]);
+  expect(result.active[0].secondaryRoute).toBeUndefined();
+  expect(result.active[0].secondaryLabel).toBeUndefined();
 });
