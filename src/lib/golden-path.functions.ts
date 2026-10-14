@@ -1,3 +1,4 @@
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { readOrganizationPages, organizationReadError } from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -99,9 +100,10 @@ export type DashboardSnapshot = {
 
 export const getDashboardSnapshot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ student_id: z.string().uuid().optional() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid().optional(), expected_viewer_id: z.string().min(1).max(100).optional() }).parse(i))
   .handler(async ({ data, context }): Promise<DashboardSnapshot> => {
     const { supabase, userId } = context;
+    assertExpectedViewer(data, userId);
 
     let studentId = data.student_id ?? null;
     if (!studentId) {
@@ -548,8 +550,10 @@ const DEMO_REPORT_CONTENT = {
 
 export const seedDemoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
+    assertExpectedViewer(intent, userId);
 
     // 1. Student
     const { data: student, error: sErr } = await supabase

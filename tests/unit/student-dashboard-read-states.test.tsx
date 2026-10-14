@@ -61,11 +61,11 @@ it("passes read state before the Student render branch and guards Family emptine
   expect(main).toContain("!loading && !loadError && students.length === 0");
   expect(main).toContain("if (loadError)");
   const reload = main.slice(
-    main.indexOf("let list = await fetchStudents()"),
+    main.indexOf("let list = await fetchStudents({"),
     main.indexOf("const studentList = list.students"),
   );
   expect(reload.indexOf("if (list.loadFailed)")).toBeLessThan(
-    reload.indexOf("await ensureStudentProfile()"),
+    reload.indexOf("await ensureStudentProfile({"),
   );
   expect(reload.match(/if \(list.loadFailed\)/g)).toHaveLength(2);
   expect(family.indexOf("if (studentResult.loadFailed)")).toBeLessThan(

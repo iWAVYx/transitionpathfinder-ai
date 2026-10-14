@@ -1,6 +1,6 @@
 import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useState, useRef, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Sparkles, AlertCircle, Plus, Loader2 } from "lucide-react";
@@ -181,8 +181,34 @@ function DashboardLoadingShell() {
 type StudentLite = { id: string; first_name: string; last_name: string | null };
 
 function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading || !user)
+    return (
+      <SiteShell>
+        <p role="status" className="p-8">
+          Opening Your Workspace…
+        </p>
+      </SiteShell>
+    );
+  return <DashboardPageForViewer key={user.id} user={user} />;
+}
+
+function DashboardPageForViewer({
+  user,
+}: {
+  user: NonNullable<ReturnType<typeof useAuth>["user"]>;
+}) {
   const navigate = useNavigate();
+  const alive = useRef(false);
+  const requestVersion = useRef(0);
+  const selection = useRef<string | null>(null);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      requestVersion.current += 1;
+    };
+  }, []);
   const fullName = (user?.user_metadata as { full_name?: string } | undefined)?.full_name;
   const emailHandle = user?.email?.split("@")[0];
   const [profileFirstName, setProfileFirstName] = useState<string | null>(null);
@@ -207,8 +233,10 @@ function DashboardPage() {
   );
 
   useEffect(() => {
-    fetchProfile()
+    let active = true;
+    fetchProfile({ data: { expected_viewer_id: user.id } })
       .then((p) => {
+        if (!active || p.id !== user.id) return;
         if (p.first_name) setProfileFirstName(p.first_name);
         const profileTestId =
           dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId;
@@ -220,11 +248,16 @@ function DashboardPage() {
       .catch(() => {
         /* fall back to user_metadata / email */
       });
-  }, [fetchProfile, hintedDashboardTestId]);
+    return () => {
+      active = false;
+    };
+  }, [fetchProfile, hintedDashboardTestId, user.id]);
 
   useEffect(() => {
-    fetchRoles()
+    let active = true;
+    fetchRoles({ data: { expected_viewer_id: user.id } })
       .then((r) => {
+        if (!active) return;
         const aud = audiencesForRoles(r.roles);
         if (aud.has("admin")) {
           navigate({ to: "/owner", replace: true });
@@ -257,12 +290,16 @@ function DashboardPage() {
         }
       })
       .catch(() => {
+        if (!active) return;
         setIsStudentOnly((current) => current ?? false);
         setDashboardTestId(
           (current) => current ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent,
         );
       });
-  }, [fetchRoles, navigate, hintedDashboardTestId]);
+    return () => {
+      active = false;
+    };
+  }, [fetchRoles, navigate, hintedDashboardTestId, user.id]);
 
   const [students, setStudents] = useState<StudentLite[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -273,17 +310,31 @@ function DashboardPage() {
 
   const reload = useCallback(
     async (sid?: string | null) => {
+      const version = ++requestVersion.current;
+      const current = () => alive.current && requestVersion.current === version;
+      if (sid !== undefined) selection.current = sid;
+      const requested = selection.current;
+      setSelectedId(requested);
       setLoading(true);
       setLoadError(null);
+      setSnap(null);
       try {
-        let list = await fetchStudents();
-        if (list.loadFailed) throw new Error("Your student list could not be loaded. Please try again.");
-        if (!list.students[0]) {
-          const currentProfile = await fetchProfile();
+        let list = await fetchStudents({ data: { expected_viewer_id: user.id } });
+        if (!current()) return;
+        if (list.loadFailed)
+          throw new Error("Your student list could not be loaded. Please try again.");
+        if (!list.students[0] && !requested) {
+          const currentProfile = await fetchProfile({ data: { expected_viewer_id: user.id } });
+          if (!current()) return;
+          if (currentProfile.id !== user.id)
+            throw new Error("Your sign-in changed. Please try again.");
           if (currentProfile.primary_role === "student") {
-            await ensureStudentProfile();
-            list = await fetchStudents();
-            if (list.loadFailed) throw new Error("Your student list could not be loaded. Please try again.");
+            await ensureStudentProfile({ data: { expected_viewer_id: user.id } });
+            if (!current()) return;
+            list = await fetchStudents({ data: { expected_viewer_id: user.id } });
+            if (!current()) return;
+            if (list.loadFailed)
+              throw new Error("Your student list could not be loaded. Please try again.");
           }
         }
         const studentList = list.students.map((s) => ({
@@ -292,38 +343,76 @@ function DashboardPage() {
           last_name: s.last_name,
         }));
         setStudents(studentList);
-        const id = sid ?? selectedId ?? studentList[0]?.id ?? null;
+        if (requested && !studentList.some((student) => student.id === requested))
+          throw new Error(
+            "The selected student is unavailable. Choose an available student or try again.",
+          );
+        const id = requested ?? studentList[0]?.id ?? null;
+        selection.current = id;
         setSelectedId(id);
-        const data = await fetchSnapshot({ data: id ? { student_id: id } : {} });
+        if (!id) {
+          setSnap(EMPTY_STUDENT_SNAPSHOT);
+          return;
+        }
+        const data = await fetchSnapshot({ data: { student_id: id, expected_viewer_id: user.id } });
+        if (!current()) return;
+        if (data.student?.id !== id)
+          throw new Error("The selected student could not be confirmed. Please try again.");
         setSnap(data);
       } catch (err) {
-        setLoadError(err instanceof Error ? err.message : "Could not load your dashboard.");
+        if (current())
+          setLoadError(err instanceof Error ? err.message : "Could not load your dashboard.");
       } finally {
-        setLoading(false);
+        if (current()) setLoading(false);
       }
     },
-    [ensureStudentProfile, fetchProfile, fetchSnapshot, fetchStudents, selectedId],
+    [ensureStudentProfile, fetchProfile, fetchSnapshot, fetchStudents, user.id],
   );
 
   useEffect(() => {
-    reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    void reload();
+  }, [reload]);
 
   // Onboarding gate is owned by `_authenticated.tsx`; no redundant check here.
 
   async function handleSeed() {
+    if (!alive.current || seeding) return;
     setSeeding(true);
     try {
-      const { studentId } = await seed();
+      const { studentId } = await seed({ data: { expected_viewer_id: user.id } });
+      if (!alive.current) return;
       toast.success("Demo student Marcus is ready — explore TransitionForward.");
       await reload(studentId);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not create demo.");
+      if (alive.current) toast.error(err instanceof Error ? err.message : "Could not create demo.");
     } finally {
-      setSeeding(false);
+      if (alive.current) setSeeding(false);
     }
   }
+
+  const studentSelector =
+    students.length > 1 || (loadError && students.length > 0) ? (
+      <div className="mb-6 flex justify-end">
+        <label className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+          Selected Student
+          <select
+            aria-label={loadError ? "Choose a Student" : "Selected Student"}
+            value={selectedId ?? ""}
+            onChange={(event) => void reload(event.target.value)}
+            className="rounded-full border bg-card px-4 py-2 text-sm normal-case tracking-normal text-foreground shadow-soft"
+          >
+            {selectedId && !students.some((student) => student.id === selectedId) && (
+              <option value={selectedId}>Previously Selected Student</option>
+            )}
+            {students.map((student) => (
+              <option key={student.id} value={student.id}>
+                {student.first_name} {student.last_name ?? ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    ) : null;
 
   /* ---------- student-only audience: first-person dashboard ----------
    *
@@ -426,6 +515,7 @@ function DashboardPage() {
             We couldn't load your dashboard
           </h1>
           <p className="mt-2 text-sm text-foreground/75">{loadError}</p>
+          {studentSelector}
           <Button onClick={() => reload()} className="mt-5">
             Try again
           </Button>
@@ -437,6 +527,7 @@ function DashboardPage() {
   if (loading || !snap) {
     return (
       <SiteShell dashboardTestId={dashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent}>
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">{studentSelector}</div>
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
           <DashboardRoleLandmarks />
         </div>
@@ -461,24 +552,7 @@ function DashboardPage() {
     <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
       <div className="demo-shell">
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
-          {students.length > 1 && (
-            <div className="mb-6 flex justify-end">
-              <label className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
-                Selected student
-                <select
-                  value={selectedId ?? ""}
-                  onChange={(e) => reload(e.target.value)}
-                  className="rounded-full border bg-card px-4 py-2 text-sm normal-case tracking-normal text-foreground shadow-soft"
-                >
-                  {students.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.first_name} {student.last_name ?? ""}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          )}
+          {studentSelector}
 
           <LiveFamilyWorkspaceOverview firstName={friendly} snapshot={snap} />
           <DashboardWidgetBoard role="family" studentId={s?.id} />
