@@ -7,6 +7,7 @@ const api = vi.hoisted(() => ({
   audit: vi.fn(),
   organizationRoster: vi.fn(),
   roles: vi.fn(),
+  export: vi.fn(),
 }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
@@ -20,6 +21,7 @@ vi.mock("@/lib/organization-history.functions", () => ({
 vi.mock("@/lib/audit.functions", () => ({
   listStudentAuditTrail: api.audit,
   listStudentAuditPage: api.audit,
+  exportStudentAuditRecords: api.export,
   listHistoryStudents: api.students,
 }));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => children }));
@@ -89,6 +91,9 @@ afterEach(() => {
   api.audit.mockReset();
   api.organizationRoster.mockReset();
   api.roles.mockReset();
+  api.export.mockReset();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 it.each([false, true])(
   "switching students ignores old history successes/errors (%s)",
@@ -633,3 +638,136 @@ for (const [role, original] of historyRoutes) {
     expect(api.audit).not.toHaveBeenCalled();
   });
 }
+
+function downloadFixture() {
+  const create = vi.fn(() => "blob:synthetic-history-export");
+  const revoke = vi.fn();
+  const OriginalURL = URL;
+  vi.stubGlobal(
+    "URL",
+    class extends OriginalURL {
+      static createObjectURL = create;
+      static revokeObjectURL = revoke;
+    },
+  );
+  const callbacks: Array<() => void> = [];
+  const originalTimeout = globalThis.setTimeout;
+  vi.spyOn(globalThis, "setTimeout").mockImplementation(((
+    callback: () => void,
+    delay?: number,
+    ...args: any[]
+  ) => {
+    if (delay === 2000) {
+      callbacks.push(callback);
+      return 0;
+    }
+    return originalTimeout(callback, delay, ...args);
+  }) as typeof setTimeout);
+  const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+  return { create, revoke, click, cleanup: () => callbacks.forEach((callback) => callback()) };
+}
+const exportResult = {
+  student: { first_name: "Synthetic", last_name: "Student" },
+  workspace_scope: null,
+  entries: [
+    {
+      created_at: "2030-01-01T12:00:00Z",
+      action: "view",
+      entity_type: "document",
+      recorded_by: "team@example.invalid",
+    },
+  ],
+};
+for (const [role, route] of historyRoutes) {
+  it(`${role} loaded export freshly checks the original student and applicable organization`, async () => {
+    const download = downloadFixture();
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockResolvedValue({ entries: [record("loaded_history")], next_cursor: null });
+    api.export.mockResolvedValue(exportResult);
+    await renderHistoryRoute(role, route, B);
+    await screen.findByText("Loaded history — document");
+    fireEvent.click(screen.getByRole("button", { name: "Export Loaded Activity (CSV)" }));
+    await waitFor(() => expect(download.click).toHaveBeenCalledOnce());
+    const organization =
+      role === "School" || role === "District" ? { scope: role.toLowerCase(), id: A } : undefined;
+    expect(api.export).toHaveBeenCalledExactlyOnceWith({
+      data: {
+        student_id: B,
+        filter: "all",
+        entry_ids: ["loaded_history"],
+        ...(organization ? { organization } : {}),
+      },
+    });
+    expect(download.create).toHaveBeenCalledOnce();
+    expect(download.revoke).not.toHaveBeenCalled();
+    download.cleanup();
+    expect(download.revoke).toHaveBeenCalledExactlyOnceWith("blob:synthetic-history-export");
+  });
+}
+it("loaded export requests only the active category and guards rapid clicks", async () => {
+  const download = downloadFixture();
+  const pending = deferred();
+  api.students.mockResolvedValue(roster);
+  api.audit.mockResolvedValue({
+    entries: [record("document_event"), { ...record("meeting_event"), entity_type: "meeting" }],
+  });
+  api.export.mockReturnValue(pending.promise);
+  render(<StudentActivityHistory />);
+  await screen.findByText("Document event — document");
+  fireEvent.mouseDown(screen.getByRole("tab", { name: /Documents/ }));
+  const button = screen.getByRole("button", { name: "Export Loaded Activity (CSV)" });
+  fireEvent.click(button);
+  fireEvent.click(button);
+  expect(api.export).toHaveBeenCalledExactlyOnceWith({
+    data: { student_id: A, filter: "documents", entry_ids: ["document_event"] },
+  });
+  await act(() => pending.resolve(exportResult));
+  expect(download.click).toHaveBeenCalledOnce();
+});
+it.each(["student", "category", "departure"])(
+  "export %s change suppresses a late download",
+  async (change) => {
+    const download = downloadFixture();
+    const pending = deferred();
+    api.students.mockResolvedValue(roster);
+    api.audit.mockResolvedValue({ entries: [record("loaded_history")] });
+    api.export.mockReturnValueOnce(pending.promise);
+    const view = render(<StudentActivityHistory />);
+    await screen.findByText("Loaded history — document");
+    fireEvent.click(screen.getByRole("button", { name: "Export Loaded Activity (CSV)" }));
+    if (change === "student") chooseSecond();
+    if (change === "category") fireEvent.mouseDown(screen.getByRole("tab", { name: /Meetings/ }));
+    if (change === "departure") view.unmount();
+    await act(() => pending.resolve(exportResult));
+    expect(download.create).not.toHaveBeenCalled();
+    expect(download.click).not.toHaveBeenCalled();
+  },
+);
+it("failed export stays generic and retries without dropping the current records", async () => {
+  const download = downloadFixture();
+  api.students.mockResolvedValue(roster);
+  api.audit.mockResolvedValue({ entries: [record("loaded_history")] });
+  api.export
+    .mockRejectedValueOnce(new Error("private export detail"))
+    .mockResolvedValueOnce(exportResult);
+  render(<StudentActivityHistory />);
+  await screen.findByText("Loaded history — document");
+  fireEvent.click(screen.getByRole("button", { name: "Export Loaded Activity (CSV)" }));
+  await screen.findByText("Activity could not be exported. Please try again.");
+  expect(screen.queryByText("private export detail")).toBeNull();
+  expect(screen.getByText("Loaded history — document")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Export Loaded Activity (CSV)" }));
+  await waitFor(() => expect(download.click).toHaveBeenCalledOnce());
+  expect(api.export.mock.calls[0]).toEqual(api.export.mock.calls[1]);
+});
+it.each(["empty", "failure", "loading"])("export is unavailable for %s activity", async (mode) => {
+  api.students.mockResolvedValue(roster);
+  if (mode === "loading") api.audit.mockReturnValue(deferred().promise);
+  else if (mode === "failure") api.audit.mockRejectedValue(new Error("failed"));
+  else api.audit.mockResolvedValue({ entries: [] });
+  render(<StudentActivityHistory />);
+  const button = await screen.findByRole("button", { name: "Export Loaded Activity (CSV)" });
+  expect((button as HTMLButtonElement).disabled).toBe(true);
+  expect(api.export).not.toHaveBeenCalled();
+});

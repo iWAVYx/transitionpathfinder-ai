@@ -16,6 +16,7 @@ vi.mock("@tanstack/react-start", () => ({
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 import { getOrganizationHistoryRoster } from "@/lib/organization-history.functions";
 import {
+  exportStudentAuditRecords,
   listStudentAuditTrail,
   listStudentAuditPage,
   listHistoryStudents,
@@ -510,4 +511,130 @@ it("a capped partial audit page with a larger exact count fails instead of hidin
   await expect(invoke(listStudentAuditPage, db, { student_id: STUDENT })).rejects.toThrow(
     "History could not be fully loaded.",
   );
+});
+
+it("fresh export loads every requested ID and returns only permitted display fields", async () => {
+  const db = database();
+  student(db);
+  auditEvents(db, 1203);
+  for (const row of db.tables.audit_log) {
+    row.actor_email = "team@example.invalid";
+    row.actor_id = "private-actor";
+    row.entity_id = "private-entity";
+    row.metadata = { signed_url: "private-link", iep_text: "private-document" };
+  }
+  const ids = db.tables.audit_log.map((row) => row.id).reverse();
+  const result = await invoke(exportStudentAuditRecords, db, {
+    student_id: STUDENT,
+    entry_ids: ids,
+    filter: "documents",
+  });
+  expect(result.entries).toHaveLength(1203);
+  expect(result.student).toEqual({ first_name: "Synthetic", last_name: "Student" });
+  expect(Object.keys(result.entries[0]).sort()).toEqual([
+    "action",
+    "created_at",
+    "entity_type",
+    "recorded_by",
+  ]);
+  expect(result.entries[0].recorded_by).toBe("team@example.invalid");
+  const serialized = JSON.stringify(result);
+  for (const secret of [
+    "private-actor",
+    "private-entity",
+    "private-link",
+    "private-document",
+    STUDENT,
+    eventId(0),
+  ])
+    expect(serialized).not.toContain(secret);
+  for (const q of db.queries.filter((q) => q.table === "audit_log")) {
+    expect(q.counted).toBe(true);
+    expect(q.filters).toContainEqual(["eq", "student_id", STUDENT]);
+    expect(q.filters.find(([op, k]) => op === "in" && k === "id")![2].length).toBeLessThanOrEqual(
+      100,
+    );
+    expect(q.fields).not.toContain("metadata");
+  }
+});
+it.each(["missing-student", "missing-entry", "other-student", "changed-category"])(
+  "export %s fails without a successful partial result",
+  async (variant) => {
+    const db = database();
+    if (variant !== "missing-student") student(db);
+    auditEvents(db, 1);
+    if (variant === "missing-entry") db.tables.audit_log = [];
+    if (variant === "other-student") db.tables.audit_log[0].student_id = OTHER;
+    if (variant === "changed-category") db.tables.audit_log[0].entity_type = "meeting";
+    await expect(
+      invoke(exportStudentAuditRecords, db, {
+        student_id: STUDENT,
+        entry_ids: [eventId(0)],
+        filter: "documents",
+      }),
+    ).rejects.toThrow("Activity could not be exported.");
+  },
+);
+it.each(["missing-count", "failed-batch"])(
+  "export %s is rejected with a generic message",
+  async (variant) => {
+    const db = database({
+      noCount: (q) => variant === "missing-count" && q.table === "audit_log",
+      fail: (q) =>
+        variant === "failed-batch" &&
+        q.table === "audit_log" &&
+        q.filters.some(
+          ([op, key, ids]) => op === "in" && key === "id" && ids.includes(eventId(101)),
+        ),
+    });
+    student(db);
+    auditEvents(db, 203);
+    await expect(
+      invoke(exportStudentAuditRecords, db, {
+        student_id: STUDENT,
+        entry_ids: db.tables.audit_log.map((row) => row.id),
+      }),
+    ).rejects.toThrow("Activity could not be exported.");
+  },
+);
+it.each(["scope", "removed-membership"])(
+  "export rechecks %s before activity reads",
+  async (variant) => {
+    const db = database();
+    student(db, variant === "scope" ? OTHER : SCHOOL);
+    auditEvents(db, 1);
+    if (variant === "removed-membership") db.tables.organization_memberships[0].status = "removed";
+    await expect(
+      invoke(exportStudentAuditRecords, db, {
+        student_id: STUDENT,
+        entry_ids: [eventId(0)],
+        organization: { scope: "school", id: SCHOOL },
+      }),
+    ).rejects.toThrow("Activity could not be exported.");
+    expect(db.queries.some((q) => q.table === "audit_log")).toBe(false);
+  },
+);
+it("duplicate, malformed, empty and excessive export selections fail before queries", async () => {
+  const db = database();
+  for (const ids of [
+    [],
+    ["bad"],
+    [eventId(0), eventId(0)],
+    Array.from({ length: 10001 }, (_, n) => eventId(n)),
+  ])
+    await expect(
+      invoke(exportStudentAuditRecords, db, { student_id: STUDENT, entry_ids: ids }),
+    ).rejects.toThrow();
+  expect(db.queries).toEqual([]);
+});
+it("export actor fallback keeps system/team labels without raw actor IDs", async () => {
+  const db = database();
+  student(db);
+  auditEvents(db, 2);
+  db.tables.audit_log[0].actor_id = "private-id";
+  const result = await invoke(exportStudentAuditRecords, db, {
+    student_id: STUDENT,
+    entry_ids: [eventId(0), eventId(1)],
+  });
+  expect(result.entries.map((row: any) => row.recorded_by)).toEqual(["Team member", "System"]);
 });

@@ -154,7 +154,7 @@ exports[`feature inventory audit > inventory matrix matches snapshot 1`] = `
     "pathwayRelation": "supports",
     "permission": "Family members you've invited plus your student's caseload team. Never partners, never other families.",
     "primaryAction": "Open Access & Activity History",
-    "purpose": "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected. The signed-in view loads up to 200 recorded events at a time, with an option to load older activity. Counts and filters apply to the records loaded so far.",
+    "purpose": "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected. The signed-in view loads up to 200 recorded events at a time, with an option to load older activity. Counts and filters apply to the records loaded so far. A CSV export includes the selected category from loaded records after a fresh access check, with raw identifiers and private event details excluded.",
     "role": "family",
     "secondaryAction": "Review Sharing",
     "title": "Access & Activity History",

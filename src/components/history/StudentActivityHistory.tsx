@@ -25,61 +25,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  HISTORY_FILTERS as FILTERS,
+  classifyEntry,
+  humanizeAction,
+  actorLabel,
+  type HistoryFilterKey,
+} from "@/lib/history-display";
+import { createHistoryCsv } from "@/lib/history-export";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { HistoryStudent, HistoryOrganization } from "@/lib/organization-history.types";
 import {
   listHistoryStudents,
   listStudentAuditPage,
+  exportStudentAuditRecords,
   type AuditCursor,
   type AuditEntry,
 } from "@/lib/audit.functions";
 
+export type { HistoryFilterKey } from "@/lib/history-display";
+
 /* -------------------- filters -------------------- */
-
-export type HistoryFilterKey = "all" | "documents" | "sharing" | "meetings" | "plan";
-
-const FILTERS: { key: HistoryFilterKey; label: string }[] = [
-  { key: "all", label: "Recent Activity" },
-  { key: "documents", label: "Documents" },
-  { key: "sharing", label: "Sharing & Consent" },
-  { key: "meetings", label: "Meetings" },
-  { key: "plan", label: "Plan & Goals" },
-];
-
-function classifyEntry(entry: AuditEntry): HistoryFilterKey {
-  const t = (entry.entity_type || "").toLowerCase();
-  const a = (entry.action || "").toLowerCase();
-  if (
-    t.includes("document") ||
-    t.includes("upload") ||
-    t.includes("storage") ||
-    a.includes("download") ||
-    a.includes("upload") ||
-    a.includes("view_document")
-  )
-    return "documents";
-  if (
-    t.includes("permission") ||
-    t.includes("share") ||
-    t.includes("consent") ||
-    t.includes("collaborator") ||
-    t.includes("relationship") ||
-    a.includes("grant") ||
-    a.includes("revoke") ||
-    a.includes("invite")
-  )
-    return "sharing";
-  if (t.includes("meeting") || t.includes("agenda") || t.includes("ppt")) return "meetings";
-  if (
-    t.includes("goal") ||
-    t.includes("plan") ||
-    t.includes("pathway") ||
-    t.includes("action_item") ||
-    t.includes("student")
-  )
-    return "plan";
-  return "all";
-}
 
 function entryIcon(entry: AuditEntry) {
   const bucket = classifyEntry(entry);
@@ -94,18 +60,6 @@ function entryIcon(entry: AuditEntry) {
   if (bucket === "meetings") return CalendarIcon;
   if (bucket === "plan") return ClipboardList;
   return Sparkles;
-}
-
-function humanizeAction(entry: AuditEntry): string {
-  const a = entry.action.replace(/[_.]/g, " ").toLowerCase();
-  const t = entry.entity_type.replace(/[_.]/g, " ").toLowerCase();
-  return `${a.charAt(0).toUpperCase() + a.slice(1)}${t ? ` — ${t}` : ""}`;
-}
-
-function actorLabel(entry: AuditEntry): string {
-  if (entry.actor_email) return entry.actor_email;
-  if (entry.actor_id) return "Team member";
-  return "System";
 }
 
 function formatWhen(iso: string): string {
@@ -288,6 +242,7 @@ function StudentHistoryReader({
   onStudentChange: (id: string) => void;
 }) {
   const loadAudit = useServerFn(listStudentAuditPage);
+  const exportRecords = useServerFn(exportStudentAuditRecords);
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -303,7 +258,13 @@ function StudentHistoryReader({
       alive.current = false;
     };
   }, []);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState(false);
+  const exportBusy = useRef(false);
   const [tab, setTab] = useState<HistoryFilterKey>("all");
+
+  const activeFilter = useRef(tab);
+  activeFilter.current = tab;
 
   useEffect(() => {
     let cancelled = false;
@@ -382,6 +343,63 @@ function StudentHistoryReader({
     return entries.filter((e) => classifyEntry(e) === tab);
   }, [entries, tab]);
 
+  const downloadCsv = async () => {
+    if (
+      !alive.current ||
+      exportBusy.current ||
+      loading ||
+      error ||
+      olderLoading ||
+      !filtered.length ||
+      filtered.length > 10000
+    )
+      return;
+    const requestedFilter = tab;
+    const loadedCount = entries.length;
+    const olderAvailable = !!nextCursor;
+    exportBusy.current = true;
+    setExporting(true);
+    setExportError(false);
+    try {
+      const result = await exportRecords({
+        data: {
+          student_id: studentId,
+          filter: requestedFilter,
+          entry_ids: filtered.map((entry) => entry.id),
+          ...(organization ? { organization } : {}),
+        },
+      });
+      if (!alive.current || activeFilter.current !== requestedFilter) return;
+      const csv = createHistoryCsv(result, {
+        filter: requestedFilter,
+        loadedCount,
+        olderAvailable,
+        exportedAt: new Date().toISOString(),
+      });
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      try {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "transitionforward-loaded-activity.csv";
+        document.body.appendChild(link);
+        try {
+          link.click();
+        } finally {
+          link.remove();
+        }
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    } catch {
+      if (alive.current && activeFilter.current === requestedFilter) setExportError(true);
+    } finally {
+      if (alive.current) {
+        exportBusy.current = false;
+        setExporting(false);
+      }
+    }
+  };
+
   const activeStudent = students.find((s) => s.id === studentId) ?? null;
   const cta = emptyCta ?? { label: "Go to dashboard", to: "/dashboard" };
 
@@ -414,7 +432,43 @@ function StudentHistoryReader({
         Recent activity{activeStudent ? ` for ${activeStudent.first_name}` : ""}. This view loads up
         to 200 records at a time. Counts and filters apply to the {entries.length} loaded records.
       </p>
-      <Tabs value={tab} onValueChange={(v) => setTab(v as HistoryFilterKey)}>
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          disabled={
+            loading ||
+            error ||
+            olderLoading ||
+            exporting ||
+            !filtered.length ||
+            filtered.length > 10000
+          }
+          onClick={() => void downloadCsv()}
+        >
+          {exporting ? "Preparing Activity Export…" : "Export Loaded Activity (CSV)"}
+        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Exports the selected category from your loaded records, with a fresh access check. Private
+          record details are excluded.
+        </p>
+        {filtered.length > 10000 && (
+          <p className="mt-2 text-sm">
+            Choose a smaller category to export up to 10,000 loaded records.
+          </p>
+        )}
+        {exportError && (
+          <p role="alert" className="mt-2 text-sm">
+            Activity could not be exported. Please try again.
+          </p>
+        )}
+      </div>
+      <Tabs
+        value={tab}
+        onValueChange={(v) => {
+          setExportError(false);
+          setTab(v as HistoryFilterKey);
+        }}
+      >
         <TabsList className="flex flex-wrap gap-1">
           {FILTERS.map((f) => (
             <TabsTrigger key={f.key} value={f.key} className="gap-2">
