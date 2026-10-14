@@ -277,11 +277,13 @@ function DashboardPage() {
       setLoadError(null);
       try {
         let list = await fetchStudents();
+        if (list.loadFailed) throw new Error("Your student list could not be loaded. Please try again.");
         if (!list.students[0]) {
           const currentProfile = await fetchProfile();
           if (currentProfile.primary_role === "student") {
             await ensureStudentProfile();
             list = await fetchStudents();
+            if (list.loadFailed) throw new Error("Your student list could not be loaded. Please try again.");
           }
         }
         const studentList = list.students.map((s) => ({
@@ -343,13 +345,15 @@ function DashboardPage() {
       <StudentDashboard
         firstName={friendly}
         snap={snap ?? EMPTY_STUDENT_SNAPSHOT}
+        loading={loading}
+        error={loadError}
         onReconnect={() => reload()}
       />
     );
   }
 
   /* ---------- empty state: no students yet ---------- */
-  if (!loading && students.length === 0) {
+  if (!loading && !loadError && students.length === 0) {
     return (
       <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
@@ -410,7 +414,7 @@ function DashboardPage() {
     );
   }
 
-  if (loadError && !snap) {
+  if (loadError) {
     return (
       <SiteShell dashboardTestId={dashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">

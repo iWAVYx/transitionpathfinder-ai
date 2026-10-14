@@ -146,16 +146,16 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
     {
       icon: BookOpen,
       title: "Resources For Me",
-      status: `${snapshot.recommendedResources.length} matched`,
+      status: `${snapshot.recommendedResources.length} shown`,
       tone: "muted",
       summary:
-        "Explore guides, programs, and tools matched to your interests, goals, and readiness.",
+        "Browse up to six resources. Topic keywords in your saved planning notes help order these suggestions.",
       bullets: [
-        { label: "Recommended", value: snapshot.recommendedResources.length },
-        { label: "Saved", value: savedResources },
+        { label: "Shown", value: snapshot.recommendedResources.length },
+        { label: "Saved In This Preview", value: savedResources },
       ],
       cta: { label: "Open Resources", to: "/resources" },
-      dataSource: "Resources matched to your authorized student profile",
+      dataSource: "A six-item topic-keyword resource preview from your saved planning notes",
       privacyNote: studentBoundary,
     },
     {

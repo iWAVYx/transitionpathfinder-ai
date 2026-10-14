@@ -207,29 +207,29 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
   "recommended-resources": {
     id: "recommended-resources",
     title: "Recommended Resources",
-    eyebrow: "Matched For You",
-    summary: "Family-friendly guides matched to your student's grade, readiness, and priorities.",
+    eyebrow: "Resource Preview",
+    summary: "Sample resources illustrate how topic keywords in saved planning notes help order up to six suggestions.",
     what: "Open a resource, save it for the next meeting, or share with a family member.",
-    dataSource: "Pathway Report priorities · student grade & interests · CT resource library",
+    dataSource: "Fictional resource examples · saved-note topic keywords",
     primaryAction: { label: "Open Resources", to: "/resources/saved" },
     connectsTo: ["Pathway Report", "Action Items"],
     stats: [
-      { label: "Suggested", value: "6" },
-      { label: "Saved", value: "2" },
+      { label: "Preview Limit", value: "6" },
+      { label: "Saved In This Preview", value: "2" },
     ],
     rows: [
       { primary: "{postSecondaryLabel} — family guide", secondary: "Guide · 6 min read" },
       { primary: "Meeting Questions template", secondary: "Template · 1 page" },
       { primary: "Family guide for {gradeLabel}", secondary: "Guide · 10 min read" },
       {
-        primary: "Interest-matched guide: {primaryInterest}",
-        secondary: "Guide · interest-matched",
+        primary: "Resource to explore: {primaryInterest}",
+        secondary: "Guide · sample suggestion",
       },
       { primary: "Self-Advocacy Practice Cards", secondary: "Cards · 12 prompts" },
     ],
-    emptyHeadline: "No matches yet — but that's about to change.",
+    emptyHeadline: "No resources shown in this preview.",
     emptyBody:
-      "As soon as Family Priorities and Student Voice are shared, matched resources will show up here.",
+      "Browse the resource library for more options. Topic keywords in recorded planning notes help order live suggestions.",
   },
 
   "action-items": {

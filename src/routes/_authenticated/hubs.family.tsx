@@ -46,6 +46,7 @@ function HubPage() {
           loadStudents(),
           loadProfile().catch(() => null),
         ]);
+        if (studentResult.loadFailed) throw new Error("Your student list could not be loaded. Please try again.");
         const studentId = studentResult.students[0]?.id;
         const result = await loadSnapshot({ data: studentId ? { student_id: studentId } : {} });
         if (!active) return;
