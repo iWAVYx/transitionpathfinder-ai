@@ -2,7 +2,12 @@
 import { StrictMode } from "react";
 import { afterEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-const api = vi.hoisted(() => ({ students: vi.fn(), audit: vi.fn(), organizationRoster: vi.fn() }));
+const api = vi.hoisted(() => ({
+  students: vi.fn(),
+  audit: vi.fn(),
+  organizationRoster: vi.fn(),
+  roles: vi.fn(),
+}));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<any>()),
@@ -19,6 +24,7 @@ vi.mock("@/lib/audit.functions", () => ({
 }));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => children }));
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
+vi.mock("@/lib/profile.functions", () => ({ getMyRoles: api.roles }));
 vi.mock("@/components/RoleGuard", () => ({ RoleGuard: ({ children }: any) => children }));
 vi.mock("@/components/dashboard/BackToDashboard", () => ({ BackToDashboard: () => null }));
 vi.mock("@/components/ui/select", () => ({
@@ -82,6 +88,7 @@ afterEach(() => {
   api.students.mockReset();
   api.audit.mockReset();
   api.organizationRoster.mockReset();
+  api.roles.mockReset();
 });
 it.each([false, true])(
   "switching students ignores old history successes/errors (%s)",
@@ -324,7 +331,12 @@ it.each(["school", "district"] as const)(
   },
 );
 
-async function renderHistoryRoute(role: string, route: any, studentId?: string) {
+async function renderHistoryRoute(
+  role: string,
+  route: any,
+  studentId?: string,
+  overrides: Record<string, string> = {},
+) {
   const root = createRootRoute();
   const path = `/${role.toLowerCase()}/history`;
   const page = createRoute({
@@ -333,14 +345,21 @@ async function renderHistoryRoute(role: string, route: any, studentId?: string) 
     component: route.options.component,
     validateSearch: route.options.validateSearch,
     search: route.options.search,
+    errorComponent: route.options.errorComponent,
   });
   const key = role === "School" ? "org_id" : role === "District" ? "district_id" : undefined;
   const query = new URLSearchParams({ filter: "documents" });
   if (key) query.set(key, A);
   if (studentId) query.set("student_id", studentId);
+  for (const [key, value] of Object.entries(overrides)) query.set(key, value);
   const router = createRouter({
     routeTree: root.addChildren([
       page,
+      createRoute({
+        getParentRoute: () => root,
+        path: "/dashboard",
+        component: () => <div>Permitted Role Destination</div>,
+      }),
       createRoute({
         getParentRoute: () => root,
         path: "/owner",
@@ -515,5 +534,102 @@ for (const [role, route] of historyRoutes) {
       data: { student_id: B, limit: 200, ...(organization ? { organization } : {}), cursor },
     });
     expect(screen.getByText(/Counts and filters apply to the 2 loaded records/)).toBeTruthy();
+  });
+}
+
+for (const [role, route] of historyRoutes) {
+  it(`${role} malformed student link requires recovery and preserves valid page context`, async () => {
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockResolvedValue({ entries: [record("recovered_history")] });
+    const router = await renderHistoryRoute(role, route, "malformed-private-value");
+    await screen.findByText("This Saved Link Needs Updating");
+    expect(screen.queryByText("malformed-private-value")).toBeNull();
+    expect(api.students).not.toHaveBeenCalled();
+    expect(api.organizationRoster).not.toHaveBeenCalled();
+    expect(api.audit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Clear Invalid Selections" }));
+    await screen.findByText("Recovered history — document");
+    expect(router.state.location.pathname).toBe(`/${role.toLowerCase()}/history`);
+    expect(router.state.location.search.student_id).toBeUndefined();
+    expect(router.state.location.search.filter).toBe("documents");
+    expect(router.state.location.hash).toBe("kept");
+    expect(router.history.length).toBe(1);
+    if (role === "School" || role === "District")
+      expect(router.state.location.search[role === "School" ? "org_id" : "district_id"]).toBe(A);
+  });
+}
+for (const [role, route] of historyRoutes.filter(
+  ([role]) => role === "School" || role === "District",
+)) {
+  it.each([false, true])(
+    `${role} malformed workspace link clears only malformed selections (%s)`,
+    async (both) => {
+      api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+      api.audit.mockResolvedValue({ entries: [record("recovered_history")] });
+      const key = role === "School" ? "org_id" : "district_id";
+      const router = await renderHistoryRoute(role, route, both ? "bad-student" : B, {
+        [key]: "bad-workspace",
+      });
+      await screen.findByText("This Saved Link Needs Updating");
+      expect(api.audit).not.toHaveBeenCalled();
+      expect(api.organizationRoster).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole("button", { name: "Clear Invalid Selections" }));
+      await screen.findByText("Recovered history — document");
+      expect(api.organizationRoster.mock.calls[0][0]).toEqual({
+        data: { scope: role.toLowerCase(), organization_id: undefined },
+      });
+      expect(api.audit.mock.calls[0][0].data.student_id).toBe(both ? A : B);
+      expect(router.state.location.search.student_id).toBe(both ? undefined : B);
+      await waitFor(() => expect(router.state.location.search[key]).toBe(A));
+      expect(router.state.location.search.filter).toBe("documents");
+      expect(router.state.location.hash).toBe("kept");
+      expect(router.history.length).toBe(1);
+      expect(api.students).not.toHaveBeenCalled();
+    },
+  );
+}
+it("unexpected history route failure retains ordinary retry instead of clearing selections", async () => {
+  const route = {
+    options: {
+      ...FamilyRoute.options,
+      component: () => {
+        throw new Error("Synthetic render failure");
+      },
+    },
+  };
+  await renderHistoryRoute("Family", route, B);
+  await screen.findByText("This page didn't load");
+  expect(screen.getByRole("button", { name: "Try loading this page again" })).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Clear Invalid Selections" })).toBeNull();
+});
+
+for (const [role, original] of historyRoutes) {
+  it(`${role} malformed-link recovery still runs the actual role gate before history reads`, async () => {
+    const { RoleGuard: ActualRoleGuard } =
+      await vi.importActual<typeof import("@/components/RoleGuard")>("@/components/RoleGuard");
+    const path = `/${role.toLowerCase()}/history`;
+    api.roles.mockResolvedValue({ roles: [role === "Student" ? "parent" : "student"] });
+    const Page = original.options.component as any;
+    const route = {
+      options: {
+        ...original.options,
+        component: () => (
+          <ActualRoleGuard path={path}>
+            <Page />
+          </ActualRoleGuard>
+        ),
+      },
+    };
+    const router = await renderHistoryRoute(role, route, "malformed");
+    await screen.findByText("This Saved Link Needs Updating");
+    expect(api.roles).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Clear Invalid Selections" }));
+    await screen.findByText("Permitted Role Destination");
+    expect(api.roles).toHaveBeenCalledOnce();
+    expect(router.state.location.pathname).toBe("/dashboard");
+    expect(api.students).not.toHaveBeenCalled();
+    expect(api.organizationRoster).not.toHaveBeenCalled();
+    expect(api.audit).not.toHaveBeenCalled();
   });
 }

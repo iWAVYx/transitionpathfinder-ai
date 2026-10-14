@@ -1,3 +1,4 @@
+import { historyRouteErrorComponent } from "@/components/history/HistoryRouteError";
 import { validateHistorySearch } from "@/lib/history-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { History } from "lucide-react";
@@ -10,6 +11,7 @@ import { RoutedStudentActivityHistory } from "@/components/history/StudentActivi
 
 export const Route = createFileRoute("/_authenticated/partner/history")({
   validateSearch: validateHistorySearch,
+  errorComponent: historyRouteErrorComponent("partner"),
   head: () => ({
     meta: [
       { title: "Student Connection History — TransitionForward" },

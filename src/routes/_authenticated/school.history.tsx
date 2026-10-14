@@ -1,3 +1,4 @@
+import { historyRouteErrorComponent } from "@/components/history/HistoryRouteError";
 import { validateHistorySearch } from "@/lib/history-navigation";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/school/history")({
     ...schoolDashboardNavigation.validateSearch(search),
     ...validateHistorySearch(search),
   }),
+  errorComponent: historyRouteErrorComponent("school"),
   head: () => ({
     meta: [
       { title: "School Records & Disclosure History — TransitionForward" },
