@@ -1,12 +1,10 @@
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { NextActionCard } from "./NextActionCard";
-import {
-  getNextActionsForMe,
-  completeNextAction,
-} from "@/lib/next-actions/next-actions.functions";
+import { getNextActionsForMe, completeNextAction } from "@/lib/next-actions/next-actions.functions";
 
 interface Props {
   historyRoute?: string;
@@ -25,14 +23,21 @@ interface Props {
  * button through the RLS-protected server function.
  */
 export function NextActionCardServer(props: Props) {
+  const { user, loading } = useAuth();
+  const viewerId = user?.id;
   const qc = useQueryClient();
   const fetchActions = useServerFn(getNextActionsForMe);
   const complete = useServerFn(completeNextAction);
   const [completingId, setCompletingId] = useState<string | null>(null);
 
   const q = useQuery({
-    queryKey: ["next-actions", "me"],
-    queryFn: () => fetchActions(),
+    queryKey: ["next-actions", "me", viewerId],
+    enabled: !!viewerId && !loading,
+    queryFn: async () => {
+      const result = await fetchActions();
+      if (result.viewer_id !== viewerId) throw new Error("Your sign-in changed. Please try again.");
+      return result;
+    },
     staleTime: 30_000,
   });
 
@@ -46,6 +51,17 @@ export function NextActionCardServer(props: Props) {
     onError: (e: Error) => toast.error(e.message || "Could not complete"),
     onSettled: () => setCompletingId(null),
   });
+
+  if (loading || !viewerId || q.isPending) return <p role="status">Loading Your Next Actions…</p>;
+  if (q.isError)
+    return (
+      <div role="alert" className="mt-6 rounded-2xl border border-border p-5">
+        <p>Your next actions could not be fully loaded.</p>
+        <button type="button" onClick={() => void q.refetch()} className="mt-2 underline">
+          Try Again
+        </button>
+      </div>
+    );
 
   return (
     <NextActionCard

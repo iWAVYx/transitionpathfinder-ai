@@ -1,20 +1,21 @@
+import {
+  readOrganizationPages,
+  readOrganizationBatches,
+  organizationReadError,
+} from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type {
-  NextAction,
-  NextActionStatus,
-  NextActionUrgency,
-  ActivityEvent,
-} from "./types";
-import {
-  REPORT_SECTIONS,
-  REPORT_SECTION_LABELS,
-} from "@/lib/report-evidence/types";
+import type { NextAction, NextActionStatus, NextActionUrgency, ActivityEvent } from "./types";
+import { REPORT_SECTIONS, REPORT_SECTION_LABELS } from "@/lib/report-evidence/types";
 
 /** Report sections we most want covered by evidence before a report is defensible. */
-const PRIORITY_EVIDENCE_SECTIONS: ReadonlyArray<
-  (typeof REPORT_SECTIONS)[number]
-> = ["snapshot", "student_voice", "family_priorities", "documents", "readiness"];
+const PRIORITY_EVIDENCE_SECTIONS: ReadonlyArray<(typeof REPORT_SECTIONS)[number]> = [
+  "snapshot",
+  "student_voice",
+  "family_priorities",
+  "documents",
+  "readiness",
+];
 
 interface DbAction {
   id: string;
@@ -46,7 +47,7 @@ function toDomain(row: DbAction): NextAction {
   let urgency: NextActionUrgency = "normal";
   let dueLabel: string | undefined;
   let status: NextActionStatus = row.status;
-  if (due != null) {
+  if (due != null && Number.isFinite(due)) {
     const days = Math.round((due - now) / 86_400_000);
     if (days < 0) {
       urgency = "overdue";
@@ -107,38 +108,50 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    const [{ data: rows }, derived] = await Promise.all([
-      supabase
-        .from("next_actions")
-        .select(
-          "id,kind,title,reason,cta_label,cta_route,secondary_label,secondary_route,status,priority,due_at,blocked_reason,owner_role,student_id,organization_id,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at,updated_at",
-        )
-        .or(`owner_user_id.eq.${userId}`)
-        .order("updated_at", { ascending: false })
-        .limit(50),
+    const [rows, derived] = await Promise.all([
+      readOrganizationPages<DbAction>(
+        (from, to) =>
+          supabase
+            .from("next_actions")
+            .select(
+              "id,kind,title,reason,cta_label,cta_route,secondary_label,secondary_route,status,priority,due_at,blocked_reason,owner_role,student_id,organization_id,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at,updated_at",
+              { count: "exact" },
+            )
+            .eq("owner_user_id", userId)
+            .order("updated_at", { ascending: false })
+            .order("id")
+            .range(from, to) as any,
+      ),
       deriveActionsFromState(supabase, userId),
     ]);
 
-    const stored = (rows ?? []).map((r) => toDomain(r as DbAction));
-    // Dedupe: prefer stored row over derived when they share (kind + student).
-    const seen = new Set(stored.map((s) => `${s.kind}::${s.studentId ?? ""}`));
-    const combined = [
-      ...stored,
-      ...derived.filter((d) => !seen.has(`${d.kind}::${d.studentId ?? ""}`)),
-    ];
+    const stored = rows.map(toDomain);
+    // Only an active action for the exact same related record can replace a
+    // suggestion. A completed older report must not hide a newer draft.
+    const identity = (action: NextAction) => {
+      const record =
+        action.relatedReportId ??
+        action.relatedMeetingId ??
+        action.relatedDocumentId ??
+        action.relatedOpportunityId;
+      return record
+        ? JSON.stringify([action.kind, action.studentId, action.organizationId, record])
+        : action.id;
+    };
+    const seen = new Set(
+      stored.filter((a) => a.status !== "completed" && a.status !== "dismissed").map(identity),
+    );
+    const combined = [...stored, ...derived.filter((action) => !seen.has(identity(action)))];
 
     const active = combined.filter((a) => a.status !== "completed" && a.status !== "dismissed");
-    const recentlyCompleted = combined
-      .filter((a) => a.status === "completed")
-      .slice(0, 3);
+    const recentlyCompleted = combined.filter((a) => a.status === "completed").slice(0, 3);
 
     return { active, recentlyCompleted, viewer_id: userId };
   });
 
 /**
- * Cheap derivation pass — looks at a handful of user-scoped tables and
- * emits synthetic Next Actions. Never writes to the DB. All routes
- * point at real feature pages.
+ * Caller-visible derivation pass — reads complete counted source lists and
+ * emits synthetic Next Actions. Never writes to the DB. Role-specific destination eligibility remains a separate audit.
  */
 async function deriveActionsFromState(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,22 +161,25 @@ async function deriveActionsFromState(
   const out: NextAction[] = [];
 
   // Draft pathway reports
-  const { data: reports } = await supabase
-    .from("pathway_reports")
-    .select("id,student_id,status,updated_at")
-    .in("status", ["draft", "needs_review"])
-    .limit(5);
+  const reports = await readOrganizationPages<any>((from, to) =>
+    supabase
+      .from("pathway_reports")
+      .select("id,student_id,status,updated_at", { count: "exact" })
+      .in("status", ["draft", "needs_review"])
+      .order("id")
+      .range(from, to),
+  );
   for (const r of reports ?? []) {
     out.push({
       id: `derived:report:${r.id}`,
       kind: "review_report",
       title: "Review Draft Pathway Report",
-      reason: "A draft report is waiting for review before it can be shared.",
+      reason: "A visible draft report is available to review.",
       ownerLabel: "You",
       ctaLabel: "Open Report",
-      ctaRoute: `/pathways/${r.id}`,
+      ctaRoute: `/reports/${r.id}`,
       status: "needs_review",
-      urgency: "due_soon",
+      urgency: "normal",
       priority: 12,
       studentId: r.student_id ?? undefined,
       relatedReportId: r.id,
@@ -171,29 +187,34 @@ async function deriveActionsFromState(
   }
 
   // Pending invitations to this user
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("email")
     .eq("id", userId)
     .maybeSingle();
+  if (profileError) throw organizationReadError();
   if (profile?.email) {
-    const { data: invites } = await supabase
-      .from("invitations")
-      .select("id,invitation_type")
-      .eq("email", profile.email)
-      .eq("status", "pending")
-      .limit(3);
+    const invites = await readOrganizationPages<any>((from, to) =>
+      supabase
+        .from("invitations")
+        .select("id,invitation_type", { count: "exact" })
+        .eq("email", profile.email)
+        .eq("status", "pending")
+        .order("id")
+        .range(from, to),
+    );
     for (const i of invites ?? []) {
       out.push({
         id: `derived:invite:${i.id}`,
         kind: "accept_invitation",
         title: "Accept Pending Invitation",
-        reason: "Someone invited you to collaborate — accept to see their content.",
+        reason:
+          "A pending invitation is available for review. Access depends on the invitation and your permissions.",
         ownerLabel: "You",
         ctaLabel: "Review Invitation",
         ctaRoute: `/family/invites`,
         status: "waiting",
-        urgency: "due_soon",
+        urgency: "normal",
         priority: 8,
       });
     }
@@ -201,13 +222,16 @@ async function deriveActionsFromState(
 
   // Upcoming meetings in next 14 days
   const in14 = new Date(Date.now() + 14 * 86_400_000).toISOString();
-  const { data: meetings } = await supabase
-    .from("meetings")
-    .select("id,title,scheduled_at,student_id")
-    .gte("scheduled_at", new Date().toISOString())
-    .lte("scheduled_at", in14)
-    .order("scheduled_at", { ascending: true })
-    .limit(3);
+  const meetings = await readOrganizationPages<any>((from, to) =>
+    supabase
+      .from("meetings")
+      .select("id,title,scheduled_at,student_id", { count: "exact" })
+      .gte("scheduled_at", new Date().toISOString())
+      .lte("scheduled_at", in14)
+      .order("scheduled_at", { ascending: true })
+      .order("id")
+      .range(from, to),
+  );
   for (const m of meetings ?? []) {
     out.push({
       id: `derived:meeting:${m.id}`,
@@ -218,7 +242,8 @@ async function deriveActionsFromState(
       ctaLabel: "Open Meeting",
       ctaRoute: `/meetings/${m.id}`,
       status: "needs_review",
-      urgency: "due_soon",
+      urgency:
+        new Date(m.scheduled_at).getTime() - Date.now() <= 7 * 86_400_000 ? "due_soon" : "normal",
       priority: 15,
       studentId: m.student_id ?? undefined,
       relatedMeetingId: m.id,
@@ -227,59 +252,55 @@ async function deriveActionsFromState(
 
   // Evidence gaps — for each accessible student, suggest attaching evidence
   // for priority Pathway Report sections that currently have zero links.
-  try {
-    const { data: students } = await supabase
+  const students = await readOrganizationPages<any>((from, to) =>
+    supabase
       .from("students")
-      .select("id,first_name,last_name")
-      .limit(10);
-    const studentIds = (students ?? []).map(
-      (s: { id: string }) => s.id,
-    );
-    if (studentIds.length > 0) {
-      const { data: links } = await supabase
+      .select("id,first_name,last_name", { count: "exact" })
+      .order("id")
+      .range(from, to),
+  );
+  const studentIds = (students ?? []).map((s: { id: string }) => s.id);
+  if (studentIds.length > 0) {
+    const links = await readOrganizationBatches<any>(studentIds, (ids, from, to) =>
+      supabase
         .from("report_evidence_links")
-        .select("student_id,report_section")
-        .in("student_id", studentIds);
-      const covered = new Map<string, Set<string>>();
-      for (const l of links ?? []) {
-        const set = covered.get(l.student_id) ?? new Set<string>();
-        set.add(l.report_section);
-        covered.set(l.student_id, set);
-      }
-      let emitted = 0;
-      for (const s of students ?? []) {
-        if (emitted >= 5) break;
-        const coveredSet = covered.get(s.id) ?? new Set<string>();
-        const missing = PRIORITY_EVIDENCE_SECTIONS.filter(
-          (sec) => !coveredSet.has(sec),
-        );
-        if (missing.length === 0) continue;
-        const first = missing[0];
-        const label = REPORT_SECTION_LABELS[first];
-        const name = [s.first_name, s.last_name].filter(Boolean).join(" ") || "Student";
-        out.push({
-          id: `derived:evidence:${s.id}:${first}`,
-          kind: "attach_evidence",
-          title: `Attach evidence for ${label}`,
-          reason: `${name}'s Pathway Report has no evidence linked to "${label}" yet — attach a document, note, or meeting to strengthen it.`,
-          ownerLabel: "You",
-          ctaLabel: "Open Report Evidence",
-          ctaRoute: `/reports`,
-          status: "needs_review",
-          urgency: missing.length >= 3 ? "due_soon" : "normal",
-          priority: 18 + emitted,
-          studentId: s.id,
-        });
-        emitted += 1;
-      }
+        .select("id,student_id,report_section", { count: "exact" })
+        .in("student_id", ids)
+        .order("id")
+        .range(from, to),
+    );
+    const covered = new Map<string, Set<string>>();
+    for (const l of links ?? []) {
+      const set = covered.get(l.student_id) ?? new Set<string>();
+      set.add(l.report_section);
+      covered.set(l.student_id, set);
     }
-  } catch (e) {
-    console.error("evidence-gap derivation failed", e);
+    let emitted = 0;
+    for (const s of students ?? []) {
+      const coveredSet = covered.get(s.id) ?? new Set<string>();
+      const missing = PRIORITY_EVIDENCE_SECTIONS.filter((sec) => !coveredSet.has(sec));
+      if (missing.length === 0) continue;
+      const first = missing[0];
+      const label = REPORT_SECTION_LABELS[first];
+      const name = [s.first_name, s.last_name].filter(Boolean).join(" ") || "Student";
+      out.push({
+        id: `derived:evidence:${s.id}:${first}`,
+        kind: "attach_evidence",
+        title: `Attach evidence for ${label}`,
+        reason: `${name}'s Pathway Report has no evidence visible to you linked to "${label}" yet — attach a document, note, or meeting to strengthen it.`,
+        ownerLabel: "You",
+        ctaLabel: "Open Report Evidence",
+        ctaRoute: `/reports`,
+        status: "needs_review",
+        urgency: "normal",
+        priority: 18 + emitted,
+        studentId: s.id,
+      });
+      emitted += 1;
+    }
   }
-
   return out;
 }
-
 /**
  * Mark a stored next action as complete. Also emits an activity_history row.
  */
