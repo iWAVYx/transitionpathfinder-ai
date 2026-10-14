@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -25,10 +25,20 @@ interface Props {
 export function NextActionCardServer(props: Props) {
   const { user, loading } = useAuth();
   const viewerId = user?.id;
+  const currentViewer = useRef<string | null>(null);
+  currentViewer.current = loading ? null : (viewerId ?? null);
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const qc = useQueryClient();
   const fetchActions = useServerFn(getNextActionsForMe);
   const complete = useServerFn(completeNextAction);
-  const [completingId, setCompletingId] = useState<string | null>(null);
+  const [completion, setCompletion] = useState<{ id: string; viewerId: string } | null>(null);
+  const completingId = completion && completion.viewerId === viewerId ? completion.id : null;
 
   const q = useQuery({
     queryKey: ["next-actions", "me", viewerId],
@@ -42,14 +52,40 @@ export function NextActionCardServer(props: Props) {
   });
 
   const completeM = useMutation({
-    mutationFn: complete,
-    onMutate: (vars) => setCompletingId(vars.data.id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["next-actions", "me"] });
-      toast.success("Marked complete");
+    mutationFn: (vars: { id: string; viewerId: string; expectedUpdatedAt?: string }) =>
+      complete({
+        data: {
+          id: vars.id,
+          expected_viewer_id: vars.viewerId,
+          ...(vars.expectedUpdatedAt ? { expected_updated_at: vars.expectedUpdatedAt } : {}),
+        },
+      }),
+    onMutate: (vars) => setCompletion({ id: vars.id, viewerId: vars.viewerId }),
+    onSuccess: (result, vars) => {
+      const current = mounted.current && currentViewer.current === vars.viewerId;
+      qc.invalidateQueries({
+        queryKey: ["next-actions", "me", vars.viewerId],
+        ...(current ? {} : { refetchType: "none" as const }),
+      });
+      if (!current) return;
+      if (result.activityLogged === false)
+        toast.warning("Marked complete. Activity history could not be updated.");
+      else toast.success("Marked complete");
     },
-    onError: (e: Error) => toast.error(e.message || "Could not complete"),
-    onSettled: () => setCompletingId(null),
+    onError: (e: Error, vars) => {
+      const current = mounted.current && currentViewer.current === vars.viewerId;
+      qc.invalidateQueries({
+        queryKey: ["next-actions", "me", vars.viewerId],
+        ...(current ? {} : { refetchType: "none" as const }),
+      });
+      if (current) toast.error(e.message || "Could not complete");
+    },
+    onSettled: (_result, _error, vars) => {
+      if (mounted.current)
+        setCompletion((value) =>
+          value?.id === vars.id && value.viewerId === vars.viewerId ? null : value,
+        );
+    },
   });
 
   if (loading || !viewerId || q.isPending) return <p role="status">Loading Your Next Actions…</p>;
@@ -75,7 +111,11 @@ export function NextActionCardServer(props: Props) {
           toast.info("Open the linked item to resolve this suggestion.");
           return;
         }
-        completeM.mutate({ data: { id } });
+        completeM.mutate({
+          id,
+          viewerId,
+          expectedUpdatedAt: q.data?.active.find((action) => action.id === id)?.updatedAt,
+        });
       }}
       completingId={completingId}
       {...props}

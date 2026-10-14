@@ -1,3 +1,4 @@
+import { organizationActionDestination } from "@/lib/dashboard/organization-widget-actions.functions";
 import { z } from "zod";
 import { audiencesForRoles } from "@/lib/role-policy";
 import { personalActionDestination, type PersonalActionRole } from "./personal-action-destination";
@@ -279,65 +280,190 @@ async function deriveActionsFromState(
   // reports-list link cannot promise that workflow, so emit no gap task here.
   return out;
 }
-/**
- * Mark a stored next action as complete. Also emits an activity_history row.
- */
+const ACTIVE_ACTION_STATES = [
+  "not_started",
+  "in_progress",
+  "waiting",
+  "needs_review",
+  "due_soon",
+  "overdue",
+] as const;
+
+async function readOwnedAction(supabase: any, userId: string, id: string) {
+  const { data: row, error } = await supabase
+    .from("next_actions")
+    .select(
+      "id,owner_user_id,status,updated_at,title,cta_route,student_id,organization_id,owner_role,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at",
+    )
+    .eq("id", id)
+    .eq("owner_user_id", userId)
+    .maybeSingle();
+  if (error) throw new Error("Your action could not be loaded. Please try again.");
+  if (!row || row.id !== id || row.owner_user_id !== userId)
+    throw new Error("This action is unavailable.");
+  return row;
+}
+function assertActiveAction(row: any, expectedVersion?: string) {
+  if (expectedVersion && expectedVersion !== row.updated_at)
+    throw new Error("This action has changed. Refresh your action list before trying again.");
+  if (
+    !ACTIVE_ACTION_STATES.includes(row.status) ||
+    row.completed_at ||
+    !row.updated_at ||
+    !Number.isFinite(Date.parse(row.updated_at))
+  )
+    throw new Error("This action has changed. Refresh your action list before trying again.");
+}
+async function changeOwnedAction(supabase: any, userId: string, row: any, patch: any) {
+  const { data: changed, error } = await supabase
+    .from("next_actions")
+    .update(patch)
+    .eq("id", row.id)
+    .eq("owner_user_id", userId)
+    .eq("status", row.status)
+    .eq("updated_at", row.updated_at)
+    .is("completed_at", null)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error("Your action could not be updated. Please try again.");
+  if (!changed || changed.id !== row.id)
+    throw new Error("This action has changed. Refresh your action list before trying again.");
+}
+
+/** Complete a caller-owned active action; history logging is a separate write. */
 export const completeNextAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { id: string; note?: string }) => input)
+  .validator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        expected_viewer_id: z.string().min(1).max(100).optional(),
+        expected_updated_at: z
+          .string()
+          .max(80)
+          .refine((value) => Number.isFinite(Date.parse(value)))
+          .optional(),
+        note: z.string().trim().max(2000).optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row } = await supabase
-      .from("next_actions")
-      .select("id,title,cta_route,student_id,organization_id,owner_role,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (!row) throw new Error("Action not found");
-    if (row.completed_at) return { ok: true, alreadyCompleted: true };
-
-    const { error } = await supabase
-      .from("next_actions")
-      .update({
-        status: "completed",
-        completed_at: new Date().toISOString(),
-        completed_by: userId,
-        completion_note: data.note ?? null,
-      })
-      .eq("id", data.id);
-    if (error) throw error;
-
-    // Best-effort activity log
-    await supabase.from("activity_history").insert({
-      actor_user_id: userId,
-      actor_role: row.owner_role,
-      student_id: row.student_id,
-      organization_id: row.organization_id,
-      event_type: "step_completed",
-      subject_title: row.title,
-      subject_route: row.cta_route,
-      related_document_id: row.related_document_id,
-      related_report_id: row.related_report_id,
-      related_meeting_id: row.related_meeting_id,
-      related_opportunity_id: row.related_opportunity_id,
-      related_action_id: row.id,
-      metadata: data.note ? { note: data.note } : {},
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Refresh your action list before trying again.");
+    const row = await readOwnedAction(supabase, userId, data.id);
+    if (row.status === "completed")
+      return { ok: true, alreadyCompleted: true, activityLogged: null };
+    assertActiveAction(row, data.expected_updated_at);
+    // The task's owner-role label is not proof of the actor's current role.
+    const roles = await readOrganizationPages<{ role: string }>((from, to) =>
+      supabase
+        .from("user_roles")
+        .select("id,role", { count: "exact" })
+        .eq("user_id", userId)
+        .order("id")
+        .range(from, to),
+    );
+    const audiences = audiencesForRoles(roles.map((role) => role.role));
+    const recorded = audiencesForRoles([row.owner_role ?? ""]);
+    const actorRole =
+      (
+        [
+          "student",
+          "family",
+          "educator",
+          "school_admin",
+          "district_admin",
+          "partner",
+          "admin",
+        ] as const
+      ).find((role) => audiences.has(role) && (role === row.owner_role || recorded.has(role))) ??
+      null;
+    let subjectRoute: string | null = null;
+    if (
+      actorRole === "student" ||
+      actorRole === "family" ||
+      actorRole === "educator" ||
+      actorRole === "partner"
+    )
+      subjectRoute = personalActionDestination(actorRole, row.cta_route) ?? null;
+    else if (
+      (actorRole === "school_admin" || actorRole === "district_admin") &&
+      row.organization_id
+    ) {
+      const destination = organizationActionDestination(
+        actorRole,
+        row.organization_id,
+        row.cta_route,
+      );
+      if (destination)
+        subjectRoute =
+          destination.to +
+          "?" +
+          new URLSearchParams(destination.search).toString() +
+          (destination.hash ? "#" + destination.hash : "");
+    }
+    const now = new Date().toISOString();
+    await changeOwnedAction(supabase, userId, row, {
+      status: "completed",
+      completed_at: now,
+      completed_by: userId,
+      completion_note: data.note ?? null,
+      updated_at: now,
     });
-
-    return { ok: true };
+    let activityLogged = false;
+    try {
+      const result = await supabase.from("activity_history").insert({
+        actor_user_id: userId,
+        actor_role: actorRole,
+        student_id: row.student_id,
+        organization_id: row.organization_id,
+        event_type: "step_completed",
+        subject_title: row.title,
+        subject_route: subjectRoute,
+        related_document_id: row.related_document_id,
+        related_report_id: row.related_report_id,
+        related_meeting_id: row.related_meeting_id,
+        related_opportunity_id: row.related_opportunity_id,
+        related_action_id: row.id,
+        metadata: data.note ? { note: data.note } : {},
+      });
+      activityLogged = !result.error;
+    } catch {
+      /* Completion succeeded; do not ask the user to repeat its write. */
+    }
+    return { ok: true, alreadyCompleted: false, activityLogged };
   });
 
+/** Dismiss only an active caller-owned action; completed records stay intact. */
 export const dismissNextAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { id: string }) => input)
+  .validator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        expected_viewer_id: z.string().min(1).max(100).optional(),
+        expected_updated_at: z
+          .string()
+          .max(80)
+          .refine((value) => Number.isFinite(Date.parse(value)))
+          .optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("next_actions")
-      .update({ status: "dismissed" })
-      .eq("id", data.id);
-    if (error) throw error;
-    return { ok: true };
+    const { supabase, userId } = context;
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Refresh your action list before trying again.");
+    const row = await readOwnedAction(supabase, userId, data.id);
+    if (row.status === "dismissed") return { ok: true, alreadyDismissed: true };
+    assertActiveAction(row, data.expected_updated_at);
+    await changeOwnedAction(supabase, userId, row, {
+      status: "dismissed",
+      updated_at: new Date().toISOString(),
+    });
+    return { ok: true, alreadyDismissed: false };
   });
-
 /** Recent activity history visible to the current user. */
 export const listMyActivityHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -351,7 +477,7 @@ export const listMyActivityHistory = createServerFn({ method: "GET" })
     return (data ?? []).map((e) => ({
       id: e.id,
       eventType: e.event_type,
-      actorLabel: e.actor_role ? formatRole(e.actor_role) : "System",
+      actorLabel: e.actor_role ? formatRole(e.actor_role) : "Not Recorded",
       subjectTitle: e.subject_title,
       subjectRoute: e.subject_route ?? undefined,
       occurredAt: e.occurred_at,
