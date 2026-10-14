@@ -142,6 +142,7 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
     if (studentError) throw organizationReadError();
     if (!studentRow || studentRow.id !== studentId)
       throw new Error("This student is unavailable. Choose an accessible student and try again.");
+    const observedAt = new Date(Date.now()).toISOString();
     const [reportRes, goals, documents, actionItems, meetingRes, consents] = await Promise.all([
       supabase
         .from("pathway_reports")
@@ -187,6 +188,7 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
         .select("id,title,kind,scheduled_at,location,status")
         .eq("student_id", studentId)
         .in("status", ["upcoming"])
+        .gte("scheduled_at", observedAt)
         .order("scheduled_at", { ascending: true, nullsFirst: false })
         .order("id")
         .limit(1)

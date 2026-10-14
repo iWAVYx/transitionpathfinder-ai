@@ -1,3 +1,4 @@
+import { upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -61,8 +62,10 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
   const activeActions = snapshot.actionItems.filter((item) => item.status !== "complete");
   const completedActions = snapshot.actionItems.length - activeActions.length;
   const activeGoals = snapshot.goals.filter((goal) => goal.status !== "complete").length;
+  const observedAt = Date.now();
+  const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting, observedAt);
   const savedResources = snapshot.recommendedResources.filter((resource) => resource.saved).length;
-  const meetingDate = formatDate(snapshot.upcomingMeeting?.scheduled_at);
+  const meetingDate = formatDate(meeting?.scheduled_at);
   const studentBoundary =
     "Visible only through your signed-in student workspace and the team access already authorized for your plan.";
 
@@ -129,14 +132,14 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
     {
       icon: CalendarDays,
       title: "Meetings & Prep",
-      status: snapshot.upcomingMeeting ? meetingDate : "Not scheduled",
-      tone: snapshot.upcomingMeeting ? "default" : "muted",
+      status: meeting ? meetingDate : "Not scheduled",
+      tone: meeting ? "default" : "muted",
       summary: "Know what meeting is next and prepare questions, priorities, and talking points.",
       bullets: [
         { label: "Next meeting", value: meetingDate },
         {
           label: "Prep open",
-          value: snapshot.meetingPrep.filter((item) => !item.completed).length,
+          value: meeting ? snapshot.meetingPrep.filter((item) => !item.completed).length : 0,
         },
       ],
       cta: { label: "Open My Calendar", to: "/calendar" },
@@ -254,7 +257,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
         <SummaryItem
           label="Next Meeting"
           value={meetingDate}
-          detail={snapshot.upcomingMeeting?.title ?? "No meeting scheduled"}
+          detail={meeting?.title ?? "No meeting scheduled"}
         />
       </dl>
 

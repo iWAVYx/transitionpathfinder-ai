@@ -1,4 +1,4 @@
-import { expect, it, vi } from "vitest";
+import { expect, it, vi, beforeEach, afterEach } from "vitest";
 vi.mock("@tanstack/react-start", () => ({
   createServerFn: () => {
     let validate = (data: any) => data;
@@ -15,6 +15,8 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 import { getDashboardSnapshot } from "@/lib/golden-path.functions";
+beforeEach(() => vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-14T12:00:00Z")));
+afterEach(() => vi.restoreAllMocks());
 const A = "10000000-0000-4000-8000-000000000001";
 const B = "10000000-0000-4000-8000-000000000002";
 function db(
@@ -58,7 +60,11 @@ function db(
       const result = () => {
         let rows = tables[table].filter((row) =>
           qstate.filters.every(([op, key, value]: any) =>
-            op === "eq" ? row[key] === value : value.includes(row[key]),
+            op === "eq"
+              ? row[key] === value
+              : op === "gte"
+                ? row[key] != null && Date.parse(row[key]) >= Date.parse(value)
+                : value.includes(row[key]),
           ),
         );
         rows = [...rows].sort((a, b) => {
@@ -95,6 +101,10 @@ function db(
         },
         eq: (key: string, value: any) => {
           qstate.filters.push(["eq", key, value]);
+          return q;
+        },
+        gte: (key: string, value: string) => {
+          qstate.filters.push(["gte", key, value]);
           return q;
         },
         in: (key: string, value: any) => {
@@ -268,6 +278,39 @@ it("treats absence of a recorded report or meeting as empty rather than a read f
   d.tables.meetings = [];
   const r = await d.call();
   expect(r.latestReport).toBeNull();
+  expect(r.upcomingMeeting).toBeNull();
+  expect(r.meetingPrep).toEqual([]);
+  expect(d.queries.some((q) => q.table === "meeting_prep_items")).toBe(false);
+});
+
+it("chooses the next dated upcoming meeting rather than a past or undated upcoming record", async () => {
+  const d = db();
+  d.tables.meetings = [
+    { id: "past", student_id: A, status: "upcoming", scheduled_at: "2026-10-13T12:00:00Z" },
+    { id: "undated", student_id: A, status: "upcoming", scheduled_at: null },
+    { id: "cancelled", student_id: A, status: "cancelled", scheduled_at: "2026-10-14T13:00:00Z" },
+    { id: "next", student_id: A, status: "upcoming", scheduled_at: "2026-10-14T14:00:00Z" },
+  ];
+  d.tables.meeting_prep_items = [
+    { id: "next-prep", student_id: A, meeting_id: "next" },
+    { id: "past-prep", student_id: A, meeting_id: "past" },
+  ];
+  const r = await d.call();
+  expect(r.upcomingMeeting?.id).toBe("next");
+  expect(r.meetingPrep.map((row) => row.id)).toEqual(["next-prep"]);
+  expect(d.queries.find((q) => q.table === "meetings").filters).toContainEqual([
+    "gte",
+    "scheduled_at",
+    "2026-10-14T12:00:00.000Z",
+  ]);
+});
+it("does not prepare a meeting when only past or undated upcoming records exist", async () => {
+  const d = db();
+  d.tables.meetings = [
+    { id: "past", student_id: A, status: "upcoming", scheduled_at: "2026-10-13T12:00:00Z" },
+    { id: "undated", student_id: A, status: "upcoming", scheduled_at: null },
+  ];
+  const r = await d.call();
   expect(r.upcomingMeeting).toBeNull();
   expect(r.meetingPrep).toEqual([]);
   expect(d.queries.some((q) => q.table === "meeting_prep_items")).toBe(false);

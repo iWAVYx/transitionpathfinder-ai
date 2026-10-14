@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@/lib/golden-path.functions", () => ({ getDashboardSnapshot: vi.fn() }));
@@ -28,7 +28,11 @@ vi.mock("@/components/dashboard/ToolPreviewCard", () => ({
 }));
 import { LiveFamilyWorkspaceOverview } from "@/components/dashboard/LiveFamilyWorkspaceOverview";
 import { LiveStudentWorkspaceOverview } from "@/components/dashboard/LiveStudentWorkspaceOverview";
-afterEach(cleanup);
+beforeEach(() => vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-14T12:00:00Z")));
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 for (const role of ["family", "student"] as const)
   it(`${role} describes resource and saved totals as a preview rather than verified matches`, () => {
     const snapshot: any = {
@@ -76,4 +80,91 @@ it("keeps the Family demo's keyword preview wording distinct from verified perso
   expect(detail.stats).toContainEqual({ label: "Saved In This Preview", value: "2" });
   expect(detail.dataSource).toContain("Fictional");
   expect(detail.emptyBody).not.toContain("matched resources will show up");
+});
+
+it("uses current consent record dates in the actual Family card", () => {
+  const c = {
+    consent_status: "granted",
+    granted_at: "2026-10-13T12:00:00Z",
+    revoked_at: null,
+    expires_at: null,
+  };
+  const snapshot: any = {
+    student: { id: "student", first_name: "Sample" },
+    latestReport: null,
+    goals: [],
+    documents: [],
+    actionItems: [],
+    upcomingMeeting: null,
+    meetingPrep: [],
+    recommendedResources: [],
+    consents: [
+      c,
+      { ...c, expires_at: "2026-10-14T12:00:00Z" },
+      { ...c, granted_at: "2026-10-15T12:00:00Z" },
+      { ...c, revoked_at: "2026-10-13T13:00:00Z" },
+      { ...c, expires_at: "invalid" },
+    ],
+  };
+  render(<LiveFamilyWorkspaceOverview firstName="Sample" snapshot={snapshot} />);
+  const card = within(screen.getByRole("region", { name: "Sharing & Consent" }));
+  expect(card.getByText("1 active")).toBeTruthy();
+  expect(card.getByText("Active consents: 1")).toBeTruthy();
+});
+for (const role of ["family", "student"] as const)
+  it(`${role} does not present a cached past meeting and its prep as upcoming`, () => {
+    const snapshot: any = {
+      student: { id: "student", first_name: "Sample" },
+      latestReport: null,
+      goals: [],
+      documents: [],
+      actionItems: [],
+      upcomingMeeting: {
+        id: "past",
+        title: "Past Meeting",
+        location: "Past Location",
+        scheduled_at: "2026-10-13T12:00:00Z",
+      },
+      meetingPrep: [{ completed: false }],
+      recommendedResources: [],
+      consents: [],
+    };
+    render(
+      role === "family" ? (
+        <LiveFamilyWorkspaceOverview firstName="Sample" snapshot={snapshot} />
+      ) : (
+        <LiveStudentWorkspaceOverview snapshot={snapshot} />
+      ),
+    );
+    const prep = within(
+      screen.getByRole("region", { name: role === "family" ? "Meeting Prep" : "Meetings & Prep" }),
+    );
+    expect(prep.getByText("Not scheduled")).toBeTruthy();
+    expect(prep.getByText("Prep open: 0")).toBeTruthy();
+    if (role === "family") {
+      const calendar = within(screen.getByRole("region", { name: "Calendar" }));
+      expect(calendar.getByText("No Upcoming Meeting")).toBeTruthy();
+      expect(calendar.queryByText("Clear")).toBeNull();
+      expect(calendar.queryByText(/Past Location/)).toBeNull();
+    }
+  });
+it("does not promise personal resource suitability in the shared tool preview", async () => {
+  const { studentToolPreviewDetails } = await import("@/lib/dashboard/tool-preview-details");
+  const snapshot: any = {
+    student: null,
+    recommendedResources: [],
+    upcomingMeeting: { title: "Past Meeting", scheduled_at: "2026-10-13T12:00:00Z" },
+    meetingPrep: [{ completed: false }],
+  };
+  const meeting = studentToolPreviewDetails("/calendar", snapshot);
+  expect(meeting.details).toContainEqual({
+    label: "Next meeting",
+    value: "No meeting is scheduled yet.",
+  });
+  expect(meeting.details.find((row) => row.label === "Preparation")?.value).toBe(
+    "No upcoming meeting is selected for preparation.",
+  );
+  expect(studentToolPreviewDetails("/resources", snapshot).nextStep).toContain(
+    "decide whether it is useful",
+  );
 });
