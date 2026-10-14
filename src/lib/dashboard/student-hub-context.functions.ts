@@ -1,3 +1,4 @@
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { audiencesForRoles } from "@/lib/role-policy";
@@ -6,8 +7,10 @@ import { readOrganizationPages } from "@/lib/organization-query-pages";
 /** Resolve the caller's linked profile, never the first accessible team profile. */
 export const getStudentHubContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    assertExpectedViewer(data, userId);
     const roles = await readOrganizationPages<{ role: string }>((from, to) =>
       supabase
         .from("user_roles")

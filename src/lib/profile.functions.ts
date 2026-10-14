@@ -1,3 +1,4 @@
+import { readOrganizationPages, organizationReadError } from "@/lib/organization-query-pages";
 import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -241,11 +242,19 @@ export const getMyRoles = createServerFn({ method: "GET" })
   .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
     assertExpectedViewer(intent, userId);
-    const [{ data: rolesData }, { data: profile }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId),
+    const [rolesData, profileResult] = await Promise.all([
+      readOrganizationPages<{ role: string }>((from, to) =>
+        supabase
+          .from("user_roles")
+          .select("id,role", { count: "exact" })
+          .eq("user_id", userId)
+          .order("id")
+          .range(from, to),
+      ),
       supabase.from("profiles").select("primary_role").eq("id", userId).maybeSingle(),
     ]);
-    const roles = (rolesData ?? []).map((r) => r.role as string);
-    if (profile?.primary_role) roles.push(profile.primary_role);
+    if (profileResult.error) throw organizationReadError();
+    const roles = rolesData.map((row) => row.role);
+    if (profileResult.data?.primary_role) roles.push(profileResult.data.primary_role);
     return { roles: Array.from(new Set(roles)) };
   });

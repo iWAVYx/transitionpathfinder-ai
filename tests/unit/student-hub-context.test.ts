@@ -1,7 +1,15 @@
 import { expect, it, vi } from "vitest";
 vi.mock("@tanstack/react-start", () => ({
   createServerFn: () => {
-    const b: any = { middleware: () => b, handler: (fn: any) => fn };
+    let validate = (input: any) => input;
+    const b: any = {
+      middleware: () => b,
+      validator: (fn: any) => {
+        validate = fn;
+        return b;
+      },
+      handler: (fn: any) => (args: any) => fn({ ...args, data: validate(args.data) }),
+    };
     return b;
   },
 }));
@@ -67,7 +75,11 @@ function db(options: { fail?: string; noCount?: string; cap?: number; roles?: st
   return {
     tables,
     queries,
-    call: () => getStudentHubContext({ context: { supabase, userId: "caller" } } as any),
+    call: (expected?: string) =>
+      getStudentHubContext({
+        data: expected ? { expected_viewer_id: expected } : undefined,
+        context: { supabase, userId: "caller" },
+      } as any),
   };
 }
 it("resolves only the linked caller profile using minimal counted caller reads", async () => {
@@ -122,4 +134,10 @@ it("does not inherit another user's admin role", async () => {
   const d = db();
   d.tables.user_roles.push({ id: "foreign", user_id: "other", role: "admin" });
   expect((await d.call()).student_id).toBe("own");
+});
+
+it("rejects a changed submitting viewer before checking roles or links", async () => {
+  const d = db();
+  await expect(d.call("other")).rejects.toThrow("Your sign-in changed");
+  expect(d.queries).toEqual([]);
 });

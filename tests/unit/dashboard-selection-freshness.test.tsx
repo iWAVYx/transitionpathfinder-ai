@@ -6,6 +6,7 @@ const api = vi.hoisted(() => ({
   students: vi.fn(),
   profile: vi.fn(),
   roles: vi.fn(),
+  studentContext: vi.fn(),
   snapshot: vi.fn(),
   ensure: vi.fn(),
   seed: vi.fn(),
@@ -37,6 +38,9 @@ vi.mock("sonner", () => ({ toast: { success: api.success, error: api.error } }))
 vi.mock("@/lib/students.functions", () => ({
   listStudents: api.students,
   ensureOwnStudentProfile: api.ensure,
+}));
+vi.mock("@/lib/dashboard/student-hub-context.functions", () => ({
+  getStudentHubContext: api.studentContext,
 }));
 vi.mock("@/lib/profile.functions", () => ({ getProfile: api.profile, getMyRoles: api.roles }));
 vi.mock("@/lib/golden-path.functions", () => ({
@@ -140,6 +144,12 @@ function defaults() {
     primary_role: "parent",
   }));
   api.roles.mockResolvedValue({ roles: ["parent"] });
+  api.studentContext.mockResolvedValue({
+    viewer_id: api.viewer,
+    student_id: A,
+    connection_status: "ready",
+    management_only: false,
+  });
   api.snapshot.mockImplementation(async ({ data }: any) => snapshot(data.student_id));
 }
 afterEach(() => {
@@ -225,7 +235,8 @@ it("a departed Owner-role response cannot redirect the new viewer", async () => 
   const old = pending();
   api.roles.mockReturnValueOnce(old.promise).mockResolvedValue({ roles: ["parent"] });
   const v = setup();
-  await screen.findByText(`First: Student ${A}`);
+  await waitFor(() => expect(api.roles).toHaveBeenCalledOnce());
+  expect(api.students).not.toHaveBeenCalled();
   api.viewer = "other";
   v.rerender(v.node());
   await screen.findByText(`Second: Student ${D}`);
@@ -326,26 +337,247 @@ it.each([false, true])(
     expect(api.ensure).not.toHaveBeenCalled();
   },
 );
-it("does not run automatic Student setup after a failed list read", async () => {
+it("does not run automatic Student setup after a failed link read", async () => {
   defaults();
   api.profile.mockResolvedValue({ id: "caller", first_name: "First", primary_role: "student" });
   api.roles.mockResolvedValue({ roles: ["student"] });
-  api.students.mockResolvedValue({ students: [], loadFailed: true });
+  api.studentContext.mockRejectedValue(new Error("Student connection could not be loaded."));
   setup();
-  await screen.findByText("Your student list could not be loaded. Please try again.");
+  await screen.findByText("Student connection could not be loaded.");
   expect(api.ensure).not.toHaveBeenCalled();
   expect(api.snapshot).not.toHaveBeenCalled();
+  expect(api.students).not.toHaveBeenCalled();
 });
-it("Student profile reconnect retains its caller intent and checks the reloaded list", async () => {
+it("Student reconnect retains caller intent and checks the reloaded link", async () => {
   defaults();
   api.profile.mockResolvedValue({ id: "caller", first_name: "First", primary_role: "student" });
   api.roles.mockResolvedValue({ roles: ["student"] });
-  api.students
-    .mockResolvedValueOnce(students([]))
-    .mockResolvedValueOnce({ students: [], loadFailed: true });
+  api.studentContext
+    .mockResolvedValueOnce({
+      viewer_id: "caller",
+      student_id: null,
+      connection_status: "missing",
+      management_only: false,
+    })
+    .mockRejectedValueOnce(new Error("Student connection could not be loaded."));
   api.ensure.mockResolvedValue({ id: A });
   setup();
-  await screen.findByText("Your student list could not be loaded. Please try again.");
+  await screen.findByText("Student connection could not be loaded.");
   expect(api.ensure).toHaveBeenCalledWith({ data: { expected_viewer_id: "caller" } });
   expect(api.snapshot).not.toHaveBeenCalled();
+  expect(api.students).not.toHaveBeenCalled();
 });
+function studentAccount(roles = ["student"]) {
+  defaults();
+  api.roles.mockResolvedValue({ roles });
+  api.profile.mockResolvedValue({ id: "caller", first_name: "First", primary_role: "student" });
+}
+it.each([
+  { roles: ["student"] },
+  { roles: ["student", "educator"] },
+  { roles: ["student", "partner"] },
+])(
+  "resolves linked Student context instead of an accessible-list default for $roles",
+  async ({ roles }) => {
+    studentAccount(roles);
+    api.students.mockResolvedValue(students([D]));
+    setup();
+    await screen.findByText(`First: Student ${A}`);
+    expect(api.students).not.toHaveBeenCalled();
+    expect(api.studentContext).toHaveBeenCalledWith({ data: { expected_viewer_id: "caller" } });
+    expect(api.snapshot).toHaveBeenCalledWith({
+      data: { student_id: A, expected_viewer_id: "caller" },
+    });
+  },
+);
+it.each(["ambiguous", "management"])(
+  "does not repair or substitute a %s Student connection",
+  async (status) => {
+    studentAccount();
+    api.studentContext.mockResolvedValue({
+      viewer_id: "caller",
+      student_id: null,
+      connection_status: status,
+      management_only: status === "management",
+    });
+    setup();
+    if (status === "management") {
+      await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+      expect(screen.queryByText("Reconnect Test Profile")).toBeNull();
+      expect(screen.queryByRole("article")).toBeNull();
+    } else await screen.findByRole("alert");
+    expect(api.ensure).not.toHaveBeenCalled();
+    expect(api.snapshot).not.toHaveBeenCalled();
+    expect(api.students).not.toHaveBeenCalled();
+  },
+);
+it("rejects a Student link response for another viewer", async () => {
+  studentAccount();
+  api.studentContext.mockResolvedValue({
+    viewer_id: "other",
+    student_id: D,
+    connection_status: "ready",
+    management_only: false,
+  });
+  setup();
+  await screen.findByText("Your sign-in changed. Please try again.");
+  expect(api.snapshot).not.toHaveBeenCalled();
+  expect(api.ensure).not.toHaveBeenCalled();
+});
+it("repairs only a confirmed missing link and re-resolves rather than trusting the repair return", async () => {
+  studentAccount();
+  api.studentContext
+    .mockResolvedValueOnce({
+      viewer_id: "caller",
+      student_id: null,
+      connection_status: "missing",
+      management_only: false,
+    })
+    .mockResolvedValueOnce({
+      viewer_id: "caller",
+      student_id: B,
+      connection_status: "ready",
+      management_only: false,
+    });
+  api.ensure.mockResolvedValue({ id: D });
+  setup();
+  await screen.findByText(`First: Student ${B}`);
+  expect(api.snapshot).toHaveBeenCalledWith({
+    data: { student_id: B, expected_viewer_id: "caller" },
+  });
+  expect(api.snapshot).not.toHaveBeenCalledWith({
+    data: { student_id: D, expected_viewer_id: "caller" },
+  });
+  expect(api.ensure).toHaveBeenCalledOnce();
+});
+it("does not silently switch a previously accepted Student link", async () => {
+  studentAccount();
+  setup();
+  await screen.findByText(`First: Student ${A}`);
+  api.studentContext.mockResolvedValue({
+    viewer_id: "caller",
+    student_id: B,
+    connection_status: "ready",
+    management_only: false,
+  });
+  api.snapshot.mockClear();
+  fireEvent.click(screen.getByText("Reconnect Test Profile"));
+  await screen.findByText(
+    "Your previous student connection is unavailable. Ask your team to confirm it, then try again.",
+  );
+  expect(api.snapshot).not.toHaveBeenCalled();
+  expect(api.ensure).not.toHaveBeenCalled();
+});
+it("a still-missing link after repair stays empty without a default snapshot", async () => {
+  studentAccount();
+  api.studentContext.mockResolvedValue({
+    viewer_id: "caller",
+    student_id: null,
+    connection_status: "missing",
+    management_only: false,
+  });
+  api.ensure.mockResolvedValue({ id: D });
+  setup();
+  await screen.findByText("First: Student Missing");
+  expect(api.snapshot).not.toHaveBeenCalled();
+  expect(api.ensure).toHaveBeenCalledOnce();
+});
+it("a Family decision remains Family when a late profile says Student", async () => {
+  defaults();
+  const old = pending();
+  api.profile.mockReturnValueOnce(old.promise);
+  setup();
+  await screen.findByText(`caller: Student ${A}`);
+  await act(async () =>
+    old.resolve({ id: "caller", first_name: "First", primary_role: "student" }),
+  );
+  await screen.findByText(`First: Student ${A}`);
+  expect(api.studentContext).not.toHaveBeenCalled();
+  expect(screen.queryByText("Reconnect Test Profile")).toBeNull();
+});
+it("a Family plus Student account keeps Family selection while Student-only uses its own link", async () => {
+  studentAccount(["student", "parent"]);
+  setup();
+  await screen.findByText(`First: Student ${A}`);
+  expect(screen.getByRole("combobox")).toBeTruthy();
+  expect(api.studentContext).not.toHaveBeenCalled();
+  expect(api.students).toHaveBeenCalled();
+});
+it("a Student loading hint cannot bypass role confirmation or choose a Family account's student", async () => {
+  defaults();
+  window.localStorage.setItem("tf:e2e-dashboard-testid", "student-dashboard-main");
+  const old = pending();
+  api.roles.mockReturnValueOnce(old.promise);
+  setup();
+  await screen.findByText("Checking Your Workspace Access");
+  expect(api.students).not.toHaveBeenCalled();
+  expect(api.studentContext).not.toHaveBeenCalled();
+  expect(api.snapshot).not.toHaveBeenCalled();
+  await act(async () => old.resolve({ roles: ["parent"] }));
+  await screen.findByText(`First: Student ${A}`);
+  expect(api.studentContext).not.toHaveBeenCalled();
+});
+it.each(["reject", "unknown", "empty"])(
+  "failed or unsupported role result %s never loads Family by default and can retry",
+  async (kind) => {
+    defaults();
+    if (kind === "reject") api.roles.mockRejectedValueOnce(new Error("Private detail"));
+    else api.roles.mockResolvedValueOnce({ roles: kind === "empty" ? [] : ["other"] });
+    setup();
+    await screen.findByRole("alert");
+    expect(api.students).not.toHaveBeenCalled();
+    expect(api.snapshot).not.toHaveBeenCalled();
+    expect(api.studentContext).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText("Try Again"));
+    await screen.findByText(`First: Student ${A}`);
+  },
+);
+it.each([
+  ["admin", "/owner"],
+  ["educator", "/caseload"],
+  ["case_manager", "/caseload"],
+  ["school_admin", "/school/overview"],
+  ["district_admin", "/district/overview"],
+  ["partner", "/partners-manage"],
+])("%s redirects to %s without loading personal plans", async (role, to) => {
+  defaults();
+  api.roles.mockResolvedValue({ roles: [role] });
+  setup();
+  await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to, replace: true }));
+  expect(api.students).not.toHaveBeenCalled();
+  expect(api.snapshot).not.toHaveBeenCalled();
+  expect(api.studentContext).not.toHaveBeenCalled();
+});
+
+it.each([false, true])(
+  "departed Student context cannot load a snapshot or error in another viewer (failure %s)",
+  async (failure) => {
+    defaults();
+    api.roles
+      .mockResolvedValueOnce({ roles: ["student"] })
+      .mockResolvedValue({ roles: ["parent"] });
+    const old = pending();
+    api.studentContext.mockReturnValueOnce(old.promise);
+    const v = setup();
+    await waitFor(() => expect(api.studentContext).toHaveBeenCalledOnce());
+    api.viewer = "other";
+    v.rerender(v.node());
+    await screen.findByText(`Second: Student ${D}`);
+    await act(async () =>
+      failure
+        ? old.reject(new Error("Old link failure"))
+        : old.resolve({
+            viewer_id: "caller",
+            student_id: A,
+            connection_status: "ready",
+            management_only: false,
+          }),
+    );
+    expect(api.snapshot).toHaveBeenCalledTimes(1);
+    expect(api.snapshot).toHaveBeenCalledWith({
+      data: { student_id: D, expected_viewer_id: "other" },
+    });
+    expect(api.ensure).not.toHaveBeenCalled();
+    expect(screen.queryByRole("alert")).toBeNull();
+  },
+);

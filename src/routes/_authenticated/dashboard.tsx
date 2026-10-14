@@ -1,3 +1,4 @@
+import { getStudentHubContext } from "@/lib/dashboard/student-hub-context.functions";
 import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Component, useCallback, useEffect, useState, useRef, type ReactNode } from "react";
@@ -219,6 +220,7 @@ function DashboardPageForViewer({
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
   const fetchProfile = useServerFn(getProfile);
   const fetchRoles = useServerFn(getMyRoles);
+  const fetchStudentContext = useServerFn(getStudentHubContext);
   const seed = useServerFn(seedDemoStudent);
   const dashboardHint =
     typeof window === "undefined"
@@ -227,10 +229,16 @@ function DashboardPageForViewer({
         window.localStorage.getItem("tf:e2e-dashboard-testid");
   const hintedDashboardTestId =
     dashboardTestIdForDashboardHint(dashboardHint) ?? dashboardTestIdForDashboardHint(user?.email);
-  const [isStudentOnly, setIsStudentOnly] = useState<boolean | null>(null);
-  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(
-    hintedDashboardTestId,
-  );
+  const [roleDecision, setRoleDecision] = useState<"student" | "family" | null>(null);
+  const [roleError, setRoleError] = useState<string | null>(null);
+  const [roleRetry, setRoleRetry] = useState(0);
+  const isStudentOnly = roleDecision === null ? null : roleDecision === "student";
+  const dashboardTestId =
+    roleDecision === "student"
+      ? ROLE_DASHBOARD_TEST_IDS.student
+      : roleDecision === "family"
+        ? ROLE_DASHBOARD_TEST_IDS.parent
+        : hintedDashboardTestId;
 
   useEffect(() => {
     let active = true;
@@ -238,12 +246,6 @@ function DashboardPageForViewer({
       .then((p) => {
         if (!active || p.id !== user.id) return;
         if (p.first_name) setProfileFirstName(p.first_name);
-        const profileTestId =
-          dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId;
-        if (profileTestId) {
-          setDashboardTestId(profileTestId);
-          setIsStudentOnly(profileTestId === ROLE_DASHBOARD_TEST_IDS.student);
-        }
       })
       .catch(() => {
         /* fall back to user_metadata / email */
@@ -255,51 +257,43 @@ function DashboardPageForViewer({
 
   useEffect(() => {
     let active = true;
+    requestVersion.current += 1;
+    setRoleDecision(null);
+    setRoleError(null);
     fetchRoles({ data: { expected_viewer_id: user.id } })
       .then((r) => {
         if (!active) return;
         const aud = audiencesForRoles(r.roles);
         if (aud.has("admin")) {
-          navigate({ to: "/owner", replace: true });
+          void navigate({ to: "/owner", replace: true });
           return;
         }
-        const studentOnly = aud.size > 0 && aud.has("student") && aud.size === 1;
-        setIsStudentOnly(studentOnly);
-        if (studentOnly) {
-          setDashboardTestId(ROLE_DASHBOARD_TEST_IDS.student);
-        } else if (aud.has("family")) {
-          setDashboardTestId(ROLE_DASHBOARD_TEST_IDS.parent);
+        if (aud.has("family")) {
+          setRoleDecision("family");
+          return;
         }
-        // Route non-family roles to their proper workspace:
-        // - Platform Admin (admin-only) → Owner Hub instead of family UI
-        // - School/District Admin & Partner → their hub
-        // - Educator / Case Manager → /caseload (unless they also have family access)
-        // Family + Student stay on this dashboard.
-        const hasFamily = aud.has("family");
-        const hasStudent = aud.has("student");
-        if (!hasFamily && !hasStudent) {
-          if (aud.has("admin")) {
-            // Platform admin landing on /dashboard would see family widgets;
-            // send them to Owner Hub where their tools actually live.
-            navigate({ to: "/owner", replace: true });
-          } else if (aud.has("district_admin") || aud.has("school_admin") || aud.has("partner")) {
-            navigate({ to: fallbackPathFor(r.roles), replace: true });
-          } else if (aud.has("educator")) {
-            navigate({ to: "/caseload", replace: true });
-          }
+        if (aud.has("student")) {
+          setRoleDecision("student");
+          return;
         }
+        if (
+          aud.has("district_admin") ||
+          aud.has("school_admin") ||
+          aud.has("partner") ||
+          aud.has("educator")
+        ) {
+          void navigate({ to: fallbackPathFor(r.roles), replace: true });
+          return;
+        }
+        throw new Error("Your dashboard access could not be confirmed. Please try again.");
       })
       .catch(() => {
-        if (!active) return;
-        setIsStudentOnly((current) => current ?? false);
-        setDashboardTestId(
-          (current) => current ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent,
-        );
+        if (active) setRoleError("Your dashboard access could not be confirmed. Please try again.");
       });
     return () => {
       active = false;
     };
-  }, [fetchRoles, navigate, hintedDashboardTestId, user.id]);
+  }, [fetchRoles, navigate, user.id, roleRetry]);
 
   const [students, setStudents] = useState<StudentLite[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -310,6 +304,7 @@ function DashboardPageForViewer({
 
   const reload = useCallback(
     async (sid?: string | null) => {
+      if (!roleDecision) return;
       const version = ++requestVersion.current;
       const current = () => alive.current && requestVersion.current === version;
       if (sid !== undefined) selection.current = sid;
@@ -319,24 +314,54 @@ function DashboardPageForViewer({
       setLoadError(null);
       setSnap(null);
       try {
-        let list = await fetchStudents({ data: { expected_viewer_id: user.id } });
+        if (roleDecision === "student") {
+          let linked = await fetchStudentContext({ data: { expected_viewer_id: user.id } });
+          if (!current()) return;
+          const confirmLink = () => {
+            if (linked.viewer_id !== user.id)
+              throw new Error("Your sign-in changed. Please try again.");
+            if (linked.management_only) {
+              setRoleDecision(null);
+              void navigate({ to: "/owner", replace: true });
+              throw new Error("Opening your Owner Hub.");
+            }
+            if (linked.connection_status === "ambiguous")
+              throw new Error(
+                "More than one student profile is connected to your account. Ask your team to confirm the correct connection.",
+              );
+          };
+          confirmLink();
+          if (linked.connection_status === "missing" && !requested) {
+            await ensureStudentProfile({ data: { expected_viewer_id: user.id } });
+            if (!current()) return;
+            linked = await fetchStudentContext({ data: { expected_viewer_id: user.id } });
+            if (!current()) return;
+            confirmLink();
+          }
+          const id = linked.connection_status === "ready" ? linked.student_id : null;
+          if (requested && id !== requested)
+            throw new Error(
+              "Your previous student connection is unavailable. Ask your team to confirm it, then try again.",
+            );
+          if (!id) {
+            setSnap(EMPTY_STUDENT_SNAPSHOT);
+            return;
+          }
+          selection.current = id;
+          setSelectedId(id);
+          const data = await fetchSnapshot({
+            data: { student_id: id, expected_viewer_id: user.id },
+          });
+          if (!current()) return;
+          if (data.student?.id !== id)
+            throw new Error("The selected student could not be confirmed. Please try again.");
+          setSnap(data);
+          return;
+        }
+        const list = await fetchStudents({ data: { expected_viewer_id: user.id } });
         if (!current()) return;
         if (list.loadFailed)
           throw new Error("Your student list could not be loaded. Please try again.");
-        if (!list.students[0] && !requested) {
-          const currentProfile = await fetchProfile({ data: { expected_viewer_id: user.id } });
-          if (!current()) return;
-          if (currentProfile.id !== user.id)
-            throw new Error("Your sign-in changed. Please try again.");
-          if (currentProfile.primary_role === "student") {
-            await ensureStudentProfile({ data: { expected_viewer_id: user.id } });
-            if (!current()) return;
-            list = await fetchStudents({ data: { expected_viewer_id: user.id } });
-            if (!current()) return;
-            if (list.loadFailed)
-              throw new Error("Your student list could not be loaded. Please try again.");
-          }
-        }
         const studentList = list.students.map((s) => ({
           id: s.id,
           first_name: s.first_name,
@@ -366,7 +391,15 @@ function DashboardPageForViewer({
         if (current()) setLoading(false);
       }
     },
-    [ensureStudentProfile, fetchProfile, fetchSnapshot, fetchStudents, user.id],
+    [
+      ensureStudentProfile,
+      fetchStudentContext,
+      fetchSnapshot,
+      fetchStudents,
+      user.id,
+      roleDecision,
+      navigate,
+    ],
   );
 
   useEffect(() => {
@@ -376,7 +409,7 @@ function DashboardPageForViewer({
   // Onboarding gate is owned by `_authenticated.tsx`; no redundant check here.
 
   async function handleSeed() {
-    if (!alive.current || seeding) return;
+    if (!alive.current || seeding || roleDecision !== "family") return;
     setSeeding(true);
     try {
       const { studentId } = await seed({ data: { expected_viewer_id: user.id } });
@@ -414,21 +447,32 @@ function DashboardPageForViewer({
       </div>
     ) : null;
 
-  /* ---------- student-only audience: first-person dashboard ----------
-   *
-   * Rendered BEFORE the generic loading / empty branches so a student
-   * viewer always gets `<main data-testid="student-dashboard-main">` even
-   * while the snapshot or student list is still resolving, and never falls
-   * through to the parent-audience empty state (which would render the
-   * wrong dashboard test id and blank-render the student-setup probe).
-   *
-   * `treatAsStudent` also honors the E2E dashboard hint (email/URL/
-   * localStorage) so the render path is stable when the roles fetch is
-   * momentarily unavailable — the underlying RLS still protects data.
-   */
-  const treatAsStudent =
-    isStudentOnly === true ||
-    (isStudentOnly === null && hintedDashboardTestId === ROLE_DASHBOARD_TEST_IDS.student);
+  // Hints only keep the loading landmark stable; they never choose an audience or student.
+  if (!roleDecision) {
+    const studentLoadingHint = hintedDashboardTestId === ROLE_DASHBOARD_TEST_IDS.student;
+    return (
+      <SiteShell dashboardTestId={studentLoadingHint ? ROLE_DASHBOARD_TEST_IDS.student : undefined}>
+        <div
+          className="mx-auto max-w-3xl px-4 py-16 text-center"
+          role={roleError ? "alert" : "status"}
+        >
+          <h1 className="font-display text-2xl">
+            {roleError ? "We Could Not Confirm Your Workspace" : "Checking Your Workspace Access"}
+          </h1>
+          {roleError && (
+            <>
+              <p className="mt-3 text-sm">{roleError}</p>
+              <Button className="mt-4" onClick={() => setRoleRetry((value) => value + 1)}>
+                Try Again
+              </Button>
+            </>
+          )}
+        </div>
+      </SiteShell>
+    );
+  }
+
+  const treatAsStudent = isStudentOnly === true;
   if (treatAsStudent) {
     return (
       <StudentDashboard
