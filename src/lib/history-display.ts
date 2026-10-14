@@ -53,6 +53,7 @@ const knownActivityLabels = new Map([
   ["document.permission.grant", "Document Sharing Granted"],
   ["document.permission.revoke", "Document Sharing Removed"],
   ["view_document", "Document Viewed"],
+  ["sharing.updated", "Sharing Updated"],
 ]);
 export function humanizeAction(entry: Pick<AuditEntry, "action" | "entity_type">): string {
   const known = knownActivityLabels.get(entry.action.toLowerCase());

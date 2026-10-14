@@ -32,6 +32,7 @@ import {
   actorLabel,
   type HistoryFilterKey,
 } from "@/lib/history-display";
+import { HistoryPrintPreview, type PreparedHistory } from "./HistoryPrintPreview";
 import { createHistoryCsv } from "@/lib/history-export";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { HistoryStudent, HistoryOrganization } from "@/lib/organization-history.types";
@@ -261,6 +262,8 @@ function StudentHistoryReader({
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState(false);
   const exportBusy = useRef(false);
+  const exportGeneration = useRef(0);
+  const [prepared, setPrepared] = useState<PreparedHistory | null>(null);
   const [tab, setTab] = useState<HistoryFilterKey>("all");
 
   const activeFilter = useRef(tab);
@@ -343,7 +346,7 @@ function StudentHistoryReader({
     return entries.filter((e) => classifyEntry(e) === tab);
   }, [entries, tab]);
 
-  const downloadCsv = async () => {
+  const downloadSelection = async (format: "csv" | "preview" | "print") => {
     if (
       !alive.current ||
       exportBusy.current ||
@@ -354,6 +357,7 @@ function StudentHistoryReader({
       filtered.length > 10000
     )
       return;
+    const ticket = ++exportGeneration.current;
     const requestedFilter = tab;
     const loadedCount = entries.length;
     const olderAvailable = !!nextCursor;
@@ -369,13 +373,23 @@ function StudentHistoryReader({
           ...(organization ? { organization } : {}),
         },
       });
-      if (!alive.current || activeFilter.current !== requestedFilter) return;
-      const csv = createHistoryCsv(result, {
+      if (
+        !alive.current ||
+        activeFilter.current !== requestedFilter ||
+        ticket !== exportGeneration.current
+      )
+        return;
+      const context = {
         filter: requestedFilter,
         loadedCount,
         olderAvailable,
         exportedAt: new Date().toISOString(),
-      });
+      };
+      if (format !== "csv") {
+        setPrepared({ records: result, context, printNow: format === "print" });
+        return;
+      }
+      const csv = createHistoryCsv(result, context);
       const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
       try {
         const link = document.createElement("a");
@@ -391,7 +405,12 @@ function StudentHistoryReader({
         setTimeout(() => URL.revokeObjectURL(url), 2000);
       }
     } catch {
-      if (alive.current && activeFilter.current === requestedFilter) setExportError(true);
+      if (
+        alive.current &&
+        activeFilter.current === requestedFilter &&
+        ticket === exportGeneration.current
+      )
+        setExportError(true);
     } finally {
       if (alive.current) {
         exportBusy.current = false;
@@ -433,20 +452,36 @@ function StudentHistoryReader({
         to 200 records at a time. Counts and filters apply to the {entries.length} loaded records.
       </p>
       <div className="mb-4">
-        <Button
-          variant="outline"
-          disabled={
-            loading ||
-            error ||
-            olderLoading ||
-            exporting ||
-            !filtered.length ||
-            filtered.length > 10000
-          }
-          onClick={() => void downloadCsv()}
-        >
-          {exporting ? "Preparing Activity Export…" : "Export Loaded Activity (CSV)"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            disabled={
+              loading ||
+              error ||
+              olderLoading ||
+              exporting ||
+              !filtered.length ||
+              filtered.length > 10000
+            }
+            onClick={() => void downloadSelection("csv")}
+          >
+            {exporting ? "Preparing Activity Export…" : "Export Loaded Activity (CSV)"}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={
+              loading ||
+              error ||
+              olderLoading ||
+              exporting ||
+              !filtered.length ||
+              filtered.length > 10000
+            }
+            onClick={() => void downloadSelection("preview")}
+          >
+            Prepare Printable History
+          </Button>
+        </div>
         <p className="mt-2 text-xs text-muted-foreground">
           Exports the selected category from your loaded records, with a fresh access check. Private
           record details are excluded.
@@ -465,6 +500,8 @@ function StudentHistoryReader({
       <Tabs
         value={tab}
         onValueChange={(v) => {
+          ++exportGeneration.current;
+          setPrepared(null);
           setExportError(false);
           setTab(v as HistoryFilterKey);
         }}
@@ -568,6 +605,18 @@ function StudentHistoryReader({
         <p className="mt-4 text-sm text-muted-foreground">
           No older recorded activity is available in this view.
         </p>
+      )}
+      {prepared && (
+        <HistoryPrintPreview
+          prepared={prepared}
+          busy={exporting}
+          failed={exportError}
+          onClose={() => {
+            ++exportGeneration.current;
+            setPrepared(null);
+          }}
+          onPrint={() => void downloadSelection("print")}
+        />
       )}
       {footer}
     </div>

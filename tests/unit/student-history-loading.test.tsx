@@ -83,6 +83,7 @@ function deferred() {
   });
   return { promise, resolve, reject };
 }
+const originalImageDecode = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "decode");
 const chooseSecond = () =>
   fireEvent.change(screen.getByLabelText("Student"), { target: { value: B } });
 afterEach(() => {
@@ -94,6 +95,9 @@ afterEach(() => {
   api.export.mockReset();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  if (originalImageDecode)
+    Object.defineProperty(HTMLImageElement.prototype, "decode", originalImageDecode);
+  else delete (HTMLImageElement.prototype as any).decode;
 });
 it.each([false, true])(
   "switching students ignores old history successes/errors (%s)",
@@ -770,4 +774,90 @@ it.each(["empty", "failure", "loading"])("export is unavailable for %s activity"
   const button = await screen.findByRole("button", { name: "Export Loaded Activity (CSV)" });
   expect((button as HTMLButtonElement).disabled).toBe(true);
   expect(api.export).not.toHaveBeenCalled();
+});
+
+function printFixture(decode = () => Promise.resolve()) {
+  Object.defineProperty(HTMLImageElement.prototype, "decode", {
+    configurable: true,
+    value: vi.fn(decode),
+  });
+  return vi.spyOn(window, "print").mockImplementation(() => {});
+}
+for (const [role, route] of historyRoutes) {
+  it(`${role} printable preview and print freshly verify the current loaded selection`, async () => {
+    const print = printFixture();
+    api.students.mockResolvedValue(roster);
+    api.organizationRoster.mockResolvedValue({ organization_id: A, students: roster.students });
+    api.audit.mockResolvedValue({ entries: [record("loaded_history")] });
+    api.export.mockResolvedValueOnce(exportResult).mockResolvedValueOnce({
+      ...exportResult,
+      student: { first_name: "Updated Synthetic", last_name: "Student" },
+    });
+    await renderHistoryRoute(role, route, B);
+    await screen.findByText("Loaded history — document");
+    fireEvent.click(screen.getByRole("button", { name: "Prepare Printable History" }));
+    await screen.findByRole("dialog");
+    expect(screen.getByText("Synthetic Student")).toBeTruthy();
+    expect(print).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Print or Save as PDF" }));
+    await waitFor(() => expect(print).toHaveBeenCalledOnce());
+    expect(screen.getByText("Updated Synthetic Student")).toBeTruthy();
+    expect(api.export).toHaveBeenCalledTimes(2);
+    expect(api.export.mock.calls[0]).toEqual(api.export.mock.calls[1]);
+    expect(api.export.mock.calls[0][0].data.student_id).toBe(B);
+    if (role === "School" || role === "District")
+      expect(api.export.mock.calls[1][0].data.organization).toEqual({
+        scope: role.toLowerCase(),
+        id: A,
+      });
+  });
+}
+it("closing a preview during fresh print verification cannot reopen it or print", async () => {
+  const print = printFixture();
+  const pending = deferred();
+  api.students.mockResolvedValue(roster);
+  api.audit.mockResolvedValue({ entries: [record("loaded_history")] });
+  api.export.mockResolvedValueOnce(exportResult).mockReturnValueOnce(pending.promise);
+  render(<StudentActivityHistory />);
+  await screen.findByText("Loaded history — document");
+  fireEvent.click(screen.getByRole("button", { name: "Prepare Printable History" }));
+  await screen.findByRole("dialog");
+  fireEvent.click(screen.getByRole("button", { name: "Print or Save as PDF" }));
+  fireEvent.click(screen.getByRole("button", { name: "Close", exact: true }));
+  await act(() => pending.resolve(exportResult));
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(print).not.toHaveBeenCalled();
+});
+it("closing a preview while images decode cancels a pending print", async () => {
+  const pending = deferred();
+  const print = printFixture(() => pending.promise);
+  api.students.mockResolvedValue(roster);
+  api.audit.mockResolvedValue({ entries: [record("loaded_history")] });
+  api.export.mockResolvedValue(exportResult);
+  render(<StudentActivityHistory />);
+  await screen.findByText("Loaded history — document");
+  fireEvent.click(screen.getByRole("button", { name: "Prepare Printable History" }));
+  await screen.findByRole("dialog");
+  fireEvent.click(screen.getByRole("button", { name: "Print or Save as PDF" }));
+  await waitFor(() => expect(HTMLImageElement.prototype.decode).toHaveBeenCalled());
+  expect(
+    (screen.getByRole("button", { name: "Preparing Print…" }) as HTMLButtonElement).disabled,
+  ).toBe(true);
+  fireEvent.click(screen.getByRole("button", { name: "Close", exact: true }));
+  await act(() => pending.resolve());
+  expect(print).not.toHaveBeenCalled();
+});
+it("a missing print asset shows a generic error and never prints an incomplete document", async () => {
+  const print = printFixture(() => Promise.reject(new Error("Private asset detail")));
+  api.students.mockResolvedValue(roster);
+  api.audit.mockResolvedValue({ entries: [record("loaded_history")] });
+  api.export.mockResolvedValue(exportResult);
+  render(<StudentActivityHistory />);
+  await screen.findByText("Loaded history — document");
+  fireEvent.click(screen.getByRole("button", { name: "Prepare Printable History" }));
+  await screen.findByRole("dialog");
+  fireEvent.click(screen.getByRole("button", { name: "Print or Save as PDF" }));
+  await screen.findByText("Activity could not be prepared. Please try again.");
+  expect(print).not.toHaveBeenCalled();
+  expect(screen.queryByText("Private asset detail")).toBeNull();
 });

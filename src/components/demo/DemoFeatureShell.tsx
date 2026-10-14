@@ -1,3 +1,4 @@
+import { DemoHistoryExport } from "./DemoHistoryExport";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -50,7 +51,7 @@ export function DemoFeatureShell({
   detail: DemoFeatureDetail;
   richModule?: React.ReactNode;
 }) {
-  const { profileId } = useDemoStudent();
+  const { profileId, profile } = useDemoStudent();
   const { schoolId } = useDemoSchool();
   const { districtId } = useDemoDistrict();
   const { planId } = useDemoPartnerPlan();
@@ -132,6 +133,8 @@ export function DemoFeatureShell({
             </div>
           )}
         </header>
+
+        {role === "family" && detail.id === "history" && <div className="mt-6"><DemoHistoryExport key={profileId} displayName={profile.displayName}/></div>}
 
         {richModule && <div className="mt-8">{richModule}</div>}
 

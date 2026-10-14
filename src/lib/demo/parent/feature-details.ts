@@ -59,7 +59,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     eyebrow: "Who accessed the plan",
     summary:
       "Review examples of recorded access to {studentShortName}'s plan and documents. This is an activity log, not a year-over-year assessment archive.",
-    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected. The signed-in view loads up to 200 recorded events at a time, with an option to load older activity. Counts and filters apply to the records loaded so far. A CSV export includes the selected category from loaded records after a fresh access check, with raw identifiers and private event details excluded.",
+    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected. The signed-in view loads up to 200 recorded events at a time, with an option to load older activity. Counts and filters apply to the records loaded so far. CSV and printable history use the selected category from loaded records after a fresh access check, with raw identifiers and private event details excluded. This demo offers clearly fictional sample files using the same document layout.",
     dataSource: "Fictional examples of authorized activity events",
     primaryAction: { label: "Open Access & Activity History", to: "/family/history" },
     connectsTo: ["IEP & Documents", "Sharing & Consent"],

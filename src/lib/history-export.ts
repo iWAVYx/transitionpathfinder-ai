@@ -6,20 +6,59 @@ import {
   type HistoryFilterKey,
 } from "./history-display";
 import { organizationCsvCell } from "./organization-report-export";
+export type HistoryExportContext = {
+  filter: HistoryFilterKey;
+  loadedCount: number;
+  olderAvailable: boolean;
+  exportedAt: string;
+  sample?: boolean;
+};
+export function historyCategoryLabel(key: HistoryFilterKey) {
+  return key === "all"
+    ? "All Loaded Activity"
+    : (HISTORY_FILTERS.find((filter) => filter.key === key)?.label ?? "Other Activity");
+}
+export function historyWorkspaceLabel(scope: HistoryExportRecords["workspace_scope"]) {
+  return scope === "school" ? "School" : scope === "district" ? "District" : "Student Records";
+}
+export function historyTimestamp(value: string) {
+  const time = new Date(value);
+  if (Number.isNaN(time.getTime())) return "Recorded Time Unavailable";
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).formatToParts(time);
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  const fraction = value.match(/\.([0-9]+)(?:Z|[+-][0-9]{2}:?[0-9]{2})$/)?.[1];
+  return `${part("month")} ${part("day")}, ${part("year")} at ${part("hour")}:${part("minute")}:${part("second")}${fraction ? `.${fraction}` : ""} ${part("dayPeriod")} UTC`;
+}
 /** CSV is a limited data export, not a complete archive or printable report. */
 export function createHistoryCsv(
   records: HistoryExportRecords,
-  context: {
-    filter: HistoryFilterKey;
-    loadedCount: number;
-    olderAvailable: boolean;
-    exportedAt: string;
-  },
+  context: HistoryExportContext,
 ): string {
   const category = (key: HistoryFilterKey) =>
     HISTORY_FILTERS.find((filter) => filter.key === key)?.label ?? "Other Activity";
   const lines: unknown[][] = [
-    ["TransitionForward Activity History"],
+    [
+      context.sample
+        ? "TransitionForward Activity History - Fictional Sample"
+        : "TransitionForward Activity History",
+    ],
+    ...(context.sample
+      ? [
+          [
+            "Sample Notice",
+            "Fictional demonstration only. Contains no real student records or real access events.",
+          ],
+        ]
+      : []),
     ["Student", [records.student.first_name, records.student.last_name].filter(Boolean).join(" ")],
     [
       "Workspace Scope",
