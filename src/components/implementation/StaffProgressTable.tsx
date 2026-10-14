@@ -5,16 +5,23 @@ export type StaffProgressRow = {
   key: string;
   name: string;
   role: string;
-  status: "active" | "pending" | "inactive";
+  status: "active" | "pending" | "invited" | "inactive" | "suspended" | "removed" | "unknown";
   joined?: string | null;
   progress?: number; // 0-100 optional
   detail?: string;
 };
 
-function statusBadge(s: StaffProgressRow["status"]) {
-  if (s === "active") return <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100">Active</Badge>;
-  if (s === "pending") return <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-100">Pending</Badge>;
-  return <Badge variant="secondary">Inactive</Badge>;
+export function membershipAccessStatus(status: string): StaffProgressRow["status"] {
+  return ["active", "pending", "invited", "inactive", "suspended", "removed"].includes(status)
+    ? (status as StaffProgressRow["status"])
+    : "unknown";
+}
+function statusBadge(status: StaffProgressRow["status"]) {
+  const label =
+    status === "unknown" ? "Status Unavailable" : status.charAt(0).toUpperCase() + status.slice(1);
+  if (status === "active") return <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100">{label}</Badge>;
+  if (status === "pending" || status === "invited") return <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-100">{label}</Badge>;
+  return <Badge variant="secondary">{label}</Badge>;
 }
 
 export function StaffProgressTable({
@@ -50,8 +57,8 @@ export function StaffProgressTable({
                 <th className="px-5 py-2 font-medium">Name</th>
                 <th className="px-3 py-2 font-medium">Role</th>
                 <th className="px-3 py-2 font-medium">Status</th>
-                <th className="px-3 py-2 font-medium">Joined</th>
-                <th className="px-5 py-2 font-medium">Onboarding</th>
+                <th className="px-3 py-2 font-medium">Added</th>
+                <th className="px-5 py-2 font-medium">Training Progress</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -61,21 +68,32 @@ export function StaffProgressTable({
                     <div className="font-medium">{r.name}</div>
                     {r.detail && <div className="text-xs text-muted-foreground">{r.detail}</div>}
                   </td>
-                  <td className="px-3 py-3 capitalize text-muted-foreground">{r.role.replace(/_/g, " ")}</td>
+                  <td className="px-3 py-3 capitalize text-muted-foreground">
+                    {r.role.replace(/_/g, " ")}
+                  </td>
                   <td className="px-3 py-3">{statusBadge(r.status)}</td>
                   <td className="px-3 py-3 text-xs text-muted-foreground">
-                    {r.joined ? new Date(r.joined).toLocaleDateString() : "—"}
+                    {r.joined && !Number.isNaN(Date.parse(r.joined))
+                      ? new Date(r.joined).toLocaleDateString()
+                      : "Not recorded"}
                   </td>
                   <td className="px-5 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-28 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className="h-full bg-primary transition-[width]"
-                          style={{ width: `${Math.max(r.progress ?? 0, 2)}%` }}
-                        />
+                    {r.progress != null &&
+                    Number.isFinite(r.progress) &&
+                    r.progress >= 0 &&
+                    r.progress <= 100 ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-28 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full bg-primary transition-[width]"
+                            style={{ width: `${r.progress}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground">{r.progress}%</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">{r.progress ?? 0}%</span>
-                    </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Not recorded</span>
+                    )}
                   </td>
                 </tr>
               ))}

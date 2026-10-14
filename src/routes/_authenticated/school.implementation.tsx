@@ -11,7 +11,7 @@ import { getSchoolReadiness, type SchoolReadiness, type SchoolDashboard, type Sc
 import { RolloutMilestonesCard, type RolloutMilestone } from "@/components/implementation/RolloutMilestonesCard";
 import { TrainingScheduleCard } from "@/components/implementation/TrainingScheduleCard";
 import { ReportingDeadlinesCard } from "@/components/implementation/ReportingDeadlinesCard";
-import { StaffProgressTable, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
+import { StaffProgressTable, membershipAccessStatus, type StaffProgressRow } from "@/components/implementation/StaffProgressTable";
 import { CompletionRingsBoard } from "@/components/implementation/CompletionRingsBoard";
 
 export const Route = createFileRoute("/_authenticated/school/implementation")({
@@ -162,32 +162,32 @@ function SchoolImplementationExtras({ org, dash }: { org: SchoolOrg; dash: Schoo
     },
     {
       key: "staff-invited",
-      label: "Staff invited",
-      detail: "Educators and case managers have been invited to the workspace.",
+      label: "Team Members Added",
+      detail: "More than one membership is recorded for this school.",
       done: m.total_members > 1,
     },
     {
       key: "staff-active",
-      label: "Staff onboarded",
-      detail: "At least 3 staff members are active and using the platform.",
+      label: "Staff Access Established",
+      detail: "At least three staff members have active workspace access.",
       done: m.active_members >= 3,
     },
     {
       key: "students-added",
-      label: "Students added",
-      detail: "Students have been added to educator caseloads.",
+      label: "Students Connected",
+      detail: "At least one student is assigned to this school.",
       done: m.students_count > 0,
     },
     {
       key: "documents-uploaded",
-      label: "IEP & evaluation documents uploaded",
-      detail: "Source documents are in place so Pathway Reports can be generated.",
+      label: "Documents Recorded",
+      detail: "At least one document record is available in this school scope.",
       done: m.documents_count > 0,
     },
     {
       key: "first-report",
-      label: "First Pathway Report generated",
-      detail: "Your team has produced its first Pathway Report from a student's records.",
+      label: "First Pathway Report Recorded",
+      detail: "At least one Pathway Report record is available for this school.",
       done: m.reports_count > 0,
     },
     {
@@ -203,18 +203,16 @@ function SchoolImplementationExtras({ org, dash }: { org: SchoolOrg; dash: Schoo
       key: `m:${mem.membership_id}`,
       name: mem.full_name || mem.email || "Unnamed member",
       role: mem.role_within_org,
-      status: "active" as const,
+      status: membershipAccessStatus(mem.status),
       joined: mem.joined_at,
-      progress: 100,
       detail: mem.email ?? undefined,
     })),
     ...dash.pending_members.map((mem) => ({
       key: `p:${mem.membership_id}`,
-      name: mem.full_name || mem.email || "Pending invite",
+      name: mem.full_name || mem.email || "Unnamed member",
       role: mem.role_within_org,
-      status: "pending" as const,
+      status: membershipAccessStatus(mem.status),
       joined: mem.joined_at,
-      progress: 25,
       detail: mem.email ?? undefined,
     })),
   ];
@@ -227,8 +225,8 @@ function SchoolImplementationExtras({ org, dash }: { org: SchoolOrg; dash: Schoo
         <ReportingDeadlinesCard scope="school" />
       </div>
       <StaffProgressTable
-        title="Staff Onboarding Progress"
-        subtitle="Active and pending members of your school workspace."
+        title="Staff Access"
+        subtitle="Recorded membership status. Training completion is not recorded here."
         rows={rows}
         emptyLabel="No staff invited yet. Invite educators and case managers to get started."
       />

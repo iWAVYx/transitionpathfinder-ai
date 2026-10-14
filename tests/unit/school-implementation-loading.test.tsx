@@ -42,7 +42,8 @@ vi.mock("@/components/implementation/TrainingScheduleCard", () => ({
 vi.mock("@/components/implementation/ReportingDeadlinesCard", () => ({
   ReportingDeadlinesCard: () => null,
 }));
-vi.mock("@/components/implementation/StaffProgressTable", () => ({
+vi.mock("@/components/implementation/StaffProgressTable", async (importOriginal) => ({
+  ...await importOriginal<any>(),
   StaffProgressTable: () => null,
 }));
 import { Route } from "@/routes/_authenticated/school.implementation";
