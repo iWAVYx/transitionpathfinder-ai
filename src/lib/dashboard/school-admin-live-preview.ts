@@ -31,7 +31,10 @@ export function buildSchoolAdminLivePreview(
 
   const metrics = data.metrics;
   const staffActivation = percent(metrics.active_members, metrics.total_members);
-  const reportCoverage = percent(metrics.reports_count, metrics.students_count);
+  const reportCoverage =
+    metrics.students_with_report == null
+      ? null
+      : percent(metrics.students_with_report, metrics.students_count);
   const gradeRows = countByGrade(data).map(([grade, count]) => ({
     primary: `${grade} · ${count} student${count === 1 ? "" : "s"}`,
     secondary: "Authorized roster count; no student names or documents shown.",
@@ -138,7 +141,9 @@ export function buildSchoolAdminLivePreview(
       stats: [
         { label: "Report records", value: String(metrics.reports_count) },
         { label: "Students", value: String(metrics.students_count) },
-        { label: "Coverage signal", value: `${reportCoverage}%` },
+        ...(reportCoverage == null
+          ? []
+          : [{ label: "Students With Reports", value: `${reportCoverage}%` }]),
       ],
       rows: [
         {
