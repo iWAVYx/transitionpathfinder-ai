@@ -9,6 +9,8 @@ vi.mock("@/lib/calendar.functions", () => ({ listCalendarEvents: api.calendar })
 vi.mock("@/lib/dashboard/dashboard-widget-prefs.functions", async importOriginal => ({ ...(await importOriginal<any>()), getDashboardWidgetPrefs: api.prefs, updateDashboardWidgetPrefs: api.save }));
 vi.mock("@/lib/next-actions/next-actions.functions", () => ({ getNextActionsForMe: vi.fn() }));
 vi.mock("@/components/dashboard/DashboardWidgetBoardView", () => ({ DashboardWidgetBoardView: ({ data }: any) => <><output>{data.calendar.notice ?? (data.calendar.loading ? "Calendar Loading" : "Calendar Ready")}</output>{data.calendar.error && <p role="alert">Calendar Error</p>}{data.calendar.entries.map((entry: any) => <p key={entry.id}>{entry.title}</p>)}</> }));
+vi.mock("@/lib/dashboard/organization-widget-actions.functions", () => ({ getOrganizationWidgetActions: vi.fn().mockResolvedValue({ entries: [], total: 0, viewer_id: "caller" }) }));
+vi.mock("@/hooks/use-auth", () => ({ useAuth: () => ({ user: { id: "caller" }, loading: false }) }));
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { browserCalendarTimeZone } from "@/lib/calendar-day";
 function deferred() { let resolve!: (value: any) => void; let reject!: (error: Error) => void; const promise = new Promise<any>((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
@@ -38,7 +40,7 @@ it("switching a loaded school hides old entries immediately while the new school
 it("a missing school disables calendar reads and suppresses any aggregate cache rows", async () => {
   const { client, view, node } = mount();
   await waitFor(() => expect(api.prefs).toHaveBeenCalledOnce());
-  await act(async () => client.setQueryData(["dashboard-widget-calendar", "school_admin", undefined, undefined, browserCalendarTimeZone()], result("Aggregate Cached Event")));
+  await act(async () => client.setQueryData(["dashboard-widget-calendar", "school_admin", undefined, undefined, browserCalendarTimeZone(), "caller"], result("Aggregate Cached Event")));
   view.rerender(node());
   expect(api.calendar).not.toHaveBeenCalled(); expect(screen.queryByText("Aggregate Cached Event")).toBeNull(); expect(screen.getByText("A selected school is needed to show calendar events.")).toBeTruthy(); expect(api.save).not.toHaveBeenCalled();
 });

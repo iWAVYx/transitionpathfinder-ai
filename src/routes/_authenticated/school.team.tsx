@@ -1,3 +1,4 @@
+import { isPendingInvitation, membershipStatusLabel } from "@/lib/membership-status";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { useOrganizationOperation } from "@/hooks/use-organization-operation";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
@@ -67,7 +68,7 @@ function TeamPanel({
 }: {
   orgId: string;
   members: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string; primary_role: string | null; joined_at: string }>;
-  pending: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string }>;
+  pending: Array<{ membership_id: string; full_name: string | null; email: string | null; role_within_org: string; status: string }>;
   onChanged: () => void;
 }) {
   type TeamMember = (typeof members)[number];
@@ -185,14 +186,14 @@ function TeamPanel({
 
       {pending.length > 0 && (
         <div className="rounded-2xl border bg-card shadow-soft">
-          <div className="border-b px-5 py-3 text-sm font-medium">Pending ({pending.length})</div>
+          <div className="border-b px-5 py-3 text-sm font-medium">Other Memberships ({pending.length})</div>
           <ul className="divide-y">
             {pending.map((m) => (
               <li key={m.membership_id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
-                <span>{m.full_name ?? m.email ?? "—"}</span>
-                <Button size="sm" variant="outline" onClick={() => void handleApprove(m.membership_id)}>
+                <div><span>{m.full_name ?? m.email ?? "Name not recorded"}</span><p className="text-xs text-muted-foreground">{membershipStatusLabel(m.status)}</p></div>
+                {isPendingInvitation(m.status) && <Button size="sm" variant="outline" onClick={() => void handleApprove(m.membership_id)}>
                   Approve
-                </Button>
+                </Button>}
               </li>
             ))}
           </ul>

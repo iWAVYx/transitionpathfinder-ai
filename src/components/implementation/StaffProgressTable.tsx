@@ -1,3 +1,5 @@
+import { membershipStatusLabel, type MembershipAccessStatus } from "@/lib/membership-status";
+export { membershipAccessStatus } from "@/lib/membership-status";
 import { Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -5,22 +7,18 @@ export type StaffProgressRow = {
   key: string;
   name: string;
   role: string;
-  status: "active" | "pending" | "invited" | "inactive" | "suspended" | "removed" | "unknown";
+  status: MembershipAccessStatus;
   joined?: string | null;
   progress?: number; // 0-100 optional
   detail?: string;
 };
 
-export function membershipAccessStatus(status: string): StaffProgressRow["status"] {
-  return ["active", "pending", "invited", "inactive", "suspended", "removed"].includes(status)
-    ? (status as StaffProgressRow["status"])
-    : "unknown";
-}
 function statusBadge(status: StaffProgressRow["status"]) {
-  const label =
-    status === "unknown" ? "Status Unavailable" : status.charAt(0).toUpperCase() + status.slice(1);
-  if (status === "active") return <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100">{label}</Badge>;
-  if (status === "pending" || status === "invited") return <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-100">{label}</Badge>;
+  const label = membershipStatusLabel(status);
+  if (status === "active")
+    return <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100">{label}</Badge>;
+  if (status === "pending" || status === "invited")
+    return <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-100">{label}</Badge>;
   return <Badge variant="secondary">{label}</Badge>;
 }
 

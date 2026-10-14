@@ -132,7 +132,7 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
       .filter((a) => a.status === "completed")
       .slice(0, 3);
 
-    return { active, recentlyCompleted };
+    return { active, recentlyCompleted, viewer_id: userId };
   });
 
 /**

@@ -36,7 +36,7 @@ function DistrictOverviewPage() {
       {(_, d) => (
         <div className="space-y-6 sm:space-y-8">
           <DistrictAdminOverviewGrid liveData={d} selectedDistrictId={districtId} hideOverview />
-          <DashboardWidgetBoard role="district_admin" />
+          <DashboardWidgetBoard role="district_admin" organizationId={loading ? undefined : districtId} />
         </div>
       )}
     </DistrictPageShell>

@@ -69,6 +69,7 @@ vi.mock("@/components/school/SchoolPageShell", () => ({
       pending_members: [
         {
           membership_id: "pending-original",
+          status: "invited",
           full_name: "Synthetic Pending",
           role_within_org: "member",
         },

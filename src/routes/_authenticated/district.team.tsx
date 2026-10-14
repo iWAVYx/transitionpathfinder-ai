@@ -1,3 +1,4 @@
+import { membershipStatusLabel } from "@/lib/membership-status";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { useOrganizationOperation } from "@/hooks/use-organization-operation";
 import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
@@ -160,7 +161,7 @@ function TeamBody({
           </h2>
           <p className="text-sm text-muted-foreground">
             {dashboard.team.length} active ·{" "}
-            {dashboard.pending_team.length} pending
+            {dashboard.pending_team.length} other memberships
           </p>
         </div>
         {dashboard.team.length === 0 && dashboard.pending_team.length === 0 ? (
@@ -202,7 +203,7 @@ function TeamBody({
                         : "rounded-full bg-muted px-2 py-0.5 text-muted-foreground"
                     }
                   >
-                    {m.status}
+                    {membershipStatusLabel(m.status)}
                   </span>
                 </div>
               </li>

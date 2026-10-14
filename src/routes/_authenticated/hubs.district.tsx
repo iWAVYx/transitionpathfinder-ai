@@ -44,7 +44,7 @@ function HubPage() {
                 selectedDistrictId={districtId}
                 loading={loading}
               />
-              <DashboardWidgetBoard role="district_admin" />
+              <DashboardWidgetBoard role="district_admin" organizationId={loading ? undefined : districtId} />
             </>
           )}
         </WorkspaceZone>
