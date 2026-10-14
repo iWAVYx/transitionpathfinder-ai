@@ -363,7 +363,7 @@ for (const role of ["student", "family", "educator", "partner"] as const) {
     await screen.findByText("Selected Student Action");
     expect(screen.queryByText("Other Student Action")).toBeNull();
     expect(screen.getByText("Global Action")).toBeTruthy();
-    expect(api.personal).toHaveBeenCalledWith({ data: { role } });
+    expect(api.personal).toHaveBeenCalledWith({ data: { role, student_id: A } });
     expect(api.organization).not.toHaveBeenCalled();
   });
 }

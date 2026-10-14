@@ -43,6 +43,10 @@ function database(fail?: string, cap = 500, noCount = false) {
                   ? row[key] >= value
                   : row[key] <= value,
           );
+        if (state.studentScope)
+          rows = rows.filter(
+            (row) => row.student_id == null || row.student_id === state.studentScope,
+          );
         const count = rows.length;
         if (state.range)
           rows = rows.slice(state.range[0], Math.min(state.range[1] + 1, state.range[0] + cap));
@@ -63,6 +67,11 @@ function database(fail?: string, cap = 500, noCount = false) {
         },
         range: (a: number, b: number) => {
           state.range = [a, b];
+          return q;
+        },
+        or: (clause: string) => {
+          state.scopeClause = clause;
+          state.studentScope = clause.split(",")[0].slice("student_id.eq.".length);
           return q;
         },
         maybeSingle: () => {
@@ -131,7 +140,7 @@ it("keeps distinct reports for one student and does not let completion suppress 
   expect(result.active[1].ctaRoute).toBe("/reports/b");
   expect(result.active[1].urgency).toBe("normal");
 });
-it("retains all visible invitations and evidence students beyond the old caps", async () => {
+it("keeps complete supported derivations without inventing invitation or evidence handoffs", async () => {
   const db = database(undefined, 2);
   db.tables.invitations = Array.from({ length: 7 }, (_, i) => ({
     id: `i${i}`,
@@ -142,12 +151,26 @@ it("retains all visible invitations and evidence students beyond the old caps", 
     id: `s${i}`,
     first_name: "Sample",
   }));
+  db.tables.pathway_reports = Array.from({ length: 12 }, (_, i) => ({
+    id: `r${i}`,
+    student_id: `s${i}`,
+    status: "draft",
+  }));
+  db.tables.meetings = Array.from({ length: 7 }, (_, i) => ({
+    id: `m${i}`,
+    student_id: `s${i}`,
+    scheduled_at: new Date(Date.now() + 86_400_000).toISOString(),
+  }));
   const result = await db.call();
-  expect(result.active.filter((a) => a.kind === "accept_invitation")).toHaveLength(7);
-  expect(result.active.filter((a) => a.kind === "attach_evidence")).toHaveLength(12);
-  expect(result.active.find((a) => a.kind === "attach_evidence")?.reason).toContain(
-    "visible to you",
-  );
+  expect(result.active.filter((a) => a.kind === "review_report")).toHaveLength(12);
+  expect(result.active.filter((a) => a.kind === "prepare_meeting")).toHaveLength(7);
+  expect(result.active.filter((a) => a.kind === "accept_invitation")).toHaveLength(0);
+  expect(result.active.filter((a) => a.kind === "attach_evidence")).toHaveLength(0);
+  expect(
+    db.queries.some((q) =>
+      ["profiles", "invitations", "students", "report_evidence_links"].includes(q.table),
+    ),
+  ).toBe(false);
 });
 for (const table of [
   "next_actions",
@@ -158,10 +181,19 @@ for (const table of [
   "students",
   "report_evidence_links",
 ])
-  it(`fails visibly rather than inventing absence on ${table} failure`, async () => {
+  it(`handles ${table} failure through a supported read or omits that unsupported source`, async () => {
     const db = database(table);
-    db.tables.students = [{ id: "student" }];
-    await expect(db.call()).rejects.toThrow("Workspace information could not be fully loaded");
+    const selected = "10000000-0000-4000-8000-000000000001";
+    db.tables.students = [{ id: selected }];
+    if (["profiles", "invitations", "report_evidence_links"].includes(table)) {
+      const result = await db.call();
+      expect(result.active).toEqual([]);
+      expect(db.queries.some((q) => q.table === table)).toBe(false);
+    } else {
+      await expect(
+        db.call(table === "students" ? { student_id: selected } : undefined),
+      ).rejects.toThrow("Workspace information could not be fully loaded");
+    }
   });
 it("rejects missing counts instead of silently truncating", async () => {
   await expect(database(undefined, 500, true).call()).rejects.toThrow("could not be fully loaded");
@@ -234,4 +266,87 @@ it("removes ineligible primary and secondary links without inventing a fallback"
   expect(result.active.map((a) => a.id)).toEqual(["valid"]);
   expect(result.active[0].secondaryRoute).toBeUndefined();
   expect(result.active[0].secondaryLabel).toBeUndefined();
+});
+
+const SELECTED = "10000000-0000-4000-8000-000000000001";
+const OTHER = "10000000-0000-4000-8000-000000000002";
+for (const role of ["student", "family", "educator", "partner"] as const)
+  it(`${role} checks the selected student and narrows stored and derived records before returning`, async () => {
+    const db = database(undefined, 2);
+    db.tables.user_roles = [
+      { id: "role", user_id: "caller", role: role === "family" ? "parent" : role },
+    ];
+    db.tables.students = [{ id: SELECTED }, { id: OTHER }];
+    const route = role === "partner" ? "/partners-manage/profile" : "/reports";
+    db.tables.next_actions = [
+      row("selected", { student_id: SELECTED, cta_route: route }),
+      row("other", { student_id: OTHER, cta_route: route }),
+      row("global", { student_id: null, cta_route: route }),
+      row("foreign", { student_id: SELECTED, owner_user_id: "other", cta_route: route }),
+    ];
+    db.tables.pathway_reports = [
+      { id: "selected-report", student_id: SELECTED, status: "draft" },
+      { id: "other-report", student_id: OTHER, status: "draft" },
+    ];
+    db.tables.meetings = [
+      {
+        id: "selected-meeting",
+        student_id: SELECTED,
+        scheduled_at: new Date(Date.now() + 86_400_000).toISOString(),
+      },
+      {
+        id: "other-meeting",
+        student_id: OTHER,
+        scheduled_at: new Date(Date.now() + 86_400_000).toISOString(),
+      },
+    ];
+    const result = await db.call({ role, student_id: SELECTED });
+    expect(result.active.map((a) => a.id)).toEqual([
+      "selected",
+      "global",
+      ...(role !== "partner" ? ["derived:report:selected-report"] : []),
+      ...(["family", "educator"].includes(role) ? ["derived:meeting:selected-meeting"] : []),
+    ]);
+    const studentQuery = db.queries.find((q) => q.table === "students");
+    expect(studentQuery.filters).toContainEqual(["eq", "id", SELECTED]);
+    expect(studentQuery.counted).toBe(true);
+    expect(studentQuery.orders).toEqual(["id"]);
+    for (const q of db.queries.filter((q) => q.table === "next_actions")) {
+      expect(q.filters).toContainEqual(["eq", "owner_user_id", "caller"]);
+      expect(q.scopeClause).toBe(`student_id.eq.${SELECTED},student_id.is.null`);
+      expect(q.counted).toBe(true);
+    }
+    for (const q of db.queries.filter((q) => ["pathway_reports", "meetings"].includes(q.table)))
+      expect(q.filters).toContainEqual(["eq", "student_id", SELECTED]);
+  });
+it("rejects an unavailable student before reading action or planning sources", async () => {
+  const db = database();
+  db.tables.students = [{ id: OTHER }];
+  await expect(db.call({ student_id: SELECTED })).rejects.toThrow("student is unavailable");
+  expect(db.queries.map((q) => q.table)).toEqual(["user_roles", "students"]);
+});
+it("rejects malformed student selection before querying the database", async () => {
+  const db = database();
+  await expect(db.call({ student_id: "invalid" })).rejects.toThrow();
+  expect(db.queries).toEqual([]);
+});
+it("keeps an unavailable selection separate from a legitimate empty action list", async () => {
+  const db = database();
+  db.tables.students = [{ id: SELECTED }];
+  const result = await db.call({ student_id: SELECTED });
+  expect(result.active).toEqual([]);
+  expect(result.viewer_id).toBe("caller");
+});
+it("counts and scopes completed actions as well as active actions", async () => {
+  const db = database();
+  db.tables.students = [{ id: SELECTED }];
+  db.tables.next_actions = [
+    row("mine", { status: "completed", student_id: SELECTED }),
+    row("global", { status: "completed", student_id: null }),
+    row("other", { status: "completed", student_id: OTHER }),
+  ];
+  expect((await db.call({ student_id: SELECTED })).recentlyCompleted.map((a) => a.id)).toEqual([
+    "mine",
+    "global",
+  ]);
 });

@@ -1,25 +1,10 @@
 import { z } from "zod";
 import { audiencesForRoles } from "@/lib/role-policy";
 import { personalActionDestination, type PersonalActionRole } from "./personal-action-destination";
-import {
-  readOrganizationPages,
-  readOrganizationBatches,
-  organizationReadError,
-} from "@/lib/organization-query-pages";
+import { readOrganizationPages } from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { NextAction, NextActionStatus, NextActionUrgency, ActivityEvent } from "./types";
-import { REPORT_SECTIONS, REPORT_SECTION_LABELS } from "@/lib/report-evidence/types";
-
-/** Report sections we most want covered by evidence before a report is defensible. */
-const PRIORITY_EVIDENCE_SECTIONS: ReadonlyArray<(typeof REPORT_SECTIONS)[number]> = [
-  "snapshot",
-  "student_voice",
-  "family_priorities",
-  "documents",
-  "readiness",
-];
-
 interface DbAction {
   id: string;
   kind: string;
@@ -102,15 +87,18 @@ function formatRole(role: string): string {
 
 /**
  * Fetch active + recently completed next actions for the current user.
- * Also merges derived actions from live state (draft reports, pending
- * meetings, unreviewed documents) so users see something useful even
+ * Also merges supported derived actions from live state (draft reports and
+ * upcoming meetings) so users see something useful even
  * before any next-action rows have been inserted.
  */
 export const getNextActionsForMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
     z
-      .object({ role: z.enum(["student", "family", "educator", "partner"]).optional() })
+      .object({
+        role: z.enum(["student", "family", "educator", "partner"]).optional(),
+        student_id: z.string().uuid().optional(),
+      })
       .optional()
       .parse(input),
   )
@@ -135,21 +123,33 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
       (["educator", "family", "student", "partner"] as const).find((value) => audiences.has(value));
     if (!role) return { active: [], recentlyCompleted: [], viewer_id: userId };
 
+    const studentId = data?.student_id;
+    if (studentId) {
+      const students = await readOrganizationPages<{ id: string }>((from, to) =>
+        supabase
+          .from("students")
+          .select("id", { count: "exact" })
+          .eq("id", studentId)
+          .order("id")
+          .range(from, to),
+      );
+      if (!students.some((student) => student.id === studentId))
+        throw new Error("This student is unavailable. Choose an accessible student and try again.");
+    }
+
     const [rows, derived] = await Promise.all([
-      readOrganizationPages<DbAction>(
-        (from, to) =>
-          supabase
-            .from("next_actions")
-            .select(
-              "id,kind,title,reason,cta_label,cta_route,secondary_label,secondary_route,status,priority,due_at,blocked_reason,owner_role,student_id,organization_id,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at,updated_at",
-              { count: "exact" },
-            )
-            .eq("owner_user_id", userId)
-            .order("updated_at", { ascending: false })
-            .order("id")
-            .range(from, to) as any,
-      ),
-      deriveActionsFromState(supabase, userId, role),
+      readOrganizationPages<DbAction>((from, to) => {
+        let query = supabase
+          .from("next_actions")
+          .select(
+            "id,kind,title,reason,cta_label,cta_route,secondary_label,secondary_route,status,priority,due_at,blocked_reason,owner_role,student_id,organization_id,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at,updated_at",
+            { count: "exact" },
+          )
+          .eq("owner_user_id", userId);
+        if (studentId) query = query.or(`student_id.eq.${studentId},student_id.is.null`);
+        return query.order("updated_at", { ascending: false }).order("id").range(from, to) as any;
+      }),
+      deriveActionsFromState(supabase, role, studentId),
     ]);
 
     const storedRows = rows
@@ -203,27 +203,27 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
 /**
  * Caller-visible derivation pass — reads complete counted source lists and
  * emits synthetic Next Actions for the authenticated personal role. Never writes to the DB.
- * Invitation-type and evidence-attachment handoffs remain a separate audit.
+ * Unsupported invitation and evidence-attachment suggestions are intentionally omitted.
  */
 async function deriveActionsFromState(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
-  userId: string,
   role: PersonalActionRole,
+  studentId?: string,
 ): Promise<NextAction[]> {
   const out: NextAction[] = [];
 
   if (role === "partner") return out;
 
   // Draft pathway reports
-  const reports = await readOrganizationPages<any>((from, to) =>
-    supabase
+  const reports = await readOrganizationPages<any>((from, to) => {
+    let query = supabase
       .from("pathway_reports")
       .select("id,student_id,status,updated_at", { count: "exact" })
-      .in("status", ["draft", "needs_review"])
-      .order("id")
-      .range(from, to),
-  );
+      .in("status", ["draft", "needs_review"]);
+    if (studentId) query = query.eq("student_id", studentId);
+    return query.order("id").range(from, to);
+  });
   for (const r of reports ?? []) {
     out.push({
       id: `derived:report:${r.id}`,
@@ -241,56 +241,22 @@ async function deriveActionsFromState(
     });
   }
 
-  // Pending invitations to this user
-  if (role === "family") {
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("id", userId)
-      .maybeSingle();
-    if (profileError) throw organizationReadError();
-    if (profile?.email) {
-      const invites = await readOrganizationPages<any>((from, to) =>
-        supabase
-          .from("invitations")
-          .select("id,invitation_type", { count: "exact" })
-          .eq("email", profile.email)
-          .eq("status", "pending")
-          .order("id")
-          .range(from, to),
-      );
-      for (const i of invites ?? []) {
-        out.push({
-          id: `derived:invite:${i.id}`,
-          kind: "accept_invitation",
-          title: "Accept Pending Invitation",
-          reason:
-            "A pending invitation is available for review. Access depends on the invitation and your permissions.",
-          ownerLabel: "You",
-          ctaLabel: "Review Invitation",
-          ctaRoute: `/family/invites`,
-          status: "waiting",
-          urgency: "normal",
-          priority: 8,
-        });
-      }
-    }
-  }
-
+  // General invitations require their emailed secure token; Family's inbox
+  // handles collaborator invites instead. Do not invent a token or inbox CTA.
   if (role === "student") return out;
 
   // Upcoming meetings in next 14 days
   const in14 = new Date(Date.now() + 14 * 86_400_000).toISOString();
-  const meetings = await readOrganizationPages<any>((from, to) =>
-    supabase
+  const now = new Date().toISOString();
+  const meetings = await readOrganizationPages<any>((from, to) => {
+    let query = supabase
       .from("meetings")
       .select("id,title,scheduled_at,student_id", { count: "exact" })
-      .gte("scheduled_at", new Date().toISOString())
-      .lte("scheduled_at", in14)
-      .order("scheduled_at", { ascending: true })
-      .order("id")
-      .range(from, to),
-  );
+      .gte("scheduled_at", now)
+      .lte("scheduled_at", in14);
+    if (studentId) query = query.eq("student_id", studentId);
+    return query.order("scheduled_at", { ascending: true }).order("id").range(from, to);
+  });
   for (const m of meetings ?? []) {
     out.push({
       id: `derived:meeting:${m.id}`,
@@ -309,55 +275,8 @@ async function deriveActionsFromState(
     });
   }
 
-  // Evidence gaps — for each accessible student, suggest attaching evidence
-  // for priority Pathway Report sections that currently have zero links.
-  const students = await readOrganizationPages<any>((from, to) =>
-    supabase
-      .from("students")
-      .select("id,first_name,last_name", { count: "exact" })
-      .order("id")
-      .range(from, to),
-  );
-  const studentIds = (students ?? []).map((s: { id: string }) => s.id);
-  if (studentIds.length > 0) {
-    const links = await readOrganizationBatches<any>(studentIds, (ids, from, to) =>
-      supabase
-        .from("report_evidence_links")
-        .select("id,student_id,report_section", { count: "exact" })
-        .in("student_id", ids)
-        .order("id")
-        .range(from, to),
-    );
-    const covered = new Map<string, Set<string>>();
-    for (const l of links ?? []) {
-      const set = covered.get(l.student_id) ?? new Set<string>();
-      set.add(l.report_section);
-      covered.set(l.student_id, set);
-    }
-    let emitted = 0;
-    for (const s of students ?? []) {
-      const coveredSet = covered.get(s.id) ?? new Set<string>();
-      const missing = PRIORITY_EVIDENCE_SECTIONS.filter((sec) => !coveredSet.has(sec));
-      if (missing.length === 0) continue;
-      const first = missing[0];
-      const label = REPORT_SECTION_LABELS[first];
-      const name = [s.first_name, s.last_name].filter(Boolean).join(" ") || "Student";
-      out.push({
-        id: `derived:evidence:${s.id}:${first}`,
-        kind: "attach_evidence",
-        title: `Attach evidence for ${label}`,
-        reason: `${name}'s Pathway Report has no evidence visible to you linked to "${label}" yet — attach a document, note, or meeting to strengthen it.`,
-        ownerLabel: "You",
-        ctaLabel: "Open Report Evidence",
-        ctaRoute: `/reports`,
-        status: "needs_review",
-        urgency: "normal",
-        priority: 18 + emitted,
-        studentId: s.id,
-      });
-      emitted += 1;
-    }
-  }
+  // Evidence attachment controls are not mounted in a live tool yet. A
+  // reports-list link cannot promise that workflow, so emit no gap task here.
   return out;
 }
 /**
