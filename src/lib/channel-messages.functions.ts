@@ -7,6 +7,7 @@ import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 // gate write intent (author vs. admin).
 
 import { z } from "zod";
+import { readReportBatches } from "./report-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ChannelMessage } from "@/lib/channels.functions";
@@ -14,6 +15,22 @@ import { assertProtectedFileUploadsEnabled } from "@/lib/protected-file-uploads"
 import { assertPrivacySafeDerivedUpload } from "@/lib/sensitive-text-redaction";
 
 const uuid = z.string().uuid();
+const messageIntentSchema = z.object({
+  message_id: uuid,
+  expected_channel_id: uuid.optional(),
+  ...viewerIntentSchema.shape,
+});
+function assertMessageTarget(
+  input: z.infer<typeof messageIntentSchema>,
+  row: { id: string; channel_id: string } | null,
+) {
+  if (
+    !row ||
+    row.id !== input.message_id ||
+    (input.expected_channel_id && row.channel_id !== input.expected_channel_id)
+  )
+    throw new Error("This message is no longer available. Refresh the conversation.");
+}
 
 export type ChannelAttachment = {
   id: string;
@@ -122,15 +139,18 @@ export const listThreadMessages = createServerFn({ method: "GET" })
 
 export const editChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { message_id: string; body: string }) =>
-    z
-      .object({
-        message_id: uuid,
-        body: z.string().trim().min(1).max(4000),
-      })
-      .parse(input),
+  .validator(
+    (input: z.input<typeof messageIntentSchema> & { body: string; expected_body?: string }) =>
+      z
+        .object({
+          ...messageIntentSchema.shape,
+          expected_body: z.string().max(4000).optional(),
+          body: z.string().trim().min(1).max(4000),
+        })
+        .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     const { data: existing, error: eErr } = await supabase
@@ -139,9 +159,14 @@ export const editChannelMessage = createServerFn({ method: "POST" })
       .eq("id", data.message_id)
       .maybeSingle();
     if (eErr) throw new Error(eErr.message);
+    assertMessageTarget(data, existing);
     if (!existing) throw new Error("Message not found");
     if (existing.author_id !== userId) throw new Error("Only the author can edit this message");
     if (existing.deleted_at) throw new Error("Message has been deleted");
+    if (data.expected_body !== undefined && data.expected_body !== existing.body)
+      throw new Error(
+        "This message changed while you were editing. Refresh the conversation before saving.",
+      );
     if (existing.body === data.body.trim()) return { ok: true };
 
     const { error: histErr } = await supabase.from("channel_message_edits").insert({
@@ -153,18 +178,35 @@ export const editChannelMessage = createServerFn({ method: "POST" })
     if (histErr) throw new Error(histErr.message);
 
     const now = new Date().toISOString();
-    const { error } = await supabase
+    const { data: saved, error } = await supabase
       .from("channel_messages")
       .update({ body: data.body.trim(), edited_at: now })
-      .eq("id", existing.id);
-    if (error) throw new Error(error.message);
+      .eq("id", existing.id)
+      .eq("channel_id", existing.channel_id)
+      .eq("author_id", userId)
+      .eq("body", existing.body)
+      .is("deleted_at", null)
+      .select("id,channel_id,author_id,body,edited_at,deleted_at")
+      .single();
+    if (
+      error ||
+      !saved ||
+      saved.id !== existing.id ||
+      saved.channel_id !== existing.channel_id ||
+      saved.author_id !== userId ||
+      saved.body !== data.body.trim() ||
+      saved.edited_at !== now ||
+      saved.deleted_at
+    )
+      throw new Error("We couldn't confirm this message was updated. Refresh the conversation.");
     return { ok: true };
   });
 
 export const deleteChannelMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { message_id: string }) => z.object({ message_id: uuid }).parse(input))
+  .validator((input: z.input<typeof messageIntentSchema>) => messageIntentSchema.parse(input))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     const { data: existing, error: eErr } = await supabase
@@ -173,19 +215,33 @@ export const deleteChannelMessage = createServerFn({ method: "POST" })
       .eq("id", data.message_id)
       .maybeSingle();
     if (eErr) throw new Error(eErr.message);
+    assertMessageTarget(data, existing);
     if (!existing) throw new Error("Message not found");
-    if (existing.deleted_at) return { ok: true };
-
     // Author can delete their own. Admin path uses moderation flow.
     if (existing.author_id !== userId) {
       throw new Error("Only the author can delete this message here");
     }
+    if (existing.deleted_at) return { ok: true };
 
-    const { error } = await supabase
+    const { data: saved, error } = await supabase
       .from("channel_messages")
       .update({ deleted_at: new Date().toISOString(), body: "" })
-      .eq("id", existing.id);
-    if (error) throw new Error(error.message);
+      .eq("id", existing.id)
+      .eq("channel_id", existing.channel_id)
+      .eq("author_id", userId)
+      .is("deleted_at", null)
+      .select("id,channel_id,author_id,body,deleted_at")
+      .single();
+    if (
+      error ||
+      !saved ||
+      saved.id !== existing.id ||
+      saved.channel_id !== existing.channel_id ||
+      saved.author_id !== userId ||
+      saved.body !== "" ||
+      !saved.deleted_at
+    )
+      throw new Error("We couldn't confirm this message was removed. Refresh the conversation.");
     return { ok: true };
   });
 
@@ -193,32 +249,51 @@ export const deleteChannelMessage = createServerFn({ method: "POST" })
 
 export const setMessagePinned = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { message_id: string; pinned: boolean }) =>
-    z.object({ message_id: uuid, pinned: z.boolean() }).parse(input),
+  .validator((input: z.input<typeof messageIntentSchema> & { pinned: boolean }) =>
+    z.object({ ...messageIntentSchema.shape, pinned: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     const { data: existing, error: eErr } = await supabase
       .from("channel_messages")
-      .select("id, channel_id")
+      .select("id, channel_id, deleted_at")
       .eq("id", data.message_id)
       .maybeSingle();
     if (eErr) throw new Error(eErr.message);
+    assertMessageTarget(data, existing);
     if (!existing) throw new Error("Message not found");
 
+    if (existing.deleted_at) throw new Error("Message has been deleted");
     const { data: isAdmin, error: aErr } = await supabase.rpc("is_channel_admin", {
       _channel_id: existing.channel_id,
       _user_id: userId,
     });
     if (aErr) throw new Error(aErr.message);
-    if (!isAdmin) throw new Error("Only channel admins can pin or unpin messages");
+    if (isAdmin !== true) throw new Error("Only channel admins can pin or unpin messages");
 
     const patch = data.pinned
       ? { pinned: true, pinned_at: new Date().toISOString(), pinned_by: userId }
       : { pinned: false, pinned_at: null, pinned_by: null };
-    const { error } = await supabase.from("channel_messages").update(patch).eq("id", existing.id);
-    if (error) throw new Error(error.message);
+    const { data: saved, error } = await supabase
+      .from("channel_messages")
+      .update(patch)
+      .eq("id", existing.id)
+      .eq("channel_id", existing.channel_id)
+      .is("deleted_at", null)
+      .select("id,channel_id,pinned,pinned_at,pinned_by")
+      .single();
+    if (
+      error ||
+      !saved ||
+      saved.id !== existing.id ||
+      saved.channel_id !== existing.channel_id ||
+      saved.pinned !== patch.pinned ||
+      saved.pinned_at !== patch.pinned_at ||
+      saved.pinned_by !== patch.pinned_by
+    )
+      throw new Error("We couldn't confirm this pin change. Refresh the conversation.");
     return { ok: true };
   });
 
@@ -267,15 +342,18 @@ export const listPinnedMessages = createServerFn({ method: "GET" })
 
 export const toggleBookmark = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { message_id: string; note?: string | null }) =>
-    z
-      .object({
-        message_id: uuid,
-        note: z.string().trim().max(280).optional().nullable(),
-      })
-      .parse(input),
+  .validator(
+    (input: z.input<typeof messageIntentSchema> & { note?: string | null; bookmarked?: boolean }) =>
+      z
+        .object({
+          ...messageIntentSchema.shape,
+          bookmarked: z.boolean().optional(),
+          note: z.string().trim().max(280).optional().nullable(),
+        })
+        .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     const { data: msg, error: mErr } = await supabase
@@ -284,6 +362,7 @@ export const toggleBookmark = createServerFn({ method: "POST" })
       .eq("id", data.message_id)
       .maybeSingle();
     if (mErr) throw new Error(mErr.message);
+    assertMessageTarget(data, msg);
     if (!msg) throw new Error("Message not found");
 
     const { data: existing, error: eErr } = await supabase
@@ -294,19 +373,40 @@ export const toggleBookmark = createServerFn({ method: "POST" })
       .maybeSingle();
     if (eErr) throw new Error(eErr.message);
 
+    const desired = data.bookmarked ?? !existing;
+    if (!!existing === desired) return { bookmarked: desired };
     if (existing) {
-      const { error } = await supabase.from("channel_bookmarks").delete().eq("id", existing.id);
-      if (error) throw new Error(error.message);
+      const { data: removed, error } = await supabase
+        .from("channel_bookmarks")
+        .delete()
+        .eq("id", existing.id)
+        .eq("user_id", userId)
+        .eq("message_id", msg.id)
+        .select("id")
+        .single();
+      if (error || !removed || removed.id !== existing.id)
+        throw new Error("We couldn't confirm this bookmark was removed. Refresh the conversation.");
       return { bookmarked: false };
     }
 
-    const { error } = await supabase.from("channel_bookmarks").insert({
-      user_id: userId,
-      channel_id: msg.channel_id,
-      message_id: msg.id,
-      note: data.note ?? null,
-    });
-    if (error) throw new Error(error.message);
+    const { data: saved, error } = await supabase
+      .from("channel_bookmarks")
+      .insert({
+        user_id: userId,
+        channel_id: msg.channel_id,
+        message_id: msg.id,
+        note: data.note ?? null,
+      })
+      .select("user_id,channel_id,message_id")
+      .single();
+    if (
+      error ||
+      !saved ||
+      saved.user_id !== userId ||
+      saved.channel_id !== msg.channel_id ||
+      saved.message_id !== msg.id
+    )
+      throw new Error("We couldn't confirm this bookmark was saved. Refresh the conversation.");
     return { bookmarked: true };
   });
 
@@ -610,31 +710,74 @@ export const scanChannelAttachment = createServerFn({ method: "POST" })
 
 export const listMessageAttachments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { message_ids: string[] }) =>
-    z.object({ message_ids: z.array(uuid).max(200) }).parse(input),
+  .validator(
+    (input: { message_ids: string[]; expected_channel_id?: string; expected_viewer_id?: string }) =>
+      z
+        .object({
+          message_ids: z.array(uuid).max(200),
+          expected_channel_id: uuid.optional(),
+          ...viewerIntentSchema.shape,
+        })
+        .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    if (data.message_ids.length === 0) return { attachments: [] as ChannelAttachment[] };
-    const { data: rows, error } = await supabase
-      .from("channel_attachments")
-      .select(
-        "id, channel_id, message_id, storage_path, file_name, content_type, size_bytes, scan_status, uploaded_by, created_at",
+    assertExpectedViewer(data, context.userId);
+    let attachments: ChannelAttachment[];
+    try {
+      attachments = await readReportBatches<ChannelAttachment>(
+        data.message_ids,
+        (ids, from, to) => {
+          let query = context.supabase
+            .from("channel_attachments")
+            .select(
+              "id, channel_id, message_id, storage_path, file_name, content_type, size_bytes, scan_status, uploaded_by, created_at",
+              { count: "exact" },
+            )
+            .in("message_id", ids)
+            .order("id")
+            .range(from, to);
+          if (data.expected_channel_id) query = query.eq("channel_id", data.expected_channel_id);
+          return query;
+        },
+      );
+    } catch {
+      throw new Error("We couldn't load all message attachments. Please try again.");
+    }
+    if (
+      attachments.some(
+        (attachment) =>
+          !data.message_ids.includes(attachment.message_id) ||
+          (data.expected_channel_id && attachment.channel_id !== data.expected_channel_id),
       )
-      .in("message_id", data.message_ids)
-      .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message);
-    return { attachments: (rows ?? []) as ChannelAttachment[] };
+    )
+      throw new Error("Message attachments changed. Please try again.");
+    return { attachments };
   });
 
 export const getAttachmentDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { attachment_id: string }) => z.object({ attachment_id: uuid }).parse(input))
+  .validator(
+    (input: {
+      attachment_id: string;
+      expected_channel_id?: string;
+      expected_message_id?: string;
+      expected_viewer_id?: string;
+    }) =>
+      z
+        .object({
+          attachment_id: uuid,
+          expected_channel_id: uuid.optional(),
+          expected_message_id: uuid.optional(),
+          ...viewerIntentSchema.shape,
+        })
+        .parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
     const { data: row, error: rErr } = await supabase
       .from("channel_attachments")
-      .select("id, storage_path, file_name, scan_status")
+      .select("id, storage_path, file_name, scan_status, channel_id, message_id")
       .eq("id", data.attachment_id)
       .maybeSingle();
     if (rErr) throw new Error(rErr.message);
@@ -647,9 +790,16 @@ export const getAttachmentDownloadUrl = createServerFn({ method: "POST" })
       );
     }
 
+    if (
+      row.id !== data.attachment_id ||
+      (data.expected_channel_id && row.channel_id !== data.expected_channel_id) ||
+      (data.expected_message_id && row.message_id !== data.expected_message_id)
+    )
+      throw new Error("Attachment no longer matches this message.");
     const { data: signed, error } = await supabase.storage
       .from("channel-attachments")
       .createSignedUrl(row.storage_path, 60, { download: row.file_name });
-    if (error) throw new Error(error.message);
+    if (error || !signed?.signedUrl)
+      throw new Error("We couldn't prepare this attachment. Please try again.");
     return { url: signed.signedUrl };
   });

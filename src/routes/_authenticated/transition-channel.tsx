@@ -1169,8 +1169,11 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   );
 
   const topLevelIds = useMemo(() => topLevel.map((m) => m.id), [topLevel]);
-  const { byMessage: attachmentsByMessage, refetch: refetchAttachments } =
-    useMessageAttachments(topLevelIds);
+  const {
+    byMessage: attachmentsByMessage,
+    refetch: refetchAttachments,
+    error: attachmentsError,
+  } = useMessageAttachments(topLevelIds, active?.id);
 
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -1613,6 +1616,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     <MessageItem
                       key={m.id}
                       m={m}
+                      readOnly={!!active.archived_at}
                       currentUserId={currentUserId}
                       isAdmin={isAdmin}
                       bookmarked={bookmarkedIds.has(m.id)}
@@ -1626,6 +1630,14 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                 )}
               </div>
 
+              {attachmentsError && (
+                <div role="alert" className="border-t p-3 text-sm">
+                  <p>We couldn't load this conversation's attachments.</p>
+                  <Button size="sm" variant="outline" onClick={() => void refetchAttachments()}>
+                    Reload Attachments
+                  </Button>
+                </div>
+              )}
               {readError?.channelId === active.id && readError.currentView() && (
                 <div role="alert" className="border-t p-3 text-sm">
                   <p>Your messages are available, but we couldn't update the read status.</p>

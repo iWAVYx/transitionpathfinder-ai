@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
+import { useChannelViewScope } from "./ChannelQueryBoundary";
+import { openChannelAttachment } from "@/lib/channel-attachment-download.browser";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -57,9 +61,18 @@ export type MessageItemProps = {
   onPromote?: (m: ChannelMessage) => void;
   onChanged: () => void;
   compact?: boolean;
+  readOnly?: boolean;
 };
 
-export function MessageItem({
+export function MessageItem(props: MessageItemProps) {
+  return (
+    <MessageSession
+      key={JSON.stringify([props.m.id, props.m.channel_id, props.currentUserId, props.readOnly])}
+      {...props}
+    />
+  );
+}
+function MessageSession({
   m,
   currentUserId,
   isAdmin,
@@ -70,35 +83,119 @@ export function MessageItem({
   onPromote,
   onChanged,
   compact,
+  readOnly = false,
 }: MessageItemProps) {
+  const scope = useChannelViewScope(
+    JSON.stringify([
+      m.id,
+      m.channel_id,
+      currentUserId,
+      m.body,
+      m.edited_at,
+      m.deleted_at,
+      m.pinned,
+      m.author_id,
+      readOnly,
+      isAdmin,
+      bookmarked,
+    ]),
+  );
+  const eligible = currentUserId === scope.viewerId;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(m.body);
-  useEffect(() => setDraft(m.body), [m.body]);
+  const [baseBody, setBaseBody] = useState(m.body);
+  const revision = useRef(0);
+  const pending = useRef(false);
+  useEffect(() => {
+    if (!editing) setDraft(m.body);
+  }, [m.body, editing]);
 
   const editFn = useServerFn(editChannelMessage);
   const delFn = useServerFn(deleteChannelMessage);
   const pinFn = useServerFn(setMessagePinned);
   const bookmarkFn = useServerFn(toggleBookmark);
 
-  const editMut = useMutation({
-    mutationFn: (body: string) => editFn({ data: { message_id: m.id, body } }),
-    onSuccess: () => {
-      setEditing(false);
+  type Action =
+    | { kind: "edit"; body: string; revision: number; base: string }
+    | { kind: "delete" }
+    | { kind: "pin"; pinned: boolean }
+    | { kind: "bookmark"; bookmarked: boolean };
+  const action = useMutation({
+    mutationFn: async (captured: {
+      request: Action;
+      currentView: () => boolean;
+      viewerId: string;
+      messageId: string;
+      channelId: string;
+    }) => {
+      const request = captured.request;
+      if (!captured.currentView()) throw new Error("Message changed.");
+      if (
+        !scope.isCurrent() ||
+        !eligible ||
+        m.deleted_at ||
+        (readOnly && request.kind !== "bookmark")
+      )
+        throw new Error("Message changed.");
+      const intent = {
+        message_id: captured.messageId,
+        expected_channel_id: captured.channelId,
+        expected_viewer_id: captured.viewerId,
+      };
+      let result;
+      if (request.kind === "edit")
+        result = await editFn({
+          data: { ...intent, body: request.body, expected_body: request.base },
+        });
+      else if (request.kind === "delete") result = await delFn({ data: intent });
+      else if (request.kind === "pin")
+        result = await pinFn({ data: { ...intent, pinned: request.pinned } });
+      else result = await bookmarkFn({ data: { ...intent, bookmarked: request.bookmarked } });
+      if (
+        request.kind === "bookmark"
+          ? !(result && "bookmarked" in result && result.bookmarked === request.bookmarked)
+          : !(result && "ok" in result && result.ok === true)
+      )
+        throw new Error("Message change unconfirmed.");
+      return request;
+    },
+    onSuccess: (request, captured) => {
+      if (!captured.currentView()) return;
+      if (request.kind === "edit" && revision.current === request.revision) setEditing(false);
       onChanged();
     },
+    onError: (_error, captured) => {
+      if (captured.currentView())
+        toast.error(
+          captured.request.kind === "edit"
+            ? "We couldn't confirm that change. Your draft is still here. Refresh the conversation before trying again."
+            : "We couldn't confirm that change. Refresh the conversation before trying again.",
+        );
+    },
+    onSettled: () => {
+      pending.current = false;
+    },
   });
-  const delMut = useMutation({
-    mutationFn: () => delFn({ data: { message_id: m.id } }),
-    onSuccess: onChanged,
-  });
-  const pinMut = useMutation({
-    mutationFn: (pinned: boolean) => pinFn({ data: { message_id: m.id, pinned } }),
-    onSuccess: onChanged,
-  });
-  const bookMut = useMutation({
-    mutationFn: () => bookmarkFn({ data: { message_id: m.id } }),
-    onSuccess: onChanged,
-  });
+  const run = (request: Action) => {
+    if (
+      pending.current ||
+      !scope.isCurrent() ||
+      !eligible ||
+      m.deleted_at ||
+      ((request.kind === "edit" || request.kind === "delete") && m.author_id !== scope.viewerId) ||
+      (request.kind === "pin" && !isAdmin) ||
+      (readOnly && request.kind !== "bookmark")
+    )
+      return;
+    pending.current = true;
+    action.mutate({
+      request,
+      currentView: scope.isCurrent,
+      viewerId: scope.viewerId,
+      messageId: m.id,
+      channelId: m.channel_id,
+    });
+  };
 
   const isAuthor = !!currentUserId && m.author_id === currentUserId;
   const isDeleted = !!m.deleted_at;
@@ -128,7 +225,10 @@ export function MessageItem({
         <div className="mt-1 space-y-2">
           <Textarea
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => {
+              revision.current += 1;
+              setDraft(e.target.value);
+            }}
             rows={3}
             className="resize-none text-sm"
             autoFocus
@@ -139,8 +239,15 @@ export function MessageItem({
             </Button>
             <Button
               size="sm"
-              disabled={!draft.trim() || editMut.isPending}
-              onClick={() => editMut.mutate(draft.trim())}
+              disabled={!draft.trim() || action.isPending || readOnly || !eligible}
+              onClick={() =>
+                run({
+                  kind: "edit",
+                  body: draft.trim(),
+                  revision: revision.current,
+                  base: baseBody,
+                })
+              }
             >
               Save
             </Button>
@@ -152,16 +259,20 @@ export function MessageItem({
 
       {attachments.length > 0 && !isDeleted && (
         <div className="mt-2 flex flex-wrap gap-2">
-          {attachments.map((a) => (
-            <AttachmentChip key={a.id} attachment={a} />
-          ))}
+          {attachments
+            .filter((a) => a.message_id === m.id && a.channel_id === m.channel_id)
+            .map((a) => (
+              <AttachmentChip key={a.id} attachment={a} />
+            ))}
         </div>
       )}
 
       {!compact && !isDeleted && (replyCount ?? 0) > 0 && (
         <button
           type="button"
-          onClick={() => onReply(m)}
+          onClick={() => {
+            if (scope.isCurrent() && eligible) onReply(m);
+          }}
           className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
         >
           <MessageSquare className="h-3 w-3" />
@@ -181,7 +292,9 @@ export function MessageItem({
               variant="ghost"
               className="h-6 w-6"
               title="Reply in thread"
-              onClick={() => onReply(m)}
+              onClick={() => {
+                if (scope.isCurrent() && eligible) onReply(m);
+              }}
             >
               <Reply className="h-3.5 w-3.5" />
               <span className="sr-only">Reply in thread</span>
@@ -192,8 +305,8 @@ export function MessageItem({
             variant="ghost"
             className="h-6 w-6"
             title={bookmarked ? "Remove bookmark" : "Bookmark"}
-            onClick={() => bookMut.mutate()}
-            disabled={bookMut.isPending}
+            onClick={() => run({ kind: "bookmark", bookmarked: !bookmarked })}
+            disabled={action.isPending || !eligible}
           >
             {bookmarked ? (
               <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
@@ -208,8 +321,8 @@ export function MessageItem({
               variant="ghost"
               className="h-6 w-6"
               title={m.pinned ? "Unpin" : "Pin"}
-              onClick={() => pinMut.mutate(!m.pinned)}
-              disabled={pinMut.isPending}
+              onClick={() => run({ kind: "pin", pinned: !m.pinned })}
+              disabled={action.isPending || readOnly || !eligible}
             >
               {m.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
               <span className="sr-only">{m.pinned ? "Unpin" : "Pin"}</span>
@@ -225,20 +338,39 @@ export function MessageItem({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onPromote && (
-                  <DropdownMenuItem onClick={() => onPromote(m)}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (scope.isCurrent() && eligible) onPromote(m);
+                    }}
+                  >
                     <ListPlus className="h-3.5 w-3.5 mr-2" /> Promote to record…
                   </DropdownMenuItem>
                 )}
                 {isAuthor && (
-                  <DropdownMenuItem onClick={() => setEditing(true)}>
+                  <DropdownMenuItem
+                    disabled={action.isPending || readOnly || !eligible}
+                    onClick={() => {
+                      if (scope.isCurrent()) {
+                        setBaseBody(m.body);
+                        setDraft(m.body);
+                        revision.current += 1;
+                        setEditing(true);
+                      }
+                    }}
+                  >
                     <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
                   </DropdownMenuItem>
                 )}
                 {isAuthor && (
                   <DropdownMenuItem
+                    disabled={action.isPending || readOnly || !eligible}
                     className="text-destructive focus:text-destructive"
                     onClick={() => {
-                      if (confirm("Delete this message? This cannot be undone.")) delMut.mutate();
+                      if (
+                        scope.isCurrent() &&
+                        confirm("Delete this message? This cannot be undone.")
+                      )
+                        run({ kind: "delete" });
                     }}
                   >
                     <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
@@ -254,6 +386,15 @@ export function MessageItem({
 }
 
 function AttachmentChip({ attachment }: { attachment: ChannelAttachment }) {
+  const scope = useChannelViewScope(
+    JSON.stringify([
+      attachment.id,
+      attachment.channel_id,
+      attachment.message_id,
+      attachment.scan_status,
+    ]),
+  );
+  const pending = useRef(false);
   const dlFn = useServerFn(getAttachmentDownloadUrl);
   const [loading, setLoading] = useState(false);
   const size = useMemo(() => formatSize(attachment.size_bytes), [attachment.size_bytes]);
@@ -270,12 +411,24 @@ function AttachmentChip({ attachment }: { attachment: ChannelAttachment }) {
       disabled={loading || !isClean}
       title={isClean ? `Download ${attachment.file_name}` : statusLabel}
       onClick={async () => {
+        if (pending.current || !isClean || !scope.isCurrent()) return;
+        pending.current = true;
         try {
           setLoading(true);
-          const { url } = await dlFn({ data: { attachment_id: attachment.id } });
-          window.open(url, "_blank", "noopener,noreferrer");
+          const { url } = await dlFn({
+            data: {
+              attachment_id: attachment.id,
+              expected_channel_id: attachment.channel_id,
+              expected_message_id: attachment.message_id,
+              expected_viewer_id: scope.viewerId,
+            },
+          });
+          if (scope.isCurrent()) openChannelAttachment(url);
+        } catch {
+          if (scope.isCurrent()) toast.error("We couldn't open this attachment. Please try again.");
         } finally {
-          setLoading(false);
+          pending.current = false;
+          if (scope.isWorkspaceCurrent()) setLoading(false);
         }
       }}
       className="inline-flex items-center gap-2 rounded-md border bg-background px-2 py-1 text-xs hover:bg-muted transition max-w-full"
@@ -302,31 +455,61 @@ function formatSize(bytes: number | null): string {
 /**
  * Loads attachments for a batch of message ids and returns a map by message id.
  */
-export function useMessageAttachments(messageIds: string[]) {
+export function useMessageAttachments(messageIds: string[], channelId?: string | null) {
   const listFn = useServerFn(listMessageAttachments);
-  const key = messageIds.slice().sort().join(",");
+  const ids = [...new Set(messageIds)].sort();
+  const key = ids.join(",");
+  const scope = useChannelViewScope(JSON.stringify([key, channelId]));
   const query = useQuery({
-    queryKey: ["channel-message-attachments", key],
-    queryFn: () => listFn({ data: { message_ids: messageIds } }),
+    queryKey: ["channel-message-attachments", channelId, key],
+    queryFn: async () => {
+      const attachments: ChannelAttachment[] = [];
+      for (let start = 0; start < ids.length; start += 200) {
+        if (!scope.isCurrent()) throw new Error("Conversation changed.");
+        const batch = ids.slice(start, start + 200);
+        const result = await listFn({
+          data: {
+            message_ids: batch,
+            expected_channel_id: channelId ?? undefined,
+            expected_viewer_id: scope.viewerId,
+          },
+        });
+        if (!scope.isCurrent()) throw new Error("Conversation changed.");
+        if (
+          !Array.isArray(result?.attachments) ||
+          result.attachments.some(
+            (attachment) =>
+              !z.string().uuid().safeParse(attachment.id).success ||
+              !batch.includes(attachment.message_id) ||
+              (channelId && attachment.channel_id !== channelId),
+          )
+        )
+          throw new Error("Message attachments unavailable.");
+        attachments.push(...result.attachments);
+      }
+      return { attachments };
+    },
+    retry: false,
     enabled: messageIds.length > 0,
     // A scan now runs in its own request so sending a message stays responsive.
     // Poll only while a quarantined attachment is pending, then stop as soon as
     // the service-role scanner records clean, deleted, or failed.
     refetchInterval: (current) =>
+      current.state.status === "success" &&
       current.state.data?.attachments.some((attachment) => attachment.scan_status === "pending")
         ? 2_500
         : false,
   });
   const byMessage = useMemo(() => {
     const map = new Map<string, ChannelAttachment[]>();
-    (query.data?.attachments ?? []).forEach((a) => {
+    (query.isSuccess ? (query.data?.attachments ?? []) : []).forEach((a) => {
       const list = map.get(a.message_id) ?? [];
       list.push(a);
       map.set(a.message_id, list);
     });
     return map;
-  }, [query.data]);
-  return { byMessage, refetch: query.refetch };
+  }, [query.data, query.isSuccess]);
+  return { byMessage, refetch: query.refetch, error: query.isError };
 }
 
 // Re-export the query client hook location for convenience.

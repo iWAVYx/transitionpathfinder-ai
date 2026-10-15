@@ -96,7 +96,11 @@ function ThreadSession({
     () => (parent ? [parent.id, ...replies.map((r) => r.id)] : replies.map((r) => r.id)),
     [parent, replies],
   );
-  const { byMessage } = useMessageAttachments(messageIds);
+  const {
+    byMessage,
+    error: attachmentsError,
+    refetch: refreshAttachments,
+  } = useMessageAttachments(messageIds, channelId);
 
   const [draft, setDraft] = useState("");
   const revision = useRef(0);
@@ -238,7 +242,16 @@ function ThreadSession({
             <p className="text-sm text-muted-foreground">Thread not available.</p>
           ) : (
             <>
+              {attachmentsError && (
+                <div role="alert" className="text-sm">
+                  <p>We couldn't load this thread's attachments.</p>
+                  <Button size="sm" variant="outline" onClick={() => void refreshAttachments()}>
+                    Reload Attachments
+                  </Button>
+                </div>
+              )}
               <MessageItem
+                readOnly={readOnly}
                 m={parent}
                 currentUserId={currentUserId}
                 isAdmin={isAdmin}
@@ -262,6 +275,7 @@ function ThreadSession({
                   replies.map((r) => (
                     <MessageItem
                       key={r.id}
+                      readOnly={readOnly}
                       m={r}
                       currentUserId={currentUserId}
                       isAdmin={isAdmin}
