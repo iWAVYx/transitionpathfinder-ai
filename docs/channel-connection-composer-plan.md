@@ -95,3 +95,8 @@ The [guarded database proposal](database-proposals/channel-connections-v1/README
 The prototype chooses an explicitly verified organization context for every sender; personal educator sending is not implemented in v1. It separates recorded setup completion from current channel-opening permission, uses explicit request revisions rather than timestamps for concurrency, protects new attribution/bindings during additive rollout and preserves Owner management-only precedence. Existing legacy accepted partial setup is never automatically repaired or used to restore memberships. These are draft decisions to review, not new role grants or deployed behavior.
 
 Parser evidence covers 82 SQL statements, 17 PLpgSQL function bodies, one SQL helper body and three execution guards with pglast 8.6 / PostgreSQL parser 18.6. No DB was contacted. Actual schema/type resolution, target PostgreSQL compatibility, function ownership/RLS behavior, retention effects, concurrent transactions and browser acceptance remain unverified. Existing application source and its last validation baseline are unchanged.
+
+
+## Draft Caller Boundary Preparation
+
+`src/lib/channel-connection-v1-contract.ts` now provides pure target-page and outcome validation with 26 boundary tests. It is unused by runtime callers and contains no network transport or activation path. Authentication, viewer/context scopes, idempotent mutation contracts, consent/link management, caller integration and database/browser acceptance remain outstanding. This is preparation, not completion of the composer checklist.
