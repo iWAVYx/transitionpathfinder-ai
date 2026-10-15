@@ -169,7 +169,8 @@ export const getChannelTileSummary = createServerFn({ method: "GET" })
         supabase
           .from("channel_connection_requests")
           .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
+          .eq("status", "pending")
+          .gt("expires_at", new Date().toISOString()),
       );
 
       // Recent 3 (by last_message_at)

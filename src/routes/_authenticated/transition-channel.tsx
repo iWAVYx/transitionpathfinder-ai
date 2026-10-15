@@ -67,12 +67,7 @@ import { MessageItem, useMessageAttachments } from "@/components/channels/Messag
 import { ThreadPanel } from "@/components/channels/ThreadPanel";
 import { PromoteRecordDialog } from "@/components/channels/PromoteRecordDialog";
 import { ChannelActionCard as ActionCard } from "@/components/channels/ChannelActionCard";
-import {
-  listMyConnectionRequests,
-  respondToConnectionRequest,
-  withdrawConnectionRequest,
-  type ConnectionRequest,
-} from "@/lib/channel-connection-requests.functions";
+import { ChannelConnectionRequests } from "@/components/channels/ChannelConnectionRequests";
 import { audiencesForRoles, dashboardHomeForRoles, type RoleAudience } from "@/lib/role-policy";
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
 import { StartStudentConversation } from "@/components/channels/StartStudentConversation";
@@ -101,6 +96,7 @@ const tabSchema = z.enum([
 
 const filterSchema = z.object({
   tab: tabSchema.catch("inbox"),
+  channel: z.string().uuid().optional().catch(undefined),
   unread: z.enum(["all", "unread"]).catch("all"),
   student: z.string().optional().catch(undefined),
   type: z.string().optional().catch(undefined),
@@ -384,6 +380,10 @@ function TransitionChannelSession({
     }
   };
 
+  const openConnectionChannel = async (channelId: string) => {
+    if (currentScope.current !== scopeKey || !visibleTabs.includes("channels") || !z.string().uuid().safeParse(channelId).success) throw new Error("Channel access changed.");
+    await navigate({ to: "/transition-channel", search: { ...search, tab: "channels", channel: channelId } });
+  };
   const summary = summaryQuery.isError ? undefined : summaryQuery.data;
 
   return (
@@ -394,7 +394,7 @@ function TransitionChannelSession({
       breadcrumbs={[{ label: "Transition Channel" }]}
       primaryAction={
         visibleTabs.includes("connections") ? (
-          <ConnectionRequestsDrawerTrigger summary={summary} />
+          <ConnectionRequestsDrawerTrigger summary={summary} onOpenChannel={openConnectionChannel} />
         ) : undefined
       }
       maxWidth="wide"
@@ -476,7 +476,7 @@ function TransitionChannelSession({
             <ActionsTab kind="feedback" search={search} />
           </TabsContent>
           <TabsContent value="connections" className="mt-0 focus-visible:outline-none">
-            <ConnectionsTab />
+            <ConnectionsTab onOpenChannel={openConnectionChannel} />
           </TabsContent>
           <TabsContent value="archived" className="mt-0 focus-visible:outline-none">
             <ArchivedTab search={search} />
@@ -500,9 +500,10 @@ function tabLabelShort(tab: TabId): string {
   }
 }
 
-function ConnectionRequestsDrawerTrigger({ summary }: { summary?: ChannelTileSummary }) {
+function ConnectionRequestsDrawerTrigger({ summary, onOpenChannel }: { summary?: ChannelTileSummary; onOpenChannel: (channelId: string) => Promise<void> }) {
   return (
     <ConnectionRequestsDrawer
+      onOpenChannel={onOpenChannel}
       triggerLabel={
         summary?.connectionRequests ? `Requests (${summary.connectionRequests})` : "Requests"
       }
@@ -628,7 +629,7 @@ function InboxTab({ search }: { search: FilterState }) {
 }
 
 function ChannelsTab({ search }: { search: FilterState }) {
-  return <ChannelConversationTab search={search} />;
+  return <ChannelConversationTab key={search.channel ?? "default"} search={search} />;
 }
 
 function MentionsTab() {
@@ -694,153 +695,8 @@ function ActionsTab({
   );
 }
 
-function ConnectionsTab() {
-  const listFn = useServerFn(listMyConnectionRequests);
-  const respondFn = useServerFn(respondToConnectionRequest);
-  const withdrawFn = useServerFn(withdrawConnectionRequest);
-  const qc = useQueryClient();
-  const query = useQuery({
-    queryKey: ["channel-connection-requests"],
-    queryFn: () => listFn(),
-  });
-
-  const respondMutation = useMutation({
-    mutationFn: (args: { request_id: string; decision: "accepted" | "declined" }) =>
-      respondFn({ data: args }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["channel-connection-requests"] });
-      qc.invalidateQueries({ queryKey: ["transition-channels"] });
-      qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-    },
-  });
-
-  const withdrawMutation = useMutation({
-    mutationFn: (id: string) => withdrawFn({ data: { request_id: id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["channel-connection-requests"] }),
-  });
-
-  const requests = query.data?.requests ?? [];
-  const pendingIncoming = requests.filter(
-    (r) => r.direction === "incoming" && r.status === "pending",
-  );
-  const pendingOutgoing = requests.filter(
-    (r) => r.direction === "outgoing" && r.status === "pending",
-  );
-  const resolved = requests.filter((r) => r.status !== "pending").slice(0, 10);
-
-  return (
-    <div className="space-y-6">
-      {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading requests…</p>
-      ) : requests.length === 0 ? (
-        <EmptyState icon={Users} message="No connection requests yet." />
-      ) : (
-        <>
-          <RequestSection
-            title="Awaiting your response"
-            count={pendingIncoming.length}
-            requests={pendingIncoming}
-            actions={(r) => (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => respondMutation.mutate({ request_id: r.id, decision: "accepted" })}
-                  disabled={respondMutation.isPending}
-                >
-                  <Check className="h-4 w-4 mr-1" /> Accept
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => respondMutation.mutate({ request_id: r.id, decision: "declined" })}
-                  disabled={respondMutation.isPending}
-                >
-                  <Ban className="h-4 w-4 mr-1" /> Decline
-                </Button>
-              </>
-            )}
-          />
-          <RequestSection
-            title="Your open requests"
-            count={pendingOutgoing.length}
-            requests={pendingOutgoing}
-            actions={(r) => (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => withdrawMutation.mutate(r.id)}
-                disabled={withdrawMutation.isPending}
-              >
-                <Undo2 className="h-4 w-4 mr-1" /> Withdraw
-              </Button>
-            )}
-          />
-          <RequestSection
-            title="Recently resolved"
-            count={resolved.length}
-            requests={resolved}
-            actions={(r) => (
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {r.status}
-              </span>
-            )}
-          />
-        </>
-      )}
-    </div>
-  );
-}
-
-function RequestSection({
-  title,
-  count,
-  requests,
-  actions,
-}: {
-  title: string;
-  count: number;
-  requests: ConnectionRequest[];
-  actions: (r: ConnectionRequest) => React.ReactNode;
-}) {
-  return (
-    <section>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {title} {count > 0 && <span className="text-foreground">({count})</span>}
-      </h3>
-      <div className="space-y-3">
-        {requests.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing in this category.</p>
-        ) : (
-          requests.map((r) => <RequestCard key={r.id} r={r} actions={actions(r)} />)
-        )}
-      </div>
-    </section>
-  );
-}
-
-function RequestCard({ r, actions }: { r: ConnectionRequest; actions: React.ReactNode }) {
-  const who =
-    r.direction === "incoming"
-      ? `${r.requester_name ?? "A member"}${
-          r.requester_organization_name ? ` (${r.requester_organization_name})` : ""
-        }`
-      : `To ${r.target_partner_organization_name ?? "partner org"}`;
-  return (
-    <article className="rounded-lg border bg-card p-3 shadow-sm">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-sm font-medium truncate">{who}</p>
-        <span className="shrink-0 text-xs text-muted-foreground">{formatWhen(r.created_at)}</span>
-      </div>
-      <p className="mt-0.5 text-xs text-muted-foreground">Purpose: {r.purpose_category}</p>
-      <p className="mt-2 text-sm whitespace-pre-wrap leading-relaxed">{r.message}</p>
-      {r.proposed_next_step && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Next step: <span className="text-foreground">{r.proposed_next_step}</span>
-        </p>
-      )}
-      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">{actions}</div>
-    </article>
-  );
+function ConnectionsTab({ onOpenChannel }: { onOpenChannel: (channelId: string) => Promise<void> }) {
+  return <ChannelConnectionRequests onOpenChannel={onOpenChannel} />;
 }
 
 function ArchivedTab({ search }: { search: FilterState }) {
@@ -929,7 +785,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     return list;
   }, [channelsQuery.data, channelsQuery.isError, search]);
 
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(search.channel ?? null);
   const [threadParentId, setThreadParentId] = useState<string | null>(null);
   const [promoteMessage, setPromoteMessage] = useState<ChannelMessage | null>(null);
   const currentUserId = workspace.viewerId;

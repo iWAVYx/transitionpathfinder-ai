@@ -119,6 +119,17 @@ function fixture(
   return { calls, context: { userId: "viewer-a", supabase: { from } } };
 }
 describe("complete caller-scoped channel summary", () => {
+  it("counts only unexpired pending connection requests", async () => {
+    const input = fixture();
+    await (getChannelTileSummary as any)({
+      data: { expected_viewer_id: "viewer-a" },
+      context: input.context,
+    });
+    const query = input.calls.find((call) => call.table === "channel_connection_requests")!.query;
+    expect(query.eq).toHaveBeenCalledWith("status", "pending");
+    expect(query.gt).toHaveBeenCalledWith("expires_at", expect.any(String));
+    expect(Number.isFinite(Date.parse(query.gt.mock.calls[0][1]))).toBe(true);
+  });
   it("keeps unseen mention counts aligned with current message/channel visibility", async () => {
     const input = fixture();
     const original = input.context.supabase.from;

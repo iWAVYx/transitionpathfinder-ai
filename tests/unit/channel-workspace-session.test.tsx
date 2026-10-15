@@ -15,6 +15,9 @@ const api = vi.hoisted(() => ({
   actions: vi.fn(),
   mentions: vi.fn(),
   seen: vi.fn(),
+  connections: vi.fn(),
+  respond: vi.fn(),
+  withdraw: vi.fn(),
   messages: vi.fn(),
   send: vi.fn(),
   read: vi.fn(),
@@ -64,9 +67,9 @@ vi.mock("@/lib/channel-actions.functions", () => ({
   ACTION_STATUSES: ["open", "in_progress", "resolved"],
 }));
 vi.mock("@/lib/channel-connection-requests.functions", () => ({
-  listMyConnectionRequests: vi.fn().mockResolvedValue({ requests: [] }),
-  respondToConnectionRequest: vi.fn(),
-  withdrawConnectionRequest: vi.fn(),
+  listMyConnectionRequests: api.connections,
+  respondToConnectionRequest: api.respond,
+  withdrawConnectionRequest: api.withdraw,
 }));
 vi.mock("@/lib/channel-messages.functions", () => ({
   listPinnedMessages: vi.fn().mockResolvedValue({ pinned: [] }),
@@ -202,6 +205,9 @@ beforeEach(() => {
     api.actions,
     api.mentions,
     api.seen,
+    api.connections,
+    api.respond,
+    api.withdraw,
     api.history,
     api.messages,
     api.send,
@@ -226,6 +232,7 @@ beforeEach(() => {
   api.channels.mockResolvedValue({ channels: [] });
   api.actions.mockResolvedValue({ actions: [] });
   api.mentions.mockResolvedValue({ mentions: [], hasMore: false });
+  api.connections.mockResolvedValue({ requests: [] });
   api.history.mockResolvedValue([]);
   api.realtimeCallbacks = [];
   api.messages.mockResolvedValue({ messages: [] });
@@ -1059,5 +1066,93 @@ describe("actual all-role mentions entry", () => {
     expect(screen.queryByText("No mentions yet.")).toBeNull();
     fireEvent.click(screen.getByText("Reload Mentions"));
     await screen.findByText("No mentions yet.");
+  });
+});
+
+describe("actual connection-role entry and exact-channel handoff", () => {
+  it.each(["teacher", "school_admin", "district_admin", "partner"])(
+    "reads scoped requests for the eligible %s role",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      api.search.tab = "connections";
+      mount();
+      await screen.findByText("No connection requests yet.");
+      expect(api.connections).toHaveBeenCalledWith({ data: { expected_viewer_id: "viewer-a" } });
+    },
+  );
+  it.each(["parent", "student"])(
+    "does not mount request controls for the excluded %s role",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      api.search.tab = "connections";
+      mount();
+      await waitFor(() => expect(api.navigate).toHaveBeenCalled());
+      expect(api.connections).not.toHaveBeenCalled();
+      expect(screen.queryByRole("button", { name: "Connection Controls" })).toBeNull();
+    },
+  );
+  it("keeps platform Owners out of request reads", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    api.search.tab = "connections";
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.connections).not.toHaveBeenCalled();
+  });
+  it("validates the requested channel search value", () => {
+    expect((Route as any).validateSearch.parse({ channel: channelB }).channel).toBe(channelB);
+    expect((Route as any).validateSearch.parse({ channel: "unsafe" }).channel).toBeUndefined();
+  });
+  it("selects the explicitly requested available channel instead of the first", async () => {
+    api.search.channel = channelB;
+    await conversations();
+    expect(api.messages.mock.calls[0][0].data.channel_id).toBe(channelB);
+    expect(api.messages.mock.calls.some(([arg]: any) => arg.data.channel_id === channelA)).toBe(
+      false,
+    );
+  });
+  it("keeps an unavailable requested channel unavailable instead of opening another", async () => {
+    api.search.tab = "channels";
+    api.search.channel = "99999999-9999-4999-8999-999999999999";
+    api.channels.mockResolvedValue({ channels: conversationChannels() });
+    mount();
+    await screen.findByText(/This conversation is no longer available/);
+    expect(api.messages).not.toHaveBeenCalled();
+  });
+  it("opens a confirmed request's exact channel through the real route callback", async () => {
+    api.roles.mockResolvedValue({ roles: ["partner"] });
+    api.search.tab = "connections";
+    api.connections.mockResolvedValue({
+      requests: [
+        {
+          id: channelA,
+          status: "accepted",
+          message: "Confirmed request",
+          purpose_category: "transition",
+          proposed_next_step: null,
+          created_at: "2026-10-15T00:00:00Z",
+          expires_at: "2099-01-01T00:00:00Z",
+          requester_id: channelA,
+          requester_name: "Member",
+          requester_organization_id: null,
+          requester_organization_name: null,
+          target_partner_organization_id: channelA,
+          target_partner_organization_name: "Partner",
+          resulting_channel_id: channelB,
+          direction: "incoming",
+          can_respond: false,
+          can_withdraw: false,
+          channel_ready: true,
+        },
+      ],
+    });
+    mount();
+    await screen.findByText("Confirmed request");
+    fireEvent.click(screen.getByRole("button", { name: "Open Channel" }));
+    await waitFor(() =>
+      expect(api.navigate).toHaveBeenCalledWith({
+        to: "/transition-channel",
+        search: expect.objectContaining({ tab: "channels", channel: channelB }),
+      }),
+    );
   });
 });
