@@ -6,6 +6,8 @@
 // membership (INSERT) and assignee/promoter/admin (UPDATE, DELETE).
 
 import { z } from "zod";
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -29,7 +31,7 @@ export type ActionPriority = (typeof ACTION_PRIORITIES)[number];
  *  - When `create_calendar_event` + `due_at` are set on a student-scoped
  *    channel, add a team-visible `calendar_events` entry.
  *  - When an assignee is set and differs from the promoter, notify them.
- *  Failures on the mirrored writes never block the primary promotion.
+ *  The primary promotion is confirmed before optional writes; each optional result is reported separately.
  */
 export const promoteMessageToAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -37,6 +39,9 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
     (input: {
       channel_id: string;
       message_id: string;
+      expected_viewer_id?: string;
+      expected_student_id?: string | null;
+      expected_message_body?: string;
       kind: RecordKind;
       priority?: ActionPriority | null;
       due_at?: string | null;
@@ -49,6 +54,9 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
         .object({
           channel_id: uuid,
           message_id: uuid,
+          ...viewerIntentSchema.shape,
+          expected_student_id: uuid.optional().nullable(),
+          expected_message_body: z.string().max(4000).optional(),
           kind: z.enum(RECORD_KINDS),
           priority: z.enum(ACTION_PRIORITIES).optional().nullable(),
           due_at: z.string().datetime().optional().nullable(),
@@ -60,99 +68,83 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     const { data: msg, error: mErr } = await supabase
       .from("channel_messages")
-      .select("id, channel_id, body")
+      .select("id, channel_id, body, deleted_at")
       .eq("id", data.message_id)
       .maybeSingle();
     if (mErr) throw new Error(mErr.message);
-    if (!msg || msg.channel_id !== data.channel_id) {
+    if (
+      !msg ||
+      msg.id !== data.message_id ||
+      msg.channel_id !== data.channel_id ||
+      msg.deleted_at ||
+      (data.expected_message_body !== undefined && msg.body !== data.expected_message_body)
+    ) {
       throw new Error("Message not found in this channel");
     }
 
-    const { data: channel } = await supabase
+    const { data: channel, error: channelError } = await supabase
       .from("channels")
-      .select("id, title, student_id, organization_id")
+      .select("id, title, student_id, organization_id, archived_at")
       .eq("id", data.channel_id)
       .maybeSingle();
 
-    const titleFromBody =
-      (msg.body ?? "").split("\n")[0].slice(0, 140).trim() || "Channel Item";
+    if (
+      channelError ||
+      !channel ||
+      channel.id !== data.channel_id ||
+      channel.archived_at ||
+      (data.expected_student_id !== undefined &&
+        (channel.student_id ?? null) !== data.expected_student_id)
+    )
+      throw new Error(
+        "This conversation's student or access changed. Refresh before creating a record.",
+      );
+    const { data: membership, error: membershipError } = await supabase
+      .from("channel_members")
+      .select("channel_id,user_id")
+      .eq("channel_id", data.channel_id)
+      .eq("user_id", userId)
+      .is("left_at", null)
+      .maybeSingle();
+    if (
+      membershipError ||
+      !membership ||
+      membership.channel_id !== data.channel_id ||
+      membership.user_id !== userId
+    )
+      throw new Error("Current conversation membership could not be confirmed.");
+    if (data.assignee_user_id) {
+      const { data: assignee, error: assigneeError } = await supabase
+        .from("channel_members")
+        .select("channel_id,user_id")
+        .eq("channel_id", data.channel_id)
+        .eq("user_id", data.assignee_user_id)
+        .is("left_at", null)
+        .maybeSingle();
+      if (
+        assigneeError ||
+        !assignee ||
+        assignee.channel_id !== data.channel_id ||
+        assignee.user_id !== data.assignee_user_id
+      )
+        throw new Error("The selected assignee is no longer available in this conversation.");
+    }
+    if (
+      (data.create_action_item && (data.kind !== "action" || !channel.student_id)) ||
+      (data.create_calendar_event && (!channel.student_id || !data.due_at))
+    )
+      throw new Error(
+        "Related student tasks and calendar entries need the matching student and a valid due date where required.",
+      );
+
+    const titleFromBody = (msg.body ?? "").split("\n")[0].slice(0, 140).trim() || "Channel Item";
 
     const metadata: Record<string, string> = {};
-
-    // Optional mirror #1 — action_items for student-scoped 'action' records.
-    let actionItemId: string | null = null;
-    if (
-      data.kind === "action" &&
-      data.create_action_item &&
-      channel?.student_id
-    ) {
-      const pri = data.priority ?? "normal";
-      const priorityMap: Record<string, string> = {
-        low: "low",
-        normal: "medium",
-        high: "high",
-        urgent: "high",
-      };
-      const { data: ai, error: aiErr } = await supabase
-        .from("action_items")
-        .insert({
-          student_id: channel.student_id,
-          title: titleFromBody,
-          description: data.resolution ?? null,
-          category: "family",
-          priority: priorityMap[pri] ?? "medium",
-          due_date: data.due_at
-            ? new Date(data.due_at).toISOString().slice(0, 10)
-            : null,
-          created_by_user_id: userId,
-          assigned_to_user_id: data.assignee_user_id ?? null,
-          status: "not_started",
-        })
-        .select("id")
-        .single();
-      if (!aiErr && ai) {
-        actionItemId = ai.id as string;
-        metadata.action_item_id = actionItemId;
-      }
-    }
-
-    // Optional mirror #2 — team calendar entry when a due date is set.
-    let calendarEventId: string | null = null;
-    if (
-      data.create_calendar_event &&
-      data.due_at &&
-      channel?.student_id
-    ) {
-      const dt = new Date(data.due_at);
-      const { data: cal, error: calErr } = await supabase
-        .from("calendar_events")
-        .insert({
-          owner_user_id: userId,
-          student_id: channel.student_id,
-          title: titleFromBody,
-          detail: `From ${channel.title ?? "Transition Channel"}`,
-          event_date: dt.toISOString().slice(0, 10),
-          start_time: dt.toISOString().slice(11, 16),
-          all_day: false,
-          visibility: "team",
-          event_type: "action",
-          audience_roles: [],
-          status: "scheduled",
-          reminder_settings: {},
-          source_type: "channel_action",
-          related_action_item_id: actionItemId,
-        })
-        .select("id")
-        .single();
-      if (!calErr && cal) {
-        calendarEventId = cal.id as string;
-        metadata.calendar_event_id = calendarEventId;
-      }
-    }
 
     const { data: row, error } = await supabase
       .from("channel_actions")
@@ -169,27 +161,160 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
         assignee_user_id: data.assignee_user_id ?? null,
         resolution: data.resolution ?? null,
         promoted_by: userId,
-        target_id: actionItemId,
+        target_id: null,
         metadata,
       })
-      .select("id")
+      .select("id,channel_id,message_id,kind,promoted_by")
       .single();
-    if (error) throw new Error(error.message);
+    if (
+      error ||
+      !row ||
+      !uuid.safeParse(row.id).success ||
+      row.channel_id !== data.channel_id ||
+      row.message_id !== data.message_id ||
+      row.kind !== data.kind ||
+      row.promoted_by !== userId
+    )
+      throw new Error(
+        "We couldn't confirm this record was created. Check the conversation's records before trying again.",
+      );
+
+    const sync = {
+      action_item: "not_requested",
+      calendar: "not_requested",
+      links: "not_needed",
+    } as {
+      action_item: "not_requested" | "created" | "unconfirmed";
+      calendar: "not_requested" | "created" | "unconfirmed";
+      links: "not_needed" | "saved" | "unconfirmed";
+    };
+    // Optional mirror #1 — action_items for student-scoped 'action' records.
+    let actionItemId: string | null = null;
+    if (data.kind === "action" && data.create_action_item && channel?.student_id) {
+      const pri = data.priority ?? "normal";
+      const priorityMap: Record<string, string> = {
+        low: "low",
+        normal: "medium",
+        high: "high",
+        urgent: "high",
+      };
+      sync.action_item = "unconfirmed";
+      try {
+        const { data: ai, error: aiErr } = await supabase
+          .from("action_items")
+          .insert({
+            student_id: channel.student_id,
+            title: titleFromBody,
+            description: data.resolution ?? null,
+            category: "family",
+            priority: priorityMap[pri] ?? "medium",
+            due_date: data.due_at ? new Date(data.due_at).toISOString().slice(0, 10) : null,
+            created_by_user_id: userId,
+            assigned_to_user_id: data.assignee_user_id ?? null,
+            status: "not_started",
+          })
+          .select("id,student_id,created_by_user_id")
+          .single();
+        if (
+          !aiErr &&
+          ai &&
+          uuid.safeParse(ai.id).success &&
+          ai.student_id === channel.student_id &&
+          ai.created_by_user_id === userId
+        ) {
+          sync.action_item = "created";
+          actionItemId = ai.id as string;
+          metadata.action_item_id = actionItemId;
+        }
+      } catch {
+        /* Primary record is saved; optional task is unconfirmed. */
+      }
+    }
+
+    // Optional mirror #2 — team calendar entry when a due date is set.
+    let calendarEventId: string | null = null;
+    if (data.create_calendar_event && data.due_at && channel?.student_id) {
+      sync.calendar = "unconfirmed";
+      try {
+        const dt = new Date(data.due_at);
+        const { data: cal, error: calErr } = await supabase
+          .from("calendar_events")
+          .insert({
+            owner_user_id: userId,
+            student_id: channel.student_id,
+            title: titleFromBody,
+            detail: `From ${channel.title ?? "Transition Channel"}`,
+            event_date: dt.toISOString().slice(0, 10),
+            start_time: dt.toISOString().slice(11, 16),
+            all_day: false,
+            visibility: "team",
+            event_type: "action",
+            audience_roles: [],
+            status: "scheduled",
+            reminder_settings: {},
+            source_type: "channel_action",
+            related_action_item_id: actionItemId,
+          })
+          .select("id,student_id,owner_user_id")
+          .single();
+        if (
+          !calErr &&
+          cal &&
+          uuid.safeParse(cal.id).success &&
+          cal.student_id === channel.student_id &&
+          cal.owner_user_id === userId
+        ) {
+          sync.calendar = "created";
+          calendarEventId = cal.id as string;
+          metadata.calendar_event_id = calendarEventId;
+        }
+      } catch {
+        /* Primary record is saved; optional calendar entry is unconfirmed. */
+      }
+    }
+
+    if (Object.keys(metadata).length > 0) {
+      sync.links = "unconfirmed";
+      try {
+        const { data: linked, error: linkError } = await supabase
+          .from("channel_actions")
+          .update({ target_id: actionItemId, metadata })
+          .eq("id", row.id)
+          .eq("channel_id", data.channel_id)
+          .eq("promoted_by", userId)
+          .select("id,target_id,metadata")
+          .single();
+        const savedMetadata = linked?.metadata as Record<string, string> | null;
+        if (
+          !linkError &&
+          linked?.id === row.id &&
+          linked.target_id === actionItemId &&
+          Object.entries(metadata).every(([key, value]) => savedMetadata?.[key] === value)
+        )
+          sync.links = "saved";
+      } catch {
+        /* Related entries may exist; linking is unconfirmed. */
+      }
+    }
 
     // Notify assignee (skip when self-assigned, muted, or in quiet hours).
     if (data.assignee_user_id && data.assignee_user_id !== userId) {
       try {
-        const { supabaseAdmin } = await import(
-          "@/integrations/supabase/client.server"
-        );
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         // Respect per-channel mute + in-app opt-out.
-        const { data: memberPref } = await supabaseAdmin
+        const { data: memberPref, error: preferenceError } = await supabaseAdmin
           .from("channel_members")
           .select("muted, notify_in_app")
           .eq("channel_id", data.channel_id)
           .eq("user_id", data.assignee_user_id)
+          .is("left_at", null)
           .maybeSingle();
-        if (memberPref?.muted || memberPref?.notify_in_app === false) {
+        if (
+          preferenceError ||
+          !memberPref ||
+          memberPref.muted !== false ||
+          memberPref.notify_in_app !== true
+        ) {
           // Skip in-app notification when member has muted the channel.
         } else {
           // Respect quiet hours: if the recipient is currently inside their
@@ -213,6 +338,10 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
 
     return {
       action_id: row.id,
+      channel_id: data.channel_id,
+      message_id: data.message_id,
+      kind: data.kind,
+      sync,
       action_item_id: actionItemId,
       calendar_event_id: calendarEventId,
     };
@@ -373,37 +502,49 @@ export type ChannelMemberOption = {
 
 export const listChannelAssigneeOptions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { channel_id: string }) =>
-    z.object({ channel_id: uuid }).parse(input),
+  .validator((input: { channel_id: string; expected_viewer_id?: string }) =>
+    z.object({ channel_id: uuid, ...viewerIntentSchema.shape }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
-    const { data: members, error } = await supabase
-      .from("channel_members")
-      .select("user_id, member_role")
-      .eq("channel_id", data.channel_id)
-      .is("left_at", null)
-      .limit(200);
-    if (error) throw new Error(error.message);
-
-    const ids = (members ?? []).map((m) => m.user_id);
-    const nameMap = new Map<string, string>();
-    if (ids.length > 0) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, preferred_name")
-        .in("id", ids);
-      (profs ?? []).forEach((p) =>
-        nameMap.set(p.id, (p.preferred_name || p.full_name || "").trim() || "Member"),
+    let members: { id: string; user_id: string; member_role: string }[];
+    let profiles: { id: string; full_name: string | null; preferred_name: string | null }[];
+    try {
+      members = await readReportPages((from, to) =>
+        supabase
+          .from("channel_members")
+          .select("id,user_id,member_role", { count: "exact" })
+          .eq("channel_id", data.channel_id)
+          .is("left_at", null)
+          .order("id")
+          .range(from, to),
       );
+      profiles = await readReportBatches(
+        members.map((member) => member.user_id),
+        (ids, from, to) =>
+          supabase
+            .from("profiles")
+            .select("id,full_name,preferred_name", { count: "exact" })
+            .in("id", ids)
+            .order("id")
+            .range(from, to),
+      );
+    } catch {
+      throw new Error("We couldn't load all conversation members. Please try again.");
     }
-
-    const options: ChannelMemberOption[] = (members ?? [])
-      .map((m) => ({
-        user_id: m.user_id,
-        member_role: String(m.member_role ?? "member"),
-        name: nameMap.get(m.user_id) ?? "Member",
+    const names = new Map(
+      profiles.map((profile) => [
+        profile.id,
+        (profile.preferred_name || profile.full_name || "").trim() || "Member",
+      ]),
+    );
+    const options: ChannelMemberOption[] = members
+      .map((member) => ({
+        user_id: member.user_id,
+        member_role: String(member.member_role ?? "member"),
+        name: names.get(member.user_id) ?? "Member",
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => a.name.localeCompare(b.name) || a.user_id.localeCompare(b.user_id));
     return { options };
   });

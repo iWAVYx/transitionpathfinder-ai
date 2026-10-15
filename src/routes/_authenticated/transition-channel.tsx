@@ -1788,6 +1788,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
         message={promoteMessage?.channel_id === active?.id ? promoteMessage : null}
         channelId={promoteMessage?.channel_id === active?.id ? (active?.id ?? null) : null}
         channelStudentId={active?.student_id ?? null}
+        readOnly={!!active?.archived_at}
         onOpenChange={(open: boolean) => {
           if (!open) setPromoteMessage(null);
         }}
