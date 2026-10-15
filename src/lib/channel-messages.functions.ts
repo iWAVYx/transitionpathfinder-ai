@@ -44,8 +44,18 @@ export type ChannelBookmark = {
 
 export const listThreadMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { parent_id: string }) => z.object({ parent_id: uuid }).parse(input))
+  .validator(
+    (input: { parent_id: string; expected_channel_id?: string; expected_viewer_id?: string }) =>
+      z
+        .object({
+          parent_id: uuid,
+          expected_channel_id: uuid.optional(),
+          ...viewerIntentSchema.shape,
+        })
+        .parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
 
     const { data: parent, error: pErr } = await supabase
@@ -56,7 +66,12 @@ export const listThreadMessages = createServerFn({ method: "GET" })
       .eq("id", data.parent_id)
       .maybeSingle();
     if (pErr) throw new Error(pErr.message);
-    if (!parent) throw new Error("Thread not found");
+    if (
+      !parent ||
+      parent.id !== data.parent_id ||
+      (data.expected_channel_id && parent.channel_id !== data.expected_channel_id)
+    )
+      throw new Error("Thread not available.");
 
     const { data: rows, error } = await supabase
       .from("channel_messages")
@@ -64,12 +79,22 @@ export const listThreadMessages = createServerFn({ method: "GET" })
         "id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at",
       )
       .eq("parent_id", data.parent_id)
+      .eq("channel_id", parent.channel_id)
       .order("created_at", { ascending: true })
-      .limit(200);
+      .order("id", { ascending: true })
+      .limit(201);
     if (error) throw new Error(error.message);
 
+    if (
+      !Array.isArray(rows) ||
+      rows.some(
+        (reply) => reply.parent_id !== data.parent_id || reply.channel_id !== parent.channel_id,
+      )
+    )
+      throw new Error("Thread replies unavailable.");
+    const visible = rows.slice(0, 200);
     const authorIds = Array.from(
-      new Set([parent, ...(rows ?? [])].map((r) => r.author_id).filter((v): v is string => !!v)),
+      new Set([parent, ...visible].map((r) => r.author_id).filter((v): v is string => !!v)),
     );
     const nameMap = new Map<string, string>();
     if (authorIds.length > 0) {
@@ -89,10 +114,10 @@ export const listThreadMessages = createServerFn({ method: "GET" })
 
     return {
       parent: shape(parent),
-      replies: (rows ?? []).map(shape),
+      replies: visible.map(shape),
+      hasMore: rows.length > 200,
     };
   });
-
 // ─── Edit / Delete ─────────────────────────────────────────────────────────
 
 export const editChannelMessage = createServerFn({ method: "POST" })

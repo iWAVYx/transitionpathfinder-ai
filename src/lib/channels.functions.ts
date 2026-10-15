@@ -232,6 +232,23 @@ export const sendChannelMessage = createServerFn({ method: "POST" })
     assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
+    if (data.parent_id) {
+      const { data: parent, error: parentError } = await supabase
+        .from("channel_messages")
+        .select("id,channel_id,deleted_at")
+        .eq("id", data.parent_id)
+        .eq("channel_id", data.channel_id)
+        .maybeSingle();
+      if (
+        parentError ||
+        !parent ||
+        parent.id !== data.parent_id ||
+        parent.channel_id !== data.channel_id ||
+        parent.deleted_at
+      )
+        throw new Error("This thread is no longer available for replies. Reload the conversation.");
+    }
+
     const dedupe =
       data.client_dedupe_key?.trim() || `${userId}:${Date.now()}:${crypto.randomUUID()}`;
 
@@ -285,6 +302,7 @@ export const sendChannelMessage = createServerFn({ method: "POST" })
       !inserted ||
       inserted.channel_id !== data.channel_id ||
       inserted.author_id !== userId ||
+      (inserted.parent_id ?? null) !== (data.parent_id ?? null) ||
       !inserted.id
     )
       throw new Error(

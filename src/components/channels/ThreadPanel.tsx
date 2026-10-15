@@ -1,13 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { toast } from "sonner";
+import { useChannelViewScope } from "./ChannelQueryBoundary";
 import { Send, X } from "lucide-react";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { sendChannelMessage, type ChannelMessage } from "@/lib/channels.functions";
+import { sendChannelMessage } from "@/lib/channels.functions";
 import { listThreadMessages } from "@/lib/channel-messages.functions";
 import { MessageItem, useMessageAttachments } from "./MessageItem";
 
@@ -16,33 +19,78 @@ export type ThreadPanelProps = {
   channelId: string | null;
   currentUserId: string | null;
   isAdmin: boolean;
+  readOnly?: boolean;
   bookmarkedIds: Set<string>;
   onClose: () => void;
   onChanged: () => void;
 };
 
-export function ThreadPanel({
+export function ThreadPanel(props: ThreadPanelProps) {
+  return (
+    <ThreadSession
+      key={JSON.stringify([props.channelId, props.parentId, props.currentUserId, props.readOnly])}
+      {...props}
+    />
+  );
+}
+
+function ThreadSession({
   parentId,
   channelId,
   currentUserId,
   isAdmin,
+  readOnly = false,
   bookmarkedIds,
   onClose,
   onChanged,
 }: ThreadPanelProps) {
+  const scope = useChannelViewScope(
+    JSON.stringify([channelId, parentId, currentUserId, !!parentId, readOnly]),
+  );
   const open = !!parentId;
+  const eligible = open && !!channelId && currentUserId === scope.viewerId;
+  const queryKey = ["channel-thread", channelId, parentId];
   const loadFn = useServerFn(listThreadMessages);
   const sendFn = useServerFn(sendChannelMessage);
   const qc = useQueryClient();
 
   const threadQuery = useQuery({
-    queryKey: ["channel-thread", parentId],
-    queryFn: () => loadFn({ data: { parent_id: parentId! } }),
-    enabled: open,
+    queryKey,
+    queryFn: async () => {
+      if (!scope.isCurrent() || !eligible) throw new Error("Thread changed.");
+      const result = await loadFn({
+        data: {
+          parent_id: parentId!,
+          expected_channel_id: channelId!,
+          expected_viewer_id: scope.viewerId,
+        },
+      });
+      if (!scope.isCurrent()) throw new Error("Thread changed.");
+      if (
+        !result?.parent ||
+        result.parent.id !== parentId ||
+        result.parent.channel_id !== channelId ||
+        !Array.isArray(result.replies) ||
+        typeof result.hasMore !== "boolean" ||
+        result.replies.some(
+          (reply) =>
+            !z.string().uuid().safeParse(reply.id).success ||
+            reply.parent_id !== parentId ||
+            reply.channel_id !== channelId,
+        )
+      )
+        throw new Error("Thread response mismatch.");
+      return result;
+    },
+    enabled: eligible,
+    retry: false,
   });
 
-  const parent = threadQuery.data?.parent ?? null;
-  const replies = useMemo(() => threadQuery.data?.replies ?? [], [threadQuery.data]);
+  const parent = eligible && threadQuery.isSuccess ? (threadQuery.data?.parent ?? null) : null;
+  const replies = useMemo(
+    () => (parent ? (threadQuery.data?.replies ?? []) : []),
+    [parent, threadQuery.data],
+  );
 
   const messageIds = useMemo(
     () => (parent ? [parent.id, ...replies.map((r) => r.id)] : replies.map((r) => r.id)),
@@ -51,15 +99,24 @@ export function ThreadPanel({
   const { byMessage } = useMessageAttachments(messageIds);
 
   const [draft, setDraft] = useState("");
+  const revision = useRef(0);
+  const pending = useRef(false);
+  const keys = useRef(new Map<string, string>());
+  const changed = () => {
+    if (!scope.isCurrent()) return;
+    void qc.invalidateQueries({ queryKey });
+    onChanged();
+  };
   useEffect(() => {
     if (!open) setDraft("");
   }, [open]);
 
   // Live updates for this thread.
   useEffect(() => {
-    if (!open || !channelId) return;
+    if (!eligible || !scope.isCurrent()) return;
+    let cancelled = false;
     const ch = supabase
-      .channel(`channel-thread-${parentId}`)
+      .channel(`channel-thread-${scope.viewerId}-${channelId}-${parentId}`)
       .on(
         "postgres_changes",
         {
@@ -69,31 +126,76 @@ export function ThreadPanel({
           filter: `channel_id=eq.${channelId}`,
         },
         () => {
-          qc.invalidateQueries({ queryKey: ["channel-thread", parentId] });
+          if (!cancelled && scope.isCurrent()) void qc.invalidateQueries({ queryKey });
         },
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(ch);
+      cancelled = true;
+      void Promise.resolve(supabase.removeChannel(ch)).catch(() => undefined);
     };
-  }, [open, channelId, parentId, qc]);
+  }, [eligible, channelId, parentId, qc, scope.isCurrent, scope.viewerId]);
 
   const sendMut = useMutation({
-    mutationFn: (body: string) =>
-      sendFn({
+    mutationFn: async (request: { body: string; revision: number; key: string }) => {
+      if (!scope.isCurrent() || !eligible || !parent || readOnly || parent.deleted_at)
+        throw new Error("Thread changed.");
+      const result = await sendFn({
         data: {
           channel_id: channelId!,
-          body,
           parent_id: parentId!,
-          client_dedupe_key: `${parentId}:${Date.now()}`,
+          body: request.body,
+          client_dedupe_key: request.key,
+          expected_viewer_id: scope.viewerId,
         },
-      }),
-    onSuccess: () => {
-      setDraft("");
-      qc.invalidateQueries({ queryKey: ["channel-thread", parentId] });
-      onChanged();
+      });
+      if (
+        !result?.message ||
+        !z.string().uuid().safeParse(result.message.id).success ||
+        result.message.channel_id !== channelId ||
+        result.message.parent_id !== parentId ||
+        result.message.author_id !== scope.viewerId
+      )
+        throw new Error("Reply response mismatch.");
+      return { request };
+    },
+    onSuccess: ({ request }) => {
+      if (!scope.isCurrent()) return;
+      keys.current.delete(request.body);
+      if (revision.current === request.revision) {
+        setDraft("");
+        revision.current += 1;
+      }
+      changed();
+    },
+    onError: () => {
+      if (scope.isCurrent())
+        toast.error(
+          "We couldn't confirm your reply was sent. Your draft is still here; reload the thread before trying again.",
+        );
+    },
+    onSettled: () => {
+      pending.current = false;
     },
   });
+  const submit = () => {
+    const body = draft.trim();
+    if (
+      !body ||
+      pending.current ||
+      !scope.isCurrent() ||
+      !eligible ||
+      !parent ||
+      readOnly ||
+      parent.deleted_at ||
+      !threadQuery.isSuccess
+    )
+      return;
+    const key = keys.current.get(body) ?? crypto.randomUUID();
+    keys.current.set(body, key);
+    pending.current = true;
+    sendMut.mutate({ body, revision: revision.current, key });
+  };
 
   return (
     <Sheet open={open} onOpenChange={(o) => (!o ? onClose() : undefined)}>
@@ -101,6 +203,16 @@ export function ThreadPanel({
         <SheetHeader className="border-b px-4 py-3">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-base">Thread</SheetTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!eligible || threadQuery.isFetching}
+              onClick={() => {
+                if (scope.isCurrent()) void threadQuery.refetch();
+              }}
+            >
+              Refresh Thread
+            </Button>
             <button
               type="button"
               className="rounded-md p-1 hover:bg-muted"
@@ -115,6 +227,13 @@ export function ThreadPanel({
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {threadQuery.isLoading ? (
             <p className="text-sm text-muted-foreground">Loading thread…</p>
+          ) : threadQuery.isError ? (
+            <div role="alert" className="space-y-2 text-sm">
+              <p>We couldn't load this thread. Your draft is still here.</p>
+              <Button variant="outline" size="sm" onClick={() => void threadQuery.refetch()}>
+                Reload Thread
+              </Button>
+            </div>
           ) : !parent ? (
             <p className="text-sm text-muted-foreground">Thread not available.</p>
           ) : (
@@ -126,12 +245,14 @@ export function ThreadPanel({
                 bookmarked={bookmarkedIds.has(parent.id)}
                 attachments={byMessage.get(parent.id) ?? []}
                 onReply={() => {}}
-                onChanged={() => {
-                  qc.invalidateQueries({ queryKey: ["channel-thread", parentId] });
-                  onChanged();
-                }}
+                onChanged={changed}
                 compact
               />
+              {threadQuery.data?.hasMore && (
+                <p className="text-xs text-muted-foreground">
+                  Showing the first 200 replies. More replies are recorded in this thread.
+                </p>
+              )}
               <div className="pl-4 border-l space-y-2">
                 {replies.length === 0 ? (
                   <p className="text-xs text-muted-foreground py-2">
@@ -147,10 +268,7 @@ export function ThreadPanel({
                       bookmarked={bookmarkedIds.has(r.id)}
                       attachments={byMessage.get(r.id) ?? []}
                       onReply={() => {}}
-                      onChanged={() => {
-                        qc.invalidateQueries({ queryKey: ["channel-thread", parentId] });
-                        onChanged();
-                      }}
+                      onChanged={changed}
                       compact
                     />
                   ))
@@ -164,14 +282,15 @@ export function ThreadPanel({
           className="border-t p-3 flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            const body = draft.trim();
-            if (!body || sendMut.isPending || !channelId) return;
-            sendMut.mutate(body);
+            submit();
           }}
         >
           <Textarea
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => {
+              revision.current += 1;
+              setDraft(e.target.value);
+            }}
             rows={2}
             placeholder="Reply in thread…"
             className="resize-none"
@@ -179,12 +298,22 @@ export function ThreadPanel({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                const body = draft.trim();
-                if (body && !sendMut.isPending && channelId) sendMut.mutate(body);
+                submit();
               }
             }}
           />
-          <Button type="submit" disabled={!draft.trim() || sendMut.isPending || !channelId}>
+          <Button
+            type="submit"
+            disabled={
+              !draft.trim() ||
+              sendMut.isPending ||
+              !eligible ||
+              !parent ||
+              readOnly ||
+              !!parent.deleted_at ||
+              !threadQuery.isSuccess
+            }
+          >
             <Send className="h-4 w-4" />
             <span className="sr-only">Send reply</span>
           </Button>

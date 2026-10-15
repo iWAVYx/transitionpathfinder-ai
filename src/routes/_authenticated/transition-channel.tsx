@@ -1766,6 +1766,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
         currentUserId={currentUserId}
         isAdmin={isAdmin}
         bookmarkedIds={bookmarkedIds}
+        readOnly={!!active?.archived_at}
         onClose={() => setThreadParentId(null)}
         onChanged={invalidateActive}
       />
