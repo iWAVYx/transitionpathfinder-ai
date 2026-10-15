@@ -5,6 +5,7 @@
 // channel_* policies enforce membership. No tab bypasses those rules.
 
 import { z } from "zod";
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -112,6 +113,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
         | "opportunity_followup"
         | "referral_followup";
       assignee_only?: boolean;
+      expected_viewer_id?: string;
     }) =>
       z
         .object({
@@ -125,10 +127,12 @@ export const listChannelActions = createServerFn({ method: "GET" })
             "referral_followup",
           ]),
           assignee_only: z.boolean().default(false),
+          ...viewerIntentSchema.shape,
         })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     let q = supabase
@@ -185,7 +189,8 @@ export const listChannelActions = createServerFn({ method: "GET" })
         resolution: r.resolution,
         created_at: r.created_at,
         resolved_at: r.resolved_at,
-        action_item_id: (meta.action_item_id as string | undefined) ?? (r.target_id as string | null) ?? null,
+        action_item_id:
+          (meta.action_item_id as string | undefined) ?? (r.target_id as string | null) ?? null,
         calendar_event_id: (meta.calendar_event_id as string | undefined) ?? null,
         student_id: ch?.student_id ?? null,
       };

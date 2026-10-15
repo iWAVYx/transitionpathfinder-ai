@@ -12,6 +12,7 @@ const api = vi.hoisted(() => ({
   uploadsEnabled: false,
   privacyConfirm: null as any,
   channels: vi.fn(),
+  actions: vi.fn(),
   messages: vi.fn(),
   send: vi.fn(),
   read: vi.fn(),
@@ -52,7 +53,7 @@ vi.mock("@/lib/channels.functions", () => ({
 }));
 vi.mock("@/lib/channel-tabs.functions", () => ({
   listMyMentions: vi.fn().mockResolvedValue({ mentions: [] }),
-  listChannelActions: vi.fn().mockResolvedValue({ actions: [] }),
+  listChannelActions: api.actions,
   markMentionSeen: vi.fn(),
 }));
 vi.mock("@/lib/channel-actions.functions", () => ({
@@ -196,6 +197,7 @@ beforeEach(() => {
     api.owner,
     api.summary,
     api.channels,
+    api.actions,
     api.history,
     api.messages,
     api.send,
@@ -218,6 +220,7 @@ beforeEach(() => {
   api.roles.mockResolvedValue({ roles: ["parent"] });
   api.summary.mockResolvedValue(counts);
   api.channels.mockResolvedValue({ channels: [] });
+  api.actions.mockResolvedValue({ actions: [] });
   api.history.mockResolvedValue([]);
   api.realtimeCallbacks = [];
   api.messages.mockResolvedValue({ messages: [] });
@@ -972,3 +975,54 @@ it.each(["student", "parent", "teacher", "school_admin", "district_admin", "part
     );
   },
 );
+
+describe("actual action-tab read recovery with mocked transport", () => {
+  beforeEach(() => {
+    api.roles.mockResolvedValue({ roles: ["teacher"] });
+    api.search.tab = "assigned";
+  });
+  it("distinguishes a failed read from empty records and retries with viewer intent", async () => {
+    api.actions.mockRejectedValueOnce(new Error("private read details"));
+    mount();
+    await screen.findByText("We couldn't load these records.");
+    expect(screen.queryByText("No recorded assigned actions in this view.")).toBeNull();
+    fireEvent.click(screen.getByText("Reload Records"));
+    await screen.findByText("No recorded assigned actions in this view.");
+    expect(api.actions).toHaveBeenCalledWith({
+      data: { kind: "action", assignee_only: true, expected_viewer_id: "viewer-a" },
+    });
+    expect(screen.getByText("This view shows up to 50 recent records.")).toBeTruthy();
+  });
+  it.each([{ actions: null }, { actions: [{ id: "bad", channel_id: "bad", status: "open" }] }])(
+    "rejects malformed recorded collections %#",
+    async (response) => {
+      api.actions.mockResolvedValue(response);
+      mount();
+      await screen.findByText("We couldn't load these records.");
+      expect(screen.queryByText("No recorded assigned actions in this view.")).toBeNull();
+    },
+  );
+  it("does not render a departed account's late records", async () => {
+    const pending = deferred();
+    api.actions.mockReturnValueOnce(pending.promise);
+    const ui = mount();
+    await waitFor(() => expect(api.actions).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    ui.refresh();
+    await waitFor(() => expect(api.actions).toHaveBeenCalledTimes(2));
+    await act(async () =>
+      pending.resolve({
+        actions: [
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            channel_id: "22222222-2222-4222-8222-222222222222",
+            status: "open",
+            resolution: "Departed private record",
+          },
+        ],
+      }),
+    );
+    expect(screen.queryByText("Departed private record")).toBeNull();
+    expect(api.actions.mock.calls[1][0].data.expected_viewer_id).toBe("viewer-b");
+  });
+});

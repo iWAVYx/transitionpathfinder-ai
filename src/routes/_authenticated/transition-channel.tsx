@@ -71,12 +71,7 @@ import {
 import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
 import { ThreadPanel } from "@/components/channels/ThreadPanel";
 import { PromoteRecordDialog } from "@/components/channels/PromoteRecordDialog";
-import {
-  updateChannelAction,
-  listChannelAssigneeOptions,
-  ACTION_STATUSES,
-  type ActionStatus,
-} from "@/lib/channel-actions.functions";
+import { ChannelActionCard as ActionCard } from "@/components/channels/ChannelActionCard";
 import {
   listMyConnectionRequests,
   respondToConnectionRequest,
@@ -701,151 +696,54 @@ function ActionsTab({
   assigneeOnly?: boolean;
   search: FilterState;
 }) {
+  const scope = useChannelViewScope(JSON.stringify([kind, assigneeOnly, search]));
   const listFn = useServerFn(listChannelActions);
   const query = useQuery({
     queryKey: ["channel-actions", kind, assigneeOnly, search],
-    queryFn: () => listFn({ data: { kind, assignee_only: assigneeOnly } }),
+    queryFn: async () => {
+      if (!scope.isCurrent()) throw new Error("View changed.");
+      const result = await listFn({
+        data: { kind, assignee_only: assigneeOnly, expected_viewer_id: scope.viewerId },
+      });
+      if (!scope.isCurrent()) throw new Error("View changed.");
+      if (
+        !Array.isArray(result?.actions) ||
+        result.actions.some(
+          (action) =>
+            !z.string().uuid().safeParse(action.id).success ||
+            !z.string().uuid().safeParse(action.channel_id).success ||
+            !["open", "in_progress", "resolved", "cancelled"].includes(action.status),
+        )
+      )
+        throw new Error("Records unavailable.");
+      return result;
+    },
+    retry: false,
   });
-  const actions = query.data?.actions ?? [];
+  const actions = query.isSuccess ? query.data.actions : [];
   const icon = kind === "action" ? ListTodo : kind === "decision" ? HelpCircle : Megaphone;
   const label =
     kind === "action" ? "assigned action" : kind === "decision" ? "decision" : "feedback item";
 
   return (
     <div className="space-y-2">
-      {query.isLoading ? (
+      <p className="text-xs text-muted-foreground">This view shows up to 50 recent records.</p>
+      {query.isError ? (
+        <div role="alert" className="text-sm">
+          <p>We couldn't load these records.</p>
+          <Button size="sm" variant="outline" onClick={() => void query.refetch()}>
+            Reload Records
+          </Button>
+        </div>
+      ) : query.isLoading ? (
         <p className="text-sm text-muted-foreground">Loading {label}s…</p>
       ) : actions.length === 0 ? (
-        <EmptyState icon={icon} message={`No ${label}s match your filters.`} />
+        <EmptyState icon={icon} message={`No recorded ${label}s in this view.`} />
       ) : (
         actions.map((a) => <ActionCard key={a.id} action={a} />)
       )}
     </div>
   );
-}
-
-function ActionCard({ action }: { action: ChannelActionRecord }) {
-  const qc = useQueryClient();
-  const updateFn = useServerFn(updateChannelAction);
-  const listAssigneesFn = useServerFn(listChannelAssigneeOptions);
-
-  const [assignOpen, setAssignOpen] = useState(false);
-  const assigneesQuery = useQuery({
-    queryKey: ["channel-assignees", action.channel_id],
-    queryFn: () => listAssigneesFn({ data: { channel_id: action.channel_id } }),
-    enabled: assignOpen,
-  });
-
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ["channel-actions"] });
-    qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-  };
-
-  const statusMut = useMutation({
-    mutationFn: (status: ActionStatus) => updateFn({ data: { action_id: action.id, status } }),
-    onSuccess: invalidate,
-  });
-  const assignMut = useMutation({
-    mutationFn: (assignee_user_id: string | null) =>
-      updateFn({ data: { action_id: action.id, assignee_user_id } }),
-    onSuccess: () => {
-      setAssignOpen(false);
-      invalidate();
-    },
-  });
-
-  return (
-    <article className="rounded-lg border p-3 hover:bg-muted/40 transition">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={actionStatusVariant(action.status)}>
-              {action.status.replace("_", " ")}
-            </Badge>
-            {action.priority && <Badge variant="outline">{action.priority}</Badge>}
-            <span className="text-xs text-muted-foreground">in {action.channel_title}</span>
-          </div>
-          {action.resolution && <p className="mt-2 text-sm">{action.resolution}</p>}
-          <p className="mt-2 text-xs text-muted-foreground">
-            Promoted by {action.promoter_name}
-            {action.assignee_name ? ` · Assigned to ${action.assignee_name}` : " · Unassigned"}
-            {action.due_at ? ` · Due ${formatWhen(action.due_at)}` : null}
-          </p>
-          {(action.action_item_id || action.calendar_event_id) && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {action.action_item_id && action.student_id && (
-                <a
-                  href={`/students/${action.student_id}`}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/10"
-                >
-                  <ListTodo className="h-3 w-3" /> In Student Actions
-                </a>
-              )}
-              {action.calendar_event_id && (
-                <a
-                  href="/calendar"
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/10"
-                >
-                  <Bell className="h-3 w-3" /> On Team Calendar
-                </a>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <Select
-            value={action.status}
-            onValueChange={(v) => statusMut.mutate(v as ActionStatus)}
-            disabled={statusMut.isPending}
-          >
-            <SelectTrigger className="h-7 w-[130px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ACTION_STATUSES.map((s) => (
-                <SelectItem key={s} value={s} className="text-xs">
-                  {s.replace("_", " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={action.assignee_user_id ?? "none"}
-            onValueChange={(v) => assignMut.mutate(v === "none" ? null : v)}
-            onOpenChange={setAssignOpen}
-            disabled={assignMut.isPending}
-          >
-            <SelectTrigger className="h-7 w-[130px] text-xs">
-              <SelectValue placeholder="Assign…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none" className="text-xs">
-                Unassigned
-              </SelectItem>
-              {(assigneesQuery.data?.options ?? []).map((o) => (
-                <SelectItem key={o.user_id} value={o.user_id} className="text-xs">
-                  {o.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function actionStatusVariant(status: string) {
-  switch (status) {
-    case "open":
-      return "default";
-    case "in_progress":
-      return "secondary";
-    case "resolved":
-      return "outline";
-    default:
-      return "secondary";
-  }
 }
 
 function ConnectionsTab() {

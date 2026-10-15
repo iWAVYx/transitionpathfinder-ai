@@ -347,23 +347,86 @@ export const promoteMessageToAction = createServerFn({ method: "POST" })
     };
   });
 
-/**
- * Update lifecycle fields on a promoted record.
- */
+const actionIntent = z.object({
+  action_id: uuid,
+  ...viewerIntentSchema.shape,
+  expected_channel_id: uuid.optional(),
+  expected_student_id: uuid.optional().nullable(),
+  expected_status: z.enum(ACTION_STATUSES).optional(),
+  expected_assignee_user_id: uuid.optional().nullable(),
+});
+async function currentAction(
+  supabase: import("@supabase/supabase-js").SupabaseClient<
+    import("@/integrations/supabase/types").Database
+  >,
+  userId: string,
+  input: z.infer<typeof actionIntent>,
+) {
+  const { data: prev, error } = await supabase
+    .from("channel_actions")
+    .select(
+      "id,channel_id,status,priority,due_at,assignee_user_id,resolution,resolved_at,resolved_by,target_id,metadata",
+    )
+    .eq("id", input.action_id)
+    .maybeSingle();
+  if (
+    error ||
+    !prev ||
+    prev.id !== input.action_id ||
+    (input.expected_channel_id && prev.channel_id !== input.expected_channel_id) ||
+    (input.expected_status !== undefined && prev.status !== input.expected_status) ||
+    (input.expected_assignee_user_id !== undefined &&
+      (prev.assignee_user_id ?? null) !== input.expected_assignee_user_id)
+  )
+    throw new Error(
+      "This record changed or is no longer available. Reload the records before trying again.",
+    );
+  const { data: channel, error: channelError } = await supabase
+    .from("channels")
+    .select("id,title,student_id,archived_at")
+    .eq("id", prev.channel_id)
+    .maybeSingle();
+  if (
+    channelError ||
+    !channel ||
+    channel.id !== prev.channel_id ||
+    channel.archived_at ||
+    (input.expected_student_id !== undefined &&
+      (channel.student_id ?? null) !== input.expected_student_id)
+  )
+    throw new Error("This conversation's student or access changed. Reload the records.");
+  const { data: member, error: memberError } = await supabase
+    .from("channel_members")
+    .select("channel_id,user_id")
+    .eq("channel_id", prev.channel_id)
+    .eq("user_id", userId)
+    .is("left_at", null)
+    .maybeSingle();
+  if (memberError || !member || member.channel_id !== prev.channel_id || member.user_id !== userId)
+    throw new Error("Current conversation membership could not be confirmed.");
+  return { prev, channel };
+}
+function actionValueMatches(actual: unknown, expected: unknown, key: string) {
+  if (key.endsWith("_at") && typeof expected === "string")
+    return typeof actual === "string" && Date.parse(actual) === Date.parse(expected);
+  return actual === expected;
+}
+
+/** Confirm the channel record before attempting a separate linked-task update. */
 export const updateChannelAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
-    (input: {
-      action_id: string;
-      status?: ActionStatus;
-      priority?: ActionPriority | null;
-      due_at?: string | null;
-      assignee_user_id?: string | null;
-      resolution?: string | null;
-    }) =>
-      z
-        .object({
-          action_id: uuid,
+    (
+      input: z.input<typeof actionIntent> & {
+        status?: ActionStatus;
+        priority?: ActionPriority | null;
+        due_at?: string | null;
+        assignee_user_id?: string | null;
+        resolution?: string | null;
+      },
+    ) =>
+      actionIntent
+        .extend({
           status: z.enum(ACTION_STATUSES).optional(),
           priority: z.enum(ACTION_PRIORITIES).optional().nullable(),
           due_at: z.string().datetime().optional().nullable(),
@@ -373,122 +436,162 @@ export const updateChannelAction = createServerFn({ method: "POST" })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
-
-    const patch: {
-      status?: ActionStatus;
-      priority?: ActionPriority | null;
-      due_at?: string | null;
-      assignee_user_id?: string | null;
-      resolution?: string | null;
-      resolved_at?: string | null;
-      resolved_by?: string | null;
-    } = {};
+    const { prev, channel } = await currentAction(supabase, userId, data);
+    if (data.assignee_user_id) {
+      const { data: assignee, error } = await supabase
+        .from("channel_members")
+        .select("channel_id,user_id")
+        .eq("channel_id", prev.channel_id)
+        .eq("user_id", data.assignee_user_id)
+        .is("left_at", null)
+        .maybeSingle();
+      if (
+        error ||
+        !assignee ||
+        assignee.channel_id !== prev.channel_id ||
+        assignee.user_id !== data.assignee_user_id
+      )
+        throw new Error("The selected assignee is no longer available in this conversation.");
+    }
+    const patch: import("@/integrations/supabase/types").Database["public"]["Tables"]["channel_actions"]["Update"] =
+      {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.priority !== undefined) patch.priority = data.priority;
     if (data.due_at !== undefined) patch.due_at = data.due_at;
     if (data.assignee_user_id !== undefined) patch.assignee_user_id = data.assignee_user_id;
     if (data.resolution !== undefined) patch.resolution = data.resolution;
-
-    if (data.status === "resolved" || data.status === "cancelled") {
-      patch.resolved_at = new Date().toISOString();
-      patch.resolved_by = userId;
-    } else if (data.status === "open" || data.status === "in_progress") {
-      patch.resolved_at = null;
-      patch.resolved_by = null;
+    if (data.status !== undefined) {
+      patch.resolved_at = ["resolved", "cancelled"].includes(data.status)
+        ? new Date().toISOString()
+        : null;
+      patch.resolved_by = patch.resolved_at ? userId : null;
     }
-
-    if (Object.keys(patch).length === 0) return { ok: true };
-
-    // Read current row so we can detect assignee change + mirror status.
-    const { data: prev } = await supabase
-      .from("channel_actions")
-      .select(
-        "id, channel_id, assignee_user_id, target_id, metadata, resolution",
+    let saved = prev;
+    if (Object.keys(patch).length > 0) {
+      let write = supabase
+        .from("channel_actions")
+        .update(patch)
+        .eq("id", prev.id)
+        .eq("channel_id", prev.channel_id)
+        .eq("status", prev.status);
+      write = prev.assignee_user_id
+        ? write.eq("assignee_user_id", prev.assignee_user_id)
+        : write.is("assignee_user_id", null);
+      const { data: updated, error } = await write
+        .select(
+          "id,channel_id,status,priority,due_at,assignee_user_id,resolution,resolved_at,resolved_by,target_id,metadata",
+        )
+        .single();
+      if (
+        error ||
+        !updated ||
+        updated.id !== prev.id ||
+        updated.channel_id !== prev.channel_id ||
+        !Object.entries(patch).every(([key, value]) =>
+          actionValueMatches((updated as Record<string, unknown>)[key], value, key),
+        )
       )
-      .eq("id", data.action_id)
-      .maybeSingle();
-
-    const { error } = await supabase
-      .from("channel_actions")
-      .update(patch)
-      .eq("id", data.action_id);
-    if (error) throw new Error(error.message);
-
-    // Mirror status → linked action_items row.
-    const meta = (prev?.metadata as Record<string, string> | null) ?? {};
-    const linkedActionItemId =
-      (meta.action_item_id as string | undefined) ??
-      (prev?.target_id as string | undefined) ??
-      null;
-    if (linkedActionItemId && patch.status) {
-      const statusMap: Record<string, string> = {
-        open: "not_started",
-        in_progress: "in_progress",
-        resolved: "completed",
-        cancelled: "not_started",
-      };
-      const mapped = statusMap[patch.status];
-      if (mapped) {
-        await supabase
-          .from("action_items")
-          .update({ status: mapped })
-          .eq("id", linkedActionItemId);
-      }
-    }
-
-    // Notify newly assigned user.
-    const nextAssignee = data.assignee_user_id;
-    const prevAssignee = prev?.assignee_user_id ?? null;
-    if (
-      nextAssignee !== undefined &&
-      nextAssignee &&
-      nextAssignee !== prevAssignee &&
-      nextAssignee !== userId
-    ) {
-      try {
-        const { data: ch } = await supabase
-          .from("channels")
-          .select("title, student_id")
-          .eq("id", prev?.channel_id ?? "")
-          .maybeSingle();
-        const { supabaseAdmin } = await import(
-          "@/integrations/supabase/client.server"
+        throw new Error(
+          "We couldn't confirm this record was updated. Reload the records before trying again.",
         );
-        await supabaseAdmin.from("notifications").insert({
-          user_id: nextAssignee,
-          notification_type: "channel_action_assigned",
-          title: "You were assigned an action",
-          message: `In ${ch?.title ?? "Transition Channel"}`,
-          related_student_id: ch?.student_id ?? null,
-          related_record_type: "channel_action",
-          related_record_id: data.action_id,
-          read_status: false,
-        });
-      } catch {
-        // Non-fatal.
+      saved = updated;
+    }
+    if (
+      !z.enum(ACTION_STATUSES).safeParse(saved.status).success ||
+      !uuid.nullable().safeParse(saved.assignee_user_id).success
+    )
+      throw new Error("The saved record could not be confirmed. Reload the records.");
+    let taskSync: "not_requested" | "updated" | "unconfirmed" = "not_requested";
+    const metadata = prev.metadata as Record<string, string> | null;
+    const linkedId = metadata?.action_item_id ?? prev.target_id ?? null;
+    if (data.status !== undefined && linkedId) {
+      taskSync = "unconfirmed";
+      if (uuid.safeParse(linkedId).success && channel.student_id) {
+        try {
+          const statusMap = {
+            open: "not_started",
+            in_progress: "in_progress",
+            resolved: "completed",
+            cancelled: "not_started",
+          };
+          const mapped = statusMap[data.status];
+          const { data: linked, error } = await supabase
+            .from("action_items")
+            .update({ status: mapped })
+            .eq("id", linkedId)
+            .eq("student_id", channel.student_id)
+            .select("id,student_id,status")
+            .single();
+          if (
+            !error &&
+            linked?.id === linkedId &&
+            linked.student_id === channel.student_id &&
+            linked.status === mapped
+          )
+            taskSync = "updated";
+        } catch {
+          /* Channel record is confirmed; linked task is not. */
+        }
       }
     }
-
-    return { ok: true };
+    const nextAssignee = data.assignee_user_id;
+    if (nextAssignee && nextAssignee !== prev.assignee_user_id && nextAssignee !== userId) {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: pref, error } = await supabaseAdmin
+          .from("channel_members")
+          .select("muted,notify_in_app")
+          .eq("channel_id", prev.channel_id)
+          .eq("user_id", nextAssignee)
+          .is("left_at", null)
+          .maybeSingle();
+        if (!error && pref?.muted === false && pref.notify_in_app === true)
+          await supabaseAdmin.from("notifications").insert({
+            user_id: nextAssignee,
+            notification_type: "channel_action_assigned",
+            title: "You were assigned an action",
+            message: `In ${channel.title ?? "Transition Channel"}`,
+            related_student_id: channel.student_id,
+            related_record_type: "channel_action",
+            related_record_id: prev.id,
+            read_status: false,
+          });
+      } catch {
+        /* Notification remains best-effort after confirmed assignment. */
+      }
+    }
+    return {
+      ok: true,
+      action_id: saved.id,
+      channel_id: saved.channel_id,
+      status: saved.status,
+      assignee_user_id: saved.assignee_user_id,
+      sync: { action_item: taskSync },
+    };
   });
 
-/**
- * Delete a promoted record (promoter or channel admin only, via RLS).
- */
+/** Existing caller-RLS promoter/admin deletion; related records are retained. */
 export const deleteChannelAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { action_id: string }) =>
-    z.object({ action_id: uuid }).parse(input),
-  )
+  .validator((input: z.input<typeof actionIntent>) => actionIntent.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
+    assertExpectedViewer(data, context.userId);
+    const { prev } = await currentAction(context.supabase, context.userId, data);
+    let deletion = context.supabase
       .from("channel_actions")
       .delete()
-      .eq("id", data.action_id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+      .eq("id", prev.id)
+      .eq("channel_id", prev.channel_id)
+      .eq("status", prev.status);
+    deletion = prev.assignee_user_id
+      ? deletion.eq("assignee_user_id", prev.assignee_user_id)
+      : deletion.is("assignee_user_id", null);
+    const { data: removed, error } = await deletion.select("id,channel_id").single();
+    if (error || !removed || removed.id !== prev.id || removed.channel_id !== prev.channel_id)
+      throw new Error("We couldn't confirm this record was deleted. Reload the records.");
+    return { ok: true, action_id: removed.id, channel_id: removed.channel_id };
   });
 
 /**
