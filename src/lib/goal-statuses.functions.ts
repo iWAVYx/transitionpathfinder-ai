@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { readReportPages } from "./report-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -7,10 +8,11 @@ const StatusEnum = z.enum(["not-started", "in-progress", "met"]);
 
 export const listGoalStatuses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { reportId: string }) =>
-    z.object({ reportId: z.string().uuid() }).parse(input),
+  .validator((input: unknown) =>
+    z.object({ reportId: z.string().uuid(), ...viewerIntentSchema.shape }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
     try {
       const rows = await readReportPages((from, to) => supabase
@@ -36,29 +38,49 @@ export const listGoalStatuses = createServerFn({ method: "POST" })
 
 export const upsertGoalStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { reportId: string; itemId: string; status: string }) =>
+  .validator((input: unknown) =>
     z
       .object({
         reportId: z.string().uuid(),
         itemId: z.string().min(1).max(200),
         status: StatusEnum,
+        ...viewerIntentSchema.shape,
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
-    const { error } = await supabase
-      .from("goal_statuses")
-      .upsert(
-        {
-          user_id: userId,
-          report_id: data.reportId,
-          item_id: data.itemId,
-          status: data.status,
-        },
-        { onConflict: "user_id,report_id,item_id" },
+    try {
+      const { data: saved, error } = await supabase
+        .from("goal_statuses")
+        .upsert(
+          {
+            user_id: userId,
+            report_id: data.reportId,
+            item_id: data.itemId,
+            status: data.status,
+          },
+          { onConflict: "user_id,report_id,item_id" },
+        )
+        .select("user_id,report_id,item_id,status")
+        .single();
+      if (
+        error ||
+        !saved ||
+        saved.user_id !== userId ||
+        saved.report_id !== data.reportId ||
+        saved.item_id !== data.itemId ||
+        saved.status !== data.status
+      )
+        throw new Error(
+          "We couldn't confirm this progress update. Reload your saved progress before trying again.",
+        );
+    } catch {
+      throw new Error(
+        "We couldn't confirm this progress update. Reload your saved progress before trying again.",
       );
-    if (error) throw new Error(error.message);
+    }
     return { ok: true as const };
   });
 

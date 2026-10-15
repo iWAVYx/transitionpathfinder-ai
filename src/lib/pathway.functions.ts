@@ -1,4 +1,4 @@
-import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
+import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
 import { writeReportContent } from "./report-content-write.server";
 import { recordGeneratedSections, recordSavedSections } from "./report-section-updates";
 import { readReportPages, readReportBatches } from "./report-query-pages";
@@ -159,7 +159,9 @@ export type ReportListRow = {
 
 export const listMyReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data ?? {}, context.userId);
     const { supabase } = context;
     type Row = {
       id: string;

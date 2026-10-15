@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { readReportPages } from "./report-query-pages";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
@@ -209,8 +210,9 @@ export const deletePptPrep = createServerFn({ method: "POST" })
 
 export const getPathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid(), ...viewerIntentSchema.shape }).parse(input))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")

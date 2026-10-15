@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
+import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
 import { RoleGuard } from "@/components/RoleGuard";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Target, Sparkles } from "lucide-react";
@@ -35,12 +37,55 @@ const LABELS: Record<Status, string> = {
 
 type ReportRow = { id: string; student_first_name: string; grade_band: string | null; created_at: string };
 
-function storageKey(reportId: string) {
-  return `tf:goal-status:${reportId}`;
+function storageKey(viewerId: string, reportId: string) {
+  return `tf:goal-status:v2:${JSON.stringify([viewerId, reportId])}`;
 }
 
 
 function GoalsPage() {
+  const { user, loading } = useAuth();
+  const scopeKey = JSON.stringify([user?.id ?? null, Boolean(loading)]);
+  const currentScope = useRef(scopeKey);
+  currentScope.current = scopeKey;
+  if (loading || !user)
+    return (
+      <SiteShell>
+        <main className="mx-auto max-w-5xl px-4 py-10" role="status">
+          Checking your sign-in before opening Goal Tracker…
+        </main>
+      </SiteShell>
+    );
+  return (
+    <OwnerWorkspaceGate>
+      <GoalsSession
+        key={scopeKey}
+        viewerId={user.id}
+        scopeKey={scopeKey}
+        currentScope={currentScope}
+      />
+    </OwnerWorkspaceGate>
+  );
+}
+function GoalsSession({
+  viewerId,
+  scopeKey,
+  currentScope,
+}: {
+  viewerId: string;
+  scopeKey: string;
+  currentScope: { current: string };
+}) {
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  const current = useCallback(
+    () => mounted.current && currentScope.current === scopeKey,
+    [currentScope, scopeKey],
+  );
   const list = useServerFn(listMyReports);
   const fetchReport = useServerFn(getPathwayReport);
   const fetchRoles = useServerFn(getMyRoles);
@@ -61,38 +106,99 @@ function GoalsPage() {
   const [reportError, setReportError] = useState(false);
   const [reportAttempt, setReportAttempt] = useState(0);
   const [loadedId, setLoadedId] = useState<string | null>(null);
-  const planContext = `${selectedId}:${planningRole ?? "shared"}`;
+  const selectedAvailable = reports.some((report) => report.id === selectedId);
+  const planContext = JSON.stringify([
+    selectedId,
+    planningRole ?? null,
+    loading,
+    listError,
+    rolesLoading,
+    rolesError,
+    reportAttempt,
+  ]);
+  const currentPlan = useRef(planContext);
+  currentPlan.current = planContext;
+  const isPlanCurrent = useCallback(
+    () => current() && currentPlan.current === planContext,
+    [current, planContext],
+  );
 
   useEffect(() => {
     let cancelled = false;
     setRolesLoading(true);
     setRolesError(false);
-    fetchRoles().then(({ roles }) => {
-      if (cancelled) return;
-      const audiences = audiencesForRoles(roles);
-      const available = (["family", "educator"] as const).filter(role => audiences.has(role));
-      setPlanningRoles(available);
-      setPlanningRole(current => current && available.includes(current) ? current : available[0]);
-    }).catch(() => { if (!cancelled) { setRolesError(true); setPlanningRoles([]); setPlanningRole(undefined); } })
-      .finally(() => { if (!cancelled) setRolesLoading(false); });
-    return () => { cancelled = true; };
-  }, [fetchRoles, rolesAttempt]);
+    fetchRoles({ data: { expected_viewer_id: viewerId } })
+      .then((result) => {
+        if (cancelled || !current()) return;
+        if (
+          !Array.isArray(result?.roles) ||
+          !result.roles.every((role) => typeof role === "string")
+        )
+          throw new Error("Invalid planning view");
+        const roles = result.roles;
+        const audiences = audiencesForRoles(roles);
+        const available = audiences.has("admin")
+          ? []
+          : (["family", "educator"] as const).filter((role) => audiences.has(role));
+        setPlanningRoles(available);
+        setPlanningRole((current) =>
+          current && available.includes(current) ? current : available[0],
+        );
+      })
+      .catch(() => {
+        if (!cancelled && current()) {
+          setRolesError(true);
+          setPlanningRoles([]);
+          setPlanningRole(undefined);
+        }
+      })
+      .finally(() => {
+        if (!cancelled && current()) setRolesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchRoles, rolesAttempt, current, viewerId]);
 
   useEffect(() => {
+    if (rolesLoading || rolesError || !planningRoles.length) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setListError(false);
-    list().then((result) => {
-      if (cancelled) return;
-      if (result.loadFailed) throw new Error("Reports unavailable");
-      setReports(result.reports);
-      setSelectedId(current => result.reports.some(row => row.id === current)
-        ? current : (result.reports[0]?.id ?? null));
-    }).catch(() => {
-      if (!cancelled) { setReports([]); setSelectedId(null); setListError(true); }
-    }).finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [list, listAttempt]);
+    list({ data: { expected_viewer_id: viewerId } })
+      .then((result) => {
+        if (cancelled || !current()) return;
+        if (
+          !result ||
+          result.loadFailed !== false ||
+          !Array.isArray(result.reports) ||
+          result.reports.some(
+            (row) =>
+              typeof row?.id !== "string" || !row.id || typeof row.student_first_name !== "string",
+          ) ||
+          new Set(result.reports.map((row) => row.id)).size !== result.reports.length
+        )
+          throw new Error("Reports unavailable");
+        setReports(result.reports);
+        // Keep an explicit unavailable selection until the viewer chooses another report.
+        setSelectedId((selected) => selected ?? result.reports[0]?.id ?? null);
+      })
+      .catch(() => {
+        if (!cancelled && current()) {
+          setReports([]);
+          setListError(true);
+        }
+      })
+      .finally(() => {
+        if (!cancelled && current()) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [list, listAttempt, rolesLoading, rolesError, planningRoles, current, viewerId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,20 +206,53 @@ function GoalsPage() {
     setReportName("");
     setLoadedId(null);
     setReportError(false);
-    if (!selectedId || rolesLoading || rolesError) { setReportLoading(false); return; }
+    if (
+      !selectedId ||
+      !selectedAvailable ||
+      !planningRole ||
+      loading ||
+      listError ||
+      rolesLoading ||
+      rolesError
+    ) {
+      setReportLoading(false);
+      return;
+    }
     setReportLoading(true);
-    fetchReport({ data: { id: selectedId } }).then(async (result) => {
-      if (cancelled) return;
-      if (result.id !== selectedId) throw new Error("Report does not match selection");
-      const items = await goalTrackerItems(result.content, planningRole);
-      if (cancelled) return;
-      setGoalItems(items);
-      setReportName(result.student_first_name);
-      setLoadedId(planContext);
-    }).catch(() => { if (!cancelled) setReportError(true); })
-      .finally(() => { if (!cancelled) setReportLoading(false); });
-    return () => { cancelled = true; };
-  }, [selectedId, fetchReport, reportAttempt, planningRole, rolesLoading, rolesError, planContext]);
+    fetchReport({ data: { id: selectedId, expected_viewer_id: viewerId } })
+      .then(async (result) => {
+        if (cancelled || !isPlanCurrent()) return;
+        if (result?.id !== selectedId || typeof result.student_first_name !== "string")
+          throw new Error("Report does not match selection");
+        const items = await goalTrackerItems(result.content, planningRole);
+        if (cancelled || !isPlanCurrent()) return;
+        setGoalItems(items);
+        setReportName(result.student_first_name);
+        setLoadedId(planContext);
+      })
+      .catch(() => {
+        if (!cancelled && isPlanCurrent()) setReportError(true);
+      })
+      .finally(() => {
+        if (!cancelled && isPlanCurrent()) setReportLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    selectedId,
+    selectedAvailable,
+    fetchReport,
+    reportAttempt,
+    planningRole,
+    rolesLoading,
+    rolesError,
+    loading,
+    listError,
+    planContext,
+    isPlanCurrent,
+    viewerId,
+  ]);
 
   return (
     <SiteShell>
@@ -149,12 +288,17 @@ function GoalsPage() {
             <p className="text-sm">We couldn't confirm your planning view. Please try again.</p>
             <Button variant="outline" className="mt-3" onClick={() => setRolesAttempt(attempt => attempt + 1)}>Reload Planning View</Button>
           </div>
+        ) : planningRoles.length === 0 ? (
+          <div className="mt-10 rounded-2xl border bg-card p-4">
+            <p className="text-sm">Goal Tracker is available for family and educator planning roles.</p>
+            <Link to="/dashboard" className="mt-3 inline-block text-sm underline">Return to Your Workspace</Link>
+          </div>
         ) : listError ? (
           <div role="alert" className="mt-10 rounded-2xl border bg-card p-4">
             <p className="text-sm">We couldn't load your Pathway Reports. Please try again.</p>
             <Button variant="outline" className="mt-3" onClick={() => setListAttempt(attempt => attempt + 1)}>Reload Reports</Button>
           </div>
-        ) : reports.length === 0 ? (
+        ) : reports.length === 0 && !selectedId ? (
           <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
             <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
               <Target className="h-6 w-6 text-primary" aria-hidden />
@@ -184,6 +328,7 @@ function GoalsPage() {
               </div>
             )}
             <div className="mt-8 flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => setListAttempt(attempt => attempt + 1)}>Refresh Report List</Button>
               {reports.map((r) => (
                 <button
                   key={r.id}
@@ -204,7 +349,12 @@ function GoalsPage() {
             </div>
 
             <div className="mt-8">
-              {reportError ? (
+              {!selectedAvailable ? (
+                <div role="alert" className="rounded-2xl border bg-card p-4">
+                  <p className="text-sm">The selected report is no longer available in this list. Choose another report or reload the list.</p>
+                  <Button variant="outline" className="mt-3" onClick={() => setListAttempt(attempt => attempt + 1)}>Reload Reports</Button>
+                </div>
+              ) : reportError ? (
                 <div role="alert" className="rounded-2xl border bg-card p-4">
                   <p className="text-sm">We couldn't open this report's next steps. Please try again.</p>
                   <Button variant="outline" className="mt-3" onClick={() => setReportAttempt(attempt => attempt + 1)}>Reload Next Steps</Button>
@@ -212,7 +362,7 @@ function GoalsPage() {
               ) : reportLoading || !goalItems || loadedId !== planContext ? (
                 <p className="text-sm text-muted-foreground">Opening report…</p>
               ) : (
-                <GoalList key={planContext} reportId={selectedId!} studentName={reportName} items={goalItems} />
+                <GoalList key={planContext} viewerId={viewerId} isPlanCurrent={isPlanCurrent} reportId={selectedId!} studentName={reportName} items={goalItems} />
               )}
             </div>
           </>
@@ -224,10 +374,14 @@ function GoalsPage() {
 }
 
 function GoalList({
+  viewerId,
+  isPlanCurrent,
   reportId,
   studentName,
   items,
 }: {
+  viewerId: string;
+  isPlanCurrent: () => boolean;
   reportId: string;
   studentName: string;
   items: { id: string; group: string; label: string }[];
@@ -244,7 +398,9 @@ function GoalList({
 
   useEffect(() => {
     activeRef.current = true;
-    return () => { activeRef.current = false; };
+    return () => {
+      activeRef.current = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -252,46 +408,94 @@ function GoalList({
     setStatusLoading(true);
     setStatusError(false);
     setStatuses({});
-    loadStatuses({ data: { reportId } }).then((result) => {
-      if (cancelled) return;
-      setStatuses(result.statuses);
-      try { localStorage.setItem(storageKey(reportId), JSON.stringify(result.statuses)); }
-      catch { /* Storage is optional; the server is the source of saved progress. */ }
-    }).catch(() => { if (!cancelled) setStatusError(true); })
-      .finally(() => { if (!cancelled) setStatusLoading(false); });
-    return () => { cancelled = true; };
-  }, [reportId, loadStatuses, statusAttempt]);
+    loadStatuses({ data: { reportId, expected_viewer_id: viewerId } })
+      .then((result) => {
+        if (cancelled || !isPlanCurrent()) return;
+        const value = result?.statuses;
+        if (
+          !value ||
+          typeof value !== "object" ||
+          Array.isArray(value) ||
+          Object.entries(value).some(
+            ([id, status]) => !id.length || id.length > 200 || !STATUSES.includes(status),
+          )
+        )
+          throw new Error("Invalid saved progress");
+        const confirmed = Object.fromEntries(Object.entries(value));
+        setStatuses(confirmed);
+        try {
+          localStorage.setItem(storageKey(viewerId, reportId), JSON.stringify(confirmed));
+        } catch {
+          /* Storage is optional; the server is the source of saved progress. */
+        }
+      })
+      .catch(() => {
+        if (!cancelled && isPlanCurrent()) setStatusError(true);
+      })
+      .finally(() => {
+        if (!cancelled && isPlanCurrent()) setStatusLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reportId, viewerId, isPlanCurrent, loadStatuses, statusAttempt]);
 
   const setStatus = async (id: string, next: Status) => {
-    if (!activeRef.current || savingRef.current || statusLoading || statusError || !items.some(item => item.id === id)) return false;
+    if (
+      !activeRef.current ||
+      !isPlanCurrent() ||
+      savingRef.current ||
+      statusLoading ||
+      statusError ||
+      !items.some((item) => item.id === id)
+    )
+      return false;
     savingRef.current = true;
     setSaving(true);
     const updated = { ...statuses, [id]: next };
     setStatuses(updated);
     try {
-      await saveStatus({ data: { reportId, itemId: id, status: next } });
-      if (!activeRef.current) return false;
-      try { localStorage.setItem(storageKey(reportId), JSON.stringify(updated)); }
-      catch { /* Storage is optional. */ }
+      const result = await saveStatus({
+        data: { reportId, itemId: id, status: next, expected_viewer_id: viewerId },
+      });
+      if (!activeRef.current || !isPlanCurrent()) return false;
+      if (result?.ok !== true) throw new Error("Progress was not confirmed");
+      try {
+        localStorage.setItem(storageKey(viewerId, reportId), JSON.stringify(updated));
+      } catch {
+        /* Storage is optional. */
+      }
       return true;
     } catch {
-      if (!activeRef.current) return false;
+      if (!activeRef.current || !isPlanCurrent()) return false;
       setStatusError(true);
-      toast.error("We couldn't confirm this update. Reload your saved progress before trying again.");
+      toast.error(
+        "We couldn't confirm this update. Reload your saved progress before trying again.",
+      );
       return false;
     } finally {
       savingRef.current = false;
-      if (activeRef.current) setSaving(false);
+      if (activeRef.current && isPlanCurrent()) setSaving(false);
     }
   };
 
-  if (statusLoading) return <p className="text-sm text-muted-foreground">Loading saved progress…</p>;
-  if (statusError) return (
-    <div role="alert" className="rounded-2xl border bg-card p-4">
-      <p className="text-sm">We couldn't confirm your saved progress. Reload it before making another update.</p>
-      <Button variant="outline" className="mt-3" onClick={() => setStatusAttempt(attempt => attempt + 1)}>Reload Saved Progress</Button>
-    </div>
-  );
+  if (statusLoading)
+    return <p className="text-sm text-muted-foreground">Loading saved progress…</p>;
+  if (statusError)
+    return (
+      <div role="alert" className="rounded-2xl border bg-card p-4">
+        <p className="text-sm">
+          We couldn't confirm your saved progress. Reload it before making another update.
+        </p>
+        <Button
+          variant="outline"
+          className="mt-3"
+          onClick={() => setStatusAttempt((attempt) => attempt + 1)}
+        >
+          Reload Saved Progress
+        </Button>
+      </div>
+    );
 
   const earlierEntries = earlierGoalProgress(statuses);
 
