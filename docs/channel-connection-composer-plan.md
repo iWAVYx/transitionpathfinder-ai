@@ -31,7 +31,7 @@ This is a source audit, not a query of current staging or production records. A 
 
 | Role | First Composer Scope |
 | --- | --- |
-| Educator / Case Manager | Existing Connections eligibility; select only a freshly verified active organization context, or an explicitly supported personal context. |
+| Educator / Case Manager | Existing Connections eligibility; the v1 prototype requires a verified active school/district context. Personal sending remains a separate design. |
 | School Administrator | Existing Connections eligibility and current selected school membership. |
 | District Administrator | Existing Connections eligibility and current selected district membership. |
 | Partner | Existing Connections eligibility and current partner workspace membership. |
@@ -76,7 +76,8 @@ Port and verify all affected clients before restricting direct table operations.
 - [x] Record the mismatch and preserve existing role/Owner boundaries.
 - [x] Draft explicit mapping, receiver consent, idempotency and transactional contracts.
 - [ ] Reconcile schema/data and role aliases in an authorized staging inspection.
-- [ ] Produce reviewed SQL and rollback/compatibility plans; obtain database authorization before applying anything.
+- [x] Prepare a guarded SQL prototype, read-only inventory, syntax report and rollout/rollback/acceptance review package.
+- [ ] Obtain independent SQL/catalog/security review and actual DB acceptance evidence; authorize any database application separately.
 - [ ] Build Owner mapping/receiver-consent management and the eligible-role composer against that contract.
 - [ ] Audit legacy request records and prepare a non-destructive, reviewed reconciliation process.
 - [ ] Run rollback-only SQL tests for concurrent creates/responses, stale/revoked memberships, changed links/consent, direct-table denial, expiry, own-workspace targets and idempotency conflicts.
@@ -85,3 +86,12 @@ Port and verify all affected clients before restricting direct table operations.
 - [ ] Include the reviewed result in grouped release review; production remains a separate authorization.
 
 Owner contact-pipeline reliability work is a management fix, not completion of this composer, outreach delivery, 25 verified partnerships or the deferred parent pilot. Sender identity and partnership offer drafts still need user review before any external outreach. Parent-pilot and Pathway Report Snapshot implementation remains deferred under the broader roadmap.
+
+
+## October 15 SQL Review Package
+
+The [guarded database proposal](database-proposals/channel-connections-v1/README.md) now includes source-aligned schema/RPC/cutover prototypes, an unexecuted read-only inventory, exact SQL hashes, a local syntax checker and an unexecuted acceptance matrix. It is outside the migration/runtime paths. Mutation files raise an unconditional exception and end in ROLLBACK; flags remain disabled.
+
+The prototype chooses an explicitly verified organization context for every sender; personal educator sending is not implemented in v1. It separates recorded setup completion from current channel-opening permission, uses explicit request revisions rather than timestamps for concurrency, protects new attribution/bindings during additive rollout and preserves Owner management-only precedence. Existing legacy accepted partial setup is never automatically repaired or used to restore memberships. These are draft decisions to review, not new role grants or deployed behavior.
+
+Parser evidence covers 82 SQL statements, 17 PLpgSQL function bodies, one SQL helper body and three execution guards with pglast 8.6 / PostgreSQL parser 18.6. No DB was contacted. Actual schema/type resolution, target PostgreSQL compatibility, function ownership/RLS behavior, retention effects, concurrent transactions and browser acceptance remain unverified. Existing application source and its last validation baseline are unchanged.
