@@ -140,7 +140,10 @@ BEGIN
       AND partner_organization_id = v_req.target_partner_organization_id
       AND organization_id IS NOT DISTINCT FROM v_req.requester_organization_id
       AND student_id IS NULL AND kind = 'partner_outreach';
-    IF FOUND AND public.is_channel_member(p_viewer,v_channel.id) THEN
+    -- Owner management takes precedence even for a historic active participant.
+    IF FOUND AND p_viewer IS NOT NULL AND NOT public.is_platform_admin(p_viewer)
+      AND NOT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id=p_viewer AND role::text='admin')
+      AND public.is_channel_member(p_viewer,v_channel.id) THEN
       v_open := true;
       v_channel_state := CASE WHEN v_channel.archived_at IS NULL THEN 'active' ELSE 'archived' END;
     END IF;

@@ -100,3 +100,8 @@ Parser evidence covers 82 SQL statements, 17 PLpgSQL function bodies, one SQL he
 ## Draft Caller Boundary Preparation
 
 `src/lib/channel-connection-v1-contract.ts` now provides pure target-page and outcome validation with 26 boundary tests. It is unused by runtime callers and contains no network transport or activation path. Authentication, viewer/context scopes, idempotent mutation contracts, consent/link management, caller integration and database/browser acceptance remain outstanding. This is preparation, not completion of the composer checklist.
+
+
+## Draft Decision Intent Preparation
+
+`src/lib/channel-connection-v1-decision-contract.ts` now prepares immutable original request/revision/operation-key intent and validates exact acceptance/decline/withdrawal outcomes, including terminal read-back without membership restoration. The 27 new tests are local response-boundary checks, not authenticated RPC/database evidence. No transport, caller integration, UI or activation path exists. The guarded SQL outcome proposal also now explicitly excludes Owner/admin personal opening after a role transition; actual SQL permission tests remain open. Create-intent/key lookup, compatible server wrappers and the remaining delivery checklist are still incomplete.

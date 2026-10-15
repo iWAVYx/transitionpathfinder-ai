@@ -23,6 +23,7 @@ All cases below remain open. Parser results are not substitutes. Use an explicit
 | Operation Key | Same response/withdrawal key vs different request, decision or expected revision | Exact replay or controlled conflict; no repeat membership/resource creation. |
 | Revision | Stale revision, timestamp ordering and competing state updates | Revision drives CAS; trigger timing does not authorize a stale write. |
 | Unknown Result | Network loss after commit, failed navigation, later role/membership revocation | Read-back/open-only retry; complete setup remains complete but current opening capability can be false. |
+| Owner Read-Back | Former participant gains platform Owner/admin or legacy admin role while still a channel member | Completed setup remains recorded; lookup never offers personal opening and existing memberships/history are untouched. |
 | History | Remove vs keep-read-only history, revoked participant and archived channel | Existing history/removal semantics remain; lookup/retry never reactivates membership. |
 | Legacy | Pending v0 cleanup; accepted complete, incomplete, wrong-linked and unlinked candidates | No automatic acceptance repair/backfill; original access remains through legitimate existing navigation. |
 | Additive Phase | Old direct writer tries new attribution, revision, completion marker or binding | Seals reject fabricated v1 data/binding even before full write cutover; legacy compatibility is bounded. |
