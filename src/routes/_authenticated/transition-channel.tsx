@@ -1,4 +1,7 @@
 import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
+import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
+import { ChannelQueryBoundary } from "@/components/channels/ChannelQueryBoundary";
 import { RetainedChatHistory } from "@/components/channels/RetainedChatHistory";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -80,7 +83,7 @@ import {
   withdrawConnectionRequest,
   type ConnectionRequest,
 } from "@/lib/channel-connection-requests.functions";
-import { audiencesForRoles, fallbackPathFor, type RoleAudience } from "@/lib/role-policy";
+import { audiencesForRoles, dashboardHomeForRoles, type RoleAudience } from "@/lib/role-policy";
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
 import { StartStudentConversation } from "@/components/channels/StartStudentConversation";
 import { ChannelMuteToggle } from "@/components/channels/ChannelMuteToggle";
@@ -228,13 +231,69 @@ function formatWhen(iso: string | null) {
 }
 
 function TransitionChannelPage() {
+  const { user, loading } = useAuth();
+  const scopeKey = JSON.stringify([user?.id ?? null, Boolean(loading)]);
+  const currentScope = useRef(scopeKey);
+  currentScope.current = scopeKey;
+  if (loading || !user)
+    return (
+      <ChannelAccessState message="Checking your sign-in before opening Transition Channel…" />
+    );
+  return (
+    <OwnerWorkspaceGate>
+      <ChannelQueryBoundary key={scopeKey}>
+        <TransitionChannelSession
+          viewerId={user.id}
+          scopeKey={scopeKey}
+          currentScope={currentScope}
+        />
+      </ChannelQueryBoundary>
+    </OwnerWorkspaceGate>
+  );
+}
+
+function ChannelAccessState({ message, retry }: { message: string; retry?: () => void }) {
+  return (
+    <FeatureShell
+      title="Transition Channel"
+      backTo={{ to: "/dashboard", label: "Back to Your Workspace" }}
+    >
+      <div className="mx-auto max-w-2xl px-6 py-12" role={retry ? "alert" : "status"}>
+        <p>{message}</p>
+        {retry && (
+          <Button className="mt-4" onClick={retry}>
+            Try Again
+          </Button>
+        )}
+      </div>
+    </FeatureShell>
+  );
+}
+
+function TransitionChannelSession({
+  viewerId,
+  scopeKey,
+  currentScope,
+}: {
+  viewerId: string;
+  scopeKey: string;
+  currentScope: { current: string };
+}) {
   const search = useSearch({ from: Route.id });
   const navigate = useNavigate();
 
   const getMyRolesFn = useServerFn(getMyRoles);
   const rolesQuery = useQuery({
-    queryKey: ["my-roles"],
-    queryFn: () => getMyRolesFn(),
+    queryKey: ["my-roles", viewerId],
+    queryFn: async () => {
+      const result = await getMyRolesFn({ data: { expected_viewer_id: viewerId } });
+      if (currentScope.current !== scopeKey) throw new Error("Your sign-in changed.");
+      if (!Array.isArray(result?.roles) || !result.roles.every((role) => typeof role === "string"))
+        throw new Error("Could not confirm your channel workspace.");
+      return result;
+    },
+    staleTime: 0,
+    retry: false,
   });
 
   const audiences = useMemo(() => {
@@ -255,46 +314,106 @@ function TransitionChannelPage() {
     return visibleTabs[0] ?? "inbox";
   }, [search.tab, visibleTabs]);
 
-  // Redirect disallowed tab values to the first visible tab.
+  const rolesReady = rolesQuery.isSuccess && !audiences.has("admin") && visibleTabs.length > 0;
+  const [navigationError, setNavigationError] = useState(false);
+  const [navigationAttempt, setNavigationAttempt] = useState(0);
+  // Wait for confirmed roles before correcting a tab. A loading/error result
+  // must never select Inbox for another role or start conversation queries.
   useEffect(() => {
+    if (!rolesReady) return;
+    let cancelled = false;
+    setNavigationError(false);
     if (!visibleTabs.includes(search.tab)) {
-      navigate({
-        to: "/transition-channel",
-        search: { ...search, tab: activeTab },
-      });
+      void (async () => {
+        try {
+          await navigate({
+            to: "/transition-channel",
+            search: { ...search, tab: activeTab },
+            replace: true,
+          });
+        } catch {
+          if (!cancelled && currentScope.current === scopeKey) setNavigationError(true);
+        }
+      })();
     }
-  }, [search, visibleTabs, activeTab, navigate]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    rolesReady,
+    search,
+    visibleTabs,
+    activeTab,
+    navigate,
+    navigationAttempt,
+    currentScope,
+    scopeKey,
+  ]);
 
-  const backTo = useMemo(() => {
-    const roles = rolesQuery.data?.roles ?? [];
-    return fallbackPathFor(roles);
-  }, [rolesQuery.data]);
-
+  const backTo = dashboardHomeForRoles(rolesQuery.data?.roles ?? [], false);
   const summaryFn = useServerFn(getChannelTileSummary);
   const summaryQuery = useQuery({
     queryKey: ["channel-tile-summary"],
-    queryFn: () => summaryFn(),
+    queryFn: async () => {
+      const result = await summaryFn({ data: { expected_viewer_id: viewerId } });
+      if (currentScope.current !== scopeKey) throw new Error("Your sign-in changed.");
+      return result;
+    },
+    enabled: rolesReady,
+    retry: false,
   });
 
-  const summary = summaryQuery.data;
+  if (rolesQuery.isPending)
+    return <ChannelAccessState message="Confirming the tools available to your account…" />;
+  if (rolesQuery.isError)
+    return (
+      <ChannelAccessState
+        message="We couldn't confirm your channel workspace. Please try again."
+        retry={() => {
+          void rolesQuery.refetch();
+        }}
+      />
+    );
+  if (!rolesReady)
+    return (
+      <ChannelAccessState message="No channel workspace is available for your current role. Return to your workspace to review access." />
+    );
+  if (navigationError)
+    return (
+      <ChannelAccessState
+        message="We couldn't open this channel view. Please try again."
+        retry={() => setNavigationAttempt((value) => value + 1)}
+      />
+    );
+  const navigateWithin = async (next: FilterState) => {
+    if (currentScope.current !== scopeKey || !visibleTabs.includes(next.tab)) return;
+    try {
+      await navigate({ to: "/transition-channel", search: next });
+    } catch {
+      if (currentScope.current === scopeKey) setNavigationError(true);
+    }
+  };
+
+  const summary = summaryQuery.isError ? undefined : summaryQuery.data;
 
   return (
     <FeatureShell
       title="Transition Channel"
       description="Purpose-scoped conversations for the people supporting each transition. Every channel is access-controlled and audit-logged."
-      backTo={{ to: backTo, label: "Back to Dashboard" }}
+      backTo={{ to: backTo.to, label: `Back to ${backTo.label}` }}
       breadcrumbs={[{ label: "Transition Channel" }]}
-      primaryAction={<ConnectionRequestsDrawerTrigger summary={summary} />}
+      primaryAction={
+        visibleTabs.includes("connections") ? (
+          <ConnectionRequestsDrawerTrigger summary={summary} />
+        ) : undefined
+      }
       maxWidth="wide"
     >
       <Tabs
         value={activeTab}
-        onValueChange={(v) =>
-          navigate({
-            to: "/transition-channel",
-            search: { ...search, tab: v as TabId },
-          })
-        }
+        onValueChange={(v) => {
+          void navigateWithin({ ...search, tab: v as TabId });
+        }}
         className="w-full"
       >
         <TabsList className="w-full justify-start gap-1 overflow-x-auto rounded-xl bg-muted/50 p-1 sm:w-auto">
@@ -324,12 +443,28 @@ function TransitionChannelPage() {
           })}
         </TabsList>
 
+        {summaryQuery.isError && (
+          <div role="alert" className="mt-4 rounded-xl border p-3 text-sm">
+            <p>
+              We couldn't load your channel counts. Your conversations can still be opened below.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-2"
+              onClick={() => {
+                void summaryQuery.refetch();
+              }}
+            >
+              Reload Channel Counts
+            </Button>
+          </div>
+        )}
         <div className="mt-4 rounded-xl border bg-card p-3 sm:p-4">
           <FilterBar
             search={search}
-            onChange={(patch) =>
-              navigate({ to: "/transition-channel", search: { ...search, ...patch } })
-            }
+            onChange={(patch) => {
+              void navigateWithin({ ...search, ...patch });
+            }}
           />
 
           <TabsContent value="inbox" className="mt-0 focus-visible:outline-none">
@@ -362,7 +497,6 @@ function TransitionChannelPage() {
     </FeatureShell>
   );
 }
-
 function tabLabelShort(tab: TabId): string {
   switch (tab) {
     case "assigned":
