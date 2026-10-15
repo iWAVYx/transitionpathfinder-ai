@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 // Transition Channel — message capabilities (Slice C).
 //
 // Threads, edit/delete, pin, bookmark, and attachments. All reads and writes
@@ -403,6 +404,7 @@ export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
     (input: {
+      expected_viewer_id?: string;
       channel_id: string;
       message_id: string;
       file_name: string;
@@ -412,6 +414,7 @@ export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
       z
         .object({
           channel_id: uuid,
+          ...viewerIntentSchema.shape,
           message_id: uuid,
           file_name: z.string().min(1).max(255),
           content_type: z.string().max(200).optional().nullable(),
@@ -420,6 +423,7 @@ export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     assertProtectedFileUploadsEnabled();
     assertPrivacySafeDerivedUpload(data.file_name, data.content_type ?? null);
     const { supabase, userId } = context;
@@ -497,8 +501,11 @@ export const prepareChannelAttachmentUpload = createServerFn({ method: "POST" })
 
 export const failChannelAttachmentUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { attachment_id: string }) => z.object({ attachment_id: uuid }).parse(input))
+  .validator((input: { attachment_id: string; expected_viewer_id?: string }) =>
+    z.object({ attachment_id: uuid, ...viewerIntentSchema.shape }).parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("channel_attachments")
@@ -545,8 +552,11 @@ export const failChannelAttachmentUpload = createServerFn({ method: "POST" })
 
 export const scanChannelAttachment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { attachment_id: string }) => z.object({ attachment_id: uuid }).parse(input))
+  .validator((input: { attachment_id: string; expected_viewer_id?: string }) =>
+    z.object({ attachment_id: uuid, ...viewerIntentSchema.shape }).parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     // The caller's RLS-scoped client proves current channel membership, and

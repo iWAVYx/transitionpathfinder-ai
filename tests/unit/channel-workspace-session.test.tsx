@@ -9,7 +9,22 @@ const api = vi.hoisted(() => ({
   roles: vi.fn(),
   owner: vi.fn(),
   summary: vi.fn(),
+  uploadsEnabled: false,
+  privacyConfirm: null as any,
   channels: vi.fn(),
+  messages: vi.fn(),
+  send: vi.fn(),
+  read: vi.fn(),
+  prepare: vi.fn(),
+  failUpload: vi.fn(),
+  scan: vi.fn(),
+  upload: vi.fn(),
+  historyRead: vi.fn(),
+  historyDownload: vi.fn(),
+  openDownload: vi.fn(),
+  toast: vi.fn(),
+  removeRealtime: vi.fn(),
+  realtimeCallbacks: [] as (() => void)[],
   history: vi.fn(),
   navigate: vi.fn(),
   search: { tab: "inbox", unread: "all", due: "all", status: "all", archived: "all" } as any,
@@ -31,9 +46,9 @@ vi.mock("@/lib/owner/owner.functions", () => ({ getMyAdminRoles: api.owner }));
 vi.mock("@/lib/channel-tile-summary.functions", () => ({ getChannelTileSummary: api.summary }));
 vi.mock("@/lib/channels.functions", () => ({
   listMyChannels: api.channels,
-  listChannelMessages: vi.fn(),
-  sendChannelMessage: vi.fn(),
-  markChannelRead: vi.fn(),
+  listChannelMessages: api.messages,
+  sendChannelMessage: api.send,
+  markChannelRead: api.read,
 }));
 vi.mock("@/lib/channel-tabs.functions", () => ({
   listMyMentions: vi.fn().mockResolvedValue({ mentions: [] }),
@@ -51,21 +66,40 @@ vi.mock("@/lib/channel-connection-requests.functions", () => ({
   withdrawConnectionRequest: vi.fn(),
 }));
 vi.mock("@/lib/channel-messages.functions", () => ({
-  listPinnedMessages: vi.fn(),
-  listChannelBookmarkIds: vi.fn(),
-  prepareChannelAttachmentUpload: vi.fn(),
-  failChannelAttachmentUpload: vi.fn(),
-  scanChannelAttachment: vi.fn(),
+  listPinnedMessages: vi.fn().mockResolvedValue({ pinned: [] }),
+  listChannelBookmarkIds: vi.fn().mockResolvedValue({ message_ids: [] }),
+  prepareChannelAttachmentUpload: api.prepare,
+  failChannelAttachmentUpload: api.failUpload,
+  scanChannelAttachment: api.scan,
 }));
 vi.mock("@/lib/channel-history.functions", () => ({
   listMyChatHistory: api.history,
-  readChatHistory: vi.fn(),
-  downloadChatHistoryAttachment: vi.fn(),
+  readChatHistory: api.historyRead,
+  downloadChatHistoryAttachment: api.historyDownload,
 }));
-vi.mock("@/integrations/supabase/client", () => ({ supabase: {} }));
+vi.mock("sonner", () => ({ toast: { error: api.toast } }));
+vi.mock("@/lib/channel-history-download.browser", () => ({
+  openHistoryAttachment: api.openDownload,
+}));
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: {
+    channel: () => {
+      const channel = {
+        on: vi.fn((_event: unknown, _filter: unknown, callback: () => void) => {
+          api.realtimeCallbacks.push(callback);
+          return channel;
+        }),
+        subscribe: vi.fn(() => channel),
+      };
+      return channel;
+    },
+    removeChannel: api.removeRealtime,
+    storage: { from: () => ({ uploadToSignedUrl: api.upload }) },
+  },
+}));
 vi.mock("@/components/channels/MessageItem", () => ({
-  MessageItem: () => null,
-  useMessageAttachments: () => ({ byMessage: {}, refetch: vi.fn() }),
+  MessageItem: ({ m }: any) => <p>{m.body}</p>,
+  useMessageAttachments: () => ({ byMessage: new Map(), refetch: vi.fn() }),
 }));
 vi.mock("@/components/channels/ThreadPanel", () => ({ ThreadPanel: () => null }));
 vi.mock("@/components/channels/PromoteRecordDialog", () => ({ PromoteRecordDialog: () => null }));
@@ -76,8 +110,20 @@ vi.mock("@/components/channels/ChannelMuteToggle", () => ({ ChannelMuteToggle: (
 vi.mock("@/components/channels/ConnectionRequestsDrawer", () => ({
   ConnectionRequestsDrawer: () => <button>Connection Controls</button>,
 }));
+vi.mock("@/lib/protected-file-uploads", () => ({
+  get PROTECTED_FILE_UPLOADS_ENABLED() {
+    return api.uploadsEnabled;
+  },
+  PROTECTED_FILE_UPLOADS_MESSAGE: "Uploads unavailable in this fixture",
+  assertProtectedFileUploadsEnabled: () => {
+    if (!api.uploadsEnabled) throw new Error("Uploads unavailable in this fixture");
+  },
+}));
 vi.mock("@/components/privacy/SensitiveFilePrivacyReviewDialog", () => ({
-  SensitiveFilePrivacyReviewDialog: () => null,
+  SensitiveFilePrivacyReviewDialog: (props: any) => {
+    api.privacyConfirm = props.onConfirm;
+    return null;
+  },
 }));
 vi.mock("@/components/site/SiteShell", () => ({
   SiteShell: ({ children }: any) => <div>{children}</div>,
@@ -144,7 +190,26 @@ afterEach(() => {
   clients.length = 0;
 });
 beforeEach(() => {
-  vi.resetAllMocks();
+  vi.clearAllMocks();
+  for (const fn of [
+    api.roles,
+    api.owner,
+    api.summary,
+    api.channels,
+    api.history,
+    api.messages,
+    api.send,
+    api.read,
+    api.prepare,
+    api.failUpload,
+    api.scan,
+    api.upload,
+    api.historyRead,
+    api.historyDownload,
+  ])
+    fn.mockReset();
+  api.uploadsEnabled = false;
+  api.privacyConfirm = null;
   api.viewer = "viewer-a";
   api.loading = false;
   api.clients = [];
@@ -154,6 +219,24 @@ beforeEach(() => {
   api.summary.mockResolvedValue(counts);
   api.channels.mockResolvedValue({ channels: [] });
   api.history.mockResolvedValue([]);
+  api.realtimeCallbacks = [];
+  api.messages.mockResolvedValue({ messages: [] });
+  api.read.mockResolvedValue({ ok: true });
+  api.send.mockImplementation(({ data }: any) =>
+    Promise.resolve({
+      message: {
+        id: sentId,
+        channel_id: data.channel_id,
+        author_id: data.expected_viewer_id,
+        body: data.body,
+      },
+    }),
+  );
+  api.removeRealtime.mockResolvedValue("ok");
+  api.historyRead.mockImplementation(({ data }: any) =>
+    Promise.resolve(historyPage(data.channel_id, data.offset)),
+  );
+  api.historyDownload.mockResolvedValue({ url: "https://files.example.test/signed-sample" });
   api.navigate.mockResolvedValue(undefined);
 });
 describe("Transition Channel account and role entry", () => {
@@ -378,3 +461,514 @@ it("recovers the private query observer under Strict Mode effect replay", async 
   await screen.findByRole("tab", { name: /Inbox/ });
   await waitFor(() => expect(api.summary).toHaveBeenCalled());
 });
+
+const channelA = "11111111-1111-4111-8111-111111111111";
+const channelB = "22222222-2222-4222-8222-222222222222";
+const sentId = "33333333-3333-4333-8333-333333333333";
+const messageA = "44444444-4444-4444-8444-444444444444";
+const attachmentId = "55555555-5555-4555-8555-555555555555";
+function conversationChannels() {
+  return [channelA, channelB].map((id, index) => ({
+    id,
+    title: index ? "Beta Channel" : "Alpha Channel",
+    kind: "student_team",
+    purpose: null,
+    student_id: null,
+    organization_id: null,
+    partner_organization_id: null,
+    last_message_at: null,
+    archived_at: null,
+    unread_count: 0,
+    muted: false,
+    member_role: "member",
+  }));
+}
+async function conversations() {
+  api.search.tab = "channels";
+  api.channels.mockResolvedValue({ channels: conversationChannels() });
+  const view = mount();
+  await screen.findByRole("textbox", { name: "Message" });
+  await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+  return view;
+}
+function draft(body: string) {
+  fireEvent.change(screen.getByRole("textbox", { name: "Message" }), { target: { value: body } });
+}
+function send() {
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+}
+function selectBeta() {
+  fireEvent.click(screen.getByRole("button", { name: /^Beta Channel/ }));
+}
+function selectAlpha() {
+  fireEvent.click(screen.getByRole("button", { name: /^Alpha Channel/ }));
+}
+function sent(channelId = channelA, author = "viewer-a") {
+  return { message: { id: sentId, channel_id: channelId, author_id: author } };
+}
+function historyPage(channelId: string, offset = 0) {
+  return {
+    channel_id: channelId,
+    offset,
+    messages: [
+      {
+        message_id: messageA,
+        body: `History ${channelId}:${offset}`,
+        author_name: "Sample",
+        sent_at: "2026-10-14T10:00:00Z",
+        parent_id: null,
+      },
+    ],
+    attachments: [{ attachment_id: attachmentId, message_id: messageA, file_name: "Sample.txt" }],
+    hasMore: offset === 0,
+  };
+}
+async function history() {
+  api.search.tab = "archived";
+  api.history.mockResolvedValue([
+    { channel_id: channelA, title: "Alpha History", removed_at: "2026-10-14" },
+    { channel_id: channelB, title: "Beta History", removed_at: "2026-10-14" },
+  ]);
+  const view = mount();
+  fireEvent.click(await screen.findByRole("button", { name: "Alpha History" }));
+  await screen.findByRole("button", { name: "Sample.txt" });
+  return view;
+}
+describe("main conversation request effects", () => {
+  it("keeps drafts per channel and clears only the unchanged submitted draft", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Alpha draft");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    selectBeta();
+    await screen.findByRole("textbox", { name: "Message" });
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "",
+    );
+    draft("Beta draft");
+    await act(async () => pending.resolve(sent()));
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Beta draft",
+    );
+    selectAlpha();
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "",
+    );
+    expect(api.send.mock.calls[0][0].data).toMatchObject({
+      channel_id: channelA,
+      body: "Alpha draft",
+      expected_viewer_id: "viewer-a",
+      client_dedupe_key: expect.any(String),
+    });
+  });
+  it("does not erase edits made while sending", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Submitted");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    draft("New unsent edit");
+    await act(async () => pending.resolve(sent()));
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "New unsent edit",
+    );
+  });
+  it("serializes duplicate submits but lets another channel keep its own send state", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Alpha");
+    send();
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Message" }), { key: "Enter" });
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    draft("Beta");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledTimes(2));
+    expect(api.send.mock.calls[1][0].data.channel_id).toBe(channelB);
+    await act(async () => pending.resolve(sent()));
+  });
+  it("reuses the original dedupe key for an unchanged failed send", async () => {
+    api.send.mockRejectedValueOnce(new Error("Private send detail"));
+    await conversations();
+    draft("Retry this");
+    send();
+    await waitFor(() => expect(api.toast).toHaveBeenCalledOnce());
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Retry this",
+    );
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledTimes(2));
+    expect(api.send.mock.calls[1][0].data.client_dedupe_key).toBe(
+      api.send.mock.calls[0][0].data.client_dedupe_key,
+    );
+    expect(api.toast.mock.calls[0][0]).not.toContain("Private send detail");
+  });
+  it.each([{}, sent(channelB), sent(channelA, "another-author")])(
+    "does not clear a draft for a mismatched send response %#",
+    async (response) => {
+      api.send.mockResolvedValueOnce(response);
+      await conversations();
+      draft("Keep this");
+      send();
+      await waitFor(() => expect(api.toast).toHaveBeenCalledOnce());
+      expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+        "Keep this",
+      );
+    },
+  );
+  it.each([false, true])(
+    "late send completion cannot affect a different account (failure %s)",
+    async (failure) => {
+      const pending = deferred();
+      api.send.mockReturnValueOnce(pending.promise);
+      const view = await conversations();
+      draft("Old account");
+      send();
+      await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+      api.viewer = "viewer-b";
+      view.refresh();
+      await screen.findByRole("textbox", { name: "Message" });
+      draft("New account");
+      await act(async () =>
+        failure ? pending.reject(new Error("Old send failure")) : pending.resolve(sent()),
+      );
+      expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+        "New account",
+      );
+      expect(api.toast).not.toHaveBeenCalled();
+    },
+  );
+  it("late send errors after an A-to-B-to-A transition cannot show a current-view error", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Original");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    selectBeta();
+    selectAlpha();
+    await act(async () => pending.reject(new Error("Late original error")));
+    expect(api.toast).not.toHaveBeenCalled();
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Original",
+    );
+  });
+  it("read failures keep messages visible and offer retry", async () => {
+    api.messages.mockImplementation(({ data }: any) =>
+      Promise.resolve({
+        messages: [
+          { id: messageA, channel_id: data.channel_id, body: "Recorded message", parent_id: null },
+        ],
+      }),
+    );
+    api.read.mockRejectedValueOnce(new Error("Private read detail"));
+    await conversations();
+    fireEvent.click(await screen.findByRole("button", { name: "Retry Read Status" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Retry Read Status" })).toBeNull(),
+    );
+    expect(screen.getByText("Recorded message")).toBeTruthy();
+    expect(api.read).toHaveBeenCalledWith({
+      data: {
+        channel_id: channelA,
+        last_read_message_id: messageA,
+        expected_viewer_id: "viewer-a",
+      },
+    });
+  });
+  it("late read failure and realtime callbacks cannot affect the next selected channel", async () => {
+    const pending = deferred();
+    api.read.mockReturnValueOnce(pending.promise);
+    api.messages.mockImplementation(({ data }: any) =>
+      Promise.resolve({
+        messages: [
+          {
+            id: messageA,
+            channel_id: data.channel_id,
+            body: `Message ${data.channel_id}`,
+            parent_id: null,
+          },
+        ],
+      }),
+    );
+    const view = await conversations();
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
+    const oldRealtime = api.realtimeCallbacks[0];
+    selectBeta();
+    await waitFor(() => expect(api.read).toHaveBeenCalledTimes(2));
+    const client = api.clients.at(-1);
+    const invalidate = vi.spyOn(client, "invalidateQueries");
+    invalidate.mockClear();
+    await act(async () => {
+      pending.reject(new Error("Old read failure"));
+      oldRealtime();
+    });
+    expect(screen.queryByRole("button", { name: "Retry Read Status" })).toBeNull();
+    expect(invalidate).not.toHaveBeenCalled();
+    expect(api.removeRealtime).toHaveBeenCalled();
+    view.unmount();
+  });
+  it("message read errors and mismatched channels never become an empty conversation", async () => {
+    api.messages.mockRejectedValueOnce(new Error("Private read failure"));
+    await conversations();
+    const retry = await screen.findByRole("button", { name: "Reload Messages" });
+    expect(screen.queryByText("Be the first to write in this channel.")).toBeNull();
+    draft("Waiting draft");
+    fireEvent.submit(screen.getByRole("textbox", { name: "Message" }).closest("form")!);
+    expect(api.send).not.toHaveBeenCalled();
+    api.messages.mockResolvedValueOnce({
+      messages: [{ id: messageA, channel_id: channelB, body: "Foreign message" }],
+    });
+    fireEvent.click(retry);
+    await screen.findByRole("button", { name: "Reload Messages" });
+    expect(screen.queryByText("Foreign message")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Reload Messages" }));
+    await screen.findByText("Be the first to write in this channel.");
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Waiting draft",
+    );
+  });
+  it("conversation-list failure has its own retry and does not claim no conversations", async () => {
+    api.search.tab = "channels";
+    api.channels.mockRejectedValueOnce(new Error("Private list failure"));
+    mount();
+    const retry = await screen.findByRole("button", { name: "Reload Conversations" });
+    expect(screen.queryByText(/No channels match your filters/)).toBeNull();
+    fireEvent.click(retry);
+    await screen.findByText(/No channels match your filters/);
+  });
+  it("archived channels cannot send even through a direct form submit", async () => {
+    api.search.tab = "channels";
+    const rows = conversationChannels();
+    rows[0].archived_at = "2026-10-14" as any;
+    api.channels.mockResolvedValue({ channels: rows });
+    mount();
+    await screen.findByRole("textbox", { name: "Message" });
+    draft("Blocked");
+    fireEvent.submit(screen.getByRole("textbox", { name: "Message" }).closest("form")!);
+    expect(api.send).not.toHaveBeenCalled();
+  });
+});
+
+describe("retained history download intent", () => {
+  it("opens only the current authorized attachment and prevents duplicate downloads", async () => {
+    const pending = deferred();
+    api.historyDownload.mockReturnValueOnce(pending.promise);
+    await history();
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    expect(api.historyDownload).toHaveBeenCalledOnce();
+    expect(api.historyDownload).toHaveBeenCalledWith({
+      data: { attachment_id: attachmentId, expected_viewer_id: "viewer-a" },
+    });
+    await act(async () => pending.resolve({ url: "https://files.example.test/allowed" }));
+    expect(api.openDownload).toHaveBeenCalledWith("https://files.example.test/allowed");
+  });
+  it.each(["channel", "page", "account", "unmount", "roundtrip"])(
+    "ignores a signed download after %s departure",
+    async (change) => {
+      const pending = deferred();
+      api.historyDownload.mockReturnValueOnce(pending.promise);
+      const view = await history();
+      fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+      if (change === "channel" || change === "roundtrip") {
+        fireEvent.click(screen.getByRole("button", { name: "Beta History" }));
+        await screen.findByText(`History ${channelB}:0`);
+      }
+      if (change === "roundtrip") {
+        fireEvent.click(screen.getByRole("button", { name: "Alpha History" }));
+        await screen.findByText(`History ${channelA}:0`);
+      }
+      if (change === "page") {
+        fireEvent.click(screen.getByRole("button", { name: "Older" }));
+        await screen.findByText(`History ${channelA}:50`);
+      }
+      if (change === "account") {
+        api.viewer = "viewer-b";
+        view.refresh();
+        await screen.findByRole("button", { name: "Alpha History" });
+      }
+      if (change === "unmount") view.unmount();
+      await act(async () => pending.resolve({ url: "https://files.example.test/departed" }));
+      expect(api.openDownload).not.toHaveBeenCalled();
+      expect(api.toast).not.toHaveBeenCalled();
+    },
+  );
+  it("a late download error cannot show a notice on another history page", async () => {
+    const pending = deferred();
+    api.historyDownload.mockReturnValueOnce(pending.promise);
+    await history();
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    fireEvent.click(screen.getByRole("button", { name: "Older" }));
+    await screen.findByText(`History ${channelA}:50`);
+    await act(async () => pending.reject(new Error("Old private download failure")));
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("failed current downloads keep generic retry guidance", async () => {
+    api.historyDownload.mockRejectedValueOnce(new Error("Private signing detail"));
+    await history();
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    await waitFor(() => expect(api.toast).toHaveBeenCalledOnce());
+    expect(api.toast.mock.calls[0][0]).not.toContain("Private signing detail");
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    await waitFor(() => expect(api.openDownload).toHaveBeenCalledOnce());
+  });
+  it("does not expose a history page returned for another conversation", async () => {
+    api.historyRead.mockResolvedValueOnce(historyPage(channelB));
+    api.search.tab = "archived";
+    api.history.mockResolvedValue([
+      { channel_id: channelA, title: "Alpha History", removed_at: "2026-10-14" },
+    ]);
+    mount();
+    fireEvent.click(await screen.findByRole("button", { name: "Alpha History" }));
+    await screen.findByText("Could not load messages.");
+    expect(screen.queryByText(`History ${channelB}:0`)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sample.txt" })).toBeNull();
+  });
+});
+
+function attachSample() {
+  act(() =>
+    api.privacyConfirm({
+      file: new File(["Fictional reviewed text"], "privacy-safe-document.txt", {
+        type: "text/plain",
+      }),
+    }),
+  );
+}
+function preparedAttachment() {
+  return {
+    attachment: { id: attachmentId },
+    upload: { storage_path: "synthetic/path", token: "synthetic-token" },
+  };
+}
+describe("original-message attachment pipeline (mocked staging policy only)", () => {
+  it("keeps an in-flight attachment on its original message/channel when selecting another conversation", async () => {
+    api.uploadsEnabled = true;
+    const pending = deferred();
+    api.prepare.mockReturnValueOnce(pending.promise);
+    api.upload.mockResolvedValue({ error: null });
+    api.scan.mockResolvedValue({ attachment: { id: attachmentId } });
+    await conversations();
+    attachSample();
+    draft("With a file");
+    send();
+    await waitFor(() => expect(api.prepare).toHaveBeenCalledOnce());
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    draft("New channel text");
+    await act(async () => pending.resolve(preparedAttachment()));
+    await waitFor(() => expect(api.scan).toHaveBeenCalledOnce());
+    expect(api.prepare.mock.calls[0][0].data).toMatchObject({
+      channel_id: channelA,
+      message_id: sentId,
+      file_name: "privacy-safe-document.txt",
+      expected_viewer_id: "viewer-a",
+    });
+    expect(api.scan).toHaveBeenCalledWith({
+      data: { attachment_id: attachmentId, expected_viewer_id: "viewer-a" },
+    });
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "New channel text",
+    );
+  });
+  it("does not start storage upload after a prepare response returns to a departed account", async () => {
+    api.uploadsEnabled = true;
+    const pending = deferred();
+    api.prepare.mockReturnValueOnce(pending.promise);
+    const view = await conversations();
+    attachSample();
+    draft("File request");
+    send();
+    await waitFor(() => expect(api.prepare).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    view.refresh();
+    await screen.findByRole("textbox", { name: "Message" });
+    await act(async () => pending.resolve(preparedAttachment()));
+    expect(api.upload).not.toHaveBeenCalled();
+    expect(api.scan).not.toHaveBeenCalled();
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("does not start scanning after an upload returns to a departed account", async () => {
+    api.uploadsEnabled = true;
+    api.prepare.mockResolvedValue(preparedAttachment());
+    const pending = deferred();
+    api.upload.mockReturnValueOnce(pending.promise);
+    const view = await conversations();
+    attachSample();
+    draft("Uploading");
+    send();
+    await waitFor(() => expect(api.upload).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    view.refresh();
+    await screen.findByRole("textbox", { name: "Message" });
+    await act(async () => pending.resolve({ error: null }));
+    expect(api.scan).not.toHaveBeenCalled();
+    expect(api.failUpload).not.toHaveBeenCalled();
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("keeps a failed old-channel scan notice out of the new conversation", async () => {
+    api.uploadsEnabled = true;
+    api.prepare.mockResolvedValue(preparedAttachment());
+    api.upload.mockResolvedValue({ error: null });
+    const pending = deferred();
+    api.scan.mockReturnValueOnce(pending.promise);
+    await conversations();
+    attachSample();
+    draft("Scanning");
+    send();
+    await waitFor(() => expect(api.scan).toHaveBeenCalledOnce());
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    await act(async () => pending.reject(new Error("Private scan detail")));
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("a stale privacy confirmation cannot attach a file to a different channel", async () => {
+    api.uploadsEnabled = true;
+    await conversations();
+    const oldConfirm = api.privacyConfirm;
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    act(() =>
+      oldConfirm({
+        file: new File(["Fictional"], "privacy-safe-document.txt", { type: "text/plain" }),
+      }),
+    );
+    expect(screen.queryByText("privacy-safe-document.txt")).toBeNull();
+  });
+  it("removes an unavailable selected conversation without loading or sending to a replacement", async () => {
+    await conversations();
+    draft("Retained unsent draft");
+    api.channels.mockResolvedValueOnce({ channels: [conversationChannels()[1]] });
+    fireEvent.click(screen.getByRole("button", { name: "Refresh Conversations" }));
+    await screen.findByText(/This conversation is no longer available/);
+    expect(screen.queryByRole("textbox", { name: "Message" })).toBeNull();
+    expect(api.send).not.toHaveBeenCalled();
+  });
+});
+
+it.each(["student", "parent", "teacher", "school_admin", "district_admin", "partner"])(
+  "sends in the same scoped conversation flow for %s",
+  async (role) => {
+    api.roles.mockResolvedValue({ roles: [role] });
+    await conversations();
+    draft("Scoped role message");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    expect(api.send.mock.calls[0][0].data).toMatchObject({
+      channel_id: channelA,
+      expected_viewer_id: "viewer-a",
+      body: "Scoped role message",
+    });
+    await waitFor(() =>
+      expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+        "",
+      ),
+    );
+  },
+);
