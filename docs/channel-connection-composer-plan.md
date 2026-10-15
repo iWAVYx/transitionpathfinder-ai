@@ -78,6 +78,7 @@ Port and verify all affected clients before restricting direct table operations.
 - [ ] Reconcile schema/data and role aliases in an authorized staging inspection.
 - [x] Prepare a guarded SQL prototype, read-only inventory, syntax report and rollout/rollback/acceptance review package.
 - [ ] Obtain independent SQL/catalog/security review and actual DB acceptance evidence; authorize any database application separately.
+- [x] Prepare unused v1 response, decision and creation/recovery contracts with local boundary tests; no live caller integration.
 - [ ] Build Owner mapping/receiver-consent management and the eligible-role composer against that contract.
 - [ ] Audit legacy request records and prepare a non-destructive, reviewed reconciliation process.
 - [ ] Run rollback-only SQL tests for concurrent creates/responses, stale/revoked memberships, changed links/consent, direct-table denial, expiry, own-workspace targets and idempotency conflicts.
@@ -105,3 +106,8 @@ Parser evidence covers 82 SQL statements, 17 PLpgSQL function bodies, one SQL he
 ## Draft Decision Intent Preparation
 
 `src/lib/channel-connection-v1-decision-contract.ts` now prepares immutable original request/revision/operation-key intent and validates exact acceptance/decline/withdrawal outcomes, including terminal read-back without membership restoration. The 27 new tests are local response-boundary checks, not authenticated RPC/database evidence. No transport, caller integration, UI or activation path exists. The guarded SQL outcome proposal also now explicitly excludes Owner/admin personal opening after a role transition; actual SQL permission tests remain open. Create-intent/key lookup, compatible server wrappers and the remaining delivery checklist are still incomplete.
+
+
+## Draft Creation and Recovery Preparation
+
+`src/lib/channel-connection-v1-create-contract.ts` prepares immutable original intent, narrow create/lookup arguments and exact actor/key/context/version/text confirmation. Forty new tests cover uncertain outcomes, wrong accounts/keys/terms, malformed lookup results and later terminal states. No key generation, persistence, network transport, live caller, role management or composer UI is included. Future caller integration must preserve viewer/workspace scopes, keep the original key across uncertainty and use fresh database authorization. The guarded outcome proposal now includes nullable creation-key attribution and deterministic ASCII edge trimming; actual DB behavior remains untested.

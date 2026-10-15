@@ -52,7 +52,9 @@ END;
 $$;
 CREATE FUNCTION tf_connection_private.clean(p_value text)
 RETURNS text LANGUAGE sql IMMUTABLE SET search_path = '' AS $$
-  SELECT pg_catalog.regexp_replace(COALESCE(p_value, ''), '^[[:space:]]+|[[:space:]]+$', '', 'g');
+  -- Deterministic ASCII edge whitespace, independent of database collation.
+  SELECT pg_catalog.btrim(COALESCE(p_value, ''), ' ' || pg_catalog.chr(9) || pg_catalog.chr(10)
+    || pg_catalog.chr(11) || pg_catalog.chr(12) || pg_catalog.chr(13));
 $$;
 CREATE FUNCTION tf_connection_private.require_owner(p_actor uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
@@ -151,7 +153,7 @@ BEGIN
   RETURN pg_catalog.jsonb_build_object('request_id',v_req.id,'status',v_req.status,
     'requester_id',v_req.requester_id,'requester_organization_id',v_req.requester_organization_id,
     'target_organization_id',v_req.target_partner_organization_id,'expires_at',v_req.expires_at,
-    'updated_at',v_req.updated_at,'revision',v_req.revision,
+    'updated_at',v_req.updated_at,'revision',v_req.revision,'client_request_key',v_req.client_request_key,
     'directory_partner_id',v_req.directory_partner_id,'directory_link_version',v_req.directory_link_version,
     'receiver_consent_version',v_req.receiver_consent_version,
     'saved_fields',pg_catalog.jsonb_build_object('purpose',v_req.purpose_category,'message',v_req.message,'next_step',v_req.proposed_next_step),'setup_state',v_setup,'channel_id',v_req.resulting_channel_id,

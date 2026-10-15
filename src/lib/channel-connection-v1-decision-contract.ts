@@ -96,6 +96,7 @@ export function confirmConnectionDecisionV1(
     !sameId(saved.requester_organization_id, original.requester_organization_id) ||
     !sameId(saved.target_organization_id, original.target_organization_id) ||
     !sameId(saved.directory_partner_id, original.directory_partner_id) ||
+    !sameId(saved.client_request_key, original.client_request_key) ||
     saved.directory_link_version !== original.directory_link_version ||
     saved.receiver_consent_version !== original.receiver_consent_version ||
     saved.saved_fields.purpose !== original.saved_fields.purpose ||

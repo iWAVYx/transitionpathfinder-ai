@@ -34,7 +34,7 @@
     {
       "path": "20-protocol.proposal.sql",
       "statements": 26,
-      "sha256": "6145275f53fd66e7183b4348741dc056345d95b5e62dcdbf9e6f188b3efe9871"
+      "sha256": "fa25fd64b2fbbc761a0b3cba799a94682a16111c050e067904cf4fe271c14ff9"
     },
     {
       "path": "30-cutover.proposal.sql",

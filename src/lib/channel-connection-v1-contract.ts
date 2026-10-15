@@ -54,6 +54,7 @@ const outcomeSchema = z.object({
   expires_at: timestamp,
   updated_at: timestamp,
   revision,
+  client_request_key: uuid.nullable(),
   directory_partner_id: uuid.nullable(),
   directory_link_version: version.nullable(),
   receiver_consent_version: version.nullable(),
@@ -76,6 +77,7 @@ export function validateConnectionOutcomeV1(value: unknown, expectedRequestId: s
     ? ["complete", "incomplete", "legacy_review"].includes(result.setup_state)
     : result.setup_state === (result.status === "pending" ? "not_started" : "not_applicable");
   const attribution = [
+    result.client_request_key,
     result.directory_partner_id,
     result.directory_link_version,
     result.receiver_consent_version,

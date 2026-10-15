@@ -14,6 +14,7 @@ const original = () => ({
   expires_at: "2026-10-17T12:00:00+00:00",
   updated_at: "2026-10-15T12:00:00Z",
   revision: 1,
+  client_request_key: id(10),
   directory_partner_id: id(5),
   directory_link_version: 2,
   receiver_consent_version: 3,
@@ -182,6 +183,7 @@ describe("draft connection v1 recorded decision intent", () => {
     const record = {
       ...original(),
       revision: 0,
+      client_request_key: null,
       directory_partner_id: null,
       directory_link_version: null,
       receiver_consent_version: null,
