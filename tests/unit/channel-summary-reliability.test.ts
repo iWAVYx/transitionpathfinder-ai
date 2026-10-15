@@ -119,6 +119,53 @@ function fixture(
   return { calls, context: { userId: "viewer-a", supabase: { from } } };
 }
 describe("complete caller-scoped channel summary", () => {
+  it("keeps unseen mention counts aligned with current message/channel visibility", async () => {
+    const input = fixture();
+    const original = input.context.supabase.from;
+    const rows = [
+      { caller: true, seen: false, removed: false, messageVisible: true, channelVisible: true },
+      { caller: true, seen: true, removed: false, messageVisible: true, channelVisible: true },
+      { caller: false, seen: false, removed: false, messageVisible: true, channelVisible: true },
+      { caller: true, seen: false, removed: true, messageVisible: true, channelVisible: true },
+      { caller: true, seen: false, removed: false, messageVisible: false, channelVisible: true },
+      { caller: true, seen: false, removed: false, messageVisible: true, channelVisible: false },
+    ];
+    input.context.supabase.from = vi.fn((table: string) => {
+      const query = original(table);
+      if (table === "channel_mentions")
+        query.then = (yes: any, no: any) => {
+          const selected = query.select.mock.calls[0][0];
+          const hasIs = (field: string) =>
+            query.is.mock.calls.some(([key, value]: any[]) => key === field && value === null);
+          const caller = query.eq.mock.calls.some(
+            ([key, value]: any[]) => key === "mentioned_user_id" && value === "viewer-a",
+          );
+          const visible = rows.filter(
+            (row) =>
+              (!caller || row.caller) &&
+              (!hasIs("seen_at") || !row.seen) &&
+              (!hasIs("channel_messages.deleted_at") || !row.removed) &&
+              (!selected.includes("channel_messages!inner") || row.messageVisible) &&
+              (!selected.includes("channels!inner") || row.channelVisible),
+          );
+          return Promise.resolve({ count: visible.length, error: null }).then(yes, no);
+        };
+      return query;
+    });
+    const result = await (getChannelTileSummary as any)({
+      data: { expected_viewer_id: "viewer-a" },
+      context: input.context,
+    });
+    expect(result.mentions).toBe(1);
+    const query = input.calls.find((call) => call.table === "channel_mentions")!.query;
+    expect(query.select).toHaveBeenCalledWith(
+      "id,channel_messages!inner(id,deleted_at),channels!inner(id)",
+      { count: "exact", head: true },
+    );
+    expect(query.eq).toHaveBeenCalledWith("mentioned_user_id", "viewer-a");
+    expect(query.is).toHaveBeenCalledWith("channel_messages.deleted_at", null);
+    expect(query.is).toHaveBeenCalledWith("seen_at", null);
+  });
   it("loads all membership pages and bounds receipt/action id batches", async () => {
     const input = fixture(members(605));
     const result = await (getChannelTileSummary as any)({

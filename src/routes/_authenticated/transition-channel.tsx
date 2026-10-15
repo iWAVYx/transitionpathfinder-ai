@@ -1,3 +1,4 @@
+import { ChannelMentions } from "@/components/channels/ChannelMentions";
 import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
@@ -54,13 +55,7 @@ import {
   getChannelTileSummary,
   type ChannelTileSummary,
 } from "@/lib/channel-tile-summary.functions";
-import {
-  listMyMentions,
-  listChannelActions,
-  markMentionSeen,
-  type ChannelMention,
-  type ChannelActionRecord,
-} from "@/lib/channel-tabs.functions";
+import { listChannelActions } from "@/lib/channel-tabs.functions";
 import {
   listPinnedMessages,
   listChannelBookmarkIds,
@@ -637,54 +632,7 @@ function ChannelsTab({ search }: { search: FilterState }) {
 }
 
 function MentionsTab() {
-  const listFn = useServerFn(listMyMentions);
-  const markFn = useServerFn(markMentionSeen);
-  const qc = useQueryClient();
-  const query = useQuery({
-    queryKey: ["channel-mentions"],
-    queryFn: () => listFn(),
-  });
-  const markMutation = useMutation({
-    mutationFn: (id: string) => markFn({ data: { mention_id: id } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["channel-mentions"] });
-      qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-    },
-  });
-  const mentions = query.data?.mentions ?? [];
-
-  return (
-    <div className="space-y-2">
-      {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading mentions…</p>
-      ) : mentions.length === 0 ? (
-        <EmptyState icon={Bell} message="No mentions yet." />
-      ) : (
-        mentions.map((m) => (
-          <article key={m.id} className="rounded-lg border p-3 hover:bg-muted/40 transition">
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="text-sm font-medium">
-                {m.author_name} mentioned you in {m.channel_title}
-              </p>
-              <span className="text-xs text-muted-foreground">{formatWhen(m.created_at)}</span>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.message_body}</p>
-            {!m.seen_at && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-2 h-7 px-2 text-xs"
-                onClick={() => markMutation.mutate(m.id)}
-                disabled={markMutation.isPending}
-              >
-                Mark seen
-              </Button>
-            )}
-          </article>
-        ))
-      )}
-    </div>
-  );
+  return <ChannelMentions />;
 }
 
 function ActionsTab({

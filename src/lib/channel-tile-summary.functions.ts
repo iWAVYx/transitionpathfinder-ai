@@ -112,8 +112,12 @@ export const getChannelTileSummary = createServerFn({ method: "GET" })
       const mentions = await readCount(
         supabase
           .from("channel_mentions")
-          .select("id", { count: "exact", head: true })
+          .select(
+            "id,channel_messages!inner(id,deleted_at),channels!inner(id)",
+            { count: "exact", head: true },
+          )
           .eq("mentioned_user_id", userId)
+          .is("channel_messages.deleted_at", null)
           .is("seen_at", null),
       );
 

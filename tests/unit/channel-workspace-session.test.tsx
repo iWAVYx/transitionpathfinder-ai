@@ -13,6 +13,8 @@ const api = vi.hoisted(() => ({
   privacyConfirm: null as any,
   channels: vi.fn(),
   actions: vi.fn(),
+  mentions: vi.fn(),
+  seen: vi.fn(),
   messages: vi.fn(),
   send: vi.fn(),
   read: vi.fn(),
@@ -52,9 +54,9 @@ vi.mock("@/lib/channels.functions", () => ({
   markChannelRead: api.read,
 }));
 vi.mock("@/lib/channel-tabs.functions", () => ({
-  listMyMentions: vi.fn().mockResolvedValue({ mentions: [] }),
+  listMyMentions: api.mentions,
   listChannelActions: api.actions,
-  markMentionSeen: vi.fn(),
+  markMentionSeen: api.seen,
 }));
 vi.mock("@/lib/channel-actions.functions", () => ({
   updateChannelAction: vi.fn(),
@@ -198,6 +200,8 @@ beforeEach(() => {
     api.summary,
     api.channels,
     api.actions,
+    api.mentions,
+    api.seen,
     api.history,
     api.messages,
     api.send,
@@ -221,6 +225,7 @@ beforeEach(() => {
   api.summary.mockResolvedValue(counts);
   api.channels.mockResolvedValue({ channels: [] });
   api.actions.mockResolvedValue({ actions: [] });
+  api.mentions.mockResolvedValue({ mentions: [], hasMore: false });
   api.history.mockResolvedValue([]);
   api.realtimeCallbacks = [];
   api.messages.mockResolvedValue({ messages: [] });
@@ -1024,5 +1029,35 @@ describe("actual action-tab read recovery with mocked transport", () => {
     );
     expect(screen.queryByText("Departed private record")).toBeNull();
     expect(api.actions.mock.calls[1][0].data.expected_viewer_id).toBe("viewer-b");
+  });
+});
+
+describe("actual all-role mentions entry", () => {
+  it.each(["student", "parent", "teacher", "school_admin", "district_admin", "partner"])(
+    "mounts scoped mention reads for the eligible %s role",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      api.search.tab = "mentions";
+      mount();
+      await screen.findByText("No mentions yet.");
+      expect(api.mentions).toHaveBeenCalledWith({ data: { expected_viewer_id: "viewer-a" } });
+    },
+  );
+  it("keeps verified platform Owners out of mention reads", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    api.search.tab = "mentions";
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.mentions).not.toHaveBeenCalled();
+    expect(api.seen).not.toHaveBeenCalled();
+  });
+  it("keeps read errors retryable through actual route entry", async () => {
+    api.search.tab = "mentions";
+    api.mentions.mockRejectedValueOnce(new Error("private read failure"));
+    mount();
+    await screen.findByText("We couldn't load your mentions.");
+    expect(screen.queryByText("No mentions yet.")).toBeNull();
+    fireEvent.click(screen.getByText("Reload Mentions"));
+    await screen.findByText("No mentions yet.");
   });
 });
