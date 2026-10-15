@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({
   load: vi.fn(),
+  item: vi.fn(),
   send: vi.fn(),
   changed: vi.fn(),
   close: vi.fn(),
@@ -37,7 +38,10 @@ vi.mock("@/components/ui/sheet", () => ({
   SheetTitle: ({ children }: any) => <h2>{children}</h2>,
 }));
 vi.mock("@/components/channels/MessageItem", () => ({
-  MessageItem: ({ m }: any) => <p>{m.body}</p>,
+  MessageItem: (props: any) => {
+    api.item(props);
+    return <p>{props.m.body}</p>;
+  },
   useMessageAttachments: () => ({ byMessage: new Map() }),
 }));
 import { ChannelQueryBoundary } from "@/components/channels/ChannelQueryBoundary";
@@ -361,4 +365,21 @@ describe("actual thread composer context with mocked transport", () => {
     submit();
     expect(api.send).not.toHaveBeenCalled();
   });
+});
+
+it("passes unknown bookmark state to both the parent and replies", async () => {
+  api.load.mockResolvedValueOnce(
+    result({ replies: [message({ id: replyId, parent_id: parentId, body: "Recorded reply" })] }),
+  );
+  const v = render(
+    view({ bookmarksAvailable: false, bookmarkedIds: new Set([parentId, replyId]) }),
+  );
+  await screen.findByText("Recorded reply");
+  expect(
+    api.item.mock.calls
+      .filter(([p]: any) => p.m.id === parentId || p.m.id === replyId)
+      .every(([p]: any) => p.bookmarked === null),
+  ).toBe(true);
+  v.rerender(view({ bookmarksAvailable: true, bookmarkedIds: new Set([parentId, replyId]) }));
+  await waitFor(() => expect(api.item.mock.calls.at(-1)?.[0].bookmarked).toBe(true));
 });

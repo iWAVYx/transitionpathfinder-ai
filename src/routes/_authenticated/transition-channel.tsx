@@ -1,3 +1,5 @@
+import { ChannelPinnedMessages } from "@/components/channels/ChannelPinnedMessages";
+import { validatePinnedRead, validateBookmarkRead } from "@/lib/channel-message-read-contract";
 import { ChannelMentions } from "@/components/channels/ChannelMentions";
 import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
@@ -848,26 +850,26 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     queryKey: ["channel-pinned", activeId],
     queryFn: async () => {
       if (!view.isCurrent()) throw new Error("Conversation changed.");
-      const result = await pinnedFn({ data: { channel_id: active!.id } });
+      const result = await pinnedFn({ data: { channel_id: active!.id, expected_viewer_id: workspace.viewerId } });
       if (!view.isCurrent()) throw new Error("Conversation changed.");
-      return result;
+      return validatePinnedRead(result, active!.id);
     },
-    enabled: !!active,
+    enabled: !!active, retry: false,
   });
 
   const bookmarksQuery = useQuery({
     queryKey: ["channel-bookmarks", activeId],
     queryFn: async () => {
       if (!view.isCurrent()) throw new Error("Conversation changed.");
-      const result = await bookmarksFn({ data: { channel_id: active!.id } });
+      const result = await bookmarksFn({ data: { channel_id: active!.id, expected_viewer_id: workspace.viewerId } });
       if (!view.isCurrent()) throw new Error("Conversation changed.");
-      return result;
+      return validateBookmarkRead(result, active!.id);
     },
-    enabled: !!active,
+    enabled: !!active, retry: false,
   });
   const bookmarkedIds = useMemo(
-    () => new Set(bookmarksQuery.data?.message_ids ?? []),
-    [bookmarksQuery.data],
+    () => new Set(bookmarksQuery.isSuccess ? bookmarksQuery.data.message_ids : []),
+    [bookmarksQuery.data, bookmarksQuery.isSuccess],
   );
 
   const topLevelIds = useMemo(() => topLevel.map((m) => m.id), [topLevel]);
@@ -1147,7 +1149,8 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     });
   };
 
-  const pinned = pinnedQuery.data?.pinned ?? [];
+  const pinned = pinnedQuery.isSuccess ? pinnedQuery.data.pinned : [];
+  const bookmarksAvailable = bookmarksQuery.isSuccess;
 
   return (
     <>
@@ -1268,27 +1271,17 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                 </div>
               </header>
 
-              {pinned.length > 0 && (
-                <div className="border-b bg-muted/30 px-4 py-2 space-y-1 max-h-40 overflow-y-auto">
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                    Pinned
-                  </p>
-                  {pinned.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setThreadParentId(p.id)}
-                      className="w-full text-left text-xs text-muted-foreground hover:text-foreground truncate"
-                      title={p.body}
-                    >
-                      <span className="font-medium text-foreground">
-                        {p.author_name ?? "Member"}:
-                      </span>{" "}
-                      {p.body}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-wrap gap-2 border-b px-4 py-2">
+                <Button size="sm" variant="outline" disabled={pinnedQuery.isFetching} onClick={() => { if (view.isCurrent()) void pinnedQuery.refetch(); }}>{pinnedQuery.isError ? "Reload Pinned Messages" : "Refresh Pinned Messages"}</Button>
+                <Button size="sm" variant="outline" disabled={bookmarksQuery.isFetching} onClick={() => { if (view.isCurrent()) void bookmarksQuery.refetch(); }}>{bookmarksQuery.isError ? "Reload Bookmarks" : "Refresh Bookmarks"}</Button>
+              </div>
+              {pinnedQuery.isError && <p role="alert" className="px-4 py-2 text-sm">We couldn't load pinned messages. Reload them to try again.</p>}
+              {pinnedQuery.isPending && <p className="px-4 py-2 text-sm">Loading pinned messages…</p>}
+              {bookmarksQuery.isError && <p role="alert" className="px-4 py-2 text-sm">We couldn't load bookmarks. Bookmark controls are unavailable until you reload them.</p>}
+              {bookmarksQuery.isPending && <p className="px-4 py-2 text-sm">Loading bookmarks…</p>}
+              <ChannelPinnedMessages key={active.id} messages={pinned} onOpen={(messageId) => {
+                if (view.isCurrent() && pinned.some(message => message.id === messageId && message.channel_id === active.id)) setThreadParentId(messageId);
+              }} />
 
               <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
                 {messagesQuery.isError ? (
@@ -1318,7 +1311,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                       readOnly={!!active.archived_at}
                       currentUserId={currentUserId}
                       isAdmin={isAdmin}
-                      bookmarked={bookmarkedIds.has(m.id)}
+                      bookmarked={bookmarksAvailable ? bookmarkedIds.has(m.id) : null}
                       attachments={attachmentsByMessage.get(m.id) ?? []}
                       replyCount={replyCounts.get(m.id) ?? 0}
                       onReply={(parent) => setThreadParentId(parent.id)}
@@ -1469,7 +1462,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       <ThreadPanel
         key={`thread:${active?.id ?? "none"}:${threadParentId ?? "none"}`}
         parentId={
-          active && allMessages.some((message) => message.id === threadParentId)
+          active && (allMessages.some((message) => message.id === threadParentId) || pinned.some((message) => message.id === threadParentId))
             ? threadParentId
             : null
         }
@@ -1477,6 +1470,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
         currentUserId={currentUserId}
         isAdmin={isAdmin}
         bookmarkedIds={bookmarkedIds}
+        bookmarksAvailable={bookmarksAvailable}
         readOnly={!!active?.archived_at}
         onClose={() => setThreadParentId(null)}
         onChanged={invalidateActive}

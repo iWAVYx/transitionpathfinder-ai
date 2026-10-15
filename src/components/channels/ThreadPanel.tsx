@@ -21,6 +21,7 @@ export type ThreadPanelProps = {
   isAdmin: boolean;
   readOnly?: boolean;
   bookmarkedIds: Set<string>;
+  bookmarksAvailable?: boolean;
   onClose: () => void;
   onChanged: () => void;
 };
@@ -41,6 +42,7 @@ function ThreadSession({
   isAdmin,
   readOnly = false,
   bookmarkedIds,
+  bookmarksAvailable = false,
   onClose,
   onChanged,
 }: ThreadPanelProps) {
@@ -255,7 +257,7 @@ function ThreadSession({
                 m={parent}
                 currentUserId={currentUserId}
                 isAdmin={isAdmin}
-                bookmarked={bookmarkedIds.has(parent.id)}
+                bookmarked={bookmarksAvailable ? bookmarkedIds.has(parent.id) : null}
                 attachments={byMessage.get(parent.id) ?? []}
                 onReply={() => {}}
                 onChanged={changed}
@@ -279,7 +281,7 @@ function ThreadSession({
                       m={r}
                       currentUserId={currentUserId}
                       isAdmin={isAdmin}
-                      bookmarked={bookmarkedIds.has(r.id)}
+                      bookmarked={bookmarksAvailable ? bookmarkedIds.has(r.id) : null}
                       attachments={byMessage.get(r.id) ?? []}
                       onReply={() => {}}
                       onChanged={changed}

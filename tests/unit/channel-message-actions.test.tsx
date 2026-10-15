@@ -454,3 +454,25 @@ describe("actual attachment query batching and recovery", () => {
     expect(api.attachments).toHaveBeenCalledOnce();
   });
 });
+
+describe("unknown bookmark state", () => {
+  it("disables changes until the caller's bookmark read is available", async () => {
+    const v = render(view({ bookmarked: null }));
+    const button = screen.getByTitle("Bookmarks unavailable");
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(button);
+    expect(api.bookmark).not.toHaveBeenCalled();
+    v.rerender(view({ bookmarked: false }));
+    fireEvent.click(screen.getByTitle("Bookmark"));
+    await waitFor(() => expect(api.bookmark).toHaveBeenCalledOnce());
+  });
+  it("does not acknowledge a result after bookmark visibility becomes unknown", async () => {
+    const d = deferred();
+    api.bookmark.mockReturnValueOnce(d.promise);
+    const v = render(view());
+    fireEvent.click(screen.getByTitle("Bookmark"));
+    v.rerender(view({ bookmarked: null }));
+    await act(async () => d.resolve({ bookmarked: true }));
+    expect(api.changed).not.toHaveBeenCalled();
+  });
+});

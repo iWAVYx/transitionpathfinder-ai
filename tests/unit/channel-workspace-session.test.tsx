@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({
   viewer: "viewer-a" as string | null,
   startCreated: null as null | ((id: string) => Promise<void>),
+  pins: vi.fn(),
+  bookmarks: vi.fn(),
+  threadProps: null as any,
   loading: false,
   roles: vi.fn(),
   owner: vi.fn(),
@@ -73,8 +76,8 @@ vi.mock("@/lib/channel-connection-requests.functions", () => ({
   withdrawConnectionRequest: api.withdraw,
 }));
 vi.mock("@/lib/channel-messages.functions", () => ({
-  listPinnedMessages: vi.fn().mockResolvedValue({ pinned: [] }),
-  listChannelBookmarkIds: vi.fn().mockResolvedValue({ message_ids: [] }),
+  listPinnedMessages: api.pins,
+  listChannelBookmarkIds: api.bookmarks,
   prepareChannelAttachmentUpload: api.prepare,
   failChannelAttachmentUpload: api.failUpload,
   scanChannelAttachment: api.scan,
@@ -105,13 +108,21 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 vi.mock("@/components/channels/MessageItem", () => ({
-  MessageItem: ({ m }: any) => <p>{m.body}</p>,
+  MessageItem: ({ m, bookmarked }: any) => <p data-bookmark={String(bookmarked)}>{m.body}</p>,
   useMessageAttachments: () => ({ byMessage: new Map(), refetch: vi.fn() }),
 }));
-vi.mock("@/components/channels/ThreadPanel", () => ({ ThreadPanel: () => null }));
+vi.mock("@/components/channels/ThreadPanel", () => ({
+  ThreadPanel: (props: any) => {
+    api.threadProps = props;
+    return null;
+  },
+}));
 vi.mock("@/components/channels/PromoteRecordDialog", () => ({ PromoteRecordDialog: () => null }));
 vi.mock("@/components/channels/StartStudentConversation", () => ({
-  StartStudentConversation: ({ onCreated }: any) => { api.startCreated = onCreated; return null; },
+  StartStudentConversation: ({ onCreated }: any) => {
+    api.startCreated = onCreated;
+    return null;
+  },
 }));
 vi.mock("@/components/channels/ChannelMuteToggle", () => ({ ChannelMuteToggle: () => null }));
 vi.mock("@/components/channels/ConnectionRequestsDrawer", () => ({
@@ -198,8 +209,11 @@ afterEach(() => {
 });
 beforeEach(() => {
   api.startCreated = null;
+  api.threadProps = null;
   vi.clearAllMocks();
   for (const fn of [
+    api.pins,
+    api.bookmarks,
     api.roles,
     api.owner,
     api.summary,
@@ -237,6 +251,14 @@ beforeEach(() => {
   api.connections.mockResolvedValue({ requests: [] });
   api.history.mockResolvedValue([]);
   api.realtimeCallbacks = [];
+  api.pins.mockImplementation(async ({ data }: any) => ({
+    channel_id: data.channel_id,
+    pinned: [],
+  }));
+  api.bookmarks.mockImplementation(async ({ data }: any) => ({
+    channel_id: data.channel_id,
+    message_ids: [],
+  }));
   api.messages.mockResolvedValue({ messages: [] });
   api.read.mockResolvedValue({ ok: true });
   api.send.mockImplementation(({ data }: any) =>
@@ -1160,25 +1182,212 @@ describe("actual connection-role entry and exact-channel handoff", () => {
 });
 
 describe("new conversation route handoff", () => {
-  it.each(["parent", "student", "educator", "school_admin", "district_admin", "partner"])("opens an exact created channel for eligible %s entry", async role => {
-    api.roles.mockResolvedValue({roles:[role]});
+  it.each(["parent", "student", "educator", "school_admin", "district_admin", "partner"])(
+    "opens an exact created channel for eligible %s entry",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      await conversations();
+      expect(api.startCreated).toBeTypeOf("function");
+      await act(async () => {
+        await api.startCreated!(channelB);
+      });
+      expect(api.navigate).toHaveBeenCalledWith({
+        to: "/transition-channel",
+        search: expect.objectContaining({
+          tab: "channels",
+          channel: channelB,
+          unread: "all",
+          archived: "active",
+          student: undefined,
+          type: undefined,
+          org: undefined,
+          opportunity: undefined,
+        }),
+      });
+    },
+  );
+  it("propagates navigation failure to saved-state recovery", async () => {
     await conversations();
-    expect(api.startCreated).toBeTypeOf("function");
-    await act(async()=>{await api.startCreated!(channelB);});
-    expect(api.navigate).toHaveBeenCalledWith({to:"/transition-channel",search:expect.objectContaining({tab:"channels",channel:channelB,unread:"all",archived:"active",student:undefined,type:undefined,org:undefined,opportunity:undefined})});
-  });
-  it("propagates navigation failure to saved-state recovery", async()=>{
-    await conversations();api.navigate.mockRejectedValueOnce(new Error("route failed"));
+    api.navigate.mockRejectedValueOnce(new Error("route failed"));
     await expect(api.startCreated!(channelB)).rejects.toThrow("route failed");
   });
-  it("cannot navigate from a departed account callback",async()=>{
-    const view=await conversations(), callback=api.startCreated!;
-    api.viewer="viewer-b";view.refresh();
+  it("cannot navigate from a departed account callback", async () => {
+    const view = await conversations(),
+      callback = api.startCreated!;
+    api.viewer = "viewer-b";
+    view.refresh();
     await expect(callback(channelB)).rejects.toThrow("Conversation view changed.");
-    expect(api.navigate).not.toHaveBeenCalledWith(expect.objectContaining({search:expect.objectContaining({channel:channelB})}));
+    expect(api.navigate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ search: expect.objectContaining({ channel: channelB }) }),
+    );
   });
-  it("does not mount the start form for a platform Owner",async()=>{
-    api.owner.mockResolvedValue({isPlatformAdmin:true});api.search.tab="channels";mount();
-    await waitFor(()=>expect(api.navigate).toHaveBeenCalledWith({to:"/owner",replace:true}));expect(api.startCreated).toBeNull();
+  it("does not mount the start form for a platform Owner", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    api.search.tab = "channels";
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.startCreated).toBeNull();
+  });
+});
+
+function pinnedMessage(index = 1, channelId = channelA, patch: any = {}) {
+  return {
+    id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    channel_id: channelId,
+    author_id: "viewer-a",
+    parent_id: null,
+    body: `Recorded Pin ${index}`,
+    pinned: true,
+    edited_at: null,
+    deleted_at: null,
+    created_at: "2026-10-15T00:00:00Z",
+    author_name: "Member",
+    ...patch,
+  };
+}
+describe("pinned and bookmarked reader recovery through the route", () => {
+  it.each(["parent", "student", "educator", "school_admin", "district_admin", "partner"])(
+    "reads pins/bookmarks with original viewer intent for %s",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      await conversations();
+      expect(api.pins).toHaveBeenCalledWith({
+        data: { channel_id: channelA, expected_viewer_id: "viewer-a" },
+      });
+      expect(api.bookmarks).toHaveBeenCalledWith({
+        data: { channel_id: channelA, expected_viewer_id: "viewer-a" },
+      });
+    },
+  );
+  it("displays and browses all verified pins beyond the old limit", async () => {
+    api.pins.mockResolvedValue({
+      channel_id: channelA,
+      pinned: Array.from({ length: 25 }, (_, i) => pinnedMessage(i + 1)),
+    });
+    await conversations();
+    await screen.findByText("Showing 10 of 25 pinned messages.");
+    expect(screen.queryByText("Recorded Pin 25")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Show More Pinned Messages" }));
+    await screen.findByText("Showing 20 of 25 pinned messages.");
+    fireEvent.click(screen.getByRole("button", { name: "Show More Pinned Messages" }));
+    await screen.findByText("Recorded Pin 25");
+    expect(screen.queryByRole("button", { name: "Show More Pinned Messages" })).toBeNull();
+  });
+  it("can open an older verified pin absent from the recent message window", async () => {
+    const pin = pinnedMessage();
+    api.pins.mockResolvedValue({ channel_id: channelA, pinned: [pin] });
+    await conversations();
+    fireEvent.click(await screen.findByRole("button", { name: /Recorded Pin 1/ }));
+    await waitFor(() => expect(api.threadProps.parentId).toBe(pin.id));
+  });
+  it("shows pin failure, hides cached pins and reloads", async () => {
+    api.pins.mockResolvedValueOnce({ channel_id: channelA, pinned: [pinnedMessage()] });
+    await conversations();
+    await screen.findByText("Recorded Pin 1");
+    api.pins.mockRejectedValueOnce(new Error("private metadata"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh Pinned Messages" }));
+    await screen.findByRole("button", { name: "Reload Pinned Messages" });
+    expect(screen.queryByText("Recorded Pin 1")).toBeNull();
+    expect(screen.queryByText("private metadata")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Reload Pinned Messages" }));
+    await screen.findByRole("button", { name: "Refresh Pinned Messages" });
+  });
+  it.each([
+    { channel_id: channelB, pinned: [] },
+    { channel_id: channelA, pinned: [pinnedMessage(1, channelB)] },
+    {
+      channel_id: channelA,
+      pinned: [pinnedMessage(1, channelA, { deleted_at: "2026-10-15T00:00:00Z" })],
+    },
+    { channel_id: channelA, pinned: [pinnedMessage(), pinnedMessage()] },
+  ])("rejects mismatched/deleted/duplicate pin results %j", async (result) => {
+    api.pins.mockResolvedValueOnce(result);
+    await conversations();
+    await screen.findByRole("button", { name: "Reload Pinned Messages" });
+    expect(screen.queryByText("Recorded Pin 1")).toBeNull();
+  });
+  it("keeps unknown bookmarks unavailable in messages and threads until reload succeeds", async () => {
+    api.messages.mockResolvedValue({
+      messages: [pinnedMessage(1, channelA, { body: "Recorded current message", pinned: false })],
+    });
+    api.bookmarks.mockRejectedValueOnce(new Error("private"));
+    await conversations();
+    await screen.findByRole("button", { name: "Reload Bookmarks" });
+    expect(screen.getByText("Recorded current message").getAttribute("data-bookmark")).toBe("null");
+    expect(api.threadProps.bookmarksAvailable).toBe(false);
+    api.bookmarks.mockResolvedValueOnce({
+      channel_id: channelA,
+      message_ids: [pinnedMessage().id],
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reload Bookmarks" }));
+    await waitFor(() =>
+      expect(screen.getByText("Recorded current message").getAttribute("data-bookmark")).toBe(
+        "true",
+      ),
+    );
+    expect(api.threadProps.bookmarksAvailable).toBe(true);
+  });
+  it("hides previously successful bookmark state after failed refresh", async () => {
+    api.messages.mockResolvedValue({
+      messages: [pinnedMessage(1, channelA, { body: "Current saved message", pinned: false })],
+    });
+    api.bookmarks.mockResolvedValueOnce({
+      channel_id: channelA,
+      message_ids: [pinnedMessage().id],
+    });
+    await conversations();
+    await waitFor(() =>
+      expect(screen.getByText("Current saved message").getAttribute("data-bookmark")).toBe("true"),
+    );
+    api.bookmarks.mockRejectedValueOnce(new Error("denied"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh Bookmarks" }));
+    await waitFor(() =>
+      expect(screen.getByText("Current saved message").getAttribute("data-bookmark")).toBe("null"),
+    );
+  });
+  it.each([
+    { channel_id: channelB, message_ids: [] },
+    { channel_id: channelA, message_ids: ["bad"] },
+    { channel_id: channelA, message_ids: [messageA, messageA] },
+  ])("rejects wrong/invalid/duplicate bookmark results %j", async (result) => {
+    api.bookmarks.mockResolvedValueOnce(result);
+    await conversations();
+    await screen.findByRole("button", { name: "Reload Bookmarks" });
+    expect(api.threadProps.bookmarksAvailable).toBe(false);
+  });
+  it("ignores late pins from a previous channel", async () => {
+    const old = deferred();
+    api.pins.mockReturnValueOnce(old.promise);
+    await conversations();
+    selectBeta();
+    await waitFor(() =>
+      expect(api.pins).toHaveBeenCalledWith({
+        data: { channel_id: channelB, expected_viewer_id: "viewer-a" },
+      }),
+    );
+    await act(async () =>
+      old.resolve({
+        channel_id: channelA,
+        pinned: [pinnedMessage(1, channelA, { body: "Old pin" })],
+      }),
+    );
+    expect(screen.queryByText("Old pin")).toBeNull();
+  });
+  it("ignores late bookmark state from a previous account", async () => {
+    const old = deferred();
+    api.bookmarks.mockReturnValueOnce(old.promise);
+    const view = await conversations();
+    api.channels.mockResolvedValue({ channels: [conversationChannels()[1]] });
+    api.viewer = "viewer-b";
+    view.refresh();
+    await waitFor(() =>
+      expect(api.bookmarks).toHaveBeenCalledWith({
+        data: { channel_id: channelB, expected_viewer_id: "viewer-b" },
+      }),
+    );
+    await waitFor(() => expect(api.threadProps.bookmarksAvailable).toBe(true));
+    await act(async () => old.resolve({ channel_id: channelA, message_ids: [messageA] }));
+    expect(api.threadProps.channelId).toBe(channelB);
+    expect(api.threadProps.bookmarkedIds.has(messageA)).toBe(false);
   });
 });

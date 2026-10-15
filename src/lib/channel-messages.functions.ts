@@ -1,4 +1,4 @@
-import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
+import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
 // Transition Channel — message capabilities (Slice C).
 //
 // Threads, edit/delete, pin, bookmark, and attachments. All reads and writes
@@ -7,7 +7,8 @@ import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 // gate write intent (author vs. admin).
 
 import { z } from "zod";
-import { readReportBatches } from "./report-query-pages";
+import { channelMessageReadSchema } from "./channel-message-read-contract";
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ChannelMessage } from "@/lib/channels.functions";
@@ -299,42 +300,64 @@ export const setMessagePinned = createServerFn({ method: "POST" })
 
 export const listPinnedMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { channel_id: string }) => z.object({ channel_id: uuid }).parse(input))
+  .validator((input: { channel_id: string; expected_viewer_id?: string }) =>
+    z.object({ channel_id: uuid, ...viewerIntentSchema.shape }).parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
-    const { data: rows, error } = await supabase
-      .from("channel_messages")
-      .select(
-        "id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at",
-      )
-      .eq("channel_id", data.channel_id)
-      .eq("pinned", true)
-      .is("deleted_at", null)
-      .order("pinned_at", { ascending: false })
-      .limit(20);
-    if (error) throw new Error(error.message);
-
-    const authorIds = Array.from(
-      new Set((rows ?? []).map((r) => r.author_id).filter((v): v is string => !!v)),
+    const rows = await readReportPages((from, to) =>
+      supabase
+        .from("channel_messages")
+        .select(
+          "id, channel_id, author_id, parent_id, body, pinned, edited_at, deleted_at, created_at",
+          { count: "exact" },
+        )
+        .eq("channel_id", data.channel_id)
+        .eq("pinned", true)
+        .is("deleted_at", null)
+        .order("pinned_at", { ascending: false })
+        .order("id")
+        .range(from, to),
     );
-    const nameMap = new Map<string, string>();
-    if (authorIds.length > 0) {
-      const { data: profs } = await supabase
+    const messages = z.array(channelMessageReadSchema.omit({ author_name: true })).parse(rows);
+    if (
+      new Set(messages.map((m) => m.id)).size !== messages.length ||
+      messages.some((m) => m.channel_id !== data.channel_id || !m.pinned || m.deleted_at !== null)
+    )
+      throw new Error("Pinned messages are unavailable. Reload pinned messages.");
+    const authorIds = [...new Set(messages.flatMap((m) => (m.author_id ? [m.author_id] : [])))];
+    const profiles = await readReportBatches(authorIds, (ids, from, to) =>
+      supabase
         .from("profiles")
-        .select("id, full_name, preferred_name")
-        .in("id", authorIds);
-      (profs ?? []).forEach((p) =>
-        nameMap.set(p.id, (p.preferred_name || p.full_name || "").trim() || "Member"),
-      );
-    }
-
-    return {
-      pinned: (rows ?? []).map(
-        (r): ChannelMessage => ({
-          ...(r as ChannelMessage),
-          author_name: r.author_id ? (nameMap.get(r.author_id) ?? "Member") : null,
+        .select("id, full_name, preferred_name", { count: "exact" })
+        .in("id", ids)
+        .order("id")
+        .range(from, to),
+    );
+    const parsedProfiles = z
+      .array(
+        z.object({
+          id: z.string().min(1),
+          full_name: z.string().nullable(),
+          preferred_name: z.string().nullable(),
         }),
-      ),
+      )
+      .parse(profiles);
+    if (
+      new Set(parsedProfiles.map((p) => p.id)).size !== parsedProfiles.length ||
+      parsedProfiles.some((p) => !authorIds.includes(p.id))
+    )
+      throw new Error("Pinned author details are unavailable.");
+    const names = new Map(
+      parsedProfiles.map((p) => [p.id, (p.preferred_name || p.full_name || "").trim() || "Member"]),
+    );
+    return {
+      channel_id: data.channel_id,
+      pinned: messages.map((m) => ({
+        ...m,
+        author_name: m.author_id ? (names.get(m.author_id) ?? "Member") : null,
+      })),
     };
   });
 
@@ -410,50 +433,119 @@ export const toggleBookmark = createServerFn({ method: "POST" })
     return { bookmarked: true };
   });
 
+const bookmarkIdentitySchema = z.object({
+  id: uuid,
+  user_id: z.string().min(1),
+  channel_id: uuid,
+  message_id: uuid,
+});
+function related<T>(value: T | T[] | null): T {
+  if (Array.isArray(value)) {
+    if (value.length !== 1) throw new Error("Bookmark source is unavailable.");
+    return value[0];
+  }
+  if (!value) throw new Error("Bookmark source is unavailable.");
+  return value;
+}
 export const listMyBookmarks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data ?? {}, context.userId);
     const { supabase, userId } = context;
-    const { data: rows, error } = await supabase
-      .from("channel_bookmarks")
-      .select(
-        "id, channel_id, message_id, note, created_at, channel_messages!inner(body, author_id, created_at), channels!inner(title)",
+    const rows = await readReportPages((from, to) =>
+      supabase
+        .from("channel_bookmarks")
+        .select(
+          "id,user_id,channel_id,message_id,note,created_at,channel_messages!inner(id,channel_id,body,author_id,created_at,deleted_at),channels!inner(id,title)",
+          { count: "exact" },
+        )
+        .eq("user_id", userId)
+        .is("channel_messages.deleted_at", null)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    );
+    const identities = z.array(bookmarkIdentitySchema).parse(rows);
+    if (
+      new Set(identities.map((r) => r.id)).size !== rows.length ||
+      new Set(identities.map((r) => r.message_id)).size !== rows.length
+    )
+      throw new Error("Bookmarks changed while loading. Reload bookmarks.");
+    const bookmarks: ChannelBookmark[] = rows.map((r) => {
+      const m = related(r.channel_messages),
+        c = related(r.channels);
+      if (
+        r.user_id !== userId ||
+        m.id !== r.message_id ||
+        m.channel_id !== r.channel_id ||
+        m.deleted_at !== null ||
+        c.id !== r.channel_id
       )
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (error) throw new Error(error.message);
-
-    const bookmarks: ChannelBookmark[] = (rows ?? []).map((r) => {
-      const m = Array.isArray(r.channel_messages) ? r.channel_messages[0] : r.channel_messages;
-      const c = Array.isArray(r.channels) ? r.channels[0] : r.channels;
-      return {
-        id: r.id,
-        channel_id: r.channel_id,
-        message_id: r.message_id,
-        note: r.note,
-        created_at: r.created_at,
-        message_body: m?.body ?? "",
-        message_author_id: m?.author_id ?? null,
-        message_created_at: m?.created_at ?? r.created_at,
-        channel_title: c?.title ?? "Channel",
-      };
+        throw new Error("Bookmark source is unavailable.");
+      const result = z
+        .object({
+          note: z.string().nullable(),
+          created_at: z.string().datetime({ offset: true }),
+          message_body: z.string(),
+          message_author_id: z.string().min(1).nullable(),
+          message_created_at: z.string().datetime({ offset: true }),
+          channel_title: z.string(),
+        })
+        .parse({
+          note: r.note,
+          created_at: r.created_at,
+          message_body: m.body,
+          message_author_id: m.author_id,
+          message_created_at: m.created_at,
+          channel_title: c.title,
+        });
+      return { id: r.id, channel_id: r.channel_id, message_id: r.message_id, ...result };
     });
     return { bookmarks };
   });
 
 export const listChannelBookmarkIds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { channel_id: string }) => z.object({ channel_id: uuid }).parse(input))
+  .validator((input: { channel_id: string; expected_viewer_id?: string }) =>
+    z.object({ channel_id: uuid, ...viewerIntentSchema.shape }).parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
-    const { data: rows, error } = await supabase
-      .from("channel_bookmarks")
-      .select("message_id")
-      .eq("user_id", userId)
-      .eq("channel_id", data.channel_id);
-    if (error) throw new Error(error.message);
-    return { message_ids: (rows ?? []).map((r) => r.message_id) };
+    const rows = await readReportPages((from, to) =>
+      supabase
+        .from("channel_bookmarks")
+        .select(
+          "id,user_id,channel_id,message_id,channel_messages!inner(id,channel_id,deleted_at),channels!inner(id)",
+          { count: "exact" },
+        )
+        .eq("user_id", userId)
+        .eq("channel_id", data.channel_id)
+        .is("channel_messages.deleted_at", null)
+        .order("id")
+        .range(from, to),
+    );
+    const identities = z.array(bookmarkIdentitySchema).parse(rows);
+    if (
+      new Set(identities.map((r) => r.id)).size !== rows.length ||
+      new Set(identities.map((r) => r.message_id)).size !== rows.length
+    )
+      throw new Error("Bookmarks changed while loading. Reload bookmarks.");
+    for (const r of rows) {
+      const m = related(r.channel_messages),
+        c = related(r.channels);
+      if (
+        r.user_id !== userId ||
+        r.channel_id !== data.channel_id ||
+        m.id !== r.message_id ||
+        m.channel_id !== data.channel_id ||
+        m.deleted_at !== null ||
+        c.id !== data.channel_id
+      )
+        throw new Error("Bookmarks are unavailable. Reload bookmarks.");
+    }
+    return { channel_id: data.channel_id, message_ids: rows.map((r) => r.message_id) };
   });
 
 // ─── Attachments ───────────────────────────────────────────────────────────

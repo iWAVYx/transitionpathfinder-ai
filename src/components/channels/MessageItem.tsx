@@ -12,6 +12,7 @@ import {
   Reply,
   Bookmark,
   BookmarkCheck,
+  CircleHelp,
   Pencil,
   Trash2,
   Paperclip,
@@ -54,7 +55,7 @@ export type MessageItemProps = {
   m: ChannelMessage;
   currentUserId: string | null;
   isAdmin: boolean;
-  bookmarked: boolean;
+  bookmarked: boolean | null;
   attachments: ChannelAttachment[];
   replyCount?: number;
   onReply: (parent: ChannelMessage) => void;
@@ -134,7 +135,8 @@ function MessageSession({
         !scope.isCurrent() ||
         !eligible ||
         m.deleted_at ||
-        (readOnly && request.kind !== "bookmark")
+        (readOnly && request.kind !== "bookmark") ||
+        (request.kind === "bookmark" && bookmarked === null)
       )
         throw new Error("Message changed.");
       const intent = {
@@ -184,7 +186,8 @@ function MessageSession({
       m.deleted_at ||
       ((request.kind === "edit" || request.kind === "delete") && m.author_id !== scope.viewerId) ||
       (request.kind === "pin" && !isAdmin) ||
-      (readOnly && request.kind !== "bookmark")
+      (readOnly && request.kind !== "bookmark") ||
+      (request.kind === "bookmark" && bookmarked === null)
     )
       return;
     pending.current = true;
@@ -304,16 +307,30 @@ function MessageSession({
             size="icon"
             variant="ghost"
             className="h-6 w-6"
-            title={bookmarked ? "Remove bookmark" : "Bookmark"}
+            title={
+              bookmarked === null
+                ? "Bookmarks unavailable"
+                : bookmarked
+                  ? "Remove bookmark"
+                  : "Bookmark"
+            }
             onClick={() => run({ kind: "bookmark", bookmarked: !bookmarked })}
-            disabled={action.isPending || !eligible}
+            disabled={action.isPending || !eligible || bookmarked === null}
           >
-            {bookmarked ? (
+            {bookmarked === null ? (
+              <CircleHelp className="h-3.5 w-3.5" />
+            ) : bookmarked ? (
               <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
             ) : (
               <Bookmark className="h-3.5 w-3.5" />
             )}
-            <span className="sr-only">Bookmark</span>
+            <span className="sr-only">
+              {bookmarked === null
+                ? "Bookmarks unavailable"
+                : bookmarked
+                  ? "Remove bookmark"
+                  : "Bookmark"}
+            </span>
           </Button>
           {isAdmin && (
             <Button
