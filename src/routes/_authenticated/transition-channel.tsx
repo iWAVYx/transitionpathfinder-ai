@@ -1152,24 +1152,21 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
   return (
     <>
       <StartStudentConversation
-        onCreated={(channelId) => {
-          if (!workspace.isWorkspaceCurrent()) return;
+        key={activeId ?? "no-conversation"}
+        onCreated={async (channelId) => {
+          if (!view.isCurrent()) throw new Error("Conversation view changed.");
+          await navigate({
+            to: "/transition-channel",
+            search: {
+              ...search, tab: "channels", channel: channelId,
+              unread: "all", archived: "active", student: undefined,
+              type: undefined, org: undefined, opportunity: undefined,
+            },
+          });
+          if (!view.isCurrent()) throw new Error("Conversation view changed.");
           setActiveId(channelId);
           setThreadParentId(null);
           setPromoteMessage(null);
-          navigate({
-            to: "/transition-channel",
-            search: {
-              ...search,
-              tab: "channels",
-              unread: "all",
-              archived: "active",
-              student: undefined,
-              type: undefined,
-              org: undefined,
-              opportunity: undefined,
-            },
-          });
         }}
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[280px_1fr]">

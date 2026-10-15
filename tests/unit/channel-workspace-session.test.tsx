@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({
   viewer: "viewer-a" as string | null,
+  startCreated: null as null | ((id: string) => Promise<void>),
   loading: false,
   roles: vi.fn(),
   owner: vi.fn(),
@@ -110,7 +111,7 @@ vi.mock("@/components/channels/MessageItem", () => ({
 vi.mock("@/components/channels/ThreadPanel", () => ({ ThreadPanel: () => null }));
 vi.mock("@/components/channels/PromoteRecordDialog", () => ({ PromoteRecordDialog: () => null }));
 vi.mock("@/components/channels/StartStudentConversation", () => ({
-  StartStudentConversation: () => null,
+  StartStudentConversation: ({ onCreated }: any) => { api.startCreated = onCreated; return null; },
 }));
 vi.mock("@/components/channels/ChannelMuteToggle", () => ({ ChannelMuteToggle: () => null }));
 vi.mock("@/components/channels/ConnectionRequestsDrawer", () => ({
@@ -196,6 +197,7 @@ afterEach(() => {
   clients.length = 0;
 });
 beforeEach(() => {
+  api.startCreated = null;
   vi.clearAllMocks();
   for (const fn of [
     api.roles,
@@ -1154,5 +1156,29 @@ describe("actual connection-role entry and exact-channel handoff", () => {
         search: expect.objectContaining({ tab: "channels", channel: channelB }),
       }),
     );
+  });
+});
+
+describe("new conversation route handoff", () => {
+  it.each(["parent", "student", "educator", "school_admin", "district_admin", "partner"])("opens an exact created channel for eligible %s entry", async role => {
+    api.roles.mockResolvedValue({roles:[role]});
+    await conversations();
+    expect(api.startCreated).toBeTypeOf("function");
+    await act(async()=>{await api.startCreated!(channelB);});
+    expect(api.navigate).toHaveBeenCalledWith({to:"/transition-channel",search:expect.objectContaining({tab:"channels",channel:channelB,unread:"all",archived:"active",student:undefined,type:undefined,org:undefined,opportunity:undefined})});
+  });
+  it("propagates navigation failure to saved-state recovery", async()=>{
+    await conversations();api.navigate.mockRejectedValueOnce(new Error("route failed"));
+    await expect(api.startCreated!(channelB)).rejects.toThrow("route failed");
+  });
+  it("cannot navigate from a departed account callback",async()=>{
+    const view=await conversations(), callback=api.startCreated!;
+    api.viewer="viewer-b";view.refresh();
+    await expect(callback(channelB)).rejects.toThrow("Conversation view changed.");
+    expect(api.navigate).not.toHaveBeenCalledWith(expect.objectContaining({search:expect.objectContaining({channel:channelB})}));
+  });
+  it("does not mount the start form for a platform Owner",async()=>{
+    api.owner.mockResolvedValue({isPlatformAdmin:true});api.search.tab="channels";mount();
+    await waitFor(()=>expect(api.navigate).toHaveBeenCalledWith({to:"/owner",replace:true}));expect(api.startCreated).toBeNull();
   });
 });
