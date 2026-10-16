@@ -1,5 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
+## Single Dashboard Return — Local Follow-Up, October 16, 2026
+
+- [x] Human-approved `c72ef6d3` deployed through run `38950222560`; exact Cloudflare staging fingerprint `2fc6c5ee…fd0612` /1,172 files, isolated backend, sandbox payments, isolation and PWA verified. Existing signed-in Family Next Actions widget and full tool now load truthful empty states, with successful dashboard return. Isolated Lovable source synced as `e84bfb53`; private preview update requested but its new identity remains unverified. Production protected main is unchanged.
+- [x] Implement one dashboard return per page locally: SiteShell owns the shared role-aware return, page-level BackToDashboard and dashboard-target FeatureShell/locked-state controls defer to it. Remove manual Caseload/Partner home duplicates and the repeated bottom return on shared demo feature pages. Distinct returns to reports/tools remain; standalone and Owner shells retain their local links. Preserve demo role/context destinations and the Owner Hub home.
+- [x] Local validation: 288 unit files /4,136 tests pass, including ten new cross-role/shared-shell return checks; TypeScript and diff checks pass. The first full test launch used Bun directly and hit incompatible module-loading errors; the normal Node-based suite passed. No provider calls or application record writes.
+- [ ] Complete exact-source review for this navigation change before a separate staging release; do not describe it as deployed. Other actual-role hosted acceptance, private Lovable identity, regeneration summary-field adaptation and shadow report-field findings remain open. Full TF-01–TF-26, six milestones and deferred Parent Pilot scope remain unchanged.
+
 ## Current Follow-Up — Schema-Backed Action Reads, October 16, 2026
 
 This entry supersedes earlier dated deployment statuses only where stated. TF-01–TF-26 and the six milestone register remain the scope of record.

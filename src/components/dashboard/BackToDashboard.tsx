@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { DashboardReturnContext, isDashboardHomeDestination } from "./dashboard-return-context";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -24,7 +26,9 @@ type BackToDashboardProps = {
  *   3. The guarded "/dashboard" entry if workspace lookup is unavailable.
  */
 export function BackToDashboard({ to, label, className }: BackToDashboardProps) {
+  const headerOwnsReturn = useContext(DashboardReturnContext);
   const { user, loading } = useAuth();
+  if (headerOwnsReturn && (!to || isDashboardHomeDestination(to))) return null;
   const viewerId = !loading && user ? user.id : null;
   return (
     <WorkspaceReturnLink

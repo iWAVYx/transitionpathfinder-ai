@@ -7,10 +7,12 @@ const mocks = vi.hoisted(() => ({
   assurance: vi.fn(),
   user: { id: "synthetic-owner" } as { id: string } | null,
   loading: false,
+  pathname: "/calendar",
 }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({
-  useLocation: () => ({ pathname: "/calendar", searchStr: "" }),
+  useLocation: () => ({ pathname: mocks.pathname, searchStr: "" }),
+  Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a>,
 }));
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => ({ user: mocks.user, loading: mocks.loading, signOut: vi.fn() }),
@@ -29,12 +31,18 @@ vi.mock("@/components/site/SmartLink", () => ({
     </a>
   ),
 }));
+vi.mock("@/components/site/SiteFooter", () => ({ SiteFooter: () => null }));
+import { SiteShell } from "../../src/components/site/SiteShell";
+import { BackToDashboard } from "../../src/components/dashboard/BackToDashboard";
+import { FeatureShell } from "../../src/components/feature/FeatureShell";
+import { LockedFeature } from "../../src/components/LockedFeature";
 import { SiteHeader } from "../../src/components/site/SiteHeader";
 afterEach(cleanup);
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.user = { id: "synthetic-owner" };
   mocks.loading = false;
+  mocks.pathname = "/calendar";
   mocks.assurance.mockResolvedValue({ data: { currentLevel: "aal1", nextLevel: "aal1" } });
 });
 describe("shared header workspace identity", () => {
@@ -173,4 +181,49 @@ describe("header session and assurance boundaries", () => {
       expect(screen.queryByRole("link", { name: "Back to Educator Dashboard" })).toBeNull();
     },
   );
+});
+
+
+describe("one dashboard return per shared page", () => {
+  it.each([
+    ["student", false, "Dashboard", "/dashboard"],
+    ["parent", false, "Dashboard", "/dashboard"],
+    ["teacher", false, "Educator Dashboard", "/caseload"],
+    ["school_admin", false, "School Dashboard", "/school/overview"],
+    ["district_admin", false, "District Dashboard", "/district/overview"],
+    ["partner", false, "Partner Dashboard", "/partners-manage"],
+    ["parent", true, "Owner Hub", "/owner"],
+  ])("keeps one correct return for %s / owner %s", async (role, owner, label, to) => {
+    mocks.roles.mockResolvedValue({ roles: [role] });
+    mocks.owner.mockResolvedValue({ isPlatformAdmin: owner });
+    render(<SiteShell><BackToDashboard /><p>Tool content</p></SiteShell>);
+    const link = await screen.findByRole("link", { name: `Back to ${label}` });
+    expect(link.getAttribute("href")).toBe(to);
+    expect(screen.getAllByRole("link", { name: /^Back to / })).toHaveLength(1);
+  });
+  it("keeps FeatureShell and locked states from adding duplicate home returns", async () => {
+    mocks.roles.mockResolvedValue({ roles: ["parent"] });
+    mocks.owner.mockResolvedValue({ isPlatformAdmin: false });
+    render(<FeatureShell title="Tool" backTo={{to:"/dashboard",label:"Back to Dashboard"}}>
+      <LockedFeature title="Unavailable" description="Try again later" />
+    </FeatureShell>);
+    await screen.findByRole("link", {name:"Back to Dashboard"});
+    expect(screen.getAllByRole("link", {name:/^Back to /})).toHaveLength(1);
+  });
+  it("preserves a distinct tool return alongside the dashboard return", async () => {
+    mocks.roles.mockResolvedValue({ roles: ["parent"] });
+    mocks.owner.mockResolvedValue({ isPlatformAdmin: false });
+    render(<FeatureShell title="Report" backTo={{to:"/reports",label:"Back to Reports"}}><p>Report</p></FeatureShell>);
+    await screen.findByRole("link", {name:"Back to Dashboard"});
+    expect(screen.getByRole("link", {name:"Back to Reports"}).getAttribute("href")).toBe("/reports");
+  });
+  it("retains a local demo return without a signed-in dashboard strip", async () => {
+    mocks.pathname = "/demo/tools/calendar";
+    mocks.roles.mockResolvedValue({ roles: ["parent"] });
+    mocks.owner.mockResolvedValue({ isPlatformAdmin: false });
+    render(<SiteShell><BackToDashboard to="/demo/dashboard" label="Back to Demo Dashboard" /></SiteShell>);
+    await act(async () => {});
+    expect(screen.getAllByRole("link", {name:/^Back to /})).toHaveLength(1);
+    expect(screen.getByRole("link", {name:"Back to Demo Dashboard"}).getAttribute("href")).toBe("/demo/dashboard");
+  });
 });
