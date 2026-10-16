@@ -1,3 +1,5 @@
+import { toRegenerationStudentProfile } from "../../src/lib/pathway-student-profile";
+import actionReadSchema from "../fixtures/action-read-schema.json";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ generate: vi.fn(), entitlement: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
@@ -14,7 +16,8 @@ import { readSectionUpdates, recordGeneratedSections, previousReportWriteId } fr
 import { richerSharedFixture } from "../fixtures/shared-report";
 const id = "11111111-1111-4111-8111-111111111111", studentId = "22222222-2222-4222-8222-222222222222";
 const oldDate = "2026-10-01T12:00:00.000Z", now = "2026-10-12T18:00:00.000Z";
-function database(content: unknown, owner = "owner", failure?: "snapshot" | "update" | "conflict" | "missing" | "throw") {
+const studentProfile: Parameters<typeof toRegenerationStudentProfile>[0] = { id: studentId, first_name: "Fictional", last_name: null, grade_band: "9-12", interests_summary: "Art", strengths_summary: "Observation", support_needs_summary: null };
+function database(content: unknown, owner = "owner", failure?: "snapshot" | "update" | "conflict" | "missing" | "throw", profile: typeof studentProfile | null = studentProfile, studentError: unknown = null) {
   const requests: any[] = [], queries: any[] = [];
   const supabase = {
     rpc: vi.fn(async (_name: string, args: any) => {
@@ -24,9 +27,14 @@ function database(content: unknown, owner = "owner", failure?: "snapshot" | "upd
     }),
     from: vi.fn((table: string) => {
       const read = table === "pathway_reports" ? { id, user_id: owner, student_id: studentId, intake_id: null, content }
-        : table === "students" ? { id: studentId, first_name: "Fictional", interests: ["Art"], strengths: ["Observation"], needs: [] } : [];
-      const result = { data: read, error: null };
-      const q: any = { select: vi.fn(() => q), eq: vi.fn(() => q), order: vi.fn(() => q), limit: vi.fn(() => q), maybeSingle: vi.fn(async () => result),
+        : table === "students" ? profile : [];
+      const result = { data: read, error: table === "students" ? studentError : null };
+      const q: any = { select: vi.fn((columns: string) => {
+        if (table === "students") for (const column of columns.split(",").map(c => c.trim())) {
+          if (!actionReadSchema.students.includes(column)) throw new Error(`Unknown student column: ${column}`);
+        }
+        return q;
+      }), eq: vi.fn(() => q), order: vi.fn(() => q), limit: vi.fn(() => q), maybeSingle: vi.fn(async () => result),
         insert: vi.fn(() => { throw new Error("Split snapshot insert forbidden"); }),
         update: vi.fn(() => { throw new Error("Split content update forbidden"); }),
         then: (resolve: any, reject: any) => Promise.resolve(result).then(resolve, reject),
@@ -178,4 +186,32 @@ it.each(["40001", "PGRST202", "transport"])("actual SDK %s failure stops after o
   await expect(attempt).rejects.toThrow(failure === "40001" ? "Reload it before trying again." : "Could not save the report.");
   expect(attempts).toEqual(["GET /rest/v1/pathway_reports", "POST /rest/v1/rpc/save_pathway_report_content_atomic"]);
   expect(mocks.generate).not.toHaveBeenCalled();
+});
+
+
+it("regeneration uses real summary columns and preserves the complete recorded profile in its prompt", async () => {
+  const paragraph = "Uses written steps, then practice; do not interpret this as separate skills.\n".repeat(32).trim();
+  const profile = { ...studentProfile, interests_summary: paragraph, strengths_summary: "Observes carefully; asks questions", support_needs_summary: "Written steps, with time to practice" };
+  const db = database(richerSharedFixture(), "owner", undefined, profile);
+  await (regeneratePathwayReport as any)({ context: db.context, data: {report_id:id} });
+  const query = db.queries.find(x => x.table === "students").q;
+  expect(query.eq).toHaveBeenCalledWith("id", studentId);
+  const columns = query.select.mock.calls[0][0].split(",").map((v: string) => v.trim());
+  expect(columns).toEqual(["id", "first_name", "last_name", "grade_band", "interests_summary", "strengths_summary", "support_needs_summary"]);
+  expect(mocks.generate).toHaveBeenCalledTimes(1);
+  const prompt = mocks.generate.mock.calls[0][0].prompt;
+  expect(prompt).toContain(JSON.stringify([paragraph]));
+  expect(prompt).toContain(profile.strengths_summary);
+  expect(prompt).toContain(profile.support_needs_summary);
+});
+it.each([null, { code:"42501", message:"Private diagnostic detail" }])("regeneration stops before provider and history writes for unavailable profile %#", async error => {
+  const db = database({}, "owner", undefined, error ? studentProfile : null, error);
+  await expect((regeneratePathwayReport as any)({context:db.context,data:{report_id:id}})).rejects.toThrow("Couldn't load the linked student.");
+  expect(mocks.generate).not.toHaveBeenCalled();
+  expect(db.context.supabase.rpc).not.toHaveBeenCalled();
+});
+
+it.each([null, "", "   "])("does not invent profile inputs from missing summaries %j", summary => {
+  const result = toRegenerationStudentProfile({ ...studentProfile, interests_summary: summary, strengths_summary: summary, support_needs_summary: summary });
+  expect(result).toEqual({ id: studentId, first_name: "Fictional", last_name: null, grade_band: "9-12", interests: null, strengths: null, needs: null });
 });

@@ -1,3 +1,4 @@
+import { loadRegenerationStudentProfile } from "./pathway-student-profile";
 import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
 import { writeReportContent } from "./report-content-write.server";
 import { recordGeneratedSections, recordSavedSections } from "./report-section-updates";
@@ -515,6 +516,8 @@ type V2Ctx = {
 
 function buildV2Prompt(ctx: V2Ctx): string {
   const s = ctx.student;
+  const profileSummary = (value: string[] | null) =>
+    value?.length ? JSON.stringify(value) : "(none)";
   const safe = (v: unknown) =>
     v === null || v === undefined ? "(none)" : JSON.stringify(v).slice(0, 1600);
   return `You are TransitionForward, generating the v2 Pathway Report — the platform's flagship deliverable.
@@ -558,9 +561,9 @@ Do NOT populate 'change_summary' — the server fills it from the input-manifest
 STUDENT
 First name: ${s.first_name}
 Grade band: ${s.grade_band ?? "(unknown)"}
-Interests (profile): ${safe(s.interests)}
-Strengths (profile): ${safe(s.strengths)}
-Needs (profile): ${safe(s.needs)}
+Interests (profile): ${profileSummary(s.interests)}
+Strengths (profile): ${profileSummary(s.strengths)}
+Needs (profile): ${profileSummary(s.needs)}
 
 STUDENT VOICE (the student's own words)
 ${ctx.voice.length === 0 ? "(no responses on file)" : ctx.voice.map((v) => `- [${v.prompt_key}] ${v.response_text}`).join("\n")}
@@ -636,9 +639,9 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         "Link this report to a student first — then regenerate to pull their full profile.",
       );
 
-    // Gather inputs (RLS scopes everything to the caller; failures are tolerated per-table)
+    // Gather caller-visible inputs. The linked profile is required; optional tables retain existing recovery.
     const [
-      studentRes,
+      studentProfile,
       intakeRes,
       voiceRes,
       goalsRes,
@@ -653,11 +656,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       prepsRes,
       evidenceRes,
     ] = await Promise.all([
-      supabase
-        .from("students")
-        .select("id, first_name, last_name, grade_band, interests, strengths, needs")
-        .eq("id", rep.student_id)
-        .maybeSingle(),
+      loadRegenerationStudentProfile(supabase, rep.student_id),
       rep.intake_id
         ? supabase.from("student_intakes").select("*").eq("id", rep.intake_id).maybeSingle()
         : Promise.resolve({ data: null, error: null }),
@@ -721,16 +720,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         .limit(200),
     ]);
 
-    const student = studentRes.data as V2Ctx["student"] | null;
-    if (!student) throw new Error("Couldn't load the linked student.");
-
     const ctx: V2Ctx = {
-      student: {
-        ...student,
-        interests: (student.interests as unknown as string[] | null) ?? null,
-        strengths: (student.strengths as unknown as string[] | null) ?? null,
-        needs: (student.needs as unknown as string[] | null) ?? null,
-      },
+      student: studentProfile,
       intake: (intakeRes.data as Record<string, unknown> | null) ?? null,
       voice: (voiceRes.data as Array<{ prompt_key: string; response_text: string }> | null) ?? [],
       goals:
