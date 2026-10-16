@@ -210,7 +210,10 @@ it.each(["school", "district"] as const)(
     const router = await open(scope, `/${scope}/overview`, { [key]: "bad" }, { guard: true });
     await screen.findByText("This Saved Link Needs Updating");
     const initialChecks = api.roles.mock.calls.length;
-    expect(initialChecks).toBeGreaterThan(0);
+    // Patched Router rejects malformed search before this route's beforeLoad.
+    // The recovery shell must remain data-free; repaired navigation still authorizes.
+    expect(api.read).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Scoped Reader Ready/)).toBeNull();
     api.roles.mockResolvedValue({ roles: ["student"] });
     fireEvent.click(screen.getByRole("button", { name: "Clear Invalid Selections" }));
     await screen.findByText("Permitted Dashboard");
@@ -226,8 +229,13 @@ it.each(["school", "district"] as const)(
     api.roles.mockResolvedValue({ roles: ["student"] });
     const key = scope === "school" ? "org_id" : "district_id";
     const router = await open(scope, `/${scope}/overview`, { [key]: "bad" }, { guard: true });
+    await screen.findByText("This Saved Link Needs Updating");
+    expect(api.read).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Scoped Reader Ready/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Clear Invalid Selections" }));
     await screen.findByText("Permitted Dashboard");
     expect(router.state.location.pathname).toBe("/dashboard");
+    expect(api.roles).toHaveBeenCalled();
     expect(api.read).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Clear Invalid Selections" })).toBeNull();
   },

@@ -46,13 +46,15 @@ import { useDemoSchool, useDemoDistrict, useDemoPartnerPlan } from "@/lib/demo/u
  * and layers in the same signed-in module component where one
  * exists so the demo behaves like the real product.
  */
+function loadDemoFeature({ params }: { params: { role: string; slug: string } }) {
+  if (!isDemoRole(params.role)) throw notFound();
+  const detail = getDemoFeature(params.role, params.slug);
+  if (!detail) throw notFound();
+  return { role: params.role, slug: params.slug };
+}
+
 export const Route = createFileRoute("/demo_/feature/$role/$slug")({
-  loader: ({ params }) => {
-    if (!isDemoRole(params.role)) throw notFound();
-    const detail = getDemoFeature(params.role, params.slug);
-    if (!detail) throw notFound();
-    return { role: params.role, slug: params.slug };
-  },
+  loader: loadDemoFeature,
   head: ({ loaderData, params }) => {
     const detail = loaderData ? getDemoFeature(loaderData.role, loaderData.slug) : null;
     const title = detail
