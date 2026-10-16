@@ -124,7 +124,7 @@ ${JSON.stringify(prepared.texts)}
     try {
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
-        system,
+        system: await buildStructuredOutputSystem(ReportTranslationOutputSchema, system),
         experimental_output: Output.object({ schema: ReportTranslationOutputSchema }),
         prompt,
       });

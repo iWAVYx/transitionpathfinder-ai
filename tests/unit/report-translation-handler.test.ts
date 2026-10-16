@@ -6,7 +6,11 @@ vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
     handler: (fn: (input: any) => unknown) => async (input: { data: unknown }) => fn({ data: validate(input.data) }) };
   return builder;
 } }));
-vi.mock("ai", () => ({ generateText: mocks.generate, Output: { object: ({ schema }: any) => schema } }));
+vi.mock("ai", async (original) => ({
+  ...await original<typeof import("ai")>(),
+  generateText: mocks.generate,
+  Output: { object: ({ schema }: any) => schema },
+}));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("../../src/lib/ai-gateway.server", () => ({ createLovableAiGatewayProvider: mocks.key }));
 import { translateReport } from "../../src/lib/ai-assist.functions";
@@ -28,6 +32,18 @@ it("sends numbered text items only and rebuilds a complete report from a mocked 
   expect(result.report.thirty_day_plan[0].week).toBe(1);
   expect(result.language).toBe("spanish");
   expect(mocks.generate).toHaveBeenCalledTimes(1);
+  const system = mocks.generate.mock.calls[0][0].system;
+  expect(system).toContain("Translate every supplied text item; retain its numeric id");
+  expect(system).toContain("Keep proper names, numbers, dates, citations and URLs");
+  expect(system).not.toContain(source.summary);
+  expect(system).not.toContain("private-identifier");
+  const schema = JSON.parse(system.split("\n").at(-1));
+  expect(schema.required).toEqual(["translations"]);
+  expect(schema.properties.translations.maxItems).toBe(1500);
+  expect(schema.properties.translations.items.required).toEqual(["id", "text"]);
+  expect(schema.properties.translations.items.properties.id.minimum).toBe(0);
+  expect(schema.properties.translations.items.properties.text.minLength).toBe(1);
+  expect(schema.additionalProperties).toBe(false);
 });
 it("does not call or configure a provider for unsupported report content", async () => {
   await expect(call({ summary: "Incomplete report" })).rejects.toThrow("not ready for translation");
