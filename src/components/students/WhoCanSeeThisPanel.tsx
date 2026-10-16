@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import {
@@ -28,19 +30,30 @@ function fmtDate(iso: string | null) {
 }
 
 export function WhoCanSeeThisPanel({ studentId }: { studentId: string }) {
+  const { user, loading } = useAuth();
+  if (loading) return <p className="text-sm text-muted-foreground">Loading access…</p>;
+  if (!user) return <p className="text-sm text-muted-foreground">Sign in to view access information.</p>;
+  return <AccessOverviewReader key={`${user.id}:${studentId}`} studentId={studentId} viewerId={user.id} />;
+}
+
+function AccessOverviewReader({ studentId, viewerId }: { studentId: string; viewerId: string }) {
   const fetchOverview = useServerFn(getStudentAccessOverview);
   const [data, setData] = useState<AccessOverview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    fetchOverview({ data: { student_id: studentId } })
+    setData(null);
+    setFailed(false);
+    fetchOverview({ data: { student_id: studentId, expected_viewer_id: viewerId } })
       .then((r) => {
         if (active) setData(r);
       })
       .catch(() => {
-        if (active) setData({ collaborators: [], relationships: [], share_links: [] });
+        if (active) setFailed(true);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -48,7 +61,7 @@ export function WhoCanSeeThisPanel({ studentId }: { studentId: string }) {
     return () => {
       active = false;
     };
-  }, [studentId, fetchOverview]);
+  }, [studentId, viewerId, fetchOverview, attempt]);
 
   const total =
     (data?.collaborators.length ?? 0) +
@@ -65,13 +78,13 @@ export function WhoCanSeeThisPanel({ studentId }: { studentId: string }) {
           <div>
             <h2 className="text-lg font-semibold tracking-tight">Who Can See This?</h2>
             <p className="text-sm text-muted-foreground">
-              Everyone with access to this student right now — invited
-              teammates, approved family/case managers, and any active share
-              links.
+              Access records you can view for this student: accepted collaborators,
+              approved family or team connections, and active report links.
+              Other permissions may be managed separately.
             </p>
           </div>
         </div>
-        {!loading && (
+        {!loading && !failed && (
           <span className="rounded-full border border-border/60 px-2.5 py-1 text-xs font-medium text-muted-foreground">
             {total} {total === 1 ? "entry" : "entries"}
           </span>
@@ -80,6 +93,11 @@ export function WhoCanSeeThisPanel({ studentId }: { studentId: string }) {
 
       {loading ? (
         <p className="mt-4 text-sm text-muted-foreground">Loading access…</p>
+      ) : failed ? (
+        <div className="mt-4" role="alert">
+          <p className="text-sm">We couldn't load access information. Please try again.</p>
+          <Button className="mt-2" variant="outline" size="sm" onClick={() => setAttempt(value => value + 1)}>Try Again</Button>
+        </div>
       ) : (
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <AccessGroup
