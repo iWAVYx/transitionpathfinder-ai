@@ -1,5 +1,11 @@
 # TransitionForward — Readiness Roadmap
 
+## Staging Publication Synchronized — October 16, 2026
+
+- [x] User explicitly authorized publishing reviewed runtime `61a4761d` only to the existing isolated `gentle-forward-reach.lovable.app` staging site. Lovable confirmed the website update; external env-health now matches Cloudflare staging and the private preview: fingerprint `1821ebb06a3bcad519d620d2d1511b60c7b28e3898830bdb6377b7a0e484f4a9`, 1,174 files, staging labels/backend `qgrertkqbwanerqqemph`, sandbox public/server payments, managed AI configured and isolation true. No hand-entered commit identity. Existing visibility/access remained unchanged.
+- [x] Production protected source main remains `0ff2f1020a394301695295d9e93a2d0ad9eec41c`. The production Lovable project was not opened or modified. No AI invocation, application/report save, migration, payment transaction, permissions change or support/outreach occurred. Publication evidence is retained in `/private/tmp/tf211-release-candidate-61a4761d`.
+- [ ] Complete bounded real-provider and report save/reopen acceptance with separately authorized scope; configuration/identity success is not proof that every role/tool generates correctly. Current browser acceptance and remaining shadow adapter/schema work remain open. All TF-01–TF-26, six milestones and deferred Parent Pilot notes remain in scope.
+
 ## Verified Navigation Release and Regeneration Inputs — October 16, 2026
 
 - [x] Human-approved `2c4fd2c6` deployed to Cloudflare staging through run `38955422964`. Exact fingerprint `5ccd9746…278976` /1,173 files, isolated backend, sandbox payments, isolation and workflow PWA checks pass. Existing signed-in Family Next Actions loads a truthful empty state with exactly one Back to Dashboard link, which returns correctly. This is not actual-role acceptance for every other role.
