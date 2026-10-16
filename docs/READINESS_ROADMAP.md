@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## Current Follow-Up — Schema-Backed Action Reads, October 16, 2026
+
+This entry supersedes earlier dated deployment statuses only where stated. TF-01–TF-26 and the six milestone register remain the scope of record.
+
+- [x] Authorized `880ac7bb` deployed to Cloudflare staging through run `38945734221` after human review. Exact source/fingerprint/1,172 files, sandbox payments, isolation and PWA verified. Isolated Lovable source synced as `36aeb398`; environments and production main preserved. New private runtime remains unverified because the editor lost connection; no Publish or support request.
+- [x] Confirmed the Next Actions schema mismatch with a catalog-only SELECT on staging: `pathway_reports` has `report_status`, not `status` or `updated_at`. The five queried tables exist, RLS is enabled, and authenticated SELECT grants exist; this is not proof of every row-level permission. No application rows were read by this diagnostic query.
+- [x] Correct the shared personal action derivation to select only real report columns and filter the existing `draft` lifecycle state through `report_status`. Typed report projections and a catalog-derived schema fixture prevent permissive mocks from accepting invalid columns. Student, Family and Educator draft suggestions retain caller-visible student scope; Partner, organizational and Owner behavior is preserved.
+- [x] Apply existing bounded read/cancellation/manual retry behavior to the shared full action workspace, retaining role/student/viewer query keys and completion safeguards. Seven new cases cover the real-column lifecycle distinction and four personal-role full-tool timeout/retry/late-result recovery. All 288 unit files /4,126 checks, TypeScript and diff checks pass locally. This new correction is not yet deployed or live-data accepted.
+- [ ] Review and deploy this exact follow-up separately, then verify actual action reads under existing signed-in roles. Hosted save/export/provider/migration/production work remains separately bounded.
+- [ ] Resolve newly recorded related schema findings: regeneration in `src/lib/pathway.functions.ts` selects nonexistent student `interests`, `strengths`, `needs` instead of adapting recorded summary fields; `src/lib/pathway-shadow-run.functions.ts` and `src/lib/pathway-diff-shadow.functions.ts` select nonexistent report `recommendations`. Review input preservation and each adapter's activation before changing them. No generation, shadow run or flag change was performed.
+- [ ] Finish the existing Partner visibility-copy follow-up, other-role hosted acceptance, and Lovable private-runtime identity verification when connectivity returns. Parent Pilot / Pathway Report Snapshot remain deferred as requested.
+
 ## Current Staging and Local Follow-Up — October 16, 2026
 
 - [x] The authorized Cloudflare staging deployment of `1b737afabb95a5f28f7d51543d527515f1f50898` passed exact source, sandbox payment, isolation and PWA checks (run `38940796258`). The separate Lovable staging repository is synced at `eda57cc5`; environment files and production protected main are unchanged. No Publish or merge.

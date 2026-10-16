@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { NextActionCard } from "./NextActionCard";
 import { getNextActionsForMe, completeNextAction } from "@/lib/next-actions/next-actions.functions";
 
+import { readDashboardWidget } from "@/lib/dashboard/dashboard-widget-read";
+
 import type { NextActionContext } from "@/lib/next-actions/action-context";
 
 interface Props {
@@ -46,11 +48,14 @@ export function NextActionCardServer({ context, ...props }: Props) {
   const q = useQuery({
     queryKey: ["next-actions", "me", viewerId, context?.role, context?.student_id],
     enabled: !!viewerId && !loading,
-    queryFn: async () => {
-      const result = await fetchActions({ data: context ?? {} });
+    queryFn: ({ signal }) => readDashboardWidget(signal, async (requestSignal) => {
+      if (currentViewer.current !== viewerId) throw new Error("Your sign-in changed. Please try again.");
+      const result = await fetchActions({ data: context ?? {}, signal: requestSignal });
+      if (currentViewer.current !== viewerId) throw new Error("Your sign-in changed. Please try again.");
       if (result.viewer_id !== viewerId) throw new Error("Your sign-in changed. Please try again.");
       return result;
-    },
+    }),
+    retry: false,
     staleTime: 30_000,
   });
 

@@ -35,17 +35,20 @@ vi.mock("@/components/next-actions/NextActionCard", () => ({
   ),
 }));
 import { NextActionCardServer } from "@/components/next-actions/NextActionCardServer";
+import { DASHBOARD_WIDGET_READ_TIMEOUT_MS } from "@/lib/dashboard/dashboard-widget-read";
+import type { NextActionContext } from "@/lib/next-actions/action-context";
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.resetAllMocks();
   api.viewer = "caller";
   api.loading = false;
 });
-function setup() {
+function setup(context?: NextActionContext) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const view = () => (
     <QueryClientProvider client={client}>
-      <NextActionCardServer />
+      <NextActionCardServer context={context} />
     </QueryClientProvider>
   );
   return { ...render(view()), view, client };
@@ -202,9 +205,31 @@ it("reloads for role and student changes without displaying the previous workspa
   result.rerender(view("educator",second));
   expect(screen.queryByText(`educator ${first}`)).toBeNull();
   await screen.findByText(`educator ${second}`);
-  expect(api.read).toHaveBeenNthCalledWith(1,{data:{role:"family",student_id:first}});
-  expect(api.read).toHaveBeenNthCalledWith(2,{data:{role:"educator",student_id:first}});
-  expect(api.read).toHaveBeenNthCalledWith(3,{data:{role:"educator",student_id:second}});
+  expect(api.read).toHaveBeenNthCalledWith(1,{signal:expect.any(AbortSignal),data:{role:"family",student_id:first}});
+  expect(api.read).toHaveBeenNthCalledWith(2,{signal:expect.any(AbortSignal),data:{role:"educator",student_id:first}});
+  expect(api.read).toHaveBeenNthCalledWith(3,{signal:expect.any(AbortSignal),data:{role:"educator",student_id:second}});
   expect(client.getQueryData(["next-actions","me","caller","family",first])).toBeTruthy();
   expect(client.getQueryData(["next-actions","me","caller","educator",second])).toBeTruthy();
+});
+
+it.each(["student", "family", "educator", "partner"] as const)("%s full action workspace times out, retries, and ignores the late read", async role => {
+  vi.useFakeTimers();
+  const old = pending();
+  api.read.mockReturnValueOnce(old.promise).mockResolvedValue({active:[{id:"current",title:"Recovered Current Action"}],recentlyCompleted:[],viewer_id:"caller"});
+  const view = setup({role});
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(screen.getByRole("status")).toBeTruthy();
+  await act(async () => { await vi.advanceTimersByTimeAsync(DASHBOARD_WIDGET_READ_TIMEOUT_MS); });
+  expect(screen.getByRole("alert").textContent).toContain("could not be fully loaded");
+  expect(screen.queryByText("Empty Actions")).toBeNull();
+  expect(api.read).toHaveBeenCalledTimes(1);
+  expect(api.read.mock.calls[0][0].signal.aborted).toBe(true);
+  fireEvent.click(screen.getByRole("button",{name:"Try Again"}));
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(screen.getByText("Recovered Current Action")).toBeTruthy();
+  await act(async () => { old.resolve({active:[{title:"Obsolete Action"}],recentlyCompleted:[],viewer_id:"caller"}); await vi.advanceTimersByTimeAsync(1); });
+  expect(screen.queryByText("Obsolete Action")).toBeNull();
+  expect(screen.getByText("Recovered Current Action")).toBeTruthy();
+  expect(api.complete).not.toHaveBeenCalled();
+  view.client.clear();
 });

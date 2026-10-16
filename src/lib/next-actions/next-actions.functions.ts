@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { organizationActionDestination } from "@/lib/dashboard/organization-widget-actions.functions";
 import { z } from "zod";
 import { audiencesForRoles } from "@/lib/role-policy";
@@ -207,8 +209,7 @@ export const getNextActionsForMe = createServerFn({ method: "GET" })
  * Unsupported invitation and evidence-attachment suggestions are intentionally omitted.
  */
 async function deriveActionsFromState(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient<Database>,
   role: PersonalActionRole,
   studentId?: string,
 ): Promise<NextAction[]> {
@@ -217,11 +218,13 @@ async function deriveActionsFromState(
   if (role === "partner") return out;
 
   // Draft pathway reports
-  const reports = await readOrganizationPages<any>((from, to) => {
+  const reports = await readOrganizationPages<
+    Pick<Database["public"]["Tables"]["pathway_reports"]["Row"], "id" | "student_id">
+  >((from, to) => {
     let query = supabase
       .from("pathway_reports")
-      .select("id,student_id,status,updated_at", { count: "exact" })
-      .in("status", ["draft", "needs_review"]);
+      .select("id,student_id", { count: "exact" })
+      .eq("report_status", "draft");
     if (studentId) query = query.eq("student_id", studentId);
     return query.order("id").range(from, to);
   });

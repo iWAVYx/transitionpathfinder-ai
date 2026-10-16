@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, it, vi } from "vitest";
 vi.mock("@tanstack/react-start", () => ({
   createServerFn: () => {
@@ -15,6 +16,8 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 import { getNextActionsForMe } from "@/lib/next-actions/next-actions.functions";
+const schemaColumns: Record<string, string[]> = JSON.parse(readFileSync(new URL("../fixtures/action-read-schema.json", import.meta.url), "utf8"));
+
 function database(fail?: string, cap = 500, noCount = false) {
   const tables: Record<string, any[]> = {
     user_roles: [{ id: "role", user_id: "caller", role: "parent" }],
@@ -32,6 +35,14 @@ function database(fail?: string, cap = 500, noCount = false) {
       const state: any = { table, filters: [], orders: [] };
       queries.push(state);
       const result = () => {
+        const schema = schemaColumns[table];
+        const usedColumns = [
+          ...(state.columns ?? "").split(",").map((column: string) => column.trim()).filter(Boolean),
+          ...state.filters.map((filter: any[]) => filter[1]),
+          ...state.orders,
+        ];
+        if (schema && usedColumns.some(column => column !== "*" && !schema.includes(column)))
+          return { data: null, error: { code: "42703", message: "Unknown database column" }, count: null };
         let rows = tables[table];
         for (const [op, key, value] of state.filters)
           rows = rows.filter((row) =>
@@ -57,7 +68,8 @@ function database(fail?: string, cap = 500, noCount = false) {
         };
       };
       const q: any = {
-        select: (_: string, opts: any) => {
+        select: (columns: string, opts: any) => {
+          state.columns = columns;
           state.counted = opts?.count === "exact";
           return q;
         },
@@ -128,7 +140,7 @@ it("keeps distinct reports for one student and does not let completion suppress 
   db.tables.pathway_reports = ["a", "b", "c"].map((id) => ({
     id,
     student_id: "student",
-    status: "draft",
+    report_status: "draft",
   }));
   const result = await db.call();
   expect(result.active.map((a) => a.id)).toEqual([
@@ -154,7 +166,7 @@ it("keeps complete supported derivations without inventing invitation or evidenc
   db.tables.pathway_reports = Array.from({ length: 12 }, (_, i) => ({
     id: `r${i}`,
     student_id: `s${i}`,
-    status: "draft",
+    report_status: "draft",
   }));
   db.tables.meetings = Array.from({ length: 7 }, (_, i) => ({
     id: `m${i}`,
@@ -219,7 +231,7 @@ for (const role of ["student", "partner", "school_admin", "district_admin", "adm
   it(`does not read family-only invitation or evidence sources for ${role}`, async () => {
     const db = database();
     db.tables.user_roles = [{ id: "role", user_id: "caller", role }];
-    db.tables.pathway_reports = [{ id: "report", student_id: "student", status: "draft" }];
+    db.tables.pathway_reports = [{ id: "report", student_id: "student", report_status: "draft" }];
     const result = await db.call();
     expect(
       db.queries.some((q) =>
@@ -252,7 +264,7 @@ it("respects the selected personal role for a multi-role caller", async () => {
 it("does not let an unusable stored link suppress an eligible report suggestion", async () => {
   const db = database();
   db.tables.next_actions = [row("bad", { related_report_id: "report", cta_route: "/missing" })];
-  db.tables.pathway_reports = [{ id: "report", student_id: "student", status: "draft" }];
+  db.tables.pathway_reports = [{ id: "report", student_id: "student", report_status: "draft" }];
   expect((await db.call()).active.map((a) => a.id)).toEqual(["derived:report:report"]);
 });
 it("removes ineligible primary and secondary links without inventing a fallback", async () => {
@@ -285,8 +297,8 @@ for (const role of ["student", "family", "educator", "partner"] as const)
       row("foreign", { student_id: SELECTED, owner_user_id: "other", cta_route: route }),
     ];
     db.tables.pathway_reports = [
-      { id: "selected-report", student_id: SELECTED, status: "draft" },
-      { id: "other-report", student_id: OTHER, status: "draft" },
+      { id: "selected-report", student_id: SELECTED, report_status: "draft" },
+      { id: "other-report", student_id: OTHER, report_status: "draft" },
     ];
     db.tables.meetings = [
       {
@@ -349,4 +361,16 @@ it("counts and scopes completed actions as well as active actions", async () => 
     "mine",
     "global",
   ]);
+});
+
+// Captured catalog metadata contains no application rows or identifiers.
+// Unlike the old permissive mock, queries must name existing database columns.
+it.each(["student", "family", "educator"] as const)("%s draft suggestions use real report columns and exclude other lifecycle states", async role => {
+  const db = database();
+  db.tables.user_roles = [{ id: "role", user_id: "caller", role: role === "family" ? "parent" : role }];
+  db.tables.pathway_reports = ["draft", "generated", "reviewed", "shared", "archived"].map(report_status => ({ id: report_status, student_id: "student", report_status }));
+  const result = await db.call({ role });
+  expect(result.active.map(action => action.id)).toEqual(["derived:report:draft"]);
+  expect(result.active[0].ctaRoute).toBe("/reports/draft");
+  expect(result.viewer_id).toBe("caller");
 });
