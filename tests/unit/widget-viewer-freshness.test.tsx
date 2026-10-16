@@ -112,13 +112,14 @@ it.each(["family", "student", "educator", "school_admin", "district_admin", "par
     api.loading = false;
     v.rerender(v.node());
     await waitFor(() =>
-      expect(api.prefs).toHaveBeenCalledWith({ data: { role, expected_viewer_id: "caller" } }),
+      expect(api.prefs).toHaveBeenCalledWith({ signal: expect.any(AbortSignal), data: { role, expected_viewer_id: "caller" } }),
     );
     if (role === "district_admin" || role === "partner")
       expect(api.calendar).not.toHaveBeenCalled();
     else
       await waitFor(() =>
         expect(api.calendar).toHaveBeenCalledWith({
+          signal: expect.any(AbortSignal),
           data: {
             timezone: browserCalendarTimeZone(),
             organization_id: ORG,
@@ -212,6 +213,7 @@ it.each([false, true])(
     v.rerender(v.node());
     await waitFor(() =>
       expect(api.prefs).toHaveBeenCalledWith({
+        signal: expect.any(AbortSignal),
         data: { role: "family", expected_viewer_id: "other" },
       }),
     );
@@ -239,6 +241,7 @@ it("a delayed save cannot replace another role's settings or pending state", asy
   v.rerender(v.node("student"));
   await waitFor(() =>
     expect(api.prefs).toHaveBeenCalledWith({
+      signal: expect.any(AbortSignal),
       data: { role: "student", expected_viewer_id: "caller" },
     }),
   );

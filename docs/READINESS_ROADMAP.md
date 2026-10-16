@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Current Staging and Local Follow-Up — October 16, 2026
+
+- [x] The authorized Cloudflare staging deployment of `1b737afabb95a5f28f7d51543d527515f1f50898` passed exact source, sandbox payment, isolation and PWA checks (run `38940796258`). The separate Lovable staging repository is synced at `eda57cc5`; environment files and production protected main are unchanged. No Publish or merge.
+- [x] Bounded hosted checks: existing Family menu/calendar/meeting-prep/builder navigation and six fictional public role dashboards. This is not acceptance of all signed-in roles, save/reopen, generation or exports.
+- [x] Private Lovable `/api/public/build-health` passes for exact fingerprint `12cb2dc5…60bf9fe` /1,171 files. Its deployment-health failure on the editor hostname is expected under the stable-host-only guard. The earlier build-failure text was found inside an `aria-hidden` collapsed status element and is absent from the visible screenshot; it does not establish a current failed build. Hosted build completion remains unproven. No guard relaxation or provider call.
+- [x] Local follow-up for the live Next Actions spinner: bound all shared widget reads to 20 seconds, pass cancellation to the transport, show existing failure/retry states, and ignore late responses. Eleven new cases cover cancellation and all six dashboard roles; all 288 unit files /4,119 tests and TypeScript pass. This follow-up has not been deployed. It improves failure recovery; it does not establish the cause of the original stalled server read.
+- [ ] Review and release the follow-up separately; preserve the exact deployed candidate as the release baseline. Continue other signed-in role, selected-context, scroll/back/forward, save/reload and export checks with the required identities and bounded authorization.
+- [ ] Reconcile the Partner demo's generic “Your organization only” copy with public profile/opportunity visibility. Keep actual access semantics and private student data separate from presentation claims.
+
+The full TF-01–TF-26 register, six milestones and deferred Parent Pilot / Pathway Report Snapshot scope below remain in force. Older release statuses below retain their original dates and are superseded only by the specific evidence above.
+
 ## Active Delivery Checklist — Updated October 14, 2026
 
 This is the current execution order. The detailed TF-01–TF-26 note register below remains the scope of record; older dated status entries are historical evidence, not the current completion checklist. Checked boxes below mean reviewed code with named local checks, unless staging evidence is explicitly cited. They do not mean deployed or production-ready.

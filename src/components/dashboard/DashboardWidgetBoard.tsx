@@ -21,6 +21,8 @@ import {
 import { personalActionToolSearch } from "@/lib/next-actions/action-context";
 import { getNextActionsForMe } from "@/lib/next-actions/next-actions.functions";
 
+import { readDashboardWidget } from "@/lib/dashboard/dashboard-widget-read";
+
 import { getOrganizationWidgetActions } from "@/lib/dashboard/organization-widget-actions.functions";
 
 type Props = {
@@ -67,12 +69,13 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
 
   const prefs = useQuery({
     queryKey: ["dashboard-widgets", role, userId],
-    queryFn: async () => {
+    queryFn: ({ signal }) => readDashboardWidget(signal, async (requestSignal) => {
       assertViewer(userId);
-      const result = await loadPrefs({ data: { role, expected_viewer_id: userId } });
+      const result = await loadPrefs({ data: { role, expected_viewer_id: userId }, signal: requestSignal });
       assertViewer(userId);
       return result;
-    },
+    }),
+    retry: false,
     enabled: ready,
   });
   const widgets = prefs.data?.widgets ?? WIDGETS_BY_ROLE[role];
@@ -80,9 +83,10 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
   const waitingForOrganization = role === "school_admin" && !organizationId;
   const calendar = useQuery({
     queryKey: ["dashboard-widget-calendar", role, studentId, organizationId, timezone, userId],
-    queryFn: async () => {
+    queryFn: ({ signal }) => readDashboardWidget(signal, async (requestSignal) => {
       assertViewer(userId);
       const result = await loadCalendar({
+        signal: requestSignal,
         data: {
           timezone,
           expected_viewer_id: userId,
@@ -92,7 +96,8 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
       });
       assertViewer(userId);
       return result;
-    },
+    }),
+    retry: false,
     enabled:
       ready &&
       !waitingForOrganization &&
@@ -101,28 +106,36 @@ export function DashboardWidgetBoard({ role, studentId, organizationId }: Props)
   });
   const actions = useQuery({
     queryKey: ["dashboard-widget-actions", role, studentId, userId],
-    queryFn: async () => {
+    queryFn: ({ signal }) => readDashboardWidget(signal, async (requestSignal) => {
+      assertViewer(userId);
       const result = await loadActions({
+        signal: requestSignal,
         data: {
           role: role as "student" | "family" | "educator" | "partner",
           ...(studentId ? { student_id: studentId } : {}),
         },
       });
+      assertViewer(userId);
       if (result.viewer_id !== userId) throw new Error("Action preview could not be loaded.");
       return result;
-    },
+    }),
+    retry: false,
     enabled: ready && !organizationRole && widgets.includes("actions"),
     staleTime: 30_000,
   });
   const organizationActions = useQuery({
     queryKey: ["dashboard-widget-organization-actions", role, organizationId, userId],
-    queryFn: async () => {
+    queryFn: ({ signal }) => readDashboardWidget(signal, async (requestSignal) => {
+      assertViewer(userId);
       const result = await loadOrganizationActions({
+        signal: requestSignal,
         data: { role: role as "school_admin" | "district_admin", organization_id: organizationId! },
       });
+      assertViewer(userId);
       if (result.viewer_id !== userId) throw new Error("Action preview could not be loaded.");
       return result;
-    },
+    }),
+    retry: false,
     enabled: ready && organizationRole && !!organizationId && widgets.includes("actions"),
     staleTime: 30_000,
   });

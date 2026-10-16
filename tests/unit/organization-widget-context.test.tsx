@@ -126,7 +126,7 @@ for (const role of ["school_admin", "district_admin"] as const) {
       expect(screen.queryByText("Old Organization Action")).toBeNull();
       expect(screen.queryByRole("alert")).toBeNull();
       expect(api.personal).not.toHaveBeenCalled();
-      expect(api.organization).toHaveBeenLastCalledWith({ data: { role, organization_id: B } });
+      expect(api.organization).toHaveBeenLastCalledWith({ signal: expect.any(AbortSignal), data: { role, organization_id: B } });
     },
   );
   it(`${role} suppresses organization actions when no selected scope exists`, async () => {
@@ -364,7 +364,7 @@ for (const role of ["student", "family", "educator", "partner"] as const) {
     await screen.findByText("Selected Student Action");
     expect(screen.queryByText("Other Student Action")).toBeNull();
     expect(screen.getByText("Global Action")).toBeTruthy();
-    expect(api.personal).toHaveBeenCalledWith({ data: { role, student_id: A } });
+    expect(api.personal).toHaveBeenCalledWith({ signal: expect.any(AbortSignal), data: { role, student_id: A } });
     expect(api.organization).not.toHaveBeenCalled();
   });
 }
@@ -373,7 +373,7 @@ it.each(["family", "student", "educator", "partner"] as const)("%s passes the sa
   api.personal.mockResolvedValue({viewer_id:"caller",active:[],recentlyCompleted:[]});
   const queryClient = client();
   render(<QueryClientProvider client={queryClient}><DashboardWidgetBoard role={role} studentId={A}/></QueryClientProvider>);
-  await waitFor(() => expect(api.personal).toHaveBeenCalledWith({data:{role,student_id:A}}));
+  await waitFor(() => expect(api.personal).toHaveBeenCalledWith({signal: expect.any(AbortSignal),data:{role,student_id:A}}));
   expect(JSON.parse(screen.getByTestId("action-tool-context").textContent!)).toEqual({to:"/next-actions",search:{role,student_id:A}});
   expect(api.organization).not.toHaveBeenCalled();
 });
@@ -381,7 +381,7 @@ it.each(["school_admin", "district_admin"] as const)("%s does not offer a person
   api.organization.mockResolvedValue({...result("Scoped Action"),entries:[]});
   const queryClient = client();
   render(<QueryClientProvider client={queryClient}><DashboardWidgetBoard role={role} organizationId={A}/></QueryClientProvider>);
-  await waitFor(() => expect(api.organization).toHaveBeenCalledWith({data:{role,organization_id:A}}));
+  await waitFor(() => expect(api.organization).toHaveBeenCalledWith({signal: expect.any(AbortSignal),data:{role,organization_id:A}}));
   expect(JSON.parse(screen.getByTestId("action-tool-context").textContent!)).toEqual({to:null});
   expect(api.personal).not.toHaveBeenCalled();
 });

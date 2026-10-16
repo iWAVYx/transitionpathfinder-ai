@@ -23,7 +23,7 @@ it.each(["student", "family", "educator", "school_admin", "district_admin", "par
   expect(query.queryKey).toEqual(["dashboard-widget-calendar", role, role === "student" ? "11111111-1111-4111-8111-111111111111" : undefined, role === "school_admin" ? "school-one" : undefined, browserCalendarTimeZone(), "caller"]);
   expect(query.enabled).toBe(role !== "district_admin" && role !== "partner");
   if (query.enabled) {
-    state.calendar.mockResolvedValue({ events: [] }); await query.queryFn();
-    expect(state.calendar).toHaveBeenCalledWith({ data: { expected_viewer_id: "caller", timezone: browserCalendarTimeZone(), ...(role === "student" ? { student_id: "11111111-1111-4111-8111-111111111111" } : {}), ...(role === "school_admin" ? { organization_id: "school-one" } : {}) } });
+    state.calendar.mockResolvedValue({ events: [] }); await query.queryFn({ signal: new AbortController().signal });
+    expect(state.calendar).toHaveBeenCalledWith({ signal: expect.any(AbortSignal), data: { expected_viewer_id: "caller", timezone: browserCalendarTimeZone(), ...(role === "student" ? { student_id: "11111111-1111-4111-8111-111111111111" } : {}), ...(role === "school_admin" ? { organization_id: "school-one" } : {}) } });
   } else expect(state.calendar).not.toHaveBeenCalled();
 });
