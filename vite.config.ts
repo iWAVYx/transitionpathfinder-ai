@@ -497,7 +497,7 @@ export default async (environment: ConfigEnv) => {
       ...config.environments.client.define,
       "process.env.NODE_ENV": JSON.stringify("production"),
     };
-    config.esbuild = { ...(typeof config.esbuild === "object" ? config.esbuild : {}), keepNames: false };
+    config.esbuild = { ...(typeof config.esbuild === "object" ? config.esbuild : {}), keepNames: false, sourcemap: false };
   }
   return config;
 };
