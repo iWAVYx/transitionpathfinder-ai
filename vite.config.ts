@@ -8,7 +8,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { loadEnv, type Plugin } from "vite";
+import { loadEnv, type Plugin, type PluginOption, type ConfigEnv } from "vite";
 import {
   mapLucideIconModules,
   rewriteLucideReactImports,
@@ -421,7 +421,7 @@ const {
   livePaymentsClientToken,
 } = publicBuildInputs;
 
-export default defineConfig({
+const applicationConfig = defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
@@ -475,3 +475,29 @@ export default defineConfig({
     ],
   },
 });
+
+/** Built previews do not need the interactive inspector's per-element source maps.
+ * Leave Vite dev/serve instrumentation intact for Lovable's visual editor.
+ */
+async function withoutBuildSourceInjection(options: PluginOption[]): Promise<PluginOption[]> {
+  return Promise.all(options.map(async (option) => {
+    const plugin = await option;
+    if (Array.isArray(plugin)) return withoutBuildSourceInjection(plugin);
+    return plugin && plugin.name === "@tanstack/devtools:inject-source" ? false : plugin;
+  }));
+}
+
+export default async (environment: ConfigEnv) => {
+  const config = await applicationConfig(environment);
+  if (isLovableSandbox && environment.command === "build") {
+    config.plugins = await withoutBuildSourceInjection(config.plugins ?? []);
+    config.environments ??= {};
+    config.environments.client ??= {};
+    config.environments.client.define = {
+      ...config.environments.client.define,
+      "process.env.NODE_ENV": JSON.stringify("production"),
+    };
+    config.esbuild = { ...(typeof config.esbuild === "object" ? config.esbuild : {}), keepNames: false };
+  }
+  return config;
+};
