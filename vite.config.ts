@@ -61,6 +61,10 @@ function buildEnvironmentGarbageCollector(): Plugin {
     closeBundle: {
       order: "post",
       handler() {
+        // Split children build one environment and then exit. Rollup still owns
+        // their graph here, so forcing GC cannot release it and can exhaust the
+        // constrained heap during final compaction. The process exit reclaims it.
+        if (process.env[CHILD_BUILD_MODE_ENV]) return;
         global.gc?.();
       },
     },
