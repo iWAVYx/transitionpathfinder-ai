@@ -201,6 +201,7 @@ it.each(["account", "loading", "signed-out"])(
   async (state) => {
     const v = render(node());
     await screen.findByText("Protected Workspace");
+    await waitFor(() => expect(api.read.mock.calls).toEqual([["caller"]]));
     const next = pending();
     api.profile.mockReturnValueOnce(next.promise);
     if (state === "account") api.viewer = "other";
