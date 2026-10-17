@@ -1,5 +1,13 @@
 # TransitionForward — Readiness Roadmap
 
+## Comparison Read Release Verified — October 17, 2026
+
+- [x] Human-approved exact runtime `551f68c47fc01df1756b15de023d23d75af4f26f` deployed through staging run `39025813092`. Exact external Cloudflare identity, isolated backend, sandbox payments, isolation and PWA passed. Eight automatic CI checks passed; seven credentialed/live checks remained skipped.
+- [x] Runtime-only sync `905a0e98bbd3c77ae36e943e07b192361a846cab` applied to separate isolated Lovable staging from checked `cacc1ea6`, preserving all runtime/environment hashes, builder edits, settings and access. Private build identity verified through Lovable's standard standalone preview after Chrome blocked the embedded frame; no browser protection was bypassed and no support request was needed.
+- [x] The same exact-source human review included updating ONLY the existing isolated staging publication at `gentle-forward-reach.lovable.app` after identity verification. Publication succeeded; Cloudflare, private preview and published isolated Lovable staging now match fingerprint `f04b02f844009ad0c6d1411de96e061fdd5d5a25484c93ed21a8e204faf200ff` /1,175 files. Published env-health confirms staging labels/backend `qgrertkqbwanerqqemph`, sandbox public/server payments, managed AI configured and isolation true. Existing visibility/access unchanged.
+- [x] Comparison wrappers remain inactive by default. No real comparison/shadow execution, AI/provider calls, application/report/audit writes, database migrations/grants, account/role changes, source main merge or production action. Production protected main remains `0ff2f1020a394301695295d9e93a2d0ad9eec41c`. Evidence retained in `/private/tmp/tf211-release-candidate-551f68c4`.
+- [ ] Real provider/save-reopen/all-role browser acceptance, deliberate legacy-to-v1 persistence/conversion design and the remaining TF-01–TF-26 milestones remain open. Successful identity/configuration checks do not certify those workflows. Deferred Parent Pilot / Pathway Report Snapshot scope remains unchanged.
+
 ## Current Follow-Up — Safe Report Comparison Reads, October 17, 2026
 
 This entry supersedes earlier dated statuses only where stated; TF-01–TF-26, all six milestones and deferred Parent Pilot / Pathway Report Snapshot notes remain in force.
