@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Current Follow-Up — Safe Report Comparison Reads, October 17, 2026
+
+This entry supersedes earlier dated statuses only where stated; TF-01–TF-26, all six milestones and deferred Parent Pilot / Pathway Report Snapshot notes remain in force.
+
+- [x] Fresh check confirms published isolated Lovable staging still serves exact `1821ebb0…84f4a9` /1,174 files with isolation true. PR #211 remains draft; prior documentation head `3f4f3f79` passed eight automatic checks, with seven credentialed/live checks skipped. Regeneration correction `61a4761d` is deployed and published in isolated staging; actual provider/save-reopen/other-role acceptance remains open.
+- [x] Correct both inactive report comparison wrappers locally through one typed adapter. Read existing `recommended_pathways`, never nonexistent `recommendations`; accept only complete RecommendationV1 batches and known provenance shape. Explicitly recorded empty arrays remain empty. Null, legacy prose, partial/v2-format records, duplicate IDs or malformed provenance return a clear unsupported-format error rather than inventing an empty current comparison. Query failures are distinct from missing reports, and private query details are not returned.
+- [x] Preserve existing disabled-by-default behavior, lazy privileged client use, caller admin checks and orchestration ordering. The shared adapter does not grant access, activate a flag, call AI, write reports or create audit rows. This is an internal comparison correction, not a new dashboard feature for other roles.
+- [x] Local validation: 14 new actual-Supabase-SDK fixture and wrapper-guard cases; full 289-file /4,156-test unit suite, 18 existing comparison/orchestration checks, TypeScript and diff checks pass. All provider/HTTP/data activity is intercepted synthetic testing; no hosted comparison execution.
+- [ ] Exact-head CI/review and any separate staging release for this correction. Legacy report conversion and canonical v1 recommendation persistence remain deliberate design/acceptance work; this change does not make legacy saved reports v1-compatible or activate the dormant writer. Existing provider/save-reopen/all-role browser acceptance and other roadmap work remain open.
+
 ## Staging Publication Synchronized — October 16, 2026
 
 - [x] User explicitly authorized publishing reviewed runtime `61a4761d` only to the existing isolated `gentle-forward-reach.lovable.app` staging site. Lovable confirmed the website update; external env-health now matches Cloudflare staging and the private preview: fingerprint `1821ebb06a3bcad519d620d2d1511b60c7b28e3898830bdb6377b7a0e484f4a9`, 1,174 files, staging labels/backend `qgrertkqbwanerqqemph`, sandbox public/server payments, managed AI configured and isolation true. No hand-entered commit identity. Existing visibility/access remained unchanged.

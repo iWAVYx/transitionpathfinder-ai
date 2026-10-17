@@ -1,3 +1,4 @@
+import { createCurrentReportClient } from "./pathway-current-report.server";
 /**
  * Slice D14 — runPathwayShadowDiffAndRecordShadow server function (DORMANT).
  *
@@ -25,7 +26,6 @@ import {
   runShadowDiffAndRecord,
   type RunShadowDiffAndRecordResult,
 } from "./pathway-shadow-run-orchestrator.server";
-import type { CurrentReportClient } from "./pathway-report-diff.server";
 import type {
   RegistryClient,
   RegistryListResult,
@@ -111,7 +111,7 @@ export const runPathwayShadowDiffAndRecordShadow = createServerFn({
       );
 
       const registryClient = buildRegistryClient(supabaseAdmin);
-      const currentClient = buildCurrentReportClient(supabaseAdmin);
+      const currentClient = createCurrentReportClient(supabaseAdmin);
       const logClient = buildLogClient(supabaseAdmin);
       const generate = createShadowLovableRecommendationGenerator({
         model: data.modelVersion,
@@ -158,20 +158,7 @@ function buildRegistryClient(admin: AdminLike): RegistryClient {
   } as unknown as RegistryClient;
 }
 
-function buildCurrentReportClient(admin: AdminLike): CurrentReportClient {
-  return {
-    fetchReport: async (reportId) => {
-      const { data, error } = await admin
-        .from("pathway_reports")
-        .select(
-          "rules_version, prompt_version, model_version, engine_channel, knowledge_snapshot, recommendations",
-        )
-        .eq("id", reportId)
-        .maybeSingle();
-      return { data, error };
-    },
-  };
-}
+
 
 function buildLogClient(admin: AdminLike): ShadowRunLogClient {
   return {
