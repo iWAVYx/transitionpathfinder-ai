@@ -5,7 +5,7 @@
 // - Handles hyphen/slash compounds piece-by-piece.
 
 const SMALL = new Set([
-  "a", "an", "and", "as", "at", "but", "by", "for", "if", "in", "nor",
+  "a", "an", "and", "as", "at", "but", "by", "for", "from", "if", "in", "nor",
   "of", "on", "or", "per", "the", "to", "vs", "via", "with",
 ]);
 
@@ -38,8 +38,8 @@ function titleCaseWord(word: string, forceCap: boolean): string {
   if (!forceCap && SMALL.has(lower)) return lower;
   
   // Handle hyphen / slash compounds: "post-secondary" -> "Post-Secondary"
-  if (/[-/]/.test(lower)) {
-    return lower
+  if (/[-/]/.test(word)) {
+    return word
       .split(/([-/])/)
       .map((part) => (part === "-" || part === "/" ? part : titleCaseWord(part, true)))
       .join("");

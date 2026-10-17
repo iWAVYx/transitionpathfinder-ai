@@ -205,3 +205,16 @@ remaining production boxes below.
 - [ ] Rollback owner confirms the last known-good Lovable snapshot, prior
       Cloudflare configuration, and database recovery triggers.
 - [ ] Evidence links and final GO decision are recorded; otherwise rollback/NO-GO.
+
+### Prepared Transactional Report History — October 12, 2026
+
+- [x] Replay `20261012190000_atomic_pathway_report_content.sql` in disposable PostgreSQL; 12 behavioral cases verify owner/RLS, simultaneous-session conflict, snapshot/update failure rollback and effective grants. Both full canonical replays pass at test source cfd7f912. This does not establish hosted schema/RLS or application acceptance.
+- [x] Specifically authorized isolated-staging history migration is applied; exact body/grants/ledger and nine rollback-only hosted SQL assertions pass with zero remaining fixtures. Follow [the evidence and acceptance plan](../pathway-transactional-history-plan.md).
+- [x] Switch both save/regenerate callers in draft source with authenticated SDK/RPC error tests, no old-write fallback or generation retry. All 200 unit files / 1,916 tests and TypeScript pass.
+- [ ] Specifically authorize staging deployment and verify actual signed-in RPC/save/regenerate/restore/reload, applicable-role and linked-student behavior, request limits/timeouts and exact source parity.
+- [ ] Before production release, separately authorize/apply/verify the same history function on production; never deploy callers to a database missing the function or use a split-write fallback.
+- [ ] Inventory direct content/version writers and record limitations: current UI does not provide a client-observed revision; the operation is not an immutable audit trail. Exact-release role/provider/navigation/export acceptance remains open. Production migration/release requires separate authorization.
+
+The history migration is applied only to isolated staging under specific user authorization and remains unused by hosted handlers until deployment; draft callers now use it. Its presence in this draft does not authorize production migration, another pending migration, a bulk migration runner or deployment.
+
+- [x] Reconcile the atomic-history staging ledger entry: both canonical hashes now match, installed function definition/configuration/grants remain unchanged; all 16 real disposable PostgreSQL cases pass. This closes one entry only, not full staging/production migration alignment. See [candidate review](../pr211-release-review.md).

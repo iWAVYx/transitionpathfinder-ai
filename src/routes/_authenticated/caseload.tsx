@@ -170,13 +170,6 @@ function CaseloadPage() {
                 ) : (
                   <>
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <Link
-                        to="/caseload"
-                        search={{}}
-                        className="text-sm font-semibold text-primary hover:underline"
-                      >
-                        Back to dashboard
-                      </Link>
                       <Button asChild>
                         <Link to="/students">
                           <Plus className="h-4 w-4" /> Invite Student

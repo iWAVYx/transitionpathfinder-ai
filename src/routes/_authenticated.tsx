@@ -1,5 +1,11 @@
-import { createFileRoute, Outlet, redirect, useNavigate, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useNavigate,
+  useLocation,
+} from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,11 +18,9 @@ import {
   DASHBOARD_TESTID_CONTRACT_VERSION,
   dashboardTestIdForPath,
   dashboardTestIdForDashboardHint,
-  dashboardTestIdForProfileRole,
   ROLE_DASHBOARD_TEST_IDS,
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
-import { DashboardErrorFallback } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated")({
   // Client-only gate: Supabase stores the session in localStorage, which the server
@@ -33,23 +37,34 @@ export const Route = createFileRoute("/_authenticated")({
     // dashboard-setup probe reports. `requireSupabaseAuth` middleware still
     // verifies the JWT on every protected server function, and the client
     // effect below handles session expiry mid-session.
-    const { data } = await supabase.auth.getSession();
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw new Error("Your session could not be checked. Please try again.");
     if (!data.session) {
       throw redirect({
         to: "/login",
-        search: { redirect: location.pathname, reason: reasonForPath(location.pathname) },
+        search: {
+          redirect: workspaceReturnPath(location),
+          reason: reasonForPath(location.pathname),
+        },
       });
     }
     // 2FA gate: if the user has a verified TOTP factor but hasn't completed
     // the challenge this session, bounce to /login/2fa. The /login/2fa route
     // itself lives outside _authenticated so this doesn't loop. Kept in
     // beforeLoad — AAL is derived from the local session, not the network.
-    const { data: aal } =
+    const { data: aal, error: assuranceError } =
       await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+    if (
+      assuranceError ||
+      !aal ||
+      !["aal1", "aal2"].includes(aal.currentLevel ?? "") ||
+      !["aal1", "aal2"].includes(aal.nextLevel ?? "")
+    )
+      throw new Error("Your sign-in security could not be checked. Please try again.");
+    if (aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
       throw redirect({
         to: "/login/2fa",
-        search: { redirect: location.pathname },
+        search: { redirect: workspaceReturnPath(location) },
       });
     }
   },
@@ -63,7 +78,6 @@ export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
 });
 
-
 // Routes that should NOT redirect to onboarding even if not completed
 const ONBOARDING_EXEMPT = ["/onboarding", "/settings", "/redeem-access"];
 const ONBOARDING_EXEMPT_PREFIX = ["/owner", "/admin"];
@@ -76,7 +90,10 @@ function dashboardHintForBrowserLocation(): string | null {
   );
 }
 
-function dashboardShellTestId(pathname: string, userEmail?: string | null): RoleDashboardTestId | null {
+function dashboardShellTestId(
+  pathname: string,
+  userEmail?: string | null,
+): RoleDashboardTestId | null {
   const hinted =
     dashboardTestIdForDashboardHint(dashboardHintForBrowserLocation()) ??
     dashboardTestIdForDashboardHint(userEmail);
@@ -106,172 +123,185 @@ function AuthenticatedPendingShell() {
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       data-testid={testId ?? undefined}
     >
-      <h1 className="font-display text-xl font-medium tracking-tight">
-        Preparing Your Workspace
-      </h1>
+      <h1 className="font-display text-xl font-medium tracking-tight">Preparing Your Workspace</h1>
       <p className="max-w-md text-sm text-muted-foreground">
         Checking your access and loading your dashboard. This only takes a moment.
       </p>
     </main>
   );
-
 }
 
+function workspaceReturnPath(location: { pathname: string; searchStr?: string; hash?: string }) {
+  const hash = location.hash
+    ? location.hash.startsWith("#")
+      ? location.hash
+      : `#${location.hash}`
+    : "";
+  return `${location.pathname}${location.searchStr ?? ""}${hash}`;
+}
 
 function AuthenticatedLayout() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
+  const scopeKey = JSON.stringify([user?.id ?? null, loading, location.pathname]);
+  const currentKey = useRef(scopeKey);
+  currentKey.current = scopeKey;
+  if (loading) return <WorkspaceAccessShell />;
+  if (!user)
+    return (
+      <SignedOutWorkspace
+        key={workspaceReturnPath(location)}
+        path={location.pathname}
+        returnPath={workspaceReturnPath(location)}
+        scopeKey={scopeKey}
+        currentKey={currentKey}
+      />
+    );
+  return (
+    <AuthenticatedWorkspace
+      key={scopeKey}
+      viewerId={user.id}
+      path={location.pathname}
+      scopeKey={scopeKey}
+      currentKey={currentKey}
+    />
+  );
+}
+
+function SignedOutWorkspace({
+  path,
+  returnPath,
+  scopeKey,
+  currentKey,
+}: {
+  path: string;
+  returnPath: string;
+  scopeKey: string;
+  currentKey: { current: string };
+}) {
+  const navigate = useNavigate();
+  const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        await navigate({
+          to: "/login",
+          search: { redirect: returnPath, reason: reasonForPath(path) },
+          replace: true,
+        });
+      } catch {
+        if (!cancelled && currentKey.current === scopeKey) setFailed(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, scopeKey, currentKey, returnPath, path, retry]);
+  return (
+    <WorkspaceAccessShell
+      error={failed}
+      retry={() => {
+        setFailed(false);
+        setRetry((value) => value + 1);
+      }}
+    />
+  );
+}
+
+function AuthenticatedWorkspace({
+  viewerId,
+  path,
+  scopeKey,
+  currentKey,
+}: {
+  viewerId: string;
+  path: string;
+  scopeKey: string;
+  currentKey: { current: string };
+}) {
+  const navigate = useNavigate();
   const loadProfile = useServerFn(getProfile);
   const loadAdminRoles = useServerFn(getMyAdminRoles);
-  const [checkedOnboarding, setCheckedOnboarding] = useState(false);
-  const [profileError, setProfileError] = useState(false);
-  const [dashboardTestId, setDashboardTestId] = useState<RoleDashboardTestId | null>(() =>
-    dashboardShellTestId(location.pathname),
+  const exempt =
+    ONBOARDING_EXEMPT.includes(path) ||
+    ONBOARDING_EXEMPT_PREFIX.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+  const [status, setStatus] = useState<"checking" | "ready" | "error">(
+    exempt ? "ready" : "checking",
   );
-  const dashboardHint = dashboardHintForBrowserLocation();
-  const hintedDashboardTestId =
-    dashboardTestIdForDashboardHint(dashboardHint) ??
-    dashboardTestIdForDashboardHint(user?.email);
-
-  // Client-side fallback: catch session expiry mid-session.
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
-    if (!loading && !user) {
-      const path = typeof window !== "undefined" ? window.location.pathname : "/dashboard";
-      navigate({
-        to: "/login",
-        search: { redirect: path, reason: reasonForPath(path) },
-        replace: true,
-      });
-    }
-  }, [user, loading, navigate]);
-
-  // Onboarding gate: send new users to /onboarding before they hit the dashboard.
-  useEffect(() => {
-    if (!user || loading) return;
-    const path = location.pathname;
-    if (
-      ONBOARDING_EXEMPT.includes(path) ||
-      ONBOARDING_EXEMPT_PREFIX.some((p) => path.startsWith(p))
-    ) {
-      setCheckedOnboarding(true);
-      return;
-    }
     let cancelled = false;
-    loadProfile()
-      .then(async (p) => {
-        if (cancelled) return;
-        setDashboardTestId(
-          location.pathname === "/dashboard"
-            ? dashboardTestIdForProfileRole(p.primary_role) ?? hintedDashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent
-            : dashboardTestIdForPath(location.pathname),
-        );
-        if (!p.onboarding_completed) {
-          // Platform admins (admin_roles entry) bypass /onboarding and land on /owner.
-          try {
-            const admin = await loadAdminRoles();
-            if (cancelled) return;
-            if (admin?.isPlatformAdmin) {
-              navigate({ to: "/owner", replace: true });
-              setCheckedOnboarding(true);
-              return;
-            }
-          } catch {
-            /* fall through to onboarding */
-          }
-          navigate({ to: "/onboarding", replace: true });
+    const current = () => !cancelled && currentKey.current === scopeKey;
+    if (exempt) return;
+    loadProfile({ data: { expected_viewer_id: viewerId } })
+      .then(async (profile) => {
+        if (!current()) return;
+        if (profile?.id !== viewerId || typeof profile.onboarding_completed !== "boolean")
+          throw new Error("Invalid workspace profile");
+        if (profile.onboarding_completed) {
+          setStatus("ready");
+          return;
         }
-        setCheckedOnboarding(true);
+        const admin = await loadAdminRoles({ data: { expected_viewer_id: viewerId } });
+        if (!current()) return;
+        if (typeof admin?.isPlatformAdmin !== "boolean")
+          throw new Error("Invalid workspace response");
+        await navigate({ to: admin.isPlatformAdmin ? "/owner" : "/onboarding", replace: true });
       })
       .catch(() => {
-        if (!cancelled) {
-          setDashboardTestId((current) => current ?? dashboardShellTestId(location.pathname, user?.email));
-          setProfileError(true);
-          setCheckedOnboarding(true);
-        }
+        if (current()) setStatus("error");
       });
     return () => {
       cancelled = true;
     };
-  }, [user, loading, location.pathname, navigate, loadProfile, loadAdminRoles, hintedDashboardTestId]);
-
-  // Session-loading gate: only block the tree while `useAuth` is still
-  // restoring the Supabase session from localStorage. Once we have a user,
-  // render the Outlet immediately — dashboard/data loading is the route's
-  // responsibility (each dashboard renders its own visible <main> shell
-  // with a role test id and a data-auth-state hint). The onboarding
-  // redirect and profile fetch run in the background so a slow profile
-  // server function can NEVER keep `/dashboard` hidden past 20s.
-  if (loading || !user) {
-    // See AuthenticatedPendingShell: the role testid stays off the
-    // transient loading main so the tile-navigation suite only settles
-    // on the real dashboard <main> under <Outlet />.
+  }, [viewerId, path, exempt, scopeKey, currentKey, loadProfile, loadAdminRoles, navigate, retry]);
+  if (status !== "ready")
     return (
-      <main
-        className="flex flex-col items-center justify-center gap-3 bg-background px-6 py-16 text-center"
-        style={{ minHeight: "100vh" }}
-        data-auth-state="session-loading"
-        data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
-      >
-        <h1 className="font-display text-xl font-medium tracking-tight">
-          Preparing Your Workspace
-        </h1>
-        <p className="max-w-md text-sm text-muted-foreground">
-          Verifying your session. This only takes a moment.
-        </p>
-      </main>
+      <WorkspaceAccessShell
+        error={status === "error"}
+        retry={() => {
+          setStatus("checking");
+          setRetry((value) => value + 1);
+        }}
+      />
     );
-  }
-
-  // Profile fetch failed AND the user has not yet made it past onboarding
-  // — surface the role-scoped fallback instead of a blank shell.
-  if (profileError && !checkedOnboarding) {
-    const role = fallbackRoleFromTestId(
-      dashboardTestId ?? hintedDashboardTestId ?? dashboardShellTestId(location.pathname, user?.email),
-    );
-    return (
-      <div className="signed-in-shell">
-        <DashboardErrorFallback
-          role={role}
-          onRetry={() => {
-            setProfileError(false);
-            setCheckedOnboarding(false);
-          }}
-        />
-        <FeedbackButton />
-      </div>
-    );
-  }
-
   return (
-    <div
-      className="signed-in-shell"
-      data-auth-state={checkedOnboarding ? "ready" : "content-pending"}
-    >
+    <div className="signed-in-shell" data-auth-state="ready">
       <Outlet />
       <FeedbackButton />
     </div>
   );
 }
 
-
-function fallbackRoleFromTestId(
-  testId: RoleDashboardTestId | null,
-): "student" | "parent" | "educator" | "school_admin" | "district_admin" | "partner" | "owner" {
-  switch (testId) {
-    case ROLE_DASHBOARD_TEST_IDS.student:
-      return "student";
-    case ROLE_DASHBOARD_TEST_IDS.educator:
-      return "educator";
-    case ROLE_DASHBOARD_TEST_IDS.school_admin:
-      return "school_admin";
-    case ROLE_DASHBOARD_TEST_IDS.district_admin:
-      return "district_admin";
-    case ROLE_DASHBOARD_TEST_IDS.partner:
-      return "partner";
-    case ROLE_DASHBOARD_TEST_IDS.owner:
-      return "owner";
-    default:
-      return "parent";
-  }
+/** A visible, data-free main while session/onboarding checks are unresolved. */
+function WorkspaceAccessShell({ error, retry }: { error?: boolean; retry?: () => void }) {
+  return (
+    <main
+      className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 py-16 text-center"
+      data-auth-state={error ? "access-error" : "session-loading"}
+      data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+    >
+      <div role={error ? "alert" : "status"}>
+        <h1 className="font-display text-xl font-medium tracking-tight">
+          {error ? "We Could Not Open Your Workspace" : "Preparing Your Workspace"}
+        </h1>
+        <p className="mt-3 max-w-md text-sm text-muted-foreground">
+          {error
+            ? "Please try opening your workspace again."
+            : "Checking your session and workspace access."}
+        </p>
+        {error && (
+          <button
+            type="button"
+            onClick={retry}
+            className="mt-4 rounded-full border px-4 py-2 text-sm font-semibold"
+          >
+            Try Again
+          </button>
+        )}
+      </div>
+    </main>
+  );
 }

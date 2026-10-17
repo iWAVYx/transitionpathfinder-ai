@@ -1,0 +1,1393 @@
+// @vitest-environment jsdom
+import { StrictMode } from "react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+const api = vi.hoisted(() => ({
+  viewer: "viewer-a" as string | null,
+  startCreated: null as null | ((id: string) => Promise<void>),
+  pins: vi.fn(),
+  bookmarks: vi.fn(),
+  threadProps: null as any,
+  loading: false,
+  roles: vi.fn(),
+  owner: vi.fn(),
+  summary: vi.fn(),
+  uploadsEnabled: false,
+  privacyConfirm: null as any,
+  channels: vi.fn(),
+  actions: vi.fn(),
+  mentions: vi.fn(),
+  seen: vi.fn(),
+  connections: vi.fn(),
+  respond: vi.fn(),
+  withdraw: vi.fn(),
+  messages: vi.fn(),
+  send: vi.fn(),
+  read: vi.fn(),
+  prepare: vi.fn(),
+  failUpload: vi.fn(),
+  scan: vi.fn(),
+  upload: vi.fn(),
+  historyRead: vi.fn(),
+  historyDownload: vi.fn(),
+  openDownload: vi.fn(),
+  toast: vi.fn(),
+  removeRealtime: vi.fn(),
+  realtimeCallbacks: [] as (() => void)[],
+  history: vi.fn(),
+  navigate: vi.fn(),
+  search: { tab: "inbox", unread: "all", due: "all", status: "all", archived: "all" } as any,
+  clients: [] as any[],
+  child: vi.fn(),
+}));
+vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
+vi.mock("@tanstack/react-router", () => ({
+  createFileRoute: () => (options: any) => options,
+  useSearch: () => api.search,
+  useNavigate: () => api.navigate,
+  Link: ({ to, children }: any) => <a href={to}>{children}</a>,
+}));
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({ user: api.viewer ? { id: api.viewer } : null, loading: api.loading }),
+}));
+vi.mock("@/lib/profile.functions", () => ({ getMyRoles: api.roles }));
+vi.mock("@/lib/owner/owner.functions", () => ({ getMyAdminRoles: api.owner }));
+vi.mock("@/lib/channel-tile-summary.functions", () => ({ getChannelTileSummary: api.summary }));
+vi.mock("@/lib/channels.functions", () => ({
+  listMyChannels: api.channels,
+  listChannelMessages: api.messages,
+  sendChannelMessage: api.send,
+  markChannelRead: api.read,
+}));
+vi.mock("@/lib/channel-tabs.functions", () => ({
+  listMyMentions: api.mentions,
+  listChannelActions: api.actions,
+  markMentionSeen: api.seen,
+}));
+vi.mock("@/lib/channel-actions.functions", () => ({
+  updateChannelAction: vi.fn(),
+  listChannelAssigneeOptions: vi.fn(),
+  ACTION_STATUSES: ["open", "in_progress", "resolved"],
+}));
+vi.mock("@/lib/channel-connection-requests.functions", () => ({
+  listMyConnectionRequests: api.connections,
+  respondToConnectionRequest: api.respond,
+  withdrawConnectionRequest: api.withdraw,
+}));
+vi.mock("@/lib/channel-messages.functions", () => ({
+  listPinnedMessages: api.pins,
+  listChannelBookmarkIds: api.bookmarks,
+  prepareChannelAttachmentUpload: api.prepare,
+  failChannelAttachmentUpload: api.failUpload,
+  scanChannelAttachment: api.scan,
+}));
+vi.mock("@/lib/channel-history.functions", () => ({
+  listMyChatHistory: api.history,
+  readChatHistory: api.historyRead,
+  downloadChatHistoryAttachment: api.historyDownload,
+}));
+vi.mock("sonner", () => ({ toast: { error: api.toast } }));
+vi.mock("@/lib/channel-history-download.browser", () => ({
+  openHistoryAttachment: api.openDownload,
+}));
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: {
+    channel: () => {
+      const channel = {
+        on: vi.fn((_event: unknown, _filter: unknown, callback: () => void) => {
+          api.realtimeCallbacks.push(callback);
+          return channel;
+        }),
+        subscribe: vi.fn(() => channel),
+      };
+      return channel;
+    },
+    removeChannel: api.removeRealtime,
+    storage: { from: () => ({ uploadToSignedUrl: api.upload }) },
+  },
+}));
+vi.mock("@/components/channels/MessageItem", () => ({
+  MessageItem: ({ m, bookmarked }: any) => <p data-bookmark={String(bookmarked)}>{m.body}</p>,
+  useMessageAttachments: () => ({ byMessage: new Map(), refetch: vi.fn() }),
+}));
+vi.mock("@/components/channels/ThreadPanel", () => ({
+  ThreadPanel: (props: any) => {
+    api.threadProps = props;
+    return null;
+  },
+}));
+vi.mock("@/components/channels/PromoteRecordDialog", () => ({ PromoteRecordDialog: () => null }));
+vi.mock("@/components/channels/StartStudentConversation", () => ({
+  StartStudentConversation: ({ onCreated }: any) => {
+    api.startCreated = onCreated;
+    return null;
+  },
+}));
+vi.mock("@/components/channels/ChannelMuteToggle", () => ({ ChannelMuteToggle: () => null }));
+vi.mock("@/components/channels/ConnectionRequestsDrawer", () => ({
+  ConnectionRequestsDrawer: () => <button>Connection Controls</button>,
+}));
+vi.mock("@/lib/protected-file-uploads", () => ({
+  get PROTECTED_FILE_UPLOADS_ENABLED() {
+    return api.uploadsEnabled;
+  },
+  PROTECTED_FILE_UPLOADS_MESSAGE: "Uploads unavailable in this fixture",
+  assertProtectedFileUploadsEnabled: () => {
+    if (!api.uploadsEnabled) throw new Error("Uploads unavailable in this fixture");
+  },
+}));
+vi.mock("@/components/privacy/SensitiveFilePrivacyReviewDialog", () => ({
+  SensitiveFilePrivacyReviewDialog: (props: any) => {
+    api.privacyConfirm = props.onConfirm;
+    return null;
+  },
+}));
+vi.mock("@/components/site/SiteShell", () => ({
+  SiteShell: ({ children }: any) => <div>{children}</div>,
+}));
+vi.mock("@/components/feature/FeatureShell", () => ({
+  FeatureShell: ({ children, primaryAction, backTo }: any) => {
+    const client = useQueryClient();
+    api.clients.push(client);
+    return (
+      <main>
+        <a href={backTo.to}>{backTo.label}</a>
+        {primaryAction}
+        {children}
+      </main>
+    );
+  },
+}));
+import { Route } from "@/routes/_authenticated/transition-channel";
+const Page = (Route as any).component;
+const counts = {
+  unreadChannels: 0,
+  unreadMessages: 0,
+  mentions: 0,
+  assignedOpen: 0,
+  decisionsPending: 0,
+  upcomingDeadlines: 0,
+  connectionRequests: 0,
+  recent: [],
+};
+const clients: QueryClient[] = [];
+function mount() {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  clients.push(client);
+  const view = render(
+    <QueryClientProvider client={client}>
+      <Page />
+    </QueryClientProvider>,
+  );
+  return {
+    ...view,
+    client,
+    refresh: () =>
+      view.rerender(
+        <QueryClientProvider client={client}>
+          <Page />
+        </QueryClientProvider>,
+      ),
+  };
+}
+function deferred() {
+  let resolve!: (v: any) => void;
+  let reject!: (e: Error) => void;
+  const promise = new Promise<any>((yes, no) => {
+    resolve = yes;
+    reject = no;
+  });
+  return { promise, resolve, reject };
+}
+afterEach(() => {
+  cleanup();
+  clients.forEach((client) => client.clear());
+  clients.length = 0;
+});
+beforeEach(() => {
+  api.startCreated = null;
+  api.threadProps = null;
+  vi.clearAllMocks();
+  for (const fn of [
+    api.pins,
+    api.bookmarks,
+    api.roles,
+    api.owner,
+    api.summary,
+    api.channels,
+    api.actions,
+    api.mentions,
+    api.seen,
+    api.connections,
+    api.respond,
+    api.withdraw,
+    api.history,
+    api.messages,
+    api.send,
+    api.read,
+    api.prepare,
+    api.failUpload,
+    api.scan,
+    api.upload,
+    api.historyRead,
+    api.historyDownload,
+  ])
+    fn.mockReset();
+  api.uploadsEnabled = false;
+  api.privacyConfirm = null;
+  api.viewer = "viewer-a";
+  api.loading = false;
+  api.clients = [];
+  api.search = { tab: "inbox", unread: "all", due: "all", status: "all", archived: "all" };
+  api.owner.mockResolvedValue({ isPlatformAdmin: false });
+  api.roles.mockResolvedValue({ roles: ["parent"] });
+  api.summary.mockResolvedValue(counts);
+  api.channels.mockResolvedValue({ channels: [] });
+  api.actions.mockResolvedValue({ actions: [] });
+  api.mentions.mockResolvedValue({ mentions: [], hasMore: false });
+  api.connections.mockResolvedValue({ requests: [] });
+  api.history.mockResolvedValue([]);
+  api.realtimeCallbacks = [];
+  api.pins.mockImplementation(async ({ data }: any) => ({
+    channel_id: data.channel_id,
+    pinned: [],
+  }));
+  api.bookmarks.mockImplementation(async ({ data }: any) => ({
+    channel_id: data.channel_id,
+    message_ids: [],
+  }));
+  api.messages.mockResolvedValue({ messages: [] });
+  api.read.mockResolvedValue({ ok: true });
+  api.send.mockImplementation(({ data }: any) =>
+    Promise.resolve({
+      message: {
+        id: sentId,
+        channel_id: data.channel_id,
+        author_id: data.expected_viewer_id,
+        body: data.body,
+      },
+    }),
+  );
+  api.removeRealtime.mockResolvedValue("ok");
+  api.historyRead.mockImplementation(({ data }: any) =>
+    Promise.resolve(historyPage(data.channel_id, data.offset)),
+  );
+  api.historyDownload.mockResolvedValue({ url: "https://files.example.test/signed-sample" });
+  api.navigate.mockResolvedValue(undefined);
+});
+describe("Transition Channel account and role entry", () => {
+  it("waits for settled auth and complete roles before tabs, counts or conversations", async () => {
+    api.loading = true;
+    api.search.tab = "assigned";
+    const view = mount();
+    expect(api.roles).not.toHaveBeenCalled();
+    expect(api.owner).not.toHaveBeenCalled();
+    api.loading = false;
+    const roles = deferred();
+    api.roles.mockReturnValueOnce(roles.promise);
+    view.refresh();
+    await waitFor(() => expect(api.roles).toHaveBeenCalledOnce());
+    expect(api.summary).not.toHaveBeenCalled();
+    expect(api.channels).not.toHaveBeenCalled();
+    expect(api.navigate).not.toHaveBeenCalled();
+    await act(async () => roles.resolve({ roles: ["teacher"] }));
+    await screen.findByRole("tab", { name: /Assigned To Me/ });
+    expect(api.navigate).not.toHaveBeenCalled();
+    expect(api.roles).toHaveBeenCalledWith({ data: { expected_viewer_id: "viewer-a" } });
+    await waitFor(() =>
+      expect(api.summary).toHaveBeenCalledWith({ data: { expected_viewer_id: "viewer-a" } }),
+    );
+  });
+  it.each([
+    ["student", false, "/dashboard"],
+    ["parent", false, "/dashboard"],
+    ["teacher", true, "/caseload"],
+    ["school_admin", true, "/school/overview"],
+    ["district_admin", true, "/district/overview"],
+    ["partner", true, "/partners-manage"],
+  ])("shows applicable %s tabs and workspace return", async (role, tools, destination) => {
+    api.roles.mockResolvedValue({ roles: [role] });
+    mount();
+    await screen.findByRole("tab", { name: /Inbox/ });
+    expect(Boolean(screen.queryByRole("tab", { name: /Assigned To Me/ }))).toBe(tools);
+    expect(Boolean(screen.queryByRole("button", { name: "Connection Controls" }))).toBe(tools);
+    expect(screen.getByRole("link", { name: /Back to/ }).getAttribute("href")).toBe(destination);
+  });
+  it("redirects verified Owners before role/count/conversation reads", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.roles).not.toHaveBeenCalled();
+    expect(api.summary).not.toHaveBeenCalled();
+    expect(api.channels).not.toHaveBeenCalled();
+  });
+  it.each([null, {}, { roles: null }, { roles: ["parent", null] }])(
+    "malformed role responses require retry %#",
+    async (value) => {
+      api.roles.mockResolvedValueOnce(value);
+      mount();
+      const retry = await screen.findByRole("button", { name: "Try Again" });
+      expect(api.channels).not.toHaveBeenCalled();
+      expect(api.summary).not.toHaveBeenCalled();
+      expect(api.navigate).not.toHaveBeenCalled();
+      fireEvent.click(retry);
+      await screen.findByRole("tab", { name: /Inbox/ });
+    },
+  );
+  it.each([{ roles: [] }, { roles: ["unknown"] }, { roles: ["admin"] }])(
+    "does not invent a channel audience from %j",
+    async ({ roles }) => {
+      api.roles.mockResolvedValue({ roles });
+      mount();
+      await screen.findByText(/No channel workspace is available/);
+      expect(api.summary).not.toHaveBeenCalled();
+      expect(api.channels).not.toHaveBeenCalled();
+    },
+  );
+  it("retries failed count reads without claiming zero counts or hiding conversations", async () => {
+    api.summary.mockRejectedValueOnce(new Error("Private count detail"));
+    mount();
+    fireEvent.click(await screen.findByRole("button", { name: "Reload Channel Counts" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Reload Channel Counts" })).toBeNull(),
+    );
+    expect(api.summary).toHaveBeenCalledTimes(2);
+    expect(document.body.textContent).not.toContain("Private count detail");
+    expect(screen.getByRole("tab", { name: /Inbox/ })).toBeTruthy();
+  });
+  it("corrects an inapplicable tab only after the current role resolves and offers navigation retry", async () => {
+    api.search.tab = "decisions";
+    api.navigate.mockRejectedValueOnce(new Error("Private navigation detail"));
+    mount();
+    const retry = await screen.findByRole("button", { name: "Try Again" });
+    expect(api.navigate).toHaveBeenCalledWith(
+      expect.objectContaining({ search: expect.objectContaining({ tab: "inbox" }), replace: true }),
+    );
+    expect(document.body.textContent).not.toContain("Private navigation detail");
+    fireEvent.click(retry);
+    await screen.findByRole("tab", { name: /Inbox/ });
+  });
+  it("uses a private non-persisted child query client and clears it at account change/unmount", async () => {
+    const view = mount();
+    await screen.findByRole("tab", { name: /Inbox/ });
+    const first = api.clients.at(-1);
+    expect(first).not.toBe(view.client);
+    first.setQueryData(
+      ["retained-chat-history"],
+      [{ channel_id: "old", title: "Old Private History" }],
+    );
+    api.viewer = "viewer-b";
+    view.refresh();
+    await screen.findByRole("tab", { name: /Inbox/ });
+    const second = api.clients.at(-1);
+    expect(second).not.toBe(first);
+    expect(second.getQueryData(["retained-chat-history"])).toBeUndefined();
+    expect(first.getQueryCache().getAll()).toHaveLength(0);
+    expect(view.client.getQueryData(["my-roles", "viewer-a"])).toBeUndefined();
+    view.unmount();
+    expect(second.getQueryCache().getAll()).toHaveLength(0);
+  });
+  it.each([false, true])(
+    "departed roles cannot replace the next viewer (failure %s)",
+    async (failure) => {
+      const old = deferred();
+      api.roles.mockReturnValueOnce(old.promise);
+      const view = mount();
+      await waitFor(() => expect(api.roles).toHaveBeenCalledOnce());
+      api.viewer = "viewer-b";
+      api.roles.mockResolvedValue({ roles: ["teacher"] });
+      view.refresh();
+      await screen.findByRole("tab", { name: /Assigned To Me/ });
+      await act(async () =>
+        failure ? old.reject(new Error("Old role")) : old.resolve({ roles: ["parent"] }),
+      );
+      expect(screen.getByRole("tab", { name: /Assigned To Me/ })).toBeTruthy();
+    },
+  );
+  it.each(["loading", "signout"])(
+    "immediately removes channel/history controls on %s",
+    async (change) => {
+      const view = mount();
+      await screen.findByRole("tab", { name: /Inbox/ });
+      if (change === "loading") api.loading = true;
+      else api.viewer = null;
+      view.refresh();
+      expect(screen.queryByRole("tab", { name: /Inbox/ })).toBeNull();
+    },
+  );
+});
+
+it("does not restore general persisted roles, summary or retained-history data into the private workspace", async () => {
+  api.search.tab = "archived";
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  clients.push(client);
+  client.setQueryData(["my-roles"], { roles: ["teacher"] });
+  client.setQueryData(["channel-tile-summary"], { ...counts, connectionRequests: 99 });
+  client.setQueryData(
+    ["retained-chat-history"],
+    [{ channel_id: "old", title: "Old Private History" }],
+  );
+  const history = deferred();
+  api.history.mockReturnValueOnce(history.promise);
+  render(
+    <QueryClientProvider client={client}>
+      <Page />
+    </QueryClientProvider>,
+  );
+  await screen.findByText("Loading history…");
+  expect(screen.queryByText("Old Private History")).toBeNull();
+  expect(screen.queryByRole("button", { name: "Connection Controls" })).toBeNull();
+  expect(screen.queryByText("99")).toBeNull();
+  await act(async () => history.resolve([]));
+  await screen.findByText("No retained conversations.");
+  expect(client.getQueryData(["retained-chat-history"])).toEqual([
+    { channel_id: "old", title: "Old Private History" },
+  ]);
+});
+it.each([false, true])(
+  "a departed summary cannot replace the next viewer's counts (failure %s)",
+  async (failure) => {
+    const old = deferred();
+    api.summary.mockReturnValueOnce(old.promise);
+    const view = mount();
+    await waitFor(() => expect(api.summary).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    api.summary.mockResolvedValue({ ...counts, unreadMessages: 7 });
+    view.refresh();
+    await screen.findByText("7");
+    await act(async () =>
+      failure
+        ? old.reject(new Error("Old private count"))
+        : old.resolve({ ...counts, unreadMessages: 99 }),
+    );
+    expect(screen.queryByText("99")).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText("7")).toBeTruthy();
+  },
+);
+it("clears retained-history selection and ignores departed grants when changing accounts", async () => {
+  api.search.tab = "archived";
+  const old = deferred();
+  api.history.mockReturnValueOnce(old.promise);
+  const view = mount();
+  await screen.findByText("Loading history…");
+  api.viewer = "viewer-b";
+  view.refresh();
+  await screen.findByText("No retained conversations.");
+  await act(async () => old.resolve([{ channel_id: "old", title: "Old Retained Grant" }]));
+  expect(screen.queryByText("Old Retained Grant")).toBeNull();
+});
+it("does not cancel or clear the outer application's cache on workspace departure", async () => {
+  const view = mount();
+  view.client.setQueryData(["unrelated-public-resource"], { title: "Public" });
+  await screen.findByRole("tab", { name: /Inbox/ });
+  view.unmount();
+  expect(view.client.getQueryData(["unrelated-public-resource"])).toEqual({ title: "Public" });
+});
+it("recovers the private query observer under Strict Mode effect replay", async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  clients.push(client);
+  render(
+    <StrictMode>
+      <QueryClientProvider client={client}>
+        <Page />
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+  await screen.findByRole("tab", { name: /Inbox/ });
+  await waitFor(() => expect(api.summary).toHaveBeenCalled());
+});
+
+const channelA = "11111111-1111-4111-8111-111111111111";
+const channelB = "22222222-2222-4222-8222-222222222222";
+const sentId = "33333333-3333-4333-8333-333333333333";
+const messageA = "44444444-4444-4444-8444-444444444444";
+const attachmentId = "55555555-5555-4555-8555-555555555555";
+function conversationChannels() {
+  return [channelA, channelB].map((id, index) => ({
+    id,
+    title: index ? "Beta Channel" : "Alpha Channel",
+    kind: "student_team",
+    purpose: null,
+    student_id: null,
+    organization_id: null,
+    partner_organization_id: null,
+    last_message_at: null,
+    archived_at: null,
+    unread_count: 0,
+    muted: false,
+    member_role: "member",
+  }));
+}
+async function conversations() {
+  api.search.tab = "channels";
+  api.channels.mockResolvedValue({ channels: conversationChannels() });
+  const view = mount();
+  await screen.findByRole("textbox", { name: "Message" });
+  await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+  return view;
+}
+function draft(body: string) {
+  fireEvent.change(screen.getByRole("textbox", { name: "Message" }), { target: { value: body } });
+}
+function send() {
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+}
+function selectBeta() {
+  fireEvent.click(screen.getByRole("button", { name: /^Beta Channel/ }));
+}
+function selectAlpha() {
+  fireEvent.click(screen.getByRole("button", { name: /^Alpha Channel/ }));
+}
+function sent(channelId = channelA, author = "viewer-a") {
+  return { message: { id: sentId, channel_id: channelId, author_id: author } };
+}
+function historyPage(channelId: string, offset = 0) {
+  return {
+    channel_id: channelId,
+    offset,
+    messages: [
+      {
+        message_id: messageA,
+        body: `History ${channelId}:${offset}`,
+        author_name: "Sample",
+        sent_at: "2026-10-14T10:00:00Z",
+        parent_id: null,
+      },
+    ],
+    attachments: [{ attachment_id: attachmentId, message_id: messageA, file_name: "Sample.txt" }],
+    hasMore: offset === 0,
+  };
+}
+async function history() {
+  api.search.tab = "archived";
+  api.history.mockResolvedValue([
+    { channel_id: channelA, title: "Alpha History", removed_at: "2026-10-14" },
+    { channel_id: channelB, title: "Beta History", removed_at: "2026-10-14" },
+  ]);
+  const view = mount();
+  fireEvent.click(await screen.findByRole("button", { name: "Alpha History" }));
+  await screen.findByRole("button", { name: "Sample.txt" });
+  return view;
+}
+describe("main conversation request effects", () => {
+  it("keeps drafts per channel and clears only the unchanged submitted draft", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Alpha draft");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    selectBeta();
+    await screen.findByRole("textbox", { name: "Message" });
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "",
+    );
+    draft("Beta draft");
+    await act(async () => pending.resolve(sent()));
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Beta draft",
+    );
+    selectAlpha();
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "",
+    );
+    expect(api.send.mock.calls[0][0].data).toMatchObject({
+      channel_id: channelA,
+      body: "Alpha draft",
+      expected_viewer_id: "viewer-a",
+      client_dedupe_key: expect.any(String),
+    });
+  });
+  it("does not erase edits made while sending", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Submitted");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    draft("New unsent edit");
+    await act(async () => pending.resolve(sent()));
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "New unsent edit",
+    );
+  });
+  it("serializes duplicate submits but lets another channel keep its own send state", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Alpha");
+    send();
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Message" }), { key: "Enter" });
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    draft("Beta");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledTimes(2));
+    expect(api.send.mock.calls[1][0].data.channel_id).toBe(channelB);
+    await act(async () => pending.resolve(sent()));
+  });
+  it("reuses the original dedupe key for an unchanged failed send", async () => {
+    api.send.mockRejectedValueOnce(new Error("Private send detail"));
+    await conversations();
+    draft("Retry this");
+    send();
+    await waitFor(() => expect(api.toast).toHaveBeenCalledOnce());
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Retry this",
+    );
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledTimes(2));
+    expect(api.send.mock.calls[1][0].data.client_dedupe_key).toBe(
+      api.send.mock.calls[0][0].data.client_dedupe_key,
+    );
+    expect(api.toast.mock.calls[0][0]).not.toContain("Private send detail");
+  });
+  it.each([{}, sent(channelB), sent(channelA, "another-author")])(
+    "does not clear a draft for a mismatched send response %#",
+    async (response) => {
+      api.send.mockResolvedValueOnce(response);
+      await conversations();
+      draft("Keep this");
+      send();
+      await waitFor(() => expect(api.toast).toHaveBeenCalledOnce());
+      expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+        "Keep this",
+      );
+    },
+  );
+  it.each([false, true])(
+    "late send completion cannot affect a different account (failure %s)",
+    async (failure) => {
+      const pending = deferred();
+      api.send.mockReturnValueOnce(pending.promise);
+      const view = await conversations();
+      draft("Old account");
+      send();
+      await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+      api.viewer = "viewer-b";
+      view.refresh();
+      await screen.findByRole("textbox", { name: "Message" });
+      draft("New account");
+      await act(async () =>
+        failure ? pending.reject(new Error("Old send failure")) : pending.resolve(sent()),
+      );
+      expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+        "New account",
+      );
+      expect(api.toast).not.toHaveBeenCalled();
+    },
+  );
+  it("late send errors after an A-to-B-to-A transition cannot show a current-view error", async () => {
+    const pending = deferred();
+    api.send.mockReturnValueOnce(pending.promise);
+    await conversations();
+    draft("Original");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    selectBeta();
+    selectAlpha();
+    await act(async () => pending.reject(new Error("Late original error")));
+    expect(api.toast).not.toHaveBeenCalled();
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Original",
+    );
+  });
+  it("read failures keep messages visible and offer retry", async () => {
+    api.messages.mockImplementation(({ data }: any) =>
+      Promise.resolve({
+        messages: [
+          { id: messageA, channel_id: data.channel_id, body: "Recorded message", parent_id: null },
+        ],
+      }),
+    );
+    api.read.mockRejectedValueOnce(new Error("Private read detail"));
+    await conversations();
+    fireEvent.click(await screen.findByRole("button", { name: "Retry Read Status" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Retry Read Status" })).toBeNull(),
+    );
+    expect(screen.getByText("Recorded message")).toBeTruthy();
+    expect(api.read).toHaveBeenCalledWith({
+      data: {
+        channel_id: channelA,
+        last_read_message_id: messageA,
+        expected_viewer_id: "viewer-a",
+      },
+    });
+  });
+  it("late read failure and realtime callbacks cannot affect the next selected channel", async () => {
+    const pending = deferred();
+    api.read.mockReturnValueOnce(pending.promise);
+    api.messages.mockImplementation(({ data }: any) =>
+      Promise.resolve({
+        messages: [
+          {
+            id: messageA,
+            channel_id: data.channel_id,
+            body: `Message ${data.channel_id}`,
+            parent_id: null,
+          },
+        ],
+      }),
+    );
+    const view = await conversations();
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
+    const oldRealtime = api.realtimeCallbacks[0];
+    selectBeta();
+    await waitFor(() => expect(api.read).toHaveBeenCalledTimes(2));
+    const client = api.clients.at(-1);
+    const invalidate = vi.spyOn(client, "invalidateQueries");
+    invalidate.mockClear();
+    await act(async () => {
+      pending.reject(new Error("Old read failure"));
+      oldRealtime();
+    });
+    expect(screen.queryByRole("button", { name: "Retry Read Status" })).toBeNull();
+    expect(invalidate).not.toHaveBeenCalled();
+    expect(api.removeRealtime).toHaveBeenCalled();
+    view.unmount();
+  });
+  it("message read errors and mismatched channels never become an empty conversation", async () => {
+    api.messages.mockRejectedValueOnce(new Error("Private read failure"));
+    await conversations();
+    const retry = await screen.findByRole("button", { name: "Reload Messages" });
+    expect(screen.queryByText("Be the first to write in this channel.")).toBeNull();
+    draft("Waiting draft");
+    fireEvent.submit(screen.getByRole("textbox", { name: "Message" }).closest("form")!);
+    expect(api.send).not.toHaveBeenCalled();
+    api.messages.mockResolvedValueOnce({
+      messages: [{ id: messageA, channel_id: channelB, body: "Foreign message" }],
+    });
+    fireEvent.click(retry);
+    await screen.findByRole("button", { name: "Reload Messages" });
+    expect(screen.queryByText("Foreign message")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Reload Messages" }));
+    await screen.findByText("Be the first to write in this channel.");
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "Waiting draft",
+    );
+  });
+  it("conversation-list failure has its own retry and does not claim no conversations", async () => {
+    api.search.tab = "channels";
+    api.channels.mockRejectedValueOnce(new Error("Private list failure"));
+    mount();
+    const retry = await screen.findByRole("button", { name: "Reload Conversations" });
+    expect(screen.queryByText(/No channels match your filters/)).toBeNull();
+    fireEvent.click(retry);
+    await screen.findByText(/No channels match your filters/);
+  });
+  it("archived channels cannot send even through a direct form submit", async () => {
+    api.search.tab = "channels";
+    const rows = conversationChannels();
+    rows[0].archived_at = "2026-10-14" as any;
+    api.channels.mockResolvedValue({ channels: rows });
+    mount();
+    await screen.findByRole("textbox", { name: "Message" });
+    draft("Blocked");
+    fireEvent.submit(screen.getByRole("textbox", { name: "Message" }).closest("form")!);
+    expect(api.send).not.toHaveBeenCalled();
+  });
+});
+
+describe("retained history download intent", () => {
+  it("opens only the current authorized attachment and prevents duplicate downloads", async () => {
+    const pending = deferred();
+    api.historyDownload.mockReturnValueOnce(pending.promise);
+    await history();
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    expect(api.historyDownload).toHaveBeenCalledOnce();
+    expect(api.historyDownload).toHaveBeenCalledWith({
+      data: { attachment_id: attachmentId, expected_viewer_id: "viewer-a" },
+    });
+    await act(async () => pending.resolve({ url: "https://files.example.test/allowed" }));
+    expect(api.openDownload).toHaveBeenCalledWith("https://files.example.test/allowed");
+  });
+  it.each(["channel", "page", "account", "unmount", "roundtrip"])(
+    "ignores a signed download after %s departure",
+    async (change) => {
+      const pending = deferred();
+      api.historyDownload.mockReturnValueOnce(pending.promise);
+      const view = await history();
+      fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+      if (change === "channel" || change === "roundtrip") {
+        fireEvent.click(screen.getByRole("button", { name: "Beta History" }));
+        await screen.findByText(`History ${channelB}:0`);
+      }
+      if (change === "roundtrip") {
+        fireEvent.click(screen.getByRole("button", { name: "Alpha History" }));
+        await screen.findByText(`History ${channelA}:0`);
+      }
+      if (change === "page") {
+        fireEvent.click(screen.getByRole("button", { name: "Older" }));
+        await screen.findByText(`History ${channelA}:50`);
+      }
+      if (change === "account") {
+        api.viewer = "viewer-b";
+        view.refresh();
+        await screen.findByRole("button", { name: "Alpha History" });
+      }
+      if (change === "unmount") view.unmount();
+      await act(async () => pending.resolve({ url: "https://files.example.test/departed" }));
+      expect(api.openDownload).not.toHaveBeenCalled();
+      expect(api.toast).not.toHaveBeenCalled();
+    },
+  );
+  it("a late download error cannot show a notice on another history page", async () => {
+    const pending = deferred();
+    api.historyDownload.mockReturnValueOnce(pending.promise);
+    await history();
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    fireEvent.click(screen.getByRole("button", { name: "Older" }));
+    await screen.findByText(`History ${channelA}:50`);
+    await act(async () => pending.reject(new Error("Old private download failure")));
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("failed current downloads keep generic retry guidance", async () => {
+    api.historyDownload.mockRejectedValueOnce(new Error("Private signing detail"));
+    await history();
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    await waitFor(() => expect(api.toast).toHaveBeenCalledOnce());
+    expect(api.toast.mock.calls[0][0]).not.toContain("Private signing detail");
+    fireEvent.click(screen.getByRole("button", { name: "Sample.txt" }));
+    await waitFor(() => expect(api.openDownload).toHaveBeenCalledOnce());
+  });
+  it("does not expose a history page returned for another conversation", async () => {
+    api.historyRead.mockResolvedValueOnce(historyPage(channelB));
+    api.search.tab = "archived";
+    api.history.mockResolvedValue([
+      { channel_id: channelA, title: "Alpha History", removed_at: "2026-10-14" },
+    ]);
+    mount();
+    fireEvent.click(await screen.findByRole("button", { name: "Alpha History" }));
+    await screen.findByText("Could not load messages.");
+    expect(screen.queryByText(`History ${channelB}:0`)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sample.txt" })).toBeNull();
+  });
+});
+
+function attachSample() {
+  act(() =>
+    api.privacyConfirm({
+      file: new File(["Fictional reviewed text"], "privacy-safe-document.txt", {
+        type: "text/plain",
+      }),
+    }),
+  );
+}
+function preparedAttachment() {
+  return {
+    attachment: { id: attachmentId },
+    upload: { storage_path: "synthetic/path", token: "synthetic-token" },
+  };
+}
+describe("original-message attachment pipeline (mocked staging policy only)", () => {
+  it("keeps an in-flight attachment on its original message/channel when selecting another conversation", async () => {
+    api.uploadsEnabled = true;
+    const pending = deferred();
+    api.prepare.mockReturnValueOnce(pending.promise);
+    api.upload.mockResolvedValue({ error: null });
+    api.scan.mockResolvedValue({ attachment: { id: attachmentId } });
+    await conversations();
+    attachSample();
+    draft("With a file");
+    send();
+    await waitFor(() => expect(api.prepare).toHaveBeenCalledOnce());
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    draft("New channel text");
+    await act(async () => pending.resolve(preparedAttachment()));
+    await waitFor(() => expect(api.scan).toHaveBeenCalledOnce());
+    expect(api.prepare.mock.calls[0][0].data).toMatchObject({
+      channel_id: channelA,
+      message_id: sentId,
+      file_name: "privacy-safe-document.txt",
+      expected_viewer_id: "viewer-a",
+    });
+    expect(api.scan).toHaveBeenCalledWith({
+      data: { attachment_id: attachmentId, expected_viewer_id: "viewer-a" },
+    });
+    expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+      "New channel text",
+    );
+  });
+  it("does not start storage upload after a prepare response returns to a departed account", async () => {
+    api.uploadsEnabled = true;
+    const pending = deferred();
+    api.prepare.mockReturnValueOnce(pending.promise);
+    const view = await conversations();
+    attachSample();
+    draft("File request");
+    send();
+    await waitFor(() => expect(api.prepare).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    view.refresh();
+    await screen.findByRole("textbox", { name: "Message" });
+    await act(async () => pending.resolve(preparedAttachment()));
+    expect(api.upload).not.toHaveBeenCalled();
+    expect(api.scan).not.toHaveBeenCalled();
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("does not start scanning after an upload returns to a departed account", async () => {
+    api.uploadsEnabled = true;
+    api.prepare.mockResolvedValue(preparedAttachment());
+    const pending = deferred();
+    api.upload.mockReturnValueOnce(pending.promise);
+    const view = await conversations();
+    attachSample();
+    draft("Uploading");
+    send();
+    await waitFor(() => expect(api.upload).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    view.refresh();
+    await screen.findByRole("textbox", { name: "Message" });
+    await act(async () => pending.resolve({ error: null }));
+    expect(api.scan).not.toHaveBeenCalled();
+    expect(api.failUpload).not.toHaveBeenCalled();
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("keeps a failed old-channel scan notice out of the new conversation", async () => {
+    api.uploadsEnabled = true;
+    api.prepare.mockResolvedValue(preparedAttachment());
+    api.upload.mockResolvedValue({ error: null });
+    const pending = deferred();
+    api.scan.mockReturnValueOnce(pending.promise);
+    await conversations();
+    attachSample();
+    draft("Scanning");
+    send();
+    await waitFor(() => expect(api.scan).toHaveBeenCalledOnce());
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    await act(async () => pending.reject(new Error("Private scan detail")));
+    expect(api.toast).not.toHaveBeenCalled();
+  });
+  it("a stale privacy confirmation cannot attach a file to a different channel", async () => {
+    api.uploadsEnabled = true;
+    await conversations();
+    const oldConfirm = api.privacyConfirm;
+    selectBeta();
+    await waitFor(() => expect(screen.queryByText("Loading messages…")).toBeNull());
+    act(() =>
+      oldConfirm({
+        file: new File(["Fictional"], "privacy-safe-document.txt", { type: "text/plain" }),
+      }),
+    );
+    expect(screen.queryByText("privacy-safe-document.txt")).toBeNull();
+  });
+  it("removes an unavailable selected conversation without loading or sending to a replacement", async () => {
+    await conversations();
+    draft("Retained unsent draft");
+    api.channels.mockResolvedValueOnce({ channels: [conversationChannels()[1]] });
+    fireEvent.click(screen.getByRole("button", { name: "Refresh Conversations" }));
+    await screen.findByText(/This conversation is no longer available/);
+    expect(screen.queryByRole("textbox", { name: "Message" })).toBeNull();
+    expect(api.send).not.toHaveBeenCalled();
+  });
+});
+
+it.each(["student", "parent", "teacher", "school_admin", "district_admin", "partner"])(
+  "sends in the same scoped conversation flow for %s",
+  async (role) => {
+    api.roles.mockResolvedValue({ roles: [role] });
+    await conversations();
+    draft("Scoped role message");
+    send();
+    await waitFor(() => expect(api.send).toHaveBeenCalledOnce());
+    expect(api.send.mock.calls[0][0].data).toMatchObject({
+      channel_id: channelA,
+      expected_viewer_id: "viewer-a",
+      body: "Scoped role message",
+    });
+    await waitFor(() =>
+      expect((screen.getByRole("textbox", { name: "Message" }) as HTMLTextAreaElement).value).toBe(
+        "",
+      ),
+    );
+  },
+);
+
+describe("actual action-tab read recovery with mocked transport", () => {
+  beforeEach(() => {
+    api.roles.mockResolvedValue({ roles: ["teacher"] });
+    api.search.tab = "assigned";
+  });
+  it("distinguishes a failed read from empty records and retries with viewer intent", async () => {
+    api.actions.mockRejectedValueOnce(new Error("private read details"));
+    mount();
+    await screen.findByText("We couldn't load these records.");
+    expect(screen.queryByText("No recorded assigned actions in this view.")).toBeNull();
+    fireEvent.click(screen.getByText("Reload Records"));
+    await screen.findByText("No recorded assigned actions in this view.");
+    expect(api.actions).toHaveBeenCalledWith({
+      data: { kind: "action", assignee_only: true, expected_viewer_id: "viewer-a" },
+    });
+    expect(screen.getByText("This view shows up to 50 recent records.")).toBeTruthy();
+  });
+  it.each([{ actions: null }, { actions: [{ id: "bad", channel_id: "bad", status: "open" }] }])(
+    "rejects malformed recorded collections %#",
+    async (response) => {
+      api.actions.mockResolvedValue(response);
+      mount();
+      await screen.findByText("We couldn't load these records.");
+      expect(screen.queryByText("No recorded assigned actions in this view.")).toBeNull();
+    },
+  );
+  it("does not render a departed account's late records", async () => {
+    const pending = deferred();
+    api.actions.mockReturnValueOnce(pending.promise);
+    const ui = mount();
+    await waitFor(() => expect(api.actions).toHaveBeenCalledOnce());
+    api.viewer = "viewer-b";
+    ui.refresh();
+    await waitFor(() => expect(api.actions).toHaveBeenCalledTimes(2));
+    await act(async () =>
+      pending.resolve({
+        actions: [
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            channel_id: "22222222-2222-4222-8222-222222222222",
+            status: "open",
+            resolution: "Departed private record",
+          },
+        ],
+      }),
+    );
+    expect(screen.queryByText("Departed private record")).toBeNull();
+    expect(api.actions.mock.calls[1][0].data.expected_viewer_id).toBe("viewer-b");
+  });
+});
+
+describe("actual all-role mentions entry", () => {
+  it.each(["student", "parent", "teacher", "school_admin", "district_admin", "partner"])(
+    "mounts scoped mention reads for the eligible %s role",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      api.search.tab = "mentions";
+      mount();
+      await screen.findByText("No mentions yet.");
+      expect(api.mentions).toHaveBeenCalledWith({ data: { expected_viewer_id: "viewer-a" } });
+    },
+  );
+  it("keeps verified platform Owners out of mention reads", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    api.search.tab = "mentions";
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.mentions).not.toHaveBeenCalled();
+    expect(api.seen).not.toHaveBeenCalled();
+  });
+  it("keeps read errors retryable through actual route entry", async () => {
+    api.search.tab = "mentions";
+    api.mentions.mockRejectedValueOnce(new Error("private read failure"));
+    mount();
+    await screen.findByText("We couldn't load your mentions.");
+    expect(screen.queryByText("No mentions yet.")).toBeNull();
+    fireEvent.click(screen.getByText("Reload Mentions"));
+    await screen.findByText("No mentions yet.");
+  });
+});
+
+describe("actual connection-role entry and exact-channel handoff", () => {
+  it.each(["teacher", "school_admin", "district_admin", "partner"])(
+    "reads scoped requests for the eligible %s role",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      api.search.tab = "connections";
+      mount();
+      await screen.findByText("No connection requests yet.");
+      expect(api.connections).toHaveBeenCalledWith({ data: { expected_viewer_id: "viewer-a" } });
+    },
+  );
+  it.each(["parent", "student"])(
+    "does not mount request controls for the excluded %s role",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      api.search.tab = "connections";
+      mount();
+      await waitFor(() => expect(api.navigate).toHaveBeenCalled());
+      expect(api.connections).not.toHaveBeenCalled();
+      expect(screen.queryByRole("button", { name: "Connection Controls" })).toBeNull();
+    },
+  );
+  it("keeps platform Owners out of request reads", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    api.search.tab = "connections";
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.connections).not.toHaveBeenCalled();
+  });
+  it("validates the requested channel search value", () => {
+    expect((Route as any).validateSearch.parse({ channel: channelB }).channel).toBe(channelB);
+    expect((Route as any).validateSearch.parse({ channel: "unsafe" }).channel).toBeUndefined();
+  });
+  it("selects the explicitly requested available channel instead of the first", async () => {
+    api.search.channel = channelB;
+    await conversations();
+    expect(api.messages.mock.calls[0][0].data.channel_id).toBe(channelB);
+    expect(api.messages.mock.calls.some(([arg]: any) => arg.data.channel_id === channelA)).toBe(
+      false,
+    );
+  });
+  it("keeps an unavailable requested channel unavailable instead of opening another", async () => {
+    api.search.tab = "channels";
+    api.search.channel = "99999999-9999-4999-8999-999999999999";
+    api.channels.mockResolvedValue({ channels: conversationChannels() });
+    mount();
+    await screen.findByText(/This conversation is no longer available/);
+    expect(api.messages).not.toHaveBeenCalled();
+  });
+  it("opens a confirmed request's exact channel through the real route callback", async () => {
+    api.roles.mockResolvedValue({ roles: ["partner"] });
+    api.search.tab = "connections";
+    api.connections.mockResolvedValue({
+      requests: [
+        {
+          id: channelA,
+          status: "accepted",
+          message: "Confirmed request",
+          purpose_category: "transition",
+          proposed_next_step: null,
+          created_at: "2026-10-15T00:00:00Z",
+          expires_at: "2099-01-01T00:00:00Z",
+          requester_id: channelA,
+          requester_name: "Member",
+          requester_organization_id: null,
+          requester_organization_name: null,
+          target_partner_organization_id: channelA,
+          target_partner_organization_name: "Partner",
+          resulting_channel_id: channelB,
+          direction: "incoming",
+          can_respond: false,
+          can_withdraw: false,
+          channel_ready: true,
+        },
+      ],
+    });
+    mount();
+    await screen.findByText("Confirmed request");
+    fireEvent.click(screen.getByRole("button", { name: "Open Channel" }));
+    await waitFor(() =>
+      expect(api.navigate).toHaveBeenCalledWith({
+        to: "/transition-channel",
+        search: expect.objectContaining({ tab: "channels", channel: channelB }),
+      }),
+    );
+  });
+});
+
+describe("new conversation route handoff", () => {
+  it.each(["parent", "student", "educator", "school_admin", "district_admin", "partner"])(
+    "opens an exact created channel for eligible %s entry",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      await conversations();
+      expect(api.startCreated).toBeTypeOf("function");
+      await act(async () => {
+        await api.startCreated!(channelB);
+      });
+      expect(api.navigate).toHaveBeenCalledWith({
+        to: "/transition-channel",
+        search: expect.objectContaining({
+          tab: "channels",
+          channel: channelB,
+          unread: "all",
+          archived: "active",
+          student: undefined,
+          type: undefined,
+          org: undefined,
+          opportunity: undefined,
+        }),
+      });
+    },
+  );
+  it("propagates navigation failure to saved-state recovery", async () => {
+    await conversations();
+    api.navigate.mockRejectedValueOnce(new Error("route failed"));
+    await expect(api.startCreated!(channelB)).rejects.toThrow("route failed");
+  });
+  it("cannot navigate from a departed account callback", async () => {
+    const view = await conversations(),
+      callback = api.startCreated!;
+    api.viewer = "viewer-b";
+    view.refresh();
+    await expect(callback(channelB)).rejects.toThrow("Conversation view changed.");
+    expect(api.navigate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ search: expect.objectContaining({ channel: channelB }) }),
+    );
+  });
+  it("does not mount the start form for a platform Owner", async () => {
+    api.owner.mockResolvedValue({ isPlatformAdmin: true });
+    api.search.tab = "channels";
+    mount();
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledWith({ to: "/owner", replace: true }));
+    expect(api.startCreated).toBeNull();
+  });
+});
+
+function pinnedMessage(index = 1, channelId = channelA, patch: any = {}) {
+  return {
+    id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    channel_id: channelId,
+    author_id: "viewer-a",
+    parent_id: null,
+    body: `Recorded Pin ${index}`,
+    pinned: true,
+    edited_at: null,
+    deleted_at: null,
+    created_at: "2026-10-15T00:00:00Z",
+    author_name: "Member",
+    ...patch,
+  };
+}
+describe("pinned and bookmarked reader recovery through the route", () => {
+  it.each(["parent", "student", "educator", "school_admin", "district_admin", "partner"])(
+    "reads pins/bookmarks with original viewer intent for %s",
+    async (role) => {
+      api.roles.mockResolvedValue({ roles: [role] });
+      await conversations();
+      expect(api.pins).toHaveBeenCalledWith({
+        data: { channel_id: channelA, expected_viewer_id: "viewer-a" },
+      });
+      expect(api.bookmarks).toHaveBeenCalledWith({
+        data: { channel_id: channelA, expected_viewer_id: "viewer-a" },
+      });
+    },
+  );
+  it("displays and browses all verified pins beyond the old limit", async () => {
+    api.pins.mockResolvedValue({
+      channel_id: channelA,
+      pinned: Array.from({ length: 25 }, (_, i) => pinnedMessage(i + 1)),
+    });
+    await conversations();
+    await screen.findByText("Showing 10 of 25 pinned messages.");
+    expect(screen.queryByText("Recorded Pin 25")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Show More Pinned Messages" }));
+    await screen.findByText("Showing 20 of 25 pinned messages.");
+    fireEvent.click(screen.getByRole("button", { name: "Show More Pinned Messages" }));
+    await screen.findByText("Recorded Pin 25");
+    expect(screen.queryByRole("button", { name: "Show More Pinned Messages" })).toBeNull();
+  });
+  it("can open an older verified pin absent from the recent message window", async () => {
+    const pin = pinnedMessage();
+    api.pins.mockResolvedValue({ channel_id: channelA, pinned: [pin] });
+    await conversations();
+    fireEvent.click(await screen.findByRole("button", { name: /Recorded Pin 1/ }));
+    await waitFor(() => expect(api.threadProps.parentId).toBe(pin.id));
+  });
+  it("shows pin failure, hides cached pins and reloads", async () => {
+    api.pins.mockResolvedValueOnce({ channel_id: channelA, pinned: [pinnedMessage()] });
+    await conversations();
+    await screen.findByText("Recorded Pin 1");
+    api.pins.mockRejectedValueOnce(new Error("private metadata"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh Pinned Messages" }));
+    await screen.findByRole("button", { name: "Reload Pinned Messages" });
+    expect(screen.queryByText("Recorded Pin 1")).toBeNull();
+    expect(screen.queryByText("private metadata")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Reload Pinned Messages" }));
+    await screen.findByRole("button", { name: "Refresh Pinned Messages" });
+  });
+  it.each([
+    { channel_id: channelB, pinned: [] },
+    { channel_id: channelA, pinned: [pinnedMessage(1, channelB)] },
+    {
+      channel_id: channelA,
+      pinned: [pinnedMessage(1, channelA, { deleted_at: "2026-10-15T00:00:00Z" })],
+    },
+    { channel_id: channelA, pinned: [pinnedMessage(), pinnedMessage()] },
+  ])("rejects mismatched/deleted/duplicate pin results %j", async (result) => {
+    api.pins.mockResolvedValueOnce(result);
+    await conversations();
+    await screen.findByRole("button", { name: "Reload Pinned Messages" });
+    expect(screen.queryByText("Recorded Pin 1")).toBeNull();
+  });
+  it("keeps unknown bookmarks unavailable in messages and threads until reload succeeds", async () => {
+    api.messages.mockResolvedValue({
+      messages: [pinnedMessage(1, channelA, { body: "Recorded current message", pinned: false })],
+    });
+    api.bookmarks.mockRejectedValueOnce(new Error("private"));
+    await conversations();
+    await screen.findByRole("button", { name: "Reload Bookmarks" });
+    expect(screen.getByText("Recorded current message").getAttribute("data-bookmark")).toBe("null");
+    expect(api.threadProps.bookmarksAvailable).toBe(false);
+    api.bookmarks.mockResolvedValueOnce({
+      channel_id: channelA,
+      message_ids: [pinnedMessage().id],
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reload Bookmarks" }));
+    await waitFor(() =>
+      expect(screen.getByText("Recorded current message").getAttribute("data-bookmark")).toBe(
+        "true",
+      ),
+    );
+    expect(api.threadProps.bookmarksAvailable).toBe(true);
+  });
+  it("hides previously successful bookmark state after failed refresh", async () => {
+    api.messages.mockResolvedValue({
+      messages: [pinnedMessage(1, channelA, { body: "Current saved message", pinned: false })],
+    });
+    api.bookmarks.mockResolvedValueOnce({
+      channel_id: channelA,
+      message_ids: [pinnedMessage().id],
+    });
+    await conversations();
+    await waitFor(() =>
+      expect(screen.getByText("Current saved message").getAttribute("data-bookmark")).toBe("true"),
+    );
+    api.bookmarks.mockRejectedValueOnce(new Error("denied"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh Bookmarks" }));
+    await waitFor(() =>
+      expect(screen.getByText("Current saved message").getAttribute("data-bookmark")).toBe("null"),
+    );
+  });
+  it.each([
+    { channel_id: channelB, message_ids: [] },
+    { channel_id: channelA, message_ids: ["bad"] },
+    { channel_id: channelA, message_ids: [messageA, messageA] },
+  ])("rejects wrong/invalid/duplicate bookmark results %j", async (result) => {
+    api.bookmarks.mockResolvedValueOnce(result);
+    await conversations();
+    await screen.findByRole("button", { name: "Reload Bookmarks" });
+    expect(api.threadProps.bookmarksAvailable).toBe(false);
+  });
+  it("ignores late pins from a previous channel", async () => {
+    const old = deferred();
+    api.pins.mockReturnValueOnce(old.promise);
+    await conversations();
+    selectBeta();
+    await waitFor(() =>
+      expect(api.pins).toHaveBeenCalledWith({
+        data: { channel_id: channelB, expected_viewer_id: "viewer-a" },
+      }),
+    );
+    await act(async () =>
+      old.resolve({
+        channel_id: channelA,
+        pinned: [pinnedMessage(1, channelA, { body: "Old pin" })],
+      }),
+    );
+    expect(screen.queryByText("Old pin")).toBeNull();
+  });
+  it("ignores late bookmark state from a previous account", async () => {
+    const old = deferred();
+    api.bookmarks.mockReturnValueOnce(old.promise);
+    const view = await conversations();
+    api.channels.mockResolvedValue({ channels: [conversationChannels()[1]] });
+    api.viewer = "viewer-b";
+    view.refresh();
+    await waitFor(() =>
+      expect(api.bookmarks).toHaveBeenCalledWith({
+        data: { channel_id: channelB, expected_viewer_id: "viewer-b" },
+      }),
+    );
+    await waitFor(() => expect(api.threadProps.bookmarksAvailable).toBe(true));
+    await act(async () => old.resolve({ channel_id: channelA, message_ids: [messageA] }));
+    expect(api.threadProps.channelId).toBe(channelB);
+    expect(api.threadProps.bookmarkedIds.has(messageA)).toBe(false);
+  });
+});

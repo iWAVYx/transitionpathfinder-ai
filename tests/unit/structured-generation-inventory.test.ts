@@ -8,6 +8,8 @@ it("sends enums, optional sections and array bounds without source data", async 
   const schema = z.object({ role: z.enum(["family", "educator"]), optional: z.array(z.string()).min(1).max(3).optional() });
   const system = await buildStructuredOutputSystem(schema, "Keep the role-specific instructions.");
   expect(system).toContain("Keep the role-specific instructions.");
+  expect(system).toContain("clear, respectful everyday language");
+  expect(system).toContain("Do not expose internal system terminology or change schema keys, enum values or identifiers");
   const json = JSON.parse(system.split("\n").at(-1)!);
   expect(json.properties.role.enum).toEqual(["family", "educator"]);
   expect(json.properties.optional.minItems).toBe(1);

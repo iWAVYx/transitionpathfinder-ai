@@ -12,7 +12,7 @@ export function RouteErrorComponent({
   error,
   reset,
 }: {
-  error: Error;
+  error: unknown;
   reset: () => void;
 }) {
   // Surface the error in the browser console for debugging; the friendly

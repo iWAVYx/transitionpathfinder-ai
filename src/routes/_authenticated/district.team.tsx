@@ -1,3 +1,7 @@
+import { membershipStatusLabel } from "@/lib/membership-status";
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { useOrganizationOperation } from "@/hooks/use-organization-operation";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useState } from "react";
@@ -22,12 +26,14 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/district/team")({
+  ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/team"),
   head: () => ({ meta: [{ title: "District Team — TransitionForward" }] }),
   component: withRoleGuard(["district_admin", "admin"], DistrictTeamPage),
 });
 
 function DistrictTeamPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, refreshIfCurrent, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/team"
@@ -37,9 +43,10 @@ function DistrictTeamPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(district, d) => (
-        <TeamBody districtId={district.id} dashboard={d} onChanged={reload} />
+        <TeamBody key={district.id} districtId={district.id} dashboard={d} onChanged={refreshIfCurrent} />
       )}
     </DistrictPageShell>
   );
@@ -54,6 +61,7 @@ function TeamBody({
   dashboard: ReturnType<typeof useDistrictDashboard>["data"] & object;
   onChanged: (id?: string) => void;
 }) {
+  const beginOperation = useOrganizationOperation(districtId);
   const invite = useServerFn(inviteDistrictTeammate);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"member" | "admin" | "district_admin">(
@@ -65,6 +73,7 @@ function TeamBody({
     e.preventDefault();
     if (!email.trim()) return;
     setSaving(true);
+    const isCurrent = beginOperation();
     try {
       await invite({
         data: {
@@ -73,13 +82,15 @@ function TeamBody({
           role_within_org: role,
         },
       });
+      if (!isCurrent()) return;
       toast.success("Teammate added.");
       setEmail("");
       onChanged(districtId);
     } catch (err) {
+      if (!isCurrent()) return;
       toast.error(err instanceof Error ? err.message : "Could not invite.");
     } finally {
-      setSaving(false);
+      if (isCurrent()) setSaving(false);
     }
   }
 
@@ -150,7 +161,7 @@ function TeamBody({
           </h2>
           <p className="text-sm text-muted-foreground">
             {dashboard.team.length} active ·{" "}
-            {dashboard.pending_team.length} pending
+            {dashboard.pending_team.length} other memberships
           </p>
         </div>
         {dashboard.team.length === 0 && dashboard.pending_team.length === 0 ? (
@@ -192,7 +203,7 @@ function TeamBody({
                         : "rounded-full bg-muted px-2 py-0.5 text-muted-foreground"
                     }
                   >
-                    {m.status}
+                    {membershipStatusLabel(m.status)}
                   </span>
                 </div>
               </li>

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-vi.mock("@tanstack/react-router", () => ({ Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a> }));
+vi.mock("@tanstack/react-router", () => ({ Link: ({ to, search, children, ...props }: any) => <a href={to + (search ? "?" + new URLSearchParams(search).toString() : "")} {...props}>{children}</a> }));
 import { DashboardWidgetBoardView } from "../../src/components/dashboard/DashboardWidgetBoardView";
 import type { DashboardWidgetRole } from "../../src/lib/dashboard/dashboard-widget-prefs.functions";
 const empty = { entries: [], toolDestination: null };
@@ -35,4 +35,10 @@ describe("shared widget data states", () => {
     expect(screen.getByText("This demo view has no sample items in this widget.")).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();
   });
+});
+
+it("passes the selected workspace search through Open tool", () => {
+  render(<DashboardWidgetBoardView role="family" widgets={["actions"]} available={["actions"]}
+    data={{...data,actions:{...empty,toolDestination:"/next-actions",toolSearch:{role:"family",student_id:"selected"}}}} update={() => {}} />);
+  expect(screen.getByRole("link",{name:"Open tool"}).getAttribute("href")).toBe("/next-actions?role=family&student_id=selected");
 });

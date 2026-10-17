@@ -8,9 +8,7 @@
     "public.list_public_high_school_program_tags()",
     "public.list_public_partnerforward_incentive_categories()",
     "public.list_public_plan_capacities()",
-    "public.list_public_resource_sources()",
-    "public.resolve_share_token(text)",
-    "public.track_share_view(text)"
+    "public.list_public_resource_sources()"
   ],
   "authenticatedExecute": [
     "public.accept_invitation_by_token(text)",
@@ -67,7 +65,6 @@
     "public.remove_student_member(text, uuid, text)",
     "public.reserve_license_allocation(uuid, text, text, uuid, uuid, uuid, text, timestamp with time zone)",
     "public.resolve_admin_invitation(text)",
-    "public.resolve_share_token(text)",
     "public.revoke_license_access_code(uuid, text)",
     "public.revoke_license_allocation(uuid, text)",
     "public.set_student_coverage_state(uuid, text, text, integer, uuid)",
@@ -75,7 +72,6 @@
     "public.start_student_channel(uuid, uuid, text, text)",
     "public.storage_can_read_student_doc(uuid, text)",
     "public.student_pathway_licensed(uuid)",
-    "public.track_share_view(text)",
     "public.transfer_license_allocation(uuid, text, uuid, uuid)",
     "public.user_has_feature(uuid, text)"
   ],
@@ -99,18 +95,21 @@
     "public.read_email_batch(text, integer, integer)",
     "public.release_expired_license_allocations()",
     "public.release_expired_license_reservations()",
+    "public.resolve_share_token(text)",
     "public.tg_admin_doc_access_grants_immutable()",
     "public.tg_channel_messages_enforce_legal_hold()",
     "public.tg_channels_enforce_legal_hold()",
     "public.tg_entitlement_audit_immutable()",
     "public.tg_release_allocation_on_membership_end()",
     "public.tg_resources_guard_admin_fields()",
+    "public.track_share_view(text)",
     "public.user_in_quiet_hours(uuid)"
   ],
   "serviceRoleExecute": "all routines in scope",
   "notes": {
-    "anonymous": "Only reviewed column-limited catalog content, share-token, and unsubscribe entry points are callable without a session.",
+    "anonymous": "Only reviewed column-limited catalog content and unsubscribe entry points are callable without a session. Report-share resolution and view tracking are server-only.",
     "authenticated": "The allowlist contains caller-authorized RPCs, narrow form-template readers, and helpers required by row-level security; internal triggers and maintenance routines are excluded.",
-    "futureFunctions": "Every future SECURITY DEFINER routine must revoke PUBLIC and client-role execution before granting its reviewed callers."
+    "futureFunctions": "Every future SECURITY DEFINER routine must revoke PUBLIC and client-role execution before granting its reviewed callers.",
+    "shareRelease": "Server caller must be deployed before the separately authorized server-only share grant migration; verify public links and direct RPC denial in staging before production authorization."
   }
 }

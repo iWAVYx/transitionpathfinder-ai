@@ -287,14 +287,6 @@ function PartnerManagePage() {
         </p>
         <Breadcrumbs trail={[{ label: "Partner Workspace" }]} />
 
-        <Link
-          to="/partners-manage"
-          search={{}}
-          className="mt-6 inline-block text-sm font-semibold text-primary hover:underline"
-        >
-          Back to dashboard
-        </Link>
-
         <header className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:justify-between">
           <div className="col-span-2 min-w-0 sm:col-span-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEMO_FEATURE_MAP, DEMO_ELEMENT_IDS } from "@/lib/demo/feature-map";
+import { PUBLIC_FEATURES } from "@/lib/public-feature-contract";
 
 describe("demo feature map", () => {
   it("every entry has non-empty product, nextAction, and a valid status", () => {
@@ -35,9 +36,18 @@ describe("demo feature map", () => {
     }
   });
 
-  it("points both intake demo surfaces to the real signed-in Pathway Builder", () => {
-    expect(DEMO_FEATURE_MAP["intake.categories"].livesAt).toMatch(/^\/pathway\b/);
-    expect(DEMO_FEATURE_MAP["intake.roleLens"].livesAt).toMatch(/^\/pathway\b/);
-    expect(DEMO_FEATURE_MAP["intake.roleLens"].roles).toEqual(["student", "parent", "educator"]);
+  it("aligns both builder mappings with the actual planning perspectives without advertising student submission", () => {
+    const planningRoles = PUBLIC_FEATURES["pathway-builder"].liveAudiences
+      .filter(audience => audience === "Family" || audience === "Educator")
+      .map(audience => audience === "Family" ? "parent" : "educator");
+    for (const id of ["intake.categories", "intake.roleLens"] as const) {
+      const feature = DEMO_FEATURE_MAP[id];
+      expect(feature.livesAt).toBe(PUBLIC_FEATURES["pathway-builder"].liveRoute);
+      expect(feature.roles).toEqual(planningRoles);
+      expect(feature.roles).not.toContain("student");
+      expect(feature.roles).not.toContain("platform");
+    }
+    expect(DEMO_FEATURE_MAP["intake.roleLens"].notes).toContain("separate Student Voice tool");
+    expect(DEMO_FEATURE_MAP["voice.prompts"].roles).toContain("student");
   });
 });

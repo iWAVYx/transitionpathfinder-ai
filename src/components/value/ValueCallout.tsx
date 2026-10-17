@@ -68,7 +68,7 @@ export function ValueCallout({ data, variant = "inline", className }: Props) {
           body={
             <ul className="mt-1 list-disc space-y-1 pl-5 marker:text-primary/60">
               {data.questionsForTeam.map((q) => (
-                <li key={q}>{q}</li>
+                <li key={q} data-value-callout-question>{q}</li>
               ))}
             </ul>
           }
@@ -102,6 +102,7 @@ function Row({
   const Icon = ROW_ICONS[icon];
   return (
     <div
+      data-value-callout-row={icon}
       className={cn(
         "flex gap-3 py-2.5",
         !last && "border-b border-primary/10",
@@ -111,7 +112,7 @@ function Row({
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+        <p data-value-callout-label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
           {label}
         </p>
         <div className="mt-0.5 text-foreground/90">{body}</div>

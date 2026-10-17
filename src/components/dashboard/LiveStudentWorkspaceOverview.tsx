@@ -1,5 +1,6 @@
+import { upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   BookOpen,
@@ -22,7 +23,11 @@ import {
   type ToolPreviewCardProps,
 } from "@/components/dashboard/ToolPreviewCard";
 import { getDashboardSnapshot, type DashboardSnapshot } from "@/lib/golden-path.functions";
-import { listStudents } from "@/lib/students.functions";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
+import { getStudentHubContext } from "@/lib/dashboard/student-hub-context.functions";
+import { DashboardWidgetBoard } from "./DashboardWidgetBoard";
+import { Link } from "@tanstack/react-router";
 import { toTitleCase } from "@/lib/title-case";
 
 type StudentWorkspaceCard = ToolPreviewCardProps & {
@@ -57,8 +62,10 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
   const activeActions = snapshot.actionItems.filter((item) => item.status !== "complete");
   const completedActions = snapshot.actionItems.length - activeActions.length;
   const activeGoals = snapshot.goals.filter((goal) => goal.status !== "complete").length;
+  const observedAt = Date.now();
+  const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting, observedAt);
   const savedResources = snapshot.recommendedResources.filter((resource) => resource.saved).length;
-  const meetingDate = formatDate(snapshot.upcomingMeeting?.scheduled_at);
+  const meetingDate = formatDate(meeting?.scheduled_at);
   const studentBoundary =
     "Visible only through your signed-in student workspace and the team access already authorized for your plan.";
 
@@ -109,7 +116,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
 
     {
       icon: CheckSquare,
-      title: "My Next Actions",
+      title: "My Action Items",
       status: `${activeActions.length} open`,
       tone: activeActions.length > 0 ? "warning" : "success",
       summary: "See the small next steps you own and what your team is working on with you.",
@@ -125,14 +132,14 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
     {
       icon: CalendarDays,
       title: "Meetings & Prep",
-      status: snapshot.upcomingMeeting ? meetingDate : "Not scheduled",
-      tone: snapshot.upcomingMeeting ? "default" : "muted",
+      status: meeting ? meetingDate : "Not scheduled",
+      tone: meeting ? "default" : "muted",
       summary: "Know what meeting is next and prepare questions, priorities, and talking points.",
       bullets: [
         { label: "Next meeting", value: meetingDate },
         {
           label: "Prep open",
-          value: snapshot.meetingPrep.filter((item) => !item.completed).length,
+          value: meeting ? snapshot.meetingPrep.filter((item) => !item.completed).length : 0,
         },
       ],
       cta: { label: "Open My Calendar", to: "/calendar" },
@@ -142,16 +149,16 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
     {
       icon: BookOpen,
       title: "Resources For Me",
-      status: `${snapshot.recommendedResources.length} matched`,
+      status: `${snapshot.recommendedResources.length} shown`,
       tone: "muted",
       summary:
-        "Explore guides, programs, and tools matched to your interests, goals, and readiness.",
+        "Browse up to six resources. Topic keywords in your saved planning notes help order these suggestions.",
       bullets: [
-        { label: "Recommended", value: snapshot.recommendedResources.length },
-        { label: "Saved", value: savedResources },
+        { label: "Shown", value: snapshot.recommendedResources.length },
+        { label: "Saved In This Preview", value: savedResources },
       ],
       cta: { label: "Open Resources", to: "/resources" },
-      dataSource: "Resources matched to your authorized student profile",
+      dataSource: "A six-item topic-keyword resource preview from your saved planning notes",
       privacyNote: studentBoundary,
     },
     {
@@ -250,7 +257,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
         <SummaryItem
           label="Next Meeting"
           value={meetingDate}
-          detail={snapshot.upcomingMeeting?.title ?? "No meeting scheduled"}
+          detail={meeting?.title ?? "No meeting scheduled"}
         />
       </dl>
 
@@ -297,51 +304,78 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
 
 /** Loads the same protected snapshot when the Student Hub is opened directly. */
 export function LiveStudentWorkspaceLoader() {
+  const { user, loading } = useAuth();
+  const viewerId = user?.id;
   const fetchSnapshot = useServerFn(getDashboardSnapshot);
-  const fetchStudents = useServerFn(listStudents);
-  const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    fetchStudents()
-      .then(({ students }) =>
-        fetchSnapshot({ data: students[0]?.id ? { student_id: students[0].id } : {} }),
-      )
-      .then((result) => {
-        if (active) setSnapshot(result);
-      })
-      .catch(() => {
-        if (active) setError("Your student workspace could not be loaded right now.");
-      });
-    return () => {
-      active = false;
-    };
-  }, [fetchSnapshot, fetchStudents]);
-
-  if (error) {
+  const fetchContext = useServerFn(getStudentHubContext);
+  const query = useQuery({
+    queryKey: ["student-hub-context", viewerId],
+    enabled: !!viewerId && !loading,
+    queryFn: async ({ signal }) => {
+      const context = await fetchContext();
+      if (signal.aborted) throw new Error("Workspace selection changed.");
+      if (context.viewer_id !== viewerId)
+        throw new Error("Your sign-in changed. Please try again.");
+      if (!context.student_id) return { context, snapshot: null };
+      const snapshot = await fetchSnapshot({ data: { student_id: context.student_id } });
+      if (signal.aborted) throw new Error("Workspace selection changed.");
+      if (!snapshot.student || snapshot.student.id !== context.student_id)
+        throw new Error(
+          "Your student profile connection could not be confirmed. Please try again.",
+        );
+      return { context, snapshot };
+    },
+    retry: false,
+  });
+  if (loading || !viewerId || query.isPending)
     return (
-      <p className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
-        {error}
-      </p>
-    );
-  }
-  if (!snapshot) {
-    return (
-      <p className="rounded-xl border bg-muted/30 p-4 text-sm text-foreground/75">
+      <p role="status" className="rounded-xl border bg-muted/30 p-4 text-sm text-foreground/75">
         Loading your signed-in workspace…
       </p>
     );
-  }
-  if (!snapshot.student) {
+  if (query.isError)
     return (
-      <p className="rounded-xl border bg-muted/30 p-4 text-sm text-foreground/75">
+      <div
+        role="alert"
+        className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm"
+      >
+        <p>Your student workspace could not be loaded right now.</p>
+        <button type="button" onClick={() => void query.refetch()} className="mt-2 underline">
+          Try Again
+        </button>
+      </div>
+    );
+  const { context, snapshot } = query.data;
+  if (context.management_only)
+    return (
+      <p className="rounded-xl border p-4 text-sm">
+        Manage the website in your{" "}
+        <Link to="/owner" className="underline">
+          Owner Hub
+        </Link>
+        .
+      </p>
+    );
+  if (context.connection_status === "ambiguous")
+    return (
+      <p role="status" className="rounded-xl border p-4 text-sm">
+        More than one student profile is connected. Ask your team to confirm the correct connection
+        before opening this workspace.
+      </p>
+    );
+  if (!snapshot)
+    return (
+      <p role="status" className="rounded-xl border bg-muted/30 p-4 text-sm text-foreground/75">
         Your account is signed in, but the student profile connection is not ready yet. Open the
         main dashboard to reconnect it.
       </p>
     );
-  }
-  return <LiveStudentWorkspaceOverview snapshot={snapshot} />;
+  return (
+    <>
+      <LiveStudentWorkspaceOverview key={context.student_id} snapshot={snapshot} />
+      <DashboardWidgetBoard role="student" studentId={context.student_id!} />
+    </>
+  );
 }
 
 function SummaryItem({ label, value, detail }: { label: string; value: string; detail: string }) {

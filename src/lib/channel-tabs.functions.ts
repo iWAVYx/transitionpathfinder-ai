@@ -5,6 +5,8 @@
 // channel_* policies enforce membership. No tab bypasses those rules.
 
 import { z } from "zod";
+import { readReportBatches } from "./report-query-pages";
+import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -54,48 +56,78 @@ export type ChannelActionRecord = {
 /** Mentions where the caller is the target. */
 export const listMyMentions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data ?? {}, context.userId);
     const { supabase, userId } = context;
-
     const { data: rows, error } = await supabase
       .from("channel_mentions")
       .select(
-        "id, channel_id, message_id, author_id, mentioned_user_id, seen_at, created_at, channel_messages!inner(body), channels!inner(title, kind)",
+        "id,channel_id,message_id,author_id,mentioned_user_id,seen_at,created_at,channel_messages!inner(id,channel_id,body,deleted_at),channels!inner(id,title,kind)",
       )
       .eq("mentioned_user_id", userId)
+      .is("channel_messages.deleted_at", null)
       .order("created_at", { ascending: false })
-      .limit(50);
-    if (error) throw new Error(error.message);
-
-    const authorIds = Array.from(
-      new Set((rows ?? []).map((r) => r.author_id).filter((v): v is string => !!v)),
-    );
-    const nameMap = new Map<string, string>();
-    if (authorIds.length > 0) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, preferred_name")
-        .in("id", authorIds);
-      (profs ?? []).forEach((p) =>
-        nameMap.set(p.id, (p.preferred_name || p.full_name || "").trim() || "Member"),
+      .order("id", { ascending: false })
+      .limit(51);
+    if (error || !Array.isArray(rows))
+      throw new Error("We couldn't load your mentions. Please try again.");
+    const visible = rows.slice(0, 50);
+    const authorIds = [
+      ...new Set(visible.map((row) => row.author_id).filter((id): id is string => !!id)),
+    ];
+    let profiles: { id: string; full_name: string | null; preferred_name: string | null }[];
+    try {
+      profiles = await readReportBatches(authorIds, (ids, from, to) =>
+        supabase
+          .from("profiles")
+          .select("id,full_name,preferred_name", { count: "exact" })
+          .in("id", ids)
+          .order("id")
+          .range(from, to),
       );
+    } catch {
+      throw new Error("We couldn't load mention details. Please try again.");
     }
-
-    const mentions: ChannelMention[] = (rows ?? []).map((r) => ({
-      id: r.id,
-      channel_id: r.channel_id,
-      message_id: r.message_id,
-      author_id: r.author_id,
-      author_name: nameMap.get(r.author_id) ?? "Member",
-      mentioned_user_id: r.mentioned_user_id,
-      channel_title: pickNested<{ title: string; kind: string }>(r.channels)?.title ?? "Channel",
-      channel_kind: pickNested<{ title: string; kind: string }>(r.channels)?.kind ?? "channel",
-      message_body: pickNested<{ body: string }>(r.channel_messages)?.body ?? "",
-      seen_at: r.seen_at,
-      created_at: r.created_at,
-    }));
-
-    return { mentions };
+    const names = new Map(
+      profiles.map((profile) => [
+        profile.id,
+        (profile.preferred_name || profile.full_name || "").trim() || "Member",
+      ]),
+    );
+    const mentions: ChannelMention[] = visible.map((row) => {
+      const message = pickNested<{
+        id: string;
+        channel_id: string;
+        body: string;
+        deleted_at: string | null;
+      }>(row.channel_messages);
+      const channel = pickNested<{ id: string; title: string; kind: string }>(row.channels);
+      if (
+        row.mentioned_user_id !== userId ||
+        !message ||
+        message.id !== row.message_id ||
+        message.channel_id !== row.channel_id ||
+        message.deleted_at ||
+        !channel ||
+        channel.id !== row.channel_id
+      )
+        throw new Error("Mention details changed. Reload your mentions.");
+      return {
+        id: row.id,
+        channel_id: row.channel_id,
+        message_id: row.message_id,
+        author_id: row.author_id,
+        author_name: names.get(row.author_id) ?? "Member",
+        mentioned_user_id: row.mentioned_user_id,
+        channel_title: channel.title,
+        channel_kind: channel.kind,
+        message_body: message.body,
+        seen_at: row.seen_at,
+        created_at: row.created_at,
+      };
+    });
+    return { mentions, hasMore: rows.length > 50 };
   });
 
 /** Channel actions filtered by kind and optional assignee. */
@@ -112,6 +144,7 @@ export const listChannelActions = createServerFn({ method: "GET" })
         | "opportunity_followup"
         | "referral_followup";
       assignee_only?: boolean;
+      expected_viewer_id?: string;
     }) =>
       z
         .object({
@@ -125,10 +158,12 @@ export const listChannelActions = createServerFn({ method: "GET" })
             "referral_followup",
           ]),
           assignee_only: z.boolean().default(false),
+          ...viewerIntentSchema.shape,
         })
         .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
 
     let q = supabase
@@ -185,7 +220,8 @@ export const listChannelActions = createServerFn({ method: "GET" })
         resolution: r.resolution,
         created_at: r.created_at,
         resolved_at: r.resolved_at,
-        action_item_id: (meta.action_item_id as string | undefined) ?? (r.target_id as string | null) ?? null,
+        action_item_id:
+          (meta.action_item_id as string | undefined) ?? (r.target_id as string | null) ?? null,
         calendar_event_id: (meta.calendar_event_id as string | undefined) ?? null,
         student_id: ch?.student_id ?? null,
       };
@@ -199,14 +235,85 @@ export const listChannelActions = createServerFn({ method: "GET" })
  */
 export const markMentionSeen = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { mention_id: string }) => z.object({ mention_id: uuid }).parse(input))
+  .validator(
+    (input: {
+      mention_id: string;
+      expected_channel_id?: string;
+      expected_message_id?: string;
+      expected_viewer_id?: string;
+    }) =>
+      z
+        .object({
+          mention_id: uuid,
+          expected_channel_id: uuid.optional(),
+          expected_message_id: uuid.optional(),
+          ...viewerIntentSchema.shape,
+        })
+        .parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
-    const { error } = await supabase
+    const { data: mention, error } = await supabase
       .from("channel_mentions")
-      .update({ seen_at: new Date().toISOString() })
+      .select("id,channel_id,message_id,mentioned_user_id,seen_at")
       .eq("id", data.mention_id)
-      .eq("mentioned_user_id", userId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+      .eq("mentioned_user_id", userId)
+      .maybeSingle();
+    if (
+      error ||
+      !mention ||
+      mention.id !== data.mention_id ||
+      mention.mentioned_user_id !== userId ||
+      (data.expected_channel_id && mention.channel_id !== data.expected_channel_id) ||
+      (data.expected_message_id && mention.message_id !== data.expected_message_id)
+    )
+      throw new Error("This mention is no longer available. Reload your mentions.");
+    const { data: message, error: messageError } = await supabase
+      .from("channel_messages")
+      .select("id,channel_id,deleted_at")
+      .eq("id", mention.message_id)
+      .eq("channel_id", mention.channel_id)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (
+      messageError ||
+      !message ||
+      message.id !== mention.message_id ||
+      message.channel_id !== mention.channel_id ||
+      message.deleted_at
+    )
+      throw new Error("This mentioned message is no longer available. Reload your mentions.");
+    let saved = mention;
+    if (!mention.seen_at) {
+      const { data: updated, error: updateError } = await supabase
+        .from("channel_mentions")
+        .update({ seen_at: new Date().toISOString() })
+        .eq("id", mention.id)
+        .eq("mentioned_user_id", userId)
+        .eq("channel_id", mention.channel_id)
+        .eq("message_id", mention.message_id)
+        .is("seen_at", null)
+        .select("id,channel_id,message_id,mentioned_user_id,seen_at")
+        .single();
+      if (updateError || !updated)
+        throw new Error("We couldn't confirm this mention was marked seen. Reload your mentions.");
+      saved = updated;
+    }
+    if (
+      saved.id !== mention.id ||
+      saved.channel_id !== mention.channel_id ||
+      saved.message_id !== mention.message_id ||
+      saved.mentioned_user_id !== userId ||
+      !saved.seen_at ||
+      !Number.isFinite(Date.parse(saved.seen_at))
+    )
+      throw new Error("We couldn't confirm this mention was marked seen. Reload your mentions.");
+    return {
+      ok: true,
+      mention_id: saved.id,
+      channel_id: saved.channel_id,
+      message_id: saved.message_id,
+      seen_at: saved.seen_at,
+    };
   });

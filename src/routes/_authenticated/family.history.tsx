@@ -1,3 +1,5 @@
+import { historyRouteErrorComponent } from "@/components/history/HistoryRouteError";
+import { validateHistorySearch } from "@/lib/history-navigation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { History, MessageSquare } from "lucide-react";
 
@@ -5,16 +7,18 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
-import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
+import { RoutedStudentActivityHistory } from "@/components/history/StudentActivityHistory";
 
 export const Route = createFileRoute("/_authenticated/family/history")({
+  validateSearch: validateHistorySearch,
+  errorComponent: historyRouteErrorComponent("family"),
   head: () => ({
     meta: [
       { title: "Access & Activity History — TransitionForward" },
       {
         name: "description",
         content:
-          "See every time someone viewed, downloaded, edited, or shared your student's plan and documents.",
+          "Review recorded recent access, updates, and sharing activity for your student's plan and documents.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -42,13 +46,13 @@ function FamilyHistoryPage() {
             </h1>
           </div>
           <p className="mt-2 text-muted-foreground">
-            Every time someone views, downloads, edits, or shares your
-            student's plan or documents, it's recorded here. You can review
-            the full record and act on anything that looks off.
+            Review recorded recent views, downloads, edits, and sharing
+            activity for your student's plan or documents. You can check
+            entries and follow up on anything that looks unexpected.
           </p>
         </header>
 
-        <StudentActivityHistory
+        <RoutedStudentActivityHistory
           emptyCta={{ label: "Review sharing & consent", to: "/family/consent" }}
           footer={
             <aside className="mt-8 rounded-lg border bg-muted/30 p-4 text-sm">

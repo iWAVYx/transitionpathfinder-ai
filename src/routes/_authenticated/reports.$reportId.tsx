@@ -1,7 +1,7 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Copy,
   Check,
@@ -38,8 +38,7 @@ import {
   type ShareTokenRow,
   type Student,
 } from "@/lib/students.functions";
-import { ReportV2Sections, RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
-import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
+import { RegenerateBanner, type V2Audience } from "@/components/pathway/ReportV2Sections";
 import { EvidenceUsedPanel } from "@/components/pathway/EvidenceUsedPanel";
 import { PathwayReportLayout } from "@/components/pathway/report/PathwayReportLayout";
 import { isV2 } from "@/lib/pathway-v2";
@@ -60,6 +59,17 @@ export const Route = createFileRoute("/_authenticated/reports/$reportId")({
 
 function ReportDetailPage() {
   const { reportId } = Route.useParams();
+  // Selection, sharing controls and print timers belong to one saved report.
+  return <ReportDetailReader key={reportId} reportId={reportId} />;
+}
+
+function ReportDetailReader({ reportId }: { reportId: string }) {
+  const active = useRef(false);
+  const sharingBusy = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const search = Route.useSearch();
   const [showWelcome, setShowWelcome] = useState(!!search.welcome);
   const fetchReport = useServerFn(getReport);
@@ -110,8 +120,14 @@ function ReportDetailPage() {
   const wrapWidth = density === "compact" ? "max-w-[92rem]" : "max-w-4xl";
 
   useEffect(() => {
+    let cancelled = false;
+    setState({ kind: "loading" });
+    setTokens([]);
+    setStudents([]);
     fetchReport({ data: { id: reportId } })
-      .then((r) =>
+      .then((r) => {
+        if (cancelled) return;
+        if (r.id !== reportId) throw new Error("Report not found.");
         setState({
           kind: "ok",
           name: r.student_first_name,
@@ -119,17 +135,18 @@ function ReportDetailPage() {
           studentId: r.student_id,
           reviewDate: (r as { review_date?: string | null }).review_date ?? null,
           lastUpdated: r.created_at,
-        }),
-      )
-      .catch((e) =>
-        setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" }),
-      );
+        });
+      })
+      .catch((e) => {
+        if (!cancelled) setState({ kind: "error", message: e instanceof Error ? e.message : "Not found" });
+      });
     listTokens({ data: { report_id: reportId } })
-      .then((r) => setTokens(r.tokens))
+      .then((r) => { if (!cancelled) setTokens(r.tokens); })
       .catch(() => {});
     fetchStudents()
-      .then((r) => setStudents(r.students))
-      .catch(() => setStudents([]));
+      .then((r) => { if (!cancelled) setStudents(r.students); })
+      .catch(() => { if (!cancelled) setStudents([]); });
+    return () => { cancelled = true; };
   }, [fetchReport, listTokens, fetchStudents, reportId]);
 
   useEffect(() => {
@@ -143,12 +160,13 @@ function ReportDetailPage() {
     setLinking(true);
     try {
       await linkStudent({ data: { report_id: reportId, student_id: studentId } });
+      if (!active.current) return;
       setState((s) => (s.kind === "ok" ? { ...s, studentId } : s));
       toast.success(studentId ? "Linked to student." : "Link removed.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not link.");
+      if (active.current) toast.error(err instanceof Error ? err.message : "Could not link.");
     } finally {
-      setLinking(false);
+      if (active.current) setLinking(false);
     }
   }
 
@@ -156,7 +174,10 @@ function ReportDetailPage() {
     setRegenBusy(true);
     try {
       const res = await regenerate({ data: { report_id: reportId } });
+      if (!active.current) return;
       const fresh = await fetchReport({ data: { id: reportId } });
+      if (!active.current) return;
+      if (fresh.id !== reportId) throw new Error("Could not reopen the updated report.");
       setState({
         kind: "ok",
         name: fresh.student_first_name,
@@ -167,9 +188,9 @@ function ReportDetailPage() {
       });
       toast.success(`Regenerated (v${res.version_number}). ${res.change_summary}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not regenerate.");
+      if (active.current) toast.error(err instanceof Error ? err.message : "Could not regenerate.");
     } finally {
-      setRegenBusy(false);
+      if (active.current) setRegenBusy(false);
     }
   }
 
@@ -178,21 +199,29 @@ function ReportDetailPage() {
   }
 
 
-  async function generate(audience: "family" | "educator") {
+  async function updateSharing(action: () => Promise<unknown>, failure: string) {
+    if (!active.current || sharingBusy.current) return;
+    sharingBusy.current = true;
     setBusy(true);
     try {
-      await create({ data: { report_id: reportId, audience, expires_in_days: 30 } });
+      await action();
+      if (!active.current) return;
       const r = await listTokens({ data: { report_id: reportId } });
-      setTokens(r.tokens);
+      if (active.current) setTokens(r.tokens);
+    } catch (error) {
+      if (active.current) toast.error(error instanceof Error ? error.message : failure);
     } finally {
-      setBusy(false);
+      sharingBusy.current = false;
+      if (active.current) setBusy(false);
     }
   }
 
+  async function generate(audience: "family" | "educator") {
+    await updateSharing(() => create({ data: { report_id: reportId, audience, expires_in_days: 30 } }), "Could not create the share link. Please try again.");
+  }
+
   async function handleRevoke(id: string) {
-    await revoke({ data: { id } });
-    const r = await listTokens({ data: { report_id: reportId } });
-    setTokens(r.tokens);
+    await updateSharing(() => revoke({ data: { id } }), "Could not revoke the share link. Please try again.");
   }
 
   async function copyShareUrl(token: string) {
@@ -336,19 +365,6 @@ function ReportDetailPage() {
         }
       />
 
-      {/* v2 additive sections — only render once the report has been regenerated into v2 */}
-      {isV2(state.report) && (
-        <>
-          <ReportV2Sections
-            content={state.report}
-            audience={audience}
-            studentName={state.name}
-          />
-          <section className={`mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
-            <ReportV2InputsUsed content={state.report} />
-          </section>
-        </>
-      )}
       </PathwayReportLayout>
 
       {/* Regenerate CTA + evidence-used side panel */}
@@ -416,7 +432,10 @@ function ReportDetailPage() {
           currentContent={state.report}
           onRestored={async () => {
             try {
+              if (!active.current) return;
               const fresh = await fetchReport({ data: { id: reportId } });
+              if (!active.current) return;
+              if (fresh.id !== reportId) throw new Error("Could not reopen the restored report.");
               setState({
                 kind: "ok",
                 name: fresh.student_first_name,
@@ -428,7 +447,7 @@ function ReportDetailPage() {
             } catch {
               /* toast already shown by panel */
             }
-            setVersionsKey((k) => k + 1);
+            if (active.current) setVersionsKey((k) => k + 1);
           }}
         />
       </section>
@@ -480,7 +499,7 @@ function ReportDetailPage() {
                       {copiedId === t.token ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       {copiedId === t.token ? "Copied" : "Copy"}
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleRevoke(t.id)}>
+                    <Button variant="ghost" size="sm" disabled={busy} onClick={() => handleRevoke(t.id)}>
                       <Trash2 className="h-4 w-4" /> Revoke
                     </Button>
                   </li>

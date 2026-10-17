@@ -25,6 +25,8 @@ for (const id of ["sam", "riley", "jordan"] as const) {
         }
       }
       expect(content.calendar.entries).toHaveLength(3);
+      expect(content.calendar.entries.every(entry => entry.to === content.calendar.toolDestination)).toBe(true);
+      expect(content.meetings.entries.every(entry => entry.to === content.meetings.toolDestination)).toBe(true);
       expect(content.meetings.entries).toHaveLength(role === "student" ? 0 : 1);
       if (role === "student") expect(content.meetings.toolDestination).toBeNull();
     });

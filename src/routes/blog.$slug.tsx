@@ -22,7 +22,7 @@ export const Route = createFileRoute("/blog/$slug")({
     <SiteShell>
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="font-display text-2xl">Post not available</h1>
-        <p className="mt-2 text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-muted-foreground">{error instanceof Error ? error.message : "Please try opening this post again."}</p>
         <Link
           to="/blog"
           className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"

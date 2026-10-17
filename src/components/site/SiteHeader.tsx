@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { workspaceToolGroups } from "@/lib/workspace-tools";
-import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
   Menu,
@@ -31,9 +30,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { NotificationsBell } from "./NotificationsBell";
 import { SmartLink } from "./SmartLink";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyRoles } from "@/lib/profile.functions";
-import { getMyAdminRoles } from "@/lib/owner/owner.functions";
-import { dashboardHomeForRoles } from "@/lib/role-policy";
+import { useWorkspaceNavigation } from "@/hooks/use-workspace-navigation";
 import { toTitleCase } from "@/lib/title-case";
 
 type NavLink = { to: string; label: string; desc?: string };
@@ -92,16 +89,21 @@ const navSingles: NavLink[] = [
 ];
 
 export function SiteHeader() {
+  const auth = useAuth();
+  const { user, loading } = auth;
+  // Remount menus and lookup state across observed auth boundaries.
+  return <SiteHeaderSession key={JSON.stringify([user?.id ?? null, Boolean(loading)])} auth={auth} />;
+}
+
+function SiteHeaderSession({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, signOut } = useAuth();
-  const [roles, setRoles] = useState<string[]>([]);
-  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
+  const { user, signOut, loading } = auth;
+  const viewerId = !loading && user ? user.id : null;
+  const { roles, isPlatformAdmin, loaded: workspaceLoaded, home: dashboardHome } =
+    useWorkspaceNavigation(viewerId);
   const [signedInNavAllowed, setSignedInNavAllowed] = useState(false);
-  const [workspaceLoaded, setWorkspaceLoaded] = useState(false);
-  const fetchRoles = useServerFn(getMyRoles);
-  const fetchAdminRoles = useServerFn(getMyAdminRoles);
   const [openDropdowns, setOpenDropdowns] = useState(0);
 
   const isMenuOpen = open || openDropdowns > 0;
@@ -132,52 +134,27 @@ export function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      setRoles([]);
-      setIsPlatformAdmin(false);
-      setSignedInNavAllowed(false);
-      setWorkspaceLoaded(false);
-      return;
-    }
+    if (!viewerId) return;
     let cancelled = false;
-    setSignedInNavAllowed(false);
-    setWorkspaceLoaded(false);
-    setRoles([]);
-    setIsPlatformAdmin(false);
-    supabase.auth.mfa
-      .getAuthenticatorAssuranceLevel()
-      .then(({ data }) => {
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      .then(({ data, error }) => {
         if (cancelled) return;
-        setSignedInNavAllowed(!(data?.nextLevel === "aal2" && data.currentLevel !== "aal2"));
+        const known = (level: unknown) => level === "aal1" || level === "aal2";
+        setSignedInNavAllowed(Boolean(!error && data &&
+          known(data.currentLevel) && known(data.nextLevel) &&
+          !(data.nextLevel === "aal2" && data.currentLevel !== "aal2")));
       })
-      .catch(() => {
-        if (!cancelled) setSignedInNavAllowed(false);
-      });
-    // Resolve both identities before exposing any role menu. A fast planning
-    // lookup must not briefly show a family/educator workspace to an owner.
-    Promise.allSettled([fetchRoles(), fetchAdminRoles()]).then(([profile, owner]) => {
-      if (cancelled) return;
-      if (owner.status === "fulfilled") {
-        setIsPlatformAdmin(Boolean(owner.value.isPlatformAdmin));
-        setRoles(profile.status === "fulfilled" ? profile.value.roles : []);
-      }
-      // If owner lookup fails, keep the neutral guarded dashboard entry and
-      // Account links; do not guess a planning role until it can be verified.
-      setWorkspaceLoaded(true);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [user, fetchRoles, fetchAdminRoles]);
+      .catch(() => { if (!cancelled) setSignedInNavAllowed(false); });
+    return () => { cancelled = true; };
+  }, [viewerId]);
 
   const visibleUserGroups = useMemo(
     () => workspaceToolGroups(roles, isPlatformAdmin),
     [roles, isPlatformAdmin],
   );
 
-  const showSignedInNav = Boolean(user && signedInNavAllowed && workspaceLoaded);
+  const showSignedInNav = Boolean(viewerId && signedInNavAllowed && workspaceLoaded);
   const signedInUser = showSignedInNav ? user : null;
-  const dashboardHome = dashboardHomeForRoles(roles, isPlatformAdmin);
 
   return (
     <header
@@ -291,7 +268,7 @@ export function SiteHeader() {
                 Sign Out
               </button>
             </>
-          ) : user ? null : (
+          ) : user || loading ? null : (
             <>
               <SmartLink
                 to="/login"
@@ -459,7 +436,7 @@ export function SiteHeader() {
                     Sign Out
                   </button>
                 </div>
-              ) : user ? null : (
+              ) : user || loading ? null : (
                 <div className="space-y-2">
                   <SmartLink
                     to="/get-started"

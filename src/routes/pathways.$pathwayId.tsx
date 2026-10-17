@@ -283,12 +283,14 @@ const PATHWAYS: Record<string, Pathway> = {
   },
 };
 
+function loadPathway({ params }: { params: { pathwayId: string } }): { pathway: Pathway } {
+  const pathway = PATHWAYS[params.pathwayId];
+  if (!pathway) throw notFound();
+  return { pathway };
+}
+
 export const Route = createFileRoute("/pathways/$pathwayId")({
-  loader: ({ params }): { pathway: Pathway } => {
-    const pathway = PATHWAYS[params.pathwayId];
-    if (!pathway) throw notFound();
-    return { pathway };
-  },
+  loader: loadPathway,
   head: ({ params, loaderData }) => {
     const p = loaderData?.pathway;
     const title = p

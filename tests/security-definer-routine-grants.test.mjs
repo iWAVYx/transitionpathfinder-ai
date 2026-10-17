@@ -12,6 +12,7 @@ const migration = readFileSync(migrationPath, "utf8");
 const alignmentMigration = readFileSync(alignmentMigrationPath, "utf8");
 const startMigration = readFileSync("supabase/migrations/20260928040000_atomic_student_channel_start.sql", "utf8");
 const historyMigration = readFileSync("supabase/migrations/20260929010000_student_channel_removal_history.sql", "utf8");
+const shareMigration = readFileSync("supabase/migrations/20261006180000_server_only_report_share_rpcs.sql", "utf8");
 const allowlist = JSON.parse(readFileSync(allowlistPath, "utf8"));
 
 function sortedUnique(values) {
@@ -21,7 +22,7 @@ function sortedUnique(values) {
 function cumulativeMigrationGrantsFor(role) {
   const grants = new Set();
   const statements =
-    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}`.match(
+    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}\n${shareMigration}`.match(
       /(?:GRANT EXECUTE|REVOKE (?:ALL|EXECUTE)) ON FUNCTION public\.[^;]+;/g,
     ) ?? [];
 
@@ -57,9 +58,9 @@ test("privileged-routine allowlist is exact, unique, and fail closed", () => {
     );
   }
 
-  assert.equal(allowlist.anonymousExecute.length, 8);
-  assert.equal(allowlist.authenticatedExecute.length, 65);
-  assert.equal(allowlist.clientExecuteForbidden.length, 26);
+  assert.equal(allowlist.anonymousExecute.length, 6);
+  assert.equal(allowlist.authenticatedExecute.length, 63);
+  assert.equal(allowlist.clientExecuteForbidden.length, 28);
 
   for (const signature of allowlist.anonymousExecute) {
     assert.ok(

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/use-auth";
@@ -7,39 +7,75 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 
 export function OwnerWorkspaceGate({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const scopeKey = JSON.stringify([user?.id ?? null, !!loading]);
+  const currentKey = useRef(scopeKey);
+  currentKey.current = scopeKey;
+  if (loading || !user) return <OwnerGateShell />;
+  return (
+    <OwnerGateSession key={scopeKey} viewerId={user.id} scopeKey={scopeKey} currentKey={currentKey}>
+      {children}
+    </OwnerGateSession>
+  );
+}
+function OwnerGateSession({
+  viewerId,
+  scopeKey,
+  currentKey,
+  children,
+}: {
+  viewerId: string;
+  scopeKey: string;
+  currentKey: { current: string };
+  children: ReactNode;
+}) {
   const navigate = useNavigate();
   const fetchAdminRoles = useServerFn(getMyAdminRoles);
-  const [checkedUser, setCheckedUser] = useState<string | null>(null);
-  const [ownerCheckError, setOwnerCheckError] = useState(false);
+  const [status, setStatus] = useState<"checking" | "allowed" | "error">("checking");
   const [retry, setRetry] = useState(0);
-
   useEffect(() => {
     let cancelled = false;
-    setOwnerCheckError(false);
-    if (!user?.id) return;
-    fetchAdminRoles().then(({ isPlatformAdmin }) => {
-      if (cancelled) return;
-      if (isPlatformAdmin) {
-        navigate({ to: "/owner", replace: true });
-        return;
-      }
-      setCheckedUser(user.id);
-    }).catch(() => {
-      if (!cancelled) setOwnerCheckError(true);
-    });
-    return () => { cancelled = true; };
-  }, [user?.id, fetchAdminRoles, navigate, retry]);
-
-  if (checkedUser !== user?.id || !user) {
-    return (
-      <SiteShell>
-        <div className="mx-auto max-w-6xl px-4 py-10" role="status">
-          <p>{ownerCheckError ? "Could not confirm your workspace." : "Opening your workspace…"}</p>
-          {ownerCheckError && <Button className="mt-3" onClick={() => setRetry((value) => value + 1)}>Try again</Button>}
-        </div>
-      </SiteShell>
-    );
-  }
-  return <>{children}</>;
+    const current = () => !cancelled && currentKey.current === scopeKey;
+    fetchAdminRoles({ data: { expected_viewer_id: viewerId } })
+      .then(async (admin) => {
+        if (!current()) return;
+        if (typeof admin?.isPlatformAdmin !== "boolean")
+          throw new Error("Invalid workspace response");
+        if (admin.isPlatformAdmin) {
+          await navigate({ to: "/owner", replace: true });
+          return;
+        }
+        setStatus("allowed");
+      })
+      .catch(() => {
+        if (current()) setStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [viewerId, scopeKey, currentKey, fetchAdminRoles, navigate, retry]);
+  if (status === "allowed") return <>{children}</>;
+  return (
+    <OwnerGateShell
+      error={status === "error"}
+      retry={() => {
+        setStatus("checking");
+        setRetry((value) => value + 1);
+      }}
+    />
+  );
+}
+function OwnerGateShell({ error, retry }: { error?: boolean; retry?: () => void }) {
+  return (
+    <SiteShell>
+      <div className="mx-auto max-w-6xl px-4 py-10" role={error ? "alert" : "status"}>
+        <p>{error ? "Could not confirm your workspace." : "Opening your workspace…"}</p>
+        {error && (
+          <Button className="mt-3" onClick={retry}>
+            Try again
+          </Button>
+        )}
+      </div>
+    </SiteShell>
+  );
 }

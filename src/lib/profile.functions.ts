@@ -1,3 +1,5 @@
+import { readOrganizationPages, organizationReadError } from "@/lib/organization-query-pages";
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -26,8 +28,10 @@ export type Profile = {
 
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
+    assertExpectedViewer(intent, userId);
     const { data, error } = await supabase
       .from("profiles")
       .select("id, full_name, first_name, last_name, preferred_name, pronouns, title, bio, phone, avatar_url, time_zone, communication_preference, profile_visibility, primary_role, organization_id, onboarding_completed, language, onboarding_answers")
@@ -234,13 +238,23 @@ export const saveOnboardingProgress = createServerFn({ method: "POST" })
 
 export const getMyRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
-    const [{ data: rolesData }, { data: profile }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId),
+    assertExpectedViewer(intent, userId);
+    const [rolesData, profileResult] = await Promise.all([
+      readOrganizationPages<{ role: string }>((from, to) =>
+        supabase
+          .from("user_roles")
+          .select("id,role", { count: "exact" })
+          .eq("user_id", userId)
+          .order("id")
+          .range(from, to),
+      ),
       supabase.from("profiles").select("primary_role").eq("id", userId).maybeSingle(),
     ]);
-    const roles = (rolesData ?? []).map((r) => r.role as string);
-    if (profile?.primary_role) roles.push(profile.primary_role);
+    if (profileResult.error) throw organizationReadError();
+    const roles = rolesData.map((row) => row.role);
+    if (profileResult.data?.primary_role) roles.push(profileResult.data.primary_role);
     return { roles: Array.from(new Set(roles)) };
   });

@@ -1,3 +1,5 @@
+import { historyRouteErrorComponent } from "@/components/history/HistoryRouteError";
+import { validateHistorySearch } from "@/lib/history-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { History } from "lucide-react";
 
@@ -5,9 +7,11 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
-import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
+import { RoutedStudentActivityHistory } from "@/components/history/StudentActivityHistory";
 
 export const Route = createFileRoute("/_authenticated/partner/history")({
+  validateSearch: validateHistorySearch,
+  errorComponent: historyRouteErrorComponent("partner"),
   head: () => ({
     meta: [
       { title: "Student Connection History — TransitionForward" },
@@ -48,7 +52,7 @@ function PartnerHistoryPage() {
           </p>
         </header>
 
-        <StudentActivityHistory
+        <RoutedStudentActivityHistory
           emptyCta={{ label: "Open opportunities", to: "/opportunities" }}
         />
 

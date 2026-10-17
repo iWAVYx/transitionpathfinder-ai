@@ -129,7 +129,7 @@ export function TransitionChannelTile({ role = "default" }: TransitionChannelTil
               Transition Channel
             </div>
             <div className="mt-0.5 font-display text-lg font-medium tracking-tight">
-              {loading ? "Loading…" : primary > 0 ? `${primary} to review` : "All caught up"}
+              {loading ? "Loading…" : errored ? "Counts unavailable" : primary > 0 ? `${primary} to review` : "All caught up"}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
               Communicate, coordinate next steps, and keep important transition conversations

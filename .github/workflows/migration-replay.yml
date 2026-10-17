@@ -15,6 +15,8 @@ on:
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
+      - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
@@ -30,6 +32,8 @@ on:
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
+      - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
@@ -73,6 +77,15 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/channel-history-tests" --ignore-scripts --no-save --package-lock=false @electric-sql/pglite@0.5.8
           CHANNEL_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/channel-history-removal.test.mjs
+
+      - name: Test atomic report history in a disposable multi-session database
+        env:
+          PGUSER: supabase_admin
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/atomic-pathway-history.test.mjs
 
       - name: Bootstrap Supabase-like roles and schemas
         run: |

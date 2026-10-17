@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
+import { useState } from "react";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
@@ -28,29 +30,13 @@ import { ROLE_DASHBOARD_TEST_IDS } from "@/lib/dashboard-testids";
 
 export function useDistrictDashboard() {
   const fetchDash = useServerFn(getDistrictDashboard);
-  const [data, setData] = useState<DistrictDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [districtId, setDistrictId] = useState<string | undefined>(undefined);
-
-  async function reload(nextId?: string) {
-    setLoading(true);
-    try {
-      const d = await fetchDash({ data: { district_id: nextId } });
-      setData(d);
-      setDistrictId(d.selected_district_id ?? undefined);
-    } catch {
-      toast.error("Could not load district data.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    reload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { data, loading, districtId, reload };
+  const { data, loading, id, reload, refreshIfCurrent, recoverSelection } = useOrganizationDashboardSelection<DistrictDashboard>(
+    "district",
+    (id) => fetchDash({ data: { district_id: id } }),
+    (dashboard) => dashboard.selected_district_id,
+    "Could not load district data.",
+  );
+  return { data, loading, districtId: id, reload, refreshIfCurrent, recoverSelection };
 }
 
 export function DistrictPageShell({
@@ -61,6 +47,7 @@ export function DistrictPageShell({
   loading,
   districtId,
   onSwitchDistrict,
+  onRecoverSelection,
   children,
 }: {
   path: string;
@@ -69,7 +56,8 @@ export function DistrictPageShell({
   data: DistrictDashboard | null;
   loading: boolean;
   districtId: string | undefined;
-  onSwitchDistrict: (id: string) => void;
+  onSwitchDistrict: (id?: string) => void;
+  onRecoverSelection?: () => void;
   children: (district: DistrictOrg, data: DistrictDashboard) => React.ReactNode;
 }) {
   return (
@@ -134,7 +122,9 @@ export function DistrictPageShell({
                     <span>Loading District Workspace…</span>
                   </div>
                 </div>
-              ) : !data?.is_district_admin || data.districts.length === 0 ? (
+              ) : !data ? (
+                <OrganizationLoadError onRetry={() => onSwitchDistrict(districtId)} onRecoverSelection={onRecoverSelection} />
+              ) : !data.is_district_admin || data.districts.length === 0 ? (
                 <CreateDistrictCard onCreated={() => window.location.reload()} />
               ) : (
                 (() => {

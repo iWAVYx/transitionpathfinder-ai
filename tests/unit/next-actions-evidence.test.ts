@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { REPORT_SECTIONS } from "../../src/lib/report-evidence/types";
 
-// Mirror of the priority list in next-actions.functions.ts. If this list
-// changes there, update it here — kept in test to detect drift.
+// Reserved priorities for a future mounted evidence-attachment workflow.
+// The personal feed does not emit an unsupported attachment shortcut.
 const PRIORITY_EVIDENCE_SECTIONS = [
   "snapshot",
   "student_voice",

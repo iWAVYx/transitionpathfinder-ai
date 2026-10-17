@@ -1,3 +1,6 @@
+import { historyRouteErrorComponent } from "@/components/history/HistoryRouteError";
+import { validateHistorySearch } from "@/lib/history-navigation";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { History } from "lucide-react";
 
@@ -5,9 +8,15 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
-import { StudentActivityHistory } from "@/components/history/StudentActivityHistory";
+import { OrganizationActivityHistory } from "@/components/history/OrganizationActivityHistory";
 
 export const Route = createFileRoute("/_authenticated/district/history")({
+  ...districtDashboardNavigation,
+  validateSearch: (search) => ({
+    ...districtDashboardNavigation.validateSearch(search),
+    ...validateHistorySearch(search),
+  }),
+  errorComponent: historyRouteErrorComponent("district"),
   head: () => ({
     meta: [
       { title: "District Records & Disclosure History — TransitionForward" },
@@ -29,10 +38,7 @@ export const Route = createFileRoute("/_authenticated/district/history")({
 function DistrictHistoryPage() {
   return (
     <SiteShell>
-      <main
-        data-testid="district-history-page"
-        className="mx-auto max-w-4xl px-4 py-8"
-      >
+      <main data-testid="district-history-page" className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "Records & Disclosure History" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
@@ -42,13 +48,13 @@ function DistrictHistoryPage() {
             </h1>
           </div>
           <p className="mt-2 text-muted-foreground">
-            Per-student audit trail for document access, sharing changes,
-            plan edits, and meeting activity across the district. Use for
-            compliance review and disclosure logging.
+            Per-student audit trail for document access, sharing changes, plan edits, and meeting
+            activity across the district. Use for compliance review and disclosure logging.
           </p>
         </header>
 
-        <StudentActivityHistory
+        <OrganizationActivityHistory
+          scope="district"
           emptyCta={{ label: "Open district overview", to: "/district/overview" }}
         />
 

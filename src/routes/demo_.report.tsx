@@ -1,3 +1,4 @@
+import { DemoOptionalReportSections } from "@/components/demo/DemoOptionalReportSections";
 import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/demo_/report")({
       {
         name: "description",
         content:
-          "Public sample Pathway Report generated live from a fictional student profile. Sample data only.",
+          "Public sample Pathway Report based on a fictional student profile. Sample data only.",
       },
     ],
   }),
@@ -29,8 +30,18 @@ function DemoReportRoute() {
     string,
     unknown
   >;
-  if (search.example === "builder")
-    return <BuilderSampleReport audience={search.role === "educator" ? "educator" : "family"} />;
+  if (search.example === "plan-details") {
+    const requested = search.view ?? search.audience ?? search.role;
+    const audience = requested === "student" || requested === "educator" ? requested : "family";
+    return <DemoOptionalReportSections audience={audience} builderRole={search.role === "educator" ? "educator" : "family"} />;
+  }
+  if (search.example === "builder") {
+    const explicitView = search.view ?? search.audience;
+    const builderAudience = explicitView === "family" || explicitView === "educator"
+      ? explicitView : search.role === "educator" ? "educator" : "family";
+    const reportView = explicitView === "student" || explicitView === "family" || explicitView === "educator" ? explicitView : builderAudience;
+    return <BuilderSampleReport audience={builderAudience} view={reportView} />;
+  }
   return <DemoReportPage />;
 }
 
@@ -70,7 +81,7 @@ function DemoReportPage() {
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Choose a fictional student to see how the pathway engine tailors the report to their
-              grade, product, evidence, and voice — while filtering out themes that don't belong
+              grade, planning needs, sample information, and voice — while filtering out themes that don't belong
               yet.
             </p>
           </div>

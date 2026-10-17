@@ -59,7 +59,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     eyebrow: "Who accessed the plan",
     summary:
       "Review examples of recorded access to {studentShortName}'s plan and documents. This is an activity log, not a year-over-year assessment archive.",
-    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected.",
+    what: "Review recorded views, downloads, edits and sharing events, then check sharing permissions if something is unexpected. The signed-in view loads up to 200 recorded events at a time, with an option to load older activity. Counts and filters apply to the records loaded so far. CSV and printable history use the selected category from loaded records after a fresh access check, with raw identifiers and private event details excluded. This demo offers clearly fictional sample files using the same document layout.",
     dataSource: "Fictional examples of authorized activity events",
     primaryAction: { label: "Open Access & Activity History", to: "/family/history" },
     connectsTo: ["IEP & Documents", "Sharing & Consent"],
@@ -207,29 +207,29 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
   "recommended-resources": {
     id: "recommended-resources",
     title: "Recommended Resources",
-    eyebrow: "Matched For You",
-    summary: "Family-friendly guides matched to your student's grade, readiness, and priorities.",
+    eyebrow: "Resource Preview",
+    summary: "Sample resources illustrate how topic keywords in saved planning notes help order up to six suggestions.",
     what: "Open a resource, save it for the next meeting, or share with a family member.",
-    dataSource: "Pathway Report priorities · student grade & interests · CT resource library",
+    dataSource: "Fictional resource examples · saved-note topic keywords",
     primaryAction: { label: "Open Resources", to: "/resources/saved" },
     connectsTo: ["Pathway Report", "Action Items"],
     stats: [
-      { label: "Suggested", value: "6" },
-      { label: "Saved", value: "2" },
+      { label: "Preview Limit", value: "6" },
+      { label: "Saved In This Preview", value: "2" },
     ],
     rows: [
       { primary: "{postSecondaryLabel} — family guide", secondary: "Guide · 6 min read" },
       { primary: "Meeting Questions template", secondary: "Template · 1 page" },
       { primary: "Family guide for {gradeLabel}", secondary: "Guide · 10 min read" },
       {
-        primary: "Interest-matched guide: {primaryInterest}",
-        secondary: "Guide · interest-matched",
+        primary: "Resource to explore: {primaryInterest}",
+        secondary: "Guide · sample suggestion",
       },
       { primary: "Self-Advocacy Practice Cards", secondary: "Cards · 12 prompts" },
     ],
-    emptyHeadline: "No matches yet — but that's about to change.",
+    emptyHeadline: "No resources shown in this preview.",
     emptyBody:
-      "As soon as Family Priorities and Student Voice are shared, matched resources will show up here.",
+      "Browse the resource library for more options. Topic keywords in recorded planning notes help order live suggestions.",
   },
 
   "action-items": {

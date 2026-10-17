@@ -14,9 +14,37 @@ type Props = {
   firstName: string;
   snap: DashboardSnapshot;
   onReconnect?: () => void;
+  loading?: boolean;
+  error?: string | null;
 };
 
-export function StudentDashboard({ firstName, snap, onReconnect }: Props) {
+export function StudentDashboard({ firstName, snap, onReconnect, loading = false, error }: Props) {
+  if (loading || error)
+    return (
+      <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.student}>
+        <div className="mx-auto max-w-3xl px-4 py-12" role={error ? "alert" : "status"}>
+          <p className="tf-eyebrow" data-dashboard-landmark="student">
+            Student Dashboard
+          </p>
+          <h1 className="mt-3 font-display text-2xl">
+            {error
+              ? "Your Student Dashboard Could Not Be Loaded"
+              : "Loading Your Student Dashboard…"}
+          </h1>
+          {error && (
+            <>
+              <p className="mt-2 text-sm text-foreground/75">
+                Please try again. Your student profile has not been changed.
+              </p>
+              <Button className="mt-4" onClick={onReconnect} disabled={!onReconnect}>
+                Try Again
+              </Button>
+            </>
+          )}
+        </div>
+      </SiteShell>
+    );
+
   const s = snap.student;
   if (!s) {
     return (

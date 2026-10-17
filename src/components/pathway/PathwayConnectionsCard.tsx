@@ -6,6 +6,7 @@
  */
 
 import { Link } from "@tanstack/react-router";
+import { ROUTE_AUDIENCES } from "@/lib/role-policy";
 import {
   MessageSquare,
   FileText,
@@ -28,7 +29,7 @@ type Connection = {
 
 function connectionsFor(role: PathwayRole): Connection[] {
   const familyOrStudent = role === "student" ? "you" : "your student";
-  return [
+  const connections: Connection[] = [
     {
       label: "Student Voice",
       body:
@@ -75,6 +76,7 @@ function connectionsFor(role: PathwayRole): Connection[] {
       direction: "consumes",
     },
   ];
+  return connections.filter(connection => !ROUTE_AUDIENCES[connection.href] || ROUTE_AUDIENCES[connection.href].includes(role));
 }
 
 export function PathwayConnectionsCard({
@@ -197,6 +199,13 @@ function nextStepsFor(
   role: PathwayRole,
   hasReport: boolean,
 ): { label: string; body: string; href: string }[] {
+  if (!hasReport && role === "student") {
+    return [
+      { label: "Answer Student Voice Prompts", body: "Share your interests, strengths, and what you want next.", href: "/student-voice" },
+      { label: "Talk With Your Team", body: "Ask your team about creating your first pathway report.", href: "/messages" },
+      { label: "Explore Opportunities", body: "Browse programs and experiences that interest you.", href: "/opportunities" },
+    ];
+  }
   if (!hasReport) {
     return [
       { label: "Answer Student Voice prompts", body: "Two minutes shapes the summary.", href: "/student-voice" },
@@ -207,7 +216,7 @@ function nextStepsFor(
   if (role === "student") {
     return [
       { label: "Read your summary out loud", body: "Star what feels right; flag one thing to change.", href: "/pathway/student" },
-      { label: "Prep for your next meeting", body: "Bring your top three questions.", href: "/ppt-prep" },
+      { label: "Share Your Questions With Your Team", body: "Use your transition channel to discuss what matters to you.", href: "/messages" },
       { label: "Pick one small action this week", body: "Small wins build momentum.", href: "/action-items" },
     ];
   }

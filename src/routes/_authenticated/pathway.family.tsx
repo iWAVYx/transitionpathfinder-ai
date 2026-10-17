@@ -1,6 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Users, Loader2, FileText, ArrowRight } from "lucide-react";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -13,8 +11,7 @@ import {
   PathwayNextStepsCard,
 } from "@/components/pathway/PathwayConnectionsCard";
 import { OpportunityPipelineSummary } from "@/components/opportunities/OpportunityPipelineSummary";
-import { listStudents, type Student } from "@/lib/students.functions";
-import { listMyReports, type ReportListRow } from "@/lib/pathway.functions";
+import { useLinkedPathway } from "@/components/pathway/useLinkedPathway";
 
 
 export const Route = createFileRoute("/_authenticated/pathway/family")({
@@ -36,29 +33,7 @@ export const Route = createFileRoute("/_authenticated/pathway/family")({
 });
 
 function FamilyPathwayPage() {
-  const loadStudents = useServerFn(listStudents);
-  const loadReports = useServerFn(listMyReports);
-
-  const [students, setStudents] = useState<Student[]>([]);
-  const [reports, setReports] = useState<ReportListRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [{ students }, { reports }] = await Promise.all([
-          loadStudents(),
-          loadReports(),
-        ]);
-        setStudents(students);
-        setReports(reports);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [loadStudents, loadReports]);
-
-  const latest = reports[0];
+  const { students, student, studentId, setStudentId, latest, loading, error, retry } = useLinkedPathway();
 
   return (
     <SiteShell>
@@ -80,7 +55,21 @@ function FamilyPathwayPage() {
           </p>
         </header>
 
-        {loading ? (
+        {!loading && !error && students.length > 1 && (
+          <div className="mb-6">
+            <label htmlFor="pathway-student" className="block text-sm font-medium">Student</label>
+            <select id="pathway-student" value={studentId} onChange={event => setStudentId(event.target.value)}
+              className="mt-2 w-full min-w-0 rounded-md border bg-background p-2">
+              {students.map(student => <option key={student.id} value={student.id}>{student.first_name} {student.last_name}</option>)}
+            </select>
+          </div>
+        )}
+        {error ? (
+          <div role="alert" className="rounded-lg border p-6">
+            <p>Your pathway could not be loaded. Please try again.</p>
+            <Button className="mt-3" onClick={retry}>Try Again</Button>
+          </div>
+        ) : loading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
@@ -162,10 +151,11 @@ function FamilyPathwayPage() {
 
             <PathwayNextStepsCard role="family" hasReport />
             <PathwayConnectionsCard role="family" />
-            {students[0] && (
+            {student && (
               <OpportunityPipelineSummary
-                studentId={students[0].id}
-                studentDisplayName={students[0].first_name || undefined}
+                key={student.id}
+                studentId={student.id}
+                studentDisplayName={student.first_name || undefined}
               />
             )}
           </div>

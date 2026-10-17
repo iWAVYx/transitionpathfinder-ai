@@ -1,3 +1,4 @@
+import { isCurrentConsentRecord, upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
 import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
 import {
@@ -78,12 +79,14 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
   const grade = formatGradeBand(student.grade_band);
   const activeActions = snapshot.actionItems.filter((item) => item.status !== "complete");
   const completedActions = snapshot.actionItems.length - activeActions.length;
+  const observedAt = Date.now();
+  const meeting = upcomingRecordedMeeting(snapshot.upcomingMeeting, observedAt);
   const savedResources = snapshot.recommendedResources.filter((resource) => resource.saved).length;
-  const activeConsents = snapshot.consents.filter(
-    (consent) => consent.consent_status === "granted" && !consent.revoked_at,
+  const activeConsents = snapshot.consents.filter((consent) =>
+    isCurrentConsentRecord(consent, observedAt),
   ).length;
   const reportSections = reportSectionCount(snapshot.latestReport);
-  const meetingDate = formatDate(snapshot.upcomingMeeting?.scheduled_at);
+  const meetingDate = formatDate(meeting?.scheduled_at);
   const school = student.school ?? "School not set";
   const familyFocus = student.family_priorities ?? "Add family priorities";
 
@@ -111,6 +114,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: FileText,
       title: "Pathway Report — Family View",
+      relatedActions: RELATED_TOOLS["family:pathway-report"],
       status: snapshot.latestReport ? "Ready to review" : "Not started",
       tone: snapshot.latestReport ? "success" : "warning",
       summary:
@@ -154,15 +158,15 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: ClipboardList,
       title: "Meeting Prep",
-      status: snapshot.upcomingMeeting ? meetingDate : "Not scheduled",
-      tone: snapshot.upcomingMeeting ? "default" : "muted",
+      status: meeting ? meetingDate : "Not scheduled",
+      tone: meeting ? "default" : "muted",
       summary:
         "Build family-ready questions, priorities, scripts, and an agenda for the next PPT or IEP.",
       bullets: [
         { label: "Next meeting", value: meetingDate },
         {
           label: "Prep open",
-          value: snapshot.meetingPrep.filter((item) => !item.completed).length,
+          value: meeting ? snapshot.meetingPrep.filter((item) => !item.completed).length : 0,
         },
       ],
       cta: { label: "Prep For Meeting", to: "/ppt-prep" },
@@ -172,15 +176,15 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
     {
       icon: CalendarDays,
       title: "Calendar",
-      status: snapshot.upcomingMeeting ? "1 upcoming" : "Clear",
+      status: meeting ? "Meeting Scheduled" : "No Upcoming Meeting",
       tone: "muted",
-      summary: "PPTs, IEP reviews, tours, deadlines, and team check-ins in one place.",
+      summary: "Open the calendar for PPTs, reviews, tours, deadlines, and team check-ins.",
       bullets: [
-        { label: "Next event", value: meetingDate },
-        { label: "Location", value: snapshot.upcomingMeeting?.location ?? "—" },
+        { label: "Next Meeting", value: meetingDate },
+        { label: "Location", value: meeting?.location ?? "—" },
       ],
       cta: { label: "Open Calendar", to: "/calendar" },
-      dataSource: "Authorized meeting calendar",
+      dataSource: "Next recorded upcoming meeting; open the calendar for other events",
       privacyNote: liveStudentBoundary,
     },
     {
@@ -202,15 +206,16 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
       icon: BookOpen,
       title: "Recommended Resources",
       relatedActions: RELATED_TOOLS["family:recommended-resources"],
-      status: `${snapshot.recommendedResources.length} matched`,
+      status: `${snapshot.recommendedResources.length} shown`,
       tone: "muted",
-      summary: "Guides and tools tuned to grade, readiness, goals, and family priorities.",
+      summary:
+        "Browse up to six resources. Topic keywords in saved planning notes help order these suggestions.",
       bullets: [
-        { label: "Suggested", value: snapshot.recommendedResources.length },
-        { label: "Saved", value: savedResources },
+        { label: "Shown", value: snapshot.recommendedResources.length },
+        { label: "Saved In This Preview", value: savedResources },
       ],
       cta: { label: "Open Resources", to: "/family/resources/recommended" },
-      dataSource: "Student-matched and saved resources",
+      dataSource: "A six-item topic-keyword resource preview and your saved selections",
       privacyNote: liveStudentBoundary,
     },
     {

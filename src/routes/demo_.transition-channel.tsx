@@ -1,3 +1,4 @@
+import { ChannelPinnedMessages } from "@/components/channels/ChannelPinnedMessages";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -357,15 +358,16 @@ function DemoTransitionChannelPage() {
                   </div>
                 </header>
 
-                {active.messages.some((m) => m.pinned) && (
-                  <div className="border-b bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
-                    <span className="font-semibold mr-1">Pinned:</span>
-                    {active.messages
-                      .filter((m) => m.pinned)
-                      .map((m) => `${m.authorName}: ${m.body}`)
-                      .join(" · ")}
-                  </div>
-                )}
+                <ChannelPinnedMessages key={active.id}
+                  messages={active.messages.filter(message => message.pinned && !message.deleted).map(message => ({ id:message.id, body:message.body, author_name:message.authorName }))}
+                  onOpen={(messageId) => {
+                    const message = active.messages.find(item => item.id === messageId && item.pinned && !item.deleted);
+                    if (!message) return;
+                    const parentId = message.parentId ?? message.id;
+                    setReplyingTo(parentId);
+                    setReplyDraft("");
+                    requestAnimationFrame(() => document.getElementById(`msg-${parentId}`)?.scrollIntoView({ behavior:"smooth", block:"center" }));
+                  }} />
 
                 <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
                   {active.messages.length === 0 ? (

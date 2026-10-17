@@ -1,4 +1,10 @@
+import { ChannelPinnedMessages } from "@/components/channels/ChannelPinnedMessages";
+import { validatePinnedRead, validateBookmarkRead } from "@/lib/channel-message-read-contract";
+import { ChannelMentions } from "@/components/channels/ChannelMentions";
 import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
+import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
+import { ChannelQueryBoundary, useChannelViewScope } from "@/components/channels/ChannelQueryBoundary";
 import { RetainedChatHistory } from "@/components/channels/RetainedChatHistory";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -51,13 +57,7 @@ import {
   getChannelTileSummary,
   type ChannelTileSummary,
 } from "@/lib/channel-tile-summary.functions";
-import {
-  listMyMentions,
-  listChannelActions,
-  markMentionSeen,
-  type ChannelMention,
-  type ChannelActionRecord,
-} from "@/lib/channel-tabs.functions";
+import { listChannelActions } from "@/lib/channel-tabs.functions";
 import {
   listPinnedMessages,
   listChannelBookmarkIds,
@@ -68,19 +68,9 @@ import {
 import { MessageItem, useMessageAttachments } from "@/components/channels/MessageItem";
 import { ThreadPanel } from "@/components/channels/ThreadPanel";
 import { PromoteRecordDialog } from "@/components/channels/PromoteRecordDialog";
-import {
-  updateChannelAction,
-  listChannelAssigneeOptions,
-  ACTION_STATUSES,
-  type ActionStatus,
-} from "@/lib/channel-actions.functions";
-import {
-  listMyConnectionRequests,
-  respondToConnectionRequest,
-  withdrawConnectionRequest,
-  type ConnectionRequest,
-} from "@/lib/channel-connection-requests.functions";
-import { audiencesForRoles, fallbackPathFor, type RoleAudience } from "@/lib/role-policy";
+import { ChannelActionCard as ActionCard } from "@/components/channels/ChannelActionCard";
+import { ChannelConnectionRequests } from "@/components/channels/ChannelConnectionRequests";
+import { audiencesForRoles, dashboardHomeForRoles, type RoleAudience } from "@/lib/role-policy";
 import { ConnectionRequestsDrawer } from "@/components/channels/ConnectionRequestsDrawer";
 import { StartStudentConversation } from "@/components/channels/StartStudentConversation";
 import { ChannelMuteToggle } from "@/components/channels/ChannelMuteToggle";
@@ -108,6 +98,7 @@ const tabSchema = z.enum([
 
 const filterSchema = z.object({
   tab: tabSchema.catch("inbox"),
+  channel: z.string().uuid().optional().catch(undefined),
   unread: z.enum(["all", "unread"]).catch("all"),
   student: z.string().optional().catch(undefined),
   type: z.string().optional().catch(undefined),
@@ -228,13 +219,69 @@ function formatWhen(iso: string | null) {
 }
 
 function TransitionChannelPage() {
+  const { user, loading } = useAuth();
+  const scopeKey = JSON.stringify([user?.id ?? null, Boolean(loading)]);
+  const currentScope = useRef(scopeKey);
+  currentScope.current = scopeKey;
+  if (loading || !user)
+    return (
+      <ChannelAccessState message="Checking your sign-in before opening Transition Channel…" />
+    );
+  return (
+    <OwnerWorkspaceGate>
+      <ChannelQueryBoundary key={scopeKey} viewerId={user.id} scopeKey={scopeKey} currentScope={currentScope}>
+        <TransitionChannelSession
+          viewerId={user.id}
+          scopeKey={scopeKey}
+          currentScope={currentScope}
+        />
+      </ChannelQueryBoundary>
+    </OwnerWorkspaceGate>
+  );
+}
+
+function ChannelAccessState({ message, retry }: { message: string; retry?: () => void }) {
+  return (
+    <FeatureShell
+      title="Transition Channel"
+      backTo={{ to: "/dashboard", label: "Back to Your Workspace" }}
+    >
+      <div className="mx-auto max-w-2xl px-6 py-12" role={retry ? "alert" : "status"}>
+        <p>{message}</p>
+        {retry && (
+          <Button className="mt-4" onClick={retry}>
+            Try Again
+          </Button>
+        )}
+      </div>
+    </FeatureShell>
+  );
+}
+
+function TransitionChannelSession({
+  viewerId,
+  scopeKey,
+  currentScope,
+}: {
+  viewerId: string;
+  scopeKey: string;
+  currentScope: { current: string };
+}) {
   const search = useSearch({ from: Route.id });
   const navigate = useNavigate();
 
   const getMyRolesFn = useServerFn(getMyRoles);
   const rolesQuery = useQuery({
-    queryKey: ["my-roles"],
-    queryFn: () => getMyRolesFn(),
+    queryKey: ["my-roles", viewerId],
+    queryFn: async () => {
+      const result = await getMyRolesFn({ data: { expected_viewer_id: viewerId } });
+      if (currentScope.current !== scopeKey) throw new Error("Your sign-in changed.");
+      if (!Array.isArray(result?.roles) || !result.roles.every((role) => typeof role === "string"))
+        throw new Error("Could not confirm your channel workspace.");
+      return result;
+    },
+    staleTime: 0,
+    retry: false,
   });
 
   const audiences = useMemo(() => {
@@ -255,46 +302,110 @@ function TransitionChannelPage() {
     return visibleTabs[0] ?? "inbox";
   }, [search.tab, visibleTabs]);
 
-  // Redirect disallowed tab values to the first visible tab.
+  const rolesReady = rolesQuery.isSuccess && !audiences.has("admin") && visibleTabs.length > 0;
+  const [navigationError, setNavigationError] = useState(false);
+  const [navigationAttempt, setNavigationAttempt] = useState(0);
+  // Wait for confirmed roles before correcting a tab. A loading/error result
+  // must never select Inbox for another role or start conversation queries.
   useEffect(() => {
+    if (!rolesReady) return;
+    let cancelled = false;
+    setNavigationError(false);
     if (!visibleTabs.includes(search.tab)) {
-      navigate({
-        to: "/transition-channel",
-        search: { ...search, tab: activeTab },
-      });
+      void (async () => {
+        try {
+          await navigate({
+            to: "/transition-channel",
+            search: { ...search, tab: activeTab },
+            replace: true,
+          });
+        } catch {
+          if (!cancelled && currentScope.current === scopeKey) setNavigationError(true);
+        }
+      })();
     }
-  }, [search, visibleTabs, activeTab, navigate]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    rolesReady,
+    search,
+    visibleTabs,
+    activeTab,
+    navigate,
+    navigationAttempt,
+    currentScope,
+    scopeKey,
+  ]);
 
-  const backTo = useMemo(() => {
-    const roles = rolesQuery.data?.roles ?? [];
-    return fallbackPathFor(roles);
-  }, [rolesQuery.data]);
-
+  const backTo = dashboardHomeForRoles(rolesQuery.data?.roles ?? [], false);
   const summaryFn = useServerFn(getChannelTileSummary);
   const summaryQuery = useQuery({
     queryKey: ["channel-tile-summary"],
-    queryFn: () => summaryFn(),
+    queryFn: async () => {
+      const result = await summaryFn({ data: { expected_viewer_id: viewerId } });
+      if (currentScope.current !== scopeKey) throw new Error("Your sign-in changed.");
+      return result;
+    },
+    enabled: rolesReady,
+    retry: false,
   });
 
-  const summary = summaryQuery.data;
+  if (rolesQuery.isPending)
+    return <ChannelAccessState message="Confirming the tools available to your account…" />;
+  if (rolesQuery.isError)
+    return (
+      <ChannelAccessState
+        message="We couldn't confirm your channel workspace. Please try again."
+        retry={() => {
+          void rolesQuery.refetch();
+        }}
+      />
+    );
+  if (!rolesReady)
+    return (
+      <ChannelAccessState message="No channel workspace is available for your current role. Return to your workspace to review access." />
+    );
+  if (navigationError)
+    return (
+      <ChannelAccessState
+        message="We couldn't open this channel view. Please try again."
+        retry={() => setNavigationAttempt((value) => value + 1)}
+      />
+    );
+  const navigateWithin = async (next: FilterState) => {
+    if (currentScope.current !== scopeKey || !visibleTabs.includes(next.tab)) return;
+    try {
+      await navigate({ to: "/transition-channel", search: next });
+    } catch {
+      if (currentScope.current === scopeKey) setNavigationError(true);
+    }
+  };
+
+  const openConnectionChannel = async (channelId: string) => {
+    if (currentScope.current !== scopeKey || !visibleTabs.includes("channels") || !z.string().uuid().safeParse(channelId).success) throw new Error("Channel access changed.");
+    await navigate({ to: "/transition-channel", search: { ...search, tab: "channels", channel: channelId } });
+  };
+  const summary = summaryQuery.isError ? undefined : summaryQuery.data;
 
   return (
     <FeatureShell
       title="Transition Channel"
       description="Purpose-scoped conversations for the people supporting each transition. Every channel is access-controlled and audit-logged."
-      backTo={{ to: backTo, label: "Back to Dashboard" }}
+      backTo={{ to: backTo.to, label: `Back to ${backTo.label}` }}
       breadcrumbs={[{ label: "Transition Channel" }]}
-      primaryAction={<ConnectionRequestsDrawerTrigger summary={summary} />}
+      primaryAction={
+        visibleTabs.includes("connections") ? (
+          <ConnectionRequestsDrawerTrigger summary={summary} onOpenChannel={openConnectionChannel} />
+        ) : undefined
+      }
       maxWidth="wide"
     >
       <Tabs
         value={activeTab}
-        onValueChange={(v) =>
-          navigate({
-            to: "/transition-channel",
-            search: { ...search, tab: v as TabId },
-          })
-        }
+        onValueChange={(v) => {
+          void navigateWithin({ ...search, tab: v as TabId });
+        }}
         className="w-full"
       >
         <TabsList className="w-full justify-start gap-1 overflow-x-auto rounded-xl bg-muted/50 p-1 sm:w-auto">
@@ -324,12 +435,28 @@ function TransitionChannelPage() {
           })}
         </TabsList>
 
+        {summaryQuery.isError && (
+          <div role="alert" className="mt-4 rounded-xl border p-3 text-sm">
+            <p>
+              We couldn't load your channel counts. Your conversations can still be opened below.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-2"
+              onClick={() => {
+                void summaryQuery.refetch();
+              }}
+            >
+              Reload Channel Counts
+            </Button>
+          </div>
+        )}
         <div className="mt-4 rounded-xl border bg-card p-3 sm:p-4">
           <FilterBar
             search={search}
-            onChange={(patch) =>
-              navigate({ to: "/transition-channel", search: { ...search, ...patch } })
-            }
+            onChange={(patch) => {
+              void navigateWithin({ ...search, ...patch });
+            }}
           />
 
           <TabsContent value="inbox" className="mt-0 focus-visible:outline-none">
@@ -351,7 +478,7 @@ function TransitionChannelPage() {
             <ActionsTab kind="feedback" search={search} />
           </TabsContent>
           <TabsContent value="connections" className="mt-0 focus-visible:outline-none">
-            <ConnectionsTab />
+            <ConnectionsTab onOpenChannel={openConnectionChannel} />
           </TabsContent>
           <TabsContent value="archived" className="mt-0 focus-visible:outline-none">
             <ArchivedTab search={search} />
@@ -362,7 +489,6 @@ function TransitionChannelPage() {
     </FeatureShell>
   );
 }
-
 function tabLabelShort(tab: TabId): string {
   switch (tab) {
     case "assigned":
@@ -376,9 +502,10 @@ function tabLabelShort(tab: TabId): string {
   }
 }
 
-function ConnectionRequestsDrawerTrigger({ summary }: { summary?: ChannelTileSummary }) {
+function ConnectionRequestsDrawerTrigger({ summary, onOpenChannel }: { summary?: ChannelTileSummary; onOpenChannel: (channelId: string) => Promise<void> }) {
   return (
     <ConnectionRequestsDrawer
+      onOpenChannel={onOpenChannel}
       triggerLabel={
         summary?.connectionRequests ? `Requests (${summary.connectionRequests})` : "Requests"
       }
@@ -504,58 +631,11 @@ function InboxTab({ search }: { search: FilterState }) {
 }
 
 function ChannelsTab({ search }: { search: FilterState }) {
-  return <ChannelConversationTab search={search} />;
+  return <ChannelConversationTab key={search.channel ?? "default"} search={search} />;
 }
 
 function MentionsTab() {
-  const listFn = useServerFn(listMyMentions);
-  const markFn = useServerFn(markMentionSeen);
-  const qc = useQueryClient();
-  const query = useQuery({
-    queryKey: ["channel-mentions"],
-    queryFn: () => listFn(),
-  });
-  const markMutation = useMutation({
-    mutationFn: (id: string) => markFn({ data: { mention_id: id } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["channel-mentions"] });
-      qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-    },
-  });
-  const mentions = query.data?.mentions ?? [];
-
-  return (
-    <div className="space-y-2">
-      {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading mentions…</p>
-      ) : mentions.length === 0 ? (
-        <EmptyState icon={Bell} message="No mentions yet." />
-      ) : (
-        mentions.map((m) => (
-          <article key={m.id} className="rounded-lg border p-3 hover:bg-muted/40 transition">
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="text-sm font-medium">
-                {m.author_name} mentioned you in {m.channel_title}
-              </p>
-              <span className="text-xs text-muted-foreground">{formatWhen(m.created_at)}</span>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{m.message_body}</p>
-            {!m.seen_at && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-2 h-7 px-2 text-xs"
-                onClick={() => markMutation.mutate(m.id)}
-                disabled={markMutation.isPending}
-              >
-                Mark seen
-              </Button>
-            )}
-          </article>
-        ))
-      )}
-    </div>
-  );
+  return <ChannelMentions />;
 }
 
 function ActionsTab({
@@ -567,22 +647,49 @@ function ActionsTab({
   assigneeOnly?: boolean;
   search: FilterState;
 }) {
+  const scope = useChannelViewScope(JSON.stringify([kind, assigneeOnly, search]));
   const listFn = useServerFn(listChannelActions);
   const query = useQuery({
     queryKey: ["channel-actions", kind, assigneeOnly, search],
-    queryFn: () => listFn({ data: { kind, assignee_only: assigneeOnly } }),
+    queryFn: async () => {
+      if (!scope.isCurrent()) throw new Error("View changed.");
+      const result = await listFn({
+        data: { kind, assignee_only: assigneeOnly, expected_viewer_id: scope.viewerId },
+      });
+      if (!scope.isCurrent()) throw new Error("View changed.");
+      if (
+        !Array.isArray(result?.actions) ||
+        result.actions.some(
+          (action) =>
+            !z.string().uuid().safeParse(action.id).success ||
+            !z.string().uuid().safeParse(action.channel_id).success ||
+            !["open", "in_progress", "resolved", "cancelled"].includes(action.status),
+        )
+      )
+        throw new Error("Records unavailable.");
+      return result;
+    },
+    retry: false,
   });
-  const actions = query.data?.actions ?? [];
+  const actions = query.isSuccess ? query.data.actions : [];
   const icon = kind === "action" ? ListTodo : kind === "decision" ? HelpCircle : Megaphone;
   const label =
     kind === "action" ? "assigned action" : kind === "decision" ? "decision" : "feedback item";
 
   return (
     <div className="space-y-2">
-      {query.isLoading ? (
+      <p className="text-xs text-muted-foreground">This view shows up to 50 recent records.</p>
+      {query.isError ? (
+        <div role="alert" className="text-sm">
+          <p>We couldn't load these records.</p>
+          <Button size="sm" variant="outline" onClick={() => void query.refetch()}>
+            Reload Records
+          </Button>
+        </div>
+      ) : query.isLoading ? (
         <p className="text-sm text-muted-foreground">Loading {label}s…</p>
       ) : actions.length === 0 ? (
-        <EmptyState icon={icon} message={`No ${label}s match your filters.`} />
+        <EmptyState icon={icon} message={`No recorded ${label}s in this view.`} />
       ) : (
         actions.map((a) => <ActionCard key={a.id} action={a} />)
       )}
@@ -590,277 +697,8 @@ function ActionsTab({
   );
 }
 
-function ActionCard({ action }: { action: ChannelActionRecord }) {
-  const qc = useQueryClient();
-  const updateFn = useServerFn(updateChannelAction);
-  const listAssigneesFn = useServerFn(listChannelAssigneeOptions);
-
-  const [assignOpen, setAssignOpen] = useState(false);
-  const assigneesQuery = useQuery({
-    queryKey: ["channel-assignees", action.channel_id],
-    queryFn: () => listAssigneesFn({ data: { channel_id: action.channel_id } }),
-    enabled: assignOpen,
-  });
-
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ["channel-actions"] });
-    qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-  };
-
-  const statusMut = useMutation({
-    mutationFn: (status: ActionStatus) => updateFn({ data: { action_id: action.id, status } }),
-    onSuccess: invalidate,
-  });
-  const assignMut = useMutation({
-    mutationFn: (assignee_user_id: string | null) =>
-      updateFn({ data: { action_id: action.id, assignee_user_id } }),
-    onSuccess: () => {
-      setAssignOpen(false);
-      invalidate();
-    },
-  });
-
-  return (
-    <article className="rounded-lg border p-3 hover:bg-muted/40 transition">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={actionStatusVariant(action.status)}>
-              {action.status.replace("_", " ")}
-            </Badge>
-            {action.priority && <Badge variant="outline">{action.priority}</Badge>}
-            <span className="text-xs text-muted-foreground">in {action.channel_title}</span>
-          </div>
-          {action.resolution && <p className="mt-2 text-sm">{action.resolution}</p>}
-          <p className="mt-2 text-xs text-muted-foreground">
-            Promoted by {action.promoter_name}
-            {action.assignee_name ? ` · Assigned to ${action.assignee_name}` : " · Unassigned"}
-            {action.due_at ? ` · Due ${formatWhen(action.due_at)}` : null}
-          </p>
-          {(action.action_item_id || action.calendar_event_id) && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {action.action_item_id && action.student_id && (
-                <a
-                  href={`/students/${action.student_id}`}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/10"
-                >
-                  <ListTodo className="h-3 w-3" /> In Student Actions
-                </a>
-              )}
-              {action.calendar_event_id && (
-                <a
-                  href="/calendar"
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary hover:bg-primary/10"
-                >
-                  <Bell className="h-3 w-3" /> On Team Calendar
-                </a>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <Select
-            value={action.status}
-            onValueChange={(v) => statusMut.mutate(v as ActionStatus)}
-            disabled={statusMut.isPending}
-          >
-            <SelectTrigger className="h-7 w-[130px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ACTION_STATUSES.map((s) => (
-                <SelectItem key={s} value={s} className="text-xs">
-                  {s.replace("_", " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={action.assignee_user_id ?? "none"}
-            onValueChange={(v) => assignMut.mutate(v === "none" ? null : v)}
-            onOpenChange={setAssignOpen}
-            disabled={assignMut.isPending}
-          >
-            <SelectTrigger className="h-7 w-[130px] text-xs">
-              <SelectValue placeholder="Assign…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none" className="text-xs">
-                Unassigned
-              </SelectItem>
-              {(assigneesQuery.data?.options ?? []).map((o) => (
-                <SelectItem key={o.user_id} value={o.user_id} className="text-xs">
-                  {o.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function actionStatusVariant(status: string) {
-  switch (status) {
-    case "open":
-      return "default";
-    case "in_progress":
-      return "secondary";
-    case "resolved":
-      return "outline";
-    default:
-      return "secondary";
-  }
-}
-
-function ConnectionsTab() {
-  const listFn = useServerFn(listMyConnectionRequests);
-  const respondFn = useServerFn(respondToConnectionRequest);
-  const withdrawFn = useServerFn(withdrawConnectionRequest);
-  const qc = useQueryClient();
-  const query = useQuery({
-    queryKey: ["channel-connection-requests"],
-    queryFn: () => listFn(),
-  });
-
-  const respondMutation = useMutation({
-    mutationFn: (args: { request_id: string; decision: "accepted" | "declined" }) =>
-      respondFn({ data: args }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["channel-connection-requests"] });
-      qc.invalidateQueries({ queryKey: ["transition-channels"] });
-      qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-    },
-  });
-
-  const withdrawMutation = useMutation({
-    mutationFn: (id: string) => withdrawFn({ data: { request_id: id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["channel-connection-requests"] }),
-  });
-
-  const requests = query.data?.requests ?? [];
-  const pendingIncoming = requests.filter(
-    (r) => r.direction === "incoming" && r.status === "pending",
-  );
-  const pendingOutgoing = requests.filter(
-    (r) => r.direction === "outgoing" && r.status === "pending",
-  );
-  const resolved = requests.filter((r) => r.status !== "pending").slice(0, 10);
-
-  return (
-    <div className="space-y-6">
-      {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading requests…</p>
-      ) : requests.length === 0 ? (
-        <EmptyState icon={Users} message="No connection requests yet." />
-      ) : (
-        <>
-          <RequestSection
-            title="Awaiting your response"
-            count={pendingIncoming.length}
-            requests={pendingIncoming}
-            actions={(r) => (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => respondMutation.mutate({ request_id: r.id, decision: "accepted" })}
-                  disabled={respondMutation.isPending}
-                >
-                  <Check className="h-4 w-4 mr-1" /> Accept
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => respondMutation.mutate({ request_id: r.id, decision: "declined" })}
-                  disabled={respondMutation.isPending}
-                >
-                  <Ban className="h-4 w-4 mr-1" /> Decline
-                </Button>
-              </>
-            )}
-          />
-          <RequestSection
-            title="Your open requests"
-            count={pendingOutgoing.length}
-            requests={pendingOutgoing}
-            actions={(r) => (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => withdrawMutation.mutate(r.id)}
-                disabled={withdrawMutation.isPending}
-              >
-                <Undo2 className="h-4 w-4 mr-1" /> Withdraw
-              </Button>
-            )}
-          />
-          <RequestSection
-            title="Recently resolved"
-            count={resolved.length}
-            requests={resolved}
-            actions={(r) => (
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {r.status}
-              </span>
-            )}
-          />
-        </>
-      )}
-    </div>
-  );
-}
-
-function RequestSection({
-  title,
-  count,
-  requests,
-  actions,
-}: {
-  title: string;
-  count: number;
-  requests: ConnectionRequest[];
-  actions: (r: ConnectionRequest) => React.ReactNode;
-}) {
-  return (
-    <section>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {title} {count > 0 && <span className="text-foreground">({count})</span>}
-      </h3>
-      <div className="space-y-3">
-        {requests.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing in this category.</p>
-        ) : (
-          requests.map((r) => <RequestCard key={r.id} r={r} actions={actions(r)} />)
-        )}
-      </div>
-    </section>
-  );
-}
-
-function RequestCard({ r, actions }: { r: ConnectionRequest; actions: React.ReactNode }) {
-  const who =
-    r.direction === "incoming"
-      ? `${r.requester_name ?? "A member"}${
-          r.requester_organization_name ? ` (${r.requester_organization_name})` : ""
-        }`
-      : `To ${r.target_partner_organization_name ?? "partner org"}`;
-  return (
-    <article className="rounded-lg border bg-card p-3 shadow-sm">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-sm font-medium truncate">{who}</p>
-        <span className="shrink-0 text-xs text-muted-foreground">{formatWhen(r.created_at)}</span>
-      </div>
-      <p className="mt-0.5 text-xs text-muted-foreground">Purpose: {r.purpose_category}</p>
-      <p className="mt-2 text-sm whitespace-pre-wrap leading-relaxed">{r.message}</p>
-      {r.proposed_next_step && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Next step: <span className="text-foreground">{r.proposed_next_step}</span>
-        </p>
-      )}
-      <div className="mt-3 flex flex-wrap items-center justify-end gap-2">{actions}</div>
-    </article>
-  );
+function ConnectionsTab({ onOpenChannel }: { onOpenChannel: (channelId: string) => Promise<void> }) {
+  return <ChannelConnectionRequests onOpenChannel={onOpenChannel} />;
 }
 
 function ArchivedTab({ search }: { search: FilterState }) {
@@ -916,6 +754,7 @@ function EmptyState({ icon: Icon, message }: { icon: React.ElementType; message:
 
 function ChannelConversationTab({ search }: { search: FilterState }) {
   const navigate = useNavigate();
+  const workspace = useChannelViewScope("conversation");
   const listFn = useServerFn(listMyChannels);
   const msgsFn = useServerFn(listChannelMessages);
   const sendFn = useServerFn(sendChannelMessage);
@@ -929,26 +768,29 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
 
   const channelsQuery = useQuery({
     queryKey: ["transition-channels", "conversation", search],
-    queryFn: () => listFn(),
+    queryFn: async () => {
+      if (!workspace.isWorkspaceCurrent()) throw new Error("Your sign-in changed.");
+      const result = await listFn({ data: { expected_viewer_id: workspace.viewerId } });
+      if (!workspace.isWorkspaceCurrent()) throw new Error("Your sign-in changed.");
+      if (!Array.isArray(result?.channels)) throw new Error("Channels unavailable");
+      return result;
+    },
+    retry: false,
   });
 
   const channels = useMemo(() => {
-    let list = channelsQuery.data?.channels ?? [];
+    let list = channelsQuery.isError ? [] : (channelsQuery.data?.channels ?? []);
     if (search.archived === "active") list = list.filter((c) => !c.archived_at);
     if (search.archived === "archived") list = list.filter((c) => !!c.archived_at);
     if (search.type) list = list.filter((c) => c.kind === search.type);
     if (search.unread === "unread") list = list.filter((c) => c.unread_count > 0);
     return list;
-  }, [channelsQuery.data, search]);
+  }, [channelsQuery.data, channelsQuery.isError, search]);
 
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(search.channel ?? null);
   const [threadParentId, setThreadParentId] = useState<string | null>(null);
   const [promoteMessage, setPromoteMessage] = useState<ChannelMessage | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
-  }, []);
+  const currentUserId = workspace.viewerId;
 
   useEffect(() => {
     if (!activeId && channels.length > 0) setActiveId(channels[0].id);
@@ -959,14 +801,38 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
     [channels, activeId],
   );
   const isAdmin = active?.member_role === "admin" || active?.member_role === "owner";
+  const view = useChannelViewScope(
+    JSON.stringify([active?.id ?? null, active?.member_role ?? null, active?.archived_at ?? null]),
+  );
+  const [readError, setReadError] = useState<{
+    channelId: string;
+    currentView: () => boolean;
+  } | null>(null);
+  const [readAttempt, setReadAttempt] = useState(0);
 
   const messagesQuery = useQuery({
     queryKey: ["transition-channel-messages", activeId],
-    queryFn: () => msgsFn({ data: { channel_id: activeId! } }),
-    enabled: !!activeId,
+    queryFn: async () => {
+      if (!view.isCurrent()) throw new Error("Conversation changed.");
+      const result = await msgsFn({
+        data: { channel_id: active!.id, expected_viewer_id: workspace.viewerId },
+      });
+      if (!view.isCurrent()) throw new Error("Conversation changed.");
+      if (
+        !Array.isArray(result?.messages) ||
+        result.messages.some((message) => message.channel_id !== active!.id)
+      )
+        throw new Error("Conversation response mismatch");
+      return result;
+    },
+    enabled: !!active,
+    retry: false,
   });
 
-  const allMessages = useMemo(() => messagesQuery.data?.messages ?? [], [messagesQuery.data]);
+  const allMessages = useMemo(
+    () => (messagesQuery.isError ? [] : (messagesQuery.data?.messages ?? [])),
+    [messagesQuery.data, messagesQuery.isError],
+  );
 
   // Split top-level messages from thread replies, and index reply counts.
   const { topLevel, replyCounts } = useMemo(() => {
@@ -982,206 +848,355 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
 
   const pinnedQuery = useQuery({
     queryKey: ["channel-pinned", activeId],
-    queryFn: () => pinnedFn({ data: { channel_id: activeId! } }),
-    enabled: !!activeId,
+    queryFn: async () => {
+      if (!view.isCurrent()) throw new Error("Conversation changed.");
+      const result = await pinnedFn({ data: { channel_id: active!.id, expected_viewer_id: workspace.viewerId } });
+      if (!view.isCurrent()) throw new Error("Conversation changed.");
+      return validatePinnedRead(result, active!.id);
+    },
+    enabled: !!active, retry: false,
   });
 
   const bookmarksQuery = useQuery({
     queryKey: ["channel-bookmarks", activeId],
-    queryFn: () => bookmarksFn({ data: { channel_id: activeId! } }),
-    enabled: !!activeId,
+    queryFn: async () => {
+      if (!view.isCurrent()) throw new Error("Conversation changed.");
+      const result = await bookmarksFn({ data: { channel_id: active!.id, expected_viewer_id: workspace.viewerId } });
+      if (!view.isCurrent()) throw new Error("Conversation changed.");
+      return validateBookmarkRead(result, active!.id);
+    },
+    enabled: !!active, retry: false,
   });
   const bookmarkedIds = useMemo(
-    () => new Set(bookmarksQuery.data?.message_ids ?? []),
-    [bookmarksQuery.data],
+    () => new Set(bookmarksQuery.isSuccess ? bookmarksQuery.data.message_ids : []),
+    [bookmarksQuery.data, bookmarksQuery.isSuccess],
   );
 
   const topLevelIds = useMemo(() => topLevel.map((m) => m.id), [topLevel]);
-  const { byMessage: attachmentsByMessage, refetch: refetchAttachments } =
-    useMessageAttachments(topLevelIds);
+  const {
+    byMessage: attachmentsByMessage,
+    refetch: refetchAttachments,
+    error: attachmentsError,
+  } = useMessageAttachments(topLevelIds, active?.id);
 
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight });
+    scrollerRef.current?.scrollTo?.({ top: scrollerRef.current.scrollHeight });
   }, [topLevel.length, activeId]);
 
   useEffect(() => {
-    if (!activeId || allMessages.length === 0) return;
+    if (!active || !view.isCurrent() || allMessages.length === 0) return;
+    let cancelled = false;
     const last = allMessages[allMessages.length - 1];
-    readFn({ data: { channel_id: activeId, last_read_message_id: last.id } }).then(() => {
-      qc.invalidateQueries({ queryKey: ["transition-channels"] });
-      qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-    });
-  }, [activeId, allMessages, readFn, qc]);
+    setReadError(null);
+    readFn({
+      data: {
+        channel_id: active.id,
+        last_read_message_id: last.id,
+        expected_viewer_id: workspace.viewerId,
+      },
+    })
+      .then((result) => {
+        if (cancelled || !view.isCurrent()) return;
+        if (result?.ok !== true) throw new Error("Read receipt unconfirmed");
+        void qc.invalidateQueries({ queryKey: ["transition-channels"] });
+        void qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+      })
+      .catch(() => {
+        if (!cancelled && view.isCurrent())
+          setReadError({ channelId: active.id, currentView: view.isCurrent });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [active?.id, allMessages, readFn, qc, view.isCurrent, workspace.viewerId, readAttempt]);
 
   useEffect(() => {
-    if (!activeId) return;
+    if (!active || !view.isCurrent()) return;
+    let cancelled = false;
     const channel = supabase
-      .channel(`channel-messages-${activeId}`)
+      .channel(`channel-messages-${workspace.viewerId}-${active.id}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "channel_messages",
-          filter: `channel_id=eq.${activeId}`,
+          filter: `channel_id=eq.${active.id}`,
         },
         () => {
-          qc.invalidateQueries({ queryKey: ["transition-channel-messages", activeId] });
-          qc.invalidateQueries({ queryKey: ["channel-pinned", activeId] });
-          qc.invalidateQueries({ queryKey: ["transition-channels"] });
-          qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
+          if (cancelled || !view.isCurrent()) return;
+          void qc.invalidateQueries({ queryKey: ["transition-channel-messages", active.id] });
+          void qc.invalidateQueries({ queryKey: ["channel-pinned", active.id] });
+          void qc.invalidateQueries({ queryKey: ["transition-channels"] });
+          void qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
         },
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(channel);
+      cancelled = true;
+      void Promise.resolve(supabase.removeChannel(channel)).catch(() => {});
     };
-  }, [activeId, qc]);
+  }, [active?.id, qc, view.isCurrent, workspace.viewerId]);
 
-  const [draft, setDraft] = useState("");
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
+  type Composer = { body: string; file: File | null; revision: number };
+  const [composers, setComposers] = useState<Record<string, Composer>>({});
+  const composer = active
+    ? (composers[active.id] ?? { body: "", file: null, revision: 0 })
+    : { body: "", file: null, revision: 0 };
+  const draft = composer.body;
+  const pendingFile = composer.file;
+  const updateComposer = (patch: Partial<Pick<Composer, "body" | "file">>) => {
+    if (!active || !view.isCurrent()) return;
+    const id = active.id;
+    setComposers((previous) => ({
+      ...previous,
+      [id]: {
+        ...(previous[id] ?? { body: "", file: null, revision: 0 }),
+        ...patch,
+        revision: (previous[id]?.revision ?? 0) + 1,
+      },
+    }));
+  };
+  const setDraft = (body: string) => updateComposer({ body });
+  const setPendingFile = (file: File | null) => updateComposer({ file });
+  const [privacyReview, setPrivacyReview] = useState<{
+    channelId: string;
+    source: SensitiveFileReviewSource;
+  } | null>(null);
+  const privacySource =
+    privacyReview?.channelId === active?.id ? (privacyReview?.source ?? null) : null;
+  const setPrivacySource = (source: SensitiveFileReviewSource | null) => {
+    if (!view.isCurrent()) return;
+    setPrivacyReview(source && active ? { channelId: active.id, source } : null);
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingSends = useRef(new Set<string>());
+  const sendKeys = useRef(new Map<string, string>());
+  const [pendingSendIds, setPendingSendIds] = useState<string[]>([]);
+  const sending = !!active && pendingSendIds.includes(active.id);
 
+  const invalidateOriginal = (channelId: string, currentView: () => boolean) => {
+    if (!workspace.isWorkspaceCurrent()) return;
+    const refetchType = currentView() ? ("active" as const) : ("none" as const);
+    for (const queryKey of [
+      ["transition-channel-messages", channelId],
+      ["channel-pinned", channelId],
+      ["channel-bookmarks", channelId],
+      ["transition-channels"],
+      ["channel-tile-summary"],
+      ["channel-message-attachments"],
+    ])
+      void qc.invalidateQueries({ queryKey, refetchType });
+    if (currentView()) void refetchAttachments();
+  };
   const invalidateActive = () => {
-    qc.invalidateQueries({ queryKey: ["transition-channel-messages", activeId] });
-    qc.invalidateQueries({ queryKey: ["channel-pinned", activeId] });
-    qc.invalidateQueries({ queryKey: ["channel-bookmarks", activeId] });
-    qc.invalidateQueries({ queryKey: ["transition-channels"] });
-    qc.invalidateQueries({ queryKey: ["channel-tile-summary"] });
-    refetchAttachments();
+    if (active && view.isCurrent()) invalidateOriginal(active.id, view.isCurrent);
   };
 
+  type AttachmentRequest = {
+    channelId: string;
+    messageId: string;
+    file: File;
+    currentView: () => boolean;
+  };
   const attachmentMutation = useMutation({
-    mutationFn: async ({
-      channelId,
-      messageId,
-      file,
-    }: {
-      channelId: string;
-      messageId: string;
-      file: File;
-    }) => {
+    mutationFn: async (request: AttachmentRequest) => {
+      if (!workspace.isWorkspaceCurrent()) throw new Error("Your sign-in changed.");
       assertProtectedFileUploadsEnabled();
-      assertPrivacySafeDerivedUpload(file.name, file.type);
+      assertPrivacySafeDerivedUpload(request.file.name, request.file.type);
       const prepared = await prepareAttachmentUploadFn({
         data: {
-          channel_id: channelId,
-          message_id: messageId,
-          file_name: file.name,
-          content_type: file.type || null,
-          size_bytes: file.size,
+          channel_id: request.channelId,
+          message_id: request.messageId,
+          file_name: request.file.name,
+          content_type: request.file.type || null,
+          size_bytes: request.file.size,
+          expected_viewer_id: workspace.viewerId,
         },
       });
-
+      if (!workspace.isWorkspaceCurrent()) throw new Error("Your sign-in changed.");
       const upload = await supabase.storage
         .from("channel-attachments")
-        .uploadToSignedUrl(prepared.upload.storage_path, prepared.upload.token, file, {
-          contentType: file.type || "application/octet-stream",
+        .uploadToSignedUrl(prepared.upload.storage_path, prepared.upload.token, request.file, {
+          contentType: request.file.type || "application/octet-stream",
           upsert: false,
         });
+      if (!workspace.isWorkspaceCurrent()) throw new Error("Your sign-in changed.");
       if (upload.error) {
         try {
           await failAttachmentUploadFn({
-            data: { attachment_id: prepared.attachment.id },
+            data: { attachment_id: prepared.attachment.id, expected_viewer_id: workspace.viewerId },
           });
-        } catch (failureRecordError) {
-          console.error("channel attachment upload failure recording failed", failureRecordError);
-        }
-        throw new Error(upload.error.message);
+        } catch {}
+        throw new Error("Attachment upload unconfirmed");
       }
-
-      return { attachmentId: prepared.attachment.id };
+      return { attachmentId: prepared.attachment.id, request };
     },
     onSuccess: (result) => {
-      qc.invalidateQueries({ queryKey: ["channel-message-attachments"] });
-
-      // Scanning has its own authenticated request. The database and storage
-      // policies keep the attachment quarantined until the server-only path
-      // records a clean verdict.
-      void scanAttachmentFn({ data: { attachment_id: result.attachmentId } })
-        .then(() => invalidateActive())
-        .catch((error) => {
-          console.error("channel attachment scan request failed", error);
-          toast.error(
-            "The attachment remains quarantined because its security scan did not complete.",
-          );
-          invalidateActive();
+      if (!workspace.isWorkspaceCurrent()) return;
+      void scanAttachmentFn({
+        data: { attachment_id: result.attachmentId, expected_viewer_id: workspace.viewerId },
+      })
+        .then(() => invalidateOriginal(result.request.channelId, result.request.currentView))
+        .catch(() => {
+          if (!workspace.isWorkspaceCurrent()) return;
+          if (result.request.currentView())
+            toast.error(
+              "The attachment remains quarantined because its security scan did not complete.",
+            );
+          invalidateOriginal(result.request.channelId, result.request.currentView);
         });
     },
-    onError: (error) => {
-      console.error("channel attachment upload or registration failed", error);
-      toast.error("Your message was sent, but its attachment could not be secured.");
-      qc.invalidateQueries({ queryKey: ["channel-message-attachments"] });
+    onError: (_error, request) => {
+      if (!workspace.isWorkspaceCurrent()) return;
+      if (request.currentView())
+        toast.error("Your message was sent, but its attachment could not be secured.");
+      invalidateOriginal(request.channelId, request.currentView);
     },
   });
 
+  type SendRequest = {
+    body: string;
+    channelId: string;
+    attachment: File | null;
+    revision: number;
+    currentView: () => boolean;
+    dedupeKey: string;
+  };
   const sendMutation = useMutation({
-    mutationFn: async ({
-      body,
-      channelId,
-      attachment,
-    }: {
-      body: string;
-      channelId: string;
-      attachment: File | null;
-    }) => {
+    mutationFn: async (request: SendRequest) => {
+      if (!workspace.isWorkspaceCurrent() || !request.currentView())
+        throw new Error("Conversation changed.");
       const res = await sendFn({
         data: {
-          channel_id: channelId,
-          body,
-          client_dedupe_key: `${channelId}:${Date.now()}`,
+          channel_id: request.channelId,
+          body: request.body,
+          client_dedupe_key: request.dedupeKey,
+          expected_viewer_id: workspace.viewerId,
         },
       });
-      return { ...res, attachment, channelId };
+      if (
+        !res?.message ||
+        !z.string().uuid().safeParse(res.message.id).success ||
+        res.message.channel_id !== request.channelId ||
+        res.message.author_id !== workspace.viewerId
+      )
+        throw new Error("Message response mismatch");
+      return { ...res, request };
     },
     onSuccess: (result) => {
-      setDraft("");
-      setPendingFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      invalidateActive();
-
-      if (result.attachment) {
-        // The message is already durable and the composer has been released.
-        // Upload, quarantined registration, and scanning continue separately.
+      if (!workspace.isWorkspaceCurrent()) return;
+      const request = result.request;
+      sendKeys.current.delete(JSON.stringify([request.channelId, request.revision]));
+      setComposers((previous) =>
+        previous[request.channelId]?.revision === request.revision
+          ? {
+              ...previous,
+              [request.channelId]: { body: "", file: null, revision: request.revision + 1 },
+            }
+          : previous,
+      );
+      if (request.currentView() && fileInputRef.current) fileInputRef.current.value = "";
+      invalidateOriginal(request.channelId, request.currentView);
+      if (request.attachment)
         attachmentMutation.mutate({
-          channelId: result.channelId,
+          channelId: request.channelId,
           messageId: result.message.id,
-          file: result.attachment,
+          file: request.attachment,
+          currentView: request.currentView,
         });
-      }
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Could not send this message. It remains in the composer.");
+    onError: (_error, request) => {
+      if (workspace.isWorkspaceCurrent() && request.currentView())
+        toast.error(
+          "We couldn't confirm this message was sent. It remains in this channel's composer; check the conversation before trying again.",
+        );
+    },
+    onSettled: (_data, _error, request) => {
+      pendingSends.current.delete(request.channelId);
+      if (workspace.isWorkspaceCurrent()) setPendingSendIds([...pendingSends.current]);
     },
   });
+  const submitMessage = () => {
+    if (
+      !active ||
+      active.archived_at ||
+      !view.isCurrent() ||
+      messagesQuery.isError ||
+      messagesQuery.isPending ||
+      pendingSends.current.has(active.id)
+    )
+      return;
+    const body = draft.trim();
+    if (!body) return;
+    const intentKey = JSON.stringify([active.id, composer.revision]);
+    let dedupeKey = sendKeys.current.get(intentKey);
+    if (!dedupeKey) {
+      dedupeKey = crypto.randomUUID();
+      sendKeys.current.set(intentKey, dedupeKey);
+    }
+    pendingSends.current.add(active.id);
+    setPendingSendIds([...pendingSends.current]);
+    sendMutation.mutate({
+      body,
+      channelId: active.id,
+      attachment: PROTECTED_FILE_UPLOADS_ENABLED ? pendingFile : null,
+      revision: composer.revision,
+      currentView: view.isCurrent,
+      dedupeKey,
+    });
+  };
 
-  const pinned = pinnedQuery.data?.pinned ?? [];
+  const pinned = pinnedQuery.isSuccess ? pinnedQuery.data.pinned : [];
+  const bookmarksAvailable = bookmarksQuery.isSuccess;
 
   return (
     <>
-      <StartStudentConversation onCreated={(channelId) => {
-        setActiveId(channelId);
-        setThreadParentId(null);
-        navigate({
-          to: "/transition-channel",
-          search: {
-            ...search,
-            tab: "channels",
-            unread: "all",
-            archived: "active",
-            student: undefined,
-            type: undefined,
-            org: undefined,
-            opportunity: undefined,
-          },
-        });
-      }} />
+      <StartStudentConversation
+        key={activeId ?? "no-conversation"}
+        onCreated={async (channelId) => {
+          if (!view.isCurrent()) throw new Error("Conversation view changed.");
+          await navigate({
+            to: "/transition-channel",
+            search: {
+              ...search, tab: "channels", channel: channelId,
+              unread: "all", archived: "active", student: undefined,
+              type: undefined, org: undefined, opportunity: undefined,
+            },
+          });
+          if (!view.isCurrent()) throw new Error("Conversation view changed.");
+          setActiveId(channelId);
+          setThreadParentId(null);
+          setPromoteMessage(null);
+        }}
+      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[280px_1fr]">
         <aside className="max-h-[50vh] overflow-y-auto rounded-lg border bg-muted/30 md:max-h-[70vh]">
-          {channelsQuery.isLoading ? (
+          <Button
+            variant="outline"
+            className="m-3"
+            onClick={() => {
+              void channelsQuery.refetch();
+            }}
+          >
+            Refresh Conversations
+          </Button>
+          {channelsQuery.isError ? (
+            <div role="alert" className="p-4 text-sm">
+              <p>We couldn't load your conversations.</p>
+              <Button
+                variant="outline"
+                className="mt-2"
+                onClick={() => {
+                  void channelsQuery.refetch();
+                }}
+              >
+                Reload Conversations
+              </Button>
+            </div>
+          ) : channelsQuery.isLoading ? (
             <div className="p-4 text-sm text-muted-foreground">Loading channels…</div>
           ) : channels.length === 0 ? (
             <div className="p-6 text-sm text-muted-foreground">
@@ -1197,6 +1212,8 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     onClick={() => {
                       setActiveId(c.id);
                       setThreadParentId(null);
+                      setPromoteMessage(null);
+                      setPrivacyReview(null);
                     }}
                     className={`w-full text-left px-4 py-3 hover:bg-muted transition ${
                       activeId === c.id ? "bg-muted" : ""
@@ -1226,7 +1243,9 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
             <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
               <div className="text-center">
                 <MessageSquare className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                Select a channel to view its conversation.
+                {activeId
+                  ? "This conversation is no longer available in the current list. Select another channel or reload conversations."
+                  : "Select a channel to view its conversation."}
               </div>
             </div>
           ) : (
@@ -1252,30 +1271,33 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                 </div>
               </header>
 
-              {pinned.length > 0 && (
-                <div className="border-b bg-muted/30 px-4 py-2 space-y-1 max-h-40 overflow-y-auto">
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
-                    Pinned
-                  </p>
-                  {pinned.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setThreadParentId(p.id)}
-                      className="w-full text-left text-xs text-muted-foreground hover:text-foreground truncate"
-                      title={p.body}
-                    >
-                      <span className="font-medium text-foreground">
-                        {p.author_name ?? "Member"}:
-                      </span>{" "}
-                      {p.body}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-wrap gap-2 border-b px-4 py-2">
+                <Button size="sm" variant="outline" disabled={pinnedQuery.isFetching} onClick={() => { if (view.isCurrent()) void pinnedQuery.refetch(); }}>{pinnedQuery.isError ? "Reload Pinned Messages" : "Refresh Pinned Messages"}</Button>
+                <Button size="sm" variant="outline" disabled={bookmarksQuery.isFetching} onClick={() => { if (view.isCurrent()) void bookmarksQuery.refetch(); }}>{bookmarksQuery.isError ? "Reload Bookmarks" : "Refresh Bookmarks"}</Button>
+              </div>
+              {pinnedQuery.isError && <p role="alert" className="px-4 py-2 text-sm">We couldn't load pinned messages. Reload them to try again.</p>}
+              {pinnedQuery.isPending && <p className="px-4 py-2 text-sm">Loading pinned messages…</p>}
+              {bookmarksQuery.isError && <p role="alert" className="px-4 py-2 text-sm">We couldn't load bookmarks. Bookmark controls are unavailable until you reload them.</p>}
+              {bookmarksQuery.isPending && <p className="px-4 py-2 text-sm">Loading bookmarks…</p>}
+              <ChannelPinnedMessages key={active.id} messages={pinned} onOpen={(messageId) => {
+                if (view.isCurrent() && pinned.some(message => message.id === messageId && message.channel_id === active.id)) setThreadParentId(messageId);
+              }} />
 
               <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-                {messagesQuery.isLoading ? (
+                {messagesQuery.isError ? (
+                  <div role="alert" className="text-sm">
+                    <p>We couldn't load this conversation. Your draft is kept.</p>
+                    <Button
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => {
+                        void messagesQuery.refetch();
+                      }}
+                    >
+                      Reload Messages
+                    </Button>
+                  </div>
+                ) : messagesQuery.isLoading ? (
                   <div className="text-sm text-muted-foreground">Loading messages…</div>
                 ) : topLevel.length === 0 ? (
                   <div className="text-sm text-muted-foreground">
@@ -1286,9 +1308,10 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     <MessageItem
                       key={m.id}
                       m={m}
+                      readOnly={!!active.archived_at}
                       currentUserId={currentUserId}
                       isAdmin={isAdmin}
-                      bookmarked={bookmarkedIds.has(m.id)}
+                      bookmarked={bookmarksAvailable ? bookmarkedIds.has(m.id) : null}
                       attachments={attachmentsByMessage.get(m.id) ?? []}
                       replyCount={replyCounts.get(m.id) ?? 0}
                       onReply={(parent) => setThreadParentId(parent.id)}
@@ -1299,17 +1322,31 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                 )}
               </div>
 
+              {attachmentsError && (
+                <div role="alert" className="border-t p-3 text-sm">
+                  <p>We couldn't load this conversation's attachments.</p>
+                  <Button size="sm" variant="outline" onClick={() => void refetchAttachments()}>
+                    Reload Attachments
+                  </Button>
+                </div>
+              )}
+              {readError?.channelId === active.id && readError.currentView() && (
+                <div role="alert" className="border-t p-3 text-sm">
+                  <p>Your messages are available, but we couldn't update the read status.</p>
+                  <Button
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => setReadAttempt((value) => value + 1)}
+                  >
+                    Retry Read Status
+                  </Button>
+                </div>
+              )}
               <form
                 className="border-t p-3 space-y-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  const body = draft.trim();
-                  if (!body || sendMutation.isPending) return;
-                  sendMutation.mutate({
-                    body,
-                    channelId: active.id,
-                    attachment: PROTECTED_FILE_UPLOADS_ENABLED ? pendingFile : null,
-                  });
+                  submitMessage();
                 }}
               >
                 {pendingFile && (
@@ -1365,11 +1402,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                       }
                       fileInputRef.current?.click();
                     }}
-                    disabled={
-                      !PROTECTED_FILE_UPLOADS_ENABLED ||
-                      !!active.archived_at ||
-                      sendMutation.isPending
-                    }
+                    disabled={!PROTECTED_FILE_UPLOADS_ENABLED || !!active.archived_at || sending}
                     title={
                       PROTECTED_FILE_UPLOADS_ENABLED
                         ? "Attach file"
@@ -1388,14 +1421,7 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
-                        const body = draft.trim();
-                        if (body && !sendMutation.isPending) {
-                          sendMutation.mutate({
-                            body,
-                            channelId: active.id,
-                            attachment: PROTECTED_FILE_UPLOADS_ENABLED ? pendingFile : null,
-                          });
-                        }
+                        submitMessage();
                       }
                     }}
                     disabled={!!active.archived_at}
@@ -1403,7 +1429,13 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
                   />
                   <Button
                     type="submit"
-                    disabled={!draft.trim() || sendMutation.isPending || !!active.archived_at}
+                    disabled={
+                      !draft.trim() ||
+                      sending ||
+                      !!active.archived_at ||
+                      messagesQuery.isError ||
+                      messagesQuery.isPending
+                    }
                   >
                     <Send className="h-4 w-4" />
                     <span className="sr-only">Send</span>
@@ -1416,29 +1448,40 @@ function ChannelConversationTab({ search }: { search: FilterState }) {
       </div>
 
       <SensitiveFilePrivacyReviewDialog
+        key={active?.id ?? "none"}
         source={privacySource}
         confirmLabel="Attach privacy-safe copy"
         onCancel={() => setPrivacySource(null)}
         onConfirm={({ file }) => {
+          if (!view.isCurrent()) return;
           setPrivacySource(null);
           setPendingFile(file);
         }}
       />
 
       <ThreadPanel
-        parentId={threadParentId}
-        channelId={activeId}
+        key={`thread:${active?.id ?? "none"}:${threadParentId ?? "none"}`}
+        parentId={
+          active && (allMessages.some((message) => message.id === threadParentId) || pinned.some((message) => message.id === threadParentId))
+            ? threadParentId
+            : null
+        }
+        channelId={active?.id ?? null}
         currentUserId={currentUserId}
         isAdmin={isAdmin}
         bookmarkedIds={bookmarkedIds}
+        bookmarksAvailable={bookmarksAvailable}
+        readOnly={!!active?.archived_at}
         onClose={() => setThreadParentId(null)}
         onChanged={invalidateActive}
       />
 
       <PromoteRecordDialog
-        message={promoteMessage}
-        channelId={promoteMessage ? activeId : null}
+        key={`promote:${active?.id ?? "none"}:${promoteMessage?.id ?? "none"}`}
+        message={promoteMessage?.channel_id === active?.id ? promoteMessage : null}
+        channelId={promoteMessage?.channel_id === active?.id ? (active?.id ?? null) : null}
         channelStudentId={active?.student_id ?? null}
+        readOnly={!!active?.archived_at}
         onOpenChange={(open: boolean) => {
           if (!open) setPromoteMessage(null);
         }}

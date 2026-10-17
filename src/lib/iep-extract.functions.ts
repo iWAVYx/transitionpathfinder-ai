@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -7,6 +8,7 @@ import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { redactSensitiveText } from "./sensitive-text-redaction";
 
 const InputSchema = z.object({
+  ...viewerIntentSchema.shape,
   text: z.string().trim().min(40, "Not enough text to read from.").max(120_000),
 });
 
@@ -35,7 +37,8 @@ export type IepExtract = z.infer<typeof ExtractSchema>;
 export const extractFromIep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const privacySafeText = redactSensitiveText(data.text).text;
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
