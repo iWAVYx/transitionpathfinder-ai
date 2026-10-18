@@ -46,6 +46,8 @@ export const Route = createFileRoute("/_authenticated")({
           redirect: workspaceReturnPath(location),
           reason: reasonForPath(location.pathname),
         },
+        replace: true,
+        reloadDocument: true,
       });
     }
     // 2FA gate: if the user has a verified TOTP factor but hasn't completed
@@ -190,6 +192,10 @@ function SignedOutWorkspace({
           to: "/login",
           search: { redirect: returnPath, reason: reasonForPath(path) },
           replace: true,
+          // A missing session must leave the hydrated protected route tree.
+          // In-page navigation can retain/re-render that tree during startup,
+          // repeatedly redirecting before browser history can settle.
+          reloadDocument: true,
         });
       } catch {
         if (!cancelled && currentKey.current === scopeKey) setFailed(true);

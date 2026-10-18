@@ -319,6 +319,7 @@ it("expired-session login keeps the current local query and hash", async () => {
   expect(api.navigate.mock.calls[0][0].search.redirect).toBe(
     "/family/history?student_id=sample#kept",
   );
+  expect(api.navigate.mock.calls[0][0]).toMatchObject({ replace: true, reloadDocument: true });
   expect(api.profile).not.toHaveBeenCalled();
   expect(api.read).not.toHaveBeenCalled();
 });
@@ -408,3 +409,59 @@ it("beforeLoad retains a completed two-factor session", async () => {
   await expect(beforeLoad({ location: { pathname: "/owner" } })).resolves.toBeUndefined();
   expect(api.profile).not.toHaveBeenCalled();
 });
+
+// Shared missing-session behavior applies to every protected workspace.
+const SIGNED_OUT_WORKSPACES = [
+  "/owner",
+  "/owner/health",
+  "/family/history",
+  "/students",
+  "/caseload",
+  "/admin-school",
+  "/district/overview",
+  "/partners-manage",
+];
+it.each(SIGNED_OUT_WORKSPACES)(
+  "missing-session %s uses one document transition and preserves its return context",
+  async (path) => {
+    api.viewer = "";
+    api.path = path;
+    api.searchStr = "?context=fictional";
+    api.hash = "section";
+    const view = render(node());
+    await waitFor(() => expect(api.navigate).toHaveBeenCalledOnce());
+    expect(api.navigate).toHaveBeenCalledWith({
+      to: "/login",
+      search: { redirect: path + "?context=fictional#section", reason: expect.any(String) },
+      replace: true,
+      reloadDocument: true,
+    });
+    view.rerender(node());
+    await act(async () => {});
+    expect(api.navigate).toHaveBeenCalledOnce();
+    expect(api.profile).not.toHaveBeenCalled();
+    expect(api.admin).not.toHaveBeenCalled();
+    expect(api.read).not.toHaveBeenCalled();
+  },
+);
+it.each(SIGNED_OUT_WORKSPACES)(
+  "initial missing-session %s requests a fresh sign-in document before private lookups",
+  async (path) => {
+    api.session.mockResolvedValue({ data: { session: null }, error: null });
+    await expect(
+      beforeLoad({
+        location: { pathname: path, searchStr: "?context=fictional", hash: "section" },
+      }),
+    ).rejects.toMatchObject({
+      options: {
+        to: "/login",
+        replace: true,
+        reloadDocument: true,
+        search: { redirect: path + "?context=fictional#section" },
+      },
+    });
+    expect(api.aal).not.toHaveBeenCalled();
+    expect(api.profile).not.toHaveBeenCalled();
+    expect(api.admin).not.toHaveBeenCalled();
+  },
+);
