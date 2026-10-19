@@ -8,6 +8,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
 import { authenticator } from "otplib";
 import { ROLES, type RoleSpec } from "./helpers/roles";
+import { assertRoleFixtureWriteAllowed } from "./helpers/role-setup-policy";
 import { DASHBOARD_TESTID_CONTRACT_VERSION } from "../../src/lib/dashboard-testids";
 
 const DASHBOARD_NOT_READY_PREFIX = "Seeded role account is not dashboard-ready";
@@ -69,7 +70,7 @@ async function assertDeploymentParity(page: Page, role: RoleSpec, dumpDiagnostic
         `Redeploy/publish the exact PLAYWRIGHT_BASE_URL host after the dashboard test ID changes.`,
     );
   }
-  const expectedSha = process.env.GITHUB_SHA?.trim();
+  const expectedSha = process.env.E2E_EXPECTED_BUILD_SHA?.trim() || process.env.GITHUB_SHA?.trim();
   if (expectedSha && marker.buildSha && marker.buildSha !== "dev" && marker.buildSha !== expectedSha) {
     await dumpDiagnostics?.("deployed-build-sha-mismatch");
     throw new Error(
@@ -209,6 +210,7 @@ async function completeOnboardingIfPresent(
   role: RoleSpec,
 ) {
   if (normalizePath(new URL(page.url()).pathname) !== "/onboarding") return;
+  assertRoleFixtureWriteAllowed(role.key);
   if (role.key === "owner") {
     throw new Error(dashboardReadinessError(role.dashboard, page.url()));
   }
@@ -264,6 +266,7 @@ async function ensureWorkspaceSeeded(page: Page, role: RoleSpec) {
   if (role.key === "school_admin") {
     const setupCard = page.getByRole("heading", { name: /set up your school/i }).first();
     if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      assertRoleFixtureWriteAllowed(role.key);
       await page.locator("#org-name").fill("E2E Transition School");
       await page.locator("#org-city").fill("Hartford");
       await page.locator("#org-state").fill("CT");
@@ -275,6 +278,7 @@ async function ensureWorkspaceSeeded(page: Page, role: RoleSpec) {
   if (role.key === "district_admin") {
     const setupCard = page.getByRole("heading", { name: /set up your district/i }).first();
     if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      assertRoleFixtureWriteAllowed(role.key);
       await page.locator("#district-name").fill("E2E Transition District");
       await page.locator("#district-city").fill("Hartford");
       await page.locator("#district-state").fill("CT");
@@ -286,6 +290,7 @@ async function ensureWorkspaceSeeded(page: Page, role: RoleSpec) {
   if (role.key === "partner") {
     const setupCard = page.getByRole("heading", { name: /set up your partner workspace/i }).first();
     if (await setupCard.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      assertRoleFixtureWriteAllowed(role.key);
       await page.getByPlaceholder(/capital community college/i).fill("E2E Transition Partner");
       await page.getByPlaceholder(/hartford/i).fill("Hartford");
       await page.getByRole("button", { name: /create workspace/i }).click();

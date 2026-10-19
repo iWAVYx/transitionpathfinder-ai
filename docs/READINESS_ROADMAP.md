@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Existing-Account Seven-Role Acceptance Prepared — October 19, 2026
+
+- [x] Inspect the existing Staging Role Verification workflow before running it. It previously reconciled synthetic identities with a service-role key, and shared login setup could finish onboarding or create school/district/partner workspaces. Do not run that mutating path under read-only role acceptance.
+- [x] Prepare a read-only verification path: remove reseeding and privileged backend credentials from this workflow; use existing synthetic staging role credentials only. Missing onboarding/workspace fixtures fail explicitly before any fill/create action. Preserve separately requested fixture preparation outside read-only mode, normal login and existing MFA requirements; no identities, memberships or roles changed by this preparation.
+- [x] Require exact checkout runtime fingerprint/file count plus staging environment isolation before login. Record the authentic deployed commit from the verified health response for browser build-marker comparison, rather than claiming the test-only commit is deployed. Product runtime remains `c88d285a` /fingerprint `1f398dba…bc9b2522` /1,177 files; workflow/tests/docs do not change the hosted application.
+- [x] Local verification: 29 targeted policy/identity tests, TypeScript, YAML parse and diff checks pass. Execute the embedded workflow identity code against five offline fixtures: matching source passes; wrong fingerprint, wrong file count, production label and missing authentic commit fail before recording accepted metadata. Authenticated traces remain off and artifacts require existing credential sanitization.
+- [ ] Run the credentialed read-only workflow after required human staging-environment review. It requires all seven existing accounts and tests dashboard rendering at mobile/tablet/desktop, refresh and role navigation/access. Missing credentials/fixtures are failures or blocked evidence, never role acceptance passes. No provider generation, uploads, data edits, permission changes or production action are included.
+- [ ] Follow with applicable role-specific generation, populated data, save/reopen and document/export acceptance under separately bounded scope. Prioritize this requested seven-role audit before the still-open demo implicit/explicit default-student restoration-key correction. Full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+
+Preparation evidence: `/private/tmp/tf211-readonly-role-verification`. No role workflow has run yet in this follow-up.
+
 ## Grouped Featured and Scroll Release Verified — October 19, 2026
 
 - [x] Required human `iWAVYx` approved exact runtime `c88d285a65e2397ccc41b186795b493600fa55f5` in staging workflow `39279834039`. Cloudflare exact deployment identity, sandbox public/server payments, isolated backend, isolation and PWA checks passed. Eight automatic CI checks passed; seven credentialed/live checks were skipped.
