@@ -71,3 +71,37 @@ it("does not override user scrolling while waiting for content", () => {
   frame(0);
   expect(window.scrollTo).not.toHaveBeenCalled();
 });
+
+it("refreshes smooth-scroll dimensions and retries a clamped return before stopping", () => {
+  state.position = { scrollY: 1264.5 };
+  state.hash = "";
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(3000);
+  let y = 181;
+  vi.spyOn(window, "scrollY", "get").mockImplementation(() => y);
+  const resize = vi.fn();
+  const scrollTo = vi.fn((destination: number) => {
+    // Reproduce a layout transition that rejects the first restoration.
+    if (scrollTo.mock.calls.length > 1) y = destination;
+  });
+  vi.stubGlobal("__lenis", { resize, scrollTo });
+  render(<ScrollToTop />);
+  frame(0);
+  expect(scrollTo).toHaveBeenCalledWith(1264.5, { immediate: true, force: true });
+  expect(y).toBe(181);
+  frame(1);
+  expect(y).toBe(1264.5);
+  expect(resize).toHaveBeenCalledTimes(2);
+  frame(2);
+  expect(scrollTo).toHaveBeenCalledTimes(2);
+});
+it("lets user intent cancel a clamped native-scroll retry", () => {
+  state.position = { scrollY: 900 };
+  state.hash = "";
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+  render(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+  window.dispatchEvent(new Event("wheel"));
+  frame(1);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+});

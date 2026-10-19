@@ -39,9 +39,15 @@ export function ScrollToTop() {
       // DOM should instead reach the nearest possible position, including the footer.
       if (targetY !== undefined && y > maxY) return;
       const destination = Math.max(0, Math.min(y, maxY));
-      if (window.__lenis) window.__lenis.scrollTo(destination, { immediate: true, force: true });
-      else window.scrollTo({ top: destination, left: targetX, behavior: "instant" });
-      stop();
+      if (window.__lenis) {
+        // Async route content may outgrow the smooth scroller's cached limit.
+        window.__lenis.resize();
+        window.__lenis.scrollTo(destination, { immediate: true, force: true });
+      } else window.scrollTo({ top: destination, left: targetX, behavior: "instant" });
+      // A requested scroll can still be clamped during route/layout changes.
+      // Keep bounded recovery alive until the viewport reaches the destination.
+      if (Math.abs(window.scrollY - destination) <= 1) stop();
+      else schedule();
     };
     const schedule = () => {
       cancelAnimationFrame(frame);

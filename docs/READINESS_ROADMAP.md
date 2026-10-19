@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## Signed-In Family Navigation and Shared Scroll Follow-Up — October 19, 2026
+
+- [x] User signed into the existing Family/Guardian staging test account on Cloudflare runtime `125c271a`, leaving isolated Lovable Owner unchanged. Actual Tools menu offers IEP/Documents, Meeting Prep, Calendar, Family Action Items and Transition Channel plus account/help entries; these correspond to existing Family dashboard features.
+- [x] Calendar opens from the menu; Month, Week and Agenda render with truthful empty states. Calendar, Meeting Prep and Pathway Builder each have exactly one Back to Dashboard return. Meeting Prep correctly requires a Pathway Report, and its prerequisite link opens the real builder. Family builder displays only the Parent/Caregiver role choice. No events, reports or prep generated/saved; these checks do not establish populated event/export or provider quality acceptance.
+- [x] Next Actions opens from its widget with role/student query context retained and finishes loading. Actual Family navigation to `/owner` returns to the Family dashboard instead of exposing management. These are bounded route checks, not every RLS/action denial.
+- [ ] Return-position acceptance FAILED: after opening Next Actions from the widget area at scrollY 1264.5, Back to Dashboard settles at 181 (1,083.5px above origin), even after async rendering settles. Do not count prior scroll implementation or passing unit tests as hosted acceptance.
+- [x] Local defensive correction in shared ScrollToTop: refresh Lenis dimensions before restoring and verify actual viewport arrival before stopping. Retry a clamped scroll within the existing ten-second bound; wheel/touch/keyboard still cancel recovery. Shared root behavior applies to every workspace and demo path; no role/data/URL destination changes. Local regression reproduces a clamped request, reaches the saved position only with the correction, and preserves user cancellation. Old source fails the actual position assertion (181 vs1264.5); restored fixed source passes.
+- [x] Local validation: 13 targeted partner/directory/scroll checks across four files and TypeScript pass; final five scroll checks pass after strengthening the outcome assertion. The actual cause and complete hosted resolution remain subject to the next exact-source staging/browser review. This is local only, alongside the already-reviewed-in-draft Featured filter fix, not deployed.
+- [ ] Continue other signed-in roles, populated/saved workflows, generation/document/export quality and full TF-01–TF-26 milestones. Parent Pilot / Pathway Report Snapshot remain deferred. Current hosted runtime remains `125c271a`; no new deployment/publication/AI/migration/record writes.
+
+Evidence: `/private/tmp/tf211-family-navigation-acceptance-20261019`; Owner/public directory read evidence remains in `/private/tmp/tf211-owner-partner-acceptance-20261019`. Prepare one grouped follow-up for exact-source review instead of releasing each finding separately.
+
 ## Owner Directory Journey and Featured Filter — October 19, 2026
 
 - [x] On deployed `125c271a`, actual signed-in Owner Partner Network loads 94 rows; organization-name search narrows the list correctly, an existing partner's opportunity drawer opens and truthfully shows its zero-opportunity state, and closing it restores the list. No Verify/Feature/Hide/New/Save action, partner write or AI call.
