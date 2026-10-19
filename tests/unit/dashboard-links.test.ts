@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { duplicateDashboardLinks } from "../e2e/helpers/dashboard-links";
+import { dashboardTileHrefs, duplicateDashboardLinks } from "../e2e/helpers/dashboard-links";
 beforeEach(() => {
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({ width: 100, height: 30 } as DOMRect);
 });
@@ -20,4 +20,9 @@ it("rejects duplicate links inside the same navigation region", () => {
 });
 it("does not count hidden or external links", () => {
   expect(duplicates('<a href="/calendar">Calendar</a><a style="display:none" href="/calendar">Hidden</a><a href="https://example.org">External</a><a href="https://example.org">External Again</a>')).toEqual([]);
+});
+
+it("probes the exact organization/filter/hash context and only deduplicates identical links", () => {
+  document.body.innerHTML = `<main><a href="/district/reports?district_id=sample#coverage">Reports</a><a href="/district/reports?district_id=sample#coverage">Reports Again</a><a href="/district/reports?district_id=other">Other District</a><a href="//external.test/path">External</a></main>`;
+  expect(dashboardTileHrefs(document.querySelector("main")!)).toEqual(["/district/reports?district_id=sample#coverage", "/district/reports?district_id=other"]);
 });

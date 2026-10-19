@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## Staging Parity Verified; Seven-Role Results and Access Landmark Follow-Up — October 19, 2026
+
+- [x] Cloudflare and the stable isolated Lovable publication now serve the same approved runtime fingerprint `6d3bdfb164806a265df8ecc544ba24b67e0df4a1633e9753b49b5f578548cbda` /1,178 files. Cloudflare commit is `d5d8182f`; isolated Lovable's authentic sync commit is `8e11ad269886ecbb18f9b1a2088e2c96b7e4d8be`. Both externally verify staging backend, sandbox payments and isolation true. Lovable publication UI confirms the update. No production/source-main changes.
+- [x] Correct earlier private-preview acceptance guidance: source intentionally permits only stable isolated hostname `gentle-forward-reach.lovable.app`; preview aliases reject hostname and `dev` identity. Requiring isolation true on a private alias was incorrect. Builder's current preview independently matched exact source/backend/sandbox; stable published health then passed. No hostname allowlist or identity protection was loosened. Owner-provided older alias JSON was stale, and did not prove current parity.
+- [x] Human-approved read-only audit [39302390735](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39302390735): seven sign-ins passed; **all 84 responsive dashboard checks passed**. Access/navigation suite: **236 passed, 1 failed, 2 skipped**. Credential sanitization and evidence upload succeeded. Do not call the entire audit green.
+- [ ] District's tile-navigation test stopped before probing its destinations: access checking briefly renders a nested `main` with the same dashboard test ID as the outer District shell. Prepare a shared main-landmark ownership context for SiteShell and DistrictPageShell; guarded loading/error frames use a `div` inside an existing main, while standalone guards retain their main and test ID. Preserve authorization, protected-child gating and retry behavior across all seven roles. Local cross-role tests cover pending/error/retry without starting protected reads early.
+- [ ] Strengthen tile audit context: its prior collector accidentally returned deduplicated bare paths, dropping organization query/hash values. Prepare exact visible internal href probing with identical-href deduplication only. Earlier passes do not prove organization-specific context retention. Keep strict unique-main checks; do not hide the District defect with `.first()`.
+- [x] Local validation for these follow-ups: 82 targeted role-guard, route-recovery, shell-contract and DOM link checks pass. Runtime changes are local and undeployed pending review/CI. Live sites remain on approved `d5d8182f` runtime.
+- [ ] Two skipped checks: Owner's no-forbidden-demo-links case is inapplicable because its policy has no forbidden routes; Student grade-band coupling lacks `grade_band` in the existing fixture and remains untested. Do not change account/fixture records under read-only scope. Keep per-role provider quality, populated tools, save/reopen, printing/exports, full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot open.
+
+Evidence: `/private/tmp/tf211-release-candidate-d5d8182f`, including sanitized corrected-audit results and stable external health.
+
 ## Demo Context Release on Cloudflare; Isolated Preview Verification Pending — October 19, 2026
 
 Current status below supersedes earlier preparation/running entries, which remain as historical evidence.

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Building2, Loader2, Plus } from "lucide-react";
 
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { MainLandmarkContext } from "@/components/site/main-landmark-context";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -69,6 +70,7 @@ export function DistrictPageShell({
         data-testid={ROLE_DASHBOARD_TEST_IDS.district_admin}
         data-auth-state="ready"
       >
+        <MainLandmarkContext.Provider value={true}>
         <RoleGuard path={path}>
           <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
             <Breadcrumbs
@@ -136,6 +138,7 @@ export function DistrictPageShell({
             </div>
           </section>
         </RoleGuard>
+        </MainLandmarkContext.Provider>
       </main>
       <SiteFooter />
     </div>

@@ -16,3 +16,20 @@ export function duplicateDashboardLinks(main: Element) {
   }
   return [...counts.values()].filter(({ count }) => count > 1);
 }
+
+/** Retain query and hash context when probing the links users actually open. */
+export function dashboardTileHrefs(main: Element) {
+  const seen = new Set<string>();
+  const hrefs: string[] = [];
+  for (const link of main.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+    const href = link.getAttribute("href") ?? "";
+    if (!href.startsWith("/") || href.startsWith("//")) continue;
+    const bounds = link.getBoundingClientRect();
+    const style = getComputedStyle(link);
+    if (!bounds.width || !bounds.height || style.visibility === "hidden" || style.display === "none") continue;
+    if (seen.has(href)) continue;
+    seen.add(href);
+    hrefs.push(href);
+  }
+  return hrefs;
+}

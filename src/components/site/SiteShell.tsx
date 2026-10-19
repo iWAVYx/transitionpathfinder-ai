@@ -7,6 +7,7 @@ import {
   type RoleDashboardTestId,
 } from "@/lib/dashboard-testids";
 import { SiteHeader } from "./SiteHeader";
+import { MainLandmarkContext } from "./main-landmark-context";
 import { SiteFooter } from "./SiteFooter";
 
 export function SiteShell({
@@ -34,7 +35,7 @@ export function SiteShell({
           data-auth-state="ready"
         >
           <DashboardMainLandmark pathname={location.pathname} />
-          {children}
+          <MainLandmarkContext.Provider value={true}>{children}</MainLandmarkContext.Provider>
         </main>
         <SiteFooter />
       </div>

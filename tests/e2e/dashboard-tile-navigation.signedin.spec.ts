@@ -19,37 +19,14 @@
 import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES } from "./helpers/roles";
+import { dashboardTileHrefs } from "./helpers/dashboard-links";
 
 function normalizePath(p: string) {
   return p.length > 1 ? p.replace(/\/+$/, "") : p;
 }
 
 async function collectInternalTileHrefs(page: Page): Promise<string[]> {
-  return await page.evaluate(() => {
-    const main = document.querySelector("main");
-    if (!main) return [] as string[];
-    const anchors = Array.from(main.querySelectorAll<HTMLAnchorElement>("a[href]"));
-    const seen = new Set<string>();
-    for (const a of anchors) {
-      const href = a.getAttribute("href") ?? "";
-      if (!href.startsWith("/")) continue; // skip external, mailto, tel, hash
-      if (href.startsWith("//")) continue; // protocol-relative external
-      // Ignore purely-hash anchors on the current page.
-      if (href === "" || href === "#") continue;
-      const rect = a.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) continue;
-      const style = getComputedStyle(a);
-      if (style.visibility === "hidden" || style.display === "none") continue;
-      // Strip query/hash for de-dupe but return the original href.
-      const key = href.split("#")[0].split("?")[0];
-      if (!seen.has(key)) {
-        seen.add(key);
-      } else {
-        continue;
-      }
-    }
-    return Array.from(seen);
-  });
+  return page.locator("main").evaluate(dashboardTileHrefs);
 }
 
 async function pageIndicatesNotFound(page: Page): Promise<boolean> {

@@ -29,6 +29,7 @@ vi.mock("@/hooks/use-auth", () => ({
 vi.mock("@/lib/profile.functions", () => ({ getMyRoles: api.roles }));
 vi.mock("sonner", () => ({ toast: { error: api.toast } }));
 import { RoleGuard } from "@/components/RoleGuard";
+import { MainLandmarkContext } from "@/components/site/main-landmark-context";
 import type { RoleAudience } from "@/lib/role-policy";
 function Payload() {
   useEffect(() => {
@@ -361,4 +362,21 @@ it("sign-in keeps the local page selection and anchor", () => {
   );
   expect(api.roles).not.toHaveBeenCalled();
   expect(api.read).not.toHaveBeenCalled();
+});
+
+it.each(roleCases)("$role keeps one main landmark inside a page shell during access checking and retry", async ({ role, path }) => {
+  const check = pending();
+  api.roles.mockReturnValueOnce(check.promise).mockResolvedValueOnce({ roles: [role] });
+  render(<main data-testid="page-main"><MainLandmarkContext.Provider value={true}><RoleGuard path={path}><Payload /></RoleGuard></MainLandmarkContext.Provider></main>);
+  expect(screen.getAllByRole("main")).toHaveLength(1);
+  expect(document.querySelectorAll("[data-testid]")).toHaveLength(1);
+  expect(api.read).not.toHaveBeenCalled();
+  await act(async () => check.reject(new Error("unavailable")));
+  await screen.findByRole("alert");
+  expect(screen.getAllByRole("main")).toHaveLength(1);
+  expect(document.querySelectorAll("[data-testid]")).toHaveLength(1);
+  fireEvent.click(screen.getByRole("button", { name: "Try Again" }));
+  await screen.findByText("Protected Payload");
+  expect(screen.getAllByRole("main")).toHaveLength(1);
+  expect(api.read).toHaveBeenCalledOnce();
 });

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { MainLandmarkContext } from "@/components/site/main-landmark-context";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -130,6 +131,8 @@ function AccessFrame({
   signedOut?: boolean;
   onRetry?: () => void;
 }) {
+  const insideMain = useContext(MainLandmarkContext);
+  const Container = insideMain ? "div" : "main";
   const hint =
     typeof window === "undefined"
       ? null
@@ -144,8 +147,8 @@ function AccessFrame({
     dashboardTestIdForDashboardHint(hint) ??
     dashboardTestIdForDashboardHint(email);
   return (
-    <main
-      data-testid={testId ?? undefined}
+    <Container
+      data-testid={insideMain ? undefined : testId ?? undefined}
       data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
       className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center px-4 py-12"
     >
@@ -181,6 +184,6 @@ function AccessFrame({
           </Link>
         )}
       </div>
-    </main>
+    </Container>
   );
 }
