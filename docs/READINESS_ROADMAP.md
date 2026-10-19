@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Shared Landmark Release Published and Staging Parity Verified — October 19, 2026
+
+- [x] Complete the already-authorized isolated Lovable publication for `58cb564a`. Builder's own Open in New Tab link independently served exact fingerprint `8e13f4ac4662e6ff414cfb54a19357db237537bb535284f2b0d0ed1378152c30` /1,179 files with staging backend and sandbox payments, despite its embedded preview reporting lost connection. The plain alias supplied by the owner served an older snapshot; it was not accepted as current-source evidence. No guard/hostname changes or invented Git identity.
+- [x] Lovable publication UI confirms updated. Stable `gentle-forward-reach.lovable.app` externally verifies the same source fingerprint/file count as Cloudflare, staging backend `qgrertkqbwanerqqemph`, sandbox public/server payments and isolation true. Authentic isolated sync SHA is `d8e0cf0a38781661195a97b77324fc8c1817b04b`; Cloudflare source SHA is `58cb564ae59a05813254dee8a8c17a034e743682`. Source production main remains `0ff2f1020a394301695295d9e93a2d0ad9eec41c`.
+- [ ] Read-only role retest remains 84 responsive dashboard checks passed; access/navigation 236 passed, one Partner demo dynamic-module failure, two documented skips. All seven tile journeys, including District with exact organization context, passed. The HTTP200 module probe does not close the failed Partner browser journey; focused recheck remains next. No AI/provider, saved-record or export acceptance is implied.
+- [x] No production merge/deployment/publication, migration, credential/access/role changes, application writes or AI calls. Full roadmap and deferred Parent Pilot / Pathway Report Snapshot remain intact.
+
+Evidence: `/private/tmp/tf211-release-candidate-58cb564a/private-preview-health.json`, `external-lovable-health.json` and `staging-publication-confirmed.png`. This supersedes the pending-publication status below.
+
 ## Shared Access Landmark Release and Seven-Role Retest Results — October 19, 2026
 
 - [x] User authorized `58cb564a`; human `iWAVYx` approved [Deploy Staging 39311204471](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39311204471). Build, deployment, exact identity and PWA checks succeeded. External health verifies exact commit `58cb564ae59a05813254dee8a8c17a034e743682`, fingerprint `8e13f4ac4662e6ff414cfb54a19357db237537bb535284f2b0d0ed1378152c30` /1,179 files, staging backend, sandbox payments and isolation true.
