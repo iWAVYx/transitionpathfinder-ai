@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Focused Partner Demo Recheck Passed Without Retry — October 19, 2026
+
+- [x] Human `iWAVYx` approved [focused diagnostic 39320296030](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39320296030). Exact staging identity and all seven existing sign-ins passed. The selected Partner `/demo/plan` test passed once (793ms; 1.8s project duration), retries zero, real school-stage workspace and School Team Insight heading rendered, existing page/console error assertions passed.
+- [x] Close the bounded one-page module-loading recheck. Preserve the original full audit's failure; this one-test pass does not retroactively make that workflow green or prove the original delivery failure's cause. Consolidated evidence is 84 responsive checks and 236 original access/navigation passes, plus this separately recorded one-test pass; not one freshly green full suite.
+- [x] Record the evidence limitation: detailed per-module responses were not retained; successful list-reporter run had an in-memory/body attachment, sanitizer removed zero unsafe files, but upload found no files. No module-by-module HTTP proof is claimed. Correct future diagnostics to write a safe explicit output file before attaching it. A real browser-free passing Playwright/list-reporter probe retained both the JSON output and attachment; TypeScript and diff checks pass. No repeat browser run was made only to recreate evidence.
+- [ ] Remaining acceptance: Student grade-band fixture coverage, applicable role/provider and populated data journeys, save/reopen/restore/sharing/export, and the separate production migration/privacy/provider/billing/security/operations gates. Owner no-forbidden-demo-links skip is inapplicable. Future feature roadmap remains separate from exact release gates; full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+- [x] Published staging runtime remains verified `58cb564a` /fingerprint `8e13f4ac…8152c30` /1,179 files on both staging hosts. No application release, records, roles/accounts, AI calls, migration or production action in this diagnostic.
+
+Evidence: `/private/tmp/tf211-partner-demo-diagnostic/result-summary.json` and `workflow.log`. This supersedes the pending focused recheck below.
+
 ## Focused Partner Demo Module Diagnostic Prepared — October 19, 2026
 
 - [x] Prepare a fixed `partner-demo-plan` scope on the existing protected read-only workflow. Default remains the full seven-role audit; the diagnostic selects exactly the failed Partner `/demo/plan` test with `--retries=0`, retains exact runtime/isolation preflight and all seven existing-account auth checks, and keeps human staging review and credential-artifact sanitization. No application/runtime deployment change.

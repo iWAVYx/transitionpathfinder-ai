@@ -14,6 +14,7 @@
 
 import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import { ROLES, type RoleKey } from "./helpers/roles";
 import { publicModulePath } from "./helpers/public-module-path";
 
@@ -149,10 +150,16 @@ for (const role of ROLES) {
               .map((error) => `${error.text}${error.url ? ` (${error.url})` : ""}`),
           ).toEqual([]);
         } finally {
-          if (diagnostic) await testInfo.attach("partner-demo-plan-public-modules.json", {
-            body: JSON.stringify({ path, role: role.key, modules }, null, 2),
-            contentType: "application/json",
-          });
+          if (diagnostic) {
+            // Body-only attachments are not materialized by the list reporter
+            // on successful runs. Persist this safe payload before uploading.
+            const outputPath = testInfo.outputPath("partner-demo-plan-public-modules.json");
+            await writeFile(outputPath, JSON.stringify({ path, role: role.key, modules }, null, 2));
+            await testInfo.attach("partner-demo-plan-public-modules.json", {
+              path: outputPath,
+              contentType: "application/json",
+            });
+          }
         }
       });
     }
