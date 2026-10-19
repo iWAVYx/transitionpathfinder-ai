@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Grouped Featured and Scroll Release Verified — October 19, 2026
+
+- [x] Required human `iWAVYx` approved exact runtime `c88d285a65e2397ccc41b186795b493600fa55f5` in staging workflow `39279834039`. Cloudflare exact deployment identity, sandbox public/server payments, isolated backend, isolation and PWA checks passed. Eight automatic CI checks passed; seven credentialed/live checks were skipped.
+- [x] Synced only four approved runtime paths to separate isolated Lovable staging from checked `103f8fa8`, producing `7206b9dadcd3c3e1780e60950de2b454d647b439`. Environment hashes, other source/builder edits, bindings and access preserved. Verified private build before updating the existing isolated publication. Both staging sites now match fingerprint `1f398dba2659c4ed93ed76f199b91dce3c0566b4c76c907d8565ec42bc9b2522` /1,177 files, with staging backend `qgrertkqbwanerqqemph` and sandbox payment isolation.
+- [x] Actual Owner Featured filter passes: All contains 94 partner rows with 14 flagged featured placements; Featured returns exactly those 14 with no unfeatured rows. No Feature/Verify/Hide or record mutation. Featured placement is not partner verification or an outreach relationship.
+- [x] Actual signed-in Family widget → contextual Next Actions → Back to Dashboard restores exactly: scrollY1264.5 before and after, zero drift. Browser back/forward also restores1264.5. The matched-input Family demo Calendar journey with the explicit same `?student=jordan` URL restores1692.5 exactly. This verifies the previously failed Family case and a bounded demo case, not all routes/roles/viewports.
+- [ ] Separate demo default-entry gap remains: landing `/demo/family` without a student query returns from Calendar to `/demo/family?student=jordan`, creating a different restoration key and resetting1598.5 to0. Do not call demo return-position acceptance complete. A first semantic-locator same-key sample shifted94px; a matched visible-control recheck restored exactly. Preserve both observations and avoid attributing the automation-method difference to the application without proof. Next: reconcile implicit/explicit default-student restoration identity without losing selected-role/student context.
+- [ ] Continue actual other signed-in roles, populated workflows, provider output quality, save/reopen, document/export acceptance and all TF-01–TF-26 milestones. No new AI call, application write, migration, grant/role/account change, source-main merge or production action. Parent Pilot / Pathway Report Snapshot remain deferred.
+
+Evidence: `/private/tmp/tf211-release-candidate-c88d285a`. Current deployed runtime is `c88d285a`; later documentation-only commits do not change the deployment identity.
+
 ## Signed-In Family Navigation and Shared Scroll Follow-Up — October 19, 2026
 
 - [x] User signed into the existing Family/Guardian staging test account on Cloudflare runtime `125c271a`, leaving isolated Lovable Owner unchanged. Actual Tools menu offers IEP/Documents, Meeting Prep, Calendar, Family Action Items and Transition Channel plus account/help entries; these correspond to existing Family dashboard features.
