@@ -15,6 +15,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES, type RoleKey } from "./helpers/roles";
+import { publicModulePath } from "./helpers/public-module-path";
 
 const DEMO_ROUTES = [
   "/demo",
@@ -108,7 +109,20 @@ for (const role of ROLES) {
     test.use({ storageState: role.storageState });
 
     for (const path of DEMO_ROUTES) {
-      test(`renders ${path}`, async ({ page }) => {
+      test(`renders ${path}`, async ({ page }, testInfo) => {
+        const diagnostic = role.key === "partner" && path === "/demo/plan";
+        const modules: Array<{ path: string; status?: number; contentType?: string; failure?: string }> = [];
+        const expectedOrigin = new URL(String(testInfo.project.use.baseURL)).origin;
+        if (diagnostic) {
+          page.on("requestfailed", (request) => {
+            const modulePath = publicModulePath(request.url(), expectedOrigin);
+            if (modulePath) modules.push({ path: modulePath, failure: request.failure()?.errorText ?? "request failed" });
+          });
+          page.on("response", (response) => {
+            const modulePath = publicModulePath(response.url(), expectedOrigin);
+            if (modulePath) modules.push({ path: modulePath, status: response.status(), contentType: response.headers()["content-type"] });
+          });
+        }
         const errors: Array<{ text: string; url: string }> = [];
         page.on("pageerror", (e) => errors.push({ text: String(e), url: page.url() }));
         page.on("console", (m) => {
@@ -117,18 +131,29 @@ for (const role of ROLES) {
           }
         });
 
-        const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
-        expect(resp?.status() ?? 0, `status for ${path}`).toBeLessThan(400);
+        try {
+          const resp = await page.goto(path, { waitUntil: "domcontentloaded" });
+          expect(resp?.status() ?? 0, `status for ${path}`).toBeLessThan(400);
 
-        // Demo is public — signing in must not redirect away from /demo.
-        await expect.poll(() => new URL(page.url()).pathname).toBe(path);
-        await expect(page.locator("main, [role=main]").first()).toBeVisible();
+          // Demo is public — signing in must not redirect away from /demo.
+          await expect.poll(() => new URL(page.url()).pathname).toBe(path);
+          await expect(page.locator("main, [role=main]").first()).toBeVisible();
+          if (diagnostic) {
+            await expect(page.locator('[data-testid="workspace-shell"][data-active-stage="school"]')).toBeVisible();
+            await expect(page.getByRole("heading", { name: "School Team Insight", exact: true, level: 1 })).toBeVisible();
+          }
 
-        expect(
-          errors
-            .filter((error) => !isIgnorableConsoleError(error))
-            .map((error) => `${error.text}${error.url ? ` (${error.url})` : ""}`),
-        ).toEqual([]);
+          expect(
+            errors
+              .filter((error) => !isIgnorableConsoleError(error))
+              .map((error) => `${error.text}${error.url ? ` (${error.url})` : ""}`),
+          ).toEqual([]);
+        } finally {
+          if (diagnostic) await testInfo.attach("partner-demo-plan-public-modules.json", {
+            body: JSON.stringify({ path, role: role.key, modules }, null, 2),
+            contentType: "application/json",
+          });
+        }
       });
     }
 

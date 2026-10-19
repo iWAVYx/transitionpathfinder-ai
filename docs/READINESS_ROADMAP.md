@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Focused Partner Demo Module Diagnostic Prepared — October 19, 2026
+
+- [x] Prepare a fixed `partner-demo-plan` scope on the existing protected read-only workflow. Default remains the full seven-role audit; the diagnostic selects exactly the failed Partner `/demo/plan` test with `--retries=0`, retains exact runtime/isolation preflight and all seven existing-account auth checks, and keeps human staging review and credential-artifact sanitization. No application/runtime deployment change.
+- [x] Strengthen that test to require the actual school-stage workspace and School Team Insight heading, while retaining existing page/console error assertions. Capture same-origin `/assets/*.js` response status/content type and request failures, with query/hash removed; no headers, bodies, cookies or auth states are attached. Preserve the original failed audit.
+- [x] Validation: 16 focused policy/diagnostic unit cases, 34 production-readiness contracts, TypeScript, YAML and diff checks pass. Playwright `--list` selects exactly one test. Runtime fingerprint remains `8e13f4ac…8152c30` /1,179 files, matching both accepted staging publications.
+- [ ] Run one focused diagnostic after required human staging review. A pass can close the observed one-test recheck only; it does not retroactively mark the original full workflow green or close the grade-band, generated-data/save-reopen/export or production gates. If module loading fails again, use captured public-module evidence to investigate delivery/runtime failure rather than retrying away the result.
+
+Full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot remain in force; no production actions, AI calls, app writes or migrations.
+
 ## Shared Landmark Release Published and Staging Parity Verified — October 19, 2026
 
 - [x] Complete the already-authorized isolated Lovable publication for `58cb564a`. Builder's own Open in New Tab link independently served exact fingerprint `8e13f4ac4662e6ff414cfb54a19357db237537bb535284f2b0d0ed1378152c30` /1,179 files with staging backend and sandbox payments, despite its embedded preview reporting lost connection. The plain alias supplied by the owner served an older snapshot; it was not accepted as current-source evidence. No guard/hostname changes or invented Git identity.
