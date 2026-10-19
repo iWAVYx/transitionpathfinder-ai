@@ -6,15 +6,20 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type "staging" to confirm isolated read-only checks'
+        description: 'Type "staging" to confirm isolated staging verification'
         required: true
       scope:
-        description: 'Full seven-role audit or one no-retry Partner demo diagnostic'
+        description: 'Full audit, Partner diagnostic, or explicitly confirmed no-AI report fixtures'
         type: choice
         default: all-roles
         options:
           - all-roles
           - partner-demo-plan
+          - report-history-no-ai
+      fixture_confirmation:
+        description: 'Only report-history-no-ai: type disposable-report-history after explicit owner authorization'
+        required: false
+        default: ''
 
 concurrency:
   group: staging-role-verification
@@ -22,11 +27,12 @@ concurrency:
 
 jobs:
   verify-seven-roles:
-    name: Verify All Seven Staging Roles
+    name: Verify Staging Acceptance
     runs-on: ubuntu-latest
     environment: staging
     timeout-minutes: 60
     env:
+      STAGING_TEST_SCOPE: ${{ inputs.scope }}
       PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
       LIVE_VERIFICATION: "true"
       REQUIRE_ALL_ROLES: "true"
@@ -49,9 +55,16 @@ jobs:
 
     steps:
       - name: Confirm staging intent
+        env:
+          STAGING_INTENT: ${{ inputs.confirm }}
+          STAGING_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
         run: |
-          if [ "${{ github.event.inputs.confirm }}" != "staging" ]; then
+          if [ "$STAGING_INTENT" != "staging" ]; then
             echo "Confirmation text did not match 'staging'." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "report-history-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-report-history" ]; then
+            echo "Explicit disposable report-history fixture confirmation is required." >&2
             exit 1
           fi
 
@@ -140,17 +153,29 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
-        if: ${{ inputs.scope != 'partner-demo-plan' }}
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'report-history-no-ai' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
-        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' }}
         run: |
-          if [ "${{ inputs.scope }}" = "partner-demo-plan" ]; then
+          if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
             bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
           else
             bunx playwright test --project=role-access --no-deps
           fi
+
+      - name: Disposable report history acceptance (no AI)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'report-history-no-ai' }}
+        env:
+          RUN_REPORT_HISTORY_STAGING_QA: "true"
+          REPORT_HISTORY_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          REPORT_HISTORY_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/report-history-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1
 
       - name: Remove credential-bearing Playwright artifacts
         id: sanitize-artifacts

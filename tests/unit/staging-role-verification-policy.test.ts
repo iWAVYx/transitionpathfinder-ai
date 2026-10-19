@@ -16,6 +16,8 @@ it("requires all existing staging accounts and excludes privileged reseeding cre
   expect(workflow).toContain('REQUIRE_ALL_ROLES: "true"');
   expect(workflow).not.toContain("seed-staging-identities");
   expect(workflow).not.toContain("SERVICE_ROLE_KEY");
+  expect(workflow).toContain("fixture_confirmation");
+  expect(workflow).toContain("disposable-report-history");
   expect(workflow).toContain("expectedFingerprint: expected.fingerprint");
   expect(workflow).toContain("actualFingerprint: health.runtime_source_fingerprint");
   expect(workflow).toContain("health.runtime_source_file_count !== expected.fileCount");
@@ -25,12 +27,12 @@ it("requires all existing staging accounts and excludes privileged reseeding cre
 
 it("runs independent role-access checks after dashboard failures only with all role states ready", () => {
   expect(workflow).toContain("id: require-role-states");
-  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' }}");
+  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' }}");
 });
 
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'report-history-no-ai' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });

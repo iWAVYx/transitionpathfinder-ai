@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## No-AI Report Restore/Reopen/Export Acceptance Prepared — October 19, 2026
+
+- [x] Prepare a separate, disabled-by-default `report-history-no-ai` scope on the protected staging verification workflow; require an extra exact disposable-fixture confirmation and human staging review. Keep all existing live-AI workflows protected-main-only. Default seven-role audits remain read-only. No dispatch or live fixture writes occurred.
+- [x] Reviewable scope: two synthetic intakes/reports total, Family and Educator owners; one earlier snapshot each; one actual UI Restore/save per owner, at most two new current-content snapshots; reload/persisted exact-content/actor/version checks; six other existing identities per case check RLS read denial for only the unlinked synthetic report; two PDF/print screenshots and loaded top-right watermark/content/hidden-controls checks. Zero AI/provider, translation, token-sharing, relationship/account/role changes or production actions.
+- [x] Caller-RLS public-key clients only; reject service-role keys, unexpected hosts, non-synthetic identities and unverified deployment identity. Exact-ID cleanup covers confirmed and uncertain insert attempts, with owner/model/intake/marker filters, report-before-intake ordering and scoped readbacks. Caller-RLS readbacks do not prove global absence of rows hidden by policy. Cleanup errors block acceptance; no broad old-QA cleanup.
+- [x] Offline validation: 31 guard/report-schema/partial-failure/uncertain-response cleanup checks, 34 production-readiness contracts, TypeScript, workflow YAML and diff checks pass. Browser-free Playwright listing selects exactly two cases. Runtime fingerprint remains accepted `8e13f4ac…8152c30` /1,179 files; no application deployment needed.
+- [ ] Obtain specific authorization for this two-fixture/two-restore/two-PDF budget before queueing. After GitHub human approval, run once with no retries, inspect actual results and visually review PDFs. Direct fixture insertion is not initial generation; UI Restore exercises shared save/atomic history, not every generation caller or manual edit interface.
+- [ ] Sharing/revocation/expiry, linked-Student permissions, School/District/Partner exports, live provider quality, larger request/concurrency behavior and separate production gates remain open. Full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+
+Scope and limitations: [Protected Pathway acceptance](pathway-live-staging-acceptance.md#next-bounded-acceptance-saved-report-restorereopenexport-without-ai--prepared-october-19-2026). No live fixture acceptance is claimed.
+
 ## Focused Partner Demo Recheck Passed Without Retry — October 19, 2026
 
 - [x] Human `iWAVYx` approved [focused diagnostic 39320296030](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39320296030). Exact staging identity and all seven existing sign-ins passed. The selected Partner `/demo/plan` test passed once (793ms; 1.8s project duration), retries zero, real school-stage workspace and School Team Insight heading rendered, existing page/console error assertions passed.
