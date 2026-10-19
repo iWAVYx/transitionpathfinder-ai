@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Seven-Role Audit Running; Demo Default Entry Prepared Locally — October 19, 2026
+
+- [x] Human `iWAVYx` approved read-only audit `39290470663` at test-only commit `cea27186`. Dependency/browser setup, staging password presence, exact product runtime/isolation preflight, all seven existing sign-ins and all seven required auth states succeeded. No reseeding, implicit onboarding, workspace creation or role changes. All-seven dashboard/role-access acceptance is not complete while suites run.
+- [ ] Responsive dashboard tests (mobile/tablet/desktop) and role navigation/access results remain pending. Actual provider quality, populated/saved workflows and document/export acceptance remain separate. Do not equate successful sign-in with full role acceptance.
+- [x] Prepare the separate demo default-query correction locally: one dashboard-owned hook pins the resolved fictional student into missing personal-role dashboard URLs after hydration. Preserve existing query/hash, replace history instead of adding a visit, retain scroll, respect explicit student URLs and refuse to canonicalize a departing tool/other-role destination. Apply to Student, Family and Educator; organizational demos retain their existing school/district/plan canonicalization hooks. No student canonicalization in generic multi-consumer hooks.
+- [x] Local validation: 55 targeted real-router history/routing/context/scroll checks across five files, TypeScript and diff checks pass. Tests cover stored Sam, default Jordan, explicit Riley precedence, history back across the tool journey, section/query preservation and organization context. These are URL/history regressions, not hosted proof that the demo now restores every scroll position. Product edits remain local and undeployed; the running audit uses immutable `cea27186` and deployed `c88d285a`.
+- [ ] After audit results, consolidate actual failures and this demo correction for review. No AI call, saved records, upload, new deployment/publication, grants, migrations or production action in this follow-up. Full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+
+Audit/preparation evidence: `/private/tmp/tf211-readonly-role-verification`; preceding demo failure: `/private/tmp/tf211-release-candidate-c88d285a/demo-return-position.json`.
+
 ## Existing-Account Seven-Role Acceptance Prepared — October 19, 2026
 
 - [x] Inspect the existing Staging Role Verification workflow before running it. It previously reconciled synthetic identities with a service-role key, and shared login setup could finish onboarding or create school/district/partner workspaces. Do not run that mutating path under read-only role acceptance.
