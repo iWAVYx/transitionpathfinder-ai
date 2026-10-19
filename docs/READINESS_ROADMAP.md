@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Directory Diagnostic Released; Column Projection Follow-Up — October 19, 2026
+
+- [x] Required human `iWAVYx` approval for exact source `496bfa8db706d4329bd5d44c5c003cbacd2b86cb`; staging workflow `39201949680` passed deployment, exact identity, sandbox payments, isolation and PWA. Only the approved runtime diagnostic file was synced to separate isolated Lovable staging (`b79893d1d3801589906462ed223b52436be07393`), preserving all environment hashes and other source/builder edits. Private preview identity verified before updating the existing publication with access unchanged.
+- [x] Both staging sites match fingerprint `e162fbd7334f61023fd4edf1afb977a66ccb2773697bc60ebe690652dae7797d` /1,176 files. Published health confirms staging/backend isolation and sandbox public/server Stripe. Production source main remains `0ff2f1020a394301695295d9e93a2d0ad9eec41c`.
+- [ ] Actual signed-in Owner diagnostic still reports Partner Directory attention: `Could not read partner_organizations`. Page remains responsive; do not mark directory acceptance passed or treat deployment health as full product readiness. No additional AI call.
+- [x] Source-backed follow-up: migration `20260613150848_aaf3f6a0-a017-45d5-b4af-fbedcc6ad01c.sql` revokes table-wide partner SELECT and grants named readable columns including `id`, excluding private contact/internal fields. The diagnostic still selected `*` even for a HEAD count. Narrow only the partner probe projection to `id`; no grants, policies or data changes. A restricted-column mock rejects wildcard reads; 15 targeted diagnostic/recovery tests and TypeScript pass.
+- [ ] Review and separately authorize/deploy this local projection correction, then verify actual staging outcome. Repository grants are evidence for the narrower request, not proof of current hosted grant state or that this is the sole cause. Other-role signed-in feature/provider/generation quality, save/reopen/export acceptance, all TF-01–TF-26 milestones and deferred Parent Pilot / Pathway Report Snapshot remain open.
+
+Evidence: `/private/tmp/tf211-release-candidate-496bfa8d`. The currently deployed runtime is `496bfa8d`; the projection follow-up is local only.
+
 ## Signed-In Owner Recovery and Synthetic AI Passed — October 19, 2026
 
 - [x] Existing signed-in Owner account reaches Owner Hub home and System Health on published isolated staging runtime `4eb708c9`; both survive refresh. `/dashboard` redirects to `/owner`, retaining the management-only Owner model. This resolves the reproduced route acceptance blocker; it is not acceptance of every Owner feature or other signed-in role.

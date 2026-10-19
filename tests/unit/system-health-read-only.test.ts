@@ -19,13 +19,17 @@ function database(
   );
   vi.stubGlobal("fetch", fetcher);
   const from = vi.fn((table: string) => {
+    let selectedColumns = "*";
     const q: any = {
-      select: vi.fn(() => q),
+      select: vi.fn((columns: string) => { selectedColumns = columns; return q; }),
       eq: vi.fn(() => q),
       maybeSingle: vi.fn(async () => ({ data: admin, error: null })),
       then: (resolve: any, reject: any) =>
         Promise.resolve(
-          table === "partner_organizations" ? partnerResult :
+          table === "partner_organizations"
+            ? selectedColumns === "*"
+              ? { count: null, error: { message: "permission denied for restricted partner columns" } }
+              : partnerResult :
           table === "organizations" ? { count: null, error: { message: "Not the partner directory" } } :
           { count: 1, error: null },
         ).then(resolve, reject),
@@ -96,4 +100,16 @@ it.each([
   expect(db.from).not.toHaveBeenCalledWith("organizations");
   expect(db.mutations).not.toHaveBeenCalled();
   if (error) expect(directory.fixes.join(" ")).toContain("partner_organizations");
+});
+
+it("counts the directory without requesting protected contact columns", async () => {
+  const db = database();
+  const result = await (runSystemHealth as any)({ context: db.context });
+  expect(result.results.find((x: any) => x.key === "partner_directory")).toMatchObject({
+    status: "working", detail: "0 rows reachable",
+  });
+  const partnerIndex = db.from.mock.calls.findIndex(([table]) => table === "partner_organizations");
+  const partnerQuery = db.from.mock.results[partnerIndex].value;
+  expect(partnerQuery.select).toHaveBeenCalledWith("id", { count: "exact", head: true });
+  expect(db.mutations).not.toHaveBeenCalled();
 });
