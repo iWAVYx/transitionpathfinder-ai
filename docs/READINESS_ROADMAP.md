@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Owner Directory Journey and Featured Filter — October 19, 2026
+
+- [x] On deployed `125c271a`, actual signed-in Owner Partner Network loads 94 rows; organization-name search narrows the list correctly, an existing partner's opportunity drawer opens and truthfully shows its zero-opportunity state, and closing it restores the list. No Verify/Feature/Hide/New/Save action, partner write or AI call.
+- [x] Actual public `/partner-directory` loads real records, searches a named organization, expands its descriptive information and exposes its existing website destination. This verifies browse/profile-information reads, not partner-role editing or opportunity availability. Records can appear in Featured and Community Leads without being verified.
+- [x] Reproduce a separate Owner filter bug: All includes 14 rows with featured placement, while Featured shows no matches. Source compares verification_status to featured instead of honoring is_featured. Correct locally using one shared featured predicate in Owner filtering and the public/signed-in directory; preserve legacy featured status as placement, never verification. Owner status filters now expose their pressed state, Needs Review has a readable label, and the main search has an accessible name. Public directory semantics are preserved; no Owner dashboard/demo is introduced.
+- [x] Local validation: eight targeted rendered Owner/directory/matching tests and TypeScript pass. Regression covers featured potential and verified records, ordinary verified exclusion from Featured, legacy placement, search/filter composition and no record mutation. This local fix is not deployed; current staged runtime stays `125c271a`.
+- [ ] Actual other-role signed-in journeys remain unverified. Cloudflare currently reaches sign-in; requested an existing Family/Guardian test account (or another available role), preserving the isolated staging Owner session and making no role/account changes. Full generator quality, save/reopen/export and TF-01–TF-26 requirements remain open; deferred Parent Pilot / Pathway Report Snapshot unchanged.
+
+Evidence: `/private/tmp/tf211-owner-partner-acceptance-20261019`. Owner list restored to All after the read-only check. Prepare subsequent staging release only after grouping remaining review findings and obtaining exact-source approval.
+
 ## Partner Diagnostic Connectivity Passed on Staging — October 19, 2026
 
 - [x] Required human `iWAVYx` approved exact runtime `125c271a87f07cb826986316879e6f1cf8c9d4f6` in staging workflow `39260877613`. Cloudflare deployment, exact identity, isolated backend, sandbox public/server payments, isolation and PWA checks passed. Eight automatic CI checks passed; seven credentialed/live checks were skipped.
