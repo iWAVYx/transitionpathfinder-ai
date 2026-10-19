@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Partner Diagnostic Connectivity Passed on Staging — October 19, 2026
+
+- [x] Required human `iWAVYx` approved exact runtime `125c271a87f07cb826986316879e6f1cf8c9d4f6` in staging workflow `39260877613`. Cloudflare deployment, exact identity, isolated backend, sandbox public/server payments, isolation and PWA checks passed. Eight automatic CI checks passed; seven credentialed/live checks were skipped.
+- [x] Synced only the approved diagnostic file into separate isolated Lovable staging from checked `b79893d1`, producing `103f8fa838a877bfbe7d56df1dc6f175b46090c4`. All environment hashes, other source/builder edits, bindings and access preserved. Verified private build before updating the existing isolated publication. Both staging sites match fingerprint `60c0e8b4055c5770de9fd5236697dee9010578ce7e5eaf0334250e099a554976` /1,176 files.
+- [x] Actual signed-in Owner health page remains responsive; Partner Directory now reports WORKING /94 rows reachable with the identifier-only count. Automatic summary: 24 working, zero needing attention, two manual checks (privilege write-denial and responsive layout). This closes the observed directory connectivity failure without widening grants or reading protected contact fields. It does not certify partner verification, search/profile/edit workflows or every role. No new AI call, data writes, migration or production action.
+- [ ] Next acceptance: actual signed-in role journeys and applicable tool navigation; generation/input-output quality; save/reopen and document/export checks; remaining full draft review and demo/live gaps. Existing synthetic Owner AI result remains bounded evidence, not provider quality for every role. Continue full TF-01–TF-26 and six milestones; Parent Pilot / Pathway Report Snapshot remain deferred.
+
+Evidence: `/private/tmp/tf211-release-candidate-125c271a`. This entry supersedes the earlier Partner Directory failure only for the named connectivity check. Current deployed runtime is `125c271a`; later documentation commits do not change that identity.
+
 ## Directory Diagnostic Released; Column Projection Follow-Up — October 19, 2026
 
 - [x] Required human `iWAVYx` approval for exact source `496bfa8db706d4329bd5d44c5c003cbacd2b86cb`; staging workflow `39201949680` passed deployment, exact identity, sandbox payments, isolation and PWA. Only the approved runtime diagnostic file was synced to separate isolated Lovable staging (`b79893d1d3801589906462ed223b52436be07393`), preserving all environment hashes and other source/builder edits. Private preview identity verified before updating the existing publication with access unchanged.
