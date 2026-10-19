@@ -1,5 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
+## Signed-In Owner Recovery and Synthetic AI Passed — October 19, 2026
+
+- [x] Existing signed-in Owner account reaches Owner Hub home and System Health on published isolated staging runtime `4eb708c9`; both survive refresh. `/dashboard` redirects to `/owner`, retaining the management-only Owner model. This resolves the reproduced route acceptance blocker; it is not acceptance of every Owner feature or other signed-in role.
+- [x] Ran the previously authorized fixed-fictional no-save AI test once after page stability was verified. Displayed result: passed in 1,169 ms, seven synthetic identifiers removed, no records saved; checked October 19 at 12:44:15 AM. No student/document/report fixture, uploaded file, payment or production change. Evidence and screenshot: `/private/tmp/tf211-release-candidate-4eb708c9`.
+- [x] Follow up on the actual Partner Directory diagnostic failure: source inspection confirms it probes `organizations`, while directory and partner management read `partner_organizations`. Correct that health probe and its suggested guidance locally. Preserve failure status for denied reads, provide a useful fallback for empty error messages, and treat a successful zero-row response as connectivity only. No partner data, role permissions or policies change.
+- [ ] Review/release the diagnostic correction separately and verify its real staging response. Local targeted diagnostics/recovery tests: 14 passed. Other-role signed-in generation, input/output quality, save/reopen, exports, full roadmap milestones and deferred Parent Pilot / Pathway Report Snapshot remain open. The diagnostic correction is not part of the currently deployed runtime.
+
 ## Missing-Session Recovery Released to Staging — October 19, 2026
 
 - [x] Human `iWAVYx` approved exact runtime `4eb708c9ce2184681e995f8f4e4834bfd51f80da` in staging workflow `39135253985`; deployment, exact source, sandbox payments, isolated backend, isolation and PWA checks passed.

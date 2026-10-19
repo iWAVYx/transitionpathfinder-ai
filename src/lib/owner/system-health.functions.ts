@@ -110,7 +110,7 @@ const FIX_HINTS: Record<string, string[]> = {
     "Confirm `partner_opportunities` exists and the partner-apply form writes successfully.",
   ],
   partner_directory: [
-    "Confirm `organizations` is reachable and at least one approved org exists.",
+    "Confirm the partner directory table `partner_organizations` is readable. A successful empty result means the connection works; verify partner listings separately.",
   ],
   mobile_responsiveness: [
     "If the published site is unreachable, check Lovable deploy status and re-publish.",
@@ -163,7 +163,7 @@ async function tableProbe(
   const { count, error } = await client
     .from(table as never)
     .select("*", { count: "exact", head: true });
-  if (error) return { ok: false, count: null, message: error.message };
+  if (error) return { ok: false, count: null, message: error.message?.trim() || `Could not read ${table}. Check the database response and access policies.` };
   return { ok: true, count: count ?? 0, message: `${count ?? 0} rows reachable` };
 }
 
@@ -384,7 +384,7 @@ export const runSystemHealth = createServerFn({ method: "GET" })
       { key: "waitlist", label: "Waitlist Entries", table: "waitlist", category: "ops" },
       { key: "contact_forms", label: "Contact Form Submissions", table: "contact_submissions", category: "ops" },
       { key: "partner_submissions", label: "Partner Submissions", table: "partner_submissions", category: "ops" },
-      { key: "partner_directory", label: "Partner Directory", table: "organizations", category: "ops" },
+      { key: "partner_directory", label: "Partner Directory", table: "partner_organizations", category: "ops" },
 
       // Experience
       { key: "mobile_responsiveness", label: "Mobile Responsiveness", category: "ui", manualNote: "Check the current environment at mobile, tablet and desktop sizes. Automated data checks do not verify page layout." },

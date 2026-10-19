@@ -7,7 +7,10 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 import { runSystemHealth } from "../../src/lib/owner/system-health.functions";
-function database(admin: unknown = { user_id: "synthetic-owner" }) {
+function database(
+  admin: unknown = { user_id: "synthetic-owner" },
+  partnerResult = { count: 0 as number | null, error: null as { message: string } | null },
+) {
   const mutations = vi.fn(() => {
     throw new Error("No mutation permitted in read-only diagnostics");
   });
@@ -21,7 +24,11 @@ function database(admin: unknown = { user_id: "synthetic-owner" }) {
       eq: vi.fn(() => q),
       maybeSingle: vi.fn(async () => ({ data: admin, error: null })),
       then: (resolve: any, reject: any) =>
-        Promise.resolve({ count: 1, error: null }).then(resolve, reject),
+        Promise.resolve(
+          table === "partner_organizations" ? partnerResult :
+          table === "organizations" ? { count: null, error: { message: "Not the partner directory" } } :
+          { count: 1, error: null },
+        ).then(resolve, reject),
       update: mutations,
       insert: mutations,
       delete: mutations,
@@ -74,4 +81,19 @@ it("denies a non-admin before diagnostics or any mutation", async () => {
   expect(db.rpc).not.toHaveBeenCalled();
   expect(db.mutations).not.toHaveBeenCalled();
   expect(db.fetcher).not.toHaveBeenCalled();
+});
+
+it.each([
+  { count: 0, error: null, status: "working", detail: "0 rows reachable" },
+  { count: null, error: { message: "permission denied" }, status: "attention", detail: "permission denied" },
+  { count: null, error: { message: "" }, status: "attention", detail: "Could not read partner_organizations" },
+])("reports directory connectivity honestly for $detail", async ({ count, error, status, detail }) => {
+  const db = database(undefined, { count, error });
+  const result = await (runSystemHealth as any)({ context: db.context });
+  const directory = result.results.find((x: any) => x.key === "partner_directory");
+  expect(directory.status).toBe(status);
+  expect(directory.detail).toContain(detail);
+  expect(db.from).not.toHaveBeenCalledWith("organizations");
+  expect(db.mutations).not.toHaveBeenCalled();
+  if (error) expect(directory.fixes.join(" ")).toContain("partner_organizations");
 });
