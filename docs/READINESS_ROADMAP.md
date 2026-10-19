@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Seven-Role Responsive Audit Results — October 19, 2026
+
+- [x] Read-only audit [39290470663](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39290470663) completed at test commit `cea27186`, verifying deployed product `c88d285a`. All seven existing staging accounts signed in without reseeding or implicit fixture creation. Sanitization and artifact upload succeeded.
+- [x] Responsive dashboard results: **78 passed / 6 failed / 84 total**. Student, Family/Guardian, Educator/Case Manager, Partner and Platform Admin (Owner Hub) each passed 12/12. School and District each passed 9/12. All seven passed mobile/tablet/desktop rendering, overflow, landmarks, button markup, authenticated shell, refresh and bounded loader-failure checks. These checks do not prove every button works or that generated/saved/exported workflows pass.
+- [x] Analyze all six failures: the duplicate-link assertion counted matching destinations across breadcrumbs, role navigation tabs and tool cards as global duplicates. School repeated overview/team/reports/implementation; District repeated overview/schools/reports. The evidence does not identify duplicate feature-card actions. Preserve useful navigation; prepare a region-aware assertion that still rejects repeated content actions and repeats within a single navigation region. Four focused DOM regressions pass.
+- [ ] Role-access / role-leak suite **was skipped** after the dashboard step failed. It is not accepted. Prepare an independent condition requiring all seven auth states to have succeeded and the run not to be cancelled. Ten policy checks pass; the human review, exact staging identity and no-reseeding rules remain in force.
+- [x] Save the separate demo default-student context fix locally as `64ebe901`; its 55 targeted checks and TypeScript passed. It remains undeployed. No new staging publication, migration, AI call, account/role change or production action occurred during this audit.
+- [ ] Review and repeat the corrected dashboard and access suites against a matching, explicitly approved staging runtime. Keep generation quality, populated tool journeys, save/reopen and document exports open for each applicable role. Full TF-01–TF-26 roadmap and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+
+Evidence: `/private/tmp/tf211-readonly-role-verification/audit-result-summary.json` and sanitized `results/`.
+
 ## Seven-Role Audit Running; Demo Default Entry Prepared Locally — October 19, 2026
 
 - [x] Human `iWAVYx` approved read-only audit `39290470663` at test-only commit `cea27186`. Dependency/browser setup, staging password presence, exact product runtime/isolation preflight, all seven existing sign-ins and all seven required auth states succeeded. No reseeding, implicit onboarding, workspace creation or role changes. All-seven dashboard/role-access acceptance is not complete while suites run.

@@ -116,6 +116,7 @@ jobs:
         run: bunx playwright test --project=dashboard-setup
 
       - name: Require All Seven Auth Storage States
+        id: require-role-states
         run: |
           missing=0
           for role in student parent educator school_admin district_admin partner owner; do
@@ -135,6 +136,7 @@ jobs:
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' }}
         run: bunx playwright test --project=role-access --no-deps
 
       - name: Remove credential-bearing Playwright artifacts

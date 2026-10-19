@@ -22,3 +22,8 @@ it("requires all existing staging accounts and excludes privileged reseeding cre
   expect(workflow.indexOf("Verify Staging Deployment Identity")).toBeLessThan(workflow.indexOf("Create All Seven Auth Storage States"));
   expect(workflow).toContain("steps.sanitize-artifacts.outcome == 'success'");
 });
+
+it("runs independent role-access checks after dashboard failures only with all role states ready", () => {
+  expect(workflow).toContain("id: require-role-states");
+  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' }}");
+});
