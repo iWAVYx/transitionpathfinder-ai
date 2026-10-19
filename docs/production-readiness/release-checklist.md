@@ -2,6 +2,16 @@
 
 Every box requires attached evidence. A blank or unknown item is a NO-GO.
 
+## Current Promotion Status — October 19, 2026
+
+Staging and production must use the same reviewed application code when promoted, with separate databases, credentials, payment modes and deployment identities. Synchronization means promoting a tested release; it does not mean copying staging environment files, test fixtures or sandbox configuration into production.
+
+The approved `d5d8182f` runtime is externally verified on Cloudflare staging and the stable isolated Lovable publication (same fingerprint, 1,178 files, staging backend, sandbox Stripe, isolation true). The latest existing-account audit passed seven sign-ins, 84 responsive dashboard checks and 236 access/navigation checks; one District tile test failed on a nested access-frame main/test ID, and two cases were skipped. Follow-up `58cb564a` fixes shared landmark ownership and strengthens exact-query tile probing; 82 targeted tests, TypeScript and its automatic CI checks pass. It still needs separately authorized staging release and hosted acceptance. A skipped grade-band fixture test remains open; Owner's no-forbidden-demo-link case is inapplicable.
+
+Production promotion requires a frozen reviewed candidate, applicable role/data/save-reopen/export acceptance, current production configuration/security/privacy/billing/operations evidence, a fresh separately authorized production migration baseline and reviewed dependency/rollback plan, then exact owner authorization for migration, protected-main merge and publication as applicable. The nine pending migrations below are from saved September evidence only. Production has not been queried or changed in this follow-up. The full staging package cannot be published to a production database missing its required atomic-history function or sharing grants.
+
+Future roadmap features need not all be complete before a bounded release, but any exclusion or disabled feature must be explicit, technically enforced where required, and accepted in release scope. Do not treat green static CI, synthetic AI smoke, or staging health as a production GO decision. No production update is authorized by the user's question about timing.
+
 ## Approval and identity
 
 - [ ] Release PR merged through protected `main`; exact 40-character SHA recorded.
@@ -43,7 +53,7 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `supabase_admin`. PostgreSQL marks the extension non-relocatable. Finding
       9 remains open pending a reviewed platform-managed disposition; this
       evidence does not authorize moving, dropping, or reinstalling it.
-- [ ] Seven canonical migrations are absent from the saved 2026-09-17 production baseline (187 rows), reconciled locally on 2026-10-05:
+- [ ] Nine canonical migrations are absent from the saved 2026-09-17 production baseline (187 rows), reconfirmed by offline comparison on 2026-10-19:
       `20260908000500_channel_attachment_malware_gate.sql`,
       `20260909010000_create_private_channel_attachments_bucket.sql`,
       `20260918190000_scope_student_policies_and_access_code_roles.sql`,
@@ -51,6 +61,8 @@ Every box requires attached evidence. A blank or unknown item is a NO-GO.
       `20260928030000_add_dashboard_widget_preferences.sql`,
       `20260928040000_atomic_student_channel_start.sql`,
       `20260929010000_student_channel_removal_history.sql`,
+      `20261006180000_server_only_report_share_rpcs.sql`,
+      `20261012190000_atomic_pathway_report_content.sql`.
       This is a saved-evidence comparison; production was not reread or changed. Reconfirm the ledger and review hashes, dependencies, rollback and invariants before an authorized window. Attachment migrations remain blocked on provider/privacy approval.
 - [x] Staging-only E2E fixture remains explicitly production-forbidden and is
       absent from the production migration plan.
