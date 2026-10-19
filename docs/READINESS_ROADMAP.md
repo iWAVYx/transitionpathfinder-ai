@@ -1,5 +1,18 @@
 # TransitionForward — Readiness Roadmap
 
+## Demo Context Release on Cloudflare; Isolated Preview Verification Pending — October 19, 2026
+
+Current status below supersedes earlier preparation/running entries, which remain as historical evidence.
+
+- [x] User authorized exact candidate `d5d8182f`; human `iWAVYx` approved Deploy Staging run [39294439231](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39294439231). Deployment, exact identity and PWA checks succeeded. External Cloudflare health matches `d5d8182f2256e9fde75cdd9955e8221e70e1e23f`, fingerprint `6d3bdfb164806a265df8ecc544ba24b67e0df4a1633e9753b49b5f578548cbda`, 1,178 files, staging backend `qgrertkqbwanerqqemph`, sandbox payments and isolation true. Cloudflare's AI runtime remains unconfigured; no AI acceptance is claimed from health.
+- [x] Confirm the separate isolated Lovable repository had no intervening changes, then sync only the two approved demo runtime paths as `8e11ad269886ecbb18f9b1a2088e2c96b7e4d8be`. Its source fingerprint matches Cloudflare; all three environment file hashes are unchanged. Production/source main remains `0ff2f1020a394301695295d9e93a2d0ad9eec41c`.
+- [x] Actual Cloudflare demo entry without a student query now resolves to the same explicit fictional-student dashboard before tool navigation. Open Calendar from the widget section and use its dashboard return: before 1,578px, after 1,578px, zero measured drift. This verifies the observed Family default-entry journey, not every role/tool combination.
+- [ ] Lovable builder recognized the new GitHub sync and Update Preview was requested. The browser blocks direct private preview access (`ERR_BLOCKED_BY_CLIENT`) and its embedded frame is blocked. Await owner-provided external health matching `6d3bdfb1…548cbda` /1,178 files/isolation true before updating the existing authorized isolated publication. No publication of this candidate has occurred yet; do not claim hosted Lovable parity from Git source alone.
+- [ ] Corrected seven-role read-only audit [39302390735](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39302390735), exact `d5d8182f`, is queued awaiting its separate human GitHub staging approval. Earlier audit remains 78 passed/6 assertion failures; corrected dashboard/access acceptance is still open. Provider quality, populated/saved workflows, generated/exported documents remain separately open across applicable roles.
+- [x] No production merge/deployment/publication, migration, grants, role/account changes, reseeding, saved application records or AI calls in this release follow-up. Full TF-01–TF-26 and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+
+Evidence: `/private/tmp/tf211-release-candidate-d5d8182f`.
+
 ## Seven-Role Responsive Audit Results — October 19, 2026
 
 - [x] Read-only audit [39290470663](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39290470663) completed at test commit `cea27186`, verifying deployed product `c88d285a`. All seven existing staging accounts signed in without reseeding or implicit fixture creation. Sanitization and artifact upload succeeded.
