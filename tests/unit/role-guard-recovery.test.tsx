@@ -81,7 +81,8 @@ it.each(roleCases)(
     expect(screen.queryByText("Protected Payload")).toBeNull();
     await act(async () => old.resolve({ roles: [role] }));
     await screen.findByText("Protected Payload");
-    expect(api.read).toHaveBeenCalledOnce();
+    // Visible DOM may precede Payload's passive effect under CI scheduling.
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
     expect(api.roles).toHaveBeenCalledWith({ data: { expected_viewer_id: "caller" } });
   },
 );
@@ -103,7 +104,8 @@ it.each(roleCases)(
     expect(api.toast).not.toHaveBeenCalled();
     fireEvent.click(screen.getByText("Try Again"));
     await screen.findByText("Protected Payload");
-    expect(api.read).toHaveBeenCalledOnce();
+    // Visible DOM may precede Payload's passive effect under CI scheduling.
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
     expect(api.roles).toHaveBeenCalledTimes(2);
   },
 );
