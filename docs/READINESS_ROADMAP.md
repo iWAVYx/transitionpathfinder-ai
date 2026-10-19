@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Missing-Session Recovery Released to Staging — October 19, 2026
+
+- [x] Human `iWAVYx` approved exact runtime `4eb708c9ce2184681e995f8f4e4834bfd51f80da` in staging workflow `39135253985`; deployment, exact source, sandbox payments, isolated backend, isolation and PWA checks passed.
+- [x] Synced only `src/routes/_authenticated.tsx` to the separate isolated Lovable repository from checked baseline `dd91c264`, producing sync `c8cc5842f6fd638c93891190e5998bbde0ad429a`. All other runtime files, builder edits and three environment-file hashes were preserved. Normal Update preview succeeded; verified private build identity before publishing only the existing isolated staging site, with access unchanged.
+- [x] Cloudflare staging and published isolated Lovable match fingerprint `8e842954111a9b5b881839ccf54a7f38a050f82a50dce2bf1e5e6d964df5a277` /1,176 files. Published health confirms staging labels, backend `qgrertkqbwanerqqemph`, public/server sandbox Stripe, livemode false and isolation true. No source-main merge or production action.
+- [x] Manual published-browser checks: `/owner`, `/owner/health`, `/family/history`, `/students`, `/caseload`, `/admin-school`, `/district/overview` and `/partners-manage` each reach responsive sign-in with an enabled button and preserve the requested pathname/query/hash. Reloading the Owner health sign-in page also remains responsive. These are signed-out recovery checks, not signed-in role acceptance or execution of the authored automated browser suite.
+- [ ] Actual Owner sign-in, Owner Hub/diagnostics stability and then separately authorized synthetic AI acceptance. The available staging browser is signed out; left the Owner health return destination ready for user sign-in. AI stayed paused, with no generated/saved records, payment transactions, role/grant/policy changes or migrations. Other-role signed-in generation, save/reopen and full feature acceptance remain open.
+
+Evidence: `/private/tmp/tf211-release-candidate-4eb708c9`. This entry supersedes the pending release status below; all TF-01–TF-26 milestones, demo/live parity, cross-role requirements and deferred Parent Pilot / Pathway Report Snapshot remain in force.
+
 ## Local Missing-Session Crash Recovery — October 18, 2026
 
 - [x] User independently confirms both Owner health and Owner Hub home crash. Public staging home and sign-in remain responsive. A signed-out controlled Owner route also crashes with Chrome Error code 5, so this is not confined to diagnostics data or Codex control.
