@@ -1360,7 +1360,7 @@ function ReportViewReader({
           )}
           <div className="grid gap-3 sm:grid-cols-2 grid-sym-2">
             {r.opportunity_matches.map((o, i) => (
-              <div key={i} className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
+              <div key={i} data-report-opportunity-entry className="border-b border-[color:var(--pub-rule-soft,theme(colors.border))] py-5 last:border-b-0">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="mb-2 uppercase tracking-wider">
@@ -1442,7 +1442,7 @@ function ReportViewReader({
       {/* ============ Needs human review ============ */}
       {r.needs_human_review && r.needs_human_review.length > 0 && (
         <Block id="sec-review" title="Worth a Human Second Look" icon={<ShieldCheck className="h-5 w-5" />}>
-          <div className="border-l-2 border-amber-400/60 pl-5 py-3">
+          <div data-report-review-note className="border-l-2 border-amber-400/60 pl-5 py-3">
             <p className="text-sm text-muted-foreground">
               These items are the AI's best guess based on the intake. Please review with the
               student, family, or school team before acting on them.
@@ -2309,6 +2309,7 @@ function MiniCard({
 }) {
   return (
     <div
+      data-report-list-group
       className={cn(
         "rounded-2xl border p-4",
         accent ? "border-primary/30 bg-primary/5" : "border-border/60 bg-background",

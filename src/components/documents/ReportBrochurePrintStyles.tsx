@@ -536,6 +536,15 @@ export function ReportBrochurePrintStyles() {
         padding: 0.12in !important; margin: 0.08in 0 !important;
       }
       body:has(.report-root) .report-root .eh-chapter { break-inside: avoid !important; }
+      /* Keep short titled lists and label/value pairs together. Oversized
+         content can still fragment naturally instead of being clipped. */
+      body:has(.report-root) .report-root [data-report-list-group],
+      body:has(.report-root) .report-root [data-report-labeled-field],
+      body:has(.report-root) .report-root [data-report-opportunity-entry],
+      body:has(.report-root) .report-root [data-report-review-note],
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-checklist {
+        break-inside: avoid !important; page-break-inside: avoid !important;
+      }
       body:has(.report-root) .report-root [data-report-meeting-summary] {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }
