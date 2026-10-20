@@ -10,6 +10,23 @@ export function ReportBrochurePrintStyles() {
       display: block; width: 100%; border: 0; padding: 0; margin: 0;
     }
     @media print {
+      /* Visibility hides ink but leaves route chrome in the page flow. Remove
+         only branches outside the report and flatten its screen-only shells.
+         This covers saved, demo and shared routes at every wrapper depth. */
+      body:has(.report-root) > :not(.report-root):not(:has(.report-root)),
+      body:has(.report-root) :has(.report-root) > :not(.report-root):not(:has(.report-root)) {
+        display: none !important;
+      }
+      body:has(.report-root),
+      body:has(.report-root) :has(.report-root) {
+        display: block !important; min-height: 0 !important; height: auto !important;
+        margin: 0 !important; padding: 0 !important; max-width: none !important;
+        overflow: visible !important;
+      }
+      body:has(.report-root) .report-root.report-root {
+        break-before: auto !important; break-after: auto !important;
+        page-break-before: auto !important; page-break-after: auto !important;
+      }
       /* A screen framing rule before the named report page creates an empty PDF page. */
       body:has(.report-root) .eh-issue:has(.report-root)::before { display: none !important; }
       body:has(.report-root) .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) {

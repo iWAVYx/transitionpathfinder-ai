@@ -2143,3 +2143,48 @@ test("IEP goal headings and facts share level margins and readable typography ac
     }
   }
 });
+
+
+test("saved report print discards surrounding route layout without changing the screen", async ({ page }, info) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.abort();
+  });
+  for (const audience of ["family", "educator"]) {
+    await page.emulateMedia({ media: "screen" });
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Fictional Student", report: components.DEMO_STUDENTS.maya.report, initialAudience: audience,
+    }));
+    // Saved routes have nested flex shells, breadcrumbs and a version panel
+    // outside ReportView. Visibility alone hides ink but retains their pages.
+    await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body>
+      <div class="signed-in-shell"><div class="flex min-h-dvh flex-col overflow-x-clip">
+      <header>Site navigation</header><main class="site-shell-main flex-1" style="min-height:60vh">
+      <div class="report-shell eh-issue"><div data-route-chrome style="height:120px">Report breadcrumb</div>
+      <div class="mx-auto w-full px-3 pt-4"><div class="min-w-0">${body}</div></div>
+      <section data-route-chrome style="min-height:1600px">Version history and restore controls</section>
+      </div></main><footer>Site footer</footer></div></div></body></html>`);
+    await expect(page.locator("[data-route-chrome]").first()).toBeVisible();
+    await expect(page.locator("[data-route-chrome]").last()).toBeVisible();
+    await page.emulateMedia({ media: "print" });
+    for (const chrome of await page.locator("[data-route-chrome]").all()) {
+      expect(await chrome.evaluate(el=>getComputedStyle(el).display)).toBe("none");
+      expect(await chrome.evaluate(el=>el.getBoundingClientRect().height)).toBe(0);
+    }
+    expect(await page.locator(".site-shell-main").evaluate(el=>getComputedStyle(el).display)).toBe("block");
+    await expect(page.locator(".report-root")).toBeVisible();
+    await page.evaluate(()=>document.fonts.ready);
+    await expect(page.locator("[data-document-watermark]")).toBeVisible();
+    await page.pdf({path:info.outputPath(`${audience}-saved-shell-report.pdf`),preferCSSPageSize:true,printBackground:true});
+    await page.screenshot({path:info.outputPath(`${audience}-saved-shell-print.png`),fullPage:true});
+    await page.emulateMedia({ media: "screen" });
+    await expect(page.locator("[data-route-chrome]").last()).toBeVisible();
+  }
+});
