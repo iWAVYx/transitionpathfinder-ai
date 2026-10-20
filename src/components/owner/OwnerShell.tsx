@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -372,7 +373,7 @@ function OwnerShellSession({ title, description, children, actions, viewerId, sc
               className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
-              Back to main app
+              Visit Website
             </Link>
           </div>
         </aside>
@@ -381,13 +382,8 @@ function OwnerShellSession({ title, description, children, actions, viewerId, sc
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="border-b border-border bg-background px-4 py-4 sm:px-6 sm:py-5">
             {!isOwnerHubHome && (
-              <Link
-                to="/owner"
-                className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                <ChevronLeft className="h-4 w-4" aria-hidden />
-                Back to Owner Hub
-              </Link>
+              <ContextualBackLink to="/owner" label="Back to Owner Hub"
+                className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" />
             )}
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>

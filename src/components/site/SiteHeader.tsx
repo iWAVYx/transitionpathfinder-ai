@@ -1,3 +1,6 @@
+import { isWorkspaceReturnPath } from "@/lib/navigation-origin";
+import { followOrigin, useNavigationOrigin } from "@/components/navigation/NavigationOriginProvider";
+import { isDashboardHomeDestination } from "@/components/dashboard/dashboard-return-context";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { workspaceToolGroups } from "@/lib/workspace-tools";
@@ -97,6 +100,7 @@ export function SiteHeader() {
 
 function SiteHeaderSession({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const location = useLocation();
+  const origin = useNavigationOrigin();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut, loading } = auth;
@@ -460,19 +464,20 @@ function SiteHeaderSession({ auth }: { auth: ReturnType<typeof useAuth> }) {
           </SheetContent>
         </Sheet>
       </div>
-      {showSignedInNav &&
-        !location.pathname.startsWith("/demo") &&
-        (location.pathname !== dashboardHome.to || location.searchStr) && (
+      {(origin || (showSignedInNav && isWorkspaceReturnPath(location.pathname) && !location.pathname.startsWith("/demo"))) &&
+        location.pathname !== "/" && location.pathname !== "/demo/dashboard" &&
+        !isDashboardHomeDestination(location.pathname) && (
           <nav
-            aria-label="Return to dashboard"
+            aria-label="Return to previous page"
             className="border-t border-border/50 bg-background/95"
           >
             <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
               <SmartLink
-                to={dashboardHome.to}
+                to={origin?.to ?? dashboardHome.to}
+                onClick={origin ? event => followOrigin(event, origin) : undefined}
                 className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
               >
-                <ArrowLeft className="h-4 w-4" aria-hidden /> Back to {dashboardHome.label}
+                <ArrowLeft className="h-4 w-4" aria-hidden /> {origin?.label ?? `Back to ${dashboardHome.label}`}
               </SmartLink>
             </div>
           </nav>

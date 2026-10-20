@@ -68,13 +68,13 @@ class DashboardErrorBoundary extends Component<
   }
   render() {
     if (this.state.hasError) {
-      return <DashboardErrorShell message={this.state.message} />;
+      return <DashboardErrorShell />;
     }
     return this.props.children;
   }
 }
 
-function DashboardErrorShell({ message }: { message: string | null }) {
+function DashboardErrorShell() {
   const { user } = useAuth();
   const dashboardHint =
     typeof window === "undefined"
@@ -88,7 +88,6 @@ function DashboardErrorShell({ message }: { message: string | null }) {
   return (
     <SiteShell dashboardTestId={testId}>
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <DashboardRoleLandmarks />
         <AlertCircle className="mx-auto mt-4 h-6 w-6 text-destructive" />
         <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">
           We hit a snag loading your dashboard.
@@ -96,11 +95,7 @@ function DashboardErrorShell({ message }: { message: string | null }) {
         <p className="mt-2 text-sm text-foreground/75">
           Refresh the page to try again. Your data is safe.
         </p>
-        {message && (
-          <pre className="mx-auto mt-4 max-w-lg overflow-auto rounded-lg border bg-muted/40 p-3 text-left text-[10px] text-foreground/75">
-            {message}
-          </pre>
-        )}
+
       </div>
     </SiteShell>
   );
@@ -123,15 +118,6 @@ function DashboardPageGuarded() {
   );
 }
 
-function DashboardRoleLandmarks() {
-  return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-      <span data-dashboard-landmark="student">Next Best Step</span>
-      <span data-dashboard-landmark="family">Pathway Progress</span>
-    </div>
-  );
-}
-
 function DashboardLoadingShell() {
   const { user } = useAuth();
   const dashboardHint =
@@ -145,9 +131,6 @@ function DashboardLoadingShell() {
 
   return (
     <SiteShell dashboardTestId={testId ?? undefined}>
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <DashboardRoleLandmarks />
-      </div>
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="font-display text-2xl font-medium tracking-tight">
           Preparing Your Dashboard
@@ -474,7 +457,6 @@ function DashboardPageForViewer({
     return (
       <SiteShell dashboardTestId={ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
-          <DashboardRoleLandmarks />
           <h1 className="mt-6 font-display text-4xl font-medium tracking-tight">
             Welcome, {toTitleCase(friendly)}.
           </h1>
@@ -535,9 +517,6 @@ function DashboardPageForViewer({
     return (
       <SiteShell dashboardTestId={dashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-          <div className="mb-4 flex justify-center">
-            <DashboardRoleLandmarks />
-          </div>
           <AlertCircle className="mx-auto h-6 w-6 text-destructive" />
           <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">
             We couldn't load your dashboard
@@ -556,9 +535,6 @@ function DashboardPageForViewer({
     return (
       <SiteShell dashboardTestId={dashboardTestId ?? ROLE_DASHBOARD_TEST_IDS.parent}>
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">{studentSelector}</div>
-        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-          <DashboardRoleLandmarks />
-        </div>
         <div className="mx-auto max-w-3xl px-4 py-16 text-center">
           <h1 className="font-display text-2xl font-medium tracking-tight">
             Loading Your Family Dashboard

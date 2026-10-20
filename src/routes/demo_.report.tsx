@@ -1,5 +1,6 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { DemoOptionalReportSections } from "@/components/demo/DemoOptionalReportSections";
-import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
@@ -64,13 +65,8 @@ function DemoReportPage() {
     <SiteShell>
       <DemoRoleLens selectedRole={viewRole} onSelectRole={setRole} />
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link
-          to={demoRoleDashboardPath(viewRole)}
-          search={{ student: profile.id }}
-          className="mb-5 inline-block text-sm font-medium text-primary hover:underline"
-        >
-          ← Back to {demoRoleDashboardLabel(viewRole)}
-        </Link>
+        <ContextualBackLink to={demoRoleDashboardPath(viewRole)} search={{ student: profile.id }}
+          label={`← Back to ${demoRoleDashboardLabel(viewRole)}`} className="mb-5 inline-block text-sm font-medium text-primary hover:underline" />
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">

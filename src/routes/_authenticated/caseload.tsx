@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -312,7 +313,7 @@ function CaseloadRow({
             )}
           </div>
           <p className="mt-0.5 text-xs text-foreground/75">
-            {[row.grade_band, row.school].filter(Boolean).join(" · ") || "No school on file"}
+            {[row.grade_band ? formatGradeBand(row.grade_band) : null, row.school].filter(Boolean).join(" · ") || "No school on file"}
           </p>
         </div>
         <div className="flex items-center gap-4 text-sm">

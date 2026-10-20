@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { MeetingDocumentStyles } from "@/components/documents/MeetingDocumentStyles";
 import { toTitleCase } from "@/lib/title-case";
 import { PrintedFieldValue } from "@/components/documents/PrintedFieldValue";
@@ -172,12 +173,8 @@ function MeetingDetailPage() {
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
           <h1 className="font-display text-2xl">We couldn't open this meeting</h1>
           <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
-          <Link
-            to="/meetings"
-            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
-            ← Back to Meetings
-          </Link>
+          <ContextualBackLink to="/meetings" label="← Back to Meetings"
+            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted" />
         </div>
       </SiteShell>
     );

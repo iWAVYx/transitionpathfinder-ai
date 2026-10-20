@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
 import { useState } from "react";
@@ -43,9 +44,7 @@ function formatDate(value: string | null | undefined) {
     : new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
 }
 
-function formatGradeBand(value: string | null) {
-  return value ? toTitleCase(value.replace(/_/g, " ")) : "Grade not set";
-}
+
 
 /**
  * Demo-shaped Student workspace powered only by the signed-in student's

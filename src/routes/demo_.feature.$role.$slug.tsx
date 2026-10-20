@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, notFound, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { RouteErrorComponent } from "@/components/routing/RouteErrorComponent";
@@ -84,12 +85,8 @@ function UnavailablePreview() {
         This preview is not available for this role. Explore the supported tools from the demo
         dashboards.
       </p>
-      <a
-        href="/demo"
-        className="mt-5 inline-flex rounded-full border px-4 py-2 text-sm font-semibold text-primary"
-      >
-        Back to demo dashboards
-      </a>
+      <ContextualBackLink to="/demo" label="Back to Demo Dashboards"
+        className="mt-5 inline-flex rounded-full border px-4 py-2 text-sm font-semibold text-primary" />
     </main>
   );
 }

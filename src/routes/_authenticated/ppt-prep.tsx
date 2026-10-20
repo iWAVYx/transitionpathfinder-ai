@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { PptAgendaDocument } from "@/components/documents/PptAgendaDocument";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -334,7 +335,7 @@ function PptPrepPage() {
                   {reports.map((r) => (
                     <SelectItem key={r.id} value={r.id}>
                       {r.student_first_name}
-                      {r.grade_band ? ` · ${r.grade_band}` : ""} ·{" "}
+                      {r.grade_band ? ` · ${formatGradeBand(r.grade_band)}` : ""} ·{" "}
                       {new Date(r.created_at).toLocaleDateString()}
                     </SelectItem>
                   ))}

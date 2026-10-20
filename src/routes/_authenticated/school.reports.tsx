@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { reportExportReady, organizationCsvCell } from "@/lib/organization-report-export";
@@ -278,7 +279,7 @@ function ReportsContent({ org }: { org: SchoolOrg }) {
                       <tr key={s.id}>
                         <td className="px-4 py-3 font-medium">{s.name || "Student"}</td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {s.grade_band ?? "—"}
+                          {formatGradeBand(s.grade_band, "—")}
                         </td>
                         <td className="px-4 py-3">{s.reports_count}</td>
                         <td className="px-4 py-3">{s.active_goals}</td>
@@ -501,7 +502,7 @@ function buildRows(org: SchoolOrg, w: SchoolReportWindow, rangeLabel: string) {
   ];
   const studentRows = w.students.map((s) => [
     s.name,
-    s.grade_band ?? "",
+    formatGradeBand(s.grade_band, ""),
     s.reports_count,
     s.active_goals,
     s.open_actions,

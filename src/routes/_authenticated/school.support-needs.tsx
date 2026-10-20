@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
@@ -132,7 +133,7 @@ function SchoolSupportNeedsPage() {
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{name}</span>
                           {r.grade_band && (
-                            <Badge variant="secondary">{r.grade_band}</Badge>
+                            <Badge variant="secondary">{formatGradeBand(r.grade_band)}</Badge>
                           )}
                           {!r.has_report && (
                             <Badge variant="destructive" className="gap-1">

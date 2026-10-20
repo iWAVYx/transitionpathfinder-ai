@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -100,9 +101,7 @@ export function DemoPathwayBuilder() {
   return (
     <SiteShell>
       <div className="demo-shell mx-auto w-full max-w-4xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
-        <Link to="/demo" className="text-sm font-medium text-primary hover:underline">
-          ← Back to demo
-        </Link>
+        <ContextualBackLink to="/demo" label="← Back to Demo" className="text-sm font-medium text-primary hover:underline" />
         <PathwayBuilderHeader step={step} role={role} demo />
         <p className="mt-4 text-sm text-foreground/75">
           Try the same questions as the signed-in Pathway Builder with fictional answers. Family and

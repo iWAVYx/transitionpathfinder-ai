@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -252,7 +253,7 @@ function StudentDetailPage() {
                 </h1>
                 {student && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {student.grade_band ?? "Grade not set"}
+                    {formatGradeBand(student.grade_band)}
                     {student.school ? ` · ${student.school}` : ""}
                   </p>
                 )}
@@ -286,7 +287,7 @@ function StudentDetailPage() {
             <StatTile
               icon={<Compass className="h-4 w-4" />}
               label="Grade"
-              value={student?.grade_band ?? "Not set"}
+              value={formatGradeBand(student?.grade_band, "Not set")}
               small
             />
             <StatTile

@@ -1,3 +1,4 @@
+import { useNavigationOrigin } from "@/components/navigation/NavigationOriginProvider";
 import type { ReactNode } from "react";
 import { DashboardReturnContext } from "@/components/dashboard/dashboard-return-context";
 import { useLocation } from "@tanstack/react-router";
@@ -18,10 +19,11 @@ export function SiteShell({
   dashboardTestId?: RoleDashboardTestId;
 }) {
   const location = useLocation();
+  const origin = useNavigationOrigin();
   const testId = dashboardTestId ?? dashboardTestIdForPath(location.pathname);
 
   return (
-    <DashboardReturnContext.Provider value={!location.pathname.startsWith("/demo")}>
+    <DashboardReturnContext.Provider value={Boolean(origin) || !location.pathname.startsWith("/demo")}>
       <div className="flex min-h-dvh flex-col overflow-x-clip bg-background text-foreground">
         <SiteHeader />
         <main

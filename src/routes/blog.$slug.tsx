@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,12 +24,10 @@ export const Route = createFileRoute("/blog/$slug")({
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="font-display text-2xl">Post not available</h1>
         <p className="mt-2 text-muted-foreground">{error instanceof Error ? error.message : "Please try opening this post again."}</p>
-        <Link
+        <ContextualBackLink
           to="/blog"
           className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to blog
-        </Link>
+         label="← Back to Blog" />
       </div>
     </SiteShell>
   ),
@@ -36,12 +35,10 @@ export const Route = createFileRoute("/blog/$slug")({
     <SiteShell>
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="font-display text-2xl">Post not found</h1>
-        <Link
+        <ContextualBackLink
           to="/blog"
           className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to blog
-        </Link>
+         label="← Back to Blog" />
       </div>
     </SiteShell>
   ),
@@ -106,10 +103,7 @@ function BlogPostPage() {
               Try again
             </Button>
             <Button asChild variant="ghost">
-              <Link to="/blog">
-                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-                Back to blog
-              </Link>
+              <ContextualBackLink to="/blog" label="← Back to Blog" />
             </Button>
           </div>
         </div>
@@ -124,12 +118,10 @@ function BlogPostPage() {
           <p className="mt-2 text-muted-foreground">
             This article may have been moved or unpublished.
           </p>
-          <Link
+          <ContextualBackLink
             to="/blog"
             className="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back to blog
-          </Link>
+           label="← Back to Blog" />
         </div>
       </SiteShell>
     );

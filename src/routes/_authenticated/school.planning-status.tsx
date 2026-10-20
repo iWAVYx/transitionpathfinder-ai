@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
@@ -128,7 +129,7 @@ function SchoolPlanningStatusPage() {
                       key={g.grade_band}
                       className="grid gap-2 px-5 py-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center"
                     >
-                      <div className="font-medium">{g.grade_band}</div>
+                      <div className="font-medium">{formatGradeBand(g.grade_band)}</div>
                       <div className="text-xs text-muted-foreground sm:text-right">
                         {g.with_report} of {g.total} students
                       </div>

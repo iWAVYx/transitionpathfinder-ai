@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useEffect, useMemo, useState } from "react";
@@ -206,9 +207,7 @@ function ReviewPage() {
           </div>
           {extraction && (
             <Button asChild variant="ghost" size="sm">
-              <Link to="/students/$studentId" params={{ studentId: extraction.student_id }}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to student
-              </Link>
+              <ContextualBackLink to={`/students/${extraction.student_id}`} label="← Back to Student" />
             </Button>
           )}
         </div>

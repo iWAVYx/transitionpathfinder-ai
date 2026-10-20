@@ -49,7 +49,7 @@ function titleCaseWord(word: string, forceCap: boolean): string {
 
 export function toTitleCase(input?: string | null): string {
   if (!input) return "";
-  const words = input.split(/(\s+)/);
+  const words = input.replace(/_+/g, " ").split(/(\s+)/);
   const wordIdxs = words
     .map((w, i) => (/\S/.test(w) ? i : -1))
     .filter((i) => i >= 0);

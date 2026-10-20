@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { useServerFn } from "@tanstack/react-start";
@@ -249,7 +250,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           <h1 className="mt-2 font-display text-3xl">We Couldn't Open That Report.</h1>
           <p className="mt-3 text-sm text-muted-foreground">{state.message}</p>
           <Button asChild className="mt-6">
-            <Link to="/reports">Back to my reports</Link>
+            <ContextualBackLink to="/reports" label="Back to My Reports" />
           </Button>
         </section>
       </SiteShell>
@@ -336,8 +337,6 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
       <ReportView
         name={state.name}
         report={state.report}
-        onReset={() => navigate({ to: "/reports" })}
-        resetLabel="Back to my reports"
         saved={!!state.studentId}
         saveLabel={students.length > 0 ? "Save to student profile" : undefined}
         studentId={state.studentId ?? undefined}

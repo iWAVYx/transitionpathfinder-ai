@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { isCurrentConsentRecord, upcomingRecordedMeeting } from "@/lib/dashboard/recorded-status";
 import { RELATED_TOOLS } from "@/lib/dashboard/related-tools";
 import { studentToolPreviewDetails } from "@/lib/dashboard/tool-preview-details";
@@ -39,9 +40,7 @@ type FamilyWorkspaceCard = ToolPreviewCardProps & {
   privacyNote: string;
 };
 
-function formatGradeBand(value: string | null) {
-  return value ? toTitleCase(value.replace(/_/g, " ")) : "Grade not set";
-}
+
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "Not scheduled";

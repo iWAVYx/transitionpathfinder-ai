@@ -1,3 +1,4 @@
+import { followOrigin, useNavigationOrigin } from "@/components/navigation/NavigationOriginProvider";
 import { useContext } from "react";
 import { DashboardReturnContext, isDashboardHomeDestination } from "./dashboard-return-context";
 import { Link } from "@tanstack/react-router";
@@ -7,7 +8,7 @@ import { useWorkspaceNavigation } from "@/hooks/use-workspace-navigation";
 import { cn } from "@/lib/utils";
 
 type BackToDashboardProps = {
-  /** Override the destination. When omitted, resolves from the viewer's roles. */
+  /** Fallback for a direct visit with no observed source; otherwise resolves from roles. */
   to?: string;
   /** Override the visible label. Otherwise reflects the resolved workspace. */
   label?: string;
@@ -21,14 +22,20 @@ type BackToDashboardProps = {
  * consistent so users always return to the right role home.
  *
  * Destination resolution:
- *   1. `to` prop, if provided.
- *   2. The same role and platform-owner home used by the site header.
- *   3. The guarded "/dashboard" entry if workspace lookup is unavailable.
+ *   1. The actual observed source page, when known.
+ *   2. `to` fallback, if provided.
+ *   3. The same role and platform-owner home used by the site header.
+ *   4. The guarded "/dashboard" entry if workspace lookup is unavailable.
  */
 export function BackToDashboard({ to, label, className }: BackToDashboardProps) {
   const headerOwnsReturn = useContext(DashboardReturnContext);
+  const origin = useNavigationOrigin();
   const { user, loading } = useAuth();
-  if (headerOwnsReturn && (!to || isDashboardHomeDestination(to))) return null;
+  if (headerOwnsReturn && (origin || !to || isDashboardHomeDestination(to))) return null;
+  if (origin) return <Link to={origin.to as never} onClick={event => followOrigin(event, origin)} data-testid="back-to-dashboard"
+    className={cn("inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground", className)}>
+    <ArrowLeft className="h-3.5 w-3.5" aria-hidden />{origin.label}
+  </Link>;
   const viewerId = !loading && user ? user.id : null;
   return (
     <WorkspaceReturnLink

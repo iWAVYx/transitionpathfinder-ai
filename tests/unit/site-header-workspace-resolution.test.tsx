@@ -8,6 +8,11 @@ const mocks = vi.hoisted(() => ({
   user: { id: "synthetic-owner" } as { id: string } | null,
   loading: false,
   pathname: "/calendar",
+  origin: null as null | { to: string; label: string; go: () => void },
+}));
+vi.mock("@/components/navigation/NavigationOriginProvider", async importOriginal => ({
+  ...await importOriginal<typeof import("@/components/navigation/NavigationOriginProvider")>(),
+  useNavigationOrigin: () => mocks.origin,
 }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({
@@ -43,6 +48,7 @@ beforeEach(() => {
   mocks.user = { id: "synthetic-owner" };
   mocks.loading = false;
   mocks.pathname = "/calendar";
+  mocks.origin = null;
   mocks.assurance.mockResolvedValue({ data: { currentLevel: "aal1", nextLevel: "aal1" } });
 });
 describe("shared header workspace identity", () => {
@@ -227,3 +233,50 @@ describe("one dashboard return per shared page", () => {
     expect(screen.getByRole("link", {name:"Back to Demo Dashboard"}).getAttribute("href")).toBe("/demo/dashboard");
   });
 });
+
+
+describe("contextual return navigation", () => {
+  it.each(["parent", "student", "teacher", "school_admin", "district_admin", "partner", "platform_admin"]) (
+    "returns %s to Home when that is the real source, without extra tool returns", async role => {
+      const go = vi.fn();
+      mocks.origin = { to: "/?section=tools#planning", label: "Back to Home", go };
+      mocks.roles.mockResolvedValue({ roles: [role] });
+      mocks.owner.mockResolvedValue({ isPlatformAdmin: role === "platform_admin" });
+      render(<FeatureShell title="Tool" backTo={{ to: "/dashboard", label: "Back to Dashboard" }}><BackToDashboard /><p>Tool</p></FeatureShell>);
+      const link = await screen.findByRole("link", { name: "Back to Home" });
+      expect(link.getAttribute("href")).toBe("/?section=tools#planning");
+      expect(screen.getAllByRole("link", { name: /^Back to / })).toHaveLength(1);
+      expect(screen.queryByRole("link", { name: "Home" })).toBeNull();
+      fireEvent.click(link);
+      expect(go).toHaveBeenCalledOnce();
+      fireEvent.click(link, { ctrlKey: true });
+      expect(go).toHaveBeenCalledOnce();
+    });
+  it("shows the real public source even when the visitor is signed out", async () => {
+    mocks.user = null;
+    mocks.origin = { to: "/", label: "Back to Home", go: vi.fn() };
+    render(<SiteShell><p>Public feature</p></SiteShell>);
+    expect(await screen.findByRole("link", { name: "Back to Home" })).toBeTruthy();
+    expect(mocks.roles).not.toHaveBeenCalled();
+  });
+  it("does not add a return strip to a dashboard landing page", async () => {
+    mocks.pathname = "/dashboard";
+    mocks.origin = { to: "/calendar", label: "Back to Calendar", go: vi.fn() };
+    render(<SiteShell><p>Preparing Your Dashboard</p></SiteShell>);
+    await act(async () => {});
+    expect(screen.queryByRole("navigation", { name: "Return to previous page" })).toBeNull();
+    expect(document.querySelectorAll('[data-dashboard-landmark="student"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-dashboard-landmark="family"]')).toHaveLength(1);
+  });
+});
+
+
+it.each(["/platform", "/pathways/example", "/blog", "/bridgeforward"]) (
+  "does not invent a dashboard return on direct public page %s", async path => {
+    mocks.pathname = path;
+    mocks.roles.mockResolvedValue({ roles: ["parent"] });
+    mocks.owner.mockResolvedValue({ isPlatformAdmin: false });
+    render(<SiteHeader />);
+    await screen.findByRole("button", { name: "Tools" });
+    expect(screen.queryByRole("navigation", { name: "Return to previous page" })).toBeNull();
+  });

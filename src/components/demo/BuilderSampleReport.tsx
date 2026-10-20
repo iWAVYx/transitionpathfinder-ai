@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -18,9 +19,7 @@ function BuilderSampleReportReader({ audience, view }: { audience: "family" | "e
   return (
     <SiteShell>
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link to="/demo/intake" search={{ role: builderAudience }} className="text-sm font-medium text-primary hover:underline">
-          ← Back to Pathway Builder
-        </Link>
+        <ContextualBackLink to="/demo/intake" search={{ role: builderAudience }} label="← Back to Pathway Builder" className="text-sm font-medium text-primary hover:underline" />
         <section
           className="my-5 rounded-2xl border bg-card p-5"
           aria-label="Prepared sample report notice"

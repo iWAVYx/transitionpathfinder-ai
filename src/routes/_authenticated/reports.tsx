@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { Link, Outlet, createFileRoute, useChildMatches, useRouter } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
@@ -223,7 +224,7 @@ function ReportsPage() {
                         </p>
                         {r.grade_band && (
                           <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                            {r.grade_band}
+                            {formatGradeBand(r.grade_band)}
                           </span>
                         )}
                         {r.linked_student_name && (

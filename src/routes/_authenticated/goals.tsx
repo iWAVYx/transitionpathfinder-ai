@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
@@ -343,7 +344,7 @@ function GoalsSession({
                   )}
                 >
                   {r.student_first_name}
-                  {r.grade_band ? ` · ${r.grade_band}` : ""}
+                  {r.grade_band ? ` · ${formatGradeBand(r.grade_band)}` : ""}
                 </button>
               ))}
             </div>

@@ -1,3 +1,4 @@
+import { NavigationOriginProvider } from "@/components/navigation/NavigationOriginProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -276,7 +277,7 @@ function RootComponent() {
         <SmoothScroll />
         <ScrollToTop />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <NavigationOriginProvider><Outlet /></NavigationOriginProvider>
         <Toaster />
         <AccessibilityControls />
       </LanguageProvider>
