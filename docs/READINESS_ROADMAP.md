@@ -1,5 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
+## Report Closing Readability — October 20, 2026
+
+- [x] Prepare shared print-only closing typography: 10.5-point body copy with 1.4 line spacing; 9.5-point labels with consistent tracking. Preserve the tight planning-disclaimer inset, equal document-control columns, all source wording and the top-right watermark. Applicable saved, demo and fixed-share reports consume the same stylesheet; this does not restyle dashboard cards or other document types.
+- [x] Pass 42 credential-free document browser checks and TypeScript. Render and visually inspect both fictional Family/Educator closing pages. Both full local samples remain 30 content pages without blank pages; date-normalized complete word counts match the prior grouping samples exactly. The closing contains the complete disclaimer, preparation, confidentiality and end marker. Evidence: `/private/tmp/tf211-closing-review/summary.json` and closing PNGs; these are offline renderer checks, not live audience acceptance.
+- [x] Add a repeatable offline long-question stress fixture with 24 complete questions at six page-boundary offsets. PDF text review retains every question and source label. It reproduces a source-only final page at offset 480; attempted break-boundary CSS did not fix the actual PDF and was removed.
+- [ ] Resolve the isolated Information Used note structurally, finish the remaining full-page visual review and separately authorized explicit-audience hosted acceptance. The stress fixture passing content checks does **not** close source-note pagination quality. No additional live fixture run, AI call, deployment, publication or production action is implied.
+
 ## Post-Release PDF Recheck and Short-Note Grouping — October 20, 2026
 
 - [x] Read the existing signed-in Family staging report library without generation or writes; it is empty. The previous disposable reports were cleaned up. Obtain new explicit authorization for one two-intake/two-report, two-Restore, two-PDF no-AI repeat with exact cleanup and required human staging review.

@@ -442,11 +442,11 @@ export function ReportBrochurePrintStyles() {
         padding: 0.03in !important;
       }
       body:has(.report-root) .report-root [data-report-planning-disclaimer] > p:first-child {
-        font-size: 8.5pt !important; line-height: 1.1 !important; letter-spacing: 0.08em !important;
+        font-size: 9.5pt !important; line-height: 1.25 !important; letter-spacing: 0.06em !important;
         break-after: avoid !important;
       }
       body:has(.report-root) .report-root [data-report-planning-disclaimer] > p + p {
-        margin-top: 0.02in !important; font-size: 9.5pt !important; line-height: 1.2 !important;
+        margin-top: 0.02in !important; font-size: 10.5pt !important; line-height: 1.4 !important;
       }
       body:has(.report-root) .report-root [data-report-document-details] {
         gap: 0.16in !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -469,13 +469,13 @@ export function ReportBrochurePrintStyles() {
         gap: 0.12in !important; padding: 0.06in !important;
       }
       body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] p {
-        font-size: 9pt !important; line-height: 1.25 !important;
+        font-size: 10.5pt !important; line-height: 1.4 !important;
       }
       body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] p + p {
         margin-top: 0.04in !important;
       }
       body:has(.report-root) .report-root [data-report-document-details][data-report-document-details] p:first-child {
-        font-size: 8.5pt !important; line-height: 1.2 !important; letter-spacing: 0.1em !important;
+        font-size: 9.5pt !important; line-height: 1.25 !important; letter-spacing: 0.06em !important;
       }
       body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; background: transparent !important; }
       body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }

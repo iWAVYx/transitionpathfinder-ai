@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 let components: Record<string, any>;
 test.beforeAll(async () => {
   const result = await build({
-    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { ReportPathwayHeading, ReportPathwaySummary } from './src/components/documents/ReportPathwayIntro.tsx'; export { RecommendationCard } from './src/components/pathway/RecommendationCard.tsx'; export { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { recordGeneratedSections, recordSavedSections } from './src/lib/report-section-updates.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
+    stdin: { contents: ["DocumentPrintHeader", "DocumentPrintStyles", "DocumentViewStyles", "DocumentWatermark", "PrintedFieldValue", "MeetingDocumentStyles", "SampleDocumentNotice", "ReportBrochurePrintStyles", "PptAgendaDocument"].map((name) => `export { ${name} } from './src/components/documents/${name}.tsx';`).join("\n") + "\nexport { ReportPathwayHeading, ReportPathwaySummary } from './src/components/documents/ReportPathwayIntro.tsx'; export { RecommendationCard } from './src/components/pathway/RecommendationCard.tsx'; export { PathwayReportBody } from './src/components/pathway/report/PathwayReportBody.tsx'; export { DemoOptionalReportDocument } from './src/components/demo/DemoOptionalReportDocument.tsx'; export { OPTIONAL_REPORT_EXAMPLE } from './src/lib/demo/optional-report-example.ts'; export { PathwayReport } from './src/components/demo/PathwayReport.tsx'; export { ValueCallout } from './src/components/value/ValueCallout.tsx'; export { DocumentLayoutStyles } from './src/components/documents/DocumentLayoutStyles.tsx'; export { ReportView } from './src/components/pathway/ReportView.tsx'; export { SourceChips } from './src/components/pathway/SourceChips.tsx'; export { ReportPhase4Sections } from './src/components/pathway/ReportPhase4Sections.tsx'; export { DEMO_INTAKE_CATEGORIES } from './src/lib/demo-extras.ts'; export { DEMO_STUDENTS } from './src/lib/demo-data.ts'; export { projectSharedReport } from './src/lib/shared-report-projection.ts'; export { richerSharedFixture } from './tests/fixtures/shared-report.ts'; export { recordGeneratedSections, recordSavedSections } from './src/lib/report-section-updates.ts'; export { getDemoProfile } from './src/lib/demo/demo-profiles.ts'; export { generatePathwayReport } from './src/lib/demo/pathway-engine.ts'; export { demoReportNextStepPreview } from './src/lib/demo/report-overview.ts'; import { RouterContextProvider, createRouter, createRootRoute, createMemoryHistory } from '@tanstack/react-router'; export function ReportFixtureRouter({children}) { const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory({initialEntries: ['/']}) }); return <RouterContextProvider router={router}>{children}</RouterContextProvider>; }", resolveDir: process.cwd(), loader: "tsx" },
     bundle: true, write: false, platform: "node", format: "cjs", jsx: "automatic",
     external: ["react", "react-dom", "react/jsx-runtime"],
     alias: { "@": resolve("src") },
@@ -655,6 +655,14 @@ test("document-control labels stay grouped with readable values for each report 
       return { keep: getComputedStyle(element).breakInside, widths: children.map(child => child.width), tops: children.map(child => child.top) };
     });
     expect(geometry.keep).toBe("avoid");
+    // Closing copy must stay readable rather than shrink to reduce page count.
+    const closingType = await details.locator("p + p").evaluateAll(elements => elements.map(el => ({
+      size: parseFloat(getComputedStyle(el).fontSize), line: parseFloat(getComputedStyle(el).lineHeight),
+    })));
+    expect(closingType.every(value => value.size >= 14 && value.line >= 19)).toBe(true);
+    const disclaimer = page.locator("[data-report-planning-disclaimer] > p + p");
+    expect(await disclaimer.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
+    expect(await disclaimer.evaluate(el => parseFloat(getComputedStyle(el).lineHeight))).toBeGreaterThanOrEqual(19);
     expect(Math.max(...geometry.widths) - Math.min(...geometry.widths)).toBeLessThan(1);
     expect(Math.max(...geometry.tops) - Math.min(...geometry.tops)).toBeLessThan(1);
     const typography = await details.evaluate(element => ({
@@ -2186,5 +2194,42 @@ test("saved report print discards surrounding route layout without changing the 
     await page.screenshot({path:info.outputPath(`${audience}-saved-shell-print.png`),fullPage:true});
     await page.emulateMedia({ media: "screen" });
     await expect(page.locator("[data-route-chrome]").last()).toBeVisible();
+  }
+});
+
+
+// Exercise a question list longer than one printed page, including a source note
+// close to a page boundary. This fixture cannot call a server or save a record.
+test("long report questions export complete content across page boundaries", async ({ page }, info) => {
+  await page.route("**/*", route => route.abort());
+  const styles = [components.DocumentLayoutStyles, components.ReportBrochurePrintStyles]
+    .map(component => renderToStaticMarkup(createElement(component))).join("");
+  const questions = Array.from({ length: 24 }, (_, index) =>
+    `Question ${index + 1}: Which recorded supports helped the fictional student complete the activity, and what observations should the team compare before choosing the next step?`);
+  const callout = renderToStaticMarkup(createElement(components.ValueCallout, { data: {
+    whatThisMeans: "Use recorded observations to choose the next planning step.",
+    whyItMatters: "The team needs clear information about the supports tried.",
+    recommendedNextStep: "Bring the observation log to the team conversation.",
+    questionsForTeam: questions,
+    informationUsed: ["Fictional classroom observation log", "Fictional family planning notes"],
+  } }));
+  await page.emulateMedia({ media: "print" });
+  for (const offset of [0, 160, 320, 480, 640, 800]) {
+    await page.setContent(`<html><head><style>
+      body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; }
+      [data-value-callout-row] { display: flex; gap: 12px; padding: 10px 0; }
+      [data-value-callout-row] > :first-child { flex: 0 0 24px; }
+      [data-value-callout-row] > :last-child { flex: 1; min-width: 0; }
+      [data-value-callout-row] svg { width: 16px; height: 16px; }
+      [data-value-callout-label] { margin: 0; font-weight: bold; }
+      li { margin-bottom: 8px; }
+    </style></head><body><main class="report-root" data-generated-document>
+      ${styles}<div style="height:${offset}px">Fictional planning context</div>${callout}
+    </main></body></html>`);
+    await expect(page.locator("[data-value-callout-question]")).toHaveCount(24);
+    await expect(page.getByText(questions[23], { exact: true })).toBeVisible();
+    await expect(page.getByText("Fictional classroom observation log · Fictional family planning notes", { exact: true })).toBeVisible();
+    expect(await page.locator(".report-root").evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.pdf({ path: info.outputPath(`questions-offset-${offset}.pdf`), preferCSSPageSize: true, printBackground: true });
   }
 });
