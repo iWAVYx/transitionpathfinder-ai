@@ -100,7 +100,7 @@ it.each(["student", "parent", "educator", "school_admin", "district_admin", "par
     await screen.findByText("Protected Workspace");
     expect(api.profile).toHaveBeenCalledWith({ data: { expected_viewer_id: role } });
     expect(api.admin).not.toHaveBeenCalled();
-    expect(api.read).toHaveBeenCalledWith(role);
+    await waitFor(() => expect(api.read).toHaveBeenCalledWith(role));
   },
 );
 it("profile failure offers real retry and never marks onboarding checked", async () => {
@@ -113,7 +113,8 @@ it("profile failure offers real retry and never marks onboarding checked", async
   fireEvent.click(screen.getByText("Try Again"));
   await screen.findByText("Protected Workspace");
   expect(api.profile).toHaveBeenCalledTimes(2);
-  expect(api.read).toHaveBeenCalledOnce();
+  // DOM visibility does not guarantee that the mounted Outlet effect ran.
+  await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
 });
 it.each([
   { id: "other", onboarding_completed: true },
