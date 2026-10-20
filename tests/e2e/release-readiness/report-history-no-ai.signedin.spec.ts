@@ -30,7 +30,9 @@ for (const ownerRole of ["parent", "educator"] as const) {
     let intakeCreated = false, reportCreated = false, intakeAttempted = false, reportAttempted = false;
     const marker = `QA History ${target.runId} ${ownerRole}`;
     let context: Awaited<ReturnType<typeof browser.newContext>> | undefined;
-    const evidence: Record<string, unknown> = {role: ownerRole, runId: target.runId, reportId, intakeId, aiCalls: 0};
+    const reportAudience = ownerRole === "parent" ? "family" : "educator";
+    const audienceTabName = ownerRole === "parent" ? "Family" : "Educator";
+    const evidence: Record<string, unknown> = {role: ownerRole, reportAudience, runId: target.runId, reportId, intakeId, aiCalls: 0};
     try {
       for (const role of ROLES) {
         const email = process.env[role.emailEnv] ?? "";
@@ -68,14 +70,16 @@ for (const ownerRole of ["parent", "educator"] as const) {
       const role = ROLES.find(r=>r.key === ownerRole)!;
       context = await browser.newContext({baseURL:target.origin,storageState:role.storageState});
       const page = await context.newPage();
-      await page.goto(`/reports/${reportId}`,{waitUntil:"domcontentloaded"});
+      await page.goto(`/reports/${reportId}?audience=${reportAudience}`,{waitUntil:"domcontentloaded"});
       await expect(page.getByText(current.summary,{exact:true}).first()).toBeVisible();
+      await expect(page.getByRole("tab",{name:audienceTabName,exact:true})).toHaveAttribute("aria-selected","true");
       const restore = page.getByRole("button",{name:"Restore",exact:true});
       await expect(restore).toHaveCount(1);
       await restore.click(); // One real save/restore request, no generator or sharing action.
       await expect(page.getByText(earlier.summary,{exact:true}).first()).toBeVisible();
       await page.reload({waitUntil:"domcontentloaded"});
       await expect(page.getByText(earlier.summary,{exact:true}).first()).toBeVisible();
+      await expect(page.getByRole("tab",{name:audienceTabName,exact:true})).toHaveAttribute("aria-selected","true");
       const saved = await owner.client.from("pathway_reports").select("content").eq("id",reportId).single();
       if (saved.error) throw new Error("Saved content readback failed");
       expect((saved.data.content as Record<string,Json>).summary).toBe(earlier.summary);
