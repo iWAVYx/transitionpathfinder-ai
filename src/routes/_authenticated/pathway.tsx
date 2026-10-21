@@ -85,9 +85,9 @@ function PathwayPage() {
   if (loading || !user)
     return (
       <SiteShell>
-        <main className="mx-auto max-w-4xl px-4 py-10" role="status">
+        <section className="mx-auto max-w-4xl px-4 py-10" role="status">
           Checking your sign-in before opening Pathway Builder…
-        </main>
+        </section>
       </SiteShell>
     );
   return (
@@ -404,7 +404,7 @@ function PathwaySession({
   if (studentsLoading || studentLoadError || allowedRoles.length === 0) {
     return (
       <SiteShell>
-        <main className="mx-auto max-w-4xl px-4 py-10">
+        <section className="mx-auto max-w-4xl px-4 py-10">
           <h1 className="font-display text-2xl">Pathway Builder</h1>
           <p className="mt-3 text-sm" role={studentLoadError ? "alert" : "status"}>
             {studentsLoading
@@ -423,7 +423,7 @@ function PathwaySession({
               Return to Your Workspace
             </Link>
           )}
-        </main>
+        </section>
       </SiteShell>
     );
   }

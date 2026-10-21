@@ -18,7 +18,7 @@ function NextActionsPage() {
   const context = Route.useSearch();
   return (
     <SiteShell>
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-5xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <BackToDashboard />
         <NextActionCardServer
           context={context}
@@ -27,7 +27,7 @@ function NextActionsPage() {
           description="Your personal tasks and available planning suggestions for this workspace. Open an item to work in its tool."
           defaultLimit={100}
         />
-      </main>
+      </section>
     </SiteShell>
   );
 }

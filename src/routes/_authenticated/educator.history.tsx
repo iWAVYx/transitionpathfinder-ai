@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/educator/history")({
 function EducatorHistoryPage() {
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="educator-history-page"
         className="mx-auto max-w-4xl px-4 py-8"
       >
@@ -59,7 +59,7 @@ function EducatorHistoryPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/school/history")({
 function SchoolHistoryPage() {
   return (
     <SiteShell>
-      <main data-testid="school-history-page" className="mx-auto max-w-4xl px-4 py-8">
+      <section data-testid="school-history-page" className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "Records & Disclosure History" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
@@ -59,7 +59,7 @@ function SchoolHistoryPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

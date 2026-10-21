@@ -173,7 +173,7 @@ function ActionItemsPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="action-items-page"
         className="mx-auto max-w-5xl px-4 py-8"
       >
@@ -322,7 +322,7 @@ function ActionItemsPage() {
             )}
           </div>
         )}
-      </main>
+      </section>
     </SiteShell>
   );
 }

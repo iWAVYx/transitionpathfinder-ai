@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/district/history")({
 function DistrictHistoryPage() {
   return (
     <SiteShell>
-      <main data-testid="district-history-page" className="mx-auto max-w-4xl px-4 py-8">
+      <section data-testid="district-history-page" className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs trail={[{ label: "Records & Disclosure History" }]} />
         <header className="mt-4 mb-6">
           <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ function DistrictHistoryPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

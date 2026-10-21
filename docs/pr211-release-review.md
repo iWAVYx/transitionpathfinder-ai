@@ -1,6 +1,14 @@
 # PR211 Release Review and Open Gates
 
-Updated October 13, 2026. This is a release-review record, not deployment authorization or a complete PR approval.
+Grouped review baseline: October 13, 2026; staging status refreshed October 21, 2026. This is a release-review record, not deployment authorization or a complete PR approval.
+
+## Current Staging Status
+
+Cloudflare serves approved application `9d7c5dc20e724ab710333a5c17214d2abdea3f26`; the existing isolated Lovable staging publication serves sync `106d8c3f5dd2c48abc80867fce0e30759ff3176a`. External evidence verifies matching runtime fingerprint `f40378d17fed23c53c583308673d75d2f821bc3d598bab938fb5e8899da816bc`, 1,183 files, staging backend, sandbox payments and isolation true. The isolated repository's main is staging only; source production/main is unchanged. AI configuration remains intentionally host-specific.
+
+The seven-role loaded-dashboard return audit39647870327 passes all seven selected journeys; the separate same-source anonymous audit retains22 mobile/desktop passes. Earlier failed workflows, intermittent School/Owner behavior and broader acceptance limits remain recorded. Deep mobile audit39661391933 passed District, failed School return-position restoration and stopped Partner on a nested main landmark. A shared pending-return safeguard and consistent landmark corrections are prepared locally, not released; hosted acceptance remains open. See [the current roadmap](READINESS_ROADMAP.md) and [production checklist](production-readiness/release-checklist.md). Staging publication and these bounded audits do not imply production readiness or complete grouped source review.
+
+The identity, file inventory and grouped findings below describe the October13 review baseline; they are historical evidence rather than the currently deployed application identity.
 
 ## Candidate Identity and Scope
 

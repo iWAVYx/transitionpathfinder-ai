@@ -4,21 +4,22 @@ import { useNavigationScrollIntent } from "@/hooks/use-navigation-scroll-intent"
 
 /** Complete router restoration after async tools have grown to their saved height. */
 export function ScrollToTop() {
-  const { intent, href: intendedHref } = useNavigationScrollIntent();
+  const { intent, href: intendedHref, position: pendingPosition } = useNavigationScrollIntent();
   // A requested route can be pending while the previous page is still visible.
   // Apply arrival scrolling only to the route that has actually committed.
   const location = useRouterState({ select: (s) => s.resolvedLocation ?? s.location });
+  const renderedPath = useRouterState({ select: s => s.matches.at(-1)?.pathname });
   const position = useElementScrollRestoration({
     getElement: () => (typeof window === "undefined" ? undefined : window),
     getKey: (location) => location.href,
   });
 
-  const savedY = intent === "restore" ? position?.scrollY : undefined;
-  const savedX = intent === "restore" ? position?.scrollX : undefined;
+  const savedY = intent === "restore" ? (pendingPosition ?? position)?.scrollY : undefined;
+  const savedX = intent === "restore" ? (pendingPosition ?? position)?.scrollX : undefined;
 
   useEffect(() => {
     // History updates can precede the new route render; never scroll the departing page.
-    if (intendedHref !== location.href) return;
+    if (intendedHref !== location.href || renderedPath !== location.pathname) return;
     if (intent === "preserve" && !location.hash) return;
     const targetY = intent === "restore" ? savedY : location.hash ? undefined : 0;
     const targetX = savedX ?? 0;
@@ -80,6 +81,6 @@ export function ScrollToTop() {
       window.removeEventListener("touchstart", stop);
       window.removeEventListener("keydown", stop);
     };
-  }, [location.href, location.hash, savedY, savedX, intent, intendedHref]);
+  }, [location.href, location.hash, renderedPath, savedY, savedX, intent, intendedHref]);
   return null;
 }

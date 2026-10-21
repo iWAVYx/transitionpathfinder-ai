@@ -25,17 +25,59 @@ export class NavigationScrollIntent {
   }
 }
 
-export function useNavigationScrollIntent(): { intent: ScrollIntent; href: string } {
+type ScrollPoint = { scrollX: number; scrollY: number };
+type ScrollLocation = { href: string; pathname: string };
+
+/** Preserve one departure while a visible route is still awaiting acknowledgement. */
+export class PendingScrollReturn {
+  private departure?: ScrollLocation & ScrollPoint;
+  private restored?: ScrollLocation & ScrollPoint;
+  begin(from: ScrollLocation | undefined, to: ScrollLocation, point: ScrollPoint) {
+    if (this.departure && from?.href === this.departure.href && to.href === this.departure.href) {
+      // The router still calls this the source, but the DOM can already be the
+      // receiving tool's short loading shell. Its zero must not replace departure.
+      this.restored = this.departure;
+    } else if (!this.departure && from && from.pathname !== to.pathname) {
+      this.departure = { href: from.href, pathname: from.pathname, ...point };
+    }
+  }
+  settle() { this.departure = undefined; }
+  arrive(href: string) {
+    if (this.restored?.href !== href) this.restored = undefined;
+  }
+  position(href: string): ScrollPoint | undefined {
+    return this.restored?.href === href
+      ? { scrollX: this.restored.scrollX, scrollY: this.restored.scrollY } : undefined;
+  }
+}
+
+export function useNavigationScrollIntent(): { intent: ScrollIntent; href: string; position?: ScrollPoint } {
   const router = useRouter();
   const store = useMemo(() => {
     const tracker = new NavigationScrollIntent(router.history.location);
-    let snapshot = { intent: tracker.intent, href: router.history.location.href };
+    const pending = new PendingScrollReturn();
+    const read = () => ({
+      intent: tracker.intent,
+      href: router.history.location.href,
+      position: tracker.intent === "restore" ? pending.position(router.history.location.href) : undefined,
+    });
+    let snapshot = read();
     return {
-      subscribe: (notify: () => void) => router.history.subscribe(({ location, action }) => {
-        tracker.update(location, action.type);
-        snapshot = { intent: tracker.intent, href: location.href };
-        notify();
-      }),
+      subscribe: (notify: () => void) => {
+        const publish = () => { snapshot = read(); notify(); };
+        const stopLoad = router.subscribe("onBeforeLoad", event => {
+          if (typeof window === "undefined") return;
+          pending.begin(event.fromLocation, event.toLocation, { scrollX: window.scrollX, scrollY: window.scrollY });
+          publish();
+        });
+        const stopResolved = router.subscribe("onResolved", () => { pending.settle(); publish(); });
+        const stopHistory = router.history.subscribe(({ location, action }) => {
+          tracker.update(location, action.type);
+          pending.arrive(location.href);
+          publish();
+        });
+        return () => { stopLoad(); stopResolved(); stopHistory(); };
+      },
       snapshot: () => snapshot,
     };
   }, [router]);

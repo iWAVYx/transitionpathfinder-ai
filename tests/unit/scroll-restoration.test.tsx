@@ -8,13 +8,15 @@ const state = vi.hoisted(() => ({
   currentHref: "/example#target",
   resolvedHref: "/example#target",
   intentHref: "/example#target",
+  renderedPath: "/example",
   intent: "restore" as "restore" | "top" | "preserve",
 }));
 vi.mock("../../src/hooks/use-navigation-scroll-intent", () => ({ useNavigationScrollIntent: () => ({ intent: state.intent, href: state.intentHref }) }));
 vi.mock("@tanstack/react-router", () => ({
   useRouterState: ({ select }: { select: (value: unknown) => unknown }) => select({
-    location: { href: state.currentHref, hash: state.hash },
-    resolvedLocation: { href: state.resolvedHref, hash: state.hash },
+    location: { href: state.currentHref, pathname: state.currentHref.split(/[?#]/)[0], hash: state.hash },
+    resolvedLocation: { href: state.resolvedHref, pathname: state.resolvedHref.split(/[?#]/)[0], hash: state.hash },
+    matches: [{ pathname: state.renderedPath }],
   }),
   useElementScrollRestoration: () => state.position,
 }));
@@ -24,6 +26,7 @@ beforeEach(() => {
   state.currentHref = "/example#target";
   state.resolvedHref = "/example#target";
   state.intentHref = "/example#target";
+  state.renderedPath = "/example";
   state.intent = "restore";
   state.position = undefined;
   state.hash = "target";
@@ -172,6 +175,7 @@ it("does not reset the visible source while a forward destination is still pendi
   const view = render(<ScrollToTop />);
   expect(window.requestAnimationFrame).not.toHaveBeenCalled();
   state.resolvedHref = "/guided";
+  state.renderedPath = "/guided";
   view.rerender(<ScrollToTop />);
   frame(0);
   expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "instant" });
@@ -186,6 +190,20 @@ it("does not restore onto the departing tool before the backward route commits",
   const view = render(<ScrollToTop />);
   expect(window.requestAnimationFrame).not.toHaveBeenCalled();
   state.resolvedHref = "/example";
+  view.rerender(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 900, left: 0, behavior: "instant" });
+});
+
+it("waits for source matches when Back cancels a visible but unacknowledged tool", () => {
+  state.currentHref = state.resolvedHref = state.intentHref = "/example";
+  state.renderedPath = "/guided";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+  const view = render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  state.renderedPath = "/example";
   view.rerender(<ScrollToTop />);
   frame(0);
   expect(window.scrollTo).toHaveBeenCalledWith({ top: 900, left: 0, behavior: "instant" });

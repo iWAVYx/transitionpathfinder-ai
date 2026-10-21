@@ -51,9 +51,9 @@ function GoalsPage() {
   if (loading || !user)
     return (
       <SiteShell>
-        <main className="mx-auto max-w-5xl px-4 py-10" role="status">
+        <section className="mx-auto max-w-5xl px-4 py-10" role="status">
           Checking your sign-in before opening Goal Tracker…
-        </main>
+        </section>
       </SiteShell>
     );
   return (

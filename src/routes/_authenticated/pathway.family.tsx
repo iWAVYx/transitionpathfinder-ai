@@ -37,7 +37,7 @@ function FamilyPathwayPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="family-pathway-page"
         className="mx-auto max-w-4xl px-4 py-8"
       >
@@ -181,7 +181,7 @@ function FamilyPathwayPage() {
           </div>
         )}
 
-      </main>
+      </section>
     </SiteShell>
   );
 }
