@@ -1,3 +1,4 @@
+import { toTitleCase } from "@/lib/title-case";
 import { isPendingInvitation, membershipStatusLabel } from "@/lib/membership-status";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { useOrganizationOperation } from "@/hooks/use-organization-operation";
@@ -220,7 +221,7 @@ function TeamPanel({
                     {m.full_name ?? m.email ?? "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {m.email ?? ""} {m.primary_role ? `· ${m.primary_role}` : ""} · joined {new Date(m.joined_at).toLocaleDateString()}
+                    {m.email ?? ""} {m.primary_role ? `· ${toTitleCase(m.primary_role)}` : ""} · joined {new Date(m.joined_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -264,13 +265,13 @@ function TeamPanel({
               </dd>
               <dt className="text-muted-foreground">Current Access</dt>
               <dd className="text-right font-medium">
-                {pendingChange.member.role_within_org.replaceAll("_", " ")}
+                {toTitleCase(pendingChange.member.role_within_org)}
               </dd>
               <dt className="text-muted-foreground">New Access</dt>
               <dd className="text-right font-medium">
                 {pendingChange.kind === "remove"
                   ? "Removed"
-                  : pendingChange.nextRole.replaceAll("_", " ")}
+                  : toTitleCase(pendingChange.nextRole)}
               </dd>
             </dl>
           )}

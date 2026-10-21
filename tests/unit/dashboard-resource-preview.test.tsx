@@ -60,7 +60,7 @@ for (const role of ["family", "student"] as const)
     );
     expect(card.getByText("6 shown")).toBeTruthy();
     expect(card.getByText("Shown: 6")).toBeTruthy();
-    expect(card.getByText("Saved In This Preview: 1")).toBeTruthy();
+    expect(card.getByText("Saved Suggestions: 1")).toBeTruthy();
     expect(card.getByText(/up to six resources/i)).toBeTruthy();
     expect(card.getByText(/Topic keywords/)).toBeTruthy();
     expect(card.queryByText("6 matched")).toBeNull();
@@ -77,7 +77,7 @@ it("keeps the Family demo's keyword preview wording distinct from verified perso
   const detail = PARENT_FEATURE_DETAILS["recommended-resources"];
   expect(detail.eyebrow).toBe("Resource Preview");
   expect(detail.stats).toContainEqual({ label: "Preview Limit", value: "6" });
-  expect(detail.stats).toContainEqual({ label: "Saved In This Preview", value: "2" });
+  expect(detail.stats).toContainEqual({ label: "Saved Suggestions", value: "2" });
   expect(detail.dataSource).toContain("Fictional");
   expect(detail.emptyBody).not.toContain("matched resources will show up");
 });

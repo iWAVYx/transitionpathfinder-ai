@@ -135,3 +135,69 @@ for (const role of ROLES) {
     });
   });
 }
+
+const RETURN_TOOL_PATHS: Record<string, string> = {
+  student: "/calendar",
+  parent: "/calendar",
+  educator: "/reports",
+  school_admin: "/school/team",
+  district_admin: "/district/schools",
+  partner: "/partners-manage/profile",
+  owner: "/owner/content",
+};
+
+for (const role of ROLES) {
+  test.describe(`${role.label} — actual-source return`, () => {
+    test.skip(() => !existsSync(role.storageState), `no storageState for ${role.key}`);
+    test.use({ storageState: role.storageState });
+
+    test(`${role.key}: tool return and browser history retain the actual dashboard source`, async ({ page }) => {
+      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
+      await expect(page.getByTestId(role.dashboardTestId)).toBeVisible({ timeout: 20_000 });
+      const toolPath = RETURN_TOOL_PATHS[role.key];
+      let href = "";
+      await expect.poll(async () => {
+        href = (await collectInternalTileHrefs(page)).find(
+          value => new URL(value, page.url()).pathname === toolPath,
+        ) ?? "";
+        return href;
+      }, { timeout: 20_000, message: `No visible ${toolPath} dashboard link for ${role.key}` }).not.toBe("");
+
+      // Capture the route after organization/role redirects have settled.
+      // Retain real query/hash context rather than constructing a guessed home.
+      const source = new URL(page.url());
+      const sourceHref = `${source.pathname}${source.search}${source.hash}`;
+      const destinationUrl = new URL(href, page.url()).href;
+      const links = page.locator(`main a[href=${JSON.stringify(href)}]`);
+      const visible = await links.all();
+      let clicked = false;
+      for (const link of visible) {
+        if (await link.isVisible()) {
+          await link.click();
+          clicked = true;
+          break;
+        }
+      }
+      expect(clicked, `No clickable dashboard link to ${href}`).toBe(true);
+      await expect(page).toHaveURL(destinationUrl);
+      await expect(page.locator('main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"])')).toBeVisible({ timeout: 15_000 });
+      const returnNav = page.getByRole("navigation", { name: "Return to previous page", exact: true });
+      await expect(returnNav).toHaveCount(1);
+      const back = returnNav.getByRole("link");
+      await expect(back).toHaveCount(1);
+      await expect(back).toHaveAttribute("href", sourceHref);
+      await expect(back).not.toHaveText(/back to home/i);
+      await back.click();
+      await expect(page).toHaveURL(source.href);
+      await expect(page.getByTestId(role.dashboardTestId)).toBeVisible();
+
+      // The contextual control must revisit the old entry, not push a new
+      // dashboard entry: browser Forward should still reach the same tool.
+      await page.goForward({ waitUntil: "domcontentloaded" });
+      await expect(page).toHaveURL(destinationUrl);
+      await expect(returnNav.getByRole("link")).toHaveAttribute("href", sourceHref);
+      await page.goBack({ waitUntil: "domcontentloaded" });
+      await expect(page).toHaveURL(source.href);
+    });
+  });
+}

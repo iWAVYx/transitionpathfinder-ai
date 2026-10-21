@@ -211,7 +211,7 @@ export function LiveFamilyWorkspaceOverview({ firstName, snapshot }: Props) {
         "Browse up to six resources. Topic keywords in saved planning notes help order these suggestions.",
       bullets: [
         { label: "Shown", value: snapshot.recommendedResources.length },
-        { label: "Saved In This Preview", value: savedResources },
+        { label: "Saved Suggestions", value: savedResources },
       ],
       cta: { label: "Open Resources", to: "/family/resources/recommended" },
       dataSource: "A six-item topic-keyword resource preview and your saved selections",

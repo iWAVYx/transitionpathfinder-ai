@@ -1,3 +1,4 @@
+import { toTitleCase } from "@/lib/title-case";
 import { membershipStatusLabel } from "@/lib/membership-status";
 import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
 import { useOrganizationOperation } from "@/hooks/use-organization-operation";
@@ -187,7 +188,7 @@ function TeamBody({
                     )}
                     {m.primary_role && (
                       <span className="ml-3 capitalize">
-                        {m.primary_role.replace(/_/g, " ")}
+                        {toTitleCase(m.primary_role)}
                       </span>
                     )}
                   </div>

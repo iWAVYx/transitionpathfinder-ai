@@ -154,7 +154,7 @@ export function LiveStudentWorkspaceOverview({ snapshot }: { snapshot: Dashboard
         "Browse up to six resources. Topic keywords in your saved planning notes help order these suggestions.",
       bullets: [
         { label: "Shown", value: snapshot.recommendedResources.length },
-        { label: "Saved In This Preview", value: savedResources },
+        { label: "Saved Suggestions", value: savedResources },
       ],
       cta: { label: "Open Resources", to: "/resources" },
       dataSource: "A six-item topic-keyword resource preview from your saved planning notes",

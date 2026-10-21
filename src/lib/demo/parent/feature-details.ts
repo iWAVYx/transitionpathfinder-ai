@@ -215,7 +215,7 @@ const TEMPLATE: Record<ParentFeatureId, ParentFeatureDetail> = {
     connectsTo: ["Pathway Report", "Action Items"],
     stats: [
       { label: "Preview Limit", value: "6" },
-      { label: "Saved In This Preview", value: "2" },
+      { label: "Saved Suggestions", value: "2" },
     ],
     rows: [
       { primary: "{postSecondaryLabel} — family guide", secondary: "Guide · 6 min read" },
