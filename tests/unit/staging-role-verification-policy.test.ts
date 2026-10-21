@@ -33,7 +33,7 @@ it("runs independent role-access checks after dashboard failures only with all r
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'report-history-no-ai' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'report-history-no-ai' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });
 
@@ -70,4 +70,12 @@ it("combines anonymous and signed-in directional journeys in one fixed read-only
   expect(workflow).toContain('environment: staging');
   expect(workflow).toContain('E2E_READ_ONLY: "true"');
   expect(workflow).toContain("steps.sanitize-artifacts.outcome == 'success'");
+});
+
+it("retains a fixed three-case measured-return diagnostic with no retries or mutation scope", () => {
+  expect(workflow).toContain("          - focused-return-position");
+  expect(workflow).toContain("inputs.scope != 'focused-return-position'");
+  expect(workflow).toContain("--grep 'signed-out source-aware navigation 390px.*student demo|Student — actual-source return|Platform Admin — actual-source return' --reporter=line,html");
+  expect(workflow).toContain('E2E_READ_ONLY: "true"');
+  expect(workflow).toContain('environment: staging');
 });

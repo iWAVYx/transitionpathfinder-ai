@@ -19,6 +19,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES } from "./helpers/roles";
+import { captureSettledScrollPosition } from "./helpers/scroll-position";
 import { dashboardTileHrefs } from "./helpers/dashboard-links";
 
 function normalizePath(p: string) {
@@ -178,6 +179,7 @@ for (const role of ROLES) {
       let sourcePosition = 0;
       const assertSourcePosition = async (step: string) => {
         let matchingSamples = 0;
+        try {
         await expect.poll(async () => {
           const delta = Math.abs((await readPosition()).y - sourcePosition);
           matchingSamples = delta <= 2 ? matchingSamples + 1 : 0;
@@ -187,7 +189,13 @@ for (const role of ROLES) {
           intervals: [250],
           message: `${role.key}: ${step} must retain the captured dashboard position across three samples`,
         }).toBeGreaterThanOrEqual(3);
-        positions.push({ step, ...await readPosition() });
+        } finally {
+          positions.push({ step, ...await readPosition() });
+          await testInfo.attach(`dashboard-scroll-attempt-${step}`, {
+            contentType: "application/json",
+            body: JSON.stringify({ role: role.key, expectedY: sourcePosition, positions }, null, 2),
+          });
+        }
       };
       let clicked = false;
       for (const link of visible) {
@@ -195,7 +203,7 @@ for (const role of ROLES) {
           // Measure after the browser makes the actual clicked control visible.
           // Prefer the last real matching link, often in the lower widget area.
           await link.scrollIntoViewIfNeeded();
-          const captured = await readPosition();
+          const captured = await captureSettledScrollPosition(page);
           sourcePosition = captured.y;
           positions.push({ step: "before-tool", ...captured });
           await testInfo.attach("dashboard-scroll-origin", {

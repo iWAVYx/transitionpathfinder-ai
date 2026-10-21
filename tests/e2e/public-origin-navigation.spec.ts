@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { captureSettledScrollPosition } from "./helpers/scroll-position";
 
 // Explicitly anonymous even if a caller configures another project's session.
 // No forms, generation, saved records or authenticated destinations are opened.
@@ -38,7 +39,7 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
     for (const link of (await links.all()).reverse()) {
       if (!(await link.isVisible())) continue;
       await link.scrollIntoViewIfNeeded();
-      before = await position(page);
+      before = await captureSettledScrollPosition(page);
       source = page.url();
       selected = href;
       await testInfo.attach("anonymous-origin", { contentType: "application/json", body: JSON.stringify({ sourcePath, source: new URL(source).pathname + new URL(source).search + new URL(source).hash, selected, ...before, lowerPageOrigin: before.y > 100 }) });
@@ -73,11 +74,17 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
   const restored = async (step: string) => {
     await expect(page).toHaveURL(source);
     let samples = 0;
+    try {
     await expect.poll(async () => {
       samples = Math.abs((await position(page)).y - before.y) <= 2 ? samples + 1 : 0;
       return samples;
     }, { timeout: 10_000, intervals: [250] }).toBeGreaterThanOrEqual(3);
-    readings.push({ step, ...await position(page) });
+    } finally {
+      readings.push({ step, ...await position(page) });
+      await testInfo.attach(`anonymous-scroll-attempt-${step}`, {
+        contentType: "application/json", body: JSON.stringify({ sourcePath, before, readings }, null, 2),
+      });
+    }
   };
   await back.click();
   await restored("contextual-return");

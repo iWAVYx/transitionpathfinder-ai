@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## Directional Retest: 26 Passed; Three Return-Position Cases Under Diagnosis — October 21, 2026
+
+- [x] Human-approved [combined run 39558523004](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39558523004) verified the deployed `5fe0254c` runtime and all seven existing sign-ins, then executed exactly 29 cases, one worker, retries zero. Result: 26 passed /3 failed (1.8 minutes): anonymous21/22 and signed-in5/7. Sanitized report upload passed. Keep the workflow failed.
+- [x] Homepage → Platform, homepage guided flow and Platform-section → Pathway Builder journeys pass at390/1440px. Both Owner demo cases pass without duplicate Back controls; the prior mobile Educator return case passes. Failed cases are mobile Student demo, signed-in Student and signed-in Owner, each at contextual backward position restoration. Forward-history assertions were not reached in those three failing journeys; do not infer their acceptance.
+- [x] Existing-session manual Owner check on published isolated staging uses real wheel input and the visible Edit Site Content link: /admin2272px → /owner/content at0 → contextual return /admin2272px, exact restoration. No fields or records edited. This one manual pass does not erase the automated failure or establish its cause.
+- [x] Explore route-resolution timing with a delayed synthetic page fixture. Both the deployed baseline and exploratory guard pass; this does not reproduce the hosted failures. Do not retain speculative runtime changes or claim a root-cause fix. Current application fingerprint remains exactly `9ed53cf800d5dcdc0643901bda84053051a063a9084b0c7419f5054211506d55`, 1,183 files, unchanged from both staging hosts.
+- [x] Prepare bounded test-only diagnosis: after bringing the actual link into view, require departure scroll and page height to settle across three samples before capturing origin and clicking. Keep the existing two-pixel/three-sample backward assertion, exact source URL/query/hash, single Back, Forward-to-top and Back/Forward destination checks. Attach actual coordinates even on failure. Exactly the three failed cases are selected for one no-retry protected recheck; 26 targeted policy/scroll tests, TypeScript, real discovery, YAML and diff checks pass.
+- [ ] Execute the focused three-case diagnosis after required human staging review. Distinguish measurement/input timing from an actual application fault using the retained before/after coordinates. Do not retry unchanged tests or weaken their assertions. Keep all prior failures, deeper organizational return coverage, broader route/refresh/visual-anchor acceptance, report/export work, production gates and deferred Parent Pilot tracked. No application release, records, providers/AI, migrations or production actions in this diagnosis.
+
+Evidence: `/private/tmp/tf211-directional-retest-39558523004`.
+
+
 ## Authorized Directional Scroll Release — October 21, 2026
 
 - [x] User authorized exact `5fe0254cd14734d6aebcfd5e04c8015af314ce59` for Cloudflare staging, isolated Lovable sync/publication and read-only signed-out/all-role retests. Eight automatic exact-head checks passed; seven protected/live skips are not acceptance. Source package SHA256 `3db641d0115351b09129777504c269d0b70354b434a6d0b30f6f6e626f2bdeda` restores to fingerprint `9ed53cf800d5dcdc0643901bda84053051a063a9084b0c7419f5054211506d55`, 1,183 files, with no Git/environment files.
