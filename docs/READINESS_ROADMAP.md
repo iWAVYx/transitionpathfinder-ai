@@ -1,5 +1,13 @@
 # TransitionForward — Readiness Roadmap
 
+## Signed-Out Visitors Included in Shared Changes — October 21, 2026
+
+- [x] Standing scope: assess each shared navigation, readable-label, loading, layout and document-presentation change for signed-out public visitors and all applicable demo views, as well as signed-in roles. Public origins must remain public return destinations; never invent a private dashboard return. Authentication and role boundaries remain enforced, and Owner remains management-only. Applicability does not mean exposing authenticated data/features to guests.
+- [x] Prepare 20 anonymous browser checks at 390px and 1440px: Home → Platform → Home; Platform's actual section → demo Pathway Builder → original section; real visible tool journeys from all seven demo role previews; and direct public entry without an invented dashboard return. Each runs with explicitly empty cookies/origins and tracing off, asserts one source-aware Back link, exact source query/hash, contextual return and browser Forward/Back, and records actual pixel positions with a two-pixel/three-sample bound. No generated content, form submission, accounts or records are modified. Actual lower-page coverage is determined from attachments, not assumed.
+- [x] Local preparation: 37 targeted navigation/scroll/workflow tests and TypeScript pass; Playwright discovers exactly 20 anonymous cases; workflow YAML parses with protected staging review intact; diff check passes. Runtime source is unchanged (`8b823800…b13d5df23`, 1,182 files). The jsdom Window.scrollTo notice is not hosted scroll evidence.
+- [ ] Run the fixed signed-out staging scope after required human review and inspect each actual result; retain any failures and no retries. Refresh/direct entry of other features, deeper signed-in School/District/Partner journeys, additional public routes, generated/export layout and production gates remain open.
+
+
 ## Seven-Role Return-Position Check Prepared — October 21, 2026
 
 - [x] Extend the existing actual-source return journeys to capture the scroll position after the actual dashboard link is brought into view. Prefer the last matching real link so lower widget destinations are exercised where available. Contextual return and browser Back after Forward must each retain that captured position within two pixels across three consecutive samples; existing exact URL/query/hash, single Back control and Owner management-header assertions remain intact.

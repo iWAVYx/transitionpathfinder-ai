@@ -17,6 +17,7 @@ on:
           - partner-demo-plan
           - owner-history-return
           - seven-role-history-return
+          - signed-out-history-return
           - report-history-no-ai
       fixture_confirmation:
         description: 'Only report-history-no-ai: type disposable-report-history after explicit owner authorization'
@@ -155,7 +156,7 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
-        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'report-history-no-ai' }}
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'report-history-no-ai' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
@@ -163,6 +164,8 @@ jobs:
         run: |
           if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
             bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
+          elif [ "$STAGING_TEST_SCOPE" = "signed-out-history-return" ]; then
+            bunx playwright test tests/e2e/public-origin-navigation.spec.ts --project=anon --no-deps --retries=0 --workers=1 --reporter=line,html
           elif [ "$STAGING_TEST_SCOPE" = "seven-role-history-return" ]; then
             bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts --project=role-access --no-deps --retries=0 --workers=1 --grep '— actual-source return' --reporter=line,html
           elif [ "$STAGING_TEST_SCOPE" = "owner-history-return" ]; then
