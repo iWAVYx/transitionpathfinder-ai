@@ -33,7 +33,7 @@ it("runs independent role-access checks after dashboard failures only with all r
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'report-history-no-ai' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'report-history-no-ai' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });
 
@@ -86,4 +86,13 @@ it("bounds scroll diagnosis to five failing journeys without changing acceptance
   expect(workflow).toContain("--grep 'signed-out source-aware navigation 390px.*(student demo|Platform returns)|signed-out source-aware navigation 1440px.*educator demo|District Administrator — actual-source return|Platform Admin — actual-source return' --reporter=line,html");
   expect(workflow).toContain('E2E_READ_ONLY: "true"');
   expect(workflow).toContain('environment: staging');
+});
+
+it("restricts the remaining-role trace to School and Owner with no retries", () => {
+  expect(workflow).toContain("          - remaining-role-scroll");
+  expect(workflow).toContain("inputs.scope != 'remaining-role-scroll'");
+  const branch = workflow.split('elif [ "$STAGING_TEST_SCOPE" = "remaining-role-scroll" ]; then')[1].split("          elif")[0];
+  expect(branch).toContain("School Administrator — actual-source return|Platform Admin — actual-source return");
+  expect(branch).toContain("--retries=0 --workers=1");
+  expect(branch).toContain("--reporter=line,html");
 });

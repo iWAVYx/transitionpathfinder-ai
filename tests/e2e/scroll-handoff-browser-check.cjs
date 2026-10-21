@@ -23,7 +23,7 @@ const root = path.resolve(__dirname, '../..');
       if(new URL(route.request().url()).hostname!=='handoff.fixture.test')return route.abort();
       return route.fulfill({contentType:'text/html',body:`<!doctype html><style>body{margin:0;height:4000px}a{position:fixed;bottom:20px}</style><a href='/guided'>Open Flow</a><script>document.querySelector('a').onclick=e=>{e.preventDefault();history.pushState({},'', '/guided');scrollTo(0,0)};addEventListener('popstate',()=>scrollTo(0,1200));</script>`});
     });
-    process.env.STAGING_TEST_SCOPE='scroll-diagnosis';
+    process.env.STAGING_TEST_SCOPE=process.env.STAGING_TEST_SCOPE || 'scroll-diagnosis';
     await startScrollHandoffTrace(page);
     await page.goto('http://handoff.fixture.test/source?token=FICTIONAL_CANARY#private-fragment');
     await page.evaluate(()=>scrollTo(0,1200));

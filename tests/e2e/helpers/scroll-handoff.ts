@@ -5,7 +5,7 @@ const traces = new WeakMap<Page, { rows: unknown[]; listener: (message: ConsoleM
 
 /** Observe DOM events only; never patch scroll/history methods or read session data. */
 export async function startScrollHandoffTrace(page: Page) {
-  if (process.env.STAGING_TEST_SCOPE !== "scroll-diagnosis") return;
+  if (!["scroll-diagnosis", "remaining-role-scroll"].includes(process.env.STAGING_TEST_SCOPE ?? "")) return;
   const rows: unknown[] = [];
   const listener = (message: ConsoleMessage) => {
     const text = message.text();
