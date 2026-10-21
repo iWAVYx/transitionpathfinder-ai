@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Authorized Staging Release In Progress — October 21, 2026
+
+- [x] User authorized exact candidate `cfd05aea2ac646fda6213bd61fefc67769b4a39e` for Cloudflare staging, existing isolated Lovable sync/publication and read-only navigation retests. Eight automatic checks pass; seven skipped protected/credentialed checks are not acceptance.
+- [x] Isolated Lovable repository received only the 26 reviewed runtime files. Environment hashes stayed unchanged; frozen install made no changes. Existing staging publication now verifies authentic isolated commit `6befd220bd71a7dc5d3e0bfa0ee6a242076908a6`, fingerprint `00ef97d5a3579afe801b43e1b37dadbf959cc80ef8c5fa73dd5337d84e9ade3b`, 1,183 files, staging backend, sandbox payments and isolation true.
+- [ ] Cloudflare [release39676110729](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39676110729) awaits required human environment review. Verify its exact source/health after deployment, then run authorized read-only broad and deep navigation acceptance with each protected job's human review. Existing failed hosted evidence remains open until new results support closure.
+- [ ] Production, source main and all broader release gates remain unchanged. No migrations, records, AI/provider calls, account/access, payment or manual secrets changes. Full TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot retained.
+
+Evidence: `/private/tmp/tf211-interrupted-return-candidate` (manifest, private/stable health JSON, publication screenshot and sync verification). The following candidate-preparation checkpoint is historical.
+
 ## Interrupted-Return Fix Prepared; Deep Mobile Results Retained — October 21, 2026
 
 - [x] Human-approved [deep mobile run39661391933](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39661391933) verifies unchanged9d7c5dc2 identity/isolation and seven existing sign-ins. Exactly three cases, retries0: District passes1309→1309→1309px; School fails1684→0px after loaded content settles; Partner departs1378px but stops on two nested main landmarks before restoration. Keep this failed run and the prior seven-role loaded/22-anonymous passes with their exact scope.
