@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Deeper Organizational Returns Prepared; Loading Cancellation Passes Locally — October 21, 2026
+
+- [x] Keep the seven-role loaded-dashboard pass39647870327 and separate22 anonymous passes unchanged. Standard School/District/Partner departures were7/0/0px, so prepare separate deep-card journeys rather than relabeling shallow results as deep coverage.
+- [x] Add exactly three mobile390×844px journeys through existing lower dashboard cards: School Support Needs, District Service Gaps and Partner Resources. Require actual native click departure at least400px down the real page, with no injected padding or changed link/scroll behavior. Keep loaded-content/dimension readiness, exact source/query/organization, single relevant Back, Forward-to-top and two-pixel/three-sample return checks. Preserve the original seven cases and their default viewport.
+- [x] Fixed read-only `deep-role-history-return` workflow scope selects only these three cases, one worker, retries0 and sanitized evidence. Enable existing bounded passive DOM/lifecycle observations for this scope so a failure includes its first handoff. Existing identity preflight, seven-account checks and human staging review remain. Nineteen workflow-policy tests, TypeScript, exact3-case discovery, separate7-case standard discovery and offline trace/privacy check pass. Runtime fingerprint stays f40378d1…da816bc /1,183 files.
+- [x] Existing intercepted-browser pending-cancellation regression passes four cases: mobile/desktop public and workspace sources. Source remains1100px during deliberate slow navigation; Back1100px, new/Forward/reopened tool0px and focused anchor112px. These local cases do not prove the earlier hosted School/Owner intermittent failures are fixed.
+- [ ] Run the three new mobile journeys after required GitHub human environment review. Deep desktop coverage, rapid hosted loading-phase interactions, prior intermittent failure cause, broader routes/refresh/visual anchors and report/export/production gates remain open. No application fix or release is proposed by this test-only checkpoint.
+
+Evidence: `/private/tmp/tf211-deep-return-candidate`. No application deployment, records, AI/provider calls, migrations, accounts/access, payment/manual secrets, source-main merge or production changes. Full TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot retained.
+
 ## Loaded-Dashboard Return Checkpoint: All Seven Roles Pass — October 21, 2026
 
 - [x] Human-approved [run39647870327](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39647870327) succeeds on verified unchanged application9d7c5dc2. All seven existing sign-ins, source identity/isolation and exactly seven selected journeys pass; one worker, retries0. Test-only source e68a4f33 requires actual loaded dashboard content and settled dimensions before departure and each restored-position assertion. Sanitized evidence retained.

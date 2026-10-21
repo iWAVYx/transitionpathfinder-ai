@@ -152,15 +152,28 @@ const RETURN_TOOL_PATHS: Record<string, string> = {
   owner: "/owner/content",
 };
 
-for (const role of ROLES) {
-  test.describe(`${role.label} — actual-source return`, () => {
+const DEEP_RETURN_TOOL_PATHS: Partial<Record<string, string>> = {
+  school_admin: "/school/support-needs",
+  district_admin: "/district/service-gaps",
+  partner: "/partners-manage/resources",
+};
+const returnJourneys = ROLES.flatMap(role => [
+  { role, toolPath: RETURN_TOOL_PATHS[role.key], deep: false },
+  ...(DEEP_RETURN_TOOL_PATHS[role.key]
+    ? [{ role, toolPath: DEEP_RETURN_TOOL_PATHS[role.key]!, deep: true }] : []),
+]);
+
+for (const { role, toolPath, deep } of returnJourneys) {
+  test.describe(`${role.label} — ${deep ? "deep-source" : "actual-source"} return`, () => {
     test.skip(() => !existsSync(role.storageState), `no storageState for ${role.key}`);
-    test.use({ storageState: role.storageState });
+    test.use({
+      storageState: role.storageState,
+      ...(deep ? { viewport: { width: 390, height: 844 } } : {}),
+    });
 
     test(`${role.key}: tool return and browser history retain the actual dashboard source`, async ({ page }, testInfo) => {
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible({ timeout: 20_000 });
-      const toolPath = RETURN_TOOL_PATHS[role.key];
       const organizationParameter = role.key === "district_admin" ? "district_id"
         : role.key === "school_admin" ? "org_id" : null;
       if (organizationParameter) {
@@ -251,6 +264,9 @@ for (const role of ROLES) {
               scrolledOrigin: captured.y > 2 }, null, 2),
             contentType: "application/json",
           });
+          if (deep) {
+            expect(captured.y, "Deep coverage requires a real click departure at least 400px down the dashboard").toBeGreaterThanOrEqual(400);
+          }
           clicked = true;
           break;
         }

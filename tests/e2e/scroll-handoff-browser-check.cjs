@@ -26,7 +26,7 @@ const root = path.resolve(__dirname, '../..');
     process.env.STAGING_TEST_SCOPE=process.env.STAGING_TEST_SCOPE || 'scroll-diagnosis';
     await startScrollHandoffTrace(page);
     await page.goto('http://handoff.fixture.test/source?token=FICTIONAL_CANARY#private-fragment');
-    if(process.env.STAGING_TEST_SCOPE==='remaining-role-scroll')await page.waitForFunction(()=>document.body.dataset.lifecycleObservers==='3');
+    if(['remaining-role-scroll','deep-role-history-return'].includes(process.env.STAGING_TEST_SCOPE))await page.waitForFunction(()=>document.body.dataset.lifecycleObservers==='3');
     await page.evaluate(()=>scrollTo(0,1200));
     await page.waitForFunction(()=>scrollY===1200);
     await page.getByRole('link',{name:'Open Flow'}).click();
@@ -43,7 +43,7 @@ const root = path.resolve(__dirname, '../..');
     assert(!JSON.stringify(rows).includes('FICTIONAL_CANARY'));
     assert(!JSON.stringify(rows).includes('private-fragment'));
     assert(rows.every(r=>Object.keys(r).every(key=>['elapsedMs','event','maximum','pathname','y','fromPathname'].includes(key))));
-    if(process.env.STAGING_TEST_SCOPE==='remaining-role-scroll'){assert(rows.some(r=>r.event==='router:before-load'&&r.fromPathname==='/source'&&r.y===1200));assert(rows.some(r=>r.event==='router:rendered'&&r.fromPathname==='/source'&&r.y===0));}
+    if(['remaining-role-scroll','deep-role-history-return'].includes(process.env.STAGING_TEST_SCOPE)){assert(rows.some(r=>r.event==='router:before-load'&&r.fromPathname==='/source'&&r.y===1200));assert(rows.some(r=>r.event==='router:rendered'&&r.fromPathname==='/source'&&r.y===0));}
     // Reproduce the hosted mismatch: focus scrolls after a pre-click reading.
     await page.getByRole('link',{name:'Open Flow'}).evaluate(element=>{
       element.blur();
