@@ -20,6 +20,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES } from "./helpers/roles";
 import { captureSettledScrollPosition } from "./helpers/scroll-position";
+import { clickWithDeparturePosition } from "./helpers/click-departure";
 import { startScrollHandoffTrace, attachScrollHandoffTrace } from "./helpers/scroll-handoff";
 import { dashboardTileHrefs } from "./helpers/dashboard-links";
 
@@ -114,7 +115,7 @@ for (const role of ROLES) {
           // route-owned <main> so an indefinitely pending guard still fails.
           const main = destination
             .locator(
-              'main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"])',
+              'main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"]):not([data-auth-state="checking"])',
             )
             .first();
           const mainVisible = await main
@@ -182,6 +183,7 @@ for (const role of ROLES) {
 
       // Capture the route after organization/role redirects have settled.
       // Retain real query/hash context rather than constructing a guessed home.
+      const sourceHeading = await page.locator("main h1").first().innerText();
       const source = new URL(page.url());
       const sourceHref = `${source.pathname}${source.search}${source.hash}`;
       const destinationUrl = new URL(href, page.url()).href;
@@ -223,7 +225,10 @@ for (const role of ROLES) {
           // Measure after the browser makes the actual clicked control visible.
           // Prefer the last real matching link, often in the lower widget area.
           await link.scrollIntoViewIfNeeded();
-          const captured = await captureSettledScrollPosition(page);
+          await captureSettledScrollPosition(page);
+          const departure = await clickWithDeparturePosition(link);
+          expect(departure.sourceHref, "Workspace context must remain stable through the actual click").toBe(source.href);
+          const captured = { y: departure.y, maximum: departure.maximum };
           sourcePosition = captured.y;
           positions.push({ step: "before-tool", ...captured });
           await testInfo.attach("dashboard-scroll-origin", {
@@ -231,7 +236,6 @@ for (const role of ROLES) {
               scrolledOrigin: captured.y > 2 }, null, 2),
             contentType: "application/json",
           });
-          await link.click();
           clicked = true;
           break;
         }
@@ -239,6 +243,10 @@ for (const role of ROLES) {
       expect(clicked, `No clickable dashboard link to ${href}`).toBe(true);
       await expect(page).toHaveURL(destinationUrl);
       await expect(page.locator('main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"])')).toBeVisible({ timeout: 15_000 });
+      await expect.poll(async () => {
+        const heading = await page.locator("main h1").first().innerText().catch(() => "");
+        return Boolean(heading.trim()) && heading !== sourceHeading;
+      }, { timeout: 20_000, message: "The actual tool must replace the dashboard before testing its return" }).toBe(true);
       // Owner Hub has its own management header, without the audience SiteHeader.
       // Require exactly one real source-aware return in that header as well.
       await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 10_000 }).toBeLessThanOrEqual(2);

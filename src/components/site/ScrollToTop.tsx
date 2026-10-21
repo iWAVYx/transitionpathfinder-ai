@@ -5,7 +5,9 @@ import { useNavigationScrollIntent } from "@/hooks/use-navigation-scroll-intent"
 /** Complete router restoration after async tools have grown to their saved height. */
 export function ScrollToTop() {
   const { intent, href: intendedHref } = useNavigationScrollIntent();
-  const location = useRouterState({ select: (s) => s.location });
+  // A requested route can be pending while the previous page is still visible.
+  // Apply arrival scrolling only to the route that has actually committed.
+  const location = useRouterState({ select: (s) => s.resolvedLocation ?? s.location });
   const position = useElementScrollRestoration({
     getElement: () => (typeof window === "undefined" ? undefined : window),
     getKey: (location) => location.href,

@@ -10,6 +10,10 @@ const root = path.resolve(__dirname, '../..');
   const built = await build({entryPoints:[file],bundle:true,write:false,format:'cjs',platform:'node'});
   const module = new Module(file); module._compile(built.outputFiles[0].text, file);
   const {startScrollHandoffTrace,attachScrollHandoffTrace} = module.exports;
+  const clickFile = path.join(root, 'tests/e2e/helpers/click-departure.ts');
+  const clickBuild = await build({entryPoints:[clickFile],bundle:true,write:false,format:'cjs',platform:'node'});
+  const clickModule = new Module(clickFile); clickModule._compile(clickBuild.outputFiles[0].text, clickFile);
+  const {clickWithDeparturePosition} = clickModule.exports;
   const browser = await chromium.launch({headless:true,executablePath:process.env.DIRECTIONAL_SCROLL_BROWSER || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   try {
     const page = await browser.newPage();
@@ -38,12 +42,23 @@ const root = path.resolve(__dirname, '../..');
     assert(!JSON.stringify(rows).includes('FICTIONAL_CANARY'));
     assert(!JSON.stringify(rows).includes('private-fragment'));
     assert(rows.every(r=>Object.keys(r).sort().join(',')==='elapsedMs,event,maximum,pathname,y'));
+    // Reproduce the hosted mismatch: focus scrolls after a pre-click reading.
+    await page.getByRole('link',{name:'Open Flow'}).evaluate(element=>{
+      element.blur();
+      element.addEventListener('focus',()=>scrollTo(0,1700),{once:true});
+    });
+    const beforeClick = await page.evaluate(()=>scrollY);
+    const departure = await clickWithDeparturePosition(page.getByRole('link',{name:'Open Flow'}));
+    assert.equal(beforeClick,1200);
+    assert.equal(departure.y,1700);
+    assert.equal(new URL(departure.sourceHref).pathname,'/source');
+    assert.equal(await page.evaluate(()=>location.pathname),'/guided');
     delete process.env.STAGING_TEST_SCOPE;
     const disabled = await browser.newPage();
     await startScrollHandoffTrace(disabled);
     let attached = false;
     await attachScrollHandoffTrace(disabled,{attach:async()=>{attached=true}});
     assert(!attached);
-    console.log(JSON.stringify({passiveEvents:true,clickDepartureY:1200,backY:1200,queryAndHashExcluded:true,disabledOutsideDiagnostic:true,bounded:true,requests:requests.length}));
+    console.log(JSON.stringify({passiveEvents:true,focusAwareDepartureY:1700,clickDepartureY:1200,backY:1200,queryAndHashExcluded:true,disabledOutsideDiagnostic:true,bounded:true,requests:requests.length}));
   } finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1)});

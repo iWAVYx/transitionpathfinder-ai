@@ -5,17 +5,24 @@ import { ScrollToTop } from "../../src/components/site/ScrollToTop";
 const state = vi.hoisted(() => ({
   position: undefined as undefined | { scrollY: number },
   hash: "target",
+  currentHref: "/example#target",
+  resolvedHref: "/example#target",
   intentHref: "/example#target",
   intent: "restore" as "restore" | "top" | "preserve",
 }));
 vi.mock("../../src/hooks/use-navigation-scroll-intent", () => ({ useNavigationScrollIntent: () => ({ intent: state.intent, href: state.intentHref }) }));
 vi.mock("@tanstack/react-router", () => ({
-  useRouterState: () => ({ href: "/example#target", hash: state.hash }),
+  useRouterState: ({ select }: { select: (value: unknown) => unknown }) => select({
+    location: { href: state.currentHref, hash: state.hash },
+    resolvedLocation: { href: state.resolvedHref, hash: state.hash },
+  }),
   useElementScrollRestoration: () => state.position,
 }));
 let frame: FrameRequestCallback;
 let resized: () => void;
 beforeEach(() => {
+  state.currentHref = "/example#target";
+  state.resolvedHref = "/example#target";
   state.intentHref = "/example#target";
   state.intent = "restore";
   state.position = undefined;
@@ -154,4 +161,32 @@ it("does not restart forward-to-top when the destination's cached position chang
   state.position = { scrollY: 900 };
   view.rerender(<ScrollToTop />);
   expect(window.scrollTo).toHaveBeenCalledOnce();
+});
+
+it("does not reset the visible source while a forward destination is still pending", () => {
+  state.currentHref = "/guided";
+  state.resolvedHref = "/example";
+  state.intentHref = "/guided";
+  state.intent = "top";
+  state.hash = "";
+  const view = render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  state.resolvedHref = "/guided";
+  view.rerender(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "instant" });
+});
+it("does not restore onto the departing tool before the backward route commits", () => {
+  state.currentHref = "/example";
+  state.resolvedHref = "/guided";
+  state.intentHref = "/example";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+  const view = render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  state.resolvedHref = "/example";
+  view.rerender(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 900, left: 0, behavior: "instant" });
 });

@@ -1,5 +1,6 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import { captureSettledScrollPosition } from "./helpers/scroll-position";
+import { clickWithDeparturePosition } from "./helpers/click-departure";
 import { startScrollHandoffTrace, attachScrollHandoffTrace } from "./helpers/scroll-handoff";
 
 test.beforeEach(async ({ page }) => startScrollHandoffTrace(page));
@@ -35,6 +36,7 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
   if (organizationParameter) {
     await expect.poll(() => new URL(page.url()).searchParams.get(organizationParameter)).toBeTruthy();
   }
+  const sourceHeading = await main.locator("h1").first().innerText();
   let selected = "";
   let before = { y: 0, maximum: 0 };
   let source = "";
@@ -43,11 +45,12 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
     for (const link of (await links.all()).reverse()) {
       if (!(await link.isVisible())) continue;
       await link.scrollIntoViewIfNeeded();
-      before = await captureSettledScrollPosition(page);
-      source = page.url();
+      await captureSettledScrollPosition(page);
+      const departure = await clickWithDeparturePosition(link);
+      before = { y: departure.y, maximum: departure.maximum };
+      source = departure.sourceHref;
       selected = href;
       await testInfo.attach("anonymous-origin", { contentType: "application/json", body: JSON.stringify({ sourcePath, source: new URL(source).pathname + new URL(source).search + new URL(source).hash, selected, ...before, lowerPageOrigin: before.y > 100 }) });
-      await link.click();
       break;
     }
     if (selected) break;
@@ -63,6 +66,10 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
   const destination = expectedDestination.href;
   await expect(page).toHaveURL(destination);
   await expect(page.locator("main").first()).toBeVisible();
+  await expect.poll(async () => {
+    const heading = await page.locator("main h1").first().innerText().catch(() => "");
+    return Boolean(heading.trim()) && heading !== sourceHeading;
+  }, { timeout: 20_000, message: "The actual receiving page must replace the source before testing its return" }).toBe(true);
   const expectArrival = async () => {
     await expect.poll(() => position(page).then(p => p.y), { timeout: 10_000 }).toBeLessThanOrEqual(2);
   };
