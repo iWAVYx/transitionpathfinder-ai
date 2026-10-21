@@ -9,12 +9,13 @@ on:
         description: 'Type "staging" to confirm isolated staging verification'
         required: true
       scope:
-        description: 'Full audit, Partner diagnostic, or explicitly confirmed no-AI report fixtures'
+        description: 'Full audit, fixed read-only diagnostics, or explicitly confirmed no-AI report fixtures'
         type: choice
         default: all-roles
         options:
           - all-roles
           - partner-demo-plan
+          - owner-history-return
           - report-history-no-ai
       fixture_confirmation:
         description: 'Only report-history-no-ai: type disposable-report-history after explicit owner authorization'
@@ -153,7 +154,7 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
-        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'report-history-no-ai' }}
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'report-history-no-ai' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
@@ -161,6 +162,8 @@ jobs:
         run: |
           if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
             bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
+          elif [ "$STAGING_TEST_SCOPE" = "owner-history-return" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts --project=role-access --no-deps --retries=0 --workers=1 --grep 'Platform Admin — actual-source return'
           else
             bunx playwright test --project=role-access --no-deps
           fi

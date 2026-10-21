@@ -181,9 +181,13 @@ for (const role of ROLES) {
       expect(clicked, `No clickable dashboard link to ${href}`).toBe(true);
       await expect(page).toHaveURL(destinationUrl);
       await expect(page.locator('main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"])')).toBeVisible({ timeout: 15_000 });
-      const returnNav = page.getByRole("navigation", { name: "Return to previous page", exact: true });
+      // Owner Hub has its own management header, without the audience SiteHeader.
+      // Require exactly one real source-aware return in that header as well.
+      const returnNav = role.key === "owner"
+        ? page.getByRole("banner")
+        : page.getByRole("navigation", { name: "Return to previous page", exact: true });
       await expect(returnNav).toHaveCount(1);
-      const back = returnNav.getByRole("link");
+      const back = returnNav.getByRole("link", { name: /^Back to /i });
       await expect(back).toHaveCount(1);
       await expect(back).toHaveAttribute("href", sourceHref);
       await expect(back).not.toHaveText(/back to home/i);
@@ -195,7 +199,8 @@ for (const role of ROLES) {
       // dashboard entry: browser Forward should still reach the same tool.
       await page.goForward({ waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(destinationUrl);
-      await expect(returnNav.getByRole("link")).toHaveAttribute("href", sourceHref);
+      await expect(back).toHaveCount(1);
+      await expect(back).toHaveAttribute("href", sourceHref);
       await page.goBack({ waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(source.href);
     });
