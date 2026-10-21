@@ -1,5 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
+## Seven-Role Return-Position Check Prepared — October 21, 2026
+
+- [x] Extend the existing actual-source return journeys to capture the scroll position after the actual dashboard link is brought into view. Prefer the last matching real link so lower widget destinations are exercised where available. Contextual return and browser Back after Forward must each retain that captured position within two pixels across three consecutive samples; existing exact URL/query/hash, single Back control and Owner management-header assertions remain intact.
+- [x] Attach small per-role JSON origin/result evidence and explicitly flag whether the origin was actually scrolled. A top-of-page or non-scrollable result cannot establish lower-page restoration. The focused workflow selects exactly seven role cases, one worker, retries zero, and retains an HTML report for sanitized artifact upload. No application/runtime, access, records, AI or provider changes.
+- [x] Local validation: 18 targeted scroll/workflow-policy tests and TypeScript pass; actual Playwright discovery lists exactly seven roles; YAML parses with the protected staging environment unchanged; diff check passes. Runtime fingerprint remains `8b8238003761c80e9ee6932a8f8cf283ef95f4d6d1d1ec03ef74535b13d5df23`, 1,182 files. These are preparation checks, not hosted acceptance.
+- [ ] Run the focused protected staging job after GitHub's required human review; record actual per-role positions and failures without retries. Refresh/direct entry, additional routes/mobile and actual demo scroll acceptance remain separate. No redeployment is required for these test/workflow/documentation edits.
+
 ## Staging Follow-Up Published; Matching Source and Isolation Verified — October 21, 2026
 
 - [x] Human `iWAVYx` approved [Cloudflare release 39543080969](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39543080969). Authorized source `cc74c3e1158a9f9d2a87457613bea826f711a170` deployed successfully; exact external identity, isolation and service-worker/Workbox checks passed. Workflow retains its protected staging configuration and reapplies existing cron/antivirus values; no manual secret edit.

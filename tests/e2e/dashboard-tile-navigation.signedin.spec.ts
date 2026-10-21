@@ -151,7 +151,7 @@ for (const role of ROLES) {
     test.skip(() => !existsSync(role.storageState), `no storageState for ${role.key}`);
     test.use({ storageState: role.storageState });
 
-    test(`${role.key}: tool return and browser history retain the actual dashboard source`, async ({ page }) => {
+    test(`${role.key}: tool return and browser history retain the actual dashboard source`, async ({ page }, testInfo) => {
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible({ timeout: 20_000 });
       const toolPath = RETURN_TOOL_PATHS[role.key];
@@ -169,10 +169,40 @@ for (const role of ROLES) {
       const sourceHref = `${source.pathname}${source.search}${source.hash}`;
       const destinationUrl = new URL(href, page.url()).href;
       const links = page.locator(`main a[href=${JSON.stringify(href)}]`);
-      const visible = await links.all();
+      const visible = (await links.all()).reverse();
+      const positions: Array<{ step: string; y: number; maximum: number }> = [];
+      const readPosition = () => page.evaluate(() => ({
+        y: window.scrollY,
+        maximum: Math.max(0, document.documentElement.scrollHeight - window.innerHeight),
+      }));
+      let sourcePosition = 0;
+      const assertSourcePosition = async (step: string) => {
+        let matchingSamples = 0;
+        await expect.poll(async () => {
+          const delta = Math.abs((await readPosition()).y - sourcePosition);
+          matchingSamples = delta <= 2 ? matchingSamples + 1 : 0;
+          return matchingSamples;
+        }, {
+          timeout: 10_000,
+          intervals: [250],
+          message: `${role.key}: ${step} must retain the captured dashboard position across three samples`,
+        }).toBeGreaterThanOrEqual(3);
+        positions.push({ step, ...await readPosition() });
+      };
       let clicked = false;
       for (const link of visible) {
         if (await link.isVisible()) {
+          // Measure after the browser makes the actual clicked control visible.
+          // Prefer the last real matching link, often in the lower widget area.
+          await link.scrollIntoViewIfNeeded();
+          const captured = await readPosition();
+          sourcePosition = captured.y;
+          positions.push({ step: "before-tool", ...captured });
+          await testInfo.attach("dashboard-scroll-origin", {
+            body: JSON.stringify({ role: role.key, sourceHref, ...captured,
+              scrolledOrigin: captured.y > 2 }, null, 2),
+            contentType: "application/json",
+          });
           await link.click();
           clicked = true;
           break;
@@ -194,6 +224,7 @@ for (const role of ROLES) {
       await back.click();
       await expect(page).toHaveURL(source.href);
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible();
+      await assertSourcePosition("contextual-return");
 
       // The contextual control must revisit the old entry, not push a new
       // dashboard entry: browser Forward should still reach the same tool.
@@ -203,6 +234,12 @@ for (const role of ROLES) {
       await expect(back).toHaveAttribute("href", sourceHref);
       await page.goBack({ waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(source.href);
+      await expect(page.getByTestId(role.dashboardTestId)).toBeVisible();
+      await assertSourcePosition("browser-back-after-forward");
+      await testInfo.attach("dashboard-scroll-results", {
+        body: JSON.stringify({ role: role.key, sourceHref, tolerancePixels: 2, positions }, null, 2),
+        contentType: "application/json",
+      });
     });
   });
 }
