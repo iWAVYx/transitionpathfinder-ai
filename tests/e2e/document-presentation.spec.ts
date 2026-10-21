@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { build } from "esbuild";
 import { createRequire } from "node:module";
@@ -2190,6 +2190,30 @@ test("saved report print discards surrounding route layout without changing the 
     await expect(page.locator(".report-root")).toBeVisible();
     await page.evaluate(()=>document.fonts.ready);
     await expect(page.locator("[data-document-watermark]")).toBeVisible();
+    const questionAlignment = await page.locator('[data-value-callout-print-tail]').evaluateAll(tails => tails.map(tail => {
+      const preceding = tail.previousElementSibling!;
+      const list = preceding.querySelector('ul')!;
+      const last = tail.querySelector('[data-value-callout-question]')!;
+      const tailList = tail.querySelector('ul')!;
+      const expected = list.getBoundingClientRect().left + parseFloat(getComputedStyle(list).paddingLeft);
+      const source = tail.querySelector('[data-value-callout-row="informationUsed"]')!;
+      return {difference: Math.abs(expected - last.getBoundingClientRect().left), expected,
+        sourceEdgeDifference: Math.abs(preceding.getBoundingClientRect().left - source.getBoundingClientRect().left),
+        sourceBorder: getComputedStyle(source).borderTopWidth,
+        actual: last.getBoundingClientRect().left, gap: getComputedStyle(preceding).gap,
+        iconWidth: preceding.firstElementChild!.getBoundingClientRect().width,
+        listPadding: getComputedStyle(list).paddingLeft, tailMargin: getComputedStyle(tailList).marginLeft,
+        tailPadding: getComputedStyle(tailList).paddingLeft, rootFont: getComputedStyle(document.documentElement).fontSize};
+    }));
+    const alignmentPath = info.outputPath(`${audience}-question-alignment.json`);
+    writeFileSync(alignmentPath, JSON.stringify(questionAlignment, null, 2));
+    await info.attach(`${audience}-question-alignment`, {path:alignmentPath,contentType:"application/json"});
+    expect(questionAlignment.length).toBeGreaterThan(0);
+    for (const measurement of questionAlignment) {
+      expect(measurement.difference).toBeLessThan(1);
+      expect(measurement.sourceEdgeDifference).toBeLessThan(1);
+      expect(parseFloat(measurement.sourceBorder)).toBeGreaterThan(0);
+    }
     await page.pdf({path:info.outputPath(`${audience}-saved-shell-report.pdf`),preferCSSPageSize:true,printBackground:true});
     await page.screenshot({path:info.outputPath(`${audience}-saved-shell-print.png`),fullPage:true});
     await page.emulateMedia({ media: "screen" });
@@ -2213,7 +2237,7 @@ test("long report questions export complete content across page boundaries", asy
     questionsForTeam: questions,
     informationUsed: ["Fictional classroom observation log", "Fictional family planning notes"],
   } }));
-  await page.emulateMedia({ media: "print" });
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
   for (const offset of [0, 160, 320, 480, 640, 800]) {
     await page.setContent(`<html><head><style>
       body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; }
@@ -2226,10 +2250,55 @@ test("long report questions export complete content across page boundaries", asy
     </style></head><body><main class="report-root" data-generated-document>
       ${styles}<div style="height:${offset}px">Fictional planning context</div>${callout}
     </main></body></html>`);
-    await expect(page.locator("[data-value-callout-question]")).toHaveCount(24);
-    await expect(page.getByText(questions[23], { exact: true })).toBeVisible();
-    await expect(page.getByText("Fictional classroom observation log · Fictional family planning notes", { exact: true })).toBeVisible();
+    await page.emulateMedia({ media: "screen" });
+    await expect(page.locator("[data-value-callout-print-tail]")).toBeHidden();
+    await expect(page.locator("[data-value-callout-question]:visible")).toHaveCount(24);
+    await expect(page.locator('[data-value-callout-row="informationUsed"]:visible')).toHaveCount(1);
+    await page.emulateMedia({ media: "print" });
+    await expect(page.locator("[data-value-callout-question]:visible")).toHaveCount(24);
+    await expect(page.getByText(questions[23], { exact: true }).filter({visible: true})).toBeVisible();
+    await expect(page.getByText("Fictional classroom observation log · Fictional family planning notes", { exact: true }).filter({visible: true})).toBeVisible();
     expect(await page.locator(".report-root").evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
-    await page.pdf({ path: info.outputPath(`questions-offset-${offset}.pdf`), preferCSSPageSize: true, printBackground: true });
+    const bytes = await page.pdf({ path: info.outputPath(`questions-offset-${offset}.pdf`), preferCSSPageSize: true, printBackground: true });
+    const task = getDocument({ data: new Uint8Array(bytes), useSystemFonts: true, isEvalSupported: false });
+    try {
+      const pdf = await task.promise;
+      const pages: string[] = [];
+      for (let number = 1; number <= pdf.numPages; number++) {
+        const content = await (await pdf.getPage(number)).getTextContent();
+        pages.push(content.items.map(item => "str" in item ? item.str : "").join(" "));
+      }
+      const text = pages.join(" ");
+      for (let number = 1; number <= 24; number++) expect(text.match(new RegExp(`Question ${number}:`, "g"))).toHaveLength(1);
+      expect(text.match(/Information Used/g)).toHaveLength(1);
+      expect(text.match(/Fictional classroom observation log/g)).toHaveLength(1);
+      const lastQuestionPage = pages.findIndex(text => text.includes("Question 24:"));
+      expect(lastQuestionPage).toBeGreaterThanOrEqual(0);
+      expect(pages[lastQuestionPage]).toContain("Information Used");
+      expect(pages[lastQuestionPage]).toContain("Fictional classroom observation log");
+      expect(pages[lastQuestionPage]).toContain("Fictional family planning notes");
+      expect(pages.every(text => text.trim().split(/\s+/).length > 10)).toBe(true);
+    } finally { await task.destroy(); }
   }
 });
+
+
+for (const questionCount of [0, 1]) {
+  test(`report source stays visible once with ${questionCount} team questions`, async ({ page }) => {
+    await page.route("**/*", route => route.abort());
+    const styles = renderToStaticMarkup(createElement(components.DocumentLayoutStyles));
+    const callout = renderToStaticMarkup(createElement(components.ValueCallout, { data: {
+      whatThisMeans: "Use recorded observations.", whyItMatters: "Compare the supports tried.",
+      recommendedNextStep: "Bring the observation log.",
+      questionsForTeam: Array.from({length: questionCount}, () => "Which support helped?"),
+      informationUsed: ["Fictional observation log"],
+    } }));
+    await page.setContent(`<html><body><main data-generated-document>${styles}${callout}</main></body></html>`);
+    for (const media of ["screen", "print"] as const) {
+      await page.emulateMedia({media});
+      await expect(page.locator('[data-value-callout-row="informationUsed"]:visible')).toHaveCount(1);
+      await expect(page.getByText("Fictional observation log", {exact:true}).filter({visible:true})).toHaveCount(1);
+      await expect(page.locator('[data-value-callout-question]:visible')).toHaveCount(questionCount);
+    }
+  });
+}

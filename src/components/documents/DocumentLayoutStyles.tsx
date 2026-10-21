@@ -1,7 +1,28 @@
 /** One heading hierarchy and balanced page geometry for actual document outputs. */
 export function DocumentLayoutStyles() {
   return <style>{`
+    [data-value-callout-print-tail] { display: none; }
     @media print {
+      /* A short final question and its sources form one print group. Earlier
+         questions remain free to continue across pages. */
+      [data-generated-document] [data-value-callout-print-tail] {
+        display: block !important; break-inside: avoid !important; page-break-inside: avoid !important;
+      }
+      [data-generated-document] [data-value-callout-original-source],
+      [data-generated-document] [data-value-callout-last-question] { display: none !important; }
+      [data-generated-document] [data-value-callout-row="questionsForTeam"] {
+        border-bottom: 0 !important; padding-bottom: 0 !important;
+      }
+      [data-generated-document] [data-value-callout-print-tail] > ul {
+        margin: 0 0 0 2.25rem; padding: 0 0 0.625rem 1.25rem;
+      }
+      [data-generated-document] [data-value-callout-print-tail] > [data-value-callout-row] {
+        border-top: 1px solid #ded3e8;
+      }
+      /* Compact reports use a half-rem row gap beside the same icon. */
+      [data-generated-document].report-compact [data-value-callout-print-tail] > ul {
+        margin-left: 2rem;
+      }
       [data-generated-document] [data-value-callout-row]:not([data-value-callout-row="questionsForTeam"]),
       [data-generated-document] [data-value-callout-question] {
         break-inside: avoid !important; page-break-inside: avoid !important;
