@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Exact-Source Navigation Retest: 20 Passed; Nine Failures Remain — October 21, 2026
+
+- [x] Human-approved [run39604558988](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39604558988) verified exact deployed bb8cd3a6 source identity, staging isolation and all seven existing sign-ins. Exactly29 cases ran with one worker and retries0: **20 passed /9 failed**, four-minute test duration. Signed-out15/22 and signed-in5/7. Sanitized artifacts uploaded successfully; keep the run failed. No records, AI/provider calls or additional deployment.
+- [x] Signed-in Student, Family/Guardian, Educator, School and Partner return/history journeys pass. Homepage → Platform and homepage guided-flow journeys pass at both widths; direct public entry checks and both Owner demo cases pass. These bounded passes do not establish every route, deep organizational return, refresh or visual-anchor behavior.
+- [ ] Back-position restoration remains open in seven signed-out journeys: mobile Platform3839→0px, Student3106→0px, Educator4341→0px, School3681→0px, District3136→0px; desktop Platform2985→2523px and Educator1757→0px. Before/after page maximum heights match in each failure. The signed-in Owner contextual return also fails2281→0px with unchanged maximum2281px. These journeys fail before their Forward-history assertions; no acceptance is inferred for those assertions. The concrete local guest-auth regression fix does not prove or resolve these hosted scroll failures.
+- [ ] District signed-in case times out **before tool click**, not at restoration: captured /district/overview and locator /district/schools become stale when the real workspace adds district_id to source and link. The failure snapshot shows the actual scoped Schools link exists. Fix the test to settle/reselect the canonical organization URL and actual link before capturing departure; do not remove or bypass the required organization context. This case supplies no return-position acceptance.
+- [ ] Next diagnosis: capture bounded scroll/route timing around departure, route rendering and contextual return to distinguish lost saved positions from later resets; reproduce the observed failure locally before changing shared runtime. Preserve the exact two-pixel/three-sample assertions and no retries. Do not repeat this unchanged audit or claim the larger failure count alone proves a runtime regression.
+- [x] Both stable staging sites remain on the verified approved source fingerprint cea929b0…d602d9e3 /1,183 files. Production/main, migrations, billing, provider work, records and access remain untouched. All TF-01–TF-26, report/export and production gates, and deferred Parent Pilot/Pathway Snapshot remain retained.
+
+Evidence: `/private/tmp/tf211-navigation-retest-39604558988` (workflow, human approval, sanitized artifacts, decoded per-case coordinates and result summary).
+
 ## Guest History Correction Released to Both Staging Sites — October 21, 2026
 
 - [x] User authorized exact `bb8cd3a62a1343f696e657de26cbb1bf44bcc2bb` for staging deployment, isolated sync/publication and read-only retests. All eight automatic exact-head checks passed; seven protected/live skips remain unaccepted. Local validation: 304 unit files /4,311 tests and TypeScript passed.
