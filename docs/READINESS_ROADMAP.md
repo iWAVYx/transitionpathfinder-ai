@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Lifecycle Trace Passes; Loaded-Content Acceptance Strengthened — October 21, 2026
+
+- [x] Human-approved [run39646820106](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39646820106) succeeds on unchanged deployed9d7c5dc2, with exact identity/isolation and seven existing sign-ins. Exactly two selected journeys, retries0: School7→7→7px and Owner2231→2231→2231px through contextual Back and Back after Forward. New/Forward arrival top checks pass. This is a bounded two-case pass; do not erase earlier failures or claim the intermittent behavior is fixed by observation.
+- [x] Successful lifecycle evidence shows source capture before departure load, one return load from the tool, and restoration at/after route rendering. Owner restores2231px after async height growth. School first restores7px while maximum is only194px versus1770px at departure; the test can accept its loading shell before dashboard data finishes. Preserve that acceptance limitation rather than calling this complete loaded-content coverage.
+- [x] An additional offline canonicalization-in-flight experiment passes all four public/workspace viewport cases. It does not reproduce the hosted failure. Experimental fixture changes removed; no speculative runtime edit or deployment.
+- [x] Strengthen the shared seven-role return test: require the actual dashboard widget board for six audience roles, or the loaded Owner content-management card, then three settled dimension/scroll samples before departure and before either Back-position assertion. Preserve exact source/context, actual click measurement, single contextual Back, Forward-to-top, two-pixel/three-sample position checks and retries0. This prevents a pass obtained solely on a loading shell; it does not change application navigation or weaken prior failures.
+- [ ] Validate loaded-content restoration across all seven roles with this stricter test after required GitHub human environment review. Keep School/Owner intermittent behavior and deeper organization positions open until supported by specific evidence. Source parity, previous22 anonymous passes and all broader acceptance/production gates retain their existing scope.
+
+Evidence: `/private/tmp/tf211-lifecycle-39646820106`. Both staging applications remain at reviewed f40378d1…da816bc /1,183 files. No application deployment, records, provider/AI calls, migrations, accounts/access, payment/manual secrets, source-main merge or production actions. Full TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot retained.
+
 ## Two Remaining Role Failures Confirmed; Lifecycle Observation Prepared — October 21, 2026
 
 - [x] Human-approved [run39639441498](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39639441498) verifies unchanged deployed9d7c5dc2 identity/isolation and all seven existing sign-ins. Exactly two selected cases, retries0: both fail. School contextual Back7→0px and Owner2231→0px persist through the bounded assertion. Preserve this failed run and the preceding five-role/22-anonymous passes with their existing limits.

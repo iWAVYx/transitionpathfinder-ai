@@ -190,6 +190,18 @@ for (const role of ROLES) {
       const source = new URL(page.url());
       const sourceHref = `${source.pathname}${source.search}${source.hash}`;
       const destinationUrl = new URL(href, page.url()).href;
+      const waitForLoadedSource = async () => {
+        // Role test ids and navigation links also appear on loading shells.
+        // Require the loaded dashboard content, then settled dimensions, before
+        // accepting a return position or leaving for the next history check.
+        if (role.key === "owner") {
+          await expect(page.locator(`main a[href=${JSON.stringify(href)}]`).first()).toBeVisible({ timeout: 20_000 });
+        } else {
+          await expect(page.getByTestId("dashboard-widget-board")).toBeVisible({ timeout: 20_000 });
+        }
+        await captureSettledScrollPosition(page);
+      };
+      await waitForLoadedSource();
       const links = page.locator(`main a[href=${JSON.stringify(href)}]`);
       const visible = (await links.all()).reverse();
       const positions: Array<{ step: string; y: number; maximum: number }> = [];
@@ -264,6 +276,7 @@ for (const role of ROLES) {
       await back.click();
       await expect(page).toHaveURL(source.href);
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible();
+      await waitForLoadedSource();
       await assertSourcePosition("contextual-return");
 
       // The contextual control must revisit the old entry, not push a new
@@ -276,6 +289,7 @@ for (const role of ROLES) {
       await page.goBack({ waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(source.href);
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible();
+      await waitForLoadedSource();
       await assertSourcePosition("browser-back-after-forward");
       await testInfo.attach("dashboard-scroll-results", {
         body: JSON.stringify({ role: role.key, sourceHref, tolerancePixels: 2, positions }, null, 2),
