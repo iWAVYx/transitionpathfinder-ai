@@ -33,7 +33,7 @@ it("runs independent role-access checks after dashboard failures only with all r
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'report-history-no-ai' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'report-history-no-ai' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });
 
@@ -60,5 +60,14 @@ it("offers signed-out return checks through the anonymous project without retrie
   expect(workflow).toContain("inputs.scope != 'signed-out-history-return'");
   expect(workflow).toContain("public-origin-navigation.spec.ts --project=anon --no-deps --retries=0 --workers=1 --reporter=line,html");
   expect(workflow).toContain('environment: staging');
+  expect(workflow).toContain("steps.sanitize-artifacts.outcome == 'success'");
+});
+
+it("combines anonymous and signed-in directional journeys in one fixed read-only report", () => {
+  expect(workflow).toContain("          - directional-navigation");
+  expect(workflow).toContain("inputs.scope != 'directional-navigation'");
+  expect(workflow).toContain("--project=role-access --project=anon --no-deps --retries=0 --workers=1 --grep '— actual-source return|signed-out source-aware navigation' --reporter=line,html");
+  expect(workflow).toContain('environment: staging');
+  expect(workflow).toContain('E2E_READ_ONLY: "true"');
   expect(workflow).toContain("steps.sanitize-artifacts.outcome == 'success'");
 });
