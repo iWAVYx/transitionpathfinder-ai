@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Passive Navigation Handoff Trace Prepared — October 21, 2026
+
+- [x] Add test-only passive click, scroll, focus, popstate and pageshow observation, including four animation frames after click/history events. Start before the initial page load so the trace sees the actual click departure and the interval missing from the previous after-return polling. Never patch history/scroll methods, alter link behavior or read session/storage/application internals.
+- [x] Limit activation to the existing five-case `scroll-diagnosis` scope and cap each test at200 event records. Whitelist event type, document-relative milliseconds, pathname, scroll Y and page maximum; exclude query/hash and all form/session fields. Attach bounded JSON after each test, including failures. Existing assertions, retries0, organization-context wait and protected identity/account/sanitization/review controls remain unchanged.
+- [x] Offline intercepted-browser verification proves actual click departure1200px and first Back frames1200px, no query/fragment canary leakage, bounded output and disabled capture outside the diagnostic scope. A first offline assertion raced its frame observers; waiting for two real animation frames corrects the verification without changing production/test navigation. TypeScript and actual discovery of exactly five cases pass. Application fingerprint remains cea929b0…d602d9e3 /1,183 files.
+- [ ] Run the changed read-only diagnostic after required human GitHub review and inspect event order around the exact failure. This is additional test observation, not a repeat presented as a fix. Current scroll failures remain open; no speculative application fix or release, records, providers/AI, migration or production change.
+
+Evidence: `/private/tmp/tf211-scroll-diagnosis/handoff-browser.log`, `handoff-typescript.log` and `handoff-discovery.log`. Full roadmap, earlier failed runs and deferred Parent Pilot retained.
+
 ## Focused Scroll Diagnostic: Two Passed; Three Remain Failed — October 21, 2026
 
 - [x] Human-approved [run39620688348](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39620688348), test-only source `cc6d27d0d61f655a0ad2374b11689f0467034141`, verified unchanged deployed bb8cd3a6 identity/isolation and seven existing sign-ins. Exactly five cases, one worker, retries0: two passed /three failed in51.2 seconds. Sanitized artifacts uploaded; keep the diagnostic and earlier failed audits failed.

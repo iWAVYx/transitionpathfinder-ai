@@ -20,7 +20,11 @@ import { test, expect, type Page } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES } from "./helpers/roles";
 import { captureSettledScrollPosition } from "./helpers/scroll-position";
+import { startScrollHandoffTrace, attachScrollHandoffTrace } from "./helpers/scroll-handoff";
 import { dashboardTileHrefs } from "./helpers/dashboard-links";
+
+test.beforeEach(async ({ page }) => startScrollHandoffTrace(page));
+test.afterEach(async ({ page }, info) => attachScrollHandoffTrace(page, info));
 
 function normalizePath(p: string) {
   return p.length > 1 ? p.replace(/\/+$/, "") : p;

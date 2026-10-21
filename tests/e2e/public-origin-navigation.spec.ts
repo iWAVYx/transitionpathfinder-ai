@@ -1,5 +1,9 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import { captureSettledScrollPosition } from "./helpers/scroll-position";
+import { startScrollHandoffTrace, attachScrollHandoffTrace } from "./helpers/scroll-handoff";
+
+test.beforeEach(async ({ page }) => startScrollHandoffTrace(page));
+test.afterEach(async ({ page }, info) => attachScrollHandoffTrace(page, info));
 
 // Explicitly anonymous even if a caller configures another project's session.
 // No forms, generation, saved records or authenticated destinations are opened.
