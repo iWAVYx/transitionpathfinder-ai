@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Focused Scroll Diagnostic: Two Passed; Three Remain Failed — October 21, 2026
+
+- [x] Human-approved [run39620688348](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39620688348), test-only source `cc6d27d0d61f655a0ad2374b11689f0467034141`, verified unchanged deployed bb8cd3a6 identity/isolation and seven existing sign-ins. Exactly five cases, one worker, retries0: two passed /three failed in51.2 seconds. Sanitized artifacts uploaded; keep the diagnostic and earlier failed audits failed.
+- [x] District canonicalization correction passes: actual source /district/overview?district_id=… and Schools link retain the same resolved organization through contextual Back, Forward and browser Back. Departure Y0 means this closes the stale-link test failure and validates URL/history behavior only; deep District position and settled loaded content remain untested (return page maximum still changing194→232px versus departure1401px).
+- [x] Mobile Student has a bounded pass3106→3106→3106px for contextual return and Back after Forward, with unchanged maximum3777px. Prior exact-source failure3106→0 remains; treat behavior as intermittent, not universally resolved, and do not infer the earlier guest-auth correction fixed the hosted cause.
+- [ ] Mobile Platform still returns3839→3404px, maximum7478px unchanged. Its recorded samples remain3404px from16ms through9,919ms. Desktop Educator1757→0px remains0 across the full polling window with unchanged maximum2055px. Owner2281→0px remains0 while maximum grows1058→2231→2281px. The timelines do not show successful restoration after sampling starts; they do not observe the earlier route handoff or prove whether a saved target was missing, incorrect, or overridden before the first sample. Failed journeys do not reach Forward assertions.
+- [x] Additional offline real-router/Lenis experiments (four public/workspace viewport cases each) test staged height collapse/regrowth, route invalidation during return and pending-to-final route transitions. All still pass; none reproduces the hosted issue. Preserve evidence and retain no speculative runtime changes.
+- [ ] Next: inspect departure capture and navigation/render handoff before the first return sample, distinguishing saved-position lookup from subsequent top/hash actions. Seek a representative local reproduction using those observations; preserve all tolerances, prior failures and broader role/public/deep-scroll/refresh/visual-anchor, report/export and production gates. Do not repeat the unchanged audit as a proposed fix.
+
+Evidence: `/private/tmp/tf211-scroll-diagnosis-39620688348`; offline experiment logs in `/private/tmp/tf211-scroll-diagnosis`. Both staging applications remain unchanged at fingerprint cea929b0…d602d9e3 /1,183 files. No new deployment/publication, records, providers/AI, accounts/access, payments/secrets, migration or production action. TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot retained.
+
 ## Bounded Scroll Diagnosis Prepared; Application Unchanged — October 21, 2026
 
 - [x] Correct the observed District test race: wait for the actual source district_id and a Schools link carrying that same workspace before collecting the link and departure position. Do not invent a default district, strip query context, or mark the prior timeout passed.
