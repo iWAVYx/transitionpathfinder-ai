@@ -156,6 +156,18 @@ for (const role of ROLES) {
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible({ timeout: 20_000 });
       const toolPath = RETURN_TOOL_PATHS[role.key];
+      if (role.key === "district_admin") {
+        // The loading dashboard has unscoped links before membership resolves.
+        // Wait for the actual workspace and its matching scoped Schools link.
+        await expect.poll(async () => {
+          const districtId = new URL(page.url()).searchParams.get("district_id");
+          if (!districtId) return false;
+          return (await collectInternalTileHrefs(page)).some(value => {
+            const link = new URL(value, page.url());
+            return link.pathname === toolPath && link.searchParams.get("district_id") === districtId;
+          });
+        }, { timeout: 20_000, message: "District source and Schools link must share the resolved workspace" }).toBe(true);
+      }
       let href = "";
       await expect.poll(async () => {
         href = (await collectInternalTileHrefs(page)).find(
@@ -179,9 +191,13 @@ for (const role of ROLES) {
       let sourcePosition = 0;
       const assertSourcePosition = async (step: string) => {
         let matchingSamples = 0;
+        const started = Date.now();
+        const timeline: Array<{ elapsedMs: number; y: number; maximum: number }> = [];
         try {
         await expect.poll(async () => {
-          const delta = Math.abs((await readPosition()).y - sourcePosition);
+          const current = await readPosition();
+          timeline.push({ elapsedMs: Date.now() - started, ...current });
+          const delta = Math.abs(current.y - sourcePosition);
           matchingSamples = delta <= 2 ? matchingSamples + 1 : 0;
           return matchingSamples;
         }, {
@@ -193,7 +209,7 @@ for (const role of ROLES) {
           positions.push({ step, ...await readPosition() });
           await testInfo.attach(`dashboard-scroll-attempt-${step}`, {
             contentType: "application/json",
-            body: JSON.stringify({ role: role.key, expectedY: sourcePosition, positions }, null, 2),
+            body: JSON.stringify({ role: role.key, expectedY: sourcePosition, positions, timeline }, null, 2),
           });
         }
       };

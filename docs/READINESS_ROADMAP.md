@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Bounded Scroll Diagnosis Prepared; Application Unchanged — October 21, 2026
+
+- [x] Correct the observed District test race: wait for the actual source district_id and a Schools link carrying that same workspace before collecting the link and departure position. Do not invent a default district, strip query context, or mark the prior timeout passed.
+- [x] Add a bounded coordinate timeline inside the existing backward-position polling assertions for anonymous and signed-in journeys. Record elapsed milliseconds, scroll Y and page maximum on each existing sample; preserve two-pixel tolerance, three consecutive matches, ten-second bound and failure attachments. No runtime instrumentation or extra application requests.
+- [x] Add fixed read-only `scroll-diagnosis` scope: exactly five cases (mobile Platform and Student demo, desktop Educator demo, signed-in District and Owner), one worker, retries0. Existing scopes, seven-account preflight, exact runtime identity, sanitizer and required human staging review remain. Seventeen workflow-policy cases, TypeScript, YAML parse, diff check and actual five-case Playwright discovery pass.
+- [x] Offline synthetic experiment adds in-page links to the real shared router/Lenis scroll fixture at390/1440px for public/workspace source paths. All four cases still pass new/Forward top, Back1100px, reopening and focused anchor112px. This does not reproduce the hosted failures or establish a cause; no speculative runtime correction retained.
+- [ ] Execute the changed five-case diagnostic after separate GitHub human environment review, inspect timelines and verify the corrected District capture. Do not retry the unchanged29-case audit. Keep all nine failures open pending specific evidence, broader roadmap/release gates and deferred Parent Pilot retained.
+
+Application fingerprint remains `cea929b0766ce5dd7d85b8f88a582dffa0e3290d0c367d869b508529d602d9e3`, 1,183 files; both staging publications remain unchanged. Evidence: `/private/tmp/tf211-scroll-diagnosis`.
+
 ## Exact-Source Navigation Retest: 20 Passed; Nine Failures Remain — October 21, 2026
 
 - [x] Human-approved [run39604558988](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39604558988) verified exact deployed bb8cd3a6 source identity, staging isolation and all seven existing sign-ins. Exactly29 cases ran with one worker and retries0: **20 passed /9 failed**, four-minute test duration. Signed-out15/22 and signed-in5/7. Sanitized artifacts uploaded successfully; keep the run failed. No records, AI/provider calls or additional deployment.

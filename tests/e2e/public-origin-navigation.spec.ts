@@ -74,15 +74,19 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
   const restored = async (step: string) => {
     await expect(page).toHaveURL(source);
     let samples = 0;
+    const started = Date.now();
+    const timeline: Array<{ elapsedMs: number; y: number; maximum: number }> = [];
     try {
     await expect.poll(async () => {
-      samples = Math.abs((await position(page)).y - before.y) <= 2 ? samples + 1 : 0;
+      const current = await position(page);
+      timeline.push({ elapsedMs: Date.now() - started, ...current });
+      samples = Math.abs(current.y - before.y) <= 2 ? samples + 1 : 0;
       return samples;
     }, { timeout: 10_000, intervals: [250] }).toBeGreaterThanOrEqual(3);
     } finally {
       readings.push({ step, ...await position(page) });
       await testInfo.attach(`anonymous-scroll-attempt-${step}`, {
-        contentType: "application/json", body: JSON.stringify({ sourcePath, before, readings }, null, 2),
+        contentType: "application/json", body: JSON.stringify({ sourcePath, before, readings, timeline }, null, 2),
       });
     }
   };
