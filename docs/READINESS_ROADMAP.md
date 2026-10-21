@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Guest History Correction Released to Both Staging Sites — October 21, 2026
+
+- [x] User authorized exact `bb8cd3a62a1343f696e657de26cbb1bf44bcc2bb` for staging deployment, isolated sync/publication and read-only retests. All eight automatic exact-head checks passed; seven protected/live skips remain unaccepted. Local validation: 304 unit files /4,311 tests and TypeScript passed.
+- [x] Human-approved [Cloudflare release 39562836479](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39562836479) succeeded. External health verifies exact source SHA, fingerprint `cea929b0766ce5dd7d85b8f88a582dffa0e3290d0c367d869b508529d602d9e3`, 1,183 files, staging backend, sandbox payments and isolation true. Deployed PWA checks passed.
+- [x] Reconcile the separate isolated Lovable staging remote at prior published9790f8a3: no intervening builder changes. Sync only NavigationOriginProvider.tsx; frozen install passes and environment hashes remain unchanged. Isolated sync `22f31f0f0cebcc6f24049053add0a387fb6d9bd3` is published to the existing gentle-forward-reach staging address. Stable external health verifies that authentic sync SHA, matching fingerprint/count, staging backend, sandbox public/server payments and isolation true. Private preview identity also matched; its alias/dev-SHA errors were not waived. Cloudflare AI remains unconfigured and Lovable managed; source parity does not establish provider/full-workflow parity.
+- [ ] Complete [read-only combined retest39604558988](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39604558988), pinned to exact bb8cd3a6, after GitHub's separate required human staging review. Exactly22 signed-out mobile/desktop plus seven signed-in role journeys; one worker, retries0, no fixture writes or provider calls. Mobile Student acceptance remains open until measured on this release. Retain the prior failed26/3 and focused2/1 runs, broader organizational/deep-scroll and route/refresh/visual-anchor limits, report/export work, all TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot.
+- [x] No source-main merge, production deployment, migration, AI/provider calls, records, accounts/access, payments or manual secrets changes. Existing protected staging runtime settings were reapplied by the unchanged deployment workflow.
+
+Evidence: `/private/tmp/tf211-guest-history-bb8cd3a6`.
+
 ## Guest Origin Preservation Prepared; Mobile Student Retest Remains Open — October 21, 2026
 
 - [x] Human-approved [focused diagnosis39560242087](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39560242087) verified the unchanged deployed `5fe0254c` runtime and seven sign-ins. Exactly three cases, one worker, retries0: signed-in Student passed816→816→816px; signed-in Owner passed2231→2231→2231px; anonymous390px Student demo still failed3106→0px despite matching full page maximum3777px. Runner31.1 seconds. Keep both this workflow and the prior26/3 combined workflow failed; retain coordinates/artifacts. The separately measured two passes close those bounded signed-in rechecks, not a newly green full suite.
