@@ -21,11 +21,12 @@ const root = path.resolve(__dirname, '../..');
     await page.route('**/*',route=>{
       requests.push(route.request().url());
       if(new URL(route.request().url()).hostname!=='handoff.fixture.test')return route.abort();
-      return route.fulfill({contentType:'text/html',body:`<!doctype html><style>body{margin:0;height:4000px}a{position:fixed;bottom:20px}</style><a href='/guided'>Open Flow</a><script>document.querySelector('a').onclick=e=>{e.preventDefault();history.pushState({},'', '/guided');scrollTo(0,0)};addEventListener('popstate',()=>scrollTo(0,1200));</script>`});
+      return route.fulfill({contentType:'text/html',body:`<!doctype html><style>body{margin:0;height:4000px}a{position:fixed;bottom:20px}</style><a href='/guided'>Open Flow</a><script>const listeners=new Map();window.__TSR_ROUTER__=Object.freeze({subscribe:(type,callback)=>{listeners.set(type,callback);document.body.dataset.lifecycleObservers=String(listeners.size);return ()=>listeners.delete(type)}});const emit=(type,from)=>listeners.get(type)?.({fromLocation:{pathname:from}});document.querySelector('a').onclick=e=>{e.preventDefault();emit('onBeforeLoad',location.pathname);history.pushState({},'', '/guided');scrollTo(0,0);emit('onResolved','/source');emit('onRendered','/source')};addEventListener('popstate',()=>scrollTo(0,1200));</script>`});
     });
     process.env.STAGING_TEST_SCOPE=process.env.STAGING_TEST_SCOPE || 'scroll-diagnosis';
     await startScrollHandoffTrace(page);
     await page.goto('http://handoff.fixture.test/source?token=FICTIONAL_CANARY#private-fragment');
+    if(process.env.STAGING_TEST_SCOPE==='remaining-role-scroll')await page.waitForFunction(()=>document.body.dataset.lifecycleObservers==='3');
     await page.evaluate(()=>scrollTo(0,1200));
     await page.waitForFunction(()=>scrollY===1200);
     await page.getByRole('link',{name:'Open Flow'}).click();
@@ -41,7 +42,8 @@ const root = path.resolve(__dirname, '../..');
     assert(rows.length<=200);
     assert(!JSON.stringify(rows).includes('FICTIONAL_CANARY'));
     assert(!JSON.stringify(rows).includes('private-fragment'));
-    assert(rows.every(r=>Object.keys(r).sort().join(',')==='elapsedMs,event,maximum,pathname,y'));
+    assert(rows.every(r=>Object.keys(r).every(key=>['elapsedMs','event','maximum','pathname','y','fromPathname'].includes(key))));
+    if(process.env.STAGING_TEST_SCOPE==='remaining-role-scroll'){assert(rows.some(r=>r.event==='router:before-load'&&r.fromPathname==='/source'&&r.y===1200));assert(rows.some(r=>r.event==='router:rendered'&&r.fromPathname==='/source'&&r.y===0));}
     // Reproduce the hosted mismatch: focus scrolls after a pre-click reading.
     await page.getByRole('link',{name:'Open Flow'}).evaluate(element=>{
       element.blur();

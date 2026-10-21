@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## Two Remaining Role Failures Confirmed; Lifecycle Observation Prepared — October 21, 2026
+
+- [x] Human-approved [run39639441498](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39639441498) verifies unchanged deployed9d7c5dc2 identity/isolation and all seven existing sign-ins. Exactly two selected cases, retries0: both fail. School contextual Back7→0px and Owner2231→0px persist through the bounded assertion. Preserve this failed run and the preceding five-role/22-anonymous passes with their existing limits.
+- [x] Passive trace records correct actual click departures. On Back, each destination initially has the tool's height, then a zero-height loading shell over the first four frames; later it regrows to the dashboard height while remaining0px. This confirms an unresolved restoration failure, but does not reveal the saved cache target or prove whether it was missing, overwritten, or restored before another layout change. No speculative runtime fix retained.
+- [x] Two additional offline experiments with the actual shared router/Lenis simulate a keyed access-check shell and a second delayed height collapse/regrowth, each at390/1440px for public/workspace source paths. All eight cases pass. These do not reproduce the hosted failure; experimental fixture edits were removed and logs retained.
+- [x] Extend only the existing two-case diagnostic with passive onBeforeLoad/onResolved/onRendered subscriptions. Record event, elapsed milliseconds, pathname/from-pathname, Y and page maximum; retain200-event cap and no query/hash/session/loader values. Never patch navigation/history/cache or change scrolling. Offline frozen-router fixture confirms lifecycle capture, normal navigation, canary exclusion and disabled capture outside diagnostic scopes; TypeScript passes.
+- [ ] Run this changed observation after GitHub human environment review to distinguish an additional load during the collapsed shell from later layout/restoration timing. School/Owner restoration, deeper organization positions, other retained acceptance and production gates remain open. Application source and both staging releases stay unchanged; no deployments, records, provider/AI calls, migrations, accounts/access, payment/manual secrets, source-main merge or production actions.
+
+Evidence: `/private/tmp/tf211-remaining-39639441498`. Full TF-01–TF-26 roadmap and deferred Parent Pilot/Pathway Snapshot retained.
+
 ## Staging Sources Synchronized; Two Role Return Positions Remain Open — October 21, 2026
 
 - [x] Existing isolated Lovable staging publication now serves exact reviewed runtime fingerprint `f40378d17fed23c53c583308673d75d2f821bc3d598bab938fb5e8899da816bc`, 1,183 files and authentic isolated sync commit `106d8c3f5dd2c48abc80867fce0e30759ff3176a`. Stable external health confirms staging backend, sandbox payments and isolation true. Cloudflare serves the same source at approved application commit `9d7c5dc2`. Temporary editor formatting was retained in backup and not published. Managed AI remains specific to Lovable; Cloudflare has no AI provider configured.
