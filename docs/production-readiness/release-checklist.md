@@ -1,5 +1,11 @@
 # Production release checklist
 
+## Three Deep Mobile Journeys Pass on Released Fix — October 21, 2026
+
+- Human-approved read-only [run39680920412](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39680920412) succeeds on exact deployed cfd05aea after identity/isolation and seven existing-account sign-in checks. Exactly three mobile cases, one worker, no retries: School 1684→1684→1684px (maximum3852), District1309→1309→1309px (maximum2966), Partner1378→1378→1378px (maximum3258). Loaded-source assertions, one main landmark, exact contextual return and Back after Forward pass; new/Forward arrival top checks retained. This is bounded evidence for the three previously affected journeys, not universal navigation acceptance.
+- Broader read-only [run39681330072](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39681330072) is dispatched for22 anonymous mobile/desktop journeys and seven signed-in roles, awaiting its separate human environment review. Displayed6aa25cd4 changes only documentation; runtime remains verified cfd05aea. Previous failed runs remain historical evidence; broader production gates remain open.
+- Evidence: `/private/tmp/tf211-deep-return-39680920412` (sanitized report, decoded position results, workflow and human approval). No application changes, new deployment, records, AI/provider calls, migrations, account/access, payment/manual secrets, source-main merge or production actions in this retest.
+
 ## Both Staging Releases Verified; Navigation Retest Awaiting Review — October 21, 2026
 
 - Cloudflare release [39676110729](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39676110729) completed successfully after human review: exact source `cfd05aea2ac646fda6213bd61fefc67769b4a39e`, deployment identity and PWA checks passed.
