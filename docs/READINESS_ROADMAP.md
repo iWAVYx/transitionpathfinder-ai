@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Guest Origin Preservation Prepared; Mobile Student Retest Remains Open — October 21, 2026
+
+- [x] Human-approved [focused diagnosis39560242087](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39560242087) verified the unchanged deployed `5fe0254c` runtime and seven sign-ins. Exactly three cases, one worker, retries0: signed-in Student passed816→816→816px; signed-in Owner passed2231→2231→2231px; anonymous390px Student demo still failed3106→0px despite matching full page maximum3777px. Runner31.1 seconds. Keep both this workflow and the prior26/3 combined workflow failed; retain coordinates/artifacts. The separately measured two passes close those bounded signed-in rechecks, not a newly green full suite.
+- [x] Reproduce a concrete guest-origin defect locally with the actual in-memory router and observable auth updates: an initially loading anonymous visitor navigates from Home with query/hash to a tool, then the session check confirms anonymous. The deployed provider resets its origin tracker solely because loading changed, replaces the real contextual source with a fallback, and loses the original history return. The baseline regression fails while its other three cases pass. The final fixture also explicitly tests private Owner sources and sign-out.
+- [x] Prepare the shared provider correction: keep the same public viewer identity across initial anonymous loading→confirmed anonymous. Continue discarding remembered origins for actual account changes, sign-out and loading of an identified viewer. This applies to public/demo and relevant signed-in transitions without changing authentication/access. The correction is a concrete local regression fix, not yet proof of the hosted mobile Student failure's cause or resolution.
+- [x] Final local suite304 files /4,311 tests and TypeScript pass, including the real-router guest history/query/hash/Forward case plus account-switch, identified-loading and sign-out safeguards. No changes to forward-top/back-restore policy, tolerances, deployed environment, records, provider/AI, billing or production.
+- [ ] Finish exact-source automatic checks and review the one-runtime-file candidate, then obtain separate staging deployment/publication authorization. Retest the remaining mobile Student case on the exact release; preserve previous audit failures and broader organizational/deep-scroll, route/refresh/visual-anchor, report/export and production gates. Parent Pilot/Pathway Snapshot remains deferred.
+
+Evidence: `/private/tmp/tf211-focused-return-39560242087` (hosted coordinates/artifacts, failing deployed-provider unit regression and final full local unit log).
+
+
 ## Directional Retest: 26 Passed; Three Return-Position Cases Under Diagnosis — October 21, 2026
 
 - [x] Human-approved [combined run 39558523004](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39558523004) verified the deployed `5fe0254c` runtime and all seven existing sign-ins, then executed exactly 29 cases, one worker, retries zero. Result: 26 passed /3 failed (1.8 minutes): anonymous21/22 and signed-in5/7. Sanitized report upload passed. Keep the workflow failed.

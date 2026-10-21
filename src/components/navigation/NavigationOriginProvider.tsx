@@ -11,8 +11,9 @@ export const useNavigationOrigin = () => useContext(NavigationOriginContext);
 export function NavigationOriginProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, loading } = useAuth();
-  // Signing out or switching accounts discards all remembered private sources.
-  const identity = loading ? "loading" : user?.id ?? "public";
+  // Confirming an initially anonymous session is still the same public viewer.
+  // Identified viewers still discard origins on loading, sign-out or account changes.
+  const identity = user?.id ? (loading ? "loading" : user.id) : "public";
   const tracker = useMemo(() => new NavigationOrigins(router.history.location), [router, identity]);
   const subscribe = useCallback((notify: () => void) => router.history.subscribe(({ location, action }) => {
     tracker.update(location, action.type);
