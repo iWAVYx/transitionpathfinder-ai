@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## Both Staging Releases Verified; Navigation Retest Awaiting Review — October 21, 2026
+
+- Cloudflare release [39676110729](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39676110729) completed successfully after human review: exact source `cfd05aea2ac646fda6213bd61fefc67769b4a39e`, deployment identity and PWA checks passed.
+- Both stable staging hosts verify fingerprint `00ef97d5a3579afe801b43e1b37dadbf959cc80ef8c5fa73dd5337d84e9ade3b`, 1,183 files, staging backend, sandbox payments and isolation true. Isolated Lovable's authentic build commit is `6befd220bd71a7dc5d3e0bfa0ee6a242076908a6`. Cloudflare AI remains intentionally unconfigured; Lovable managed AI is configured. Source parity does not establish provider or workflow acceptance.
+- Read-only deep mobile School/District/Partner retest [39680920412](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39680920412) is dispatched and awaits its separate human environment review. Displayed `b5739ff4` adds only roadmap documentation; runtime remains verified cfd05aea. Broader 22-anonymous/seven-role navigation retest follows sequentially because the audit workflow cancels concurrent runs. Earlier failures and all broader production gates remain open pending evidence.
+- No production/source-main merge, migrations, records, AI/provider calls, account/access, payment or manual secrets changes. Full roadmap and deferred Parent Pilot/Pathway Snapshot retained.
+
+Evidence: `/private/tmp/tf211-interrupted-return-candidate`.
+
 ## Authorized Staging Release In Progress — October 21, 2026
 
 - [x] User authorized exact candidate `cfd05aea2ac646fda6213bd61fefc67769b4a39e` for Cloudflare staging, existing isolated Lovable sync/publication and read-only navigation retests. Eight automatic checks pass; seven skipped protected/credentialed checks are not acceptance.
