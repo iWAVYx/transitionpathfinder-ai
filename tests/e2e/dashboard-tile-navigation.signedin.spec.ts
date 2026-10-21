@@ -161,17 +161,19 @@ for (const role of ROLES) {
       await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       await expect(page.getByTestId(role.dashboardTestId)).toBeVisible({ timeout: 20_000 });
       const toolPath = RETURN_TOOL_PATHS[role.key];
-      if (role.key === "district_admin") {
-        // The loading dashboard has unscoped links before membership resolves.
-        // Wait for the actual workspace and its matching scoped Schools link.
+      const organizationParameter = role.key === "district_admin" ? "district_id"
+        : role.key === "school_admin" ? "org_id" : null;
+      if (organizationParameter) {
+        // Loading dashboards can expose links before membership resolves.
+        // Measure only after the source and real tool share that workspace.
         await expect.poll(async () => {
-          const districtId = new URL(page.url()).searchParams.get("district_id");
-          if (!districtId) return false;
+          const organizationId = new URL(page.url()).searchParams.get(organizationParameter);
+          if (!organizationId) return false;
           return (await collectInternalTileHrefs(page)).some(value => {
             const link = new URL(value, page.url());
-            return link.pathname === toolPath && link.searchParams.get("district_id") === districtId;
+            return link.pathname === toolPath && link.searchParams.get(organizationParameter) === organizationId;
           });
-        }, { timeout: 20_000, message: "District source and Schools link must share the resolved workspace" }).toBe(true);
+        }, { timeout: 20_000, message: "Source and tool link must share the resolved organization" }).toBe(true);
       }
       let href = "";
       await expect.poll(async () => {
@@ -183,7 +185,8 @@ for (const role of ROLES) {
 
       // Capture the route after organization/role redirects have settled.
       // Retain real query/hash context rather than constructing a guessed home.
-      const sourceHeading = await page.locator("main h1").first().innerText();
+      // Owner titles live in its banner; Partner uses a visible main h2.
+      const sourceHeading = await page.locator("h1:visible, main h2:visible").first().innerText({ timeout: 1_000 });
       const source = new URL(page.url());
       const sourceHref = `${source.pathname}${source.search}${source.hash}`;
       const destinationUrl = new URL(href, page.url()).href;
@@ -244,7 +247,7 @@ for (const role of ROLES) {
       await expect(page).toHaveURL(destinationUrl);
       await expect(page.locator('main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"])')).toBeVisible({ timeout: 15_000 });
       await expect.poll(async () => {
-        const heading = await page.locator("main h1").first().innerText().catch(() => "");
+        const heading = await page.locator("h1:visible, main h2:visible").first().innerText({ timeout: 1_000 }).catch(() => "");
         return Boolean(heading.trim()) && heading !== sourceHeading;
       }, { timeout: 20_000, message: "The actual tool must replace the dashboard before testing its return" }).toBe(true);
       // Owner Hub has its own management header, without the audience SiteHeader.
