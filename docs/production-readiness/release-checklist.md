@@ -1,5 +1,14 @@
 # Production release checklist
 
+## Broad Navigation Passes: 32 Bounded Hosted Journeys — October 21, 2026
+
+- [x] Human-approved read-only [run39681330072](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39681330072) verifies deployed cfd05aea identity/isolation and seven existing-account sign-ins, then passes29/29 cases with one worker and no retries:22 signed-out journeys at390/1440px and all seven signed-in role returns. Actual source/context, one relevant Back control, loaded-content return positions and new/Forward top or focused-content behavior pass within the selected journeys.
+- [x] Signed-in departure→contextual Back→browser Back after Forward coordinates: Student816→816→816px; Family666→666→666; Educator844→844→844; School7→7→7; District0→0→0; Partner0→0→0; Owner2281→2281→2281. Deep mobile run39680920412 separately passes School1684, District1309 and Partner1378px twice. Combined32 bounded cases pass on the released fix; the shallow District/Partner standard cases are not treated as deep coverage.
+- [x] Both stable staging sites verify fingerprint `00ef97d5a3579afe801b43e1b37dadbf959cc80ef8c5fa73dd5337d84e9ade3b`,1,183 files, staging backend, sandbox payments and isolation true. Cloudflare source cfd05aea; isolated Lovable authentic commit6befd220. The two AI runtime configurations still differ; no provider calls were performed.
+- [ ] Continue remaining report/export, role/permission/privacy, provider/configuration, billing/security/operations/schema and rollback acceptance before an exact production release proposal. Passing navigation does not establish every page, every role feature or production readiness. Retain earlier failed runs and the corrected offline-checker retraction; do not relabel them successful. Parent Pilot/Pathway Snapshot remains deferred and retained in the full TF-01–TF-26 roadmap.
+
+Evidence: `/private/tmp/tf211-navigation-39681330072` and `/private/tmp/tf211-deep-return-39680920412` contain sanitized reports, decoded results, workflow logs and human approvals. No production/source-main merge, migrations, records, AI/provider calls, account/access, payment or manual secrets changes.
+
 ## Three Deep Mobile Journeys Pass on Released Fix — October 21, 2026
 
 - Human-approved read-only [run39680920412](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39680920412) succeeds on exact deployed cfd05aea after identity/isolation and seven existing-account sign-in checks. Exactly three mobile cases, one worker, no retries: School 1684→1684→1684px (maximum3852), District1309→1309→1309px (maximum2966), Partner1378→1378→1378px (maximum3258). Loaded-source assertions, one main landmark, exact contextual return and Back after Forward pass; new/Forward arrival top checks retained. This is bounded evidence for the three previously affected journeys, not universal navigation acceptance.
