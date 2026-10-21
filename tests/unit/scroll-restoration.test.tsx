@@ -5,7 +5,10 @@ import { ScrollToTop } from "../../src/components/site/ScrollToTop";
 const state = vi.hoisted(() => ({
   position: undefined as undefined | { scrollY: number },
   hash: "target",
+  intentHref: "/example#target",
+  intent: "restore" as "restore" | "top" | "preserve",
 }));
+vi.mock("../../src/hooks/use-navigation-scroll-intent", () => ({ useNavigationScrollIntent: () => ({ intent: state.intent, href: state.intentHref }) }));
 vi.mock("@tanstack/react-router", () => ({
   useRouterState: () => ({ href: "/example#target", hash: state.hash }),
   useElementScrollRestoration: () => state.position,
@@ -13,6 +16,8 @@ vi.mock("@tanstack/react-router", () => ({
 let frame: FrameRequestCallback;
 let resized: () => void;
 beforeEach(() => {
+  state.intentHref = "/example#target";
+  state.intent = "restore";
   state.position = undefined;
   state.hash = "target";
   vi.stubGlobal(
@@ -103,5 +108,50 @@ it("lets user intent cancel a clamped native-scroll retry", () => {
   expect(window.scrollTo).toHaveBeenCalledOnce();
   window.dispatchEvent(new Event("wheel"));
   frame(1);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+});
+
+it("starts a new or forward page at the top despite a saved destination position", () => {
+  state.intent = "top";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  render(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "instant" });
+});
+it("uses the intended anchor rather than a stale saved position on forward arrival", () => {
+  state.intent = "top";
+  state.position = { scrollY: 900 };
+  const { getByTestId } = render(<><div id="target" data-testid="anchor" /><ScrollToTop /></>);
+  vi.spyOn(getByTestId("anchor"), "getBoundingClientRect").mockReturnValue({ top: 312 } as DOMRect);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 200, left: 0, behavior: "instant" });
+});
+it("preserves intentional same-page selection updates", () => {
+  state.intent = "preserve";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  expect(window.scrollTo).not.toHaveBeenCalled();
+});
+
+it("does not apply a pending destination intent to the departing page", () => {
+  state.intent = "top";
+  state.intentHref = "/next-page";
+  state.hash = "";
+  render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  expect(window.scrollTo).not.toHaveBeenCalled();
+});
+
+it("does not restart forward-to-top when the destination's cached position changes", () => {
+  state.intent = "top";
+  state.hash = "";
+  const view = render(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+  state.position = { scrollY: 900 };
+  view.rerender(<ScrollToTop />);
   expect(window.scrollTo).toHaveBeenCalledOnce();
 });

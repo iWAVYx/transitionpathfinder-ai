@@ -110,7 +110,7 @@ export function DemoFeatureShell({
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
-              <Button
+              {!/^back to /i.test(augmented.secondaryAction.label) && <Button
                 asChild
                 size="lg"
                 variant="outline"
@@ -119,7 +119,7 @@ export function DemoFeatureShell({
                 <Link to={augmented.secondaryAction.to as never}>
                   {toTitleCase(augmented.secondaryAction.label)}
                 </Link>
-              </Button>
+              </Button>}
               <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary/70" aria-hidden />
                 Opens the real tool once you sign in.

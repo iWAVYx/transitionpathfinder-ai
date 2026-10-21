@@ -1,18 +1,26 @@
 import { useEffect } from "react";
 import { useElementScrollRestoration, useRouterState } from "@tanstack/react-router";
+import { useNavigationScrollIntent } from "@/hooks/use-navigation-scroll-intent";
 
 /** Complete router restoration after async tools have grown to their saved height. */
 export function ScrollToTop() {
+  const { intent, href: intendedHref } = useNavigationScrollIntent();
   const location = useRouterState({ select: (s) => s.location });
   const position = useElementScrollRestoration({
     getElement: () => (typeof window === "undefined" ? undefined : window),
     getKey: (location) => location.href,
   });
 
+  const savedY = intent === "restore" ? position?.scrollY : undefined;
+  const savedX = intent === "restore" ? position?.scrollX : undefined;
+
   useEffect(() => {
-    const targetY = position?.scrollY;
-    const targetX = position?.scrollX ?? 0;
-    if (targetY === undefined && !location.hash) return;
+    // History updates can precede the new route render; never scroll the departing page.
+    if (intendedHref !== location.href) return;
+    if (intent === "preserve" && !location.hash) return;
+    const targetY = intent === "restore" ? savedY : location.hash ? undefined : 0;
+    const targetX = savedX ?? 0;
+    if (intent === "restore" && targetY === undefined && !location.hash) return;
     let stopped = false;
     let frame = 0;
     const stop = () => {
@@ -70,6 +78,6 @@ export function ScrollToTop() {
       window.removeEventListener("touchstart", stop);
       window.removeEventListener("keydown", stop);
     };
-  }, [location.href, location.hash, position?.scrollY, position?.scrollX]);
+  }, [location.href, location.hash, savedY, savedX, intent, intendedHref]);
   return null;
 }

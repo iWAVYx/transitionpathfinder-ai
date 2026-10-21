@@ -26,6 +26,10 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
   if (/^\/demo\/(student|family|educator)$/.test(sourcePath)) {
     await expect.poll(() => new URL(page.url()).searchParams.get("student")).toBeTruthy();
   }
+  const organizationParameter = ({ "/demo/school-admin": "school", "/demo/district-admin": "district", "/demo/partner": "plan" } as Record<string, string>)[sourcePath];
+  if (organizationParameter) {
+    await expect.poll(() => new URL(page.url()).searchParams.get(organizationParameter)).toBeTruthy();
+  }
   let selected = "";
   let before = { y: 0, maximum: 0 };
   let source = "";
@@ -44,9 +48,20 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
     if (selected) break;
   }
   expect(selected, "An actual visible public/demo link must be clicked").not.toBe("");
-  const destination = new URL(selected, source).href;
+  const expectedDestination = new URL(selected, source);
+  // Known dashboard defaults are canonicalized by the real receiving tool.
+  for (const [role, key, fallback] of [["school-admin", "school", "comprehensive"], ["district-admin", "district", "regional-network"], ["partner", "plan", "free"]]) {
+    if (expectedDestination.pathname.startsWith(`/demo/feature/${role}/`) && !expectedDestination.searchParams.has(key)) {
+      expectedDestination.searchParams.set(key, new URL(source).searchParams.get(key) ?? fallback);
+    }
+  }
+  const destination = expectedDestination.href;
   await expect(page).toHaveURL(destination);
   await expect(page.locator("main").first()).toBeVisible();
+  const expectArrival = async () => {
+    await expect.poll(() => position(page).then(p => p.y), { timeout: 10_000 }).toBeLessThanOrEqual(2);
+  };
+  await expectArrival();
   const back = page.getByRole("link", { name: /^Back to /i });
   await expect(back).toHaveCount(1);
   const sourceUrl = new URL(source);
@@ -68,6 +83,7 @@ async function journey(page: Page, testInfo: TestInfo, sourcePath: string, accep
   await restored("contextual-return");
   await page.goForward({ waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(destination);
+  await expectArrival();
   await expect(back).toHaveCount(1);
   await expect(back).toHaveAttribute("href", sourceUrl.pathname + sourceUrl.search + sourceUrl.hash);
   await page.goBack({ waitUntil: "domcontentloaded" });
@@ -80,6 +96,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 
     test.use({ viewport });
     test("Home returns to Home", async ({ page }, info) => {
       await journey(page, info, "/", path => path === "/platform");
+    });
+    test("Home guided flows open at the top and return to Home", async ({ page }, info) => {
+      await journey(page, info, "/", path => path.startsWith("/pathways/"));
     });
     test("Platform returns to its original section", async ({ page }, info) => {
       await journey(page, info, "/platform#perspectives", path => path === "/demo/intake");
