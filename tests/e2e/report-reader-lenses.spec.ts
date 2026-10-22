@@ -5,6 +5,8 @@ import { expect, test, type Page } from "@playwright/test";
 test.use({ storageState: { cookies: [], origins: [] }, trace: "off" });
 const reportPath = (origin: string, view = origin) => `/demo/report?example=builder&role=${origin}&view=${view}`;
 async function selected(page: Page, audience: string, builder: string) {
+  // Wait for real reader content on cold route compilation; lens assertions remain strict.
+  await expect(page.locator(".report-root")).toBeVisible({timeout:30_000});
   await expect(page.getByRole("tab", {name: new RegExp(`^${audience}$`, "i")})).toHaveAttribute("aria-selected", "true");
   await expect(page.getByText(`${audience[0].toUpperCase()}${audience.slice(1)} Edition`, {exact:true})).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get("view")).toBe(audience);
