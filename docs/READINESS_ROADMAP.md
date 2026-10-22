@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## Meeting-Question Release — Staging Progress, October 22, 2026
+
+- [x] User authorized exact `51df6118e52986dcfc9e6e49fd44914404d5be1a` for staging-only deployment, isolated Lovable sync/existing publication and read-only report checks. Eight automatic candidate checks passed; seven credentialed/protected skips are not acceptance.
+- [x] Human-approved [Cloudflare release39821061775](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39821061775) passes exact deployed source identity and PWA verification. Its retained health response confirms fingerprint `bf86706808e0501819627aa0e713afa272a5df6a1f6fcdc3a62271e725fa5056`,1,183 files, staging backend, sandbox payments and isolation true. Cloudflare AI remains intentionally unconfigured; no provider call is part of this release.
+- [x] Isolated Lovable sync `3a3a39059d2da05b01595b610c93511d7d534fc3` changes only the three reviewed runtime files. No intervening builder edits were present; environment hashes remain unchanged, frozen install reports no changes and the source fingerprint matches before/after install. Preserve the existing Your Dashboard Widgets edit.
+- [ ] Verify private hosted preview parity before updating the existing isolated publication, then verify stable-host fingerprint/isolation. The last preview response still showed prior e32de48b fingerprint31325193…0c7a51; do not label repository sync as hosted acceptance or publish that stale build.
+- [ ] [Read-only report check39821798006](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39821798006) awaits separate human protected-environment review. It retains all seven existing-role session checks, four public mobile/desktop reader journeys and three fictional PDFs with exactly-once meeting-question assertions. No new records, fixtures, AI calls or retries.
+- [ ] Overall report length remains unchanged. Keep live saved-report/history/export, native print, retained intermittent Lovable optional-return observation, permission/privacy, provider/configuration, security/billing/operations/schema/rollback and full TF-01–TF-26 gates open. Deferred Parent Pilot/Pathway Snapshot remains recorded. Production/source-main is untouched.
+
+Evidence: `/private/tmp/tf211-report-concision` (candidate checks, exact release log/health, human approval, unchanged environment hashes and review screenshots). Earlier checkpoints below remain historical evidence; their pending items are superseded only by explicitly recorded results.
+
 ## Meeting Questions Consolidated — Local Candidate, October 22, 2026
 
 - [x] Reproduce12 failures against the deployed reader/helper/sample data through an isolated baseline loader; the final corrected question tests pass. Legacy reports now show the complete family/toolkit question union once in the meeting-prep chapter; Bring To The Team links back to that real destination instead of printing the same list again. A legacy report without a toolkit still has the reachable chapter. All distinct recorded requests and first-occurrence wording/order remain; only exact repeats differing in whitespace collapse.
