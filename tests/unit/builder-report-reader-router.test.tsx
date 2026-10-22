@@ -35,6 +35,10 @@ async function mount(url: string) {
 async function selected(audience: string) {
   await waitFor(() => expect(screen.getByRole("tab", {name: new RegExp(`^${audience}$`, "i")}).getAttribute("aria-selected")).toBe("true"));
 }
+// These full-reader journeys render several complete reports in one test.
+// CI measured the passing Educator journey at 4.26s and the cold Family journey
+// reached the 5s aggregate limit. Keep every individual wait at its default 1s;
+// allow 10s only for these multi-page journeys, with no retries or weaker checks.
 it.each(["family", "educator"])("actual prepared reader follows one-click lenses from %s", async origin => {
   const router = await mount(`/demo/report?example=builder&role=${origin}&view=${origin}`);
   await selected(origin);
@@ -49,7 +53,7 @@ it.each(["family", "educator"])("actual prepared reader follows one-click lenses
   await act(async () => { router.history.back(); }); await selected("student");
   await act(async () => { router.history.forward(); }); await selected(origin);
   expect(calls.server).not.toHaveBeenCalled();
-});
+}, 10_000);
 it.each(["family", "educator"])("actual Student reader survives a direct URL from %s", async origin => {
   await mount(`/demo/report?example=builder&role=${origin}&view=student`);
   await selected("student");
@@ -88,4 +92,4 @@ it.each(["family", "educator"])("actual Student reader survives optional-detail 
   await selected("student");
   expect(screen.getByRole("link", {name:/Back to Pathway Builder/}).getAttribute("href")).toContain(`role=${origin}`);
   expect(calls.server).not.toHaveBeenCalled();
-});
+}, 10_000);
