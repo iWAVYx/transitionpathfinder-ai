@@ -1,5 +1,12 @@
 # Production release checklist
 
+## Homepage Heading Line Break — Local Change, October 22, 2026
+
+- [x] Move the existing “Real-Life” accent down to the same dedicated line as “Pathways.” Preserve the editable hero fields, wording, gradient, underline, typography and surrounding layout. A network-blocked browser fixture using the exact heading markup, site stylesheet and bundled font verifies the shared text baseline and no horizontal overflow at320,390,768,1024,1440px; mobile/desktop images reviewed. This is bounded heading-layout verification, not a full-page hosted audit.
+- [ ] This small homepage change is not deployed or synced to Lovable yet. Both staging publications remain d3dbd1e0. Saved-report pagination remains the next document task; production and the complete roadmap stay unchanged.
+
+Evidence: `/private/tmp/tf-home-headline` (before/after measurements and mobile/desktop heading previews).
+
 ## Saved-Report Restore and Cleanup Verified; Export Pagination Still Open — October 22, 2026
 
 - [x] Run the separately user-authorized, human-approved [saved-report acceptance39865603885](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39865603885) once on verified d3dbd1e0, fingerprint `aada1bd6b4887a4df136d81c2341dcf7a36047e7c2edda0f506d76cc5f9db73f`, 1,183 files, staging backend and sandbox isolation. All seven existing role session/fresh-context checks and both Family/Educator fixture journeys pass, one worker, retries zero. Browser installation takes about ten minutes before tests; retain this repeated runner delay separately from product acceptance. No replacement fixture run occurred.
