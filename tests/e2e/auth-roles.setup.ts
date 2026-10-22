@@ -769,7 +769,12 @@ for (const role of ROLES) {
         await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
       }
       await ensureWorkspaceSeeded(page, role);
-      await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
+      // Keep an existing canonical dashboard arrival (including organization
+      // query selection). A second document load can interrupt that arrival.
+      // The fresh context below still independently reloads and verifies it.
+      if (!pathMatchesExpected(new URL(page.url()).pathname, role.dashboard)) {
+        await page.goto(role.dashboard, { waitUntil: "domcontentloaded" });
+      }
       await assertDashboardReady(page, role, dumpDiagnostics);
 
       mkdirSync(dirname((role as RoleSpec).storageState), { recursive: true });
