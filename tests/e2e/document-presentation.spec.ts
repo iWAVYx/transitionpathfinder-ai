@@ -2312,3 +2312,41 @@ for (const questionCount of [0, 1]) {
     }
   });
 }
+
+// A complete prepared meeting sheet should be usable at the meeting without
+// turning to another page for its three short follow-up actions.
+test("prepared meeting sheet keeps recorded follow-ups with its questions for every audience", async ({ page }, info) => {
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan());
+  await page.route("**/*", route => route.abort());
+  const sample = components.DEMO_STUDENTS.maya;
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  for (const audience of ["family", "educator", "student"]) {
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Maya", report: sample.report, demo: true, initialAudience: audience,
+    }));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.setContent(`<html><head><style>${css}</style></head><body>${body}</body></html>`);
+    await page.emulateMedia({ media: "print" });
+    const questions = await page.locator("#sec-meeting-prep .pub-checklist").first().locator("li > span:last-child").allTextContents();
+    const bytes = await page.pdf({path:info.outputPath(`${audience}-meeting-sheet-report.pdf`),preferCSSPageSize:true,printBackground:true});
+    const task = getDocument({data:new Uint8Array(bytes),useSystemFonts:true,isEvalSupported:false});
+    try {
+      const pdf = await task.promise;
+      const pages: string[] = [];
+      for (let number = 1; number <= pdf.numPages; number++) {
+        const content = await (await pdf.getPage(number)).getTextContent();
+        pages.push(content.items.map(item => "str" in item ? item.str : "").join(" ").replace(/\s+/g," ").replace(/-\s+/g,"-").trim());
+      }
+      const normalized = questions.map(text => text.replace(/\s+/g," ").replace(/-\s+/g,"-").trim());
+      const meetingPage = pages.find(text => normalized.every(question => text.includes(question)));
+      expect(meetingPage, `${audience}: all meeting questions should share the prepared meeting sheet`).toBeTruthy();
+      for (const action of sample.report.meeting_prep_toolkit.follow_up_items) expect(meetingPage).toContain(action);
+      expect(pages.every(text => text.split(/\s+/).length > 8)).toBe(true);
+    } finally { await task.destroy(); }
+  }
+});

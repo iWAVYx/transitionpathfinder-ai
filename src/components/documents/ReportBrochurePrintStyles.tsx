@@ -9,6 +9,15 @@ export function ReportBrochurePrintStyles() {
     .report-root :is([data-report-pathway-pages], [data-report-career-pages], [data-report-opportunity-pages], [data-publication-continuation], [data-report-profile-category-pages]) > :is(thead, tbody) > tr > td {
       display: block; width: 100%; border: 0; padding: 0; margin: 0;
     }
+    /* Keep the same compact list rhythm in the reader and its export without
+       reducing type size or changing the established columns and headings. */
+    @media screen {
+      .report-root .pub-checklist li { padding: 0.2rem 0; }
+      .report-root .pub-checklist li + li { margin-top: 0.2rem; }
+      .report-root .pub-callout,
+      .report-root .pub-checklist,
+      .report-root .pub-source { margin-top: 0.8rem; margin-bottom: 0.8rem; }
+    }
     @media print {
       /* Visibility hides ink but leaves route chrome in the page flow. Remove
          only branches outside the report and flatten its screen-only shells.
@@ -478,7 +487,8 @@ export function ReportBrochurePrintStyles() {
         font-size: 9.5pt !important; line-height: 1.25 !important; letter-spacing: 0.06em !important;
       }
       body:has(.report-root) .report-root .pub-checklist-tick { color: #5b2a86 !important; background: transparent !important; }
-      body:has(.report-root) .report-root .pub-checklist li { padding: 0.05in 0; }
+      body:has(.report-root) .report-root .pub-checklist li { padding: 0.03in 0; }
+      body:has(.report-root) .report-root .pub-checklist li + li { margin-top: 0.03in !important; }
       body:has(.report-root) .report-root .pub-page-opener {
         margin-bottom: 0.12in !important; break-inside: avoid; break-after: avoid !important;
         page-break-after: avoid !important;
@@ -518,7 +528,7 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root .pub-callout,
       body:has(.report-root) .report-root .pub-checklist,
       body:has(.report-root) .report-root .pub-source {
-        margin-top: 0.12in !important; margin-bottom: 0.12in !important;
+        margin-top: 0.08in !important; margin-bottom: 0.08in !important;
       }
 
       body:has(.report-root) .report-root .report-section,
