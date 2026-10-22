@@ -2350,3 +2350,62 @@ test("prepared meeting sheet keeps recorded follow-ups with its questions for ev
     } finally { await task.destroy(); }
   }
 });
+
+// Use the actual bundled fonts and signed-in publication shell: fallback fonts
+// can hide a meeting sheet that overflows in a real saved-report export.
+test("saved meeting sheet keeps its follow-ups with the questions using real fonts and paper sizes", async ({ page }, info) => {
+  test.setTimeout(120_000);
+  const require = createRequire(resolve("package.json"));
+  const compiler = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiler.sources });
+  const css = compiler.build(scanner.scan()).replace(/url\("(@fontsource-variable\/[^\"]+)"\)/g, (_: string, asset: string) =>
+    `url("data:font/woff2;base64,${readFileSync(require.resolve(asset)).toString("base64")}")`);
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.abort();
+  });
+  const sample = components.DEMO_STUDENTS.maya;
+  const current = {...structuredClone(sample.report), summary:"Fictional current planning summary"};
+  const report = components.recordSavedSections(current, {...structuredClone(sample.report), summary:"Fictional restored planning summary"}, "2026-10-22T12:00:00.000Z");
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const observations = [];
+  for (const mode of ["saved", "demo", "shared"]) for (const audience of (mode === "shared" ? ["family", "educator"] : ["family", "educator", "student"])) {
+    const body = renderToStaticMarkup(createElement(components.ReportView, {
+      name: "Fictional Student", report: mode === "shared" ? components.projectSharedReport(report, audience) : report,
+      demo: mode === "demo", readOnly: mode === "shared", fixedAudience: mode === "shared" ? audience : undefined, initialAudience: audience,
+      meta: {reportId:"TF-FICTIONAL",preparedFor:"Fictional Student",lastUpdated:"October 22, 2026"},
+    }));
+    await page.setViewportSize({width:1280,height:900});
+    await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body><main class="site-shell-main"><div class="report-shell eh-issue"><div class="mx-auto w-full px-3 pt-4"><div class="min-w-0">${body}</div></div></div></main></body></html>`);
+    await page.emulateMedia({media:"print"});
+    await page.evaluate(()=>document.fonts.ready);
+    await page.evaluate(async()=>{await document.fonts.load('500 16px "Karla Variable"'); await document.fonts.load('500 16px "Cormorant Garamond Variable"');});
+    expect(await page.evaluate(()=>document.fonts.check('500 16px "Karla Variable"'))).toBe(true);
+    expect(await page.evaluate(()=>document.fonts.check('500 16px "Cormorant Garamond Variable"'))).toBe(true);
+    const questions = await page.locator("#sec-meeting-prep .pub-checklist").first().locator("li > span:last-child").allTextContents();
+    for (const format of (mode === "saved" ? ["Letter", "A4"] : ["Letter"]) as Array<"Letter" | "A4">) {
+      const bytes = await page.pdf({path:info.outputPath(`${mode}-${audience}-${format}-meeting.pdf`),format,preferCSSPageSize:format === "Letter",printBackground:true});
+      const task = getDocument({data:new Uint8Array(bytes),useSystemFonts:true,isEvalSupported:false});
+      try {
+        const pdf = await task.promise;
+        const pages: string[] = [];
+        for (let number=1;number<=pdf.numPages;number++) {
+          const text = await (await pdf.getPage(number)).getTextContent();
+          pages.push(text.items.map(item=>"str" in item ? item.str : "").join(" ").replace(/\s+/g," ").replace(/-\s+/g,"-").trim());
+        }
+        const meetingIndex = pages.findIndex(text=>questions.every(question=>text.includes(question.replace(/\s+/g," ").replace(/-\s+/g,"-").trim())));
+        const followUpIndices = report.meeting_prep_toolkit.follow_up_items.map((action: string)=>pages.findIndex(text=>text.includes(action)));
+        observations.push({mode,audience,format,pages:pages.length,meetingPage:meetingIndex+1,followUpPages:followUpIndices.map((i: number)=>i+1)});
+        const output=info.outputPath("real-font-meeting-pages.json");writeFileSync(output,JSON.stringify(observations,null,2));
+        expect.soft(meetingIndex,`${mode}/${audience}/${format}: all meeting questions share a page`).toBeGreaterThanOrEqual(0);
+        for(const index of followUpIndices) expect.soft(index,`${mode}/${audience}/${format}: follow-up stays on meeting sheet`).toBe(meetingIndex);
+        expect.soft(pages[meetingIndex],`${mode}/${audience}/${format}: complete source note stays on meeting sheet`).toContain("Print this checklist and bring it to the meeting.");
+        expect(pages.at(-1)).toContain("End of report");
+        expect(pages.every(text=>text.split(/\s+/).length>8)).toBe(true);
+      } finally {await task.destroy();}
+    }
+  }
+});

@@ -555,6 +555,32 @@ export function ReportBrochurePrintStyles() {
       body:has(.report-root) .report-root #sec-meeting-prep .pub-checklist {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }
+      /* The saved reader's publication shell adds generous screen spacing.
+         Give the meeting sheet an even paper rhythm without shrinking text. */
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-spread {
+        margin: 0.08in 0 !important;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep [data-report-pathway-detail] {
+        padding-top: 0.04in !important; padding-bottom: 0.04in !important;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-checklist {
+        margin-top: 0.04in !important; margin-bottom: 0.04in !important;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-checklist li {
+        padding: 0.02in 0;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-checklist li + li {
+        margin-top: 0.02in !important;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-callout--source {
+        padding: 0.04in 0.08in !important; margin: 0.04in 0 !important;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-sidebar {
+        padding: 0.06in 0.08in !important;
+      }
+      body:has(.report-root) .report-root #sec-meeting-prep .pub-sidebar-body > .mt-4 {
+        margin-top: 0.06in !important;
+      }
       body:has(.report-root) .report-root [data-report-meeting-summary] {
         break-inside: avoid !important; page-break-inside: avoid !important;
       }
