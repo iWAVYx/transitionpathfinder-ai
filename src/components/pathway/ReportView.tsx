@@ -956,7 +956,7 @@ function ReportViewReader({
               lead={
                 <div>
                   {[
-                    { label: "Questions to Ask", items: r.meeting_prep_toolkit.questions_to_ask },
+                    { label: "Questions to Ask", items: teamQuestions },
                     { label: "Concerns to Raise", items: r.meeting_prep_toolkit.concerns_to_raise },
                     { label: "Goals to Review", items: r.meeting_prep_toolkit.goals_to_review },
                     { label: "Student Voice Prompts", items: r.meeting_prep_toolkit.student_voice_prompts },
@@ -990,8 +990,8 @@ function ReportViewReader({
       )}
       {/* ============ Questions to bring (only when no toolkit) ============ */}
       {!hasV2 && !r.meeting_prep_toolkit && (
-        <Block title="Questions to Bring to the Next PPT" icon={<ListChecks className="h-5 w-5" />}>
-          <BulletList items={r.family_questions_for_ppt} />
+        <Block id="sec-meeting-prep" title="Questions to Bring to the Next PPT" icon={<ListChecks className="h-5 w-5" />}>
+          <BulletList items={teamQuestions} />
         </Block>
       )}
             </>
@@ -1469,7 +1469,7 @@ function ReportViewReader({
       )}
 
       {/* ============ Bring To The Team — consolidated decision checklist ============ */}
-      <section id="report-team-questions" data-report-team-questions data-report-meeting-summary={hasV2 || undefined} className="report-section mt-10 page-break">
+      <section id="report-team-questions" data-report-team-questions data-report-meeting-summary className="report-section mt-10 page-break">
         <div className="mb-3 flex items-center gap-2">
           <h2 className="font-display text-2xl tracking-tight">
             Bring To The Team
@@ -1484,7 +1484,7 @@ function ReportViewReader({
           data={{
             ...CHAPTER_VALUE_DEFAULTS.bring_to_team,
             whatThisMeans: teamQuestions.length ? "Recorded questions for this report view, ready to discuss with your team." : "No meeting questions are recorded for this report view. Review the report and add your questions before the meeting.",
-            questionsForTeam: hasV2 ? [] : teamQuestions,
+            questionsForTeam: [],
             recommendedNextStep: `Confirm an owner and a date for each next step before you leave the meeting.`,
             informationUsed: [
               teamQuestions.length ? "Recorded meeting questions for this view" : "This report view",
@@ -1492,9 +1492,9 @@ function ReportViewReader({
             ].filter(Boolean) as string[],
           }}
         />
-        {hasV2 && teamQuestions.length > 0 && (
+        {teamQuestions.length > 0 && (
           <p className="mt-3 text-sm">
-            <a href="#v2-meeting-qs" className="font-medium text-primary underline underline-offset-4">
+            <a href={hasV2 ? "#v2-meeting-qs" : "#sec-meeting-prep"} className="font-medium text-primary underline underline-offset-4">
               Read Your Meeting Prep Questions
             </a>
             {" — including the recorded context for this report view."}

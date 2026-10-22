@@ -14,6 +14,9 @@ async function selected(page: Page, audience: string, builder: string) {
   await expect(page.getByRole("link", {name:/Back to Pathway Builder/})).toHaveAttribute("href", `/demo/intake?role=${builder}`);
   await expect(page.locator(".report-root")).toBeVisible();
   expect(await page.locator(".report-root").evaluate(root => root.scrollWidth <= root.clientWidth)).toBe(true);
+  await expect(page.locator("#sec-meeting-prep .pub-checklist").first().locator("li")).toHaveCount(5);
+  await expect(page.locator('[data-report-team-questions] a[href="#sec-meeting-prep"]')).toBeVisible();
+  await expect(page.locator("[data-report-team-questions] [data-value-callout-question]")).toHaveCount(0);
 }
 async function exportPreparedPdf(page: Page, audience: string, outputPath: string) {
   await page.emulateMedia({media:"print"});
@@ -21,6 +24,7 @@ async function exportPreparedPdf(page: Page, audience: string, outputPath: strin
   const mark = page.locator("[data-document-watermark]");
   await expect(mark).toBeVisible();
   await expect.poll(() => mark.evaluate(el => (el as HTMLImageElement).complete && (el as HTMLImageElement).naturalWidth > 0)).toBe(true);
+  const meetingQuestions = (await page.locator("#sec-meeting-prep .pub-checklist").first().locator("li > span:last-child").allTextContents()).map(text=>text.replace(/\s+/g," ").trim());
   const last = page.locator("[data-value-callout-print-tail]").last();
   const question = (await last.locator("[data-value-callout-question]").innerText()).replace(/\s+/g," ").trim();
   const source = (await last.locator('[data-value-callout-row="informationUsed"] > div').last().innerText()).replace(/\s+/g," ").trim();
@@ -34,11 +38,16 @@ async function exportPreparedPdf(page: Page, audience: string, outputPath: strin
       pages.push(text.items.map(item => "str" in item ? item.str : "").join(" ").replace(/\s+/g," ").trim());
     }
     expect(pages.every(text => text.split(/\s+/).length>8)).toBe(true);
+    expect(meetingQuestions).toHaveLength(5);
+    // PDF extraction inserts a space at wrapped hyphens, e.g. Pre- Employment.
+    // Preserve the hyphen/words while ignoring that layout-only whitespace.
+    const allText=pages.join(" ").replace(/-\s+/g,"-");
+    for (const question of meetingQuestions) expect(allText.split(question.replace(/-\s+/g,"-")).length-1).toBe(1);
     const sourcePage = pages.find(text => text.includes(source));
     expect(sourcePage, `${audience}: full final source note must print`).toBeTruthy();
     expect(sourcePage).toContain(question);
     expect(pages.at(-1)).toContain("End of report");
-    return {audience,pages:pages.length,finalQuestionWithSources:true};
+    return {audience,pages:pages.length,finalQuestionWithSources:true,meetingQuestionsPrintedOnce:meetingQuestions.length};
   } finally { await task.destroy(); await page.emulateMedia({media:"screen"}); }
 }
 for (const width of [390,1440]) for (const origin of ["family","educator"]) {

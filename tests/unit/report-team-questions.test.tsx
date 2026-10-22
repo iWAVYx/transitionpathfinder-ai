@@ -82,3 +82,73 @@ for (const audience of ["student", "family", "educator"] as const) {
     expect(mocks.server).not.toHaveBeenCalled();
   });
 }
+
+it("collapses only spacing-only recorded repeats and preserves distinct requests without mutation", () => {
+  const report = {
+    family_questions_for_ppt: ["  Who records progress?  ", "Can travel training start this spring?"],
+    meeting_prep_toolkit: { questions_to_ask: ["Who  records\nprogress?", "When can travel training begin?", "Who records progress each week?"] },
+  };
+  const before = structuredClone(report);
+  expect(reportTeamQuestions(report, "family", false)).toEqual([
+    "  Who records progress?  ", "Can travel training start this spring?", "When can travel training begin?", "Who records progress each week?",
+  ]);
+  expect(report).toEqual(before);
+  expect(reportTeamQuestions({meeting_prep_questions:[
+    {question:"Whose observations should we bring?",for_audience:"team"},
+    {question:"Whose  observations should we bring?",for_audience:"team"},
+    {question:"Which dated observations should we bring?",for_audience:"student"},
+    {question:"Educator-only question?",for_audience:"educator"},
+  ]},"student",true)).toEqual(["Whose observations should we bring?","Which dated observations should we bring?"]);
+});
+
+for (const audience of ["student", "family", "educator"] as const) {
+  for (const mode of ["demo", "saved", ...(audience === "student" ? [] : ["shared"])] as const) {
+    it(`${audience} ${mode} legacy report keeps the complete question list in one meeting-prep destination`, () => {
+      let report = structuredClone(DEMO_STUDENTS.maya.report);
+      const family = Array.from({length:mode==="shared" ? 6 : 10},(_,i)=>`Unique recorded family request ${i+1}?`);
+      report.family_questions_for_ppt=family;
+      report.meeting_prep_toolkit!.questions_to_ask=[family[0],family[1],"Unique recorded educator request?"];
+      if (mode==="shared" && audience!=="student") {
+        const projected=projectSharedReport(report,audience);
+        expect(projected).not.toBeNull();
+        report=projected!;
+      }
+      const {container}=render(<ReportView name="Maya" report={report} demo={mode==="demo"} readOnly={mode==="shared"} fixedAudience={mode==="shared" ? audience : undefined} initialAudience={audience}/>);
+      const destination=container.querySelector("#sec-meeting-prep")!;
+      for (const question of [...family,"Unique recorded educator request?"]) {
+        expect(destination.textContent).toContain(question);
+        expect(screen.getAllByText(question,{exact:true})).toHaveLength(1);
+      }
+      const summary=container.querySelector("[data-report-team-questions]")!;
+      expect(summary.querySelector('a[href="#sec-meeting-prep"]')).not.toBeNull();
+      expect(summary.textContent).not.toContain(family[0]);
+      expect(mocks.server).not.toHaveBeenCalled();
+    });
+  }
+}
+it("a legacy report without a toolkit still has a complete reachable meeting-question destination", () => {
+  const report={...DEMO_STUDENTS.maya.report, meeting_prep_toolkit:undefined,family_questions_for_ppt:["Recorded family question?"]};
+  const {container}=render(<ReportView name="Maya" report={report} demo initialAudience="family"/>);
+  expect(container.querySelector("#sec-meeting-prep")?.textContent).toContain("Recorded family question?");
+  expect(container.querySelector('[data-report-team-questions] a[href="#sec-meeting-prep"]')).not.toBeNull();
+  expect(screen.getAllByText("Recorded family question?",{exact:true})).toHaveLength(1);
+});
+
+
+for (const id of ["maya","jordan"] as const) {
+  it(`${id} fictional report uses a single consistent set without dropping specific planning details`, () => {
+    const report=DEMO_STUDENTS[id].report;
+    const questions=reportTeamQuestions(report,"family",false);
+    expect(questions).toEqual(report.family_questions_for_ppt);
+    expect(questions).toEqual(report.meeting_prep_toolkit!.questions_to_ask);
+    expect(questions).toHaveLength(id==="maya" ? 5 : 6);
+    if (id==="maya") {
+      expect(questions.join(" ")).toContain("this spring tied to a real volunteer site");
+      expect(questions.join(" ")).toContain("before Maya turns 18");
+    } else {
+      expect(questions.join(" ")).toContain("executive-function supports");
+      expect(questions.join(" ")).toContain("transportation-independence goal to the spring IEP");
+      expect(questions.join(" ")).toContain("weekly across all classes");
+    }
+  });
+}

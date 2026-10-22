@@ -2165,7 +2165,7 @@ test("saved report print discards surrounding route layout without changing the 
     if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
     return route.abort();
   });
-  for (const audience of ["family", "educator"]) {
+  for (const audience of ["family", "educator", "student"]) {
     await page.emulateMedia({ media: "screen" });
     const body = renderToStaticMarkup(createElement(components.ReportView, {
       name: "Fictional Student", report: components.DEMO_STUDENTS.maya.report, initialAudience: audience,
@@ -2181,6 +2181,15 @@ test("saved report print discards surrounding route layout without changing the 
       </div></main><footer>Site footer</footer></div></div></body></html>`);
     await expect(page.locator("[data-route-chrome]").first()).toBeVisible();
     await expect(page.locator("[data-route-chrome]").last()).toBeVisible();
+    const meetingQuestions=components.DEMO_STUDENTS.maya.report.family_questions_for_ppt as string[];
+    await expect(page.locator("#sec-meeting-prep .pub-checklist").first().locator("li")).toHaveCount(5);
+    await expect(page.locator('[data-report-team-questions] a[href="#sec-meeting-prep"]')).toBeVisible();
+    // Screen-only Add to Actions controls intentionally reuse recorded items.
+    // Count the document body separately while preserving those functional controls.
+    for (const question of meetingQuestions) {
+      expect(await page.getByText(question,{exact:true}).filter({visible:true}).evaluateAll(elements=>elements.filter(el=>!el.closest(".no-print")).length)).toBe(1);
+      await expect(page.locator("[data-report-team-questions]").getByText(question,{exact:true})).toHaveCount(0);
+    }
     await page.emulateMedia({ media: "print" });
     for (const chrome of await page.locator("[data-route-chrome]").all()) {
       expect(await chrome.evaluate(el=>getComputedStyle(el).display)).toBe("none");
@@ -2188,6 +2197,7 @@ test("saved report print discards surrounding route layout without changing the 
     }
     expect(await page.locator(".site-shell-main").evaluate(el=>getComputedStyle(el).display)).toBe("block");
     await expect(page.locator(".report-root")).toBeVisible();
+    for (const question of meetingQuestions) await expect(page.getByText(question,{exact:true}).filter({visible:true})).toHaveCount(1);
     await page.evaluate(()=>document.fonts.ready);
     await expect(page.locator("[data-document-watermark]")).toBeVisible();
     const questionAlignment = await page.locator('[data-value-callout-print-tail]').evaluateAll(tails => tails.map(tail => {
