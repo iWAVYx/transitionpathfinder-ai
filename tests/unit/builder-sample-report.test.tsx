@@ -19,7 +19,7 @@ afterEach(() => { cleanup(); reader.mockClear(); state.navigate.mockReset(); });
 it.each(["family", "educator"] as const)("opens the actual prepared reader for %s without extra title or mutation controls", audience => {
   const html = renderToStaticMarkup(<BuilderSampleReport audience={audience} />);
   const props = reader.mock.calls.at(-1)?.[0] as Record<string, unknown>;
-  expect(props).toMatchObject({ demo: true, name: "Maya", initialAudience: audience });
+  expect(props).toMatchObject({ demo: true, name: "Maya", initialAudience: audience, controlledAudience: audience });
   expect(props.studentId).toBeUndefined(); expect(props.onSaveToProfile).toBeUndefined(); expect(props.onRefresh).toBeUndefined();
   expect(html).toContain("does not reflect your edits"); expect(html).toContain(`href="/demo/intake?role=${audience}"`);
   expect(html.match(/<h1\b/g)).toHaveLength(1); expect(html).toContain('<h2 class="font-display text-2xl">Prepared Example: Maya');

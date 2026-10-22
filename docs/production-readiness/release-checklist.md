@@ -1,5 +1,17 @@
 # Production release checklist
 
+## Report Audience and History Correction — Local Candidate, October 22, 2026
+
+- [x] Reproduce the demo mismatch with the actual report route, reader and browser-history router: both single-click Family/Educator cases fail before the correction. The router renders the new validated view before the browser URL commits; reading that old URL during remount selects the previous audience. Direct Student URL cases pass locally; prior inconsistent hosted refresh observations remain unresolved rather than being relabelled successful.
+- [x] Assess the signed-in saved-report caller too. Three fictional Family/Educator/Student history journeys fail before the correction: Back changes the route audience while the reader retains its previous local selection. Pass the validated route-owned audience into the shared reader from both demo and saved-report routes. Fixed shared-link audience still takes precedence; ordinary uncontrolled readers retain interactive selection. No data, authorization, generation or sharing scope changes.
+- [x] Local validation: 308 unit files /4,337 tests, including 62 focused demo/saved-reader/history and workflow-policy cases, pass. The 44-case offline document presentation suite also passes. Saved-report tests use fictional read stubs and an isolated guard wrapper; they are UI/history regression evidence, not hosted authentication, RLS or live-record acceptance.
+- [x] TypeScript passes.
+- [ ] Complete automatic candidate checks; record exact candidate identity before requesting separate staging release authorization. Both stable sites remain a736e42e /27f3832c…314d3 /1,183 files. No new deployment or publication is implied by local success.
+- [ ] After a separately authorized release, run the prepared read-only public report scope: four mobile/desktop Family/Educator-origin journeys covering all three lenses, exact URL/Builder return, one-click transitions, Back/Forward, direct links, refresh and optional details. It also captures three fictional headless PDFs with complete final question/source grouping and no blank pages. This scope is prepared and discovered, not executed against the candidate; native OS print-dialog acceptance remains separate and open.
+- [ ] Retain broader live saved-report/export, permission/privacy, provider/configuration, security/billing/operations/schema/rollback and TF-01–TF-26 gates. Earlier failures and the bounded 32 navigation passes on cfd05aea remain historical evidence. Deferred Parent Pilot/Pathway Snapshot and the Lovable “Your Dashboard Widgets” edit remain preserved.
+
+Evidence: `/private/tmp/tf211-reader-lens-review` contains failing pre-fix router cases and corrected local results. No production/source-main merge, migrations, records/fixtures, AI/provider calls, account/access, payment or manual secrets changes.
+
 ## Source-Note Fix Released; Live Lens Mismatch Retained — October 21, 2026
 
 - [x] User authorized exact a736e42e staging-only release/sync/existing publication and read-only demo/document checks. Human-approved Cloudflare [release39689227806](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39689227806) succeeds, including exact source identity and PWA checks. Isolated Lovable sync commit `c0f92c7e535a14ef557b5140ad497a86d1043641` contains only the two reviewed runtime files; frozen install made no changes and environment hashes stayed unchanged.

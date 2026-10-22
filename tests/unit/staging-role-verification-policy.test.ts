@@ -33,7 +33,7 @@ it("runs independent role-access checks after dashboard failures only with all r
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-history-no-ai' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });
 
@@ -104,4 +104,19 @@ it("offers a separate read-only deep-position scope without rerunning the standa
   expect(branch).toContain("--grep '— deep-source return'");
   expect(branch).toContain("--retries=0 --workers=1");
   expect(branch).toContain("--reporter=line,html");
+});
+
+
+it("keeps prepared report lens/PDF checks read-only and anonymous", () => {
+  expect(workflow).toContain("          - report-reader-lenses");
+  expect(workflow).toContain("inputs.scope != 'report-reader-lenses'");
+  const branch = workflow.split('elif [ "$STAGING_TEST_SCOPE" = "report-reader-lenses" ]; then')[1].split("          elif")[0];
+  expect(branch).toContain("report-reader-lenses.spec.ts --project=anon --no-deps --retries=0 --workers=1 --reporter=line,html");
+  expect(workflow).toContain("environment: staging");
+  expect(workflow).toContain('E2E_READ_ONLY: "true"');
+  expect(workflow).toContain("steps.sanitize-artifacts.outcome == 'success'");
+  const spec=readFileSync("tests/e2e/report-reader-lenses.spec.ts","utf8");
+  expect(spec).toContain('storageState: { cookies: [], origins: [] }, trace: "off"');
+  expect(spec).not.toMatch(/\.from\(|\.rpc\(|\.auth\.|getByRole\("button",\s*\{name:\s*"(?:Generate|Save|Share|Restore)/);
+  expect(spec).toContain("nativePrintDialogVerified:false");
 });

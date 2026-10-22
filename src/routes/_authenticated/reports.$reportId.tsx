@@ -341,6 +341,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
         saveLabel={students.length > 0 ? "Save to student profile" : undefined}
         studentId={state.studentId ?? undefined}
         initialAudience={audience}
+        controlledAudience={audience}
         onAudienceChange={(a) => setAudience(a as V2Audience)}
         hasV2={isV2(state.report)}
         onRefresh={state.studentId ? handleRegenerate : undefined}

@@ -157,6 +157,7 @@ function ReportViewReader({
   onReset,
   resetLabel = "Create another report",
   initialAudience,
+  controlledAudience,
   fixedAudience,
   readOnly = false,
   onSaveToProfile,
@@ -177,6 +178,8 @@ function ReportViewReader({
   onReset?: () => void;
   resetLabel?: string;
   initialAudience?: Audience;
+  /** Validated route-owned view; browser URL updates may follow route rendering. */
+  controlledAudience?: Audience;
   /** Shared links retain the audience chosen by their owner. */
   fixedAudience?: Audience;
   /** Shared readers cannot invoke report-generation assistance. */
@@ -205,7 +208,9 @@ function ReportViewReader({
 }) {
 
   // Workstream 1 (verified): Pathway Report audience precedence.
-  // Shared links always retain fixedAudience. Otherwise:
+  // Shared links always retain fixedAudience. Route-owned readers use their
+  // validated controlledAudience, including history changes before URL commit.
+  // Uncontrolled readers initialize in this order:
   // Order = 1) explicit ?view=/?audience= in URL, 2) authorized origin
   // (initialAudience passed by caller — dashboard route, demo, etc.),
   // 3) Student View fallback. Centralized in resolveReportAudience so every
@@ -223,7 +228,7 @@ function ReportViewReader({
     return resolveReportAudience([fixedAudience, urlAudience, initialAudience]);
   }, [fixedAudience, initialAudience]);
   const [selectedAudience, setAudienceState] = useState<Audience>(initialResolved);
-  const audience = fixedAudience ?? selectedAudience;
+  const audience = resolveReportAudience([fixedAudience, controlledAudience, selectedAudience]);
   const setAudience = (a: Audience, options?: { syncUrl?: boolean }) => {
     if (fixedAudience) return;
     setAudienceState(a);
@@ -350,10 +355,8 @@ function ReportViewReader({
     };
   }, []);
 
-  // Audience initial value already resolved by resolveReportAudience above
-  // (URL param wins over initialAudience). No post-mount URL sync needed —
-  // the resolver reads window.location.search inside a useMemo before first
-  // render, so refresh preserves ?view=… without a second setState pass.
+  // Route-owned audience follows router search on every render. Ordinary
+  // uncontrolled readers retain their initial URL and interactive local state.
 
 
   const heading = useMemo(

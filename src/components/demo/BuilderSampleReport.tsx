@@ -39,6 +39,7 @@ function BuilderSampleReportReader({ audience, view }: { audience: "family" | "e
           report={sample.report}
           demo
           initialAudience={view}
+          controlledAudience={view}
           onAudienceChange={(next) => {
             // Student is a valid report lens, but not a Pathway Builder submitter.
             const returnAudience = next === "family" || next === "educator" ? next : builderAudience;
