@@ -45,13 +45,15 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 203,
-    "latestCanonicalFile": "20261012190000_atomic_pathway_report_content.sql",
+    "canonicalCount": 204,
+    "latestCanonicalFile": "20261023010000_restrict_report_share_token_writes.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 9
+    "pendingProductionCount": 10,
+    "canonicalInventoryReviewedAt": "2026-10-23",
+    "canonicalInventorySourceCommit": "7cd69645a949946102005a9b68b5db428ca997fc"
   }
 }

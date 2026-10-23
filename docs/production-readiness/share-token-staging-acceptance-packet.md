@@ -2,6 +2,14 @@
 
 Prepared October 22, 2026. Status: canonical source candidate / hosted changes NOT authorized. This packet does not authorize a migration, deployment, publication, fixtures or production access. No applied migration is edited. The earlier proposal is retained outside the canonical tree; the newly prepared additive file is listed below.
 
+## Native PostgreSQL Acceptance and Inventory Correction — October 23, 2026
+
+Candidate source commit `7cd69645a949946102005a9b68b5db428ca997fc` is recorded on draft PR211; it is not deployed. [Automatic push replay39912312267](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39912312267) passes all 23 native PostgreSQL sharing cases with zero skips, then the complete canonical replay and retained RLS/grant/security invariants. Separate automatic PR replay39912317853 also passes. Build/SSR, unit, accessibility, role guard and static seed checks pass on that source; protected hosted suites remain skipped, not accepted.
+
+The first automatic readiness check failed because its machine-readable/pinned expectations still counted 203 canonical files and nine pending against saved September production evidence. The correction updates only that inventory to 204 and ten, the exact new filename, and each historical CSV comparison's additional pending file. Production read timestamps/evidence, historical applied-row counts, comparator logic, exclusions, hashes and NO-GO controls are preserved. All 53 affected source/readiness/hosting/migration-comparator contracts now pass locally. Exact-head automatic readiness must verify the correction; no unchanged workflow is manually retried.
+
+The earlier broad mixed Node attempt additionally exposed these two inventory assertions, not just absent credentials/loader prerequisites. Its nonpassing result is retained; do not count it as overall acceptance or characterize every failure as an environment issue. The scoped corrected contracts and named hosted results above are the evidence for this candidate.
+
 ## Canonical Candidate Finalized — October 23, 2026
 
 Prepared the new additive [20261023010000_restrict_report_share_token_writes.sql](../../supabase/migrations/20261023010000_restrict_report_share_token_writes.sql), not applied anywhere. SHA256: `5a67b23c3666182054a962aa9465897e36daa6fb1ffbda433d6223562903e187`. Its transaction matches the reviewed proposal exactly; only the header differs. The migration first verifies anonymous/authenticated execution is absent and service execution remains on both raw share RPCs, so the observed missing prerequisite causes an immediate transactional abort. The existing `20261006180000` grant migration must be separately authorized and verified first.
@@ -32,7 +40,7 @@ Production was not opened or queried. No application records, auth identities, s
 
 ## Scope and Candidate Identity
 
-- Source branch: `codex/ppt-output-quality-print`, based on `202dc28c058f41f5ed738f7ee9cb8d3476223a7d`; the changes described here are uncommitted. There is no authentic new release SHA yet. Commit/review/CI must precede release authorization.
+- Source branch: `codex/ppt-output-quality-print`, based on `202dc28c058f41f5ed738f7ee9cb8d3476223a7d`; the runtime/migration candidate is committed as `7cd69645a949946102005a9b68b5db428ca997fc`. A follow-up inventory/test/documentation correction is prepared; record its exact committed SHA and readiness result before release authorization.
 - Local application fingerprint: `c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d`, `transitionforward-runtime-source-v1`, SHA256, 1,184 files. This is not claimed as deployed.
 - Runtime changes: shared `revoke-share-token.server.ts` plus the Students and Trust revoke callers. No role, tool, demo, navigation or document-layout access is added. Demo samples have no real tokens to revoke.
 - Staging sites currently remain on approved eb72bd87 / fingerprint `550c963f1472ef6723c1125011deb400a3acfab5da9d79602cf2ce0a1f673b64`, 1,183 files.
