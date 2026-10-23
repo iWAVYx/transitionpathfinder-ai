@@ -1,6 +1,6 @@
 {
   "date": "2026-10-23",
-  "status": "owner-directed-local-proposal-not-applied",
+  "status": "native-validated-proposal-not-applied-release-blocked-by-dependency-advisory",
   "baseSourceSha": "fae183613580fa9ea874698a03bd8a258aa879ae",
   "direction": "User selected explicit student access for Owner/admin accounts; no general private report access from management role alone.",
   "migration": {
@@ -34,7 +34,109 @@
       "log": "/private/tmp/tf-explicit-report-access-contracts-2026-10-23.log"
     },
     "initialFixtureFailures": "Canonical helpers required matching fixture parameter names. Student-profile ownership-transfer scenario now seeds history before changing profile owner; strict access assertions retained. Inventory contracts updated to include the new proposed migration.",
-    "nativeReplay": "Pending exact candidate CI; earlier replay does not certify this migration."
+    "nativeReplay": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174167",
+      "conclusion": "success",
+      "reportHistoryCases": 59,
+      "reportHistorySkips": 0,
+      "canonicalMigrations": 206,
+      "exactPrivilegedRoutines": 93,
+      "reportSharingCases": 23,
+      "channelRemovalCases": 11,
+      "limitations": "Separate canonical document snapshot check skips three cases; named 59-case report/history acceptance has no skips. No hosted acceptance."
+    },
+    "automaticChecks": [
+      {
+        "name": "role-leak-signedin",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174409/job/120656124354"
+      },
+      {
+        "name": "rls-regression",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174374/job/120656093617"
+      },
+      {
+        "name": "permission-regression",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174247/job/120656093017"
+      },
+      {
+        "name": "cross-district-rls",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174137/job/120656034682"
+      },
+      {
+        "name": "CT Seed v2 Live Staging Audit",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174116/job/120656034391"
+      },
+      {
+        "name": "role-guard-matrix",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174409/job/120656034214"
+      },
+      {
+        "name": "report-a11y",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174300/job/120656033874"
+      },
+      {
+        "name": "unit",
+        "status": "in_progress",
+        "conclusion": null,
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174182/job/120656033756"
+      },
+      {
+        "name": "Credential-free Production Readiness Audit",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174246/job/120656033317"
+      },
+      {
+        "name": "Clean Production Build",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174183/job/120656033294"
+      },
+      {
+        "name": "replay",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174167/job/120656033271"
+      },
+      {
+        "name": "CT Seed v2 Static Audit",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024174116/job/120656032729"
+      },
+      {
+        "name": "Clean Production Build",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024169255/job/120656015821"
+      },
+      {
+        "name": "replay",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40024169245/job/120656015059"
+      },
+      {
+        "name": "Supabase Preview",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/runs/120656010890"
+      }
+    ]
   },
   "inventory": {
     "canonicalCount": 206,
@@ -43,7 +145,6 @@
   },
   "limits": [
     "Hosted linked-editor/admin acceptance remains unperformed",
-    "Native 206-migration replay and exact candidate automatic checks pending",
     "Existing service-role bypass, other student/document permissions and ownership-transfer rules are not redesigned",
     "Existing bearer sharing/removed-member lifecycle and stale-browser write intent remain separate gates"
   ],
@@ -59,5 +160,17 @@
     "ai": false,
     "production": false
   },
-  "deferred": "Report length/cosmetic polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01\u2013TF-26 retained."
+  "deferred": "Report length/cosmetic polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01\u2013TF-26 retained.",
+  "candidateSourceSha": "f0ff185d990d869a7190ce9cc1e585c4486d6ce8",
+  "releaseBlocker": {
+    "advisory": "GHSA-mrhx-c7xc-m3w5",
+    "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+    "severity": "high",
+    "ciFailureStep": "Reject high or critical dependency advisories",
+    "installedZod3": "3.25.76",
+    "installedZod4": "4.6.7",
+    "publishedAffectedRange": "<4.6.6",
+    "status": "Unresolved; do not ignore advisory or force untested major overrides",
+    "log": "/private/tmp/tf-explicit-report-access-build-failure.log"
+  }
 }
