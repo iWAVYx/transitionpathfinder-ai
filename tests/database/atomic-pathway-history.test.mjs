@@ -270,22 +270,22 @@ test("baseline owner can insert a fabricated version attributed to another ident
  await db.query("INSERT INTO public.pathway_report_versions(report_id,version_number,content,change_summary,created_by) VALUES ($1,99,$2::jsonb,'Fictional forged history',$3)",[report,JSON.stringify(next),other]);
  const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.reports[0].content,original);
 });
-test("review proposal rejects disabled RLS without changing grants or installing a trigger",async()=>{
+test("canonical migration rejects disabled RLS without changing grants or installing a trigger",async()=>{
  await db.exec("RESET ROLE; ALTER TABLE public.pathway_reports DISABLE ROW LEVEL SECURITY");
- try{await assert.rejects(db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8")),/Unexpected report history ownership or RLS/);await db.exec("ROLLBACK");
+ try{await assert.rejects(db.exec(readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql","utf8")),/Unexpected report history ownership or RLS/);await db.exec("ROLLBACK");
   assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.pathway_report_versions','INSERT') AS allowed")).rows[0].allowed,true);
   assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_trigger WHERE tgname='snapshot_report_content_update'")).rows[0].n,0);
  }finally{await db.exec("RESET ROLE; ALTER TABLE public.pathway_reports ENABLE ROW LEVEL SECURITY");}
 });
-test("privileged authenticated role aborts before any proposal change",async()=>{
+test("privileged authenticated role aborts before any migration change",async()=>{
  await db.exec("RESET ROLE; ALTER ROLE authenticated BYPASSRLS");
- try{await assert.rejects(db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8")),/Unexpected privileged client role/);await db.exec("ROLLBACK");
+ try{await assert.rejects(db.exec(readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql","utf8")),/Unexpected privileged client role/);await db.exec("ROLLBACK");
   assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.pathway_report_versions','INSERT') AS allowed")).rows[0].allowed,true);
  }finally{await db.exec("RESET ROLE; ALTER ROLE authenticated NOBYPASSRLS");}
 });
-test("inherited version INSERT stops the entire proposal transaction",async()=>{
+test("inherited version INSERT stops the entire migration transaction",async()=>{
  await db.exec("RESET ROLE; CREATE ROLE fixture_history_writer; GRANT INSERT ON public.pathway_report_versions TO fixture_history_writer; GRANT fixture_history_writer TO authenticated");
- try{const definition=await installedDefinition();await assert.rejects(db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8")),/Inherited report history write privileges remain/);await db.exec("ROLLBACK");
+ try{const definition=await installedDefinition();await assert.rejects(db.exec(readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql","utf8")),/Inherited report history write privileges remain/);await db.exec("ROLLBACK");
   assert.equal(await installedDefinition(),definition);assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_trigger WHERE tgname='snapshot_report_content_update'")).rows[0].n,0);
  }finally{await db.exec("RESET ROLE; REVOKE fixture_history_writer FROM authenticated; REVOKE INSERT ON public.pathway_report_versions FROM fixture_history_writer; DROP ROLE fixture_history_writer");}
 });
@@ -295,8 +295,8 @@ test("broad staging-like TRUNCATE privilege bypasses row-level report visibility
   await db.exec("TRUNCATE public.pathway_reports CASCADE");assert.equal((await state()).reports.length,0);
  }finally{await db.exec("RESET ROLE; REVOKE TRUNCATE ON public.pathway_reports,public.pathway_report_versions FROM authenticated");}
 });
-describe("review-only trigger proposal, not a canonical migration",()=>{
- before(async()=>{await db.exec("RESET ROLE; GRANT ALL ON public.pathway_reports,public.pathway_report_versions TO authenticated");await db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8"));});
+describe("canonical history boundary in a disposable database",()=>{
+ before(async()=>{await db.exec("RESET ROLE; GRANT ALL ON public.pathway_reports,public.pathway_report_versions TO authenticated");await db.exec(readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql","utf8"));});
  test("direct owner updates snapshot exact prior content and actual actor",async()=>{
   await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);
   const result=await state();assert.deepEqual(result.versions.map(v=>v.content),[original]);assert.equal(result.versions[0].created_by,owner);assert.deepEqual(result.reports[0].content,next);

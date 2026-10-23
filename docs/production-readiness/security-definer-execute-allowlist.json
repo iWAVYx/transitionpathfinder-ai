@@ -96,6 +96,7 @@
     "public.release_expired_license_allocations()",
     "public.release_expired_license_reservations()",
     "public.resolve_share_token(text)",
+    "public.snapshot_report_content_update()",
     "public.tg_admin_doc_access_grants_immutable()",
     "public.tg_channel_messages_enforce_legal_hold()",
     "public.tg_channels_enforce_legal_hold()",
@@ -105,11 +106,15 @@
     "public.track_share_view(text)",
     "public.user_in_quiet_hours(uuid)"
   ],
-  "serviceRoleExecute": "all routines in scope",
+  "serviceRoleExecute": "all routines in scope except serviceRoleExecuteForbidden",
   "notes": {
     "anonymous": "Only reviewed column-limited catalog content and unsubscribe entry points are callable without a session. Report-share resolution and view tracking are server-only.",
     "authenticated": "The allowlist contains caller-authorized RPCs, narrow form-template readers, and helpers required by row-level security; internal triggers and maintenance routines are excluded.",
     "futureFunctions": "Every future SECURITY DEFINER routine must revoke PUBLIC and client-role execution before granting its reviewed callers.",
-    "shareRelease": "Server caller must be deployed before the separately authorized server-only share grant migration; verify public links and direct RPC denial in staging before production authorization."
-  }
+    "shareRelease": "Server caller must be deployed before the separately authorized server-only share grant migration; verify public links and direct RPC denial in staging before production authorization.",
+    "internalHistoryTrigger": "The exact snapshot_report_content_update() trigger has no ordinary caller, including service_role. Trigger execution and privileged table maintenance do not require an EXECUTE grant. All other reviewed service-role grants remain required."
+  },
+  "serviceRoleExecuteForbidden": [
+    "public.snapshot_report_content_update()"
+  ]
 }

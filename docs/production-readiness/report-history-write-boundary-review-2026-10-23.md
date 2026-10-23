@@ -1,5 +1,19 @@
 # Report History Write Boundary Review — October 23, 2026
 
+## October 23 — Canonical Report-History Candidate (Not Applied)
+
+- [x] Prepared additive `20261023020000_enforce_pathway_report_content_history.sql` from the validated proposal; no applied migration was edited. Permitted content updates snapshot prior content and actual actor; client version fabrication and structural grants are removed while report RLS/editing and service table administration remain.
+- [x] Registered the exact internal trigger as client-execution-forbidden and the sole service-role EXECUTE exception. It has no ordinary RPC caller. All other privileged routines retain their reviewed service grants; PUBLIC/client allowlists are unchanged.
+- [x] Local disposable validation: 37 database cases pass, two multi-session cases await native PostgreSQL; 41 source/permission/readiness contracts pass. Earlier prototype native evidence remains historical, not acceptance of this canonical candidate.
+- [ ] Verify native concurrency and the **combined complete canonical replay**, including exact final privileged-routine inventory, trigger metadata, table/column grants and invoker RPC permissions. A new read-only replay assertion is included in CI.
+- [ ] Review exact candidate/checksum and staged application compatibility; settle Owner/admin planning-data access separately. Existing administrative exceptions are preserved, not approved for production by this change.
+- [ ] Obtain new specific authorization before any hosted migration, deployment, publication or bounded fixture acceptance run. Previously approved fixture runs are complete.
+
+Canonical source inventory is now 205 migrations; 11 are pending against the **saved September 17 production observation**. This does not claim a fresh production inspection. Current staging remains approved `a2c5564c` / runtime `c4e3096b…9adb13d`, 1,184 files. The local reader-control fix and this migration are not deployed. Production remains NO-GO. Stale browser intent, retention/large reports, removed-member bearer access and full role/demo/provider/export acceptance remain open. Full TF-01–TF-26 roadmap and deferred Parent Pilot/Pathway Report Snapshot are retained.
+
+Earlier proposal checkpoints below are retained as historical evidence. The canonical candidate above supersedes their not-canonical status; it remains unapplied.
+
+
 Status: **review-only proposal, not canonical or applied**. One read-only isolated staging catalog query followed native validation; no application rows were read. No new fixture, migration, source synchronization, deployment, publication, account/access change or AI call occurred in this work. Both staging applications retain approved `a2c5564c` runtime fingerprint `c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d`, 1,184 files. Production remains unchanged and NO-GO.
 
 ## Confirmed Disposable Reproductions
@@ -56,7 +70,7 @@ This is **not immutable audit storage**: report deletion still cascades history;
 
 The source review found the saved report rendering Restore/regeneration without a server-returned ownership hint even though both mutations require ownership. The local follow-up now returns `is_report_owner`, hides all relevant content controls for non-owners or missing/malformed hints and preserves readable history/print/share workflows. Missing restore permission defaults to false; permission loss during a pending version fetch stops the write. Both handler entry points continue to deny non-owners independently, including forged hint input. This applies by actual report ownership across all seven role labels, not by a privileged role shortcut. Full unit suite: 4,399; TypeScript and 103 focused cases pass. All eight automatic checks pass on exact `ee3cbf5c77117b84196719a6cb9da19af9b76372`; [eligibility evidence](evidence/report-action-eligibility-2026-10-23.json) pins source, checks and the unchanged SQL proposal. It is not deployed; hosted role checks remain required. The hint is not full entitlement/authorization proof, and it does not remove existing Owner/admin backend read/update exceptions. Stale browser intent still requires a separate observed-revision design.
 
-## Canonical Integration Review Item
+## Historical Canonical Integration Review Item (Resolved in Local Candidate Above)
 
 The prototype denies EXECUTE on its SECURITY DEFINER trigger function to service_role as well as clients, because trigger execution does not require the ordinary caller to execute it as an RPC. The existing `security-definer-execute-allowlist.json` instead documents service execution for all routines in scope, and the September least-privilege migration verifies that contract for routines present at its execution. Before canonicalizing this proposal, reconcile the new routine's service policy explicitly: a narrowly reviewed trigger-only no-execution exception, or a justified service grant with matching tests. Do not silently broaden a grant or relax the checks for every routine. Register the function as client-execution-forbidden and preserve PUBLIC/anon/authenticated denial.
 

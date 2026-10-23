@@ -60,7 +60,7 @@ test("privileged-routine allowlist is exact, unique, and fail closed", () => {
 
   assert.equal(allowlist.anonymousExecute.length, 6);
   assert.equal(allowlist.authenticatedExecute.length, 63);
-  assert.equal(allowlist.clientExecuteForbidden.length, 28);
+  assert.equal(allowlist.clientExecuteForbidden.length, 29);
 
   for (const signature of allowlist.anonymousExecute) {
     assert.ok(
@@ -104,4 +104,18 @@ test("migration verifies live effective privileges and aborts on drift", () => {
     migration,
     /Production application requires a separately approved maintenance window/,
   );
+});
+
+test("history trigger is the sole reviewed service execution exception", () => {
+  assert.equal(allowlist.serviceRoleExecute, "all routines in scope except serviceRoleExecuteForbidden");
+  assert.deepEqual(allowlist.serviceRoleExecuteForbidden, ["public.snapshot_report_content_update()"]);
+  assert.ok(allowlist.clientExecuteForbidden.includes(allowlist.serviceRoleExecuteForbidden[0]));
+  const boundary = readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql", "utf8");
+  assert.match(boundary, /REVOKE ALL ON FUNCTION public\.snapshot_report_content_update\(\) FROM PUBLIC,anon,authenticated,service_role;/);
+  assert.doesNotMatch(boundary, /GRANT EXECUTE ON FUNCTION public\.snapshot_report_content_update/);
+  assert.match(boundary, /RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog/);
+  assert.match(boundary, /CREATE TRIGGER snapshot_report_content_update AFTER UPDATE OF content ON public\.pathway_reports/);
+  // The replaced atomic RPC remains INVOKER and is deliberately outside the SD allowlist.
+  assert.match(boundary, /RETURNS integer LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog/);
+  assert.ok(![...allowlist.authenticatedExecute,...allowlist.clientExecuteForbidden].some(s => s.includes("save_pathway_report_content_atomic")));
 });

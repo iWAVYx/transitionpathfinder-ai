@@ -1,5 +1,17 @@
 # PR211 Release Review and Open Gates
 
+## October 23 — Canonical Report-History Candidate (Not Applied)
+
+- [x] Prepared additive `20261023020000_enforce_pathway_report_content_history.sql` from the validated proposal; no applied migration was edited. Permitted content updates snapshot prior content and actual actor; client version fabrication and structural grants are removed while report RLS/editing and service table administration remain.
+- [x] Registered the exact internal trigger as client-execution-forbidden and the sole service-role EXECUTE exception. It has no ordinary RPC caller. All other privileged routines retain their reviewed service grants; PUBLIC/client allowlists are unchanged.
+- [x] Local disposable validation: 37 database cases pass, two multi-session cases await native PostgreSQL; 41 source/permission/readiness contracts pass. Earlier prototype native evidence remains historical, not acceptance of this canonical candidate.
+- [ ] Verify native concurrency and the **combined complete canonical replay**, including exact final privileged-routine inventory, trigger metadata, table/column grants and invoker RPC permissions. A new read-only replay assertion is included in CI.
+- [ ] Review exact candidate/checksum and staged application compatibility; settle Owner/admin planning-data access separately. Existing administrative exceptions are preserved, not approved for production by this change.
+- [ ] Obtain new specific authorization before any hosted migration, deployment, publication or bounded fixture acceptance run. Previously approved fixture runs are complete.
+
+Canonical source inventory is now 205 migrations; 11 are pending against the **saved September 17 production observation**. This does not claim a fresh production inspection. Current staging remains approved `a2c5564c` / runtime `c4e3096b…9adb13d`, 1,184 files. The local reader-control fix and this migration are not deployed. Production remains NO-GO. Stale browser intent, retention/large reports, removed-member bearer access and full role/demo/provider/export acceptance remain open. Full TF-01–TF-26 roadmap and deferred Parent Pilot/Pathway Report Snapshot are retained.
+
+
 ## Owner-Only Report Controls Prepared Across Role Readers — October 23, 2026
 
 The authenticated report reader now returns a strict `is_report_owner` hint derived from the stored report owner and authenticated caller, without exposing the owner ID or accepting a client ownership claim. The saved reader hides both regeneration entry points and Restore for non-owning/unconfirmed readers while retaining readable history, printing and existing sharing. Owners retain restore and linked-student generation. The panel defaults to read-only when the capability is absent and cancels a pending version fetch if restore eligibility disappears. Existing mutation handlers still independently enforce ownership/RLS/entitlements; this hint does not grant access or settle Owner/admin report SELECT.

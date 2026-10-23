@@ -16,6 +16,7 @@ on:
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
       - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/report-history-canonical-grants.mjs"
       - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/database/share-token-write-restriction.test.mjs"
       - "docs/production-readiness/proposals/share-token-*.sql"
@@ -36,6 +37,7 @@ on:
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
       - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/report-history-canonical-grants.mjs"
       - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/database/share-token-write-restriction.test.mjs"
       - "docs/production-readiness/proposals/share-token-*.sql"
@@ -171,6 +173,12 @@ jobs:
           done
           echo "replayed $count migrations"
           test "$count" -ge 175
+
+      - name: Verify combined canonical history and privileged routine permissions
+        run: |
+          REPORT_HISTORY_CANONICAL_REPLAY=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node tests/database/report-history-canonical-grants.mjs
 
       - name: Assert realtime.messages policies applied (no silent drift)
         run: |
