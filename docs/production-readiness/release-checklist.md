@@ -1,5 +1,12 @@
 # Production release checklist
 
+## Direct Report History Boundary Proposed — October 23, 2026
+
+Disposable SQL now reproduces direct owner content edits without history and fabricated version insertion/actor attribution. A review-only trigger proposal snapshots every permitted SQL content UPDATE and blocks ordinary direct version mutations while preserving existing report RLS/editor capabilities and the owner-only invoker RPC. Owner administrative SELECT/UPDATE remains an explicit unresolved policy decision; the proposal does not silently remove it. Local SQL: 35 pass, two native concurrency cases skipped; three retained source contracts pass. Exact-commit native PostgreSQL/replay and fresh read-only staging catalog review are next. [Scope, all-role assessment, security/recovery gates and limitations](report-history-write-boundary-review-2026-10-23.md).
+
+No canonical migration or application source changed; runtime remains approved `c4e3096b…9adb13d` /1,184 files. No hosted query/fixture, synchronization/deployment/publication, provider call, account/access change or production action occurred. Production stays NO-GO and the complete roadmap/deferred Parent Pilot–Pathway Snapshot remain preserved.
+
+
 ## Isolated Sharing Acceptance Passed and Cleaned — October 23, 2026
 
 - [x] Both separately authorized sharing migrations committed and verified on isolated backend `qgrertkqbwanerqqemph`; browser RPC execution is removed, service execution retained, and token writes limited to creator-owned one-way revocation.

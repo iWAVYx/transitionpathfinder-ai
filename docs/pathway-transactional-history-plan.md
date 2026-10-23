@@ -1,5 +1,12 @@
 # Transactional Pathway Report History
 
+## Direct Report History Boundary Proposed — October 23, 2026
+
+Disposable SQL now reproduces direct owner content edits without history and fabricated version insertion/actor attribution. A review-only trigger proposal snapshots every permitted SQL content UPDATE and blocks ordinary direct version mutations while preserving existing report RLS/editor capabilities and the owner-only invoker RPC. Owner administrative SELECT/UPDATE remains an explicit unresolved policy decision; the proposal does not silently remove it. Local SQL: 35 pass, two native concurrency cases skipped; three retained source contracts pass. Exact-commit native PostgreSQL/replay and fresh read-only staging catalog review are next. [Scope, all-role assessment, security/recovery gates and limitations](production-readiness/report-history-write-boundary-review-2026-10-23.md).
+
+No canonical migration or application source changed; runtime remains approved `c4e3096b…9adb13d` /1,184 files. No hosted query/fixture, synchronization/deployment/publication, provider call, account/access change or production action occurred. Production stays NO-GO and the complete roadmap/deferred Parent Pilot–Pathway Snapshot remain preserved.
+
+
 Prepared October 12, 2026; staging execution recorded October 13, 2026. The specifically authorized migration is applied to isolated staging only. Both callers are switched only in draft source; neither hosted application has been deployed with this cutover. Production is unchanged; hosted save/regenerate behavior still uses separate snapshot and content requests.
 
 ## Current Writer Inventory and Release Order — October 22, 2026

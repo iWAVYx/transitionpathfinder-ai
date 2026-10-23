@@ -1,5 +1,5 @@
 // Credential-free fixture only. No staging or production connections.
-import test, { before, beforeEach, after } from "node:test";
+import test, { before, beforeEach, after, describe } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -255,4 +255,121 @@ test("changed function grants prevent a misleading ledger correction", async () 
     await assert.rejects(db.exec(historyLedgerReconciliationSql), /differs from reviewed source or grants/);
     assert.deepEqual(await ledgerRow(), row);
   } finally { await db.exec("REVOKE EXECUTE ON FUNCTION public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text) FROM anon"); }
+});
+
+// Baseline reproductions use real table grants/RLS, not mocked query builders.
+test("baseline direct owner content update bypasses report history", async()=>{
+ await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);
+ const result=await state();assert.deepEqual(result.reports[0].content,next);assert.equal(result.versions.length,0);
+});
+test("baseline owner can insert a fabricated version attributed to another identity",async()=>{
+ await db.query("INSERT INTO public.pathway_report_versions(report_id,version_number,content,change_summary,created_by) VALUES ($1,99,$2::jsonb,'Fictional forged history',$3)",[report,JSON.stringify(next),other]);
+ const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.reports[0].content,original);
+});
+test("review proposal rejects disabled RLS without changing grants or installing a trigger",async()=>{
+ await db.exec("RESET ROLE; ALTER TABLE public.pathway_reports DISABLE ROW LEVEL SECURITY");
+ try{await assert.rejects(db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8")),/Unexpected report history ownership or RLS/);await db.exec("ROLLBACK");
+  assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.pathway_report_versions','INSERT') AS allowed")).rows[0].allowed,true);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_trigger WHERE tgname='snapshot_report_content_update'")).rows[0].n,0);
+ }finally{await db.exec("RESET ROLE; ALTER TABLE public.pathway_reports ENABLE ROW LEVEL SECURITY");}
+});
+test("privileged authenticated role aborts before any proposal change",async()=>{
+ await db.exec("RESET ROLE; ALTER ROLE authenticated BYPASSRLS");
+ try{await assert.rejects(db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8")),/Unexpected privileged client role/);await db.exec("ROLLBACK");
+  assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.pathway_report_versions','INSERT') AS allowed")).rows[0].allowed,true);
+ }finally{await db.exec("RESET ROLE; ALTER ROLE authenticated NOBYPASSRLS");}
+});
+test("inherited version INSERT stops the entire proposal transaction",async()=>{
+ await db.exec("RESET ROLE; CREATE ROLE fixture_history_writer; GRANT INSERT ON public.pathway_report_versions TO fixture_history_writer; GRANT fixture_history_writer TO authenticated");
+ try{const definition=await installedDefinition();await assert.rejects(db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8")),/Inherited report history write privileges remain/);await db.exec("ROLLBACK");
+  assert.equal(await installedDefinition(),definition);assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_trigger WHERE tgname='snapshot_report_content_update'")).rows[0].n,0);
+ }finally{await db.exec("RESET ROLE; REVOKE fixture_history_writer FROM authenticated; REVOKE INSERT ON public.pathway_report_versions FROM fixture_history_writer; DROP ROLE fixture_history_writer");}
+});
+describe("review-only trigger proposal, not a canonical migration",()=>{
+ before(async()=>{await db.exec("RESET ROLE");await db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8"));});
+ test("direct owner updates snapshot exact prior content and actual actor",async()=>{
+  await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);
+  const result=await state();assert.deepEqual(result.versions.map(v=>v.content),[original]);assert.equal(result.versions[0].created_by,owner);assert.deepEqual(result.reports[0].content,next);
+ });
+ test("RPC save and restore each create exactly one version with the supplied summary",async()=>{
+  assert.equal((await save()).rows[0].version,1);await as(db);assert.equal((await save(db,next,original,"Restored")).rows[0].version,2);
+  const result=await state();assert.deepEqual(result.versions.map(v=>v.content),[original,next]);assert.deepEqual(result.versions.map(v=>v.change_summary),["Saved","Restored"]);
+ });
+ test("identical-content save retains the existing one-version-per-save contract",async()=>{
+  assert.equal((await save(db,original,original)).rows[0].version,1);assert.equal((await state()).versions.length,1);
+ });
+ test("direct version insertion, alteration and deletion are denied",async()=>{
+  await save();await as(db);
+  await assert.rejects(db.query("INSERT INTO public.pathway_report_versions(report_id,version_number,content,created_by) VALUES ($1,99,$2::jsonb,$3)",[report,JSON.stringify(next),other]),{code:"42501"});
+  await assert.rejects(db.query("UPDATE public.pathway_report_versions SET content='{}'::jsonb WHERE report_id=$1",[report]),{code:"42501"});
+  await assert.rejects(db.query("DELETE FROM public.pathway_report_versions WHERE report_id=$1",[report]),{code:"42501"});
+  assert.equal((await state()).versions.length,1);
+ });
+ test("unrelated caller cannot modify a report and does not gain history access",async()=>{
+  await as(db,other);assert.equal((await db.query("UPDATE public.pathway_reports SET content='{}'::jsonb WHERE id=$1 RETURNING id",[report])).rows.length,0);
+  assert.equal((await db.query("SELECT * FROM public.pathway_report_versions")).rows.length,0);assert.equal((await state()).versions.length,0);
+ });
+ test("existing permitted editor can update through RLS and gets attributed history, but cannot use owner RPC",async()=>{
+  await db.exec(`RESET ROLE; CREATE OR REPLACE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;
+   CREATE POLICY fixture_editor_read ON public.pathway_reports FOR SELECT TO authenticated USING(student_id IS NOT NULL AND public.can_edit_student(auth.uid(),student_id));
+   UPDATE public.pathway_reports SET student_id='00000000-0000-4000-8000-000000000040' WHERE id='${report}';`);
+  try{await as(db,other);await assert.rejects(save(),{code:"42501"});
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2 RETURNING id",[JSON.stringify(next),report])).rows.length,1);
+   const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.versions[0].content,original);
+  }finally{await db.exec("RESET ROLE; DROP POLICY fixture_editor_read ON public.pathway_reports; CREATE OR REPLACE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;");}
+ });
+ test("metadata-only updates do not create content-history versions",async()=>{
+  await db.query("UPDATE public.pathway_reports SET model='fixture-metadata' WHERE id=$1",[report]);assert.equal((await state()).versions.length,0);
+ });
+ test("history failure rolls back direct updates and RPC saves",async()=>{
+  await db.exec("RESET ROLE; ALTER TABLE public.pathway_report_versions ADD CONSTRAINT fixture_history_reject CHECK(false)");
+  try{await as(db);await assert.rejects(db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]),{code:"23514"});
+   await assert.rejects(save(),{code:"23514"});const result=await state();assert.deepEqual(result.reports[0].content,original);assert.equal(result.versions.length,0);
+  }finally{await db.exec("RESET ROLE; ALTER TABLE public.pathway_report_versions DROP CONSTRAINT fixture_history_reject");}
+ });
+ test("skipped report update creates no orphan snapshot",async()=>{
+  await db.exec("RESET ROLE; CREATE FUNCTION public.fixture_skip_update() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NULL; END $$; CREATE TRIGGER fixture_skip BEFORE UPDATE ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION public.fixture_skip_update();");
+  try{await as(db);await assert.rejects(save(),{code:"42501"});assert.equal((await state()).versions.length,0);}
+  finally{await db.exec("RESET ROLE; DROP TRIGGER fixture_skip ON public.pathway_reports; DROP FUNCTION public.fixture_skip_update()");}
+ });
+ test("conflicting RPC still rejects stale server-observed content",async()=>{
+  await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);await assert.rejects(save(),{code:"40001"});const result=await state();assert.equal(result.versions.length,1);assert.deepEqual(result.reports[0].content,next);
+ });
+ test("snapshot trigger is not client executable and RPC remains invoker scoped",async()=>{
+  await db.exec("RESET ROLE");for(const role of ["anon","authenticated","service_role"]){assert.equal((await db.query("SELECT has_function_privilege($1,'public.snapshot_report_content_update()','EXECUTE') AS allowed",[role])).rows[0].allowed,false);}
+  assert.equal((await db.query("SELECT prosecdef FROM pg_proc WHERE oid=$1::regprocedure",[signature])).rows[0].prosecdef,false);
+ });
+ test("invalid direct content is rejected without changing the report",async()=>{
+  await assert.rejects(db.query("UPDATE public.pathway_reports SET content='[]'::jsonb WHERE id=$1",[report]),{code:"22023"});const result=await state();assert.equal(result.versions.length,0);assert.deepEqual(result.reports[0].content,original);
+ });
+ test("broader SELECT visibility alone does not permit report edits",async()=>{
+  await db.exec("RESET ROLE; CREATE POLICY fixture_reader ON public.pathway_reports FOR SELECT TO authenticated USING(true)");
+  try{await as(db,other);assert.equal((await db.query("SELECT id FROM public.pathway_reports")).rows.length,2);assert.equal((await db.query("UPDATE public.pathway_reports SET content='{}'::jsonb WHERE id=$1 RETURNING id",[report])).rows.length,0);assert.equal((await state()).versions.length,0);}
+  finally{await db.exec("RESET ROLE; DROP POLICY fixture_reader ON public.pathway_reports");}
+ });
+ test("canonical admin read/update exception is preserved and attributed, not silently removed",async()=>{
+  await db.exec(`RESET ROLE; CREATE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+   CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;`);
+  const policy=readFileSync("supabase/migrations/20260529000630_71025c8e-e746-4a03-8685-c152eedcf177.sql","utf8").split("-- 2.")[0];await db.exec(policy);
+  try{await as(db,other);assert.equal((await db.query("SELECT id FROM public.pathway_reports")).rows.length,2);await assert.rejects(save(),{code:"42501"});
+   await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.versions[0].content,original);
+  }finally{await db.exec("RESET ROLE; DROP POLICY \"View reports via owner or student access\" ON public.pathway_reports; CREATE POLICY \"Users view own reports\" ON public.pathway_reports FOR SELECT TO authenticated USING(auth.uid()=user_id); CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$; DROP FUNCTION public.can_access_student(uuid,uuid)");}
+ });
+ test("privileged maintenance with no end-user claim records an honest null actor",async()=>{
+  await db.exec("RESET ROLE; SELECT set_config('request.jwt.claim.sub','',false)");await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);assert.equal((await state()).versions[0].created_by,null);
+  for(const privilege of ["INSERT","UPDATE","DELETE"])assert.equal((await db.query("SELECT has_table_privilege('service_role','public.pathway_report_versions',$1) AS allowed",[privilege])).rows[0].allowed,true);
+ });
+ test("two direct writers serialize history while another report proceeds",{skip:!real,timeout:20000},async()=>{
+  const winner=await newSession(),loser=await newSession(),unrelated=await newSession();for(const client of [winner,loser,unrelated])await as(client);
+  await winner.exec("BEGIN");
+  try{await winner.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);
+   const pid=(await loser.query("SELECT pg_backend_pid() AS pid")).rows[0].pid;
+   const later={summary:"Fictional second direct edit"};const pending=loser.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(later),report]).then(value=>({value}),error=>({error}));
+   await db.exec("RESET ROLE");const deadline=Date.now()+5000;let waiting=false;
+   while(Date.now()<deadline){waiting=(await db.query("SELECT wait_event_type='Lock' AS waiting FROM pg_stat_activity WHERE pid=$1",[pid])).rows[0]?.waiting===true;if(waiting)break;await new Promise(resolve=>setTimeout(resolve,25));}assert.ok(waiting,"Second direct writer must wait on this report");
+   await unrelated.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),secondReport]);await winner.exec("COMMIT");const result=await pending;if(result.error)throw result.error;
+   const saved=await state();const versions=saved.versions.filter(v=>v.report_id===report);assert.deepEqual(versions.map(v=>v.version_number),[1,2]);assert.deepEqual(versions.map(v=>v.content),[original,next]);assert.deepEqual(saved.reports.find(r=>r.id===report).content,later);
+  }finally{await winner.exec("ROLLBACK");}
+ });
+
 });
