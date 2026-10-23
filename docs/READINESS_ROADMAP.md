@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## October 23 — Explicit-Access and Zod Release Verified on Both Staging Sites
+
+- [x] Cloudflare release40026702286 succeeded on exact `a90665ff`. Existing isolated Lovable sync `cdd79ef7` built, its private source identity was verified, and the authorized existing publication completed. Both stable hosts serve runtime `92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6`, 1,184 files, isolated backend, sandbox payments and passing isolation. Lovable’s `dev` identity is retained honestly; no commit value was invented. Earlier publication delay is resolved without support requests or a repeat publication.
+- [x] The authorized explicit-access migration and its exact ledger are committed and independently verified on isolated staging. Zod 4.6.7 and its compatibility corrections are now staged. Settings, generated backend types and the builder title are preserved. All eight exact-candidate automatic checks, 4,432 unit tests, TypeScript, 59 native history cases and full 206-migration replay remain recorded evidence.
+- [x] Human-approved read-only [run40027259606](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40027259606) passed on exact `a90665ff`: seven existing role sign-ins, four anonymous mobile/desktop sample-report journeys and three fictional PDF exports, with zero retries or AI calls. Assertions cover audience selection, URL/reload/Back/Forward, sample-details return, no report horizontal overflow, loaded watermark, complete ending/source note and meeting questions printed once. Artifact sanitization passed before download. No records were created; no cleanup was needed. This is not a new all-page visual or native-print review.
+- [ ] Keep hosted linked-editor/admin fixtures, all-role feature/live generation acceptance, stale browser intent, bearer lifecycle and wider production gates open. No production/main merge, new accounts/relationships, payments or manual secrets changes. Report length and cosmetic polish remain deferred; full TF-01–TF-26 and Parent Pilot/Pathway Snapshot remain retained.
+
+See `docs/production-readiness/evidence/explicit-planning-access-staging-rollout-2026-10-23.json`. This supersedes the pending application-publication status below for isolated staging only.
+
 ## October 23 — Authorized Explicit-Access Migration Verified on Staging
 
 - [x] User authorized reviewed `a90665ff` and submitted GitHub’s required human release review. Only `20261023030000_require_explicit_planning_report_access.sql` plus its exact canonical ledger record committed on isolated `qgrertkqbwanerqqemph`. Preflight read catalog metadata only: expected history prerequisite, ten prior policies, no new ledger/helper and no active other report writer.

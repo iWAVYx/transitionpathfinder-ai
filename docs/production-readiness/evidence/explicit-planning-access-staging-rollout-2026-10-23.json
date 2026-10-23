@@ -1,6 +1,6 @@
 {
   "date": "2026-10-23",
-  "status": "authorized-staging-migration-verified-app-rollout-in-progress",
+  "status": "authorized-migration-both-staging-publications-and-bounded-read-only-acceptance-passed",
   "authorization": "User authorized exact a90665ff staging migration/deploy/isolated publication/read-only checks and submitted required GitHub human review. No fixtures or AI authorized.",
   "sourceSha": "a90665ff34db4c37e5ddd5ebe442a7fd71821caa",
   "target": "qgrertkqbwanerqqemph",
@@ -398,7 +398,7 @@
     "note": "Dependency and lockfile changes are explicitly authorized; only the seven named runtime files were copied."
   },
   "remaining": [
-    "Both published application identities and read-only role/report acceptance pending",
+    "Hosted linked-editor/admin fixture behavior and all-role/live-generation acceptance remain separate, unperformed gates.",
     "Hosted linked-editor/admin fixtures and live generated-output acceptance unperformed",
     "Stale browser write intent, bearer lifecycle and broader production gates remain open"
   ],
@@ -469,12 +469,51 @@
         ]
       }
     },
-    "publication": "updating-existing-staging-publication",
-    "stableHealth": "not-yet-verified-new-fingerprint"
+    "publication": "completed-existing-isolated-staging-site",
+    "stableHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "identityLimit": "Lovable returns dev; exact source parity is established by fingerprint, not invented Git metadata."
   },
   "readOnlyCheck": {
     "runId": 40027259606,
-    "status": "awaiting-required-human-review",
-    "scope": "Seven existing role sign-ins, four anonymous prepared-report journeys, three fictional PDF exports; no records or AI calls"
+    "status": "success",
+    "scope": "Seven existing role sign-ins, four anonymous prepared-report journeys, three fictional PDF exports; no records or AI calls",
+    "sourceSha": "a90665ff34db4c37e5ddd5ebe442a7fd71821caa",
+    "roleSignInsPassed": 7,
+    "anonymousReportJourneysPassed": 4,
+    "samplePdfExports": 3,
+    "retries": 0,
+    "artifactSanitizer": "passed-before-download",
+    "recordsCreated": 0,
+    "aiCalls": 0,
+    "cleanup": "Not required; no fixtures created",
+    "assertions": [
+      "One-click audience selection, URL/reload/Back/Forward, sample-details return and no report horizontal overflow",
+      "Loaded watermark, complete ending/source note, final question kept with source, each meeting question printed once, no text-empty PDF pages"
+    ],
+    "limits": "No new all-page visual/native-print review; role sign-in and prepared samples do not establish full role tools, live generation or hosted linked-editor/admin behavior."
   }
 }
