@@ -19,7 +19,7 @@ BEGIN
     END IF;
   END LOOP;
   IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)'::regprocedure
-    AND NOT prosecdef AND proowner=current_user::regrole AND md5(prosrc)='f80313504d2ea967cabc32dbb55d3af3') THEN
+    AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND proowner=current_user::regrole AND md5(prosrc)='f80313504d2ea967cabc32dbb55d3af3') THEN
     RAISE EXCEPTION 'Unexpected atomic report function; review required.';
   END IF;
   IF NOT has_function_privilege('authenticated','public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)','EXECUTE')
@@ -27,17 +27,28 @@ BEGIN
     OR has_function_privilege('service_role','public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)','EXECUTE') THEN
     RAISE EXCEPTION 'Unexpected atomic report execution grants; review required.';
   END IF;
-  IF has_table_privilege('authenticated','public.pathway_reports','TRIGGER')
-    OR has_table_privilege('authenticated','public.pathway_report_versions','TRIGGER')
-    OR has_table_privilege('authenticated','public.pathway_report_versions','TRUNCATE') THEN
-    RAISE EXCEPTION 'Unexpected client trigger/truncate privileges; review required.';
-  END IF;
-  IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.pathway_reports'::regclass
-    AND tgname='snapshot_report_content_update') THEN
-    RAISE EXCEPTION 'History trigger already exists; review required.';
+  IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid IN ('public.pathway_reports'::regclass,'public.pathway_report_versions'::regclass)
+    AND NOT tgisinternal) THEN
+    RAISE EXCEPTION 'Unexpected report/history trigger; review required.';
   END IF;
 END;
 $preflight$;
+
+-- Explicitly remove the extra staging catalog privileges; no product caller
+-- requires client DDL or whole-table truncation. Service maintenance is retained.
+REVOKE TRIGGER,TRUNCATE ON public.pathway_reports,public.pathway_report_versions FROM PUBLIC,anon,authenticated;
+DO $structural_grants$
+DECLARE actor text; t regclass;
+BEGIN
+ FOREACH actor IN ARRAY ARRAY['anon','authenticated'] LOOP
+  FOREACH t IN ARRAY ARRAY['public.pathway_reports'::regclass,'public.pathway_report_versions'::regclass] LOOP
+   IF has_table_privilege(actor,t,'TRIGGER') OR has_table_privilege(actor,t,'TRUNCATE') THEN
+    RAISE EXCEPTION 'Inherited client trigger/truncate privileges remain; review required.';
+   END IF;
+  END LOOP;
+ END LOOP;
+END;
+$structural_grants$;
 
 CREATE FUNCTION public.snapshot_report_content_update()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
@@ -72,11 +83,13 @@ BEGIN
  FOR c IN SELECT attname FROM pg_attribute WHERE attrelid='public.pathway_report_versions'::regclass AND attnum>0 AND NOT attisdropped LOOP
   EXECUTE format('REVOKE INSERT (%I), UPDATE (%I) ON public.pathway_report_versions FROM PUBLIC,anon,authenticated',c.attname,c.attname);
   IF has_column_privilege('authenticated','public.pathway_report_versions',c.attname,'INSERT')
-    OR has_column_privilege('authenticated','public.pathway_report_versions',c.attname,'UPDATE') THEN
+    OR has_column_privilege('authenticated','public.pathway_report_versions',c.attname,'UPDATE')
+    OR has_column_privilege('anon','public.pathway_report_versions',c.attname,'INSERT')
+    OR has_column_privilege('anon','public.pathway_report_versions',c.attname,'UPDATE') THEN
     RAISE EXCEPTION 'Inherited report history write privileges remain; review required.';
   END IF;
  END LOOP;
- IF has_table_privilege('authenticated','public.pathway_report_versions','DELETE') THEN
+ IF has_table_privilege('authenticated','public.pathway_report_versions','DELETE') OR has_table_privilege('anon','public.pathway_report_versions','DELETE') THEN
   RAISE EXCEPTION 'Inherited report history delete privileges remain; review required.';
  END IF;
 END;

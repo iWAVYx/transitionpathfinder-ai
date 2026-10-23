@@ -1,5 +1,12 @@
 # Production release checklist
 
+## Report History Proposal Reconciled to Actual Staging Catalog — October 23, 2026
+
+Initial review-only candidate `01c1a57d` passes all 37 native PostgreSQL cases (zero skips, both concurrency journeys), full canonical replay and all eight automatic checks. A subsequent read-only isolated staging catalog query confirms the RPC identity and current Team history policies but finds broader effective client TRIGGER/TRUNCATE and version write grants than the narrow initial fixture. No hosted mutation was attempted. The replacement proposal explicitly narrows those structural/version-write capabilities, preserves report CRUD/RLS/editor/service behavior and uses the actual Team policies plus broad grants in its disposable fixture. Local replacement: 37 pass/two native concurrency skips, 39 total. Exact-head native CI remains required. [Evidence, scoped proposal, role matrix and limits](report-history-write-boundary-review-2026-10-23.md).
+
+Only catalog metadata was read; no application content, hosted fixture, schema/grant/ledger change, synchronization, deployment/publication, AI call or production access. The proposal remains outside canonical migrations, with both staging runtimes unchanged. Owner administrative report access, stale browser intent, full roadmap and deferred Parent Pilot/Pathway Snapshot remain open.
+
+
 ## Direct Report History Boundary Proposed — October 23, 2026
 
 Disposable SQL now reproduces direct owner content edits without history and fabricated version insertion/actor attribution. A review-only trigger proposal snapshots every permitted SQL content UPDATE and blocks ordinary direct version mutations while preserving existing report RLS/editor capabilities and the owner-only invoker RPC. Owner administrative SELECT/UPDATE remains an explicit unresolved policy decision; the proposal does not silently remove it. Local SQL: 35 pass, two native concurrency cases skipped; three retained source contracts pass. Exact-commit native PostgreSQL/replay and fresh read-only staging catalog review are next. [Scope, all-role assessment, security/recovery gates and limitations](report-history-write-boundary-review-2026-10-23.md).

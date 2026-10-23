@@ -71,6 +71,7 @@ before(async () => {
     CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     GRANT USAGE ON SCHEMA auth, public TO authenticated, anon, service_role;
     CREATE TYPE public.app_role AS ENUM ('admin');
+    CREATE OR REPLACE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
     CREATE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
     CREATE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
     CREATE FUNCTION public.is_platform_admin(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
@@ -83,6 +84,9 @@ before(async () => {
   await db.exec("ALTER TABLE public.pathway_reports ADD COLUMN student_id uuid");
   await db.exec(readFileSync("supabase/migrations/20260605050011_dea7210b-36a2-424b-b150-4e85e892dec9.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20260612002440_d58544e0-e353-434a-8cd1-c21f48f8026a.sql", "utf8"));
+  // Current canonical Team policies, matching the observed staging predicates.
+  const team=readFileSync("supabase/migrations/20260626004005_5548d717-fc48-4da6-ac20-69d7c80eb9a5.sql","utf8");
+  await db.exec(team.slice(team.indexOf('DROP POLICY IF EXISTS "Owners view report versions"'),team.indexOf('REVOKE EXECUTE ON FUNCTION public.can_access_student')));
   await db.exec(readFileSync("supabase/migrations/20261012190000_atomic_pathway_report_content.sql", "utf8"));
 });
 after(async () => { if (close) await close(); });
@@ -285,8 +289,14 @@ test("inherited version INSERT stops the entire proposal transaction",async()=>{
   assert.equal(await installedDefinition(),definition);assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_trigger WHERE tgname='snapshot_report_content_update'")).rows[0].n,0);
  }finally{await db.exec("RESET ROLE; REVOKE fixture_history_writer FROM authenticated; REVOKE INSERT ON public.pathway_report_versions FROM fixture_history_writer; DROP ROLE fixture_history_writer");}
 });
+test("broad staging-like TRUNCATE privilege bypasses row-level report visibility in disposable SQL",async()=>{
+ await db.exec("RESET ROLE; GRANT TRUNCATE ON public.pathway_reports,public.pathway_report_versions TO authenticated");
+ try{await db.query("UPDATE public.pathway_reports SET user_id=$1 WHERE id=$2",[other,secondReport]);await as(db);assert.equal((await db.query("SELECT id FROM public.pathway_reports")).rows.length,1);
+  await db.exec("TRUNCATE public.pathway_reports CASCADE");assert.equal((await state()).reports.length,0);
+ }finally{await db.exec("RESET ROLE; REVOKE TRUNCATE ON public.pathway_reports,public.pathway_report_versions FROM authenticated");}
+});
 describe("review-only trigger proposal, not a canonical migration",()=>{
- before(async()=>{await db.exec("RESET ROLE");await db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8"));});
+ before(async()=>{await db.exec("RESET ROLE; GRANT ALL ON public.pathway_reports,public.pathway_report_versions TO authenticated");await db.exec(readFileSync("docs/production-readiness/proposals/report-content-history-boundary.sql","utf8"));});
  test("direct owner updates snapshot exact prior content and actual actor",async()=>{
   await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);
   const result=await state();assert.deepEqual(result.versions.map(v=>v.content),[original]);assert.equal(result.versions[0].created_by,owner);assert.deepEqual(result.reports[0].content,next);
@@ -318,6 +328,11 @@ describe("review-only trigger proposal, not a canonical migration",()=>{
    const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.versions[0].content,original);
   }finally{await db.exec("RESET ROLE; DROP POLICY fixture_editor_read ON public.pathway_reports; CREATE OR REPLACE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;");}
  });
+ test("observed broad client grants are narrowed without removing report CRUD or service administration",async()=>{
+  await db.exec("RESET ROLE");for(const table of ["public.pathway_reports","public.pathway_report_versions"]){for(const capability of ["TRIGGER","TRUNCATE"]){for(const role of ["anon","authenticated"])assert.equal((await db.query("SELECT has_table_privilege($1,$2,$3) AS allowed",[role,table,capability])).rows[0].allowed,false);assert.equal((await db.query("SELECT has_table_privilege('service_role',$1,$2) AS allowed",[table,capability])).rows[0].allowed,true);}}
+  for(const capability of ["SELECT","INSERT","UPDATE","DELETE"])assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.pathway_reports',$1) AS allowed",[capability])).rows[0].allowed,true);
+  await as(db);await assert.rejects(db.exec("TRUNCATE public.pathway_reports CASCADE"),{code:"42501"});await assert.rejects(db.exec("CREATE TRIGGER fixture_unauthorized BEFORE UPDATE ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()"),{code:"42501"});assert.equal((await state()).reports.length,2);
+ });
  test("metadata-only updates do not create content-history versions",async()=>{
   await db.query("UPDATE public.pathway_reports SET model='fixture-metadata' WHERE id=$1",[report]);assert.equal((await state()).versions.length,0);
  });
@@ -348,12 +363,12 @@ describe("review-only trigger proposal, not a canonical migration",()=>{
   finally{await db.exec("RESET ROLE; DROP POLICY fixture_reader ON public.pathway_reports");}
  });
  test("canonical admin read/update exception is preserved and attributed, not silently removed",async()=>{
-  await db.exec(`RESET ROLE; CREATE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  await db.exec(`RESET ROLE; CREATE OR REPLACE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
    CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;`);
   const policy=readFileSync("supabase/migrations/20260529000630_71025c8e-e746-4a03-8685-c152eedcf177.sql","utf8").split("-- 2.")[0];await db.exec(policy);
   try{await as(db,other);assert.equal((await db.query("SELECT id FROM public.pathway_reports")).rows.length,2);await assert.rejects(save(),{code:"42501"});
    await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.versions[0].content,original);
-  }finally{await db.exec("RESET ROLE; DROP POLICY \"View reports via owner or student access\" ON public.pathway_reports; CREATE POLICY \"Users view own reports\" ON public.pathway_reports FOR SELECT TO authenticated USING(auth.uid()=user_id); CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$; DROP FUNCTION public.can_access_student(uuid,uuid)");}
+  }finally{await db.exec("RESET ROLE; DROP POLICY \"View reports via owner or student access\" ON public.pathway_reports; CREATE POLICY \"Users view own reports\" ON public.pathway_reports FOR SELECT TO authenticated USING(auth.uid()=user_id); CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$; CREATE OR REPLACE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$");}
  });
  test("privileged maintenance with no end-user claim records an honest null actor",async()=>{
   await db.exec("RESET ROLE; SELECT set_config('request.jwt.claim.sub','',false)");await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);assert.equal((await state()).versions[0].created_by,null);
