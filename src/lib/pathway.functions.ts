@@ -211,11 +211,11 @@ export const getReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
       .select(
-        "id, created_at, content, intake_id, student_id, review_date, student_intakes(student_first_name, grade_band)",
+        "id, user_id, created_at, content, intake_id, student_id, review_date, student_intakes(student_first_name, grade_band)",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -225,6 +225,7 @@ export const getReport = createServerFn({ method: "POST" })
     }
     type Row = {
       id: string;
+      user_id: string;
       created_at: string;
       content: unknown;
       intake_id: string;
@@ -235,6 +236,9 @@ export const getReport = createServerFn({ method: "POST" })
     const r = row as unknown as Row;
     return {
       id: r.id,
+      // Ownership hint for reader controls only; mutation handlers and RLS
+      // still recheck authorization, student access and entitlements.
+      is_report_owner: typeof userId === "string" && userId.length > 0 && r.user_id === userId,
       created_at: r.created_at,
       student_id: r.student_id,
       student_first_name: r.student_intakes?.student_first_name ?? "—",

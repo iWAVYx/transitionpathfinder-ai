@@ -10,16 +10,16 @@ vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) =
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
 vi.mock("@/components/pathway/ReportChapterPager", () => ({ ReportChapterPager: () => null }));
 vi.mock("@/components/pathway/report/PathwayReportLayout", () => ({ PathwayReportLayout: ({ children }: any) => children }));
-vi.mock("@/components/pathway/ReportVersionsPanel", () => ({ ReportVersionsPanel: () => null }));
+vi.mock("@/components/pathway/ReportVersionsPanel", () => ({ ReportVersionsPanel: ({canRestore}:any) => <section>Readable History{canRestore && <button>Restore Version</button>}</section> }));
 vi.mock("@/components/pathway/EvidenceUsedPanel", () => ({ EvidenceUsedPanel: () => null }));
-vi.mock("@/components/pathway/ReportV2Sections", () => ({ RegenerateBanner: () => null }));
+vi.mock("@/components/pathway/ReportV2Sections", () => ({ RegenerateBanner: ({canRegenerate,onRegenerate}:any) => <button disabled={!canRegenerate} onClick={onRegenerate}>Regenerate From Banner</button> }));
 vi.mock("@/components/pathway/ReportView", () => ({ ReportView: ({ report, name, studentId, initialAudience, onRefresh }: any) => <article data-audience={initialAudience} data-student={studentId}><h1>{name}</h1><p>{report.summary}</p><button>Print Report</button>{onRefresh && <button onClick={onRefresh}>Refresh Report</button>}</article> }));
 vi.mock("@/lib/pathway.functions", () => ({ getReport: state.get, linkReportToStudent: state.link, regeneratePathwayReport: state.regenerate }));
 vi.mock("@/lib/students.functions", () => ({ listShareTokens: state.tokens, listStudents: state.students, createShareToken: state.create, revokeShareToken: state.revoke }));
 vi.mock("sonner", () => ({ toast: { error: state.error, success: state.success } }));
 import { Route } from "@/routes/_authenticated/reports.$reportId";
 const Component = Route.options.component!;
-const record = (id: string) => ({ id, student_first_name: `Student ${id}`, student_id: `student-${id}`, created_at: "2026-10-11T12:00:00Z", report: { summary: `Notes for ${id}` } });
+const record = (id: string) => ({ id, is_report_owner: true, student_first_name: `Student ${id}`, student_id: `student-${id}`, created_at: "2026-10-11T12:00:00Z", report: { summary: `Notes for ${id}` } });
 const share = (token: string) => ({ id: token, token, audience: "family", view_count: 0, revoked: false, expires_at: null });
 beforeEach(() => { state.id = "report-a"; state.audience = "family"; state.print = undefined; state.tokens.mockResolvedValue({ tokens: [] }); state.students.mockResolvedValue({ students: [] }); });
 afterEach(() => { cleanup(); vi.resetAllMocks(); vi.restoreAllMocks(); vi.useRealTimers(); });
@@ -151,4 +151,14 @@ it("successful revocation reloads links for the same report and removes the revo
   expect(state.revoke).toHaveBeenCalledExactlyOnceWith({ data: { id: "current-token" } });
   expect(state.tokens).toHaveBeenLastCalledWith({ data: { report_id: "report-a" } });
   expect(screen.queryByText(/share\/current-token/)).toBeNull(); expect(state.error).not.toHaveBeenCalled();
+});
+
+it.each([false,undefined,"true"])("non-owner or unconfirmed ownership %s hides every generation entry point and restore action",async owner=>{
+ state.get.mockResolvedValue({...record("report-a"),is_report_owner:owner});render(<Component/>);await screen.findByText("Notes for report-a");expect(screen.getByText("Readable History")).toBeTruthy();for(const name of ["Refresh Report","Regenerate From Banner","Restore Version"])expect(screen.queryByRole("button",{name})).toBeNull();expect(screen.getByRole("button",{name:"Print Report"})).toBeTruthy();expect(state.regenerate).not.toHaveBeenCalled();
+});
+it("confirmed report owner retains restore and generation controls",async()=>{
+ state.get.mockResolvedValue(record("report-a"));render(<Component/>);await screen.findByText("Notes for report-a");for(const name of ["Refresh Report","Regenerate From Banner","Restore Version"])expect(screen.getByRole("button",{name})).toBeTruthy();expect(state.regenerate).not.toHaveBeenCalled();
+});
+it("an unlinked owner's report retains history but cannot generate until linked",async()=>{
+ state.get.mockResolvedValue({...record("report-a"),student_id:null});render(<Component/>);await screen.findByText("Notes for report-a");expect(screen.queryByRole("button",{name:"Refresh Report"})).toBeNull();expect((screen.getByRole("button",{name:"Regenerate From Banner"}) as HTMLButtonElement).disabled).toBe(true);expect(screen.getByRole("button",{name:"Restore Version"})).toBeTruthy();
 });

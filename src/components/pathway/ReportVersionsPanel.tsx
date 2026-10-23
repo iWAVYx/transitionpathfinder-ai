@@ -15,22 +15,27 @@ import {
 export function ReportVersionsPanel({
   reportId,
   currentContent,
+  canRestore = false,
   onRestored,
 }: {
   reportId: string;
   currentContent: PathwayReport;
+  canRestore?: boolean;
   onRestored?: () => void;
 }) {
-  return <ReportVersionsReader key={reportId} reportId={reportId} currentContent={currentContent} onRestored={onRestored} />;
+  return <ReportVersionsReader key={reportId} reportId={reportId} currentContent={currentContent} canRestore={canRestore} onRestored={onRestored} />;
 }
 
-function ReportVersionsReader({ reportId, currentContent, onRestored }: {
+function ReportVersionsReader({ reportId, currentContent, canRestore, onRestored }: {
   reportId: string;
   currentContent: PathwayReport;
+  canRestore: boolean;
   onRestored?: () => void;
 }) {
   const active = useRef(false);
   const restoring = useRef(false);
+  const restoreAllowed = useRef(canRestore);
+  restoreAllowed.current = canRestore;
   useEffect(() => {
     active.current = true;
     return () => { active.current = false; };
@@ -63,12 +68,12 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
   }, [list, reportId, loadAttempt]);
 
   async function restore(versionId: string) {
-    if (!active.current || restoring.current || loading || loadError) return;
+    if (!active.current || !restoreAllowed.current || restoring.current || loading || loadError) return;
     restoring.current = true;
     setBusyId(versionId);
     try {
       const v = await fetchVersion({ data: { version_id: versionId } });
-      if (!active.current) return;
+      if (!active.current || !restoreAllowed.current) return;
       if (v.id !== versionId || v.report_id !== reportId) throw new Error("That version does not belong to this report.");
       await update({
         data: {
@@ -107,8 +112,9 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
           </p>
           <h2 className="mt-2 font-display text-2xl">Past Versions</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every time the report is saved, the previous version is kept here so you can
-            look back or restore it.
+            {canRestore
+              ? "When you save this report, its previous version is kept here so you can look back or restore it."
+              : "You can review earlier versions here. Only the person who created this report can restore a version."}
           </p>
         </div>
       </div>
@@ -123,7 +129,7 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
           </div>
         ) : versions.length === 0 ? (
           <p className="rounded-2xl border border-dashed bg-background/60 px-4 py-6 text-center text-sm text-muted-foreground">
-            No earlier versions yet. The first edit you save will start the history.
+            {canRestore ? "No earlier versions yet. The first edit you save will start the history." : "No earlier versions are available."}
           </p>
         ) : (
           <ul className="divide-y divide-border/60 rounded-2xl border bg-background">
@@ -139,7 +145,7 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
                     {v.change_summary ? ` · ${v.change_summary}` : ""}
                   </p>
                 </div>
-                <Button
+                {canRestore && <Button
                   variant="outline"
                   size="sm"
                   disabled={busyId !== null}
@@ -147,7 +153,7 @@ function ReportVersionsReader({ reportId, currentContent, onRestored }: {
                 >
                   <RotateCcw className="h-4 w-4" />
                   {busyId === v.id ? "Restoring…" : "Restore"}
-                </Button>
+                </Button>}
               </li>
             ))}
           </ul>

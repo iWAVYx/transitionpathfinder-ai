@@ -93,6 +93,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
         kind: "ok";
         name: string;
         report: PathwayReport;
+        isReportOwner: boolean;
         studentId: string | null;
         reviewDate: string | null;
         lastUpdated: string | null;
@@ -133,6 +134,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           kind: "ok",
           name: r.student_first_name,
           report: r.report,
+          isReportOwner: r.is_report_owner === true,
           studentId: r.student_id,
           reviewDate: (r as { review_date?: string | null }).review_date ?? null,
           lastUpdated: r.created_at,
@@ -172,6 +174,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
   }
 
   async function handleRegenerate() {
+    if (state.kind !== "ok" || !state.isReportOwner || !state.studentId || regenBusy) return;
     setRegenBusy(true);
     try {
       const res = await regenerate({ data: { report_id: reportId } });
@@ -183,6 +186,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
         kind: "ok",
         name: fresh.student_first_name,
         report: fresh.report,
+        isReportOwner: fresh.is_report_owner === true,
         studentId: fresh.student_id,
         reviewDate: (fresh as { review_date?: string | null }).review_date ?? null,
         lastUpdated: fresh.created_at,
@@ -344,7 +348,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
         controlledAudience={audience}
         onAudienceChange={(a) => setAudience(a as V2Audience)}
         hasV2={isV2(state.report)}
-        onRefresh={state.studentId ? handleRegenerate : undefined}
+        onRefresh={state.isReportOwner && state.studentId ? handleRegenerate : undefined}
         refreshing={regenBusy}
         meta={{
           reportId: `TF-${reportId.slice(0, 8).toUpperCase()}`,
@@ -369,12 +373,12 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
 
       {/* Regenerate CTA + evidence-used side panel */}
       <div className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
-        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-          <RegenerateBanner
+        <div className={`grid gap-4 ${state.isReportOwner ? "lg:grid-cols-[1fr_20rem]" : ""}`}>
+          {state.isReportOwner && <RegenerateBanner
             onRegenerate={handleRegenerate}
             busy={regenBusy}
             canRegenerate={!!state.studentId}
-          />
+          />}
           <EvidenceUsedPanel
             summary={
               ((state.report as Record<string, unknown> | null)?.evidence_used as
@@ -430,6 +434,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           key={versionsKey}
           reportId={reportId}
           currentContent={state.report}
+          canRestore={state.isReportOwner}
           onRestored={async () => {
             try {
               if (!active.current) return;
@@ -440,6 +445,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
                 kind: "ok",
                 name: fresh.student_first_name,
                 report: fresh.report,
+                isReportOwner: fresh.is_report_owner === true,
                 studentId: fresh.student_id,
                 reviewDate: (fresh as { review_date?: string | null }).review_date ?? null,
                 lastUpdated: fresh.created_at,

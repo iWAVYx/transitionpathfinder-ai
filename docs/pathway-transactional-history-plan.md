@@ -1,5 +1,14 @@
 # Transactional Pathway Report History
 
+## Owner-Only Report Controls Prepared Across Role Readers — October 23, 2026
+
+The authenticated report reader now returns a strict `is_report_owner` hint derived from the stored report owner and authenticated caller, without exposing the owner ID or accepting a client ownership claim. The saved reader hides both regeneration entry points and Restore for non-owning/unconfirmed readers while retaining readable history, printing and existing sharing. Owners retain restore and linked-student generation. The panel defaults to read-only when the capability is absent and cancels a pending version fetch if restore eligibility disappears. Existing mutation handlers still independently enforce ownership/RLS/entitlements; this hint does not grant access or settle Owner/admin report SELECT.
+
+Validation: 103 focused component/actual-handler cases pass, including both ownership outcomes for all seven role labels, forged hints, missing/malformed capability, existing router/late-response recovery and permission loss during a version fetch. Full unit suite: 311 files /4,399 tests; TypeScript and diff checks pass. Local runtime fingerprint `5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c`, 1,184 files. Exact-commit automatic CI and hosted acceptance remain required; no publication/sync is implied.
+
+Both actual staging sites retain the approved `c4e3096b…9adb13d` runtime. The report-history proposal remains unapplied and unchanged from its 39-case native/concurrency/full-replay acceptance. Next: review/canonicalize that separately approved-scope database boundary and obtain specific authorization before any migration, deployment/publication or bounded fixture test. Owner data-access policy and stale browser intent remain distinct gates. No hosted/database/account/access/payment/secret or AI/production action occurred in this local change. Full roadmap and deferred Parent Pilot/Pathway Snapshot are retained.
+
+
 ## Target-Reconciled History Boundary Passed Native Validation — October 23, 2026
 
 Review-only proposal `95678424` passes all 39 native PostgreSQL cases, zero skips, both concurrency journeys and full canonical replay in [run39964618618](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39964618618); all eight automatic checks pass. The source/fixture now reflects the read-only staging catalog's broad grants and current Team history policies. It snapshots permitted content updates and proposes explicit removal of ordinary-client structural/version-write privileges while preserving report CRUD/RLS/editor and service behavior. [Exact checksums, evidence, all-role assessment and next gates](production-readiness/report-history-write-boundary-review-2026-10-23.md).

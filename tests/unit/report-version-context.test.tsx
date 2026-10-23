@@ -9,7 +9,7 @@ vi.mock("@/lib/pathway.functions", () => ({ listReportVersions: state.list, getR
 vi.mock("sonner", () => ({ toast: { success: state.success, error: state.error } }));
 const row = (id: string, version_number = 1) => ({ id, version_number, change_summary: `Saved ${id}`, created_at: "2026-10-12T12:00:00Z", created_by: null });
 const saved = (id: string, report_id = "report-a") => ({ ...row(id), report_id, content: DEMO_STUDENTS.maya.report });
-function panel(id = "report-a") { return <ReportVersionsPanel reportId={id} currentContent={DEMO_STUDENTS.maya.report} onRestored={state.restored} />; }
+function panel(id = "report-a", canRestore = true) { return <ReportVersionsPanel reportId={id} canRestore={canRestore} currentContent={DEMO_STUDENTS.maya.report} onRestored={state.restored} />; }
 beforeEach(() => {
   state.list.mockImplementation(({ data }: any) => Promise.resolve({ versions: [row(`${data.report_id}-version`)] }));
   state.update.mockResolvedValue({ ok: true });
@@ -102,4 +102,17 @@ it("a pending history retry cannot populate a different report", async () => {
   view.rerender(panel("report-b")); await screen.findByText("Saved report-b-version",{exact:false});
   await act(async()=>{finish({versions:[row("old-version")]});});
   expect(screen.queryByText("Saved old-version",{exact:false})).toBeNull();
+});
+
+it("read-only readers keep history but do not receive Restore controls",async()=>{
+ render(panel("report-a",false));await screen.findByText("Saved report-a-version",{exact:false});expect(screen.queryByRole("button",{name:"Restore"})).toBeNull();expect(screen.getByText(/Only the person who created this report/)).toBeTruthy();expect(state.get).not.toHaveBeenCalled();expect(state.update).not.toHaveBeenCalled();
+});
+it("missing restore capability fails closed",async()=>{
+ render(<ReportVersionsPanel reportId="report-a" currentContent={DEMO_STUDENTS.maya.report}/>);await screen.findByText("Saved report-a-version",{exact:false});expect(screen.queryByRole("button",{name:"Restore"})).toBeNull();
+});
+it("losing restore eligibility during a version fetch prevents the save",async()=>{
+ let finish!:(value:unknown)=>void;state.get.mockReturnValue(new Promise(resolve=>{finish=resolve;}));const view=render(panel());fireEvent.click(await screen.findByRole("button",{name:"Restore"}));view.rerender(panel("report-a",false));await act(async()=>{finish(saved("report-a-version"));});expect(state.update).not.toHaveBeenCalled();expect(state.success).not.toHaveBeenCalled();expect(state.restored).not.toHaveBeenCalled();
+});
+it("read-only empty history does not tell the reader to edit the report",async()=>{
+ state.list.mockResolvedValue({versions:[],loadFailed:false});render(panel("report-a",false));await screen.findByText("No earlier versions are available.");expect(screen.queryByText(/first edit you save/)).toBeNull();
 });
