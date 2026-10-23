@@ -1,5 +1,16 @@
 # Report History Write Boundary Review — October 23, 2026
 
+## October 23 — Authorized History Repeat Passed; Exact Cleanup Confirmed
+
+- [x] Human-approved repeat39980508504 on test-only d44620fb passed all seven existing role sessions and both Family/Educator report journeys, with zero retries/AI. Both stable staging identities passed before fixture creation.
+- [x] Exactly two fictional intake/report pairs and six truthful prior-content versions were created. Actual RPC save, direct owner edit/actor attribution, UI restore/reload, denied fabricated/altered/deleted history, other-role read/write/RPC boundaries, Owner/admin nonowner Restore/Regenerate hiding, and two PDF exports passed. Existing admin SELECT was observed, not removed or expanded. No new users, relationships, sharing grants or links.
+- [x] Caller cleanup passed. Independent postgres BEGIN READ ONLY exact-ID counts at16:57:47UTC confirm zero reports, intakes, versions and share links remain; table-owner/no-FORCE-RLS guards prevent a misleading RLS-filtered count.
+- [x] Sanitizer passed before artifact retrieval. Both PDF exports retain the restored summary on page2, no empty pages/out-of-page text, the complete meeting sheet/source note on page8 and complete endings. All64 pages were reviewed as contact-sheet overviews; selected meeting/final pages were inspected at full resolution with top-right logo marks and aligned sections. This is not all-text proofreading or native-print acceptance.
+- [ ] Report density remains32pages per sample. Compactness/native printing, hosted linked-editor acceptance, Owner/admin planning-data policy, stale browser intent, metadata/retention/bearer lifecycle and broader role/provider/security/operations production gates remain open.
+
+[Passing repeat evidence](evidence/report-history-repeat-acceptance-2026-10-23.json) retains the exact source, fixtures, PDF hashes and independent cleanup. The earlier five-second empty-shell failure remains recorded separately; the strict loaded-report wait allowed both journeys to pass, but this does not certify global route-loading performance. Browser dependency downloads delayed the run; GitHub completed it successfully in14m9s. A stale live display/read-only command approval timeout delayed observation, not execution, and no workflow rerun was issued. No app deployment, migration, publication or production change occurred in the repeat. Both approved staging publications retain5ba40cce…ad43b58c/1,184 files. The named staging-history gate is closed; production remains NO-GO. All TF-01–TF-26/full-roadmap work and deferred Parent Pilot/Pathway Snapshot remain retained.
+
+
 ## October 23 — Canonical Report-History Candidate (Not Applied)
 
 - [x] Prepared additive `20261023020000_enforce_pathway_report_content_history.sql` from the validated proposal; no applied migration was edited. Permitted content updates snapshot prior content and actual actor; client version fabrication and structural grants are removed while report RLS/editing and service table administration remain.
