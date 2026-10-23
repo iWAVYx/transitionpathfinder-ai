@@ -45,15 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 205,
-    "latestCanonicalFile": "20261023020000_enforce_pathway_report_content_history.sql",
+    "canonicalCount": 206,
+    "latestCanonicalFile": "20261023030000_require_explicit_planning_report_access.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 11,
+    "pendingProductionCount": 12,
     "canonicalInventoryReviewedAt": "2026-10-23",
-    "canonicalInventorySourceCommit": "f821aa753bd52281f4ffe897ff99e0f301e281e6"
+    "canonicalInventorySourceCommit": "fae183613580fa9ea874698a03bd8a258aa879ae",
+    "canonicalInventoryStatus": "working-tree-proposal-not-applied; based on fae18361"
   }
 }

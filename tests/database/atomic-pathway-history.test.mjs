@@ -71,8 +71,8 @@ before(async () => {
     CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     GRANT USAGE ON SCHEMA auth, public TO authenticated, anon, service_role;
     CREATE TYPE public.app_role AS ENUM ('admin');
-    CREATE OR REPLACE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
-    CREATE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+    CREATE OR REPLACE FUNCTION public.can_access_student(_user_id uuid,_student_id uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+    CREATE FUNCTION public.can_edit_student(_user_id uuid,_student_id uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
     CREATE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
     CREATE FUNCTION public.is_platform_admin(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
     CREATE TABLE public.email_send_log(id uuid);
@@ -320,13 +320,105 @@ describe("canonical history boundary in a disposable database",()=>{
   assert.equal((await db.query("SELECT * FROM public.pathway_report_versions")).rows.length,0);assert.equal((await state()).versions.length,0);
  });
  test("existing permitted editor can update through RLS and gets attributed history, but cannot use owner RPC",async()=>{
-  await db.exec(`RESET ROLE; CREATE OR REPLACE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;
+  await db.exec(`RESET ROLE; CREATE OR REPLACE FUNCTION public.can_edit_student(_user_id uuid,_student_id uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;
    CREATE POLICY fixture_editor_read ON public.pathway_reports FOR SELECT TO authenticated USING(student_id IS NOT NULL AND public.can_edit_student(auth.uid(),student_id));
    UPDATE public.pathway_reports SET student_id='00000000-0000-4000-8000-000000000040' WHERE id='${report}';`);
   try{await as(db,other);await assert.rejects(save(),{code:"42501"});
    assert.equal((await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2 RETURNING id",[JSON.stringify(next),report])).rows.length,1);
    const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.versions[0].content,original);
-  }finally{await db.exec("RESET ROLE; DROP POLICY fixture_editor_read ON public.pathway_reports; CREATE OR REPLACE FUNCTION public.can_edit_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;");}
+  }finally{await db.exec("RESET ROLE; DROP POLICY fixture_editor_read ON public.pathway_reports; CREATE OR REPLACE FUNCTION public.can_edit_student(_user_id uuid,_student_id uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;");}
+ });
+ // Exercise the canonical helpers against real relationship rows, rather than
+ // replacing access with an always-true stub. These remain disposable SQL tests.
+ for (const scenario of [
+  {name:"accepted viewer",collaborator:["accepted","viewer"],read:true,edit:false},
+  {name:"accepted editor",collaborator:["accepted","editor"],read:true,edit:true},
+  {name:"pending editor",collaborator:["pending","editor"],read:false,edit:false},
+  {name:"revoked editor",collaborator:["revoked","editor"],read:false,edit:false},
+  {name:"approved read-only relationship",relationship:["approved","view_summary"],read:true,edit:false},
+  {name:"approved planning relationship",relationship:["approved","manage_plan"],read:true,edit:true},
+  {name:"approved collaborating relationship",relationship:["approved","collaborate"],read:true,edit:true},
+  {name:"approved document-management relationship",relationship:["approved","manage_documents"],read:true,edit:true},
+  {name:"revoked planning relationship",relationship:["revoked","manage_plan"],read:false,edit:false},
+  {name:"unapproved planning relationship",relationship:["pending","manage_plan"],read:false,edit:false},
+ ]) test(`canonical linked access: ${scenario.name}`,async()=>{
+  await withCanonicalStudentAccessFixture(async student=>{
+   if(scenario.collaborator)await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,$3,$4)",[student,other,...scenario.collaborator]);
+   if(scenario.relationship)await db.query("INSERT INTO public.student_relationships VALUES($1,$2,$3,$4)",[student,other,...scenario.relationship]);
+   await as(db,owner);await save(); // A truthful existing history version.
+   await as(db,other);
+   const rights=(await db.query("SELECT public.can_access_student($1,$2) AS read,public.can_edit_student($1,$2) AS edit",[other,student])).rows[0];
+   assert.deepEqual(rights,{read:scenario.read,edit:scenario.edit});
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,Number(scenario.read));
+   assert.equal((await db.query("SELECT id FROM public.pathway_report_versions WHERE report_id=$1",[report])).rows.length,Number(scenario.read));
+   // Even an accepted editor cannot impersonate the report owner through RPC.
+   await assert.rejects(save(db,next,original),{code:"42501"});
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2 RETURNING id",[JSON.stringify(original),report])).rows.length,Number(scenario.edit));
+   const result=await state();assert.equal(result.versions.length,scenario.edit?2:1);
+   if(scenario.edit){assert.equal(result.versions[1].created_by,other);assert.deepEqual(result.versions[1].content,next);}
+  });
+ });
+ test("removing a linked editor immediately removes report and history access",async()=>{
+  await withCanonicalStudentAccessFixture(async student=>{
+   await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,other]);
+   await as(db,owner);await save();await as(db,other);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,1);
+   await db.exec("RESET ROLE");await db.query("DELETE FROM public.student_collaborators WHERE student_id=$1 AND user_id=$2",[student,other]);await as(db,other);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,0);
+   assert.equal((await db.query("SELECT id FROM public.pathway_report_versions WHERE report_id=$1",[report])).rows.length,0);
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content='{}'::jsonb WHERE id=$1 RETURNING id",[report])).rows.length,0);
+   await assert.rejects(save(),{code:"42501"});assert.equal((await state()).versions.length,1);
+  });
+ });
+ test("a linked editor cannot read or alter another student's report",async()=>{
+  await withCanonicalStudentAccessFixture(async student=>{
+   await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,other]);
+   await db.query("UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2",["00000000-0000-4000-8000-000000000041",secondReport]);
+   await as(db,other);
+   assert.deepEqual((await db.query("SELECT id FROM public.pathway_reports ORDER BY id")).rows.map(r=>r.id),[report]);
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content='{}'::jsonb WHERE id=$1 RETURNING id",[secondReport])).rows.length,0);
+   assert.equal((await state()).versions.length,0);
+  });
+ });
+ for(const scenario of [
+  {name:"unlinked admin",access:null,read:false,edit:false},
+  {name:"admin owning the student profile",identity:"owner_id",read:true,edit:true},
+  {name:"admin linked as the student account",identity:"student_user_id",read:true,edit:true},
+  {name:"admin with explicit viewer access",access:["accepted","viewer"],read:true,edit:false},
+  {name:"admin with explicit editor access",access:["accepted","editor"],read:true,edit:true},
+  {name:"admin with revoked editor access",access:["revoked","editor"],read:false,edit:false},
+ ]) test(`proposed private-report policy: ${scenario.name}`,async()=>{
+  await withRestrictedPlanningFixture(async student=>{
+   if(scenario.access)await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,$3,$4)",[student,other,...scenario.access]);
+   await as(db,owner);await save();
+   if(scenario.identity){await db.exec("RESET ROLE");assert.ok(["owner_id","student_user_id"].includes(scenario.identity));await db.query(`UPDATE public.students SET ${scenario.identity}=$1 WHERE id=$2`,[other,student]);}
+   await as(db,other);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,Number(scenario.read));
+   assert.equal((await db.query("SELECT id FROM public.student_intakes WHERE id=$1",[intake])).rows.length,Number(scenario.read));
+   assert.equal((await db.query("SELECT id FROM public.pathway_report_versions WHERE report_id=$1",[report])).rows.length,Number(scenario.read));
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[secondReport])).rows.length,0,"Admin role alone cannot read unlinked reports");
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2 RETURNING id",[JSON.stringify(original),report])).rows.length,Number(scenario.edit));
+   await assert.rejects(save(),{code:"42501"});
+   const result=await state();assert.equal(result.versions.length,scenario.edit?2:1);
+   if(scenario.edit)assert.equal(result.versions[1].created_by,other);
+  });
+ });
+ test("proposed restriction retains linked and unlinked report-owner access and save",async()=>{
+  await withRestrictedPlanningFixture(async()=>{
+   await as(db,owner);assert.equal((await db.query("SELECT id FROM public.pathway_reports")).rows.length,2);
+   assert.equal((await db.query("SELECT id FROM public.student_intakes")).rows.length,1);
+   await save();await save(db,original,next,"Saved",secondReport);
+   assert.equal((await db.query("SELECT id FROM public.pathway_report_versions")).rows.length,2);
+  });
+ });
+ test("proposed access helper cannot be called anonymously and has no caller-supplied user identity",async()=>{
+  await withRestrictedPlanningFixture(async student=>{
+   await db.exec("RESET ROLE");
+   assert.equal((await db.query("SELECT has_function_privilege('anon','public.has_explicit_planning_student_access(uuid,boolean)','EXECUTE') AS allowed")).rows[0].allowed,false);
+   assert.equal((await db.query("SELECT proconfig FROM pg_proc WHERE oid='public.has_explicit_planning_student_access(uuid,boolean)'::regprocedure")).rows[0].proconfig[0],"search_path=pg_catalog");
+   await as(db,"");assert.equal((await db.query("SELECT public.has_explicit_planning_student_access($1,false) AS allowed",[student])).rows[0].allowed,false);
+   await as(db,owner);assert.equal((await db.query("SELECT public.has_explicit_planning_student_access($1,NULL) AS allowed",[student])).rows[0].allowed,false);
+  });
  });
  test("observed broad client grants are narrowed without removing report CRUD or service administration",async()=>{
   await db.exec("RESET ROLE");for(const table of ["public.pathway_reports","public.pathway_report_versions"]){for(const capability of ["TRIGGER","TRUNCATE"]){for(const role of ["anon","authenticated"])assert.equal((await db.query("SELECT has_table_privilege($1,$2,$3) AS allowed",[role,table,capability])).rows[0].allowed,false);assert.equal((await db.query("SELECT has_table_privilege('service_role',$1,$2) AS allowed",[table,capability])).rows[0].allowed,true);}}
@@ -363,12 +455,12 @@ describe("canonical history boundary in a disposable database",()=>{
   finally{await db.exec("RESET ROLE; DROP POLICY fixture_reader ON public.pathway_reports");}
  });
  test("canonical admin read/update exception is preserved and attributed, not silently removed",async()=>{
-  await db.exec(`RESET ROLE; CREATE OR REPLACE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  await db.exec(`RESET ROLE; CREATE OR REPLACE FUNCTION public.can_access_student(_user_id uuid,_student_id uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
    CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;`);
   const policy=readFileSync("supabase/migrations/20260529000630_71025c8e-e746-4a03-8685-c152eedcf177.sql","utf8").split("-- 2.")[0];await db.exec(policy);
   try{await as(db,other);assert.equal((await db.query("SELECT id FROM public.pathway_reports")).rows.length,2);await assert.rejects(save(),{code:"42501"});
    await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);const result=await state();assert.equal(result.versions[0].created_by,other);assert.deepEqual(result.versions[0].content,original);
-  }finally{await db.exec("RESET ROLE; DROP POLICY \"View reports via owner or student access\" ON public.pathway_reports; CREATE POLICY \"Users view own reports\" ON public.pathway_reports FOR SELECT TO authenticated USING(auth.uid()=user_id); CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$; CREATE OR REPLACE FUNCTION public.can_access_student(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$");}
+  }finally{await db.exec("RESET ROLE; DROP POLICY \"View reports via owner or student access\" ON public.pathway_reports; CREATE POLICY \"Users view own reports\" ON public.pathway_reports FOR SELECT TO authenticated USING(auth.uid()=user_id); CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$; CREATE OR REPLACE FUNCTION public.can_access_student(_user_id uuid,_student_id uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$");}
  });
  test("privileged maintenance with no end-user claim records an honest null actor",async()=>{
   await db.exec("RESET ROLE; SELECT set_config('request.jwt.claim.sub','',false)");await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2",[JSON.stringify(next),report]);assert.equal((await state()).versions[0].created_by,null);
@@ -388,3 +480,52 @@ describe("canonical history boundary in a disposable database",()=>{
  });
 
 });
+
+// Minimal relationship tables, canonical production helper bodies and canonical
+// report SELECT policy. No network, hosted fixtures or permission changes.
+async function withCanonicalStudentAccessFixture(run) {
+ await db.exec("RESET ROLE");
+ const helpers=(await db.query("SELECT pg_get_functiondef('public.can_access_student(uuid,uuid)'::regprocedure) AS access,pg_get_functiondef('public.can_edit_student(uuid,uuid)'::regprocedure) AS edit")).rows[0];
+ const student="00000000-0000-4000-8000-000000000040";
+ try{
+  await db.exec(`CREATE TABLE public.students(id uuid PRIMARY KEY,owner_id uuid,student_user_id uuid);
+   CREATE TABLE public.student_collaborators(student_id uuid,user_id uuid,status text,role text);
+   CREATE TABLE public.student_relationships(student_id uuid,related_user_id uuid,consent_status text,permission_level text);`);
+  const source=readFileSync("supabase/migrations/20260814203316_49779172-d01d-497c-95d2-b451a7c70890.sql","utf8");
+  await db.exec(source.slice(0,source.indexOf("-- Idempotently creates")));
+  await db.query("INSERT INTO public.students VALUES($1,$2,NULL)",[student,owner]);
+  await db.query("UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2",[student,report]);
+  await db.exec(readFileSync("supabase/migrations/20260529000630_71025c8e-e746-4a03-8685-c152eedcf177.sql","utf8").split("-- 2.")[0]);
+  await run(student);
+ }finally{
+  await db.exec(`RESET ROLE; DROP POLICY IF EXISTS "View reports via owner or student access" ON public.pathway_reports;
+   CREATE POLICY "Users view own reports" ON public.pathway_reports FOR SELECT TO authenticated USING(auth.uid()=user_id);`);
+  await db.exec(helpers.access);await db.exec(helpers.edit);
+  await db.exec("DROP TABLE IF EXISTS public.student_relationships,public.student_collaborators,public.students");
+ }
+}
+
+async function withRestrictedPlanningFixture(run) {
+ await withCanonicalStudentAccessFixture(async student=>{
+  try{
+   await db.exec(`ALTER TABLE public.student_intakes ADD COLUMN student_id uuid;
+    CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT $1='${other}'::uuid $$;
+    CREATE POLICY fixture_broad_intake_read ON public.student_intakes FOR SELECT TO authenticated USING(true);
+    CREATE POLICY fixture_broad_history_read ON public.pathway_report_versions FOR SELECT TO authenticated USING(true);`);
+   await db.query("UPDATE public.student_intakes SET student_id=$1 WHERE id=$2",[student,intake]);
+   await db.exec(readFileSync("supabase/migrations/20261023030000_require_explicit_planning_report_access.sql","utf8"));
+   await run(student);
+  }finally{
+   await db.exec(`RESET ROLE;
+    DROP POLICY IF EXISTS "Require explicit private report read access" ON public.pathway_reports;
+    DROP POLICY IF EXISTS "Require explicit private report edit access" ON public.pathway_reports;
+    DROP POLICY IF EXISTS "Require explicit private intake read access" ON public.student_intakes;
+    DROP POLICY IF EXISTS "Require explicit private report history read access" ON public.pathway_report_versions;
+    DROP POLICY IF EXISTS fixture_broad_intake_read ON public.student_intakes;
+    DROP POLICY IF EXISTS fixture_broad_history_read ON public.pathway_report_versions;
+    DROP FUNCTION IF EXISTS public.has_explicit_planning_student_access(uuid,boolean);
+    ALTER TABLE public.student_intakes DROP COLUMN IF EXISTS student_id;
+    CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;`);
+  }
+ });
+}

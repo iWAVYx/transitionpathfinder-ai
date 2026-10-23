@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## October 23 — Explicit Owner/Admin Planning Access Proposed, Not Applied
+
+- [x] Owner selected explicit student access instead of general Owner/admin private-report access. Proposed `20261023030000_require_explicit_planning_report_access.sql` adds restrictive read/edit policies for reports and read policies for related intake/history data. A caller-bound helper checks actual student ownership/self-identity, accepted collaboration and approved relationships without a management-role exception. Viewer/edit permissions remain distinct; no role gains a route, feature or owner-only save action.
+- [x] Disposable local SQL: 57 pass, zero fail, two native concurrency skips. Includes 12 canonical linked-access cases plus eight proposed-policy cases covering unlinked admin denial, explicit viewer/editor/revoked access, student ownership/self-identity and report-owner continuity. Existing admin behavior is retained as a historical baseline test, not approved behavior after the proposal. Security/readiness/source contracts: 47 pass. No hosted data or permission was changed.
+- [ ] Native replay of all 206 migrations and exact candidate automatic checks remain pending. Twelve migrations are pending against the saved September 17 production history; this is not a new production read. Hosted linked-editor/admin acceptance still needs a separately authorized bounded test and exact cleanup. Do not treat local SQL fixtures as hosted acceptance.
+- [ ] Obtain separate authorization before applying this migration or releasing/publishing a candidate. Both staging sites remain on approved `3bb45d0c` / `080da8fb…9b57e0`. Production is unchanged. Other student/document permissions, privileged service maintenance, ownership-transfer rules, stale browser intent and bearer lifecycle remain separate scope.
+
+See `docs/production-readiness/evidence/explicit-planning-report-access-2026-10-23.json`. Full TF-01–TF-26 remains; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
 ## October 23 — Student Report Card Released to Both Staging Sites
 
 - [x] Authorized release `3bb45d0c5adf8831ccadc665ad39461b09c3bd3f` deployed successfully in human-approved [run 40017617374](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40017617374). All eight automatic checks passed, alongside 4,432 local unit tests, five role/navigation contracts and TypeScript.

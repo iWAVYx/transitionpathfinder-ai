@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-23",
+  "status": "owner-directed-local-proposal-not-applied",
+  "baseSourceSha": "fae183613580fa9ea874698a03bd8a258aa879ae",
+  "direction": "User selected explicit student access for Owner/admin accounts; no general private report access from management role alone.",
+  "migration": {
+    "path": "supabase/migrations/20261023030000_require_explicit_planning_report_access.sql",
+    "sha256": "e21e83cbf26ab1f29c808fad64d1c199f57b5af9e6fef39231fb1b486fcadcbf"
+  },
+  "scope": [
+    "Restrictive report SELECT and UPDATE policies",
+    "Restrictive intake SELECT policy",
+    "Restrictive report-history SELECT policy",
+    "Caller-bound explicit student-access helper without admin exception"
+  ],
+  "preserved": [
+    "Report ownership access",
+    "Student-profile ownership/self-account, accepted collaborators and approved relationships",
+    "Viewer/editor distinction and owner-only save RPC",
+    "Existing grants, history snapshots and privileged service maintenance",
+    "Owner Hub management-only routing and existing share-token lifecycle"
+  ],
+  "validation": {
+    "localPglite": {
+      "passed": 57,
+      "failed": 0,
+      "skipped": 2,
+      "skipReason": "Native multi-session concurrency cases not available locally",
+      "log": "/private/tmp/tf-explicit-report-access-2026-10-23.log"
+    },
+    "contracts": {
+      "passed": 47,
+      "failed": 0,
+      "log": "/private/tmp/tf-explicit-report-access-contracts-2026-10-23.log"
+    },
+    "initialFixtureFailures": "Canonical helpers required matching fixture parameter names. Student-profile ownership-transfer scenario now seeds history before changing profile owner; strict access assertions retained. Inventory contracts updated to include the new proposed migration.",
+    "nativeReplay": "Pending exact candidate CI; earlier replay does not certify this migration."
+  },
+  "inventory": {
+    "canonicalCount": 206,
+    "pendingAgainstSavedSeptember17ProductionHistory": 12,
+    "freshProductionRead": false
+  },
+  "limits": [
+    "Hosted linked-editor/admin acceptance remains unperformed",
+    "Native 206-migration replay and exact candidate automatic checks pending",
+    "Existing service-role bypass, other student/document permissions and ownership-transfer rules are not redesigned",
+    "Existing bearer sharing/removed-member lifecycle and stale-browser write intent remain separate gates"
+  ],
+  "stagingUnchanged": {
+    "sourceSha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+    "fingerprint": "080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0"
+  },
+  "actions": {
+    "hostedMigration": false,
+    "deployment": false,
+    "publication": false,
+    "hostedRecords": false,
+    "ai": false,
+    "production": false
+  },
+  "deferred": "Report length/cosmetic polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01\u2013TF-26 retained."
+}

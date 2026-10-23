@@ -35,6 +35,7 @@
     "public.has_active_entitlement(uuid, text)",
     "public.has_admin_role(uuid, admin_role)",
     "public.has_audience(uuid, text)",
+    "public.has_explicit_planning_student_access(uuid, boolean)",
     "public.has_recent_admin_doc_access(uuid, uuid)",
     "public.has_role(uuid, app_role)",
     "public.has_sponsored_license(uuid, text)",
