@@ -1,5 +1,14 @@
 # PR211 Release Review and Open Gates
 
+## October 23 — Student Report Card Access and Recovery Fixed Locally
+
+- [x] The student-profile Report card now offers Refresh only for a server-confirmed report owner and retains Open for permitted readers. The latest-report query returns a strict ownership hint without exposing the owner ID; underlying mutation, entitlement and RLS checks remain unchanged. No route or role permission is added.
+- [x] Report lookup failures show Reload Report instead of an empty-state creation prompt. Creating a report from the empty state requires the existing student-edit permission for the selected student. Student changes isolate card state; late reads/refreshes cannot navigate or notify in the new student context, and duplicate pending refresh clicks are suppressed. The returned creation date is honestly labelled Created.
+- [x] Local final validation:312files/4,432unit tests, five role/navigation contracts, TypeScript and diff checks pass. Mocked actual-handler ownership/denial cases cover all seven role labels; existing student-profile route audiences remain Family/Educator/Admin. Demo/shared readers retain their existing read-only generation guards. These are not hosted linked-editor/RLS or live-generation acceptance.
+- [ ] Review automatic checks for the new candidate, then obtain separate authorization before any staging deployment/publication or hosted acceptance requiring records/AI. Both staging sites remain on approved c7ce64f1 /0e9795d5…d973fd1; this functional candidate is local only. Owner/admin planning-data policy, stale browser write intent and the broader production gates remain open.
+
+See `docs/production-readiness/evidence/student-report-card-functional-2026-10-23.json`. Report length and further cosmetic polish remain deferred, not launch blockers. No hosted data, permissions, deployments, migrations, AI, payment/secret or production changes occurred. Full TF-01–TF-26 and separately deferred Parent Pilot/Pathway Snapshot remain retained.
+
 ## October 23 — Report Length and Cosmetic Polish Deferred by Owner
 
 The owner is satisfied with the current report and explicitly tabled further length and cosmetic revisions until everything is up and running. Retain the completed improvements. Page-count targets and additional aesthetic refinement are **deferred, not failed or completed, and are not launch blockers**. This priority decision supersedes earlier entries that list compactness or visual perfection as active release gates.

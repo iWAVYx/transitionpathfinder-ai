@@ -328,7 +328,8 @@ function StudentDetailPage() {
           <Suspense fallback={<StudentPanelLoading />}>
             <StudentPathwayReportPanel
               studentId={studentId}
-              studentFirstName={student?.first_name ?? null}
+              studentFirstName={student?.id === studentId ? student.first_name : null}
+              canCreateReport={student?.id === studentId && canEdit === true}
             />
           </Suspense>
         </StudentPanelBoundary>

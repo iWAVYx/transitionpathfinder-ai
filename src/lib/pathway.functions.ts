@@ -453,24 +453,26 @@ export const getLatestReportForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ student_id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
-      .select("id, created_at, content")
+      .select("id, user_id, created_at, content")
       .eq("student_id", data.student_id)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error) {
       console.error("getLatestReportForStudent failed", error);
-      return { report: null };
+      return { report: null, loadFailed: true };
     }
-    if (!row) return { report: null };
-    const r = row as { id: string; created_at: string; content: unknown };
+    if (!row) return { report: null, loadFailed: false };
+    const r = row as { id: string; user_id: string; created_at: string; content: unknown };
     const content = r.content as Partial<PathwayReport> | null;
     return {
+      loadFailed: false,
       report: {
         id: r.id,
+        is_report_owner: typeof userId === "string" && userId.length > 0 && r.user_id === userId,
         created_at: r.created_at,
         summary: content?.summary ?? null,
       },

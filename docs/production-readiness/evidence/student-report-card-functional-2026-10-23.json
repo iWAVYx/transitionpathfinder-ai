@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-23",
+  "status": "local-functional-candidate-not-deployed",
+  "baseSourceSha": "5a9a04c0e954aa5e94e9cedf9cfed429934de294",
+  "runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0",
+    "fileCount": 1184
+  },
+  "problem": [
+    "Student-profile report card offered Refresh without a report-owner eligibility check, although the mutation requires ownership.",
+    "A failed latest-report lookup displayed the empty-report generation state.",
+    "The returned creation date was labelled as a last-update date.",
+    "Late refresh completion could navigate or notify after the card switched to another student."
+  ],
+  "change": [
+    "Latest-report handler derives a strict is_report_owner hint from authenticated caller and stored owner without returning user_id. Caller-supplied ownership flags are ignored.",
+    "Open remains for caller-visible reports; Refresh is rendered and invoked only for confirmed report owners. Mutation/RLS/entitlement checks are unchanged.",
+    "Empty-report creation link requires confirmed editing access supplied by the existing student permission check, matched to the selected student ID. Missing access defaults to no creation link.",
+    "Load failures have a distinct retry state; empty results do not claim global report absence.",
+    "Card state is keyed by student; pending reads/refresh results from the previous card cannot update the new card or trigger stale navigation/toasts. Duplicate refresh clicks are suppressed while pending.",
+    "Creation date is labelled Created; no update timestamp is invented."
+  ],
+  "rolesAndDemo": {
+    "assessment": "Ownership hint and nonowner mutation denials tested across all seven role labels. This is not a grant of the student-profile route to all roles. Existing family/educator/admin route audience policy remains unchanged; no Owner/admin backend data policy is changed.",
+    "demo": "Fictional demo/fixed-share readers already omit live generation/refresh via their existing demo/read-only guards. No fake ownership, live API calls or demo generation is added.",
+    "limits": "Mocked handler/component tests do not establish hosted RLS, linked-editor acceptance, all-role feature acceptance or live generation success."
+  },
+  "validation": {
+    "finalFullUnit": {
+      "files": 312,
+      "passed": 4432,
+      "failed": 0,
+      "log": "/private/tmp/tf-student-report-card-verified-unit.log"
+    },
+    "focusedBeforeDateLabelCase": {
+      "passed": 95,
+      "failed": 0,
+      "log": "/private/tmp/tf-student-report-card-focused-final.log"
+    },
+    "roleNavigationContracts": {
+      "passed": 5,
+      "failed": 0,
+      "log": "/private/tmp/tf-student-report-card-role-contracts.log"
+    },
+    "typescript": {
+      "passed": true,
+      "log": "/private/tmp/tf-student-report-card-typescript-final.log"
+    },
+    "diffCheck": true,
+    "retainedToolingFailure": "Initial full-unit invocation was stopped before tests by a sandbox Vite-cache write error; rerun with normal local cache permission passed.",
+    "retainedTestFailure": "Initial focused run had a fixture default that replaced an explicitly undefined ownership hint with true. The fixture was corrected; the missing-hint assertion was retained and passed.",
+    "automaticChecks": "Pending exact candidate push; earlier candidates do not certify this source."
+  },
+  "stagingUnchanged": {
+    "sourceSha": "c7ce64f1df06c081dcd01a90940bd2bb46aa34f6",
+    "fingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+    "files": 1184
+  },
+  "remainingFunctionalGates": [
+    "Hosted linked-editor/access acceptance",
+    "Owner/admin planning-data policy",
+    "Stale-browser write intent across independent report sessions",
+    "Provenance/retention/removed-member bearer lifecycle",
+    "Broader role/tool/generation/licensing/provider/privacy/security/billing/email/operations readiness"
+  ],
+  "deferred": "Report length and further cosmetic polish are tabled by the owner and are not launch blockers; Parent Pilot/Pathway Snapshot remains separately deferred. Full TF-01\u2013TF-26 retained.",
+  "actions": {
+    "deployment": false,
+    "publication": false,
+    "migration": false,
+    "hostedRecords": false,
+    "aiProviderCalls": false,
+    "accountsAccessPaymentsSecrets": false,
+    "production": false
+  }
+}
