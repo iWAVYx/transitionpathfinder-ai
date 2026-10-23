@@ -1132,5 +1132,14 @@
     "/private/tmp/tf-career-staging-c7ce64f1/read-only-report-check-passed.png",
     "/private/tmp/tf-career-staging-c7ce64f1/cloudflare-career-reader.png",
     "/private/tmp/tf-career-staging-c7ce64f1/lovable-career-reader.png"
-  ]
+  ],
+  "ownerFollowUpPriority": {
+    "date": "2026-10-23",
+    "decision": "Defer report length and further cosmetic polish until the platform is up and running.",
+    "status": "deferred-not-launch-blocker",
+    "completedImprovements": "Retained without further application changes.",
+    "resumeCondition": "Owner chooses to resume after the platform is operational.",
+    "functionalDefects": "Continue addressing defects affecting normal use, accurate/complete content, save/restore/export or access.",
+    "earlierDensityGateNotes": "Historical observations retained; superseded as an active release requirement by this owner decision."
+  }
 }
