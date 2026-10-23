@@ -54,6 +54,6 @@
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 11,
     "canonicalInventoryReviewedAt": "2026-10-23",
-    "canonicalInventorySourceCommit": "d2691d0f90b781c2e8e45d77a94102a335696d34"
+    "canonicalInventorySourceCommit": "f821aa753bd52281f4ffe897ff99e0f301e281e6"
   }
 }
