@@ -1,5 +1,14 @@
 # PR211 Release Review and Open Gates
 
+## October 23 — Bounded History Acceptance Incomplete; Cleanup Verified
+
+Human-approved run39977066359 completed once with no retries or AI. Seven existing role sessions and both stable-site source/isolation preflights passed. It created only one fictional Family intake/report and two legitimate prior-content versions. RPC save, direct owner edit, exact prior snapshots/actor, denied client history fabrication/alteration/deletion, five unrelated-role read/direct-edit denials and six nonowner RPC/history-insert denials passed. The existing Owner/admin report SELECT exception was observed without changing it.
+
+The run then failed after five seconds waiting for the exact fictional summary in the Owner/admin reader. The failure snapshot contains only the page shell, no report, denial or error; this does **not** prove whether delayed loading or a product/access issue caused it. Restore/reload/hidden-control checks, the Educator journey, both PDF exports and PDF visual review remain unperformed. Do not mark this acceptance complete.
+
+Caller cleanup passed. Independent exact-ID SQL as postgres in BEGIN READ ONLY at15:25:36UTC confirms zero reports, intakes, versions and share links remain. Only sanitizer-approved small evidence was downloaded. The test-only follow-up now waits for visible report-root readiness using the same30-second contract as the other report reader tests, retains exact summary/action/permission assertions, and adds only stage/route-category/DOM-count diagnostics on failure. TypeScript,49 focused checks and discovery of exactly two fixture cases pass. No application, migration or publication changed. The one-run fixture allowance is consumed; a repeat requires new authorization. See `docs/production-readiness/evidence/report-history-acceptance-2026-10-23.json`. Both staging publications remain on verified5ba40cce…ad43b58c; production remains unchanged/NO-GO.
+
+
 ## October 23 — Canonical Report-History Candidate (Not Applied)
 
 - [x] Prepared additive `20261023020000_enforce_pathway_report_content_history.sql` from the validated proposal; no applied migration was edited. Permitted content updates snapshot prior content and actual actor; client version fabrication and structural grants are removed while report RLS/editing and service table administration remain.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "authorized-staging-migration-and-both-publications-verified-bounded-test-awaiting-human-review",
+  "status": "migration-and-both-publications-verified-acceptance-incomplete",
   "authorization": "User explicitly authorized staging rollout and bounded no-AI test in this conversation",
   "target": "qgrertkqbwanerqqemph",
   "canonicalCandidate": "f821aa753bd52281f4ffe897ff99e0f301e281e6",
@@ -612,17 +612,23 @@
     },
     "manualBuildIdentitySetting": false
   },
-  "fixturesCreated": 0,
+  "fixturesCreated": 1,
   "aiCalls": 0,
   "productionTouched": false,
   "acceptance": {
     "run": "39977066359",
     "sourceCommit": "48f8bc5790278d2cbb7f85ab787aab7f21857709",
-    "status": "awaiting-required-human-staging-review",
+    "status": "failed-before-owner-reader-restoration-or-PDF",
     "maxIntakes": 2,
     "maxReports": 2,
     "pdfExports": 2,
     "aiCalls": 0,
-    "fixturesStarted": false
+    "fixturesStarted": true,
+    "reportsCreated": 1,
+    "pdfExportsCompleted": 0,
+    "callerCleanupPassed": true,
+    "privilegedCleanupAllZero": true,
+    "repeatAuthorized": false,
+    "evidence": "docs/production-readiness/evidence/report-history-acceptance-2026-10-23.json"
   }
 }

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
@@ -13,6 +13,22 @@ import { reportHistoryAcceptanceTarget } from "../helpers/report-history-accepta
 test.skip(process.env.RUN_REPORT_HISTORY_STAGING_QA !== "true", "Separate disposable-fixture authorization required");
 test.use({trace:"off",screenshot:"off",video:"off"});
 test.describe.configure({ mode: "serial", retries: 0 });
+// Match the existing report-reader readiness contract, rather than asserting
+// content against the still-empty route shell after only the default five seconds.
+async function expectLoadedReport(page:Page,summary:string,evidence:Record<string,unknown>,stage:string) {
+  try {
+    await expect(page.locator(".report-root")).toBeVisible({timeout:30_000});
+    await expect(page.getByText(summary,{exact:true}).first()).toBeVisible();
+  } catch(error) {
+    const path=new URL(page.url()).pathname;
+    evidence.readerFailure={stage,route:path.startsWith("/reports/")?"report":path.startsWith("/owner")?"owner":path.startsWith("/auth")?"auth":"other",
+      reportRoots:await page.locator(".report-root").count(),
+      headings:await page.getByRole("heading").count(),
+      visibleTextLength:(await page.locator("body").innerText()).length};
+    // No URL queries, console messages, cookies, storage state or private text.
+    throw error;
+  }
+}
 for (const ownerRole of ["parent", "educator"] as const) {
   test(`${ownerRole} restores, reopens and exports only its disposable report`, async ({ browser }, info) => {
     test.setTimeout(180_000);
@@ -96,7 +112,7 @@ for (const ownerRole of ["parent", "educator"] as const) {
           const ownerContext=await browser.newContext({baseURL:target.origin,storageState:ROLES.find(r=>r.key==="owner")!.storageState});
           try {
             const reader=await ownerContext.newPage();await reader.goto(`/reports/${reportId}`,{waitUntil:"domcontentloaded"});
-            await expect(reader.getByText(current.summary,{exact:true}).first()).toBeVisible();
+            await expectLoadedReport(reader,current.summary,evidence,"nonowner-admin-reader");
             await expect(reader.getByRole("button",{name:"Restore",exact:true})).toHaveCount(0);
             await expect(reader.getByRole("button",{name:/regenerate/i})).toHaveCount(0);
             evidence.nonownerAdminControlsHidden=true;
@@ -107,14 +123,14 @@ for (const ownerRole of ["parent", "educator"] as const) {
       context = await browser.newContext({baseURL:target.origin,storageState:role.storageState});
       const page = await context.newPage();
       await page.goto(`/reports/${reportId}?audience=${reportAudience}`,{waitUntil:"domcontentloaded"});
-      await expect(page.getByText(current.summary,{exact:true}).first()).toBeVisible();
+      await expectLoadedReport(page,current.summary,evidence,"report-owner-reader");
       await expect(page.getByRole("tab",{name:audienceTabName,exact:true})).toHaveAttribute("aria-selected","true");
       const restore = page.getByRole("button",{name:"Restore",exact:true});
       await expect(restore).toHaveCount(2);
       await restore.last().click(); // One real save/restore request, no generator or sharing action.
       await expect(page.getByText(earlier.summary,{exact:true}).first()).toBeVisible();
       await page.reload({waitUntil:"domcontentloaded"});
-      await expect(page.getByText(earlier.summary,{exact:true}).first()).toBeVisible();
+      await expectLoadedReport(page,earlier.summary,evidence,"restored-report-reload");
       await expect(page.getByRole("tab",{name:audienceTabName,exact:true})).toHaveAttribute("aria-selected","true");
       const saved = await owner.client.from("pathway_reports").select("content").eq("id",reportId).single();
       if (saved.error) throw new Error("Saved content readback failed");
