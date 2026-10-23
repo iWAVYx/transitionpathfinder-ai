@@ -1,3 +1,4 @@
+import { revokeOwnedShareToken } from "./revoke-share-token.server";
 import { readOrganizationPages } from "@/lib/organization-query-pages";
 import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
@@ -392,11 +393,6 @@ export const revokeShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("share_tokens")
-      .update({ revoked: true })
-      .eq("id", data.id);
-    if (error) throw new Error("Could not revoke link.");
+    await revokeOwnedShareToken(context.supabase, context.userId, data.id);
     return { ok: true };
   });

@@ -2,6 +2,45 @@
 
 Prepared October 12, 2026; staging execution recorded October 13, 2026. The specifically authorized migration is applied to isolated staging only. Both callers are switched only in draft source; neither hosted application has been deployed with this cutover. Production is unchanged; hosted save/regenerate behavior still uses separate snapshot and content requests.
 
+## Current Writer Inventory and Release Order — October 22, 2026
+
+This checkpoint supersedes historical statements below that the callers are draft-only or not deployed. Reviewed source is `202dc28c058f41f5ed738f7ee9cb8d3476223a7d`; its deployed application is `eb72bd87f287eeea86c6540616b66f5ec48a1346`. Both stable staging sites serve runtime fingerprint `550c963f1472ef6723c1125011deb400a3acfab5da9d79602cf2ce0a1f673b64`, 1,183 files. No production inspection, migration or release occurred in this review.
+
+### Application Writer Inventory
+
+Repository searches covered literal report/version table mutations in `src`, `scripts`, `supabase/functions`, and canonical SQL migrations, plus the shared helper and its callers. This inventories the checked-in paths, not arbitrary dynamic clients, deployed database drift or external/privileged consumers.
+
+| Path | Mutation and boundary | History coverage / remaining acceptance |
+| --- | --- | --- |
+| `src/lib/pathway.functions.ts`: `updateReportContent` | Authenticated caller, explicit owner check, server-derived saved-section metadata, one `writeReportContent` call. | Content replacement and previous-content snapshot share the RPC transaction. Restore in `ReportVersionsPanel` verifies the selected version belongs to the report and uses this same handler. Family/Educator hosted restore/reload/export passed in run39870631001; this is not all-role/provider acceptance. |
+| `src/lib/pathway.functions.ts`: `regeneratePathwayReport` | Authenticated owner, generated-section metadata, same RPC helper after generation. | No separate content PATCH/version insert or automatic generation retry in the handler. Live generation quality, Student/linked-student cases and hosted large-request/timeouts remain open. |
+| `src/lib/report-content-write.server.ts` | One caller-authenticated `save_pathway_report_content_atomic` RPC. Validates content/summary and positive integer result; translates conflict to reload language and sanitizes other errors. | Missing function, transport failure or conflict stops the operation. No admin client or split-write fallback. |
+| `src/lib/pathway.functions.ts`: `createPathwayReport` | Inserts a new report after intake and generation; optional provenance work follows. | Initial creation is outside replacement history. Intake, generation and report insertion are not one database transaction; failure/retry reconciliation is not established by restore acceptance. |
+| `src/lib/pathway.functions.ts`: `linkReportToStudent`, `deleteReport` | Caller-scoped student-link update or report deletion. | Neither is a content replacement or immutable history event. Linking/denial and deletion/cascade behavior need their applicable acceptance. |
+| `src/lib/action-items.functions.ts` | Marks `inputs_stale_at` after a completed linked action. | Dedicated freshness column only; not a content snapshot. The action/feed/report updates are separate requests. |
+| `src/lib/golden-path.functions.ts`: `seedDemoStudent` | Authenticated caller inserts a fictional report among multiple sample records. | Initial creation, not replacement history; multiple seed writes are not atomic. Do not execute during this review or use it as live-generation proof. |
+| `src/lib/owner/demo-seed.functions.ts`: `seedDemoData` | Platform-admin check, privileged demo report deletion/recreation among other demo operations. | Outside caller history. Production seeding/reset availability and exact demo scoping require an explicit release disposition; no seed operation was run. |
+| `src/lib/pathway-generate-shadow.functions.ts` / `pathway-report-writer.server.ts` | Default input `enabled=false`; an authenticated admin supplying true can invoke a privileged writer for recommendation/provenance columns. No product invocation was found beyond the defining module and its read-only companion references. | This is default-off, not proof of a deployment-enforced kill switch. It does not replace the `content` JSON via the history RPC. Review admin reachability and intended release availability; do not enable or call it as part of this inventory. |
+| `supabase/migrations/20261012190000_atomic_pathway_report_content.sql` | Invoker function locks owned report, compares observed content, inserts previous content/version, then replaces content. | Only literal version INSERT found in checked-in canonical SQL; no direct version INSERT found in application `src`. Existing table grants/policies and external writers are not removed by this RPC. |
+
+### What This Closes and What Remains
+
+- [x] Inventory the checked-in application report/content/version writers and distinguish creation, metadata, deletion, admin and transactional replacement paths.
+- [x] Re-run the three existing atomic-history source contract checks: caller scope, lock/snapshot/update order and both-caller no-fallback behavior pass. These are source checks, not a new hosted test.
+- [x] Retain completed staging run39870631001: seven role sessions, two Family/Educator restore/history/export journeys, exact fixture cleanup and inspected saved PDF samples. No AI call was made.
+- [ ] Review production effective table/RPC grants and all external/privileged writers against a fresh specifically authorized baseline. Source inventory does not close this gate.
+- [ ] Resolve stale client intent: comparison protects the content observed by the server, but the UI does not submit its own observed revision. Do not describe this as universal lost-update prevention or an immutable audit trail.
+- [ ] Record release decisions for admin shadow generation and demo seeding; default input values/comments alone do not establish that a server action is unavailable.
+- [ ] Complete applicable Student/linked-student, provider generation, sharing/revocation, request-size/timeout and concurrent browser acceptance without repeating completed tests unnecessarily.
+
+### Production Dependency Order
+
+1. Freeze/review the candidate and complete the outstanding permission, provider, configuration and recovery gates. Preserve exclusions explicitly.
+2. Obtain authorization for a fresh production schema/grant/migration inventory; compare required function definitions, canonical hashes and sharing dependencies. Saved September evidence is not a current baseline.
+3. Review recovery point, rollback/abort conditions and exact migration plan, then obtain separate authorization for necessary production database changes. Verify the history function and effective grants before publishing its callers.
+4. Complete protected-main checks and record the authentic release SHA. Merge and publication remain separately authorized; this document does not authorize either.
+5. Publish the exact reviewed production snapshot only after dependency verification; verify identity, access/save/reopen/export and approved service checks during the observation window. Stop or roll back on failed invariants. Never substitute staging secrets or the old split-write behavior.
+
 ## Prepared Database Operation
 
 `20261012190000_atomic_pathway_report_content.sql` adds a SECURITY INVOKER function. It uses the authenticated caller's `auth.uid()`, explicit report ownership and existing RLS; it accepts no claimed owner ID, uses no service-role client and returns only the saved version number. Anonymous/PUBLIC/service-role execution is revoked. This is outside the security-definer allowlist because it does not elevate privileges.

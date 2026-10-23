@@ -1,5 +1,43 @@
 # Production release checklist
 
+## Canonical Sharing Security Candidate Prepared — October 23, 2026
+
+Prepared additive `20261023010000_restrict_report_share_token_writes.sql` with an enforced server-only sharing prerequisite; no applied migration changed. All 23 local disposable SQL cases pass. Existing CI now runs the cases in native disposable PostgreSQL before complete canonical replay; that hosted CI result is pending. Nineteen scoped source contracts pass. The broad mixed Node invocation is not accepted (credential/loader prerequisites absent); no protected test credentials or hosted workaround were used. Runtime remains unchanged since 4,363 unit tests and TypeScript passed. Saved September production evidence now yields ten pending migrations including this candidate; this is not a production inspection. [Exact hashes, validation limits and rollback plan](share-token-staging-acceptance-packet.md#canonical-candidate-finalized--october-23-2026).
+
+Next: record/review the candidate commit and exact-head automatic checks, then present the two ordered staging migrations plus bounded release/test scope for specific authorization. No migration, deployment/publication, provider call, fixture, permission/secret/account or production action. Both staging sites remain eb72bd87; full roadmap and deferred Parent Pilot/Pathway Snapshot retained.
+
+
+## Actual Isolated Sharing Catalog Read — October 23, 2026
+
+One metadata-only BEGIN READ ONLY query in signed-in Supabase staging/E2E (`qgrertkqbwanerqqemph`) confirms broad authenticated share-token UPDATE/DELETE and creator-only UPDATE policy. It also finds browser execution still granted on both raw share RPCs and no selected ledger entry for `20261006180000`. Source-only server grant tests did not establish hosted closure. The existing canonical server-only grants and proposed narrow token-write restriction must be reviewed as two separate ordered changes before authorization. [Captured metadata, export provenance and revised packet](share-token-staging-acceptance-packet.md#read-only-isolated-staging-preflight-completed--october-23-2026). No retarget/report read, grant/schema/ledger change, fixture, deployment/publication, provider call or production access occurred. The query/export is not rerun after a delayed browser download callback; the downloaded CSV agrees with the observed result. Twenty-one disposable SQL cases now include the single-row catalog query; existing runtime validation remains 4,363 units/TypeScript/15 source contracts. Both staging applications remain eb72bd87; full roadmap and deferred Parent Pilot/Pathway Snapshot retained.
+
+
+## Sharing Compatibility and Staging Packet Prepared — October 22, 2026
+
+[Reviewed compatibility/acceptance packet](share-token-staging-acceptance-packet.md) records the uncommitted candidate identity, exact SQL/preflight hashes, caller compatibility, ordered catalog/canonical-migration/release steps, bounded no-AI fixtures and exact trusted cleanup. No product token delete/edit/reactivation path was found. Strengthened the unapplied proposal with a restrictive policy and RLS/client-role assertions; all 20 in-memory SQL cases pass, including read-only preflight execution, an additional permissive policy and preserved service tracking. Runtime is unchanged since the 4,363-unit/TypeScript/15-source-contract results. The packet requires fresh isolated catalog/dependency review and an authentic committed candidate before any hosted authorization request. No canonical migration, hosted fixture, provider call, deployment/publication, account/access/secret change or production action occurred. Both staging sites remain eb72bd87; full roadmap and deferred Parent Pilot/Pathway Snapshot retained.
+
+
+## Sharing Restriction Reproduced; Revoke Confirmation Prepared — October 22, 2026
+
+Credential-free in-memory PostgreSQL reproduces canonical token retargeting and foreign fictional report resolution. Sixteen database cases pass for the review-only write restriction, including protected columns, exact/repeated revocation, creation/foreign creation, expiry, anonymous denial and inherited-grant abort. The proposal lives outside applied migrations and restricts client deletion/reactivation as well as retargeting; availability/scope review and a separately authorized canonical migration remain required. Local Students/Trust callers now share exact caller-owned revoke confirmation, with 14 new handler regressions. Full unit suite passes 309 files /4,363 tests; 15 retained source contracts and final TypeScript pass. [Evidence, scope and unapplied proposal](report-access-release-review-2026-10-22.md#local-reproduction-and-candidate--october-22-2026).
+
+Next: finish the proposal/compatibility review and prepare a concrete staged acceptance/migration packet before asking for any hosted change. The SQL blocker is not closed by local evidence; direct report/history writes, Owner administrative access and bearer-link lifecycle remain release decisions. No hosted fixtures, provider calls, migrations, deployment/publication, account/access/payment/secret changes or production action. Both staging sites remain eb72bd87; full roadmap and deferred Parent Pilot/Pathway Snapshot preserved.
+
+
+## Report Permission Source Review — October 22, 2026
+
+[Scoped report-access review](report-access-release-review-2026-10-22.md) identifies a production blocker in canonical share-token UPDATE permissions: token creators can modify more than revocation, and the privileged resolver follows the token's report reference. This is a source finding, not a claim about freshly inspected production grants. Also retain direct report/version write integrity, management-only Owner versus backend admin access, independent bearer-link revocation and unconfirmed zero-row revoke outcomes as explicit release decisions/work. Five source checks and 61 existing mocked unit tests pass; these do not execute the affected PostgreSQL policies.
+
+Next: prepare a disposable-database regression and reviewed narrow share-write restriction, fix exact revoke confirmation, then resolve the named access/scope decisions before requesting hosted changes. No runtime or applied-migration edits, fixture/provider calls, merge, deployment/publication, permissions/account/secret changes or production actions. Both staging sites remain eb72bd87; full roadmap and deferred Parent Pilot/Pathway Snapshot remain retained.
+
+
+## Report Writer Release Review — October 22, 2026
+
+Completed the checked-in report/content/version writer inventory in [the transactional history plan](../pathway-transactional-history-plan.md#current-writer-inventory-and-release-order--october-22-2026). Normal save/regenerate/restore use the caller-authenticated atomic history RPC; creation, link/freshness metadata, deletion, demo seeding and admin shadow writes are separately classified. Three existing source contract checks pass. This closes the scoped source inventory only, not external writers, current production grants, stale-client intent, all-role/provider acceptance or production approval. Default-off shadow input is not a server-enforced disable; shadow/demo-seed release availability needs explicit disposition. Historical draft-only caller statements are superseded by the plan's current checkpoint and completed staging acceptance.
+
+Next: resolve the named source/scope decisions and remaining acceptance, then prepare a fresh production inventory/migration/recovery packet for separate authorization. Both staging sites remain eb72bd87. No runtime edit, fixture/provider call, merge, deployment, publication, migration, account/access/payment/secret change or production action. Preserve the full roadmap and deferred Parent Pilot/Pathway Report Snapshot.
+
+
 ## Homepage, Demo Centering and Meeting Spacing Released — October 22, 2026
 
 Earlier checkpoints below are historical. This section records current release and test status; unrelated roadmap work remains open.
