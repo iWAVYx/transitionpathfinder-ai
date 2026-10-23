@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 23 — Career Layout Released to Both Staging Sites; Read-Only Checks Passed
+
+- [x] Human-approved deployment40002777221 releases exact `c7ce64f1` to Cloudflare staging. Isolated Lovable sync `f62f1694` changes only the two approved runtime files; environment files, package/lock, generated backend types and the builder’s “Your Dashboard Widgets” edit are preserved. Preview source was verified before updating its existing publication.
+- [x] Both stable staging addresses now serve fingerprint `0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1`,1,184files, isolated backend and sandbox payments, with isolation passing. Cloudflare reports exact c7ce64f1; Lovable reports dev without invented identity metadata.
+- [x] All eight automatic candidate checks passed. Separately human-approved read-only run40003357810 passed seven existing role sessions and four mobile/desktop sample-report journeys with zero retries/AI. Three fictional sample PDFs exported; sanitizer passed before artifact retrieval. Direct published-page measurements on both hosts verify all six career field headings across Family/Educator/Student views: paired baselines and column insets align, with no report horizontal overflow.
+- [x] All three hosted PDFs retain complete endings and no text-empty/out-of-page words. Selected career, meeting and final pages were rendered/reviewed; this is not all-page proofreading or native OS print acceptance. No records, accounts, relationships or sharing grants were created; no cleanup was necessary.
+- [ ] Hosted prepared samples remain30pages; distinct prior saved fixtures remain32pages. Overall compactness/native printing, linked-editor acceptance, Owner/admin planning-data policy, stale browser intent, provenance/retention/bearer lifecycle and the wider production gates remain open. Production is unchanged and NO-GO. No main merge, migration, AI/provider call, payment or manual secret change occurred.
+
+See `docs/production-readiness/evidence/report-career-staging-rollout-2026-10-23.json`. Full TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot remain retained. The approved staging rollout and read-only acceptance are complete; this does not authorize another release or record-writing test.
+
 ## October 23 — Career Fields Aligned Across Report Readers (Local Only)
 
 - [x] Career details now use three balanced pairs: Example Jobs / Skills Used, Education / Training / Work Environment, and Possible Accommodations / Next Exploration Step. All six field headings share column insets and styling; mobile readers stack the fields. Applicable saved/demo Family, Educator and Student views and fixed Family/Educator shares use the shared component. No role gains a tool, report access or generation permission.
