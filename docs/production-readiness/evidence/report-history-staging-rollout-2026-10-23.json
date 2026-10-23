@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "authorized-staging-migration-applied-app-rollout-and-acceptance-pending",
+  "status": "authorized-staging-migration-and-both-publications-verified-bounded-test-awaiting-human-review",
   "authorization": "User explicitly authorized staging rollout and bounded no-AI test in this conversation",
   "target": "qgrertkqbwanerqqemph",
   "canonicalCandidate": "f821aa753bd52281f4ffe897ff99e0f301e281e6",
@@ -512,9 +512,117 @@
     "pendingAllowedBranchRun": "39975596569",
     "allowedBranchCommit": "098243387a4fd9f98fa84e9171506750e5ac27b5",
     "differenceFromAuthorizedCandidate": "Documentation only; identical runtime and migration",
-    "docsHeadA11y": "39971572054 timed out installing Playwright browsers; no assertion ran. Authorized f821aa75 accessibility passed."
+    "docsHeadA11y": "39971572054 timed out installing Playwright browsers; no assertion ran. Authorized f821aa75 accessibility passed.",
+    "cloudflareRun": "39975596569",
+    "cloudflareConclusion": "success",
+    "cloudflareHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "098243387a4fd9f98fa84e9171506750e5ac27b5",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "lovableHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "privatePreviewHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "preview--gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": false,
+        "errors": [
+          "\"preview--gentle-forward-reach.lovable.app\" is not an allowed staging hostname.",
+          "GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA."
+        ]
+      }
+    },
+    "lovableOnlyThreeRuntimeFiles": true,
+    "preservedProtectedHashes": {
+      "protectedHashes": {
+        ".env.production": "1fc578d7313884b857d0174fdecfa1d24e017023c6a3ae0b18879fc50dd63bd7",
+        ".env": "1a189ff56cf1136aec1754cbe4400de30079ef775a72966f008064abf974b96a",
+        ".env.development": "0b0bf11adff1a6cbe1a2bccfcd780b58c4c143f348e8b27dde8efa4527b312ac",
+        "package.json": "7bef58e71b41229cc7eb57c3f0e2166b73797b35ae48a20df7595c07f5ac1665",
+        "bun.lock": "6d708af55f5601cbb3528a1212c91a8b49c30df5cb704c54331288bc818a028b",
+        "src/integrations/supabase/types.ts": "3afffb120e9747977e6c1df0498a18dd59a20da44d0a60fecdc40a144870e4c6",
+        "src/components/dashboard/DashboardWidgetBoardView.tsx": "016ac165dd0e19b15eea770a9f395d543b9dae6bee454dd30cf50edcc956467f"
+      },
+      "filesCopied": [
+        "src/components/pathway/ReportVersionsPanel.tsx",
+        "src/lib/pathway.functions.ts",
+        "src/routes/_authenticated/reports.$reportId.tsx"
+      ]
+    },
+    "manualBuildIdentitySetting": false
   },
   "fixturesCreated": 0,
   "aiCalls": 0,
-  "productionTouched": false
+  "productionTouched": false,
+  "acceptance": {
+    "run": "39977066359",
+    "sourceCommit": "48f8bc5790278d2cbb7f85ab787aab7f21857709",
+    "status": "awaiting-required-human-staging-review",
+    "maxIntakes": 2,
+    "maxReports": 2,
+    "pdfExports": 2,
+    "aiCalls": 0,
+    "fixturesStarted": false
+  }
 }

@@ -1,5 +1,12 @@
 # Report-History Staging Candidate — October 23, 2026
 
+## October 23 — Both Staging Publications Verified; Bounded Test Queued
+
+Authorized Cloudflare deployment39975596569 passed at09824338. Isolated Lovable preview was independently verified before updating its existing publication; both stable hosts now return200, runtime `5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c`,1,184 files, isolated backend, sandbox payments and isolation true. Lovable's stable response says git_commit_sha dev; no commit metadata was invented. Runtime fingerprint establishes source parity, not a new source-control attestation. Private alias isolation errors remain expected and do not replace stable-site verification.
+
+Bounded no-AI acceptance39977066359 is queued on test/docs-only48f8bc57 and awaits GitHub's required human review. It uses the approved two fictional reports and exact cleanup; no fixtures have started. All automatic checks also pass for48f8bc57, including accessibility after the earlier docs-head browser-install timeout. New hosted linked-editor acceptance remains unperformed without an existing authorized linked fixture. Production remains untouched and NO-GO. See `docs/production-readiness/evidence/report-history-staging-rollout-2026-10-23.json`.
+
+
 ## October 23 — Authorized History Migration Verified; Release Pending
 
 The user explicitly authorized the staged rollout and one bounded no-AI test. Only `20261023020000_enforce_pathway_report_content_history.sql` and its exact canonical ledger record committed on isolated staging `qgrertkqbwanerqqemph`. Fresh read-only preflight found no drift/new ledger/active report writer. Independent post-commit verification at `2026-10-23T15:04:33.993742+00:00` confirms both exact function bodies, fixed search paths/invoker/definer flags, the enabled trigger, restricted client grants, unchanged policies and retained service table administration. The original ledger remains unchanged. See `docs/production-readiness/evidence/report-history-staging-rollout-2026-10-23.json`. No real reports were read or mutated.
