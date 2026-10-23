@@ -1,5 +1,12 @@
 # TransitionForward — Readiness Roadmap
 
+## Target-Reconciled History Boundary Passed Native Validation — October 23, 2026
+
+Review-only proposal `95678424` passes all 39 native PostgreSQL cases, zero skips, both concurrency journeys and full canonical replay in [run39964618618](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39964618618); all eight automatic checks pass. The source/fixture now reflects the read-only staging catalog's broad grants and current Team history policies. It snapshots permitted content updates and proposes explicit removal of ordinary-client structural/version-write privileges while preserving report CRUD/RLS/editor and service behavior. [Exact checksums, evidence, all-role assessment and next gates](production-readiness/report-history-write-boundary-review-2026-10-23.md).
+
+This remains an unapplied proposal outside canonical migrations. Next: review the new trigger privilege boundary, canonical migration/ledger/recovery scope, Owner administrative planning-data access and source-confirmed owner-only Restore/Regenerate controls shown to non-owning readers. Stale browser intent remains separate. No new hosted fixtures, schema/grant/ledger writes, synchronization, deployment/publication, AI call, account/access change or production action. Both approved staging runtimes and the full roadmap/deferred Parent Pilot–Pathway Snapshot remain unchanged.
+
+
 ## Report History Proposal Reconciled to Actual Staging Catalog — October 23, 2026
 
 Initial review-only candidate `01c1a57d` passes all 37 native PostgreSQL cases (zero skips, both concurrency journeys), full canonical replay and all eight automatic checks. A subsequent read-only isolated staging catalog query confirms the RPC identity and current Team history policies but finds broader effective client TRIGGER/TRUNCATE and version write grants than the narrow initial fixture. No hosted mutation was attempted. The replacement proposal explicitly narrows those structural/version-write capabilities, preserves report CRUD/RLS/editor/service behavior and uses the actual Team policies plus broad grants in its disposable fixture. Local replacement: 37 pass/two native concurrency skips, 39 total. Exact-head native CI remains required. [Evidence, scoped proposal, role matrix and limits](production-readiness/report-history-write-boundary-review-2026-10-23.md).
