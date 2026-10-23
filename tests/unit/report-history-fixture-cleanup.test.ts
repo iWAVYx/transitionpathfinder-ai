@@ -41,3 +41,14 @@ it("cleans exact attempted IDs even when insert responses were not confirmed",as
   const {client,calls}=mockClient();expect(await cleanupReportHistoryFixture(client,{...fixture,reportCreated:false,intakeCreated:false,reportAttempted:true,intakeAttempted:true})).toEqual([]);
   expect(calls.filter(c=>c.method === "DELETE")).toHaveLength(2);
 });
+
+it("sharing cleanup retains exact owner and model boundaries",async()=>{
+ const {client,calls}=mockClient();expect(await cleanupReportHistoryFixture(client,{...fixture,model:"synthetic-no-ai-sharing"})).toEqual([]);
+ const deletion=calls.find(c=>c.method==="DELETE"&&c.url.pathname.endsWith("pathway_reports"))!;
+ expect(deletion.url.searchParams.get("model")).toBe("eq.synthetic-no-ai-sharing");
+ expect(deletion.url.searchParams.get("id")).toBe(`eq.${fixture.reportId}`);
+ expect(deletion.url.searchParams.get("user_id")).toBe(`eq.${fixture.ownerId}`);
+});
+it("refuses an arbitrary model before any cleanup request",async()=>{
+ const {client,calls}=mockClient();await expect(cleanupReportHistoryFixture(client,{...fixture,model:"other" as never})).rejects.toThrow("Invalid exact fixture model");expect(calls).toEqual([]);
+});

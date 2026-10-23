@@ -2,16 +2,18 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../../src/integrations/supabase/types";
 
 /** Delete only this run's exact owner-scoped IDs; never old QA markers or broad sets. */
-export async function cleanupReportHistoryFixture(client: SupabaseClient<Database>, fixture: {reportId:string; intakeId:string; ownerId:string; reportCreated:boolean; intakeCreated:boolean; reportAttempted?:boolean; intakeAttempted?:boolean; marker:string}) {
+export async function cleanupReportHistoryFixture(client: SupabaseClient<Database>, fixture: {reportId:string; intakeId:string; ownerId:string; reportCreated:boolean; intakeCreated:boolean; reportAttempted?:boolean; intakeAttempted?:boolean; marker:string; model?:"synthetic-no-ai-history"|"synthetic-no-ai-sharing"}) {
   const errors: string[] = [];
   const {reportId,intakeId,ownerId} = fixture;
+  const model=fixture.model ?? "synthetic-no-ai-history";
+  if (!["synthetic-no-ai-history","synthetic-no-ai-sharing"].includes(model)) throw new Error("Invalid exact fixture model");
   if (![reportId,intakeId,ownerId].every(id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))) throw new Error("Invalid exact fixture cleanup scope");
   for (const [table,id,created,attempted] of [["pathway_reports",reportId,fixture.reportCreated,fixture.reportAttempted],["student_intakes",intakeId,fixture.intakeCreated,fixture.intakeAttempted]] as const) {
     if (!created && !attempted) continue;
     try {
       const query = client.from(table).delete().eq("id",id).eq("user_id",ownerId);
       const result = table === "pathway_reports"
-        ? await query.eq("model","synthetic-no-ai-history").eq("intake_id",intakeId).select("id")
+        ? await query.eq("model",model).eq("intake_id",intakeId).select("id")
         : await query.eq("student_first_name",fixture.marker).select("id");
       if (result.error || !result.data || (created ? result.data.length !== 1 : result.data.length > 1)) errors.push(`Exact disposable ${table} deletion failed`);
     } catch { errors.push(`Exact disposable ${table} deletion failed`); }
