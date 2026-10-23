@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## October 23 — Authorized History Migration Verified; Release Pending
+
+The user explicitly authorized the staged rollout and one bounded no-AI test. Only `20261023020000_enforce_pathway_report_content_history.sql` and its exact canonical ledger record committed on isolated staging `qgrertkqbwanerqqemph`. Fresh read-only preflight found no drift/new ledger/active report writer. Independent post-commit verification at `2026-10-23T15:04:33.993742+00:00` confirms both exact function bodies, fixed search paths/invoker/definer flags, the enabled trigger, restricted client grants, unchanged policies and retained service table administration. The original ledger remains unchanged. See `docs/production-readiness/evidence/report-history-staging-rollout-2026-10-23.json`. No real reports were read or mutated.
+
+Cloudflare run39975596569 waits for required human staging review. Its allowed-branch commit09824338 differs from approved f821aa75 only in documentation; runtime/migration hashes match. An attempt on a new pinned branch was rejected by existing environment restrictions before any deploy step. Protection was preserved. The docs-head accessibility job timed out downloading browser dependencies; exact approved f821aa75 passed accessibility and all automatic checks.
+
+Isolated Lovable received only the three approved reader-control files; settings, dependencies, generated types and the builder title are preserved. Preview update is pending verification/publication. The old report test's fabricated version seed is replaced by a legitimate RPC save and direct owner edit, then actual UI restore/export and exact cleanup. It also checks denied history mutations and nonowner controls; both stable hosts must match before fixtures. TypeScript,49 focused scope/cleanup/write tests and discovery of exactly two fixture tests pass. No hosted fixture has run; the single approved allowance remains unused. Linked-editor hosted acceptance is explicitly unperformed because these fixtures are unlinked and new relationships are not authorized. Production remains unchanged/NO-GO.
+
+
 ## October 23 — Canonical Report-History Candidate (Not Applied)
 
 - [x] Prepared additive `20261023020000_enforce_pathway_report_content_history.sql` from the validated proposal; no applied migration was edited. Permitted content updates snapshot prior content and actual actor; client version fabrication and structural grants are removed while report RLS/editing and service table administration remain.

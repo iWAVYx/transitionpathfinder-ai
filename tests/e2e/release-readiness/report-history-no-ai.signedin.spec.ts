@@ -5,25 +5,30 @@ import { writeFile } from "node:fs/promises";
 import type { Database, Json } from "../../../src/integrations/supabase/types";
 import { ReportSchema } from "../../../src/lib/pathway-generation-contract";
 import { DEMO_REPORT } from "../../../src/lib/demo-data";
+import { writeReportContent } from "../../../src/lib/report-content-write.server";
 import { ROLES } from "../helpers/roles";
 import { cleanupReportHistoryFixture } from "../helpers/report-history-fixture-cleanup";
 import { reportHistoryAcceptanceTarget } from "../helpers/report-history-acceptance-policy";
 
 test.skip(process.env.RUN_REPORT_HISTORY_STAGING_QA !== "true", "Separate disposable-fixture authorization required");
+test.use({trace:"off",screenshot:"off",video:"off"});
 test.describe.configure({ mode: "serial", retries: 0 });
 for (const ownerRole of ["parent", "educator"] as const) {
   test(`${ownerRole} restores, reopens and exports only its disposable report`, async ({ browser }, info) => {
     test.setTimeout(180_000);
     const target = reportHistoryAcceptanceTarget(process.env);
-    const response = await fetch(`${target.origin}/api/public/env-health`);
-    if (!response.ok) throw new Error("Staging preflight failed before fixtures");
-    const health = await response.json();
-    expect(health.git_commit_sha).toBe(process.env.E2E_EXPECTED_BUILD_SHA);
-    expect(health.runtime_source_fingerprint).toBe(process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT);
-    expect(health.supabase_project_ref).toBe("qgrertkqbwanerqqemph");
-    expect(health.stripe_mode).toBe("sandbox");
-    expect(health.isolation?.ok).toBe(true);
-    expect(health.is_production_target).toBe(false);
+    for (const origin of [target.origin,"https://gentle-forward-reach.lovable.app"]) {
+      const response = await fetch(`${origin}/api/public/env-health`,{cache:"no-store",signal:AbortSignal.timeout(15000)});
+      if (!response.ok) throw new Error("Staging preflight failed before fixtures");
+      const health = await response.json();
+      if (origin === target.origin) expect(health.git_commit_sha).toBe(process.env.E2E_EXPECTED_BUILD_SHA);
+      expect(health.runtime_source_fingerprint).toBe(process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT);
+      expect(health.runtime_source_file_count).toBe(1184);
+      expect(health.supabase_project_ref).toBe("qgrertkqbwanerqqemph");
+      expect(health.stripe_mode).toBe("sandbox");
+      expect(health.isolation?.ok).toBe(true);
+      expect(health.is_production_target).toBe(false);
+    }
     const expectedEmails: Record<string, string> = { student: "e2e.student", parent: "e2e.parent", educator: "e2e.educator", school_admin: "e2e.schooladmin", district_admin: "e2e.districtadmin", partner: "e2e.partner", owner: "e2e.owner" };
     const clients: Array<{role: string; id: string; client: SupabaseClient<Database>}> = [];
     const reportId = randomUUID(), intakeId = randomUUID(), versionId = randomUUID();
@@ -44,17 +49,33 @@ for (const ownerRole of ["parent", "educator"] as const) {
       }
       const owner = clients.find(c=>c.role === ownerRole)!;
       const current = ReportSchema.parse({...structuredClone(DEMO_REPORT),summary:`Synthetic ${ownerRole} current plan ${target.runId}`});
+      const intermediate = ReportSchema.parse({...structuredClone(DEMO_REPORT),summary:`Synthetic ${ownerRole} saved plan ${target.runId}`});
       const earlier = ReportSchema.parse({...structuredClone(DEMO_REPORT),summary:`Synthetic ${ownerRole} earlier plan ${target.runId}`});
       intakeAttempted = true;
       const intake = await owner.client.from("student_intakes").insert({id:intakeId,user_id:owner.id,student_first_name:marker,submitter_role:ownerRole === "parent" ? "family" : "educator",grade_band:"11-12"});
       if (intake.error) throw new Error("Caller-RLS intake fixture failed");
       intakeCreated = true;
       reportAttempted = true;
-      const report = await owner.client.from("pathway_reports").insert({id:reportId,intake_id:intakeId,user_id:owner.id,student_id:null,is_demo:true,model:"synthetic-no-ai-history",content:current as unknown as Json});
+      const report = await owner.client.from("pathway_reports").insert({id:reportId,intake_id:intakeId,user_id:owner.id,student_id:null,is_demo:true,model:"synthetic-no-ai-history",content:earlier as unknown as Json});
       if (report.error) throw new Error("Caller-RLS report fixture failed");
       reportCreated = true;
-      const version = await owner.client.from("pathway_report_versions").insert({id:versionId,report_id:reportId,version_number:1,content:earlier as unknown as Json,created_by:owner.id,change_summary:"Synthetic fixture earlier version"});
-      if (version.error) throw new Error("Caller-RLS version fixture failed");
+      // Real RPC and direct edit create truthful prior-content history; never seed a fabricated version.
+      expect(await writeReportContent(owner.client,reportId,earlier,intermediate,"Synthetic initial save","save")).toBe(1);
+      const direct = await owner.client.from("pathway_reports").update({content:current as unknown as Json}).eq("id",reportId).eq("user_id",owner.id).select("id");
+      if (direct.error || direct.data?.length !== 1) throw new Error("Exact direct owner edit failed");
+      const beforeRestore = await owner.client.from("pathway_report_versions").select("id,version_number,content,created_by").eq("report_id",reportId).order("version_number");
+      if(beforeRestore.error || beforeRestore.data.length !== 2) throw new Error("Truthful prior-content history failed");
+      expect(beforeRestore.data.map(v=>v.content)).toEqual([earlier,intermediate]);
+      expect(beforeRestore.data.every(v=>v.created_by===owner.id)).toBe(true);
+      const forged = await owner.client.from("pathway_report_versions").insert({id:versionId,report_id:reportId,version_number:99,content:current as unknown as Json,created_by:clients.find(c=>c.id!==owner.id)!.id,change_summary:"Denied fictional fabrication"});
+      expect(forged.error?.code).toBe("42501");
+      for(const mutation of [
+        owner.client.from("pathway_report_versions").update({content:current as unknown as Json}).eq("id",beforeRestore.data[0].id),
+        owner.client.from("pathway_report_versions").delete().eq("id",beforeRestore.data[0].id),
+      ]) expect((await mutation).error?.code).toBe("42501");
+      evidence.rpcAndDirectEditHistory = true;
+      evidence.clientHistoryFabricationDenied = true;
+      evidence.linkedEditorAcceptance = "Unperformed: unlinked fixtures; no new relationship authorized";
       for (const other of clients.filter(c=>c.role !== ownerRole)) {
         const read = await other.client.from("pathway_reports").select("id").eq("id",reportId);
         if (read.error) throw new Error(`Could not verify ${other.role} read boundary`);
@@ -65,6 +86,21 @@ for (const ownerRole of ["parent", "educator"] as const) {
           evidence.existingOwnerAdminFixtureIdVisible = read.data!.length === 1;
         } else {
           expect(read.data,`${other.role} must not read this unlinked private report`).toEqual([]);
+          const edit=await other.client.from("pathway_reports").update({content:earlier as unknown as Json}).eq("id",reportId).select("id");
+          expect(Boolean(edit.error)||edit.data?.length===0).toBe(true);
+        }
+        await expect(writeReportContent(other.client,reportId,current,earlier,"Denied nonowner save","save")).rejects.toThrow("Could not save the report.");
+        const forgedOther=await other.client.from("pathway_report_versions").insert({report_id:reportId,version_number:99,content:earlier as unknown as Json,created_by:other.id});
+        expect(forgedOther.error?.code).toBe("42501");
+        if (other.role === "owner" && read.data?.length===1) {
+          const ownerContext=await browser.newContext({baseURL:target.origin,storageState:ROLES.find(r=>r.key==="owner")!.storageState});
+          try {
+            const reader=await ownerContext.newPage();await reader.goto(`/reports/${reportId}`,{waitUntil:"domcontentloaded"});
+            await expect(reader.getByText(current.summary,{exact:true}).first()).toBeVisible();
+            await expect(reader.getByRole("button",{name:"Restore",exact:true})).toHaveCount(0);
+            await expect(reader.getByRole("button",{name:/regenerate/i})).toHaveCount(0);
+            evidence.nonownerAdminControlsHidden=true;
+          } finally {await ownerContext.close();}
         }
       }
       const role = ROLES.find(r=>r.key === ownerRole)!;
@@ -74,8 +110,8 @@ for (const ownerRole of ["parent", "educator"] as const) {
       await expect(page.getByText(current.summary,{exact:true}).first()).toBeVisible();
       await expect(page.getByRole("tab",{name:audienceTabName,exact:true})).toHaveAttribute("aria-selected","true");
       const restore = page.getByRole("button",{name:"Restore",exact:true});
-      await expect(restore).toHaveCount(1);
-      await restore.click(); // One real save/restore request, no generator or sharing action.
+      await expect(restore).toHaveCount(2);
+      await restore.last().click(); // One real save/restore request, no generator or sharing action.
       await expect(page.getByText(earlier.summary,{exact:true}).first()).toBeVisible();
       await page.reload({waitUntil:"domcontentloaded"});
       await expect(page.getByText(earlier.summary,{exact:true}).first()).toBeVisible();
@@ -85,10 +121,11 @@ for (const ownerRole of ["parent", "educator"] as const) {
       expect((saved.data.content as Record<string,Json>).summary).toBe(earlier.summary);
       const history = await owner.client.from("pathway_report_versions").select("version_number,content,created_by").eq("report_id",reportId).order("version_number");
       if (history.error) throw new Error("Snapshot readback failed");
-      expect(history.data).toHaveLength(2);
+      expect(history.data).toHaveLength(3);
       expect(history.data[0].content).toEqual(earlier);
-      expect(history.data[1].content).toEqual(current);
-      expect(history.data[1].created_by).toBe(owner.id);
+      expect(history.data[1].content).toEqual(intermediate);
+      expect(history.data[2].content).toMatchObject({summary:current.summary});
+      expect(history.data.every(v=>v.created_by===owner.id)).toBe(true);
       evidence.versionNumbers = history.data.map(v=>v.version_number);
       await page.emulateMedia({media:"print"});
       expect(await page.locator("body").innerText()).toContain(earlier.summary);
