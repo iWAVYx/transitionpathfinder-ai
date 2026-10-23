@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 23 — Student Report Card Released to Both Staging Sites
+
+- [x] Authorized release `3bb45d0c5adf8831ccadc665ad39461b09c3bd3f` deployed successfully in human-approved [run 40017617374](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40017617374). All eight automatic checks passed, alongside 4,432 local unit tests, five role/navigation contracts and TypeScript.
+- [x] Existing isolated Lovable staging synced only the four approved runtime files in `6c51391d`; preview identity was verified before updating the existing publication. Environment files, dependencies, generated backend types and the builder’s “Your Dashboard Widgets” edit are preserved.
+- [x] Both stable staging sites serve fingerprint `080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0`, 1,184 files, backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Cloudflare reports exact source SHA; Lovable reports `dev`, with parity established by the source fingerprint. AI configuration still differs by host (Cloudflare unconfigured, Lovable managed); this is not AI acceptance.
+- [x] Human-approved read-only [run 40018705627](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40018705627) passed seven existing role sign-ins, four anonymous mobile/desktop report journeys and three fictional PDF exports, with zero retries or AI calls. Reader checks cover one-click audience selection, URL/reload/Back/Forward, sample-details return and no horizontal overflow. PDF assertions verify the loaded watermark, meeting questions printed once, complete final question/source note and ending, and no text-empty pages. Artifact sanitization passed before download. No records were created; no cleanup was needed. This is not a new all-page visual or native-print review.
+- [ ] Keep hosted linked-editor/report-card acceptance, Owner/admin planning-data policy, stale browser write intent and broader production gates open. Sample-reader checks do not establish those outcomes. Production remains unchanged; no main merge, migration, hosted records, AI/provider calls, account/access, payment or secrets changes.
+
+See `docs/production-readiness/evidence/student-report-card-staging-rollout-2026-10-23.json`. This entry supersedes the earlier local-only status below. Report length/cosmetic polish remain deferred, not launch blockers; full TF-01–TF-26 and separately deferred Parent Pilot/Pathway Snapshot remain retained.
+
 ## October 23 — Student Report Card Access and Recovery Fixed Locally
 
 - [x] The student-profile Report card now offers Refresh only for a server-confirmed report owner and retains Open for permitted readers. The latest-report query returns a strict ownership hint without exposing the owner ID; underlying mutation, entitlement and RLS checks remain unchanged. No route or role permission is added.
