@@ -18,7 +18,7 @@
     "test:ct-seed-v2": "node --test tests/ct-seed-v2-audit.test.mjs",
     "test:ct-seed-v2-repair": "node --test tests/ct-seed-v2-repair.test.mjs",
     "test:production-readiness": "node --test tests/production-readiness-contract.test.mjs tests/hosting-portability-boundary.test.mjs tests/lovable-public-build-module.test.mjs",
-    "test:security-findings": "node --test tests/security-finding-alignment.test.mjs tests/security-definer-routine-grants.test.mjs tests/production-security-inventory-alignment.test.mjs tests/production-pg-net-hosting-boundary.test.mjs tests/authz-defense-in-depth.test.mjs tests/server-only-share-rpcs.test.mjs",
+    "test:security-findings": "node --test tests/security-finding-alignment.test.mjs tests/security-definer-routine-grants.test.mjs tests/production-security-inventory-alignment.test.mjs tests/production-pg-net-hosting-boundary.test.mjs tests/authz-defense-in-depth.test.mjs tests/server-only-share-rpcs.test.mjs tests/zod-validation-security.test.mjs",
     "test:channel-attachment-security": "node --test tests/channel-attachment-malware-gate.test.mjs",
     "test:student-document-security": "node --test tests/student-document-malware-gate.test.mjs",
     "test:hosting-portability": "node --test tests/hosting-portability-boundary.test.mjs",
@@ -109,7 +109,7 @@
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
     "vaul": "^1.1.2",
-    "zod": "^3.24.2"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",

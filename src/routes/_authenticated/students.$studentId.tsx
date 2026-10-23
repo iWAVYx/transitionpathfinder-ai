@@ -60,7 +60,7 @@ const StudentPlanningTools = lazy(() =>
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
-  validateSearch: z.object({ tab: z.enum(["overview", "documents", "plan", "resources", "team", "partners", "opportunities"]).catch("overview") }),
+  validateSearch: z.object({ tab: z.enum(["overview", "documents", "plan", "resources", "team", "partners", "opportunities"]).default("overview").catch("overview") }),
   component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
 

@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 23 — Zod Security Upgrade Validated Locally, Not Released
+
+- [x] Replaced direct Zod 3.25.76 with exact 4.6.7, which clears the high-severity advisory audit. Lockfile changes only the Zod package and deduplicates existing v4 copies; no override or unrelated dependency upgrade. Seven below-threshold audit findings remain; this is not a claim of zero vulnerabilities at all severities.
+- [x] Preserved missing/invalid search defaults for student profiles, Transition Channel and Partner opportunities under v4 input inference. Waitlist form input/output types and consent-error syntax are compatible; the existing consent message remains. The shared upgrade covers all roles and demo validators without adding tools or permissions.
+- [x] Final local validation: 4,432 unit tests/312 files, TypeScript, 76 release/security contracts, frozen install and diff checks pass. The oversized-collection regression rejects 100,000 invalid elements with one size error. Disposable SQL: 57 pass and two native concurrency skips. Earlier incompatible TypeScript and overbroad test-command failures are retained in evidence.
+- [ ] Exact candidate automatic build/SSR, native migration replay and other checks remain pending. Prior `f0ff185d` native policy validation is historical evidence, not certification of this new candidate. The explicit planning-access migration remains unapplied; hosted role/linked-editor/admin and generated-output acceptance remain separate gates.
+- [ ] Obtain separate authorization before any migration, deployment/publication or hosted fixture run. Both staging sites retain approved `3bb45d0c`; production is unchanged. Do not treat local audit recovery as release approval.
+
+See `docs/production-readiness/evidence/zod4-security-compatibility-2026-10-23.json`. This supersedes the earlier unresolved local Zod blocker while preserving its historical CI failures. Report polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01–TF-26 retained.
+
 ## October 23 — Explicit Owner/Admin Planning Access Proposed, Not Applied
 
 - [x] Owner selected explicit student access instead of general Owner/admin private-report access. Proposed `20261023030000_require_explicit_planning_report_access.sql` adds restrictive read/edit policies for reports and read policies for related intake/history data. A caller-bound helper checks actual student ownership/self-identity, accepted collaboration and approved relationships without a management-role exception. Viewer/edit permissions remain distinct; no role gains a route, feature or owner-only save action.

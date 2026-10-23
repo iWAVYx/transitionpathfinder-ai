@@ -97,17 +97,17 @@ const tabSchema = z.enum([
 ]);
 
 const filterSchema = z.object({
-  tab: tabSchema.catch("inbox"),
+  tab: tabSchema.default("inbox").catch("inbox"),
   channel: z.string().uuid().optional().catch(undefined),
-  unread: z.enum(["all", "unread"]).catch("all"),
+  unread: z.enum(["all", "unread"]).default("all").catch("all"),
   student: z.string().optional().catch(undefined),
   type: z.string().optional().catch(undefined),
   org: z.string().optional().catch(undefined),
   opportunity: z.string().optional().catch(undefined),
-  assignee: z.enum(["all", "me"]).catch("all"),
-  due: z.enum(["all", "overdue", "today", "week", "future"]).catch("all"),
-  status: z.enum(["all", "open", "in_progress", "resolved"]).catch("all"),
-  archived: z.enum(["all", "archived", "active"]).catch("all"),
+  assignee: z.enum(["all", "me"]).default("all").catch("all"),
+  due: z.enum(["all", "overdue", "today", "week", "future"]).default("all").catch("all"),
+  status: z.enum(["all", "open", "in_progress", "resolved"]).default("all").catch("all"),
+  archived: z.enum(["all", "archived", "active"]).default("all").catch("all"),
 });
 
 type TabId = z.infer<typeof tabSchema>;
