@@ -1,5 +1,15 @@
 # Report Access Release Review — October 22, 2026
 
+## Isolated Sharing Acceptance Passed and Cleaned — October 23, 2026
+
+- [x] Both separately authorized sharing migrations committed and verified on isolated backend `qgrertkqbwanerqqemph`; browser RPC execution is removed, service execution retained, and token writes limited to creator-owned one-way revocation.
+- [x] Cloudflare serves exact approved `a2c5564c`; isolated Lovable serves sync `38cae2626da442b89b16b0d954bb5c02cd5e31dd`. Both stable health endpoints independently report fingerprint `c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d`, 1,184 files, staging backend, sandbox payments and isolation true. Lovable's earlier post-publication dynamic-route timeouts resolved without a source/settings/security workaround; retain that failure history.
+- [x] Human-approved [run39918095920](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39918095920) passed all seven existing role sign-ins and the single no-AI sharing test, with retries disabled. Exactly two fictional Family/Educator intake/report pairs and eight links were used. Link creation/revocation through the actual report UI, uniquely identified Family Trust revocation, both fixed public audiences on both sites, protected-field/non-issuer/missing-ID/raw-RPC/deletion/reactivation denial and inactive links passed.
+- [x] Exact caller-RLS fixture cleanup passed. A subsequent privileged `BEGIN READ ONLY` query as postgres confirmed zero reports, intakes, history versions and tokens for those exact recorded IDs/report relationships. The sanitizer passed and only its small sanitized artifact was downloaded. No AI calls, new accounts/memberships, real-report sharing or production access occurred.
+
+[Sanitized acceptance, both health identities and privileged cleanup evidence](evidence/staging-sharing-acceptance-2026-10-23.json). This closes the named isolated sharing rollout/test only. It does not close whole-product/all-tool generation/export/permissions acceptance, existing Owner report SELECT policy, direct report/history write integrity or membership-removal bearer-link lifecycle. Production remains NO-GO; retain report density/native-print, provider/privacy, billing/email/security/operations/migration/recovery gates and every full-roadmap item. Parent Pilot/Pathway Report Snapshot remains deferred. Entries below are historical and superseded only for the explicitly verified scope.
+
+
 Reviewed source: `202dc28c058f41f5ed738f7ee9cb8d3476223a7d`, application `eb72bd87f287eeea86c6540616b66f5ec48a1346`. This is a checked-in policy/caller review, not an inspection of production or a current hosted grant inventory. No database, account, sharing link, provider or application record was changed.
 
 ## Additive Canonical Candidate Prepared — October 23, 2026
