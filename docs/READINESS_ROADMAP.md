@@ -1,5 +1,18 @@
 # TransitionForward — Readiness Roadmap
 
+## Authorized Sharing Rollout; Hosted Acceptance Still Open — October 23, 2026
+
+- [x] Both individually authorized sharing migrations committed and verified on isolated backend `qgrertkqbwanerqqemph`, preserving service RPC access and narrowing browser token writes to creator-owned revocation.
+- [x] Exact `a2c5564c` deployed to Cloudflare staging after human GitHub approval; fingerprint `c4e3096b…9adb13d`, 1,184 files, sandbox payments and isolation true verified.
+- [x] Three approved runtime files synced to isolated Lovable commit `38cae2626da442b89b16b0d954bb5c02cd5e31dd`; its external private preview matches the source/backend/payment identity. Existing staging publication updated with the owner's authorization.
+- [ ] Verify stable Lovable dynamic routes. After publication, existing static favicon returns HTTP 200, but health and home requests time out after TLS/request delivery (HTTP/2 and HTTP/1.1 checked). Server logs show no newer matching health requests; the private health 503 is the expected rejected-alias identity result, not a waived gate. Do not claim stable parity or change secrets/security/build limits to bypass this.
+- [ ] Complete the authorized bounded no-AI sharing acceptance and privileged exact-ID cleanup readback. [Protected run39918095920](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39918095920) is queued for human staging review. Its 15-second two-host health gates precede fixtures. No new test reports, intakes or tokens have been created. No retry is implied.
+
+The test-only harness passes 49 focused tests, three artifact-safety checks, TypeScript and single-test Playwright discovery. All eight automatic checks passed on harness commit `6312f847`; follow-up `4b91ca22` only bounds pre-fixture health requests. Traces/video/screenshots are disabled for bearer-link journeys; cleanup remains exact owner/model/ID scoped. This is not hosted acceptance. [Migration evidence and execution limits](production-readiness/share-token-staging-acceptance-packet.md#authorized-isolated-staging-rollout--october-23-2026).
+
+Production remains NO-GO and untouched. Preserve the wider role/tool/provider, report density/integrity, access lifecycle, billing/email/security/operations/migration/recovery gates, the complete roadmap and deferred Parent Pilot/Pathway Report Snapshot. The dated entries below are historical and superseded only where this current result explicitly says so.
+
+
 ## Native Sharing Regression Passed; Inventory Reconciled — October 23, 2026
 
 Draft candidate 7cd69645 passes all 23 native PostgreSQL sharing cases, complete canonical migration replay and retained RLS/grant/security invariants in [automatic replay39912312267](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39912312267); independent PR replay also passes. Build/SSR, unit, accessibility, role guard and static seed checks pass; protected hosted suites are skipped. The readiness gate correctly catches stale 203/nine migration inventory expectations. Reconcile them to 204/ten and include the exact new pending filename in all saved-CSV comparisons while preserving historical production read dates/counts, comparator controls and NO-GO. All 53 affected local contracts pass. [Evidence and exact-head follow-up requirement](production-readiness/share-token-staging-acceptance-packet.md#native-postgresql-acceptance-and-inventory-correction--october-23-2026).
