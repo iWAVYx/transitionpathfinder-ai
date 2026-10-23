@@ -1224,6 +1224,30 @@ test("legacy readiness has recorded levels and full details without percentage b
           await expect(table).toHaveAttribute("role", "presentation");
           expect(await table.locator("thead").evaluate(element => getComputedStyle(element).display)).toBe(media === "print" ? "table-header-group" : "block");
           for (const value of [career.education_needed, career.work_environment, career.next_step, ...career.example_jobs, ...career.skills_required, ...career.accommodations]) expect(await table.textContent()).toContain(value);
+          for (const selector of ["[data-report-career-examples]", "[data-report-career-context]", "[data-report-career-followups]"]) {
+            const layout = await table.locator(selector).evaluate(element => {
+              const boxes = [...element.children].map(child => child.getBoundingClientRect());
+              return { width: element.getBoundingClientRect().width, boxes: boxes.map(({ x, y, width, right }) => ({ x, y, width, right })) };
+            });
+            expect(layout.boxes).toHaveLength(2);
+            const [left, right] = layout.boxes;
+            if (media === "print" || width >= 640) {
+              expect(Math.abs(left.y - right.y)).toBeLessThan(1);
+              expect(Math.abs(left.width - right.width)).toBeLessThan(1);
+              expect(right.x).toBeGreaterThan(left.right);
+            } else {
+              expect(right.y).toBeGreaterThan(left.y);
+              expect(Math.abs(left.width - layout.width)).toBeLessThan(1);
+            }
+          }
+          if (media === "print" || width >= 640) {
+            const headingRows = await table.locator("[data-report-career-examples], [data-report-career-context], [data-report-career-followups]").evaluateAll(rows => rows.map(row => [...row.children].map(field => {
+              const heading = field.querySelector("[data-document-subheading]")!.getBoundingClientRect();
+              return {x: heading.x, y: heading.y};
+            })));
+            for (const row of headingRows) expect(Math.abs(row[0].y - row[1].y)).toBeLessThan(1);
+            for (const column of [0, 1]) expect(Math.max(...headingRows.map(row => row[column].x)) - Math.min(...headingRows.map(row => row[column].x))).toBeLessThan(1);
+          }
         }
         await expect(readiness.getByRole("progressbar")).toHaveCount(0);
         for (const row of original.readiness_scorecard) {
@@ -2386,26 +2410,35 @@ test("saved meeting sheet keeps its follow-ups with the questions using real fon
     expect(await page.evaluate(()=>document.fonts.check('500 16px "Karla Variable"'))).toBe(true);
     expect(await page.evaluate(()=>document.fonts.check('500 16px "Cormorant Garamond Variable"'))).toBe(true);
     const questions = await page.locator("#sec-meeting-prep .pub-checklist").first().locator("li > span:last-child").allTextContents();
-    for (const format of (mode === "saved" ? ["Letter", "A4"] : ["Letter"]) as Array<"Letter" | "A4">) {
-      const bytes = await page.pdf({path:info.outputPath(`${mode}-${audience}-${format}-meeting.pdf`),format,preferCSSPageSize:format === "Letter",printBackground:true});
-      const task = getDocument({data:new Uint8Array(bytes),useSystemFonts:true,isEvalSupported:false});
-      try {
-        const pdf = await task.promise;
-        const pages: string[] = [];
-        for (let number=1;number<=pdf.numPages;number++) {
-          const text = await (await pdf.getPage(number)).getTextContent();
-          pages.push(text.items.map(item=>"str" in item ? item.str : "").join(" ").replace(/\s+/g," ").replace(/-\s+/g,"-").trim());
-        }
-        const meetingIndex = pages.findIndex(text=>questions.every(question=>text.includes(question.replace(/\s+/g," ").replace(/-\s+/g,"-").trim())));
-        const followUpIndices = report.meeting_prep_toolkit.follow_up_items.map((action: string)=>pages.findIndex(text=>text.includes(action)));
-        observations.push({mode,audience,format,pages:pages.length,meetingPage:meetingIndex+1,followUpPages:followUpIndices.map((i: number)=>i+1)});
-        const output=info.outputPath("real-font-meeting-pages.json");writeFileSync(output,JSON.stringify(observations,null,2));
-        expect.soft(meetingIndex,`${mode}/${audience}/${format}: all meeting questions share a page`).toBeGreaterThanOrEqual(0);
-        for(const index of followUpIndices) expect.soft(index,`${mode}/${audience}/${format}: follow-up stays on meeting sheet`).toBe(meetingIndex);
-        expect.soft(pages[meetingIndex],`${mode}/${audience}/${format}: complete source note stays on meeting sheet`).toContain("Print this checklist and bring it to the meeting.");
-        expect(pages.at(-1)).toContain("End of report");
-        expect(pages.every(text=>text.split(/\s+/).length>8)).toBe(true);
-      } finally {await task.destroy();}
+    for (const printMode of ["standard", "magazine"] as const) {
+      await page.evaluate(magazine => document.body.classList.toggle("print-magazine", magazine), printMode === "magazine");
+      for (const format of (mode === "saved" ? ["Letter", "A4"] : ["Letter"]) as Array<"Letter" | "A4">) {
+        const bytes = await page.pdf({path:info.outputPath(`${mode}-${audience}-${format}-${printMode}-meeting.pdf`),format,preferCSSPageSize:format === "Letter",printBackground:true});
+        const task = getDocument({data:new Uint8Array(bytes),useSystemFonts:true,isEvalSupported:false});
+        try {
+          const pdf = await task.promise;
+          const pages: string[] = [];
+          for (let number=1;number<=pdf.numPages;number++) {
+            const text = await (await pdf.getPage(number)).getTextContent();
+            pages.push(text.items.map(item=>"str" in item ? item.str : "").join(" ").replace(/\s+/g," ").replace(/-\s+/g,"-").trim());
+          }
+          const meetingIndex = pages.findIndex(text=>questions.every(question=>text.includes(question.replace(/\s+/g," ").replace(/-\s+/g,"-").trim())));
+          const followUpIndices = report.meeting_prep_toolkit.follow_up_items.map((action: string)=>pages.findIndex(text=>text.includes(action)));
+          observations.push({mode,audience,format,printMode,pages:pages.length,meetingPage:meetingIndex+1,followUpPages:followUpIndices.map((i: number)=>i+1)});
+          const output=info.outputPath("real-font-meeting-pages.json");writeFileSync(output,JSON.stringify(observations,null,2));
+          expect.soft(meetingIndex,`${mode}/${audience}/${format}: all meeting questions share a page`).toBeGreaterThanOrEqual(0);
+          for(const index of followUpIndices) expect.soft(index,`${mode}/${audience}/${format}: follow-up stays on meeting sheet`).toBe(meetingIndex);
+          expect.soft(pages[meetingIndex],`${mode}/${audience}/${format}: complete source note stays on meeting sheet`).toContain("Print this checklist and bring it to the meeting.");
+          const exportedText = pages.join(" ");
+          for (const career of report.career_matches) {
+            for (const value of [career.education_needed, career.work_environment, career.next_step, ...career.example_jobs, ...career.skills_required, ...career.accommodations]) {
+              expect(exportedText, `${mode}/${audience}/${format}/${printMode}: recorded career detail retained`).toContain(value.replace(/\s+/g, " ").replace(/-\s+/g, "-").trim());
+            }
+          }
+          expect(pages.at(-1)).toContain("End of report");
+          expect(pages.every(text=>text.split(/\s+/).length>8)).toBe(true);
+        } finally {await task.destroy();}
+      }
     }
   }
 });

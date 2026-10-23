@@ -1,5 +1,13 @@
 # Production release checklist
 
+## October 23 — Career Fields Aligned Across Report Readers (Local Only)
+
+- [x] Career details now use three balanced pairs: Example Jobs / Skills Used, Education / Training / Work Environment, and Possible Accommodations / Next Exploration Step. All six field headings share column insets and styling; mobile readers stack the fields. Applicable saved/demo Family, Educator and Student views and fixed Family/Educator shares use the shared component. No role gains a tool, report access or generation permission.
+- [x] Final affected checks pass (4 cases), including actual heading coordinates across rows, mobile stacking, wrapper alignment and 22 real-font PDF combinations in standard and magazine print modes. Every recorded career field, meeting-sheet grouping, source note and ending is retained. TypeScript and diff checks pass. The complete 46-case suite passed before the final heading-inset refinement; the four affected final cases were then rerun. An earlier inherited-margin alignment failure and ineffective table-flow experiment remain recorded, not hidden.
+- [ ] Overall report length is still open: this local fixture stays31pages saved/shared and30demo; the distinct hosted acceptance fixtures remain32pages. Selected final career pages were visually inspected, not every final page or native print. This local change is not released; both staging sites retain approved5ba40cce…ad43b58c. Production remains NO-GO. No hosted deployment/publication, migration, records, AI/provider call, account/access, payment or secret changes.
+
+See `docs/production-readiness/evidence/report-career-layout-2026-10-23.json`. All TF-01–TF-26 items and deferred Parent Pilot/Pathway Snapshot remain retained. Next: complete candidate review/checks and obtain separate staging release authorization when ready; do not treat this layout improvement as closing the broader compactness or production gates.
+
 ## October 23 — Authorized History Repeat Passed; Exact Cleanup Confirmed
 
 - [x] Human-approved repeat39980508504 on test-only d44620fb passed all seven existing role sessions and both Family/Educator report journeys, with zero retries/AI. Both stable staging identities passed before fixture creation.

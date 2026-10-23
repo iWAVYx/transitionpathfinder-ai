@@ -18,6 +18,10 @@ export function ReportBrochurePrintStyles() {
       .report-root .pub-checklist,
       .report-root .pub-source { margin-top: 0.8rem; margin-bottom: 0.8rem; }
     }
+    /* Equal field rows must not inherit prose sibling margins. */
+    .report-root :is([data-report-career-examples], [data-report-career-context], [data-report-career-followups]) > * {
+      min-width: 0; margin-top: 0 !important; margin-bottom: 0 !important;
+    }
     @media print {
       /* Visibility hides ink but leaves route chrome in the page flow. Remove
          only branches outside the report and flatten its screen-only shells.
@@ -137,6 +141,12 @@ export function ReportBrochurePrintStyles() {
       }
       body:has(.report-root) .report-root [data-report-plan-week] > span:first-child {
         text-transform: none !important; letter-spacing: normal !important; white-space: nowrap;
+      }
+      /* Pair career context and follow-up fields at equal widths, matching
+         the existing jobs/skills row. Keep all recorded text and reading size. */
+      body:has(.report-root) .report-root :is([data-report-career-examples], [data-report-career-context], [data-report-career-followups]) {
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.08in 0.16in !important; align-items: start;
       }
       /* Short training sections and career records stay with their title; oversized content can still flow. */
       body:has(.report-root) .report-root #sec-education,

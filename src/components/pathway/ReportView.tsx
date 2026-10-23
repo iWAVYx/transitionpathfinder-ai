@@ -1295,34 +1295,27 @@ function ReportViewReader({
                     </div>
                   </td></tr></thead>
                   <tbody><tr><td>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
+                    <div data-report-career-examples className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
                       <MiniCard label="Example Jobs" items={c.example_jobs} compact />
                       <MiniCard label="Skills Used" items={c.skills_required} compact />
                     </div>
-                    <div className="mt-3 space-y-2 text-sm">
-                      <p>
-                        <span data-document-subheading className="text-xs font-semibold text-primary">
-                          Education / Training
-                        </span>
-                        <br />
-                        <span className="text-foreground/80">{c.education_needed}</span>
-                      </p>
-                      <p>
-                        <span data-document-subheading className="text-xs font-semibold text-primary">
-                          Work Environment
-                        </span>
-                        <br />
-                        <span className="text-foreground/80">{c.work_environment}</span>
-                      </p>
+                    <div data-report-career-context className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2 text-sm">
+                      <div data-report-list-group className="rounded-2xl border border-border/60 bg-background p-4">
+                        <p data-document-subheading className="text-xs font-semibold text-foreground">Education / Training</p>
+                        <p className="mt-2 text-sm text-foreground/80">{c.education_needed}</p>
+                      </div>
+                      <div data-report-list-group className="rounded-2xl border border-border/60 bg-background p-4">
+                        <p data-document-subheading className="text-xs font-semibold text-foreground">Work Environment</p>
+                        <p className="mt-2 text-sm text-foreground/80">{c.work_environment}</p>
+                      </div>
                     </div>
-                    <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
-                    <p className="mt-3 border-l-2 border-primary/30 pl-3 text-sm">
-                      <span data-document-subheading className="text-xs font-semibold text-foreground">
-                        Next Exploration Step
-                      </span>
-                      <br />
-                      {c.next_step}
-                    </p>
+                    <div data-report-career-followups className="mt-3 grid gap-3 sm:grid-cols-2 grid-sym-2">
+                      <MiniCard label="Possible Accommodations" items={c.accommodations} compact />
+                      <div data-report-list-group className="rounded-2xl border border-border/60 bg-background p-4">
+                        <p data-document-subheading className="text-xs font-semibold text-foreground">Next Exploration Step</p>
+                        <p className="mt-2 text-sm text-foreground/80">{c.next_step}</p>
+                      </div>
+                    </div>
                   </td></tr></tbody>
                 </table>
               </div>
