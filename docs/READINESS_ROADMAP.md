@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Canonical Linked-Student Save and Coordinated Release Plan Prepared
+
+- [x] Added new `20261024020000_require_linked_student_report_save.sql`; its transaction matches the native-tested proposal exactly. Applied files remain untouched. Shared Save/Restore and Regenerate candidate remains `93f03b41` /`52d34874…4fdfef` /1,185 runtime files.
+- [x] Prepared a metadata-only preflight and a single migration/ledger transaction. Local SQL tests verify canonical source parity, exact ledger storage, preservation of prior entries, duplicate/drift rejection and complete rollback if the ledger insert fails. Current result:25 SQL passes, zero failures and four explicitly skipped native cases;45 retained source/security/readiness contracts pass.
+- [x] Updated canonical inventory to208 files. Offline comparison against unchanged saved September17 production evidence reports14 pending files and stays blocked. Production was not queried; the staging candidate is not applied.
+- [ ] Final canonical native29-case acceptance, full208-migration replay and resulting grant checks must pass. Previous proposal native23/23 is retained but does not substitute for this final combined result.
+- [ ] Prepare the final bounded hosted acceptance harness and exact cleanup scope, then request a specific coordinated staging authorization. The database retires the old RPC; deploy neither side alone. Pause staging report writes during cutover, retain fail-closed errors and do not recover by re-enabling the context-free bypass. No prior fixture approval is reused.
+
+No hosted query/migration, deployment/publication, records, AI/provider, account/access, payment/secret or production/main action. All other metadata, bearer-link and wider production gates remain open. Full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot retained. See [canonical release packet](production-readiness/evidence/report-linked-student-canonical-2026-10-24.json).
+
 ## October 24 — Linked-Student Save Integration and Native Concurrency Verified
 
 - [x] Save/Restore and Regenerate now share the proposed context-aware writer in local source. Both send the linked student captured from the authorized server read; no caller-supplied replacement, context-free RPC fallback or split history/content write is allowed. Missing/malformed student context fails before an RPC request. Applicable roles share the same protection; demo/public readers and document appearance do not change.

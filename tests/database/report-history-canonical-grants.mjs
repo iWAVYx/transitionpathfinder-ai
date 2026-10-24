@@ -39,8 +39,15 @@ try {
     }
     const {rows:[r]}=await db.query(`SELECT has_table_privilege($1,'public.pathway_report_versions','INSERT') OR has_table_privilege($1,'public.pathway_report_versions','UPDATE') OR has_table_privilege($1,'public.pathway_report_versions','DELETE') OR has_any_column_privilege($1,'public.pathway_report_versions','INSERT') OR has_any_column_privilege($1,'public.pathway_report_versions','UPDATE') AS allowed`,[role]);assert.equal(r.allowed,false,role+' version writes');
   }
-  const {rows:[rpc]}=await db.query(`SELECT NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND has_function_privilege('authenticated',oid,'EXECUTE') AND NOT has_function_privilege('anon',oid,'EXECUTE') AND NOT has_function_privilege('service_role',oid,'EXECUTE') AS allowed FROM pg_proc WHERE oid='public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)'::regprocedure`);
-  assert.equal(rpc.allowed,true,'Atomic RPC remains invoker and authenticated-only');
+  const {rows:[rpc]}=await db.query(`SELECT NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND has_function_privilege('authenticated',oid,'EXECUTE') AND NOT has_function_privilege('anon',oid,'EXECUTE') AND NOT has_function_privilege('service_role',oid,'EXECUTE') AS allowed FROM pg_proc WHERE oid='public.save_pathway_report_content_for_student(uuid,uuid,jsonb,jsonb,text)'::regprocedure`);
+  assert.equal(rpc.allowed,true,'Context-aware RPC remains invoker and authenticated-only');
+  for(const role of ['anon','authenticated','service_role']) {
+    const {rows:[old]}=await db.query("SELECT has_function_privilege($1,'public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)','EXECUTE') AS allowed",[role]);
+    assert.equal(old.allowed,false,role+' context-free save execution');
+  }
+  const {rows:[context]}=await db.query("SELECT pronargdefaults,proargnames FROM pg_proc WHERE oid='public.save_pathway_report_content_for_student(uuid,uuid,jsonb,jsonb,text)'::regprocedure");
+  assert.equal(context.pronargdefaults,0,'No omitted context default');
+  assert.deepEqual(context.proargnames,['_report_id','_expected_student_id','_expected_content','_next_content','_change_summary']);
   await db.query('ROLLBACK');
   console.log(`Combined canonical replay verified: ${routines.length} exact privileged routines, internal-trigger exception, history grants and atomic RPC.`);
 } finally { await db.end(); }
