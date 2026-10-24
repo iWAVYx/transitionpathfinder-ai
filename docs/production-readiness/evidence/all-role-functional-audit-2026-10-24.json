@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "hosted-audit-waits-for-required-human-review",
+  "status": "hosted-audit-running-dashboard-stage-passed",
   "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
   "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
   "runtimeFiles": 1184,
@@ -9,7 +9,7 @@
   "scope": "all-roles",
   "declaredCases": 333,
   "existingRoleAccounts": 7,
-  "hostedTestsExecuted": false,
+  "hostedTestsExecuted": true,
   "retries": 0,
   "fixtureScopesSelected": false,
   "aiCallsRequested": 0,
@@ -36,5 +36,37 @@
   ],
   "dataAndReleaseSafety": "Read-only existing-account audit. No fixtures, generation/provider calls, migration, deployment/publication, account/access, payment/secret or production/main changes.",
   "browserPreference": "Codex in-app browser only for further user-browser actions.",
-  "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled."
+  "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled.",
+  "dashboardStage": "passed; role-access/demo/navigation stage still running",
+  "focusedMenuProposal": {
+    "status": "prepared-not-dispatched",
+    "scope": "role-tools-readonly",
+    "spec": "tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts",
+    "specSha256": "9f0bac2b476a389af2db34a34b8dbd3ef79bbd9051a23b00c44dc116a7de5d9d",
+    "declaredCases": 14,
+    "viewports": [
+      "desktop 1440x900",
+      "mobile 390x844"
+    ],
+    "checks": [
+      "Open actual desktop menu or mobile sheet/Tools group",
+      "Every shortcut matches a rendered dashboard action, except separately scoped Owner management",
+      "Owner shortcuts remain /owner/ management only",
+      "Readable labels and unique destinations",
+      "Each destination renders a heading on its exact intended route, with no unrelated fallback or error state"
+    ],
+    "limits": [
+      "Uses Cloudflare existing role sessions; Lovable stable source/isolation checked before tests but its full role journeys are not duplicated.",
+      "Menu destination probes are direct reads; existing contextual return/history acceptance remains separate."
+    ],
+    "localValidation": {
+      "typeScript": "passed",
+      "scopeUnitTestsPassed": 22,
+      "workflowYaml": "parsed",
+      "discovery": "14 cases; no hosted execution"
+    },
+    "runtimeSourceChanged": false,
+    "credentialsAdded": false,
+    "fixtureOrProviderActions": false
+  }
 }

@@ -1,5 +1,13 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Dashboard Stage Passes; Opened-Menu Check Prepared
+
+- [x] Human review for [audit40107769298](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298) is recorded. Its dashboard regression stage passed across all seven existing roles and mobile/tablet/desktop sizes; the role-access/demo/navigation stage is still running. Do not count the complete 333-case audit as passed yet.
+- [x] Prepared a separate `role-tools-readonly` scope with 14 real desktop/mobile opened-menu cases. It compares actual shortcuts against rendered dashboard actions, keeps Owner shortcuts within website management, checks readable/unique labels and probes exact destination pages instead of accepting an unrelated fallback. TypeScript, 22 workflow-safety tests, YAML parsing and discovery pass. This test-only proposal has not run against staging.
+- [ ] Complete the broad audit and classify any failures before proposing fixes. After automatic review, run the focused opened-menu scope under GitHub's separate human review. This scope uses Cloudflare role sessions and verifies Lovable source/isolation parity; it does not certify every Lovable-hosted role journey or new contextual-click/Back behavior.
+
+The deployed application remains `fb40e06a` /`a91b789b…8cc289` /1,184 files. No runtime source, production/main, deployment/publication, migration, hosted fixtures, AI/provider, accounts/access, payment or secrets changes. Full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot remain retained. See [audit evidence](production-readiness/evidence/all-role-functional-audit-2026-10-24.json).
+
 ## October 24 — All-Role Read-Only Audit Queued; Menu Coverage Tracked
 
 - [x] Reviewed the existing protected all-role scope: 333 declared dashboard/mobile/tablet/desktop, role-access, demo and navigation cases across six files, using seven existing accounts and zero retries. No fixture scope, generation or deployment is selected. Application remains verified `fb40e06a` /`a91b789b…8cc289` /1,184 files.
