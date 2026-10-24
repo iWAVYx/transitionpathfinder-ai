@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "broad-audit-completed-focused-sixteen-case-audit-awaiting-human-review",
+  "status": "focused-audit-fourteen-passed-two-owner-failures-test-corrections-prepared",
   "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
   "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
   "runtimeFiles": 1184,
@@ -40,7 +40,7 @@
   "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled.",
   "dashboardStage": "84 passed",
   "focusedMenuProposal": {
-    "status": "dispatched-awaiting-github-human-review",
+    "status": "completed-fourteen-passed-two-owner-failures",
     "scope": "role-tools-readonly",
     "spec": "tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts",
     "specSha256": "57bfd77e166be5a461b49ed9f7625da7a4d4eb9e2201d4a0a2171a259bd3f4d7",
@@ -102,5 +102,45 @@
       "Owner demo forbidden-link rule intentionally has an empty admin denial set; this is not a passed rule test.",
       "Student grade test searched rendered text for raw grade-code copy. The live snapshot shows High School; absence of that obsolete regex match does not prove the database grade is missing."
     ]
+  },
+  "focusedHostedResult": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594",
+    "workflowSha": "3cb757b2fc74749be7d96c991d85f2b106c7f523",
+    "conclusion": "failure",
+    "authSetupPassed": 7,
+    "passed": 14,
+    "failed": 2,
+    "skipped": 0,
+    "retries": 0,
+    "passedCoverage": [
+      "School denied PartnerForward entry with correct dashboard fallback",
+      "Known High School student label and applicable planning links",
+      "Desktop and mobile opened Tools menus and exact destinations for Student, Family, Educator, School, District and Partner"
+    ],
+    "failedCoverage": [
+      "Owner desktop: three management page titles were sought inside main, while OwnerShell renders them in its preceding management header. Exact routes were retained.",
+      "Owner mobile: the test opened a public-page hamburger before resolved Owner navigation; the failure screenshot shows the sheet closed. Auth readiness/remount is a source-supported explanation, not a completed hosted recheck."
+    ],
+    "sanitizer": "Passed before artifact retrieval: 0 unsafe files removed; upload safe.",
+    "evidenceDirectory": "/private/tmp/tf-all-role-audit-fb40e06a/focused-artifacts",
+    "liveProgressCaveat": "GitHub job API and browser reported no steps/Starting job while execution was active; completed logs establish actual stage execution and results.",
+    "applicationChanges": false,
+    "fixtures": 0,
+    "aiCalls": 0
+  },
+  "ownerFollowup": {
+    "status": "prepared-not-dispatched",
+    "scope": "owner-tools-readonly",
+    "cases": 2,
+    "specSha256": "b92e5fb8e57bdb46c8d12837c882b589be71b25a77d8fd46bab4845e28bb6ecc",
+    "correction": "Require resolved Owner link before opening public-page header; verify exact route-specific h1 in management header and ready Owner main, retaining destination/label/management-only/error checks.",
+    "localValidation": {
+      "typescript": "passed",
+      "workflowSafetyTestsPassed": 23,
+      "yaml": "parsed",
+      "discovery": "2 cases in 1 file; no hosted execution"
+    },
+    "runtimeChanged": false,
+    "requiresGithubHumanReview": true
   }
 }

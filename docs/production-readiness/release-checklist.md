@@ -1,5 +1,14 @@
 # Production release checklist
 
+## October 24 — Tools Pass for Six Roles; Two Owner Rechecks Prepared
+
+- [x] Human-approved [focused audit40111115594](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594) completed: seven existing sign-ins passed separately; 14/16 focused cases passed, two Owner cases failed, none skipped, zero retries. School's denied PartnerForward entry and the explicit High School label/tool checks passed. All six non-Owner roles passed actual opened desktop/mobile menus, dashboard feature membership and exact intended destination probes. Sanitization passed before retrieval.
+- [x] Diagnosed Owner desktop's wrong heading scope: OwnerShell renders each management title in the header before main. Mobile opened public navigation before resolved Owner links; its screenshot shows a closed sheet. Prepared test-only readiness and explicit route-title corrections, preserving management-only links, ready content, exact route and error assertions. This does not yet close hosted Owner acceptance.
+- [x] Prepared a separate fixed two-case `owner-tools-readonly` scope, excluding the 14 passed cases and broad/fixture scopes. TypeScript, 23 workflow safety tests, YAML parsing and exact two-case discovery pass locally.
+- [ ] Complete automatic candidate review and GitHub's required human approval, then recheck only Owner desktop/mobile. The original 330/1/2 broad result and 14/2 focused result remain historical evidence; no full-audit green claim.
+
+Application remains `fb40e06a` /`a91b789b…8cc289` /1,184 files. No application deployment/publication, migration, hosted records, AI/provider, account/access, payment/secret or production/main changes. Positive middle-school coverage, contextual menu-click/Back and complete Lovable role journeys remain separately scoped. Full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot are preserved.
+
 ## October 24 — Focused 16-Case Audit Awaiting Human Review
 
 - [x] All eight automatic checks passed for test-only candidate `3cb757b2`. Application fingerprint remains `a91b789b…8cc289` /1,184 files; staging remains `fb40e06a`.

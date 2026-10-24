@@ -27,13 +27,13 @@ it("requires all existing staging accounts and excludes privileged reseeding cre
 
 it("runs independent role-access checks after dashboard failures only with all role states ready", () => {
   expect(workflow).toContain("id: require-role-states");
-  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'role-tools-readonly' }}");
+  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}");
 });
 
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'role-tools-readonly' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });
 
@@ -142,4 +142,15 @@ it("keeps the opened-menu scope read-only and isolated from fixtures and broad r
   expect(step).toContain("opened Tools|School Administrator does not see /partners-manage$|High-school student sees readable grade and applicable planning links$");
   expect(step).toContain("--project=role-access");
   expect(step).not.toMatch(/SERVICE_ROLE|RUN_REPORT|RUN_LINKED|fixture_confirmation/);
+});
+
+it("limits the Owner follow-up to its two opened-menu cases without fixtures or broad reruns", () => {
+  expect(workflow).toContain("          - owner-tools-readonly");
+  expect(workflow).toContain("inputs.scope != 'owner-tools-readonly'");
+  const step = workflow.split("      - name: Focused Owner Tools recheck (read-only)")[1].split("      - name:")[0];
+  expect(step).toContain("inputs.scope == 'owner-tools-readonly'");
+  expect(step).toContain('RUN_ROLE_TOOLS_READONLY: "true"');
+  expect(step).toContain("--no-deps --retries=0 --workers=1");
+  expect(step).toContain("--grep 'Platform Admin opened Tools'");
+  expect(step).not.toMatch(/SERVICE_ROLE|RUN_REPORT|RUN_LINKED|fixture_confirmation|role-access-rules/);
 });

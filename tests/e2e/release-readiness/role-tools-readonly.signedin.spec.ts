@@ -8,6 +8,12 @@ import { existsSync } from "node:fs";
 
 const stagingOrigin = "https://transitionforward-staging.caysi101.workers.dev";
 const stableLovable = "https://gentle-forward-reach.lovable.app";
+const ownerPageTitles: Record<string, RegExp> = {
+  "/owner/content": /^Site Content$/i,
+  "/owner/blog": /^Blog & News$/i,
+  "/owner/users": /^Users$/i,
+  "/owner/opportunities": /^Opportunity Review Queue$/i,
+};
 const pathOf = (href: string) => new URL(href, stagingOrigin).pathname.replace(/\/+$/, "") || "/";
 type Shortcut = { href: string; label: string };
 
@@ -122,7 +128,12 @@ for (const role of ROLES) {
         );
         // Owner Hub has its own management navigation, not the shared site header.
         // On public pages, this same signed-in Owner must still get management only.
-        if (role.key === "owner") await page.goto("/resources", { waitUntil: "domcontentloaded" });
+        if (role.key === "owner") {
+          await page.goto("/resources", { waitUntil: "domcontentloaded" });
+          // Public content and the hamburger can render before auth hydration.
+          // Wait for this header's resolved Owner navigation before opening it.
+          await expect(page.locator('header a[href="/owner"]')).toHaveCount(1, { timeout: 30_000 });
+        }
         const shortcuts = await openedTools(page, viewport.name === "mobile", role.key === "owner");
         if (role.key !== "owner") {
           // A route's nav can render before its async feature cards. Wait for
@@ -173,7 +184,21 @@ for (const role of ROLES) {
               )
               .first();
             await expect(main).toBeVisible({ timeout: 20_000 });
-            await expect(main.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
+            if (role.key === "owner") {
+              const title = ownerPageTitles[pathOf(item.href)];
+              expect(title, "Owner shortcut needs an explicit management page title").toBeDefined();
+              await expect(destination.getByTestId(role.dashboardTestId)).toHaveAttribute(
+                "data-auth-state",
+                "ready",
+              );
+              // OwnerShell places its page title in the management header,
+              // immediately before main, rather than inside the content area.
+              await expect(
+                destination.locator("header").getByRole("heading", { level: 1, name: title }),
+              ).toBeVisible({ timeout: 20_000 });
+            } else {
+              await expect(main.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
+            }
             const finalPath = pathOf(destination.url());
             const target = pathOf(item.href);
             expect(finalPath, `${item.label} must not land on an unrelated fallback`).toBe(target);
