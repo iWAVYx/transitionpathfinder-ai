@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Authorized Rollout: Lovable Verified; Cloudflare Review Pending
+
+- [x] User authorized the staging release and one bounded no-AI acceptance run. Release `02e0af2f` contains reviewed application `b9062390` plus documentation only. All eight follow-up automatic checks passed after one unchanged-source retry of the recorded constrained-heap failure; build memory headroom remains an operational item.
+- [x] Synced exactly five runtime files to the existing isolated Lovable repository as `af857704`. No builder changes were present since the prior sync. Environment files, dependencies and generated backend types are unchanged. The private preview matched before publication; the existing stable staging site was then updated without changing its URL/visibility.
+- [x] Stable `gentle-forward-reach.lovable.app` now independently shows `aa247bc4…629a50` /1,185 files, staging backend `qgrertkqbwanerqqemph`, sandbox payments, production false and passing isolation. Evidence is captured in the selected Codex in-app browser.
+- [ ] [Cloudflare release40137181297](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40137181297) is waiting for GitHub's required human staging review. The approved job is pinned to `02e0af2f`; the review dialog is open. No second rollout authorization is needed.
+- [ ] After Cloudflare completion and verified parity on both stable sites, dispatch the one authorized no-AI test: existing seven accounts, at most two fictional intake/report pairs, six versions and two PDF exports, zero retries/AI/new relationships/shares; exact cleanup and independent absence verification. No fixture has started and no record was created.
+
+No migration, production/main merge, account/access, payment or secret change occurred. All remaining functional/provider/privacy/bearer/metadata/operations/production gates and the full TF-01–TF-26 roadmap are retained; report polish and Parent Pilot/Pathway Snapshot remain deferred. See [rollout evidence](production-readiness/evidence/report-browser-revision-staging-rollout-2026-10-24.json).
+
 ## October 24 — Stale Browser Report Writes: Local Candidate Prepared
 
 - [x] Saved reports and student report cards receive a revision for the actual report, linked student and full content. Shared save/restore and regeneration handlers require that observed revision after independent ownership checks; stale/missing intent requests a reload before provider or history work. The existing atomic RPC still catches intervening content changes after the server read. Legacy reports are supported; no migration, permission expansion or Owner planning UI is added.

@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-24",
+  "status": "lovable-published-verified-cloudflare-awaiting-github-human-review",
+  "authorization": "User explicitly authorized staging release and one bounded no-AI test for b9062390 and documentation-only 02e0af2f. No migrations, new accounts/relationships, shares, provider calls, payments/secrets or production changes.",
+  "applicationSha": "b9062390665f5c9285d8dec473a5bfa76342530f",
+  "releaseSha": "02e0af2fc54ddd9bf1a23f1afe9565c1753f91d8",
+  "expectedFingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
+  "expectedFiles": 1185,
+  "cloudflare": {
+    "conclusion": "",
+    "headSha": "02e0af2fc54ddd9bf1a23f1afe9565c1753f91d8",
+    "status": "waiting",
+    "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40137181297"
+  },
+  "isolatedLovable": {
+    "project": "95c97302-11c6-4e89-bac3-2c68b970dd3d",
+    "repo": "iWAVYx/gentle-forward-reach",
+    "previousCommit": "ecb121c3004ccb1fe0adefdab6ef4f754ae0ff50",
+    "syncCommit": "af8577042cdc3ff98adb9eb20ac76832da15760e",
+    "remoteBuilderChangesSincePriorSync": 0,
+    "changedRuntimeFiles": [
+      "src/lib/report-content-revision.server.ts",
+      "src/lib/pathway.functions.ts",
+      "src/components/pathway/ReportVersionsPanel.tsx",
+      "src/components/students/PathwayReportCard.tsx",
+      "src/routes/_authenticated/reports.$reportId.tsx"
+    ],
+    "environmentDependenciesAndGeneratedTypesUnchanged": true,
+    "preview": "Approved fingerprint verified before publication; private alias isolation errors retained without modification.",
+    "publication": "Existing gentle-forward-reach.lovable.app updated in Codex in-app browser; URL and visibility settings unchanged.",
+    "stableHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1185,
+      "git_commit_sha": "af8577042cdc3ff98adb9eb20ac76832da15760e",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "publicationScreenshot": "/private/tmp/tf-report-browser-revision-release-02e0af2f/lovable-publication-updated.png",
+    "stableHealthScreenshot": "/private/tmp/tf-report-browser-revision-release-02e0af2f/lovable-stable-verified.png"
+  },
+  "automaticFollowupReview": "Eight successful checks on 02e0af2f after one unchanged-source retry of a constrained Node heap failure. Original failed attempt retained; operational headroom remains separate.",
+  "boundedTest": {
+    "authorizedRuns": 1,
+    "startedRuns": 0,
+    "recordsCreated": 0,
+    "aiCalls": 0,
+    "hold": "Do not dispatch fixture test until Cloudflare completes and both stable staging sites match expected fingerprint/count and pass isolation.",
+    "limits": "Seven existing accounts; at most two fictional intakes/reports, six versions, two PDFs; no new users/relationships/shares; zero retries; exact cleanup and independent exact-ID absence verification."
+  },
+  "githubHumanReview": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40137181297",
+    "screenshot": "/private/tmp/tf-report-browser-revision-release-02e0af2f/github-release-review.png",
+    "browser": "Codex in-app browser only",
+    "pending": true
+  },
+  "migrationsPerformed": 0,
+  "productionTouched": false,
+  "mainRepositoryMerged": false,
+  "roadmap": "Full TF-01\u2013TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot retained."
+}
