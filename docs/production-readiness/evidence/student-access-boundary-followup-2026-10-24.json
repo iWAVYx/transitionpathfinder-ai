@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "local-proposal-not-applied-native-replay-pending",
+  "status": "native-database-validated-security-patch-final-ci-pending",
   "baseSourceSha": "31f6e4ef3996cc24317224e9cc1d4bd7c116c68b",
   "userDirection": "Owner/admin requires explicit student access; Owner Hub remains website management only.",
   "migration": {
@@ -41,7 +41,16 @@
       "log": "/private/tmp/tf-linked-access-node-full-unit-2026-10-24.log",
       "earlierFailure": "Bun-invoked full run failed Zod import/runtime resolution; supported Node invocation passes, no runtime source or dependencies changed to accommodate it."
     },
-    "nativeReplay": "pending automatic candidate CI",
+    "nativeReplay": {
+      "sha": "6937b4fa",
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102467169",
+      "passed": 67,
+      "skipped": 0,
+      "canonicalMigrations": 207,
+      "privilegedRoutines": 93,
+      "status": "success",
+      "log": "/private/tmp/tf-student-boundary-native-6937b4fa.log"
+    },
     "workflowYaml": "parsed",
     "testDiscovery": "One bounded test plus seven existing sign-in dependencies listed; no tests executed."
   },
@@ -72,10 +81,11 @@
     "retries": 0
   },
   "unchangedApplication": {
-    "fingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+    "previousDeployedFingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+    "candidateFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
     "files": 1184,
-    "deploymentOrPublicationNeeded": false,
-    "reason": "Shared staging database-only correction; runtime source unchanged."
+    "deploymentOrPublicationNeeded": true,
+    "reason": "Database proposal alone is runtime-neutral, but newly disclosed Undici advisory requires a two-file build dependency security update. Final staging authorization must include both builds/publication as well as migration/test."
   },
   "production": {
     "touched": false,
@@ -94,5 +104,17 @@
     "Report length/cosmetic polish",
     "Parent Pilot/Pathway Snapshot after current roadmap"
   ],
-  "roadmapPreserved": "Full TF-01 through TF-26 retained."
+  "roadmapPreserved": "Full TF-01 through TF-26 retained.",
+  "securityPatch": {
+    "package": "undici",
+    "before": "7.29.1",
+    "after": "7.30.1",
+    "advisory": "https://github.com/advisories/GHSA-xjj6-f33q-929c",
+    "scope": "Existing same-major override and corresponding lockfile package only; no supply-chain-age exclusion or security gate bypass.",
+    "initialBuilds": "Both failed high-severity audit on 6937b4fa; no build pass claimed.",
+    "frozenInstall": "passed",
+    "highCriticalAudit": "passed; twelve below threshold findings remain",
+    "typeScript": "passed",
+    "unit": "First patched full run 4438 pass, one role-guard asynchronous-effect assertion failed; unchanged focused 42-case recheck passed, full confirmation pending."
+  }
 }
