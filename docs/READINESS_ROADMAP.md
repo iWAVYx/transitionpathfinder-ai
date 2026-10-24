@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Explicit Student Access Accepted; Both Staging Sites Match
+
+- [x] Authorized `fb40e06a` is live on Cloudflare and the existing isolated Lovable publication. Both stable health endpoints report `a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289` /1,184 files, isolated backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Cloudflare keeps its exact real commit; Lovable retains honest fingerprint-based identity. Publication completed in the user-selected Codex in-app browser; visibility/access settings are preserved.
+- [x] The one authorized access migration and exact ledger are independently verified, including a second read-only check in the selected in-app browser. Normal consent-based access is preserved; unrelated Owner/admin status cannot grant planning access, viewers cannot self-promote, and permitted editors cannot take ownership to retain access. Website management remains separate.
+- [x] Human-reviewed [test40105037416](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40105037416) passed once with zero retries: seven existing sign-ins; all six unrelated actors initially denied; Educator and Owner/admin pending/viewer/editor/revoked transitions; permitted edits and truthful history; identity reassignment and owner-only save denial; educator reader hides owner-only controls. Owner Hub does not gain a private-report UI.
+- [x] Exactly one fictional student/intake/report, two relationships and three prior-content versions were created. Caller cleanup passed. An independent postgres `BEGIN READ ONLY` check with table-owner/no-FORCE-RLS guards asserts zero exact-scope students, intakes, reports, versions, relationships, collaborators, channels and share links. Artifact sanitization passed before retrieval. No new users, AI, shares, PDFs, payments or secrets changes. Production/main remains untouched.
+- [ ] This closes the bounded hosted linked-editor/admin acceptance gate only. Continue broader all-role feature/generated-output acceptance, stale browser write intent, bearer/retention/metadata and provider/privacy/security/operations/release requirements. Report length/cosmetic polish remains tabled; full TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot are retained. Production still requires its separate reviewed rollout and authorization.
+
+See [completed staging rollout evidence](production-readiness/evidence/student-access-boundary-staging-rollout-2026-10-24.json). This supersedes the pending sign-in/publication/test statuses below for isolated staging only.
+
 ## October 24 — Migration and Cloudflare Release Verified; Lovable Sign-In Pending
 
 - [x] User authorized reviewed `fb40e06a`, its single migration/ledger, both staging builds/publication and one bounded no-AI access test. Only `20261024010000_remove_implicit_admin_student_access.sql` committed on `qgrertkqbwanerqqemph`. Preflight read catalog metadata only: expected prior ledger, no new guards/ledger, no active other writer, matching helper logic with CRLF/indentation differences.
