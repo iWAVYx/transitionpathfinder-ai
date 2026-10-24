@@ -1,11 +1,11 @@
 # Production release checklist
 
-## October 24 — Linked-Student Save Caller Integration Prepared
+## October 24 — Linked-Student Save Integration and Native Concurrency Verified
 
 - [x] Save/Restore and Regenerate now share the proposed context-aware writer in local source. Both send the linked student captured from the authorized server read; no caller-supplied replacement, context-free RPC fallback or split history/content write is allowed. Missing/malformed student context fails before an RPC request. Applicable roles share the same protection; demo/public readers and document appearance do not change.
 - [x] All 4,484 local units across 314 files, TypeScript, three retained atomic source contracts and 19 local SQL cases pass. Four multi-session SQL cases are deliberately skipped by PGlite, not accepted.
-- [ ] Automatic disposable PostgreSQL replay now selects the new suite and observes actual backend lock waits for concurrent relink commit/rollback, save-then-relink and competing content saves. Native and exact-source automatic results are still pending.
-- [ ] Prepare canonical migration/ledger, full replay and a coordinated authorized release window after native acceptance. **Do not deploy this source or execute the proposal alone:** the database/caller cutover must be coordinated; current staging lacks the new RPC and the proposal retires the old caller. Other metadata/direct-write review and bearer-link lifecycle remain separate gates.
+- [x] [Native PostgreSQL run40142006705](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006705) passed all23 new SQL cases with zero skips/failures/retries, including four actual multi-session cases. Backend lock waits were observed, unrelated report writes proceeded, relink commit/rollback behaved correctly and competing stale content was rejected. All nine automatic checks passed on exact application `93f03b41`, including both builds, units, accessibility, role guard, readiness, static seed and both replay runs.
+- [ ] Next: prepare canonical migration/ledger, final combined replay and a coordinated authorized release window. **Do not deploy this source or execute the proposal alone:** the database/caller cutover must be coordinated; current staging lacks the new RPC and the proposal retires the old caller. Other metadata/direct-write review and bearer-link lifecycle remain separate gates.
 
 No hosted migration, release/publication, records, AI/provider, account/access, payments/secrets or production/main change. Previous stable staging remains `aa247bc4…629a50` /1,185 files. Full roadmap, deferred report polish and Parent Pilot/Pathway Snapshot are preserved. See [integration evidence](evidence/report-linked-student-integration-2026-10-24.json).
 

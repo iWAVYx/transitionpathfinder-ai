@@ -1,5 +1,13 @@
 # Transactional Pathway Report History
 
+## October 24 — Current Linked-Student Save Candidate (Not Deployed)
+
+Application `93f03b41` requires the server-observed linked student in both shared Save/Restore and Regenerate writes through `save_pathway_report_content_for_student`. Browser revision checks remain mandatory, and RPC conflict/missing-function failures never fall back to the old entry point or split writes. The proposed invoker RPC locks the report, compares complete content and the nullable student, retains trigger-owned truthful history, and atomically removes client execution of the context-free function.
+
+All4,484 local units, TypeScript and nine automatic exact-source checks pass. Native disposable PostgreSQL run40142006705 passes all23 proposal cases, including four real competing-session journeys, with zero skips/failures/retries. The same run also replays the existing207 canonical migrations; the new proposal is tested separately, not yet incorporated into canonical history. See [integration evidence](production-readiness/evidence/report-linked-student-integration-2026-10-24.json).
+
+Next prepare the additive canonical migration, exact ledger/preflight/recovery packet and combined replay before requesting hosted authorization. The new application cannot be deployed alone because staging still has the old RPC; the SQL cannot be applied alone because it retires that caller. Recovery must not silently restore the context-free bypass: keep writes closed if a coordinated cutover cannot be verified. Intake association/other mutable inputs, direct client writers, bearer-link lifecycle and wider provider/privacy/operations gates remain separate. No migration, deployment/publication, fixtures, provider calls or production/main action occurred. Report polish and Parent Pilot/Pathway Snapshot remain deferred. Entries below are historical checkpoints, superseded only for the named accepted scope.
+
 ## October 23 — Authorized History Repeat Passed; Exact Cleanup Confirmed
 
 - [x] Human-approved repeat39980508504 on test-only d44620fb passed all seven existing role sessions and both Family/Educator report journeys, with zero retries/AI. Both stable staging identities passed before fixture creation.
