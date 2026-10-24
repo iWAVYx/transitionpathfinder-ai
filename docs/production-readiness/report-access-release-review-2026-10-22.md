@@ -1,5 +1,17 @@
 # Report Access Release Review — October 22, 2026
 
+## October 24 — Migration and Cloudflare Release Verified; Lovable Sign-In Pending
+
+- [x] User authorized reviewed `fb40e06a`, its single migration/ledger, both staging builds/publication and one bounded no-AI access test. Only `20261024010000_remove_implicit_admin_student_access.sql` committed on `qgrertkqbwanerqqemph`. Preflight read catalog metadata only: expected prior ledger, no new guards/ledger, no active other writer, matching helper logic with CRLF/indentation differences.
+- [x] Independent read-only verification at 14:44:29 UTC confirms exact canonical ledger MD5 `a4b99e30dc4fba433937ba5cac9bedb2`, all four function bodies/configuration/grants, both enabled identity guards, unchanged five-table policy hash and unchanged prior ledger. No application records were read or created during these checks.
+- [x] Exact candidate passes all eight automatic checks, 4,439 unit tests/313 files, 67 native history cases without skips, all 207 migrations, 93 privileged routines, TypeScript, isolated-staging build and high/critical dependency audit. Twelve below-threshold findings remain. Existing Undici pin is patched to 7.30.1 without a supply-chain-age exception.
+- [x] Existing isolated Lovable repository `iWAVYx/gentle-forward-reach` is synced at `ecb121c`, changing only `package.json` and `bun.lock`; frozen install passed. Runtime matches reviewed `a91b789b…8cc289` /1,184 files. Builder edits, generated types and environment files are preserved.
+- [x] Human-reviewed Cloudflare [release40103860074](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40103860074) succeeded on exact `fb40e06a`. Fresh external health confirms `a91b789b…8cc289` /1,184 files, exact commit, isolated backend, sandbox payments and passing isolation.
+- [ ] Lovable builder session expired; user sign-in is requested before preview verification and the already-authorized publication. Stable Lovable still serves previous `92e0e923…cbadd6` with passing isolation. Hold the bounded test until both stable identities match. No repeat authorization for this same rollout is needed.
+- [ ] After both stable sites match and pass isolation, run the authorized test once: seven existing sign-ins, at most one fictional student/intake/report, two temporary relationships and three versions, followed by exact cleanup and independent absence verification. No fixture has been created or AI called. No production/main merge, new accounts, shares, payments or secrets changes. Report polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01–TF-26 retained.
+
+See [staging rollout evidence](evidence/student-access-boundary-staging-rollout-2026-10-24.json). This supersedes the proposed/unapplied migration and pending candidate-CI status below for isolated staging only; hosted access acceptance and wider production gates remain open.
+
 ## October 24 — Indirect Student Access Follow-Up Prepared, Not Applied
 
 - [x] Reproduced three indirect gaps locally after the earlier restrictive report policies: unlinked admin student takeover, editor report takeover surviving removal, and admin viewer self-promotion through the consent guard. The prior report restriction is still useful; it does not close these indirect paths by itself.

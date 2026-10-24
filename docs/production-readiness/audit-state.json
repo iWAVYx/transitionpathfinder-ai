@@ -54,7 +54,7 @@
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 13,
     "canonicalInventoryReviewedAt": "2026-10-24",
-    "canonicalInventorySourceCommit": "31f6e4ef3996cc24317224e9cc1d4bd7c116c68b",
-    "canonicalInventoryStatus": "local proposed follow-up, not applied; prior 20261023030000 is applied on staging"
+    "canonicalInventorySourceCommit": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+    "canonicalInventoryStatus": "207 canonical migrations; 20261024010000 committed and independently verified on isolated staging only; application rollout and bounded access acceptance pending"
   }
 }
