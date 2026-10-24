@@ -117,13 +117,33 @@ for (const role of ROLES) {
             { timeout: 30_000 },
           )
           .toBeGreaterThan(0);
-        const dashboardPaths = new Set(
+        let dashboardPaths = new Set(
           (await page.locator("main").first().evaluate(dashboardTileHrefs)).map(pathOf),
         );
         // Owner Hub has its own management navigation, not the shared site header.
         // On public pages, this same signed-in Owner must still get management only.
         if (role.key === "owner") await page.goto("/resources", { waitUntil: "domcontentloaded" });
         const shortcuts = await openedTools(page, viewport.name === "mobile", role.key === "owner");
+        if (role.key !== "owner") {
+          // A route's nav can render before its async feature cards. Wait for
+          // the actual required membership, never accept the first loading link.
+          await expect
+            .poll(
+              async () => {
+                dashboardPaths = new Set(
+                  (await page.locator("main").first().evaluate(dashboardTileHrefs)).map(pathOf),
+                );
+                return shortcuts
+                  .filter((item) => !dashboardPaths.has(pathOf(item.href)))
+                  .map((item) => item.href);
+              },
+              {
+                timeout: 30_000,
+                message: `${role.key}: all menu shortcuts need rendered dashboard actions`,
+              },
+            )
+            .toEqual([]);
+        }
         expect(shortcuts.length).toBeGreaterThan(0);
         expect(new Set(shortcuts.map((item) => item.href)).size).toBe(shortcuts.length);
         for (const item of shortcuts) {

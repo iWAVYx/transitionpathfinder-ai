@@ -43,7 +43,7 @@
     "status": "prepared-corrections-not-dispatched",
     "scope": "role-tools-readonly",
     "spec": "tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts",
-    "specSha256": "9f0bac2b476a389af2db34a34b8dbd3ef79bbd9051a23b00c44dc116a7de5d9d",
+    "specSha256": "57bfd77e166be5a461b49ed9f7625da7a4d4eb9e2201d4a0a2171a259bd3f4d7",
     "declaredCases": 14,
     "viewports": [
       "desktop 1440x900",
@@ -77,7 +77,8 @@
       "Known high-school QA student: readable High School label, actual Student Voice/Pathway links, no raw grade codes or middle-school intake."
     ],
     "remainingGradeCoverage": "Positive middle-school cohort needs an existing authorized account or separately authorized fixture; not inferred from high-school pass.",
-    "localPreparationNote": "Discovery/type validation caught an uncommitted edit-boundary error; original test sections were restored and only the two targeted cases reapplied before validation/commit."
+    "localPreparationNote": "Discovery/type validation caught an uncommitted edit-boundary error; original test sections were restored and only the two targeted cases reapplied before validation/commit.",
+    "dashboardReadiness": "Wait for actual menu shortcuts to appear among completed dashboard actions; retain strict membership and exact destination assertions."
   },
   "hostedResult": {
     "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298",
