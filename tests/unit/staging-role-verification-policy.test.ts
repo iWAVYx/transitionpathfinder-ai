@@ -27,13 +27,13 @@ it("requires all existing staging accounts and excludes privileged reseeding cre
 
 it("runs independent role-access checks after dashboard failures only with all role states ready", () => {
   expect(workflow).toContain("id: require-role-states");
-  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' }}");
+  expect(workflow).toContain("if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' }}");
 });
 
 it("offers a fixed no-retry Partner diagnostic without broadening credential or mutation scope", () => {
   expect(workflow).toContain("default: all-roles");
   expect(workflow).toContain("--retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'");
-  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' }}");
+  expect(workflow).toContain("if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' }}");
   expect(workflow).toContain("E2E_READ_ONLY");
 });
 
@@ -119,4 +119,14 @@ it("keeps prepared report lens/PDF checks read-only and anonymous", () => {
   expect(spec).toContain('storageState: { cookies: [], origins: [] }, trace: "off"');
   expect(spec).not.toMatch(/\.from\(|\.rpc\(|\.auth\.|getByRole\("button",\s*\{name:\s*"(?:Generate|Save|Share|Restore)/);
   expect(spec).toContain("nativePrintDialogVerified:false");
+});
+
+it("gates the bounded linked-access fixture behind its own confirmation and protected no-retry scope",()=>{
+ expect(workflow).toContain('- linked-report-access-no-ai');
+ expect(workflow).toContain('"$STAGING_FIXTURE_CONFIRMATION" != "disposable-linked-report-access"');
+ expect(workflow).toContain("steps.require-role-states.outcome == 'success' && inputs.scope == 'linked-report-access-no-ai'");
+ expect(workflow).toContain('RUN_LINKED_REPORT_ACCESS_STAGING_QA: "true"');
+ expect(workflow).toContain('tests/e2e/release-readiness/linked-report-access-no-ai.signedin.spec.ts');
+ expect(workflow).toContain('--project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line');
+ expect(workflow).not.toContain('STAGING_SUPABASE_SERVICE_ROLE_KEY');
 });

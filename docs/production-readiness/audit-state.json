@@ -45,16 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 206,
-    "latestCanonicalFile": "20261023030000_require_explicit_planning_report_access.sql",
+    "canonicalCount": 207,
+    "latestCanonicalFile": "20261024010000_remove_implicit_admin_student_access.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 12,
-    "canonicalInventoryReviewedAt": "2026-10-23",
-    "canonicalInventorySourceCommit": "fae183613580fa9ea874698a03bd8a258aa879ae",
-    "canonicalInventoryStatus": "working-tree-proposal-not-applied; based on fae18361"
+    "pendingProductionCount": 13,
+    "canonicalInventoryReviewedAt": "2026-10-24",
+    "canonicalInventorySourceCommit": "31f6e4ef3996cc24317224e9cc1d4bd7c116c68b",
+    "canonicalInventoryStatus": "local proposed follow-up, not applied; prior 20261023030000 is applied on staging"
   }
 }

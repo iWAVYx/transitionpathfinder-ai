@@ -14,6 +14,7 @@ const startMigration = readFileSync("supabase/migrations/20260928040000_atomic_s
 const historyMigration = readFileSync("supabase/migrations/20260929010000_student_channel_removal_history.sql", "utf8");
 const shareMigration = readFileSync("supabase/migrations/20261006180000_server_only_report_share_rpcs.sql", "utf8");
 const planningAccessMigration = readFileSync("supabase/migrations/20261023030000_require_explicit_planning_report_access.sql", "utf8");
+const studentBoundaryMigration = readFileSync("supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql", "utf8");
 const allowlist = JSON.parse(readFileSync(allowlistPath, "utf8"));
 
 function sortedUnique(values) {
@@ -23,7 +24,7 @@ function sortedUnique(values) {
 function cumulativeMigrationGrantsFor(role) {
   const grants = new Set();
   const statements =
-    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}\n${shareMigration}\n${planningAccessMigration}`.match(
+    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}\n${shareMigration}\n${planningAccessMigration}\n${studentBoundaryMigration}`.match(
       /(?:GRANT EXECUTE|REVOKE (?:ALL|EXECUTE)) ON FUNCTION public\.[^;]+;/g,
     ) ?? [];
 

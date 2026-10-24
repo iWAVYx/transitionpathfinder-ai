@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 24 — Indirect Student Access Follow-Up Prepared, Not Applied
+
+- [x] Reproduced three indirect gaps locally after the earlier restrictive report policies: unlinked admin student takeover, editor report takeover surviving removal, and admin viewer self-promotion through the consent guard. The prior report restriction is still useful; it does not close these indirect paths by itself.
+- [x] Prepared additive `20261024010000_remove_implicit_admin_student_access.sql`: require actual student access in both canonical helpers and pin ordinary API ownership/identity fields. Preserve real viewer/editor consent paths, permitted content edits with truthful history, authorized owner report linking, internal maintenance and separate website management. Owner Hub remains management-only.
+- [x] Disposable SQL: 65 pass, two native concurrency skips; 45 release/security contracts, 4,439 Node unit tests and TypeScript pass. Native 207-migration replay is pending automatic candidate CI. Historical baseline reproductions remain explicit, not accepted post-fix behavior.
+- [ ] Obtain new authorization for this one staging migration plus one bounded no-AI acceptance run: seven existing sign-ins, at most one fictional student/intake/report, two temporary relationships and three history snapshots, followed by exact cleanup and independent privileged zero-count verification. No new accounts, shares or PDFs. No fixtures have run.
+- [ ] Application runtime remains `92e0e923…cbadd6` /1,184 files, so no app deployment or Lovable publication is needed for this shared-database correction. No hosted migration, production/main merge, AI, payment or secret change occurred. Thirteen migrations are pending against saved September 17 production evidence, not a fresh production read.
+
+See [follow-up evidence](evidence/student-access-boundary-followup-2026-10-24.json). Native/hosted acceptance and broader production gates remain open. Full TF-01–TF-26 is retained; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
 ## October 23 — Explicit-Access and Zod Release Verified on Both Staging Sites
 
 - [x] Cloudflare release40026702286 succeeded on exact `a90665ff`. Existing isolated Lovable sync `cdd79ef7` built, its private source identity was verified, and the authorized existing publication completed. Both stable hosts serve runtime `92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6`, 1,184 files, isolated backend, sandbox payments and passing isolation. Lovable’s `dev` identity is retained honestly; no commit value was invented. Earlier publication delay is resolved without support requests or a repeat publication.

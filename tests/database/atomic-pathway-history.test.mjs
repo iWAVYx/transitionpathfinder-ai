@@ -420,6 +420,95 @@ describe("canonical history boundary in a disposable database",()=>{
    await as(db,owner);assert.equal((await db.query("SELECT public.has_explicit_planning_student_access($1,NULL) AS allowed",[student])).rows[0].allowed,false);
   });
  });
+ // Historical pre-follow-up predicates reproduce the bypass without hosted data.
+ test("historical baseline: implicit admin can take a student and regain report access",async()=>{
+  await withRestrictedPlanningFixture(async student=>{
+   await db.exec("GRANT SELECT,UPDATE ON public.students TO authenticated; ALTER TABLE public.students ENABLE ROW LEVEL SECURITY");
+   await installStudentPoliciesFixture();
+   await as(db,other);assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,0);
+   assert.equal((await db.query("UPDATE public.students SET owner_id=$1 WHERE id=$2 RETURNING id",[other,student])).rows.length,1);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,1);
+  });
+ });
+ test("historical baseline: linked editor can take report ownership and survive access removal",async()=>{
+  await withRestrictedPlanningFixture(async student=>{
+   await db.exec("CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$");
+   await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,other]);await as(db,other);
+   assert.equal((await db.query("UPDATE public.pathway_reports SET user_id=$1 WHERE id=$2 RETURNING id",[other,report])).rows.length,1);
+   await db.exec('RESET ROLE');await db.query("DELETE FROM public.student_collaborators WHERE student_id=$1 AND user_id=$2",[student,other]);await as(db,other);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,1);
+  });
+ });
+ test("historical baseline: admin viewer can self-promote using the older consent helper exception",async()=>{
+  await withRestrictedPlanningFixture(async student=>{
+   try{
+    await installRelationshipConsentFixture();await db.query("INSERT INTO public.student_relationships(student_id,related_user_id,consent_status,permission_level) VALUES($1,$2,'approved','view_summary')",[student,other]);await as(db,other);
+    assert.equal((await db.query("SELECT public.has_explicit_planning_student_access($1,true) AS edit",[student])).rows[0].edit,false);
+    await db.query("UPDATE public.student_relationships SET permission_level='manage_plan' WHERE student_id=$1 AND related_user_id=$2",[student,other]);
+    assert.equal((await db.query("SELECT public.has_explicit_planning_student_access($1,true) AS edit",[student])).rows[0].edit,true);
+   }finally{await db.exec("RESET ROLE; DROP TRIGGER IF EXISTS trg_student_relationships_self_approve ON public.student_relationships; DROP FUNCTION IF EXISTS public.enforce_student_relationships_self_approve()");}
+  });
+ });
+ test("follow-up: admin role alone cannot take student ownership or regain report visibility",async()=>{
+  await withClosedStudentBoundaryFixture(async student=>{
+   await as(db,other);
+   assert.deepEqual((await db.query("SELECT public.can_access_student($1,$2) AS read,public.can_edit_student($1,$2) AS edit",[other,student])).rows[0],{read:false,edit:false});
+   assert.equal((await db.query("UPDATE public.students SET owner_id=$1 WHERE id=$2 RETURNING id",[other,student])).rows.length,0);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,0);
+  });
+ });
+ test("follow-up: explicitly linked editor cannot retain access by stealing student/report identities",async()=>{
+  await withClosedStudentBoundaryFixture(async student=>{
+   await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,other]);await as(db,other);
+   for(const column of ['owner_id','student_user_id'])await assert.rejects(db.query(`UPDATE public.students SET ${column}=$1 WHERE id=$2`,[other,student]),{code:'42501'});
+   await assert.rejects(db.query("UPDATE public.pathway_reports SET user_id=$1 WHERE id=$2",[other,report]),{code:'42501'});
+   await assert.rejects(db.query("UPDATE public.pathway_reports SET intake_id=$1 WHERE id=$2",[randomUUID(),report]),{code:'42501'});
+   await assert.rejects(db.query("UPDATE public.pathway_reports SET student_id=NULL WHERE id=$1",[report]),{code:'42501'});
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2 RETURNING id",[JSON.stringify(next),report])).rows.length,1);
+   const snapshot=await state();assert.equal(snapshot.versions[0].created_by,other);assert.deepEqual(snapshot.versions[0].content,original);
+   await db.query("DELETE FROM public.student_collaborators WHERE student_id=$1 AND user_id=$2",[student,other]);await as(db,other);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,0);
+   assert.equal((await db.query("SELECT id FROM public.pathway_report_versions WHERE report_id=$1",[report])).rows.length,0);
+  });
+ });
+ test("follow-up: report owners retain authorized student linking and ordinary edits",async()=>{
+  await withClosedStudentBoundaryFixture(async student=>{
+   const foreign=randomUUID();await db.query("INSERT INTO public.students(id,owner_id) VALUES($1,$2)",[foreign,other]);await as(db,owner);
+   assert.equal((await db.query("UPDATE public.students SET first_name='Updated fictional name' WHERE id=$1 RETURNING id",[student])).rows.length,1);
+   await assert.rejects(db.query("UPDATE public.students SET owner_id=$1 WHERE id=$2",[other,student]),{code:'42501'});
+   await db.query("UPDATE public.pathway_reports SET student_id=NULL WHERE id=$1",[report]);
+   await db.query("UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2",[student,report]);
+   await assert.rejects(db.query("UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2",[foreign,report]),{code:'42501'});
+   await db.query("UPDATE public.pathway_reports SET model='fixture-metadata' WHERE id=$1",[report]);
+   await save();assert.equal((await state()).versions.length,1);
+  });
+ });
+ test("follow-up: an admin viewer cannot self-promote through the canonical consent trigger",async()=>{
+  await withClosedStudentBoundaryFixture(async student=>{
+   await installRelationshipConsentFixture();
+   await db.query("INSERT INTO public.student_relationships(student_id,related_user_id,consent_status,permission_level) VALUES($1,$2,'pending','view_summary')",[student,other]);
+   await as(db,other);
+   await db.query("UPDATE public.student_relationships SET consent_status='approved' WHERE student_id=$1 AND related_user_id=$2",[student,other]);
+   assert.equal((await db.query("SELECT id FROM public.pathway_reports WHERE id=$1",[report])).rows.length,1);
+   await assert.rejects(db.query("UPDATE public.student_relationships SET permission_level='manage_plan' WHERE student_id=$1 AND related_user_id=$2",[student,other]),{code:'42501'});
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content='{}'::jsonb WHERE id=$1 RETURNING id",[report])).rows.length,0);
+   await assert.rejects(db.query("INSERT INTO public.student_relationships(student_id,related_user_id,consent_status,permission_level) VALUES($1,$2,'pending','manage_plan')",[student,randomUUID()]),{code:'42501'});
+   await as(db,owner);await db.query("UPDATE public.student_relationships SET consent_status='pending',permission_level='manage_plan' WHERE student_id=$1 AND related_user_id=$2",[student,other]);
+   await as(db,other);await db.query("UPDATE public.student_relationships SET consent_status='approved' WHERE student_id=$1 AND related_user_id=$2",[student,other]);
+   assert.equal((await db.query("UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2 RETURNING id",[JSON.stringify(next),report])).rows.length,1);
+  });
+ });
+ test("follow-up: internal identity maintenance remains possible but trigger functions are not client callable",async()=>{
+  await withClosedStudentBoundaryFixture(async student=>{
+   await db.query("UPDATE public.students SET student_user_id=$1 WHERE id=$2",[other,student]);
+   await as(db,other);assert.equal((await db.query("SELECT public.can_edit_student($1,$2) AS allowed",[other,student])).rows[0].allowed,true);
+   await db.exec('RESET ROLE');
+   for(const fn of ['prevent_client_student_identity_reassignment','prevent_client_report_identity_reassignment']){
+    const definition=(await db.query("SELECT prosecdef,proconfig FROM pg_proc WHERE oid=$1::regprocedure",[`public.${fn}()`])).rows[0];assert.equal(definition.prosecdef,false);assert.deepEqual(definition.proconfig,['search_path=pg_catalog']);
+    for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS allowed",[role,`public.${fn}()`])).rows[0].allowed,false);
+   }
+  });
+ });
  test("observed broad client grants are narrowed without removing report CRUD or service administration",async()=>{
   await db.exec("RESET ROLE");for(const table of ["public.pathway_reports","public.pathway_report_versions"]){for(const capability of ["TRIGGER","TRUNCATE"]){for(const role of ["anon","authenticated"])assert.equal((await db.query("SELECT has_table_privilege($1,$2,$3) AS allowed",[role,table,capability])).rows[0].allowed,false);assert.equal((await db.query("SELECT has_table_privilege('service_role',$1,$2) AS allowed",[table,capability])).rows[0].allowed,true);}}
   for(const capability of ["SELECT","INSERT","UPDATE","DELETE"])assert.equal((await db.query("SELECT has_table_privilege('authenticated','public.pathway_reports',$1) AS allowed",[capability])).rows[0].allowed,true);
@@ -528,4 +617,37 @@ async function withRestrictedPlanningFixture(run) {
     CREATE OR REPLACE FUNCTION public.has_role(uuid,public.app_role) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;`);
   }
  });
+}
+
+async function withClosedStudentBoundaryFixture(run) {
+ await withRestrictedPlanningFixture(async student=>{
+  try {
+   await db.exec("GRANT SELECT,UPDATE ON public.students TO authenticated; ALTER TABLE public.students ENABLE ROW LEVEL SECURITY; ALTER TABLE public.students ADD COLUMN first_name text");
+   await installStudentPoliciesFixture();
+   await db.exec(readFileSync("supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql","utf8"));
+   await run(student);
+  } finally {
+   await db.exec(`RESET ROLE;
+    DROP TRIGGER IF EXISTS prevent_client_student_identity_reassignment ON public.students;
+    DROP TRIGGER IF EXISTS prevent_client_report_identity_reassignment ON public.pathway_reports;
+    DROP FUNCTION IF EXISTS public.prevent_client_student_identity_reassignment();
+    DROP FUNCTION IF EXISTS public.prevent_client_report_identity_reassignment();
+    DROP TRIGGER IF EXISTS trg_student_relationships_self_approve ON public.student_relationships;
+    DROP FUNCTION IF EXISTS public.enforce_student_relationships_self_approve();`);
+  }
+ });
+}
+async function installRelationshipConsentFixture() {
+ await db.exec("ALTER TABLE public.student_relationships ADD COLUMN relationship_type text DEFAULT 'educator_case_manager'; GRANT SELECT,INSERT,UPDATE,DELETE ON public.student_relationships TO authenticated; ALTER TABLE public.student_relationships ENABLE ROW LEVEL SECURITY");
+ const source=readFileSync("supabase/migrations/20260612211746_11b5ba99-ee8a-43c4-8143-dbe5bc20b330.sql","utf8");
+ await db.exec(source.slice(source.indexOf('CREATE POLICY "View relationships'),source.indexOf('CREATE TRIGGER student_relationships_set_updated_at')));
+ await db.exec(readFileSync("supabase/migrations/20260710233005_477580a0-26d3-4501-ad72-29004cbfab44.sql","utf8"));
+ await db.exec(readFileSync("supabase/migrations/20260714030632_363ddf92-3bbe-4816-b550-e4f0ecfb4343.sql","utf8"));
+ const guard=readFileSync("supabase/migrations/20260716235857_38685f67-34c6-444e-ae36-98b55da8d463.sql","utf8");
+ await db.exec(guard.slice(guard.indexOf('CREATE OR REPLACE FUNCTION public.enforce_student_relationships_self_approve')));
+}
+
+async function installStudentPoliciesFixture() {
+ const policies=readFileSync("supabase/migrations/20260605102018_db4ed78c-c059-4f0e-9aae-d669778b6fbb.sql","utf8");
+ await db.exec(policies.slice(0,policies.indexOf('-- 3. Restore')));
 }
