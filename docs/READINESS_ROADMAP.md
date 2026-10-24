@@ -1,5 +1,13 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Owner-Only Two-Case Recheck Queued
+
+- [x] Test-only candidate `bfb448f4` passed all eight automatic checks before dispatch. One push build initially exhausted Node's existing1,216MB heap limit; the parallel PR build and one unchanged-source/settings retry passed. Preserve that first failure and the constrained-build headroom concern; it is not evidence of a navigation defect or sustained memory reliability.
+- [x] Queued [Owner recheck40135312293](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40135312293) selecting exactly desktop/mobile Owner Tools cases. Existing seven sign-ins are setup only; the 14 passed focused cases and333-case broad suite are not repeated. Zero retries, fixtures, AI/provider or deployment actions.
+- [ ] GitHub's human staging review is required for this separate job; the dialog is open in the selected Codex in-app browser. Owner hosted acceptance remains open. Six non-Owner menu pairs and School/high-school checks retain their14 focused passes.
+
+Application remains approved `fb40e06a` /`a91b789b…8cc289` /1,184 files; production/main and hosted records/settings remain untouched. Full roadmap, deferred report polish and Parent Pilot/Pathway Snapshot remain preserved. See [audit evidence](production-readiness/evidence/all-role-functional-audit-2026-10-24.json).
+
 ## October 24 — Tools Pass for Six Roles; Two Owner Rechecks Prepared
 
 - [x] Human-approved [focused audit40111115594](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594) completed: seven existing sign-ins passed separately; 14/16 focused cases passed, two Owner cases failed, none skipped, zero retries. School's denied PartnerForward entry and the explicit High School label/tool checks passed. All six non-Owner roles passed actual opened desktop/mobile menus, dashboard feature membership and exact intended destination probes. Sanitization passed before retrieval.

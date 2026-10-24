@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "focused-audit-fourteen-passed-two-owner-failures-test-corrections-prepared",
+  "status": "six-role-tools-accepted-owner-only-recheck-awaiting-human-review",
   "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
   "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
   "runtimeFiles": 1184,
@@ -129,7 +129,7 @@
     "aiCalls": 0
   },
   "ownerFollowup": {
-    "status": "prepared-not-dispatched",
+    "status": "queued-awaiting-github-human-review",
     "scope": "owner-tools-readonly",
     "cases": 2,
     "specSha256": "b92e5fb8e57bdb46c8d12837c882b589be71b25a77d8fd46bab4845e28bb6ecc",
@@ -141,6 +141,16 @@
       "discovery": "2 cases in 1 file; no hosted execution"
     },
     "runtimeChanged": false,
-    "requiresGithubHumanReview": true
+    "requiresGithubHumanReview": true,
+    "workflowSha": "bfb448f418fb3a7d1df6d5c4c21c1ca9295bd634",
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40135312293",
+    "automaticChecks": "Eight passed before dispatch. Optional credentialed jobs skipped, not counted as passes.",
+    "buildFailureRetained": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40119057293",
+      "attempt1": "Node heap exhausted at existing 1216 MB build limit during client compilation; no source or security audit error reported in that failed stage.",
+      "attempt2": "One unchanged-source, unchanged-settings retry passed. Parallel PR build also passed.",
+      "limitation": "Does not establish sustained constrained-build memory headroom; retain first failure as operational evidence."
+    },
+    "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/owner-github-review.png"
   }
 }
