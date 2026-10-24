@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "lovable-published-verified-cloudflare-awaiting-github-human-review",
+  "status": "both-stable-sites-verified-bounded-test-awaiting-github-human-review",
   "runtimeFingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
   "runtimeFiles": 1185,
   "sourceHashes": {
@@ -30,7 +30,7 @@
   },
   "logsDirectory": "/private/tmp/tf-all-role-audit-fb40e06a/",
   "preparedStagingTest": {
-    "status": "authorized-one-run-not-started-hold-for-both-site-parity",
+    "status": "authorized-once-queued-awaiting-github-human-review",
     "scope": "report-history-no-ai",
     "existingAccounts": 7,
     "maxIntakes": 2,
@@ -51,7 +51,7 @@
     "authorizationRequired": "Staging release and one bounded run now authorized by user; GitHub human job review still required."
   },
   "limitations": [
-    "Not hosted fixture acceptance. Lovable stable now serves the candidate with passing isolation; Cloudflare release is awaiting GitHub human review.",
+    "Both stable staging sites serve the candidate with passing isolation. The one bounded no-AI test is queued, not executed; hosted acceptance remains pending.",
     "This is an application save/regeneration protocol, not a new database restriction on all permitted direct client writes.",
     "Linked-student changes already present at the server read invalidate intent; metadata changes racing after that read are not atomically compared by the existing content-only RPC. Retain metadata concurrency as separate database review.",
     "Broader provider/live generation, bearer lifecycle, document retention, privacy/security/operations and production rollout gates remain open.",

@@ -1,5 +1,14 @@
 # Production release checklist
 
+## October 24 — Both Staging Sites Verified; Bounded Test Review Pending
+
+- [x] Human-approved [Cloudflare release40137181297](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40137181297) succeeded, including staging guards, sandbox-payment checks, build, deployment identity and PWA assets. The deployed real SHA is `02e0af2f`.
+- [x] Fresh independent browser health reads verify both stable staging sites now match `aa247bc4…629a50` /1,185 files, backend `qgrertkqbwanerqqemph`, sandbox payments, production false and passing isolation. Lovable retains its genuine isolated-repository identity `af857704`; no commit was entered manually.
+- [x] Queued the one authorized [bounded no-AI test40138782975](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40138782975) only after source parity passed. Its workflow SHA `0d19f9a4` is documentation-only relative to the deployed release; application and test code retain the reviewed candidate. No competing audit was active.
+- [ ] GitHub requires the user's human staging review for this separate protected job; the dialog is open in Codex's in-app browser. At this handoff the job is waiting, no fixture has started, and no test records were created. The prior authorization covers one run with at most two fictional intake/report pairs, six versions and two PDFs, zero retries/AI/new relationships/shares, exact cleanup and independent absence verification.
+
+Cloudflare AI remains unconfigured; Lovable managed AI is configured. This no-AI scope does not certify hosted generation or change provider settings. No new migration, production/main merge, account/access, payment or manual secret change occurred. Retain the remaining functional/provider/privacy/bearer/metadata/operations gates, full TF-01–TF-26 roadmap and deferred report polish/Parent Pilot/Pathway Snapshot. See [rollout evidence](evidence/report-browser-revision-staging-rollout-2026-10-24.json).
+
 ## October 24 — Authorized Rollout: Lovable Verified; Cloudflare Review Pending
 
 - [x] User authorized the staging release and one bounded no-AI acceptance run. Release `02e0af2f` contains reviewed application `b9062390` plus documentation only. All eight follow-up automatic checks passed after one unchanged-source retry of the recorded constrained-heap failure; build memory headroom remains an operational item.
