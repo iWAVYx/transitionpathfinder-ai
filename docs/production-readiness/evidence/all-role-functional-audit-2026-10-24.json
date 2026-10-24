@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "six-role-tools-accepted-owner-only-recheck-awaiting-human-review",
+  "status": "opened-tools-menu-destination-gate-accepted-all-seven-roles",
   "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
   "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
   "runtimeFiles": 1184,
@@ -129,7 +129,7 @@
     "aiCalls": 0
   },
   "ownerFollowup": {
-    "status": "queued-awaiting-github-human-review",
+    "status": "completed-two-passed-zero-failures-zero-skips",
     "scope": "owner-tools-readonly",
     "cases": 2,
     "specSha256": "b92e5fb8e57bdb46c8d12837c882b589be71b25a77d8fd46bab4845e28bb6ecc",
@@ -151,6 +151,46 @@
       "attempt2": "One unchanged-source, unchanged-settings retry passed. Parallel PR build also passed.",
       "limitation": "Does not establish sustained constrained-build memory headroom; retain first failure as operational evidence."
     },
-    "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/owner-github-review.png"
-  }
+    "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/owner-github-review.png",
+    "hostedResult": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40135312293",
+      "conclusion": "success",
+      "workflowSha": "bfb448f418fb3a7d1df6d5c4c21c1ca9295bd634",
+      "authSetupPassed": 7,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "durationSeconds": 86,
+      "caseDurationSeconds": 16.1,
+      "sanitizer": "success; zero unsafe files removed",
+      "artifactsUploaded": 0,
+      "evidence": "Completed job metadata and log; successful run produced no uploaded artifact.",
+      "screenshot": "/private/tmp/tf-all-role-audit-fb40e06a/owner-audit-passed.png",
+      "fixtureSteps": "All three fixture scopes skipped",
+      "aiCalls": 0,
+      "applicationDeployment": false
+    }
+  },
+  "acceptedGate": {
+    "scope": "Opened desktop/mobile Tools menus and intended destination pages for all seven existing staging roles",
+    "evidenceRuns": [
+      40111115594,
+      40135312293
+    ],
+    "passedCasesAcrossFocusedRuns": 16,
+    "notASingleAllGreenBroadRerun": true,
+    "additionalAcceptedChecks": [
+      "School denied PartnerForward entry returns to School Overview",
+      "Existing High School student has readable grade and applicable planning links"
+    ],
+    "limitations": [
+      "Cloudflare existing-role browser journeys; stable Lovable source/isolation parity verified, not duplicate Lovable role journeys",
+      "Direct read-only destination probes do not certify every actual menu-click and Back sequence",
+      "Positive middle-school cohort remains untested",
+      "No generation/provider calls or hosted record writes/exports were included",
+      "Original broad330/1/2 and first focused14/2 results are retained; not relabeled as a clean whole-product audit"
+    ]
+  },
+  "nextTrackedGate": "Review stale browser report-save/restore intent: server compares its own freshly read content atomically, while updateReportContent currently accepts no browser-observed revision. Prepare a bounded local correction/review before any new release, migration or hosted fixture authorization."
 }
