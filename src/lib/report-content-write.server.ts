@@ -1,13 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
 
-// Narrow, reviewed boundary for the staging-verified RPC. Do not rewrite the
-// platform-generated types or substitute an admin client for the caller.
+// Context-aware RPC candidate: coordinate its database migration before release.
+// Keep generated types intact and use only the authenticated caller client.
 type HistoryDatabase = Omit<Database, "public"> & {
   public: Omit<Database["public"], "Functions"> & {
     Functions: Database["public"]["Functions"] & {
-      save_pathway_report_content_atomic: {
-        Args: { _report_id: string; _expected_content: Json; _next_content: Json; _change_summary: string | null };
+      save_pathway_report_content_for_student: {
+        Args: { _report_id: string; _expected_student_id: string | null; _expected_content: Json; _next_content: Json; _change_summary: string | null };
         Returns: number;
       };
     };
@@ -22,6 +22,7 @@ export async function writeReportContent(
   nextContent: unknown,
   summary: string | null,
   operation: "save" | "regenerate",
+  expectedStudentId: string | null,
 ): Promise<number> {
   const failure = operation === "save" ? "Could not save the report." : "Could not save the regenerated report.";
   try {
@@ -30,10 +31,13 @@ export async function writeReportContent(
       if (!normalized || typeof normalized !== "object" || Array.isArray(normalized)) throw new Error(failure);
       return normalized as Json;
     };
+    if (expectedStudentId !== null && (typeof expectedStudentId !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(expectedStudentId))) throw new Error(failure);
     if (summary !== null && summary.length > 500) throw new Error(failure);
     const client = supabase as unknown as SupabaseClient<HistoryDatabase>;
-    const { data, error } = await client.rpc("save_pathway_report_content_atomic", {
+    const { data, error } = await client.rpc("save_pathway_report_content_for_student", {
       _report_id: reportId,
+      _expected_student_id: expectedStudentId,
       _expected_content: content(expectedContent),
       _next_content: content(nextContent),
       _change_summary: summary,

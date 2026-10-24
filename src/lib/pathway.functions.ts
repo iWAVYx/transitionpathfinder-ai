@@ -403,7 +403,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
     }
     const nextVersion = await writeReportContent(
       supabase, data.report_id, (current as { content: unknown }).content,
-      nextContent, summary, "save",
+      nextContent, summary, "save", (current as { student_id: string | null }).student_id ?? null,
     );
 
     return { ok: true, version_number: nextVersion };
@@ -1019,7 +1019,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     });
 
     const nextVersion = await writeReportContent(
-      supabase, rep.id, prevContent, nextContent, change_summary, "regenerate",
+      supabase, rep.id, prevContent, nextContent, change_summary, "regenerate", rep.student_id,
     );
 
     return {

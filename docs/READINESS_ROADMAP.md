@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Linked-Student Save Caller Integration Prepared
+
+- [x] Save/Restore and Regenerate now share the proposed context-aware writer in local source. Both send the linked student captured from the authorized server read; no caller-supplied replacement, context-free RPC fallback or split history/content write is allowed. Missing/malformed student context fails before an RPC request. Applicable roles share the same protection; demo/public readers and document appearance do not change.
+- [x] All 4,484 local units across 314 files, TypeScript, three retained atomic source contracts and 19 local SQL cases pass. Four multi-session SQL cases are deliberately skipped by PGlite, not accepted.
+- [ ] Automatic disposable PostgreSQL replay now selects the new suite and observes actual backend lock waits for concurrent relink commit/rollback, save-then-relink and competing content saves. Native and exact-source automatic results are still pending.
+- [ ] Prepare canonical migration/ledger, full replay and a coordinated authorized release window after native acceptance. **Do not deploy this source or execute the proposal alone:** the database/caller cutover must be coordinated; current staging lacks the new RPC and the proposal retires the old caller. Other metadata/direct-write review and bearer-link lifecycle remain separate gates.
+
+No hosted migration, release/publication, records, AI/provider, account/access, payments/secrets or production/main change. Previous stable staging remains `aa247bc4…629a50` /1,185 files. Full roadmap, deferred report polish and Parent Pilot/Pathway Snapshot are preserved. See [integration evidence](production-readiness/evidence/report-linked-student-integration-2026-10-24.json).
+
 ## October 24 — Linked-Student Save Boundary: Local Proposal Tested
 
 - [x] Source review and a disposable SQL reproduction confirm that the current content-only save can accept old student context if the report is relinked after the server read. The prior browser-revision acceptance remains valid for its tested scope.

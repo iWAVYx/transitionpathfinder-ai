@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-24",
+  "status": "local-caller-integration-passed-native-automatic-check-pending",
+  "baseProposalCommit": "08114b1d460ad56564f85c7ed5483bf1a764121c",
+  "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+  "runtimeFiles": 1185,
+  "canonicalMigrationAdded": false,
+  "proposal": "proposals/report-linked-student-save.sql",
+  "callerIntegration": [
+    "Shared report writer requires an explicitly supplied nullable linked-student ID and rejects malformed/missing context before network access",
+    "Authenticated Save/Restore sends the actual server-read student; browser revision still independently validates the observed report/context before writing",
+    "Regenerate retains its captured pre-generation student through the final atomic call, so a relink during provider work is compared at commit",
+    "Both call paths use the context-aware RPC only; no fallback to context-free saves, direct writes, history fabrication or provider retry",
+    "Generated Supabase types, role permissions, Owner management scope, demo/public rendering and document presentation unchanged"
+  ],
+  "validation": {
+    "fullUnit": {
+      "files": 314,
+      "pass": 4484,
+      "fail": 0
+    },
+    "focusedCallerRevisionUnits": 81,
+    "typescript": "passed",
+    "retainedAtomicSourceContracts": 3,
+    "newSqlLocal": {
+      "pass": 19,
+      "fail": 0,
+      "skip": 4,
+      "skipReason": "Native multi-session cases are skipped in PGlite and explicitly selected by automatic disposable PostgreSQL CI"
+    },
+    "nativeConcurrencyCases": [
+      "Relink commit precedes a waiting save: reject after acquiring row lock, no history change",
+      "Relink rollback precedes a waiting save: original context saves successfully",
+      "Save already holds lock: later metadata UPDATE waits until content/history commit",
+      "Two saves share observed context: loser waits, then rejects changed content"
+    ],
+    "nativeEvidenceRequirements": "Assert the competing backend is actually waiting for a row lock; unrelated report save proceeds; retain all history/content assertions. No retries.",
+    "automaticChecks": "Pending on integration commit; previous proposal commit passed eight existing checks but did not yet select this new suite."
+  },
+  "releaseCompatibility": "Not deployable yet: current staging database lacks the new RPC. Old-client writes stop if proposal grants are applied first; new-client writes stop if application is deployed first. Prepare canonical migration/ledger, native full replay and a coordinated authorized release window. Never use compatibility fallback to bypass context verification.",
+  "remaining": [
+    "Native concurrent-session evidence and final exact-source checks",
+    "Canonical migration/replay, ledger/preflight and recovery/maintenance review",
+    "Other metadata such as intake association and permitted direct-client writers remain separate review",
+    "Bearer-link issuer access/removal/relink/lifetime policy remains open",
+    "Authorized staging migration/deployment/publication and bounded hosted acceptance before production consideration"
+  ],
+  "logs": [
+    "/private/tmp/tf-report-context-integrated-pglite.log",
+    "/private/tmp/tf-report-context-integrated-unit.log",
+    "/private/tmp/tf-report-context-full-unit.log",
+    "/private/tmp/tf-report-context-source.log",
+    "/private/tmp/tf-report-context-typecheck.log"
+  ],
+  "hostedChanges": {
+    "migration": false,
+    "deployment": false,
+    "publication": false,
+    "records": 0,
+    "aiCalls": 0,
+    "accountsOrRelationships": false,
+    "secretsOrPayments": false,
+    "productionOrMain": false
+  },
+  "roadmap": "All TF-01\u2013TF-26 retained; report polish and Parent Pilot/Pathway Snapshot remain deferred."
+}

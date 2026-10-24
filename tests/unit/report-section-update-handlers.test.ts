@@ -96,7 +96,7 @@ it.each(["save", "regenerate"])("%s uses one atomic RPC and returns its actual v
   const result = await (fn as any)({ context: db.context, data: { expected_revision: await reportContentRevision({ id, student_id: studentId, content: db.content }), report_id: id, content: { summary: "Changed", section_updates: { write_id: "forged" } } } });
   expect(result.version_number).toBe(3);
   expect(db.context.supabase.rpc).toHaveBeenCalledTimes(1);
-  expect(db.context.supabase.rpc.mock.calls[0][0]).toBe("save_pathway_report_content_atomic");
+  expect(db.context.supabase.rpc.mock.calls[0][0]).toBe("save_pathway_report_content_for_student");
   expect(db.requests[0]._report_id).toBe(id);
   expect(db.requests[0]._expected_content).toEqual(current);
   expect(previousReportWriteId(db.requests[0]._next_content)).toBeTruthy();
@@ -147,7 +147,7 @@ it.each([false, true])("actual Supabase SDK sends tracked=%s as a POST body with
     const body = init?.body ? JSON.parse(String(init.body)) : undefined;
     requests.push({ url, method, body, headers: new Headers(init?.headers) });
     if (method === "POST") {
-      expect(url.pathname).toBe("/rest/v1/rpc/save_pathway_report_content_atomic");
+      expect(url.pathname).toBe("/rest/v1/rpc/save_pathway_report_content_for_student");
       return new Response("7", { status: 200, headers: { "content-type": "application/json" } });
     }
     expect(method).toBe("GET"); expect(url.pathname).toBe("/rest/v1/pathway_reports");
@@ -164,7 +164,8 @@ it.each([false, true])("actual Supabase SDK sends tracked=%s as a POST body with
   expect(request.body._expected_content).toEqual(current);
   expect(request.body._next_content.summary).toBe("Saved change");
   expect(previousReportWriteId(request.body._next_content)).toBeTruthy();
-  expect(Object.keys(request.body).sort()).toEqual(["_change_summary", "_expected_content", "_next_content", "_report_id"]);
+  expect(Object.keys(request.body).sort()).toEqual(["_change_summary", "_expected_content", "_expected_student_id", "_next_content", "_report_id"]);
+  expect(request.body._expected_student_id).toBeNull();
   expect(request.body._report_id).toBe(id); expect(request.body._change_summary).toBeNull();
   expect(mocks.generate).not.toHaveBeenCalled();
 });
@@ -178,14 +179,14 @@ it.each(["40001", "PGRST202", "transport"])("actual SDK %s failure stops after o
     attempts.push(`${method} ${url.pathname}`);
     if (method === "GET") return new Response(JSON.stringify([{ id, user_id: "owner", content: { summary: "Original" } }]), { status: 200, headers: { "content-type": "application/json" } });
     expect(method).toBe("POST");
-    expect(url.pathname).toBe("/rest/v1/rpc/save_pathway_report_content_atomic");
+    expect(url.pathname).toBe("/rest/v1/rpc/save_pathway_report_content_for_student");
     if (failure === "transport") throw new Error("Synthetic private transport details");
     return new Response(JSON.stringify({ code: failure, message: "Synthetic private database details", details: "Private fixture", hint: null }), { status: failure === "40001" ? 409 : 404, headers: { "content-type": "application/json" } });
   });
   const supabase = createClient("https://report-wire.fixture.test", "synthetic-key", { global: { fetch: fetchFixture }, auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
   const attempt = (updateReportContent as any)({ context: { supabase, userId: "owner" }, data: { expected_revision: await reportContentRevision({ id, content: { summary: "Original" } }), report_id: id, content: { summary: "Changed" } } });
   await expect(attempt).rejects.toThrow(failure === "40001" ? "Reload it before trying again." : "Could not save the report.");
-  expect(attempts).toEqual(["GET /rest/v1/pathway_reports", "POST /rest/v1/rpc/save_pathway_report_content_atomic"]);
+  expect(attempts).toEqual(["GET /rest/v1/pathway_reports", "POST /rest/v1/rpc/save_pathway_report_content_for_student"]);
   expect(mocks.generate).not.toHaveBeenCalled();
 });
 
@@ -238,4 +239,11 @@ it("a changed linked student invalidates generation even when report content is 
   const expected_revision = await reportContentRevision({ id, student_id: "different-student", content: db.content });
   await expect((regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision } })).rejects.toThrow("Reload");
   expect(db.context.supabase.rpc).not.toHaveBeenCalled(); expect(mocks.generate).not.toHaveBeenCalled();
+});
+it.each(["save", "regenerate"])("%s sends the server-observed student, ignoring caller-supplied replacement context", async mode => {
+  const db = database(richerSharedFixture()), fn = mode === "save" ? updateReportContent : regeneratePathwayReport;
+  await (fn as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: db.content }), expected_student_id: "33333333-3333-4333-8333-333333333333", content: { summary: "Fictional change" } } });
+  expect(db.requests).toHaveLength(1);
+  expect(db.requests[0]._expected_student_id).toBe(studentId);
+  expect(db.context.supabase.rpc.mock.calls[0][0]).toBe("save_pathway_report_content_for_student");
 });

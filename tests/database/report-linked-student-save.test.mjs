@@ -3,6 +3,8 @@ import test, { before, beforeEach, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { randomUUID } from 'node:crypto';
+const real = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/report-linked-student-save.sql','utf8');
 const oldSig='public.save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)';
 const newSig='public.save_pathway_report_content_for_student(uuid,uuid,jsonb,jsonb,text)';
@@ -10,19 +12,33 @@ const owner='00000000-0000-4000-8000-000000000001', other='00000000-0000-4000-80
 const id='00000000-0000-4000-8000-000000000010', intake='00000000-0000-4000-8000-000000000020';
 const student='00000000-0000-4000-8000-000000000030', moved='00000000-0000-4000-8000-000000000031';
 const original={summary:'Fictional original'}, next={summary:'Fictional replacement'};
-let db;
+let db, close, newSession;
 const sql=f=>readFileSync('supabase/migrations/'+f,'utf8');
 async function as(user=owner, role='authenticated') {
  assert.ok(['authenticated','anon','service_role'].includes(role));
  await db.exec('RESET ROLE'); await db.query("SELECT set_config('request.jwt.claim.sub',$1,false)",[user]); await db.exec('SET ROLE '+role);
 }
-async function save(expectedStudent=student,expected=original,replacement=next,report=id) {
- return db.query('SELECT public.save_pathway_report_content_for_student($1,$2,$3::jsonb,$4::jsonb,$5) AS version',[report,expectedStudent,JSON.stringify(expected),JSON.stringify(replacement),'Fictional save']);
+async function save(expectedStudent=student,expected=original,replacement=next,report=id,client=db) {
+ return client.query('SELECT public.save_pathway_report_content_for_student($1,$2,$3::jsonb,$4::jsonb,$5) AS version',[report,expectedStudent,JSON.stringify(expected),JSON.stringify(replacement),'Fictional save']);
 }
-async function state(){await db.exec('RESET ROLE');return {report:(await db.query('SELECT student_id,content FROM public.pathway_reports WHERE id=$1',[id])).rows[0],versions:(await db.query('SELECT version_number,content,created_by FROM public.pathway_report_versions ORDER BY version_number')).rows};}
+async function state(){await db.exec('RESET ROLE');return {report:(await db.query('SELECT student_id,content FROM public.pathway_reports WHERE id=$1',[id])).rows[0],versions:(await db.query('SELECT report_id,version_number,content,created_by FROM public.pathway_report_versions ORDER BY version_number')).rows};}
 before(async()=>{
- const {PGlite}=await import(process.env.PATHWAY_HISTORY_PGLITE_MODULE?pathToFileURL(process.env.PATHWAY_HISTORY_PGLITE_MODULE).href:'@electric-sql/pglite');db=new PGlite();
- await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+ if(real) {
+  if(![undefined,'localhost','127.0.0.1'].includes(process.env.PGHOST))throw new Error('Disposable tests require loopback PGHOST');
+  const pgModule=await import(pathToFileURL(process.env.PATHWAY_HISTORY_PG_MODULE).href); const {Client}=pgModule.default??pgModule;
+  const options={host:'127.0.0.1',port:Number(process.env.PGPORT||5432),user:process.env.PGUSER,password:process.env.PGPASSWORD,statement_timeout:10000};
+  const admin=new Client({...options,database:'postgres'});await admin.connect();
+  const name='tf_context_'+randomUUID().replaceAll('-','');await admin.query(`CREATE DATABASE ${name}`);const clients=[];
+  newSession=async()=>{const c=new Client({...options,database:name});await c.connect();clients.push(c);return {query:(...args)=>c.query(...args),exec:sql=>c.query(sql)};};
+  close=async()=>{try{await Promise.all(clients.map(c=>c.end()));}finally{try{await admin.query(`DROP DATABASE ${name}`);}finally{await admin.end();}}};db=await newSession();
+ } else {
+  const {PGlite}=await import(process.env.PATHWAY_HISTORY_PGLITE_MODULE?pathToFileURL(process.env.PATHWAY_HISTORY_PGLITE_MODULE).href:'@electric-sql/pglite');db=new PGlite();close=()=>db.close();
+ }
+ await db.exec(`DO $$ BEGIN
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role; END IF;
+ END $$;
  CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY);
  CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  GRANT USAGE ON SCHEMA auth,public TO authenticated,anon,service_role;
@@ -40,7 +56,7 @@ before(async()=>{
  await db.exec(sql('20261012190000_atomic_pathway_report_content.sql'));
  await db.exec(sql('20261023020000_enforce_pathway_report_content_history.sql'));
 });
-after(async()=>db?.close());
+after(async()=>{if(close)await close();});
 beforeEach(async()=>{
  await db.exec(`RESET ROLE; TRUNCATE public.pathway_report_versions,public.pathway_reports,public.student_intakes,auth.users CASCADE;
  INSERT INTO auth.users VALUES('${owner}'),('${other}');
@@ -109,4 +125,49 @@ test('disabled RLS aborts the proposal without installing new RPC',async()=>{
 test('JSON object key order does not create a false stale-content conflict',async()=>{
  const a={summary:'Fictional original',goals:['One','Two']};await db.query('UPDATE public.pathway_reports SET content=$1::jsonb WHERE id=$2',[JSON.stringify(a),id]);
  await db.exec('TRUNCATE public.pathway_report_versions');await db.exec(proposal);await as();assert.equal((await save(student,{goals:a.goals,summary:a.summary})).rows[0].version,1);
+});
+async function sessionAs(client) {
+ await client.query("SELECT set_config('request.jwt.claim.sub',$1,false)",[owner]);await client.exec('SET ROLE authenticated');
+}
+async function waitForLock(pid) {
+ const deadline=Date.now()+4000;
+ while(Date.now()<deadline){const {rows:[r]}=await db.query('SELECT wait_event_type FROM pg_stat_activity WHERE pid=$1',[pid]);if(r?.wait_event_type==='Lock')return;await new Promise(resolve=>setTimeout(resolve,20));}
+ assert.fail('Competing session did not visibly wait on the report row lock');
+}
+for(const finish of ['COMMIT','ROLLBACK'])test('concurrent relink '+finish.toLowerCase()+' is checked after the waiting save obtains its lock',{skip:!real},async()=>{
+ await db.exec(proposal);const writer=await newSession(),waiting=await newSession(),independent=await newSession();
+ for(const c of [writer,waiting,independent])await sessionAs(c);
+ const otherReport='00000000-0000-4000-8000-000000000011';
+ await db.query("INSERT INTO public.pathway_reports(id,user_id,intake_id,model,student_id,content) VALUES($1,$2,$3,'fictional',$4,$5::jsonb)",[otherReport,owner,intake,student,JSON.stringify(original)]);
+ const pid=(await waiting.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+ await writer.exec('BEGIN');let pending;
+ try{
+  await writer.query('UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2',[moved,id]);
+  pending=save(student,original,next,id,waiting).then(value=>({value}),error=>({error}));
+  await waitForLock(pid);
+  assert.equal((await save(student,original,next,otherReport,independent)).rows[0].version,1,'Unrelated report is not blocked');
+  await writer.exec(finish);const result=await pending;
+  if(finish==='COMMIT'){assert.equal(result.error?.code,'40001');const s=await state();assert.deepEqual(s.report,{student_id:moved,content:original});assert.equal(s.versions.filter(v=>v.report_id===id).length,0);}
+  else{assert.equal(result.error,undefined);assert.equal(result.value.rows[0].version,1);const s=await state();assert.deepEqual(s.report,{student_id:student,content:next});assert.equal(s.versions.filter(v=>v.report_id===id).length,1);}
+ }finally{await writer.exec('ROLLBACK');if(pending)await pending;}
+});
+test('save lock serializes a later metadata change until its content/history commit',{skip:!real},async()=>{
+ await db.exec(proposal);const writer=await newSession(),relink=await newSession();await sessionAs(writer);await sessionAs(relink);
+ const pid=(await relink.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await writer.exec('BEGIN');let pending;
+ try{
+  assert.equal((await save(student,original,next,id,writer)).rows[0].version,1);
+  pending=relink.query('UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2',[moved,id]).then(value=>({value}),error=>({error}));
+  await waitForLock(pid);await writer.exec('COMMIT');assert.equal((await pending).error,undefined);
+  const s=await state();assert.deepEqual(s.report,{student_id:moved,content:next});assert.equal(s.versions.length,1);assert.deepEqual(s.versions[0].content,original);
+ }finally{await writer.exec('ROLLBACK');if(pending)await pending;}
+});
+test('two content saves with the same observed context serialize and reject the losing content',{skip:!real},async()=>{
+ await db.exec(proposal);const writer=await newSession(),waiting=await newSession();await sessionAs(writer);await sessionAs(waiting);
+ const pid=(await waiting.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await writer.exec('BEGIN');let pending;
+ try{
+  await save(student,original,next,id,writer);
+  pending=save(student,original,{summary:'Other fictional replacement'},id,waiting).then(value=>({value}),error=>({error}));
+  await waitForLock(pid);await writer.exec('COMMIT');assert.equal((await pending).error?.code,'40001');
+  const s=await state();assert.deepEqual(s.report.content,next);assert.equal(s.versions.length,1);
+ }finally{await writer.exec('ROLLBACK');if(pending)await pending;}
 });

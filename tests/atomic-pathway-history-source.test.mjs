@@ -31,7 +31,7 @@ test("payload validation and both-caller atomic cutover retain release gates", (
     assert.match(handler, /await writeReportContent\(/);
     assert.doesNotMatch(handler, /\.insert\(|\.update\(|from\("pathway_report_versions"\)/);
   }
-  assert.match(helper, /client.rpc\("save_pathway_report_content_atomic"/);
+  assert.match(helper, /client.rpc\("save_pathway_report_content_for_student"/);
   assert.doesNotMatch(helper, /supabaseAdmin|service_role|\.from\(/);
   assert.match(plan, /Both callers are switched only in draft source; neither hosted application has been deployed with this cutover/);
   assert.match(plan, /Never retry generation automatically/);
