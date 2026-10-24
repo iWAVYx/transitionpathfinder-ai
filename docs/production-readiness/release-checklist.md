@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 24 — Linked-Student Release Verified on Both Staging Sites; Test Review Pending
+
+- [x] Human-approved [Cloudflare release40143902858](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143902858) succeeded on exact `99cb4cbd`. Independent browser health verifies `52d34874…4fdfef` /1,185 files, isolated backend `qgrertkqbwanerqqemph`, sandbox payments and isolation true.
+- [x] Existing isolated Lovable publication is updated and independently verified at the same fingerprint/count, backend and sandbox isolation. Actual repository sync is `cc0beadf`; stable runtime Git field is `dev` as observed, with no fabricated identity. The private alias's expected hostname/identity errors were retained, not loosened. No builder, environment, dependency, generated-type or visibility changes.
+- [x] The single authorized migration and exact ledger remain verified; existing report policies/triggers/table RLS are unchanged. Both applications now match the compatible database; staging report-write pause is over.
+- [x] Queued the one authorized [bounded no-AI report test40144522762](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40144522762) only after both stable proofs passed. Displayed `10618375` changes documentation only relative to reviewed `99cb4cbd`.
+- [ ] GitHub requires the user's human staging review for this separate test. The dialog is open in the Codex in-app browser. No fixtures or AI calls have started. Scope remains two fictional intake/report pairs, six versions and two PDFs using seven existing accounts, zero retries/new students/accounts/relationships/shares, exact cleanup and independent absence proof.
+
+Production/main remains untouched. This verifies the named source/database cutover, not live regeneration, other metadata/direct writers, bearer-link lifecycle or whole-product release readiness. Full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot remain retained. Earlier entries below are historical checkpoints. See [rollout evidence](evidence/report-linked-student-staging-rollout-2026-10-24.json).
+
 ## October 24 — Authorized Linked-Student Staging Cutover in Progress
 
 - [x] User authorized exact reviewed `99cb4cbd`: one migration/ledger transaction, Cloudflare staging, existing isolated Lovable publication and one bounded two-report no-AI run. Final source passes eight automatic checks,4,485 units across315 files and native29/29 plus208-migration replay. No consumed fixture approval is reused.

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "authorized-staging-migration-verified-application-cutover-in-progress",
+  "status": "migration-and-both-stable-sites-verified-bounded-test-human-review-pending",
   "executionAuthorized": true,
   "applicationCandidateSha": "93f03b414915681949be8e2946a3bfb1a894e233",
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
@@ -74,9 +74,9 @@
     "Hosted AI regeneration and broader role/provider/privacy/security/operations gates remain unperformed by this no-AI preparation."
   ],
   "hostedActions": {
-    "migrations": 0,
-    "deployments": 0,
-    "publications": 0,
+    "migrations": 1,
+    "deployments": 1,
+    "publications": 1,
     "testRecords": 0,
     "aiCalls": 0,
     "accountOrAccessChanges": 0,

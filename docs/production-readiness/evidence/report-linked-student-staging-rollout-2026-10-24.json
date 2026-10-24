@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "migration-committed-verified-cloudflare-human-review-pending-lovable-sync-pushed",
+  "status": "migration-and-both-stable-sites-verified-bounded-test-human-review-pending",
   "authorization": "User explicitly authorized staging-only candidate99cb4cbd migration plus exact ledger, both existing staging sites, and one bounded no-AI two-report acceptance run.",
   "sourceSha": "99cb4cbd0977f551f4482568268c00390bac7a85",
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
@@ -21,8 +21,38 @@
   "cloudflare": {
     "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143902858",
     "sha": "99cb4cbd0977f551f4482568268c00390bac7a85",
-    "status": "waiting-for-required-human-review",
-    "screenshot": "/private/tmp/tf-linked-save-canonical/github-release-review.png"
+    "status": "completed",
+    "screenshot": "/private/tmp/tf-linked-save-canonical/github-release-review.png",
+    "conclusion": "success",
+    "databaseId": 40143902858,
+    "headSha": "99cb4cbd0977f551f4482568268c00390bac7a85",
+    "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143902858",
+    "stableHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1185,
+      "git_commit_sha": "99cb4cbd0977f551f4482568268c00390bac7a85",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "humanReviewRecorded": true
   },
   "isolatedLovable": {
     "project": "95c97302-11c6-4e89-bac3-2c68b970dd3d",
@@ -35,7 +65,63 @@
     ],
     "builderChangesSincePriorSync": 0,
     "environmentsDependenciesAndGeneratedTypesUnchanged": true,
-    "published": false
+    "published": true,
+    "privatePreview": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "preview--gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1185,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": false,
+        "errors": [
+          "\"preview--gentle-forward-reach.lovable.app\" is not an allowed staging hostname.",
+          "GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA."
+        ]
+      }
+    },
+    "publicationStatus": "Existing stable staging publication updated once; builder status refresh reconnected after prolonged Updating display. No repeat Publish click.",
+    "stableHealth": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1185,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "stableHealthScreenshot": "/private/tmp/tf-linked-save-canonical/lovable-stable-verified.png",
+    "identityLimit": "Actual isolated sync commit is cc0beadf. Stable runtime Git field reports dev; it was not fabricated. Matching runtime fingerprint/file count and strict stable-host staging isolation prove accepted source parity, not a new Git attestation."
   },
   "preflight": {
     "ledger": [
@@ -433,10 +519,15 @@
     "recordsCreated": 0,
     "aiCalls": 0,
     "limits": "Seven existing accounts; at most two unlinked fictional intakes/reports, six versions, two PDFs; no new students/accounts/relationships/shares; zero retries; exact cleanup and independent absence proof.",
-    "hold": "Both stable sites must match new fingerprint and isolation before fixtures."
+    "hold": "Both stable proofs pass. GitHub human review is still required for this separate protected test job; the agent cannot approve it.",
+    "status": "queued-awaiting-required-human-review",
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40144522762",
+    "workflowSha": "10618375d2ceb0c106e58a9ea4844e47ab6d8188",
+    "reviewScreenshot": "/private/tmp/tf-linked-save-canonical/github-bounded-test-review.png"
   },
   "productionTouched": false,
   "originalMainMerged": false,
   "additionalMigrationAuthorized": false,
-  "artifactsRoot": "/private/tmp/tf-linked-save-canonical"
+  "artifactsRoot": "/private/tmp/tf-linked-save-canonical",
+  "stagingWritePause": "Cutover complete on both sites; source and database now compatible."
 }
