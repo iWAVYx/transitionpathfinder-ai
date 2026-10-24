@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "local-candidate-validated-automatic-review-pending-not-deployed",
+  "status": "automatic-review-passed-awaiting-new-staging-authorization",
   "runtimeFingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
   "runtimeFiles": 1185,
   "sourceHashes": {
@@ -60,5 +60,51 @@
   "migrationsAdded": 0,
   "hostedActionsPerformed": false,
   "productionTouched": false,
-  "roadmap": "TF-01 through TF-26 retained; report polish and Parent Pilot/Pathway Snapshot deferred."
+  "roadmap": "TF-01 through TF-26 retained; report polish and Parent Pilot/Pathway Snapshot deferred.",
+  "applicationCandidateSha": "b9062390665f5c9285d8dec473a5bfa76342530f",
+  "automaticChecks": [
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534759/job/120999129609",
+      "name": "CT Seed v2 Static Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534997/job/120999130505",
+      "name": "report-a11y",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534773/job/120999129856",
+      "name": "replay",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534753/job/120999129732",
+      "name": "Credential-free Production Readiness Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534883/job/120999130282",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534771/job/120999129940",
+      "name": "role-guard-matrix",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136534762/job/120999129696",
+      "name": "unit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40136531525/job/120999120387",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    }
+  ],
+  "automaticCheckCount": 8,
+  "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/revision-candidate-checks.png",
+  "releaseIdentityNote": "Candidate application is b9062390; any later documentation-only commit must retain exactly this runtime fingerprint. No release or fixture action before new authorization."
 }
