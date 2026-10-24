@@ -78,7 +78,12 @@ for (const ownerRole of ["parent", "educator"] as const) {
       if (report.error) throw new Error("Caller-RLS report fixture failed");
       reportCreated = true;
       // Real RPC and direct edit create truthful prior-content history; never seed a fabricated version.
-      expect(await writeReportContent(owner.client,reportId,earlier,intermediate,"Synthetic initial save","save")).toBe(1);
+      const retiredSave = await (owner.client as any).rpc("save_pathway_report_content_atomic", {
+        _report_id:reportId,_expected_content:earlier,_next_content:intermediate,_change_summary:"Denied retired save",
+      });
+      expect(retiredSave.error?.code).toBe("42501");
+      evidence.contextFreeRpcDenied = true;
+      expect(await writeReportContent(owner.client,reportId,earlier,intermediate,"Synthetic initial save","save",null)).toBe(1);
       // Keep this actual browser on its observed intermediate revision while another
       // permitted write changes the report. No extra successful writes/versions added.
       const ownerRoleConfig = ROLES.find(r=>r.key === ownerRole)!;
@@ -109,7 +114,7 @@ for (const ownerRole of ["parent", "educator"] as const) {
         const edit=await other.client.from("pathway_reports").update({content:earlier as unknown as Json}).eq("id",reportId).select("id");
         expect(Boolean(edit.error)||edit.data?.length===0).toBe(true);
         if (other.role === "owner") evidence.unrelatedOwnerReadDenied = true;
-        await expect(writeReportContent(other.client,reportId,current,earlier,"Denied nonowner save","save")).rejects.toThrow("Could not save the report.");
+        await expect(writeReportContent(other.client,reportId,current,earlier,"Denied nonowner save","save",null)).rejects.toThrow("Could not save the report.");
         const forgedOther=await other.client.from("pathway_report_versions").insert({report_id:reportId,version_number:99,content:earlier as unknown as Json,created_by:other.id});
         expect(forgedOther.error?.code).toBe("42501");
       }

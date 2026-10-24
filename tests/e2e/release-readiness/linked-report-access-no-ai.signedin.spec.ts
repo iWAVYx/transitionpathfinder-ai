@@ -25,6 +25,8 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
 }, info) => {
   test.setTimeout(240_000);
   const target = linkedReportAccessTarget(process.env);
+  const expectedFileCount = Number(process.env.EXPECTED_RUNTIME_SOURCE_FILE_COUNT);
+  if (!Number.isSafeInteger(expectedFileCount) || expectedFileCount < 1) throw new Error("Verified source file count required before fixtures");
   for (const origin of [target.origin, "https://gentle-forward-reach.lovable.app"]) {
     const response = await fetch(`${origin}/api/public/env-health`, {
       cache: "no-store",
@@ -33,7 +35,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
     expect(response.ok).toBe(true);
     const h = await response.json();
     expect(h.runtime_source_fingerprint).toBe(process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT);
-    expect(h.runtime_source_file_count).toBe(1184);
+    expect(h.runtime_source_file_count).toBe(expectedFileCount);
     expect(h.supabase_project_ref).toBe("qgrertkqbwanerqqemph");
     expect(h.stripe_mode).toBe("sandbox");
     expect(h.isolation?.ok).toBe(true);
@@ -162,6 +164,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
         current,
         "Synthetic owner save",
         "save",
+        fixture.studentId,
       ),
     ).toBe(1);
     const visibility = async (c: typeof owner, allowed: boolean) => {
@@ -197,6 +200,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
           initial,
           "Denied nonowner save",
           "save",
+          fixture.studentId,
         ),
       ).rejects.toThrow("Could not save the report.");
     }
@@ -283,6 +287,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
           initial,
           "Denied nonowner save",
           "save",
+          fixture.studentId,
         ),
       ).rejects.toThrow("Could not save the report.");
       const next = ReportSchema.parse({

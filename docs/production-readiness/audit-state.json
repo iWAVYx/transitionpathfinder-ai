@@ -54,7 +54,7 @@
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 14,
     "canonicalInventoryReviewedAt": "2026-10-24",
-    "canonicalInventorySourceCommit": null,
-    "canonicalInventoryStatus": "208 canonical files; linked-student save candidate is prepared, not applied. Prior 20261024010000 staging acceptance retained. Production pending count uses only saved September 17 evidence; production not queried."
+    "canonicalInventorySourceCommit": "f2cce9289cdde594eb29055d644c5209cb842c31",
+    "canonicalInventoryStatus": "208 canonical migrations; linked-student candidate f2cce928 passed final native29-case and208-migration replay, not applied hosted. Prior 20261024010000 staging acceptance retained. Production14 pending uses saved September17 evidence only."
   }
 }
