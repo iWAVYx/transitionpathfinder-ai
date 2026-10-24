@@ -195,11 +195,11 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(preWindowReport.status, "blocked");
   assert.deepEqual(preWindowReport.blockers, ["pending-production-migration"]);
   assert.equal(preWindowReport.appliedCount, 181);
-  assert.equal(preWindowReport.canonicalCount, 201);
+  assert.equal(preWindowReport.canonicalCount, 207);
   assert.equal(preWindowReport.directCoverageCount, 181);
   assert.equal(preWindowReport.supersededCount, 6);
   assert.equal(preWindowReport.excludedCount, 1);
-  assert.equal(preWindowReport.pendingCount, 13);
+  assert.equal(preWindowReport.pendingCount, 19);
   assert.deepEqual(preWindowReport.pending, [
     "20260821230000_security_remediation_hardening.sql",
     "20260825041500_restore_admin_helper_grants_and_public_cms_reads.sql",
@@ -214,6 +214,12 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260928030000_add_dashboard_widget_preferences.sql",
     "20260928040000_atomic_student_channel_start.sql",
     "20260929010000_student_channel_removal_history.sql",
+    "20261006180000_server_only_report_share_rpcs.sql",
+    "20261012190000_atomic_pathway_report_content.sql",
+    "20261023010000_restrict_report_share_token_writes.sql",
+    "20261023020000_enforce_pathway_report_content_history.sql",
+    "20261023030000_require_explicit_planning_report_access.sql",
+    "20261024010000_remove_implicit_admin_student_access.sql",
   ]);
 
   const postWindowComparison = spawnSync(
@@ -230,11 +236,11 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(postWindowReport.status, "blocked");
   assert.deepEqual(postWindowReport.blockers, ["pending-production-migration"]);
   assert.equal(postWindowReport.appliedCount, 184);
-  assert.equal(postWindowReport.canonicalCount, 201);
+  assert.equal(postWindowReport.canonicalCount, 207);
   assert.equal(postWindowReport.directCoverageCount, 184);
   assert.equal(postWindowReport.supersededCount, 6);
   assert.equal(postWindowReport.excludedCount, 1);
-  assert.equal(postWindowReport.pendingCount, 10);
+  assert.equal(postWindowReport.pendingCount, 16);
   assert.deepEqual(postWindowReport.pending, [
     "20260907190000_security_finding_alignment.sql",
     "20260907224500_least_privilege_security_definer_grants.sql",
@@ -246,6 +252,12 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260928030000_add_dashboard_widget_preferences.sql",
     "20260928040000_atomic_student_channel_start.sql",
     "20260929010000_student_channel_removal_history.sql",
+    "20261006180000_server_only_report_share_rpcs.sql",
+    "20261012190000_atomic_pathway_report_content.sql",
+    "20261023010000_restrict_report_share_token_writes.sql",
+    "20261023020000_enforce_pathway_report_content_history.sql",
+    "20261023030000_require_explicit_planning_report_access.sql",
+    "20261024010000_remove_implicit_admin_student_access.sql",
   ]);
 
   const currentProductionComparison = spawnSync(
@@ -262,11 +274,11 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   assert.equal(currentProductionReport.status, "blocked");
   assert.deepEqual(currentProductionReport.blockers, ["pending-production-migration"]);
   assert.equal(currentProductionReport.appliedCount, 187);
-  assert.equal(currentProductionReport.canonicalCount, 201);
+  assert.equal(currentProductionReport.canonicalCount, 207);
   assert.equal(currentProductionReport.directCoverageCount, 187);
   assert.equal(currentProductionReport.supersededCount, 6);
   assert.equal(currentProductionReport.excludedCount, 1);
-  assert.equal(currentProductionReport.pendingCount, 7);
+  assert.equal(currentProductionReport.pendingCount, 13);
   assert.deepEqual(currentProductionReport.pending, [
     "20260908000500_channel_attachment_malware_gate.sql",
     "20260909010000_create_private_channel_attachments_bucket.sql",
@@ -275,6 +287,12 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
     "20260928030000_add_dashboard_widget_preferences.sql",
     "20260928040000_atomic_student_channel_start.sql",
     "20260929010000_student_channel_removal_history.sql",
+    "20261006180000_server_only_report_share_rpcs.sql",
+    "20261012190000_atomic_pathway_report_content.sql",
+    "20261023010000_restrict_report_share_token_writes.sql",
+    "20261023020000_enforce_pathway_report_content_history.sql",
+    "20261023030000_require_explicit_planning_report_access.sql",
+    "20261024010000_remove_implicit_admin_student_access.sql",
   ]);
 
   assert.equal(audit.migrations.productionHistoryReadAt, "2026-09-17T23:54:44.631906Z");
@@ -288,7 +306,7 @@ test("production migration baseline tooling is read-only and fail-closed", () =>
   );
   assert.equal(audit.migrations.productionHistoryAppliedCount, 187);
   assert.equal(audit.migrations.productionHistoryLatestAppliedVersion, "20260914120000");
-  assert.equal(audit.migrations.pendingProductionCount, 7);
+  assert.equal(audit.migrations.pendingProductionCount, 13);
   assert.equal(audit.production.securityInventoryReadOnlyEvidenceVerified, true);
   assert.equal(
     audit.production.securityInventoryEvidence,
@@ -581,7 +599,7 @@ test("hosted builds stay within Lovable memory limits without duplicate PWA work
     packageJson,
     /--max-semi-space-size=4 --max-old-space-size=1216 --expose-gc' vite build --mode development && node scripts\/generate-service-worker\.mjs/,
   );
-  assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.23\.1"/);
+  assert.match(packageJson, /"@lovable\.dev\/vite-tanstack-config":\s*"2\.25\.2"/);
   assert.doesNotMatch(packageJson, /scripts\/build-app\.mjs/);
   assert.match(viteConfig, /sourcemap:\s*false/);
   assert.match(viteConfig, /reportCompressedSize:\s*false/);

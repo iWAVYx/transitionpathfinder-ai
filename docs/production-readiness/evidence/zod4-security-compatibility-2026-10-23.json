@@ -1,0 +1,188 @@
+{
+  "date": "2026-10-23",
+  "status": "validated-exact-candidate-awaiting-staging-authorization",
+  "baseSourceSha": "c036e2c0dd51fb0fc3333d0a103e94dbbbccd5c4",
+  "advisory": {
+    "id": "GHSA-mrhx-c7xc-m3w5",
+    "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+    "affectedRange": "<4.6.6",
+    "patchedFloor": "4.6.6",
+    "verifiedTarget": "4.6.7"
+  },
+  "changes": [
+    "Direct Zod 3.25.76 replaced with exact 4.6.7; lockfile deduplicates already-patched transitive Zod 4 copies; no forced overrides or unrelated dependency upgrades.",
+    "Student, Transition Channel and Partner opportunities URL validators explicitly default omitted search inputs and retain their prior invalid-value fallbacks.",
+    "Waitlist resolver distinguishes parsed form input/output types; server consent validator uses the supported error option while preserving its friendly message.",
+    "New regression rejects an oversized invalid collection with one size issue instead of accumulating per-element issues, and retains ordinary bounded validation.",
+    "Security regression is wired into test:security-findings so CI runs it."
+  ],
+  "runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+    "fileCount": 1184
+  },
+  "validation": {
+    "fullUnit": {
+      "passed": 4432,
+      "files": 312,
+      "log": "/private/tmp/tf-zod4-final-unit.log"
+    },
+    "typescript": {
+      "passed": true,
+      "log": "/private/tmp/tf-zod4-typescript-final.log"
+    },
+    "releaseSecurityContracts": {
+      "passed": 76,
+      "failed": 0,
+      "log": "/private/tmp/tf-zod4-final-contracts.log"
+    },
+    "disposableDatabase": {
+      "passed": 57,
+      "failed": 0,
+      "skipped": 2,
+      "reason": "Native multi-session cases require PostgreSQL",
+      "log": "/private/tmp/tf-zod4-final-database.log"
+    },
+    "dependencyAudit": {
+      "exitCode": 0,
+      "highCriticalFindings": 0,
+      "belowThresholdFindings": 7,
+      "log": "/private/tmp/tf-zod4-audit.log"
+    },
+    "frozenInstall": {
+      "passed": true,
+      "scriptsDisabled": true,
+      "log": "/private/tmp/tf-zod4-frozen-install.log"
+    },
+    "diffCheck": true,
+    "retainedFailures": [
+      "Initial TypeScript run identified v4 error-option, coercion input/output and search-validator input-default incompatibilities; final corrected run passes.",
+      "An overly broad tests/*.test.mjs invocation mixed credential-free and hosted suites: 447 passed, 81 failed, 34 skipped. Hosted cases lacked URL/credentials and the generic Node invocation lacked source alias support. No hosted credentials were fetched; this invocation does not certify those suites. Final explicitly scoped release/security contracts pass."
+    ],
+    "automaticCandidateChecks": [
+      {
+        "name": "e2e",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286197/job/120661117654"
+      },
+      {
+        "name": "role-leak-signedin",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286276/job/120659921429"
+      },
+      {
+        "name": "permission-regression",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286398/job/120659820230"
+      },
+      {
+        "name": "cross-district-rls",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286321/job/120659819369"
+      },
+      {
+        "name": "rls-regression",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286263/job/120659819197"
+      },
+      {
+        "name": "CT Seed v2 Live Staging Audit",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286222/job/120659819036"
+      },
+      {
+        "name": "report-a11y",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286377/job/120659817540"
+      },
+      {
+        "name": "Credential-free Production Readiness Audit",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286219/job/120659817420"
+      },
+      {
+        "name": "role-guard-matrix",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286276/job/120659817303"
+      },
+      {
+        "name": "CT Seed v2 Static Audit",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286222/job/120659817006"
+      },
+      {
+        "name": "Clean Production Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286243/job/120659816661"
+      },
+      {
+        "name": "unit",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286197/job/120659816488"
+      },
+      {
+        "name": "replay",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286242/job/120659816306"
+      },
+      {
+        "name": "Clean Production Build",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025279793/job/120659794509"
+      },
+      {
+        "name": "Supabase Preview",
+        "status": "completed",
+        "conclusion": "skipped",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/runs/120659793696"
+      }
+    ],
+    "nativePostgres": {
+      "reportHistoryPass": 59,
+      "reportHistorySkip": 0,
+      "canonicalMigrations": 206,
+      "exactPrivilegedRoutines": 93,
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40025286242"
+    },
+    "localBuild": {
+      "passed": true,
+      "command": "build:isolated-staging with lovable-fetch-bundle preset",
+      "log": "/private/tmp/tf-zod4-local-build.log"
+    }
+  },
+  "pendingMigration": "20261023030000_require_explicit_planning_report_access.sql remains proposed and unapplied",
+  "stagingUnchanged": {
+    "sourceSha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+    "fingerprint": "080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0"
+  },
+  "limits": [
+    "No hosted all-role/generated-output or linked-editor/admin acceptance for this candidate",
+    "AI structured-output schemas covered locally without provider calls; real generated-output acceptance remains separate",
+    "No new all-page document or native-print review"
+  ],
+  "actions": {
+    "deployment": false,
+    "publication": false,
+    "hostedMigration": false,
+    "hostedFixtures": false,
+    "aiCalls": false,
+    "production": false
+  },
+  "deferred": "Report polish and Parent Pilot/Pathway Snapshot remain deferred; full TF-01\u2013TF-26 retained.",
+  "candidateSourceSha": "a90665ff34db4c37e5ddd5ebe442a7fd71821caa"
+}

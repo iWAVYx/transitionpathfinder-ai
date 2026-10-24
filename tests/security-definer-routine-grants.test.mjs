@@ -12,6 +12,9 @@ const migration = readFileSync(migrationPath, "utf8");
 const alignmentMigration = readFileSync(alignmentMigrationPath, "utf8");
 const startMigration = readFileSync("supabase/migrations/20260928040000_atomic_student_channel_start.sql", "utf8");
 const historyMigration = readFileSync("supabase/migrations/20260929010000_student_channel_removal_history.sql", "utf8");
+const shareMigration = readFileSync("supabase/migrations/20261006180000_server_only_report_share_rpcs.sql", "utf8");
+const planningAccessMigration = readFileSync("supabase/migrations/20261023030000_require_explicit_planning_report_access.sql", "utf8");
+const studentBoundaryMigration = readFileSync("supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql", "utf8");
 const allowlist = JSON.parse(readFileSync(allowlistPath, "utf8"));
 
 function sortedUnique(values) {
@@ -21,7 +24,7 @@ function sortedUnique(values) {
 function cumulativeMigrationGrantsFor(role) {
   const grants = new Set();
   const statements =
-    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}`.match(
+    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}\n${shareMigration}\n${planningAccessMigration}\n${studentBoundaryMigration}`.match(
       /(?:GRANT EXECUTE|REVOKE (?:ALL|EXECUTE)) ON FUNCTION public\.[^;]+;/g,
     ) ?? [];
 
@@ -57,9 +60,9 @@ test("privileged-routine allowlist is exact, unique, and fail closed", () => {
     );
   }
 
-  assert.equal(allowlist.anonymousExecute.length, 8);
-  assert.equal(allowlist.authenticatedExecute.length, 65);
-  assert.equal(allowlist.clientExecuteForbidden.length, 26);
+  assert.equal(allowlist.anonymousExecute.length, 6);
+  assert.equal(allowlist.authenticatedExecute.length, 64);
+  assert.equal(allowlist.clientExecuteForbidden.length, 29);
 
   for (const signature of allowlist.anonymousExecute) {
     assert.ok(
@@ -103,4 +106,18 @@ test("migration verifies live effective privileges and aborts on drift", () => {
     migration,
     /Production application requires a separately approved maintenance window/,
   );
+});
+
+test("history trigger is the sole reviewed service execution exception", () => {
+  assert.equal(allowlist.serviceRoleExecute, "all routines in scope except serviceRoleExecuteForbidden");
+  assert.deepEqual(allowlist.serviceRoleExecuteForbidden, ["public.snapshot_report_content_update()"]);
+  assert.ok(allowlist.clientExecuteForbidden.includes(allowlist.serviceRoleExecuteForbidden[0]));
+  const boundary = readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql", "utf8");
+  assert.match(boundary, /REVOKE ALL ON FUNCTION public\.snapshot_report_content_update\(\) FROM PUBLIC,anon,authenticated,service_role;/);
+  assert.doesNotMatch(boundary, /GRANT EXECUTE ON FUNCTION public\.snapshot_report_content_update/);
+  assert.match(boundary, /RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog/);
+  assert.match(boundary, /CREATE TRIGGER snapshot_report_content_update AFTER UPDATE OF content ON public\.pathway_reports/);
+  // The replaced atomic RPC remains INVOKER and is deliberately outside the SD allowlist.
+  assert.match(boundary, /RETURNS integer LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog/);
+  assert.ok(![...allowlist.authenticatedExecute,...allowlist.clientExecuteForbidden].some(s => s.includes("save_pathway_report_content_atomic")));
 });

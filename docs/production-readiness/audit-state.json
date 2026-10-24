@@ -45,13 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 201,
-    "latestCanonicalFile": "20260929010000_student_channel_removal_history.sql",
+    "canonicalCount": 207,
+    "latestCanonicalFile": "20261024010000_remove_implicit_admin_student_access.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 7
+    "pendingProductionCount": 13,
+    "canonicalInventoryReviewedAt": "2026-10-24",
+    "canonicalInventorySourceCommit": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+    "canonicalInventoryStatus": "207 canonical migrations; 20261024010000 committed and independently verified on isolated staging; bounded explicit-access acceptance and exact cleanup passed; production not touched"
   }
 }

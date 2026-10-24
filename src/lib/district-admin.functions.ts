@@ -1,3 +1,6 @@
+import { readOrganizationPages, readOrganizationBatches, organizationReadError } from "./organization-query-pages";
+import { readReportPages, readReportBatches } from "./report-query-pages";
+import { reportRecordsByStudent, reportCountsForStudents } from "./report-record-counts";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -33,6 +36,7 @@ export type DistrictSchool = {
   pending_members: number;
   students_count: number;
   reports_count: number;
+  students_with_report: number;
   open_actions: number;
   needs_followup: boolean;
 };
@@ -96,90 +100,102 @@ type SupabaseLike = {
 
 export const getDistrictDashboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ district_id: z.string().uuid().optional() }).parse(i ?? {}),
-  )
+  .validator((i: unknown) => z.object({ district_id: z.string().uuid().optional() }).parse(i ?? {}))
   .handler(async ({ data, context }): Promise<DistrictDashboard> => {
     const { supabase, userId } = context;
+    // Authorization uses complete authenticated-caller membership reads.
+    const myMemberships = await readOrganizationPages<{ organization_id: string }>((from, to) =>
+      supabase
+        .from("organization_memberships")
+        .select("organization_id", { count: "exact" })
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .in("role_within_org", ["admin", "owner", "district_admin"])
+        .order("id")
+        .range(from, to),
+    );
+    const adminOrgIds = [...new Set(myMemberships.map((row) => row.organization_id))];
+    if (data.district_id && !adminOrgIds.includes(data.district_id)) throw organizationReadError();
+    if (!adminOrgIds.length) return emptyDashboard();
+
+    // Preserve the existing district aggregate reader; never return private student content.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    // 1. Districts the user admins
-    const { data: myMemberships } = await supabase
-      .from("organization_memberships")
-      .select("organization_id, role_within_org, status")
-      .eq("user_id", userId)
-      .eq("status", "active")
-      .in("role_within_org", ["admin", "owner", "district_admin"]);
-
-    const adminOrgIds = (myMemberships ?? []).map(
-      (m: { organization_id: string }) => m.organization_id,
+    const districts = await readOrganizationBatches<DistrictOrg>(adminOrgIds, (ids, from, to) =>
+      supabaseAdmin
+        .from("organizations")
+        .select("id, name, city, state, verified_status", { count: "exact" })
+        .in("id", ids)
+        .eq("type", "district")
+        .order("id")
+        .range(from, to),
     );
-
-    if (adminOrgIds.length === 0) {
-      return emptyDashboard();
-    }
-
-    const { data: districtsData } = await supabaseAdmin
-      .from("organizations")
-      .select("id, name, type, city, state, verified_status")
-      .in("id", adminOrgIds)
-      .eq("type", "district");
-
-    const districts = (districtsData ?? []) as Array<DistrictOrg & { type: string }>;
-    if (districts.length === 0) return emptyDashboard();
-
-    const selectedDistrictId =
-      data.district_id && districts.find((d) => d.id === data.district_id)
-        ? data.district_id
-        : districts[0].id;
-
-    // 2. Schools under this district
-    const { data: schoolRows } = await supabaseAdmin
-      .from("organizations")
-      .select("id, name, city, state, verified_status")
-      .eq("parent_organization_id", selectedDistrictId)
-      .order("name");
-    const schoolIds = (schoolRows ?? []).map((s: { id: string }) => s.id);
-
-    // 3. District team (people whose membership is on the district org itself)
-    const { data: teamRows } = await supabaseAdmin
-      .from("organization_memberships")
-      .select("id, user_id, role_within_org, status, created_at")
-      .eq("organization_id", selectedDistrictId)
-      .order("created_at", { ascending: false });
-
-    const teamUserIds = Array.from(
-      new Set((teamRows ?? []).map((m: { user_id: string }) => m.user_id)),
+    if (data.district_id && !districts.some((district) => district.id === data.district_id))
+      throw organizationReadError();
+    if (!districts.length) return emptyDashboard();
+    const selectedDistrictId = data.district_id ?? districts[0].id;
+    const schoolRows = await readOrganizationPages<DistrictOrg>((from, to) =>
+      supabaseAdmin
+        .from("organizations")
+        .select("id, name, city, state, verified_status", { count: "exact" })
+        .eq("parent_organization_id", selectedDistrictId)
+        .order("name")
+        .order("id")
+        .range(from, to),
     );
-
-    const { data: profileRows } = teamUserIds.length
-      ? await supabaseAdmin
-          .from("profiles")
-          .select("id, full_name, email, primary_role")
-          .in("id", teamUserIds)
-      : { data: [] as Array<{ id: string; full_name: string | null; email: string | null; primary_role: string | null }> };
-
-    const profileMap = new Map((profileRows ?? []).map((p) => [p.id, p]));
-
-    const teamAll: DistrictMember[] = (teamRows ?? []).map((m: {
+    const schoolIds = schoolRows.map((school) => school.id);
+    const teamRows = await readOrganizationPages<{
       id: string;
       user_id: string;
       role_within_org: string;
       status: string;
       created_at: string;
-    }) => {
-      const p = profileMap.get(m.user_id);
-      return {
-        membership_id: m.id,
-        user_id: m.user_id,
-        role_within_org: m.role_within_org,
-        status: m.status,
-        full_name: p?.full_name ?? null,
-        email: p?.email ?? null,
-        primary_role: p?.primary_role ?? null,
-        joined_at: m.created_at,
-      };
-    });
+    }>((from, to) =>
+      supabaseAdmin
+        .from("organization_memberships")
+        .select("id, user_id, role_within_org, status, created_at", { count: "exact" })
+        .eq("organization_id", selectedDistrictId)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    );
+    const teamUserIds = [...new Set(teamRows.map((member) => member.user_id))];
+    const profileRows = await readOrganizationBatches<{
+      id: string;
+      full_name: string | null;
+      email: string | null;
+      primary_role: string | null;
+    }>(teamUserIds, (ids, from, to) =>
+      supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, email, primary_role", { count: "exact" })
+        .in("id", ids)
+        .order("id")
+        .range(from, to),
+    );
+
+    const profileMap = new Map((profileRows ?? []).map((p) => [p.id, p]));
+
+    const teamAll: DistrictMember[] = (teamRows ?? []).map(
+      (m: {
+        id: string;
+        user_id: string;
+        role_within_org: string;
+        status: string;
+        created_at: string;
+      }) => {
+        const p = profileMap.get(m.user_id);
+        return {
+          membership_id: m.id,
+          user_id: m.user_id,
+          role_within_org: m.role_within_org,
+          status: m.status,
+          full_name: p?.full_name ?? null,
+          email: p?.email ?? null,
+          primary_role: p?.primary_role ?? null,
+          joined_at: m.created_at,
+        };
+      },
+    );
     const team = teamAll.filter((m) => m.status === "active");
     const pending_team = teamAll.filter((m) => m.status !== "active");
 
@@ -196,17 +212,25 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
     const perSchool: DistrictSchool[] = [];
 
     if (schoolIds.length > 0) {
-      const { data: allSchoolMems } = await supabaseAdmin
-        .from("organization_memberships")
-        .select("organization_id, user_id, role_within_org, status")
-        .in("organization_id", schoolIds);
+      const allSchoolMems = await readOrganizationBatches<{
+        organization_id: string;
+        user_id: string;
+        role_within_org: string;
+        status: string;
+      }>(schoolIds, (ids, from, to) =>
+        supabaseAdmin
+          .from("organization_memberships")
+          .select("organization_id, user_id, role_within_org, status", { count: "exact" })
+          .in("organization_id", ids)
+          .order("id")
+          .range(from, to),
+      );
 
       // Build map: orgId -> { active, pending, schoolAdmin, educator counts }
       const memByOrg = new Map<
         string,
         { active: number; pending: number; admins: number; educators: number }
       >();
-      const memberIdsByOrg = new Map<string, string[]>();
       for (const m of allSchoolMems ?? []) {
         const bucket = memByOrg.get(m.organization_id) ?? {
           active: 0,
@@ -216,24 +240,28 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
         };
         if (m.status === "active") bucket.active += 1;
         else bucket.pending += 1;
-        if (["school_admin", "admin", "owner"].includes(m.role_within_org))
+        if (m.status === "active" && ["school_admin", "admin", "owner"].includes(m.role_within_org))
           bucket.admins += 1;
-        if (["member", "educator", "case_manager", "teacher"].includes(m.role_within_org))
+        if (
+          m.status === "active" &&
+          ["member", "educator", "case_manager", "teacher"].includes(m.role_within_org)
+        )
           bucket.educators += 1;
         memByOrg.set(m.organization_id, bucket);
-
-        if (m.status === "active") {
-          const arr = memberIdsByOrg.get(m.organization_id) ?? [];
-          arr.push(m.user_id);
-          memberIdsByOrg.set(m.organization_id, arr);
-        }
       }
 
-      // Students per school (org-scoped)
-      const { data: orgStudents } = await supabaseAdmin
-        .from("students")
-        .select("id, organization_id")
-        .in("organization_id", schoolIds);
+      // Existing district cohort: students assigned to child organizations only.
+      const orgStudents = await readOrganizationBatches<{
+        id: string;
+        organization_id: string | null;
+      }>(schoolIds, (ids, from, to) =>
+        supabaseAdmin
+          .from("students")
+          .select("id, organization_id", { count: "exact" })
+          .in("organization_id", ids)
+          .order("id")
+          .range(from, to),
+      );
 
       const studentsByOrg = new Map<string, string[]>();
       for (const s of orgStudents ?? []) {
@@ -245,33 +273,38 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
 
       const allStudentIds = (orgStudents ?? []).map((s) => s.id);
 
-      const [{ data: reportRows }, { data: actionRows }, { data: goalRows }] =
-        await Promise.all([
-          allStudentIds.length
-            ? supabaseAdmin
-                .from("pathway_reports")
-                .select("student_id")
-                .in("student_id", allStudentIds)
-            : Promise.resolve({ data: [] as Array<{ student_id: string | null }> }),
-          allStudentIds.length
-            ? supabaseAdmin
-                .from("action_items")
-                .select("student_id, status")
-                .in("student_id", allStudentIds)
-            : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
-          allStudentIds.length
-            ? supabaseAdmin
-                .from("goals")
-                .select("student_id, status")
-                .in("student_id", allStudentIds)
-            : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
-        ]);
+      const [reportRows, actionRows, goalRows] = await Promise.all([
+        readOrganizationBatches<{ student_id: string | null }>(allStudentIds, (ids, from, to) =>
+          supabaseAdmin
+            .from("pathway_reports")
+            .select("student_id", { count: "exact" })
+            .in("student_id", ids)
+            .order("id")
+            .range(from, to),
+        ),
+        readOrganizationBatches<{ student_id: string | null; status: string }>(
+          allStudentIds,
+          (ids, from, to) =>
+            supabaseAdmin
+              .from("action_items")
+              .select("student_id, status", { count: "exact" })
+              .in("student_id", ids)
+              .order("id")
+              .range(from, to),
+        ),
+        readOrganizationBatches<{ student_id: string | null; status: string }>(
+          allStudentIds,
+          (ids, from, to) =>
+            supabaseAdmin
+              .from("goals")
+              .select("student_id, status", { count: "exact" })
+              .in("student_id", ids)
+              .order("id")
+              .range(from, to),
+        ),
+      ]);
 
-      const reportsByStudent = new Set(
-        (reportRows ?? [])
-          .map((r) => r.student_id)
-          .filter((x): x is string => !!x),
-      );
+      const reportsByStudent = reportRecordsByStudent(reportRows ?? []);
       const goalsByStudent = new Set(
         (goalRows ?? [])
           .filter((g) => g.status !== "met" && !!g.student_id)
@@ -280,15 +313,15 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
       const actionsByStudent = new Map<string, number>();
       for (const a of actionRows ?? []) {
         if (!a.student_id || a.status === "complete") continue;
-        actionsByStudent.set(
-          a.student_id,
-          (actionsByStudent.get(a.student_id) ?? 0) + 1,
-        );
+        actionsByStudent.set(a.student_id, (actionsByStudent.get(a.student_id) ?? 0) + 1);
       }
 
       for (const s of schoolRows ?? []) {
         const ids = studentsByOrg.get(s.id) ?? [];
-        const reports = ids.filter((id) => reportsByStudent.has(id)).length;
+        const { reports_count: reports, students_with_report: covered } = reportCountsForStudents(
+          ids,
+          reportsByStudent,
+        );
         const openActs = ids.reduce((n, id) => n + (actionsByStudent.get(id) ?? 0), 0);
         const m = memByOrg.get(s.id) ?? { active: 0, pending: 0, admins: 0, educators: 0 };
         const needs = ids.length === 0 || (ids.length > 0 && reports === 0);
@@ -302,6 +335,7 @@ export const getDistrictDashboard = createServerFn({ method: "POST" })
           pending_members: m.pending,
           students_count: ids.length,
           reports_count: reports,
+          students_with_report: covered,
           open_actions: openActs,
           needs_followup: needs,
         });
@@ -634,6 +668,7 @@ export type DistrictReportWindow = {
     name: string;
     students_count: number;
     reports_count: number;
+    students_with_report: number;
     open_actions: number;
   }>;
 };
@@ -647,6 +682,9 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
         from: z.string().datetime().optional(),
         to: z.string().datetime().optional(),
       })
+      .refine((value) => !value.from || !value.to || Date.parse(value.from) <= Date.parse(value.to), {
+        message: "The end date must be on or after the start date.",
+      })
       .parse(i),
   )
   .handler(async ({ data, context }): Promise<DistrictReportWindow> => {
@@ -656,12 +694,13 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
       throw new Error("Not authorized for this district.");
     }
 
-    const { data: schoolRows } = await supabaseAdmin
+    const schools = await readReportPages((from, to) => supabaseAdmin
       .from("organizations")
-      .select("id, name")
+      .select("id, name", { count: "exact" })
       .eq("parent_organization_id", data.district_id)
-      .order("name");
-    const schools = (schoolRows ?? []) as Array<{ id: string; name: string }>;
+      .order("name")
+      .order("id")
+      .range(from, to));
     const schoolIds = schools.map((s) => s.id);
 
     if (schoolIds.length === 0) {
@@ -681,10 +720,12 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
       };
     }
 
-    const { data: orgStudents } = await supabaseAdmin
+    const orgStudents = await readReportBatches(schoolIds, (batch, from, to) => supabaseAdmin
       .from("students")
-      .select("id, organization_id")
-      .in("organization_id", schoolIds);
+      .select("id, organization_id", { count: "exact" })
+      .in("organization_id", batch)
+      .order("id")
+      .range(from, to));
     const studentsByOrg = new Map<string, string[]>();
     for (const s of orgStudents ?? []) {
       if (!s.organization_id) continue;
@@ -701,37 +742,22 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
       return out;
     };
 
-    const [reportsRes, actionsRes, goalsRes] = await Promise.all([
-      allStudentIds.length
-        ? applyWindow(
-            supabaseAdmin.from("pathway_reports").select("student_id, created_at").in("student_id", allStudentIds),
-          )
-        : Promise.resolve({ data: [] as Array<{ student_id: string | null }> }),
-      allStudentIds.length
-        ? applyWindow(
-            supabaseAdmin
-              .from("action_items")
-              .select("student_id, status, created_at")
-              .in("student_id", allStudentIds),
-          )
-        : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
-      allStudentIds.length
-        ? applyWindow(
-            supabaseAdmin
-              .from("goals")
-              .select("student_id, status, created_at")
-              .in("student_id", allStudentIds),
-          )
-        : Promise.resolve({ data: [] as Array<{ student_id: string | null; status: string }> }),
+    const [reportRows, actionRows, goalRows] = await Promise.all([
+      readReportBatches<{ student_id: string | null }>(allStudentIds, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("pathway_reports")
+          .select("student_id, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
+      readReportBatches<{ student_id: string | null; status: string }>(allStudentIds, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("action_items")
+          .select("student_id, status, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
+      readReportBatches<{ student_id: string | null; status: string }>(allStudentIds, (batch, from, to) => applyWindow(
+        supabaseAdmin.from("goals")
+          .select("student_id, status, created_at", { count: "exact" }).in("student_id", batch),
+      ).order("id").range(from, to)),
     ]);
 
-    const reportRows = (reportsRes.data ?? []) as Array<{ student_id: string | null }>;
-    const actionRows = (actionsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
-    const goalRows = (goalsRes.data ?? []) as Array<{ student_id: string | null; status: string }>;
-
-    const reportsByStudent = new Set(
-      reportRows.map((r) => r.student_id).filter((x): x is string => !!x),
-    );
+    const reportsByStudent = reportRecordsByStudent(reportRows);
     const goalsByStudent = new Set(
       goalRows
         .filter((g) => g.status !== "met" && !!g.student_id)
@@ -752,12 +778,12 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
 
     const perSchool = schools.map((s) => {
       const ids = studentsByOrg.get(s.id) ?? [];
-      const reports = ids.filter((id) => reportsByStudent.has(id)).length;
+      const { reports_count: reports, students_with_report: covered } = reportCountsForStudents(ids, reportsByStudent);
       const openActs = ids.reduce((n, id) => n + (actionsByStudent.get(id) ?? 0), 0);
       studentsTotal += ids.length;
       reportsTotal += reports;
       openActionsTotal += openActs;
-      withReportTotal += reports;
+      withReportTotal += covered;
       withGoalsTotal += ids.filter((id) => goalsByStudent.has(id)).length;
       withActionsTotal += ids.filter((id) => (actionsByStudent.get(id) ?? 0) > 0).length;
       return {
@@ -765,6 +791,7 @@ export const getDistrictReportMetrics = createServerFn({ method: "POST" })
         name: s.name,
         students_count: ids.length,
         reports_count: reports,
+        students_with_report: covered,
         open_actions: openActs,
       };
     });

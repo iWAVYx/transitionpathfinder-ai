@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/family/invites")({
 function FamilyInvitesPage() {
   return (
     <SiteShell>
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <Breadcrumbs trail={[{ label: "Family", to: "/hubs/family" }, { label: "Invite Team Members" }]} />
         <header className="mt-4 mb-8">
           <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ function FamilyInvitesPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

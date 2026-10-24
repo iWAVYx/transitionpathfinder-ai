@@ -1,0 +1,81 @@
+import { expect, it } from "vitest";
+import { transitionCalendarIcs } from "@/components/calendar/TransitionCalendar";
+import { buildIcsForEvents, calendarRecordForExport, calendarRecordForDisplay, buildGoogleCalendarUrl } from "@/lib/calendar-events";
+
+it("shared calendar exports all-day dates without converting them to midnight appointments", () => {
+  const result = transitionCalendarIcs([{ id: "day", title: "Review Day", type: "deadline", start: "2026-10-31T00:00:00", allDay: true }]);
+  expect(result).toContain("DTSTART;VALUE=DATE:20261031\r\n");
+  expect(result).not.toContain("DTSTART:20261031T");
+  expect(result).not.toContain("DTEND");
+});
+it("shared calendar preserves the supplied exclusive end date for multi-day all-day examples", () => {
+  const result = transitionCalendarIcs([{ id: "days", title: "Planning Window", type: "milestone", start: "2026-12-31T00:00:00", end: "2027-01-03T00:00:00", allDay: true }]);
+  expect(result).toContain("DTSTART;VALUE=DATE:20261231");
+  expect(result).toContain("DTEND;VALUE=DATE:20270103");
+});
+it("dashboard export uses date values and an exclusive next-day end across a year boundary", () => {
+  const result = buildIcsForEvents([{ id: "saved-day", date: new Date(2026, 11, 31), allDay: true, title: "School Review", detail: "Recorded all-day event", kind: "meeting" }], "America/New_York");
+  expect(result).toContain("DTSTART;VALUE=DATE:20261231");
+  expect(result).toContain("DTEND;VALUE=DATE:20270101");
+  expect(result).not.toContain("DTSTART;TZID=");
+});
+it("timed shared exports and legacy dashboard reminders retain their existing date-time format", () => {
+  const timed = transitionCalendarIcs([{ id: "meeting", title: "Meeting", type: "meeting", start: "2026-10-13T14:00:00Z", end: "2026-10-13T15:00:00Z" }]);
+  expect(timed).toContain("DTSTART:20261013T140000Z");
+  expect(timed).toContain("DTEND:20261013T150000Z");
+  const legacy = buildIcsForEvents([{ id: "reminder", date: new Date(2026, 9, 13), title: "Check In", detail: "Date-only reminder", kind: "prep" }], "America/New_York");
+  expect(legacy).toContain("DTSTART;TZID=America/New_York:20261013T090000");
+  expect(legacy).not.toContain("DTSTART;VALUE=DATE");
+});
+
+it("saved all-day records retain their date through the real dashboard export adapter", () => {
+  const event = calendarRecordForExport({ id: "day", event_date: "2026-12-31", start_time: null, end_time: null, all_day: true, title: "Review Day", detail: "Recorded date", kind: "deadline" });
+  expect(buildIcsForEvents([event])).toContain("DTSTART;VALUE=DATE:20261231");
+  expect(new URL(buildGoogleCalendarUrl(event)).searchParams.get("dates")).toBe("20261231/20270101");
+});
+it("saved timed records retain their recorded start and end in ICS and Google Calendar exports", () => {
+  const event = calendarRecordForExport({ id: "meeting", event_date: "2026-10-13", start_time: "14:15:00", end_time: "15:45:00", all_day: false, title: "Team Meeting", detail: "Recorded times", kind: "meeting" });
+  const result = buildIcsForEvents([event], "America/New_York");
+  expect(result).toContain("DTSTART;TZID=America/New_York:20261013T141500");
+  expect(result).toContain("DTEND;TZID=America/New_York:20261013T154500");
+  expect(result).not.toContain("T090000");
+  const url = new URL(buildGoogleCalendarUrl(event, "America/New_York"));
+  expect(url.searchParams.get("dates")).toBe("20261013T141500/20261013T154500");
+  expect(url.searchParams.get("ctz")).toBe("America/New_York");
+});
+
+it("saved event locations and meeting links remain complete in ICS and Google export values", () => {
+  const event = calendarRecordForExport({ id: "call", event_date: "2026-10-13", start_time: "14:00:00", end_time: "15:00:00", all_day: false, title: "Planning Conversation", detail: "Bring questions and recorded observations.", kind: "meeting", location: "Room 2, North; Entrance", meeting_link: "https://meeting.example.test/room?join=abc&source=calendar" });
+  const result = buildIcsForEvents([event]);
+  expect(result).toContain("LOCATION:Room 2\\, North\\; Entrance");
+  expect(result).toContain("URL:https://meeting.example.test/room?join=abc&source=calendar");
+  expect(result).toContain("DESCRIPTION:Bring questions and recorded observations.");
+  const url = new URL(buildGoogleCalendarUrl(event));
+  expect(url.searchParams.get("location")).toBe("Room 2, North; Entrance");
+  expect(url.searchParams.get("details")).toBe("Bring questions and recorded observations.\n\nMeeting Link: https://meeting.example.test/room?join=abc&source=calendar");
+});
+it("records without a location or meeting link do not acquire placeholder connection details", () => {
+  const event = calendarRecordForExport({ id: "day", event_date: "2026-10-13", start_time: null, end_time: null, all_day: true, title: "Review Day", detail: "", kind: "deadline", location: null, meeting_link: null });
+  const result = buildIcsForEvents([event]);
+  expect(result).not.toContain("LOCATION:");
+  expect(result).not.toContain("URL:");
+  const url = new URL(buildGoogleCalendarUrl(event));
+  expect(url.searchParams.has("location")).toBe(false);
+  expect(url.searchParams.get("details")).not.toContain("Meeting Link:");
+});
+
+it("scheduled meeting exports preserve the original offset timestamp as an absolute instant", () => {
+  const event = calendarRecordForExport({ id: "scheduled", event_date: "2026-10-13", start_at: "2026-10-13T23:30:00-04:00", start_time: null, end_time: null, all_day: false, title: "Scheduled Meeting", detail: "Recorded timestamp", kind: "meeting" });
+  const result = buildIcsForEvents([event], "America/Los_Angeles");
+  expect(result).toContain("DTSTART:20261014T033000Z");
+  expect(result).toContain("DTEND:20261014T040000Z");
+  expect(result).not.toContain("DTSTART;TZID=");
+  expect(new URL(buildGoogleCalendarUrl(event, "America/Los_Angeles")).searchParams.get("dates")).toBe("20261014T033000Z/20261014T040000Z");
+});
+it("scheduled display dates use the viewer-local day without replacing the source timestamp", () => {
+  const source = { id: "scheduled", event_date: "2026-10-13", start_at: "2026-10-13T23:30:00-04:00", start_time: null, all_day: false } as any;
+  const date = new Date(source.start_at);
+  const expected = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+  expect(calendarRecordForDisplay(source)).toMatchObject({ event_date: expected, start_at: source.start_at, start_time: `${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}:00`, all_day: false });
+  expect(source.event_date).toBe("2026-10-13");
+});

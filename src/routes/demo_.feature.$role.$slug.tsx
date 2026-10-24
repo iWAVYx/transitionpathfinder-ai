@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, notFound, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { RouteErrorComponent } from "@/components/routing/RouteErrorComponent";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/demo/educator/feature-details";
 import { DemoStudentVoicePreview } from "@/components/demo/DemoStudentVoicePreview";
 import { demoCalendarEvents } from "@/lib/demo/calendar-preview";
-import { FamilyMeetingPrepCard } from "@/components/dashboard/FamilyMeetingPrepCard";
+import { DemoMeetingGuide } from "@/components/demo/DemoMeetingGuide";
 // PartnerImpactSummaryCard requires an orgId and doesn't ship a sample mode —
 // it's intentionally omitted from the rich-module map below.
 import { PartnerNetworkPage } from "@/components/partner-network/PartnerNetworkPage";
@@ -22,9 +23,8 @@ import type { RoleAudience } from "@/lib/role-policy";
 import { PathwayReport } from "@/components/demo/PathwayReport";
 import { getDemoProfile, type DemoProfileId } from "@/lib/demo/demo-profiles";
 import { DemoPlanningActions } from "@/components/demo/DemoPlanningActions";
-import { demoFamilyMeetingPrep } from "@/lib/demo/meeting-preview";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
-import { type SampleCalendarRole } from "@/lib/calendar/sample-events";
+import { type CalendarEvent, type SampleCalendarRole } from "@/lib/calendar/sample-events";
 import { getDemoFeature, isDemoRole, type DemoRole } from "@/lib/demo/feature-routes";
 import {
   getSchoolAdminFeatureDetails,
@@ -47,13 +47,15 @@ import { useDemoSchool, useDemoDistrict, useDemoPartnerPlan } from "@/lib/demo/u
  * and layers in the same signed-in module component where one
  * exists so the demo behaves like the real product.
  */
+function loadDemoFeature({ params }: { params: { role: string; slug: string } }) {
+  if (!isDemoRole(params.role)) throw notFound();
+  const detail = getDemoFeature(params.role, params.slug);
+  if (!detail) throw notFound();
+  return { role: params.role, slug: params.slug };
+}
+
 export const Route = createFileRoute("/demo_/feature/$role/$slug")({
-  loader: ({ params }) => {
-    if (!isDemoRole(params.role)) throw notFound();
-    const detail = getDemoFeature(params.role, params.slug);
-    if (!detail) throw notFound();
-    return { role: params.role, slug: params.slug };
-  },
+  loader: loadDemoFeature,
   head: ({ loaderData, params }) => {
     const detail = loaderData ? getDemoFeature(loaderData.role, loaderData.slug) : null;
     const title = detail
@@ -83,12 +85,8 @@ function UnavailablePreview() {
         This preview is not available for this role. Explore the supported tools from the demo
         dashboards.
       </p>
-      <a
-        href="/demo"
-        className="mt-5 inline-flex rounded-full border px-4 py-2 text-sm font-semibold text-primary"
-      >
-        Back to demo dashboards
-      </a>
+      <ContextualBackLink to="/demo" label="Back to Demo Dashboards"
+        className="mt-5 inline-flex rounded-full border px-4 py-2 text-sm font-semibold text-primary" />
     </main>
   );
 }
@@ -121,6 +119,12 @@ function DemoFeatureContent({ role, slug }: { role: DemoRole; slug: string }) {
       resetScroll: false,
     });
   }, [hydrated, demoRole, selected, profileId, navigate, location.pathname, location.hash]);
+  const { schoolId } = useDemoSchool();
+  const { districtId } = useDemoDistrict();
+  const { planId } = useDemoPartnerPlan();
+  const calendarEvents = slug === "calendar"
+    ? demoCalendarEvents(demoRole, getDemoProfile(profileId), undefined, { school: schoolId, district: districtId, plan: planId })
+    : [];
   const contextual = useContextualDetail(demoRole, slug) ?? getDemoFeature(demoRole, slug)!;
   const detail =
     slug === "calendar"
@@ -129,17 +133,17 @@ function DemoFeatureContent({ role, slug }: { role: DemoRole; slug: string }) {
           stats: [
             {
               label: "Sample events",
-              value: String(demoCalendarEvents(demoRole, getDemoProfile(profileId)).length),
+              value: String(calendarEvents.length),
             },
           ],
-          rows: demoCalendarEvents(demoRole, getDemoProfile(profileId)).map((event) => ({
+          rows: calendarEvents.map((event) => ({
             primary: event.title,
             secondary: event.description ?? "Illustrative event — see the sample calendar above.",
             meta: event.scope,
           })),
         }
       : contextual;
-  const richModule = renderRichModule(demoRole, slug, profileId);
+  const richModule = renderRichModule(demoRole, slug, profileId, calendarEvents);
   return <DemoFeatureShell role={demoRole} detail={detail} richModule={richModule} />;
 }
 
@@ -173,7 +177,7 @@ function useContextualDetail(role: DemoRole, slug: string) {
   return null;
 }
 
-function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId): React.ReactNode {
+function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId, calendarEvents: CalendarEvent[]): React.ReactNode {
   const key = `${role}:${slug}`;
   switch (key) {
     // Student
@@ -189,7 +193,7 @@ function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId
       return null;
     case "family:meeting-prep":
       return (
-        <FamilyMeetingPrepCard isSample data={demoFamilyMeetingPrep(getDemoProfile(profileId))} />
+        <DemoMeetingGuide profile={getDemoProfile(profileId)} role="family" />
       );
     case "family:recommended-resources":
       return null; // Use the selected context's existing rows and metrics below.
@@ -209,7 +213,7 @@ function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId
     case "educator:action-items":
       return <DemoPlanningActions profile={getDemoProfile(profileId)} audience="educator" />;
     case "educator:meeting-prep":
-      return null; // Contextual meeting rows; do not substitute a fixed caseload timeline.
+      return <DemoMeetingGuide profile={getDemoProfile(profileId)} role="educator" />;
     // School Admin
     case "school-admin:report-completion":
       return null; // Use the selected context's existing rows and metrics below.
@@ -244,7 +248,7 @@ function renderRichModule(role: DemoRole, slug: string, profileId: DemoProfileId
               reminders.
             </p>
             <TransitionCalendar
-              events={demoCalendarEvents(role, getDemoProfile(profileId))}
+              events={calendarEvents}
               sample
               initialView="month"
               eyebrow={eyebrowForRole(calRole)}

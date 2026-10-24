@@ -182,7 +182,9 @@ export function RelatedToolLinks({
   return (
     <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 px-3.5 text-xs">
       {actions.map((action) => {
-        const destination = sample ? (action.demoTo ?? action.to) : action.to;
+        const destination = sample ? action.demoTo : action.to;
+        // A missing demo counterpart must never send visitors into a signed-in tool.
+        if (!destination) return null;
         const to =
           sample && studentId
             ? `${destination}${destination.includes("?") ? "&" : "?"}student=${encodeURIComponent(studentId)}`

@@ -5,14 +5,29 @@ import { ScrollToTop } from "../../src/components/site/ScrollToTop";
 const state = vi.hoisted(() => ({
   position: undefined as undefined | { scrollY: number },
   hash: "target",
+  currentHref: "/example#target",
+  resolvedHref: "/example#target",
+  intentHref: "/example#target",
+  renderedPath: "/example",
+  intent: "restore" as "restore" | "top" | "preserve",
 }));
+vi.mock("../../src/hooks/use-navigation-scroll-intent", () => ({ useNavigationScrollIntent: () => ({ intent: state.intent, href: state.intentHref }) }));
 vi.mock("@tanstack/react-router", () => ({
-  useRouterState: () => ({ href: "/example#target", hash: state.hash }),
+  useRouterState: ({ select }: { select: (value: unknown) => unknown }) => select({
+    location: { href: state.currentHref, pathname: state.currentHref.split(/[?#]/)[0], hash: state.hash },
+    resolvedLocation: { href: state.resolvedHref, pathname: state.resolvedHref.split(/[?#]/)[0], hash: state.hash },
+    matches: [{ pathname: state.renderedPath }],
+  }),
   useElementScrollRestoration: () => state.position,
 }));
 let frame: FrameRequestCallback;
 let resized: () => void;
 beforeEach(() => {
+  state.currentHref = "/example#target";
+  state.resolvedHref = "/example#target";
+  state.intentHref = "/example#target";
+  state.renderedPath = "/example";
+  state.intent = "restore";
   state.position = undefined;
   state.hash = "target";
   vi.stubGlobal(
@@ -70,4 +85,126 @@ it("does not override user scrolling while waiting for content", () => {
   vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
   frame(0);
   expect(window.scrollTo).not.toHaveBeenCalled();
+});
+
+it("refreshes smooth-scroll dimensions and retries a clamped return before stopping", () => {
+  state.position = { scrollY: 1264.5 };
+  state.hash = "";
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(3000);
+  let y = 181;
+  vi.spyOn(window, "scrollY", "get").mockImplementation(() => y);
+  const resize = vi.fn();
+  const scrollTo = vi.fn((destination: number) => {
+    // Reproduce a layout transition that rejects the first restoration.
+    if (scrollTo.mock.calls.length > 1) y = destination;
+  });
+  vi.stubGlobal("__lenis", { resize, scrollTo });
+  render(<ScrollToTop />);
+  frame(0);
+  expect(scrollTo).toHaveBeenCalledWith(1264.5, { immediate: true, force: true });
+  expect(y).toBe(181);
+  frame(1);
+  expect(y).toBe(1264.5);
+  expect(resize).toHaveBeenCalledTimes(2);
+  frame(2);
+  expect(scrollTo).toHaveBeenCalledTimes(2);
+});
+it("lets user intent cancel a clamped native-scroll retry", () => {
+  state.position = { scrollY: 900 };
+  state.hash = "";
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+  render(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+  window.dispatchEvent(new Event("wheel"));
+  frame(1);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+});
+
+it("starts a new or forward page at the top despite a saved destination position", () => {
+  state.intent = "top";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  render(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "instant" });
+});
+it("uses the intended anchor rather than a stale saved position on forward arrival", () => {
+  state.intent = "top";
+  state.position = { scrollY: 900 };
+  const { getByTestId } = render(<><div id="target" data-testid="anchor" /><ScrollToTop /></>);
+  vi.spyOn(getByTestId("anchor"), "getBoundingClientRect").mockReturnValue({ top: 312 } as DOMRect);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 200, left: 0, behavior: "instant" });
+});
+it("preserves intentional same-page selection updates", () => {
+  state.intent = "preserve";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  expect(window.scrollTo).not.toHaveBeenCalled();
+});
+
+it("does not apply a pending destination intent to the departing page", () => {
+  state.intent = "top";
+  state.intentHref = "/next-page";
+  state.hash = "";
+  render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  expect(window.scrollTo).not.toHaveBeenCalled();
+});
+
+it("does not restart forward-to-top when the destination's cached position changes", () => {
+  state.intent = "top";
+  state.hash = "";
+  const view = render(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+  state.position = { scrollY: 900 };
+  view.rerender(<ScrollToTop />);
+  expect(window.scrollTo).toHaveBeenCalledOnce();
+});
+
+it("does not reset the visible source while a forward destination is still pending", () => {
+  state.currentHref = "/guided";
+  state.resolvedHref = "/example";
+  state.intentHref = "/guided";
+  state.intent = "top";
+  state.hash = "";
+  const view = render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  state.resolvedHref = "/guided";
+  state.renderedPath = "/guided";
+  view.rerender(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "instant" });
+});
+it("does not restore onto the departing tool before the backward route commits", () => {
+  state.currentHref = "/example";
+  state.resolvedHref = "/guided";
+  state.intentHref = "/example";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+  const view = render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  state.resolvedHref = "/example";
+  view.rerender(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 900, left: 0, behavior: "instant" });
+});
+
+it("waits for source matches when Back cancels a visible but unacknowledged tool", () => {
+  state.currentHref = state.resolvedHref = state.intentHref = "/example";
+  state.renderedPath = "/guided";
+  state.hash = "";
+  state.position = { scrollY: 900 };
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+  const view = render(<ScrollToTop />);
+  expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+  state.renderedPath = "/example";
+  view.rerender(<ScrollToTop />);
+  frame(0);
+  expect(window.scrollTo).toHaveBeenCalledWith({ top: 900, left: 0, behavior: "instant" });
 });

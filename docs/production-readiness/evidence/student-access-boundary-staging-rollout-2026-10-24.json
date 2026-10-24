@@ -1,0 +1,595 @@
+{
+  "date": "2026-10-24",
+  "status": "staging-rollout-and-bounded-explicit-access-acceptance-complete",
+  "authorizedSourceSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+  "authorization": "User authorized staging rollout and one bounded no-AI test, including this migration/ledger, Cloudflare release and existing isolated Lovable publication.",
+  "backend": "qgrertkqbwanerqqemph",
+  "migration": {
+    "path": "supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql",
+    "sha256": "02ccd0acc33466c5c53f0382eafead622d72d8d135517978f2b7db9267ebc306",
+    "ledgerMd5": "a4b99e30dc4fba433937ba5cac9bedb2",
+    "applied": true,
+    "independentlyVerified": true
+  },
+  "preflight": {
+    "tables": [
+      {
+        "rls": true,
+        "force": false,
+        "owner": "postgres",
+        "table": "student_intakes"
+      },
+      {
+        "rls": true,
+        "force": false,
+        "owner": "postgres",
+        "table": "pathway_reports"
+      },
+      {
+        "rls": true,
+        "force": false,
+        "owner": "postgres",
+        "table": "students"
+      },
+      {
+        "rls": true,
+        "force": false,
+        "owner": "postgres",
+        "table": "pathway_report_versions"
+      },
+      {
+        "rls": true,
+        "force": false,
+        "owner": "postgres",
+        "table": "student_relationships"
+      }
+    ],
+    "operator": "postgres",
+    "functions": [
+      {
+        "name": "can_access_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "body_md5": "f68ec2590c48d5d5a6e67910908c0328"
+      },
+      {
+        "name": "can_edit_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "body_md5": "cc867f3e3f0f3a0c1a92ed48c5e194de"
+      }
+    ],
+    "read_only": "on",
+    "policy_md5": "7f72c4eaac314dd351b741ed4b990fc8",
+    "observed_at": "2026-10-24T14:41:13.918069+00:00",
+    "new_ledger_count": 0,
+    "new_report_guard": false,
+    "new_student_guard": false,
+    "previous_ledger_md5": "8fb055d751f6c40d8fa0861100144a91",
+    "active_other_writers": 0
+  },
+  "baselineHelpers": {
+    "canonicalDifference": "CRLF/indentation only; normalized full function bodies matched canonical source before any DDL. Exact observed raw hashes guarded the transaction.",
+    "functions": [
+      {
+        "name": "can_access_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "body_md5": "f68ec2590c48d5d5a6e67910908c0328"
+      },
+      {
+        "name": "can_edit_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "body_md5": "cc867f3e3f0f3a0c1a92ed48c5e194de"
+      }
+    ]
+  },
+  "postCommitVerification": {
+    "operator": "postgres",
+    "triggers": [
+      {
+        "name": "prevent_client_report_identity_reassignment",
+        "enabled": "O",
+        "definition": "CREATE TRIGGER prevent_client_report_identity_reassignment BEFORE UPDATE OF user_id, intake_id, student_id ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION prevent_client_report_identity_reassignment()"
+      },
+      {
+        "name": "prevent_client_student_identity_reassignment",
+        "enabled": "O",
+        "definition": "CREATE TRIGGER prevent_client_student_identity_reassignment BEFORE UPDATE OF owner_id, student_user_id ON public.students FOR EACH ROW EXECUTE FUNCTION prevent_client_student_identity_reassignment()"
+      }
+    ],
+    "functions": [
+      {
+        "anon": false,
+        "name": "can_access_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "service": true,
+        "body_md5": "c2dcc71ecab9bc4b982d7f81793da2aa",
+        "authenticated": true,
+        "public_execute": false
+      },
+      {
+        "anon": false,
+        "name": "can_edit_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "service": true,
+        "body_md5": "79b05b69377dd61a33938fe5ebb06fc7",
+        "authenticated": true,
+        "public_execute": false
+      },
+      {
+        "anon": false,
+        "name": "prevent_client_student_identity_reassignment",
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "definer": false,
+        "service": false,
+        "body_md5": "47d8721a31453583da448861465bedcd",
+        "authenticated": false,
+        "public_execute": false
+      },
+      {
+        "anon": false,
+        "name": "prevent_client_report_identity_reassignment",
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "definer": false,
+        "service": false,
+        "body_md5": "c3adc1f71e8c108c64a1223453c93a11",
+        "authenticated": false,
+        "public_execute": false
+      }
+    ],
+    "read_only": "on",
+    "policy_md5": "7f72c4eaac314dd351b741ed4b990fc8",
+    "observed_at": "2026-10-24T14:44:29.747127+00:00",
+    "new_ledger_md5": "a4b99e30dc4fba433937ba5cac9bedb2",
+    "new_ledger_count": 1,
+    "previous_ledger_md5": "8fb055d751f6c40d8fa0861100144a91"
+  },
+  "candidateValidation": {
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743766/job/120898785877",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743847/job/120898121375",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743775/job/120898075902",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743766/job/120898069286",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743792/job/120898069486",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743733/job/120898069074",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743749/job/120898069458",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743789/job/120898069281",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743847/job/120898069508",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743746/job/120898070892",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743776/job/120898070186",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743792/job/120898070409",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743718/job/120898070363",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102739059/job/120898056626",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
+    "unit": {
+      "passed": 4439,
+      "files": 313
+    },
+    "nativeReplay": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102743733",
+      "historyCasesPassed": 67,
+      "skipped": 0,
+      "migrations": 207,
+      "privilegedRoutines": 93
+    },
+    "isolatedStagingBuild": "passed",
+    "highCriticalAudit": "passed; twelve below threshold remain"
+  },
+  "cloudflare": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40103860074",
+    "status": "success",
+    "approvedSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+    "humanReviewSatisfied": true,
+    "health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "isolatedLovable": {
+    "sync": {
+      "authorizedSource": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+      "isolatedRepo": "iWAVYx/gentle-forward-reach",
+      "priorCommit": "cdd79ef7353dedef109c37a24aba0fba46f117c2",
+      "changedFiles": [
+        "package.json",
+        "bun.lock"
+      ],
+      "before": {
+        "schema": "transitionforward-runtime-source-v1",
+        "algorithm": "sha256",
+        "fingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+        "fileCount": 1184
+      },
+      "after": {
+        "schema": "transitionforward-runtime-source-v1",
+        "algorithm": "sha256",
+        "fingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+        "fileCount": 1184
+      },
+      "environmentFilesChanged": false,
+      "generatedTypesChanged": false,
+      "builderEditsPreserved": true
+    },
+    "syncCommit": "ecb121c3004ccb1fe0adefdab6ef4f754ae0ff50",
+    "publication": "completed in Codex in-app browser; existing staging URL and access settings preserved",
+    "previewIdentity": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "preview--gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": false,
+        "errors": [
+          "\"preview--gentle-forward-reach.lovable.app\" is not an allowed staging hostname.",
+          "GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA."
+        ]
+      }
+    },
+    "stableHealthBeforePublication": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "stableHealthAfterPublication": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "ecb121c3004ccb1fe0adefdab6ef4f754ae0ff50",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "boundedHostedTest": {
+    "status": "passed-once-zero-retries",
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40105037416",
+    "workflowSha": "122d935323e167666029c193f7cc21c7cdf60c90",
+    "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+    "difference": "Displayed 122d9353 is documentation-only; runtime remains approved fb40e06a.",
+    "existingRoleSignIns": 7,
+    "actualFictionalRecords": {
+      "students": 1,
+      "intakes": 1,
+      "reports": 1,
+      "relationships": 2,
+      "historyVersions": 3
+    },
+    "evidence": {
+      "runId": "40105037416-1",
+      "fixture": {
+        "studentId": "80bd7618-009f-40af-a0a9-1a2f9d318719",
+        "intakeId": "e21eb39e-c14b-496b-b780-1a56ca3013aa",
+        "reportId": "acf27fe6-20b4-457a-b467-2f43085cf23b",
+        "relationshipIds": [
+          "cc8323ca-69cd-46d0-a337-6a3464678351",
+          "3abb77db-b90e-4028-9f07-05f1515bd1c8"
+        ],
+        "actorIds": [
+          "fee1b881-8d46-4375-949a-db15487af9dc",
+          "d606bc69-8605-4e84-904d-dcc7632fa595",
+          "2bffeca7-c3fa-4ccd-88f6-40af5ccd6bf5"
+        ],
+        "marker": "QA Linked Access 40105037416-1",
+        "studentAttempted": true,
+        "intakeAttempted": true,
+        "reportAttempted": true,
+        "relationshipsAttempted": true
+      },
+      "aiCalls": 0,
+      "shareLinks": 0,
+      "phases": [
+        {
+          "role": "educator",
+          "pendingDenied": true,
+          "viewerReadOnly": true,
+          "selfPromotionDenied": true,
+          "explicitEditorWrite": true,
+          "identitiesPinned": true,
+          "historyAttributed": true,
+          "revokedDenied": true
+        },
+        {
+          "role": "owner",
+          "pendingDenied": true,
+          "viewerReadOnly": true,
+          "selfPromotionDenied": true,
+          "explicitEditorWrite": true,
+          "identitiesPinned": true,
+          "historyAttributed": true,
+          "revokedDenied": true
+        }
+      ],
+      "historyVersions": 3,
+      "cleanup": {
+        "errors": [],
+        "scope": "Exact fictional IDs and caller-RLS readback; independent privileged absence check still required"
+      }
+    },
+    "artifactSanitizer": "success, confirmed before download",
+    "independentCleanup": {
+      "verifiedAt": "2026-10-24T15:06:48.835Z",
+      "browser": "Codex in-app browser",
+      "project": "qgrertkqbwanerqqemph",
+      "queryMode": "BEGIN READ ONLY",
+      "operatorGuard": "postgres plus table owner and no FORCE RLS on all eight checked tables",
+      "runId": "40105037416-1",
+      "status": "PASS: all eight exact fixture scopes are empty; independent postgres reader",
+      "counts": {
+        "students": 0,
+        "intakes": 0,
+        "reports": 0,
+        "versions": 0,
+        "relationships": 0,
+        "collaborators": 0,
+        "channels": 0,
+        "shareLinks": 0
+      }
+    },
+    "independentSqlSha256": "dcddd0016d710dbd7b5d558936a9dda4e98a8dff2584a75187e89395ad3f038b",
+    "newAccounts": 0,
+    "aiCalls": 0,
+    "shareLinks": 0,
+    "pdfExports": 0,
+    "retries": 0
+  },
+  "proof": {
+    "migrationScreenshot": "/private/tmp/tf-student-boundary-staging-fb40e06a/migration-verified.png",
+    "releaseReviewScreenshot": "/private/tmp/tf-student-boundary-staging-fb40e06a/github-release-review.png",
+    "publicationScreenshot": "/private/tmp/tf-student-boundary-staging-fb40e06a/lovable-publication-verified.png",
+    "independentCleanupScreenshot": "/private/tmp/tf-student-boundary-staging-fb40e06a/independent-cleanup-verified.png"
+  },
+  "untouched": [
+    "production",
+    "main source branch",
+    "account roles and credentials",
+    "payments and secrets"
+  ],
+  "deferred": [
+    "Report length/cosmetic polish",
+    "Parent Pilot/Pathway Snapshot after current roadmap"
+  ],
+  "roadmap": "Full TF-01 through TF-26 retained; broader production gates remain open.",
+  "browserPreference": "User explicitly selected Codex in-app browser; all subsequent browser work used that session. Earlier Chrome-profile activity was stopped before publication.",
+  "selectedBrowserMigrationVerification": {
+    "operator": "postgres",
+    "triggers": [
+      {
+        "name": "prevent_client_report_identity_reassignment",
+        "enabled": "O",
+        "definition": "CREATE TRIGGER prevent_client_report_identity_reassignment BEFORE UPDATE OF user_id, intake_id, student_id ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION prevent_client_report_identity_reassignment()"
+      },
+      {
+        "name": "prevent_client_student_identity_reassignment",
+        "enabled": "O",
+        "definition": "CREATE TRIGGER prevent_client_student_identity_reassignment BEFORE UPDATE OF owner_id, student_user_id ON public.students FOR EACH ROW EXECUTE FUNCTION prevent_client_student_identity_reassignment()"
+      }
+    ],
+    "functions": [
+      {
+        "anon": false,
+        "name": "can_access_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "service": true,
+        "body_md5": "c2dcc71ecab9bc4b982d7f81793da2aa",
+        "authenticated": true,
+        "public_execute": false
+      },
+      {
+        "anon": false,
+        "name": "can_edit_student",
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "service": true,
+        "body_md5": "79b05b69377dd61a33938fe5ebb06fc7",
+        "authenticated": true,
+        "public_execute": false
+      },
+      {
+        "anon": false,
+        "name": "prevent_client_student_identity_reassignment",
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "definer": false,
+        "service": false,
+        "body_md5": "47d8721a31453583da448861465bedcd",
+        "authenticated": false,
+        "public_execute": false
+      },
+      {
+        "anon": false,
+        "name": "prevent_client_report_identity_reassignment",
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "definer": false,
+        "service": false,
+        "body_md5": "c3adc1f71e8c108c64a1223453c93a11",
+        "authenticated": false,
+        "public_execute": false
+      }
+    ],
+    "read_only": "on",
+    "policy_md5": "7f72c4eaac314dd351b741ed4b990fc8",
+    "observed_at": "2026-10-24T15:01:02.613483+00:00",
+    "new_ledger_md5": "a4b99e30dc4fba433937ba5cac9bedb2",
+    "new_ledger_count": 1,
+    "previous_ledger_md5": "8fb055d751f6c40d8fa0861100144a91"
+  },
+  "remainingProductionGates": [
+    "Broader all-role feature and generated-output acceptance",
+    "Stale browser write intent and conflict handling",
+    "Bearer/share lifecycle, retention and metadata review",
+    "Provider/privacy, billing/email/operations and reviewed production migration/release approval"
+  ]
+}

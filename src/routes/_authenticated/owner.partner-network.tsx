@@ -15,6 +15,8 @@ import {
   X,
 } from "lucide-react";
 
+import { isFeaturedPartner } from "@/lib/partner-network/featured";
+import { toTitleCase } from "@/lib/title-case";
 import { OwnerShell } from "@/components/owner/OwnerShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -157,7 +159,9 @@ function PartnerNetworkAdminPage() {
 
   const filtered = useMemo(() => {
     return (rows ?? []).filter((r) => {
-      if (filter !== "all" && r.verification_status !== filter) return false;
+      if (filter === "featured") {
+        if (!isFeaturedPartner(r)) return false;
+      } else if (filter !== "all" && r.verification_status !== filter) return false;
       if (q) {
         const hay = `${r.organization_name} ${(r.collection_tags ?? []).join(" ")}`.toLowerCase();
         if (!hay.includes(q.toLowerCase())) return false;
@@ -197,19 +201,21 @@ function PartnerNetworkAdminPage() {
         {STATUSES.map((s) => (
           <button
             key={s}
+            aria-pressed={filter === s}
             onClick={() => setFilter(s)}
             className={
               "rounded-full px-3 py-1 text-xs " +
               (filter === s ? "bg-primary text-primary-foreground" : "bg-muted text-foreground/70")
             }
           >
-            {s}
+            {toTitleCase(s.replace(/_/g, " "))}
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            aria-label="Search partner organizations"
             placeholder="Search organizations…"
             className="max-w-xs"
           />

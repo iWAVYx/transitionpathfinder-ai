@@ -67,7 +67,10 @@ describe("Lovable runtime-source hosting boundary", () => {
   });
 
   it("documents the same read-only proof for a future production preflight", () => {
-    expect(runbook).toContain("isolated Lovable staging copy is not Git-connected");
+    expect(runbook).toContain("isolated Lovable staging copy now has its own separate Git-connected repository");
+    expect(runbook).toContain("authentic sync commit differs from the source repository commit");
+    expect(runbook).toContain("runtime fingerprint is the cross-repository code-parity proof");
+    expect(runbook).toContain("Never replace either identity with a manually entered claim");
     expect(runbook).toContain("future, separately authorized read-only production preflight");
     expect(runbook).toContain("exact release SHA when the production host is Git-connected");
     expect(runbook).toContain("fails before authentication or any AI request");

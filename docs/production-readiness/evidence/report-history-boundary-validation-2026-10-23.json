@@ -1,0 +1,110 @@
+{
+  "source_commit": "95678424ff8e53aa91cffff8adcade748c6a6aec",
+  "scope": "Review-only proposal; no canonical/hosted migration or application source change",
+  "proposal_sha256": "13843881b1ecadbaee05ffd65c8b8e3aa55d66f1ba62f48c2be2e175a1bfca09",
+  "catalog_query_sha256": "b1bf7768aea0f2e9b11793b4bd6eeec415e5371645e154d9bb0944a2db6bcb46",
+  "staging_catalog_evidence": "staging-report-history-catalog-2026-10-23.json",
+  "local": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 2,
+    "skip_reason": "Native multi-session concurrency requires actual PostgreSQL"
+  },
+  "native": {
+    "run_id": 39964618618,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "canonical_replay": "passed in separate disposable replay database"
+  },
+  "automatic_checks": [
+    {
+      "conclusion": "skipped",
+      "databaseId": 39964619411,
+      "name": "Permission regression QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964619008,
+      "name": "CT Seed v2 Audit",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964618555,
+      "name": "Role-guard QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964618635,
+      "name": "Dashboard regression",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964618482,
+      "name": "Report a11y (axe-core)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964618428,
+      "name": "Build & SSR Verification",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964618618,
+      "name": "Migration Replay (disposable Postgres)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "databaseId": 39964618457,
+      "name": "RLS regression QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "databaseId": 39964618435,
+      "name": "Cross-district RLS QA",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964618499,
+      "name": "Production Readiness Audit",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964610973,
+      "name": "Migration Replay (disposable Postgres)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39964610787,
+      "name": "Build & SSR Verification",
+      "status": "completed"
+    }
+  ],
+  "runtime": {
+    "fingerprint": "c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d",
+    "file_count": 1184,
+    "changed": false
+  },
+  "retained_failure": {
+    "run_id": 39927278551,
+    "reason": "Install Playwright browsers exceeded ten-minute timeout; no accessibility assertion ran",
+    "later_exact_candidate_a11y": "success"
+  },
+  "limits": [
+    "No real application records read or changed during catalog inspection.",
+    "Identity/student helper stubs are explicit; these tests do not certify full hosted authorization helpers.",
+    "Owner administrative access, stale browser intent, action eligibility and membership-removal bearer links remain open.",
+    "Production remains unchanged and NO-GO."
+  ]
+}

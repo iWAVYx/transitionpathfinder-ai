@@ -15,6 +15,12 @@ on:
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
+      - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/report-history-canonical-grants.mjs"
+      - "tests/database/atomic-history-ledger-sql.mjs"
+      - "tests/database/share-token-write-restriction.test.mjs"
+      - "docs/production-readiness/proposals/share-token-*.sql"
+      - "docs/production-readiness/proposals/report-content-history-boundary.sql"
       - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
@@ -30,6 +36,12 @@ on:
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
+      - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/report-history-canonical-grants.mjs"
+      - "tests/database/atomic-history-ledger-sql.mjs"
+      - "tests/database/share-token-write-restriction.test.mjs"
+      - "docs/production-readiness/proposals/share-token-*.sql"
+      - "docs/production-readiness/proposals/report-content-history-boundary.sql"
       - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
@@ -73,6 +85,23 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/channel-history-tests" --ignore-scripts --no-save --package-lock=false @electric-sql/pglite@0.5.8
           CHANNEL_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/channel-history-removal.test.mjs
+
+      - name: Test atomic report history in a disposable multi-session database
+        env:
+          PGUSER: supabase_admin
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/atomic-pathway-history.test.mjs
+
+      - name: Test report-share restrictions in a disposable PostgreSQL database
+        env:
+          PGUSER: supabase_admin
+        run: |
+          SHARE_POLICY_POSTGRES=1 \
+          SHARE_POLICY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/share-token-write-restriction.test.mjs
 
       - name: Bootstrap Supabase-like roles and schemas
         run: |
@@ -144,6 +173,12 @@ jobs:
           done
           echo "replayed $count migrations"
           test "$count" -ge 175
+
+      - name: Verify combined canonical history and privileged routine permissions
+        run: |
+          REPORT_HISTORY_CANONICAL_REPLAY=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node tests/database/report-history-canonical-grants.mjs
 
       - name: Assert realtime.messages policies applied (no silent drift)
         run: |

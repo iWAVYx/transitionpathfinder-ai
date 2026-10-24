@@ -3,6 +3,9 @@ import { STEPS, Stepper, ProgressBar, StepRole, StepAbout, StepStrengths, StepCa
 import { getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles } from "@/lib/role-policy";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
+import { useAuth } from "@/hooks/use-auth";
+import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
@@ -75,6 +78,39 @@ export const Route = createFileRoute("/_authenticated/pathway")({
 });
 
 function PathwayPage() {
+  const { user, loading } = useAuth();
+  const scopeKey = JSON.stringify([user?.id ?? null, Boolean(loading)]);
+  const currentScope = useRef(scopeKey);
+  currentScope.current = scopeKey;
+  if (loading || !user)
+    return (
+      <SiteShell>
+        <section className="mx-auto max-w-4xl px-4 py-10" role="status">
+          Checking your sign-in before opening Pathway Builder…
+        </section>
+      </SiteShell>
+    );
+  return (
+    <OwnerWorkspaceGate>
+      <PathwaySession
+        key={scopeKey}
+        viewerId={user.id}
+        scopeKey={scopeKey}
+        currentScope={currentScope}
+      />
+    </OwnerWorkspaceGate>
+  );
+}
+
+function PathwaySession({
+  viewerId,
+  scopeKey,
+  currentScope,
+}: {
+  viewerId: string;
+  scopeKey: string;
+  currentScope: { current: string };
+}) {
   const generate = useServerFn(createPathwayReport);
   const loadRoles = useServerFn(getMyRoles);
   const [allowedRoles, setAllowedRoles] = useState<Role[]>([]);
@@ -88,6 +124,23 @@ function PathwayPage() {
   const [studentLoadError, setStudentLoadError] = useState(false);
   const [prefillLoading, setPrefillLoading] = useState(false);
   const studentRequestRef = useRef(0);
+  const loadedStudentRef = useRef<string | null>(null);
+  const [prefillError, setPrefillError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const generationPending = useRef(false);
+  const [generating, setGenerating] = useState(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      studentRequestRef.current += 1;
+    };
+  }, []);
+  const current = useCallback(
+    () => mounted.current && currentScope.current === scopeKey,
+    [currentScope, scopeKey],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(PathwayIntakeFormSchema),
@@ -100,104 +153,180 @@ function PathwayPage() {
 
   const connectStudent = useCallback(
     async (studentId: string, announce = true) => {
+      if (!current() || generationPending.current) return;
+      if (!connectedStudents.some((student) => student.id === studentId)) return;
       const currentRole = form.getValues("submitter_role");
       const requestId = ++studentRequestRef.current;
-
-      // Clear every prior answer before the new profile request begins. This
-      // closes the loading window in which one student's draft could otherwise
-      // be submitted while a different student id was already selected.
+      loadedStudentRef.current = null;
+      // Clear every prior answer before the new profile request begins.
       form.reset({
         ...createPathwayIntakeDefaults(),
         submitter_role: currentRole,
         student_id: studentId,
       });
       setPrefillLoading(true);
+      setPrefillError(false);
       try {
-        const snapshot = await loadSnapshot({ data: { student_id: studentId } });
-        if (studentRequestRef.current !== requestId) return;
-        const prefill = buildPathwayStudentPrefill(snapshot);
-        if (!prefill) throw new Error("This student profile is not available.");
-
-        form.reset({
-          ...createPathwayIntakeDefaults(),
-          submitter_role: currentRole,
-          ...prefill,
+        const snapshot = await loadSnapshot({
+          data: { student_id: studentId, expected_viewer_id: viewerId },
         });
-        if (announce) {
+        if (!current() || studentRequestRef.current !== requestId) return;
+        if (
+          form.getValues("submitter_role") !== currentRole ||
+          form.getValues("student_id") !== studentId ||
+          snapshot.student?.id !== studentId
+        )
+          throw new Error("Student profile mismatch");
+        const prefill = buildPathwayStudentPrefill(snapshot);
+        if (!prefill) throw new Error("Student profile unavailable");
+        form.reset({ ...createPathwayIntakeDefaults(), submitter_role: currentRole, ...prefill });
+        loadedStudentRef.current = studentId;
+        if (announce)
           toast.success("Connected the student and loaded their current profile for review.");
-        }
-      } catch (error) {
-        if (studentRequestRef.current === requestId) {
-          form.setValue("student_id", undefined);
-          toast.error(error instanceof Error ? error.message : "Could not connect this student.");
+      } catch {
+        if (current() && studentRequestRef.current === requestId) {
+          setPrefillError(true);
+          toast.error("We couldn't load this student's profile. Please try again.");
         }
       } finally {
-        if (studentRequestRef.current === requestId) {
-          setPrefillLoading(false);
-        }
+        if (current() && studentRequestRef.current === requestId) setPrefillLoading(false);
       }
     },
-    [form, loadSnapshot],
+    [form, loadSnapshot, current, viewerId, connectedStudents],
   );
 
+  // Resolve roles before asking for any student data. A failed collection is
+  // unavailable, never an empty/manual-entry success.
   useEffect(() => {
     let active = true;
-    Promise.all([loadStudents(), loadRoles()])
-      .then(([result, membership]) => {
-        if (!active) return;
+    const valid = () => active && current();
+    setStudentsLoading(true);
+    setStudentLoadError(false);
+    setAllowedRoles([]);
+    setConnectedStudents([]);
+    void (async () => {
+      try {
+        const membership = await loadRoles({ data: { expected_viewer_id: viewerId } });
+        if (!valid()) return;
+        if (
+          !Array.isArray(membership?.roles) ||
+          !membership.roles.every((role) => typeof role === "string")
+        )
+          throw new Error("Invalid planning roles");
         const audiences = audiencesForRoles(membership.roles);
-        const available = (["family", "educator"] as Role[]).filter(role => audiences.has(role === "family" ? "family" : "educator"));
+        const available = audiences.has("admin")
+          ? []
+          : (["family", "educator"] as Role[]).filter((role) =>
+              audiences.has(role === "family" ? "family" : "educator"),
+            );
         setAllowedRoles(available);
-        if (available.length && !available.includes(form.getValues("submitter_role"))) form.setValue("submitter_role", available[0]);
+        if (!available.length) return;
+        if (!available.includes(form.getValues("submitter_role")))
+          form.setValue("submitter_role", available[0]);
+        const result = await loadStudents({ data: { expected_viewer_id: viewerId } });
+        if (!valid()) return;
+        if (
+          !result ||
+          result.loadFailed !== false ||
+          !Array.isArray(result.students) ||
+          result.students.some((student) => !z.string().uuid().safeParse(student?.id).success) ||
+          new Set(result.students.map((student) => student.id)).size !== result.students.length
+        )
+          throw new Error("Students unavailable");
         setConnectedStudents(result.students);
-        if (result.students.length === 1) {
-          void connectStudent(result.students[0].id, false);
-        }
-      })
-      .catch(() => {
-        if (active) setStudentLoadError(true);
-      })
-      .finally(() => {
-        if (active) setStudentsLoading(false);
-      });
+      } catch {
+        if (valid()) setStudentLoadError(true);
+      } finally {
+        if (valid()) setStudentsLoading(false);
+      }
+    })();
     return () => {
       active = false;
     };
-  }, [connectStudent, loadStudents, loadRoles, form]);
+  }, [loadStudents, loadRoles, form, current, viewerId, loadAttempt]);
+
+  useEffect(() => {
+    if (
+      !studentsLoading &&
+      !studentLoadError &&
+      connectedStudents.length === 1 &&
+      !form.getValues("student_id")
+    )
+      void connectStudent(connectedStudents[0].id, false);
+  }, [studentsLoading, studentLoadError, connectedStudents, connectStudent, form]);
 
   const onSubmit = async (values: FormValues) => {
+    if (!current() || generationPending.current) return;
+    if (studentsLoading || studentLoadError || prefillLoading || prefillError) {
+      toast.error(
+        "Wait for student access and profile details to finish loading before generating.",
+      );
+      return;
+    }
     if (!allowedRoles.includes(values.submitter_role)) {
       toast.error("Choose a role available to your signed-in account.");
       return;
     }
-    if (studentLoadError) {
-      toast.error("Student access could not be verified. Refresh before generating a report.");
-      return;
-    }
-    if (connectedStudents.length > 0 && !values.student_id) {
+    if (
+      (values.student_id &&
+        (!connectedStudents.some((student) => student.id === values.student_id) ||
+          loadedStudentRef.current !== values.student_id)) ||
+      (connectedStudents.length > 0 && !values.student_id)
+    ) {
       setStepIndex(1);
       toast.error("Choose the connected student this report belongs to.");
       return;
     }
+    const requestVersion = studentRequestRef.current;
+    const requestedStudent = values.student_id ?? null;
+    const requestedRole = values.submitter_role;
+    const stillCurrent = () =>
+      current() &&
+      studentRequestRef.current === requestVersion &&
+      (form.getValues("student_id") ?? null) === requestedStudent &&
+      form.getValues("submitter_role") === requestedRole;
+    generationPending.current = true;
+    setGenerating(true);
     try {
       setGenerationError(null);
-      // Merge new structured sections into existing backend fields so they
-      // reach the AI without requiring a DB schema change.
       const merged = mergePathwayIntake(values);
-      const res = await generate({ data: merged });
-      navigate({
+      const res = await generate({ data: { ...merged, expected_viewer_id: viewerId } });
+      if (!stillCurrent()) return;
+      if (
+        !z.string().uuid().safeParse(res?.reportId).success ||
+        (res.studentId ?? null) !== requestedStudent
+      )
+        throw new Error("Report response mismatch");
+      await navigate({
         to: "/reports/$reportId",
         params: { reportId: res.reportId },
         search: { welcome: 1 } as never,
       });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong.";
-      setGenerationError(message);
-      toast.error(message);
+    } catch {
+      if (stillCurrent()) {
+        const message =
+          "We couldn't confirm that your report was completed. Check your saved reports before trying again.";
+        setGenerationError(message);
+        toast.error(message);
+      }
+    } finally {
+      generationPending.current = false;
+      if (current()) setGenerating(false);
     }
   };
 
+  const extractionVersion = studentRequestRef.current;
   const applyExtract = (e: IepExtract) => {
+    if (
+      !current() ||
+      generationPending.current ||
+      prefillLoading ||
+      prefillError ||
+      studentRequestRef.current !== extractionVersion ||
+      form.getValues("submitter_role") !== role ||
+      form.getValues("student_id") !== connectedStudentId
+    )
+      return;
     const fields: (keyof FormValues)[] = [
       "student_first_name",
       "strengths",
@@ -227,6 +356,14 @@ function PathwayPage() {
   };
 
   async function goNext() {
+    if (
+      !current() ||
+      generationPending.current ||
+      studentsLoading ||
+      prefillLoading ||
+      prefillError
+    )
+      return;
     if (stepIndex === 0 && !allowedRoles.includes(role)) {
       toast.info("An eligible family or educator role is required to use the builder.");
       return;
@@ -244,16 +381,51 @@ function PathwayPage() {
         toast.error("Choose the connected student this report belongs to.");
         return;
       }
+      const stepVersion = studentRequestRef.current;
       const ok = await form.trigger("student_first_name");
-      if (!ok) return;
+      if (
+        !ok ||
+        !current() ||
+        generationPending.current ||
+        studentRequestRef.current !== stepVersion
+      )
+        return;
     }
     setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goBack() {
+    if (!current() || generationPending.current || prefillLoading) return;
     setStepIndex((i) => Math.max(i - 1, 0));
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  if (studentsLoading || studentLoadError || allowedRoles.length === 0) {
+    return (
+      <SiteShell>
+        <section className="mx-auto max-w-4xl px-4 py-10">
+          <h1 className="font-display text-2xl">Pathway Builder</h1>
+          <p className="mt-3 text-sm" role={studentLoadError ? "alert" : "status"}>
+            {studentsLoading
+              ? "Checking your planning role and connected students…"
+              : studentLoadError
+                ? "We couldn't confirm your planning view and student access. Please try again."
+                : "Pathway Builder is available for family and educator planning roles. Open your workspace to use the tools available to your account."}
+          </p>
+          {studentLoadError && (
+            <Button className="mt-4" onClick={() => setLoadAttempt((value) => value + 1)}>
+              Reload Planning View
+            </Button>
+          )}
+          {!studentsLoading && !studentLoadError && (
+            <Link to="/dashboard" className="mt-4 inline-block underline">
+              Return to Your Workspace
+            </Link>
+          )}
+        </section>
+      </SiteShell>
+    );
   }
 
   // Match the rule used by onboarding + roadmap: count only steps the user
@@ -269,7 +441,12 @@ function PathwayPage() {
         </section>
 
         <section className="mx-auto max-w-4xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-          <Stepper current={stepIndex} onJump={(i) => i < stepIndex && setStepIndex(i)} />
+          <Stepper
+            current={stepIndex}
+            onJump={(i) =>
+              !generationPending.current && !prefillLoading && i < stepIndex && setStepIndex(i)
+            }
+          />
           <ProgressBar pct={progressPct} />
 
           <FormProvider {...form}>
@@ -280,48 +457,85 @@ function PathwayPage() {
               className={PATHWAY_FORM_CLASS}
               noValidate
             >
-              {stepIndex === 0 && (
-                <StepRole allowedRoles={allowedRoles} role={role} onPick={(r) => form.setValue("submitter_role", r)} />
-              )}
-              {stepIndex === 1 && (
-                <StepAbout
-                  connectedStudents={connectedStudents}
-                  connectedStudentId={connectedStudentId}
-                  studentsLoading={studentsLoading}
-                  studentLoadError={studentLoadError}
-                  prefillLoading={prefillLoading}
-                  onStudentChange={(studentId) => void connectStudent(studentId)}
-                  onExtracted={applyExtract}
-                />
-              )}
-              {stepIndex === 2 && <StepStrengths />}
-              {stepIndex === 3 && <StepCareer />}
-              {stepIndex === 4 && <StepLifeSkills />}
-              {stepIndex === 5 && <StepPlanningContext />}
-              {stepIndex === 6 && <StepCurrentGoals role={role} />}
-              {stepIndex === 7 && <StepVoices role={role} />}
-
-              {generationError && (
-                <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
-                  <p className="font-semibold">The report could not be completed</p>
-                  <p className="mt-1">{generationError}</p>
-                  <p className="mt-2 text-muted-foreground">
-                    Your answers are still in this form. Check your saved reports before trying
-                    again in case the request completed after the connection was interrupted.
+              {prefillError && (
+                <div role="alert" className="rounded-xl border p-4 text-sm">
+                  <p>
+                    We couldn't load the selected student's profile. Your selection is kept so you
+                    can try again.
                   </p>
-                  <a href="/reports" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block underline">
-                    Check saved reports in a new tab
-                  </a>
+                  <Button
+                    type="button"
+                    className="mt-3"
+                    onClick={() => {
+                      const id = form.getValues("student_id");
+                      if (id) void connectStudent(id);
+                    }}
+                  >
+                    Reload Student Profile
+                  </Button>
                 </div>
               )}
+              <fieldset disabled={generating || prefillLoading} className="contents">
+                {stepIndex === 0 && (
+                  <StepRole
+                    allowedRoles={allowedRoles}
+                    role={role}
+                    onPick={(r) => {
+                      if (!generationPending.current && !prefillLoading && allowedRoles.includes(r))
+                        form.setValue("submitter_role", r);
+                    }}
+                  />
+                )}
+                {stepIndex === 1 && (
+                  <StepAbout
+                    key={`${role}:${connectedStudentId ?? "manual"}`}
+                    viewerId={viewerId}
+                    connectedStudents={connectedStudents}
+                    connectedStudentId={connectedStudentId}
+                    studentsLoading={studentsLoading}
+                    studentLoadError={studentLoadError}
+                    prefillLoading={prefillLoading}
+                    onStudentChange={(studentId) => void connectStudent(studentId)}
+                    onExtracted={applyExtract}
+                  />
+                )}
+                {stepIndex === 2 && <StepStrengths />}
+                {stepIndex === 3 && <StepCareer />}
+                {stepIndex === 4 && <StepLifeSkills />}
+                {stepIndex === 5 && <StepPlanningContext />}
+                {stepIndex === 6 && <StepCurrentGoals role={role} />}
+                {stepIndex === 7 && <StepVoices role={role} />}
 
-              <StepNav
-                stepIndex={stepIndex}
-                total={STEPS.length}
-                onBack={goBack}
-                onNext={goNext}
-                submitting={form.formState.isSubmitting}
-              />
+                {generationError && (
+                  <div
+                    role="alert"
+                    className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm"
+                  >
+                    <p className="font-semibold">The report could not be completed</p>
+                    <p className="mt-1">{generationError}</p>
+                    <p className="mt-2 text-muted-foreground">
+                      Your answers are still in this form. Check your saved reports before trying
+                      again in case the request completed after the connection was interrupted.
+                    </p>
+                    <a
+                      href="/reports"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block underline"
+                    >
+                      Check saved reports in a new tab
+                    </a>
+                  </div>
+                )}
+
+                <StepNav
+                  stepIndex={stepIndex}
+                  total={STEPS.length}
+                  onBack={goBack}
+                  onNext={goNext}
+                  submitting={generating}
+                />
+              </fieldset>
             </form>
           </FormProvider>
 

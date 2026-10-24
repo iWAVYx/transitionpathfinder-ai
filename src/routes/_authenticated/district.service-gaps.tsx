@@ -1,3 +1,5 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, FileText, UserPlus, ArrowRight } from "lucide-react";
 
@@ -8,6 +10,8 @@ import { ensureRoleAccess } from "@/lib/route-role-guard";
 import type { DistrictSchool } from "@/lib/district-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/district/service-gaps")({
+  ...districtDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("district", "/district/service-gaps"),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
   head: () => ({
     meta: [
@@ -35,7 +39,7 @@ function gapsFor(s: DistrictSchool): { kind: GapKind; label: string }[] {
 }
 
 function DistrictServiceGapsPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/service-gaps"
@@ -45,6 +49,7 @@ function DistrictServiceGapsPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(_district, d) => {
         const flagged = d.schools

@@ -58,7 +58,7 @@ const STATUS_META: Record<Doc["status"], { label: string; className: string; Ico
 function DocumentReviewPage() {
   return (
     <SiteShell>
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <Breadcrumbs trail={[{ label: "Caseload", to: "/hubs/caseload" }, { label: "Document Review" }]} />
         <header className="mt-4 mb-8">
           <div className="flex items-center gap-3">
@@ -111,7 +111,7 @@ function DocumentReviewPage() {
             <Link to="/documents">Open Full Documents</Link>
           </Button>
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

@@ -81,6 +81,7 @@ const district: DistrictDashboard = {
       pending_members: 2,
       students_count: 30,
       reports_count: 20,
+      students_with_report: 20,
       open_actions: 3,
       needs_followup: true,
     },

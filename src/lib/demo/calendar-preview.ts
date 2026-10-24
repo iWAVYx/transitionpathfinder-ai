@@ -1,12 +1,16 @@
 import { getSampleCalendarEvents, type CalendarEvent } from "@/lib/calendar/sample-events";
 import type { DemoProfile } from "./demo-profiles";
 import { listDemoFeatures, type DemoRole } from "./feature-routes";
+import { SCHOOL_PROFILE_ORDER, DISTRICT_PROFILE_ORDER, PARTNER_PLAN_ORDER, type SchoolProfileId, type DistrictProfileId, type PartnerPlanId } from "./role-contexts";
+
+export type DemoCalendarContext = { school?: SchoolProfileId; district?: DistrictProfileId; plan?: PartnerPlanId };
 
 /** Public calendar previews never send an event click to a live workspace. */
 export function demoCalendarEvents(
   role: DemoRole,
   profile: DemoProfile,
   now = new Date(),
+  context: DemoCalendarContext = {},
 ): CalendarEvent[] {
   if (role === "student" || role === "family" || role === "educator") {
     const search = new URLSearchParams({ role, student: profile.id }).toString();
@@ -54,10 +58,15 @@ export function demoCalendarEvents(
       },
     ];
   }
+  const contextSearch = new URLSearchParams();
+  if (role === "school-admin" && context.school && SCHOOL_PROFILE_ORDER.includes(context.school)) contextSearch.set("school", context.school);
+  if (role === "district-admin" && context.district && DISTRICT_PROFILE_ORDER.includes(context.district)) contextSearch.set("district", context.district);
+  if (role === "partner" && context.plan && PARTNER_PLAN_ORDER.includes(context.plan)) contextSearch.set("plan", context.plan);
+  const suffix = contextSearch.size ? `?${contextSearch}` : "";
   const features = listDemoFeatures().filter((feature) => feature.role === role);
   const previewHref = (href?: string) => {
     const feature = features.find((item) => item.detail.primaryAction.to === href);
-    return feature ? `/demo/feature/${role}/${feature.featureId}` : undefined;
+    return feature ? `/demo/feature/${role}/${feature.featureId}${suffix}` : undefined;
   };
   return getSampleCalendarEvents(role).map((event) => ({
     ...event,
