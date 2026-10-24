@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 24 — Broad Audit: 330 Passes; Focused Menu/School/Grade Follow-Up Prepared
+
+- [x] Human-approved [audit40107769298](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298) completed with zero retries: seven sign-ins passed separately, all 84 dashboard cases passed, and 246 role-access/demo/navigation cases passed. Of the 333 declared non-setup cases, one failed and two skipped. Artifact sanitization passed before retrieval; no records, AI or application changes occurred.
+- [ ] School's denied PartnerForward-entry case reached School Overview, but the test exhausted 60 seconds at manual context cleanup after a swallowed network-idle navigation. Retain the failed result. Prepared a test-only correction using the automatic page fixture, DOM-content readiness, explicit allow/deny polling, a completed heading and correct role-dashboard fallback; no permission assertion is removed and no timeout is widened. Hosted recheck is pending.
+- [x] Investigated the skipped grade case: the live student shows readable **High School**, while the old test searched for raw numeric grade-copy/obsolete branding. Prepared explicit high-school label/tool/no-middle-school-intake checks instead of silently skipping. Positive middle-school cohort coverage still requires its own authorized account/fixture. The other skipped Owner demo rule has an empty admin denial set; it is not relabeled a pass.
+- [x] Prepared one focused read-only command selecting 16 cases: 14 opened desktop/mobile menus, one School recheck and one corrected high-school case. TypeScript, 22 workflow-safety checks, 37 access/readiness contracts and exact 16-case discovery pass locally. The command has zero retries and one worker; no broad rerun or fixture scope is selected.
+- [ ] Finish automatic review, then obtain GitHub's required human review for the focused job. Menu and corrected-case hosted acceptance remain open. Cloudflare menu probes plus Lovable source health parity do not certify every Lovable journey, nor every menu click/Back sequence.
+
+See [audit evidence](evidence/all-role-functional-audit-2026-10-24.json). Runtime remains verified `fb40e06a` /`a91b789b…8cc289` /1,184 files. No deployment/publication, migration, hosted fixture, provider/AI, production/main, account/access, payment or secrets changes. Full TF-01–TF-26, deferred report polish and Parent Pilot/Pathway Snapshot remain retained.
+
 ## October 24 — Dashboard Stage Passes; Opened-Menu Check Prepared
 
 - [x] Human review for [audit40107769298](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298) is recorded. Its dashboard regression stage passed across all seven existing roles and mobile/tablet/desktop sizes; the role-access/demo/navigation stage is still running. Do not count the complete 333-case audit as passed yet.

@@ -209,7 +209,9 @@ jobs:
           RUN_ROLE_TOOLS_READONLY: "true"
         run: >-
           bunx playwright test tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts
-          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+          tests/e2e/role-access-rules.signedin.spec.ts
+          --project=release-signedin --project=role-access --no-deps --retries=0 --workers=1
+          --grep 'opened Tools|School Administrator does not see /partners-manage$|High-school student sees readable grade and applicable planning links$' --reporter=line
 
       - name: Disposable report history acceptance (no AI)
         if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'report-history-no-ai' }}

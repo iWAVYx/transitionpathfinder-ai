@@ -139,5 +139,7 @@ it("keeps the opened-menu scope read-only and isolated from fixtures and broad r
   expect(step).toContain('RUN_ROLE_TOOLS_READONLY: "true"');
   expect(step).toContain("role-tools-readonly.signedin.spec.ts");
   expect(step).toContain("--no-deps --retries=0 --workers=1");
+  expect(step).toContain("opened Tools|School Administrator does not see /partners-manage$|High-school student sees readable grade and applicable planning links$");
+  expect(step).toContain("--project=role-access");
   expect(step).not.toMatch(/SERVICE_ROLE|RUN_REPORT|RUN_LINKED|fixture_confirmation/);
 });

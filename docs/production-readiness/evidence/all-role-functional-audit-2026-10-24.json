@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "hosted-audit-running-dashboard-stage-passed",
+  "status": "broad-audit-completed-one-failure-two-skips-focused-readonly-followup-prepared",
   "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
   "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
   "runtimeFiles": 1184,
@@ -27,7 +27,8 @@
   "coverageLimitations": [
     "Closed-menu navigation scans cannot establish actual opened desktop/mobile Tools menu contents.",
     "Existing workspace-stage fallback acceptance proves a page exists, not that each role receives the exact intended feature.",
-    "Configured all-role check runs on Cloudflare; matching Lovable source does not by itself prove every hosted Lovable journey."
+    "Configured all-role check runs on Cloudflare; matching Lovable source does not by itself prove every hosted Lovable journey.",
+    "The older School timeout and two skips are retained; do not label the broad run a complete pass."
   ],
   "nextFocusedCoverage": [
     "Open desktop/mobile Tools menus for each role and compare actual links with relevant dashboard actions.",
@@ -37,9 +38,9 @@
   "dataAndReleaseSafety": "Read-only existing-account audit. No fixtures, generation/provider calls, migration, deployment/publication, account/access, payment/secret or production/main changes.",
   "browserPreference": "Codex in-app browser only for further user-browser actions.",
   "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled.",
-  "dashboardStage": "passed; role-access/demo/navigation stage still running",
+  "dashboardStage": "84 passed",
   "focusedMenuProposal": {
-    "status": "prepared-not-dispatched",
+    "status": "prepared-corrections-not-dispatched",
     "scope": "role-tools-readonly",
     "spec": "tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts",
     "specSha256": "9f0bac2b476a389af2db34a34b8dbd3ef79bbd9051a23b00c44dc116a7de5d9d",
@@ -63,10 +64,38 @@
       "typeScript": "passed",
       "scopeUnitTestsPassed": 22,
       "workflowYaml": "parsed",
-      "discovery": "14 cases; no hosted execution"
+      "discovery": "16 cases in two files; no hosted execution",
+      "accessReadinessContractsPassed": 37
     },
     "runtimeSourceChanged": false,
     "credentialsAdded": false,
-    "fixtureOrProviderActions": false
+    "fixtureOrProviderActions": false,
+    "menuCases": 14,
+    "focusedCommandTotalCases": 16,
+    "additionalCases": [
+      "School forbidden PartnerForward entry using automatic page/context fixture, DOM-content readiness and unchanged allow/deny polarity plus correct dashboard fallback.",
+      "Known high-school QA student: readable High School label, actual Student Voice/Pathway links, no raw grade codes or middle-school intake."
+    ],
+    "remainingGradeCoverage": "Positive middle-school cohort needs an existing authorized account or separately authorized fixture; not inferred from high-school pass.",
+    "localPreparationNote": "Discovery/type validation caught an uncommitted edit-boundary error; original test sections were restored and only the two targeted cases reapplied before validation/commit."
+  },
+  "hostedResult": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298",
+    "conclusion": "failure",
+    "retries": 0,
+    "authSetupPassed": 7,
+    "dashboardCasesPassed": 84,
+    "roleAccessCasesPassed": 246,
+    "roleAccessFailed": 1,
+    "roleAccessSkipped": 2,
+    "totalDeclared": 333,
+    "passedExcludingAuthSetup": 330,
+    "failedCase": "School Administrator does not see /partners-manage",
+    "failureEvidence": "60000ms test timeout at explicit ctx.close; permission assertion had progressed and sanitized snapshot shows School Overview. Root cause/hosted acceptance not yet closed.",
+    "sanitizer": "success before evidence download",
+    "skipDetails": [
+      "Owner demo forbidden-link rule intentionally has an empty admin denial set; this is not a passed rule test.",
+      "Student grade test searched rendered text for raw grade-code copy. The live snapshot shows High School; absence of that obsolete regex match does not prove the database grade is missing."
+    ]
   }
 }
