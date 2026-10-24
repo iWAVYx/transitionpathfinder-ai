@@ -19,7 +19,7 @@ vi.mock("@/lib/students.functions", () => ({ listShareTokens: state.tokens, list
 vi.mock("sonner", () => ({ toast: { error: state.error, success: state.success } }));
 import { Route } from "@/routes/_authenticated/reports.$reportId";
 const Component = Route.options.component!;
-const record = (id: string) => ({ id, is_report_owner: true, student_first_name: `Student ${id}`, student_id: `student-${id}`, created_at: "2026-10-11T12:00:00Z", report: { summary: `Notes for ${id}` } });
+const record = (id: string) => ({ id, content_revision: "a".repeat(64), is_report_owner: true, student_first_name: `Student ${id}`, student_id: `student-${id}`, created_at: "2026-10-11T12:00:00Z", report: { summary: `Notes for ${id}` } });
 const share = (token: string) => ({ id: token, token, audience: "family", view_count: 0, revoked: false, expires_at: null });
 beforeEach(() => { state.id = "report-a"; state.audience = "family"; state.print = undefined; state.tokens.mockResolvedValue({ tokens: [] }); state.students.mockResolvedValue({ students: [] }); });
 afterEach(() => { cleanup(); vi.resetAllMocks(); vi.restoreAllMocks(); vi.useRealTimers(); });
@@ -161,4 +161,29 @@ it("confirmed report owner retains restore and generation controls",async()=>{
 });
 it("an unlinked owner's report retains history but cannot generate until linked",async()=>{
  state.get.mockResolvedValue({...record("report-a"),student_id:null});render(<Component/>);await screen.findByText("Notes for report-a");expect(screen.queryByRole("button",{name:"Refresh Report"})).toBeNull();expect((screen.getByRole("button",{name:"Regenerate From Banner"}) as HTMLButtonElement).disabled).toBe(true);expect(screen.getByRole("button",{name:"Restore Version"})).toBeTruthy();
+});
+
+it("refresh sends the displayed revision and does not retry a stale-report rejection", async () => {
+  state.get.mockResolvedValue(record("report-a"));
+  state.regenerate.mockRejectedValue(new Error("This report has changed. Reload it before trying again."));
+  render(<Component/>); await screen.findByText("Notes for report-a");
+  fireEvent.click(screen.getByRole("button", { name: "Refresh Report" })); await act(async () => {});
+  expect(state.regenerate).toHaveBeenCalledExactlyOnceWith({ data: { report_id: "report-a", expected_revision: "a".repeat(64) } });
+  expect(state.get).toHaveBeenCalledTimes(1); expect(state.success).not.toHaveBeenCalled();
+  expect(state.error).toHaveBeenCalledWith("This report has changed. Reload it before trying again.");
+});
+it("linking refreshes the observed context before the next generation", async () => {
+  state.get.mockResolvedValueOnce(record("report-a")).mockResolvedValue({ ...record("report-a"), student_id: "student-a", content_revision: "b".repeat(64) });
+  state.students.mockResolvedValue({ students: [{ id: "student-a", first_name: "Sample", last_name: "Student" }] });
+  state.link.mockResolvedValue({ ok: true }); state.regenerate.mockResolvedValue({ version_number: 2, change_summary: "Updated" });
+  render(<Component/>); await screen.findByRole("option", { name: "Sample Student" });
+  fireEvent.change(screen.getByRole("combobox"), { target: { value: "student-a" } }); await act(async () => {});
+  fireEvent.click(screen.getByRole("button", { name: "Refresh Report" })); await act(async () => {});
+  expect(state.regenerate).toHaveBeenCalledExactlyOnceWith({ data: { report_id: "report-a", expected_revision: "b".repeat(64) } });
+});
+it("a cached report reader with no revision stops before generation", async () => {
+  state.get.mockResolvedValue({ ...record("report-a"), content_revision: undefined });
+  render(<Component/>); await screen.findByText("Notes for report-a");
+  fireEvent.click(screen.getByRole("button", { name: "Refresh Report" }));
+  expect(state.regenerate).not.toHaveBeenCalled(); expect(state.error).toHaveBeenCalledWith("Reload this report before refreshing it.");
 });

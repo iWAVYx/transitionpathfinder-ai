@@ -93,6 +93,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
         kind: "ok";
         name: string;
         report: PathwayReport;
+        contentRevision: string | null;
         isReportOwner: boolean;
         studentId: string | null;
         reviewDate: string | null;
@@ -134,6 +135,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           kind: "ok",
           name: r.student_first_name,
           report: r.report,
+          contentRevision: r.content_revision ?? null,
           isReportOwner: r.is_report_owner === true,
           studentId: r.student_id,
           reviewDate: (r as { review_date?: string | null }).review_date ?? null,
@@ -164,7 +166,10 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
     try {
       await linkStudent({ data: { report_id: reportId, student_id: studentId } });
       if (!active.current) return;
-      setState((s) => (s.kind === "ok" ? { ...s, studentId } : s));
+      const fresh = await fetchReport({ data: { id: reportId } });
+      if (!active.current) return;
+      if (fresh.id !== reportId) throw new Error("Could not reopen the updated report.");
+      setState((s) => s.kind === "ok" ? { ...s, report: fresh.report, studentId: fresh.student_id, contentRevision: fresh.content_revision ?? null } : s);
       toast.success(studentId ? "Linked to student." : "Link removed.");
     } catch (err) {
       if (active.current) toast.error(err instanceof Error ? err.message : "Could not link.");
@@ -174,10 +179,11 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
   }
 
   async function handleRegenerate() {
-    if (state.kind !== "ok" || !state.isReportOwner || !state.studentId || regenBusy) return;
+    if (state.kind !== "ok" || !state.isReportOwner || !state.studentId || regenBusy || linking) return;
+    if (!state.contentRevision) { toast.error("Reload this report before refreshing it."); return; }
     setRegenBusy(true);
     try {
-      const res = await regenerate({ data: { report_id: reportId } });
+      const res = await regenerate({ data: { report_id: reportId, expected_revision: state.contentRevision } });
       if (!active.current) return;
       const fresh = await fetchReport({ data: { id: reportId } });
       if (!active.current) return;
@@ -186,6 +192,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
         kind: "ok",
         name: fresh.student_first_name,
         report: fresh.report,
+        contentRevision: fresh.content_revision ?? null,
         isReportOwner: fresh.is_report_owner === true,
         studentId: fresh.student_id,
         reviewDate: (fresh as { review_date?: string | null }).review_date ?? null,
@@ -434,6 +441,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           key={versionsKey}
           reportId={reportId}
           currentContent={state.report}
+          expectedRevision={state.contentRevision}
           canRestore={state.isReportOwner}
           onRestored={async () => {
             try {
@@ -445,6 +453,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
                 kind: "ok",
                 name: fresh.student_first_name,
                 report: fresh.report,
+                contentRevision: fresh.content_revision ?? null,
                 isReportOwner: fresh.is_report_owner === true,
                 studentId: fresh.student_id,
                 reviewDate: (fresh as { review_date?: string | null }).review_date ?? null,

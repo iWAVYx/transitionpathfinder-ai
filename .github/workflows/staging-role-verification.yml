@@ -146,7 +146,7 @@ jobs:
           if (errors.length) {
             throw new Error(`Staging isolation check failed: ${errors.join(", ")}`);
           }
-          appendFileSync(process.env.GITHUB_ENV, `E2E_EXPECTED_BUILD_SHA=${health.git_commit_sha}\nEXPECTED_RUNTIME_SOURCE_FINGERPRINT=${expected.fingerprint}\n`);
+          appendFileSync(process.env.GITHUB_ENV, `E2E_EXPECTED_BUILD_SHA=${health.git_commit_sha}\nEXPECTED_RUNTIME_SOURCE_FINGERPRINT=${expected.fingerprint}\nEXPECTED_RUNTIME_SOURCE_FILE_COUNT=${expected.fileCount}\n`);
           console.log("Exact staging runtime verified; existing role accounts only, no fixture reconciliation.");
           NODE
 

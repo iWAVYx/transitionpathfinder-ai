@@ -21,6 +21,7 @@ it("requires all existing staging accounts and excludes privileged reseeding cre
   expect(workflow).toContain("expectedFingerprint: expected.fingerprint");
   expect(workflow).toContain("actualFingerprint: health.runtime_source_fingerprint");
   expect(workflow).toContain("health.runtime_source_file_count !== expected.fileCount");
+  expect(workflow).toContain("EXPECTED_RUNTIME_SOURCE_FILE_COUNT=${expected.fileCount}");
   expect(workflow.indexOf("Verify Staging Deployment Identity")).toBeLessThan(workflow.indexOf("Create All Seven Auth Storage States"));
   expect(workflow).toContain("steps.sanitize-artifacts.outcome == 'success'");
 });

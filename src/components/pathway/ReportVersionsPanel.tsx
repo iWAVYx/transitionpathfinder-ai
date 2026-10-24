@@ -15,23 +15,28 @@ import {
 export function ReportVersionsPanel({
   reportId,
   currentContent,
+  expectedRevision,
   canRestore = false,
   onRestored,
 }: {
   reportId: string;
   currentContent: PathwayReport;
+  expectedRevision?: string | null;
   canRestore?: boolean;
   onRestored?: () => void;
 }) {
-  return <ReportVersionsReader key={reportId} reportId={reportId} currentContent={currentContent} canRestore={canRestore} onRestored={onRestored} />;
+  return <ReportVersionsReader key={reportId} reportId={reportId} currentContent={currentContent} expectedRevision={expectedRevision} canRestore={canRestore} onRestored={onRestored} />;
 }
 
-function ReportVersionsReader({ reportId, currentContent, canRestore, onRestored }: {
+function ReportVersionsReader({ reportId, currentContent, expectedRevision, canRestore, onRestored }: {
   reportId: string;
   currentContent: PathwayReport;
+  expectedRevision?: string | null;
   canRestore: boolean;
   onRestored?: () => void;
 }) {
+  const revision = useRef(expectedRevision);
+  revision.current = expectedRevision;
   const active = useRef(false);
   const restoring = useRef(false);
   const restoreAllowed = useRef(canRestore);
@@ -69,15 +74,19 @@ function ReportVersionsReader({ reportId, currentContent, canRestore, onRestored
 
   async function restore(versionId: string) {
     if (!active.current || !restoreAllowed.current || restoring.current || loading || loadError) return;
+    const observedRevision = revision.current;
+    if (!observedRevision) { toast.error("Reload this report before restoring a version."); return; }
     restoring.current = true;
     setBusyId(versionId);
     try {
       const v = await fetchVersion({ data: { version_id: versionId } });
       if (!active.current || !restoreAllowed.current) return;
+      if (revision.current !== observedRevision) throw new Error("This report has changed. Reload it before trying again.");
       if (v.id !== versionId || v.report_id !== reportId) throw new Error("That version does not belong to this report.");
       await update({
         data: {
           report_id: reportId,
+          expected_revision: observedRevision,
           content: v.content,
           change_summary: `Restored version ${v.version_number}`,
         },

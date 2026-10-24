@@ -33,13 +33,15 @@ for (const ownerRole of ["parent", "educator"] as const) {
   test(`${ownerRole} restores, reopens and exports only its disposable report`, async ({ browser }, info) => {
     test.setTimeout(180_000);
     const target = reportHistoryAcceptanceTarget(process.env);
+    const expectedFileCount = Number(process.env.EXPECTED_RUNTIME_SOURCE_FILE_COUNT);
+    if (!Number.isSafeInteger(expectedFileCount) || expectedFileCount < 1) throw new Error("Verified source file count required before fixtures");
     for (const origin of [target.origin,"https://gentle-forward-reach.lovable.app"]) {
       const response = await fetch(`${origin}/api/public/env-health`,{cache:"no-store",signal:AbortSignal.timeout(15000)});
       if (!response.ok) throw new Error("Staging preflight failed before fixtures");
       const health = await response.json();
       if (origin === target.origin) expect(health.git_commit_sha).toBe(process.env.E2E_EXPECTED_BUILD_SHA);
       expect(health.runtime_source_fingerprint).toBe(process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT);
-      expect(health.runtime_source_file_count).toBe(1184);
+      expect(health.runtime_source_file_count).toBe(expectedFileCount);
       expect(health.supabase_project_ref).toBe("qgrertkqbwanerqqemph");
       expect(health.stripe_mode).toBe("sandbox");
       expect(health.isolation?.ok).toBe(true);
@@ -77,6 +79,14 @@ for (const ownerRole of ["parent", "educator"] as const) {
       reportCreated = true;
       // Real RPC and direct edit create truthful prior-content history; never seed a fabricated version.
       expect(await writeReportContent(owner.client,reportId,earlier,intermediate,"Synthetic initial save","save")).toBe(1);
+      // Keep this actual browser on its observed intermediate revision while another
+      // permitted write changes the report. No extra successful writes/versions added.
+      const ownerRoleConfig = ROLES.find(r=>r.key === ownerRole)!;
+      context = await browser.newContext({baseURL:target.origin,storageState:ownerRoleConfig.storageState});
+      const stalePage = await context.newPage();
+      await stalePage.goto(`/reports/${reportId}?audience=${reportAudience}`,{waitUntil:"domcontentloaded"});
+      await expectLoadedReport(stalePage,intermediate.summary,evidence,"before-concurrent-edit");
+      await expect(stalePage.getByRole("button",{name:"Restore",exact:true})).toHaveCount(1);
       const direct = await owner.client.from("pathway_reports").update({content:current as unknown as Json}).eq("id",reportId).eq("user_id",owner.id).select("id");
       if (direct.error || direct.data?.length !== 1) throw new Error("Exact direct owner edit failed");
       const beforeRestore = await owner.client.from("pathway_report_versions").select("id,version_number,content,created_by").eq("report_id",reportId).order("version_number");
@@ -95,35 +105,27 @@ for (const ownerRole of ["parent", "educator"] as const) {
       for (const other of clients.filter(c=>c.role !== ownerRole)) {
         const read = await other.client.from("pathway_reports").select("id").eq("id",reportId);
         if (read.error) throw new Error(`Could not verify ${other.role} read boundary`);
-        if (other.role === "owner") {
-          // Canonical RLS has an existing has_role(admin) SELECT exception.
-          // Observe only this synthetic ID; do not claim Owner denial or grant access.
-          expect(read.data?.every(row=>row.id === reportId)).toBe(true);
-          evidence.existingOwnerAdminFixtureIdVisible = read.data!.length === 1;
-        } else {
-          expect(read.data,`${other.role} must not read this unlinked private report`).toEqual([]);
-          const edit=await other.client.from("pathway_reports").update({content:earlier as unknown as Json}).eq("id",reportId).select("id");
-          expect(Boolean(edit.error)||edit.data?.length===0).toBe(true);
-        }
+        expect(read.data,`${other.role} must not read this unlinked private report`).toEqual([]);
+        const edit=await other.client.from("pathway_reports").update({content:earlier as unknown as Json}).eq("id",reportId).select("id");
+        expect(Boolean(edit.error)||edit.data?.length===0).toBe(true);
+        if (other.role === "owner") evidence.unrelatedOwnerReadDenied = true;
         await expect(writeReportContent(other.client,reportId,current,earlier,"Denied nonowner save","save")).rejects.toThrow("Could not save the report.");
         const forgedOther=await other.client.from("pathway_report_versions").insert({report_id:reportId,version_number:99,content:earlier as unknown as Json,created_by:other.id});
         expect(forgedOther.error?.code).toBe("42501");
-        if (other.role === "owner" && read.data?.length===1) {
-          const ownerContext=await browser.newContext({baseURL:target.origin,storageState:ROLES.find(r=>r.key==="owner")!.storageState});
-          try {
-            const reader=await ownerContext.newPage();await reader.goto(`/reports/${reportId}`,{waitUntil:"domcontentloaded"});
-            await expectLoadedReport(reader,current.summary,evidence,"nonowner-admin-reader");
-            await expect(reader.getByRole("button",{name:"Restore",exact:true})).toHaveCount(0);
-            await expect(reader.getByRole("button",{name:/regenerate/i})).toHaveCount(0);
-            evidence.nonownerAdminControlsHidden=true;
-          } finally {await ownerContext.close();}
-        }
       }
-      const role = ROLES.find(r=>r.key === ownerRole)!;
-      context = await browser.newContext({baseURL:target.origin,storageState:role.storageState});
-      const page = await context.newPage();
-      await page.goto(`/reports/${reportId}?audience=${reportAudience}`,{waitUntil:"domcontentloaded"});
-      await expectLoadedReport(page,current.summary,evidence,"report-owner-reader");
+      const page = stalePage;
+      await expectLoadedReport(page,intermediate.summary,evidence,"stale-owner-reader");
+      await page.getByRole("button",{name:"Restore",exact:true}).last().click();
+      await expect(page.getByText("This report has changed. Reload it before trying again.",{exact:true})).toBeVisible();
+      const unchanged = await owner.client.from("pathway_reports").select("content").eq("id",reportId).single();
+      if (unchanged.error) throw new Error("Stale-write readback failed");
+      expect(unchanged.data.content).toEqual(current);
+      const unchangedHistory = await owner.client.from("pathway_report_versions").select("id").eq("report_id",reportId);
+      if (unchangedHistory.error) throw new Error("Stale-write history check failed");
+      expect(unchangedHistory.data).toHaveLength(2);
+      evidence.staleBrowserRestoreDeniedWithoutNewVersion = true;
+      await page.reload({waitUntil:"domcontentloaded"});
+      await expectLoadedReport(page,current.summary,evidence,"fresh-owner-reader");
       await expect(page.getByRole("tab",{name:audienceTabName,exact:true})).toHaveAttribute("aria-selected","true");
       const restore = page.getByRole("button",{name:"Restore",exact:true});
       await expect(restore).toHaveCount(2);

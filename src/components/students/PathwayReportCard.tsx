@@ -11,6 +11,7 @@ type LatestReport = {
   created_at: string;
   summary: string | null;
   is_report_owner?: boolean;
+  content_revision?: string;
 };
 
 /**
@@ -76,10 +77,11 @@ function StudentReportReader({ studentId, studentFirstName, canCreateReport = fa
   async function handleRefresh() {
     if (!active.current || !latest || latest.is_report_owner !== true || refreshStarted.current)
       return;
+    if (!latest.content_revision) { toast.error("Reload this page before refreshing the report."); return; }
     refreshStarted.current = true;
     setRefreshing(true);
     try {
-      const res = await regenerate({ data: { report_id: latest.id } });
+      const res = await regenerate({ data: { report_id: latest.id, expected_revision: latest.content_revision } });
       if (!active.current) return;
       toast.success(`Refreshed Pathway Report (v${res.version_number}).`);
       navigate({ to: "/reports/$reportId", params: { reportId: latest.id } });

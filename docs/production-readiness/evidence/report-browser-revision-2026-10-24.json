@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-24",
+  "status": "local-candidate-validated-automatic-review-pending-not-deployed",
+  "runtimeFingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
+  "runtimeFiles": 1185,
+  "sourceHashes": {
+    "src/lib/report-content-revision.server.ts": "79ada0f6be2a1fa03ad9a5fb8deac539f8f98789eb08c7c9f4022f0f7d2fd495",
+    "src/lib/pathway.functions.ts": "0240f566066f2cb9d3cf78e4a1c1eb61bfaeaaa6dbe3dcaa829baf8ef83dcf03",
+    "src/components/pathway/ReportVersionsPanel.tsx": "74603c316129dd3eb03bf2df9ac2f3f39b7776cbee6a1b00e098e4d090bce6ce",
+    "src/components/students/PathwayReportCard.tsx": "707dc58eee05720e31613316dda806f586275bbfbc178497165a1f72b924a7ec",
+    "src/routes/_authenticated/reports.$reportId.tsx": "02751e5ad32048dbe4baf19a2c715339150f9fdf97a6ace00308c4be842f035c",
+    "tests/e2e/release-readiness/report-history-no-ai.signedin.spec.ts": "fe40112484b423cf70a58f830e6380ea950c2e4cc98fbe74cd150e9c01eb8f84"
+  },
+  "behavior": [
+    "Report reads return a canonical SHA-256 revision bound to report ID, linked student and complete stored content, including legacy reports without write markers.",
+    "Save/restore and regeneration require the browser-observed revision after independent ownership checks. Missing, malformed or stale intent stops before history/provider work; the server never substitutes its own read as browser intent.",
+    "The existing authenticated atomic content RPC still rejects changes arriving after the server content read. No split-write fallback or provider retry is introduced.",
+    "Shared report reader, student report card and restore panel pass observed revisions; same-report revision changes during version loading stop the pending restore.",
+    "Link completion reloads report context/revision before subsequent generation; cached readers lacking a revision request a reload.",
+    "Demo/sample rendering is unchanged because it has no persistent live save/restore operation; no new role permission or Owner planning interface is added."
+  ],
+  "localValidation": {
+    "unitTestsPassed": 4475,
+    "unitFilesPassed": 314,
+    "typescript": "passed",
+    "stagingClientAndServerBuild": "passed",
+    "sourceReadinessContractsPassed": 37,
+    "boundedHostedSpecDiscovery": "2 cases only, not executed",
+    "newUiEdgeCases": "82 final focused cases passed; included in final full unit run"
+  },
+  "logsDirectory": "/private/tmp/tf-all-role-audit-fb40e06a/",
+  "preparedStagingTest": {
+    "status": "not-authorized-not-run",
+    "scope": "report-history-no-ai",
+    "existingAccounts": 7,
+    "maxIntakes": 2,
+    "maxReports": 2,
+    "maxHistoryVersions": 6,
+    "pdfExports": 2,
+    "newRelationships": 0,
+    "newShares": 0,
+    "aiCalls": 0,
+    "retries": 0,
+    "checks": [
+      "Both stable sites match candidate source/count and isolation before fixtures",
+      "Family and Educator stale Restore rejected without report/history change, then reload and successful Restore",
+      "All unrelated roles including Owner/admin denied unlinked private report access",
+      "Existing atomic save/direct edit/history actor, restore/reload and two PDF exports",
+      "Exact caller cleanup followed by independent privileged exact-ID absence verification"
+    ],
+    "authorizationRequired": "New staging deployment/sync/publication and one bounded fixture run; prior fixture authorizations consumed."
+  },
+  "limitations": [
+    "Not hosted acceptance; both applications remain fb40e06a / a91b789b\u20268cc289 /1184 files.",
+    "This is an application save/regeneration protocol, not a new database restriction on all permitted direct client writes.",
+    "Linked-student changes already present at the server read invalidate intent; metadata changes racing after that read are not atomically compared by the existing content-only RPC. Retain metadata concurrency as separate database review.",
+    "Broader provider/live generation, bearer lifecycle, document retention, privacy/security/operations and production rollout gates remain open.",
+    "Original constrained-build heap failure remains recorded in the role-audit evidence; a prior retry pass does not prove sustained memory headroom."
+  ],
+  "migrationsAdded": 0,
+  "hostedActionsPerformed": false,
+  "productionTouched": false,
+  "roadmap": "TF-01 through TF-26 retained; report polish and Parent Pilot/Pathway Snapshot deferred."
+}

@@ -1,3 +1,4 @@
+import { reportContentRevision, assertObservedReportRevision } from "./report-content-revision.server";
 import { loadRegenerationStudentProfile } from "./pathway-student-profile";
 import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
 import { writeReportContent } from "./report-content-write.server";
@@ -244,6 +245,7 @@ export const getReport = createServerFn({ method: "POST" })
       student_first_name: r.student_intakes?.student_first_name ?? "—",
       grade_band: r.student_intakes?.grade_band ?? null,
       review_date: r.review_date,
+      content_revision: await reportContentRevision(r),
       report: r.content as PathwayReport,
     };
   });
@@ -364,6 +366,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
     z
       .object({
         report_id: z.string().uuid(),
+        expected_revision: z.unknown().optional(),
         content: z.unknown(),
         change_summary: z.string().trim().max(500).optional().default(""),
       })
@@ -374,13 +377,15 @@ export const updateReportContent = createServerFn({ method: "POST" })
 
     const { data: current, error: curErr } = await supabase
       .from("pathway_reports")
-      .select("id, user_id, content")
+      .select("id, user_id, student_id, content")
       .eq("id", data.report_id)
       .maybeSingle();
     if (curErr || !current) throw new Error("Report not found.");
     if ((current as { user_id: string }).user_id !== userId) {
       throw new Error("You don't have permission to edit this report.");
     }
+
+    await assertObservedReportRevision(data.expected_revision, current as { id: string; student_id: string | null; content: unknown });
 
     const nextContent = recordSavedSections((current as { content: unknown }).content, data.content);
 
@@ -456,7 +461,7 @@ export const getLatestReportForStudent = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
-      .select("id, user_id, created_at, content")
+      .select("id, user_id, student_id, created_at, content")
       .eq("student_id", data.student_id)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -466,12 +471,13 @@ export const getLatestReportForStudent = createServerFn({ method: "POST" })
       return { report: null, loadFailed: true };
     }
     if (!row) return { report: null, loadFailed: false };
-    const r = row as { id: string; user_id: string; created_at: string; content: unknown };
+    const r = row as { id: string; user_id: string; student_id: string | null; created_at: string; content: unknown };
     const content = r.content as Partial<PathwayReport> | null;
     return {
       loadFailed: false,
       report: {
         id: r.id,
+        content_revision: await reportContentRevision(r),
         is_report_owner: typeof userId === "string" && userId.length > 0 && r.user_id === userId,
         created_at: r.created_at,
         summary: content?.summary ?? null,
@@ -617,7 +623,7 @@ Return ONLY the v2 schema JSON.`;
 
 export const regeneratePathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ report_id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ report_id: z.string().uuid(), expected_revision: z.unknown().optional() }).parse(input))
   .handler(async ({ data, context }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
@@ -644,6 +650,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       throw new Error(
         "Link this report to a student first — then regenerate to pull their full profile.",
       );
+
+    await assertObservedReportRevision(data.expected_revision, rep);
 
     // Gather caller-visible inputs. The linked profile is required; optional tables retain existing recovery.
     const [

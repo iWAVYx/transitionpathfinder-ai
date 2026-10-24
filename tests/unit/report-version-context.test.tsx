@@ -9,7 +9,7 @@ vi.mock("@/lib/pathway.functions", () => ({ listReportVersions: state.list, getR
 vi.mock("sonner", () => ({ toast: { success: state.success, error: state.error } }));
 const row = (id: string, version_number = 1) => ({ id, version_number, change_summary: `Saved ${id}`, created_at: "2026-10-12T12:00:00Z", created_by: null });
 const saved = (id: string, report_id = "report-a") => ({ ...row(id), report_id, content: DEMO_STUDENTS.maya.report });
-function panel(id = "report-a", canRestore = true) { return <ReportVersionsPanel reportId={id} canRestore={canRestore} currentContent={DEMO_STUDENTS.maya.report} onRestored={state.restored} />; }
+function panel(id = "report-a", canRestore = true) { return <ReportVersionsPanel reportId={id} canRestore={canRestore} currentContent={DEMO_STUDENTS.maya.report} expectedRevision={"a".repeat(64)} onRestored={state.restored} />; }
 beforeEach(() => {
   state.list.mockImplementation(({ data }: any) => Promise.resolve({ versions: [row(`${data.report_id}-version`)] }));
   state.update.mockResolvedValue({ ok: true });
@@ -47,7 +47,7 @@ it("allows only one restore at a time and preserves the selected version's compl
   fireEvent.click(screen.getByRole("button", { name: "Restore" }));
   expect(state.get).toHaveBeenCalledTimes(1);
   await act(async () => { finish(saved("version-1")); });
-  expect(state.update).toHaveBeenCalledExactlyOnceWith({ data: { report_id: "report-a", content: DEMO_STUDENTS.maya.report, change_summary: "Restored version 1" } });
+  expect(state.update).toHaveBeenCalledExactlyOnceWith({ data: { report_id: "report-a", expected_revision: "a".repeat(64), content: DEMO_STUDENTS.maya.report, change_summary: "Restored version 1" } });
   expect(state.restored).toHaveBeenCalledOnce(); expect(state.success).toHaveBeenCalledWith("Restored version 1.");
   expect(screen.getAllByRole("button", { name: "Restore" }).every(button => !(button as HTMLButtonElement).disabled)).toBe(true);
 });
@@ -115,4 +115,20 @@ it("losing restore eligibility during a version fetch prevents the save",async()
 });
 it("read-only empty history does not tell the reader to edit the report",async()=>{
  state.list.mockResolvedValue({versions:[],loadFailed:false});render(panel("report-a",false));await screen.findByText("No earlier versions are available.");expect(screen.queryByText(/first edit you save/)).toBeNull();
+});
+
+it("a same-report revision change during version loading stops restore before save", async () => {
+  let finish!: (value: unknown) => void;
+  state.get.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+  const view = render(panel()); fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
+  view.rerender(<ReportVersionsPanel reportId="report-a" canRestore currentContent={DEMO_STUDENTS.maya.report} expectedRevision={"b".repeat(64)} onRestored={state.restored}/>);
+  await act(async () => { finish(saved("report-a-version")); });
+  expect(state.update).not.toHaveBeenCalled(); expect(state.restored).not.toHaveBeenCalled();
+  expect(state.error).toHaveBeenCalledWith("This report has changed. Reload it before trying again.");
+});
+it("a cached reader missing its revision cannot start restoring", async () => {
+  render(<ReportVersionsPanel reportId="report-a" canRestore currentContent={DEMO_STUDENTS.maya.report}/>);
+  fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
+  expect(state.get).not.toHaveBeenCalled(); expect(state.update).not.toHaveBeenCalled();
+  expect(state.error).toHaveBeenCalledWith("Reload this report before restoring a version.");
 });

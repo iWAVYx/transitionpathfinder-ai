@@ -1,3 +1,4 @@
+import { reportContentRevision } from "@/lib/report-content-revision.server";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const calls=vi.hoisted(()=>({generate:vi.fn(),entitlement:vi.fn()}));
 vi.mock("@tanstack/react-start",()=>({createServerFn:()=>{
@@ -24,8 +25,8 @@ for(const role of roles){
  it(`${role}: permitted non-owning reader cannot forge content actions or invoke a mutation`,async()=>{
   const f=fixture(other),context={userId:caller,supabase:f.supabase,roles:[role]};
   const response=await (getReport as any)({data:{id,is_report_owner:true},context});expect(response.is_report_owner).toBe(false);expect(response.report).toEqual(f.row.content);
-  await expect((updateReportContent as any)({data:{report_id:id,content:{summary:"Changed"},is_report_owner:true},context})).rejects.toThrow("You don't have permission to edit this report.");
-  await expect((regeneratePathwayReport as any)({data:{report_id:id,is_report_owner:true},context})).rejects.toThrow("You don't have permission to regenerate this report.");
+  await expect((updateReportContent as any)({data:{report_id:id,content:{summary:"Changed"},expected_revision:await reportContentRevision(f.row),is_report_owner:true},context})).rejects.toThrow("You don't have permission to edit this report.");
+  await expect((regeneratePathwayReport as any)({data:{report_id:id,expected_revision:await reportContentRevision(f.row),is_report_owner:true},context})).rejects.toThrow("You don't have permission to regenerate this report.");
   expect(f.supabase.rpc).not.toHaveBeenCalled();expect(calls.generate).not.toHaveBeenCalled();
  });
 }

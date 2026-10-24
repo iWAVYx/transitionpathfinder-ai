@@ -39,6 +39,7 @@ const latest = (id = "report-a", ...ownership: unknown[]) => ({
     id,
     created_at: "2026-10-23T12:00:00Z",
     summary: "Fictional report",
+    content_revision: "a".repeat(64),
     is_report_owner: ownership.length ? ownership[0] : true,
   },
   loadFailed: false,
@@ -86,7 +87,7 @@ it("the report owner can refresh once and open the exact updated report", async 
   const button = await screen.findByRole("button", { name: "Refresh Pathway Report" });
   fireEvent.click(button);
   fireEvent.click(button);
-  expect(calls.regenerate).toHaveBeenCalledExactlyOnceWith({ data: { report_id: "report-a" } });
+  expect(calls.regenerate).toHaveBeenCalledExactlyOnceWith({ data: { report_id: "report-a", expected_revision: "a".repeat(64) } });
   expect((button as HTMLButtonElement).disabled).toBe(true);
   await act(async () => pending.resolve({ version_number: 2 }));
   expect(calls.navigate).toHaveBeenCalledExactlyOnceWith({
@@ -191,4 +192,12 @@ it("labels the returned creation date honestly rather than claiming a last-edit 
   await screen.findByRole("link", { name: "Open Pathway Report" });
   expect(screen.getByText(/Created/)).toBeTruthy();
   expect(screen.queryByText(/Last updated/)).toBeNull();
+});
+
+it("a cached student report card without a revision cannot start generation", async () => {
+  const response = latest(); response.report.content_revision = undefined as any;
+  calls.latest.mockResolvedValue(response); render(card());
+  fireEvent.click(await screen.findByRole("button", { name: "Refresh Pathway Report" }));
+  expect(calls.regenerate).not.toHaveBeenCalled(); expect(calls.navigate).not.toHaveBeenCalled();
+  expect(calls.error).toHaveBeenCalledWith("Reload this page before refreshing the report.");
 });
