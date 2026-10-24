@@ -1,5 +1,13 @@
 # Production release checklist
 
+## October 24 — Focused 16-Case Audit Awaiting Human Review
+
+- [x] All eight automatic checks passed for test-only candidate `3cb757b2`. Application fingerprint remains `a91b789b…8cc289` /1,184 files; staging remains `fb40e06a`.
+- [x] Queued [focused audit40111115594](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594): 14 opened desktop/mobile role Tools menus, one School denied-entry recheck and one explicit readable high-school check. Existing seven accounts, one worker, zero retries, fixtures or AI calls; no deployment or publication.
+- [ ] GitHub requires the user's human staging review before any test job step. The review dialog is open in the selected Codex in-app browser. Hosted focused cases have not run; the broad result remains 330 passed, one failed and two skipped.
+
+This supersedes the prepared/automatic-review-pending status below. Retain positive middle-school cohort, contextual menu-click/Back and complete Lovable role-journey limits. Full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot remain retained; production/main is untouched.
+
 ## October 24 — Broad Audit: 330 Passes; Focused Menu/School/Grade Follow-Up Prepared
 
 - [x] Human-approved [audit40107769298](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298) completed with zero retries: seven sign-ins passed separately, all 84 dashboard cases passed, and 246 role-access/demo/navigation cases passed. Of the 333 declared non-setup cases, one failed and two skipped. Artifact sanitization passed before retrieval; no records, AI or application changes occurred.

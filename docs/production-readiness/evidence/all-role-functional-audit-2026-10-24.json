@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "broad-audit-completed-one-failure-two-skips-focused-readonly-followup-prepared",
+  "status": "broad-audit-completed-focused-sixteen-case-audit-awaiting-human-review",
   "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
   "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
   "runtimeFiles": 1184,
@@ -40,7 +40,7 @@
   "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled.",
   "dashboardStage": "84 passed",
   "focusedMenuProposal": {
-    "status": "prepared-corrections-not-dispatched",
+    "status": "dispatched-awaiting-github-human-review",
     "scope": "role-tools-readonly",
     "spec": "tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts",
     "specSha256": "57bfd77e166be5a461b49ed9f7625da7a4d4eb9e2201d4a0a2171a259bd3f4d7",
@@ -78,7 +78,11 @@
     ],
     "remainingGradeCoverage": "Positive middle-school cohort needs an existing authorized account or separately authorized fixture; not inferred from high-school pass.",
     "localPreparationNote": "Discovery/type validation caught an uncommitted edit-boundary error; original test sections were restored and only the two targeted cases reapplied before validation/commit.",
-    "dashboardReadiness": "Wait for actual menu shortcuts to appear among completed dashboard actions; retain strict membership and exact destination assertions."
+    "dashboardReadiness": "Wait for actual menu shortcuts to appear among completed dashboard actions; retain strict membership and exact destination assertions.",
+    "workflowSha": "3cb757b2fc74749be7d96c991d85f2b106c7f523",
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594",
+    "automaticChecks": "All eight automatic checks passed on exact workflow SHA before dispatch; credentialed optional jobs were skipped, not counted as passes.",
+    "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/focused-github-review.png"
   },
   "hostedResult": {
     "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298",
