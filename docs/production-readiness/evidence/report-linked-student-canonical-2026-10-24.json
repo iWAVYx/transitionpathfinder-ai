@@ -1,7 +1,7 @@
 {
   "date": "2026-10-24",
-  "status": "canonical-native-and-full-replay-passed-harness-compatibility-followup-prepared",
-  "executionAuthorized": false,
+  "status": "authorized-staging-migration-verified-application-cutover-in-progress",
+  "executionAuthorized": true,
   "applicationCandidateSha": "93f03b414915681949be8e2946a3bfb1a894e233",
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
   "runtimeFiles": 1185,
@@ -206,5 +206,89 @@
     "localHarnessTests": "43 cases in five files passed; new AST contract requires explicit context in all seven known product/hosted-test calls.",
     "cleanup": "Existing exact report/intake IDs, owner/model/marker guard and version cascade; independent read-only table-owner counts required.",
     "authorizationConsumedRuns": 0
-  }
+  },
+  "finalReviewedCandidateSha": "99cb4cbd0977f551f4482568268c00390bac7a85",
+  "finalAutomaticChecks": [
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214952/job/121019711644",
+      "name": "e2e",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214890/job/121019139264",
+      "name": "role-leak-signedin",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214877/job/121019118447",
+      "name": "rls-regression",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214952/job/121019091068",
+      "name": "unit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214931/job/121019090738",
+      "name": "CT Seed v2 Static Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214865/job/121019090650",
+      "name": "replay",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214859/job/121019090774",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214876/job/121019090626",
+      "name": "Credential-free Production Readiness Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214851/job/121019090489",
+      "name": "report-a11y",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214890/job/121019090577",
+      "name": "role-guard-matrix",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143211169/job/121019080612",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214879/job/121019092054",
+      "name": "cross-district-rls",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214931/job/121019091556",
+      "name": "CT Seed v2 Live Staging Audit",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214852/job/121019091690",
+      "name": "permission-regression",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+      "name": "Supabase Preview",
+      "state": "SKIPPED"
+    }
+  ],
+  "finalReviewedUnits": {
+    "files": 315,
+    "passed": 4485,
+    "failed": 0
+  },
+  "stagingRolloutEvidence": "report-linked-student-staging-rollout-2026-10-24.json"
 }

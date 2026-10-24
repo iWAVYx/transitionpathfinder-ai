@@ -55,6 +55,6 @@
     "pendingProductionCount": 14,
     "canonicalInventoryReviewedAt": "2026-10-24",
     "canonicalInventorySourceCommit": "f2cce9289cdde594eb29055d644c5209cb842c31",
-    "canonicalInventoryStatus": "208 canonical migrations; linked-student candidate f2cce928 passed final native29-case and208-migration replay, not applied hosted. Prior 20261024010000 staging acceptance retained. Production14 pending uses saved September17 evidence only."
+    "canonicalInventoryStatus": "208 canonical migrations; authorized20261024020000 committed and read-only verified on isolated staging; both application updates and bounded test still open. Production14 pending uses saved September17 evidence only; production untouched."
   }
 }

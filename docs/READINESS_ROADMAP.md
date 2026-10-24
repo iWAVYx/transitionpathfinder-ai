@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Authorized Linked-Student Staging Cutover in Progress
+
+- [x] User authorized exact reviewed `99cb4cbd`: one migration/ledger transaction, Cloudflare staging, existing isolated Lovable publication and one bounded two-report no-AI run. Final source passes eight automatic checks,4,485 units across315 files and native29/29 plus208-migration replay. No consumed fixture approval is reused.
+- [x] Fresh stable health on both sites confirmed previous approved source, isolated backend and sandbox isolation. Signed-in catalog preflight matched reviewed old function/trigger bodies, effective grants, owner/RLS, policies and exact prerequisite ledger hashes. The new migration was absent.
+- [x] Executed only authorized `20261024020000` plus exact canonical ledger once on `qgrertkqbwanerqqemph`. Read-only verification confirms new body `3ff1d917…96ebd8`, authenticated-only execution, old client RPC denied and ledger MD5 `51fb7a98…022f`. Existing policies/triggers/table RLS remain unchanged. An editor auto-indent was corrected and full24,426-character clipboard equality verified before execution; no malformed SQL was run.
+- [x] Synced exactly two runtime files to the existing isolated repository as `cc0beadf`; no intervening builder edits existed. Environment/dependency/generated-type hashes are unchanged; runtime matches `52d34874…4fdfef` /1,185 files.
+- [ ] [Cloudflare release40143902858](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143902858) is pinned to `99cb4cbd` and waits for GitHub's required human staging review. The dialog is open in Codex's in-app browser; the agent does not approve or bypass it. Lovable preview/publication verification is proceeding independently.
+- [ ] Verify both new stable identities/isolation, then dispatch the one authorized no-AI acceptance: seven existing accounts, at most two fictional intake/report pairs, six history versions and two PDFs, zero retries/AI/new students/accounts/relationships/shares, exact cleanup and independent absence proof. No test records have been created.
+
+Production/main remains untouched. All remaining metadata/direct-writer, bearer-link and wider production gates stay open, with full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot retained. See [rollout evidence](production-readiness/evidence/report-linked-student-staging-rollout-2026-10-24.json).
+
 ## October 24 — Canonical Linked-Student Save Verified; Staging Authorization Required
 
 - [x] Added new `20261024020000_require_linked_student_report_save.sql`; its transaction matches the native-tested proposal exactly. Applied files remain untouched. Shared Save/Restore and Regenerate candidate remains `93f03b41` /`52d34874…4fdfef` /1,185 runtime files.
