@@ -1,5 +1,14 @@
 # Production release checklist
 
+## October 24 — Linked-Student Save Boundary: Local Proposal Tested
+
+- [x] Source review and a disposable SQL reproduction confirm that the current content-only save can accept old student context if the report is relinked after the server read. The prior browser-revision acceptance remains valid for its tested scope.
+- [x] Prepared an **unapplied proposal**, outside canonical migrations: compare the expected linked student and complete content under one row lock, retain owner/RLS checks and trigger-owned history, and retire client execution of the old context-free RPC atomically. Nineteen new PGlite cases pass; 65 retained history cases pass with two native-only concurrency cases skipped, and 40 current revision/sharing units pass. Runtime fingerprint remains `aa247bc4…629a50` /1,185 files.
+- [ ] Next: native multi-session relink/save acceptance; application save/restore/regeneration caller integration; canonical migration, ledger, compatibility/recovery review and full replay. Applying this proposal before the caller switch would stop current report writes. Do not run it hosted or treat the local result as a completed release.
+- [ ] Sharing lifecycle remains distinct: current links follow current report content, do not recheck issuer access at resolution, and can have no expiry via the API. Review access removal/relink/lifetime behavior and legacy-token handling before changing policy; retain the successful October 23 sharing scope. This does not change the user's retained-chat-history choice for removed channel members.
+
+No new runtime, hosted records, database, staging release/publication, AI/provider, account/access, payment/secret or production/main changes. Full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot remain retained. See [local review evidence](evidence/report-linked-student-review-2026-10-24.json).
+
 ## October 24 — Stale Restore Acceptance Completed; Fixtures Removed
 
 - [x] Human-approved [bounded no-AI run 40138782975](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40138782975) passed both Family and Educator report journeys, plus seven separate existing-account setup cases, with zero failures, skips or retries.
