@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "both-stable-sites-verified-bounded-test-awaiting-github-human-review",
+  "status": "both-stable-sites-verified-bounded-no-ai-acceptance-passed",
   "authorization": "User explicitly authorized staging release and one bounded no-AI test for b9062390 and documentation-only 02e0af2f. No migrations, new accounts/relationships, shares, provider calls, payments/secrets or production changes.",
   "applicationSha": "b9062390665f5c9285d8dec473a5bfa76342530f",
   "releaseSha": "02e0af2fc54ddd9bf1a23f1afe9565c1753f91d8",
@@ -85,17 +85,72 @@
   "automaticFollowupReview": "Eight successful checks on 02e0af2f after one unchanged-source retry of a constrained Node heap failure. Original failed attempt retained; operational headroom remains separate.",
   "boundedTest": {
     "authorizedRuns": 1,
-    "startedRuns": 0,
-    "recordsCreated": 0,
+    "startedRuns": 1,
+    "recordsCreated": {
+      "intakes": 2,
+      "reports": 2,
+      "historyVersions": 6,
+      "shares": 0,
+      "relationships": 0,
+      "accounts": 0
+    },
     "aiCalls": 0,
-    "hold": "Both stable preflight checks passed. GitHub still requires human review before the protected test starts.",
     "limits": "Seven existing accounts; at most two fictional intakes/reports, six versions, two PDFs; no new users/relationships/shares; zero retries; exact cleanup and independent exact-ID absence verification.",
-    "status": "queued-awaiting-human-review",
+    "status": "completed-success",
     "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40138782975",
     "workflowSha": "0d19f9a41a9714fd33a0cf15007d96f344a9c8d4",
     "scope": "report-history-no-ai",
     "fixtureConfirmation": "disposable-report-history",
-    "reviewScreenshot": "/private/tmp/tf-report-browser-revision-release-02e0af2f/github-bounded-test-review.png"
+    "reviewScreenshot": "/private/tmp/tf-report-browser-revision-release-02e0af2f/github-bounded-test-review.png",
+    "authSetupPassed": 7,
+    "reportCasesPassed": 2,
+    "failures": 0,
+    "skips": 0,
+    "retries": 0,
+    "pdfExports": 2,
+    "authorizationConsumed": true,
+    "results": [
+      "Both stale Restore attempts rejected with no extra history or newer-content loss",
+      "Fresh reload and Restore succeeded for Family and Educator",
+      "Truthful versions 1,2,3 with actual actors; direct history fabrication denied",
+      "All unrelated existing roles including Owner/admin denied private report access"
+    ],
+    "callerCleanup": "Both fixtures reported errors: []",
+    "independentCleanup": {
+      "run_id": "40138782975-1",
+      "status": "PASS: all exact fixture scopes empty",
+      "operator": "postgres",
+      "read_only": "on",
+      "observed_at": "2026-10-24T22:43:11.359011+00:00",
+      "share_count": 0,
+      "intake_count": 0,
+      "report_count": 0,
+      "version_count": 0
+    },
+    "pdfReview": {
+      "status": "passed-bounded-export-review",
+      "method": "Poppler render of every page in four contact sheets, with larger inspection of pages 1, 2, 8 and 31 for each role; text extraction and page-bound checks.",
+      "findings": "Both restored summaries present (educator wraps across lines), role-specific summary action panels, complete meeting sheet/source note and closing disclaimer, visible top-right watermarks; no observed clipping, overlaps or blank pages.",
+      "limits": "Not native printer acceptance, exhaustive proofreading, live AI output validation or a report-length redesign. Cosmetic polish remains deferred.",
+      "exports": [
+        {
+          "role": "parent",
+          "sha256": "716f56169797856a9967296c89b138289ed6106123cbeffd23f4831eb9ad0657",
+          "pages": 31,
+          "restoredSummaryPresent": true
+        },
+        {
+          "role": "educator",
+          "sha256": "431de61e4a8a7d5e860962a0d708220510f263d880ab315175d02b5a08007fa0",
+          "pages": 31,
+          "restoredSummaryPresent": true
+        }
+      ]
+    },
+    "sanitizer": "Passed; zero unsafe files removed before artifact download",
+    "successScreenshot": "/private/tmp/tf-report-browser-revision-release-02e0af2f/github-bounded-test-success.png",
+    "fixtureEvidence": "/private/tmp/tf-report-browser-revision-release-02e0af2f/bounded-test-fixtures.json",
+    "remainingScope": "No linked-editor relationship created; live AI regeneration unperformed. A repeat fixture run requires new authorization."
   },
   "migrationsPerformed": 0,
   "productionTouched": false,

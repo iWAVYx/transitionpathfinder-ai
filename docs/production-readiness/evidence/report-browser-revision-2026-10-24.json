@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "both-stable-sites-verified-bounded-test-awaiting-github-human-review",
+  "status": "staging-no-ai-stale-restore-acceptance-passed",
   "runtimeFingerprint": "aa247bc40bab903b733fca5d85c6a9a4d7a97ce07ef1e2494814ff2b76629a50",
   "runtimeFiles": 1185,
   "sourceHashes": {
@@ -25,12 +25,12 @@
     "typescript": "passed",
     "stagingClientAndServerBuild": "passed",
     "sourceReadinessContractsPassed": 37,
-    "boundedHostedSpecDiscovery": "2 cases only, not executed",
+    "boundedHostedSpecDiscovery": "Exactly two cases discovered and subsequently passed in authorized run 40138782975.",
     "newUiEdgeCases": "82 final focused cases passed; included in final full unit run"
   },
   "logsDirectory": "/private/tmp/tf-all-role-audit-fb40e06a/",
   "preparedStagingTest": {
-    "status": "authorized-once-queued-awaiting-github-human-review",
+    "status": "executed-once-passed-cleanup-independently-confirmed",
     "scope": "report-history-no-ai",
     "existingAccounts": 7,
     "maxIntakes": 2,
@@ -48,10 +48,10 @@
       "Existing atomic save/direct edit/history actor, restore/reload and two PDF exports",
       "Exact caller cleanup followed by independent privileged exact-ID absence verification"
     ],
-    "authorizationRequired": "Staging release and one bounded run now authorized by user; GitHub human job review still required."
+    "authorizationRequired": "One authorized run completed; any repeat requires new authorization."
   },
   "limitations": [
-    "Both stable staging sites serve the candidate with passing isolation. The one bounded no-AI test is queued, not executed; hosted acceptance remains pending.",
+    "Both stable staging sites match with isolation passing. One bounded no-AI run passed both report cases and seven account setup cases; independent exact-ID cleanup confirms zero rows. Live AI regeneration remains unperformed.",
     "This is an application save/regeneration protocol, not a new database restriction on all permitted direct client writes.",
     "Linked-student changes already present at the server read invalidate intent; metadata changes racing after that read are not atomically compared by the existing content-only RPC. Retain metadata concurrency as separate database review.",
     "Broader provider/live generation, bearer lifecycle, document retention, privacy/security/operations and production rollout gates remain open.",

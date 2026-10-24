@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Stale Restore Acceptance Completed; Fixtures Removed
+
+- [x] Human-approved [bounded no-AI run 40138782975](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40138782975) passed both Family and Educator report journeys, plus seven separate existing-account setup cases, with zero failures, skips or retries.
+- [x] Stale Restore left newer content and history unchanged; reloading then restoring succeeded. Each report retained three truthful history versions. Unrelated roles, including Owner/admin, were denied access. No AI/provider calls, new accounts, relationships or shares occurred.
+- [x] Both fictional PDFs contain the restored summary and role-specific action panel. All pages were rendered for overview, with cover, summary, meeting sheet and ending inspected at larger size; no observed clipping/blank pages. Native printing and live AI generation are not certified; report polish stays deferred.
+- [x] Caller cleanup passed. Independent `postgres` verification inside an explicitly read-only transaction confirmed zero exact fixture reports, intakes, versions or share links at `2026-10-24T22:43:11Z` on isolated `qgrertkqbwanerqqemph`. The one authorized test is consumed; do not repeat without new authorization.
+- [ ] Next: review remaining bearer-link lifecycle and report-metadata concurrency boundaries, then broader generation/provider/privacy/operations release gates. Existing content-only atomic writes do not compare metadata changes racing after the server read; permitted direct-client-write policy remains a separate review.
+
+Both stable sites retain approved `aa247bc4…629a50` /1,185 files. No additional release, migration or production/main change occurred. Full TF-01–TF-26, deferred Parent Pilot/Pathway Snapshot and all historical failures/limits remain retained. Earlier entries below are historical checkpoints; this entry supersedes their pending status. See [completed rollout evidence](production-readiness/evidence/report-browser-revision-staging-rollout-2026-10-24.json).
+
 ## October 24 — Both Staging Sites Verified; Bounded Test Review Pending
 
 - [x] Human-approved [Cloudflare release40137181297](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40137181297) succeeded, including staging guards, sandbox-payment checks, build, deployment identity and PWA assets. The deployed real SHA is `02e0af2f`.
