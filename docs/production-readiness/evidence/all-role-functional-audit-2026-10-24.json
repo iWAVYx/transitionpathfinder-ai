@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-24",
+  "status": "hosted-audit-waits-for-required-human-review",
+  "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+  "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+  "runtimeFiles": 1184,
+  "workflowSha": "b8726c4a0171b05181e306f48adb0739e5ef7ff3",
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298",
+  "scope": "all-roles",
+  "declaredCases": 333,
+  "existingRoleAccounts": 7,
+  "hostedTestsExecuted": false,
+  "retries": 0,
+  "fixtureScopesSelected": false,
+  "aiCallsRequested": 0,
+  "applicationDeploymentRequested": false,
+  "localValidation": {
+    "files": [
+      "tests/unit/workspace-tool-applicability.test.ts",
+      "tests/unit/site-header-workspace-resolution.test.tsx",
+      "tests/unit/dashboard-links.test.ts"
+    ],
+    "passed": 65,
+    "failed": 0,
+    "log": "/private/tmp/tf-all-role-audit-fb40e06a/local-menu-contracts.log"
+  },
+  "coverageLimitations": [
+    "Closed-menu navigation scans cannot establish actual opened desktop/mobile Tools menu contents.",
+    "Existing workspace-stage fallback acceptance proves a page exists, not that each role receives the exact intended feature.",
+    "Configured all-role check runs on Cloudflare; matching Lovable source does not by itself prove every hosted Lovable journey."
+  ],
+  "nextFocusedCoverage": [
+    "Open desktop/mobile Tools menus for each role and compare actual links with relevant dashboard actions.",
+    "Verify each actual shortcut reaches its intended tool instead of an unrelated fallback.",
+    "Preserve Owner Hub management-only navigation."
+  ],
+  "dataAndReleaseSafety": "Read-only existing-account audit. No fixtures, generation/provider calls, migration, deployment/publication, account/access, payment/secret or production/main changes.",
+  "browserPreference": "Codex in-app browser only for further user-browser actions.",
+  "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled."
+}

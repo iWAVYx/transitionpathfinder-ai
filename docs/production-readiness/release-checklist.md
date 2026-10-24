@@ -1,5 +1,14 @@
 # Production release checklist
 
+## October 24 — All-Role Read-Only Audit Queued; Menu Coverage Tracked
+
+- [x] Reviewed the existing protected all-role scope: 333 declared dashboard/mobile/tablet/desktop, role-access, demo and navigation cases across six files, using seven existing accounts and zero retries. No fixture scope, generation or deployment is selected. Application remains verified `fb40e06a` /`a91b789b…8cc289` /1,184 files.
+- [x] Sixty-five local tool-applicability, shared-header and dashboard-link contracts pass. Configured shortcuts connect to existing role-dashboard features; unknown/pending roles have no planning catalog and Owner shortcuts stay management-only. These local checks do not establish live dropdown acceptance.
+- [ ] Human review is required before [audit40107769298](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298) starts. Its displayed `b8726c4a` is documentation-only; do not count queued/unrun cases as passes. Browser handoff is in the user-selected Codex in-app browser.
+- [ ] Explicitly cover opened desktop/mobile Tools menus across roles and verify each actual shortcut reaches its intended dashboard feature. Existing closed-menu scans and permissive workspace-stage fallbacks cannot substitute for this check. Cloudflare audit evidence also does not automatically certify every Lovable-hosted journey.
+
+See [functional audit plan/evidence](evidence/all-role-functional-audit-2026-10-24.json). No application, hosted records, AI/provider calls, production/main, migration, deployment/publication, account/access, payment or secrets changes. Full TF-01–TF-26 retained; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
 ## October 24 — Explicit Student Access Accepted; Both Staging Sites Match
 
 - [x] Authorized `fb40e06a` is live on Cloudflare and the existing isolated Lovable publication. Both stable health endpoints report `a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289` /1,184 files, isolated backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Cloudflare keeps its exact real commit; Lovable retains honest fingerprint-based identity. Publication completed in the user-selected Codex in-app browser; visibility/access settings are preserved.
