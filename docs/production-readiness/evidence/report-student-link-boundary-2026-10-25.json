@@ -1,6 +1,6 @@
 {
   "date": "2026-10-25",
-  "status": "both-staging-releases-verified-read-only-acceptance-awaiting-human-review",
+  "status": "both-staging-releases-verified-read-only-acceptance-passed",
   "runtimeDeployed": true,
   "findings": [
     "Link action previously returned success on an RLS-filtered zero-row update.",
@@ -109,13 +109,13 @@
     "No hosted relink mutation test has been run for this candidate. Local tests exercise request validation, owner/source filters, zero-row/denied result handling and reader behavior; they do not substitute for native lock-concurrency evidence.",
     "Shared readers and demos have no live report relinking action. The shared saved-report mutation applies to every permitted report owner rather than one role."
   ],
-  "hostedActions": "Authorized Cloudflare deployment and isolated Lovable source sync/publication completed; both stable identities verified. Read-only role/report acceptance dispatched, waiting for human review; no fixture or AI runs.",
+  "hostedActions": "Authorized application staging rollout completed on both stable sites. Read-only acceptance passed after human review: seven existing role sign-ins, four prepared-reader journeys, three fictional sample PDFs. Zero fixture records, AI/provider calls, migrations, new accounts, payment or secret changes.",
   "productionTouched": false,
   "mainMerged": false,
   "next": [
-    "Obtain fresh staging-only application deployment/sync/publication authorization, followed by read-only role/report checks. No fixture run or migration included.",
-    "Obtain fresh staging-only deployment/sync/publication authorization before release; no fixture or AI run is included.",
-    "Continue separate metadata/direct-write/provenance and full production-readiness gates."
+    "Review remaining metadata/direct-writer/provenance boundaries locally; live relink writes and change-away/back remain separately unverified.",
+    "Continue broader all-role generation, provider/privacy/security/operations release checklist.",
+    "Keep report length/cosmetic polish, Parent Pilot and Pathway Snapshot deferred; production requires separate reviewed authorization."
   ],
   "preserved": [
     "Your Dashboard Widgets builder edit",
@@ -166,9 +166,82 @@
     "readOnlyAcceptance": {
       "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209150697",
       "scope": "report-reader-lenses",
-      "status": "waiting-for-required-human-review",
+      "status": "success",
       "records": 0,
-      "aiCalls": 0
+      "aiCalls": 0,
+      "requiredHumanReviewCompleted": true,
+      "retries": 0,
+      "existingRoleSessions": 7,
+      "sampleReportCases": 4,
+      "unexpected": 0,
+      "flaky": 0,
+      "skippedSampleCases": 0,
+      "preparedReaderReceipts": [
+        {
+          "width": 390,
+          "origin": "family",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [],
+          "nativePrintDialogVerified": false
+        },
+        {
+          "width": 390,
+          "origin": "educator",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [],
+          "nativePrintDialogVerified": false
+        },
+        {
+          "width": 1440,
+          "origin": "family",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [
+            {
+              "audience": "educator",
+              "pages": 30,
+              "finalQuestionWithSources": true,
+              "meetingQuestionsPrintedOnce": 5
+            },
+            {
+              "audience": "student",
+              "pages": 30,
+              "finalQuestionWithSources": true,
+              "meetingQuestionsPrintedOnce": 5
+            },
+            {
+              "audience": "family",
+              "pages": 30,
+              "finalQuestionWithSources": true,
+              "meetingQuestionsPrintedOnce": 5
+            }
+          ],
+          "nativePrintDialogVerified": false
+        },
+        {
+          "width": 1440,
+          "origin": "educator",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [],
+          "nativePrintDialogVerified": false
+        }
+      ],
+      "samplePdfExports": 3,
+      "artifactSanitization": "success",
+      "nativePrintDialogVerified": false,
+      "hostedRelinkWritesVerified": false,
+      "artifacts": "/private/tmp/tf-linked-save-canonical/hosted-40209150697"
     },
     "stableHealth": {
       "cloudflare": {

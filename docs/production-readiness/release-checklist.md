@@ -1,8 +1,18 @@
 # Production release checklist
 
+## October 25 — Report Relinking Staging Release: Read-Only Acceptance Passed
+
+- [x] [Read-only run 40209150697](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209150697) passed after GitHub human review. All seven existing role sessions signed in; four prepared-report journeys passed with zero retries, failures, flaky cases or skipped sample cases.
+- [x] Family/Educator entry journeys passed at 390px and 1440px, covering one-click audience changes, Back/Forward, reload, builder-return links and the optional sample-details round trip. Family, Educator and Student sample PDFs exported successfully; watermark loading, complete final source note with its question, each meeting question printed once and end-of-report checks passed. Native OS print-dialog behavior was not tested.
+- [x] Artifact sanitization passed; downloaded evidence contains the four reader receipts and three fictional PDFs. No hosted record creation/update/deletion, live relink write, migration, AI/provider call, new account or access/payment/secret change occurred in this run. PDF length/cosmetic refinement stays tabled.
+- [ ] Next: continue the remaining report metadata/direct-writer/provenance review, then broader role-generation, provider/privacy, security and operations readiness. This read-only success does not certify live relink races, change-away-and-back, every generation input or every Lovable-hosted role journey.
+
+Both stable staging sites remain verified on `6126e2ed…a480dd` / 1,185 files. Production and original main remain untouched. Full TF-01–TF-26, the preserved builder title and deferred Parent Pilot/Pathway Snapshot remain retained. Earlier checkpoints below are historical.
+
+
 ## October 25 — Report Relinking Release Verified on Both Staging Sites
 
-- [x] Authorized Cloudflare [release 40207428692](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40207428692) passed after human review and serves exact `1544ede3`. Synced exactly two runtime files to the existing isolated `iWAVYx/gentle-forward-reach` repository, commit `d6c6f48a`; no newer builder edits were present. Environment/dependency/generated-type and demo-title protected hashes were preserved.
+- [x] Authorized Cloudflare [release 40207428692](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40207428692) passed after human review and serves exact `1544ede3`. Synced exactly two runtime files to the existing isolated `iWAVYx/gentle-forward-reach` repository, commit `d6c6f48a`; no newer builder edits were present. Environment/dependency/generated-type protected hashes were preserved, and no dashboard builder files were changed.
 - [x] Updated the existing isolated Lovable staging publication after externally confirming the preview fingerprint. Both stable sites now serve `6126e2ed…a480dd` / 1,185 files, backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Lovable reports its actual isolated sync commit; no identity was fabricated. A browser approval timeout resolved on the permitted retry; no security control was bypassed.
 - [ ] Complete GitHub's required human review for authorized [read-only acceptance 40209150697](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209150697): seven existing sign-ins, four sample-report journeys and three fictional sample PDFs, zero retries/records/AI. This scope does not certify a live relink write or every Lovable role journey.
 
