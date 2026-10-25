@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — PPT Source-Grounding Correction Prepared Locally
+
+- [x] Strengthened the shared PPT system instructions across every section and both speaker perspectives: distinguish reported information, missing input and suggestions; do not invent observations, enrollment/placement, participants or assigned responsibilities; ask for agreement on an owner/date and preserve reported measurements. A requested outcome is not an agreed team decision. Missing input does not prove records/services do not exist.
+- [x] Removed conflicting agenda/closing instructions that told the model to assign owners. Kept difficult-conversation scripts conditional. Updated the Educator demo example to ask for comparison of dated observations rather than assert firsthand observation; signed-in/demo document layouts and role access stay unchanged.
+- [x] Family and Educator mocked-provider cases confirm delivery of the rules and separate source data. Full local suite passes 4,564 tests / 319 files; TypeScript passes. New source fingerprint `dd512c1c…1b3f7` / 1,185 files, two runtime files changed. Final isolated-staging build also passes; automatic checks are pending at this preparation checkpoint.
+- [ ] Obtain fresh authorization before staging deployment, isolated Lovable sync/publication or one bounded Family/Educator generation/PDF acceptance run. Both stable staging sites still serve verified `3534a127…8bb9f5`; no hosted changes or further AI/fixture activity occurred during this preparation.
+- [ ] Review live wording after release: prompt delivery is not proof of factual output. Keep Educator generation, private-packet denial, PDF exports and manual source-grounding acceptance open. Do not rewrite existing saved packets or reopen deferred report-length polish. Full TF-01–TF-26, six milestones and Parent Pilot/Pathway Snapshot remain retained.
+
+Evidence: `ppt-source-grounding-preparation-2026-10-25.json`. The failed/partial first run and independent cleanup proof remain recorded below; they have not been relabeled as passed.
+
+
 ## October 25 — First PPT Live Run: Family Saved/Reopened; Test Heading Corrected
 
 - [x] User-authorized and human-approved [run 40217917300](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40217917300) verified both staging identities and all seven existing role sign-ins. Family generated, saved and reopened one fictional PPT packet; structure checks passed. One application generation invocation was reached; actual SDK/gateway attempts are unobserved.

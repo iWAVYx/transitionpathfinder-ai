@@ -26,7 +26,7 @@ export function demoMeetingGuide(profile: DemoProfile, role: "family" | "educato
       "Family: I would like our concern recorded, along with what the team will try and when we will review it.",
       "Family: Could you explain how we will know whether this support is helping?",
     ] : [
-      "Educator: Here is what we observed, when it happened and which supports were available. What are you noticing at home?",
+      "Educator: Could we compare dated observations, the supports used and what you are noticing at home?",
       "Educator: Let’s record the family’s concern and identify the information we still need.",
       "Educator: Could we agree on a measurable next step and a date to review the evidence together?",
     ],

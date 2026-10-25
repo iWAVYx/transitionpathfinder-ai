@@ -38,6 +38,18 @@ const AgendaSchema = z.object({
     .describe("A 2-3 sentence calm script for when the meeting stalls or goes sideways."),
 });
 
+// These apply to every generated section and both speaker perspectives.
+// Schema validation checks shape, not whether prose is supported by the source.
+const PPT_SOURCE_GROUNDING_RULES = `Ground every meeting packet in the supplied planning context. These rules apply to the opening, agenda, questions, evidence requests, scripts and closing follow-up:
+- Distinguish reported information, information not supplied and proposed next steps. A Pathway Report is planning context, not proof that an observation, service, placement or team decision was verified.
+- An interest, goal or listed support does not establish classroom observations, program enrollment, a current job placement or successful use in a particular setting. Do not say "In class, we see..." or "Staff have observed..." unless a corresponding observation was supplied; attribute any supplied observation to its source rather than pretending the speaker witnessed it. Otherwise ask what observations could be reviewed or propose collecting them.
+- Do not turn a work interest into existing enrollment in a training program, a confirmed job placement or a classroom routine. Label any new setting or opportunity as an option to explore and confirm.
+- Do not invent meeting participants, assigned staff roles, responsibilities or agreed dates. If the source does not record an assignment, use a proposal or question such as "Could the team choose who will collect the data and agree on a review date?" A possible staff role must be explicitly marked as a suggestion to confirm, never "the coordinator will" or "the instructor will" without a supplied assignment.
+- A participant's requested outcome is not an agreed team decision. Preserve supplied baseline numbers, units and prompting conditions as reported; do not invent a measured result or fill missing details.
+- "Not supplied" does not mean "does not exist." Say that progress records, service information or other evidence have not been supplied here, and ask the team to check available records; do not assert that the school lacks them or has failed to provide services.
+- Keep both Family and Educator scripts in the correct speaker's voice without inventing firsthand experience, an existing dispute or commitments by other people. Frame possible difficulties conditionally, including the if_things_get_stuck script: "If we cannot resolve this with the information available..." Seek agreement on an owner and date rather than announce that a follow-up has already been assigned.
+Before returning, check every factual-sounding observation, setting, person, assignment and date against the supplied context. If unsupported, change it to an explicitly proposed option or a question. Keep the wording natural and usable; do not print these internal checking instructions.`;
+
 export type PptAgenda = z.infer<typeof AgendaSchema>;
 
 class PptPrepSaveError extends Error {
@@ -83,12 +95,12 @@ ${JSON.stringify({
 
 Create a focused, thorough meeting packet using the required schema:
 - opening_note: frame the student's strengths, shared priorities and specific decisions to resolve. Do not fabricate the family's position or student preferences.
-- agenda: sequence 4-7 meaningful topics covering present performance/evidence, student voice, priority goals, accommodations or assistive technology when relevant, transition opportunities and a closing action plan. Each purpose must name the evidence to examine, decision sought and who should confirm the next step. Use realistic time allocations.
+- agenda: sequence 4-7 meaningful topics covering present performance/evidence, student voice, priority goals, accommodations or assistive technology when relevant, transition opportunities and a closing action plan. Each purpose must name the evidence to examine and decision sought, then ask who should confirm the next step unless the source already records that assignment. Use realistic time allocations.
 - questions_to_ask: 4-8 substantive questions tailored to the supplied concerns and report. Cover measurable baseline and success criteria, how progress will be collected and reviewed, implementation responsibilities, whether supports work across settings, and student participation. Ask about missing information instead of assuming it. Include both a family-perspective question and an educator-perspective question, explicitly labeled.
 - evidence_to_bring: 3-6 prioritized evidence requests. Distinguish what the supplied context actually establishes from documents or observations to request. Explain how each item informs a specific decision; suggest dated work samples, observations, progress data or the current IEP only as needed, never claim they were uploaded or reviewed.
 - language_that_works: 3-6 usable, respectful scripts with explicit Family or Educator labels. Address a difficult request, disagreement about progress/supports, and converting a concern into a measurable follow-up. Seek documented evidence and a shared plan without promising an entitlement, outcome or escalation strategy.
 - Speaker labels identify the person speaking, never the recipient. Family scripts and questions must speak AS a parent/guardian to the school team; Educator scripts and questions must speak AS an educator to the family or team. Include both perspectives. Check each labeled item for this direction before returning it. Do not introduce an additional-service request or an existing disagreement absent from the source; frame possible difficult situations explicitly as hypothetical ("If...").
-- if_things_get_stuck: provide a calm, concrete script to summarize agreement and disagreement, identify missing evidence, assign a follow-up owner/date and confirm how the decision will be documented.
+- if_things_get_stuck: provide a calm, concrete script to summarize agreement and disagreement, identify information not supplied and seek agreement on a follow-up owner/date and how any decision will be documented. Keep the situation conditional unless the source records an actual disagreement.
 
 Treat the Pathway Report as planning context, not a verified IEP or independent assessment. Separate reported facts, proposed questions and recommendations. Do not invent diagnoses, assessment scores, service minutes, legal citations, policy requirements, available placements, completed evaluations or guaranteed results. Do not turn absent concerns into asserted family wishes. Where evidence is missing, clearly say what to clarify. Do not issue legal determinations or claim compliance. Every item should contribute to a meeting decision; avoid repetitive motivational filler. Aim for a practical packet of approximately 600-900 words, with concise sections and enough detail to act on.`;
 
@@ -97,7 +109,7 @@ Treat the Pathway Report as planning context, not a verified IEP or independent 
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: AgendaSchema }),
-        system: await buildStructuredOutputSystem(AgendaSchema),
+        system: await buildStructuredOutputSystem(AgendaSchema, PPT_SOURCE_GROUNDING_RULES),
         prompt,
       });
       const agenda = AgendaSchema.parse(experimental_output);

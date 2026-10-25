@@ -65,6 +65,32 @@ describe("generation output and persistence boundaries", () => {
     expect(prompt).toContain("Do not invent diagnoses");
     expect(prompt).not.toContain("infer from the Pathway Report");
   });
+  it.each(["family-synthetic", "educator-synthetic"])("sends source-grounding rules for every PPT section for %s", async userId => {
+    mocks.generate.mockResolvedValue({ experimental_output: agenda });
+    const { context, save } = db(userId);
+    await (createPptPrep as any)({ data: {
+      report_id: reportId,
+      top_concerns: "No classroom observation was supplied. Review the reported two independent steps.",
+      desired_outcomes: "Explore a culinary job site; propose a data owner and review date.",
+    }, context });
+    const request = mocks.generate.mock.calls[0][0];
+    expect(request.system).toContain("opening, agenda, questions, evidence requests, scripts and closing follow-up");
+    expect(request.system).toContain("does not establish classroom observations");
+    expect(request.system).toContain("attribute any supplied observation to its source");
+    expect(request.system).toContain("an option to explore and confirm");
+    expect(request.system).toContain("Do not invent meeting participants, assigned staff roles, responsibilities or agreed dates");
+    expect(request.system).toContain('"Not supplied" does not mean "does not exist."');
+    expect(request.system).toContain("A participant's requested outcome is not an agreed team decision");
+    expect(request.system).toContain("If we cannot resolve this with the information available");
+    // Real input remains data in the user prompt; it cannot become system instructions.
+    expect(request.system).not.toContain("No classroom observation was supplied. Review the reported two independent steps.");
+    expect(request.prompt).toContain('"participant_concerns":"No classroom observation was supplied. Review the reported two independent steps."');
+    expect(request.prompt).toContain("unless the source already records that assignment");
+    expect(request.prompt).toContain("seek agreement on a follow-up owner/date");
+    expect(mocks.generate).toHaveBeenCalledTimes(1);
+    expect(save.insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: userId, report_id: reportId, agenda }));
+    // A mocked provider response proves instruction delivery and persistence, not live prose quality.
+  });
   it.each([{ data: null, error: { message: "synthetic write failed" } }, { data: null, error: null }])("rejects a generated prep that was not saved", async saveResult => {
     mocks.generate.mockResolvedValue({ experimental_output: agenda });
     const { context } = db("family-synthetic", saveResult);
