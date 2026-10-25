@@ -1,6 +1,6 @@
 {
   "date": "2026-10-25",
-  "status": "local-candidate-automatic-review-pending",
+  "status": "reviewed-ready-for-staging-release-authorization",
   "runtimeDeployed": false,
   "findings": [
     "Link action previously returned success on an RLS-filtered zero-row update.",
@@ -22,9 +22,86 @@
     "fullUnitLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-unit.log",
     "focusedCases": 49,
     "focusedLog": "/private/tmp/tf-linked-save-canonical/report-link-focused-final.log",
-    "automaticChecks": "pending",
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343867/job/121208534456",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343901/job/121208050498",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343786/job/121208019093",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343867/job/121207986080",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343830/job/121207986062",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343754/job/121207985944",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343745/job/121207985549",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343895/job/121207986268",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343901/job/121207986194",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343782/job/121207986193",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206340397/job/121207976174",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343818/job/121207987275",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343830/job/121207987304",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343851/job/121207987329",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
     "typescriptPassed": true,
-    "typescriptLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-tsc.log"
+    "typescriptLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-tsc.log",
+    "allRequiredAutomaticChecksPassed": true
   },
   "limits": [
     "Observed-student compare is state-based; it does not detect a change-away-and-back association (ABA), enforce whole-report metadata revision, or lock provider input provenance.",
@@ -36,7 +113,7 @@
   "productionTouched": false,
   "mainMerged": false,
   "next": [
-    "Complete automatic review and clean builds.",
+    "Obtain fresh staging-only application deployment/sync/publication authorization, followed by read-only role/report checks. No fixture run or migration included.",
     "Obtain fresh staging-only deployment/sync/publication authorization before release; no fixture or AI run is included.",
     "Continue separate metadata/direct-write/provenance and full production-readiness gates."
   ],
@@ -45,5 +122,8 @@
     "Full TF-01\u2013TF-26 roadmap",
     "Deferred report polish",
     "Deferred Parent Pilot and Pathway Snapshot"
-  ]
+  ],
+  "reviewedCandidate": "04bf970b",
+  "runtimeFingerprint": "6126e2ed837e0c195f593802c091d601ebf991b019a6e4b4d94d547028a480dd",
+  "runtimeFiles": 1185
 }
