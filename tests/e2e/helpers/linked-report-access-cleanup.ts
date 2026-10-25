@@ -6,6 +6,8 @@ export type LinkedAccessFixture = {
   reportId: string;
   relationshipIds: string[];
   actorIds: string[];
+  shareIds?: string[];
+  sharesAttempted?: boolean;
   marker: string;
   studentAttempted: boolean;
   intakeAttempted: boolean;
@@ -90,13 +92,18 @@ export async function cleanupLinkedAccessFixture(
       errors.push(`Caller-RLS cleanup readback failed: ${table}`);
     }
   }
+  if(f.shareIds){
+    try{const result=await owner.from("share_tokens").select("id",{head:true,count:"exact"}).eq("report_id",f.reportId);if(result.error||result.count!==0)errors.push("Caller-RLS cleanup readback failed: share_tokens");}catch{errors.push("Caller-RLS cleanup readback failed: share_tokens");}
+  }
   return errors;
 }
 
 function assertLinkedAccessScope(f: LinkedAccessFixture) {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const ids = [f.studentId, f.intakeId, f.reportId, ...f.relationshipIds, ...f.actorIds];
+  const ids = [f.studentId, f.intakeId, f.reportId, ...f.relationshipIds, ...f.actorIds,...(f.shareIds??[])];
   if (
+    (f.shareIds!==undefined && f.shareIds.length!==4) ||
+    (f.sharesAttempted===true && f.shareIds===undefined) ||
     f.relationshipIds.length !== 2 ||
     f.actorIds.length !== 3 ||
     !ids.every((id) => uuid.test(id)) ||
@@ -121,7 +128,7 @@ SELECT jsonb_build_object('run_marker','${f.marker}','operator',current_user,'re
  'relationship_count',(SELECT count(*) FROM public.student_relationships WHERE student_id='${f.studentId}'::uuid OR id IN ('${f.relationshipIds[0]}'::uuid,'${f.relationshipIds[1]}'::uuid)),
  'collaborator_count',(SELECT count(*) FROM public.student_collaborators WHERE student_id='${f.studentId}'::uuid),
  'channel_count',(SELECT count(*) FROM public.channels WHERE student_id='${f.studentId}'::uuid),
- 'share_count',(SELECT count(*) FROM public.share_tokens WHERE report_id='${f.reportId}'::uuid)
+ 'share_count',(SELECT count(*) FROM public.share_tokens WHERE report_id='${f.reportId}'::uuid${f.shareIds ? ' OR id IN ('+f.shareIds.map(id=>"'"+id+"'::uuid").join(',')+')' : ''})
 ) AS exact_linked_access_cleanup;
 COMMIT;
 `;

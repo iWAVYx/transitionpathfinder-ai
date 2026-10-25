@@ -25,6 +25,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
 }, info) => {
   test.setTimeout(240_000);
   const target = linkedReportAccessTarget(process.env);
+  const sharing=process.env.RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA === "true";
   const expectedFileCount = Number(process.env.EXPECTED_RUNTIME_SOURCE_FILE_COUNT);
   if (!Number.isSafeInteger(expectedFileCount) || expectedFileCount < 1) throw new Error("Verified source file count required before fixtures");
   for (const origin of [target.origin, "https://gentle-forward-reach.lovable.app"]) {
@@ -58,6 +59,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
     reportId: randomUUID(),
     relationshipIds: [randomUUID(), randomUUID()],
     actorIds: [],
+    ...(sharing ? {shareIds:Array.from({length:4},()=>randomUUID()),sharesAttempted:false}:{}),
     marker: `QA Linked Access ${target.runId}`,
     studentAttempted: false,
     intakeAttempted: false,
@@ -69,6 +71,8 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
     fixture,
     aiCalls: 0,
     shareLinks: 0,
+    maxShareLinks: sharing ? 4 : 0,
+    sharingLifecycle: sharing,
     phases: [],
   };
   const contexts: Array<Awaited<ReturnType<typeof browser.newContext>>> = [];
@@ -89,6 +93,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
       clients.push({ role: role.key, id: data.user.id, client });
     }
     const owner = clients.find((c) => c.role === "parent")!;
+    if(sharing){const schema=await owner.client.from("share_tokens").select("id,context_bound").limit(0);if(schema.error)throw Error("Sharing lifecycle schema is not ready; no fixture created");}
     const participants = [
       clients.find((c) => c.role === "educator")!,
       clients.find((c) => c.role === "owner")!,
@@ -204,6 +209,22 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
         ),
       ).rejects.toThrow("Could not save the report.");
     }
+    const shareReaders: Array<Awaited<ReturnType<typeof browser.newPage>>> = [];
+    if(sharing) for(const origin of [target.origin,"https://gentle-forward-reach.lovable.app"]){
+      const context=await browser.newContext({baseURL:origin});contexts.push(context);shareReaders.push(await context.newPage());
+    }
+    const checkLink=async(token:string,active:boolean,summary:string)=>{
+      for(const page of shareReaders){try{await page.goto(`/share/${token}`,{waitUntil:"domcontentloaded",timeout:45000});}catch{throw Error("Disposable share reader did not load");}
+        if(active){await expect(page.locator(".report-root")).toBeVisible({timeout:30000});await expect(page.getByText(summary,{exact:true}).first()).toBeVisible();}
+        else{await expect(page.getByRole("heading",{name:"This Share Link Is No Longer Active.",exact:true})).toBeVisible({timeout:30000});await expect(page.locator(".report-root")).toHaveCount(0);}
+      }
+    };
+    const mint=async(c: typeof owner,slot:number)=>{
+      fixture.sharesAttempted=true;
+      const token=randomUUID()+randomUUID();
+      const row=await c.client.from("share_tokens").insert({id:fixture.shareIds![slot],token,report_id:fixture.reportId,created_by:c.id,audience:c.role==="educator"?"educator":"family",expires_at:new Date(Date.now()+86400000).toISOString()});
+      if(row.error)throw Error("Disposable share creation failed");evidence.shareLinks=Number(evidence.shareLinks)+1;return token;
+    };
     for (const [i, c] of participants.entries()) {
       fixture.relationshipsAttempted = true;
       expect(
@@ -325,6 +346,8 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
         await expect(page.getByRole("button", { name: "Restore", exact: true })).toHaveCount(0);
         await expect(page.getByRole("button", { name: /regenerate/i })).toHaveCount(0);
       }
+      const retiredLink=sharing?await mint(c,i*2):undefined;
+      if(retiredLink)await checkLink(retiredLink,true,current.summary);
       const revoke = await owner.client
         .from("student_relationships")
         .update({ consent_status: "revoked" })
@@ -334,6 +357,15 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
       expect(revoke.error).toBeNull();
       expect(revoke.data).toHaveLength(1);
       await visibility(c, false);
+      if(retiredLink){
+        const closed=await c.client.from("share_tokens").select("id,revoked").eq("id",fixture.shareIds![i*2]).single();expect(closed.error).toBeNull();expect(closed.data?.revoked).toBe(true);
+        await checkLink(retiredLink,false,current.summary);
+        const reset=await owner.client.from("student_relationships").update({consent_status:"pending"}).eq("id",fixture.relationshipIds[i]).eq("student_id",fixture.studentId).select("id");expect(reset.error).toBeNull();expect(reset.data).toHaveLength(1);
+        const renewed=await row();expect(renewed.error).toBeNull();expect(renewed.data).toHaveLength(1);await visibility(c,true);await checkLink(retiredLink,false,current.summary);
+        const replacement=await mint(c,i*2+1);await checkLink(replacement,true,current.summary);
+        const removeAgain=await owner.client.from("student_relationships").update({consent_status:"revoked"}).eq("id",fixture.relationshipIds[i]).eq("student_id",fixture.studentId).select("id");expect(removeAgain.error).toBeNull();expect(removeAgain.data).toHaveLength(1);
+        await visibility(c,false);await checkLink(replacement,false,current.summary);
+      }
       const after = await c.client
         .from("pathway_reports")
         .update({ content: initial as unknown as Json })
@@ -349,6 +381,7 @@ test("explicit editor/admin access cannot be manufactured or retained after revo
         identitiesPinned: true,
         historyAttributed: true,
         revokedDenied: true,
+        ...(sharing?{oldLinkClosedAfterReaddition:true,freshLinkWorked:true,freshLinkClosedAfterSecondRemoval:true}:{}),
       });
     }
     const history = await owner.client

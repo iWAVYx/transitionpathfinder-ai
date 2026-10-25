@@ -1,9 +1,11 @@
 import { reportHistoryAcceptanceTarget } from "./report-history-acceptance-policy";
 
 export function linkedReportAccessTarget(env: Record<string, string | undefined>) {
+  const sharing = env.RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA === "true";
+  const confirmation = sharing ? "disposable-linked-report-sharing" : "disposable-linked-report-access";
   if (
     env.RUN_LINKED_REPORT_ACCESS_STAGING_QA !== "true" ||
-    env.LINKED_REPORT_ACCESS_CONFIRMATION !== "disposable-linked-report-access"
+    env.LINKED_REPORT_ACCESS_CONFIRMATION !== confirmation
   )
     throw new Error("Explicit linked-report fixture authorization required");
   return reportHistoryAcceptanceTarget({

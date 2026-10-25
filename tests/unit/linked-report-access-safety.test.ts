@@ -148,3 +148,17 @@ it("prepares an independent read-only exact-ID cleanup check and refuses unsafe 
     linkedAccessCleanupVerificationSql({ ...fixture, studentId: "' OR true --" }),
   ).toThrow("Invalid bounded");
 });
+it("requires a separate confirmation before expanding the linked-access run to sharing",()=>{
+  const sharing={...env,RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA:"true",LINKED_REPORT_ACCESS_CONFIRMATION:"disposable-linked-report-sharing"};
+  expect(linkedReportAccessTarget(sharing).runId).toBe("12345-1");
+  expect(()=>linkedReportAccessTarget({...env,RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA:"true"})).toThrow();
+  expect(()=>linkedReportAccessTarget({...sharing,RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA:"false"})).toThrow();
+});
+it("sharing cleanup keeps exact IDs and verifies links cascading from the single report",async()=>{
+  const {actors,calls}=clients();const scope={...fixture,shareIds:[id(11),id(12),id(13),id(14)],sharesAttempted:true};
+  expect(await cleanupLinkedAccessFixture(actors,scope)).toEqual([]);expect(calls.filter(c=>c.method==="HEAD")).toHaveLength(6);
+  expect(calls.filter(c=>c.method==="DELETE").some(c=>c.url.pathname.endsWith("share_tokens"))).toBe(false);
+  const sql=linkedAccessCleanupVerificationSql(scope);for(const share of scope.shareIds)expect(sql).toContain(share);
+  expect(()=>linkedAccessCleanupVerificationSql({...scope,shareIds:[id(11)]})).toThrow();
+  expect(()=>linkedAccessCleanupVerificationSql({...scope,shareIds:[id(11),id(12),id(13),fixture.reportId]})).toThrow();
+});

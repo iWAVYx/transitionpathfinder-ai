@@ -27,6 +27,7 @@ on:
           - report-history-no-ai
           - report-sharing-no-ai
           - linked-report-access-no-ai
+          - linked-report-sharing-lifecycle-no-ai
           - role-tools-readonly
           - owner-tools-readonly
       fixture_confirmation:
@@ -86,6 +87,11 @@ jobs:
           fi
           if [ "$STAGING_TEST_SCOPE" = "linked-report-access-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-linked-report-access" ]; then
             echo "Explicit bounded linked-report fixture confirmation is required." >&2
+            exit 1
+          fi
+
+          if [ "$STAGING_TEST_SCOPE" = "linked-report-sharing-lifecycle-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-linked-report-sharing" ]; then
+            echo "Explicit bounded linked-report sharing confirmation is required." >&2
             exit 1
           fi
 
@@ -174,11 +180,11 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
-        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
-        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: |
           if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
             bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
@@ -251,6 +257,19 @@ jobs:
         if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'linked-report-access-no-ai' }}
         env:
           RUN_LINKED_REPORT_ACCESS_STAGING_QA: "true"
+          LINKED_REPORT_ACCESS_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          LINKED_REPORT_ACCESS_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/linked-report-access-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Permanent linked-report sharing acceptance (no AI)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'linked-report-sharing-lifecycle-no-ai' }}
+        env:
+          RUN_LINKED_REPORT_ACCESS_STAGING_QA: "true"
+          RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA: "true"
           LINKED_REPORT_ACCESS_CONFIRMATION: ${{ inputs.fixture_confirmation }}
           LINKED_REPORT_ACCESS_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
           STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
