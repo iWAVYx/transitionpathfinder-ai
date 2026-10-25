@@ -1,6 +1,6 @@
 {
   "date": "2026-10-25",
-  "status": "locally implemented and validated; not deployed; automatic review pending",
+  "status": "local and automatic validation passed on 7d6cf6d6; not deployed",
   "trigger": "Live two-role Pathway acceptance 40238295505 showed a supplied builder voice quote being cited in recommendations while gaps, review flags and confidence called voice absent.",
   "change": [
     "Add optional intake_student_voice boolean to the report manifest. It records supplied builder voice separately from actual structured response keys; never invent IDs, counts or verified attribution.",
@@ -25,7 +25,54 @@
     "final_handler_and_preparation_checks": 111,
     "typescript": "passed",
     "isolated_staging_build": "passed under bundled Node with staging/staging and LOVABLE_SANDBOX=1; no publish",
-    "runner_note": "Direct Bun launch failed resolving vite-module-runner before app config; same staging profile built successfully under intended Node. No dependency/source workaround."
+    "runner_note": "Direct Bun launch failed resolving vite-module-runner before app config; same staging profile built successfully under intended Node. No dependency/source workaround.",
+    "automatic_checks": {
+      "source_commit": "7d6cf6d66a305ff0d8d60002e668963c39788e77",
+      "passed": 8,
+      "checks": [
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242502501/job/121317621358",
+          "name": "Clean Production Build",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505096/job/121317132368",
+          "name": "Credential-free Production Readiness Audit",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505092/job/121317132390",
+          "name": "role-guard-matrix",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505089/job/121317132682",
+          "name": "unit",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505047/job/121317132352",
+          "name": "replay",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505122/job/121317132860",
+          "name": "Clean Production Build",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505034/job/121317132212",
+          "name": "report-a11y",
+          "state": "SUCCESS"
+        },
+        {
+          "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40242505090/job/121317132595",
+          "name": "CT Seed v2 Static Audit",
+          "state": "SUCCESS"
+        }
+      ],
+      "build_retry": "Push clean-build run 40242502501 first failed at the existing JavaScript heap limit; exactly one controlled retry on the same source/settings passed (attempt 2). No memory/dependency change."
+    }
   },
   "candidate_runtime": {
     "fingerprint": "266a4d6e0ff67867e4b0dcda70cc99e2968043932e1c0fb9f82595fdedbd91da",
