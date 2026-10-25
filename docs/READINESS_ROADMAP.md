@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — PPT Grounding Released to Both Staging Sites; Bounded Test Queued
+
+- [x] Authorized, human-approved [Cloudflare release 40230616911](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40230616911) succeeded on exact `89aa95af`. Synced only `ppt.functions.ts` and the matching Educator demo script to the existing isolated Lovable repository, commit `eefa584`, with zero newer builder edits and unchanged protected environment/dependency/generated-type/widget-title hashes.
+- [x] Explicitly updated the out-of-date private preview, verified its exact fingerprint, then updated the existing isolated staging publication once. Both stable sites externally match `dd512c1c…1b3f7` / 1,185 files, backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Lovable reports its actual sync commit; no identity was fabricated. No support request, AI builder prompt, migration or production action.
+- [ ] Complete GitHub's required human review for authorized [bounded PPT test 40231246197](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40231246197). One Family/Educator run, at most two generation invocations / six SDK attempts, two fictional intake/report pairs and two PPT packets, two PDFs, private-access checks, zero retries, exact cleanup and independent absence verification. Gateway internals/billing remain unobserved. No results or live-quality acceptance claimed yet.
+- [ ] After the test: inspect sanitization and both outputs/PDFs, verify exact cleanup independently, and record source-grounding findings. Do not silently repeat a failed run. Broader all-role/provider/privacy/security/operations gates remain open. Full TF-01–TF-26 and six milestones remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+Evidence: `ppt-source-grounding-staging-release-2026-10-25.json`. Earlier preparation and partial-run checkpoints below remain historical evidence.
+
+
 ## October 25 — PPT Source-Grounding Correction Prepared Locally
 
 - [x] Strengthened the shared PPT system instructions across every section and both speaker perspectives: distinguish reported information, missing input and suggestions; do not invent observations, enrollment/placement, participants or assigned responsibilities; ask for agreement on an owner/date and preserve reported measurements. A requested outcome is not an agreed team decision. Missing input does not prove records/services do not exist.
