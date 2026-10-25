@@ -225,7 +225,7 @@ it.each(["allowed", "denied", "error"])(
     expect(screen.queryByRole("alert")).toBeNull();
     await act(async () => next.resolve({ roles: ["parent"] }));
     await screen.findByText("Protected Payload");
-    expect(api.read).toHaveBeenCalledOnce();
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
   },
 );
 it("changing path or policy hides old content and cannot reuse its allowed state", async () => {
@@ -237,6 +237,7 @@ it("changing path or policy hides old content and cannot reuse its allowed state
   );
   const v = render(node("/family/history", ["family"]));
   await screen.findByText("Protected Payload");
+  await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
   const next = pending();
   api.roles.mockReturnValueOnce(next.promise);
   v.rerender(node("/partner/history", ["partner"]));
@@ -254,6 +255,7 @@ it("equivalent inline policies do not loop checks; changed permissions do rechec
   );
   const v = render(node(["family", "educator"]));
   await screen.findByText("Protected Payload");
+  await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
   v.rerender(node(["educator", "family", "family"]));
   expect(api.roles).toHaveBeenCalledOnce();
   const old = pending();
@@ -342,7 +344,7 @@ it.each(["allowed", "denied"])(
     expect(api.toast).not.toHaveBeenCalled();
     await act(async () => next.resolve({ roles: ["partner"] }));
     await screen.findByText("Protected Payload");
-    expect(api.read).toHaveBeenCalledOnce();
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
   },
 );
 
@@ -380,5 +382,5 @@ it.each(roleCases)("$role keeps one main landmark inside a page shell during acc
   fireEvent.click(screen.getByRole("button", { name: "Try Again" }));
   await screen.findByText("Protected Payload");
   expect(screen.getAllByRole("main")).toHaveLength(1);
-  expect(api.read).toHaveBeenCalledOnce();
+  await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
 });
