@@ -24,6 +24,8 @@ on:
       - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/database/share-token-write-restriction.test.mjs"
       - "tests/database/report-share-lifecycle.test.mjs"
+      - "tests/database/report-share-lifecycle-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle-preflight.sql"
       - "tests/database/report-share-lifecycle-replay.mjs"
       - "docs/production-readiness/proposals/report-share-lifecycle.sql"
       - "docs/production-readiness/proposals/share-token-*.sql"
@@ -52,6 +54,8 @@ on:
       - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/database/share-token-write-restriction.test.mjs"
       - "tests/database/report-share-lifecycle.test.mjs"
+      - "tests/database/report-share-lifecycle-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle-preflight.sql"
       - "tests/database/report-share-lifecycle-replay.mjs"
       - "docs/production-readiness/proposals/report-share-lifecycle.sql"
       - "docs/production-readiness/proposals/share-token-*.sql"
@@ -202,6 +206,10 @@ jobs:
           count=0
           for f in $(ls supabase/migrations/*.sql | sort); do
             echo "::group::$f"
+            if [[ "$f" == *20261024030000_enforce_report_share_lifecycle.sql ]]; then
+              node tests/database/report-share-lifecycle-replay.mjs > "$RUNNER_TEMP/report-share-lifecycle-replay.sql"
+              psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/report-share-lifecycle-replay.sql"
+            fi
             psql -v ON_ERROR_STOP=1 -f "$f"
             echo "::endgroup::"
             count=$((count+1))
@@ -572,11 +580,6 @@ jobs:
               and (select count(*) >= 0 from public.testimonials)
               and (select count(*) >= 0 from public.blog_posts)
               and (select count(*) >= 0 from public.media_assets);" | grep -qx t
-
-      - name: Validate sharing proposal against full canonical schema and roll it back
-        run: |
-          node tests/database/report-share-lifecycle-replay.mjs > "$RUNNER_TEMP/report-share-lifecycle-replay.sql"
-          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/report-share-lifecycle-replay.sql"
 
       - name: Upload replay log
         if: always()

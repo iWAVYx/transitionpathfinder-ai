@@ -11,7 +11,7 @@ const allow = JSON.parse(readFileSync('docs/production-readiness/security-define
 await db.connect();
 try {
   await db.query('BEGIN READ ONLY');
-  const {rows:routines} = await db.query(`SELECT p.oid::regprocedure::text AS signature,p.prorettype='trigger'::regtype AS trigger_return,p.proconfig,
+  const {rows:routines} = await db.query(`SELECT p.oid::regprocedure::text AS signature,p.prorettype='trigger'::regtype AS trigger_return,p.prorettype::regtype::text AS return_type,p.proconfig,
     EXISTS(SELECT 1 FROM aclexplode(COALESCE(p.proacl,acldefault('f',p.proowner))) a WHERE a.grantee=0 AND a.privilege_type='EXECUTE') AS public_execute,
     has_function_privilege('anon',p.oid,'EXECUTE') AS anon_execute,
     has_function_privilege('authenticated',p.oid,'EXECUTE') AS authenticated_execute,
@@ -26,7 +26,10 @@ try {
     assert.equal(r.authenticated_execute,allow.authenticatedExecute.includes(r.signature),r.signature+' authenticated');
     assert.equal(r.service_execute,!allow.serviceRoleExecuteForbidden.includes(r.signature),r.signature+' service');
     if(allow.serviceRoleExecuteForbidden.includes(r.signature)) {
-      assert.equal(r.trigger_return,true); assert.deepEqual(r.proconfig,['search_path=pg_catalog']);
+      const privateNonTriggers=new Map([['public.report_share_is_eligible(uuid)','boolean'],['public.close_report_links_after_access_loss(uuid, uuid)','void']]);
+      if(privateNonTriggers.has(r.signature)) assert.equal(r.return_type,privateNonTriggers.get(r.signature));
+      else assert.equal(r.trigger_return,true,r.signature+' must remain a trigger');
+      assert.deepEqual(r.proconfig,['search_path=pg_catalog']);
     }
   }
   const {rows:[trigger]} = await db.query(`SELECT count(*)::int AS n FROM pg_trigger WHERE tgrelid='public.pathway_reports'::regclass AND NOT tgisinternal AND tgname='snapshot_report_content_update' AND tgenabled='O' AND tgfoid='public.snapshot_report_content_update()'::regprocedure AND tgtype=17 AND tgattr::text=(SELECT attnum::text FROM pg_attribute WHERE attrelid='public.pathway_reports'::regclass AND attname='content')`);

@@ -45,16 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 208,
-    "latestCanonicalFile": "20261024020000_require_linked_student_report_save.sql",
+    "canonicalCount": 209,
+    "latestCanonicalFile": "20261024030000_enforce_report_share_lifecycle.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 14,
+    "pendingProductionCount": 15,
     "canonicalInventoryReviewedAt": "2026-10-24",
-    "canonicalInventorySourceCommit": "f2cce9289cdde594eb29055d644c5209cb842c31",
-    "canonicalInventoryStatus": "208 canonical migrations; authorized20261024020000 committed and read-only verified on isolated staging; both application updates and bounded test still open. Production14 pending uses saved September17 evidence only; production untouched."
+    "canonicalInventorySourceCommit": null,
+    "canonicalInventoryStatus": "209 canonical migrations; new20261024030000 is prepared only, pending full replay and separate rollout authorization. Isolated staging remains on verified20261024020000 and runtime52d34874. Production15 pending uses saved September17 evidence only; production untouched."
   }
 }

@@ -79,8 +79,11 @@
   "clientExecuteForbidden": [
     "public.active_jurisdiction_version(text)",
     "public.apply_student_chat_removal(uuid, uuid, text)",
+    "public.bind_report_share_context()",
     "public.channel_retention_purge()",
     "public.close_removed_student_chats()",
+    "public.close_report_links_after_access_loss(uuid, uuid)",
+    "public.close_report_links_on_student_access_change()",
     "public.delete_email(text, bigint)",
     "public.enforce_student_collaborator_accept()",
     "public.enforce_student_collaborators_self_accept()",
@@ -96,7 +99,9 @@
     "public.read_email_batch(text, integer, integer)",
     "public.release_expired_license_allocations()",
     "public.release_expired_license_reservations()",
+    "public.report_share_is_eligible(uuid)",
     "public.resolve_share_token(text)",
+    "public.revoke_shares_on_report_context_change()",
     "public.snapshot_report_content_update()",
     "public.tg_admin_doc_access_grants_immutable()",
     "public.tg_channel_messages_enforce_legal_hold()",
@@ -113,9 +118,15 @@
     "authenticated": "The allowlist contains caller-authorized RPCs, narrow form-template readers, and helpers required by row-level security; internal triggers and maintenance routines are excluded.",
     "futureFunctions": "Every future SECURITY DEFINER routine must revoke PUBLIC and client-role execution before granting its reviewed callers.",
     "shareRelease": "Server caller must be deployed before the separately authorized server-only share grant migration; verify public links and direct RPC denial in staging before production authorization.",
-    "internalHistoryTrigger": "The exact snapshot_report_content_update() trigger has no ordinary caller, including service_role. Trigger execution and privileged table maintenance do not require an EXECUTE grant. All other reviewed service-role grants remain required."
+    "internalHistoryTrigger": "The exact snapshot_report_content_update() trigger has no ordinary caller, including service_role. Trigger execution and privileged table maintenance do not require an EXECUTE grant. All other reviewed service-role grants remain required.",
+    "internalShareLifecycle": "These five exact owner-only share lifecycle routines have no direct client/service execution. Triggers or privileged parent functions invoke them; ordinary reviewed service grants remain required. Two non-trigger helpers are explicitly typed in the replay verifier."
   },
   "serviceRoleExecuteForbidden": [
+    "public.bind_report_share_context()",
+    "public.close_report_links_after_access_loss(uuid, uuid)",
+    "public.close_report_links_on_student_access_change()",
+    "public.report_share_is_eligible(uuid)",
+    "public.revoke_shares_on_report_context_change()",
     "public.snapshot_report_content_update()"
   ]
 }

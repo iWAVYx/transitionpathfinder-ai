@@ -7,6 +7,7 @@ import {pathToFileURL} from 'node:url';
 const owner='00000000-0000-4000-8000-000000000001', other='00000000-0000-4000-8000-000000000002';
 const student='00000000-0000-4000-8000-000000000010', moved='00000000-0000-4000-8000-000000000011';
 const report='00000000-0000-4000-8000-000000000020', intake='00000000-0000-4000-8000-000000000030';
+import {shareLifecycleRolloutSql,shareLifecycleSource,shareLifecyclePriorSource,shareLifecycleVersion} from './report-share-lifecycle-rollout-sql.mjs';
 const proposal=readFileSync('docs/production-readiness/proposals/report-share-lifecycle.sql','utf8');
 const real=process.env.SHARE_LIFECYCLE_POSTGRES === "1";
 let db,close,newSession;
@@ -26,6 +27,7 @@ before(async()=>{
   const {PGlite}=await import(process.env.SHARE_POLICY_PGLITE_MODULE?pathToFileURL(process.env.SHARE_POLICY_PGLITE_MODULE).href:'@electric-sql/pglite');db=new PGlite();close=()=>db.close();
  }
  await db.exec(`DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF; IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF; IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role BYPASSRLS; END IF; END $$;
+ CREATE SCHEMA supabase_migrations; CREATE TABLE supabase_migrations.schema_migrations(version text PRIMARY KEY,name text,statements text[]);
  CREATE SCHEMA auth; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  GRANT USAGE ON SCHEMA auth,public TO anon,authenticated,service_role;
  CREATE TABLE public.students(id uuid PRIMARY KEY,owner_id uuid,student_user_id uuid);
@@ -45,11 +47,13 @@ beforeEach(async(ctx)=>{
  await db.exec(`RESET ROLE; DROP TRIGGER IF EXISTS close_report_links_on_collaborator_change ON public.student_collaborators; DROP TRIGGER IF EXISTS close_report_links_on_relationship_change ON public.student_relationships; DROP TRIGGER IF EXISTS close_report_links_on_student_identity_change ON public.students; DROP FUNCTION IF EXISTS public.close_report_links_on_student_access_change(),public.close_report_links_after_access_loss(uuid,uuid) CASCADE; DROP TRIGGER IF EXISTS bind_report_share_context ON public.share_tokens; DROP TRIGGER IF EXISTS revoke_shares_on_report_context_change ON public.pathway_reports; DROP FUNCTION IF EXISTS public.bind_report_share_context(),public.revoke_shares_on_report_context_change(),public.report_share_is_eligible(uuid) CASCADE; ALTER TABLE public.share_tokens DROP COLUMN IF EXISTS context_bound,DROP COLUMN IF EXISTS bound_student_id,DROP COLUMN IF EXISTS bound_report_owner_id,DROP COLUMN IF EXISTS bound_intake_id;`);
  await db.exec(originalShare.slice(originalShare.indexOf("CREATE OR REPLACE FUNCTION public.resolve_share_token"),originalShare.indexOf("-- 11. AUDIT_LOG")));
  await db.exec(readFileSync("supabase/migrations/20261006180000_server_only_report_share_rpcs.sql","utf8"));
+ await db.exec('TRUNCATE supabase_migrations.schema_migrations');
+ await db.query("INSERT INTO supabase_migrations.schema_migrations VALUES('20261024020000','require_linked_student_report_save',$1)",[[shareLifecyclePriorSource]]);
  await db.exec(`RESET ROLE; TRUNCATE public.share_tokens,public.pathway_reports,public.students,public.student_collaborators,public.student_relationships CASCADE;
  INSERT INTO public.students VALUES('${student}','${other}',null),('${moved}','${other}',null);
  INSERT INTO public.student_collaborators VALUES('${student}','${owner}','accepted','viewer');
  INSERT INTO public.pathway_reports VALUES('${report}','${owner}','${student}','${intake}','{"summary":"Fictional report"}',now());`);
- if(!ctx.name.startsWith('baseline ') && !ctx.name.startsWith('proposal revokes') && !ctx.name.startsWith('proposal failure')) await db.exec(proposal);
+ if(!ctx.name.startsWith('rollout ') && !ctx.name.startsWith('baseline ') && !ctx.name.startsWith('proposal revokes') && !ctx.name.startsWith('proposal failure')) await db.exec(proposal);
 });
 async function create(extra={}) {
  const id=crypto.randomUUID();const record={id,token:'fictional-'+id,report_id:report,created_by:owner,...extra};
@@ -217,4 +221,46 @@ test('native concurrent removal of independent access paths closes old links per
  await a.exec('BEGIN');try{await a.query("UPDATE public.student_collaborators SET status='removed'");pending=b.query("UPDATE public.student_relationships SET consent_status='revoked'").then(value=>({value}),error=>({error}));await blocked(pid);await a.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).revoked,true);
  await db.exec("UPDATE public.student_collaborators SET status='accepted'");assert.deepEqual(await resolve(token),[]);
  }finally{await a.exec('ROLLBACK');if(pending)await pending;}
+});
+
+test('canonical lifecycle transaction exactly matches the reviewed proposal',()=>{
+ assert.equal(shareLifecycleSource.slice(shareLifecycleSource.indexOf('BEGIN;')),proposal.slice(proposal.indexOf('BEGIN;')));
+});
+test('rollout commits exact source as ledger data and preserves prior entries',async()=>{
+ const token=await create(),prior=(await db.query('SELECT * FROM supabase_migrations.schema_migrations')).rows;
+ await db.exec(shareLifecycleRolloutSql);assert.equal((await tokenRow(token)).revoked,true);
+ const row=(await db.query('SELECT name,statements FROM supabase_migrations.schema_migrations WHERE version=$1',[shareLifecycleVersion])).rows[0];assert.equal(row.name,'enforce_report_share_lifecycle');assert.deepEqual(row.statements,[shareLifecycleSource]);
+ assert.deepEqual((await db.query("SELECT * FROM supabase_migrations.schema_migrations WHERE version='20261024020000'")).rows,prior);
+});
+test('rollout ledger insert failure rolls back legacy retirement and schema changes',async()=>{
+ const token=await create();await db.exec(`ALTER TABLE supabase_migrations.schema_migrations ADD CONSTRAINT fixture_reject_share CHECK(version<>'${shareLifecycleVersion}')`);
+ try{await assert.rejects(db.exec(shareLifecycleRolloutSql),{code:'23514'});await db.exec('ROLLBACK');assert.equal((await tokenRow(token)).revoked,false);assert.equal((await resolve(token)).length,1);assert.equal((await db.query("SELECT to_regprocedure('public.report_share_is_eligible(uuid)') fn")).rows[0].fn,null);}finally{await db.exec('ALTER TABLE supabase_migrations.schema_migrations DROP CONSTRAINT fixture_reject_share');}
+});
+test('rollout duplicate ledger stops before changing existing installation',async()=>{
+ await db.exec(shareLifecycleRolloutSql);const before=(await db.query('SELECT * FROM supabase_migrations.schema_migrations ORDER BY version')).rows;
+ await assert.rejects(db.exec(shareLifecycleRolloutSql),/already recorded/);await db.exec('ROLLBACK');assert.deepEqual((await db.query('SELECT * FROM supabase_migrations.schema_migrations ORDER BY version')).rows,before);
+});
+test('rollout unexpected prior source stops before changing legacy links',async()=>{
+ const token=await create();await db.exec("UPDATE supabase_migrations.schema_migrations SET statements=ARRAY['Unexpected fixture source']");await assert.rejects(db.exec(shareLifecycleRolloutSql),/Unexpected linked-student prerequisite ledger/);await db.exec('ROLLBACK');assert.equal((await tokenRow(token)).revoked,false);
+});
+test('rollout wrong resolver grant stops before retiring legacy links',async()=>{
+ const token=await create();await db.exec('GRANT EXECUTE ON FUNCTION public.resolve_share_token(text) TO anon');await assert.rejects(db.exec(shareLifecycleRolloutSql),/Server-only sharing prerequisite mismatch/);await db.exec('ROLLBACK');assert.equal((await tokenRow(token)).revoked,false);
+});
+test('rollout unexpected column update privilege stops before retiring links',async()=>{
+ const token=await create();await db.exec('GRANT UPDATE(view_count) ON public.share_tokens TO authenticated');
+ try{await assert.rejects(db.exec(shareLifecycleRolloutSql),/Unexpected share-column update prerequisite/);await db.exec('ROLLBACK');assert.equal((await tokenRow(token)).revoked,false);}finally{await db.exec('REVOKE UPDATE(view_count) ON public.share_tokens FROM authenticated');}
+});
+test('rollout altered prerequisite routine stops before retiring links',async()=>{
+ const token=await create();await db.exec('CREATE OR REPLACE FUNCTION public.track_share_view(_token text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RETURN; END $$');await assert.rejects(db.exec(shareLifecycleRolloutSql),/Unexpected track_share_view prerequisite body/);await db.exec('ROLLBACK');assert.equal((await tokenRow(token)).revoked,false);
+});
+test('rollout read-only preflight observes exact catalog transition without exposing tokens',async()=>{
+ await db.exec('CREATE TABLE public.student_intakes(id uuid); CREATE TABLE public.pathway_report_versions(id uuid)');
+ try{
+  const token=await create(),preflight=readFileSync('docs/production-readiness/proposals/report-share-lifecycle-preflight.sql','utf8');
+  for(const installed of [false,true]){
+   if(installed)await db.exec(shareLifecycleRolloutSql);
+   const result=await db.exec(preflight);const row=result.flatMap(r=>r.rows).find(r=>r.share_lifecycle_preflight).share_lifecycle_preflight;
+   assert.equal(row.read_only,'on');assert.equal(row.unrevoked_link_count,installed?0:1);assert.equal(row.share_columns.includes('context_bound'),installed);assert.equal(row.routines.length,installed?8:3);assert.equal(JSON.stringify(row).includes(token),false);assert.equal(row.ledger.some(r=>r.version===shareLifecycleVersion),installed);
+  }
+ }finally{await db.exec('DROP TABLE public.student_intakes,public.pathway_report_versions');}
 });

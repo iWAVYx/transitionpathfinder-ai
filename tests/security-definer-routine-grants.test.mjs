@@ -62,7 +62,7 @@ test("privileged-routine allowlist is exact, unique, and fail closed", () => {
 
   assert.equal(allowlist.anonymousExecute.length, 6);
   assert.equal(allowlist.authenticatedExecute.length, 64);
-  assert.equal(allowlist.clientExecuteForbidden.length, 29);
+  assert.equal(allowlist.clientExecuteForbidden.length, 34);
 
   for (const signature of allowlist.anonymousExecute) {
     assert.ok(
@@ -108,9 +108,9 @@ test("migration verifies live effective privileges and aborts on drift", () => {
   );
 });
 
-test("history trigger is the sole reviewed service execution exception", () => {
+test("history and sharing internals have exact owner-only execution exceptions", () => {
   assert.equal(allowlist.serviceRoleExecute, "all routines in scope except serviceRoleExecuteForbidden");
-  assert.deepEqual(allowlist.serviceRoleExecuteForbidden, ["public.snapshot_report_content_update()"]);
+  assert.deepEqual(allowlist.serviceRoleExecuteForbidden, ["public.bind_report_share_context()", "public.close_report_links_after_access_loss(uuid, uuid)", "public.close_report_links_on_student_access_change()", "public.report_share_is_eligible(uuid)", "public.revoke_shares_on_report_context_change()", "public.snapshot_report_content_update()"]);
   assert.ok(allowlist.clientExecuteForbidden.includes(allowlist.serviceRoleExecuteForbidden[0]));
   const boundary = readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql", "utf8");
   assert.match(boundary, /REVOKE ALL ON FUNCTION public\.snapshot_report_content_update\(\) FROM PUBLIC,anon,authenticated,service_role;/);

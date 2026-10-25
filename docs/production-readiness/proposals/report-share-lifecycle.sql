@@ -4,6 +4,26 @@
 -- This existing-link data change requires explicit migration authorization.
 BEGIN;
 
+DO $lifecycle_prerequisite$
+DECLARE sig text; col record;
+BEGIN
+ IF current_user IN ('anon','authenticated','service_role') OR NOT EXISTS(
+  SELECT 1 FROM pg_class WHERE oid='public.share_tokens'::regclass AND relowner=current_user::regrole AND relrowsecurity AND NOT relforcerowsecurity
+ ) THEN RAISE EXCEPTION 'Expected privileged share-table owner with reviewed RLS'; END IF;
+ FOREACH sig IN ARRAY ARRAY['public.resolve_share_token(text)','public.track_share_view(text)'] LOOP
+  IF has_function_privilege('anon',sig,'EXECUTE') OR has_function_privilege('authenticated',sig,'EXECUTE') OR NOT has_function_privilege('service_role',sig,'EXECUTE') THEN RAISE EXCEPTION 'Server-only sharing prerequisite mismatch'; END IF;
+ END LOOP;
+ IF has_any_column_privilege('anon','public.share_tokens','SELECT') OR has_table_privilege('anon','public.share_tokens','INSERT') OR has_any_column_privilege('anon','public.share_tokens','UPDATE') OR has_table_privilege('anon','public.share_tokens','DELETE') THEN RAISE EXCEPTION 'Anonymous share-table privilege prerequisite mismatch'; END IF;
+ FOR col IN SELECT attname FROM pg_attribute WHERE attrelid='public.share_tokens'::regclass AND attnum>0 AND NOT attisdropped AND attname<>'revoked' LOOP
+  IF has_column_privilege('authenticated','public.share_tokens',col.attname,'UPDATE') THEN RAISE EXCEPTION 'Unexpected share-column update prerequisite'; END IF;
+ END LOOP;
+ IF has_table_privilege('authenticated','public.share_tokens','UPDATE') OR has_table_privilege('authenticated','public.share_tokens','DELETE') OR NOT has_column_privilege('authenticated','public.share_tokens','revoked','UPDATE') THEN RAISE EXCEPTION 'Revoked-only client mutation prerequisite mismatch'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.resolve_share_token(text)'::regprocedure AND md5(prosrc)='202a554b5536957147d0cd9a3b4873e2' AND prosecdef AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=public']) THEN RAISE EXCEPTION 'Unexpected resolve_share_token prerequisite body'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.track_share_view(text)'::regprocedure AND md5(prosrc)='0b5ec346923e2ec0dc29ea4a302c9a10' AND prosecdef AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=public']) THEN RAISE EXCEPTION 'Unexpected track_share_view prerequisite body'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.can_access_student(uuid,uuid)'::regprocedure AND md5(prosrc)='c2dcc71ecab9bc4b982d7f81793da2aa' AND prosecdef AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=public']) THEN RAISE EXCEPTION 'Unexpected can_access_student prerequisite body'; END IF;
+END;
+$lifecycle_prerequisite$;
+
 ALTER TABLE public.share_tokens
  ADD COLUMN context_bound boolean NOT NULL DEFAULT false,
  ADD COLUMN bound_student_id uuid,
