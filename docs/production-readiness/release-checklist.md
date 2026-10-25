@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 25 — Regeneration Source Boundary Released and Read-Only Acceptance Passed
+
+- [x] User-authorized Cloudflare [release 40213479710](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40213479710) passed on exact `6f98ce85`, the documentation follow-up to reviewed application `349dcad5`. Synced one runtime file into existing isolated `iWAVYx/gentle-forward-reach`, commit `7e399e6`, preserving environment/dependency/generated-type and dashboard-title hashes with zero newer builder edits.
+- [x] Verified the hosted preview before updating the existing isolated Lovable publication. Both stable staging addresses now match `3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5` / 1,185 files, isolated backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Stable Lovable reports `dev`; observed as-is, without fabricating Git identity. The publication was allowed to finish; no duplicate update or support request was used.
+- [x] Human-approved [read-only acceptance 40214091581](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40214091581) passed: seven existing role sign-ins, four prepared-report mobile/desktop journeys, zero failures/flaky/skipped sample cases or retries, and three fictional sample PDFs. Reader receipts verify one-click audience changes, Back/Forward, reload and sample-detail return journeys. PDF checks verify loaded watermark, complete final question/source note and meeting questions printed once; native OS print dialog was not tested.
+- [x] Sanitization and evidence inspection passed. No fixtures, hosted record writes, generation/provider calls, migration, new accounts/relationships, manual secret/payment changes, original main merge or production access occurred in this release/test scope. Full local suite remains 4,509 passing tests plus TypeScript and eight automatic checks.
+- [ ] Continue remaining input/provenance/direct-writer boundaries and broader all-role generation/provider/privacy/security/operations readiness. This read-only run does not certify live regeneration, a frozen input snapshot or all Lovable-hosted role workflows. Any provider/fixture run requires its own prepared scope and authorization. Report cosmetic polish, Parent Pilot and Pathway Snapshot remain deferred; full TF-01–TF-26 stays retained.
+
+Earlier preparation checkpoints below are historical. This release closes the named loaded-intake/student mismatch and missing-source checks only; the explicit limits in its evidence remain open.
+
+
 ## October 25 — Regeneration Intake/Student Boundary Corrected Locally
 
 - [x] Reproduced a cross-student input gap: regeneration after relinking could combine the current linked profile with original Pathway Builder responses attached to a different student. Five new invalid/unavailable intake cases reached generation before the correction.
