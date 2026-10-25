@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 25 — Family/Educator PPT Functional Acceptance Passed; Cleanup Independently Verified
+
+- [x] Authorized, human-approved [run 40231246197](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40231246197) succeeded on reviewed `89aa95af`: both stable runtime identities, all seven existing sign-ins and both live PPT journeys passed with zero retries. Family and Educator each generated, saved and reopened one packet; the other role was denied private access. Two PDFs exported with print controls hidden.
+- [x] Artifact sanitization passed before download, with zero unsafe files removed. Both exact fixture scopes independently returned zero intake/report/PPT/history/share counts as `postgres` in read-only transactions, including detached packet marker checks. Two generation invocations, two fictional intake/report pairs and two PPT rows; no new students/accounts/relationships/shares or production action. Actual SDK/gateway attempt counts and billing remain unobserved.
+- [x] Reviewed all six PDF pages: branding and top-right watermark on covers, readable text, aligned sections/columns, page numbers and no visible clipping/overlap. All 25 generated text items per role are present in the exports. Native OS print and every possible output/device are not certified. Report length/cosmetic polish remains tabled.
+- [ ] Retain a targeted source-fidelity follow-up: one Family script implies an observed progress trend and what the family has personally seen, although only a baseline/goal and unsupplied records were established. The closing script also uses “missing” where “not supplied here” is more precise. Shared grounding improved, but a passing workflow is not perfect factual-output validation; no automatic repeat or further source change was made.
+- [ ] Next, prepare separate Family/Educator Pathway creator/regeneration acceptance, then the other inventoried generators and applicable role workflows. Older Family generation plus Educator reading is not Educator generation proof. Keep Owner management-only, full TF-01–TF-26, six milestones and provider/privacy/security/operations gates; Parent Pilot/Pathway Snapshot remain deferred.
+
+Evidence: `ppt-family-educator-live-acceptance-2026-10-25.json`. Both stable staging sites retain `dd512c1c…1b3f7` / 1,185 files. Original main and production remain untouched. Earlier checkpoints below are historical.
+
+
 ## October 25 — PPT Grounding Released to Both Staging Sites; Bounded Test Queued
 
 - [x] Authorized, human-approved [Cloudflare release 40230616911](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40230616911) succeeded on exact `89aa95af`. Synced only `ppt.functions.ts` and the matching Educator demo script to the existing isolated Lovable repository, commit `eefa584`, with zero newer builder edits and unchanged protected environment/dependency/generated-type/widget-title hashes.
