@@ -6,6 +6,7 @@ export function summarizeReportInputs(inputs: InputsUsed) {
   return {
     profile: inputs.profile,
     intake: inputs.intake,
+    intake_student_voice: inputs.intake === true && inputs.intake_student_voice === true,
     student_voice_count: inputs.student_voice_keys?.length ?? 0,
     iep_document_count: inputs.iep_doc_ids?.length ?? 0,
     iep_extraction_count: inputs.iep_extraction_ids?.length ?? 0,
@@ -46,6 +47,7 @@ export function recordedReportInputs(content: unknown): ReportInputsSummary | un
   return {
     profile: inputs.profile === true,
     intake: inputs.intake === true,
+    intake_student_voice: inputs.intake === true && inputs.intake_student_voice === true,
     student_voice_count: count("student_voice_keys", "student_voice_count"),
     iep_document_count: count("iep_doc_ids", "iep_document_count"),
     iep_extraction_count: count("iep_extraction_ids", "iep_extraction_count"),
@@ -68,6 +70,7 @@ export function reportSourceLabels(content: unknown): string[] {
   const labels: string[] = [];
   if (inputs.profile) labels.push("Student Profile");
   if (inputs.intake) labels.push("Pathway Builder Responses");
+  if (inputs.intake_student_voice && !inputs.student_voice_count) labels.push("Student Voice (Pathway Builder)");
   for (const [count, label] of [
     [inputs.student_voice_count, "Student Voice"],
     [inputs.iep_document_count, "IEP Documents"],

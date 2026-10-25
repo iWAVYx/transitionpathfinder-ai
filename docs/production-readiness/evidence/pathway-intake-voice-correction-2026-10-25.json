@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-25",
+  "status": "locally implemented and validated; not deployed; automatic review pending",
+  "trigger": "Live two-role Pathway acceptance 40238295505 showed a supplied builder voice quote being cited in recommendations while gaps, review flags and confidence called voice absent.",
+  "change": [
+    "Add optional intake_student_voice boolean to the report manifest. It records supplied builder voice separately from actual structured response keys; never invent IDs, counts or verified attribution.",
+    "Compute deterministic missing-voice and confidence-completeness signals from either actual structured responses or the actual attached intake text.",
+    "Explicitly include the builder voice in the regeneration prompt and identify its origin. Reconcile known blanket missing-voice wording in generated caveats, gaps and flags while retaining specific follow-up requests.",
+    "Safe source summaries carry only a boolean plus existing counts. Shared fixed-audience projections do not expose intake text or private IDs. Source labels and the reused source panel recognize builder voice across permitted readers, demo and exports.",
+    "Existing stored reports/versions are not rewritten; the new manifest is written on a future authorized regeneration. Legacy manifest compatibility is retained.",
+    "Future bounded creator acceptance adds assertions for true builder coverage, empty structured keys and absence of the observed blanket warning. No hosted run dispatched."
+  ],
+  "coverage": [
+    "Unit reproduction for actual attached or explicitly unlinked-but-associated intake in the real regeneration handler (mocked provider/database only)",
+    "Low confidence still clamps with sparse evidence; empty structured response keys remain empty",
+    "Empty/malformed intake, no attached input and existing structured responses",
+    "Blanket absence claims corrected; specific requests to update travel preference retained",
+    "Family and Educator fixed shared projection preserves safe coverage only",
+    "Same UI component tested with raw signed-in/demo and projected shared metadata"
+  ],
+  "validation": {
+    "focused_checks": 91,
+    "full_unit_tests": 4620,
+    "unit_files": 321,
+    "final_handler_and_preparation_checks": 111,
+    "typescript": "passed",
+    "isolated_staging_build": "passed under bundled Node with staging/staging and LOVABLE_SANDBOX=1; no publish",
+    "runner_note": "Direct Bun launch failed resolving vite-module-runner before app config; same staging profile built successfully under intended Node. No dependency/source workaround."
+  },
+  "candidate_runtime": {
+    "fingerprint": "266a4d6e0ff67867e4b0dcda70cc99e2968043932e1c0fb9f82595fdedbd91da",
+    "file_count": 1186
+  },
+  "deployed_runtime_unchanged": {
+    "fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "file_count": 1185
+  },
+  "remaining": [
+    "Reconcile stale preserved legacy sections versus the current v2 snapshot/confidence",
+    "Separate reported baseline, effectiveness, suggested dates/readiness and verified evidence; preserve actual input origin in recommendation labels",
+    "Known warning patterns are corrected, not a claim to catch every possible AI phrasing or validate all generated facts",
+    "Remaining document/IEP and other generator/applicable-role acceptance",
+    "Existing PPT factual-wording caveat"
+  ],
+  "authorization_boundary": "No deployment/publication/migration, hosted records/queries, AI/provider calls, production/original main merge, new access/accounts/relationships/shares, payments or secrets in this local step. Future release and bounded AI run require separate approval.",
+  "roadmap_retained": "TF-01\u2013TF-26 and six milestones; report polish and Parent Pilot/Pathway Snapshot deferred."
+}

@@ -145,6 +145,8 @@ export const InputsUsed = z.object({
   profile: z.boolean().optional(),
   intake: z.boolean().optional(),
   student_voice_keys: z.array(z.string()).max(40).optional(),
+  // Records a supplied builder response without inventing a structured response ID.
+  intake_student_voice: z.boolean().optional(),
   iep_doc_ids: z.array(z.string().uuid()).max(20).optional(),
   iep_extraction_ids: z.array(z.string().uuid()).max(20).optional(),
   goal_ids: z.array(z.string().uuid()).max(40).optional(),
@@ -259,6 +261,11 @@ export function isV2(content: unknown): content is { schema_version: 2 } & Recor
  * Deterministic missing-information items computed from the input manifest.
  * Always merged into the AI-suggested list so we never silently drop a known gap.
  */
+export function hasRecordedStudentVoice(inputs: InputsUsed): boolean {
+  return !!inputs.student_voice_keys?.some(key => key.trim()) ||
+    (inputs.intake === true && inputs.intake_student_voice === true);
+}
+
 export function computeDeterministicGaps(inputs: InputsUsed): MissingInfo[] {
   const gaps: MissingInfo[] = [];
   if (!inputs.iep_doc_ids?.length) {
@@ -272,7 +279,7 @@ export function computeDeterministicGaps(inputs: InputsUsed): MissingInfo[] {
       blocks_section: "iep_plan_summary",
     });
   }
-  if (!inputs.student_voice_keys?.length) {
+  if (!hasRecordedStudentVoice(inputs)) {
     gaps.push({
       topic: "Student voice responses haven't been captured yet",
       why_it_matters:

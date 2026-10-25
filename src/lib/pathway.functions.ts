@@ -1,3 +1,4 @@
+import { intakeHasStudentVoice, reconcileIntakeVoiceWarnings } from "./pathway-voice-coverage";
 import { reportContentRevision, assertObservedReportRevision } from "./report-content-revision.server";
 import { loadRegenerationStudentProfile } from "./pathway-student-profile";
 import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
@@ -15,6 +16,7 @@ import { requireFeatureEntitlement } from "./entitlement-guard";
 import {
   PathwayReportV2,
   computeDeterministicGaps,
+  hasRecordedStudentVoice,
   diffInputsForChangeSummary,
   isV2,
   type InputsUsed,
@@ -542,6 +544,7 @@ function buildV2Prompt(ctx: V2Ctx): string {
   return `You are TransitionForward, generating the v2 Pathway Report — the platform's flagship deliverable.
 
 Voice: warm, plain-language, 7th-grade reading level, never clinical, never generic. Honor the student's voice above all.
+A student perspective supplied in Pathway Builder is a recorded input even if the separate Student Voice response list is empty. Identify it as a Pathway Builder response, do not invent a structured response ID, and do not claim the student's perspective is absent. Suggest confirmation or additional responses when useful.
 
 Generate the v2 additive sections ONLY. Schema is enforced. EVERY recommendation must include:
 - title, summary, why, sources[], next_action, owner_role, discuss_at_next_meeting (boolean).
@@ -583,6 +586,7 @@ Grade band: ${s.grade_band ?? "(unknown)"}
 Interests (profile): ${profileSummary(s.interests)}
 Strengths (profile): ${profileSummary(s.strengths)}
 Needs (profile): ${profileSummary(s.needs)}
+Student perspective (Pathway Builder): ${safe(ctx.intake?.student_voice)}
 
 STUDENT VOICE (the student's own words)
 ${ctx.voice.length === 0 ? "(no responses on file)" : ctx.voice.map((v) => `- [${v.prompt_key}] ${v.response_text}`).join("\n")}
@@ -819,7 +823,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const inputs_used: InputsUsed = {
       profile: true,
       intake: !!ctx.intake,
-      student_voice_keys: ctx.voice.map((v) => v.prompt_key),
+      student_voice_keys: ctx.voice.filter(v => v.response_text?.trim() && v.prompt_key?.trim()).map((v) => v.prompt_key),
+      intake_student_voice: intakeHasStudentVoice(ctx.intake),
       iep_doc_ids: ctx.iep_docs.map((d) => d.id),
       iep_extraction_ids: ctx.iep_extractions.map((e) => e.id),
       goal_ids: ctx.goals.map((g) => g.id),
@@ -875,6 +880,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       }
     }
 
+    v2 = reconcileIntakeVoiceWarnings(v2, inputs_used.intake_student_voice === true);
+
     // Merge deterministic gaps with any AI-suggested gaps (dedupe by topic).
     const determined = computeDeterministicGaps(inputs_used);
     const aiGaps = v2.missing_information_v2 ?? [];
@@ -915,7 +922,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const inputSignals = [
       true, // profile always present
       !!ctx.intake,
-      ctx.voice.length > 0,
+      hasRecordedStudentVoice(inputs_used),
       ctx.iep_docs.length > 0,
       ctx.iep_extractions.length > 0,
       ctx.goals.length > 0,
@@ -931,7 +938,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         ? aiConfidence.overall
         : computedOverall;
     const baseCaveats: string[] = [];
-    if (ctx.voice.length === 0) baseCaveats.push("No student voice responses on file.");
+    if (!hasRecordedStudentVoice(inputs_used)) baseCaveats.push("No student perspective was supplied for this report.");
     if (ctx.iep_docs.length === 0) baseCaveats.push("No IEP or transition document uploaded.");
     if (ctx.iep_extractions.length === 0 && ctx.iep_docs.length > 0)
       baseCaveats.push("IEP uploaded but not yet extracted — some sections may be thin.");
@@ -956,7 +963,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
           "AI-extracted IEP content — verify goals, services, and accommodations with the team.",
         owner_role: "case_manager",
       });
-    if (ctx.voice.length === 0)
+    if (!hasRecordedStudentVoice(inputs_used))
       baseFlags.push({
         section: "student_voice",
         reason: "No Student Voice responses on file — please capture before the next meeting.",

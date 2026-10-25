@@ -51,3 +51,12 @@ it("does not turn malformed source metadata into recorded categories", () => {
   expect(container.textContent).toContain("1 document");
   expect(container.textContent).not.toContain("private-valid-record");
 });
+
+it.each(["raw", "projected"])("shows builder voice without claiming a structured response in %s metadata", kind => {
+  const inputs = kind === "raw" ? { inputs_used: { intake: true, intake_student_voice: true, student_voice_keys: [] } }
+    : { inputs_used_summary: { intake: true, intake_student_voice: true, student_voice_count: 0 } };
+  const { container } = render(<ReportV2InputsUsed content={{ schema_version: 2, ...inputs }} />);
+  expect(container.textContent).toContain("2 of 12 source categories are recorded");
+  expect(container.textContent).toContain("Pathway Builder response");
+  expect(container.textContent).not.toContain("1 response");
+});

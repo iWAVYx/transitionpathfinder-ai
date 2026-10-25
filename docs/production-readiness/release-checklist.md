@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 25 — Pathway Builder Voice Coverage Corrected Locally
+
+- [x] Fixed the first observed content-consistency issue in the shared regeneration/source pipeline: builder voice is recorded separately from structured Student Voice IDs. Missing-voice checks recognize either source, and known blanket absence warnings are reconciled without removing specific follow-up requests. The prompt identifies the builder origin; no source records are invented.
+- [x] Shared source summaries and the reused source panel carry safe coverage to permitted saved, demo, shared and exported readers. Family/Educator projection tests preserve the boolean and counts without leaking private text/IDs. Existing stored report versions are not rewritten; the manifest is updated only by a future authorized regeneration. Role permissions and management-only Owner Hub are unchanged.
+- [x] Local validation: 4,620 tests / 321 files, 91 focused checks, 111 final handler/preparation checks, TypeScript and the isolated staging build pass. The direct Bun runner hit a pre-config module-resolution problem; the same staging profile passed under the intended Node runtime. Automatic review is pending. Candidate is `266a4d6e…bd91da` / 1,186 runtime files; both deployed staging sites remain unchanged.
+- [ ] Continue local reconciliation of preserved legacy sections/current v2 facts, reported versus verified evidence, suggested timelines/readiness and accurate source labels. This voice fix does not close those items or the PPT wording caveat. Keep existing live acceptance as functional proof, not perfect factual-output acceptance.
+- [ ] After a concrete reviewed release packet is ready, obtain separate staging release and bounded AI authorization. No new hosted test, fixture, AI call, release or production action occurred in this step. Continue remaining generators/applicable roles and the full TF-01–TF-26/six-milestone roadmap; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+Evidence: `pathway-intake-voice-correction-2026-10-25.json`. Earlier checkpoints below are historical.
+
+
 ## October 25 — Family/Educator Pathway Functional Acceptance Passed; Content Consistency Remains Open
 
 - [x] Separately authorized and human-approved [run 40238295505](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40238295505) passed both creator journeys on reviewed test revision `b9e9b50a`, with zero retries. Both stable runtime identities and seven existing role sign-ins passed. Each Family/Educator account used its own disposable student, completed the eight-step builder, saved/reopened a report, updated only that disposable profile, regenerated once and preserved one exact history snapshot.

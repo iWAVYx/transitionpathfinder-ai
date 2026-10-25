@@ -385,10 +385,11 @@ export function ReportV2InputsUsed({ content }: { content: unknown }) {
     { label: "Pathway Builder Responses",      present: Boolean(inputs.intake) },
     {
       label: "Student Voice",
-      hint: inputs.student_voice_count
-        ? `${inputs.student_voice_count} response${inputs.student_voice_count === 1 ? "" : "s"}`
-        : undefined,
-      present: !!inputs.student_voice_count,
+      hint: [
+        inputs.student_voice_count ? `${inputs.student_voice_count} response${inputs.student_voice_count === 1 ? "" : "s"}` : "",
+        inputs.intake_student_voice ? "Pathway Builder response" : "",
+      ].filter(Boolean).join(" · ") || undefined,
+      present: !!inputs.student_voice_count || inputs.intake_student_voice,
     },
     {
       label: "IEP Documents",

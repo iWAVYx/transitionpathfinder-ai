@@ -265,3 +265,23 @@ it.each([studentId,null])("an attached intake for the same student or an explici
  await (regeneratePathwayReport as any)({context:db.context,data:{report_id:id,expected_revision:await reportContentRevision({id,student_id:studentId,content:db.content})}});
  expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.generate.mock.calls[0][0].prompt).toContain("Recorded original builder response");expect(db.context.supabase.rpc).toHaveBeenCalledTimes(1);
 });
+
+it.each([studentId, null])("regeneration recognizes actual builder voice without inventing structured records (%s)", async intakeStudent => {
+  mocks.generate.mockResolvedValue({ experimental_output: { schema_version: 2,
+    plain_language_summary: "The student wants to explore culinary work using visual task checklists with the team.",
+    professional_summary: "The recorded student perspective supports exploring culinary work with visual task checklists.",
+    confidence: { overall: "high", rationale: "Builder response received.", caveats: ["No student voice responses on file."] },
+    needs_review_flags: [{ section: "student_voice", reason: "No Student Voice responses on file." }],
+  } });
+  const db = database(richerSharedFixture(), "owner", undefined, studentProfile, null, {
+    id: attachedIntakeId, data: { id: attachedIntakeId, student_id: intakeStudent, student_voice: "I want to learn at a culinary job site." },
+  });
+  await (regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: db.content }) } });
+  const next = db.requests[0]._next_content;
+  expect(next.inputs_used).toMatchObject({ intake: true, intake_student_voice: true, student_voice_keys: [] });
+  expect(next.confidence.overall).toBe("low");
+  expect(next.confidence.caveats.join(" ")).not.toContain("No student voice");
+  expect(next.needs_review_flags.find((f: any) => f.section === "student_voice").reason).toContain("supplied in Pathway Builder");
+  expect(next.missing_information_v2.some((g: any) => g.blocks_section === "student_voice")).toBe(false);
+  expect(mocks.generate.mock.calls[0][0].prompt).toContain('Student perspective (Pathway Builder): "I want to learn at a culinary job site."');
+});

@@ -254,6 +254,9 @@ for (const role of roles)
       expect(content.inputs_used.profile).toBe(true);
       expect(content.inputs_used.intake).toBe(true);
       expect(content.inputs_used.student_voice_keys).toEqual([]);
+      expect(content.inputs_used.intake_student_voice).toBe(true);
+      expect(content.missing_information_v2?.some((gap: any) => gap.blocks_section === "student_voice" && /haven.t been captured|no student voice/i.test(gap.topic))).not.toBe(true);
+      expect(content.confidence.caveats?.some((note: string) => /no student voice/i.test(note))).not.toBe(true);
       expect(content.inputs_used.iep_doc_ids).toEqual([]);
       expect(content.inputs_used.goal_ids).toEqual([]);
       expect(content.confidence.overall).toBe("low");
