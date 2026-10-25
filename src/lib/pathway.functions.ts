@@ -741,9 +741,21 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         .limit(200),
     ]);
 
+    const recordedIntake = intakeRes.data as Record<string, unknown> | null;
+    if (rep.intake_id) {
+      if (intakeRes.error || !recordedIntake || Array.isArray(recordedIntake) || recordedIntake.id !== rep.intake_id) {
+        throw new Error("Couldn't load this report's original Pathway Builder responses. Reload the report and try again.");
+      }
+      // An explicitly unlinked intake is the existing build-first/link-later flow.
+      // Never combine another student's recorded intake with the linked profile.
+      if (recordedIntake.student_id !== null && recordedIntake.student_id !== rep.student_id) {
+        throw new Error("These Pathway Builder responses belong to a different student. Create a new report for the linked student.");
+      }
+    }
+
     const ctx: V2Ctx = {
       student: studentProfile,
-      intake: (intakeRes.data as Record<string, unknown> | null) ?? null,
+      intake: recordedIntake ?? null,
       voice: (voiceRes.data as Array<{ prompt_key: string; response_text: string }> | null) ?? [],
       goals:
         (goalsRes.data as Array<{

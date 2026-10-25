@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 25 — Regeneration Intake/Student Boundary Corrected Locally
+
+- [x] Reproduced a cross-student input gap: regeneration after relinking could combine the current linked profile with original Pathway Builder responses attached to a different student. Five new invalid/unavailable intake cases reached generation before the correction.
+- [x] The shared regeneration handler now validates the referenced intake before assembling provider context: load errors, missing/wrong intake identity or a different recorded student stop with readable Pathway Builder guidance, before provider calls or report saves. Same-student and explicitly unlinked legacy intakes remain supported; no-intake reports retain existing behavior. Applies to every authorized role owner without an admin shortcut.
+- [x] Local focused suite passed 112 checks across three files; full unit suite passed 4,509 across 316 files. Synthetic provider mocks only; no real AI or hosted writes.
+- [x] TypeScript passed on the corrected source.
+- [ ] Finish automatic review/builds; obtain fresh staging release authorization before deployment, isolated Lovable sync or publication. No migration or fixture run is proposed for this correction.
+- [ ] Keep remaining provenance limits explicit: unlinked historical intake cannot prove a prior student, and read-time validation does not freeze intake/profile/privileged metadata throughout a provider call. Existing report content is not automatically rewritten on relinking. Continue wider direct-writer, role-generation, provider/privacy/security/operations gates.
+
+Both staging sites retain the verified `6126e2ed…a480dd` release. No hosted action, production/main change, migration, provider call or new account/access/payment/secret change occurred. Full roadmap, builder edit and deferred report polish/Parent Pilot/Pathway Snapshot remain retained. Earlier sections below are historical.
+
+
 ## October 25 — Report Relinking Staging Release: Read-Only Acceptance Passed
 
 - [x] [Read-only run 40209150697](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209150697) passed after GitHub human review. All seven existing role sessions signed in; four prepared-report journeys passed with zero retries, failures, flaky cases or skipped sample cases.

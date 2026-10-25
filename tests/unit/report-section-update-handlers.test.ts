@@ -18,7 +18,7 @@ import { richerSharedFixture } from "../fixtures/shared-report";
 const id = "11111111-1111-4111-8111-111111111111", studentId = "22222222-2222-4222-8222-222222222222";
 const oldDate = "2026-10-01T12:00:00.000Z", now = "2026-10-12T18:00:00.000Z";
 const studentProfile: Parameters<typeof toRegenerationStudentProfile>[0] = { id: studentId, first_name: "Fictional", last_name: null, grade_band: "9-12", interests_summary: "Art", strengths_summary: "Observation", support_needs_summary: null };
-function database(content: unknown, owner = "owner", failure?: "snapshot" | "update" | "conflict" | "missing" | "throw", profile: typeof studentProfile | null = studentProfile, studentError: unknown = null) {
+function database(content: unknown, owner = "owner", failure?: "snapshot" | "update" | "conflict" | "missing" | "throw", profile: typeof studentProfile | null = studentProfile, studentError: unknown = null, intake?: { id: string; data: unknown; error?: unknown }) {
   const requests: any[] = [], queries: any[] = [];
   const supabase = {
     rpc: vi.fn(async (_name: string, args: any) => {
@@ -27,9 +27,9 @@ function database(content: unknown, owner = "owner", failure?: "snapshot" | "upd
       return { data: failure ? null : 3, error: failure ? { code: failure === "conflict" ? "40001" : failure === "missing" ? "PGRST202" : "23514", message: "Synthetic private database detail" } : null };
     }),
     from: vi.fn((table: string) => {
-      const read = table === "pathway_reports" ? { id, user_id: owner, student_id: studentId, intake_id: null, content }
-        : table === "students" ? profile : [];
-      const result = { data: read, error: table === "students" ? studentError : null };
+      const read = table === "pathway_reports" ? { id, user_id: owner, student_id: studentId, intake_id: intake?.id ?? null, content }
+        : table === "students" ? profile : table === "student_intakes" ? intake?.data ?? null : [];
+      const result = { data: read, error: table === "students" ? studentError : table === "student_intakes" ? intake?.error ?? null : null };
       const q: any = { select: vi.fn((columns: string) => {
         if (table === "students") for (const column of columns.split(",").map(c => c.trim())) {
           if (!actionReadSchema.students.includes(column)) throw new Error(`Unknown student column: ${column}`);
@@ -246,4 +246,22 @@ it.each(["save", "regenerate"])("%s sends the server-observed student, ignoring 
   expect(db.requests).toHaveLength(1);
   expect(db.requests[0]._expected_student_id).toBe(studentId);
   expect(db.context.supabase.rpc.mock.calls[0][0]).toBe("save_pathway_report_content_for_student");
+});
+
+const attachedIntakeId = "55555555-5555-4555-8555-555555555555";
+it.each([
+ {data:{id:attachedIntakeId,student_id:"66666666-6666-4666-8666-666666666666",student_voice:"Other student private notes"}},
+ {data:null},
+ {data:{id:attachedIntakeId,student_id:studentId},error:{message:"Private query detail"}},
+ {data:{id:"77777777-7777-4777-8777-777777777777",student_id:studentId}},
+ {data:{id:attachedIntakeId}},
+])("an unavailable or mismatched attached intake stops before provider or report writes %#",async source=>{
+ const db=database(richerSharedFixture(),"owner",undefined,studentProfile,null,{id:attachedIntakeId,...source});
+ await expect((regeneratePathwayReport as any)({context:db.context,data:{report_id:id,expected_revision:await reportContentRevision({id,student_id:studentId,content:db.content})}})).rejects.toThrow(/Pathway Builder/);
+ expect(mocks.generate).not.toHaveBeenCalled();expect(db.context.supabase.rpc).not.toHaveBeenCalled();
+});
+it.each([studentId,null])("an attached intake for the same student or an explicitly unlinked intake (%s) remains usable",async intakeStudent=>{
+ const db=database(richerSharedFixture(),"owner",undefined,studentProfile,null,{id:attachedIntakeId,data:{id:attachedIntakeId,student_id:intakeStudent,student_voice:"Recorded original builder response"}});
+ await (regeneratePathwayReport as any)({context:db.context,data:{report_id:id,expected_revision:await reportContentRevision({id,student_id:studentId,content:db.content})}});
+ expect(mocks.generate).toHaveBeenCalledTimes(1);expect(mocks.generate.mock.calls[0][0].prompt).toContain("Recorded original builder response");expect(db.context.supabase.rpc).toHaveBeenCalledTimes(1);
 });
