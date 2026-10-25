@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "staging-migration-verified-bounded-test-awaiting-github-human-review",
+  "status": "staging-migration-and-bounded-acceptance-complete",
   "canonicalSourceCommit": "34c5c2bc7898495f4d319f3578e77353781e3bb4",
   "acceptanceSourceCommit": "fa5646d688144c201a6bdebc53462946d02d66c5",
   "target": "qgrertkqbwanerqqemph",
@@ -405,7 +405,7 @@
     "newLinks": "New context-bound links permanently close on final explicit access loss. Re-addition permits fresh links only.",
     "noAIHostedAcceptance": {
       "authorizedRuns": 1,
-      "startedRuns": 0,
+      "startedRuns": 1,
       "scope": "linked-report-sharing-lifecycle-no-ai",
       "fixtureConfirmation": "disposable-linked-report-sharing",
       "accounts": "Seven existing synthetic roles only",
@@ -429,17 +429,98 @@
       "dispatchedRuns": 1,
       "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40205291128",
       "workflowSourceCommit": "273eb55c2139cd600ef559811795fb709ccbce21",
-      "status": "waiting-for-required-human-review"
+      "status": "success",
+      "completedRuns": 1,
+      "reruns": 0,
+      "hostedResult": {
+        "runId": "40205291128-1",
+        "fixture": {
+          "studentId": "d89a5e11-f88e-4a43-9fd6-eedb6fab8d5e",
+          "intakeId": "3d07a699-6e16-42f6-97fc-7b5eba193e1a",
+          "reportId": "78a25756-6671-4ac4-ac2c-02370417f39e",
+          "relationshipIds": [
+            "5445a0d3-678e-471e-a417-6030f906e634",
+            "ae88532d-fbf0-47ca-8068-2f19b58b3efb"
+          ],
+          "actorIds": [
+            "fee1b881-8d46-4375-949a-db15487af9dc",
+            "d606bc69-8605-4e84-904d-dcc7632fa595",
+            "2bffeca7-c3fa-4ccd-88f6-40af5ccd6bf5"
+          ],
+          "shareIds": [
+            "5b89679f-1199-4f7e-a258-5f5cf52ff7e4",
+            "a7c42006-052f-4036-9bf2-ca57c7aa0b67",
+            "2de51fe0-7ad6-48ed-8b5d-2ce116a54167",
+            "581ae651-5a25-47ac-824f-3f089061a3ab"
+          ],
+          "sharesAttempted": true,
+          "marker": "QA Linked Access 40205291128-1",
+          "studentAttempted": true,
+          "intakeAttempted": true,
+          "reportAttempted": true,
+          "relationshipsAttempted": true
+        },
+        "aiCalls": 0,
+        "shareLinks": 4,
+        "maxShareLinks": 4,
+        "sharingLifecycle": true,
+        "phases": [
+          {
+            "role": "educator",
+            "pendingDenied": true,
+            "viewerReadOnly": true,
+            "selfPromotionDenied": true,
+            "explicitEditorWrite": true,
+            "identitiesPinned": true,
+            "historyAttributed": true,
+            "revokedDenied": true,
+            "oldLinkClosedAfterReaddition": true,
+            "freshLinkWorked": true,
+            "freshLinkClosedAfterSecondRemoval": true
+          },
+          {
+            "role": "owner",
+            "pendingDenied": true,
+            "viewerReadOnly": true,
+            "selfPromotionDenied": true,
+            "explicitEditorWrite": true,
+            "identitiesPinned": true,
+            "historyAttributed": true,
+            "revokedDenied": true,
+            "oldLinkClosedAfterReaddition": true,
+            "freshLinkWorked": true,
+            "freshLinkClosedAfterSecondRemoval": true
+          }
+        ],
+        "historyVersions": 3,
+        "cleanup": {
+          "errors": [],
+          "scope": "Exact fictional IDs and caller-RLS readback; independent privileged absence check still required"
+        }
+      },
+      "independentCleanup": {
+        "operator": "postgres",
+        "read_only": "on",
+        "run_marker": "QA Linked Access 40205291128-1",
+        "observed_at": "2026-10-25T15:11:37.006388+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "channel_count": 0,
+        "student_count": 0,
+        "version_count": 0,
+        "collaborator_count": 0,
+        "relationship_count": 0
+      }
     }
   },
   "productionTouched": false,
   "originalMainMerged": false,
-  "hostedDataMutations": "Authorized migration and exact ledger committed; zero unrevoked legacy links observed before execution; no fixtures started.",
+  "hostedDataMutations": "Authorized migration/ledger and one bounded fictional acceptance run completed. Exact cleanup succeeded; independent postgres read-only check found zero remaining records across all eight scopes.",
   "remainingGates": [
-    "Explicit fresh authorization before staging migration and one bounded fixture run",
-    "GitHub mandatory human review for protected staging test",
-    "Fresh production authorization and remaining whole-product/provider/privacy/security/operations gates remain separate; no production baseline queried",
-    "FullTF-01\u2013TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot retained"
+    "Separate review of remaining metadata/direct-writer/provenance boundaries and broader role-generation/provider/privacy/security/operations release requirements",
+    "Production rollout requires separate review and explicit authorization; no production baseline queried afresh",
+    "Full TF-01\u2013TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot retained"
   ],
   "preflightScreenshot": "/private/tmp/tf-linked-save-canonical/share-canonical-staging-preflight.png",
   "reviewedCandidate": "fa5646d688144c201a6bdebc53462946d02d66c5",

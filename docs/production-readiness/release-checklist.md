@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 25 — Permanent Report-Link Closure Accepted on Staging; Cleanup Verified
+
+- [x] [Authorized run 40205291128](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40205291128) passed with zero retries after required human review. Seven existing synthetic role sessions and deployed staging identity passed setup; only the dedicated linked-sharing acceptance scope ran.
+- [x] Educator and Owner test actors could not self-promote or edit as viewers. Explicit editing access worked with pinned report identity and attributed history. Removal denied private report access and closed their links; re-addition did not revive old links. Fresh replacements worked through both stable staging anonymous readers and closed on second removal.
+- [x] Stayed within the authorized bound: one fictional student/intake/report, two temporary relationships, three history versions and four links. Zero AI/provider calls, PDF exports, new accounts or role promotions.
+- [x] Exact cleanup reported no errors. Independent table-owner read-only verification at **October 25, 11:11 AM EDT** found zero students, intakes, reports, versions, relationships, collaborators, channels or share links for the exact fictional IDs. No fixture remains and no repeat run is authorized.
+- [ ] Next: review remaining report metadata/relink and direct-write boundaries, then continue the broader all-role generation, provider/privacy, security and operations release checklist. This bounded success does not certify unrelated features or authorize production.
+
+Migration 209 is applied only to isolated staging backend `qgrertkqbwanerqqemph`. Both applications retain the matching approved runtime; no application deployment, Lovable publication, main merge, production, payment or secret change occurred. Full TF-01–TF-26, deferred report polish and Parent Pilot/Pathway Snapshot remain retained. Earlier checkpoints below are historical.
+
+
 ## October 25 — Permanent-Link Staging Migration Verified; Acceptance Awaiting Human Review
 
 - [x] User authorized the staging migration and one bounded no-AI test. Applied only migration `20261024030000` and its exact ledger to isolated backend `qgrertkqbwanerqqemph`; transaction succeeded. Zero unrevoked legacy links were observed before execution.
