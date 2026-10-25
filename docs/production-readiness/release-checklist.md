@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 24 — Linked-Student Staging Acceptance Complete
+
+- [x] Authorized migration/ledger and both existing staging publications remain verified on `99cb4cbd`, fingerprint `52d34874…4fdfef` /1,185 files, isolated backend and sandbox isolation.
+- [x] Human-approved [run40144522762](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40144522762) passed seven existing role sign-ins and both Family/Educator report journeys, zero retries and AI calls. Retired RPC denied; real saves/direct edits create truthful history; fabricated history and unrelated role/Owner access denied; stale browser Restore rejected without data loss or extra history; fresh Restore/reload succeeds.
+- [x] Exactly two fictional intake/report pairs and six truthful versions were created and removed. Independent `postgres` verification in `BEGIN READ ONLY` at20:00:46 EDT confirms zero exact reports, intakes, versions or share links remain. The one authorized fixture run is consumed; no repeat without new authorization.
+- [x] Both 31-page exports retain complete endings and top-right logo watermarks, no blank pages or out-of-page extracted words. All pages reviewed as contact sheets; cover, summary, meeting and final pages inspected larger. Not native-print/all-page proofreading certification. Report length and cosmetic refinements stay tabled.
+- [ ] Next: review remaining report metadata/direct-write boundaries and bearer-link lifecycle, then continue broader role-generation/provider/privacy/security/operations gates. This hosted run used unlinked fixtures; linked-student races are covered by the native suite, not hosted live generation.
+
+Production/main remains untouched and release remains NO-GO pending the remaining checklist and separate authorization. Full TF-01–TF-26 and deferred Parent Pilot/Pathway Snapshot remain retained. Earlier sections are historical checkpoints. See [rollout evidence](evidence/report-linked-student-staging-rollout-2026-10-24.json).
+
 ## October 24 — Linked-Student Release Verified on Both Staging Sites; Test Review Pending
 
 - [x] Human-approved [Cloudflare release40143902858](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143902858) succeeded on exact `99cb4cbd`. Independent browser health verifies `52d34874…4fdfef` /1,185 files, isolated backend `qgrertkqbwanerqqemph`, sandbox payments and isolation true.

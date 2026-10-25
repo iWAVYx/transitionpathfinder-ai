@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "migration-and-both-stable-sites-verified-bounded-test-human-review-pending",
+  "status": "staging-cutover-and-bounded-no-ai-acceptance-passed",
   "authorization": "User explicitly authorized staging-only candidate99cb4cbd migration plus exact ledger, both existing staging sites, and one bounded no-AI two-report acceptance run.",
   "sourceSha": "99cb4cbd0977f551f4482568268c00390bac7a85",
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
@@ -515,15 +515,414 @@
   },
   "boundedTest": {
     "authorizedRuns": 1,
-    "startedRuns": 0,
-    "recordsCreated": 0,
+    "startedRuns": 1,
+    "recordsCreated": 4,
     "aiCalls": 0,
     "limits": "Seven existing accounts; at most two unlinked fictional intakes/reports, six versions, two PDFs; no new students/accounts/relationships/shares; zero retries; exact cleanup and independent absence proof.",
-    "hold": "Both stable proofs pass. GitHub human review is still required for this separate protected test job; the agent cannot approve it.",
-    "status": "queued-awaiting-required-human-review",
+    "status": "completed-success",
     "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40144522762",
     "workflowSha": "10618375d2ceb0c106e58a9ea4844e47ab6d8188",
-    "reviewScreenshot": "/private/tmp/tf-linked-save-canonical/github-bounded-test-review.png"
+    "reviewScreenshot": "/private/tmp/tf-linked-save-canonical/github-bounded-test-review.png",
+    "historyVersionsCreated": 6,
+    "humanReviewRecorded": true,
+    "conclusion": "success",
+    "results": [
+      {
+        "role": "parent",
+        "reportAudience": "family",
+        "runId": "40144522762-1",
+        "reportId": "8c576bd7-e134-47db-95e7-d4ab3d9aa74c",
+        "intakeId": "a7896154-f315-4bf8-b704-1dd3e74235f4",
+        "aiCalls": 0,
+        "contextFreeRpcDenied": true,
+        "rpcAndDirectEditHistory": true,
+        "clientHistoryFabricationDenied": true,
+        "linkedEditorAcceptance": "Unperformed: unlinked fixtures; no new relationship authorized",
+        "unrelatedOwnerReadDenied": true,
+        "staleBrowserRestoreDeniedWithoutNewVersion": true,
+        "versionNumbers": [
+          1,
+          2,
+          3
+        ],
+        "pdfCreated": true,
+        "cleanup": {
+          "errors": [],
+          "scope": "Exact IDs; caller-RLS readback, not privileged global row-count proof"
+        }
+      },
+      {
+        "role": "educator",
+        "reportAudience": "educator",
+        "runId": "40144522762-1",
+        "reportId": "19464f8c-97ed-4cb1-86e9-ed11e83bd156",
+        "intakeId": "6f2b4b07-7aa3-4409-af75-b68ade4bfebc",
+        "aiCalls": 0,
+        "contextFreeRpcDenied": true,
+        "rpcAndDirectEditHistory": true,
+        "clientHistoryFabricationDenied": true,
+        "linkedEditorAcceptance": "Unperformed: unlinked fixtures; no new relationship authorized",
+        "unrelatedOwnerReadDenied": true,
+        "staleBrowserRestoreDeniedWithoutNewVersion": true,
+        "versionNumbers": [
+          1,
+          2,
+          3
+        ],
+        "pdfCreated": true,
+        "cleanup": {
+          "errors": [],
+          "scope": "Exact IDs; caller-RLS readback, not privileged global row-count proof"
+        }
+      }
+    ],
+    "independentCleanup": {
+      "run_id": "40144522762-1",
+      "status": "PASS: all exact fixture scopes empty",
+      "operator": "postgres",
+      "read_only": "on",
+      "observed_at": "2026-10-25T00:00:46.884619+00:00",
+      "share_count": 0,
+      "intake_count": 0,
+      "report_count": 0,
+      "version_count": 0
+    },
+    "runAllowanceConsumed": true,
+    "retries": 0,
+    "allSevenRoleSignInsPassed": true,
+    "sanitizerPassed": true,
+    "pdfReview": [
+      {
+        "role": "parent",
+        "path": "/private/tmp/tf-linked-save-canonical/acceptance-artifacts/test-results/release-readiness-report-h-d29d2--only-its-disposable-report-release-signedin/parent-history-report.pdf",
+        "sha256": "7de37a862b58c3b6e6f963130e55a3e6a7f8f38f1ee9fd1f953d48a8c6abac13",
+        "pageCount": 31,
+        "pages": [
+          {
+            "page": 1,
+            "words": 199,
+            "outside": 0
+          },
+          {
+            "page": 2,
+            "words": 138,
+            "outside": 0
+          },
+          {
+            "page": 3,
+            "words": 159,
+            "outside": 0
+          },
+          {
+            "page": 4,
+            "words": 237,
+            "outside": 0
+          },
+          {
+            "page": 5,
+            "words": 182,
+            "outside": 0
+          },
+          {
+            "page": 6,
+            "words": 175,
+            "outside": 0
+          },
+          {
+            "page": 7,
+            "words": 182,
+            "outside": 0
+          },
+          {
+            "page": 8,
+            "words": 267,
+            "outside": 0
+          },
+          {
+            "page": 9,
+            "words": 189,
+            "outside": 0
+          },
+          {
+            "page": 10,
+            "words": 264,
+            "outside": 0
+          },
+          {
+            "page": 11,
+            "words": 107,
+            "outside": 0
+          },
+          {
+            "page": 12,
+            "words": 243,
+            "outside": 0
+          },
+          {
+            "page": 13,
+            "words": 189,
+            "outside": 0
+          },
+          {
+            "page": 14,
+            "words": 201,
+            "outside": 0
+          },
+          {
+            "page": 15,
+            "words": 261,
+            "outside": 0
+          },
+          {
+            "page": 16,
+            "words": 306,
+            "outside": 0
+          },
+          {
+            "page": 17,
+            "words": 142,
+            "outside": 0
+          },
+          {
+            "page": 18,
+            "words": 261,
+            "outside": 0
+          },
+          {
+            "page": 19,
+            "words": 131,
+            "outside": 0
+          },
+          {
+            "page": 20,
+            "words": 256,
+            "outside": 0
+          },
+          {
+            "page": 21,
+            "words": 203,
+            "outside": 0
+          },
+          {
+            "page": 22,
+            "words": 152,
+            "outside": 0
+          },
+          {
+            "page": 23,
+            "words": 176,
+            "outside": 0
+          },
+          {
+            "page": 24,
+            "words": 156,
+            "outside": 0
+          },
+          {
+            "page": 25,
+            "words": 160,
+            "outside": 0
+          },
+          {
+            "page": 26,
+            "words": 192,
+            "outside": 0
+          },
+          {
+            "page": 27,
+            "words": 134,
+            "outside": 0
+          },
+          {
+            "page": 28,
+            "words": 122,
+            "outside": 0
+          },
+          {
+            "page": 29,
+            "words": 122,
+            "outside": 0
+          },
+          {
+            "page": 30,
+            "words": 195,
+            "outside": 0
+          },
+          {
+            "page": 31,
+            "words": 238,
+            "outside": 0
+          }
+        ],
+        "ending": "th the student,\nReport intake and (when available) IEP family, and authorized members\nexcerpts, then formatted for of the school team. Treat this\nID TF-8C576BD7 \u00b7 v1.0 \u00b7\nfamily, student, and educator document like any other\nOctober 24, 2026\nreview. Recommendations are planning record from the IEP\nsuggestions for the team to file.\nconsider \u2014 they are not\ngenerated, reviewed, or\nendorsed by a licensed clinician\nor attorney.\n\u2014 End of report \u2014\nQA History 40144522762-1 parent \u00b7 Pathway Report 31 / 31"
+      },
+      {
+        "role": "educator",
+        "path": "/private/tmp/tf-linked-save-canonical/acceptance-artifacts/test-results/release-readiness-report-h-6aa6e--only-its-disposable-report-release-signedin/educator-history-report.pdf",
+        "sha256": "3c734447d3da802e859d5237e1a82ee5d06f4818f007c9b775a86a6e5248d1b6",
+        "pageCount": 31,
+        "pages": [
+          {
+            "page": 1,
+            "words": 199,
+            "outside": 0
+          },
+          {
+            "page": 2,
+            "words": 129,
+            "outside": 0
+          },
+          {
+            "page": 3,
+            "words": 159,
+            "outside": 0
+          },
+          {
+            "page": 4,
+            "words": 237,
+            "outside": 0
+          },
+          {
+            "page": 5,
+            "words": 182,
+            "outside": 0
+          },
+          {
+            "page": 6,
+            "words": 175,
+            "outside": 0
+          },
+          {
+            "page": 7,
+            "words": 182,
+            "outside": 0
+          },
+          {
+            "page": 8,
+            "words": 267,
+            "outside": 0
+          },
+          {
+            "page": 9,
+            "words": 189,
+            "outside": 0
+          },
+          {
+            "page": 10,
+            "words": 264,
+            "outside": 0
+          },
+          {
+            "page": 11,
+            "words": 107,
+            "outside": 0
+          },
+          {
+            "page": 12,
+            "words": 243,
+            "outside": 0
+          },
+          {
+            "page": 13,
+            "words": 189,
+            "outside": 0
+          },
+          {
+            "page": 14,
+            "words": 201,
+            "outside": 0
+          },
+          {
+            "page": 15,
+            "words": 261,
+            "outside": 0
+          },
+          {
+            "page": 16,
+            "words": 306,
+            "outside": 0
+          },
+          {
+            "page": 17,
+            "words": 142,
+            "outside": 0
+          },
+          {
+            "page": 18,
+            "words": 261,
+            "outside": 0
+          },
+          {
+            "page": 19,
+            "words": 131,
+            "outside": 0
+          },
+          {
+            "page": 20,
+            "words": 256,
+            "outside": 0
+          },
+          {
+            "page": 21,
+            "words": 203,
+            "outside": 0
+          },
+          {
+            "page": 22,
+            "words": 152,
+            "outside": 0
+          },
+          {
+            "page": 23,
+            "words": 176,
+            "outside": 0
+          },
+          {
+            "page": 24,
+            "words": 156,
+            "outside": 0
+          },
+          {
+            "page": 25,
+            "words": 160,
+            "outside": 0
+          },
+          {
+            "page": 26,
+            "words": 192,
+            "outside": 0
+          },
+          {
+            "page": 27,
+            "words": 134,
+            "outside": 0
+          },
+          {
+            "page": 28,
+            "words": 122,
+            "outside": 0
+          },
+          {
+            "page": 29,
+            "words": 122,
+            "outside": 0
+          },
+          {
+            "page": 30,
+            "words": 195,
+            "outside": 0
+          },
+          {
+            "page": 31,
+            "words": 238,
+            "outside": 0
+          }
+        ],
+        "ending": " the student,\nReport intake and (when available) IEP family, and authorized members\nexcerpts, then formatted for of the school team. Treat this\nID TF-19464F8C \u00b7 v1.0 \u00b7\nfamily, student, and educator document like any other\nOctober 24, 2026\nreview. Recommendations are planning record from the IEP\nsuggestions for the team to file.\nconsider \u2014 they are not\ngenerated, reviewed, or\nendorsed by a licensed clinician\nor attorney.\n\u2014 End of report \u2014\nQA History 40144522762-1 educator \u00b7 Pathway Report 31 / 31"
+      }
+    ],
+    "pdfReviewScope": "All 62 pages rendered and reviewed at contact-sheet scale; cover, summary, meeting and ending inspected larger. No blank pages or out-of-page extracted words. Existing 31-page length and further cosmetic polish remain deferred; not native-print or all-page proofreading certification.",
+    "limitations": "Unlinked fixtures only; real linked-student relink/concurrency covered by the native 29-case suite, not this hosted run. No live AI/provider generation acceptance."
   },
   "productionTouched": false,
   "originalMainMerged": false,
