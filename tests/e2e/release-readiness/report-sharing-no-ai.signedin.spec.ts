@@ -27,6 +27,8 @@ async function tokens(actor:Actor,fixture:Fixture):Promise<Link[]>{
 test("two fictional reports retain safe sharing and exact cleanup across existing roles",async({browser},info)=>{
  test.setTimeout(360000);
  const target=reportSharingAcceptanceTarget(process.env);
+ const expectedFileCount=Number(process.env.EXPECTED_RUNTIME_SOURCE_FILE_COUNT);
+ must(Number.isSafeInteger(expectedFileCount)&&expectedFileCount>0,"Verified runtime file count required before fixtures");
  const clients:Actor[]=[],fixtures:Fixture[]=[],contexts:BrowserContext[]=[];
  const evidence:Record<string,unknown>={runId:target.runId,aiCalls:0,maxIntakes:2,maxReports:2,maxTokens:8,checks:[],fixtures:[]};
  const check=(label:string)=>(evidence.checks as string[]).push(label);
@@ -34,7 +36,7 @@ test("two fictional reports retain safe sharing and exact cleanup across existin
  try{
   for(const origin of publicOrigins){
    const res=await fetch(origin+"/api/public/env-health",{cache:"no-store",signal:AbortSignal.timeout(15000)});must(res.ok,"Staging host health failed before fixtures");const h=await res.json();
-   must(h.runtime_source_fingerprint===process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT&&h.runtime_source_file_count===1184&&h.supabase_project_ref==="qgrertkqbwanerqqemph"&&h.stripe_mode==="sandbox"&&h.isolation?.ok===true&&h.is_production_target===false,"Staging host source/isolation mismatch before fixtures");
+   must(h.runtime_source_fingerprint===process.env.EXPECTED_RUNTIME_SOURCE_FINGERPRINT&&h.runtime_source_file_count===expectedFileCount&&h.supabase_project_ref==="qgrertkqbwanerqqemph"&&h.stripe_mode==="sandbox"&&h.isolation?.ok===true&&h.is_production_target===false,"Staging host source/isolation mismatch before fixtures");
    if(origin===target.origin)must(h.git_commit_sha===process.env.E2E_EXPECTED_BUILD_SHA,"Cloudflare release changed before fixtures");
   }
   for(const role of ROLES){

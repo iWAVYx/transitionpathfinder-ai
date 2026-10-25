@@ -31,7 +31,7 @@ on:
           - role-tools-readonly
           - owner-tools-readonly
       fixture_confirmation:
-        description: 'Fixture scopes only: type disposable-report-history, disposable-report-sharing, or disposable-linked-report-access after explicit owner authorization'
+        description: 'Fixture scopes require their matching disposable-* confirmation after explicit owner authorization'
         required: false
         default: ''
 
