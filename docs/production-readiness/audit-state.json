@@ -54,7 +54,7 @@
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 15,
     "canonicalInventoryReviewedAt": "2026-10-24",
-    "canonicalInventorySourceCommit": null,
-    "canonicalInventoryStatus": "209 canonical migrations; new20261024030000 is prepared only, pending full replay and separate rollout authorization. Isolated staging remains on verified20261024020000 and runtime52d34874. Production15 pending uses saved September17 evidence only; production untouched."
+    "canonicalInventorySourceCommit": "34c5c2bc7898495f4d319f3578e77353781e3bb4",
+    "canonicalInventoryStatus": "209 canonical migrations; prepared20261024030000 passes46 native cases and complete209 replay/98 exact privileged routines, not applied. Staging remains on verified20261024020000 and matching52d34874 runtime on both sites. Production15 pending is against saved September17 evidence only; no production access."
   }
 }

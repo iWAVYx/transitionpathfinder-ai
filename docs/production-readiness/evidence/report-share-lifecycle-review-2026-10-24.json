@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "permanent-closure-native-verified-canonical-packet-pending",
+  "status": "permanent-closure-canonical-packet-ready-for-staging-authorization",
   "hostedActions": 0,
   "productionTouched": false,
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
@@ -91,7 +91,7 @@
   "compatibilityAndOpenWork": [
     "Legacy-link proposal is now concrete: revoke preexisting unbound links in the migration transaction and require recreation. Existing UI filters revoked links, avoiding an active-but-unresolvable listing. User must review this data change in any future rollout authorization; no legacy rows have been changed outside disposable CI.",
     "User chose permanent closure. The local proposal now latches revocation when the last explicit access path is lost; re-addition requires fresh links. This behavior passed native multi-session validation and is not yet deployed.",
-    "Before rollout: prepare canonical migration/exact ledger and verified prerequisite/body/grant preflight, update the exact private-routine inventory, and rerun the full canonical migration chain. Existing canonical verifier assumes service-forbidden functions are triggers; new private boolean/void helpers require explicit narrow inventory assertions, not blanket grant relaxation. No release-ready migration/rollout packet exists yet.",
+    "Canonical migration 209, exact ledger batch and read-only prerequisite preflight are prepared. All 46 native cases, 209-migration replay, 98-routine inventory and 4,487 unit tests passed. Fresh staging migration/fixture authorization and GitHub human test review remain required; neither migration nor fixture run has executed.",
     "No guarantee of clawing back a response already resolved, downloaded file or browser-rendered content. Authorization is evaluated in the database statement snapshot.",
     "Remaining direct-client report writers/intake association/provenance races need separate scoped review, not permission expansion.",
     "Channel member removal and optional chat-history retention remain distinct from bearer report links.",
@@ -106,5 +106,6 @@
     "scope": "Report bearer links only, separate from retained chat history",
     "selected": "Permanently close their links; create new ones if re-added",
     "status": "resolved-implemented-in-local-proposal"
-  }
+  },
+  "canonicalPacket": "docs/production-readiness/evidence/report-share-lifecycle-canonical-2026-10-24.json"
 }

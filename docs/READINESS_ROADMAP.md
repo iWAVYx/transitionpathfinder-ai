@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Permanent-Link Migration Packet Ready for Staging Authorization
+
+- [x] Prepared migration 209 and its exact ledger transaction. Prerequisite guards fail closed; schema changes, retirement of legacy unbound links and ledger insertion roll back together on failure.
+- [x] Passed 46 native PostgreSQL cases with zero skips, the complete 209-migration replay and the exact 98-routine permission inventory. All five new internal helpers remain private. Also passed 43 security/readiness contracts, 81 focused safety/guard tests and TypeScript.
+- [x] Reviewed candidate `fa5646d6` passed all required automatic checks and 4,487 unit tests across 315 files. Historical workflow-expectation and passive-effect timing corrections are recorded without removing assertions. The final clean build passed; the earlier heap failure and single same-source retry remain recorded.
+- [x] Read-only isolated staging preflight verified prerequisite hashes, ownership/RLS, revoked-only authenticated updates, anonymous denial, absence of migration 209 and zero unrevoked links. Both stable staging sites matched fingerprint `52d34874…4fdfef`, 1,185 files, sandbox payments and passing isolation. Recheck these observations before an authorized rollout.
+- [x] Prepared a separately gated, zero-retry no-AI acceptance test: seven existing accounts, at most one fictional student/intake/report, two temporary relationships, six history versions (three expected) and four links. It checks permanent closure and replacement links through both stable anonymous readers, with exact cleanup and independent absence verification. No PDF exports; discovery only, not dispatched.
+- [ ] Obtain fresh authorization to apply only `20261024030000_enforce_report_share_lifecycle.sql` and its exact ledger on `qgrertkqbwanerqqemph`, retiring existing unbound links (latest observed unrevoked count: zero), then perform one bounded acceptance run. GitHub's mandatory human test review remains separate. No application deployment, Lovable source sync/publication, main merge or production action is needed or authorized for this packet.
+
+The saved September production comparison is offline evidence only: 209 canonical migrations, 15 pending against that saved baseline; production was not queried afresh. Full TF-01–TF-26, other production-readiness gates, deferred report polish and Parent Pilot/Pathway Snapshot remain retained. See the [canonical rollout packet](production-readiness/evidence/report-share-lifecycle-canonical-2026-10-24.json). Earlier checkpoints below are historical.
+
 ## October 24 — Permanent Report-Link Closure Selected and Verified Locally
 
 - [x] User selected permanent closure after student-access loss. Implemented in the local proposal: old links remain revoked after re-addition; authorized users can create fresh replacements. Separate retained chat-history choices are unaffected.
