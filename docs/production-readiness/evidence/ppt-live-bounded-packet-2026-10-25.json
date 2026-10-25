@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-25",
+  "status": "prepared locally; live execution not authorized or dispatched",
+  "runtime": {
+    "fingerprint": "3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5",
+    "files": 1185,
+    "application_changed": false,
+    "backend": "qgrertkqbwanerqqemph",
+    "app": "https://gentle-forward-reach.lovable.app",
+    "control": "https://transitionforward-staging.caysi101.workers.dev"
+  },
+  "execution": {
+    "workflow": "staging-role-verification.yml",
+    "scope": "ppt-live-bounded",
+    "confirmation": "disposable-ppt-live",
+    "requires_new_user_authorization": true,
+    "requires_github_human_staging_review": true,
+    "default_scope_unchanged": "all-roles",
+    "legacy_main_only_guards_preserved": true,
+    "test_retries": 0,
+    "workers": 1,
+    "serial_failure_stops_remaining_role": true,
+    "automatic_recordings": false
+  },
+  "budget": {
+    "existing_roles_generating": [
+      "Family/Guardian",
+      "Educator"
+    ],
+    "other_roles": "Seven existing Cloudflare sign-ins remain read-only; this is not seven-role generation proof. Family and Educator cross-check denial of each other's private packet. Owner stays management-only.",
+    "application_generation_invocations_max": 2,
+    "sdk_request_attempts_max": 6,
+    "sdk_attempt_explanation": "Existing AI SDK defaults to two retries per invocation. No app setting is changed. Gateway-internal retries/billing are not independently observable; this is not a monetary cap or strict two-outbound-attempt budget.",
+    "intakes_max": 2,
+    "pathway_reports_max": 2,
+    "ppt_packets_max": 2,
+    "report_edits_or_history_creation": 0,
+    "new_students_accounts_relationships_shares": 0,
+    "pdfs_max": 2,
+    "explicit_fictional_screenshots_max": 2
+  },
+  "preflight": [
+    "Exact CF Git SHA and matching source fingerprint/count on both stable sites",
+    "Staging labels, isolated backend, sandbox payments and isolation passing",
+    "Lovable AI configured",
+    "Public caller key only; reject service-role/secret key",
+    "Exact synthetic user identities; separate direct Lovable sign-ins rather than reusing CF-origin login state",
+    "Record allocated exact UUID scope and independent SQL before inserts"
+  ],
+  "quality": {
+    "automated": [
+      "Persist/reopen exact own packet",
+      "4\u20137 nonblank agenda topics; realistic 2\u201320 minute allocations",
+      "At least four questions, three evidence requests, three scripts; both speaker labels present",
+      "Other generating role cannot read private packet",
+      "Export nonempty printable PDFs; hide print control"
+    ],
+    "manual_required": [
+      "Family scripts speak as family; Educator scripts speak as educator",
+      "Culinary interest, visual checklist and two-to-four independent-step baseline remain accurately grounded",
+      "Missing dated progress logs/current service minutes are requested, not invented",
+      "Specific evidence, measurement conditions, responsibility and follow-up date are actionable",
+      "Distinguish reported facts, proposals and hypothetical disagreements",
+      "No invented diagnosis, score, service entitlement/minutes, legal citation, guaranteed placement or outcome",
+      "Readable branded PDF with distinct aligned sections; do not reopen tabled report-length polish"
+    ]
+  },
+  "cleanup": [
+    "Preallocated intake/report UUIDs; discover at most one matching PPT row; validate ownership and synthetic context before any deletion",
+    "Receipt must save before exact deletes; never prefix-sweep or delete standing students",
+    "Attempt cleanup despite browser-close errors; sign out despite cleanup errors; fail loudly on teardown failure",
+    "If generation started without confirmed saved ID, retain exact fixtures: reconcile completion before trusted cleanup; do not race an in-flight save",
+    "Caller-visible zero counts are provisional only",
+    "Independent read-only postgres/table-owner SQL must count exact report/intake/history/share IDs plus packet ID/report binding/exact synthetic student-name marker, including detached packets",
+    "Inspect sanitization proof before evidence download; independently verify absence before claiming cleanup or requesting any repeat",
+    "Failed/partial runs consume one authorization; no automatic repeat or broad cleanup"
+  ],
+  "not_authorized": [
+    "live test",
+    "deployment",
+    "publication",
+    "migration",
+    "production",
+    "original main merge",
+    "AI in ordinary default audits",
+    "shadow generation",
+    "real student/IEP data",
+    "partner outreach"
+  ],
+  "local_validation": {
+    "unit_tests": 4562,
+    "unit_files": 319,
+    "focused_policy_cleanup_tests": 56,
+    "typescript": "passed on final prepared harness",
+    "workflow_yaml": "both parsed with js-yaml; manual staging environments retained",
+    "offline_browser_discovery": "2 tests / 1 file; no execution",
+    "automatic_checks": "pending commit"
+  },
+  "roadmap_preserved": "TF-01\u2013TF-26, six milestones, preserved Your Dashboard Widgets builder edit; report polish and Parent Pilot/Pathway Snapshot deferred"
+}

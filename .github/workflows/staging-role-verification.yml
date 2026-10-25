@@ -9,7 +9,7 @@ on:
         description: 'Type "staging" to confirm isolated staging verification'
         required: true
       scope:
-        description: 'Full audit, fixed read-only diagnostics, or explicitly confirmed no-AI report fixtures'
+        description: 'Full audit, fixed read-only diagnostics, or explicitly confirmed bounded fixture/AI acceptance'
         type: choice
         default: all-roles
         options:
@@ -23,6 +23,7 @@ on:
           - scroll-diagnosis
           - remaining-role-scroll
           - deep-role-history-return
+          - ppt-live-bounded
           - report-reader-lenses
           - report-history-no-ai
           - report-sharing-no-ai
@@ -36,8 +37,8 @@ on:
         default: ''
 
 concurrency:
-  group: staging-role-verification
-  cancel-in-progress: true
+  group: ${{ inputs.scope == 'ppt-live-bounded' && 'staging-ppt-live-bounded' || 'staging-role-verification' }}
+  cancel-in-progress: ${{ inputs.scope != 'ppt-live-bounded' }}
 
 jobs:
   verify-seven-roles:
@@ -75,6 +76,10 @@ jobs:
         run: |
           if [ "$STAGING_INTENT" != "staging" ]; then
             echo "Confirmation text did not match 'staging'." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "ppt-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-ppt-live" ]; then
+            echo "Explicit two-request PPT live fixture authorization required." >&2
             exit 1
           fi
           if [ "$STAGING_TEST_SCOPE" = "report-history-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-report-history" ]; then
@@ -180,11 +185,11 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
-        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
-        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: |
           if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
             bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
@@ -276,6 +281,20 @@ jobs:
           STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
         run: >-
           bunx playwright test tests/e2e/release-readiness/linked-report-access-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator PPT live acceptance
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'ppt-live-bounded' }}
+        env:
+          RUN_PPT_LIVE_STAGING_QA: "true"
+          PPT_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          PPT_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_READ_ONLY: "false"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/ppt-live-staging.signedin.spec.ts
           --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
 
       - name: Remove credential-bearing Playwright artifacts

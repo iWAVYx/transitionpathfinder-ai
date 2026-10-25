@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 25 — Family/Educator PPT Acceptance Prepared; Live Run Pending Authorization
+
+- [x] Prepared a separately confirmed, human-protected `ppt-live-bounded` scope. Ordinary audits remain read-only; legacy main-only live-workflow guards remain. Both stable staging identities must match before fixtures. Direct Lovable sign-in avoids reusing Cloudflare-origin browser storage.
+- [x] Budget: one generation invocation per Family and Educator, at most two fictional intake/report pairs and two saved PPT packets, two PDFs and two explicit fictional screenshots. Existing SDK retry defaults allow up to **six SDK request attempts**; gateway internals/billing are unobserved. No new students, accounts, relationships, shares, report edits or history versions are intended. Zero Playwright retries; serial failure stops the other case.
+- [x] Exact caller-RLS cleanup validates UUID/owner/context and writes a receipt before deletion. Browser-close failure cannot skip cleanup; teardown failure remains an error. Unconfirmed AI completion retains exact fixtures for reconciliation rather than racing an in-flight save. Independent privileged SQL counts include detached packets by exact synthetic marker; caller-visible zero counts alone are not cleanup proof.
+- [x] Added structural checks plus a separate manual rubric for source grounding, speaker direction, useful evidence requests, measurable follow-up and readable PDFs. Counts/labels alone do not establish sophisticated advice or all-role generation acceptance. Local full suite: 4,562 tests / 319 files; 56 focused policy/cleanup checks. Runtime remains `3534a127…8bb9f5` / 1,185 files.
+- [ ] Finish final harness TypeScript/automatic checks, then obtain fresh authorization for **one** bounded live run and GitHub's required human review. No test has been dispatched, no AI/provider called and no hosted fixtures created in preparation. No deployment or publication is needed for these test-only changes.
+- [ ] After the authorized run: inspect sanitization, generated content and PDFs, independently confirm exact cleanup, and record findings honestly before broader Pathway/other-generator acceptance. Preserve the full TF-01–TF-26 roadmap and six milestones; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+Detailed scope, quality rubric, retry limits and failure/cleanup handling: `docs/production-readiness/evidence/ppt-live-bounded-packet-2026-10-25.json`. Earlier checkpoints below are historical.
+
+
 ## October 25 — Broader Generation Coverage Audited; Live Harness Cleanup Narrowed Locally
 
 - [x] Inventoried all ten structured-generation source modules: initial Pathway, saved regeneration, PPT prep, translation/next steps, readiness insights, IEP text assistance, document goal extraction, evidence extraction, Owner diagnostic and dormant shadow generator. Schema-prompt contracts and read-only report checks do not certify live output quality across roles.
