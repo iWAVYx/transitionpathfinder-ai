@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Permanent-Link Staging Migration Verified; Acceptance Awaiting Human Review
+
+- [x] User authorized the staging migration and one bounded no-AI test. Applied only migration `20261024030000` and its exact ledger to isolated backend `qgrertkqbwanerqqemph`; transaction succeeded. Zero unrevoked legacy links were observed before execution.
+- [x] Read-only postflight matched the exact ledger digest, all seven expected function bodies, private internal helpers and revoked-only client update permissions. Both staging applications remain unchanged; no deployment or publication occurred.
+- [ ] Complete GitHub's required human review for [bounded acceptance run 40205291128](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40205291128), then verify test outcome, exact cleanup and independent absence proof. The test has not started and no fixture records exist from this run yet. Do not repeat it without fresh authorization.
+
+Production and main remain untouched. Earlier authorization/preparation checkpoints below are historical.
+
+
 ## October 25 — Permanent-Link Migration Packet Ready for Staging Authorization
 
 - [x] Prepared migration 209 and its exact ledger transaction. Prerequisite guards fail closed; schema changes, retirement of legacy unbound links and ledger insertion roll back together on failure.

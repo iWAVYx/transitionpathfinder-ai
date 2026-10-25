@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "ready-for-staging-migration-and-bounded-test-authorization",
+  "status": "staging-migration-verified-bounded-test-awaiting-github-human-review",
   "canonicalSourceCommit": "34c5c2bc7898495f4d319f3578e77353781e3bb4",
   "acceptanceSourceCommit": "fa5646d688144c201a6bdebc53462946d02d66c5",
   "target": "qgrertkqbwanerqqemph",
@@ -19,7 +19,9 @@
       "resolve_share_token": "003bcd0389a756a75dcdaf30d854e88f",
       "track_share_view": "bb4bf392e7976904b3fb4015e29ff622"
     },
-    "applied": false
+    "applied": true,
+    "appliedTo": "qgrertkqbwanerqqemph",
+    "verifiedAt": "2026-10-25T15:05:11.968042+00:00"
   },
   "batch": {
     "path": "/private/tmp/tf-linked-save-canonical/share-lifecycle-staging-migration-ledger.sql",
@@ -313,7 +315,7 @@
       }
     ],
     "read_only": "on",
-    "observed_at": "2026-10-25T02:44:49.917338+00:00",
+    "observed_at": "2026-10-25T15:04:12.825205+00:00",
     "share_columns": [
       "id",
       "token",
@@ -394,7 +396,7 @@
     }
   },
   "plannedStagingAction": {
-    "authorizationReceived": false,
+    "authorizationReceived": true,
     "applyOnlyMigrationAndExactLedger": true,
     "applicationDeploymentNeeded": false,
     "lovableSourceSyncOrPublicationNeeded": false,
@@ -402,7 +404,7 @@
     "legacyLinks": "All preexisting unbound links are retired; latest read-only count is0 unrevoked, recheck immediately before execution.",
     "newLinks": "New context-bound links permanently close on final explicit access loss. Re-addition permits fresh links only.",
     "noAIHostedAcceptance": {
-      "authorizedRuns": 0,
+      "authorizedRuns": 1,
       "startedRuns": 0,
       "scope": "linked-report-sharing-lifecycle-no-ai",
       "fixtureConfirmation": "disposable-linked-report-sharing",
@@ -423,12 +425,16 @@
       "relationships": "Only the fictional student is temporarily linked to the existing Educator and Owner test actors. No roles/accounts are created or promoted; Owner Hub remains management-only.",
       "checks": "Existing all-role private-access denial plus explicit relationship access; old links close on removal, remain closed after re-addition, fresh replacements work and close on second removal through both stable public readers.",
       "cleanup": "Exact fictional student/intake/report/relationship IDs; truthful versions and four known share IDs cascade from the exact report. Caller readback plus independent privileged read-only exact-ID absence proof required.",
-      "capabilities": "Link token values never written to receipts/evidence; tracing/video/screenshots disabled; sanitizer required before download."
+      "capabilities": "Link token values never written to receipts/evidence; tracing/video/screenshots disabled; sanitizer required before download.",
+      "dispatchedRuns": 1,
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40205291128",
+      "workflowSourceCommit": "273eb55c2139cd600ef559811795fb709ccbce21",
+      "status": "waiting-for-required-human-review"
     }
   },
   "productionTouched": false,
   "originalMainMerged": false,
-  "hostedDataMutations": 0,
+  "hostedDataMutations": "Authorized migration and exact ledger committed; zero unrevoked legacy links observed before execution; no fixtures started.",
   "remainingGates": [
     "Explicit fresh authorization before staging migration and one bounded fixture run",
     "GitHub mandatory human review for protected staging test",
@@ -438,5 +444,306 @@
   "preflightScreenshot": "/private/tmp/tf-linked-save-canonical/share-canonical-staging-preflight.png",
   "reviewedCandidate": "fa5646d688144c201a6bdebc53462946d02d66c5",
   "postCommitFailurePolicy": "Stop fixture dispatch on mismatch; preserve revocations. Never bulk un-revoke or widen permissions. Failed installation rolls back atomically; committed repair requires a separately reviewed forward fix.",
-  "stableIdentityLimit": "Lovable dev is observed metadata; matching approved fingerprint and host establish staging parity only, not authentic Git attestation or production readiness."
+  "stableIdentityLimit": "Lovable dev is observed metadata; matching approved fingerprint and host establish staging parity only, not authentic Git attestation or production readiness.",
+  "stagingReadOnlyPostflight": {
+    "ledger": [
+      {
+        "name": "restrict_report_share_token_writes",
+        "version": "20261023010000",
+        "statements_md5": "5557ea1ed448d7f610c1cebf491b992b"
+      },
+      {
+        "name": "require_explicit_planning_report_access",
+        "version": "20261023030000",
+        "statements_md5": "8fb055d751f6c40d8fa0861100144a91"
+      },
+      {
+        "name": "remove_implicit_admin_student_access",
+        "version": "20261024010000",
+        "statements_md5": "a4b99e30dc4fba433937ba5cac9bedb2"
+      },
+      {
+        "name": "require_linked_student_report_save",
+        "version": "20261024020000",
+        "statements_md5": "51fb7a98b0e8a761729c00156ff2022f"
+      },
+      {
+        "name": "enforce_report_share_lifecycle",
+        "version": "20261024030000",
+        "statements_md5": "c177f3c6818ab4e61e5bdad23ef58b12"
+      }
+    ],
+    "tables": [
+      {
+        "rls": true,
+        "name": "student_intakes",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "pathway_reports",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "students",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "student_collaborators",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "share_tokens",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "pathway_report_versions",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "student_relationships",
+        "owner": "postgres",
+        "force_rls": false
+      }
+    ],
+    "operator": "postgres",
+    "routines": [
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "2fbd1d299d5fcfa3e3e893ba2dbb4aeb",
+        "signature": "bind_report_share_context()",
+        "anon_execute": false,
+        "service_execute": false,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "body_md5": "c2dcc71ecab9bc4b982d7f81793da2aa",
+        "signature": "can_access_student(uuid,uuid)",
+        "anon_execute": false,
+        "service_execute": true,
+        "security_definer": true,
+        "authenticated_execute": true
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "38c498349017318d339deabda5f5acc7",
+        "signature": "close_report_links_after_access_loss(uuid,uuid)",
+        "anon_execute": false,
+        "service_execute": false,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "9efb6263735fd76efef022eb60618925",
+        "signature": "close_report_links_on_student_access_change()",
+        "anon_execute": false,
+        "service_execute": false,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "b9fcc6d2561962358779a58c4ded179a",
+        "signature": "report_share_is_eligible(uuid)",
+        "anon_execute": false,
+        "service_execute": false,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "003bcd0389a756a75dcdaf30d854e88f",
+        "signature": "resolve_share_token(text)",
+        "anon_execute": false,
+        "service_execute": true,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "c65e0f567b4dc15ff3eb20b175bc0bea",
+        "signature": "revoke_shares_on_report_context_change()",
+        "anon_execute": false,
+        "service_execute": false,
+        "security_definer": true,
+        "authenticated_execute": false
+      },
+      {
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog"
+        ],
+        "body_md5": "bb4bf392e7976904b3fb4015e29ff622",
+        "signature": "track_share_view(text)",
+        "anon_execute": false,
+        "service_execute": true,
+        "security_definer": true,
+        "authenticated_execute": false
+      }
+    ],
+    "triggers": [
+      {
+        "name": "prevent_client_report_identity_reassignment",
+        "table": "pathway_reports",
+        "definition": "CREATE TRIGGER prevent_client_report_identity_reassignment BEFORE UPDATE OF user_id, intake_id, student_id ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION prevent_client_report_identity_reassignment()"
+      },
+      {
+        "name": "revoke_shares_on_report_context_change",
+        "table": "pathway_reports",
+        "definition": "CREATE TRIGGER revoke_shares_on_report_context_change AFTER UPDATE OF student_id, user_id, intake_id ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION revoke_shares_on_report_context_change()"
+      },
+      {
+        "name": "snapshot_report_content_update",
+        "table": "pathway_reports",
+        "definition": "CREATE TRIGGER snapshot_report_content_update AFTER UPDATE OF content ON public.pathway_reports FOR EACH ROW EXECUTE FUNCTION snapshot_report_content_update()"
+      },
+      {
+        "name": "close_report_links_on_student_identity_change",
+        "table": "students",
+        "definition": "CREATE TRIGGER close_report_links_on_student_identity_change AFTER DELETE OR UPDATE OF owner_id, student_user_id ON public.students FOR EACH ROW EXECUTE FUNCTION close_report_links_on_student_access_change()"
+      },
+      {
+        "name": "prevent_client_student_identity_reassignment",
+        "table": "students",
+        "definition": "CREATE TRIGGER prevent_client_student_identity_reassignment BEFORE UPDATE OF owner_id, student_user_id ON public.students FOR EACH ROW EXECUTE FUNCTION prevent_client_student_identity_reassignment()"
+      },
+      {
+        "name": "set_updated_at_students",
+        "table": "students",
+        "definition": "CREATE TRIGGER set_updated_at_students BEFORE UPDATE ON public.students FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+      },
+      {
+        "name": "close_collaborator_chats",
+        "table": "student_collaborators",
+        "definition": "CREATE TRIGGER close_collaborator_chats AFTER DELETE OR UPDATE ON public.student_collaborators FOR EACH ROW EXECUTE FUNCTION close_removed_student_chats()"
+      },
+      {
+        "name": "close_report_links_on_collaborator_change",
+        "table": "student_collaborators",
+        "definition": "CREATE TRIGGER close_report_links_on_collaborator_change AFTER DELETE OR UPDATE ON public.student_collaborators FOR EACH ROW EXECUTE FUNCTION close_report_links_on_student_access_change()"
+      },
+      {
+        "name": "enforce_student_collaborator_accept_tg",
+        "table": "student_collaborators",
+        "definition": "CREATE TRIGGER enforce_student_collaborator_accept_tg BEFORE UPDATE ON public.student_collaborators FOR EACH ROW EXECUTE FUNCTION enforce_student_collaborator_accept()"
+      },
+      {
+        "name": "enforce_student_collaborator_accept_trg",
+        "table": "student_collaborators",
+        "definition": "CREATE TRIGGER enforce_student_collaborator_accept_trg BEFORE UPDATE ON public.student_collaborators FOR EACH ROW EXECUTE FUNCTION enforce_student_collaborator_accept()"
+      },
+      {
+        "name": "set_updated_at_collab",
+        "table": "student_collaborators",
+        "definition": "CREATE TRIGGER set_updated_at_collab BEFORE UPDATE ON public.student_collaborators FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+      },
+      {
+        "name": "trg_student_collaborators_self_accept",
+        "table": "student_collaborators",
+        "definition": "CREATE TRIGGER trg_student_collaborators_self_accept BEFORE UPDATE ON public.student_collaborators FOR EACH ROW EXECUTE FUNCTION enforce_student_collaborators_self_accept()"
+      },
+      {
+        "name": "bind_report_share_context",
+        "table": "share_tokens",
+        "definition": "CREATE TRIGGER bind_report_share_context BEFORE INSERT ON public.share_tokens FOR EACH ROW EXECUTE FUNCTION bind_report_share_context()"
+      },
+      {
+        "name": "close_relationship_chats",
+        "table": "student_relationships",
+        "definition": "CREATE TRIGGER close_relationship_chats AFTER DELETE OR UPDATE ON public.student_relationships FOR EACH ROW EXECUTE FUNCTION close_removed_student_chats()"
+      },
+      {
+        "name": "close_report_links_on_relationship_change",
+        "table": "student_relationships",
+        "definition": "CREATE TRIGGER close_report_links_on_relationship_change AFTER DELETE OR UPDATE ON public.student_relationships FOR EACH ROW EXECUTE FUNCTION close_report_links_on_student_access_change()"
+      },
+      {
+        "name": "enforce_student_relationship_self_update_trg",
+        "table": "student_relationships",
+        "definition": "CREATE TRIGGER enforce_student_relationship_self_update_trg BEFORE UPDATE ON public.student_relationships FOR EACH ROW EXECUTE FUNCTION enforce_student_relationship_self_update()"
+      },
+      {
+        "name": "student_relationships_set_updated_at",
+        "table": "student_relationships",
+        "definition": "CREATE TRIGGER student_relationships_set_updated_at BEFORE UPDATE ON public.student_relationships FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+      },
+      {
+        "name": "trg_enforce_student_relationship_self_update",
+        "table": "student_relationships",
+        "definition": "CREATE TRIGGER trg_enforce_student_relationship_self_update BEFORE UPDATE ON public.student_relationships FOR EACH ROW EXECUTE FUNCTION enforce_student_relationship_self_update()"
+      },
+      {
+        "name": "trg_student_relationships_self_approve",
+        "table": "student_relationships",
+        "definition": "CREATE TRIGGER trg_student_relationships_self_approve BEFORE UPDATE ON public.student_relationships FOR EACH ROW EXECUTE FUNCTION enforce_student_relationships_self_approve()"
+      }
+    ],
+    "read_only": "on",
+    "observed_at": "2026-10-25T15:05:11.968042+00:00",
+    "share_columns": [
+      "id",
+      "token",
+      "report_id",
+      "created_by",
+      "audience",
+      "expires_at",
+      "revoked",
+      "view_count",
+      "last_viewed_at",
+      "created_at",
+      "context_bound",
+      "bound_student_id",
+      "bound_report_owner_id",
+      "bound_intake_id"
+    ],
+    "unrevoked_link_count": 0,
+    "share_client_mutation": {
+      "delete": false,
+      "anon_delete": false,
+      "anon_insert": false,
+      "table_update": false,
+      "anon_select_columns": false,
+      "anon_update_columns": false,
+      "revoke_column_update": true
+    },
+    "expected_project_label": "qgrertkqbwanerqqemph",
+    "authenticated_update_columns": [
+      "revoked"
+    ]
+  }
 }
