@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 24 — Sharing Proposal Passes Native Concurrency and Full-Schema Review
+
+- [x] All26 native PostgreSQL cases pass with zero skips, including observed lock waits for creation/reassignment, committed and rolled-back reassignment, revocation and expiry. Local PGlite passes21 cases, with the five native-only races intentionally skipped.
+- [x] Native testing exposed a genuine tracking race: a waiting update could count a view after revocation. The proposal now rechecks token fields on the update target; strict revocation and expiry regressions pass. The initial23/24 failure is retained in the evidence.
+- [x] [Automatic replay40153499194](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40153499194) passed all208 canonical migrations and93 exact privileged-routine checks, then applied the proposal only inside a rollback integration transaction. Existing report policies, table grants and prior/history triggers were unchanged; helpers remained private and resolver/tracking service-only. Rollback and absence of new columns were confirmed.
+- [x] Prepared legacy-link handling: revoke preexisting unbound links and require replacements, rather than guess historical student context or list broken links as active. This remains a proposal and requires explicit authorization in a future rollout. Installation-failure testing proves retirement/schema additions roll back together.
+- [ ] Await the user's removal preference: permanent closure after lost student access, or temporary ineligibility that ends when access is restored. Current draft implements the latter. This decision is separate from channel/chat-history retention. Then prepare canonical migration/ledger, exact prerequisite preflight and private routine allowlist review; no release-ready rollout packet yet.
+
+Application source remains `52d34874…4fdfef` /1,185 files. No hosted migration, deployment, publication, fixtures, AI/provider, access/settings or production/main action occurred. Full roadmap, deferred report polish and Parent Pilot/Pathway Snapshot remain retained. See [updated lifecycle evidence](evidence/report-share-lifecycle-review-2026-10-24.json). Earlier checkpoints remain historical.
+
 ## October 24 — Report Sharing Lifecycle Reviewed; Local Proposal Only
 
 - [x] Reproduced current bearer-link resolution after issuer access removal and report reassignment in a credential-free disposable database. Current revoke/expiry protection remains real, but is insufficient to bind original report context. Omitted server expiry also permits indefinite links despite the UI's 30-day request.

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "local-proposal-verified-not-release-ready",
+  "status": "native-and-full-schema-proposal-verified-policy-decision-pending",
   "hostedActions": 0,
   "productionTouched": false,
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
@@ -28,34 +28,66 @@
     }
   ],
   "proposal": "docs/production-readiness/proposals/report-share-lifecycle.sql",
-  "proposalSha256": "59aaa7decf8ce23b17c8f65cec51e43d91099f7ec60f7894413868ce5506d1ed",
+  "proposalSha256": "f42b732b1a59b5b659ef0d15182a35d2483da7761332c48a1cfa53d3e6706259",
   "proposedBehavior": [
     "Before insertion lock referenced report FOR SHARE; require current explicit student access for linked report or ownership for unlinked report; overwrite supplied bindings with actual student/owner/intake.",
     "Use reviewed can_access_student actor helper, with no management shortcut; apply the same predicate to resolver and tracking, retaining service-role-only RPC execution and audience projection.",
     "Default newly inserted links to 30 days when omitted; retain current API upper bound of 365 days at database boundary.",
     "Revoke links on report student/owner/intake change, including unlink/relink and change-away/change-back; ordinary content changes remain live.",
-    "Legacy links remain unbound and unavailable: never guess their original context from current report state."
+    "Retire all existing unbound legacy links as revoked in the same transaction, so existing screens do not label unusable links as active. Creators must issue replacements; no historical context is guessed. This is a proposed existing-data change requiring explicit future rollout authorization."
   ],
   "validation": {
-    "engine": "credential-free local PGlite",
-    "cases": 20,
-    "passed": 20,
+    "engine": "Disposable native PostgreSQL and credential-free local PGlite",
+    "cases": 26,
+    "passed": 26,
     "failed": 0,
     "skipped": 0,
     "centralConsentCaseAlsoPassesIndependently": true,
-    "nativePostgresConcurrencyValidated": false,
+    "nativePostgresConcurrencyValidated": true,
     "hostedAcceptancePerformed": false,
-    "log": "/private/tmp/tf-linked-save-canonical/share-lifecycle-local.log",
-    "ci": "Existing migration replay workflow includes credential-free proposal test and path triggers. No canonical migration added.",
-    "preliminaryHarnessCorrections": "Two initial fixture errors (duplicate insert column and untyped unused parameter) corrected without changing expected denials. Single-case check initially omitted local module path; corrected invocation passed."
+    "log": "/private/tmp/tf-linked-save-canonical/share-lifecycle-full-replay.log",
+    "ci": "Existing automatic migration replay now includes local and native proposal cases plus rollback-only integration after all canonical checks. No canonical migration added.",
+    "preliminaryHarnessCorrections": "Two initial fixture errors (duplicate insert column and untyped unused parameter) corrected without changing expected denials. Single-case check initially omitted local module path; corrected invocation passed.",
+    "localPGlite": {
+      "passed": 21,
+      "skipped": 5,
+      "reason": "Five real multi-session lock cases require native PostgreSQL"
+    },
+    "nativeRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40153499194",
+    "fullCanonicalReplay": {
+      "migrations": 208,
+      "exactPrivilegedRoutinesBeforeProposal": 93,
+      "proposalAppliedAfterCanonicalChecks": true,
+      "existingReportPoliciesTableGrantsAndHistoryTriggersUnchanged": true,
+      "helpersPrivateAndResolverServiceOnly": true,
+      "proposalRolledBackAndColumnsAbsent": true
+    },
+    "installationFailureRollback": true,
+    "initialNativeFailure": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40153292933",
+      "passed": 23,
+      "failed": 1,
+      "finding": "Tracking waiting behind a committed revocation incremented view_count because the STABLE eligibility helper saw an older statement snapshot. This was a real proposal defect, not a harness failure.",
+      "correction": "Recheck mutable revoked/context_bound/expiry directly on the UPDATE target so row-lock rechecks reject a concurrently invalidated token. Strict regression retained; concurrent expiry case added.",
+      "log": "/private/tmp/tf-linked-save-canonical/share-lifecycle-native-initial.log",
+      "correctedNativeCases": 26
+    }
   },
   "compatibilityAndOpenWork": [
-    "Before any canonical migration/release, review explicit legacy-link retirement/recreation policy. Unbound legacy rows still appear active to current list UI; presentation/revocation treatment must be resolved together. This draft is NOT ready for rollout authorization.",
+    "Legacy-link proposal is now concrete: revoke preexisting unbound links in the migration transaction and require recreation. Existing UI filters revoked links, avoiding an active-but-unresolvable listing. User must review this data change in any future rollout authorization; no legacy rows have been changed outside disposable CI.",
     "Current proposal rechecks eligibility dynamically. Removed access blocks new resolutions; restoring explicit access can reactivate an otherwise unrevoked same-context link. Permanent revocation on access removal is a separate policy decision; no claim that this proposal implements it.",
-    "Native PostgreSQL multi-session insertion/reassignment/revocation races, full migration replay, exact prerequisite/body/grant verification and deployable rollout packet remain required.",
+    "Native concurrency and full208-schema rollback integration now pass. Before rollout: finalize permanent-versus-temporary removal policy, prepare canonical migration/exact ledger, verified prerequisite/body/grant preflight and review new private routine allowlist entries with the canonical replay. No deployable migration/rollout packet exists yet.",
     "No guarantee of clawing back a response already resolved, downloaded file or browser-rendered content. Authorization is evaluated in the database statement snapshot.",
     "Remaining direct-client report writers/intake association/provenance races need separate scoped review, not permission expansion.",
     "Channel member removal and optional chat-history retention remain distinct from bearer report links.",
     "Full TF-01\u2013TF-26, deferred report polish and Parent Pilot/Pathway Snapshot remain retained."
-  ]
+  ],
+  "testedSourceSha": "5f6532f7fa1f5854143c08852e4bbbd56d7691fa",
+  "pendingUserPreference": {
+    "question": "When someone loses student access, should their report links remain permanently closed if they are later re-added?",
+    "recommended": "Permanent closure; create fresh links after re-addition",
+    "currentDraft": "Temporarily ineligible; an unrevoked same-context link works again when explicit access returns",
+    "answerReceived": false,
+    "scope": "Report bearer links only, separate from retained chat history"
+  }
 }
