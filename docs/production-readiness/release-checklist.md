@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 24 — Permanent Report-Link Closure Selected and Verified Locally
+
+- [x] User selected permanent closure after student-access loss. Implemented in the local proposal: old links remain revoked after re-addition; authorized users can create fresh replacements. Separate retained chat-history choices are unaffected.
+- [x] Closure hooks cover collaborator/relationship status changes, deletion/reassignment, and loss of student ownership/self access. Removing one access path preserves links if another valid path remains. Transaction rollback restores consent and link state together; committed loss/re-addition still requires fresh links.
+- [x] [Native review40154059456](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40154059456) passed37/37 cases, zero skips. Includes nine concurrent cases: in-flight mint/removal in both lock orders, removal rollback, and simultaneous loss of two independent paths. Local PGlite passed28 with those nine native-only cases skipped.
+- [x] All208 existing migrations replayed before a rollback-only proposal integration check. Existing source/report policies, table grants, prior/history triggers and consent-helper body were unchanged; all five new internal helpers remained private, the three access-loss hooks were present, and resolver/tracking stayed service-only. Proposal additions were absent after rollback.
+- [ ] Next: prepare canonical migration/exact ledger and prerequisite preflight, plus narrowly reviewed inventory entries for the new private helpers; repeat the full canonical replay before any rollout request. Existing private-routine verifier assumptions must be updated explicitly, not weakened generally. Legacy-link retirement/recreation remains an explicit data change in the future authorization.
+
+No hosted migration, deployment, publication, fixtures, AI/provider, access/settings or production/main action occurred. Runtime remains `52d34874…4fdfef` /1,185 files; full TF-01–TF-26 and deferred report polish/Parent Pilot/Pathway Snapshot remain retained. See [permanent-closure evidence](evidence/report-share-lifecycle-review-2026-10-24.json). Earlier policy-decision checkpoints are historical and superseded by this user choice.
+
 ## October 24 — Sharing Proposal Passes Native Concurrency and Full-Schema Review
 
 - [x] All26 native PostgreSQL cases pass with zero skips, including observed lock waits for creation/reassignment, committed and rolled-back reassignment, revocation and expiry. Local PGlite passes21 cases, with the five native-only races intentionally skipped.

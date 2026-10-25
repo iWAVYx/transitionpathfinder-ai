@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "native-and-full-schema-proposal-verified-policy-decision-pending",
+  "status": "permanent-closure-native-verified-canonical-packet-pending",
   "hostedActions": 0,
   "productionTouched": false,
   "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
@@ -28,38 +28,42 @@
     }
   ],
   "proposal": "docs/production-readiness/proposals/report-share-lifecycle.sql",
-  "proposalSha256": "f42b732b1a59b5b659ef0d15182a35d2483da7761332c48a1cfa53d3e6706259",
+  "proposalSha256": "98f6535c6a1c99ead1fc26fb7d034d0fcb3b83d5d28497c33be64a04be6b04ba",
   "proposedBehavior": [
     "Before insertion lock referenced report FOR SHARE; require current explicit student access for linked report or ownership for unlinked report; overwrite supplied bindings with actual student/owner/intake.",
     "Use reviewed can_access_student actor helper, with no management shortcut; apply the same predicate to resolver and tracking, retaining service-role-only RPC execution and audience projection.",
     "Default newly inserted links to 30 days when omitted; retain current API upper bound of 365 days at database boundary.",
     "Revoke links on report student/owner/intake change, including unlink/relink and change-away/change-back; ordinary content changes remain live.",
-    "Retire all existing unbound legacy links as revoked in the same transaction, so existing screens do not label unusable links as active. Creators must issue replacements; no historical context is guessed. This is a proposed existing-data change requiring explicit future rollout authorization."
+    "Retire all existing unbound legacy links as revoked in the same transaction, so existing screens do not label unusable links as active. Creators must issue replacements; no historical context is guessed. This is a proposed existing-data change requiring explicit future rollout authorization.",
+    "User-selected permanent closure: source-table hooks cover collaboration/consent deletion, reassignment and status changes plus loss of student ownership/self identity. Serialize access-loss checks per student with transaction advisory locks, then lock reports to catch in-flight mints. Retain links when another genuine access path remains. Revocation participates in the original removal transaction and rolls back with it."
   ],
   "validation": {
     "engine": "Disposable native PostgreSQL and credential-free local PGlite",
-    "cases": 26,
-    "passed": 26,
+    "cases": 37,
+    "passed": 37,
     "failed": 0,
     "skipped": 0,
     "centralConsentCaseAlsoPassesIndependently": true,
     "nativePostgresConcurrencyValidated": true,
     "hostedAcceptancePerformed": false,
-    "log": "/private/tmp/tf-linked-save-canonical/share-lifecycle-full-replay.log",
+    "log": "/private/tmp/tf-linked-save-canonical/share-permanent-native.log",
     "ci": "Existing automatic migration replay now includes local and native proposal cases plus rollback-only integration after all canonical checks. No canonical migration added.",
     "preliminaryHarnessCorrections": "Two initial fixture errors (duplicate insert column and untyped unused parameter) corrected without changing expected denials. Single-case check initially omitted local module path; corrected invocation passed.",
     "localPGlite": {
-      "passed": 21,
-      "skipped": 5,
-      "reason": "Five real multi-session lock cases require native PostgreSQL"
+      "passed": 28,
+      "skipped": 9,
+      "reason": "Nine real multi-session cases require native PostgreSQL"
     },
-    "nativeRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40153499194",
+    "nativeRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40154059456",
     "fullCanonicalReplay": {
       "migrations": 208,
       "exactPrivilegedRoutinesBeforeProposal": 93,
       "proposalAppliedAfterCanonicalChecks": true,
-      "existingReportPoliciesTableGrantsAndHistoryTriggersUnchanged": true,
-      "helpersPrivateAndResolverServiceOnly": true,
+      "existingPoliciesTableGrantsAndPriorTriggersUnchanged": true,
+      "explicitConsentHelperBodyUnchanged": true,
+      "allFiveInternalHelpersPrivate": true,
+      "allThreePermanentClosureSourceHooksVerified": true,
+      "resolverServiceOnly": true,
       "proposalRolledBackAndColumnsAbsent": true
     },
     "installationFailureRollback": true,
@@ -71,23 +75,36 @@
       "correction": "Recheck mutable revoked/context_bound/expiry directly on the UPDATE target so row-lock rechecks reject a concurrently invalidated token. Strict regression retained; concurrent expiry case added.",
       "log": "/private/tmp/tf-linked-save-canonical/share-lifecycle-native-initial.log",
       "correctedNativeCases": 26
-    }
+    },
+    "permanentClosureCoverage": [
+      "removed then re-added; only fresh links work",
+      "deleted/recreated or reassigned collaboration",
+      "last approved relationship revoked and reapproved",
+      "ownership and student self-identity loss",
+      "remaining independent access preserves links",
+      "transaction rollback restores both consent and unrevoked links",
+      "loss/re-addition within committed transaction preserves closure",
+      "in-flight mint versus access removal in both lock orders and rollback",
+      "simultaneous removal of two distinct access paths cannot retain old links"
+    ]
   },
   "compatibilityAndOpenWork": [
     "Legacy-link proposal is now concrete: revoke preexisting unbound links in the migration transaction and require recreation. Existing UI filters revoked links, avoiding an active-but-unresolvable listing. User must review this data change in any future rollout authorization; no legacy rows have been changed outside disposable CI.",
-    "Current proposal rechecks eligibility dynamically. Removed access blocks new resolutions; restoring explicit access can reactivate an otherwise unrevoked same-context link. Permanent revocation on access removal is a separate policy decision; no claim that this proposal implements it.",
-    "Native concurrency and full208-schema rollback integration now pass. Before rollout: finalize permanent-versus-temporary removal policy, prepare canonical migration/exact ledger, verified prerequisite/body/grant preflight and review new private routine allowlist entries with the canonical replay. No deployable migration/rollout packet exists yet.",
+    "User chose permanent closure. The local proposal now latches revocation when the last explicit access path is lost; re-addition requires fresh links. This behavior passed native multi-session validation and is not yet deployed.",
+    "Before rollout: prepare canonical migration/exact ledger and verified prerequisite/body/grant preflight, update the exact private-routine inventory, and rerun the full canonical migration chain. Existing canonical verifier assumes service-forbidden functions are triggers; new private boolean/void helpers require explicit narrow inventory assertions, not blanket grant relaxation. No release-ready migration/rollout packet exists yet.",
     "No guarantee of clawing back a response already resolved, downloaded file or browser-rendered content. Authorization is evaluated in the database statement snapshot.",
     "Remaining direct-client report writers/intake association/provenance races need separate scoped review, not permission expansion.",
     "Channel member removal and optional chat-history retention remain distinct from bearer report links.",
     "Full TF-01\u2013TF-26, deferred report polish and Parent Pilot/Pathway Snapshot remain retained."
   ],
-  "testedSourceSha": "5f6532f7fa1f5854143c08852e4bbbd56d7691fa",
+  "testedSourceSha": "b4dcdbd9cc5d22e736f83e1c432bd343ca91ae5a",
   "pendingUserPreference": {
     "question": "When someone loses student access, should their report links remain permanently closed if they are later re-added?",
     "recommended": "Permanent closure; create fresh links after re-addition",
-    "currentDraft": "Temporarily ineligible; an unrevoked same-context link works again when explicit access returns",
-    "answerReceived": false,
-    "scope": "Report bearer links only, separate from retained chat history"
+    "currentDraft": "Permanent revocation after losing the final explicit student-access path; restored access permits fresh links but never reactivates old ones",
+    "answerReceived": true,
+    "scope": "Report bearer links only, separate from retained chat history",
+    "selected": "Permanently close their links; create new ones if re-added",
+    "status": "resolved-implemented-in-local-proposal"
   }
 }
