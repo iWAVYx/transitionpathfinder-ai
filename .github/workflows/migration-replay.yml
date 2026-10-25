@@ -112,6 +112,14 @@ jobs:
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/atomic-pathway-history.test.mjs
 
+      - name: Test proposed share lifecycle in disposable concurrent sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          SHARE_LIFECYCLE_POSTGRES=1 \
+          SHARE_POLICY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/report-share-lifecycle.test.mjs
+
       - name: Test canonical linked-student save in disposable concurrent sessions
         env:
           PGUSER: supabase_admin

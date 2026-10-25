@@ -1,4 +1,5 @@
-// Credential-free local PGlite only. Never connects to hosted staging/production.
+// Disposable local databases only. Native mode rejects non-loopback PGHOST
+// and creates its own random database; it never accepts a hosted database URL.
 import {before,after,beforeEach,test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -7,11 +8,24 @@ const owner='00000000-0000-4000-8000-000000000001', other='00000000-0000-4000-80
 const student='00000000-0000-4000-8000-000000000010', moved='00000000-0000-4000-8000-000000000011';
 const report='00000000-0000-4000-8000-000000000020', intake='00000000-0000-4000-8000-000000000030';
 const proposal=readFileSync('docs/production-readiness/proposals/report-share-lifecycle.sql','utf8');
-let db;
+const real=process.env.SHARE_LIFECYCLE_POSTGRES === "1";
+let db,close,newSession;
 const originalShare=readFileSync("supabase/migrations/20260527160738_4b10cdd0-0c92-40e1-b652-b016a9a0cafd.sql","utf8");
 before(async()=>{
- const {PGlite}=await import(process.env.SHARE_POLICY_PGLITE_MODULE?pathToFileURL(process.env.SHARE_POLICY_PGLITE_MODULE).href:'@electric-sql/pglite');db=new PGlite();
- await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
+ if(real){
+  if(![undefined,'localhost','127.0.0.1'].includes(process.env.PGHOST))throw new Error('Disposable sharing tests require loopback PGHOST');
+  const pg=await import(pathToFileURL(process.env.SHARE_POLICY_PG_MODULE).href);const {Client}=pg.default??pg;
+  const options={host:'127.0.0.1',port:Number(process.env.PGPORT||5432),user:process.env.PGUSER,password:process.env.PGPASSWORD,statement_timeout:10000};
+  const admin=new Client({...options,database:'postgres'});await admin.connect();
+  const name='tf_share_lifecycle_'+crypto.randomUUID().replaceAll('-','');
+  try{await admin.query(`CREATE DATABASE ${name}`);}catch(error){await admin.end();throw error;}
+  const sessions=[];newSession=async()=>{const c=new Client({...options,database:name});await c.connect();sessions.push(c);return {query:(...args)=>c.query(...args),exec:async sql=>{const r=await c.query(sql);return Array.isArray(r)?r:[r];}};};
+  close=async()=>{try{await Promise.all(sessions.map(c=>c.end()));}finally{try{await admin.query(`DROP DATABASE ${name}`);}finally{await admin.end();}}};
+  db=await newSession();
+ }else{
+  const {PGlite}=await import(process.env.SHARE_POLICY_PGLITE_MODULE?pathToFileURL(process.env.SHARE_POLICY_PGLITE_MODULE).href:'@electric-sql/pglite');db=new PGlite();close=()=>db.close();
+ }
+ await db.exec(`DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF; IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF; IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role BYPASSRLS; END IF; END $$;
  CREATE SCHEMA auth; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  GRANT USAGE ON SCHEMA auth,public TO anon,authenticated,service_role;
  CREATE TABLE public.students(id uuid PRIMARY KEY,owner_id uuid,student_user_id uuid);
@@ -26,7 +40,7 @@ before(async()=>{
  // Retain the deployed revoked-only column grant boundary.
  await db.exec(readFileSync('supabase/migrations/20261023010000_restrict_report_share_token_writes.sql','utf8'));
 });
-after(async()=>{await db?.close();});
+after(async()=>{await close?.();});
 beforeEach(async(ctx)=>{
  await db.exec(`RESET ROLE; DROP TRIGGER IF EXISTS bind_report_share_context ON public.share_tokens; DROP TRIGGER IF EXISTS revoke_shares_on_report_context_change ON public.pathway_reports; DROP FUNCTION IF EXISTS public.bind_report_share_context(),public.revoke_shares_on_report_context_change(),public.report_share_is_eligible(uuid) CASCADE; ALTER TABLE public.share_tokens DROP COLUMN IF EXISTS context_bound,DROP COLUMN IF EXISTS bound_student_id,DROP COLUMN IF EXISTS bound_report_owner_id,DROP COLUMN IF EXISTS bound_intake_id;`);
  await db.exec(originalShare.slice(originalShare.indexOf("CREATE OR REPLACE FUNCTION public.resolve_share_token"),originalShare.indexOf("-- 11. AUDIT_LOG")));
@@ -111,4 +125,33 @@ test('missing report cannot mint a link or leak data',async()=>{
 test('anonymous caller cannot resolve or track directly',async()=>{
  const token=await create();await db.exec('SET ROLE anon');
  try{await assert.rejects(resolve(token),{code:'42501'});await assert.rejects(db.query('SELECT public.track_share_view($1)',[token]),{code:'42501'});}finally{await db.exec('RESET ROLE');}
+});
+
+async function blocked(pid){
+ const end=Date.now()+4000;
+ while(Date.now()<end){const {rows:[r]}=await db.query('SELECT wait_event_type FROM pg_stat_activity WHERE pid=$1',[pid]);if(r?.wait_event_type==='Lock')return;await new Promise(r=>setTimeout(r,20));}
+ assert.fail('Expected competing session to visibly wait on a PostgreSQL row lock');
+}
+function insert(client,token){return client.query('INSERT INTO public.share_tokens(token,report_id,created_by) VALUES($1,$2,$3)',[token,report,owner]);}
+test('native creation lock serializes reassignment and revokes the just-created link',{skip:!real},async()=>{
+ const mint=await newSession(),relink=await newSession();const token='race-'+crypto.randomUUID();const pid=(await relink.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await mint.exec('BEGIN');try{
+  await insert(mint,token);pending=relink.query('UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2',[moved,report]).then(value=>({value}),error=>({error}));
+  await blocked(pid);await mint.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).revoked,true);assert.deepEqual(await resolve(token),[]);
+ }finally{await mint.exec('ROLLBACK');if(pending)await pending;}
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('native waiting creation rechecks reassignment after '+finish,{skip:!real},async()=>{
+ const relink=await newSession(),mint=await newSession();const token='race-'+crypto.randomUUID();const pid=(await mint.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await relink.exec('BEGIN');try{
+  await relink.query('UPDATE public.pathway_reports SET student_id=$1 WHERE id=$2',[moved,report]);pending=insert(mint,token).then(value=>({value}),error=>({error}));
+  await blocked(pid);await relink.exec(finish);const result=await pending;
+  if(finish==='COMMIT'){assert.equal(result.error?.code,'42501');assert.equal(await tokenRow(token),undefined);}else{assert.equal(result.error,undefined);assert.equal((await tokenRow(token)).bound_student_id,student);assert.equal((await resolve(token)).length,1);}
+ }finally{await relink.exec('ROLLBACK');if(pending)await pending;}
+});
+test('native view tracking waiting behind revocation must not increment a revoked link',{skip:!real},async()=>{
+ const token=await create(),revoker=await newSession(),tracker=await newSession();const pid=(await tracker.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await revoker.exec('BEGIN');try{
+  await revoker.query('UPDATE public.share_tokens SET revoked=true WHERE token=$1',[token]);pending=tracker.query('SELECT public.track_share_view($1)',[token]).then(value=>({value}),error=>({error}));
+  await blocked(pid);await revoker.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).view_count,0);assert.deepEqual(await resolve(token),[]);
+ }finally{await revoker.exec('ROLLBACK');if(pending)await pending;}
 });
