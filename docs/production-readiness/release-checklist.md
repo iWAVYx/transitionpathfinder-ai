@@ -1,5 +1,14 @@
 # Production release checklist
 
+## October 25 — Report Relinking Release Verified on Both Staging Sites
+
+- [x] Authorized Cloudflare [release 40207428692](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40207428692) passed after human review and serves exact `1544ede3`. Synced exactly two runtime files to the existing isolated `iWAVYx/gentle-forward-reach` repository, commit `d6c6f48a`; no newer builder edits were present. Environment/dependency/generated-type and demo-title protected hashes were preserved.
+- [x] Updated the existing isolated Lovable staging publication after externally confirming the preview fingerprint. Both stable sites now serve `6126e2ed…a480dd` / 1,185 files, backend `qgrertkqbwanerqqemph`, sandbox payments and passing isolation. Lovable reports its actual isolated sync commit; no identity was fabricated. A browser approval timeout resolved on the permitted retry; no security control was bypassed.
+- [ ] Complete GitHub's required human review for authorized [read-only acceptance 40209150697](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209150697): seven existing sign-ins, four sample-report journeys and three fictional sample PDFs, zero retries/records/AI. This scope does not certify a live relink write or every Lovable role journey.
+
+No migration, fixture, AI/provider, account/access, payment/secret, original main merge or production action occurred in this application rollout. Full roadmap and deferred items remain retained; earlier preparation checkpoints below are historical.
+
+
 ## October 25 — Report Relinking Correction Prepared Locally
 
 - [x] Found and corrected false success for zero-row link updates and stale association overwrites. A required browser-observed student ID now participates in the same update predicate alongside the report ID and actual caller ownership; a matching returned row is required. Existing target editing checks, RLS and database identity protections remain authoritative.
