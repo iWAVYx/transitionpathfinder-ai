@@ -42,7 +42,7 @@ before(async()=>{
 });
 after(async()=>{await close?.();});
 beforeEach(async(ctx)=>{
- await db.exec(`RESET ROLE; DROP TRIGGER IF EXISTS bind_report_share_context ON public.share_tokens; DROP TRIGGER IF EXISTS revoke_shares_on_report_context_change ON public.pathway_reports; DROP FUNCTION IF EXISTS public.bind_report_share_context(),public.revoke_shares_on_report_context_change(),public.report_share_is_eligible(uuid) CASCADE; ALTER TABLE public.share_tokens DROP COLUMN IF EXISTS context_bound,DROP COLUMN IF EXISTS bound_student_id,DROP COLUMN IF EXISTS bound_report_owner_id,DROP COLUMN IF EXISTS bound_intake_id;`);
+ await db.exec(`RESET ROLE; DROP TRIGGER IF EXISTS close_report_links_on_collaborator_change ON public.student_collaborators; DROP TRIGGER IF EXISTS close_report_links_on_relationship_change ON public.student_relationships; DROP TRIGGER IF EXISTS close_report_links_on_student_identity_change ON public.students; DROP FUNCTION IF EXISTS public.close_report_links_on_student_access_change(),public.close_report_links_after_access_loss(uuid,uuid) CASCADE; DROP TRIGGER IF EXISTS bind_report_share_context ON public.share_tokens; DROP TRIGGER IF EXISTS revoke_shares_on_report_context_change ON public.pathway_reports; DROP FUNCTION IF EXISTS public.bind_report_share_context(),public.revoke_shares_on_report_context_change(),public.report_share_is_eligible(uuid) CASCADE; ALTER TABLE public.share_tokens DROP COLUMN IF EXISTS context_bound,DROP COLUMN IF EXISTS bound_student_id,DROP COLUMN IF EXISTS bound_report_owner_id,DROP COLUMN IF EXISTS bound_intake_id;`);
  await db.exec(originalShare.slice(originalShare.indexOf("CREATE OR REPLACE FUNCTION public.resolve_share_token"),originalShare.indexOf("-- 11. AUDIT_LOG")));
  await db.exec(readFileSync("supabase/migrations/20261006180000_server_only_report_share_rpcs.sql","utf8"));
  await db.exec(`RESET ROLE; TRUNCATE public.share_tokens,public.pathway_reports,public.students,public.student_collaborators,public.student_relationships CASCADE;
@@ -83,7 +83,7 @@ test('revoked consent stops resolution and tracking even when creator owns the l
 test('approved relationship and student self-access work without management-role shortcuts',async()=>{
  await loseAccess();await db.query('INSERT INTO public.student_relationships VALUES($1,$2,$3,$4)',[student,owner,'approved','view']);const token=await create();assert.equal((await resolve(token)).length,1);
  await db.exec("UPDATE public.student_relationships SET consent_status='revoked'");assert.deepEqual(await resolve(token),[]);
- await db.query('UPDATE public.students SET student_user_id=$1 WHERE id=$2',[owner,student]);assert.equal((await resolve(token)).length,1);
+ await db.query('UPDATE public.students SET student_user_id=$1 WHERE id=$2',[owner,student]);assert.deepEqual(await resolve(token),[]);assert.equal((await tokenRow(token)).revoked,true);assert.equal((await resolve(await create())).length,1);
 });
 for(const col of ['student_id','user_id','intake_id'])test(col+' reassignment permanently revokes existing links even when changed back',async()=>{
  const token=await create();const old={student_id:student,user_id:owner,intake_id:intake}[col];
@@ -112,9 +112,9 @@ test('client cannot alter bindings, call private predicate or directly resolve c
  await db.query('UPDATE public.share_tokens SET revoked=true WHERE token=$1',[token]);
  }finally{await db.exec('RESET ROLE');}assert.deepEqual(await resolve(token),[]);
 });
-test('removal blocks new requests; restored explicit consent can reactivate an unrevoked same-context link',async()=>{
+test('removal permanently closes prior links; re-added creator must issue a new link',async()=>{
  const token=await create();await loseAccess();assert.deepEqual(await resolve(token),[]);
- await db.exec("UPDATE public.student_collaborators SET status='accepted'");assert.equal((await resolve(token)).length,1);
+ await db.exec("UPDATE public.student_collaborators SET status='accepted'");assert.deepEqual(await resolve(token),[]);assert.equal((await tokenRow(token)).revoked,true);assert.equal((await resolve(await create())).length,1);
 });
 test('unlink and relink never revive the earlier link',async()=>{
  const token=await create();await db.query('UPDATE public.pathway_reports SET student_id=null WHERE id=$1',[report]);assert.deepEqual(await resolve(token),[]);
@@ -170,4 +170,51 @@ test('native tracking waiting behind an expiry change must not increment an expi
   await expirer.query("UPDATE public.share_tokens SET expires_at=now()-interval '1 second' WHERE token=$1",[token]);pending=tracker.query('SELECT public.track_share_view($1)',[token]).then(value=>({value}),error=>({error}));
   await blocked(pid);await expirer.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).view_count,0);assert.deepEqual(await resolve(token),[]);
  }finally{await expirer.exec('ROLLBACK');if(pending)await pending;}
+});
+
+test('removing one of two explicit access paths retains links until the last path is removed',async()=>{
+ await db.query('INSERT INTO public.student_relationships VALUES($1,$2,$3,$4)',[student,owner,'approved','view']);const token=await create();await loseAccess();assert.equal((await resolve(token)).length,1);
+ await db.exec("UPDATE public.student_relationships SET consent_status='revoked'");assert.equal((await tokenRow(token)).revoked,true);
+ await db.exec("UPDATE public.student_relationships SET consent_status='approved'");assert.deepEqual(await resolve(token),[]);
+});
+test('deleted and recreated collaboration does not reopen its old link',async()=>{
+ const token=await create();await db.exec('DELETE FROM public.student_collaborators');assert.equal((await tokenRow(token)).revoked,true);
+ await db.query('INSERT INTO public.student_collaborators VALUES($1,$2,$3,$4)',[student,owner,'accepted','viewer']);assert.deepEqual(await resolve(token),[]);
+});
+test('moving a collaboration away permanently closes links to the original student',async()=>{
+ const token=await create();await db.query('UPDATE public.student_collaborators SET student_id=$1',[moved]);assert.equal((await tokenRow(token)).revoked,true);
+ await db.query('UPDATE public.student_collaborators SET student_id=$1',[student]);assert.deepEqual(await resolve(token),[]);
+});
+test('ownership loss closes only the previous owner links while genuine other access stays valid',async()=>{
+ const token=await create({created_by:other}),retained=await create();await db.query('UPDATE public.students SET owner_id=$1 WHERE id=$2',[moved,student]);assert.equal((await tokenRow(token)).revoked,true);assert.equal((await resolve(retained)).length,1);
+ await db.query('UPDATE public.students SET owner_id=$1 WHERE id=$2',[other,student]);assert.deepEqual(await resolve(token),[]);
+});
+test('student self-identity removal permanently closes prior self-created links',async()=>{
+ await db.query('UPDATE public.students SET student_user_id=$1 WHERE id=$2',[owner,student]);await loseAccess();const token=await create();
+ await db.query('UPDATE public.students SET student_user_id=null WHERE id=$1',[student]);assert.equal((await tokenRow(token)).revoked,true);
+ await db.query('UPDATE public.students SET student_user_id=$1 WHERE id=$2',[owner,student]);assert.deepEqual(await resolve(token),[]);
+});
+test('access removal rolled back restores both consent and the unrevoked link atomically',async()=>{
+ const token=await create();await db.exec('BEGIN');try{await loseAccess();assert.equal((await tokenRow(token)).revoked,true);}finally{await db.exec('ROLLBACK');}assert.equal((await tokenRow(token)).revoked,false);assert.equal((await resolve(token)).length,1);
+});
+test('loss and re-addition within a committed transaction still require fresh links',async()=>{
+ const token=await create();await db.exec('BEGIN');try{await loseAccess();await db.exec("UPDATE public.student_collaborators SET status='accepted'");await db.exec('COMMIT');}finally{await db.exec('ROLLBACK');}assert.equal((await tokenRow(token)).revoked,true);assert.deepEqual(await resolve(token),[]);
+});
+test('native access removal waits for an in-flight mint then closes its link',{skip:!real},async()=>{
+ const mint=await newSession(),remover=await newSession(),token='race-'+crypto.randomUUID();const pid=(await remover.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await mint.exec('BEGIN');try{await insert(mint,token);pending=remover.query("UPDATE public.student_collaborators SET status='removed'").then(value=>({value}),error=>({error}));await blocked(pid);await mint.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).revoked,true);
+ await db.exec("UPDATE public.student_collaborators SET status='accepted'");assert.deepEqual(await resolve(token),[]);
+ }finally{await mint.exec('ROLLBACK');if(pending)await pending;}
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('native mint waiting behind access removal rechecks after '+finish,{skip:!real},async()=>{
+ const remover=await newSession(),mint=await newSession(),token='race-'+crypto.randomUUID();const pid=(await mint.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await remover.exec('BEGIN');try{await remover.query("UPDATE public.student_collaborators SET status='removed'");pending=insert(mint,token).then(value=>({value}),error=>({error}));await blocked(pid);await remover.exec(finish);const result=await pending;
+ if(finish==='COMMIT'){assert.equal(result.error?.code,'42501');assert.equal(await tokenRow(token),undefined);}else{assert.equal(result.error,undefined);assert.equal((await resolve(token)).length,1);}
+ }finally{await remover.exec('ROLLBACK');if(pending)await pending;}
+});
+test('native concurrent removal of independent access paths closes old links permanently',{skip:!real},async()=>{
+ await db.query('INSERT INTO public.student_relationships VALUES($1,$2,$3,$4)',[student,owner,'approved','view']);const token=await create(),a=await newSession(),b=await newSession();const pid=(await b.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await a.exec('BEGIN');try{await a.query("UPDATE public.student_collaborators SET status='removed'");pending=b.query("UPDATE public.student_relationships SET consent_status='revoked'").then(value=>({value}),error=>({error}));await blocked(pid);await a.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).revoked,true);
+ await db.exec("UPDATE public.student_collaborators SET status='accepted'");assert.deepEqual(await resolve(token),[]);
+ }finally{await a.exec('ROLLBACK');if(pending)await pending;}
 });

@@ -81,6 +81,57 @@ CREATE TRIGGER revoke_shares_on_report_context_change
  AFTER UPDATE OF student_id,user_id,intake_id ON public.pathway_reports
  FOR EACH ROW EXECUTE FUNCTION public.revoke_shares_on_report_context_change();
 
+-- User-selected policy: losing the final explicit student access path closes
+-- this issuer's links permanently. Re-adding the person never reopens them.
+CREATE FUNCTION public.close_report_links_after_access_loss(_student_id uuid,_issuer uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
+AS $close$
+BEGIN
+ IF _student_id IS NULL OR _issuer IS NULL THEN RETURN; END IF;
+ -- Serialize access-loss checks for this student. Two simultaneous removals
+ -- of different consent paths must not both see the other path as still valid.
+ PERFORM pg_advisory_xact_lock(hashtextextended('tf.report-share-access:'||_student_id::text,0));
+ IF public.can_access_student(_issuer,_student_id) THEN RETURN; END IF;
+ -- Lock even reports without existing links: an in-flight mint holds SHARE on
+ -- the report, so removal waits for it, then closes its newly committed link.
+ PERFORM r.id FROM public.pathway_reports r WHERE r.student_id=_student_id
+  ORDER BY r.id FOR UPDATE;
+ UPDATE public.share_tokens SET revoked=true
+ WHERE context_bound AND bound_student_id=_student_id AND created_by=_issuer AND NOT revoked;
+END;
+$close$;
+REVOKE ALL ON FUNCTION public.close_report_links_after_access_loss(uuid,uuid) FROM PUBLIC,anon,authenticated,service_role;
+
+CREATE FUNCTION public.close_report_links_on_student_access_change()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
+AS $access_change$
+DECLARE issuer uuid;
+BEGIN
+ IF TG_TABLE_NAME='student_collaborators' THEN
+  PERFORM public.close_report_links_after_access_loss(OLD.student_id,OLD.user_id);
+ ELSIF TG_TABLE_NAME='student_relationships' THEN
+  PERFORM public.close_report_links_after_access_loss(OLD.student_id,OLD.related_user_id);
+ ELSIF TG_TABLE_NAME='students' THEN
+  FOR issuer IN SELECT DISTINCT u FROM unnest(ARRAY[OLD.owner_id,OLD.student_user_id]) AS u WHERE u IS NOT NULL ORDER BY u LOOP
+   PERFORM public.close_report_links_after_access_loss(OLD.id,issuer);
+  END LOOP;
+ ELSE RAISE EXCEPTION 'Unexpected student access trigger source';
+ END IF;
+ IF TG_OP='DELETE' THEN RETURN OLD; END IF;
+ RETURN NEW;
+END;
+$access_change$;
+REVOKE ALL ON FUNCTION public.close_report_links_on_student_access_change() FROM PUBLIC,anon,authenticated,service_role;
+CREATE TRIGGER close_report_links_on_collaborator_change
+ AFTER UPDATE OR DELETE ON public.student_collaborators
+ FOR EACH ROW EXECUTE FUNCTION public.close_report_links_on_student_access_change();
+CREATE TRIGGER close_report_links_on_relationship_change
+ AFTER UPDATE OR DELETE ON public.student_relationships
+ FOR EACH ROW EXECUTE FUNCTION public.close_report_links_on_student_access_change();
+CREATE TRIGGER close_report_links_on_student_identity_change
+ AFTER UPDATE OF owner_id,student_user_id OR DELETE ON public.students
+ FOR EACH ROW EXECUTE FUNCTION public.close_report_links_on_student_access_change();
+
 CREATE OR REPLACE FUNCTION public.resolve_share_token(_token text)
 RETURNS TABLE(report_id uuid,audience text,content jsonb,created_at timestamptz)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog
