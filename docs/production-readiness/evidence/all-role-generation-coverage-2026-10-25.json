@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-25",
+  "status": "local-harness-verified-automatic-review-pending",
+  "structuredConsumerModules": 10,
+  "inventory": [
+    {
+      "source": "src/lib/pathway-generation.server.ts",
+      "capability": "Initial Pathway Report",
+      "applicability": "Family/Guardian and Educator creator journeys; Student consumes an authorized result",
+      "remainingAcceptance": "Older hosted harness generates as Family only; separate Educator creation remains unproved on the current release"
+    },
+    {
+      "source": "src/lib/pathway.functions.ts",
+      "capability": "Regeneration of a saved report",
+      "applicability": "Actual report owner with explicit current student access",
+      "remainingAcceptance": "Current intake/student correction is deployed; current live provider regeneration acceptance remains open"
+    },
+    {
+      "source": "src/lib/ppt.functions.ts",
+      "capability": "PPT Meeting Prep",
+      "applicability": "Family/Guardian and Educator",
+      "remainingAcceptance": "Existing two-role test available; review exact cleanup, current revision/source and meaningful output assertions before a new authorized run"
+    },
+    {
+      "source": "src/lib/ai-assist.functions.ts",
+      "capability": "Report translation and suggested next steps",
+      "applicability": "Where the existing report assistance UI is permitted; verify individual role/ownership boundaries",
+      "remainingAcceptance": "Separate translated structure/content fidelity and next-step relevance acceptance needed"
+    },
+    {
+      "source": "src/lib/readiness-insights.functions.ts",
+      "capability": "Student readiness insights",
+      "applicability": "Existing student-profile tools with caller-visible student data",
+      "remainingAcceptance": "Separate current-schema/source completeness and applicable role acceptance needed"
+    },
+    {
+      "source": "src/lib/iep-extract.functions.ts",
+      "capability": "Pathway Builder IEP text assistance",
+      "applicability": "Authorized builder participants",
+      "remainingAcceptance": "Fictional document text only in proposed testing; no real IEP or new provider approval inferred"
+    },
+    {
+      "source": "src/lib/documents.functions.ts",
+      "capability": "Document goal extraction",
+      "applicability": "Authorized document users under existing access and scan/privacy controls",
+      "remainingAcceptance": "Document upload/extraction lifecycle, provider/privacy and exact storage/job cleanup require a separate bounded plan"
+    },
+    {
+      "source": "src/lib/report-evidence/extract.functions.ts",
+      "capability": "Evidence extraction from text/documents",
+      "applicability": "Existing report evidence tool permissions",
+      "remainingAcceptance": "Separate source/reference accuracy, access-loss and no invented evidence checks needed"
+    },
+    {
+      "source": "src/lib/owner/ai-smoke-test.functions.ts",
+      "capability": "Synthetic AI diagnostic",
+      "applicability": "Owner Hub diagnostic only",
+      "remainingAcceptance": "Does not certify actual role generation, save/reopen or private student access"
+    },
+    {
+      "source": "src/lib/pathway-shadow-generator.server.ts",
+      "capability": "Dormant shadow engine generator",
+      "applicability": "Explicitly gated internal/shadow flow; not a new dashboard tool",
+      "remainingAcceptance": "Do not activate as part of role coverage"
+    }
+  ],
+  "allRolePolicy": {
+    "family": "Separate creator and saved-output acceptance for each applicable planning tool.",
+    "educator": "Separate creator and saved-output acceptance; reading a Family-generated report is insufficient.",
+    "student": "Verify own applicable reader/assistance/action tools; do not add Family/Educator creation controls just to fill a matrix.",
+    "school": "Verify organization oversight, navigation and permitted exports; no invented private-student generation privileges.",
+    "district": "Verify organization oversight, navigation and permitted exports; no invented private-student generation privileges.",
+    "partner": "Verify profile/opportunity/directory tools and denial of private student planning.",
+    "owner": "Management-only hub, synthetic diagnostic and explicit-access denial; no ordinary role dashboard or automatic private planning access."
+  },
+  "harnessFindings": [
+    "Older Pathway cleanup used a broad QA-name prefix and ran at startup.",
+    "Older Pathway test generates only as Family; Educator is a reader, not separately verified generator.",
+    "Existing live workflows remain main-only and human-protected; the current draft branch is not authorized to bypass those rules."
+  ],
+  "harnessChanges": [
+    "Removed prefix sweep and startup deletion; exact current run identity is mandatory.",
+    "Refuse occupied/unreadable run markers before setup, with teardown disabled until this run starts fixtures.",
+    "Resolve at most one exact owner/student/marker intake, one intake-linked report with validated owner/student, and one exact run-email collaborator before any deletion.",
+    "Record exact IDs before deletion; receipt failure prevents mutation.",
+    "Delete only exact bounded IDs with context predicates; report/intake/collaborator failures remain errors, and exact report/version/share/intake/collaborator counts must be zero.",
+    "No standing student deletion; native/privileged independent final absence verification remains required before claiming a future live run clean.",
+    "Zero retries; no changes to main-only/protected workflow controls."
+  ],
+  "validation": {
+    "focusedLog": "/private/tmp/tf-linked-save-canonical/generation-harness-focused-final.log",
+    "finalFullSuite": {
+      "passed": 4529,
+      "files": 317,
+      "log": "/private/tmp/tf-linked-save-canonical/generation-harness-units-final.log"
+    },
+    "finalTypeScript": {
+      "passed": true,
+      "log": "/private/tmp/tf-linked-save-canonical/generation-harness-tsc-final.log"
+    },
+    "focusedPassed": 30,
+    "focusedFiles": 3,
+    "discoveryLog": "/private/tmp/tf-linked-save-canonical/generation-harness-discovery.log",
+    "discoveryOnly": true
+  },
+  "limits": [
+    "Fixture discovery/deletion is not one database transaction; unexpected contexts or duplicates stop for trusted review rather than broad repair.",
+    "No live workflow dispatched, no hosted queries/fixtures, no AI/provider calls, no account/relationship changes, no deployment/publication, no migration, no production or original-main action.",
+    "This test-only work changes no product runtime and cannot establish current all-role generation quality."
+  ],
+  "next": [
+    "Finish final unit/TypeScript/automatic review of the safer harness.",
+    "Prepare a current-release Family and Educator PPT live acceptance packet first, with exact temporary records, provider-call budget, quality criteria and independent cleanup proof.",
+    "Prepare separate Family/Educator Pathway creation/regeneration plus Student/Partner/School/District/Owner relevant access checks; do not equate report-read acceptance with generation.",
+    "Resolve the allowed execution path without bypassing the existing main-only live-workflow rule; request specific authorization only for a runnable reviewed plan."
+  ],
+  "preserved": [
+    "Full TF-01\u2013TF-26 and six milestones",
+    "Deferred report polish",
+    "Deferred Parent Pilot/Pathway Snapshot",
+    "Your Dashboard Widgets builder edit"
+  ],
+  "runtimeFingerprintUnchanged": "3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5"
+}

@@ -1,5 +1,18 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Broader Generation Coverage Audited; Live Harness Cleanup Narrowed Locally
+
+- [x] Inventoried all ten structured-generation source modules: initial Pathway, saved regeneration, PPT prep, translation/next steps, readiness insights, IEP text assistance, document goal extraction, evidence extraction, Owner diagnostic and dormant shadow generator. Schema-prompt contracts and read-only report checks do not certify live output quality across roles.
+- [x] Identified the older Pathway harness's broad `QA Pathway` cleanup and startup deletion. Replaced with exact current-run scope, mandatory run identity, occupied-marker refusal, receipt-before-delete, at-most-one validated intake/report/collaborator discovery, context-scoped exact deletion and residual counts. Never deletes the standing synthetic student. Ambiguous discovery or failed receipt stops before mutation; failed cleanup remains an error. Zero retries.
+- [x] Preserved existing protected main-only live-workflow rules. No new workflow dispatch, AI/provider call, hosted fixture/query, access/relationship change, deployment/publication, migration or production action occurred. This is test/documentation-only work; both staging runtimes remain `3534a127…8bb9f5`.
+- [x] Local preparation passed 4,529 unit tests / 317 files, 30 focused contracts / three files and TypeScript. Offline test discovery only; no live execution. Product runtime fingerprint remains exactly unchanged.
+- [ ] Complete automatic review, then prepare a current-release Family **and** Educator PPT generation acceptance packet with explicit provider-call/record budget, meaningful role-specific output checks, exact cleanup and independent absence verification. No live approval is requested yet: the runnable execution path and provider scope must be prepared first.
+- [ ] Prepare separate Family/Educator Pathway creator/regeneration cases. The older Pathway test generates only as Family and lets Educator read; that is not Educator generation proof. Cover Student's applicable tools, School/District oversight/exports, Partner directory/opportunities and private-planning denial, and Owner management/diagnostics without inventing student-generation permissions for those roles.
+- [ ] Then cover translation/next steps, readiness insights and privacy-approved fictional document/evidence workflows separately. Dormant shadow generation stays off. Retain wider provider/privacy/security/operations and production-release gates; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+The full TF-01–TF-26 roadmap and six milestones are retained. See `all-role-generation-coverage-2026-10-25.json` for applicability, evidence limits and remaining acceptance; earlier release checkpoints below are historical.
+
+
 ## October 25 — Regeneration Source Boundary Released and Read-Only Acceptance Passed
 
 - [x] User-authorized Cloudflare [release 40213479710](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40213479710) passed on exact `6f98ce85`, the documentation follow-up to reviewed application `349dcad5`. Synced one runtime file into existing isolated `iWAVYx/gentle-forward-reach`, commit `7e399e6`, preserving environment/dependency/generated-type and dashboard-title hashes with zero newer builder edits.
