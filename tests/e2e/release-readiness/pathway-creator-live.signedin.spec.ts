@@ -260,6 +260,9 @@ for (const role of roles)
       expect(content.inputs_used.iep_doc_ids).toEqual([]);
       expect(content.inputs_used.goal_ids).toEqual([]);
       expect(content.confidence.overall).toBe("low");
+      expect(content.confidence_level).toBe("low");
+      expect(content.summary).toBe(content.plain_language_summary);
+      expect(content.readiness_indicators).toBeUndefined();
       expect(regenerated.data).toMatchObject({
         student_id: f.studentId,
         intake_id: f.intakeId,

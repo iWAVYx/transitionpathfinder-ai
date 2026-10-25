@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { reportSectionHistory } from "../../src/lib/report-section-history";
-import { recordGeneratedSections } from "../../src/lib/report-section-updates";
+import { recordSavedSections, recordGeneratedSections } from "../../src/lib/report-section-updates";
 import { liveReportContents } from "../../src/lib/report-contents";
 import { getLegacyReportSnapshot } from "../../src/lib/report-snapshot-contract";
 import { projectSharedReport } from "../../src/lib/shared-report-projection";
@@ -51,4 +51,31 @@ it("uses the actual recorded summary fallback and deduplicates repeated source r
   const rows = reportSectionHistory(source, [...visible, ...visible], "family", true);
   expect(rows[0].field).toBe("professional_summary");
   expect(new Set(rows.map(row => row.field)).size).toBe(rows.length);
+});
+
+it.each(["student", "family", "educator"] as const)("marks only recorded earlier visible sections for %s without rewriting them", audience => {
+  const oldAt = "2026-10-01T12:00:00.000Z";
+  const earlier = recordGeneratedSections(undefined, richerSharedFixture(), oldAt);
+  const source = recordGeneratedSections(earlier, { plain_language_summary: "Current family summary", professional_summary: "Current educator summary", inputs_used: { generated_at: at } }, at);
+  const rows = reportSectionHistory(source, items(source, audience), audience, true);
+  expect(rows.find(r => r.field === "postsecondary_goals")).toMatchObject({ earlier: true, recordedAt: oldAt });
+  expect(rows.find(r => r.label === "At a Glance Summary")?.earlier).toBeUndefined();
+  expect(source.postsecondary_goals).toEqual(earlier.postsecondary_goals);
+  const saved = recordSavedSections(source, { ...source, postsecondary_goals: [] }, "2026-10-13T12:00:00.000Z");
+  const savedRows = reportSectionHistory(saved, [{ id: "sec-goals", label: "Goals" }], audience, true);
+  expect(savedRows.find(r => r.field === "postsecondary_goals")?.earlier).toBeUndefined();
+});
+it.each(["family", "educator"] as const)("shared %s readers retain earlier markers without private source IDs", audience => {
+  const old = recordGeneratedSections(undefined, richerSharedFixture(), "2026-10-01T12:00:00.000Z");
+  const current = recordGeneratedSections(old, { inputs_used: { generated_at: at }, confidence: { overall: "low" } }, at);
+  const shared = projectSharedReport(current, audience)!;
+  const rows = reportSectionHistory(shared, items(shared, audience), audience, true);
+  expect(rows.find(r => r.field === "postsecondary_goals")?.earlier).toBe(true);
+  expect(JSON.stringify(rows)).not.toContain("write_id");
+});
+it("does not invent an earlier date from an unknown or invalid generation timestamp", () => {
+  for (const generated_at of [undefined, "bad-date"]) {
+    const source = recordGeneratedSections(undefined, { ...richerSharedFixture(), inputs_used: { generated_at } }, at);
+    expect(reportSectionHistory(source, items(source, "family"), "family", true).some(r => r.earlier)).toBe(false);
+  }
 });

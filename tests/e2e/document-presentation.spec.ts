@@ -2442,3 +2442,46 @@ test("saved meeting sheet keeps its follow-ups with the questions using real fon
     }
   }
 });
+
+test("retained section notices remain readable for saved and shared audiences on screen and in print", async ({ page }, info) => {
+  const require = createRequire(resolve("package.json"));
+  const compiled = await require("@tailwindcss/node").compile(readFileSync(resolve("src/styles.css"), "utf8"), {
+    base: resolve("src"), from: resolve("src/styles.css"), onDependency: () => {},
+  });
+  const scanner = new (require("@tailwindcss/oxide").Scanner)({ sources: compiled.sources });
+  const css = compiled.build(scanner.scan());
+  await page.route("**/*", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (pathname.startsWith("/brand/")) return route.fulfill({ body: readFileSync(resolve("public", pathname.slice(1))), contentType: pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" });
+    return route.abort();
+  });
+  const old = components.recordGeneratedSections(undefined, components.richerSharedFixture(), "2026-10-01T12:00:00.000Z");
+  const current = components.recordGeneratedSections(old, {
+    inputs_used: { generated_at: "2026-10-12T18:00:00.000Z" },
+    plain_language_summary: "The current planning draft uses the student's recorded interests.",
+    professional_summary: "Review the current planning draft with the student and team.",
+  }, "2026-10-12T18:00:00.000Z");
+  for (const audience of ["student", "family", "educator"]) for (const shared of audience === "student" ? [false] : [false, true]) {
+    const report = shared ? components.projectSharedReport(current, audience) : current;
+    const body = renderToStaticMarkup(createElement(components.ReportView, { name: "Fictional Student", report, hasV2: true, readOnly: true, fixedAudience: audience, initialAudience: audience }));
+    await page.setContent(`<html><head><base href="http://document-fixture.test"><style>${css}</style></head><body>${body}</body></html>`);
+    for (const width of [390, 1024]) {
+      await page.emulateMedia({ media: "screen" });
+      await page.setViewportSize({ width, height: 900 });
+      const notice = page.locator("[data-report-retained-sections]");
+      await expect(notice).toContainText("kept from an earlier version");
+      await expect(notice.locator('a[href="#report-section-update-history"]')).toHaveCount(1);
+      expect(await notice.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+      if (audience === "family" && !shared && width === 390) {
+        await notice.scrollIntoViewIfNeeded();
+        await page.screenshot({ path: info.outputPath("earlier-sections-mobile.png") });
+      }
+    }
+    await page.emulateMedia({ media: "print" });
+    await expect(page.locator("[data-report-retained-sections]")).toBeVisible();
+    const history = page.locator("#report-section-update-history");
+    await expect(history.locator("[data-report-update-field=postsecondary_goals]")).toContainText("Kept from an Earlier Version");
+    await expect(history.locator("[data-report-update-field=plain_language_summary], [data-report-update-field=professional_summary]")).not.toContainText("Kept from");
+    expect(await history.evaluate(el => el.getBoundingClientRect().x >= 0 && el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+  }
+});

@@ -1,7 +1,8 @@
+import { recordedReportInputs } from "./report-source-summary";
 import { readSectionUpdates } from "./report-section-updates";
 import type { ReportContentsItem } from "./report-contents";
 import type { PlanningReportAudience } from "./report-v2-contents";
-export type SectionHistoryRow = { field: string; label: string; operation?: "generated" | "saved"; recordedAt?: string };
+export type SectionHistoryRow = { field: string; label: string; operation?: "generated" | "saved"; recordedAt?: string; earlier?: true };
 const fields: Record<string, string> = {
   "sec-snapshot": "student_snapshot", "sec-student-voice": "student_voice_prompts",
   "sec-spin": "spin_analysis", "sec-strengths": "strengths_snapshot", "sec-family-plan": "family_action_plan",
@@ -21,11 +22,15 @@ const fields: Record<string, string> = {
 export function reportSectionHistory(content: unknown, items: readonly ReportContentsItem[], audience: PlanningReportAudience, hasV2: boolean, customPlan = false): SectionHistoryRow[] {
   const r = content && typeof content === "object" ? content as Record<string, unknown> : {};
   const updates = readSectionUpdates(content)?.fields ?? {};
+  const generationAt = hasV2 ? Date.parse(recordedReportInputs(content)?.generated_at ?? "") : NaN;
   const rows: SectionHistoryRow[] = [], seen = new Set<string>();
   const add = (field: string, label: string) => {
     if (seen.has(field)) return;
     seen.add(field); const status = updates[field];
-    rows.push({ field, label, operation: status?.operation, recordedAt: status?.recorded_at });
+    const earlier = status && Number.isFinite(generationAt) && Date.parse(status.recorded_at) < generationAt;
+    rows.push({ field, label, operation: status?.operation, recordedAt: status?.recorded_at,
+      ...(earlier ? { earlier: true as const } : {}),
+    });
   };
   const text = (value: unknown) => typeof value === "string" && value.trim().length > 0;
   const summaryFields = audience === "educator" ? ["professional_summary", "plain_language_summary"] : ["plain_language_summary", "professional_summary"];

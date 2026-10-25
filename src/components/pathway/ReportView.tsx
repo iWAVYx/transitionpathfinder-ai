@@ -770,6 +770,13 @@ function ReportViewReader({
       </div>
 
 
+      {!demo && sectionHistory.some(row => row.earlier) && (
+        <p data-report-retained-sections className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Some planning sections were kept from an earlier version. Review their dates and suggestions with your team. {" "}
+          <a className="underline underline-offset-2" href="#report-section-update-history">See Section Update History.</a>
+        </p>
+      )}
+
       {/* ============ Inline numbered Table of Contents ============ */}
       <ReportContents items={contentsItems} />
 

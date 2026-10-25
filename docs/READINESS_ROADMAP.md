@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Current Report Values and Earlier Sections Reconciled Locally
+
+- [x] Regeneration now refreshes the summary and clamped confidence consumed by legacy cards/documents as well as v2 readers. The exact old payload still goes through the existing atomic history write; original goals and retained planning sections are preserved.
+- [x] Only valid recorded readiness scores determine current indicators and source counts; null/invalid values and AI-invented indicators cannot become assessed levels. Profile identity uses recorded name/grade; an unprovided grade, school, district or case manager is not supplied by the model.
+- [x] Applicable Student/Family/Educator saved readers and Family/Educator shared readers identify recorded earlier sections, retain their content and link to the dated history table. Screen and print use the same wording; demo samples keep their honest no-saved-history behavior. Unknown dates are not inferred.
+- [x] Local validation passes 4,636 tests / 321 files, 130 focused checks, TypeScript, the isolated staging build, all 46 existing offline document cases and one additional retained-section browser case. The new mobile notice was visually inspected. Tests used a temporary managed headless browser with external requests blocked; no personal Chrome/signed-in session. Automatic review is pending. Candidate: `c0edef26…fae0e6a` / 1,186 files.
+- [ ] Continue factual-grounding work on reported versus verified data, suggested dates/readiness, effectiveness claims and accurate input-origin labels. This step identifies retained planning sections; it does not claim to regenerate every old section or perfect every model sentence. Keep the existing PPT wording caveat open.
+- [ ] Prepare a concrete reviewed staging release and bounded retest when the combined packet is ready. No release or live AI/fixture activity in this local step. Both deployed staging sites remain unchanged; original main and production are untouched. Full TF-01–TF-26/six-milestone roadmap, management-only Owner Hub and deferred report polish/Parent Pilot/Pathway Snapshot remain intact.
+
+Evidence: `pathway-current-content-correction-2026-10-25.json`. Earlier checkpoints below are historical.
+
+
 ## October 25 — Pathway Builder Voice Coverage Corrected Locally
 
 - [x] Fixed the first observed content-consistency issue in the shared regeneration/source pipeline: builder voice is recorded separately from structured Student Voice IDs. Missing-voice checks recognize either source, and known blanket absence warnings are reconciled without removing specific follow-up requests. The prompt identifies the builder origin; no source records are invented.

@@ -18,7 +18,7 @@ import { richerSharedFixture } from "../fixtures/shared-report";
 const id = "11111111-1111-4111-8111-111111111111", studentId = "22222222-2222-4222-8222-222222222222";
 const oldDate = "2026-10-01T12:00:00.000Z", now = "2026-10-12T18:00:00.000Z";
 const studentProfile: Parameters<typeof toRegenerationStudentProfile>[0] = { id: studentId, first_name: "Fictional", last_name: null, grade_band: "9-12", interests_summary: "Art", strengths_summary: "Observation", support_needs_summary: null };
-function database(content: unknown, owner = "owner", failure?: "snapshot" | "update" | "conflict" | "missing" | "throw", profile: typeof studentProfile | null = studentProfile, studentError: unknown = null, intake?: { id: string; data: unknown; error?: unknown }) {
+function database(content: unknown, owner = "owner", failure?: "snapshot" | "update" | "conflict" | "missing" | "throw", profile: typeof studentProfile | null = studentProfile, studentError: unknown = null, intake?: { id: string; data: unknown; error?: unknown }, readinessRows: unknown[] = []) {
   const requests: any[] = [], queries: any[] = [];
   const supabase = {
     rpc: vi.fn(async (_name: string, args: any) => {
@@ -28,7 +28,7 @@ function database(content: unknown, owner = "owner", failure?: "snapshot" | "upd
     }),
     from: vi.fn((table: string) => {
       const read = table === "pathway_reports" ? { id, user_id: owner, student_id: studentId, intake_id: intake?.id ?? null, content }
-        : table === "students" ? profile : table === "student_intakes" ? intake?.data ?? null : [];
+        : table === "students" ? profile : table === "student_intakes" ? intake?.data ?? null : table === "readiness_scores" ? readinessRows : [];
       const result = { data: read, error: table === "students" ? studentError : table === "student_intakes" ? intake?.error ?? null : null };
       const q: any = { select: vi.fn((columns: string) => {
         if (table === "students") for (const column of columns.split(",").map(c => c.trim())) {
@@ -284,4 +284,58 @@ it.each([studentId, null])("regeneration recognizes actual builder voice without
   expect(next.needs_review_flags.find((f: any) => f.section === "student_voice").reason).toContain("supplied in Pathway Builder");
   expect(next.missing_information_v2.some((g: any) => g.blocks_section === "student_voice")).toBe(false);
   expect(mocks.generate.mock.calls[0][0].prompt).toContain('Student perspective (Pathway Builder): "I want to learn at a culinary job site."');
+});
+
+it("replaces stale summary/confidence for existing consumers while the exact original remains the history input", async () => {
+  const current = recordGeneratedSections(undefined, { ...richerSharedFixture(), summary: "Earlier grade 11-12 summary", confidence_level: "high" }, oldDate);
+  const db = database(current, "owner", undefined, { ...studentProfile, grade_band: "post-secondary" });
+  await (regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: current }) } });
+  const write = db.requests[0], next = write._next_content;
+  expect(write._expected_content).toEqual(current);
+  expect(next.summary).toBe(next.plain_language_summary);
+  expect(next.summary).not.toContain("grade 11-12");
+  expect(next.student_snapshot.grade).toBe("post-secondary");
+  expect(next.confidence.overall).toBe("low");
+  expect(next.confidence_level).toBe("low");
+  expect(readSectionUpdates(next)?.fields.summary).toEqual({ operation: "generated", recorded_at: now });
+  expect(next.postsecondary_goals).toEqual(current.postsecondary_goals);
+  expect(current.summary).toBe("Earlier grade 11-12 summary");
+});
+it("does not use AI-invented scores or identity when records are absent or unscored", async () => {
+  mocks.generate.mockResolvedValueOnce({ experimental_output: {
+    schema_version: 2,
+    plain_language_summary: "Fictional enjoys art and wants to explore a supported community visit using observation skills.",
+    professional_summary: "The current profile identifies art interests; discuss a supported visit and gather dated observations.",
+    student_snapshot: { headline: "An art-focused learner", grade: "12", school: "Invented School", district: "Invented District", case_manager: "Invented Staff" },
+    readiness_indicators: [{ domain: "Invented Domain", level: "ready" }],
+  } });
+  const rows = [null, -1, 101, NaN, Infinity, "80"].map(score => ({ category: "Career", score, updated_at: oldDate }));
+  rows.push({ category: " ", score: 90, updated_at: oldDate });
+  const current = richerSharedFixture(), db = database(current, "owner", undefined, { ...studentProfile, grade_band: null }, null, undefined, rows);
+  await (regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: current }) } });
+  const next = db.requests[0]._next_content;
+  expect(next.readiness_indicators).toBeUndefined();
+  expect(next.inputs_used.readiness_category_count).toBe(0);
+  expect(next.inputs_used.readiness_at).toBeUndefined();
+  expect(next.student_snapshot).toEqual({ display_name: "Fictional", headline: "An art-focused learner", last_updated: "2026-10-12" });
+  expect(next.needs_review_flags.find((f: any) => f.section === "readiness_indicators").reason).toContain("before assigning a level");
+});
+it("uses actual numeric readiness boundaries and aligns medium confidence with legacy consumers", async () => {
+  mocks.generate.mockResolvedValueOnce({ experimental_output: { schema_version: 2,
+    plain_language_summary: "The recorded student perspective supports exploring art alongside the current task observation record.",
+    professional_summary: "The student wants an art visit; review the recorded readiness results and current practical supports together.",
+    confidence: { overall: "high", rationale: "Review the recorded sources." },
+  } });
+  const scores = [0, 25, 26, 50, 51, 75, 76, 100];
+  const current = richerSharedFixture(), db = database(current, "owner", undefined, studentProfile, null,
+    { id: attachedIntakeId, data: { id: attachedIntakeId, student_id: studentId, student_voice: "I want to explore art." } },
+    scores.map(score => ({ category: "Career " + score, score, updated_at: oldDate })),
+  );
+  await (regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: current }) } });
+  const next = db.requests[0]._next_content;
+  expect(next.readiness_indicators.map((r: any) => r.level)).toEqual(["emerging", "emerging", "developing", "developing", "progressing", "progressing", "ready", "ready"]);
+  expect(next.readiness_indicators.map((r: any) => r.note)).toEqual(scores.map(s => `Score ${s}/100`));
+  expect(next.inputs_used.readiness_category_count).toBe(8);
+  expect(next.confidence.overall).toBe("medium");
+  expect(next.confidence_level).toBe("moderate");
 });

@@ -134,3 +134,25 @@ for (const audience of ["student", "family", "educator"] as const) for (const sh
     expect(mocks.server).not.toHaveBeenCalled();
   });
 }
+
+for (const audience of ["student", "family", "educator"] as const) for (const shared of audience === "student" ? [false] : [false, true]) {
+  it(`${audience} ${shared ? "shared" : "saved"} readers identify recorded earlier sections without removing their content`, () => {
+    const earlier = recordGeneratedSections(undefined, richerSharedFixture(), "2026-10-01T12:00:00.000Z");
+    const current = recordGeneratedSections(earlier, { inputs_used: { generated_at: "2026-10-12T18:00:00.000Z" }, plain_language_summary: "Current family summary", professional_summary: "Current educator summary" }, "2026-10-12T18:00:00.000Z");
+    const report = shared ? projectSharedReport(current, audience as "family" | "educator")! : current;
+    const { container } = render(<ReportView name="Maya" report={report as any} hasV2 readOnly={shared} fixedAudience={shared ? audience as "family" | "educator" : undefined} initialAudience={audience} />);
+    expect(container.querySelector('[data-report-retained-sections]')!.textContent).toContain("kept from an earlier version");
+    expect(container.querySelector('[data-report-retained-sections] a')!.getAttribute("href")).toBe("#report-section-update-history");
+    expect(container.querySelector('#report-section-update-history')).not.toBeNull();
+    expect(container.querySelector('#sec-goals')).not.toBeNull();
+    expect(container.textContent).not.toMatch(/write_id|private-answer/);
+    expect(mocks.server).not.toHaveBeenCalled();
+  });
+}
+it("does not invent saved history for demo samples", () => {
+  const earlier = recordGeneratedSections(undefined, richerSharedFixture(), "2026-10-01T12:00:00.000Z");
+  const current = recordGeneratedSections(earlier, { inputs_used: { generated_at: "2026-10-12T18:00:00.000Z" } }, "2026-10-12T18:00:00.000Z");
+  const { container } = render(<ReportView name="Maya" report={current as any} hasV2 demo />);
+  expect(container.querySelector('[data-report-retained-sections]')).toBeNull();
+  expect(container.textContent).toContain("This sample has no saved section update history.");
+});

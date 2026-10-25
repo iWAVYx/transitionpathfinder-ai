@@ -38,3 +38,14 @@ it("changing the report replaces all history rows even when the disclosure is op
   expect(screen.queryByText("Confidence and Review")).toBeNull(); expect(screen.getByText("Current Summary")).toBeTruthy();
   expect(view.container.textContent).not.toContain("Oct 1, 2026");
 });
+
+it("distinguishes retained earlier sections from current updates in screen and print table markup", () => {
+  const { container } = render(<ReportSectionUpdates rows={[{ ...rows[1], earlier: true }, rows[0]]} />);
+  fireEvent.click(screen.getByRole("button", { name: "Show Update Details" }));
+  const earlier = container.querySelector('[data-report-update-field="postsecondary_goals"]')!;
+  expect(earlier.textContent).toContain("Kept from an Earlier Version");
+  expect(earlier.textContent).toContain("Saved · Oct 1, 2026");
+  expect(container.querySelector('[data-report-update-field="confidence"]')!.textContent).not.toContain("Kept from");
+  expect(container.querySelector('#report-section-update-history')).not.toBeNull();
+  expect(container.querySelector('[data-report-update-body]')!.className).not.toContain("hidden");
+});

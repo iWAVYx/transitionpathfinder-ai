@@ -8,7 +8,7 @@ export function ReportSectionUpdates({ rows = [], sample = false }: { rows?: rea
   const [open, setOpen] = useState(false);
   const bodyId = useId();
   const known = !sample && rows.some(row => row.recordedAt);
-  return <section data-report-section-updates aria-label="Section update history" className="report-section mt-6 border-y border-border/60 py-3">
+  return <section id="report-section-update-history" data-report-section-updates aria-label="Section update history" className="report-section mt-6 border-y border-border/60 py-3">
     <div className="flex flex-wrap items-start justify-between gap-2">
       <h2 className="font-display text-lg leading-snug">Section Update History</h2>
       {known && <button type="button" aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen(value => !value)}
@@ -30,6 +30,7 @@ export function ReportSectionUpdates({ rows = [], sample = false }: { rows?: rea
         <tbody>{rows.map(row => <tr key={row.field} data-report-update-field={row.field}>
           <th scope="row" className="break-words border-b border-border/40 py-2 pr-3 align-top font-medium">{toTitleCase(row.label)}</th>
           <td className="border-b border-border/40 py-2 pl-3 align-top">
+            {row.earlier && <span className="mb-1 block text-xs font-medium text-muted-foreground">Kept from an Earlier Version</span>}
             {row.recordedAt ? <>{row.operation === "generated" ? "Generated" : "Saved"} · <time dateTime={row.recordedAt}>{date(row.recordedAt)}</time></> : "Update Date Unavailable"}
           </td>
         </tr>)}</tbody>

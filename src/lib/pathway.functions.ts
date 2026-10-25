@@ -819,6 +819,12 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       evidence: (evidenceRes.data as EvidenceRow[] | null) ?? [],
     };
 
+    // Unknown/out-of-range scores are not assessed readiness levels.
+    const scoredReadiness = ctx.readiness.filter(r =>
+      !!r.category?.trim() && typeof r.score === "number" && Number.isFinite(r.score) &&
+      r.score >= 0 && r.score <= 100,
+    );
+
     // Build the deterministic input manifest BEFORE we ask the AI.
     const inputs_used: InputsUsed = {
       profile: true,
@@ -828,8 +834,8 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       iep_doc_ids: ctx.iep_docs.map((d) => d.id),
       iep_extraction_ids: ctx.iep_extractions.map((e) => e.id),
       goal_ids: ctx.goals.map((g) => g.id),
-      readiness_at: ctx.readiness[0]?.updated_at ?? undefined,
-      readiness_category_count: ctx.readiness.length,
+      readiness_at: scoredReadiness[0]?.updated_at ?? undefined,
+      readiness_category_count: scoredReadiness.length,
       action_item_ids: ctx.action_items.map((a) => a.id),
       meeting_prep_ids: ctx.meeting_preps.map((m) => m.id),
       saved_resource_ids: ctx.saved_resources.map((r) => r.id),
@@ -898,8 +904,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       if (n >= 26) return "developing";
       return "emerging";
     };
-    const readiness_indicators = ctx.readiness
-      .filter((r) => !!r.category)
+    const readiness_indicators = scoredReadiness
       .slice(0, 20)
       .map((r) => ({
         domain: r.category,
@@ -909,11 +914,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
 
     const aiSnapshot = v2.student_snapshot ?? {};
     const student_snapshot = {
-      ...aiSnapshot,
+      headline: aiSnapshot.headline,
       display_name:
-        [ctx.student.first_name, ctx.student.last_name].filter(Boolean).join(" ") ||
-        aiSnapshot.display_name,
-      grade: ctx.student.grade_band ?? aiSnapshot.grade,
+        [ctx.student.first_name, ctx.student.last_name].filter(Boolean).join(" "),
+      grade: ctx.student.grade_band ?? undefined,
       last_updated: new Date().toISOString().slice(0, 10),
     };
 
@@ -926,7 +930,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       ctx.iep_docs.length > 0,
       ctx.iep_extractions.length > 0,
       ctx.goals.length > 0,
-      ctx.readiness.length > 0,
+      scoredReadiness.length > 0,
     ];
     const signalRatio = inputSignals.filter(Boolean).length / inputSignals.length;
     const computedOverall: "low" | "medium" | "high" =
@@ -942,7 +946,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     if (ctx.iep_docs.length === 0) baseCaveats.push("No IEP or transition document uploaded.");
     if (ctx.iep_extractions.length === 0 && ctx.iep_docs.length > 0)
       baseCaveats.push("IEP uploaded but not yet extracted — some sections may be thin.");
-    if (ctx.readiness.length === 0) baseCaveats.push("No readiness scores yet.");
+    if (scoredReadiness.length === 0) baseCaveats.push("No scored readiness results were supplied for this report.");
     const mergedCaveats = Array.from(
       new Set([...(aiConfidence?.caveats ?? []), ...baseCaveats]),
     ).slice(0, 8);
@@ -969,10 +973,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         reason: "No Student Voice responses on file — please capture before the next meeting.",
         owner_role: "student",
       });
-    if (ctx.readiness.length === 0)
+    if (scoredReadiness.length === 0)
       baseFlags.push({
         section: "readiness_indicators",
-        reason: "Readiness scores have not been entered — indicators are placeholders.",
+        reason: "No scored readiness results were supplied for this report. Review readiness with the team before assigning a level.",
         owner_role: "case_manager",
       });
     const aiFlags = v2.needs_review_flags ?? [];
@@ -1029,11 +1033,15 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const nextContent = recordGeneratedSections(prevContent, {
       ...v2,
       schema_version: 2,
+      // Legacy consumers (report cards, document context) must see the current
+      // summary/confidence too. The atomic write preserves the complete old payload.
+      summary: plain_language_summary,
+      confidence_level: overall === "medium" ? "moderate" : overall,
       missing_information_v2: mergedGaps,
       inputs_used,
       student_snapshot,
       readiness_indicators:
-        readiness_indicators.length > 0 ? readiness_indicators : v2.readiness_indicators,
+        readiness_indicators.length > 0 ? readiness_indicators : undefined,
       spin,
       confidence,
       needs_review_flags,
