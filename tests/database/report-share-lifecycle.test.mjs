@@ -49,7 +49,7 @@ beforeEach(async(ctx)=>{
  INSERT INTO public.students VALUES('${student}','${other}',null),('${moved}','${other}',null);
  INSERT INTO public.student_collaborators VALUES('${student}','${owner}','accepted','viewer');
  INSERT INTO public.pathway_reports VALUES('${report}','${owner}','${student}','${intake}','{"summary":"Fictional report"}',now());`);
- if(!ctx.name.startsWith('baseline ') && !ctx.name.startsWith('proposal leaves')) await db.exec(proposal);
+ if(!ctx.name.startsWith('baseline ') && !ctx.name.startsWith('proposal revokes') && !ctx.name.startsWith('proposal failure')) await db.exec(proposal);
 });
 async function create(extra={}) {
  const id=crypto.randomUUID();const record={id,token:'fictional-'+id,report_id:report,created_by:owner,...extra};
@@ -64,8 +64,9 @@ test('baseline resolves after issuer access removal and follows reassigned repor
  await db.query('UPDATE public.pathway_reports SET student_id=$1,content=$2 WHERE id=$3',[moved,{summary:'Different student context'},report]);
  assert.deepEqual((await resolve(token))[0].content,{summary:'Different student context'});
 });
-test('proposal leaves legacy links unbound and unavailable instead of guessing historical context',async()=>{
- const token=await create();await db.exec(proposal);assert.deepEqual(await resolve(token),[]);
+test('proposal revokes legacy links instead of guessing historical context',async()=>{
+ const token=await create();await db.exec(proposal);assert.deepEqual(await resolve(token),[]);assert.equal((await tokenRow(token)).revoked,true);assert.equal((await tokenRow(token)).context_bound,false);
+ assert.equal((await db.query('SELECT count(*)::int AS n FROM public.share_tokens WHERE NOT revoked')).rows[0].n,0);
  await db.query('SELECT public.track_share_view($1)',[token]);assert.equal((await tokenRow(token)).view_count,0);
 });
 test('new links capture locked real context and get finite 30-day expiry',async()=>{
@@ -154,4 +155,19 @@ test('native view tracking waiting behind revocation must not increment a revoke
   await revoker.query('UPDATE public.share_tokens SET revoked=true WHERE token=$1',[token]);pending=tracker.query('SELECT public.track_share_view($1)',[token]).then(value=>({value}),error=>({error}));
   await blocked(pid);await revoker.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).view_count,0);assert.deepEqual(await resolve(token),[]);
  }finally{await revoker.exec('ROLLBACK');if(pending)await pending;}
+});
+
+test('proposal failure rolls back legacy retirement and all new bindings atomically',async()=>{
+ const token=await create();await db.exec('CREATE FUNCTION public.report_share_is_eligible(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$');
+ await assert.rejects(db.exec(proposal),{code:'42723'});await db.exec('ROLLBACK');
+ assert.equal((await tokenRow(token)).revoked,false);assert.equal((await resolve(token)).length,1);
+ assert.equal((await db.query("SELECT count(*)::int n FROM information_schema.columns WHERE table_schema='public' AND table_name='share_tokens' AND column_name='context_bound'")).rows[0].n,0);
+});
+
+test('native tracking waiting behind an expiry change must not increment an expired link',{skip:!real},async()=>{
+ const token=await create(),expirer=await newSession(),tracker=await newSession();const pid=(await tracker.query('SELECT pg_backend_pid() pid')).rows[0].pid;let pending;
+ await expirer.exec('BEGIN');try{
+  await expirer.query("UPDATE public.share_tokens SET expires_at=now()-interval '1 second' WHERE token=$1",[token]);pending=tracker.query('SELECT public.track_share_view($1)',[token]).then(value=>({value}),error=>({error}));
+  await blocked(pid);await expirer.exec('COMMIT');assert.equal((await pending).error,undefined);assert.equal((await tokenRow(token)).view_count,0);assert.deepEqual(await resolve(token),[]);
+ }finally{await expirer.exec('ROLLBACK');if(pending)await pending;}
 });

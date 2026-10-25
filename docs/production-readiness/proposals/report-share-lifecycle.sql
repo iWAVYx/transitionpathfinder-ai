@@ -1,6 +1,7 @@
 -- LOCAL REVIEW PROPOSAL ONLY. Not a canonical migration or deployment instruction.
--- Compatibility decision: legacy links are unbound and stop resolving; owners
+-- Proposed compatibility decision: retire legacy links as revoked; creators
 -- must create fresh links. No source student/owner/intake is guessed for them.
+-- This existing-link data change requires explicit migration authorization.
 BEGIN;
 
 ALTER TABLE public.share_tokens
@@ -8,6 +9,10 @@ ALTER TABLE public.share_tokens
  ADD COLUMN bound_student_id uuid,
  ADD COLUMN bound_report_owner_id uuid,
  ADD COLUMN bound_intake_id uuid;
+
+-- Keep all existing sharing screens truthful: old links are closed, not shown
+-- as active while the resolver rejects their unknowable original context.
+UPDATE public.share_tokens SET revoked=true WHERE NOT context_bound AND NOT revoked;
 
 -- Private predicate: execution is limited to trusted function owners. Use the
 -- reviewed actor-specific consent helper; never impersonate a JWT or grant an
@@ -88,7 +93,12 @@ CREATE OR REPLACE FUNCTION public.track_share_view(_token text)
 RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog
 AS $track$
  UPDATE public.share_tokens st SET view_count=st.view_count+1,last_viewed_at=now()
- WHERE st.token=_token AND public.report_share_is_eligible(st.id);
+ -- Recheck mutable token fields on the UPDATE target itself. A stable helper
+ -- alone can see the old statement snapshot after a row-lock wait; PostgreSQL
+ -- must reject a concurrently revoked target during EvalPlanQual recheck.
+ WHERE st.token=_token AND NOT st.revoked AND st.context_bound
+  AND st.expires_at IS NOT NULL AND st.expires_at > now()
+  AND public.report_share_is_eligible(st.id);
 $track$;
 REVOKE ALL ON FUNCTION public.resolve_share_token(text),public.track_share_view(text) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.resolve_share_token(text),public.track_share_view(text) TO service_role;
