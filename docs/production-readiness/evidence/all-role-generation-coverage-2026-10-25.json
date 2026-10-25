@@ -1,6 +1,6 @@
 {
   "date": "2026-10-25",
-  "status": "local-harness-verified-automatic-review-pending",
+  "status": "reviewed-test-harness-and-coverage-audit-complete-live-packet-next",
   "structuredConsumerModules": 10,
   "inventory": [
     {
@@ -101,7 +101,94 @@
     "focusedPassed": 30,
     "focusedFiles": 3,
     "discoveryLog": "/private/tmp/tf-linked-save-canonical/generation-harness-discovery.log",
-    "discoveryOnly": true
+    "discoveryOnly": true,
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615264/job/121236705353",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215610760/job/121236412403",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615281/job/121236050157",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615237/job/121236024057",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615281/job/121235983058",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615252/job/121235983079",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615236/job/121235982909",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615278/job/121235983030",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615243/job/121235982874",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615264/job/121235982830",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615265/job/121235982584",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615236/job/121235983496",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615245/job/121235983883",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215615260/job/121235984028",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
+    "allEightAutomaticChecksPassed": true,
+    "controlledBuildRetry": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40215610760",
+      "initialAttempt": "failed: 1216 MB heap exhaustion in client build",
+      "failureLog": "/private/tmp/tf-linked-save-canonical/generation-harness-build-failure.log",
+      "retryAttempt": 2,
+      "retryCount": 1,
+      "retryResult": "success",
+      "sourceOrMemoryLimitChanged": false
+    }
   },
   "limits": [
     "Fixture discovery/deletion is not one database transaction; unexpected contexts or duplicates stop for trusted review rather than broad repair.",
@@ -109,7 +196,6 @@
     "This test-only work changes no product runtime and cannot establish current all-role generation quality."
   ],
   "next": [
-    "Finish final unit/TypeScript/automatic review of the safer harness.",
     "Prepare a current-release Family and Educator PPT live acceptance packet first, with exact temporary records, provider-call budget, quality criteria and independent cleanup proof.",
     "Prepare separate Family/Educator Pathway creation/regeneration plus Student/Partner/School/District/Owner relevant access checks; do not equate report-read acceptance with generation.",
     "Resolve the allowed execution path without bypassing the existing main-only live-workflow rule; request specific authorization only for a runnable reviewed plan."
@@ -120,5 +206,6 @@
     "Deferred Parent Pilot/Pathway Snapshot",
     "Your Dashboard Widgets builder edit"
   ],
-  "runtimeFingerprintUnchanged": "3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5"
+  "runtimeFingerprintUnchanged": "3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5",
+  "reviewedCandidate": "c687406b"
 }
