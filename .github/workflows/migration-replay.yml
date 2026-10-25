@@ -23,6 +23,8 @@ on:
       - "tests/database/report-history-canonical-grants.mjs"
       - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/database/share-token-write-restriction.test.mjs"
+      - "tests/database/report-share-lifecycle.test.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle.sql"
       - "docs/production-readiness/proposals/share-token-*.sql"
       - "docs/production-readiness/proposals/report-content-history-boundary.sql"
       - "tests/channel-start-boundary.test.mjs"
@@ -48,6 +50,8 @@ on:
       - "tests/database/report-history-canonical-grants.mjs"
       - "tests/database/atomic-history-ledger-sql.mjs"
       - "tests/database/share-token-write-restriction.test.mjs"
+      - "tests/database/report-share-lifecycle.test.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle.sql"
       - "docs/production-readiness/proposals/share-token-*.sql"
       - "docs/production-readiness/proposals/report-content-history-boundary.sql"
       - "tests/channel-start-boundary.test.mjs"
@@ -93,6 +97,11 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/channel-history-tests" --ignore-scripts --no-save --package-lock=false @electric-sql/pglite@0.5.8
           CHANNEL_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/channel-history-removal.test.mjs
+
+      - name: Test proposed report-share lifecycle without hosted credentials
+        run: |
+          SHARE_POLICY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/report-share-lifecycle.test.mjs
 
       - name: Test atomic report history in a disposable multi-session database
         env:

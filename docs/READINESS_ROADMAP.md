@@ -1,5 +1,14 @@
 # TransitionForward — Readiness Roadmap
 
+## October 24 — Report Sharing Lifecycle Reviewed; Local Proposal Only
+
+- [x] Reproduced current bearer-link resolution after issuer access removal and report reassignment in a credential-free disposable database. Current revoke/expiry protection remains real, but is insufficient to bind original report context. Omitted server expiry also permits indefinite links despite the UI's 30-day request.
+- [x] Prepared a noncanonical SQL proposal: lock/capture real student/owner/intake at creation, require current explicit access, default new links to30 days, retain365-day API maximum, revoke on context changes, preserve live same-context content and service-only projected resolution/tracking. All20 local database cases pass; the central consent case also passes independently. The runtime remains unchanged at `52d34874…4fdfef` /1,185 files.
+- [ ] Before release: resolve legacy-link retirement/recreation and its active-link UI, permanent versus temporary revocation after access removal, then native concurrent tests, complete replay and exact preflight/rollout packet. The draft deliberately cannot infer historical context, so old links would stop resolving. Restored explicit access currently can reactivate an unrevoked same-context new link; do not call this permanent removal revocation.
+- [ ] Separately review stale report relinking/zero-row success feedback, other permitted direct writers and intake/provenance input changes. No new hosted fixtures, migration, deployment, publication, provider/AI calls, access/settings changes or production activity occurred. Full roadmap and deferred report polish/Parent Pilot/Pathway Snapshot retained.
+
+See [sharing lifecycle review](production-readiness/evidence/report-share-lifecycle-review-2026-10-24.json). Earlier sections are historical checkpoints; this is a local security proposal, not a new release-ready candidate.
+
 ## October 24 — Linked-Student Staging Acceptance Complete
 
 - [x] Authorized migration/ledger and both existing staging publications remain verified on `99cb4cbd`, fingerprint `52d34874…4fdfef` /1,185 files, isolated backend and sandbox isolation.

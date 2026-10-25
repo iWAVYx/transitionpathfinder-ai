@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-24",
+  "status": "local-proposal-verified-not-release-ready",
+  "hostedActions": 0,
+  "productionTouched": false,
+  "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+  "runtimeFiles": 1185,
+  "baselineFindings": [
+    {
+      "source": "supabase/migrations/20260527160738_4b10cdd0-0c92-40e1-b652-b016a9a0cafd.sql",
+      "finding": "Resolver checks revoked/expiry but not current issuer access or original report student/owner/intake. Credential-free reproduction resolves after creator removal and follows reassigned context."
+    },
+    {
+      "source": "src/lib/students.functions.ts:createShareToken",
+      "finding": "Omitted expires_in_days inserts null, although the saved-report UI supplies 30 days."
+    },
+    {
+      "source": "supabase/migrations/20260527160738_4b10cdd0-0c92-40e1-b652-b016a9a0cafd.sql:track_share_view",
+      "finding": "Current tracking checks only revoked, not expiry or current issuer access."
+    },
+    {
+      "source": "src/lib/pathway.functions.ts:linkReportToStudent",
+      "finding": "Update is scoped by report ID but has no affected-row assertion or observed-context compare. RLS/identity trigger restrict unauthorized writes; success feedback for zero rows and stale owner relinks require separate review."
+    },
+    {
+      "source": "src/lib/report-content-revision.server.ts",
+      "finding": "Content revision binds id/student/content, not intake association or other mutable generation inputs. New student-aware save closes its named student/content race, not all provider-input provenance races."
+    }
+  ],
+  "proposal": "docs/production-readiness/proposals/report-share-lifecycle.sql",
+  "proposalSha256": "59aaa7decf8ce23b17c8f65cec51e43d91099f7ec60f7894413868ce5506d1ed",
+  "proposedBehavior": [
+    "Before insertion lock referenced report FOR SHARE; require current explicit student access for linked report or ownership for unlinked report; overwrite supplied bindings with actual student/owner/intake.",
+    "Use reviewed can_access_student actor helper, with no management shortcut; apply the same predicate to resolver and tracking, retaining service-role-only RPC execution and audience projection.",
+    "Default newly inserted links to 30 days when omitted; retain current API upper bound of 365 days at database boundary.",
+    "Revoke links on report student/owner/intake change, including unlink/relink and change-away/change-back; ordinary content changes remain live.",
+    "Legacy links remain unbound and unavailable: never guess their original context from current report state."
+  ],
+  "validation": {
+    "engine": "credential-free local PGlite",
+    "cases": 20,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "centralConsentCaseAlsoPassesIndependently": true,
+    "nativePostgresConcurrencyValidated": false,
+    "hostedAcceptancePerformed": false,
+    "log": "/private/tmp/tf-linked-save-canonical/share-lifecycle-local.log",
+    "ci": "Existing migration replay workflow includes credential-free proposal test and path triggers. No canonical migration added.",
+    "preliminaryHarnessCorrections": "Two initial fixture errors (duplicate insert column and untyped unused parameter) corrected without changing expected denials. Single-case check initially omitted local module path; corrected invocation passed."
+  },
+  "compatibilityAndOpenWork": [
+    "Before any canonical migration/release, review explicit legacy-link retirement/recreation policy. Unbound legacy rows still appear active to current list UI; presentation/revocation treatment must be resolved together. This draft is NOT ready for rollout authorization.",
+    "Current proposal rechecks eligibility dynamically. Removed access blocks new resolutions; restoring explicit access can reactivate an otherwise unrevoked same-context link. Permanent revocation on access removal is a separate policy decision; no claim that this proposal implements it.",
+    "Native PostgreSQL multi-session insertion/reassignment/revocation races, full migration replay, exact prerequisite/body/grant verification and deployable rollout packet remain required.",
+    "No guarantee of clawing back a response already resolved, downloaded file or browser-rendered content. Authorization is evaluated in the database statement snapshot.",
+    "Remaining direct-client report writers/intake association/provenance races need separate scoped review, not permission expansion.",
+    "Channel member removal and optional chat-history retention remain distinct from bearer report links.",
+    "Full TF-01\u2013TF-26, deferred report polish and Parent Pilot/Pathway Snapshot remain retained."
+  ]
+}
