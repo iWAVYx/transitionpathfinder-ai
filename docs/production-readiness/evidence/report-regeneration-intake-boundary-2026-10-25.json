@@ -1,6 +1,6 @@
 {
   "date": "2026-10-25",
-  "status": "local-candidate-automatic-review-pending",
+  "status": "reviewed-ready-for-staging-release-authorization",
   "finding": "After report relinking, regeneration read the newly linked student profile alongside the original intake without checking that the recorded intake student matched. A missing/denied attached intake also silently became an absent optional source.",
   "reproduction": {
     "log": "/private/tmp/tf-linked-save-canonical/report-intake-boundary-before.log",
@@ -23,8 +23,85 @@
     "fullUnitLog": "/private/tmp/tf-linked-save-canonical/report-intake-boundary-units.log",
     "focusedLog": "/private/tmp/tf-linked-save-canonical/report-intake-boundary-focused.log",
     "typescript": "passed",
-    "automaticChecks": "pending",
-    "typescriptLog": "/private/tmp/tf-linked-save-canonical/report-intake-boundary-tsc.log"
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991145/job/121219698594",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991141/job/121219028036",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991155/job/121218961005",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991145/job/121218960582",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991156/job/121218960474",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991143/job/121218960522",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991146/job/121218960470",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991144/job/121218960398",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991141/job/121218960495",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209987402/job/121218949520",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991202/job/121218961795",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991156/job/121218961372",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991169/job/121218962311",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209991208/job/121218962014",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
+    "typescriptLog": "/private/tmp/tf-linked-save-canonical/report-intake-boundary-tsc.log",
+    "allRequiredAutomaticChecksPassed": true
   },
   "limits": [
     "Explicitly unlinked legacy intake remains allowed for the existing build-first/link-later flow; historical student identity cannot be inferred safely.",
@@ -37,7 +114,7 @@
   "productionTouched": false,
   "migrationNeeded": false,
   "next": [
-    "Finish TypeScript and automatic build/security/replay checks.",
+    "Obtain fresh staging-only release authorization for this reviewed source; no hosted action has started.",
     "Obtain new staging-only release/sync/publication authorization before releasing this application correction.",
     "Keep broader provenance/direct-writer and production/provider/privacy/security/operations gates open."
   ],
@@ -46,5 +123,12 @@
     "Your Dashboard Widgets builder edit",
     "Deferred report polish",
     "Deferred Parent Pilot and Pathway Snapshot"
-  ]
+  ],
+  "reviewedCandidate": "349dcad5",
+  "runtimeFingerprint": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5",
+    "fileCount": 1185
+  }
 }
