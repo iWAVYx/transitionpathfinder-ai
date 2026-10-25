@@ -1,5 +1,8 @@
 import { expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import ts from "typescript";
+import { creatorStudentInput } from "../e2e/helpers/pathway-creator-fixture";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../../src/integrations/supabase/types";
 import {
@@ -283,4 +286,64 @@ it("keeps the new AI scope manual, human-protected, serial, explicitly confirmed
   expect(spec).not.toContain(".like(");
   expect(spec.match(/name: "Refresh Pathway Report", exact: true \}\)\.click/g)).toHaveLength(1);
   expect(spec.match(/getByTestId\("pathway-generate"\)\.click/g)).toHaveLength(1);
+});
+
+it("type-checks the actual creator fixture against generated database Insert columns", () => {
+  const program = ts.createProgram(["tests/e2e/helpers/pathway-creator-fixture.ts"], {
+    noEmit: true,
+    strict: true,
+    skipLibCheck: true,
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+  });
+  const diagnostics = ts.getPreEmitDiagnostics(program);
+  expect(diagnostics.map((d) => ts.flattenDiagnosticMessageText(d.messageText, "\n"))).toEqual([]);
+  const row = creatorStudentInput(f);
+  expect(row).toMatchObject({
+    id: f.studentId,
+    owner_id: f.ownerId,
+    first_name: f.marker,
+    notes: f.marker,
+    is_demo: true,
+    student_user_id: null,
+  });
+});
+it("preserves the original failure and safe phase/code diagnostics when teardown also fails", () => {
+  const spec = readFileSync(
+    "tests/e2e/release-readiness/pathway-creator-live.signedin.spec.ts",
+    "utf8",
+  );
+  expect(spec).toContain("pathway-failure-diagnostics.json");
+  expect(spec).toContain("primaryFailure ? [primaryFailure, ...errors] : errors");
+  expect(spec).toContain("reconciliationRequired: operationPending");
+  expect(spec).toContain(".insert(creatorStudentInput(f))");
+});
+
+it("rejects the exact unsupported interests column used by the failed live fixture", () => {
+  const file = resolve("tests/e2e/helpers/pathway-creator-fixture.ts");
+  const options: import("typescript").CompilerOptions = {
+    noEmit: true,
+    strict: true,
+    skipLibCheck: true,
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+  };
+  const host = ts.createCompilerHost(options);
+  const original = host.readFile;
+  host.readFile = (name) =>
+    resolve(name) === file
+      ? readFileSync(file, "utf8").replace("interests_summary:", "interests:")
+      : original(name);
+  const program = ts.createProgram([file], options, host);
+  expect(
+    ts
+      .getPreEmitDiagnostics(program)
+      .some(
+        (d) =>
+          d.code === 2353 &&
+          ts.flattenDiagnosticMessageText(d.messageText, " ").includes("interests"),
+      ),
+  ).toBe(true);
 });

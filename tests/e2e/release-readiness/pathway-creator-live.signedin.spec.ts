@@ -6,6 +6,7 @@ import type { Database } from "../../../src/integrations/supabase/types";
 import { ReportSchema } from "../../../src/lib/pathway-generation-contract";
 import { PathwayReportV2 } from "../../../src/lib/pathway-v2";
 import { pathwayCreatorTarget } from "../helpers/pathway-creator-policy";
+import { creatorStudentInput } from "../helpers/pathway-creator-fixture";
 import {
   cleanupCreator,
   creatorAbsenceSql,
@@ -90,30 +91,30 @@ for (const role of roles)
     await receipt();
     const context = await browser.newContext({ baseURL: target.origin });
     let operationPending = false;
+    let phase = "login";
+    let databaseErrorCode: string | null = null;
+    let primaryFailure: unknown;
     try {
       const page = await context.newPage();
       await login(page, role);
+      phase = "create-synthetic-student";
       operationPending = true;
       const student = await client
         .from("students")
-        .insert({
-          id: f.studentId,
-          owner_id: f.ownerId,
-          first_name: f.marker,
-          last_name: "Synthetic",
-          notes: f.marker,
-          is_demo: true,
-          student_user_id: null,
-          grade_band: "11-12",
-          interests: ["culinary arts", "robotics"],
-          strengths: ["careful problem solving"],
-          needs: ["written directions"],
-        })
+        .insert(creatorStudentInput(f))
         .select("id")
         .single();
-      if (student.error || student.data?.id !== f.studentId)
-        throw Error("Exact synthetic student creation not confirmed");
+      if (student.error || student.data?.id !== f.studentId) {
+        databaseErrorCode = /^[A-Z0-9]{1,16}$/.test(student.error?.code ?? "")
+          ? student.error!.code
+          : null;
+        throw Error(
+          "Exact synthetic student creation not confirmed; database code=" +
+            (databaseErrorCode ?? "unavailable"),
+        );
+      }
       operationPending = false;
+      phase = "pathway-builder";
       await page.goto("/pathway");
       await expect(page.getByTestId("pathway-intake-form")).toHaveAttribute(
         "data-pathway-step",
@@ -175,11 +176,13 @@ for (const role of roles)
         educator_input: "Agree on measurement conditions and review dated evidence.",
       });
       operationPending = true;
+      phase = "initial-generation";
       await page.getByTestId("pathway-generate").click();
       await page.waitForURL(/\/reports\/[0-9a-f-]+/i, { timeout: 240000 });
       f.reportId = new URL(page.url()).pathname.split("/").at(-1)!;
       expect(f.reportId).toMatch(/^[0-9a-f-]{36}$/i);
       operationPending = false;
+      phase = "initial-report-verification";
       await receipt();
       await expect(page.getByTestId("pathway-report-page")).toBeVisible({ timeout: 30000 });
       const initial = await client
@@ -218,6 +221,7 @@ for (const role of roles)
       expect(before.data).toHaveLength(0);
       // Change only this disposable profile to verify regeneration uses the current linked profile.
       operationPending = true;
+      phase = "update-disposable-profile";
       const updated = await client
         .from("students")
         .update({ grade_band: "post-secondary" })
@@ -230,11 +234,13 @@ for (const role of roles)
         throw Error("Exact profile update not confirmed");
       operationPending = false;
       operationPending = true;
+      phase = "regeneration";
       await page.getByRole("button", { name: "Refresh Pathway Report", exact: true }).click();
       await expect(page.getByText(/^Regenerated \(v1\)\./).first()).toBeVisible({
         timeout: 240000,
       });
       operationPending = false;
+      phase = "regenerated-report-verification";
       const regenerated = await client
         .from("pathway_reports")
         .select("content,student_id,intake_id,user_id")
@@ -294,6 +300,7 @@ for (const role of roles)
         "aria-selected",
         "true",
       );
+      phase = "private-access-check";
       const other = roles.find((x) => x.key !== role.key)!;
       const denied = await browser.newContext({ baseURL: target.origin });
       try {
@@ -307,6 +314,7 @@ for (const role of roles)
       } finally {
         await denied.close();
       }
+      phase = "pdf-export";
       await page.emulateMedia({ media: "print" });
       await expect(
         page.getByRole("button", { name: "Refresh Pathway Report", exact: true }),
@@ -328,8 +336,31 @@ for (const role of roles)
         path: info.outputPath(role.key + "-live-pathway.png"),
         fullPage: true,
       });
+    } catch (error) {
+      primaryFailure = error;
+      throw error;
     } finally {
       const errors: unknown[] = [];
+      if (primaryFailure) {
+        try {
+          await writeFile(
+            info.outputPath("pathway-failure-diagnostics.json"),
+            JSON.stringify(
+              {
+                phase,
+                databaseErrorCode,
+                operationPending,
+                primaryFailurePreserved: true,
+                reconciliationRequired: operationPending,
+              },
+              null,
+              2,
+            ),
+          );
+        } catch (error) {
+          errors.push(error);
+        }
+      }
       try {
         await context.close();
       } catch (e) {
@@ -362,6 +393,9 @@ for (const role of roles)
         }
       }
       if (errors.length)
-        throw new AggregateError(errors, "Bounded Pathway teardown requires review");
+        throw new AggregateError(
+          primaryFailure ? [primaryFailure, ...errors] : errors,
+          `Bounded Pathway teardown requires review; phase=${phase}; database code=${databaseErrorCode ?? "unavailable"}; pending=${operationPending}`,
+        );
     }
   });

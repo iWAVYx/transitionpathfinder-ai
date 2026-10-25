@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Pathway Test Setup Stopped; Independent Reconciliation Shows No Saved Fixtures
+
+- [x] All eight automatic checks passed for prepared `21483a33`; the separately authorized, human-approved [run 40236340320](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40236340320) verified all seven existing sign-ins, then stopped in Family fixture creation. Educator did not run. No generation/regeneration action, history version or PDF export was reached; zero test retries.
+- [x] Artifact sanitization passed before download. Independent `postgres` / read-only queries confirmed zero exact student, intake, report, history, share, evidence and related-child records. No cleanup mutation was needed. Original database response code was masked by teardown; it was not recovered or guessed.
+- [x] Read-only deployed-schema inspection confirmed the fixture used nonexistent `interests`, `strengths` and `needs` columns. Corrected the test fixture to the actual text-summary fields, added explicit generated-schema compilation and a regression rejecting the old field, and preserved primary failures plus safe phase/code diagnostics. Application, permissions and staging runtime remain unchanged; no deployment needed.
+- [x] Corrected local suite: 4,605 tests / 320 files, TypeScript and two-case offline discovery pass under the intended Node runtime. The schema check also rejects the original invalid column. Automatic review is pending; runtime fingerprint remains unchanged.
+- [ ] Complete review of this test-only correction, then obtain fresh approval for one bounded repeat. The previous run consumed its approval even though it reached no AI; do not retry automatically. Creation/regeneration, role-specific output, private access and PDF acceptance remain open.
+- [ ] Preserve the remaining roadmap and PPT factual-wording follow-up; keep report polish and Parent Pilot/Pathway Snapshot deferred. No production/main, migration, publication, payment or secret changes.
+
+Evidence: `pathway-creator-setup-reconciliation-2026-10-25.json`. Earlier checkpoints below are historical.
+
+
 ## October 25 — Independent Family/Educator Pathway Creator Acceptance Prepared Locally
 
 - [x] Prepared a separately confirmed, human-protected `pathway-creator-live-bounded` scope. Each role uses normal caller RLS and a fresh disposable owned student; the full builder creates the report, then the owner refreshes it once. No standing student, collaborator grant, privileged key or cross-origin browser-state reuse. Legacy main-only live workflow remains unchanged; ordinary audits do not enable the new flag.
