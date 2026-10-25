@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-25",
+  "status": "prepared locally; live run not authorized or dispatched",
+  "runtime": {
+    "fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "file_count": 1185,
+    "application_changed": false,
+    "deployment_required": false,
+    "backend": "qgrertkqbwanerqqemph",
+    "app": "https://gentle-forward-reach.lovable.app",
+    "control": "https://transitionforward-staging.caysi101.workers.dev"
+  },
+  "reason": "The old Pathway test generates only as Family, grants temporary Educator collaboration and uses a privileged key. It does not prove independent Educator creation or either role's current regeneration. The old protected workflow remains unchanged/main-only.",
+  "execution": {
+    "workflow": "staging-role-verification.yml",
+    "scope": "pathway-creator-live-bounded",
+    "confirmation": "disposable-pathway-creator",
+    "separate_user_authorization_required": true,
+    "github_human_staging_review_required": true,
+    "ordinary_default_scope": "all-roles (unchanged; no new AI flag)",
+    "test_retries": 0,
+    "workers": 1,
+    "serial_failure_stops_remaining_case": true,
+    "automatic_recordings": false,
+    "isolated_concurrency_cannot_cancel_an_active_creator_run": true
+  },
+  "budget": {
+    "existing_generating_roles": [
+      "Family/Guardian",
+      "Educator"
+    ],
+    "temporary_synthetic_students_max": 2,
+    "intakes_max": 2,
+    "reports_max": 2,
+    "targeted_profile_grade_updates_max": 2,
+    "history_versions_max": 2,
+    "initial_generation_invocations_max": 2,
+    "regeneration_invocations_max": 2,
+    "model_invocations_max": 6,
+    "sdk_request_attempts_max": 18,
+    "explanation": "Each initial call invokes generateText once. Each regeneration can invoke it twice because of an existing weak-summary retry. Two roles imply up to six model invocations. Existing SDK default maxRetries=2 allows up to eighteen SDK request attempts. Gateway-internal retries/billing are unobserved; not a monetary cap.",
+    "pdf_exports_max": 2,
+    "explicit_fictional_screenshots_max": 2,
+    "new_accounts_relationships_shares": 0
+  },
+  "fixtures": [
+    "Direct public-key caller-RLS setup creates one fresh owned is_demo student per generating role with exact preallocated UUID, marker/notes, Synthetic surname and no student account association. Does not modify standing profiles or use the Add Student/license-attachment workflow.",
+    "Use normal signed-in Pathway Builder for initial creation, then one Refresh Pathway Report per role. No direct fabrication of the generated report or history.",
+    "Only change grade on each exact disposable profile from 11-12 to post-secondary to prove regeneration uses the current linked profile. No role/relationship/entitlement grants.",
+    "Separate direct Lovable sign-ins; never reuse Cloudflare-origin browser storage. Existing seven-role setup remains read-only."
+  ],
+  "automated_checks": [
+    "Both stable source fingerprint/count, backend, sandbox and isolation, CF exact SHA and Lovable AI configuration before fixtures",
+    "Exact synthetic caller identity and owned student selection",
+    "Full eight-step builder with fictional interests, baseline, supports, voices and explicit unprovided information",
+    "Initial report schema, model, owner/student/intake binding, role and merged inputs persisted; survives reload",
+    "One regeneration produces schema v2 with current grade and manifest profile/intake; absent goal/document/structured-voice tables remain absent and sparse evidence clamps confidence low",
+    "Exactly one owner-attributed history version preserves the complete initial content",
+    "Matching Family/Educator reader tab survives reload",
+    "Other generating role is denied the private report with a loaded not-found result, not an empty loading shell",
+    "PDF export, loaded watermark and hidden refresh control"
+  ],
+  "manual_review_required": [
+    "Source accuracy: baseline two independent steps and proposed target four, prompting conditions, dated fictional observation, unprovided service/readiness information",
+    "No fabricated diagnosis, score, placement, enrollment, service allocation, legal citation, personal observation or agreed assignment",
+    "Student voice and preferences influence practical pathways, goals and useful next steps",
+    "Family plain-language and Educator professional summaries remain usable and role-appropriate",
+    "Separate current profile grade from historical intake data without mixing students",
+    "Rendered PDFs include complete content, distinct aligned sections and logo watermark; do not reopen tabled report-length polish"
+  ],
+  "cleanup": [
+    "Save exact student UUID/marker and independent SQL before setup, update receipts as intake/report IDs become known",
+    "Any unconfirmed write or generation completion retains exact fixtures for reconciliation; no automatic retry or parent deletion",
+    "Resolve at most one intake/report and one history version with exact ownership, student, marker, role and model before deletion",
+    "Refuse cleanup if unexpected associated rows or unavailable counts exist across relationship, document, evidence, progress, partner, action/PPT/share tables",
+    "Receipt saved before mutation; report then intake then exact student; a child-delete failure prevents parent cascades",
+    "Browser-close failure cannot skip cleanup; sign out despite cleanup errors; teardown errors fail visibly",
+    "Caller-visible zero counts are provisional only; independent read-only postgres/table-owner SQL covers exact IDs and related rows",
+    "No prefix sweep, standing-student deletion, privileged-key fallback or deletion of unrelated records. Read checks are not a transaction-wide lock against privileged concurrent changes.",
+    "Inspect artifact sanitizer before downloading; failed/partial run consumes authorization; independently reconcile before any separately authorized repeat"
+  ],
+  "local_validation": {
+    "focused_checks": 76,
+    "full_unit_tests": 4602,
+    "unit_files": 320,
+    "typescript": "passed",
+    "offline_discovery": "2 cases / 1 file; no browser execution",
+    "yaml": "parsed; manual staging gate retained",
+    "parent_cascade_regression": "Reproduced with mocked network, corrected to stop intake and student deletion after failed report deletion; final 4602-test suite passes.",
+    "automatic_checks": "pending commit"
+  },
+  "role_limits": "This only proves two creator roles if it passes. Other roles retain current permissions and need their applicable reader/assist, oversight/export or directory checks; Owner remains management-only. No claim of all-role generation readiness.",
+  "not_authorized": [
+    "live run or AI calls",
+    "hosted fixture/query activity",
+    "deployment/publication/migration",
+    "production or original main merge",
+    "new accounts, access grants, relationships, share links, payments or secret changes"
+  ],
+  "roadmap_retained": "Full TF-01\u2013TF-26 and six milestones; outstanding PPT source-fidelity caveat remains. Report polish, Parent Pilot/Pathway Snapshot deferred."
+}

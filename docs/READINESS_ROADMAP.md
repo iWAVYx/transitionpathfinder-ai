@@ -1,5 +1,18 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Independent Family/Educator Pathway Creator Acceptance Prepared Locally
+
+- [x] Prepared a separately confirmed, human-protected `pathway-creator-live-bounded` scope. Each role uses normal caller RLS and a fresh disposable owned student; the full builder creates the report, then the owner refreshes it once. No standing student, collaborator grant, privileged key or cross-origin browser-state reuse. Legacy main-only live workflow remains unchanged; ordinary audits do not enable the new flag.
+- [x] Checks cover both initial ownership/intake bindings and actual Educator creation, current-profile regeneration, manifest/confidence grounding, exactly one genuine history snapshot per role, role-appropriate reader/reload, other-role denial and PDF export. This remains unexecuted preparation, not live acceptance.
+- [x] Proposed limit: two temporary synthetic students, two targeted grade updates, two intake/report pairs, two history versions and two PDFs; four application generation actions total. Regeneration's existing weak-summary retry raises the maximum to six model invocations and **eighteen SDK request attempts**. Gateway internals/billing are unobserved. No new accounts, relationships or share links; zero test retries.
+- [x] Exact cleanup validates context and rejects unexpected related rows before mutation, records resolved IDs, then deletes report/intake/student. A reproduced local failure now stops parent cascades after child deletion failure. Unknown operation completion retains exact fixtures for reconciliation. Independent privileged read-only absence verification remains mandatory; caller-RLS counts alone are not proof.
+- [x] Local full suite passes 4,602 tests / 320 files, focused policy/cleanup checks pass, TypeScript passes, and offline discovery lists two cases. The final cascade regression recheck passes; automatic checks are pending at this preparation checkpoint. Runtime remains `dd512c1c…1b3f7` / 1,185 files; no deployment or publication needed for these test-only changes.
+- [ ] After review, obtain fresh authorization for one bounded fixture/AI run, including the two new synthetic students and larger retry budget, then GitHub's required human review. No live run, hosted query/fixture, AI/provider call, release, migration or production action occurred during preparation.
+- [ ] Follow with manual source/PDF review, independent exact cleanup and applicable remaining-role/generator coverage. Preserve the PPT source-fidelity caveat, full TF-01–TF-26 and six milestones. Owner stays management-only; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+Detailed budget, fixtures, quality rubric and failure handling: `pathway-creator-bounded-preparation-2026-10-25.json`. Earlier checkpoints below are historical.
+
+
 ## October 25 — Family/Educator PPT Functional Acceptance Passed; Cleanup Independently Verified
 
 - [x] Authorized, human-approved [run 40231246197](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40231246197) succeeded on reviewed `89aa95af`: both stable runtime identities, all seven existing sign-ins and both live PPT journeys passed with zero retries. Family and Educator each generated, saved and reopened one packet; the other role was denied private access. Two PDFs exported with print controls hidden.
