@@ -252,14 +252,15 @@ export const getReport = createServerFn({ method: "POST" })
 
 export const linkReportToStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z
-      .object({
-        report_id: z.string().uuid(),
-        student_id: z.string().uuid().nullable(),
-      })
-      .parse(input),
-  )
+  .validator((input: unknown) => {
+    const parsed = z.object({
+      report_id: z.string().uuid(),
+      student_id: z.string().uuid().nullable(),
+      expected_student_id: z.string().uuid().nullable(),
+    }).safeParse(input);
+    if (!parsed.success) throw new Error("Reload this report before changing its student.");
+    return parsed.data;
+  })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     if (data.student_id) {
@@ -268,13 +269,19 @@ export const linkReportToStudent = createServerFn({ method: "POST" })
         "You don't have permission to link a report to this student.",
       );
     }
-    const { error } = await supabase
+    // Compare the browser's observed association in the UPDATE itself. RLS and
+    // the identity trigger still authorize the current caller and target student.
+    let update = supabase
       .from("pathway_reports")
       .update({ student_id: data.student_id })
-      .eq("id", data.report_id);
-    if (error) {
-      console.error("linkReportToStudent failed", error);
-      throw new Error("Could not link this report.");
+      .eq("id", data.report_id)
+      .eq("user_id", userId);
+    update = data.expected_student_id === null
+      ? update.is("student_id", null)
+      : update.eq("student_id", data.expected_student_id);
+    const { data: changed, error } = await update.select("id, student_id").maybeSingle();
+    if (error || !changed || changed.id !== data.report_id || changed.student_id !== data.student_id) {
+      throw new Error("Could not update this report's student. Reload the report and try again.");
     }
     // Slice B6: shadow-mode provenance emission (no-op unless EVIDENCE_GRAPH_WRITES=true).
     if (data.student_id) {

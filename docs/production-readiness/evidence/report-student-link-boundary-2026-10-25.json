@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-25",
+  "status": "local-candidate-automatic-review-pending",
+  "runtimeDeployed": false,
+  "findings": [
+    "Link action previously returned success on an RLS-filtered zero-row update.",
+    "Relink previously omitted the browser-observed student association, permitting stale overwrite of a newer association.",
+    "Non-owner readers were shown linking controls rejected by the database.",
+    "Reader retained active-link controls after a context change retired those links."
+  ],
+  "changes": [
+    "Require a valid explicit expected_student_id (UUID or null), with readable reload guidance for old/invalid requests.",
+    "Filter one UPDATE by report ID, actual authenticated owner and observed student association (IS NULL for unlinked); require a matching returned report/student row.",
+    "Keep existing target edit authorization, caller RLS and identity trigger; never supply alternate ownership or service credentials.",
+    "Hide linking/save-to-profile controls from non-owners; serialize linking with regeneration.",
+    "Clear old share controls immediately after confirmed relink, including if subsequent report reopening fails.",
+    "Only announce success if reopening returns the same report and intended student association."
+  ],
+  "validation": {
+    "fullUnitTests": 4502,
+    "files": 316,
+    "fullUnitLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-unit.log",
+    "focusedCases": 49,
+    "focusedLog": "/private/tmp/tf-linked-save-canonical/report-link-focused-final.log",
+    "automaticChecks": "pending",
+    "typescriptPassed": true,
+    "typescriptLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-tsc.log"
+  },
+  "limits": [
+    "Observed-student compare is state-based; it does not detect a change-away-and-back association (ABA), enforce whole-report metadata revision, or lock provider input provenance.",
+    "No new database policy, function, grant or migration. Existing database identity/access controls remain authoritative.",
+    "No hosted relink mutation test has been run for this candidate. Local tests exercise request validation, owner/source filters, zero-row/denied result handling and reader behavior; they do not substitute for native lock-concurrency evidence.",
+    "Shared readers and demos have no live report relinking action. The shared saved-report mutation applies to every permitted report owner rather than one role."
+  ],
+  "hostedActions": 0,
+  "productionTouched": false,
+  "mainMerged": false,
+  "next": [
+    "Complete automatic review and clean builds.",
+    "Obtain fresh staging-only deployment/sync/publication authorization before release; no fixture or AI run is included.",
+    "Continue separate metadata/direct-write/provenance and full production-readiness gates."
+  ],
+  "preserved": [
+    "Your Dashboard Widgets builder edit",
+    "Full TF-01\u2013TF-26 roadmap",
+    "Deferred report polish",
+    "Deferred Parent Pilot and Pathway Snapshot"
+  ]
+}

@@ -136,7 +136,7 @@ it.each([false, true])("link completion after departure cannot notify or change 
   state.link.mockReturnValue(new Promise((resolve, reject) => { finish = resolve; fail = reject; }));
   const view = render(<Component />); await screen.findByRole("option", { name: "Sample Student" });
   fireEvent.change(screen.getByRole("combobox"), { target: { value: "student-a" } });
-  expect(state.link).toHaveBeenCalledWith({ data: { report_id: "report-a", student_id: "student-a" } });
+  expect(state.link).toHaveBeenCalledWith({ data: { report_id: "report-a", student_id: "student-a", expected_student_id: "student-report-a" } });
   state.id = "report-b"; view.rerender(<Component />); await screen.findByText("Notes for report-b");
   await act(async () => { if (failure) fail(new Error("Old link failed")); else finish({ ok: true }); });
   expect(state.error).not.toHaveBeenCalled(); expect(state.success).not.toHaveBeenCalled();
@@ -186,4 +186,41 @@ it("a cached report reader with no revision stops before generation", async () =
   render(<Component/>); await screen.findByText("Notes for report-a");
   fireEvent.click(screen.getByRole("button", { name: "Refresh Report" }));
   expect(state.regenerate).not.toHaveBeenCalled(); expect(state.error).toHaveBeenCalledWith("Reload this report before refreshing it.");
+});
+
+it.each([false, undefined, "true"])("a non-owner reader (%s) has no student linking controls", async owner => {
+  state.get.mockResolvedValue({ ...record("report-a"), is_report_owner: owner, student_id: null });
+  state.students.mockResolvedValue({ students: [{ id: "student-a", first_name: "Sample" }] });
+  render(<Component />); await screen.findByText("Notes for report-a");
+  expect(screen.queryByRole("combobox")).toBeNull();
+  expect(screen.queryByText("Linked student")).toBeNull();
+  expect(state.link).not.toHaveBeenCalled();
+});
+it("a stale linking rejection keeps the displayed report and never announces success", async () => {
+  state.get.mockResolvedValue(record("report-a"));
+  state.students.mockResolvedValue({ students: [{ id: "student-a", first_name: "Sample" }] });
+  state.link.mockRejectedValue(new Error("Could not update this report's student. Reload the report and try again."));
+  render(<Component />); await screen.findByRole("option", { name: "Sample" });
+  fireEvent.change(screen.getByRole("combobox"), { target: { value: "student-a" } }); await act(async () => {});
+  expect(state.get).toHaveBeenCalledTimes(1); expect(state.success).not.toHaveBeenCalled();
+  expect(state.error).toHaveBeenCalledWith(expect.stringContaining("Reload"));
+  expect(screen.getByRole("combobox").getAttribute("disabled")).toBeNull();
+});
+
+it("successful student reassignment removes controls for the now-retired share links", async () => {
+ state.get.mockResolvedValueOnce(record("report-a")).mockResolvedValue({...record("report-a"),student_id:"student-a"});
+ state.tokens.mockResolvedValue({tokens:[share("old-context-token")]});
+ state.students.mockResolvedValue({students:[{id:"student-a",first_name:"Sample"}]});
+ state.link.mockResolvedValue({ok:true});render(<Component/>);await screen.findByText(/share\/old-context-token/);
+ fireEvent.change(screen.getByRole("combobox"),{target:{value:"student-a"}});await act(async()=>{});
+ expect(screen.queryByText(/share\/old-context-token/)).toBeNull();
+ expect(state.success).toHaveBeenCalledWith("Linked to student.");
+});
+
+it("a different association returned after linking never produces a misleading success", async()=>{
+ state.get.mockResolvedValueOnce(record("report-a")).mockResolvedValue({...record("report-a"),student_id:"student-b"});
+ state.students.mockResolvedValue({students:[{id:"student-a",first_name:"Sample"}]});
+ state.link.mockResolvedValue({ok:true});render(<Component/>);await screen.findByRole("option",{name:"Sample"});
+ fireEvent.change(screen.getByRole("combobox"),{target:{value:"student-a"}});await act(async()=>{});
+ expect(state.success).not.toHaveBeenCalled();expect(state.error).toHaveBeenCalledWith("This report changed again. Reload it before trying again.");
 });

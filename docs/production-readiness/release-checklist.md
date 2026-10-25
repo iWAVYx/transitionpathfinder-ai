@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 25 — Report Relinking Correction Prepared Locally
+
+- [x] Found and corrected false success for zero-row link updates and stale association overwrites. A required browser-observed student ID now participates in the same update predicate alongside the report ID and actual caller ownership; a matching returned row is required. Existing target editing checks, RLS and database identity protections remain authoritative.
+- [x] The common saved-report reader hides linking controls from non-owners, avoids overlapping regeneration/linking, removes retired share-link controls after a confirmed relink and refuses misleading success when the reopened association differs. Applies to every applicable signed-in role; demo/shared readers do not perform live relinking.
+- [x] Final local unit suite: 4,502 tests across 316 files passed. Focused linking/reader checks: 49 passed. These are local tests, not hosted lock-concurrency acceptance.
+- [ ] Complete automatic review/clean builds and obtain fresh staging release authorization before deployment, isolated Lovable sync or publication. No migration or fixture run is proposed for this application-only correction.
+- [ ] Keep broader report metadata/direct-writer/provenance boundaries open. The observed-association predicate does not detect change-away-and-back or compare every generation input. Continue broader role-generation/provider/privacy/security/operations gates; production still needs a separately reviewed and authorized rollout.
+
+No hosted action occurred for this candidate. The already accepted permanent-link migration remains on isolated staging; full roadmap, builder title edit and deferred report polish/Parent Pilot/Pathway Snapshot are preserved. Earlier sections below are historical.
+
+
 ## October 25 — Permanent Report-Link Closure Accepted on Staging; Cleanup Verified
 
 - [x] [Authorized run 40205291128](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40205291128) passed with zero retries after required human review. Seven existing synthetic role sessions and deployed staging identity passed setup; only the dedicated linked-sharing acceptance scope ran.

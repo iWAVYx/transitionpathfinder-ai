@@ -162,13 +162,18 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
   }, [state.kind, search.print]);
 
   async function handleLink(studentId: string | null) {
+    if (state.kind !== "ok" || !state.isReportOwner || linking || regenBusy || studentId === state.studentId) return;
     setLinking(true);
     try {
-      await linkStudent({ data: { report_id: reportId, student_id: studentId } });
+      await linkStudent({ data: { report_id: reportId, student_id: studentId, expected_student_id: state.studentId } });
       if (!active.current) return;
+      // The context change permanently revokes prior links in the database.
+      // Remove their old controls immediately, even if reopening the report fails.
+      setTokens([]);
       const fresh = await fetchReport({ data: { id: reportId } });
       if (!active.current) return;
       if (fresh.id !== reportId) throw new Error("Could not reopen the updated report.");
+      if (fresh.student_id !== studentId) throw new Error("This report changed again. Reload it before trying again.");
       setState((s) => s.kind === "ok" ? { ...s, report: fresh.report, studentId: fresh.student_id, contentRevision: fresh.content_revision ?? null } : s);
       toast.success(studentId ? "Linked to student." : "Link removed.");
     } catch (err) {
@@ -370,7 +375,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
             : null,
         }}
         onSaveToProfile={
-          students.length > 0 && !state.studentId
+          state.isReportOwner && !linking && !regenBusy && students.length > 0 && !state.studentId
             ? () => handleLink(students[0].id)
             : undefined
         }
@@ -401,8 +406,8 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
 
 
 
-      {/* Link to student */}
-      <section className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
+      {/* Only the report owner can change the student association. */}
+      {state.isReportOwner && <section className={`no-print mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft">
           <UserCircle2 className="h-5 w-5 text-primary" />
           <div className="min-w-0 flex-1">
@@ -413,7 +418,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
           </div>
           <select
             value={state.studentId ?? ""}
-            disabled={linking || students.length === 0}
+            disabled={linking || regenBusy || students.length === 0}
             onChange={(e) => handleLink(e.target.value || null)}
             className="rounded-lg border bg-background px-3 py-2 text-sm"
           >
@@ -433,7 +438,7 @@ function ReportDetailReader({ reportId }: { reportId: string }) {
             </Button>
           )}
         </div>
-      </section>
+      </section>}
 
       {/* Version history */}
       <section className={`mx-auto ${wrapWidth} px-4 pb-6 sm:px-6 lg:px-8`}>
