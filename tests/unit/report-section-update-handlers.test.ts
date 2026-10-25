@@ -339,3 +339,25 @@ it("uses actual numeric readiness boundaries and aligns medium confidence with l
   expect(next.confidence.overall).toBe("medium");
   expect(next.confidence_level).toBe("moderate");
 });
+
+it("reconciles a generated builder citation with the actual attached intake before saving", async () => {
+  mocks.generate.mockResolvedValueOnce({ experimental_output: { schema_version: 2,
+    plain_language_summary: "Fictional wants to explore art using observation skills and practical supports reviewed with the team.",
+    professional_summary: "The student's reported art interest supports a proposed visit; confirm available opportunities with the team.",
+    employment_pathway_recs: [{ title: "Explore art work", summary: "Discuss a possible art visit", why: "Reported interest", next_action: "Ask about availability", owner_role: "educator", discuss_at_next_meeting: true, sources: [{ kind: "profile", label: "Intake student interest", id: "wrong-record" }] }],
+  } });
+  const current = richerSharedFixture(), db = database(current, "owner", undefined, studentProfile, null, { id: attachedIntakeId, data: { id: attachedIntakeId, student_id: studentId, interests: "Art" } });
+  await (regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: current }) } });
+  expect(db.requests[0]._next_content.employment_pathway_recs[0].sources).toEqual([{ kind: "intake", label: "Intake student interest", id: attachedIntakeId }]);
+});
+it("refuses an unavailable builder citation before report/history writes without another model call", async () => {
+  mocks.generate.mockResolvedValueOnce({ experimental_output: { schema_version: 2,
+    plain_language_summary: "Fictional wants to explore art using observation skills and practical supports reviewed with the team.",
+    professional_summary: "The student's reported art interest supports a proposed visit; confirm available opportunities with the team.",
+    employment_pathway_recs: [{ title: "Explore art work", summary: "Discuss a possible art visit", why: "Reported interest", next_action: "Ask about availability", owner_role: "educator", discuss_at_next_meeting: true, sources: [{ kind: "intake", label: "Pathway Builder: art" }] }],
+  } });
+  const current = richerSharedFixture(), db = database(current);
+  await expect((regeneratePathwayReport as any)({ context: db.context, data: { report_id: id, expected_revision: await reportContentRevision({ id, student_id: studentId, content: current }) } })).rejects.toThrow("couldn't confirm a Pathway Builder source");
+  expect(db.context.supabase.rpc).not.toHaveBeenCalled();
+  expect(mocks.generate).toHaveBeenCalledTimes(1);
+});

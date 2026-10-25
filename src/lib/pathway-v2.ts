@@ -8,6 +8,7 @@
 import { z } from "zod";
 
 export const SourceKind = z.enum([
+  "intake",
   "profile",
   "student_voice",
   "iep_doc",

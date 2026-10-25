@@ -29,3 +29,9 @@ it("uses actual label count rather than an inconsistent supplied count", () => {
   const { container } = render(<SourceChips sources={[{ kind: "goal", label: "Recorded goal" }]} sourceCount={9} collapsed />);
   expect(container.textContent).toBe("Information from 1 recorded source.");
 });
+it("uses a readable Pathway Builder origin without exposing the attached record ID", () => {
+  const { container } = render(<SourceChips sources={[{ kind: "intake", label: "Reported culinary interest", id: "private-intake-id" }]} />);
+  expect(container.textContent).toContain("Pathway Builder");
+  expect(container.textContent).toContain("Reported culinary interest");
+  expect(container.textContent).not.toContain("private-intake-id");
+});

@@ -1,3 +1,4 @@
+import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
 import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { readReportPages } from "./report-query-pages";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
@@ -109,7 +110,7 @@ Treat the Pathway Report as planning context, not a verified IEP or independent 
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: AgendaSchema }),
-        system: await buildStructuredOutputSystem(AgendaSchema, PPT_SOURCE_GROUNDING_RULES),
+        system: await buildStructuredOutputSystem(AgendaSchema, `${PPT_SOURCE_GROUNDING_RULES}\n${PLANNING_SOURCE_GROUNDING}`),
         prompt,
       });
       const agenda = AgendaSchema.parse(experimental_output);

@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 25 — Shared Planning Grounding and Builder Source Origins Prepared Locally
+
+- [x] Initial Pathway generation, both regeneration passes and Family/Educator PPT prep now receive shared higher-priority evidence rules. Reported baseline is not verification; listed technology is not proven effectiveness; a proposed date/goal/owner is not agreement. Rules also address unsupplied-versus-nonexistent records, personal record-review claims, exact student quotes and unsupported eligibility/citations. Existing PPT-specific safeguards are retained.
+- [x] Corrected the initial prompt's demand for inferred readiness categories and unsupported optional snapshot facts. Required narrative slots must describe gaps or propose questions rather than invent facts to satisfy array bounds.
+- [x] Added a backward-compatible Pathway Builder source category and bound explicit generated builder references to the actual attached response ID before save. Missing/invalid attachment fails without a new model request. Source chips use readable language; shared Family counts and Educator label-only projection preserve privacy and role boundaries. This binds origin, not the truth of all prose or every other citation.
+- [x] Local validation passes 4,654 tests / 322 files, 100 focused checks, TypeScript, isolated staging build and the focused mobile/desktop/print source-label case. All source tests are offline/mocked, with no provider calls. Automatic review is pending. Candidate: `2e4d4362…db56b7c` / 1,188 runtime files; both deployed staging sites remain unchanged.
+- [ ] After automatic review, request one concrete staging-only combined rollout (voice, current-content and grounding changes), plus one bounded Family/Educator Pathway run and one bounded PPT run. Combined limits: two synthetic students, four intake/report pairs, two history versions, two PPT packets, four PDFs and four fictional screenshots; six application generation actions, up to eight model invocations / 24 SDK attempts. Gateway billing/retries are unobserved. Each job retains human staging review, zero test retries and exact cleanup with independent absence verification. No authorization to run these has been received at this checkpoint.
+- [ ] Manual source-fidelity review remains required before closing the Pathway/PPT factual-wording caveats. Continue remaining document/IEP and inventoried generator/applicable-role workflows. No main merge, production, migrations, deployment/publication, live fixtures/AI, accounts/relationships/shares, payments or secrets in this local step. Keep full TF-01–TF-26/six-milestone roadmap and deferred report polish/Parent Pilot/Pathway Snapshot.
+
+Evidence: `planning-source-grounding-correction-2026-10-25.json`. Earlier checkpoints below are historical.
+
+
 ## October 25 — Current Report Values and Earlier Sections Reconciled Locally
 
 - [x] Regeneration now refreshes the summary and clamped confidence consumed by legacy cards/documents as well as v2 readers. The exact old payload still goes through the existing atomic history write; original goals and retained planning sections are preserved.

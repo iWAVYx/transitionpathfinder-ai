@@ -296,7 +296,7 @@ export function buildPrompt(intake: IntakeInput) {
 
 A ${intake.submitter_role} submitted this intake for a student we will call ${intake.student_first_name}.
 
-STUDENT PROFILE
+REPORTED PATHWAY BUILDER RESPONSES (not independently verified profile records)
 Grade band: ${intake.grade_band ?? "not specified"}
 Strengths: ${intake.strengths || "(not provided)"}
 Interests: ${intake.interests || "(not provided)"}
@@ -304,7 +304,7 @@ Needs / disability-related supports: ${intake.needs || "(not provided)"}
 Supports that work: ${intake.supports || "(not provided)"}
 Transportation: ${intake.transportation || "(not provided)"}
 Communication: ${intake.communication || "(not provided)"}
-Current IEP transition goals: ${intake.current_goals || "(not provided)"}
+Reported goals or proposed targets (not automatically adopted IEP goals): ${intake.current_goals || "(not provided)"}
 
 THREE VOICES
 Student voice (in their own words): ${intake.student_voice || "(not provided)"}
@@ -326,12 +326,12 @@ Generate the FULL TransitionForward Pathway Report — the flagship deliverable 
 Fill every required top-level field of the schema. Include optional sections only when there is a supported basis in the intake. The schema is large on purpose. Be specific, not exhaustive — short, concrete bullets are better than long abstract ones. Use Connecticut-aware language (CT community colleges, CT technical high schools, Bureau of Rehabilitation Services / BRS, DDS, Level Up) when reasonable, but never invent specific program names you cannot verify.
 
 Guidance for major sections:
-- student_snapshot: warm hero card. readiness_level is one of "emerging" | "developing" | "progressing" | "ready". student_voice_quote should sound like the student.
+- student_snapshot: warm hero card. Include only when all its required facts, including an explicitly reported readiness level and graduation timeline, are supplied. Otherwise omit the optional block. student_voice_quote must use supplied words, not an invented quote.
 - spin_analysis: connect strengths → real pathways (e.g. hands-on → technical ed, trades, healthcare support, culinary, automotive). The what_this_means tie-back is required.
 - postsecondary_goals: 4-11 areas drawn from Education/training, Employment, Independent living, Community participation, Self-advocacy, Transportation, Financial literacy, Daily living, Social/emotional readiness, Health/wellness, Technology/digital skills. measurable_goal_language must be a draftable IEP-style sentence.
 - recommended_pathways: 3-5 pathways spanning best-fit / backup / exploration / stretch / support-needed.
 - career_matches: 3-6 cluster cards.
-- readiness_scorecard: 6-14 categories from Self-advocacy, Career awareness, Job readiness, Communication, Independent living, Transportation, Financial literacy, Postsecondary readiness, Technology, Executive functioning, Social skills, Community participation, Daily routines, Problem-solving. Be supportive — never harsh.
+- readiness_scorecard: omit unless at least six actual recorded category ratings are supplied. Do not fill the array minimum with inferred ratings from interests, supports or goals. If included, keep evidence attributed and label any new goal or growth activity as a proposal.
 - iep_translator: translate only actual IEP goal text supplied in current_goals/intake. If no actual IEP goal text was supplied, omit this optional section and identify the missing IEP in data_gaps. Draft planning ideas, fictional observations, and statements that no IEP was supplied are not current IEP goals. If exactly one actual goal was supplied, return one translation. Include only explicitly supplied connected services; use an empty connected_services array when none are documented. Never invent or duplicate goals or services to fill an array. Flag missing information and keep draft recommendations clearly separate from existing IEP content.
 - data_gaps: be honest about what the intake did not provide.
 - student_voice_prompts: addressed TO the student in first person ("What do I want…").
@@ -339,7 +339,7 @@ Guidance for major sections:
 - teacher_action_plan: usable by a case manager next Monday.
 - meeting_prep_toolkit: ready for the next PPT/IEP meeting.
 - opportunity_matches: 4-10 cards using descriptive category names, not specific verified programs.
-- progress_timeline: spans Self-awareness → Adult life transition. status is "complete" | "in-progress" | "upcoming" | "future".
+- progress_timeline: include only supported milestones; "complete" requires supplied completion evidence. Do not invent school years, graduation dates or agreed deadlines. Mark suggested dates and future activities explicitly as proposals; omit unsupported optional content.
 - confidence_level + needs_human_review: be honest about uncertainty.
 
 Tone: warm, hopeful, 7th-grade reading level, student-centered. When the three voices agree, name the shared direction. When they differ, honor the student's voice first and gently surface the difference for the next PPT. Use only the student's first name.`;

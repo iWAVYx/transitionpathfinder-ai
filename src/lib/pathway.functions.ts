@@ -1,3 +1,5 @@
+import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
+import { bindBuilderSourceRefs } from "./pathway-builder-source-refs";
 import { intakeHasStudentVoice, reconcileIntakeVoiceWarnings } from "./pathway-voice-coverage";
 import { reportContentRevision, assertObservedReportRevision } from "./report-content-revision.server";
 import { loadRegenerationStudentProfile } from "./pathway-student-profile";
@@ -548,7 +550,8 @@ A student perspective supplied in Pathway Builder is a recorded input even if th
 
 Generate the v2 additive sections ONLY. Schema is enforced. EVERY recommendation must include:
 - title, summary, why, sources[], next_action, owner_role, discuss_at_next_meeting (boolean).
-- sources[] must cite the actual inputs below using { kind, id?, label }. Use kind values: profile, student_voice, iep_doc, iep_extraction, goal, readiness, action_item, meeting_prep, saved_resource, partner_match, family_priority, educator_input.
+- sources[] must cite the actual inputs below using { kind, id?, label }. Use kind values: intake, profile, student_voice, iep_doc, iep_extraction, goal, readiness, action_item, meeting_prep, saved_resource, partner_match, family_priority, educator_input.
+- Use kind intake for any Pathway Builder field, including student/family voice, educator notes and proposed goals. Label it Pathway Builder and do not classify these responses as separately verified profile, goal or IEP records. Use profile only for the actual STUDENT profile above; preserve actual input origin even when a role submitted the response.
 - If you cannot cite a real input, do NOT invent the recommendation.
 - timeframe is optional but encouraged ('30_day' | '90_day' | '6_month' | '1_year').
 
@@ -603,7 +606,7 @@ ${ctx.iep_docs.length === 0 ? "(none)" : ctx.iep_docs.map((d) => `- [id:${d.id}]
 IEP EXTRACTIONS (AI-parsed; verify before formal use)
 ${ctx.iep_extractions.length === 0 ? "(none)" : ctx.iep_extractions.map((e) => `- [id:${e.id}] doc:${e.document_id} goals:${safe(e.goals_identified)} accommodations:${safe(e.accommodations)}`).join("\n")}
 
-INTAKE (last submitted)
+PATHWAY BUILDER (original responses attached to this report)
 ${safe(ctx.intake)}
 
 SAVED RESOURCES
@@ -850,7 +853,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       const { experimental_output } = await generateText({
         model: gateway(REGEN_MODEL),
         experimental_output: Output.object({ schema: PathwayReportV2 }),
-        system: await buildStructuredOutputSystem(PathwayReportV2),
+        system: await buildStructuredOutputSystem(PathwayReportV2, PLANNING_SOURCE_GROUNDING),
         prompt: buildV2Prompt(ctx),
       });
       v2 = PathwayReportV2.parse(experimental_output);
@@ -871,7 +874,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         const retry = await generateText({
           model: gateway(REGEN_MODEL),
           experimental_output: Output.object({ schema: PathwayReportV2 }),
-          system: await buildStructuredOutputSystem(PathwayReportV2),
+          system: await buildStructuredOutputSystem(PathwayReportV2, PLANNING_SOURCE_GROUNDING),
           prompt: retryPrompt,
         });
         const v2b = PathwayReportV2.parse(retry.experimental_output);
@@ -886,6 +889,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       }
     }
 
+    v2 = bindBuilderSourceRefs(v2, rep.intake_id);
     v2 = reconcileIntakeVoiceWarnings(v2, inputs_used.intake_student_voice === true);
 
     // Merge deterministic gaps with any AI-suggested gaps (dedupe by topic).

@@ -882,6 +882,7 @@ test("complete source labels and counts remain readable on screen and in print",
     createElement(components.DocumentViewStyles),
     createElement(components.SourceChips, { sources: [{ kind: "iep_extraction", label, id: "private-record" }] }),
     createElement(components.SourceChips, { sources: [], sourceCount: 2 }),
+    createElement(components.SourceChips, { sources: [{ kind: "intake", label: "Reported culinary interest from Pathway Builder", id: "private-intake-record" }] }),
   )));
   await page.route("**/*", route => route.fulfill({ status: 404, body: "" }));
   for (const width of [390, 1024]) {
@@ -893,6 +894,9 @@ test("complete source labels and counts remain readable on screen and in print",
       await expect(source).toBeVisible();
       expect(await source.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
       await expect(page.getByText("Information from 2 recorded sources.", { exact: true })).toBeVisible();
+      await expect(page.getByText("Pathway Builder", { exact: true })).toBeVisible();
+      await expect(page.getByText("Reported culinary interest from Pathway Builder", { exact: true })).toBeVisible();
+      expect(await page.locator("body").textContent()).not.toContain("private-intake-record");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       expect(await page.locator("body").textContent()).not.toContain("private-record");
     }

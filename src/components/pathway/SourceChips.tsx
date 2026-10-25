@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import type { SourceRef } from "@/lib/pathway-v2";
 
 const KIND_LABEL: Record<string, string> = {
+  intake: "Pathway Builder",
   profile: "Profile",
   student_voice: "Student Voice",
   iep_doc: "IEP",
