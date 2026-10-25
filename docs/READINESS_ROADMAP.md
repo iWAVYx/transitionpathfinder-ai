@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Family/Educator Pathway Functional Acceptance Passed; Content Consistency Remains Open
+
+- [x] Separately authorized and human-approved [run 40238295505](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40238295505) passed both creator journeys on reviewed test revision `b9e9b50a`, with zero retries. Both stable runtime identities and seven existing role sign-ins passed. Each Family/Educator account used its own disposable student, completed the eight-step builder, saved/reopened a report, updated only that disposable profile, regenerated once and preserved one exact history snapshot.
+- [x] Both matching reader tabs survived reload; the other creator was denied private access. Two PDFs and two fictional screenshots exported. Artifact sanitizer passed before download. Exact cleanup completed; independent `postgres` / read-only counts returned zero students, intakes, reports, versions, shares, evidence and all related fixture rows for both scopes.
+- [x] Reviewed all rendered pages via contact sheets and selected full-size pages: brand/logo watermark, readable sections, no obvious clipped/overlapping body text or blank pages. The correct Family plain-language / Educator professional summaries and applicable meeting questions are present. This is functional export coverage; native OS print and perfect pagination are not certified. Report length and cosmetic polish remain tabled.
+- [ ] Resolve factual consistency across the shared readers/generation paths: intake voice must not be called absent just because structured Student Voice rows are empty; current v2 grade/confidence must not conflict with preserved legacy facts; reported baseline/supports must not be called verified/effective without evidence; dates and readiness classifications must be clearly proposed/inferred; preserve the actual profile/intake source label. Both-role functional success does not close these content-quality items or certify all-role generation.
+- [ ] Next prepare these shared corrections and deterministic regressions locally, then continue document/IEP and remaining inventoried generator/applicable-role workflows. No automatic AI repeat, deployment or production action. Keep the PPT wording follow-up, full TF-01–TF-26, six milestones, management-only Owner Hub and deferred Parent Pilot/Pathway Snapshot.
+
+Evidence: `pathway-family-educator-live-acceptance-2026-10-25.json`. Application stays `89aa95af`, fingerprint `dd512c1c…1b3f7` / 1,185 files. Only approved disposable fixtures were changed and removed; original main and production remain untouched. Earlier checkpoints below are historical.
+
+
 ## October 25 — Pathway Test Setup Stopped; Independent Reconciliation Shows No Saved Fixtures
 
 - [x] All eight automatic checks passed for prepared `21483a33`; the separately authorized, human-approved [run 40236340320](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40236340320) verified all seven existing sign-ins, then stopped in Family fixture creation. Educator did not run. No generation/regeneration action, history version or PDF export was reached; zero test retries.
