@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — First PPT Live Run: Family Saved/Reopened; Test Heading Corrected
+
+- [x] User-authorized and human-approved [run 40217917300](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40217917300) verified both staging identities and all seven existing role sign-ins. Family generated, saved and reopened one fictional PPT packet; structure checks passed. One application generation invocation was reached; actual SDK/gateway attempts are unobserved.
+- [x] Diagnosed the stop as a stale test expectation: `Suggested Agenda` versus the actual `Your Meeting Plan` heading. The page rendered the complete packet. Corrected the test locally and added the exact heading to existing shared-document component coverage; no product change or live repeat.
+- [x] Artifact sanitization passed with zero unsafe files removed. Exact cleanup and independent read-only `postgres` verification at 19:39:34 UTC returned zero intake, report, PPT (including detached-marker scope), history and share counts. No new students/accounts/relationships/shares or production changes.
+- [ ] Educator generation, cross-role denial and both PDF exports were not reached. The serial run stopped and was not retried; another fixture/provider run requires fresh bounded authorization after the corrected test passes review.
+- [ ] Manual Family review: useful baseline/measurement questions and both speaker directions, but some wording implies classroom observations or named staff assignments not supplied by the fictional source. Keep source-grounding quality open; do not treat this partial run as full PPT/all-role acceptance. Report length/cosmetic polish remains tabled.
+
+Evidence: `ppt-live-family-partial-2026-10-25.json`. Full TF-01–TF-26, six milestones, preserved Lovable title and deferred Parent Pilot/Pathway Snapshot remain intact. Earlier checkpoints below are historical.
+
+
 ## October 25 — Family/Educator PPT Acceptance Prepared; Live Run Pending Authorization
 
 - [x] Prepared a separately confirmed, human-protected `ppt-live-bounded` scope. Ordinary audits remain read-only; legacy main-only live-workflow guards remain. Both stable staging identities must match before fixtures. Direct Lovable sign-in avoids reusing Cloudflare-origin browser storage.

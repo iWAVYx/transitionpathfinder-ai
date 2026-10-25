@@ -190,7 +190,7 @@ for (const role of roles) {
       await expect(page.getByText(a.opening_note, { exact: true })).toBeVisible({
         timeout: 30_000,
       });
-      await expect(page.getByRole("heading", { name: "Suggested Agenda" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your Meeting Plan", exact: true })).toBeVisible();
       const other = roles.find((r) => r.key !== role.key)!;
       const denied = await browser.newContext({ baseURL });
       try {

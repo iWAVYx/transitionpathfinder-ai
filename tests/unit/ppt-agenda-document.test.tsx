@@ -17,6 +17,7 @@ it("keeps the complete saved document content, branding and print action", () =>
   for (const text of [agenda.opening_note, agenda.agenda[0].purpose, ...agenda.questions_to_ask, ...agenda.evidence_to_bring, agenda.if_things_get_stuck]) expect(screen.getByText(text)).toBeTruthy();
   expect(screen.getByText(/Family: Could we agree on a review date/)).toBeTruthy();
   expect(screen.getByAltText("TransitionForward")).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Your Meeting Plan", exact: true })).toBeTruthy();
   expect(screen.queryByRole("button", { name: "+ Action" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Print / save as PDF" }));
   expect(print).toHaveBeenCalledOnce();
