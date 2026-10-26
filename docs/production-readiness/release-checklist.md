@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 26 — Report Assistance Released to Both Staging Sites; Bounded Test Awaiting Human Review
+
+- [x] User authorized staging rollout and one bounded report-assistance run. Human-approved [release 40336456573](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40336456573) succeeded for exact `7c689079`. Cloudflare health verifies that Git SHA, `8f3b5851…aa9d6aa` / 1,190 files, staging backend, sandbox payments and passing isolation.
+- [x] Synced only the four reviewed runtime files to the existing isolated Lovable staging repository (`8f696764`); all eight protected hashes stayed unchanged, including environment/dependencies/generated types/widget heading. Hosted preview served the exact candidate, and the existing `gentle-forward-reach` publication completed and serves that fingerprint / file count with managed AI, staging backend, sandbox payments and passing isolation. Lovable health reports `dev`; fingerprint-based staging identity is used, without fabricating a Git value or loosening a gate. Production remains untouched.
+- [x] Preserved local build limitations: a Bun interpreter resolution failure was resolved by using bundled Node; the unchanged 1,216 MB local preview build then exhausted memory twice (one exact retry). No further local retry or source/dependency/memory workaround. Automatic candidate builds passed; actual hosted preview and published source identities are verified, without claiming direct hosted-log inspection.
+- [ ] Authorized [test 40338483904](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40338483904) is dispatched and waiting for required human GitHub staging review. No fixture or provider call has started. It retains the prepared two fictional students/two intake-report pairs, four AI actions / up to 12 SDK attempts, two screenshots, no history writes or PDFs, zero retries, private-access checks, exact cleanup and independent absence verification. Do not repeat automatically or approve for the user.
+- [ ] After that run, review translation meaning/measurement conditions and next-step relevance. Continue IEP/document/evidence coverage; the next read-only preflight found accepted text can be silently clipped by those extractors, separate from this release. Full TF-01–TF-26/six milestones, production gates, Readiness wording caveat and original Pathway intermittent cause remain open. Report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+Evidence: `report-assist-staging-rollout-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Report Translation and Next-Step Acceptance Prepared
 
 - [x] All eight automatic checks passed for application `a933eb69`. Prepared a separately confirmed, human-protected report-assistance scope with independent non-cancelling concurrency, one worker, zero retries and sanitized artifacts. No hosted test or rollout has been dispatched.
