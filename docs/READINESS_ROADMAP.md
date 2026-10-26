@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Pathway Completion Failure Confirmed After Finished Requests
+
+- [x] All eight automatic checks passed for `8bfd75d1`. The separately user-authorized, human-approved [run 40254851766](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40254851766) passed seven standing role sign-ins and both stable staging identity/isolation preflights. OS dependency installation delayed setup but completed; no additional run was dispatched.
+- [x] Family stopped during initial generation; Educator was skipped. The four observed same-origin POSTs all finished (202, 202, 200, 202), pending count was zero, and the builder's fixed completion-error banner was visible. The test timeout was waiting for report navigation after failure surfaced. This is evidence of an application-reported completion failure, **not** a still-pending browser request or proof of a provider timeout. Observed POST counts are not model-call/billing counts. Exact provider/validation/persistence cause remains open.
+- [x] Artifact sanitization passed before download. Independent exact discovery found one fictional owned student and one intake, no report/history/shares/evidence or related children. Guarded trusted cleanup deleted only the two validated disposable rows. Independent subsequent `postgres` / read-only checks returned zero for every exact fixture count.
+- [ ] Inspect initial generation/validation/persistence error-stage handling locally. Installed framework serializes only Error.message; the builder deliberately replaces detailed failures with an uncertainty warning and asks users to check saved reports. Preserve this safeguard while making safe stage diagnosis possible. Do not run another blind network-wait diagnostic or automatically repeat AI.
+- [ ] Live Family/Educator creation/regeneration/content acceptance remains open. Runtime stays `b49880da`, fingerprint `2e4d4362…db56b7c` / 1,188 files. Keep remaining generators/applicable-role/document/IEP coverage, PPT wording caveats, full TF-01–TF-26/six milestones and production gates. Report polish and Parent Pilot/Pathway Snapshot remain deferred. No production/main merge, deployment/publication, migration, new accounts/relationships/shares, payments or secrets changed.
+
+Evidence: `pathway-completion-state-staging-2026-10-25.json`. Earlier checkpoints below are historical.
+
 ## October 25 — Offline SDK Boundary and Completion-State Diagnostics Validated
 
 - [x] Exercised the actual compatible provider and AI SDK with every HTTP call intercepted and fictional content. Valid required report content with omitted optional blocks passes. A provider HTTP 200 carrying a one-week thirty-day plan fails schema validation, with safe `thirty_day_plan` / `too_small` diagnostics. Null optional snapshot still fails. This reproduces a possible 200-with-application-failure boundary, **not** the hosted incident's cause; validation is not relaxed.
