@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "status": "local-validation-only",
+  "runtime_files": [
+    "src/components/pathway/ExtractEvidenceButton.tsx",
+    "src/lib/browser-only-libs.ts",
+    "src/lib/documents.functions.ts",
+    "src/lib/report-evidence/extract.functions.ts",
+    "src/routes/_authenticated/students.$studentId.tsx"
+  ],
+  "tests": {
+    "complete_unit": {
+      "files": 337,
+      "passed": 4885
+    },
+    "new_cases": 46,
+    "typescript": "passed",
+    "staging_build": "passed",
+    "staging_build_log": "/private/tmp/tf-document-extraction-build-20261026.log"
+  },
+  "contracts": [
+    "Full accepted source without silent 100000/60000-character cutoffs",
+    "Recognizable-identifier redaction before provider setup; shared source grounding",
+    "Explicit-only goal instructions and twelve-item output bounds",
+    "Viewer intent before provider/database work; evidence edit-access recheck before write",
+    "Duplicate prevention and departed student/account/source UI result suppression",
+    "Review-before-save proposals bound to current student/account",
+    "Complete supported PDF reading or clear refusal above forty pages"
+  ],
+  "roles": "Shared applicable role controls; no access grants or Owner planning dashboard",
+  "preceding_candidate_checks": {
+    "sha": "3006ac3e766039efd2859575ebdf4c023e509c1b",
+    "other_automatic_checks_passed": 7,
+    "a11y": {
+      "status": "browser-install-timeout-before-assertions",
+      "run": 40363580050,
+      "log": "/private/tmp/tf-iep-3006ac3e-a11y-failure.log"
+    }
+  },
+  "limits": [
+    "No new live source fidelity or accessibility acceptance",
+    "Pattern redaction does not prove complete de-identification",
+    "RLS remains authoritative; access recheck is not an atomic transaction",
+    "Client-supplied text and source labels are not independent source verification",
+    "Live bounded test preparation and separate authorizations remain open",
+    "No hosted AI/fixtures, rollout, migration, production/main, accounts/relationships, payment or secret changes"
+  ]
+}

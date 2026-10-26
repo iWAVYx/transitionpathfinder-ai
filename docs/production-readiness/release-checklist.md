@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 26 — Document-Goal, Evidence and PDF Completeness Safeguards Validated Locally
+
+- [x] Goal and report-evidence handlers now send the complete accepted text within the existing 120,000-character limit, with recognizable-identifier redaction, shared source-grounding instructions and content-free failure logs. Goals must be explicitly stated; interests/support needs cannot be promoted to documented goals. Both generated arrays now enforce their existing stated maximum of 12.
+- [x] Evidence extraction retains the initial student-edit authorization and checks it again before persistence. Viewer-intent checks cover both evidence entry points, goal extraction and goal saving. Existing row-level policies remain authoritative; the extra pre-write check is not an atomic authorization transaction or a new permission grant. Stored document-summary inputs are explicitly distinguished from original files in extraction instructions.
+- [x] Shared evidence controls reset on account/source changes, block duplicate requests and ignore departed results/notices. Student document/proposal state resets on account/student changes; downloads cannot start AI after departure, and proposed goals remain review-before-save. Existing Family/Educator use these paths; Owner gains no planning dashboard or implicit student access.
+- [x] The browser PDF reader no longer silently discards pages after 40. It reads every page of supported PDFs and rejects longer files with a clear shorter-document/paste-pages message before reading partial evidence. This protects both privacy-review and student-document extraction callers without expanding limits.
+- [x] All 4,885 unit tests / 337 files and TypeScript passed, including 46 new mocked handler/lifetime/PDF-boundary cases. The isolated staging build also passed. No provider call, hosted fixture, migration or deployment/publication occurred.
+- [ ] Finish automatic candidate checks, prepare bounded live source-fidelity/private-access/cleanup acceptance and obtain the required separate staging rollout/AI-fixture authorizations before running it. Prior IEP candidate `3006ac3e` passed the other seven automatic checks; its accessibility job stopped during browser installation after ten minutes, before assertions (run 40363580050). Do not describe it as an application accessibility failure or a passed check.
+- [ ] Retain Arabic right-to-left/remaining-language acceptance, full TF-01–TF-26/six milestones, original Pathway intermittent-cause and Readiness-wording caveats, and all production gates. Pattern redaction and mocked tests do not prove complete de-identification or live model fidelity. Client-supplied text/source metadata is not independently verified source evidence. Report polish and Parent Pilot/Pathway Snapshot remain deferred; production/main, accounts/relationships, payments and secrets are untouched.
+
+Evidence: `document-extraction-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — IEP Extraction Completeness Corrected Locally; Language Coverage Confirmed
 
 - [x] Shared Pathway Builder IEP extraction now sends the complete redacted text within the existing 120,000-character input limit, including final goals/accommodations previously lost after character 100,000. Family/Educator use the same handler; existing authentication, viewer-intent protection and client lifetime guards remain in place, with no new role access.

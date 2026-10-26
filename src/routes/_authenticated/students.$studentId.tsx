@@ -1,9 +1,10 @@
+import { useAuth } from "@/hooks/use-auth";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
-import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "react";
+import { Component, Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -111,6 +112,20 @@ function StudentPanelLoading() {
 }
 
 function StudentDetailPage() {
+  const { user, loading } = useAuth();
+  const { studentId } = Route.useParams();
+  if (loading || !user) return <StudentPanelLoading />;
+  return <StudentDetailSession key={`${user.id}:${studentId}`} viewerId={user.id} />;
+}
+
+function StudentDetailSession({ viewerId }: { viewerId: string }) {
+  const active = useRef(false);
+  const parsePending = useRef(false);
+  const savePending = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const { studentId } = Route.useParams();
   const { tab } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -140,6 +155,7 @@ function StudentDetailPage() {
       fetchGoals({ data: { student_id: studentId } }).catch(() => ({ goals: [] })),
       fetchCanEdit({ data: { student_id: studentId } }).catch(() => ({ canEdit: false })),
     ]);
+    if (!active.current) return;
     setStudent(s);
     setDocs(d.documents);
     setGoals(g.goals);
@@ -154,6 +170,7 @@ function StudentDetailPage() {
   async function handleDownload(doc: DocumentRow) {
     try {
       const { url } = await sign({ data: { id: doc.id } });
+      if (!active.current) return;
       window.open(url, "_blank", "noopener,noreferrer");
     } catch {
       toast.error("Could not open file.");
@@ -167,10 +184,14 @@ function StudentDetailPage() {
   }
 
   async function handleParse(doc: DocumentRow) {
+    if (!active.current || parsePending.current || !canEdit) return;
+    parsePending.current = true;
     setParsing(doc.id);
     try {
       const { url } = await sign({ data: { id: doc.id } });
+      if (!active.current) return;
       const res = await fetch(url);
+      if (!res.ok) throw new Error("Document download failed.");
       const blob = await res.blob();
       const file = new File([blob], doc.title, { type: doc.mime_type ?? blob.type });
       let text = "";
@@ -179,38 +200,47 @@ function StudentDetailPage() {
       } else {
         text = await file.text();
       }
+      if (!active.current) return;
       if (!text.trim()) {
         toast.error("Couldn't read text from this file.");
         return;
       }
-      const out = await extractGoals({ data: { text } });
+      const out = await extractGoals({ data: { text, expected_viewer_id: viewerId } });
+      if (!active.current) return;
       if (!out.goals.length) {
         toast.info("No goals detected in this document.");
         return;
       }
       setProposed({ docId: doc.id, goals: out.goals });
     } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Couldn't parse goals.");
+      if (active.current) toast.error(
+        err instanceof Error && err.message === "This PDF is too long to read in one request. Please use a shorter document or paste the relevant pages."
+          ? "This PDF is too long to read in one request. Please use a shorter document or paste the relevant pages."
+          : "We couldn't read goals from that document. Please try again.",
+      );
     } finally {
-      setParsing(null);
+      parsePending.current = false;
+      if (active.current) setParsing(null);
     }
   }
 
   async function handleSaveGoals() {
-    if (!proposed) return;
+    if (!proposed || !active.current || savePending.current || !canEdit) return;
+    savePending.current = true;
     setSaving(true);
     try {
       const { inserted } = await saveGoals({
-        data: { student_id: studentId, goals: proposed.goals },
+        data: { student_id: studentId, goals: proposed.goals, expected_viewer_id: viewerId },
       });
+      if (!active.current) return;
       toast.success(`Added ${inserted} goal${inserted === 1 ? "" : "s"}.`);
       setProposed(null);
       await reload();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save goals.");
+      if (active.current) toast.error("We couldn't save those goals. Please refresh and try again.");
     } finally {
-      setSaving(false);
+      savePending.current = false;
+      if (active.current) setSaving(false);
     }
   }
 

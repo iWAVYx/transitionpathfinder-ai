@@ -6,7 +6,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { assertAuthorized } from "./authz";
 import { assertProtectedFileUploadsEnabled } from "./protected-file-uploads";
-import { assertPrivacySafeDerivedUpload } from "./sensitive-text-redaction";
+import { assertPrivacySafeDerivedUpload, redactSensitiveText } from "./sensitive-text-redaction";
+import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 
 type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
@@ -896,7 +898,7 @@ const GoalsExtractSchema = z.object({
   goals: z
     .array(
       z.object({
-        title: z.string().min(3).max(180),
+        title: z.string().trim().min(3).max(180),
         category: z
           .enum([
             "academic",
@@ -908,11 +910,11 @@ const GoalsExtractSchema = z.object({
             "general",
           ])
           .default("general"),
-        description: z.string().max(1200).default(""),
-        measurable_criteria: z.string().max(600).default(""),
+        description: z.string().trim().max(1200).default(""),
+        measurable_criteria: z.string().trim().max(600).default(""),
       }),
     )
-    .max(20)
+    .max(12)
     .default([]),
 });
 
@@ -922,10 +924,13 @@ export const extractGoalsFromText = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>
     z.object({
+      ...viewerIntentSchema.shape,
       text: z.string().trim().min(40).max(120_000),
     }).parse(i),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
+    const privacySafeText = redactSensitiveText(data.text).text;
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
     const gateway = createLovableAiGatewayProvider(apiKey);
@@ -935,26 +940,27 @@ export const extractGoalsFromText = createServerFn({ method: "POST" })
 Rules:
 - Each goal: a short plain-language "title" (under 90 chars), an optional one-paragraph "description" in family-friendly language, and "measurable_criteria" if the IEP states how progress is measured.
 - "category" must be one of: academic, life-skills, career, college, transportation, communication, general.
-- DO NOT invent goals. Only include goals that are actually stated or strongly implied.
+- DO NOT invent goals. Only include goals explicitly stated in the source. Do not turn interests, supports, needs or suggested activities into goals. If no explicit goal is supplied, return an empty goals array.
+- Preserve baseline numbers, units, dates and prompting conditions. Do not invent measurable criteria or treat a proposed target as measured progress.
 - Strip last names, school names, dates of birth, and other identifiers from the text you produce.
 - Return at most 12 goals, most important first.
 
 IEP TEXT:
 """
-${data.text.slice(0, 100_000)}
+${privacySafeText}
 """`;
 
     try {
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: GoalsExtractSchema }),
-        system: await buildStructuredOutputSystem(GoalsExtractSchema),
+        system: await buildStructuredOutputSystem(GoalsExtractSchema, PLANNING_SOURCE_GROUNDING),
         prompt,
       });
       return { goals: GoalsExtractSchema.parse(experimental_output).goals };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error("extractGoalsFromText failed", msg);
+      console.error("Document goal extraction failed.");
       if (msg.includes("429")) throw new Error("The AI is busy right now. Try again in a moment.");
       if (msg.includes("402")) throw new Error("AI usage limit reached. Please add credits to continue.");
       throw new Error("We couldn't read goals out of this document.");
@@ -965,6 +971,7 @@ export const saveExtractedGoals = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>
     z.object({
+      ...viewerIntentSchema.shape,
       student_id: z.string().uuid(),
       goals: z
         .array(
@@ -988,6 +995,7 @@ export const saveExtractedGoals = createServerFn({ method: "POST" })
     }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
     const rows = data.goals.map((g) => ({
       student_id: data.student_id,
@@ -1000,7 +1008,7 @@ export const saveExtractedGoals = createServerFn({ method: "POST" })
     }));
     const { data: inserted, error } = await supabase.from("goals").insert(rows).select("id");
     if (error) {
-      console.error("saveExtractedGoals failed", error);
+      console.error("Extracted goal save failed.");
       throw new Error("Could not save goals.");
     }
     return { inserted: inserted?.length ?? 0 };
