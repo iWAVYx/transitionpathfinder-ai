@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 26 — IEP Extraction Completeness Corrected Locally; Language Coverage Confirmed
+
+- [x] Shared Pathway Builder IEP extraction now sends the complete redacted text within the existing 120,000-character input limit, including final goals/accommodations previously lost after character 100,000. Family/Educator use the same handler; existing authentication, viewer-intent protection and client lifetime guards remain in place, with no new role access.
+- [x] Added shared source-grounding instructions, enforceable first-name/narrative field bounds and content-free failure logging. Recorded baseline/conditions must remain distinct from proposed goals; missing fields stay blank. These are validated contracts and instructions, not a claim of live model accuracy or complete de-identification.
+- [x] All 4,839 unit tests / 333 files and TypeScript pass, including complete-tail multilingual source, rejected oversized inputs/outputs, viewer mismatch, recognizable-identifier redaction and private failure handling. The isolated staging build also passed. No provider call or hosted fixture was performed.
+- [x] Pathway Report currently offers Arabic, Spanish, Portuguese, Haitian Creole, French, Simplified Chinese, Vietnamese and Polish, with English as the original. Spanish functional acceptance passed previously; this is not site-wide localization.
+- [ ] Arabic right-to-left rendering/meaning and the other untested target languages remain acceptance work. Continue the separate document-goal and report-evidence extraction audit (silent clipping, source grounding, safe logging and viewer/session handling). No deployment/publication or hosted IEP acceptance is claimed. Preserve full TF-01–TF-26/six milestones and production gates; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+Evidence: `iep-extraction-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Report Assistance Staging Functional and Private-Access Acceptance Passed
 
 - [x] User authorized one corrected bounded repeat and completed GitHub human review. [Run 40343536688](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40343536688) passed on test-only `03342408`: seven standing role sign-ins plus separate Family and Educator translation/suggestion journeys. Both stable staging sites match the reviewed `8f3b5851…aa9d6aa` / 1,190-file application; no new release/publication occurred.
