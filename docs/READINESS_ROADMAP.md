@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 26 — Family and Educator Pathway Acceptance Passed on Reviewed Staging
+
+- [x] All eight automatic checks passed for reviewed `bf2c45bf`. The user-authorized [staging release 40267751029](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40267751029) succeeded. Both stable staging sites serve `06dbf4c6…c0b1c28` / 1,189 files with staging backend, sandbox payments and isolation passing. Only the three approved runtime paths were synced to isolated Lovable; protected settings and the user's title-case widget edit were preserved.
+- [x] The separately human-approved [bounded run 40270627396](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40270627396) passed seven standing role sign-ins and both Family/Educator creator cases with zero test retries. Each created and saved one linked fictional report, updated its disposable profile grade once, regenerated once, preserved the exact original content as one history version, reopened the saved reader, retained its audience tab, checked private-access denial and exported one PDF/screenshot.
+- [x] Current-profile grade, builder Student Voice coverage, low confidence without supplied assessments, absence of invented assessed readiness indicators, summary reconciliation and genuine history assertions passed. Sanitization passed before artifact download. Both exact fixture scopes were cleaned; independent subsequent `postgres` / read-only queries verified every student/intake/report/history/share/evidence/related count at zero.
+- [x] Rendered both sample PDFs (70 pages total), reviewed all-page contact sheets and selected full-page cover/action/source/history views. Report length, continuation spacing and further cosmetic polish remain tabled as requested; no additional report redesign was made.
+- [ ] The earlier intermittent initial-generation failure's cause remains unproven. This one successful bounded run closes current two-role functional acceptance, not recurrence risk or every generated sentence's factual accuracy. Safe creation-stage diagnostics stay in place. Keep manual source-fidelity/PPT wording caveats, remaining inventoried generators and applicable-role document/IEP workflows open; do not automatically repeat AI.
+- [ ] Continue the full TF-01–TF-26/six-milestone roadmap and production/privacy/provider/security/billing/email/operations gates. Owner Hub remains management-only; no new role-generation grants. Parent Pilot/Pathway Snapshot and report polish remain deferred. Production/original main, migrations, accounts/relationships/shares, payments and secrets were untouched by this packet.
+
+Evidence: `pathway-creation-staging-acceptance-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 25 — Safe Creation-Stage Evidence Prepared Locally
 
 - [x] Corrected the observability boundary: initial Pathway failures now carry validated stage-only metadata through the framework's message-only Error transport. Distinguishes intake save, generation, output validation, report save and response confirmation. Only recognized finish reasons, report field names, validation codes and bounded provider/database codes survive; no student answers, generated prose, raw database errors, URLs, headers or stacks.
