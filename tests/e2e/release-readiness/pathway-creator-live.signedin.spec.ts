@@ -1,4 +1,4 @@
-import { creatorTransportDiagnostics } from "../helpers/pathway-creator-diagnostics";
+import { creatorTransportDiagnostics, creatorCompletionSurface } from "../helpers/pathway-creator-diagnostics";
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
@@ -95,21 +95,31 @@ for (const role of roles)
     let phase = "login";
     let databaseErrorCode: string | null = null;
     let primaryFailure: unknown;
+    let observedPage: Page | undefined;
     const transportDiagnostics = creatorTransportDiagnostics();
     try {
       const page = await context.newPage();
-      // Observe only same-origin POST outcomes during the two existing generation actions.
-      // No response/request body, URL, headers, console text or credential data is retained.
-      const duringGeneration = () => phase === "initial-generation" || phase === "regeneration";
+      observedPage = page;
+      // Observe at most 16 same-origin POSTs during the existing generation actions.
+      // No response/request body, URL, headers, console text or credentials are retained.
+      const pendingPosts = new Set<import("@playwright/test").Request>();
+      let observedPosts = 0;
+      page.on("request", (request) => {
+        if ((phase === "initial-generation" || phase === "regeneration") && observedPosts < 16 &&
+            request.method() === "POST" && new URL(request.url()).origin === target.origin) {
+          observedPosts++;
+          pendingPosts.add(request);
+          transportDiagnostics.started();
+        }
+      });
       page.on("response", (response) => {
-        if (duringGeneration() && response.request().method() === "POST" &&
-            new URL(response.url()).origin === target.origin)
-          transportDiagnostics.response(response.status());
+        if (pendingPosts.has(response.request())) transportDiagnostics.response(response.status());
+      });
+      page.on("requestfinished", (request) => {
+        if (pendingPosts.delete(request)) transportDiagnostics.finished();
       });
       page.on("requestfailed", (request) => {
-        if (duringGeneration() && request.method() === "POST" &&
-            new URL(request.url()).origin === target.origin)
-          transportDiagnostics.failed();
+        if (pendingPosts.delete(request)) transportDiagnostics.failed();
       });
       await login(page, role);
       phase = "create-synthetic-student";
@@ -363,6 +373,14 @@ for (const role of roles)
     } finally {
       const errors: unknown[] = [];
       if (primaryFailure) {
+        let completionSurface: ReturnType<typeof creatorCompletionSurface> | null = null;
+        try {
+          if (observedPage && !observedPage.isClosed()) {
+            const visible = await observedPage.getByRole("alert")
+              .filter({ hasText: "The report could not be completed" }).isVisible();
+            completionSurface = creatorCompletionSurface(new URL(observedPage.url()).pathname, visible);
+          }
+        } catch { /* Closed/unavailable page stays unknown; no raw error is retained. */ }
         try {
           await writeFile(
             info.outputPath("pathway-failure-diagnostics.json"),
@@ -373,6 +391,7 @@ for (const role of roles)
                 operationPending,
                 primaryFailurePreserved: true,
                 ...transportDiagnostics.snapshot(primaryFailure),
+                completionSurface,
                 reconciliationRequired: operationPending,
               },
               null,

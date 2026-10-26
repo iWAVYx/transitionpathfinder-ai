@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 25 — Offline SDK Boundary and Completion-State Diagnostics Validated
+
+- [x] Exercised the actual compatible provider and AI SDK with every HTTP call intercepted and fictional content. Valid required report content with omitted optional blocks passes. A provider HTTP 200 carrying a one-week thirty-day plan fails schema validation, with safe `thirty_day_plan` / `too_small` diagnostics. Null optional snapshot still fails. This reproduces a possible 200-with-application-failure boundary, **not** the hosted incident's cause; validation is not relaxed.
+- [x] Prepared test-only observation of up to 16 same-origin generation POST starts, statuses (including 2xx), completions/failures and pending counts. Before closing a failed page, record only fixed builder/report/other category and the existing completion-error banner's visibility; unavailable remains null. No paths, URL IDs, bodies, headers, console content, credentials or raw errors are persisted. Existing actions, assertions, zero retries, uncertain-completion stop and exact cleanup stay unchanged.
+- [x] 59 focused offline checks across five files, repository TypeScript, independent type-check of the actual browser specification and exact two-case browser discovery pass. No browser sign-in, model/gateway request, fixture, deployment or source-runtime change occurred. Staging remains reviewed `b49880da`, fingerprint `2e4d4362…db56b7c` / 1,188 files.
+- [ ] Automatic review is next. Root cause and live Family/Educator Pathway creation/voice/history acceptance remain open. Do not automatically repeat or infer that 200, a provider success badge or no transport failure proves a saved report. Any further hosted fixture/AI run requires new explicit authorization and GitHub human review.
+- [ ] Keep PPT wording caveats, remaining document/IEP and inventoried applicable-role generators, full TF-01–TF-26/six milestones and production/privacy/security/operations gates. Report polish and Parent Pilot/Pathway Snapshot remain deferred; no production/main merge, migration, publication, accounts/relationships/shares, payments or secrets changed.
+
+Evidence: `pathway-completion-diagnostics-local-2026-10-25.json`. Earlier checkpoints below are historical.
+
 ## October 25 — Authorized Pathway Diagnostic Repeat Stopped; Exact Cleanup Verified
 
 - [x] All eight automatic checks passed for test-only `7ef035d1`, including 4,657 tests / 323 files. User separately authorized one bounded repeat and completed GitHub human staging review. [Run 40252805605](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40252805605) passed seven standing role sign-ins and runtime isolation/identity checks before the Family journey.
