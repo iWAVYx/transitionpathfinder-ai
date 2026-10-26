@@ -27,10 +27,11 @@ export const CREATOR_EMPTY_STUDENT_TABLES = [
   "evidence_items",
   "report_evidence_links",
 ] as const;
-function validate(f: CreatorScope) {
+type FixtureKind = "creator" | "assist";
+function validate(f: CreatorScope, kind: FixtureKind = "creator") {
   if (
     !["parent", "educator"].includes(f.role) ||
-    !new RegExp("^QA Pathway Creator \\d+-\\d+ " + f.role + "$").test(f.marker) ||
+    !new RegExp("^QA " + (kind === "creator" ? "Pathway Creator" : "Report Assist") + " \\d+-\\d+ " + f.role + "$").test(f.marker) ||
     ![f.ownerId, f.studentId].every((x) => uuid.test(x)) ||
     [f.intakeId, f.reportId].some((x) => x !== "" && !uuid.test(x)) ||
     new Set([f.ownerId, f.studentId, ...[f.intakeId, f.reportId].filter(Boolean)]).size !==
@@ -38,12 +39,14 @@ function validate(f: CreatorScope) {
   )
     throw Error("Invalid exact Pathway creator scope");
 }
-export async function cleanupCreator(
+async function cleanupPlanningFixture(
   client: SupabaseClient<Database>,
   f: CreatorScope,
   record: (f: CreatorScope & { versionIds: string[] }) => Promise<void>,
+  kind: FixtureKind,
 ) {
-  validate(f);
+  validate(f, kind);
+  const model = kind === "creator" ? "google/gemini-2.5-pro" : "synthetic-report-assist-fixture";
   const [s, i, r] = await Promise.all([
     client
       .from("students")
@@ -57,7 +60,7 @@ export async function cleanupCreator(
       .limit(2),
     client
       .from("pathway_reports")
-      .select("id,user_id,student_id,intake_id,model")
+      .select("id,user_id,student_id,intake_id,model,is_demo")
       .eq("student_id", f.studentId)
       .limit(2),
   ]);
@@ -91,7 +94,8 @@ export async function cleanupCreator(
         x.user_id !== f.ownerId ||
         x.student_id !== f.studentId ||
         x.intake_id !== i.data![0]?.id ||
-        x.model !== "google/gemini-2.5-pro" ||
+        x.model !== model ||
+        (kind === "assist" && x.is_demo !== true) ||
         (f.reportId && x.id !== f.reportId),
     ) ||
     (f.intakeId && !i.data.length) ||
@@ -131,7 +135,7 @@ export async function cleanupCreator(
     if (
       v.error ||
       !v.data ||
-      v.data.length > 1 ||
+      v.data.length > (kind === "creator" ? 1 : 0) ||
       v.data.some(
         (x) => !uuid.test(x.id) || x.created_by !== f.ownerId || x.report_id !== resolved.reportId,
       )
@@ -154,20 +158,18 @@ export async function cleanupCreator(
       errors.push("Exact deletion failed: " + table);
     }
   }
-  if (r.data.length)
-    await remove(
-      "report",
-      client
+  if (r.data.length) {
+    const reportDelete = client
         .from("pathway_reports")
         .delete()
         .eq("id", resolved.reportId)
         .eq("user_id", f.ownerId)
         .eq("student_id", f.studentId)
         .eq("intake_id", resolved.intakeId)
-        .eq("model", "google/gemini-2.5-pro")
-        .select("id"),
-      resolved.reportId,
-    );
+        .eq("model", model);
+    if (kind === "assist") reportDelete.eq("is_demo", true);
+    await remove("report", reportDelete.select("id"), resolved.reportId);
+  }
   if (!errors.length && i.data.length)
     await remove(
       "intake",
@@ -228,8 +230,8 @@ export async function cleanupCreator(
     independentPrivilegedAbsenceRequired: true,
   };
 }
-export function creatorAbsenceSql(f: CreatorScope) {
-  validate(f);
+function planningAbsenceSql(f: CreatorScope, kind: FixtureKind) {
+  validate(f, kind);
   const tables = [
     "students",
     "student_intakes",
@@ -255,3 +257,9 @@ export function creatorAbsenceSql(f: CreatorScope) {
   ];
   return `BEGIN READ ONLY;\nDO $guard$ BEGIN IF current_user<>'postgres' OR EXISTS(SELECT 1 FROM pg_class WHERE oid IN (${tables.map((t) => `'public.${t}'::regclass`).join(",")}) AND (relowner<>current_user::regrole OR relforcerowsecurity)) THEN RAISE EXCEPTION 'Independent table-owner reader required'; END IF; END; $guard$;\nSELECT jsonb_build_object('run_marker','${f.marker}','operator',current_user,'read_only',current_setting('transaction_read_only'),'observed_at',now(),${counts.join(",\n")}) AS pathway_creator_cleanup;\nCOMMIT;\n`;
 }
+
+// Fixed policies: callers cannot supply a marker pattern, provider model or history allowance.
+export const cleanupCreator = (client: SupabaseClient<Database>, f: CreatorScope, record: (f: CreatorScope & { versionIds: string[] }) => Promise<void>) => cleanupPlanningFixture(client, f, record, "creator");
+export const cleanupReportAssist = (client: SupabaseClient<Database>, f: CreatorScope, record: (f: CreatorScope & { versionIds: string[] }) => Promise<void>) => cleanupPlanningFixture(client, f, record, "assist");
+export const creatorAbsenceSql = (f: CreatorScope) => planningAbsenceSql(f, "creator");
+export const reportAssistAbsenceSql = (f: CreatorScope) => planningAbsenceSql(f, "assist");

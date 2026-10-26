@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 26 — Report Translation and Next-Step Acceptance Prepared
+
+- [x] All eight automatic checks passed for application `a933eb69`. Prepared a separately confirmed, human-protected report-assistance scope with independent non-cancelling concurrency, one worker, zero retries and sanitized artifacts. No hosted test or rollout has been dispatched.
+- [x] Two planned creator cases use the existing Family and Educator accounts, each with one fictional linked student/intake/report. Both explicitly use the existing Family reading lens to expose the complete long summary and its final baseline/target. Each case requests suggestions once, translates once to Spanish, returns to English without AI, compares the complete saved source row and requires zero history writes. The other six existing roles must not read that report. Owner remains management-only; no demo/read-only provider controls or new role grants.
+- [x] Fixed maximum scope: two students, two intake/report pairs, zero versions, four model invocations / up to 12 SDK attempts, two fictional screenshots and no PDFs. Existing SDK retries are included; gateway retries/billing are unobserved, so this is not a spending cap. Uncertain completion stops for reconciliation. Cleanup validates exact owner/IDs/marker/demo/model and empty related/history tables, deletes children first, and requires independent table-owner read-only absence verification.
+- [x] All 4,805 unit tests / 331 files pass, including 106 focused policy/cleanup checks. The actual browser spec/helpers type-check; discovery lists exactly two cases without running them. Workflow YAML/manual staging protection validates. The first full run found an outdated concurrency assertion; corrected it to include the separately protected scope, then the complete suite passed. Application runtime remains `8f3b5851…aa9d6aa` / 1,190 files; this preparation adds no runtime change.
+- [ ] Complete automatic review of this test/workflow follow-up, then obtain concrete staging-only rollout and one bounded report-assistance run authorization before dispatch. Live meaning/factual review remains open: structural checks do not prove language fidelity or every suggested action. Both staging sites remain `b444619f`; no provider calls, hosted records, release/publication, migration, production/main, accounts/access, payment or secrets changes occurred.
+- [ ] Continue IEP/document/evidence workflows and full TF-01–TF-26/six milestones and production gates. Retain the Readiness wording caveat and original Pathway intermittent cause. Report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+Evidence: `report-assist-live-bounded-preparation-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Report Assistance Context and Viewer Safeguards Corrected Locally
 
 - [x] Found silent truncation in next-step report prompts: long fields, lists and the final JSON could be clipped. Replaced it with supported legacy/v2 report validation and an exact UTF-8 size limit before provider setup. Complete planning context is preserved, or the user gets a clear input/size error. Omit unrelated identity/reference/unknown metadata, without claiming free-text de-identification.
