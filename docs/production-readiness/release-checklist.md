@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 26 — Bounded Readiness Acceptance Prepared; No Live Run Started
+
+- [x] Prepared a manual Readiness scope in the existing human-protected staging workflow. Dedicated non-cancelling concurrency, explicit matching fixture confirmation, one worker, zero retries and existing artifact sanitization stay enforced. Unrelated dashboard/role/PPT/Pathway fixture tests are excluded from this scope.
+- [x] Two separate creator cases: Family with no recorded score and Educator with one synthetic Employment score of 75.5. Require completed UI, neutral unassessed badges or the exact recorded score/Steady badge and source label as applicable. Each fictional student is checked read-only with the other six existing role accounts. These are existing-role private-access checks, not new grants or a claim that every role generates readiness output.
+- [x] Limits prepared: two fictional owned students, one readiness row, two automatic UI generation actions, at most two model invocations / six SDK attempts, two fictional screenshots, no refresh/reload/generation repeat, reports, documents, history, exports, relationships, shares or new accounts. Gateway retries/billing are unobserved; this is not a spending cap. Uncertain completion stops for exact reconciliation. Exact owner/marker/demo/score predicates, child-before-parent deletion and independent table-owner read-only absence queries are prepared; no prefix sweep or silent cascade.
+- [x] Sixty-four focused policy/cleanup checks pass, including 26 new preparation checks. The actual browser spec/helpers type-check and exactly two cases are discovered without browser sign-in, fixtures or provider calls. The complete 4,745-test / 329-file suite passes. Workflow YAML and manual staging protection validate. Runtime remains candidate `eebb4f81…a2f0159` / 1,189 files; test/workflow preparation changes no product runtime.
+- [x] The earlier automatic candidate build failed from heap exhaustion; one same-source/settings retry [40273068803](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40273068803) passed. No memory-limit or dependency workaround. Automatic review of the final test-only follow-up remains required.
+- [ ] After review, obtain concrete staging-only release/sync/publication and one bounded readiness-run authorization, then required GitHub human reviews. No such release/test has been dispatched. Both deployed staging sites still serve `bf2c45bf`. Manual live source-fidelity, remaining translation/next-step/IEP/document/evidence generators and broader production gates remain open.
+- [ ] Preserve TF-01–TF-26/six milestones, management-only Owner, existing role/privacy boundaries, deferred report polish and Parent Pilot/Pathway Snapshot, and the Lovable title-case edit. No migration, hosted records/AI, accounts/access, payment/secret, original-main merge or production change occurred.
+
+Evidence: `readiness-live-bounded-preparation-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Readiness Source Failures and Unsupported Ratings Corrected Locally
 
 - [x] Source-query errors, rejected reads and unreadable collections stop Readiness generation before provider work. Successfully empty optional sources remain valid, and inaccessible students remain denied. This describes caller-visible data under existing RLS, not global absence.
