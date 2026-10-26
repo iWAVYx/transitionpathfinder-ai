@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 26 — Report-Assistance Test Stopped; Exact Cleanup Verified and Fixture Corrected Locally
+
+- [x] User completed human approval for [bounded run 40338483904](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40338483904). Seven standing role sign-ins passed. The Family case failed; Educator did not run. No translation, next-step or private-access acceptance claim. Artifact sanitization passed. The initial harness retained only the cleanup AggregateError, losing the primary live error; provider attempts were not independently observed, so do not claim zero calls.
+- [x] Independent `postgres` / table-owner read-only reconciliation found one exact fictional student/intake/report and zero related/history rows. The authorized guarded transaction removed only those three records, with exact context checks, locks and child-before-parent order. A separate subsequent privileged read-only query confirmed every exact/related count zero. No broad sweep, unrelated record or production access.
+- [x] Found a deterministic fixture incompatibility: the numeric run marker was used as the first name, but the real next-step validator rejects digits before provider setup. Offline real-handler regression reproduces the old rejection and accepts corrected Avery/Rowan names; the lost live primary error prevents directly attributing the run's failure. Keep the numeric marker in notes/audit context and preserve all ownership/ID/demo/model/related-row guards.
+- [x] Prepared safe primary-stage/request/visible-error-category evidence before browser teardown, prompt visible-error detection without another provider action, and at most one panel screenshot per role. No raw messages, stacks, URLs, bodies, headers, credentials or private toast text in diagnostics. Zero retries and original bounds remain. All 4,825 unit tests / 332 files, 112 focused checks and actual browser-spec/helper type-check pass; discovery lists exactly two cases without running them.
+- [ ] Complete automatic review of this test-only correction, then obtain fresh authorization before one bounded repeat. No repeat, new provider/fixture run, release, publication or migration has been dispatched. Both staging sites still serve `8f3b5851…aa9d6aa` / 1,190 files; product source is unchanged.
+- [ ] Preserve full TF-01–TF-26/six milestones, IEP/document/evidence coverage and production gates. Readiness factual-wording caveat and original Pathway intermittent cause remain; report polish and Parent Pilot/Pathway Snapshot remain deferred. Production/main, account/access, payments and secrets are untouched.
+
+Evidence: `report-assist-live-failure-reconciliation-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Report Assistance Released to Both Staging Sites; Bounded Test Awaiting Human Review
 
 - [x] User authorized staging rollout and one bounded report-assistance run. Human-approved [release 40336456573](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40336456573) succeeded for exact `7c689079`. Cloudflare health verifies that Git SHA, `8f3b5851…aa9d6aa` / 1,190 files, staging backend, sandbox payments and passing isolation.

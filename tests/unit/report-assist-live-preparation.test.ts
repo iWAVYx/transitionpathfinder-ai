@@ -1,3 +1,4 @@
+import { reportAssistName, reportAssistStudentInput, reportAssistIntakeInput } from "../e2e/helpers/report-assist-fixture";
 import { expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -67,7 +68,7 @@ function setup(
                 {
                   id: f.studentId,
                   owner_id: o.wrongOwner ? id(7) : f.ownerId,
-                  first_name: f.marker,
+                  first_name: reportAssistName(f.role),
                   last_name: "Synthetic",
                   notes: f.marker,
                   is_demo: true,
@@ -80,7 +81,7 @@ function setup(
                     id: f.intakeId,
                     user_id: f.ownerId,
                     student_id: f.studentId,
-                    student_first_name: f.marker,
+                    student_first_name: reportAssistName(f.role),
                     submitter_role: "family",
                   },
                 ]
@@ -260,4 +261,21 @@ it("budgets only the two existing report-assist model call sites and no fallback
   expect(source.match(/await generateText\(/g)).toHaveLength(2);
   expect(REPORT_ASSIST_BUDGET.modelInvocationsMax).toBe(2 * 2);
   expect(REPORT_ASSIST_BUDGET.sdkAttemptsMax).toBe(3 * REPORT_ASSIST_BUDGET.modelInvocationsMax);
+});
+
+it.each(["parent", "educator"] as const)("keeps the %s display name separate from the numeric audit marker", role => {
+  const scope = { ...f, role, marker: `QA Report Assist 12345-1 ${role}` };
+  const student = reportAssistStudentInput(scope), intake = reportAssistIntakeInput(scope);
+  expect(student.first_name).toBe(reportAssistName(role)); expect(intake.student_first_name).toBe(student.first_name);
+  expect(student.first_name).not.toMatch(/\d/); expect(student.notes).toBe(scope.marker); expect(intake.current_goals).toContain(scope.marker);
+  expect(student.owner_id).toBe(scope.ownerId); expect(intake.student_id).toBe(scope.studentId);
+});
+
+it("preserves safe primary evidence before browser teardown and limits screenshots to one per role", () => {
+ const spec = readFileSync("tests/e2e/release-readiness/report-assist-live.signedin.spec.ts", "utf8");
+ expect(spec.indexOf('info.outputPath("assist-primary-failure.json")')).toBeLessThan(spec.indexOf("await context.close()"));
+ expect(spec).toContain("if (!screenshotTaken && panel)"); expect(spec).toContain("screenshotTaken = true");
+ expect(spec).toContain('new URL(request.url()).origin === target.origin');
+ expect(spec).toContain('diagnostics.step("suggest-click")'); expect(spec).toContain('diagnostics.step("translate-click")');
+ expect(spec).toContain('data-sonner-toast][data-type="error"]'); expect(spec).toContain('intervals: [250, 500, 1000]');
 });

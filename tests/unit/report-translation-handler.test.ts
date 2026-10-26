@@ -1,3 +1,4 @@
+import { reportAssistName } from "../e2e/helpers/report-assist-fixture";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ generate: vi.fn(), gateway: vi.fn(), key: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
@@ -80,4 +81,15 @@ it("rejects blank suggested actions and omits private provider detail from logs"
   expect(log.mock.calls.flat().join(" ")).not.toContain("PRIVATE provider content");
   mocks.generate.mockResolvedValueOnce({ experimental_output: { this_week: ["  ", "Review"], this_month: ["Review", "Discuss"], conversation_starters: ["Ask", "Listen"], watch_for: ["Observe"] } });
   await expect((suggestNextSteps as any)({ data: { student_first_name: "Maya", report: DEMO_STUDENTS.maya.report } })).rejects.toThrow("couldn't generate next steps");
+});
+
+it("rejects the old numeric QA display name before configuring a provider", async () => {
+  await expect((suggestNextSteps as any)({ data: { student_first_name: "QA Report Assist 40338483904-1 parent", report: DEMO_STUDENTS.maya.report } })).rejects.toThrow("Invalid name");
+  expect(mocks.key).not.toHaveBeenCalled(); expect(mocks.generate).not.toHaveBeenCalled();
+});
+it.each(["parent", "educator"] as const)("accepts the corrected %s fixture name through the real handler validator", async role => {
+  const output = { this_week: ["Review available data.", "Ask what is needed."], this_month: ["Discuss options.", "Confirm a next step."], conversation_starters: ["What was recorded?", "What should we try?"], watch_for: ["Note support conditions."] };
+  mocks.generate.mockResolvedValue({ experimental_output: output });
+  const result = await (suggestNextSteps as any)({ data: { student_first_name: reportAssistName(role), report: DEMO_STUDENTS.maya.report } });
+  expect(result.next_steps).toEqual(output); expect(mocks.generate).toHaveBeenCalledTimes(1);
 });

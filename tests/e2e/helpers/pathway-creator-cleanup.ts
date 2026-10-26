@@ -1,3 +1,4 @@
+import { reportAssistName } from "./report-assist-fixture";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../../src/integrations/supabase/types";
 export type CreatorScope = {
@@ -46,6 +47,7 @@ async function cleanupPlanningFixture(
   kind: FixtureKind,
 ) {
   validate(f, kind);
+  const displayName = kind === "creator" ? f.marker : reportAssistName(f.role);
   const model = kind === "creator" ? "google/gemini-2.5-pro" : "synthetic-report-assist-fixture";
   const [s, i, r] = await Promise.all([
     client
@@ -74,7 +76,7 @@ async function cleanupPlanningFixture(
     r.data.length > 1 ||
     (s.data &&
       (s.data.owner_id !== f.ownerId ||
-        s.data.first_name !== f.marker ||
+        s.data.first_name !== displayName ||
         s.data.last_name !== "Synthetic" ||
         s.data.is_demo !== true ||
         s.data.student_user_id !== null ||
@@ -84,7 +86,7 @@ async function cleanupPlanningFixture(
         !uuid.test(x.id) ||
         x.user_id !== f.ownerId ||
         x.student_id !== f.studentId ||
-        x.student_first_name !== f.marker ||
+        x.student_first_name !== displayName ||
         x.submitter_role !== (f.role === "parent" ? "family" : "educator") ||
         (f.intakeId && x.id !== f.intakeId),
     ) ||
@@ -179,7 +181,7 @@ async function cleanupPlanningFixture(
         .eq("id", resolved.intakeId)
         .eq("user_id", f.ownerId)
         .eq("student_id", f.studentId)
-        .eq("student_first_name", f.marker)
+        .eq("student_first_name", displayName)
         .select("id"),
       resolved.intakeId,
     );
@@ -192,7 +194,7 @@ async function cleanupPlanningFixture(
         .delete()
         .eq("id", f.studentId)
         .eq("owner_id", f.ownerId)
-        .eq("first_name", f.marker)
+        .eq("first_name", displayName)
         .eq("last_name", "Synthetic")
         .eq("notes", f.marker)
         .eq("is_demo", true)
