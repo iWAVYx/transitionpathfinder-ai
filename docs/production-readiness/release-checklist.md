@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 25 — Authorized Pathway Diagnostic Repeat Stopped; Exact Cleanup Verified
+
+- [x] All eight automatic checks passed for test-only `7ef035d1`, including 4,657 tests / 323 files. User separately authorized one bounded repeat and completed GitHub human staging review. [Run 40252805605](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40252805605) passed seven standing role sign-ins and runtime isolation/identity checks before the Family journey.
+- [x] Family stopped again during initial generation; Educator was skipped. New safe metadata identifies a **timeout**, with no recorded failed same-origin POST statuses or transport failures. No regeneration/history/PDF export reached, and test retries remained zero. This observer did not classify 2xx serialized application errors; absence of transport failures does not prove generation/validation/save success or establish a provider cause.
+- [x] Sanitization passed before artifact download. Independent exact-scope discovery found one fictional owned student and one intake, no report/history/shares/evidence/related children. Guarded trusted cleanup removed only those two verified disposable records. Independent subsequent `postgres` / read-only verification returned zero for every exact fixture count.
+- [ ] Original cause remains open. Improve local test observation of known completion-error UI state and success/error transport metadata before considering another live diagnostic. No speculative runtime change or automatic repeat. Existing product intentionally asks users to check saved reports after uncertain completion; retain that safeguard and strict generation/cleanup limits.
+- [ ] Current staging product stays `b49880da`, fingerprint `2e4d4362…db56b7c` / 1,188 files. Keep PPT wording caveats, remaining inventoried generator/applicable-role/document/IEP workflows, full TF-01–TF-26/six milestones and production gates. Report polish and Parent Pilot/Pathway Snapshot remain deferred. No production/main merge, deployment/publication, migrations, new accounts/relationships/shares, payment or secret changes.
+
+Evidence: `pathway-diagnostic-repeat-2026-10-25.json`. Earlier checkpoints below are historical.
+
 ## October 25 — Pathway Failure Diagnostics Prepared Without Another Live Run
 
 - [x] Reviewed the stopped run, generation/save boundary and existing sanitized server diagnostics. The intake was saved before generation; no report was saved. This bounds the failure to generation/validation before report persistence but does not prove a provider, schema or timeout cause.
