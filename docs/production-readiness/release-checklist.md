@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 26 — Readiness Staging Functional and Private-Access Acceptance Passed
+
+- [x] All eight automatic checks passed for reviewed `b444619f`. Authorized [release 40326196371](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40326196371) succeeded. Both stable staging sites match `eebb4f81…a2f0159` / 1,189 files with staging backend, sandbox payments and isolation passing. Only the two reviewed runtime files were synced to the existing isolated Lovable project/publication; protected settings and the widget-heading edit were preserved.
+- [x] Separately human-approved [bounded run 40329952596](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40329952596) passed seven standing role sign-ins plus separate Family and Educator generations. Family showed neutral Not Assessed badges without score-source claims; Educator showed the exact recorded score 75, Steady and recorded-score coverage. Zero test retries, one generation action per role and two fictional screenshots. Each fictional student was unreadable to the other six existing role callers, including Owner (12 denial checks); no new generation grants.
+- [x] Artifact sanitization passed before download. Exact caller cleanup removed the two fictional students and one readiness row; independent subsequent `postgres` / read-only checks returned zero for both exact scopes and all checked related tables. No new reports, documents, history versions, relationships, shares or accounts were created.
+- [ ] Retain the manual factual-wording follow-up: Educator text describes positive progress from one recorded score without longitudinal evidence, and treats a reported profile strength as demonstrated. Badge/number reconciliation and functional passes do not prove every generated sentence. Screenshots verify the card body/rating/source behavior; their upper edge includes the sticky header, so no new full-page/mobile visual claim. No automatic AI repeat.
+- [ ] Continue remaining report translation/next-step, IEP/document/evidence generation coverage and relevant role workflows. Keep the original intermittent Pathway cause unproven and all broader TF-01–TF-26/six-milestone production/provider/privacy/security/billing/email/operations gates. Report polish and Parent Pilot/Pathway Snapshot remain deferred. Production/original main, migrations, account/access, payment and secret settings were untouched by this packet.
+
+Evidence: `readiness-live-staging-acceptance-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Pre-Release Readiness Fixture Schema Corrected
 
 - [x] Final canonical-schema review found the unexecuted Readiness fixture used a fractional value for an integer database column. Corrected only the test/cleanup predicates and proposed packet to Employment score 75; no application or schema change. Added a regression requiring the actual fixture score to fit the canonical integer column.
