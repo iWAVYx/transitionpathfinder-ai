@@ -27,6 +27,7 @@ on:
           - ppt-live-bounded
           - readiness-live-bounded
           - report-assist-live-bounded
+          - iep-extraction-live-bounded
           - report-reader-lenses
           - report-history-no-ai
           - report-sharing-no-ai
@@ -40,8 +41,8 @@ on:
         default: ''
 
 concurrency:
-  group: ${{ inputs.scope == 'report-assist-live-bounded' && 'staging-report-assist-live-bounded' || inputs.scope == 'readiness-live-bounded' && 'staging-readiness-live-bounded' || inputs.scope == 'pathway-creator-live-bounded' && 'staging-pathway-creator-live-bounded' || inputs.scope == 'ppt-live-bounded' && 'staging-ppt-live-bounded' || 'staging-role-verification' }}
-  cancel-in-progress: ${{ inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'pathway-creator-live-bounded' }}
+  group: ${{ inputs.scope == 'iep-extraction-live-bounded' && 'staging-iep-extraction-live-bounded' || inputs.scope == 'report-assist-live-bounded' && 'staging-report-assist-live-bounded' || inputs.scope == 'readiness-live-bounded' && 'staging-readiness-live-bounded' || inputs.scope == 'pathway-creator-live-bounded' && 'staging-pathway-creator-live-bounded' || inputs.scope == 'ppt-live-bounded' && 'staging-ppt-live-bounded' || 'staging-role-verification' }}
+  cancel-in-progress: ${{ inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'pathway-creator-live-bounded' }}
 
 jobs:
   verify-seven-roles:
@@ -83,6 +84,10 @@ jobs:
           fi
           if [ "$STAGING_TEST_SCOPE" = "pathway-creator-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-pathway-creator" ]; then
             echo "Explicit bounded Pathway creator authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "iep-extraction-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "synthetic-iep-only" ]; then
+            echo "Explicit no-save IEP extraction authorization required." >&2
             exit 1
           fi
           if [ "$STAGING_TEST_SCOPE" = "report-assist-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-report-assist" ]; then
@@ -200,11 +205,11 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
-        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'pathway-creator-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'pathway-creator-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
-        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'pathway-creator-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'pathway-creator-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: |
           if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
             bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
@@ -352,6 +357,19 @@ jobs:
           E2E_READ_ONLY: "false"
         run: >-
           bunx playwright test tests/e2e/release-readiness/report-assist-live.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator no-save IEP extraction
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'iep-extraction-live-bounded' }}
+        env:
+          RUN_IEP_EXTRACTION_LIVE_QA: "true"
+          IEP_EXTRACTION_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          IEP_EXTRACTION_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/iep-extraction-live.signedin.spec.ts
           --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
 
       - name: Remove credential-bearing Playwright artifacts
