@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 26 — Report Assistance Context and Viewer Safeguards Corrected Locally
+
+- [x] Found silent truncation in next-step report prompts: long fields, lists and the final JSON could be clipped. Replaced it with supported legacy/v2 report validation and an exact UTF-8 size limit before provider setup. Complete planning context is preserved, or the user gets a clear input/size error. Omit unrelated identity/reference/unknown metadata, without claiming free-text de-identification.
+- [x] Shared source-grounding rules now cover suggested next steps; outputs must contain nonblank bounded actions. Both translation and suggestions reject mismatched optional viewer intent before provider work. Shared UI resets per signed-in viewer/report, ignores departed responses, hides during auth changes and guards duplicate same-action requests. Raw provider content is no longer logged by these handlers. Existing report permissions and Owner management-only boundaries are unchanged.
+- [x] Translation's existing numbered text slots, complete reconstruction and preserved structure/identifiers remain covered. Fifty-seven focused checks, all 4,763 unit tests / 330 files, TypeScript, isolated staging build and service-worker generation pass. Candidate `8f3b5851…aa9d6aa` / 1,190 files is local only; both deployed sites remain `b444619f` / `eebb4f81…a2f0159` / 1,189 files.
+- [ ] Complete automatic review, then prepare concrete separately authorized staging release and fictional report-assist acceptance. Structure/schema tests do not prove live language fidelity or every suggested action. Existing demo/read-only reports exclude provider assistance; no demo model call, saved-report rewrite or new role privilege was introduced. Issued provider requests cannot be cancelled by this UI guard.
+- [ ] Keep Readiness's single-score progress wording caveat and original Pathway intermittent cause open. Continue IEP/document/evidence generators, all TF-01–TF-26/six milestones and production/provider/privacy/security/billing/email/operations gates. Report polish and Parent Pilot/Pathway Snapshot remain deferred. No release/publication, migration, hosted records/AI, accounts/access, payments/secrets, original-main merge or production action occurred.
+
+Evidence: `report-assist-context-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Readiness Staging Functional and Private-Access Acceptance Passed
 
 - [x] All eight automatic checks passed for reviewed `b444619f`. Authorized [release 40326196371](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40326196371) succeeded. Both stable staging sites match `eebb4f81…a2f0159` / 1,189 files with staging backend, sandbox payments and isolation passing. Only the two reviewed runtime files were synced to the existing isolated Lovable project/publication; protected settings and the widget-heading edit were preserved.

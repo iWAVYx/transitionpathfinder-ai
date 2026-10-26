@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-const mocks = vi.hoisted(() => ({ translate: vi.fn(), suggest: vi.fn(), success: vi.fn(), error: vi.fn() }));
+const mocks = vi.hoisted(() => ({ translate: vi.fn(), suggest: vi.fn(), success: vi.fn(), error: vi.fn(), auth: { user: { id: "viewer-a" } as { id: string } | null, loading: false } }));
+vi.mock("@/hooks/use-auth", () => ({ useAuth: () => mocks.auth }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@/lib/ai-assist.functions", () => ({
   translateReport: mocks.translate, suggestNextSteps: mocks.suggest,
@@ -11,7 +12,7 @@ vi.mock("sonner", () => ({ toast: { success: mocks.success, error: mocks.error }
 import { AiAssistPanel } from "../../src/components/pathway/AiAssistPanel";
 import type { PathwayReport } from "../../src/lib/pathway.functions";
 afterEach(cleanup);
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => { vi.clearAllMocks(); mocks.auth = { user: { id: "viewer-a" }, loading: false }; });
 function deferred() {
   let resolve!: (value: any) => void;
   let reject!: (reason: Error) => void;
@@ -69,4 +70,22 @@ it("keeps current request errors visible and permits retry", async () => {
   await act(async () => {});
   expect(mocks.error).toHaveBeenCalledWith("Try again");
   expect((screen.getByRole("button", { name: "Translate", exact: true }) as HTMLButtonElement).disabled).toBe(false);
+});
+
+it("clears results for a viewer change and ignores the departed translation", async () => {
+  const old = deferred(), translated = vi.fn(); mocks.translate.mockReturnValueOnce(old.promise); mocks.suggest.mockResolvedValueOnce(next("Private earlier suggestion"));
+  const view = render(panel(first, translated));
+  fireEvent.click(screen.getByRole("button", { name: "Suggest next steps", exact: true })); await screen.findByText("Private earlier suggestion");
+  fireEvent.click(screen.getByRole("button", { name: "Translate", exact: true }));
+  mocks.auth.user = { id: "viewer-b" }; view.rerender(panel(first, translated));
+  expect(screen.queryByText("Private earlier suggestion")).toBeNull();
+  await act(async () => old.resolve({ report: first, language: "spanish" })); expect(translated).not.toHaveBeenCalled(); expect(mocks.success).not.toHaveBeenCalled();
+});
+it("sends current viewer intent for both assistance actions and hides controls during auth changes", async () => {
+  mocks.translate.mockReturnValue(deferred().promise); mocks.suggest.mockReturnValue(deferred().promise);
+  const view = render(panel(first)); fireEvent.click(screen.getByRole("button", { name: "Translate", exact: true })); fireEvent.click(screen.getByRole("button", { name: "Suggest next steps", exact: true }));
+  expect(mocks.translate).toHaveBeenCalledWith({ data: { report: first, language: "spanish", expected_viewer_id: "viewer-a" } });
+  expect(mocks.suggest).toHaveBeenCalledWith({ data: { report: first, student_first_name: "Maya", expected_viewer_id: "viewer-a" } });
+  mocks.auth.loading = true; view.rerender(panel(first)); expect(screen.queryByRole("button", { name: "Translate", exact: true })).toBeNull();
+  mocks.auth = { user: null, loading: false }; view.rerender(panel(first)); expect(screen.queryByText("Pathway Assist")).toBeNull();
 });

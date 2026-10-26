@@ -22,7 +22,7 @@ export const ReportTranslationOutputSchema = z.object({
   }).strict()).max(MAX_TEXT_SLOTS),
 }).strict();
 
-function documentFields(report: unknown) {
+export function validatedReportDocument(report: unknown) {
   const legacy = ReportSchema.omit({ student_snapshot: true }).parse(report);
   const raw = report as Record<string, unknown>;
   if (raw.schema_version !== undefined && raw.schema_version !== 1 && raw.schema_version !== 2) {
@@ -37,9 +37,9 @@ function documentFields(report: unknown) {
 
 /** Send only validated document text; retain paths and all structural fields locally. */
 export function prepareReportTranslation(report: unknown) {
-  let fields: ReturnType<typeof documentFields>;
+  let fields: ReturnType<typeof validatedReportDocument>;
   try {
-    fields = documentFields(report);
+    fields = validatedReportDocument(report);
   } catch {
     throw new Error("This report is not ready for translation. Please refresh it and try again.");
   }

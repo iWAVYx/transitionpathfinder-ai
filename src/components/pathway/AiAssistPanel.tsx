@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,9 +15,12 @@ import {
 } from "@/lib/ai-assist.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
-export function AiAssistPanel(props: Parameters<typeof AiAssistSession>[0]) {
-  return <ReportSessionBoundary report={props.report} studentName={props.studentName}>
-    <AiAssistSession {...props} />
+type AssistProps = Omit<Parameters<typeof AiAssistSession>[0], "viewerId">;
+export function AiAssistPanel(props: AssistProps) {
+  const { user, loading } = useAuth();
+  if (loading || !user) return null;
+  return <ReportSessionBoundary key={user.id} report={props.report} studentName={props.studentName}>
+    <AiAssistSession {...props} viewerId={user.id} />
   </ReportSessionBoundary>;
 }
 
@@ -26,14 +30,18 @@ function AiAssistSession({
   onTranslated,
   onReset,
   translatedTo,
+  viewerId,
 }: {
   studentName: string;
   report: PathwayReport;
   onTranslated: (next: PathwayReport, lang: SupportedLanguage) => void;
   onReset: () => void;
   translatedTo: SupportedLanguage | null;
+  viewerId: string;
 }) {
   const active = useRef(false);
+  const translationPending = useRef(false);
+  const suggestionsPending = useRef(false);
   useEffect(() => {
     active.current = true;
     return () => { active.current = false; };
@@ -47,29 +55,35 @@ function AiAssistSession({
   const [loadingSteps, setLoadingSteps] = useState(false);
 
   async function handleTranslate() {
+    if (!active.current || translationPending.current) return;
+    translationPending.current = true;
     setTranslating(true);
     try {
-      const r = await translate({ data: { report, language: lang } });
+      const r = await translate({ data: { report, language: lang, expected_viewer_id: viewerId } });
       if (!active.current) return;
       onTranslated(r.report, r.language);
       toast.success("Translated.");
     } catch (e) {
       if (active.current) toast.error(e instanceof Error ? e.message : "Translation failed.");
     } finally {
+      translationPending.current = false;
       if (active.current) setTranslating(false);
     }
   }
 
   async function handleSuggest() {
+    if (!active.current || suggestionsPending.current) return;
+    suggestionsPending.current = true;
     setLoadingSteps(true);
     try {
       const r = await suggest({
-        data: { student_first_name: studentName, report },
+        data: { student_first_name: studentName, report, expected_viewer_id: viewerId },
       });
       if (active.current) setSteps(r.next_steps);
     } catch (e) {
       if (active.current) toast.error(e instanceof Error ? e.message : "Couldn't generate next steps.");
     } finally {
+      suggestionsPending.current = false;
       if (active.current) setLoadingSteps(false);
     }
   }
