@@ -39,7 +39,7 @@ for (const role of ROLES.filter(r => r.key === "parent" || r.key === "educator")
       created = true; pending = false;
       if (f.scoreId) {
         pending = true;
-        const score = await client.from("readiness_scores").insert({ id: f.scoreId, student_id: f.studentId, category: "employment", score: 75.5, evidence: f.marker, updated_by_user_id: f.ownerId, is_demo: true }).select("id").single();
+        const score = await client.from("readiness_scores").insert({ id: f.scoreId, student_id: f.studentId, category: "employment", score: 75, evidence: f.marker, updated_by_user_id: f.ownerId, is_demo: true }).select("id").single();
         if (score.error || score.data?.id !== f.scoreId) throw Error("Readiness creation unconfirmed");
         pending = false;
       }
@@ -53,7 +53,7 @@ for (const role of ROLES.filter(r => r.key === "parent" || r.key === "educator")
       await expect(section.getByRole("button", { name: "Refresh", exact: true })).toBeVisible({ timeout: 240000 });
       pending = false;
       await expect(section.getByRole("alert")).toHaveCount(0);
-      if (f.scoreId) { await expect(section).toContainText("Steady"); await expect(section).toContainText("75.5"); await expect(section).toContainText("1 recorded readiness score"); }
+      if (f.scoreId) { await expect(section).toContainText("Steady"); await expect(section).toContainText("75"); await expect(section).toContainText("1 recorded readiness score"); }
       else { expect(await section.getByText("Not Assessed", { exact: true }).count()).toBeGreaterThanOrEqual(2); await expect(section).not.toContainText("recorded readiness score"); }
       await expect(section).not.toContainText("needs_focus"); await expect(section).not.toContainText("not_assessed");
       await section.screenshot({ path: info.outputPath(`${role.key}-readiness.png`) });

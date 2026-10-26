@@ -21,7 +21,7 @@ export async function cleanupReadiness(client: SupabaseClient<Database>, f: Read
   validateReadinessScope(f);
   const s = await client.from("students").select("id,owner_id,first_name,last_name,notes,is_demo,student_user_id").eq("id", f.studentId).maybeSingle();
   const r = await client.from("readiness_scores").select("id,student_id,category,score,evidence,updated_by_user_id,is_demo").eq("student_id", f.studentId).limit(2);
-  if (s.error || r.error || !s.data || !r.data || s.data.owner_id !== f.ownerId || s.data.first_name !== f.marker || s.data.last_name !== "Synthetic" || s.data.notes !== f.marker || !s.data.is_demo || s.data.student_user_id !== null || r.data.length !== (f.scoreId ? 1 : 0) || r.data.some(x => x.id !== f.scoreId || x.student_id !== f.studentId || x.category !== "employment" || x.score !== 75.5 || x.evidence !== f.marker || x.updated_by_user_id !== f.ownerId || !x.is_demo)) throw Error("Unexpected Readiness fixture; cleanup stopped");
+  if (s.error || r.error || !s.data || !r.data || s.data.owner_id !== f.ownerId || s.data.first_name !== f.marker || s.data.last_name !== "Synthetic" || s.data.notes !== f.marker || !s.data.is_demo || s.data.student_user_id !== null || r.data.length !== (f.scoreId ? 1 : 0) || r.data.some(x => x.id !== f.scoreId || x.student_id !== f.studentId || x.category !== "employment" || x.score !== 75 || x.evidence !== f.marker || x.updated_by_user_id !== f.ownerId || !x.is_demo)) throw Error("Unexpected Readiness fixture; cleanup stopped");
   for (const table of emptyTables) {
     const q = await (client.from(table as "students") as any).select("*", { head: true, count: "exact" }).eq("student_id", f.studentId);
     if (q.error || q.count !== 0) throw Error("Unexpected related records; cleanup stopped");

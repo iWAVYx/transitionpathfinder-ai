@@ -30,9 +30,9 @@
   },
   "acceptance": [
     "Both stable staging sites must match exact approved runtime, isolated backend and sandbox/isolation settings before fixtures",
-    "Separate Family no-score and Educator recorded Employment score 75.5 cases; wait for actual completed Readiness UI, not merely a transport status",
+    "Separate Family no-score and Educator recorded Employment score 75 cases; wait for actual completed Readiness UI, not merely a transport status",
     "No-score case requires at least two Not Assessed badges and no recorded-score source claim",
-    "Scored case requires exact 75.5, Steady and recorded-score source coverage",
+    "Scored case requires exact 75, Steady and recorded-score source coverage",
     "All other existing role callers receive zero visible rows for that exact fictional student; this is private-record denial, not proof of other tools",
     "Manual review of fictional output/screenshot for source fidelity remains required"
   ],
@@ -40,18 +40,18 @@
     "Preallocate exact identifiers and save scope plus independent read-only SQL before any mutation",
     "Use existing caller/RLS public-key clients only; refuse production targets, privileged key, malformed identities and missing exact source identity",
     "On uncertain insertion/generation completion, stop and retain exact scope for trusted reconciliation; no blind retry or cascade",
-    "Before deletes validate exact owner/student/marker/demo/account linkage and score id/category/75.5/evidence/updated_by identity; refuse unexpected children or unreadable counts",
+    "Before deletes validate exact owner/student/marker/demo/account linkage and score id/category/75/evidence/updated_by identity; refuse unexpected children or unreadable counts",
     "Delete exact synthetic score first, then exact owned synthetic student; failed child removal retains parent; save cleanup receipt",
     "Independently run table-owner READ ONLY guarded SQL and verify every exact count zero before claiming clean"
   ],
   "workflow": "New manual readiness-live-bounded scope in existing human-protected staging workflow. Matching disposable-readiness-live confirmation; dedicated non-cancelling concurrency group; one worker; retries zero; no unrelated dashboard/role/PPT/Pathway fixture scope; existing artifact sanitization gate retained.",
   "validation": {
-    "focused_policy_cleanup_tests": 64,
-    "new_preparation_tests": 26,
+    "focused_policy_cleanup_tests": 65,
+    "new_preparation_tests": 27,
     "browser_discovery": "exactly two cases; discovery only",
     "browser_spec_and_helpers_typescript": "passed",
     "full_unit_suite": {
-      "passed": 4745,
+      "passed": 4746,
       "files": 329
     },
     "runtime_fingerprint": "unchanged by test/workflow preparation",
@@ -73,5 +73,11 @@
     "No historical Pathway cause attribution from passing readiness tests"
   ],
   "next": "Complete automatic review on the test-only follow-up; then request one concrete staging-only release/sync/publication and bounded readiness run. No approval is inferred from continue.",
-  "preserved": "Full TF-01\u2013TF-26/six milestones; remaining generators/IEP/document workflows and production gates; deferred report polish and Parent Pilot/Pathway Snapshot; Lovable title-case edit; production untouched"
+  "preserved": "Full TF-01\u2013TF-26/six milestones; remaining generators/IEP/document workflows and production gates; deferred report polish and Parent Pilot/Pathway Snapshot; Lovable title-case edit; production untouched",
+  "fixture_schema_review": {
+    "canonical_storage": "readiness_scores.score integer CHECK (score BETWEEN 0 AND 100)",
+    "fixture_score": 75,
+    "correction": "The initial unexecuted packet used 75.5; corrected to 75 before any hosted fixture or AI run. Product runtime unchanged.",
+    "regression": "Exact live fixture score must be an in-range integer compatible with the canonical column."
+  }
 }
