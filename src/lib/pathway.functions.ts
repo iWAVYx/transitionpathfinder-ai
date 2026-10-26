@@ -1,3 +1,4 @@
+import { pathwayCreationFailure, readPathwayCreationFailure } from "./pathway-creation-failure";
 import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
 import { bindBuilderSourceRefs } from "./pathway-builder-source-refs";
 import { intakeHasStudentVoice, reconcileIntakeVoiceWarnings } from "./pathway-voice-coverage";
@@ -34,7 +35,16 @@ import {
 import { IntakeSchema, type PathwayReport } from "./pathway-generation-contract";
 export type { IntakeInput, PathwayReport } from "./pathway-generation-contract";
 import { generateIntakeReport, INTAKE_REPORT_MODEL } from "./pathway-generation.server";
-import { pathwayGenerationDiagnostics } from "./pathway-generation-diagnostics";
+
+async function runCreationWrite<T>(stage: "intake_save" | "report_save", operation: () => PromiseLike<T>): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    const failure = pathwayCreationFailure(stage, error);
+    console.error("Pathway creation write failed", readPathwayCreationFailure(failure));
+    throw failure;
+  }
+}
 
 export const createPathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -60,40 +70,44 @@ export const createPathwayReport = createServerFn({ method: "POST" })
       );
     }
 
-    const { data: intake, error: intakeErr } = await supabase
-      .from("student_intakes")
-      .insert({
-        user_id: userId,
-        student_id: data.student_id ?? null,
-        submitter_role: data.submitter_role,
-        student_first_name: data.student_first_name,
-        grade_band: data.grade_band ?? null,
-        strengths: data.strengths || null,
-        interests: data.interests || null,
-        needs: data.needs || null,
-        supports: data.supports || null,
-        transportation: data.transportation || null,
-        communication: data.communication || null,
-        current_goals: data.current_goals || null,
-        family_concerns: data.family_concerns || null,
-        student_voice: data.student_voice || null,
-        family_voice: data.family_voice || null,
-        educator_input: data.educator_input || null,
-        communication_prefs: data.communication_prefs || null,
-        transportation_needs: data.transportation_needs || null,
-        family_priorities: data.family_priorities || null,
-        family_concerns_extended: data.family_concerns_extended || null,
-        student_worries: data.student_worries || null,
-        services_received: data.services_received || null,
-        desired_postsecondary_outcomes: data.desired_postsecondary_outcomes || null,
-        upcoming_meetings: data.upcoming_meetings || null,
-      })
-      .select("id")
-      .single();
+    const { data: intake, error: intakeErr } = await runCreationWrite(
+      "intake_save",
+      async () => supabase
+          .from("student_intakes")
+          .insert({
+            user_id: userId,
+            student_id: data.student_id ?? null,
+            submitter_role: data.submitter_role,
+            student_first_name: data.student_first_name,
+            grade_band: data.grade_band ?? null,
+            strengths: data.strengths || null,
+            interests: data.interests || null,
+            needs: data.needs || null,
+            supports: data.supports || null,
+            transportation: data.transportation || null,
+            communication: data.communication || null,
+            current_goals: data.current_goals || null,
+            family_concerns: data.family_concerns || null,
+            student_voice: data.student_voice || null,
+            family_voice: data.family_voice || null,
+            educator_input: data.educator_input || null,
+            communication_prefs: data.communication_prefs || null,
+            transportation_needs: data.transportation_needs || null,
+            family_priorities: data.family_priorities || null,
+            family_concerns_extended: data.family_concerns_extended || null,
+            student_worries: data.student_worries || null,
+            services_received: data.services_received || null,
+            desired_postsecondary_outcomes: data.desired_postsecondary_outcomes || null,
+            upcoming_meetings: data.upcoming_meetings || null,
+          })
+          .select("id")
+          .single(),
+    );
 
     if (intakeErr || !intake) {
-      console.error("intake insert failed", intakeErr);
-      throw new Error("Could not save your intake. Please try again.");
+      const failure = pathwayCreationFailure("intake_save", intakeErr);
+      console.error("intake insert failed", readPathwayCreationFailure(failure));
+      throw failure;
     }
 
     const model = INTAKE_REPORT_MODEL;
@@ -102,31 +116,31 @@ export const createPathwayReport = createServerFn({ method: "POST" })
     try {
       report = await generateIntakeReport(data, apiKey);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("AI generation failed", pathwayGenerationDiagnostics(err));
-      if (msg.includes("429"))
-        throw new Error("The AI is busy right now. Please try again in a moment.");
-      if (msg.includes("402"))
-        throw new Error("AI usage limit reached. Please add credits to continue.");
-      throw new Error("We couldn't generate the Pathway Report. Please try again.");
+      const failure = pathwayCreationFailure("generation", err);
+      console.error("AI generation failed", readPathwayCreationFailure(failure));
+      throw failure;
     }
 
-    const savedContent = recordGeneratedSections(undefined, report);
-    const { data: saved, error: reportErr } = await supabase
-      .from("pathway_reports")
-      .insert({
-        user_id: userId,
-        intake_id: intake.id,
-        student_id: data.student_id ?? null,
-        model,
-        content: JSON.parse(JSON.stringify(savedContent)),
-      })
-      .select("id")
-      .single();
+    const { savedContent, saved, reportErr } = await runCreationWrite("report_save", async () => {
+      const savedContent = recordGeneratedSections(undefined, report);
+      const { data: saved, error: reportErr } = await supabase
+        .from("pathway_reports")
+        .insert({
+          user_id: userId,
+          intake_id: intake.id,
+          student_id: data.student_id ?? null,
+          model,
+          content: JSON.parse(JSON.stringify(savedContent)),
+        })
+        .select("id")
+        .single();
+      return { savedContent, saved, reportErr };
+    });
 
     if (reportErr || !saved) {
-      console.error("report insert failed", reportErr);
-      throw new Error("Generated the report but couldn't save it. Please try again.");
+      const failure = pathwayCreationFailure("report_save", reportErr);
+      console.error("report insert failed", readPathwayCreationFailure(failure));
+      throw failure;
     }
 
     if (data.student_id) {

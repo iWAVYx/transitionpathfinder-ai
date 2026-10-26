@@ -1,3 +1,4 @@
+import { readPathwayCreationFailure } from "../../src/lib/pathway-creation-failure";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ generate: vi.fn(), authorize: vi.fn(), entitlement: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
@@ -79,4 +80,33 @@ it.each(["family", "educator"])("matching %s viewer intent never supplies record
   await (createPathwayReport as any)({ data: { ...input, submitter_role: role, expected_viewer_id: "actual-caller", user_id: "forged-owner" }, context });
   expect(queries.student_intakes.insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: "actual-caller", submitter_role: role }));
   expect(queries.pathway_reports.insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: "actual-caller" }));
+});
+
+it.each(["family","educator"])("%s generation failure carries bounded metadata and never writes a report", async role => {
+  const privateError=Object.assign(new Error("PRIVATE PROVIDER TEXT"),{name:"AI_NoObjectGeneratedError",cause:{issues:[{code:"too_small",path:["thirty_day_plan"],message:"PRIVATE VALUE"}]}});
+  mocks.generate.mockRejectedValueOnce(privateError);
+  const log=vi.spyOn(console,"error").mockImplementation(()=>{});
+  try {
+    const {context,queries}=db("synthetic-caller");
+    const error=await (createPathwayReport as any)({data:{...input,submitter_role:role},context}).catch((e:unknown)=>e);
+    expect(readPathwayCreationFailure(new Error(error.message))).toMatchObject({stage:"validation",sections:["thirty_day_plan"],validationCodes:["too_small"]});
+    expect(queries.student_intakes.insert).toHaveBeenCalledOnce();
+    expect(queries.pathway_reports.insert).not.toHaveBeenCalled();
+    expect(mocks.generate).toHaveBeenCalledOnce();
+    expect(JSON.stringify(log.mock.calls)).not.toContain("PRIVATE");
+  } finally { log.mockRestore(); }
+});
+
+it.each(["intake", "report"] as const)("a thrown %s transport error is stage-specific and contains no private message", async stage => {
+  const {context,queries}=db("synthetic-caller");
+  queries[stage === "intake" ? "student_intakes" : "pathway_reports"].single.mockRejectedValueOnce(new Error("PRIVATE TRANSPORT URL OR SQL"));
+  const log=vi.spyOn(console,"error").mockImplementation(()=>{});
+  try {
+    const error=await (createPathwayReport as any)({data:input,context}).catch((e:unknown)=>e);
+    expect(readPathwayCreationFailure(new Error(error.message))?.stage).toBe(stage === "intake" ? "intake_save" : "report_save");
+    expect(error.message).not.toContain("PRIVATE");
+    expect(JSON.stringify(log.mock.calls)).not.toContain("PRIVATE");
+    if(stage === "intake") expect(mocks.generate).not.toHaveBeenCalled();
+    else expect(mocks.generate).toHaveBeenCalledOnce();
+  } finally { log.mockRestore(); }
 });

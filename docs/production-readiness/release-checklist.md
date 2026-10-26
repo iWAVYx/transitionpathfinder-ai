@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 25 — Safe Creation-Stage Evidence Prepared Locally
+
+- [x] Corrected the observability boundary: initial Pathway failures now carry validated stage-only metadata through the framework's message-only Error transport. Distinguishes intake save, generation, output validation, report save and response confirmation. Only recognized finish reasons, report field names, validation codes and bounded provider/database codes survive; no student answers, generated prose, raw database errors, URLs, headers or stacks.
+- [x] Covered returned database errors and thrown persistence/transport failures without changing write order, schema, model, generation actions, retries, ownership or entitlements. Initial failure logs use bounded metadata. Matching Family/Educator sessions retain the exact friendly uncertain-completion warning, saved-report link and answers; machine-only metadata resets on resubmission, unknown errors stay unknown and departed viewer results remain ignored. The bounded test strictly revalidates the metadata before recording it.
+- [x] 116 focused checks across six files, the full 4,677-test / 325-file suite, TypeScript, actual SDK/mock-HTTP contract tests and final isolated staging build/service-worker generation pass. Actual form tests cover both generating roles and ensure internal codes/private text never appear in visible warning text. No provider call, hosted fixture or deployment occurred.
+- [ ] Automatic review is pending. Candidate runtime `06dbf4c6…c0b1c28` / 1,189 files is **not deployed**; both staging sites remain reviewed `b49880da`, `2e4d4362…db56b7c` / 1,188 files. This is a safe observability correction, not proof of the original hosted cause or a claim that generation is fixed. After review, obtain concrete staging rollout and bounded-test authorization; do not automatically repeat AI.
+- [ ] Keep all TF-01–TF-26/six milestones, remaining inventoried generators/applicable roles/document/IEP workflows and production/privacy/provider/security/operations gates. Owner Hub remains management-only; demo sample appearance, document formats, Lovable title-case edit, permissions and existing source/history behavior are preserved. Report polish and Parent Pilot/Pathway Snapshot remain deferred. No production/main merge, migration, publication, accounts/relationships/shares, payments or secrets changed.
+
+Evidence: `pathway-creation-failure-stage-local-2026-10-25.json`. Earlier checkpoints below are historical.
+
 ## October 25 — Pathway Completion Failure Confirmed After Finished Requests
 
 - [x] All eight automatic checks passed for `8bfd75d1`. The separately user-authorized, human-approved [run 40254851766](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40254851766) passed seven standing role sign-ins and both stable staging identity/isolation preflights. OS dependency installation delayed setup but completed; no additional run was dispatched.

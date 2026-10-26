@@ -1,3 +1,4 @@
+import { pathwayCreationFailure, readPathwayCreationFailure, type PathwayCreationFailure } from "@/lib/pathway-creation-failure";
 import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { STEPS, Stepper, ProgressBar, StepRole, StepAbout, StepStrengths, StepCareer, StepLifeSkills, StepPlanningContext, StepCurrentGoals, StepVoices, StepNav, TrustRow } from "@/components/pathway/PathwayBuilderSteps";
 import { getMyRoles } from "@/lib/profile.functions";
@@ -119,6 +120,7 @@ function PathwaySession({
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [generationFailure, setGenerationFailure] = useState<PathwayCreationFailure | null>(null);
   const [connectedStudents, setConnectedStudents] = useState<Student[]>([]);
   const [studentsLoading, setStudentsLoading] = useState(true);
   const [studentLoadError, setStudentLoadError] = useState(false);
@@ -289,6 +291,7 @@ function PathwaySession({
     setGenerating(true);
     try {
       setGenerationError(null);
+      setGenerationFailure(null);
       const merged = mergePathwayIntake(values);
       const res = await generate({ data: { ...merged, expected_viewer_id: viewerId } });
       if (!stillCurrent()) return;
@@ -296,14 +299,15 @@ function PathwaySession({
         !z.string().uuid().safeParse(res?.reportId).success ||
         (res.studentId ?? null) !== requestedStudent
       )
-        throw new Error("Report response mismatch");
+        throw pathwayCreationFailure("response_confirmation", undefined);
       await navigate({
         to: "/reports/$reportId",
         params: { reportId: res.reportId },
         search: { welcome: 1 } as never,
       });
-    } catch {
+    } catch (error) {
       if (stillCurrent()) {
+        setGenerationFailure(readPathwayCreationFailure(error));
         const message =
           "We couldn't confirm that your report was completed. Check your saved reports before trying again.";
         setGenerationError(message);
@@ -509,6 +513,7 @@ function PathwaySession({
                 {generationError && (
                   <div
                     role="alert"
+                    data-pathway-failure={generationFailure ? JSON.stringify(generationFailure) : undefined}
                     className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm"
                   >
                     <p className="font-semibold">The report could not be completed</p>

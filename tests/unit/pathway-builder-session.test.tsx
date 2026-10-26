@@ -1,3 +1,4 @@
+import { pathwayCreationFailure } from "../../src/lib/pathway-creation-failure";
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -462,5 +463,33 @@ describe("departed planning reads and errors", () => {
     await act(async () => request.reject(new Error("Departed generation detail")));
     expect(api.error).not.toHaveBeenCalled();
     expect(api.navigate).not.toHaveBeenCalled();
+  });
+});
+
+describe("private-safe Pathway creation failure metadata", () => {
+  it.each(["parent", "teacher"])("keeps %s warning friendly while attaching only validated stage metadata", async role => {
+    api.roles.mockResolvedValue({roles:[role]});
+    api.generate.mockRejectedValueOnce(new Error(pathwayCreationFailure("report_save",{code:"42501",message:"PRIVATE DATABASE DETAIL"}).message));
+    render(<Page />);
+    await manual(); submit();
+    const alert=await screen.findByRole("alert");
+    expect(JSON.parse(alert.getAttribute("data-pathway-failure")!)).toMatchObject({stage:"report_save",databaseCode:"42501"});
+    expect(alert.textContent).toContain("Check your saved reports before trying again.");
+    expect(alert.textContent).not.toMatch(/42501|TF_PATHWAY|report_save|PRIVATE/);
+    expect(document.documentElement.outerHTML).not.toContain("PRIVATE");
+    expect(api.navigate).not.toHaveBeenCalled();
+    expect((screen.getByLabelText("Student Name") as HTMLInputElement).value).toBe("Manual Sample");
+  });
+  it("does not attach unknown errors and clears earlier diagnostic state on another submission", async () => {
+    api.generate.mockRejectedValueOnce(pathwayCreationFailure("generation",{statusCode:503}));
+    const next=deferred(); api.generate.mockReturnValueOnce(next.promise);
+    render(<Page />); await manual(); submit();
+    expect((await screen.findByRole("alert")).getAttribute("data-pathway-failure")).toContain('"stage":"generation"');
+    submit(); await waitFor(()=>expect(api.generate).toHaveBeenCalledTimes(2));
+    expect(screen.queryByRole("alert")).toBeNull();
+    await act(async()=>next.reject(new Error("PRIVATE UNRECOGNIZED ERROR")));
+    const alert=await screen.findByRole("alert");
+    expect(alert.hasAttribute("data-pathway-failure")).toBe(false);
+    expect(document.documentElement.outerHTML).not.toContain("PRIVATE");
   });
 });

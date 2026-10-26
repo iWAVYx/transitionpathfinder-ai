@@ -1,3 +1,4 @@
+import { parsePathwayCreationFailureMetadata, type PathwayCreationFailure } from "../../../src/lib/pathway-creation-failure";
 import { creatorTransportDiagnostics, creatorCompletionSurface } from "../helpers/pathway-creator-diagnostics";
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
@@ -374,11 +375,16 @@ for (const role of roles)
       const errors: unknown[] = [];
       if (primaryFailure) {
         let completionSurface: ReturnType<typeof creatorCompletionSurface> | null = null;
+        let applicationFailure: PathwayCreationFailure | null = null;
         try {
           if (observedPage && !observedPage.isClosed()) {
             const visible = await observedPage.getByRole("alert")
               .filter({ hasText: "The report could not be completed" }).isVisible();
             completionSurface = creatorCompletionSurface(new URL(observedPage.url()).pathname, visible);
+            const packet = await observedPage.locator("[data-pathway-failure]").count() === 1
+              ? await observedPage.locator("[data-pathway-failure]").getAttribute("data-pathway-failure") : null;
+            if (packet && packet.length <= 4096)
+              applicationFailure = parsePathwayCreationFailureMetadata(JSON.parse(packet));
           }
         } catch { /* Closed/unavailable page stays unknown; no raw error is retained. */ }
         try {
@@ -392,6 +398,7 @@ for (const role of roles)
                 primaryFailurePreserved: true,
                 ...transportDiagnostics.snapshot(primaryFailure),
                 completionSurface,
+                applicationFailure,
                 reconciliationRequired: operationPending,
               },
               null,

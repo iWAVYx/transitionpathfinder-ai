@@ -1,3 +1,4 @@
+import { pathwayCreationFailure, readPathwayCreationFailure } from "../../src/lib/pathway-creation-failure";
 import { afterEach, expect, it, vi } from "vitest";
 import { generateIntakeReport } from "../../src/lib/pathway-generation.server";
 import { pathwayGenerationDiagnostics } from "../../src/lib/pathway-generation-diagnostics";
@@ -40,6 +41,9 @@ it("a 200 provider response can still fail report validation without an HTTP fai
   expect(error).toBeInstanceOf(Error);
   expect(calls).toHaveLength(1);
   expect(pathwayGenerationDiagnostics(error)).toMatchObject({sections:["thirty_day_plan"],validationCodes:["too_small"]});
+  const transported = new Error(pathwayCreationFailure("generation",error).message);
+  expect(readPathwayCreationFailure(transported)).toMatchObject({stage:"validation",sections:["thirty_day_plan"],validationCodes:["too_small"]});
+  expect(transported.message).not.toContain("Only one week");
 });
 it("does not turn null unsupported assessment blocks into a silently accepted report", async () => {
   const calls=gateway({...valid,student_snapshot:null});
