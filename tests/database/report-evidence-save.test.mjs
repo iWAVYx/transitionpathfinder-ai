@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { evidenceMigrationSource, evidenceRolloutSql } from './report-evidence-rollout-sql.mjs';
 const real=process.env.PATHWAY_HISTORY_POSTGRES==='1';
 const sql=name=>readFileSync('supabase/migrations/'+name,'utf8');
 const uid=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
@@ -31,6 +32,7 @@ before(async()=>{
  IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF;
  IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role; END IF;
  END $$;
+ CREATE SCHEMA supabase_migrations; CREATE TABLE supabase_migrations.schema_migrations(version text PRIMARY KEY,name text,statements text[]);
  CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY);
  CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  GRANT USAGE ON SCHEMA auth,public TO authenticated,anon,service_role;
@@ -50,6 +52,9 @@ beforeEach(async()=>{
  INSERT INTO public.students VALUES('${student}','${owner}',NULL),('${otherStudent}','${owner}',NULL);
  INSERT INTO public.student_collaborators VALUES('${student}','${editor}','accepted','editor'),('${student}','${viewer}','accepted','viewer');
  INSERT INTO public.student_relationships VALUES('${student}','${related}','approved','manage_documents');`);
+ await db.exec('TRUNCATE supabase_migrations.schema_migrations');
+ await db.query("INSERT INTO supabase_migrations.schema_migrations VALUES('20261024010000','remove_implicit_admin_student_access',$1)",[[sql('20261024010000_remove_implicit_admin_student_access.sql')]]);
+ await db.exec('DROP FUNCTION IF EXISTS '+signature);await db.exec(evidenceMigrationSource);
 });
 test('canonical historical conflict target reproduces 42P10 with no write',async()=>{
  await as();await assert.rejects(db.query(`INSERT INTO public.report_evidence_links(student_id,report_section,source_kind,source_label,note,snippet_hash) VALUES($1,'documents','document','Fictional','Observation',$2) ON CONFLICT(student_id,report_section,source_kind,source_id,snippet_hash) DO NOTHING`,[student,'a'.repeat(32)]),{code:'42P10'});assert.equal((await rows()).length,0);
@@ -106,4 +111,24 @@ test('concurrent duplicate saves serialize to one actual inserted row',{skip:!re
  for(let i=0;i<200;i++){const {rows:[s]}=await db.query('SELECT wait_event_type FROM pg_stat_activity WHERE pid=$1',[pid]);if(s?.wait_event_type==='Lock'){locked=true;break;}await new Promise(resolve=>setTimeout(resolve,20));}
  assert.equal(locked,true,'Competing insert waits on unique index');await first.exec('COMMIT');const result=await pending;assert.equal(result.error,undefined);assert.equal(result.value.rows.length,0);assert.equal((await rows()).length,1);
  }finally{await first.exec('ROLLBACK');if(pending)await pending;}
+});
+
+test('prepared rollout commits exact ledger and routine together without modifying prior ledger',async()=>{
+ await db.exec('DROP FUNCTION '+signature);const prior=(await db.query('SELECT * FROM supabase_migrations.schema_migrations')).rows;await db.exec(evidenceRolloutSql);
+ assert.deepEqual((await db.query("SELECT * FROM supabase_migrations.schema_migrations WHERE version='20261024010000'")).rows,prior);
+ assert.deepEqual((await db.query("SELECT name,statements FROM supabase_migrations.schema_migrations WHERE version='20261026010000'")).rows,[{name:'save_extracted_report_evidence',statements:[evidenceMigrationSource]}]);await as();assert.equal((await save()).rows.length,1);
+});
+test('ledger failure rolls back function creation and preserves table data',async()=>{
+ await db.exec('DROP FUNCTION '+signature);await db.exec("ALTER TABLE supabase_migrations.schema_migrations ADD CONSTRAINT reject_evidence_ledger CHECK(version<>'20261026010000')");
+ try{await assert.rejects(db.exec(evidenceRolloutSql),{code:'23514'});await db.exec('ROLLBACK');assert.equal((await db.query('SELECT to_regprocedure($1) AS routine',[signature])).rows[0].routine,null);assert.equal((await rows()).length,0);}finally{await db.exec('ALTER TABLE supabase_migrations.schema_migrations DROP CONSTRAINT reject_evidence_ledger');}
+});
+test('unexpected prerequisite ledger stops before routine installation',async()=>{
+ await db.exec('DROP FUNCTION '+signature);await db.exec("UPDATE supabase_migrations.schema_migrations SET statements=ARRAY['Unexpected fixture source']");await assert.rejects(db.exec(evidenceRolloutSql),/Unexpected explicit-access prerequisite ledger/);await db.exec('ROLLBACK');assert.equal((await db.query('SELECT to_regprocedure($1) AS routine',[signature])).rows[0].routine,null);
+});
+test('repeated rollout refuses without altering the installed routine or ledger',async()=>{
+ await db.exec('DROP FUNCTION '+signature);await db.exec(evidenceRolloutSql);const prior=(await db.query('SELECT * FROM supabase_migrations.schema_migrations ORDER BY version')).rows;await assert.rejects(db.exec(evidenceRolloutSql),/already recorded/);await db.exec('ROLLBACK');assert.deepEqual((await db.query('SELECT * FROM supabase_migrations.schema_migrations ORDER BY version')).rows,prior);await as();assert.equal((await save()).rows.length,1);
+});
+test('prepared preflight is metadata-only and observes routine before and after installation',async()=>{
+ const preflight=readFileSync('docs/production-readiness/proposals/report-evidence-save-preflight.sql','utf8');await db.exec('DROP FUNCTION '+signature);
+ for(const installed of [false,true]){if(installed)await db.exec(evidenceMigrationSource);const result=await db.exec(preflight);const observed=result.find(r=>r.rows?.[0]?.evidence_save_preflight).rows[0].evidence_save_preflight;assert.equal(observed.read_only,'on');assert.equal(observed.table.rls,true);assert.equal(observed.routines.some(r=>r.name.startsWith('save_extracted_report_evidence')),installed);assert.equal((await rows()).length,0);}
 });
