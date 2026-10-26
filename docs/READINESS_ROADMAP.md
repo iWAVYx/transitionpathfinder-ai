@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 26 — Evidence-Save Correction Validated Locally; Hosted Acceptance Still Open
+
+- [x] Prepared additive migration `20261026010000_save_extracted_report_evidence.sql`. The small caller-RLS save routine preserves the existing partial expression index and table policies, saves each bounded batch atomically, derives the author from the signed-in identity, and skips duplicates without overwriting existing evidence. Existing ownership/editor/approved relationship checks remain authoritative; management-only Owner/admin and read-only viewers gain no save permission.
+- [x] Shared text/document extraction now uses that routine after its existing pre/post-generation access checks. Counts come from validated saved IDs; an unavailable/malformed receipt cannot be reported as a successful duplicate-only save. No automatic provider or persistence retry is added. Applicable roles share the correction through the existing handler; public demo retains its existing no-upload/no-provider boundary.
+- [x] Passed all 4,910 unit tests / 338 files, TypeScript, isolated staging build/service-worker generation, 44 scoped readiness/security contracts and 33 credential-free PGlite database cases. The native-only concurrent duplicate case is correctly skipped locally, not claimed passed. Tests reproduce the original 42P10, then cover null/non-null source dedupe, mixed batches, atomic failure, actual author, access removal and invoker/grant boundaries against canonical table/index/access-helper definitions.
+- [x] Added credential-free and native disposable PostgreSQL CI coverage. Canonical inventory is now 210; the saved September 17 production baseline has 16 pending files, including this new local migration. Historical production evidence/read dates and NO-GO remain unchanged; no production read occurred.
+- [ ] Next: automatic native concurrent-save/full migration replay and remaining candidate review; prepare exact staging migration/ledger preflight plus bounded evidence-persistence/storage cleanup acceptance before requesting new rollout/test authorization. No hosted migration, deployment/publication, AI, fixture or production change has occurred. Both staging sites remain the previously verified `e3d10dd8` application / `704262c5…f881513`, 1,190 files.
+- [ ] Keep all TF-01–TF-26/six milestones, goal-save/live evidence acceptance, Arabic/right-to-left/remaining languages and production gates open. Report polish and Parent Pilot/Pathway Snapshot remain deferred. Preserve the Lovable heading edit, environments, dependencies and generated types.
+
+Evidence: `report-evidence-save-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Family/Educator No-Save IEP Acceptance Passed; Evidence-Save Defect Reproduced Locally
 
 - [x] User completed the separate GitHub human review. [Run 40374082334](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40374082334) passed on exact `e3d10dd8`: all seven standing role sign-ins plus the two separately authorized Family/Educator IEP cases. Actual bounded cases completed in 41.3 seconds, with zero test retries; workflow elapsed time also includes waiting for human review/setup.

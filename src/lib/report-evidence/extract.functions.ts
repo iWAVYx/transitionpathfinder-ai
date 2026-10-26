@@ -132,19 +132,8 @@ const ExtractInput = z.object({
   context_hint: z.string().trim().max(400).optional(),
 });
 
-type InsertRow = {
-  student_id: string;
-  report_section: string;
-  source_kind: string;
-  source_id: string | null;
-  source_label: string;
-  note: string | null;
-  snippet_hash: string;
-  created_by: string;
-};
-
 /**
- * Run the AI extractor over free text and idempotently upsert one
+ * Run the AI extractor over free text and idempotently save one
  * report_evidence_link per (student, section, source, snippet).
  * No UI — called from feature pages (documents, intake, meeting notes).
  */
@@ -189,31 +178,39 @@ export const extractEvidenceFromText = createServerFn({ method: "POST" })
       throw new Error("Your access to this student changed. Please refresh before trying again.");
     }
 
-    const rows: InsertRow[] = items.map((it) => ({
-      student_id: data.student_id,
+    const itemsToSave = items.map((it) => ({
       report_section: it.section,
-      source_kind: data.source_kind,
-      source_id: data.source_id ?? null,
-      source_label: data.source_label,
       note: `AI-extracted (${it.confidence}): ${it.snippet}`,
       snippet_hash: snippetHash(it.section, data.source_kind, data.source_id ?? null, it.snippet),
-      created_by: context.userId,
     }));
 
-    // Idempotent upsert against the partial unique index we added in this slice.
-    const { data: inserted, error } = await context.supabase
-      .from("report_evidence_links")
-      .upsert(rows, {
-        onConflict: "student_id,report_section,source_kind,source_id,snippet_hash",
-        ignoreDuplicates: true,
-      })
-      .select("id");
+    // A column-only PostgREST upsert cannot target the historical partial,
+    // expression-based index. This invoker RPC keeps the batch atomic, derives
+    // created_by from auth.uid(), and preserves existing table RLS and dedupe.
+    const save = context.supabase.rpc.bind(context.supabase) as unknown as (
+      name: "save_extracted_report_evidence",
+      args: {
+        _student_id: string; _source_kind: SourceKind; _source_id: string | null;
+        _source_label: string; _items: typeof itemsToSave;
+      },
+    ) => PromiseLike<{ data: Array<{ id: string }> | null; error: unknown }>;
+    const { data: inserted, error } = await save("save_extracted_report_evidence", {
+      _student_id: data.student_id,
+      _source_kind: data.source_kind,
+      _source_id: data.source_id ?? null,
+      _source_label: data.source_label,
+      _items: itemsToSave,
+    });
     if (error) {
       console.error("Evidence extraction save failed.");
       throw new Error("Couldn't save the extracted evidence.");
     }
 
-    const insertedCount = inserted?.length ?? 0;
+    const receipt = z.array(z.object({ id: z.string().uuid() })).max(items.length).safeParse(inserted);
+    if (!receipt.success) {
+      throw new Error("We couldn't confirm which evidence was saved. Refresh your linked evidence before trying again.");
+    }
+    const insertedCount = receipt.data.length;
     return {
       extracted: items.length,
       inserted: insertedCount,

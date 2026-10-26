@@ -25,7 +25,9 @@ beforeEach(() => {
   vi.clearAllMocks(); vi.stubEnv("LOVABLE_API_KEY", "synthetic-test-key");
   api.provider.mockReturnValue(api.model); api.model.mockReturnValue("mock-model");
   api.generate.mockResolvedValue({ experimental_output: { goals: [goal], items: [item] } });
-  rpc = vi.fn().mockResolvedValue({ data: true, error: null });
+  rpc = vi.fn().mockImplementation(async (name: string) => name === "save_extracted_report_evidence"
+    ? { data: [{ id: "33333333-3333-4333-8333-333333333333" }], error: null }
+    : { data: true, error: null });
   const select = vi.fn().mockResolvedValue({ data: [{ id: "synthetic-link" }], error: null });
   upsert = vi.fn().mockReturnValue({ select }); insert = vi.fn().mockReturnValue({ select });
   from = vi.fn().mockReturnValue({ upsert, insert });
@@ -67,33 +69,37 @@ it.each([extractGoalsFromText, extractEvidenceFromText])("rejects oversized text
 it.each([false, null])("does not generate or save evidence when access is denied (%s)", async allowed => {
   rpc.mockResolvedValue({ data: allowed, error: null });
   await expect(evidence()).rejects.toThrow("don't have access");
-  expect(api.provider).not.toHaveBeenCalled(); expect(upsert).not.toHaveBeenCalled();
+  expect(api.provider).not.toHaveBeenCalled(); expect(rpc.mock.calls.filter(([name]) => name === "save_extracted_report_evidence")).toHaveLength(0);
 });
 it.each([false, null])("does not persist evidence when access is lost during generation (%s)", async allowed => {
   rpc.mockResolvedValueOnce({ data: true, error: null }).mockResolvedValueOnce({ data: allowed, error: null });
   await expect(evidence()).rejects.toThrow("access to this student changed");
-  expect(api.generate).toHaveBeenCalledTimes(1); expect(upsert).not.toHaveBeenCalled();
+  expect(api.generate).toHaveBeenCalledTimes(1); expect(rpc.mock.calls.filter(([name]) => name === "save_extracted_report_evidence")).toHaveLength(0);
 });
 it("fails closed on an access recheck error", async () => {
   rpc.mockResolvedValueOnce({ data: true, error: null }).mockResolvedValueOnce({ data: true, error: { message: "private database detail" } });
-  await expect(evidence()).rejects.toThrow("access to this student changed"); expect(upsert).not.toHaveBeenCalled();
+  await expect(evidence()).rejects.toThrow("access to this student changed"); expect(rpc.mock.calls.filter(([name]) => name === "save_extracted_report_evidence")).toHaveLength(0);
 });
 it("preserves source identity and idempotent insertion after both access checks", async () => {
   const result = await evidence({ expected_viewer_id: "current-viewer" });
-  expect(result.inserted).toBe(1); expect(rpc).toHaveBeenCalledTimes(2);
+  expect(result.inserted).toBe(1); expect(rpc).toHaveBeenCalledTimes(3);
   expect(rpc).toHaveBeenNthCalledWith(2, "can_edit_student", { _student_id: studentId, _user_id: "current-viewer" });
-  expect(upsert).toHaveBeenCalledWith([expect.objectContaining({ student_id: studentId, source_id: sourceId, source_kind: "note", source_label: "Reported observation", created_by: "current-viewer", note: `AI-extracted (high): ${text}` })], expect.objectContaining({ ignoreDuplicates: true }));
+  expect(rpc).toHaveBeenNthCalledWith(3, "save_extracted_report_evidence", {
+    _student_id: studentId, _source_id: sourceId, _source_kind: "note", _source_label: "Reported observation",
+    _items: [{ report_section: "readiness", note: `AI-extracted (high): ${text}`, snippet_hash: expect.stringMatching(/^[0-9a-f]{32}$/) }],
+  });
+  expect(upsert).not.toHaveBeenCalled();
 });
 it("returns no evidence and performs no write for empty output", async () => {
   api.generate.mockResolvedValue({ experimental_output: { items: [] } });
   expect(await evidence()).toMatchObject({ extracted: 0, inserted: 0, items: [] });
-  expect(upsert).not.toHaveBeenCalled();
+  expect(rpc.mock.calls.filter(([name]) => name === "save_extracted_report_evidence")).toHaveLength(0);
 });
 it.each(["goals", "evidence"])("rejects provider output beyond the stated twelve-item bound for %s", async mode => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   api.generate.mockResolvedValue({ experimental_output: { goals: Array(13).fill(goal), items: Array(13).fill(item) } });
   await expect(mode === "goals" ? goals() : evidence()).rejects.toThrow(/couldn't read/);
-  expect(upsert).not.toHaveBeenCalled(); expect(insert).not.toHaveBeenCalled();
+  expect(rpc.mock.calls.filter(([name]) => name === "save_extracted_report_evidence")).toHaveLength(0); expect(insert).not.toHaveBeenCalled();
 });
 it("rejects blank goal titles without saving", async () => {
   vi.spyOn(console, "error").mockImplementation(() => {});
@@ -104,12 +110,41 @@ it.each(["goals", "evidence"])("keeps private provider errors out of %s client e
   const log = vi.spyOn(console, "error").mockImplementation(() => {});
   api.generate.mockRejectedValue(new Error("PRIVATE source and provider detail"));
   await expect(mode === "goals" ? goals() : evidence()).rejects.toThrow(/couldn't read/);
-  expect(JSON.stringify(log.mock.calls)).not.toContain("PRIVATE"); expect(upsert).not.toHaveBeenCalled();
+  expect(JSON.stringify(log.mock.calls)).not.toContain("PRIVATE"); expect(rpc.mock.calls.filter(([name]) => name === "save_extracted_report_evidence")).toHaveLength(0);
 });
 it("labels stored document summaries honestly and carries current viewer intent into the nested extraction", async () => {
   const doc = { id: sourceId, student_id: studentId, title: "Review summary", parsed_summary: text, doc_type: "iep" };
   from.mockImplementation((table: string) => table === "documents" ? { select: () => ({ eq: () => ({ single: async () => ({ data: doc, error: null }) }) }) } : { upsert });
   await (extractEvidenceFromDocument as any)({ data: { document_id: sourceId, expected_viewer_id: "current-viewer" } });
   expect(api.generate.mock.calls[0][0].prompt).toContain("Stored document summary, not the original file");
-  expect(upsert.mock.calls[0][0][0]).toMatchObject({ student_id: studentId, source_kind: "document", source_id: sourceId });
+  expect(rpc.mock.calls.find(([name]) => name === "save_extracted_report_evidence")?.[1]).toMatchObject({ _student_id: studentId, _source_kind: "document", _source_id: sourceId });
+});
+
+it("reports duplicates truthfully without updating existing evidence", async () => {
+  rpc.mockImplementation(async (name: string) => name === "save_extracted_report_evidence" ? { data: [], error: null } : { data: true, error: null });
+  expect(await evidence({ source_id: null })).toMatchObject({ extracted: 1, inserted: 0, skipped_duplicates: 1 });
+  expect(rpc.mock.calls.at(-1)?.[1]).toMatchObject({ _source_id: null });
+  expect(upsert).not.toHaveBeenCalled();
+});
+it("uses a bound RPC client and never sends a caller-supplied author", async () => {
+  api.context.supabase.rpc = async function (name: string, args: any) {
+    expect(this).toBe(api.context.supabase);
+    if (name === "save_extracted_report_evidence") {
+      expect(args).not.toHaveProperty("created_by"); expect(args._items[0]).not.toHaveProperty("created_by");
+      return { data: [], error: null };
+    }
+    return { data: true, error: null };
+  };
+  await evidence();
+});
+it("keeps a database save failure private and does not repeat generation", async () => {
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  rpc.mockImplementation(async (name: string) => name === "save_extracted_report_evidence" ? { data: null, error: { message: "PRIVATE source error" } } : { data: true, error: null });
+  await expect(evidence()).rejects.toThrow("Couldn't save the extracted evidence");
+  expect(log.mock.calls).toEqual([["Evidence extraction save failed."]]); expect(api.generate).toHaveBeenCalledTimes(1);
+});
+it.each([null, {}, [{ id: "invalid" }], [{ id: sourceId }, { id: studentId }]])("rejects an unconfirmed save receipt (%j)", async result => {
+  rpc.mockImplementation(async (name: string) => name === "save_extracted_report_evidence" ? { data: result, error: null } : { data: true, error: null });
+  await expect(evidence()).rejects.toThrow("Refresh your linked evidence before trying again");
+  expect(api.generate).toHaveBeenCalledTimes(1);
 });

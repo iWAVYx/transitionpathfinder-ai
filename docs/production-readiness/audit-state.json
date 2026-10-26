@@ -45,16 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 209,
-    "latestCanonicalFile": "20261024030000_enforce_report_share_lifecycle.sql",
+    "canonicalCount": 210,
+    "latestCanonicalFile": "20261026010000_save_extracted_report_evidence.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 15,
-    "canonicalInventoryReviewedAt": "2026-10-24",
-    "canonicalInventorySourceCommit": "34c5c2bc7898495f4d319f3578e77353781e3bb4",
-    "canonicalInventoryStatus": "209 canonical migrations; isolated staging migration20261024030000 and exact ledger applied/verified. Authorized no-AI sharing acceptance40205291128 passed with independent exact cleanup: all eight counts zero at2026-10-25T15:11:37.006388Z. Runtime unchanged52d34874 on both stable sites. Production15 pending remains against saved September17 evidence only; no production access."
+    "pendingProductionCount": 16,
+    "canonicalInventoryReviewedAt": "2026-10-26",
+    "canonicalInventorySourceCommit": "32466326c1bc7612fe4dd8728a7e72ceaab38349",
+    "canonicalInventoryStatus": "210 canonical migrations in the working candidate based on 32466326; new evidence-save migration20261026010000 is prepared locally only, not applied to any hosted backend. Production16 pending is a comparison against saved September17 evidence only, not a fresh production read. Staging remains the previously verified e3d10dd8 application; no production access."
   }
 }

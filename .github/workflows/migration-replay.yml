@@ -17,6 +17,7 @@ on:
       - "tests/database/channel-history-removal.test.mjs"
       - "tests/database/atomic-pathway-history.test.mjs"
       - "tests/database/report-linked-student-save.test.mjs"
+      - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/report-linked-student-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-linked-student-save.sql"
       - "docs/production-readiness/proposals/report-linked-student-preflight.sql"
@@ -47,6 +48,7 @@ on:
       - "tests/database/channel-history-removal.test.mjs"
       - "tests/database/atomic-pathway-history.test.mjs"
       - "tests/database/report-linked-student-save.test.mjs"
+      - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/report-linked-student-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-linked-student-save.sql"
       - "docs/production-readiness/proposals/report-linked-student-preflight.sql"
@@ -133,6 +135,19 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-linked-student-save.test.mjs
+
+      - name: Test evidence saves without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Test evidence saves in disposable concurrent PostgreSQL sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/report-evidence-save.test.mjs
 
       - name: Test report-share restrictions in a disposable PostgreSQL database
         env:
