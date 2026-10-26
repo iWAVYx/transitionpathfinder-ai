@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -62,9 +63,10 @@ function rethrowFriendly(err: unknown, fallback: string): never {
 export const generateReadinessInsights = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>
-    z.object({ student_id: z.string().uuid() }).parse(i),
+    z.object({ ...viewerIntentSchema.shape, student_id: z.string().uuid() }).parse(i),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
 
     const [

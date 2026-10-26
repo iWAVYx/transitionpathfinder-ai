@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Sparkles,
   RefreshCw,
@@ -68,44 +70,57 @@ const WHEN_LABEL: Record<
   before_next_meeting: "Before next meeting",
 };
 
-export function ReadinessInsightsCard({
+export function ReadinessInsightsCard(props: Props) {
+  const { user, loading } = useAuth();
+  if (loading) return <p className="text-sm text-muted-foreground">Loading readiness insights…</p>;
+  if (!user) return <p className="text-sm text-muted-foreground">Sign in to view readiness insights.</p>;
+  return <ReadinessInsightsSession key={`${user.id}:${props.studentId}`} {...props} viewerId={user.id} />;
+}
+
+function ReadinessInsightsSession({
   studentId,
   studentFirstName,
   compact = false,
   className,
-}: Props) {
+  viewerId,
+}: Props & { viewerId: string }) {
   const [insights, setInsights] = useState<ReadinessInsights | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasGenerated, setHasGenerated] = useState(false);
+  const generate = useServerFn(generateReadinessInsights);
+  const active = useRef(false);
+  const inFlight = useRef(false);
+  const started = useRef(false);
 
   const run = async () => {
+    if (!active.current || inFlight.current) return;
+    inFlight.current = true;
     setLoading(true);
     setError(null);
     try {
-      const res = await generateReadinessInsights({
-        data: { student_id: studentId },
+      const res = await generate({
+        data: { student_id: studentId, expected_viewer_id: viewerId },
       });
-      setInsights(res ?? null);
-      setHasGenerated(true);
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : "We couldn't generate insights right now.",
-      );
+      if (active.current) setInsights(res ?? null);
+    } catch {
+      if (active.current) setError("We couldn't generate readiness insights right now. Please try again.");
     } finally {
-      setLoading(false);
+      inFlight.current = false;
+      if (active.current) setLoading(false);
     }
   };
 
-  // Auto-run once per mount for a friendlier first impression.
+  // One request belongs to this mounted viewer/student session, including Strict Mode replay.
   useEffect(() => {
-    if (!hasGenerated && !loading) {
+    active.current = true;
+    if (!started.current) {
+      started.current = true;
       void run();
     }
+    return () => { active.current = false; };
+    // The keyed session remounts when either identity changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId]);
+  }, []);
 
   const wrapBase =
     "rounded-3xl border bg-gradient-to-br from-primary/5 via-background to-background p-5 shadow-soft sm:p-6";
@@ -300,8 +315,8 @@ function Header({
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {loading
-            ? `Reading ${studentFirstName}'s IEP, documents, and priorities…`
-            : `Personalized for ${studentFirstName} from their IEP, documents, voice, and priorities.`}
+            ? `Reviewing the planning information available for ${studentFirstName}…`
+            : `Based on the planning information available for ${studentFirstName}. Review suggestions with your team.`}
         </p>
       </div>
       {onRefresh && (

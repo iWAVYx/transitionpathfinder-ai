@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 26 — Shared Readiness Student and Viewer Lifecycle Corrected Locally
+
+- [x] Audited the remaining generator inventory after Family/Educator Pathway acceptance. Found that the shared Readiness card could keep completed insights across student changes and apply late responses to the wrong displayed student. Its session now resets synchronously for authenticated viewer/student changes, hides during sign-out/auth loading, ignores departed results/errors and prevents duplicate in-flight/mount-replay actions. Existing explicit retry/refresh and once-per-session automatic generation remain.
+- [x] Added the existing optional viewer-intent guard before source queries/provider work and used the authenticated server-function adapter. This guard is not an access grant: existing RLS remains authoritative. Shared Student Planning Tools consumers inherit the correction under existing permissions; Owner stays management-only. Replaced the unconditional claim of IEP review with accurate available-information language. No dashboard/document redesign or demo provider call was added.
+- [x] Ten focused offline regressions, all 4,687 unit tests / 327 files, TypeScript, isolated staging build and service-worker generation pass. Candidate `98e3ed4f…7e96f9` / 1,189 runtime files is local only; hosted staging remains reviewed `bf2c45bf` / `06dbf4c6…c0b1c28`.
+- [ ] Continue Readiness source-completeness and score-grounding review: current source queries discard errors and the prompt permits inferred status without recorded assessments. This lifecycle fix does not validate every model claim or close live role/source acceptance. Keep separate translation, next-step, IEP, document and evidence-extraction coverage open; do not automatically call providers or create fixtures.
+- [ ] Complete automatic review before a concrete new staging release/test proposal. Full TF-01–TF-26/six milestones and production gates remain; report polish and Parent Pilot/Pathway Snapshot stay deferred. No deployment/publication, migration, hosted records/AI, accounts/access, payments/secrets, production or original-main merge occurred.
+
+Evidence: `readiness-insights-session-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Family and Educator Pathway Acceptance Passed on Reviewed Staging
 
 - [x] All eight automatic checks passed for reviewed `bf2c45bf`. The user-authorized [staging release 40267751029](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40267751029) succeeded. Both stable staging sites serve `06dbf4c6…c0b1c28` / 1,189 files with staging backend, sandbox payments and isolation passing. Only the three approved runtime paths were synced to isolated Lovable; protected settings and the user's title-case widget edit were preserved.
