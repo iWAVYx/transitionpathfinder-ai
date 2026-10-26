@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 25 — Pathway Failure Diagnostics Prepared Without Another Live Run
+
+- [x] Reviewed the stopped run, generation/save boundary and existing sanitized server diagnostics. The intake was saved before generation; no report was saved. This bounds the failure to generation/validation before report persistence but does not prove a provider, schema or timeout cause.
+- [x] Inspected the isolated project's existing read-only AI activity panel. A recent request is marked successful (64.3 seconds), but payload capture is disabled and no exact fixture correlation or validation output is available. Provider success is not application/schema/save success. Did not enable expanded data capture, contact support, change AI settings or invoke the model.
+- [x] Prepared test-only metadata capture: preserve the primary failure category even when teardown wraps it, plus capped same-origin POST failure statuses/transport counts only during existing generation phases. No URLs, bodies, headers, error messages/stacks, console content or credentials are retained; no new application route or telemetry is added. All current strict checks, generation actions, uncertain-completion stop, cleanup limits and zero retries remain unchanged.
+- [x] 54 offline diagnostics/privacy/creator-cleanup/persistence tests, TypeScript and browser-test discovery pass. Discovery executes no sign-ins, fixtures or AI. Runtime remains reviewed `b49880da`, fingerprint `2e4d4362…db56b7c` / 1,188 files on both staging sites.
+- [ ] The original Pathway cause remains open; automatic review of the test-only revision is next. A new hosted diagnostic/acceptance run still needs fresh bounded authorization and GitHub's human review. No automatic repeat, deployment/publication, migration, real data/account/access, provider call, payment/secret or production change occurred. Keep PPT factual-wording caveats, full TF-01–TF-26/six milestones and deferred report polish/Parent Pilot/Pathway Snapshot.
+
+Earlier checkpoints below are historical.
+
 ## October 25 — Shared Planning Release Verified; PPT Passed, Pathway Creation Still Open
 
 - [x] User-authorized reviewed `b49880da` is deployed on Cloudflare staging and synced/published only to the existing isolated Lovable project (`95e8d710`). Both stable sites independently return fingerprint `2e4d4362…db56b7c`, 1,188 files, backend `qgrertkqbwanerqqemph`, staging labels, sandbox public/server payments and isolation passing. Cloudflare's first asset upload returned 401 after a successful build; one unchanged retry passed. Protected environment/dependency/type files and the Lovable **Your Dashboard Widgets** edit are preserved.

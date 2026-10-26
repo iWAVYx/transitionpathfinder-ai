@@ -1,3 +1,4 @@
+import { creatorTransportDiagnostics } from "../helpers/pathway-creator-diagnostics";
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
@@ -94,8 +95,22 @@ for (const role of roles)
     let phase = "login";
     let databaseErrorCode: string | null = null;
     let primaryFailure: unknown;
+    const transportDiagnostics = creatorTransportDiagnostics();
     try {
       const page = await context.newPage();
+      // Observe only same-origin POST outcomes during the two existing generation actions.
+      // No response/request body, URL, headers, console text or credential data is retained.
+      const duringGeneration = () => phase === "initial-generation" || phase === "regeneration";
+      page.on("response", (response) => {
+        if (duringGeneration() && response.request().method() === "POST" &&
+            new URL(response.url()).origin === target.origin)
+          transportDiagnostics.response(response.status());
+      });
+      page.on("requestfailed", (request) => {
+        if (duringGeneration() && request.method() === "POST" &&
+            new URL(request.url()).origin === target.origin)
+          transportDiagnostics.failed();
+      });
       await login(page, role);
       phase = "create-synthetic-student";
       operationPending = true;
@@ -357,6 +372,7 @@ for (const role of roles)
                 databaseErrorCode,
                 operationPending,
                 primaryFailurePreserved: true,
+                ...transportDiagnostics.snapshot(primaryFailure),
                 reconciliationRequired: operationPending,
               },
               null,
@@ -401,7 +417,7 @@ for (const role of roles)
       if (errors.length)
         throw new AggregateError(
           primaryFailure ? [primaryFailure, ...errors] : errors,
-          `Bounded Pathway teardown requires review; phase=${phase}; database code=${databaseErrorCode ?? "unavailable"}; pending=${operationPending}`,
+          `Bounded Pathway teardown requires review; phase=${phase}; database code=${databaseErrorCode ?? "unavailable"}; pending=${operationPending}; primary=${transportDiagnostics.snapshot(primaryFailure).primaryFailureKind}`,
         );
     }
   });
