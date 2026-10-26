@@ -29,6 +29,11 @@ const STATUS_META: Record<
   ReadinessInsights["pillar_callouts"][number]["status"],
   { label: string; chip: string; dot: string }
 > = {
+  not_assessed: {
+    label: "Not Assessed",
+    chip: "bg-muted text-muted-foreground border-border",
+    dot: "bg-muted-foreground",
+  },
   strength: {
     label: "Strength",
     chip: "bg-emerald-50 text-emerald-800 border-emerald-200",
@@ -165,7 +170,7 @@ function ReadinessInsightsSession({
     const topStep = insights.friendly_next_steps[0];
     return (
       <div className={`${wrapBase} ${className ?? ""}`}>
-        <Header studentFirstName={studentFirstName} onRefresh={() => void run()} refreshing={loading} />
+        <Header studentFirstName={studentFirstName} onRefresh={() => void run()} refreshing={loading} error={error} />
         <p className="mt-3 text-sm leading-relaxed text-foreground/90">
           {insights.readiness_summary}
         </p>
@@ -200,7 +205,7 @@ function ReadinessInsightsSession({
 
   return (
     <div className={`${wrapBase} ${className ?? ""}`}>
-      <Header studentFirstName={studentFirstName} onRefresh={() => void run()} refreshing={loading} />
+      <Header studentFirstName={studentFirstName} onRefresh={() => void run()} refreshing={loading} error={error} />
 
       <h3 className="mt-3 font-display text-xl font-medium tracking-tight sm:text-2xl">
         {insights.headline}
@@ -300,11 +305,13 @@ function Header({
   onRefresh,
   refreshing,
   loading,
+  error,
 }: {
   studentFirstName: string;
   onRefresh?: () => void;
   refreshing?: boolean;
   loading?: boolean;
+  error?: string | null;
 }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -318,6 +325,11 @@ function Header({
             ? `Reviewing the planning information available for ${studentFirstName}…`
             : `Based on the planning information available for ${studentFirstName}. Review suggestions with your team.`}
         </p>
+        {error && (
+          <p role="alert" className="mt-2 text-xs text-amber-800 dark:text-amber-200">
+            We couldn't refresh these insights. The earlier suggestions are still shown.
+          </p>
+        )}
       </div>
       {onRefresh && (
         <button

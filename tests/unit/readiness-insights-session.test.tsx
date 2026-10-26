@@ -69,3 +69,14 @@ it("does not claim an IEP was reviewed when available sources are unknown", asyn
   expect(screen.queryByText(/from their IEP/)).toBeNull();
   expect(screen.getByText(/Based on the planning information available/)).toBeTruthy();
 });
+
+it.each([false, true])("shows unassessed areas and makes a failed refresh visible (compact %s)", async compact => {
+  const result = { ...insights("Earlier suggestions"), pillar_callouts: [{ pillar: "Employment", score: null, status: "not_assessed", what_we_see: "No assessment supplied.", why_it_matters: "Confirm with your team." }] };
+  api.generate.mockResolvedValueOnce(result).mockRejectedValueOnce(new Error("PRIVATE source failure"));
+  render(card("student-a", compact)); await screen.findAllByText("Earlier suggestions");
+  if (!compact) expect(screen.getByText("Not Assessed")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Refresh", exact: true }));
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "We couldn't refresh these insights. The earlier suggestions are still shown.");
+  expect(screen.queryByText("PRIVATE source failure")).toBeNull();
+  expect(screen.getAllByText("Earlier suggestions").length).toBeGreaterThan(0);
+});

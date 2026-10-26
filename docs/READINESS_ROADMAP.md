@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 26 — Readiness Source Failures and Unsupported Ratings Corrected Locally
+
+- [x] Source-query errors, rejected reads and unreadable collections stop Readiness generation before provider work. Successfully empty optional sources remain valid, and inaccessible students remain denied. This describes caller-visible data under existing RLS, not global absence.
+- [x] Returned readiness badges/numbers now use only valid, unambiguous recorded category scores with exact decimal values and deterministic thresholds. Missing, invalid, ambiguous or unmatched ratings return no score and the neutral “Not Assessed” badge. Potentially conflicting stored level labels are omitted from the prompt; no source records are rewritten. These checks do not independently verify the underlying assessment or every generated sentence.
+- [x] Shared planning-grounding rules now cover this generator. Removed inferred-assessment instructions, clarified proposed roles/timing, labelled Builder input and document summaries accurately, and distinguished document metadata from reviewed content. A failed refresh visibly identifies retained earlier suggestions. Existing authorized roles share this card/handler; no new role access or Owner dashboard is introduced. No demo provider request or document redesign.
+- [x] Forty-two focused offline regressions, all 4,719 unit tests / 328 files, TypeScript, final isolated staging build and service-worker generation pass. Local runtime candidate `eebb4f81…a2f0159` / 1,189 files; deployed staging remains `bf2c45bf` / `06dbf4c6…c0b1c28`.
+- [ ] Complete automatic review before preparing a concrete separately authorized staging lifecycle/source rollout and bounded readiness test. Live role/source/quality acceptance and access-loss/concurrent-source behavior remain open. Continue translation/next-step and IEP/document/evidence workflows; no automatic provider repeat or fixture creation.
+- [ ] Full TF-01–TF-26/six milestones and production gates remain. Report polish and Parent Pilot/Pathway Snapshot stay deferred. No deployment/publication, migration, hosted records/AI, accounts/access, payments/secrets, original-main merge or production action occurred.
+
+Evidence: `readiness-insights-grounding-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Shared Readiness Student and Viewer Lifecycle Corrected Locally
 
 - [x] Audited the remaining generator inventory after Family/Educator Pathway acceptance. Found that the shared Readiness card could keep completed insights across student changes and apply late responses to the wrong displayed student. Its session now resets synchronously for authenticated viewer/student changes, hides during sign-out/auth loading, ignores departed results/errors and prevents duplicate in-flight/mount-replay actions. Existing explicit retry/refresh and once-per-session automatic generation remain.
