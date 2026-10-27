@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 27 — Truthful Upload Results and Confirmed Scan Transitions
+
+- [x] Prior registration candidate `0a045f5a` passed all eight applicable automatic checks. Skipped hosted checks are not acceptance passes.
+- [x] Locally distinguish saved, pending security review, blocked and uncertain results. Require exact student/path receipts and persisted clean/quarantine states; queue summary processing only after a confirmed clean database transition.
+- [x] Pause uncertain writes without replay, preserve metadata, block synchronous duplicate confirmations and distinguish list-refresh failure from upload failure. Browser messages/logs omit raw service errors; read-only controls remain absent. All 5,036 tests across 343 files, 60 focused cases, five static upload-gate contracts, TypeScript and the staging build pass.
+- [ ] Complete fresh automatic review. Runtime `4c0ed441…b6761705` / 1,192 files is local only; stable staging remains verified `7814afa7` / 1,190 files.
+- [ ] Continue upload student/viewer lifetime, hash/dedupe/exact orphan reconciliation, unavailable-versus-empty lists, effective quarantine/download policy and background-job/cleanup review. The form pause is not database or cross-tab/cross-refresh idempotency. Prepare separate bounded goal-save and storage/provider acceptance before requesting fresh rollout/test authorization.
+
+Evidence: `document-upload-outcomes-local-2026-10-27.json`. No hosted uploads, fixtures, provider calls, migration, deployment or publication occurred. Preserve all TF-01–TF-26/six milestones and production gates; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Document Registration Boundary and Upload Audit
 
 - [x] Prior goal-save candidate `488a667b` passed all eight applicable automatic checks. Its initial push build exhausted the existing Node heap; one identical-source retry passed. The separate PR build also passed.

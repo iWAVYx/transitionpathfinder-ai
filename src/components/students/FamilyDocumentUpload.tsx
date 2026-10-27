@@ -1,3 +1,4 @@
+import { documentUploadOutcome, DOCUMENT_UPLOAD_UNCONFIRMED } from "@/lib/document-upload-outcome";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -161,6 +162,9 @@ export function FamilyDocumentUpload({
   const assertCanUpload = useServerFn(assertCanUploadForStudent);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const uploadPending = useRef(false);
+  const uploadUnconfirmed = useRef(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
   const [docType, setDocType] = useState<DocType>("current-iep");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
@@ -176,11 +180,17 @@ export function FamilyDocumentUpload({
   const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
   async function upload(file: File, consentAcknowledged = consent) {
+    if (uploadPending.current || uploadUnconfirmed.current || !canEdit) return;
     if (!PROTECTED_FILE_UPLOADS_ENABLED) {
       toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
       return;
     }
-    assertPrivacySafeDerivedUpload(file.name, file.type);
+    try {
+      assertPrivacySafeDerivedUpload(file.name, file.type);
+    } catch {
+      toast.error("Please approve the privacy-safe text copy before uploading.");
+      return;
+    }
     if (file.size > MAX_BYTES) {
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
       return;
@@ -190,16 +200,24 @@ export function FamilyDocumentUpload({
       toast.error("Please confirm the privacy notice below before uploading.");
       return;
     }
+    uploadPending.current = true;
     setBusy(true);
+    let writeAttempted = false;
+    function pauseUnconfirmed() {
+      uploadUnconfirmed.current = true;
+      setUnconfirmed(true);
+      toast.error(DOCUMENT_UPLOAD_UNCONFIRMED);
+    }
     try {
       await assertCanUpload({ data: { student_id: studentId } });
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
       const path = `${studentId}/${Date.now()}-${safeName}`;
+      writeAttempted = true;
       const { error: upErr } = await supabase.storage
         .from("student-documents")
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
-      await register({
+      const receipt = await register({
         data: {
           student_id: studentId,
           title: (title.trim() || file.name).slice(0, 200),
@@ -218,7 +236,18 @@ export function FamilyDocumentUpload({
           consent_acknowledged: true,
         },
       });
-      toast.success("Document uploaded. Only people you've granted access can see it.");
+      const outcome = documentUploadOutcome(receipt, studentId, path);
+      if (outcome === "uncertain") {
+        pauseUnconfirmed();
+        return;
+      }
+      if (outcome === "blocked") {
+        toast.error("This file could not be cleared for use. Review its status before trying again.");
+      } else if (outcome === "pending") {
+        toast.info("File received. Its security review is not yet confirmed. Check its status in the document list.");
+      } else {
+        toast.success("Document saved. Review its status in the document list.");
+      }
       setTitle("");
       setSchoolYear("");
       setMeetingDate("");
@@ -228,11 +257,18 @@ export function FamilyDocumentUpload({
       setNotes("");
       setSource("");
       setPendingFile(null);
-      await onChange();
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Upload failed.");
+      try {
+        await onChange();
+      } catch {
+        toast.error("The upload result is confirmed, but the document list couldn't be refreshed. Refresh this page to view its current status.");
+      }
+    } catch {
+      // Do not expose filenames, storage paths or private service errors.
+      // A lost write response does not prove that no file or row was saved.
+      if (writeAttempted) pauseUnconfirmed();
+      else toast.error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     } finally {
+      uploadPending.current = false;
       setBusy(false);
       if (fileRef.current) fileRef.current.value = "";
     }
@@ -504,7 +540,7 @@ export function FamilyDocumentUpload({
 
         <label
           className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background p-6 text-center transition-colors sm:p-8 ${
-            busy ? "opacity-60" : "cursor-pointer hover:border-primary/60 hover:bg-primary/[0.03]"
+            busy || unconfirmed ? "opacity-60" : "cursor-pointer hover:border-primary/60 hover:bg-primary/[0.03]"
           }`}
         >
           <input
@@ -512,7 +548,7 @@ export function FamilyDocumentUpload({
             type="file"
             accept=".pdf,.txt,application/pdf,text/plain"
             className="hidden"
-            disabled={busy}
+            disabled={busy || unconfirmed}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) {
@@ -557,6 +593,12 @@ export function FamilyDocumentUpload({
 
 
 
+
+      {unconfirmed && (
+        <p role="alert" className="border-t px-5 py-3 text-sm text-amber-950 dark:text-amber-100 sm:px-6">
+          {DOCUMENT_UPLOAD_UNCONFIRMED}
+        </p>
+      )}
 
       {/* File list */}
       <div className="border-t">

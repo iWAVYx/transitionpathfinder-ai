@@ -1,3 +1,4 @@
+import { documentUploadOutcome } from "./document-upload-outcome";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -284,15 +285,27 @@ export const registerDocument = createServerFn({ method: "POST" })
     if (!sniff.ok) {
       // Quarantine: reject the row and mark it archived with an audit reason.
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
-        .from("documents")
-        .update({
-          review_status: "rejected",
-          archived_at: new Date().toISOString(),
-          archived_by: userId,
-          archive_reason: `auto-quarantined: ${sniff.error_code}`,
-        })
-        .eq("id", row.id);
+      let quarantinedDocument: DocumentRow;
+      try {
+        const receipt = await supabaseAdmin
+          .from("documents")
+          .update({
+            review_status: "rejected",
+            archived_at: new Date().toISOString(),
+            archived_by: userId,
+            archive_reason: `auto-quarantined: ${sniff.error_code}`,
+          })
+          .eq("id", row.id)
+          .select("*")
+          .single();
+        if (receipt.error || receipt.data?.id !== row.id ||
+            documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
+          throw new Error("Unconfirmed quarantine receipt");
+        }
+        quarantinedDocument = receipt.data as DocumentRow;
+      } catch {
+        throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
+      }
 
       await recordPipelineRun({
         document_id: row.id,
@@ -328,7 +341,7 @@ export const registerDocument = createServerFn({ method: "POST" })
         metadata: { error_code: sniff.error_code, declared_mime: data.mime_type ?? null },
       });
 
-      return { ...row, review_status: "rejected", archived_at: new Date().toISOString() } as DocumentRow;
+      return quarantinedDocument;
     }
 
     // Sniff passed — record breadcrumb before running the AV scan.
@@ -386,27 +399,39 @@ export const registerDocument = createServerFn({ method: "POST" })
         }
       }
 
-      await adminForScan
-        .from("documents")
-        .update({
-          scan_status: isInfected ? "deleted" : "failed",
-          scan_verdict: {
-            code: scanResult.code,
-            provider: scanResult.provider,
-            clean_result: scanResult.clean_result,
-            blocked_reasons: scanResult.blocked_reasons,
-            threats: scanResult.threats,
-            error_message: scanResult.error_message,
-          },
-          scan_data_id: scanResult.scan_id,
-          scanned_at: now,
-          review_status: "rejected",
-          archived_at: now,
-          archived_by: userId,
-          archive_reason: `auto-quarantined by av_scan: ${scanResult.code}`,
-          ...(isInfected ? { deleted_at: now, deleted_by: userId, delete_reason: "av_scan_infected" } : {}),
-        })
-        .eq("id", row.id);
+      let quarantinedDocument: DocumentRow;
+      try {
+        const receipt = await adminForScan
+          .from("documents")
+          .update({
+            scan_status: isInfected ? "deleted" : "failed",
+            scan_verdict: {
+              code: scanResult.code,
+              provider: scanResult.provider,
+              clean_result: scanResult.clean_result,
+              blocked_reasons: scanResult.blocked_reasons,
+              threats: scanResult.threats,
+              error_message: scanResult.error_message,
+            },
+            scan_data_id: scanResult.scan_id,
+            scanned_at: now,
+            review_status: "rejected",
+            archived_at: now,
+            archived_by: userId,
+            archive_reason: `auto-quarantined by av_scan: ${scanResult.code}`,
+            ...(isInfected ? { deleted_at: now, deleted_by: userId, delete_reason: "av_scan_infected" } : {}),
+          })
+          .eq("id", row.id)
+          .select("*")
+          .single();
+        if (receipt.error || receipt.data?.id !== row.id ||
+            documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
+          throw new Error("Unconfirmed quarantine receipt");
+        }
+        quarantinedDocument = receipt.data as DocumentRow;
+      } catch {
+        throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
+      }
 
       // Pipeline breadcrumbs
       await recordPipelineRun({
@@ -497,30 +522,39 @@ export const registerDocument = createServerFn({ method: "POST" })
         ]);
       }
 
-      return {
-        ...row,
-        scan_status: isInfected ? "deleted" : "failed",
-        review_status: "rejected",
-        archived_at: now,
-        ...(isInfected ? { deleted_at: now } : {}),
-      } as DocumentRow;
+      return quarantinedDocument;
     }
 
     // ── Clean verdict: mark the row clean and proceed to AI extract. ─
-    await adminForScan
-      .from("documents")
-      .update({
-        scan_status: "clean",
-        scan_verdict: {
-          code: "clean",
-          provider: scanResult.provider,
-          clean_result: scanResult.clean_result,
-          blocked_reasons: scanResult.blocked_reasons,
-        },
-        scan_data_id: scanResult.scan_id,
-        scanned_at: scanFinishedAt,
-      })
-      .eq("id", row.id);
+    let confirmedDocument: DocumentRow;
+    try {
+      const cleanReceipt = await adminForScan
+        .from("documents")
+        .update({
+          scan_status: "clean",
+          scan_verdict: {
+            code: "clean",
+            provider: scanResult.provider,
+            clean_result: scanResult.clean_result,
+            blocked_reasons: scanResult.blocked_reasons,
+          },
+          scan_data_id: scanResult.scan_id,
+          scanned_at: scanFinishedAt,
+        })
+        .eq("id", row.id)
+        .select("*")
+        .single();
+      if (cleanReceipt.error || cleanReceipt.data?.id !== row.id ||
+          documentUploadOutcome(cleanReceipt.data, data.student_id, data.storage_path) !== "saved") {
+        // A scanner verdict alone does not prove the database transition committed.
+        // Never queue summary processing or claim a clean result without a receipt.
+        throw new Error("Unconfirmed security-review receipt");
+      }
+
+      confirmedDocument = cleanReceipt.data as DocumentRow;
+    } catch {
+      throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
+    }
 
     await recordPipelineRun({
       document_id: row.id,
@@ -610,7 +644,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       metadata: { doc_type: data.doc_type, visibility: data.visibility },
     });
 
-    return row as DocumentRow;
+    return confirmedDocument;
   });
 
 /**
