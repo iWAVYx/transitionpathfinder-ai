@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "proposal verified locally; native/full-schema and automatic checks pending; not canonical or hosted",
+  "status": "proposal verified locally and in disposable native/full-schema CI; all eight applicable automatic checks passed; not canonical or hosted",
   "base_commit": "8e7804eb",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-summary-job-boundary.sql",
@@ -41,5 +41,25 @@
     "published": false,
     "provider_calls": 0,
     "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40535846950",
+    "source_commit": "77dbb3003271ad6a2607ade9d2d5e4ecf21bf9fb",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 168,
+    "native_database_cases_skipped": 0,
+    "concurrency": "Four existing path-insert/object-metadata COMMIT/ROLLBACK lock cases retained and passed alongside summary privacy cases.",
+    "full_schema": "All 210 canonical migrations replayed; existing grant/RLS/security checks passed before all five proposals were applied and catalog boundaries verified. New proposed routine is outside the canonical inventory and requires review before promotion.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "77dbb3003271ad6a2607ade9d2d5e4ecf21bf9fb",
+    "all_eight_applicable_passed": true,
+    "unit_tests_passed": 5135,
+    "unit_files_passed": 345,
+    "unit_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40535853344",
+    "builds": "Parallel PR build passed first attempt; push build passed one unchanged-source retry after confirmed Node heap exhaustion. No source/credential/heap-setting change in retry.",
+    "protected_skipped_jobs": "unperformed; not hosted acceptance"
   }
 }

@@ -111,9 +111,18 @@
     "proposal": "docs/production-readiness/proposals/document-summary-job-boundary.sql",
     "combined_local_cases_passed": 164,
     "native_only_cases_skipped": 4,
-    "native_full_schema": "pending",
+    "native_full_schema": "passed after all 210 canonical migrations and existing grant/RLS/security checks",
     "not_canonical": true,
     "hosted_actions": false,
-    "limit": "Prerequisite to private file-text grounding; actual worker/source reads remain unimplemented, other job types retain existing rules."
+    "limit": "Prerequisite to private file-text grounding; actual worker/source reads remain unimplemented, other job types retain existing rules.",
+    "native_database_cases_passed": 168,
+    "native_database_cases_skipped": 0,
+    "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40535846950",
+    "automatic_checks": {
+      "source_commit": "77dbb3003271ad6a2607ade9d2d5e4ecf21bf9fb",
+      "all_eight_applicable_passed": true,
+      "unit_tests_passed": 5135,
+      "build_memory": "one unchanged-source retry required; recurring constrained-heap concern remains"
+    }
   }
 }
