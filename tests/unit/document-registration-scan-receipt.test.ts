@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), clean: vi.fn(), enqueue: vi.fn(), remove: vi.fn(), download: vi.fn(), insert: vi.fn(), pathAvailable: vi.fn() }));
+const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), clean: vi.fn(), enqueue: vi.fn(), remove: vi.fn(), download: vi.fn(), insert: vi.fn(), cleanWrite: vi.fn(), pathAvailable: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   let validate = (input: unknown) => input;
   const builder = { middleware: () => builder, validator: (fn: typeof validate) => { validate = fn; return builder; },
@@ -13,7 +13,7 @@ vi.mock("../../src/lib/document-upload-duplicate.server", () => ({ assertDocumen
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-correlation" }));
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff, MAX_UPLOAD_BYTES: 25_000_000 }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan, MALWARE_SCAN_PROVIDER: "mock-scanner" }));
-vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { storage: { from: () => ({ remove: api.remove }) }, from: () => ({ update: () => ({ eq: () => ({ select: () => ({ single: api.clean }) }) }) }) } }));
+vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { storage: { from: () => ({ remove: api.remove }) }, from: () => ({ update: api.cleanWrite }) } }));
 import { registerDocument } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const id = "22222222-2222-4222-8222-222222222222";
@@ -22,7 +22,7 @@ const pending = { id, student_id: student, storage_path: path, title: "Fictional
 const clean = { ...pending, scan_status: "clean" };
 const register = (patch: object = {}) => (registerDocument as any)({ data: { student_id: student, title: pending.title, storage_path: path, mime_type: "text/plain", consent_acknowledged: true, ...patch } });
 beforeEach(() => {
-  vi.resetAllMocks(); api.pathAvailable.mockResolvedValue(undefined); api.download.mockResolvedValue({ data: new Blob(["Fictional reviewed source"]), error: null }); api.remove.mockResolvedValue({ error: null }); api.clean.mockResolvedValue({ data: clean, error: null });
+  vi.resetAllMocks(); api.cleanWrite.mockReturnValue({ eq: () => ({ select: () => ({ single: api.clean }) }) }); api.pathAvailable.mockResolvedValue(undefined); api.download.mockResolvedValue({ data: new Blob(["Fictional reviewed source"]), error: null }); api.remove.mockResolvedValue({ error: null }); api.clean.mockResolvedValue({ data: clean, error: null });
   api.sniff.mockResolvedValue({ ok: true, detected_kind: "text" });
   api.scan.mockResolvedValue({ ok: true, code: "clean", provider: "mock-scanner", clean_result: true, blocked_reasons: [], threats: [], scan_id: "fictional-scan" });
   const roleQuery: any = { select: () => roleQuery, eq: () => Promise.resolve({ data: [{ role: "parent" }], error: null }) };
@@ -119,4 +119,21 @@ it("stops before scanning or removal when another registration wins a unique-pat
   await expect(register()).rejects.toThrow("Could not save document record");
   expect(api.insert).toHaveBeenCalledOnce(); expect(api.sniff).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
   expect(log).toHaveBeenCalledExactlyOnceWith("Document registration could not be confirmed."); log.mockRestore();
+});
+
+it("passes the exact downloaded copy through hash, sniff and scan without a second storage read", async () => {
+  const copy = new Blob(["Fictional reviewed source"]);
+  api.download.mockResolvedValue({ data: copy, error: null });
+  await register();
+  expect(api.download).toHaveBeenCalledOnce();
+  expect(api.sniff.mock.calls[0][1]).toBe(copy);
+  expect(api.scan.mock.calls[0][1]).toBe(copy);
+  expect(api.cleanWrite).toHaveBeenCalledWith(expect.objectContaining({ scan_verdict: expect.objectContaining({ content_sha256: createHash("sha256").update(await copy.text()).digest("hex"), source: "registration_reviewed_copy" }) }));
+  expect(api.insert.mock.calls[0][0].content_hash).toBe(createHash("sha256").update(await copy.text()).digest("hex"));
+});
+it("ignores a caller's proposed copy and still uses authenticated storage bytes", async () => {
+  const copy = new Blob(["Fictional reviewed source"]);
+  api.download.mockResolvedValue({ data: copy, error: null });
+  await register({ reviewedCopy: new Blob(["Caller replacement"]) });
+  expect(api.sniff.mock.calls[0][1]).toBe(copy); expect(api.scan.mock.calls[0][1]).toBe(copy);
 });

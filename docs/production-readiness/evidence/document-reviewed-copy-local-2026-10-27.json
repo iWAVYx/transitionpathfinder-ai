@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-27",
+  "status": "local application change verified; automatic review and hosted acceptance pending",
+  "base_commit": "499163cc",
+  "runtime": {
+    "fingerprint": "12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2",
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "file_count": 1194
+  },
+  "changes": [
+    "Initial document registration downloads one caller-readable immutable Blob, fingerprints it and passes that exact instance as an internal server argument to type checking and malware scanning.",
+    "No public request copy is accepted. Malformed internal copies fail closed without a fresh download; legacy callers retain their existing storage bucket path. Empty/oversize scanner blobs are rejected before provider submission.",
+    "Clean scan metadata records content_sha256 and registration_reviewed_copy source; this is the scanned copy identity, not remote-object immutability proof.",
+    "Updated one stale consent contract to require current viewer and fingerprint preflight while retaining consent handoff assertions."
+  ],
+  "validation": {
+    "focused_tests_passed": 56,
+    "unit_tests_passed": 5135,
+    "unit_files_passed": 345,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "student_channel_static_contracts_passed": 23,
+    "diff_check": "passed",
+    "provider_calls": "mocked only, zero actual provider requests"
+  },
+  "new_worker_finding": {
+    "source": "supabase/functions/ai-job-processor/index.ts processJob; src/lib/documents.functions.ts registration job enqueue",
+    "finding": "Registration queues only document metadata. Worker sanitizes input_source and sends it to AI; it does not load/verify stored text. No real uploaded-file text grounding is established by this job.",
+    "next": "Implement authorized private scan/hash/version-bound text reads or verified text payloads and grounded output tests; do not label metadata-only summaries as file extraction."
+  },
+  "limitations": [
+    "Ownership/version-binding SQL is proposal-only and is not wired to registration yet.",
+    "Stored paths can still change through trusted service writes; clean-state/read/remove races and content reservations are unresolved.",
+    "Legacy retry/channel caller storage reads are retained and are not converted to the initial registration held-copy flow.",
+    "The hosted Lovable constrained 1216-MB build profile remains a recurring memory risk; the isolated local build has different heap behavior.",
+    "No hosted managed schema, byte ownership, Storage API, real scanner/gateway or end-to-end background job acceptance performed."
+  ],
+  "authorization": {
+    "canonical_migration_added": false,
+    "hosted_database_changed": false,
+    "deployed": false,
+    "published": false,
+    "production_touched": false
+  }
+}

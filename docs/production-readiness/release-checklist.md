@@ -1,5 +1,18 @@
 # Production release checklist
 
+## October 27 — One Reviewed Copy for Registration Checks
+
+- [x] Local registration now holds one immutable server-side Blob through SHA-256 fingerprinting, type checks and malware provider submission; no independent storage re-download between these three steps. The clean verdict records this copy's hash/source. No public byte-copy field or role/access grant was added.
+- [x] The shared helpers fail closed on malformed copies without falling back to a new download. Credential/size/verdict gates remain; legacy rescan/channel callers retain their current download path. This does not claim those legacy paths use registration's held copy.
+- [x] All 5,135 unit tests across 345 files, TypeScript, isolated staging build, service-worker generation and 23 student/channel static security contracts pass. Mocked tests inspect actual provider FormData bytes and matching hash, storage replacement, invalid/empty/oversize copies and legacy channel routing. No real scanner/AI/storage calls.
+- [x] Corrected a stale static consent test to require current expected-viewer/hash preflight; consent assertions remain. Before this change, the test expected the old student-only call shape.
+- [ ] Complete automatic checks for this runtime. Local fingerprint `12011271…7e74d6e2` / 1,194 files; stable staging remains `7814afa7` / 1,190 files. Prior evidence-only `499163cc` had six applicable checks pass and both capped build checks fail with Node heap exhaustion; no passing baseline is claimed for those two builds. The local isolated build does not exercise that capped profile.
+- [ ] Wire managed object/version binding through registration and revalidate it for later reads/processing, including clean transitions and safe removal. The pending ownership SQL is still proposal-only. A held Blob does not freeze the stored path, make deletion atomic or verify current remote bytes.
+- [ ] Implement grounded background document summaries: current registration queues metadata (document ID/title/type/path); the worker sanitizes and forwards input_source without reading/verifying stored document text. Do not describe this as extracted uploaded-file content or accepted document-to-summary grounding. Retain private access, scan/hash/version checks, authorization, prompt safeguards and exact cleanup before a hosted provider test.
+
+Evidence: `document-reviewed-copy-local-2026-10-27.json`. No migration, deployment/publication, real provider call, hosted records, settings/types or production changes. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Managed Object/Uploader Binding Proposal
 
 - [x] Prepared proposal-only SQL that binds each new document to its exact managed `student-documents` object ID/version, verifies `owner_id` matches the uploader and rechecks that uploader's current explicit student edit access/non-partner status before the privileged lookup. Existing caller RLS/scan guard still authenticates the submitted uploader; no new student access is granted.

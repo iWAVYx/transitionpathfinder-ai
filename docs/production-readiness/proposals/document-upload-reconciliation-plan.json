@@ -84,5 +84,22 @@
     "native_database_cases_passed": 125,
     "native_database_cases_skipped": 0,
     "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40526982009"
+  },
+  "reviewed_copy_checkpoint": {
+    "runtime_fingerprint": "12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2",
+    "file_count": 1194,
+    "unit_tests_passed": 5135,
+    "automatic_checks": "pending",
+    "hosted_actions": false,
+    "limit": "Initial registration fingerprint/sniff/scan use one held Blob. Later version-bound processing/read/removal and remote-byte immutability remain open."
+  },
+  "background_summary_checkpoint": {
+    "finding": "Registration queues metadata only; worker sanitizes input_source but does not read or verify stored file text.",
+    "source_files": [
+      "src/lib/documents.functions.ts",
+      "supabase/functions/ai-job-processor/index.ts"
+    ],
+    "status": "functional grounding gap; no uploaded-file content extraction acceptance",
+    "next": "Implement private hash/scan/version-bound content processing and tests before any separately authorized live document-summary test."
   }
 }

@@ -171,10 +171,14 @@ export const registerDocument = createServerFn({ method: "POST" })
     // Derive identity from the actual caller-readable stored bytes. Never trust
     // a supplied or legacy placeholder hash as evidence of file contents.
     let contentHash: string;
+    let reviewedCopy: Blob;
     try {
       const stored = await supabase.storage.from("student-documents").download(data.storage_path);
-      if (stored.error || !stored.data) throw new Error("Unconfirmed uploaded bytes");
-      contentHash = await documentUploadFingerprint(stored.data);
+      if (stored.error || !(stored.data instanceof Blob)) throw new Error("Unconfirmed uploaded bytes");
+      // Blob bytes are immutable. Keep this exact copy through fingerprint,
+      // type checks and AV submission instead of reading a changing path again.
+      reviewedCopy = stored.data;
+      contentHash = await documentUploadFingerprint(reviewedCopy);
       if (data.content_hash && data.content_hash.toLowerCase() !== contentHash) {
         throw new Error("Uploaded bytes do not match the reviewed copy");
       }
@@ -251,8 +255,8 @@ export const registerDocument = createServerFn({ method: "POST" })
       payload: { algorithm: "sha256", source: "stored_bytes" },
     });
 
-    // Slice C6 — magic-byte sniff + size/type allowlist. Download a small
-    // prefix of the freshly-uploaded object and confirm it matches the
+    // Magic-byte/type checks inspect the same held copy used for hashing.
+    // Confirm it matches the
     // declared mime_type against a strict allowlist. Rejections quarantine
     // the row (review_status='rejected' + archived) and skip AI extract.
     const { sniffUploadedDocument, MAX_UPLOAD_BYTES } = await import("./document-sniff.server");
@@ -260,7 +264,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       storage_path: data.storage_path,
       declared_mime: data.mime_type ?? null,
       declared_size: data.size_bytes ?? null,
-    });
+    }, reviewedCopy);
 
     if (!sniff.ok) {
       // Quarantine: reject the row and mark it archived with an audit reason.
@@ -360,7 +364,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       storage_path: data.storage_path,
       declared_mime: data.mime_type ?? null,
       declared_size: data.size_bytes ?? null,
-    });
+    }, reviewedCopy);
     const scanFinishedAt = new Date().toISOString();
     const scanLatencyMs = Date.parse(scanFinishedAt) - Date.parse(scanStartedAt);
     const { supabaseAdmin: adminForScan } = await import("@/integrations/supabase/client.server");
@@ -514,6 +518,8 @@ export const registerDocument = createServerFn({ method: "POST" })
           scan_status: "clean",
           scan_verdict: {
             code: "clean",
+            content_sha256: contentHash,
+            source: "registration_reviewed_copy",
             provider: scanResult.provider,
             clean_result: scanResult.clean_result,
             blocked_reasons: scanResult.blocked_reasons,
