@@ -1,3 +1,4 @@
+import { documentUploadFingerprint } from "@/lib/document-upload-fingerprint";
 import { documentUploadOutcome, DOCUMENT_UPLOAD_UNCONFIRMED } from "@/lib/document-upload-outcome";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -216,17 +217,28 @@ function FamilyDocumentUploadSession({
     uploadPending.current = true;
     setBusy(true);
     let writeAttempted = false;
+    let prepared = false;
     function pauseUnconfirmed() {
       uploadUnconfirmed.current = true;
       setUnconfirmed(true);
       toast.error(DOCUMENT_UPLOAD_UNCONFIRMED);
     }
     try {
-      const permission = await assertCanUpload({ data: { student_id: studentId, expected_viewer_id: viewerId } });
+      const contentHash = await documentUploadFingerprint(file);
       if (!active.current) return;
-      if (permission?.ok !== true) throw new Error("Unconfirmed upload permission");
+      prepared = true;
+      const permission = await assertCanUpload({ data: { student_id: studentId, expected_viewer_id: viewerId, content_hash: contentHash } });
+      if (!active.current) return;
+      if (permission?.ok !== true || (permission.duplicate !== undefined && typeof permission.duplicate !== "boolean")) throw new Error("Unconfirmed upload permission");
+      if (permission.duplicate === true) {
+        toast.info("This file is already in this student's documents. Review the existing file; your new upload details have not been saved.");
+        try { await onChange(); } catch {
+          if (active.current) toast.error("We found the existing file, but couldn't refresh the document list. Refresh this page to review it.");
+        }
+        return;
+      }
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
-      const path = `${studentId}/${Date.now()}-${safeName}`;
+      const path = `${studentId}/${crypto.randomUUID()}-${safeName}`;
       writeAttempted = true;
       const { error: upErr } = await supabase.storage
         .from("student-documents")
@@ -237,6 +249,7 @@ function FamilyDocumentUploadSession({
         data: {
           student_id: studentId,
           expected_viewer_id: viewerId,
+          content_hash: contentHash,
           title: (title.trim() || file.name).slice(0, 200),
           storage_path: path,
           mime_type: file.type || undefined,
@@ -286,6 +299,7 @@ function FamilyDocumentUploadSession({
       // Do not expose filenames, storage paths or private service errors.
       // A lost write response does not prove that no file or row was saved.
       if (writeAttempted) pauseUnconfirmed();
+      else if (!prepared) toast.error("We couldn't prepare this privacy-safe copy. Choose it again before continuing.");
       else toast.error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     } finally {
       uploadPending.current = false;

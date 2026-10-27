@@ -1,5 +1,17 @@
 # TransitionForward — Readiness Roadmap
 
+## October 27 — Verified Duplicate Checks Before Upload and Bound-Path Protection
+
+- [x] Prior session candidate `09520788` passed all eight applicable automatic checks after one same-source retry of a Node heap failure; hosted acceptance remains unperformed.
+- [x] Locally check for an accessible duplicate before storage upload, verifying actual stored bytes and document-specific view permission. Preserve existing metadata, review status and sharing; explain that the new details were not saved.
+- [x] Derive registration hashes from stored bytes, reject mismatched client claims, replace clock-based paths with random IDs and block already-bound/uncertain paths before scanning or registration. No automatic object deletion or unsafe reuse of a different path. All 141 focused mocked cases and five static upload-gate contracts pass.
+- [x] All 5,117 unit tests across 344 files, TypeScript, isolated staging build and service worker pass.
+- [ ] Complete fresh automatic review. Runtime `d04edc73…a73f74b1` / 1,194 files is local only; stable staging remains verified `7814afa7` / 1,190 files.
+- [ ] Implement/review durable reservation, exclusive path ownership, concurrent duplicate handling and exact orphan reconciliation. The current hash index is non-unique and a query snapshot is not a cleanup lock. See `proposals/document-upload-reconciliation-plan.json` for requirements and a still-unimplemented bounded duplicate acceptance draft. Retain unavailable-versus-empty lists, effective quarantine/private-download policy and background-job cleanup review.
+
+Evidence: `document-upload-duplicate-local-2026-10-27.json`. No hosted upload, fixture, provider call, migration, deployment or publication occurred. Preserve all TF-01–TF-26/six milestones and production gates; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Upload Student and Account Session Safeguards
 
 - [x] Previous candidate `8a8b481f` passed all eight applicable automatic checks; hosted checks remain unperformed.

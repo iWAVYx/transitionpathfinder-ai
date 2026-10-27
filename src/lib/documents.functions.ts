@@ -1,3 +1,4 @@
+import { documentUploadFingerprint } from "./document-upload-fingerprint";
 import { documentUploadOutcome } from "./document-upload-outcome";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
@@ -161,52 +162,32 @@ export const registerDocument = createServerFn({ method: "POST" })
       throw new Error("Please confirm you are authorized to upload this document before continuing.");
     }
 
-    // Slice C4 — pipeline breadcrumbs share a correlation id across every
-    // stage row emitted for this upload attempt (best-effort, admin-only RLS
-    // means we route through supabaseAdmin inside the helper).
+    // Do not scan or purge an object already bound to any document, including
+    // records hidden from this caller. This narrow trusted probe grants no access.
+    const { assertDocumentUploadPathAvailable } = await import("./document-upload-duplicate.server");
+    const { supabaseAdmin: registrationAdmin } = await import("@/integrations/supabase/client.server");
+    await assertDocumentUploadPathAvailable(registrationAdmin, data.storage_path);
+
+    // Derive identity from the actual caller-readable stored bytes. Never trust
+    // a supplied or legacy placeholder hash as evidence of file contents.
+    let contentHash: string;
+    try {
+      const stored = await supabase.storage.from("student-documents").download(data.storage_path);
+      if (stored.error || !stored.data) throw new Error("Unconfirmed uploaded bytes");
+      contentHash = await documentUploadFingerprint(stored.data);
+      if (data.content_hash && data.content_hash.toLowerCase() !== contentHash) {
+        throw new Error("Uploaded bytes do not match the reviewed copy");
+      }
+    } catch {
+      throw new Error("We couldn't confirm the uploaded copy. Refresh the page and review the document list before uploading again.");
+    }
+
     const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
     const correlationId = newCorrelationId();
     const uploadStartedAt = new Date().toISOString();
 
-    // Slice C3 — short-circuit duplicate uploads by content hash within a student.
-    // Index: documents_student_content_hash_idx (student_id, content_hash) WHERE content_hash IS NOT NULL.
-    // If the caller provided a real SHA-256 and we already have a live (non-deleted)
-    // document for this student with the same bytes, return that row instead of
-    // creating a second record + a second AI summary job.
-    if (data.content_hash) {
-      const { data: existing } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("student_id", data.student_id)
-        .eq("content_hash", data.content_hash.toLowerCase())
-        .is("deleted_at", null)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (existing) {
-        await supabase.from("document_access_log").insert({
-          document_id: existing.id,
-          student_id: data.student_id,
-          actor_id: userId,
-          actor_role: uploaderRole,
-          action: "upload_dedupe_hit",
-          metadata: { content_hash: data.content_hash.toLowerCase(), incoming_title: data.title },
-        });
-        // Breadcrumb: upload skipped because bytes already exist for this student.
-        await recordPipelineRun({
-          document_id: existing.id,
-          student_id: data.student_id,
-          correlation_id: correlationId,
-          stage: "upload",
-          status: "skipped",
-          started_at: uploadStartedAt,
-          payload: { reason: "dedupe_hit", incoming_title: data.title, actor_role: uploaderRole },
-        });
-        return existing as DocumentRow;
-      }
-    }
-
-
+    // Duplicate checks happen before browser storage upload. Do not return a
+    // different path here: that would leave this attempted object unaccounted for.
     const { data: row, error } = await supabase
       .from("documents")
       .insert({
@@ -231,12 +212,12 @@ export const registerDocument = createServerFn({ method: "POST" })
         notes: data.notes ?? null,
         source: data.source ?? null,
         consent_acknowledged_at: data.consent_acknowledged ? new Date().toISOString() : null,
-        content_hash: data.content_hash ? data.content_hash.toLowerCase() : null,
+        content_hash: contentHash,
       })
       .select("*")
       .single();
     if (error || !row) {
-      console.error("registerDocument failed", error);
+      console.error("Document registration could not be confirmed.");
       throw new Error("Could not save document record.");
     }
 
@@ -260,17 +241,14 @@ export const registerDocument = createServerFn({ method: "POST" })
       },
     });
 
-    // Breadcrumb: hash stage — succeeded when caller supplied a SHA-256,
-    // skipped when they didn't (C3 backfill placeholder still lives on the row).
+    // This fingerprint was computed from stored bytes, not a client claim.
     await recordPipelineRun({
       document_id: row.id,
       student_id: data.student_id,
       correlation_id: correlationId,
       stage: "hash",
-      status: data.content_hash ? "succeeded" : "skipped",
-      payload: data.content_hash
-        ? { algorithm: "sha256", source: "client" }
-        : { reason: "no_hash_provided" },
+      status: "succeeded",
+      payload: { algorithm: "sha256", source: "stored_bytes" },
     });
 
     // Slice C6 — magic-byte sniff + size/type allowlist. Download a small
@@ -757,7 +735,7 @@ export const deleteDocument = archiveDocument;
  */
 export const assertCanUploadForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ student_id: z.string().uuid(), ...viewerIntentSchema.shape }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid(), content_hash: z.string().regex(/^[a-f0-9]{64}$/i).optional(), ...viewerIntentSchema.shape }).parse(i))
   .handler(async ({ data, context }) => {
     assertProtectedFileUploadsEnabled();
     const { supabase, userId } = context;
@@ -776,7 +754,11 @@ export const assertCanUploadForStudent = createServerFn({ method: "POST" })
     if (!allowed) {
       throw new Error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     }
-    return { ok: true };
+    const { hasVerifiedDocumentDuplicate } = await import("./document-upload-duplicate.server");
+    const duplicate = data.content_hash
+      ? await hasVerifiedDocumentDuplicate(supabase, userId, data.student_id, data.content_hash)
+      : false;
+    return { ok: true, duplicate };
   });
 
 export const getDocumentSignedUrl = createServerFn({ method: "POST" })

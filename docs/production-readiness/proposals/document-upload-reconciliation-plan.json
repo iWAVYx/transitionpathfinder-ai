@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-27",
+  "status": "draft only; no migration, cleanup worker or hosted test implemented/authorized",
+  "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
+  "findings": [
+    "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
+    "No unique document storage_path index exists. A pre-insert path probe can block an already-bound path but cannot exclude simultaneous claims.",
+    "Browser upload, document registration, scanner transition and summary enqueue are separate requests. An object can exist after registration uncertainty or departure.",
+    "Existing student-documents read policies have unregistered-object and quarantine review exceptions. They must be tested alongside any reservation/cleanup changes."
+  ],
+  "current_local_stage": [
+    "Verify accessible duplicate file bytes before browser storage upload and require existing document-specific view permission.",
+    "Fingerprint actual caller-readable stored bytes during registration and reject inconsistent client fingerprints.",
+    "Probe exact storage_path across row visibility before reading/scanning/registering; reject referenced or uncertain paths without exposing row identity.",
+    "Use random object IDs with upsert:false; do not remove or revive files, alter existing metadata/sharing/status, or claim concurrency idempotency."
+  ],
+  "next_database_design_requirements": [
+    "Prepare a reviewed durable upload-attempt reservation binding authenticated actor, student, exact new object path, verified fingerprint and immutable review context. Preserve explicit student access and partner restrictions.",
+    "Enforce exclusive document path ownership, including hidden/archived/deleted references. Inventory legacy collisions first; migration must stop for review rather than silently rewrite/delete existing records.",
+    "Coordinate simultaneous identical-content attempts per student without merging students, sharing grants, document ownership or quarantined/retired status. Never revive a blocked file implicitly.",
+    "Prove the uploaded object belongs to the reserved attempt and prevent direct document writes/finalization from bypassing that boundary. Review storage write/read policies and grant inventory together.",
+    "Use atomic database claim/finalize/cleanup state transitions so a losing/expired attempt cannot finalize while its object is being reconciled. A SELECT-then-delete or browser in-flight flag is insufficient.",
+    "Only consider exact manifest paths/IDs for cleanup after proving no document, live attempt, summary job, evidence/source or retention reference can claim them. Storage deletion requires its own confirmed receipt and independent exact absence check.",
+    "Preserve required audit retention; never delete unrelated or prefix-matched rows/objects to obtain zero counts. Stop on ambiguous ownership, references, processing or completion.",
+    "Prevent object mutation between fingerprint, sniff, scan and enqueue; bind processing to a verified immutable object version or equivalent bytes. Current separate downloads are not an atomic storage snapshot."
+  ],
+  "offline_verification_required": [
+    "Disposable database tests for concurrent claims/finalization/cleanup, legacy collision refusal, owner mismatch, all seven role/access decisions and full migration replay/grant inventory.",
+    "Mocked storage tests for confirmed missing objects, partial API receipts, timeouts after persistence, failed deletion and callbacks arriving after cleanup/departure.",
+    "Prove summary enqueue/worker behavior before describing any real upload acceptance as no-AI."
+  ],
+  "bounded_duplicate_acceptance_draft": {
+    "not_ready_for_authorization": "Exact fixtures, trusted cleanup, independent absence guard and workflow still require implementation/review.",
+    "proposed_limits": "Seven existing accounts; at most two fictional owned students, two privacy-safe text objects and two pending document rows with hashes derived from their real bytes; two UI duplicate checks and two fictional screenshots. No clean-scan status fabrication, extraction or summary invocation.",
+    "assertions": [
+      "Actual duplicate checks stop before new storage upload and registration, preserve metadata/status/sharing and make no provider call.",
+      "Other existing roles cannot use student or document access they do not have.",
+      "Retain an exact fixture manifest, reconcile each operation and independently verify permitted cleanup; unknown completion stops the run."
+    ],
+    "limits": "Pending-row fixtures would validate duplicate handling only, not malware scanning, reservation concurrency, orphan cleanup, real IEP content or end-to-end generated outputs."
+  },
+  "authorization": "Fresh explicit migration/release/provider/fixture scope and human GitHub staging reviews remain required before any hosted action."
+}

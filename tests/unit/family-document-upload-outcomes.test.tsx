@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ register: vi.fn(), preflight: vi.fn(), upload: vi.fn(), refresh: vi.fn(), success: vi.fn(), info: vi.fn(), error: vi.fn(), file: null as any, reviewConfirm: null as any }));
+const api = vi.hoisted(() => ({ register: vi.fn(), preflight: vi.fn(), upload: vi.fn(), refresh: vi.fn(), success: vi.fn(), info: vi.fn(), error: vi.fn(), file: null as any, reviewConfirm: null as any, hash: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: any) => <a>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { storage: { from: () => ({ upload: api.upload }) } } }));
 vi.mock("@/lib/documents.functions", () => ({ registerDocument: api.register, assertCanUploadForStudent: api.preflight }));
+vi.mock("@/lib/document-upload-fingerprint", () => ({ documentUploadFingerprint: api.hash }));
 vi.mock("@/lib/protected-file-uploads", () => ({ PROTECTED_FILE_UPLOADS_ENABLED: true, PROTECTED_FILE_UPLOADS_MESSAGE: "Paused" }));
 vi.mock("@/components/privacy/SensitiveFilePrivacyReviewDialog", () => ({ SensitiveFilePrivacyReviewDialog: ({ source, onConfirm }: any) => {
   if (source) api.reviewConfirm = onConfirm;
@@ -17,10 +18,10 @@ import { FamilyDocumentUpload } from "../../src/components/students/FamilyDocume
 import { DOCUMENT_UPLOAD_UNCONFIRMED } from "../../src/lib/document-upload-outcome";
 const student = "11111111-1111-4111-8111-111111111111";
 function receipt(patch: object = {}) { return { id: "22222222-2222-4222-8222-222222222222", student_id: student,
-  storage_path: `${student}/123-privacy-safe-document.txt`, scan_status: "clean", review_status: "pending_review", archived_at: null, deleted_at: null, ...patch }; }
+  storage_path: `${student}/44444444-4444-4444-8444-444444444444-privacy-safe-document.txt`, scan_status: "clean", review_status: "pending_review", archived_at: null, deleted_at: null, ...patch }; }
 function pending() { let resolve!: (value: any) => void, reject!: (error: Error) => void; const promise = new Promise<any>((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 beforeEach(() => {
-  vi.resetAllMocks(); vi.spyOn(Date, "now").mockReturnValue(123);
+  vi.resetAllMocks(); vi.spyOn(crypto, "randomUUID").mockReturnValue("44444444-4444-4444-8444-444444444444"); api.hash.mockResolvedValue("a".repeat(64));
   api.file = new File(["Fictional reviewed routine: two steps using written directions."], "privacy-safe-document.txt", { type: "text/plain" });
   api.preflight.mockResolvedValue({ ok: true }); api.upload.mockResolvedValue({ error: null }); api.register.mockResolvedValue(receipt()); api.refresh.mockResolvedValue(undefined);
 });
@@ -99,10 +100,10 @@ function depart(view: ReturnType<typeof open>, change: string) {
 it("binds both upload checks to the viewer who approved this file", async () => {
   const view = open(); await act(async () => view.approve());
   await waitFor(() => expect(api.register).toHaveBeenCalledOnce());
-  expect(api.preflight).toHaveBeenCalledWith({ data: { student_id: student, expected_viewer_id: "current-viewer" } });
+  expect(api.preflight).toHaveBeenCalledWith({ data: { student_id: student, expected_viewer_id: "current-viewer", content_hash: "a".repeat(64) } });
   expect(api.register.mock.calls[0][0].data).toMatchObject({ student_id: student, expected_viewer_id: "current-viewer" });
 });
-it.each([null, {}, { ok: false }])("does not store bytes without a confirmed preflight (%j)", async result => {
+it.each([null, {}, { ok: false }, { ok: true, duplicate: "yes" }])("does not store bytes without a confirmed preflight (%j)", async result => {
   api.preflight.mockResolvedValue(result); const view = open(); await act(async () => view.approve());
   expect(api.upload).not.toHaveBeenCalled(); expect(api.register).not.toHaveBeenCalled();
   expect(api.error).toHaveBeenCalledWith(expect.stringContaining("couldn't confirm permission to upload"));
@@ -142,4 +143,36 @@ it("does not report a late list-refresh failure in the new account session", asy
   expect(api.success).toHaveBeenCalledOnce(); await act(async () => depart(view, "account")); api.success.mockClear();
   await act(async () => request.reject(new Error("PRIVATE late refresh failure")));
   expect(api.error).not.toHaveBeenCalled(); expect(api.success).not.toHaveBeenCalled();
+});
+
+it("does not upload a verified duplicate or overwrite its metadata", async () => {
+  api.preflight.mockResolvedValue({ ok: true, duplicate: true }); const view = open(); await act(async () => view.approve());
+  expect(api.upload).not.toHaveBeenCalled(); expect(api.register).not.toHaveBeenCalled(); expect(api.success).not.toHaveBeenCalled();
+  expect(api.info).toHaveBeenCalledWith(expect.stringContaining("new upload details have not been saved"));
+  expect(api.refresh).toHaveBeenCalledOnce(); expect((screen.getByLabelText("Short title (optional)") as HTMLInputElement).value).toBe("Fictional planning notes");
+});
+it("distinguishes a duplicate-list refresh failure from upload permission or save failure", async () => {
+  api.preflight.mockResolvedValue({ ok: true, duplicate: true }); api.refresh.mockRejectedValue(new Error("PRIVATE refresh error"));
+  const view = open(); await act(async () => view.approve());
+  expect(api.error).toHaveBeenCalledWith("We found the existing file, but couldn't refresh the document list. Refresh this page to review it.");
+  expect(api.upload).not.toHaveBeenCalled(); expect(api.register).not.toHaveBeenCalled(); expect(screen.queryByRole("alert")).toBeNull();
+});
+it("keeps fingerprint errors private and stops before permission or storage requests", async () => {
+  api.hash.mockRejectedValue(new Error("PRIVATE content read")); const view = open(); await act(async () => view.approve());
+  expect(api.error).toHaveBeenCalledWith("We couldn't prepare this privacy-safe copy. Choose it again before continuing.");
+  expect(api.preflight).not.toHaveBeenCalled(); expect(api.upload).not.toHaveBeenCalled();
+});
+it.each(["student", "account", "access", "leave"])("does not start preflight after departing during local fingerprinting (%s)", async change => {
+  const request = pending(); api.hash.mockReturnValueOnce(request.promise); const view = open(); await act(async () => view.approve());
+  await act(async () => depart(view, change)); await act(async () => request.resolve("a".repeat(64)));
+  expect(api.preflight).not.toHaveBeenCalled(); expect(api.upload).not.toHaveBeenCalled(); expect(api.info).not.toHaveBeenCalled(); expect(api.error).not.toHaveBeenCalled();
+});
+it("uses different object IDs for separate attempts even without a clock change", async () => {
+  api.register.mockImplementation(async ({ data }: any) => receipt({ storage_path: data.storage_path }));
+  const view = open(); await act(async () => view.approve());
+  vi.mocked(crypto.randomUUID).mockReturnValueOnce("55555555-5555-4555-8555-555555555555");
+  fireEvent.change(view.input, { target: { files: [api.file] } }); await act(async () => view.approve());
+  expect(api.upload).toHaveBeenCalledTimes(2); expect(api.upload.mock.calls[0][0]).not.toBe(api.upload.mock.calls[1][0]);
+  expect(api.upload.mock.calls[1][2]).toMatchObject({ upsert: false });
+  expect(api.register.mock.calls[1][0].data.content_hash).toBe("a".repeat(64));
 });

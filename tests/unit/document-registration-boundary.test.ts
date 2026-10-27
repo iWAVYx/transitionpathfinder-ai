@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), from: vi.fn(), rpc: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn() }));
+const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), from: vi.fn(), rpc: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), duplicate: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   let validate = (input: unknown) => input;
   const builder = { middleware: () => builder, validator: (fn: typeof validate) => { validate = fn; return builder; },
@@ -8,6 +8,7 @@ vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
 } }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("../../src/lib/protected-file-uploads", () => ({ assertProtectedFileUploadsEnabled: api.gate }));
+vi.mock("../../src/lib/document-upload-duplicate.server", () => ({ hasVerifiedDocumentDuplicate: api.duplicate }));
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-correlation" }));
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan }));
@@ -18,7 +19,7 @@ const filename = "123-privacy-safe-document.txt";
 const input = { student_id: student, title: "Fictional reviewed text", storage_path: `${student}/${filename}`, mime_type: "text/plain", consent_acknowledged: true };
 const register = (patch: object = {}) => (registerDocument as any)({ data: { ...input, ...patch } });
 beforeEach(() => {
-  vi.resetAllMocks();
+  vi.resetAllMocks(); api.duplicate.mockResolvedValue(false);
   api.context = { userId: "current-viewer", supabase: { from: api.from, rpc: api.rpc } };
   api.rpc.mockResolvedValue({ data: true, error: null });
   // A stop after authorization proves invalid inputs never enter table/pipeline work.
@@ -51,7 +52,7 @@ it("keeps rejected permission requests private and does not retry them", async (
   await expect(register()).rejects.toThrow("couldn't confirm permission");
   expect(api.rpc).toHaveBeenCalledOnce(); expect(log).not.toHaveBeenCalled(); noProcessing(); log.mockRestore();
 });
-it.each([false, true])("requires edit access before duplicate lookup as well (%s hash)", async hash => {
+it.each([false, true])("requires edit access before stored-byte work as well (%s hash)", async hash => {
   api.rpc.mockResolvedValue({ data: false, error: null });
   await expect(register(hash ? { content_hash: "a".repeat(64) } : {})).rejects.toThrow("couldn't confirm permission"); noProcessing();
 });
@@ -85,7 +86,7 @@ it.each([
 });
 it("confirms preflight only with current edit access and explicit non-partner status", async () => {
   api.rpc.mockImplementation(async (name: string) => ({ data: name === "can_edit_student", error: null }));
-  expect(await (assertCanUploadForStudent as any)({ data: { student_id: student, expected_viewer_id: "current-viewer" } })).toEqual({ ok: true });
+  expect(await (assertCanUploadForStudent as any)({ data: { student_id: student, expected_viewer_id: "current-viewer" } })).toEqual({ ok: true, duplicate: false });
   expect(api.rpc).toHaveBeenNthCalledWith(1, "can_edit_student", { _user_id: "current-viewer", _student_id: student });
   expect(api.rpc).toHaveBeenNthCalledWith(2, "is_partner_only", { _user_id: "current-viewer" }); noProcessing();
 });
@@ -94,4 +95,16 @@ it("does not leak or retry a rejected preflight request", async () => {
   const log = vi.spyOn(console, "error").mockImplementation(() => {});
   await expect((assertCanUploadForStudent as any)({ data: { student_id: student } })).rejects.toThrow("couldn't confirm permission to upload");
   expect(api.rpc).toHaveBeenCalledOnce(); expect(log).not.toHaveBeenCalled(); noProcessing(); log.mockRestore();
+});
+
+it("runs verified duplicate discovery only after both current permission checks", async () => {
+  api.rpc.mockImplementation(async (name: string) => ({ data: name === "can_edit_student", error: null })); api.duplicate.mockResolvedValue(true);
+  expect(await (assertCanUploadForStudent as any)({ data: { student_id: student, expected_viewer_id: "current-viewer", content_hash: "a".repeat(64) } })).toEqual({ ok: true, duplicate: true });
+  expect(api.duplicate).toHaveBeenCalledExactlyOnceWith(api.context.supabase, "current-viewer", student, "a".repeat(64));
+  expect(api.rpc.mock.invocationCallOrder[1]).toBeLessThan(api.duplicate.mock.invocationCallOrder[0]);
+});
+it("does not inspect duplicate candidates after permission denial", async () => {
+  api.rpc.mockResolvedValue({ data: false, error: null });
+  await expect((assertCanUploadForStudent as any)({ data: { student_id: student, content_hash: "a".repeat(64) } })).rejects.toThrow("couldn't confirm permission");
+  expect(api.duplicate).not.toHaveBeenCalled();
 });

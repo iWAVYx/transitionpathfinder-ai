@@ -1,5 +1,6 @@
+import { createHash } from "node:crypto";
 import { beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), clean: vi.fn(), enqueue: vi.fn(), remove: vi.fn() }));
+const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), clean: vi.fn(), enqueue: vi.fn(), remove: vi.fn(), download: vi.fn(), insert: vi.fn(), pathAvailable: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   let validate = (input: unknown) => input;
   const builder = { middleware: () => builder, validator: (fn: typeof validate) => { validate = fn; return builder; },
@@ -8,6 +9,7 @@ vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
 } }));
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("../../src/lib/protected-file-uploads", () => ({ assertProtectedFileUploadsEnabled: api.gate }));
+vi.mock("../../src/lib/document-upload-duplicate.server", () => ({ assertDocumentUploadPathAvailable: api.pathAvailable }));
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-correlation" }));
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff, MAX_UPLOAD_BYTES: 25_000_000 }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan, MALWARE_SCAN_PROVIDER: "mock-scanner" }));
@@ -18,16 +20,17 @@ const id = "22222222-2222-4222-8222-222222222222";
 const path = `${student}/123-privacy-safe-document.txt`;
 const pending = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", scan_status: "pending", review_status: "pending_review", archived_at: null, deleted_at: null };
 const clean = { ...pending, scan_status: "clean" };
-const register = () => (registerDocument as any)({ data: { student_id: student, title: pending.title, storage_path: path, mime_type: "text/plain", consent_acknowledged: true } });
+const register = (patch: object = {}) => (registerDocument as any)({ data: { student_id: student, title: pending.title, storage_path: path, mime_type: "text/plain", consent_acknowledged: true, ...patch } });
 beforeEach(() => {
-  vi.resetAllMocks(); api.remove.mockResolvedValue({ error: null }); api.clean.mockResolvedValue({ data: clean, error: null });
+  vi.resetAllMocks(); api.pathAvailable.mockResolvedValue(undefined); api.download.mockResolvedValue({ data: new Blob(["Fictional reviewed source"]), error: null }); api.remove.mockResolvedValue({ error: null }); api.clean.mockResolvedValue({ data: clean, error: null });
   api.sniff.mockResolvedValue({ ok: true, detected_kind: "text" });
   api.scan.mockResolvedValue({ ok: true, code: "clean", provider: "mock-scanner", clean_result: true, blocked_reasons: [], threats: [], scan_id: "fictional-scan" });
   const roleQuery: any = { select: () => roleQuery, eq: () => Promise.resolve({ data: [{ role: "parent" }], error: null }) };
   const orgQuery: any = { select: () => orgQuery, eq: () => orgQuery, limit: () => orgQuery, maybeSingle: async () => ({ data: null, error: null }) };
-  const documentQuery = { insert: () => ({ select: () => ({ single: async () => ({ data: pending, error: null }) }) }) };
+  api.insert.mockReturnValue({ select: () => ({ single: async () => ({ data: pending, error: null }) }) });
+  const documentQuery = { insert: api.insert };
   api.enqueue.mockResolvedValue({ error: null });
-  api.context = { userId: "current-viewer", supabase: { rpc: async () => ({ data: true, error: null }), from: (table: string) => {
+  api.context = { userId: "current-viewer", supabase: { storage: { from: () => ({ download: api.download }) }, rpc: async () => ({ data: true, error: null }), from: (table: string) => {
     if (table === "user_roles") return roleQuery;
     if (table === "organization_memberships") return orgQuery;
     if (table === "documents") return documentQuery;
@@ -80,4 +83,32 @@ it.each(["sniff", "timeout"])("does not fabricate a persisted quarantine result 
 it.each(["sniff", "timeout"])("rejects an unchanged row returned by a quarantine update (%s)", async stage => {
   rejectScan(stage); api.clean.mockResolvedValue({ data: pending, error: null });
   await expect(register()).rejects.toThrow("couldn't confirm the document's security review"); expect(api.enqueue).not.toHaveBeenCalled();
+});
+
+it("derives the saved fingerprint from actual stored bytes even without a client hash", async () => {
+  await register(); expect(api.insert.mock.calls[0][0].content_hash).toBe(createHash("sha256").update("Fictional reviewed source").digest("hex"));
+  expect(api.download).toHaveBeenCalledExactlyOnceWith(path);
+  expect(api.pipeline.mock.calls.find(([call]) => call.stage === "hash")?.[0]).toMatchObject({ status: "succeeded", payload: { source: "stored_bytes" } });
+});
+it("rejects a forged client hash before registration, scanning or summary processing", async () => {
+  await expect(register({ content_hash: "f".repeat(64) })).rejects.toThrow("couldn't confirm the uploaded copy");
+  expect(api.insert).not.toHaveBeenCalled(); expect(api.sniff).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
+});
+it("accepts a matching fingerprint and keeps it derived from stored bytes", async () => {
+  const hash = createHash("sha256").update("Fictional reviewed source").digest("hex"); await register({ content_hash: hash.toUpperCase() });
+  expect(api.insert.mock.calls[0][0].content_hash).toBe(hash);
+});
+it.each(["error", "missing", "rejection"])("stops without retry on an uncertain stored file (%s)", async mode => {
+  if (mode === "error") api.download.mockResolvedValue({ data: null, error: { message: "PRIVATE filename" } });
+  if (mode === "missing") api.download.mockResolvedValue({ data: null, error: null });
+  if (mode === "rejection") api.download.mockRejectedValue(new Error("PRIVATE object path"));
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  await expect(register()).rejects.toThrow("couldn't confirm the uploaded copy");
+  expect(api.download).toHaveBeenCalledOnce(); expect(api.insert).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled(); expect(log).not.toHaveBeenCalled(); log.mockRestore();
+});
+
+it("stops before reading, inserting or scanning when a path is already bound or unconfirmed", async () => {
+  api.pathAvailable.mockRejectedValue(new Error("This upload location is already in use or could not be confirmed."));
+  await expect(register()).rejects.toThrow("upload location is already in use");
+  expect(api.download).not.toHaveBeenCalled(); expect(api.insert).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
 });
