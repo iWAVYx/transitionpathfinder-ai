@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "eighth proposal-only boundary; local cases passed, native/full-schema CI pending",
+  "status": "eighth proposal-only boundary passed disposable native/full-schema and all applicable automatic checks on 14888a42; hosted integration remains open",
   "proposal": "docs/production-readiness/proposals/document-upload-registration.sql",
   "proposal_sha256": "28c1576e75c17b1b98b7726feb8b526f5ecf3c2bee3e319dd80a66bd70c75471",
   "canonical": false,
@@ -23,15 +23,20 @@
     "A forged service role claim cannot persist clean scan state; definer trigger grants are private/fixed-path and only recovery RPC is authenticated-callable.",
     "Legacy no-backfill, registered binding immutability, metadata/trusted scan changes, strict deletion retention and missing-prerequisite rollback."
   ],
-  "native_pending": [
-    "Observed two-session registration contention after COMMIT and ROLLBACK.",
-    "All 282 combined native cases and eight-proposal catalog verification after all 210 canonical migrations."
-  ],
+  "native_pending": [],
   "rollout_gates": [
     "Do not apply alone: current browser/server registration callers do not supply reservation fields and would be blocked. Coordinate reviewed client integration before any staging authorization.",
     "Review/replace existing purge and hard-delete handlers first: they still ignore storage deletion receipts and can remove bytes before a later database deletion fails. No deletion safety is claimed.",
     "Storage INSERT is not reservation-gated. Orphans, immutable remote bytes, permission-graph races, content/consent attestation, quotas and exact reference-safe cleanup remain open.",
     "No provider, scan, reupload or retry is invoked by the new SQL/receipt path. No new cleanup, expiry or deletion authority.",
     "No app/Edge runtime change, generated type edit, hosted migration/release/publication, record/provider operation or production action."
-  ]
+  ],
+  "native_database_passed": 282,
+  "native_database_skipped": 0,
+  "native_source_commit": "14888a423e2dccd689eefb8496d8e2022f5c3e00",
+  "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40563556101",
+  "full_schema": "All eight proposals pass installation/catalog checks after all 210 canonical migrations, retaining existing security/grant verification.",
+  "native_contention": "Observed database blocking: two registration attempts consume the reservation exactly once after COMMIT or ROLLBACK, leaving exactly one linked document.",
+  "automatic_checks": "All applicable checks pass, including both first-attempt builds, units, roles/readiness, accessibility and both native replays. No retry or memory-limit change. Protected skipped checks are unperformed; intermittent prior heap risk remains open.",
+  "test_limits": "Disposable role fixture loads canonical access helpers/policies with narrow role/audience stubs; not live sign-in, complete organization-policy, Storage API or provider acceptance."
 }
