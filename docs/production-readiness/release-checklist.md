@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 27 — Durable Upload Reservation Foundation (Proposal Only)
+
+- [x] Prepared a seventh noncanonical SQL proposal that records one unresolved upload intent per student/claimed content hash. It binds the current actor, student, attempt ID, canonical path and review-context claim; neither hash is a byte/consent attestation. Same-actor unchanged retries reuse one receipt. Conflicting intents and removed access fail without exposing another actor's receipt.
+- [x] All 235 local disposable database cases pass; seven native-only concurrency cases are skipped locally. Covers all seven roles, explicit School/District/Owner access, viewer/partner denial, cross-student separation, removed/restored access, no client mutations, no expiry, student retention and narrow fixed-path RPC grants. Native/full-schema CI remains pending.
+- [x] Recorded an existing deletion-verification gap: infected-file registration/rescan and administrative hard-delete handlers can report removal without confirming storage receipts/absence. These existing handlers are unchanged by this proposal.
+- [ ] Complete native contention/full-schema checks, then design guarded registration/finalization and reference-safe reconciliation. This unused ledger does not yet govern storage uploads or document registration. No finalizer, automatic expiry, cleanup/deletion worker or deletion authority has been implemented.
+
+Evidence: `production-readiness/evidence/document-upload-reservations-local-2026-10-27.json`. Canonical inventory remains 210. Retaining unresolved attempts can block later uploads of the same claimed hash and student deletion, so terminal recovery, quotas and retention behavior require review before canonical promotion. No app/Edge runtime change, hosted migration, deployment/publication, provider call, fixture or production action. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 27 — Storage Metadata Contract Verification
 
 - [x] All eight applicable automatic checks pass on evidence follow-up `85263c2c`, including accessibility and both first-attempt builds. Earlier same-runtime heap failures remain recorded as an intermittent constrained-build risk; memory limits are unchanged.

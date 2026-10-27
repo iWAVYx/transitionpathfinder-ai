@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const reservationProposal = readFileSync('docs/production-readiness/proposals/document-upload-reservations.sql','utf8');
 const sourceProposal = readFileSync('docs/production-readiness/proposals/verified-document-summary-source.sql','utf8');
 const summaryProposal = readFileSync('docs/production-readiness/proposals/document-summary-job-boundary.sql','utf8');
 const bindingProposal = readFileSync('docs/production-readiness/proposals/document-storage-binding.sql','utf8');
@@ -81,7 +82,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -583,4 +584,92 @@ test('completion waits for a held source read then cannot complete the same clai
   const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishVerified(source,{},b).then(result=>({result}),error=>({error}));
   try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
   await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.rows[0].receipt.status,'completed');await assert.rejects(finishVerified(source),{code:'42501'});
+});
+
+// Reservation foundation only: no file is uploaded, finalized or deleted.
+const attemptId=uid(301), claimedHash='c'.repeat(64), reviewHash='d'.repeat(64);
+async function installReservations() { await db.exec(summaryProposal);await installBinding();await db.exec(sourceProposal);await db.exec(reservationProposal); }
+async function reserve(client=db,patch={}) {
+  const input={id:attemptId,student,hash:claimedHash,review:reviewHash,...patch};
+  return (await client.query('SELECT public.reserve_document_upload($1,$2,$3,$4) AS receipt',[input.id,input.student,input.hash,input.review])).rows[0].receipt;
+}
+for(const [role,actor] of Object.entries(actors))test('reservation uses current explicit upload permission for '+role,async()=>{
+  await installReservations();await as(actor);
+  if(['family','educator','student'].includes(role)){
+    const receipt=await reserve();assert.equal(receipt.actor_id,actor);assert.equal(receipt.state,'reserved');assert.equal(receipt.storage_path,student+'/'+attemptId+'-privacy-safe-document.txt');
+  }else await assert.rejects(reserve(),{code:'42501'});
+});
+for(const role of ['school','district','owner'])test('explicit student editor may reserve as '+role,async()=>{
+  await installReservations();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);assert.equal((await reserve()).actor_id,actors[role]);
+});
+for(const role of ['anon','service_role'])test('reservation RPC is not directly executable by '+role,async()=>{
+  await installReservations();await as(actors.family,role);await assert.rejects(reserve(),{code:'42501'});
+});
+test('identical same-actor intent returns one durable reservation and no storage/document/job writes',async()=>{
+  await installReservations();await as();const first=await reserve();assert.deepEqual(await reserve(),first);
+  assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,1);
+  await db.exec('RESET ROLE');for(const table of ['documents','ai_jobs'])assert.equal((await db.query('SELECT count(*)::int AS n FROM public.'+table)).rows[0].n,0);
+  // installBinding creates one fake object as a prerequisite fixture; reservation does not create another.
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM storage.objects')).rows[0].n,1);
+});
+for(const patch of [{id:uid(302)},{hash:'e'.repeat(64)},{review:'e'.repeat(64)},{student:otherStudent}])test('reservation refuses competing or changed intent '+JSON.stringify(patch),async()=>{
+  await installReservations();await as();await reserve();await assert.rejects(reserve(db,patch),{code:'42501'});
+  assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,1);
+});
+test('another actor cannot resume a known attempt or receive its receipt',async()=>{
+  await installReservations();await as();await reserve();await as(actors.educator);await assert.rejects(reserve(),{code:'42501'});assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,0);
+});
+for(const patch of [{id:null},{student:null},{hash:null},{hash:'legacy-hash'},{hash:'A'.repeat(64)},{review:null},{review:'bad'}])test('reservation rejects incomplete or unverified intent '+JSON.stringify(patch),async()=>{
+  await installReservations();await as();await assert.rejects(reserve(db,patch),{code:'42501'});assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,0);
+});
+test('removed access closes both receipt retry and ledger visibility',async()=>{
+  await installReservations();await as(actors.educator);await reserve();await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await as(actors.educator);
+  assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,0);await assert.rejects(reserve(),{code:'42501'});
+});
+for(const action of ['INSERT INTO public.document_upload_attempts(id) VALUES(gen_random_uuid())',"UPDATE public.document_upload_attempts SET state='review_required'",'DELETE FROM public.document_upload_attempts'])test('clients cannot mutate the reservation ledger: '+action,async()=>{
+  await installReservations();await as();await reserve();await assert.rejects(db.exec(action),{code:'42501'});
+});
+test('review-required and old reservations do not expire or silently create a new attempt',async()=>{
+  await installReservations();await as();await reserve();await db.exec("RESET ROLE;UPDATE public.document_upload_attempts SET state='review_required',created_at='2000-01-01'");await as();
+  await assert.rejects(reserve(),{code:'42501'});await assert.rejects(reserve(db,{id:uid(302)}),{code:'42501'});
+});
+test('reservation function has fixed path and narrow grants; no finalizer or cleanup authority exists',async()=>{
+  await installReservations();const signature='public.reserve_document_upload(uuid,uuid,text,text)';
+  const [fn]=(await db.query('SELECT prosecdef,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows;assert.equal(fn.prosecdef,true);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+  for(const role of ['anon','authenticated','service_role']){
+    assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,role==='authenticated');
+    for(const privilege of ['INSERT','UPDATE','DELETE'])assert.equal((await db.query("SELECT has_table_privilege($1,'public.document_upload_attempts',$2) AS ok",[role,privilege])).rows[0].ok,false);
+  }
+});
+test('missing binding prerequisite rolls back reservation installation',async()=>{
+  await db.exec('DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents');
+  await assert.rejects(db.exec(reservationProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_upload_attempts') AS table_name")).rows[0].table_name,null);
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('concurrent reservations have one durable winner after '+finish,{skip:!native},async()=>{
+  await installReservations();const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.educator,'authenticated',b);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');await reserve(a);
+  const pending=reserve(b,{id:uid(302)}).then(result=>({result}),error=>({error}));
+  try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;
+  if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else {assert.equal(outcome.error,undefined);assert.equal(outcome.result.actor_id,actors.educator);}
+  const rows=(await db.query('SELECT actor_id FROM public.document_upload_attempts')).rows;assert.equal(rows.length,1);assert.equal(rows[0].actor_id,finish==='COMMIT'?actors.family:actors.educator);
+});
+
+test('identical claimed content for a different student receives a separate reservation',async()=>{
+  await installReservations();await as();await reserve();const second=await reserve(db,{id:uid(302),student:otherStudent});
+  assert.equal(second.student_id,otherStudent);assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,2);
+});
+test('view-only collaborators cannot reserve or read upload attempts',async()=>{
+  await installReservations();await as();await reserve();await db.exec('RESET ROLE');await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','viewer')",[student,actors.school]);await as(actors.school);
+  await assert.rejects(reserve(db,{id:uid(302)}),{code:'42501'});assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,0);
+});
+test('restored access resumes only the original unchanged reserved intent',async()=>{
+  await installReservations();await as(actors.educator);const first=await reserve();await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await as(actors.educator);await assert.rejects(reserve(),{code:'42501'});
+  await db.exec('RESET ROLE');await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors.educator]);await as(actors.educator);assert.deepEqual(await reserve(),first);
+  // A reservation receipt is not a report sharing link or permission grant.
+  await assert.rejects(reserve(db,{review:'f'.repeat(64)}),{code:'42501'});
+});
+test('unresolved reservations retain the student row rather than cascading away',async()=>{
+  await installReservations();await as();await reserve();await db.exec('RESET ROLE;TRUNCATE storage.objects');await assert.rejects(db.query('DELETE FROM public.students WHERE id=$1',[student]),error=>['23001','23503'].includes(error.code));
+  assert.equal((await db.query('SELECT id FROM public.students WHERE id=$1',[student])).rows.length,1);assert.equal((await db.query('SELECT id FROM public.document_upload_attempts WHERE id=$1',[attemptId])).rows.length,1);
 });

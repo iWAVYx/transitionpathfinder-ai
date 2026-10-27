@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-27",
+  "status": "proposal-only reservation foundation; local cases passed, native/full-schema CI pending",
+  "proposal": "docs/production-readiness/proposals/document-upload-reservations.sql",
+  "canonical": false,
+  "canonical_inventory_count": 210,
+  "hosted_actions": false,
+  "local_cases_passed": 235,
+  "native_only_skipped": 7,
+  "semantics": [
+    "Current authenticated actor must have explicit student edit access and not be partner-only; Owner management status provides no exception.",
+    "Server-derived canonical path binds actor/student/attempt ID and caller-claimed content/review-context hashes. These hashes do not certify file contents or consent.",
+    "Only the same actor with unchanged input and current access can recover a reserved receipt. Conflicting attempts return generic errors without exposing another receipt.",
+    "One unresolved reservation per student/claimed hash; identical content for different students stays separate. No automatic expiration or client mutations. Service role can inspect but has no direct mutation/creation RPC grant.",
+    "Student deletion is restricted while an unresolved attempt exists; this retention impact needs review with finalization/retention design."
+  ],
+  "not_implemented": [
+    "Application integration and storage INSERT policy enforcement: current uploads and document registration can bypass this unused proposal ledger.",
+    "Object/version/scan/hash attestation, same-transaction finalization/reference locks, immutable remote-byte handling and time-of-check access graph races.",
+    "Terminal states, recovery/rate limits/quotas, trusted reconciliation, reference inventory, deletion claim/receipt and independent absence verification.",
+    "No cleanup worker, expiry policy, storage deletion, document deletion, AI enqueue or provider operation exists in this proposal."
+  ],
+  "initial_test_correction": "The retention test initially expected SQLSTATE 23503; PGlite returns RESTRICT-specific 23001. It now accepts either integrity code and separately requires the exact student and attempt rows to remain.",
+  "ci": "Pending disposable multi-session COMMIT/ROLLBACK tests and installation/catalog checks after the full 210 canonical migrations plus seven proposals."
+}

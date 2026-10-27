@@ -1,12 +1,13 @@
 {
   "date": "2026-10-27",
-  "status": "path/scan-state/client-storage-write/object-binding proposals passed local and disposable native/full-schema verification; immutable processing/reservations/cleanup remain draft, no canonical or hosted migration",
+  "status": "Seven proposal-only boundaries prepared, including an unresolved upload reservation foundation. No canonical/hosted migration; finalization/storage enforcement/cleanup remain unimplemented.",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
     "No unique document storage_path index exists. A pre-insert path probe can block an already-bound path but cannot exclude simultaneous claims.",
     "Browser upload, document registration, scanner transition and summary enqueue are separate requests. An object can exist after registration uncertainty or departure.",
-    "Existing student-documents read policies have unregistered-object and quarantine review exceptions. They must be tested alongside any reservation/cleanup changes."
+    "Existing student-documents read policies have unregistered-object and quarantine review exceptions. They must be tested alongside any reservation/cleanup changes.",
+    "Registration malware purge, rescan purge and administrative hard-delete paths currently do not verify storage deletion receipts or independent object absence before reporting deletion. Existing handlers remain unchanged; trusted deletion claims/receipts must be reviewed before cleanup acceptance."
   ],
   "current_local_stage": [
     "Verify accessible duplicate file bytes before browser storage upload and require existing document-specific view permission.",
@@ -225,5 +226,30 @@
       "No claim of immutable remote bytes, complete deidentification or live Storage API acceptance.",
       "App src/fingerprint remains 12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2 / 1194 files; Edge worker requires a separate artifact/release."
     ]
+  },
+  "reservation_foundation_checkpoint": {
+    "date": "2026-10-27",
+    "status": "proposal-only reservation foundation; local cases passed, native/full-schema CI pending",
+    "proposal": "docs/production-readiness/proposals/document-upload-reservations.sql",
+    "canonical": false,
+    "canonical_inventory_count": 210,
+    "hosted_actions": false,
+    "local_cases_passed": 235,
+    "native_only_skipped": 7,
+    "semantics": [
+      "Current authenticated actor must have explicit student edit access and not be partner-only; Owner management status provides no exception.",
+      "Server-derived canonical path binds actor/student/attempt ID and caller-claimed content/review-context hashes. These hashes do not certify file contents or consent.",
+      "Only the same actor with unchanged input and current access can recover a reserved receipt. Conflicting attempts return generic errors without exposing another receipt.",
+      "One unresolved reservation per student/claimed hash; identical content for different students stays separate. No automatic expiration or client mutations. Service role can inspect but has no direct mutation/creation RPC grant.",
+      "Student deletion is restricted while an unresolved attempt exists; this retention impact needs review with finalization/retention design."
+    ],
+    "not_implemented": [
+      "Application integration and storage INSERT policy enforcement: current uploads and document registration can bypass this unused proposal ledger.",
+      "Object/version/scan/hash attestation, same-transaction finalization/reference locks, immutable remote-byte handling and time-of-check access graph races.",
+      "Terminal states, recovery/rate limits/quotas, trusted reconciliation, reference inventory, deletion claim/receipt and independent absence verification.",
+      "No cleanup worker, expiry policy, storage deletion, document deletion, AI enqueue or provider operation exists in this proposal."
+    ],
+    "initial_test_correction": "The retention test initially expected SQLSTATE 23503; PGlite returns RESTRICT-specific 23001. It now accepts either integrity code and separately requires the exact student and attempt rows to remain.",
+    "ci": "Pending disposable multi-session COMMIT/ROLLBACK tests and installation/catalog checks after the full 210 canonical migrations plus seven proposals."
   }
 }
