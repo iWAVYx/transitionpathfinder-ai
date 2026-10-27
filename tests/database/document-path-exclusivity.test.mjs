@@ -578,7 +578,8 @@ test('missing result privacy prerequisite rolls back both source RPC installatio
   await assert.rejects(db.exec(sourceProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query('SELECT to_regprocedure($1) AS fn',[readSignature])).rows[0].fn,null);
 });
 test('completion waits for a held source read then cannot complete the same claim twice',{skip:!native},async()=>{
-  await verifiedSourceFixture();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');const source=await readVerified(a);
+  await verifiedSourceFixture();await db.exec('RESET ROLE'); // Fixture owner observes pg_stat_activity; worker sessions retain service_role.
+  const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');const source=await readVerified(a);
   const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishVerified(source,{},b).then(result=>({result}),error=>({error}));
   try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
   await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.rows[0].receipt.status,'completed');await assert.rejects(finishVerified(source),{code:'42501'});
