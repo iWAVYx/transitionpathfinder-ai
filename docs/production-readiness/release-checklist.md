@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 27 — Atomic Upload Registration Link (Proposal Only)
+
+- [x] Prepared an eighth noncanonical proposal linking each new document to its exact reserved actor/student/path/content/review-context intent. A BEFORE guard locks the attempt; an AFTER insert links one document atomically. Existing object-binding, ordinary row permissions and pending-only scan protections remain effective. Legacy documents remain unlinked.
+- [x] Added a read-only recovery receipt for the original actor with current explicit edit/document-view access and unchanged review intent. It confirms registration/status only; it neither certifies clean bytes nor repeats upload/scan/AI.
+- [x] All 273 local disposable database cases pass; nine native-only concurrency cases are skipped locally. Covers all applicable roles, mismatch/access denial, normal metadata/trusted scan updates, immutable registration binding, row/trigger/object failure rollback, private grants and retention. Native/full-schema verification remains pending.
+- [ ] Verify native registration contention and all eight proposals after the full canonical replay, then prepare coordinated caller integration and reservation-gated storage uploads. Do not apply this proposal alone: existing registration callers omit its new fields.
+- [ ] Review/replace existing purge/hard-delete handlers before rollout. Restrictive retention prevents deleting a registered document/attempt out of order, but existing handlers can remove storage bytes first and then fail a database delete. This proposal does not make those handlers safe or authorize cleanup.
+
+Evidence: `production-readiness/evidence/document-upload-registration-local-2026-10-27.json`. Canonical inventory remains 210. Claimed hashes do not attest actual bytes or consent; remote immutability, access-graph races, quotas, terminal recovery and exact cleanup remain open. No app/Edge runtime change, generated type edit, hosted migration, deployment/publication, provider/fixture call or production action. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 27 — Durable Upload Reservation Foundation (Proposal Only)
 
 - [x] Prepared a seventh noncanonical SQL proposal that records one unresolved upload intent per student/claimed content hash. It binds the current actor, student, attempt ID, canonical path and review-context claim; neither hash is a byte/consent attestation. Same-actor unchanged retries reuse one receipt. Conflicting intents and removed access fail without exposing another actor's receipt.

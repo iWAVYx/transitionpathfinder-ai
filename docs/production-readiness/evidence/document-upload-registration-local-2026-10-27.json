@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-27",
+  "status": "eighth proposal-only boundary; local cases passed, native/full-schema CI pending",
+  "proposal": "docs/production-readiness/proposals/document-upload-registration.sql",
+  "proposal_sha256": "28c1576e75c17b1b98b7726feb8b526f5ecf3c2bee3e319dd80a66bd70c75471",
+  "canonical": false,
+  "canonical_inventory_count": 210,
+  "hosted_actions": false,
+  "local_database_passed": 273,
+  "native_only_skipped": 9,
+  "behavior": [
+    "Every new document must name its reserved attempt and matching actor/student/path/claimed content and review-context hashes. Existing document/object binding checks still run.",
+    "BEFORE guard locks the reservation first; AFTER insert atomically links one actual document and changes the attempt to registered. Normal document RLS and scan-state guards remain effective.",
+    "Failures in object ownership, row RLS, later triggers or the enclosing transaction roll back both writes. Registered attempts cannot be consumed twice.",
+    "Authenticated read-only recovery receipt requires original actor, current explicit student edit/document-view permission and unchanged review context. It returns IDs/path/status only, not clean-byte or completed-generation attestation.",
+    "Bindings cannot be reassigned, even by ordinary trusted service updates. Legacy documents remain unlinked and can retain normal metadata/scan updates.",
+    "Circular restrictive foreign keys retain the registered document and attempt until a reviewed trusted retention/cleanup protocol exists."
+  ],
+  "local_test_coverage": [
+    "All seven baseline roles and explicit School/District/Owner editors; another actor cannot consume or recover a reservation.",
+    "Missing/wrong attempt, student, uploader, path, claimed content or review hashes; access removed before registration or recovery.",
+    "Missing object, foreign owner, restrictive INSERT RLS and post-link trigger failures preserve the reserved attempt and zero documents.",
+    "A forged service role claim cannot persist clean scan state; definer trigger grants are private/fixed-path and only recovery RPC is authenticated-callable.",
+    "Legacy no-backfill, registered binding immutability, metadata/trusted scan changes, strict deletion retention and missing-prerequisite rollback."
+  ],
+  "native_pending": [
+    "Observed two-session registration contention after COMMIT and ROLLBACK.",
+    "All 282 combined native cases and eight-proposal catalog verification after all 210 canonical migrations."
+  ],
+  "rollout_gates": [
+    "Do not apply alone: current browser/server registration callers do not supply reservation fields and would be blocked. Coordinate reviewed client integration before any staging authorization.",
+    "Review/replace existing purge and hard-delete handlers first: they still ignore storage deletion receipts and can remove bytes before a later database deletion fails. No deletion safety is claimed.",
+    "Storage INSERT is not reservation-gated. Orphans, immutable remote bytes, permission-graph races, content/consent attestation, quotas and exact reference-safe cleanup remain open.",
+    "No provider, scan, reupload or retry is invoked by the new SQL/receipt path. No new cleanup, expiry or deletion authority.",
+    "No app/Edge runtime change, generated type edit, hosted migration/release/publication, record/provider operation or production action."
+  ]
+}

@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const registrationProposal = readFileSync('docs/production-readiness/proposals/document-upload-registration.sql','utf8');
 const reservationProposal = readFileSync('docs/production-readiness/proposals/document-upload-reservations.sql','utf8');
 const sourceProposal = readFileSync('docs/production-readiness/proposals/verified-document-summary-source.sql','utf8');
 const summaryProposal = readFileSync('docs/production-readiness/proposals/document-summary-job-boundary.sql','utf8');
@@ -82,7 +83,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -672,4 +673,91 @@ test('restored access resumes only the original unchanged reserved intent',async
 test('unresolved reservations retain the student row rather than cascading away',async()=>{
   await installReservations();await as();await reserve();await db.exec('RESET ROLE;TRUNCATE storage.objects');await assert.rejects(db.query('DELETE FROM public.students WHERE id=$1',[student]),error=>['23001','23503'].includes(error.code));
   assert.equal((await db.query('SELECT id FROM public.students WHERE id=$1',[student])).rows.length,1);assert.equal((await db.query('SELECT id FROM public.document_upload_attempts WHERE id=$1',[attemptId])).rows.length,1);
+});
+
+async function registrationFixture(actor=actors.family) {
+  await installReservations();await db.exec(registrationProposal);await as(actor);const receipt=await reserve();await db.exec('RESET ROLE');
+  await db.query('INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES($1,$2,$3,$4)',['student-documents',receipt.storage_path,actor,'registration-version-one']);await as(actor);return receipt;
+}
+async function registerReserved(client=db,patch={}) {
+  const input={id:uid(401),student,actor:actors.family,path:student+'/'+attemptId+'-privacy-safe-document.txt',attempt:attemptId,review:reviewHash,hash:claimedHash,...patch};
+  return (await client.query(`INSERT INTO public.documents(id,student_id,uploaded_by,title,storage_path,upload_attempt_id,upload_review_context_sha256,content_hash)
+    VALUES($1,$2,$3,'Fictional reservation registration',$4,$5,$6,$7) RETURNING *`,[input.id,input.student,input.actor,input.path,input.attempt,input.review,input.hash])).rows[0];
+}
+async function readRegistration(client=db,review=reviewHash) {return (await client.query('SELECT public.read_document_upload_registration($1,$2) AS receipt',[attemptId,review])).rows[0].receipt;}
+async function registrationState(){await db.exec('RESET ROLE');return (await db.query('SELECT state,registered_document_id FROM public.document_upload_attempts WHERE id=$1',[attemptId])).rows[0];}
+test('registration and reservation linkage commit together with a read-only recovery receipt',async()=>{
+  await registrationFixture();const doc=await registerReserved();assert.equal(doc.storage_object_version,'registration-version-one');assert.equal(doc.upload_attempt_id,attemptId);
+  const receipt=await readRegistration();assert.equal(receipt.document_id,doc.id);assert.equal(receipt.scan_status,'pending');assert.equal(receipt.review_status,'pending_review');assert.deepEqual(await readRegistration(),receipt);
+  assert.deepEqual(await registrationState(),{state:'registered',registered_document_id:doc.id});assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+for(const patch of [{attempt:null},{attempt:uid(999)},{review:null},{review:'f'.repeat(64)},{hash:'e'.repeat(64)},{hash:null},{student:otherStudent},{actor:actors.educator},{path:student+'/wrong-privacy-safe-document.txt'}])test('registration rejects mismatched reserved identity '+JSON.stringify(patch),async()=>{
+  await registrationFixture();await assert.rejects(registerReserved(db,patch),{code:'42501'});assert.equal((await db.query('SELECT id FROM public.documents')).rows.length,0);assert.equal((await registrationState()).state,'reserved');
+});
+for(const role of ['family','educator','student'])test('reserved registration works with existing explicit '+role+' edit access',async()=>{
+  await registrationFixture(actors[role]);const doc=await registerReserved(db,{actor:actors[role]});assert.equal(doc.uploaded_by,actors[role]);assert.equal((await readRegistration()).document_id,doc.id);
+});
+for(const role of ['school','district','owner'])test('reserved registration requires explicit '+role+' edit access',async()=>{
+  await installReservations();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await db.exec(registrationProposal);await as(actors[role]);const receipt=await reserve();await db.exec('RESET ROLE');await db.query('INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES($1,$2,$3,$4)',['student-documents',receipt.storage_path,actors[role],'version-one']);await as(actors[role]);
+  const doc=await registerReserved(db,{actor:actors[role]});assert.equal((await readRegistration()).document_id,doc.id);
+});
+for(const role of ['partner','school','district','owner'])test('a management/viewer account cannot claim another actor registration as '+role,async()=>{
+  await registrationFixture();await as(actors[role]);await assert.rejects(registerReserved(),{code:'42501'});await assert.rejects(readRegistration(),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
+});
+test('access removal between reservation and registration leaves the reservation unresolved',async()=>{
+  await registrationFixture(actors.educator);await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await as(actors.educator);await assert.rejects(registerReserved(db,{actor:actors.educator}),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
+});
+test('removed access or a changed review claim prevents recovery of a completed registration',async()=>{
+  await registrationFixture(actors.educator);await registerReserved(db,{actor:actors.educator});await assert.rejects(readRegistration(db,'e'.repeat(64)),{code:'42501'});await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await as(actors.educator);await assert.rejects(readRegistration(),{code:'42501'});
+});
+for(const fault of ['missing-object','foreign-owner','row-policy','after-trigger'])test('registration failure rolls back both writes: '+fault,async()=>{
+  const receipt=await registrationFixture();await db.exec('RESET ROLE');
+  if(fault==='missing-object')await db.query('DELETE FROM storage.objects WHERE name=$1',[receipt.storage_path]);
+  if(fault==='foreign-owner')await db.query('UPDATE storage.objects SET owner_id=$1 WHERE name=$2',[actors.owner,receipt.storage_path]);
+  if(fault==='row-policy')await db.exec("CREATE POLICY fixture_reject_insert ON public.documents AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK(false)");
+  if(fault==='after-trigger')await db.exec("CREATE FUNCTION public.fixture_reject_registration() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Fictional post-link failure' USING ERRCODE='42501'; END $$;CREATE TRIGGER zz_fixture_reject_registration AFTER INSERT ON public.documents FOR EACH ROW EXECUTE FUNCTION public.fixture_reject_registration()");
+  await as();await assert.rejects(registerReserved(),{code:'42501'});assert.equal((await registrationState()).state,'reserved');assert.equal((await db.query('SELECT id FROM public.documents')).rows.length,0);
+  if(fault==='row-policy')await db.exec('DROP POLICY fixture_reject_insert ON public.documents');
+  if(fault==='after-trigger')await db.exec('DROP TRIGGER zz_fixture_reject_registration ON public.documents;DROP FUNCTION public.fixture_reject_registration()');
+});
+test('registered attempts cannot be reused for a second document or reservation receipt',async()=>{
+  await registrationFixture();const first=await registerReserved();await assert.rejects(registerReserved(db,{id:uid(402)}),{code:'42501'});await assert.rejects(reserve(),{code:'42501'});assert.equal((await readRegistration()).document_id,first.id);assert.equal((await db.query('SELECT id FROM public.documents')).rows.length,1);
+});
+for(const patch of ["upload_attempt_id=NULL,upload_review_context_sha256=NULL","upload_attempt_id='00000000-0000-4000-8000-000000000999'","upload_review_context_sha256='"+'e'.repeat(64)+"'"])test('saved registration binding cannot change: '+patch,async()=>{
+  await registrationFixture();await registerReserved();await assert.rejects(db.exec('UPDATE public.documents SET '+patch),{code:'42501'});await db.exec('RESET ROLE');await assert.rejects(db.exec('UPDATE public.documents SET '+patch),{code:'42501'});
+});
+test('ordinary metadata and trusted scan updates preserve the registered link',async()=>{
+  await registrationFixture();const doc=await registerReserved();await db.exec("UPDATE public.documents SET title='Updated metadata'");await as(actors.family,'service_role');await db.exec("UPDATE public.documents SET scan_status='failed',review_status='rejected'");await as();assert.equal((await readRegistration()).scan_status,'failed');assert.equal((await registrationState()).registered_document_id,doc.id);
+});
+test('legacy documents stay unlinked and cannot be assigned invented provenance',async()=>{
+  await installReservations();const doc=await insert();await db.exec(registrationProposal);await as();await db.exec("UPDATE public.documents SET title='Legacy metadata'");await assert.rejects(db.query('UPDATE public.documents SET upload_attempt_id=$1,upload_review_context_sha256=$2',[attemptId,reviewHash]),{code:'42501'});await db.exec('RESET ROLE');const row=(await db.query('SELECT upload_attempt_id FROM public.documents WHERE id=$1',[doc.rows[0].id])).rows[0];assert.equal(row.upload_attempt_id,null);
+});
+for(const role of ['anon','service_role'])test('registration recovery receipt is not directly callable by '+role,async()=>{
+  await registrationFixture();await registerReserved();await as(actors.family,role);await assert.rejects(readRegistration(),{code:'42501'});
+});
+test('registered row and reservation cannot be physically deleted out of order',async()=>{
+  await registrationFixture();const doc=await registerReserved();await db.exec('RESET ROLE');await assert.rejects(db.query('DELETE FROM public.documents WHERE id=$1',[doc.id]),error=>['23001','23503'].includes(error.code));await assert.rejects(db.query('DELETE FROM public.document_upload_attempts WHERE id=$1',[attemptId]),error=>['23001','23503'].includes(error.code));assert.equal((await registrationState()).registered_document_id,doc.id);
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('concurrent registration consumes its reservation once after '+finish,{skip:!native},async()=>{
+  await registrationFixture();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  await a.exec('BEGIN');await registerReserved(a);const pending=registerReserved(b,{id:uid(402)}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.result.id,uid(402));const rows=(await db.query('SELECT id FROM public.documents')).rows;assert.equal(rows.length,1);assert.equal((await registrationState()).registered_document_id,rows[0].id);
+});
+
+test('registration triggers retain pending-only scan rules despite their definer scope',async()=>{
+  const receipt=await registrationFixture();await db.exec("SELECT set_config('request.jwt.claim.role','service_role',false)");
+  await assert.rejects(db.query(`INSERT INTO public.documents(id,student_id,uploaded_by,title,storage_path,upload_attempt_id,upload_review_context_sha256,content_hash,scan_status)
+    VALUES($1,$2,$3,'Fictional forged clean registration',$4,$5,$6,$7,'clean')`,[uid(401),student,actors.family,receipt.storage_path,attemptId,reviewHash,claimedHash]),{code:'42501'});
+  await db.exec("SELECT set_config('request.jwt.claim.role','',false)");assert.equal((await registrationState()).state,'reserved');assert.equal((await db.query('SELECT id FROM public.documents')).rows.length,0);
+});
+test('registration definer helpers have fixed paths and no direct execution grants',async()=>{
+  await registrationFixture();
+  for(const signature of ['public.guard_document_upload_registration()','public.link_document_upload_registration()','public.read_document_upload_registration(uuid,text)']){
+    const [fn]=(await db.query('SELECT prosecdef,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows;assert.equal(fn.prosecdef,true);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+    for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,role==='authenticated'&&signature.includes('read_document'));
+  }
+});
+test('missing reservation prerequisite rolls back document linkage installation',async()=>{
+  await assert.rejects(db.exec(registrationProposal),{code:'55000'});await db.exec('ROLLBACK');
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_attribute WHERE attrelid='public.documents'::regclass AND attname='upload_attempt_id' AND NOT attisdropped")).rows[0].n,0);
 });

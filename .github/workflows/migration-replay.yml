@@ -26,6 +26,7 @@ on:
       - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
       - "docs/production-readiness/proposals/verified-document-summary-source.sql"
       - "docs/production-readiness/proposals/document-upload-reservations.sql"
+      - "docs/production-readiness/proposals/document-upload-registration.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -70,6 +71,7 @@ on:
       - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
       - "docs/production-readiness/proposals/verified-document-summary-source.sql"
       - "docs/production-readiness/proposals/document-upload-reservations.sql"
+      - "docs/production-readiness/proposals/document-upload-registration.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -662,6 +664,8 @@ jobs:
             -f docs/production-readiness/proposals/verified-document-summary-source.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-upload-reservations.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-upload-registration.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -761,6 +765,22 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected upload reservation boundary'; END IF;
           END;
           $reservation_verify$;
+          DO $registration_verify$
+          DECLARE signature text;
+          BEGIN
+            IF (SELECT count(*) FROM pg_trigger WHERE tgrelid='public.documents'::regclass
+              AND tgname IN ('documents_aa_guard_upload_registration','documents_link_upload_registration') AND tgenabled='O' AND NOT tgisinternal)<>2 THEN
+              RAISE EXCEPTION 'Missing document registration guards';
+            END IF;
+            FOREACH signature IN ARRAY ARRAY['public.guard_document_upload_registration()','public.link_document_upload_registration()','public.read_document_upload_registration(uuid,text)'] LOOP
+              IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR has_function_privilege('authenticated',signature,'EXECUTE') IS DISTINCT FROM (signature='public.read_document_upload_registration(uuid,text)') THEN
+                RAISE EXCEPTION 'Unexpected document registration RPC boundary';
+              END IF;
+            END LOOP;
+          END;
+          $registration_verify$;
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 
