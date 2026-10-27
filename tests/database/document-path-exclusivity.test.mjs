@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const scanProposal = readFileSync('docs/production-readiness/proposals/document-scan-state-boundary.sql','utf8');
 const sql = name => readFileSync('supabase/migrations/'+name,'utf8');
 const legacy = sql('20260715031029_93358eaf-ed18-40b0-bcf8-383a6d1bc5ac.sql').split('-- 2)')[0];
 const uid = n => '00000000-0000-4000-8000-'+String(n).padStart(12,'0');
@@ -36,7 +37,7 @@ before(async()=>{
   await db.exec(`DO $$ BEGIN
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated;END IF;
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon;END IF;
-    IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role;END IF;
+    IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role BYPASSRLS;END IF;
   END $$;
   CREATE SCHEMA auth;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
@@ -49,8 +50,9 @@ before(async()=>{
   CREATE FUNCTION public.is_platform_admin(actor uuid) RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=actor AND role='owner') $$;
   CREATE FUNCTION public.can_view_document(actor uuid,doc uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
   CREATE FUNCTION public.has_recent_admin_doc_access(actor uuid,doc uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
-  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,scan_status text NOT NULL DEFAULT 'pending',archived_at timestamptz,deleted_at timestamptz);
+  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
   GRANT SELECT,INSERT,UPDATE,DELETE ON public.documents TO authenticated;
+  GRANT ALL ON public.documents TO service_role;
   ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`);
   await db.exec(sql('20261024010000_remove_implicit_admin_student_access.sql').split('-- Editing a profile')[0]+'COMMIT;');
   const policies=sql('20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql');
@@ -59,12 +61,13 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE; DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
   for(const actor of [actors.educator,actors.partner]) await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actor]);
   await db.exec(proposal);
+  await db.exec(scanProposal);
 });
 for(const [role,actor] of Object.entries(actors)) test('existing database insert permission is preserved for '+role,async()=>{
   await as(actor);const allowed=['family','educator','student'].includes(role);
@@ -97,8 +100,8 @@ for(const target of ['student','path']) test('document '+target+' identity canno
   await assert.rejects(db.query(target==='student'?'UPDATE public.documents SET student_id=$1 WHERE id=$2':'UPDATE public.documents SET storage_path=$1 WHERE id=$2',[target==='student'?otherStudent:student+'/different.txt',id]),{code:'42501'});
   const [row]=await all();assert.equal(row.student_id,student);assert.equal(row.storage_path,path);
 });
-test('ordinary title, archive/restore and review updates keep their existing permissions',async()=>{
-  await as();await insert();await db.query('UPDATE public.documents SET title=$1,archived_at=now(),scan_status=$2',['Reviewed title','clean']);await db.exec('UPDATE public.documents SET archived_at=NULL');const [row]=await all();assert.equal(row.title,'Reviewed title');assert.equal(row.archived_at,null);assert.equal(row.scan_status,'clean');
+test('ordinary title, archive/restore and human review updates remain available',async()=>{
+  await as();await insert();await db.query('UPDATE public.documents SET title=$1,archived_at=now(),reviewed_at=now(),reviewed_by=$2',['Reviewed title',actors.family]);await db.exec('UPDATE public.documents SET archived_at=NULL');const [row]=await all();assert.equal(row.title,'Reviewed title');assert.equal(row.archived_at,null);assert.equal(row.scan_status,'pending');assert.equal(row.reviewed_by,actors.family);assert.ok(row.reviewed_at);
 });
 test('legacy noncanonical locations are retained and metadata remains editable',async()=>{
   await db.exec('DROP INDEX public.documents_storage_path_unique');await db.exec(legacy);await insert({path:student+'/old/nested.pdf'});await db.exec(proposal);await as();await db.exec("UPDATE public.documents SET title='Legacy title' WHERE true");const [row]=await all();assert.equal(row.storage_path,student+'/old/nested.pdf');assert.equal(row.title,'Legacy title');
@@ -132,6 +135,89 @@ test('table grants and all existing row policy expressions are unchanged',async(
   const snapshot=async()=>({policies:(await db.query("SELECT policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname='public' AND tablename='documents' ORDER BY policyname")).rows,acl:(await db.query("SELECT relacl::text AS acl FROM pg_class WHERE oid='public.documents'::regclass")).rows});
   await db.exec('DROP INDEX public.documents_storage_path_unique');await db.exec(legacy);const baseline=await snapshot();await db.exec(proposal);assert.deepEqual(await snapshot(),baseline);
 });
+
+// Machine scan results must come from the trusted database writer, not clients.
+const forgedInsertFields = [
+  ['scan_status', "'clean'"], ['scan_status', "'failed'"],
+  ['scan_status', "'infected'"], ['scan_status', "'deleted'"],
+  ['scan_status', 'NULL'], ['scan_verdict', "'{\"code\":\"clean\"}'::jsonb"],
+  ['scan_data_id', "'invented-result'"], ['scanned_at', 'now()'],
+  ['review_status', "'reviewed'"], ['review_status', "'rejected'"],
+];
+for (const [column,value] of forgedInsertFields) test('client insert cannot forge '+column+'='+value,async()=>{
+  await as();
+  await assert.rejects(db.query(`INSERT INTO public.documents(student_id,uploaded_by,title,storage_path,${column}) VALUES($1,$2,'Fictional',$3,${value})`,[student,actors.family,path]),{code:'42501'});
+  assert.equal((await all()).length,0);
+});
+const protectedUpdates = [
+  ['scan_status', "'clean'"], ['scan_verdict', "'{\"code\":\"clean\"}'::jsonb"],
+  ['scan_data_id', "'invented-result'"], ['scanned_at', 'now()'],
+  ['review_status', "'reviewed'"], ['content_hash', "'replacement-hash'"],
+];
+for (const [column,value] of protectedUpdates) test('client cannot overwrite '+column,async()=>{
+  await as();await insert();const original=(await all())[0];await as();
+  await assert.rejects(db.exec(`UPDATE public.documents SET title='Must roll back',${column}=${value}`),{code:'42501'});
+  assert.deepEqual((await all())[0],original);
+});
+test('a forged service-role JWT claim does not confer a trusted execution role',async()=>{
+  await as();await insert();await db.exec("SELECT set_config('request.jwt.claim.role','service_role',false)");
+  await assert.rejects(db.exec("UPDATE public.documents SET scan_status='clean'"),{code:'42501'});
+  await db.exec("SELECT set_config('request.jwt.claim.role','',false)");assert.equal((await all())[0].scan_status,'pending');
+});
+test('Owner with explicit student editing access can edit titles but cannot approve scans',async()=>{
+  await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors.owner]);
+  await as(actors.owner);await insert({actor:actors.owner});await db.exec("UPDATE public.documents SET title='Owner metadata edit'");
+  await assert.rejects(db.exec("UPDATE public.documents SET scan_status='clean'"),{code:'42501'});
+  assert.equal((await all())[0].title,'Owner metadata edit');
+});
+test('trusted service processing can persist scan results without changing uploader identity',async()=>{
+  await as();await insert();await as(actors.family,'service_role');
+  await db.exec(`UPDATE public.documents SET scan_status='clean',scan_verdict='{"code":"clean","source":"fictional-disposable-test"}'::jsonb,scan_data_id='fictional-result',scanned_at=now(),content_hash='verified-by-test-writer',review_status='pending_review'`);
+  const [row]=await all();assert.equal(row.scan_status,'clean');assert.equal(row.scan_data_id,'fictional-result');assert.equal(row.uploaded_by,actors.family);
+});
+for(const role of ['authenticated','service_role','database-owner']) test('uploader identity is fixed for '+role,async()=>{
+  await insert();if(role!=='database-owner')await as(actors.family,role);
+  await assert.rejects(db.query('UPDATE public.documents SET uploaded_by=$1',[actors.educator]),{code:'42501'});
+  assert.equal((await all())[0].uploaded_by,actors.family);
+});
+test('unchanged scan columns do not block ordinary metadata updates',async()=>{
+  await as();await insert();await db.exec('UPDATE public.documents SET title=\'New title\',scan_status=scan_status,scan_verdict=scan_verdict,scan_data_id=scan_data_id,scanned_at=scanned_at,review_status=review_status,content_hash=content_hash,uploaded_by=uploaded_by');
+  assert.equal((await all())[0].title,'New title');
+});
+test('quarantined results cannot be cleared by a client',async()=>{
+  await insert();await db.exec("UPDATE public.documents SET scan_status='infected',review_status='rejected',scan_verdict='{\"code\":\"infected\"}'::jsonb");
+  await as();await assert.rejects(db.exec("UPDATE public.documents SET scan_status='pending',review_status='pending_review',scan_verdict=NULL"),{code:'42501'});
+  assert.equal((await all())[0].scan_status,'infected');
+});
+test('legacy clean rows remain unchanged and permit metadata edits without new attestation',async()=>{
+  await insert();await db.exec("UPDATE public.documents SET scan_status='clean'");await as();await db.exec("UPDATE public.documents SET title='Legacy metadata'");
+  const [row]=await all();assert.equal(row.scan_status,'clean');assert.equal(row.scan_verdict,null);assert.equal(row.title,'Legacy metadata');
+});
+test('an upsert cannot use an existing path to forge scan approval',async()=>{
+  await as();await insert();await assert.rejects(db.query(`INSERT INTO public.documents(student_id,uploaded_by,title,storage_path) VALUES($1,$2,'Replacement',$3) ON CONFLICT(storage_path) WHERE storage_path IS NOT NULL AND storage_path<>'' DO UPDATE SET scan_status='clean'`,[student,actors.family,path]),{code:'42501'});
+  assert.equal((await all())[0].scan_status,'pending');
+});
+test('multirow scan forgery fails atomically',async()=>{
+  await as();await insert();await insert({path:student+'/second.txt'});
+  await assert.rejects(db.exec("UPDATE public.documents SET scan_status='clean',title='Forged'"),{code:'42501'});
+  const rows=await all();assert.equal(rows.length,2);assert.ok(rows.every(row=>row.scan_status==='pending'&&row.title==='Fictional file'));
+});
+test('scan guard remains invoker with a fixed search path and no direct client or service RPC grant',async()=>{
+  const [fn]=(await db.query("SELECT prosecdef,proconfig FROM pg_proc WHERE oid='public.guard_document_scan_state()'::regprocedure")).rows;
+  assert.equal(fn.prosecdef,false);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+  for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.guard_document_scan_state()','EXECUTE') AS ok",[role])).rows[0].ok,false);
+});
+test('missing exclusive path prerequisite prevents partial installation of the scan guard',async()=>{
+  await db.exec('DROP TRIGGER documents_guard_scan_state ON public.documents;DROP FUNCTION public.guard_document_scan_state();DROP INDEX public.documents_storage_path_unique');
+  await assert.rejects(db.exec(scanProposal),{code:'55000'});await db.exec('ROLLBACK');
+  assert.equal((await db.query("SELECT to_regprocedure('public.guard_document_scan_state()') AS name")).rows[0].name,null);
+});
+test('scan proposal preserves table grants and existing row policy expressions',async()=>{
+  const snapshot=async()=>({policies:(await db.query("SELECT policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname='public' AND tablename='documents' ORDER BY policyname")).rows,acl:(await db.query("SELECT relacl::text AS acl FROM pg_class WHERE oid='public.documents'::regclass")).rows});
+  await db.exec('DROP TRIGGER documents_guard_scan_state ON public.documents;DROP FUNCTION public.guard_document_scan_state()');
+  const baseline=await snapshot();await db.exec(scanProposal);assert.deepEqual(await snapshot(),baseline);
+});
+
 async function waitForLock(pid) {
   const deadline=Date.now()+5000;
   while(Date.now()<deadline) {if((await db.query("SELECT wait_event_type='Lock' AS waiting FROM pg_stat_activity WHERE pid=$1",[pid])).rows[0]?.waiting)return;await new Promise(resolve=>setTimeout(resolve,25));}

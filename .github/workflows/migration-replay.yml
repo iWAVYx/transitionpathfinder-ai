@@ -20,6 +20,7 @@ on:
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
+      - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -55,6 +56,7 @@ on:
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
+      - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -157,12 +159,12 @@ jobs:
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
 
-      - name: Test proposed document path boundary without hosted credentials
+      - name: Test proposed document upload boundaries without hosted credentials
         run: |
           PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/document-path-exclusivity.test.mjs
 
-      - name: Test proposed document path boundary in concurrent disposable sessions
+      - name: Test proposed document upload boundaries in concurrent disposable sessions
         env:
           PGUSER: supabase_admin
         run: |
@@ -617,10 +619,12 @@ jobs:
               and (select count(*) >= 0 from public.blog_posts)
               and (select count(*) >= 0 from public.media_assets);" | grep -qx t
 
-      - name: Verify document path proposal against the complete canonical replay
+      - name: Verify document upload proposals against the complete canonical replay
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-path-exclusivity.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-scan-state-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -640,7 +644,19 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected trigger execution boundary'; END IF;
           END;
           $verify$;
-          SELECT 'Proposal applied and verified in disposable canonical replay only' AS result;
+          DO $scan_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass
+              AND tgname='documents_guard_scan_state' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.guard_document_scan_state()'::regprocedure
+                AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.guard_document_scan_state()','EXECUTE')
+              OR has_function_privilege('authenticated','public.guard_document_scan_state()','EXECUTE')
+              OR has_function_privilege('service_role','public.guard_document_scan_state()','EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected scan-state execution boundary'; END IF;
+          END;
+          $scan_verify$;
+          SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 
       - name: Upload replay log
