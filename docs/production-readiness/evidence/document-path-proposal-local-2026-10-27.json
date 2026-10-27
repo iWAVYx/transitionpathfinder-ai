@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "review proposal only; not canonical, deployed or applied to a hosted database",
+  "status": "review proposal verified in local/disposable native databases; not canonical or applied to a hosted database",
   "base_commit": "dedb828e",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-path-exclusivity.sql",
@@ -22,8 +22,15 @@
     "diff_check": "passed"
   },
   "ci_preparation": {
-    "native_concurrency": "Two actual PostgreSQL sessions must prove blocking and a single surviving insert after winner COMMIT or ROLLBACK; not simulated by PGlite. Pending CI.",
-    "full_schema": "Apply/verify proposal only after all 210 canonical migrations and canonical inventory checks in disposable CI. No canonical source or ledger changed. Pending CI."
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40518403948",
+    "source_commit": "3dcedffbcbbc4081d3451a873c10a0d998f86250",
+    "attempt": 1,
+    "result": "success",
+    "native_cases_passed": 37,
+    "native_cases_skipped": 0,
+    "native_concurrency": "Actual lock observations and one surviving document verified with competing transactions after both COMMIT and ROLLBACK.",
+    "full_schema": "All 210 canonical migrations replayed and canonical grants/RLS/security inventory checks passed before proposal was applied and verified in that disposable database.",
+    "not_hosted_acceptance": true
   },
   "prior_application_ci": {
     "candidate": "dedb828e",
@@ -43,7 +50,7 @@
     "No automatic orphan cleanup, malware/provider call, upload, fixture creation in staging, migration, deployment, publication, production/main merge, account/access, payment, environment or secret change."
   ],
   "next": [
-    "Obtain native concurrency and full-canonical CI results before promoting any proposal to a canonical migration.",
+    "Review this first path-only proposal alongside the remaining ownership/state/reservation design before promoting any SQL to a canonical migration.",
     "Prepare trusted upload ownership/state transitions, content reservations and exact reconciliation; preserve all stored evidence/audit retention.",
     "Prepare bounded hosted acceptance and obtain fresh scoped authorization before any staging rollout or fixture/provider work."
   ],

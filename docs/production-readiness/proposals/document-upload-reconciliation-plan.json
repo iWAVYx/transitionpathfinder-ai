@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "path-exclusivity SQL proposal locally tested; full reservation/cleanup design remains draft; no canonical migration or hosted action authorized",
+  "status": "path-exclusivity proposal verified locally and in disposable native/full-schema CI; reservation/cleanup remain draft, with no canonical or hosted migration",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -44,8 +44,10 @@
   "path_exclusivity_checkpoint": {
     "proposal": "docs/production-readiness/proposals/document-path-exclusivity.sql",
     "local_database_cases_passed": 35,
-    "native_concurrency_cases_pending": 2,
-    "canonical_replay_smoke": "pending CI",
-    "not_canonical": true
+    "native_concurrency_cases_pending": 0,
+    "canonical_replay_smoke": "passed after all 210 migrations in disposable database",
+    "not_canonical": true,
+    "native_database_cases_passed": 37,
+    "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40518403948"
   }
 }
