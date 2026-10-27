@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "proposal verified locally; native/full-schema checks pending; not canonical or hosted",
+  "status": "proposal verified locally and in disposable native/full-schema CI; not canonical or hosted",
   "base_commit": "5f4888bf",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-storage-binding.sql",
@@ -40,5 +40,24 @@
     "published": false,
     "provider_calls": 0,
     "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40526982009",
+    "source_commit": "a0cfa4d6e9ff03df1e30aeef62ed123a67312141",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 125,
+    "native_database_cases_skipped": 0,
+    "concurrency": "Both object metadata COMMIT/ROLLBACK lock races pass, alongside the existing two simultaneous path-insert cases. Each wait is observed through pg_stat_activity.",
+    "full_schema": "All 210 canonical migrations replayed; existing grant/RLS/security checks passed before all four proposals were applied and their catalog boundaries verified. New definer routine remains proposal-only, outside the canonical inventory.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "a0cfa4d6e9ff03df1e30aeef62ed123a67312141",
+    "all_eight_applicable_passed": true,
+    "unit_tests_passed": 5118,
+    "unit_files_passed": 344,
+    "build_note": "Push build passed first attempt; PR build passed after one unchanged-source retry of confirmed Node heap exhaustion.",
+    "protected_skipped_jobs": "unperformed; not hosted acceptance"
   }
 }

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "path/scan-state/client-storage-write proposals passed local and disposable native/full-schema verification; object ownership/reservations/cleanup remain draft, no canonical or hosted migration",
+  "status": "path/scan-state/client-storage-write/object-binding proposals passed local and disposable native/full-schema verification; immutable processing/reservations/cleanup remain draft, no canonical or hosted migration",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -77,9 +77,12 @@
     "proposal": "docs/production-readiness/proposals/document-storage-binding.sql",
     "combined_local_cases_passed": 121,
     "native_only_cases_skipped": 4,
-    "native_full_schema": "pending",
+    "native_full_schema": "passed after 210 canonical migrations and existing grant/RLS/security checks",
     "not_canonical": true,
     "hosted_actions": false,
-    "limit": "Registration-time managed ownership/version binding only; later byte/version verification and durable reservations remain unimplemented."
+    "limit": "Registration-time managed ownership/version binding only; later byte/version verification and durable reservations remain unimplemented.",
+    "native_database_cases_passed": 125,
+    "native_database_cases_skipped": 0,
+    "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40526982009"
   }
 }
