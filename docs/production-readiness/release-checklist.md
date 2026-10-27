@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 27 — Document Registration Boundary and Upload Audit
+
+- [x] Prior goal-save candidate `488a667b` passed all eight applicable automatic checks. Its initial push build exhausted the existing Node heap; one identical-source retry passed. The separate PR build also passed.
+- [x] Locally require each registration path to match the exact student folder and confirm current authenticated edit access before duplicate lookup or privileged file processing. Added 21 boundary cases; 4,997 unit tests across 341 files and five static upload-gate contracts pass.
+- [x] TypeScript, isolated staging build and service worker pass.
+- [ ] Complete fresh automatic review of this correction. Candidate fingerprint is `6430cdfd…4f5fa393` / 1,191 files; neither staging site has this local change yet.
+- [ ] Resolve truthful quarantine/uncertain-result messages, upload session/duplicate submission guards, hash/dedupe/orphan reconciliation, private-download policy exceptions, raw errors and post-save refresh handling. Map exact pipeline/audit/access/job/storage cleanup before a bounded storage run; clean registration queues a summary job, so upload testing cannot be assumed to make no AI calls.
+- [ ] Prepare goal-save and storage acceptance as separate scopes with explicit fixture/provider limits and independent absence verification. Obtain fresh rollout/test authorization only after the scope is concrete. No hosted records, uploads, provider calls, migration, deployment or publication occurred during this audit.
+
+Evidence: `document-registration-boundary-local-2026-10-27.json`. Shared role applicability, all TF-01–TF-26/six milestones and production gates remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 26 — Reviewed Goal-Save Confirmation and Retry Safeguards Corrected Locally
 
 - [x] Goal saving no longer treats a missing receipt as “Added 0 goals.” It confirms existing student edit access before one caller-RLS bulk insert, derives the author from the authenticated context and requires the exact requested count of distinct valid saved IDs. Existing table policies remain authoritative; no migration or permission expansion.

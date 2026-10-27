@@ -93,13 +93,36 @@ export const registerDocument = createServerFn({ method: "POST" })
       source: z.string().trim().max(200).optional(),
       consent_acknowledged: z.boolean().default(false),
       content_hash: z.string().trim().regex(/^[a-f0-9]{64}$/i).optional(),
-    }).parse(i),
+    }).refine((data) => {
+      // Registration later reads/scans this object with server privileges.
+      // Accept only the canonical student folder and a single safe filename.
+      const parts = data.storage_path.split("/");
+      return parts.length === 2 && parts[0] === data.student_id &&
+        /^[a-zA-Z0-9._-]+$/.test(parts[1]) && ![".", ".."].includes(parts[1]);
+    }, { message: "The uploaded file does not match this student. Refresh the page before continuing.", path: ["storage_path"] }).parse(i),
   )
 
   .handler(async ({ data, context }) => {
     assertProtectedFileUploadsEnabled();
     assertPrivacySafeDerivedUpload(data.storage_path, data.mime_type ?? null);
     const { supabase, userId } = context;
+
+    // Recheck edit access at registration, including duplicate-return paths,
+    // before any privileged storage read, scan, cleanup or pipeline processing.
+    // The earlier browser preflight does not authorize this later request.
+    let canRegister = false;
+    try {
+      const access = await supabase.rpc("can_edit_student", {
+        _user_id: userId,
+        _student_id: data.student_id,
+      });
+      canRegister = !access.error && access.data === true;
+    } catch {
+      // Fail closed without exposing database details or retrying the request.
+    }
+    if (!canRegister) {
+      throw new Error("We couldn't confirm permission to add this document. Refresh the page and check your access before continuing.");
+    }
 
     // Hard partner deny — RLS would block this anyway, but we want a clean error.
     const { data: roles } = await supabase
