@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-27",
+  "status": "proposal verified locally; native/full-schema checks pending; not canonical or hosted",
+  "base_commit": "5f4888bf",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-storage-binding.sql",
+    "sha256": "e5da4d650210e8457c0fa6d7309940df770fd1ba53140f723fbb7582d36f150e",
+    "canonical_migration_count_unchanged": 210
+  },
+  "behavior": [
+    "Bind new document rows to the exact managed object ID/version and owner_id matching uploaded_by. Recheck claimed uploader student edit access and explicit non-partner status before the narrow privileged storage lookup. Caller RLS and scan guard authenticate uploaded_by separately.",
+    "Use transaction-local FOR SHARE metadata lock; do not return a storage row or expose the function as a client/service RPC. The private definer trigger has fixed pg_catalog search path.",
+    "Reject absent/malformed version, unavailable owner metadata, missing or foreign path/bucket, mismatched initial claims and later rebinding even by service.",
+    "Legacy rows stay unbound without backfilling guessed provenance; ordinary metadata updates remain available. No stored bytes, grants or existing RLS expressions are changed."
+  ],
+  "validation": {
+    "local_database_cases_passed": 121,
+    "native_only_cases_skipped": 4,
+    "native_full_schema": "pending"
+  },
+  "sdk_finding": {
+    "source": "node_modules/@supabase/storage-js/src/lib/types.ts; StorageFileApi.ts",
+    "finding": "FileObjectV2/info returns ID/version but no reliable managed uploader. FileObject.owner is deprecated and not returned by list/remove. Do not infer ownership from those APIs."
+  },
+  "prior_automatic_checks": {
+    "source": "5f4888bf",
+    "result": "seven applicable checks pass; parallel PR build failed with Node heap exhaustion, push build passed. No new source regression inferred from this failure."
+  },
+  "limits": [
+    "This binds managed metadata at registration; it does not prove stored bytes are immutable or that a scan used this exact version.",
+    "Actual hosted Storage owner_id/version availability is unverified; missing fields deliberately block new binding rather than invent ownership or edit managed schema.",
+    "The minimal fixture reproduces managed fields; full canonical replay only validates installation/catalog, not a running Storage API/object store.",
+    "Current legacy read/quarantine exceptions, direct deletion, trusted byte changes, provider grounding, content reservations and exact orphan cleanup remain separate gates.",
+    "The new definer trigger needs routine/ownership/grant review before canonical promotion; no hosted authorization is implied."
+  ],
+  "authorization": {
+    "canonical_migration_added": false,
+    "hosted_database_changed": false,
+    "deployed": false,
+    "published": false,
+    "provider_calls": 0,
+    "production_touched": false
+  }
+}

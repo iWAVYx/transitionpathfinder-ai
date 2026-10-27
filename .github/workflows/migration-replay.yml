@@ -22,6 +22,7 @@ on:
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-binding.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -59,6 +60,7 @@ on:
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-binding.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -629,6 +631,8 @@ jobs:
             -f docs/production-readiness/proposals/document-scan-state-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-storage-write-boundary.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-storage-binding.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -672,6 +676,20 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected student storage write boundary'; END IF;
           END;
           $storage_verify$;
+          DO $binding_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass
+              AND tgname='documents_guard_storage_binding' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.guard_document_storage_binding()'::regprocedure
+                AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.guard_document_storage_binding()','EXECUTE')
+              OR has_function_privilege('authenticated','public.guard_document_storage_binding()','EXECUTE')
+              OR has_function_privilege('service_role','public.guard_document_storage_binding()','EXECUTE')
+              OR (SELECT count(*) FROM pg_attribute WHERE attrelid='public.documents'::regclass
+                AND attname IN ('storage_object_id','storage_object_version') AND NOT attisdropped)<>2
+            THEN RAISE EXCEPTION 'Unexpected object binding boundary'; END IF;
+          END;
+          $binding_verify$;
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 

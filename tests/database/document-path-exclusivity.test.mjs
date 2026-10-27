@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const bindingProposal = readFileSync('docs/production-readiness/proposals/document-storage-binding.sql','utf8');
 const storageProposal = readFileSync('docs/production-readiness/proposals/document-storage-write-boundary.sql','utf8');
 const scanProposal = readFileSync('docs/production-readiness/proposals/document-scan-state-boundary.sql','utf8');
 const sql = name => readFileSync('supabase/migrations/'+name,'utf8');
@@ -42,7 +43,7 @@ before(async()=>{
   END $$;
   CREATE SCHEMA storage;
   CREATE FUNCTION storage.foldername(name text) RETURNS text[] LANGUAGE sql IMMUTABLE AS $$ SELECT (string_to_array(name,'/'))[1:cardinality(string_to_array(name,'/'))-1] $$;
-  CREATE TABLE storage.objects(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),bucket_id text NOT NULL,name text NOT NULL,metadata jsonb,UNIQUE(bucket_id,name));
+  CREATE TABLE storage.objects(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),bucket_id text NOT NULL,name text NOT NULL,metadata jsonb,owner_id text,version text,UNIQUE(bucket_id,name));
   GRANT USAGE ON SCHEMA storage TO anon,authenticated,service_role;
   GRANT SELECT,INSERT,UPDATE,DELETE ON storage.objects TO anon,authenticated,service_role;
   ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
@@ -72,7 +73,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -314,4 +315,82 @@ test('disabled storage RLS stops the proposal without silently enabling it',asyn
     assert.equal((await db.query("SELECT relrowsecurity FROM pg_class WHERE oid='storage.objects'::regclass")).rows[0].relrowsecurity,false);
     assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname LIKE 'student_document_no_client_%'")).rows[0].n,0);
   }finally{await db.exec('ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY');}
+});
+
+async function installBinding({owner=actors.family,version='fictional-version-one',name=path,bucket='student-documents'}={}) {
+  await db.query('INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES($1,$2,$3,$4)',[bucket,name,owner,version]);
+  await db.exec(bindingProposal);
+}
+test('binds a new upload to exact managed owner/object/version without granting access',async()=>{
+  await installBinding();await as();await insert();const [row]=await all();
+  const [object]=(await db.query('SELECT id FROM storage.objects')).rows;
+  assert.equal(row.storage_object_id,object.id);assert.equal(row.storage_object_version,'fictional-version-one');
+});
+for(const [role,actor] of Object.entries(actors)) test('storage binding preserves existing upload restrictions for '+role,async()=>{
+  await installBinding({owner:actor});await as(actor);
+  if(['family','educator','student'].includes(role))assert.equal((await insert({actor})).rows.length,1);
+  else await assert.rejects(insert({actor}),{code:'42501'});
+});
+for(const owner of [actors.educator,null,'', 'invented-owner'])test('rejects another or unavailable managed uploader '+String(owner),async()=>{
+  await installBinding({owner});await as();await assert.rejects(insert(),{code:'42501'});assert.equal((await all()).length,0);
+});
+for(const version of [null,'','   ','v'.repeat(1025)])test('rejects unavailable or invalid object version '+String(version).slice(0,10),async()=>{
+  await installBinding({version});await as();await assert.rejects(insert(),{code:'42501'});assert.equal((await all()).length,0);
+});
+for(const shape of ['missing','other-bucket','other-name'])test('rejects a nonmatching stored object '+shape,async()=>{
+  if(shape==='missing')await db.exec(bindingProposal);
+  else await installBinding({bucket:shape==='other-bucket'?'other-bucket':'student-documents',name:shape==='other-name'?student+'/other.txt':path});
+  await as();await assert.rejects(insert(),{code:'42501'});assert.equal((await all()).length,0);
+});
+for(const field of ['storage_object_id','storage_object_version'])test('rejects a forged initial binding '+field,async()=>{
+  await installBinding();await as();const value=field==='storage_object_id'?uid(999):'invented-version';
+  await assert.rejects(db.query(`INSERT INTO public.documents(student_id,uploaded_by,title,storage_path,${field}) VALUES($1,$2,'Fictional',$3,$4)`,[student,actors.family,path,value]),{code:'42501'});
+  assert.equal((await all()).length,0);
+});
+for(const role of ['authenticated','service_role'])test('binding cannot be altered after save by '+role,async()=>{
+  await installBinding();await as();await insert();await as(actors.family,role);
+  await assert.rejects(db.exec("UPDATE public.documents SET storage_object_id=NULL,storage_object_version=NULL"),{code:'42501'});
+  assert.equal((await all())[0].storage_object_version,'fictional-version-one');
+});
+test('legacy documents stay unbound and ordinary title edits remain available',async()=>{
+  await insert();await db.exec(bindingProposal);await as();await db.exec("UPDATE public.documents SET title='Legacy title'");
+  const [row]=await all();assert.equal(row.storage_object_id,null);assert.equal(row.storage_object_version,null);assert.equal(row.title,'Legacy title');
+  await as();await assert.rejects(db.query('UPDATE public.documents SET storage_object_id=$1,storage_object_version=$2',[uid(999),'invented-history']),{code:'42501'});
+});
+test('service changes to an object do not silently rewrite the saved version binding',async()=>{
+  await installBinding();await as();await insert();await as(actors.family,'service_role');await db.exec("UPDATE storage.objects SET version='fictional-version-two'");
+  assert.equal((await all())[0].storage_object_version,'fictional-version-one');
+});
+test('binding function is private, fixed-path and definer only for its narrow trigger lookup',async()=>{
+  await installBinding();const [fn]=(await db.query("SELECT prosecdef,proconfig FROM pg_proc WHERE oid='public.guard_document_storage_binding()'::regprocedure")).rows;
+  assert.equal(fn.prosecdef,true);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+  for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.guard_document_storage_binding()','EXECUTE') AS ok",[role])).rows[0].ok,false);
+});
+test('missing upload prerequisite rolls back binding columns and function installation',async()=>{
+  await db.exec('DROP POLICY student_document_no_client_replace ON storage.objects');
+  await assert.rejects(db.exec(bindingProposal),{code:'55000'});await db.exec('ROLLBACK');
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_attribute WHERE attrelid='public.documents'::regclass AND attname IN ('storage_object_id','storage_object_version') AND NOT attisdropped")).rows[0].n,0);
+  assert.equal((await db.query("SELECT to_regprocedure('public.guard_document_storage_binding()') AS fn")).rows[0].fn,null);
+});
+
+for(const role of ['school','district','owner'])test('binding permits '+role+' only with explicit student edit access and its own uploaded object',async()=>{
+  await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);
+  await installBinding({owner:actors[role]});await as(actors[role]);await insert({actor:actors[role]});
+  assert.equal((await all())[0].storage_object_version,'fictional-version-one');
+});
+test('managed object ownership cannot be used to spoof another uploader through the definer trigger',async()=>{
+  await installBinding({owner:actors.educator});await as();await assert.rejects(insert({actor:actors.educator}),{code:'42501'});assert.equal((await all()).length,0);
+});
+test('absent managed owner column fails closed without inventing ownership',async()=>{
+  await db.exec('ALTER TABLE storage.objects DROP COLUMN owner_id');
+  try{await objectInsert();await db.exec(bindingProposal);await as();await assert.rejects(insert(),{code:'42501'});assert.equal((await all()).length,0);}
+  finally{await db.exec('RESET ROLE;ALTER TABLE storage.objects ADD COLUMN owner_id text');}
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('binding observes locked object metadata after service '+finish,{skip:!native},async()=>{
+  await installBinding();const a=await newSession(),b=await newSession();await as(actors.family,'service_role',a);await as(actors.family,'authenticated',b);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');await a.exec("UPDATE storage.objects SET version='fictional-version-two'");
+  const pending=insert({},b).then(result=>({result}),error=>({error}));
+  try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.rows.length,1);
+  assert.equal((await all())[0].storage_object_version,finish==='COMMIT'?'fictional-version-two':'fictional-version-one');
 });

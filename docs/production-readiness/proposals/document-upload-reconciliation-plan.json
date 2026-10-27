@@ -72,5 +72,14 @@
     "native_database_cases_passed": 91,
     "native_database_cases_skipped": 0,
     "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40525444065"
+  },
+  "object_binding_checkpoint": {
+    "proposal": "docs/production-readiness/proposals/document-storage-binding.sql",
+    "combined_local_cases_passed": 121,
+    "native_only_cases_skipped": 4,
+    "native_full_schema": "pending",
+    "not_canonical": true,
+    "hosted_actions": false,
+    "limit": "Registration-time managed ownership/version binding only; later byte/version verification and durable reservations remain unimplemented."
   }
 }

@@ -1,5 +1,19 @@
 # Production release checklist
 
+## October 27 — Managed Object/Uploader Binding Proposal
+
+- [x] Prepared proposal-only SQL that binds each new document to its exact managed `student-documents` object ID/version, verifies `owner_id` matches the uploader and rechecks that uploader's current explicit student edit access/non-partner status before the privileged lookup. Existing caller RLS/scan guard still authenticates the submitted uploader; no new student access is granted.
+- [x] Preserve legacy rows as unbound; do not invent historical ownership or versions. Prevent later binding changes by both ordinary clients and trusted service writes. Missing owner/version metadata or mismatched client claims fail closed; no guessed SDK owner field or generated type change.
+- [x] All 121 local disposable cases pass; four native-only concurrency cases are skipped locally. Cases cover all roles, explicit School/District/Owner edits, missing/foreign objects, owner/version forgery, absent managed metadata, immutable bindings, legacy edits and private fixed-path trigger execution.
+- [ ] Verify the proposed binding and existing safeguards in native disposable PostgreSQL, including object metadata lock races after COMMIT/ROLLBACK, then verify installation after all 210 canonical migrations.
+- [ ] Bind fingerprinting, sniffing, scanning and later reads to the recorded object/version or the exact same immutable bytes. A row lock protects registration only, not processing after commit. Service changes can still occur; observing an unchanged saved binding is not a successful scan or immutability check. Review the new narrow definer trigger and actual hosted managed schema before any canonical promotion.
+- [ ] Complete durable upload attempts/content reservations and exact orphan cleanup. No hosted API/storage/provider test is prepared or authorized by this proposal.
+
+Prior evidence-only `5f4888bf` passed units/replay/accessibility/role/readiness/seed and one build; its parallel build hit Node heap exhaustion. This historical failure is not a passing baseline for the new proposal. Runtime stays `d04edc73…a73f74b1` / 1,194 files; staging stays `7814afa7` / 1,190 files. No canonical migration, runtime source, hosted database, objects, publication or production changes.
+
+Evidence: `document-storage-binding-local-2026-10-27.json`; proposal: `proposals/document-storage-binding.sql`. All TF-01–TF-26/six milestones remain. Report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Client Storage Replacement and Deletion Proposal
 
 - [x] Previous proposal follow-up `123c6121` passed all eight applicable automatic checks; both replacement builds passed first attempt. The earlier proposal push build hit Node heap exhaustion; its retry was cancelled by that documentation push.
