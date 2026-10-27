@@ -18,6 +18,8 @@ on:
       - "tests/database/atomic-pathway-history.test.mjs"
       - "tests/database/report-linked-student-save.test.mjs"
       - "tests/database/report-evidence-save.test.mjs"
+      - "tests/database/document-path-exclusivity.test.mjs"
+      - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -51,6 +53,8 @@ on:
       - "tests/database/atomic-pathway-history.test.mjs"
       - "tests/database/report-linked-student-save.test.mjs"
       - "tests/database/report-evidence-save.test.mjs"
+      - "tests/database/document-path-exclusivity.test.mjs"
+      - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -152,6 +156,19 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Test proposed document path boundary without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-path-exclusivity.test.mjs
+
+      - name: Test proposed document path boundary in concurrent disposable sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-path-exclusivity.test.mjs
 
       - name: Test report-share restrictions in a disposable PostgreSQL database
         env:
@@ -600,6 +617,32 @@ jobs:
               and (select count(*) >= 0 from public.blog_posts)
               and (select count(*) >= 0 from public.media_assets);" | grep -qx t
 
+      - name: Verify document path proposal against the complete canonical replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-path-exclusivity.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
+          DO $verify$
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_index
+              WHERE indexrelid='public.documents_storage_path_unique'::regclass
+                AND indrelid='public.documents'::regclass AND indisunique AND indisvalid
+                AND indpred IS NOT NULL
+                AND indkey::text=(SELECT attnum::text FROM pg_attribute WHERE attrelid='public.documents'::regclass AND attname='storage_path')
+            ) THEN RAISE EXCEPTION 'Expected exclusive path index is missing'; END IF;
+            IF EXISTS (
+              SELECT 1 FROM pg_proc WHERE oid='public.tg_documents_enforce_storage_path()'::regprocedure
+                AND (prosecdef OR proconfig IS DISTINCT FROM ARRAY['search_path=pg_catalog'])
+            ) OR has_function_privilege('anon','public.tg_documents_enforce_storage_path()','EXECUTE')
+              OR has_function_privilege('authenticated','public.tg_documents_enforce_storage_path()','EXECUTE')
+              OR has_function_privilege('service_role','public.tg_documents_enforce_storage_path()','EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected trigger execution boundary'; END IF;
+          END;
+          $verify$;
+          SELECT 'Proposal applied and verified in disposable canonical replay only' AS result;
+          SQL
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -608,4 +651,5 @@ jobs:
           path: |
             /tmp/realtime_policies.txt
             /tmp/security-finding-inventory.txt
+            /tmp/document-path-proposal-verification.txt
           if-no-files-found: ignore

@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 27 — Database Path Exclusivity Proposal Prepared Locally
+
+- [x] Reviewed application `dedb828e` passed all eight applicable automatic checks; both builds passed on their first attempt. Hosted checks remain unperformed.
+- [x] Prepared proposal-only SQL for one document reference per nonempty stored-file path and fixed student/path identity. Legacy collisions or a missing expected trigger stop the whole transaction; existing rows, table permissions and row policies are preserved. No canonical migration or ledger entry was added.
+- [x] All 35 local disposable database cases and 28 focused application boundary cases pass. A unique-path loser stops before scanning, removal or summary enqueue. YAML parses with no hosted environment on the disposable replay job.
+- [ ] Native two-session COMMIT/ROLLBACK races and a full 210-migration schema smoke check are wired into CI but still pending. Runtime remains `d04edc73…a73f74b1` / 1,194 files; stable staging remains `7814afa7` / 1,190 files.
+- [ ] Continue trusted uploader/object ownership, immutable bytes/scan transitions, simultaneous content reservations and exact orphan cleanup. This proposal does not restrict direct review/scan metadata writes or retire paths after hard deletion. Local policy tests preserve current editor scan-state writes; trusted state/column restrictions remain a separate readiness gate. No cleanup or hosted test has run.
+
+Evidence: `document-path-proposal-local-2026-10-27.json`; SQL: `proposals/document-path-exclusivity.sql`. No hosted database, publication, deployment or production change. All TF-01–TF-26/six milestones and production gates remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 27 — Verified Duplicate Checks Before Upload and Bound-Path Protection
 
 - [x] Prior session candidate `09520788` passed all eight applicable automatic checks after one same-source retry of a Node heap failure; hosted acceptance remains unperformed.

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-27",
+  "status": "review proposal only; not canonical, deployed or applied to a hosted database",
+  "base_commit": "dedb828e",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-path-exclusivity.sql",
+    "sha256": "3e4d4278fe6b55b37db492e406da9925134c39fe880e0b24b3b79a2ea4bf84f5",
+    "index": "documents_storage_path_unique",
+    "canonical_migration_count_unchanged": 210
+  },
+  "behavior": [
+    "Lock document writes inside one bounded transaction, refuse existing nonempty-path collisions, then create a unique index across active/hidden/archived/deleted document references.",
+    "Keep each saved document student/path fixed, including privileged ordinary writes and moves changing both fields together. New paths must match the exact student folder and a single safe filename.",
+    "Keep legacy noncanonical locations untouched and allow existing metadata updates. Preserve document table grants and RLS policy expressions; restrict only direct execution of the existing invoker trigger function.",
+    "Abort atomically on missing expected trigger or legacy collisions. No rewriting, merging, deleting or storage operation is part of this proposal."
+  ],
+  "local_validation": {
+    "database_cases_passed": 35,
+    "native_only_cases_skipped": 2,
+    "application_boundary_cases_passed": 28,
+    "workflow_yaml": "parsed; replay job has no hosted environment",
+    "diff_check": "passed"
+  },
+  "ci_preparation": {
+    "native_concurrency": "Two actual PostgreSQL sessions must prove blocking and a single surviving insert after winner COMMIT or ROLLBACK; not simulated by PGlite. Pending CI.",
+    "full_schema": "Apply/verify proposal only after all 210 canonical migrations and canonical inventory checks in disposable CI. No canonical source or ledger changed. Pending CI."
+  },
+  "prior_application_ci": {
+    "candidate": "dedb828e",
+    "applicable_checks_passed": 8,
+    "both_builds": "passed first attempt",
+    "hosted_acceptance": "skipped, not passed"
+  },
+  "runtime_identity_unchanged": {
+    "fingerprint": "d04edc7305193a9b3cb0f0247015c0b9cfd11955bb27e5e46d3f44f5a73f74b1",
+    "file_count": 1194
+  },
+  "limits": [
+    "Local harness loads canonical student-access helpers and document policies, with narrow role/document-grant fixture helpers; it is not signed-in or hosted all-role acceptance.",
+    "This guards duplicate document paths, not simultaneous identical-content uploads using distinct paths. It is not an upload-attempt reservation or proof of storage-object ownership/version immutability.",
+    "Current metadata/review/scan updates retain existing grants. Local canonical-policy coverage permits an editor scan-status update; trusted scan-transition/column-write restrictions remain a separate explicit readiness gate.",
+    "Hard-deleting the document row removes its index reference; permanent path retirement needs the future attempt ledger/retention design.",
+    "No automatic orphan cleanup, malware/provider call, upload, fixture creation in staging, migration, deployment, publication, production/main merge, account/access, payment, environment or secret change."
+  ],
+  "next": [
+    "Obtain native concurrency and full-canonical CI results before promoting any proposal to a canonical migration.",
+    "Prepare trusted upload ownership/state transitions, content reservations and exact reconciliation; preserve all stored evidence/audit retention.",
+    "Prepare bounded hosted acceptance and obtain fresh scoped authorization before any staging rollout or fixture/provider work."
+  ],
+  "preserved": [
+    "Full TF-01\u2013TF-26/six milestones and production gates",
+    "Lovable visual heading and protected files",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot"
+  ]
+}

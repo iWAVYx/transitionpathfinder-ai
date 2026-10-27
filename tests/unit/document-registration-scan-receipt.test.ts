@@ -112,3 +112,11 @@ it("stops before reading, inserting or scanning when a path is already bound or 
   await expect(register()).rejects.toThrow("upload location is already in use");
   expect(api.download).not.toHaveBeenCalled(); expect(api.insert).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
 });
+
+it("stops before scanning or removal when another registration wins a unique-path race", async () => {
+  api.insert.mockReturnValue({ select: () => ({ single: async () => ({ data: null, error: { code: "23505", message: "PRIVATE conflicting document path" } }) }) });
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  await expect(register()).rejects.toThrow("Could not save document record");
+  expect(api.insert).toHaveBeenCalledOnce(); expect(api.sniff).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
+  expect(log).toHaveBeenCalledExactlyOnceWith("Document registration could not be confirmed."); log.mockRestore();
+});

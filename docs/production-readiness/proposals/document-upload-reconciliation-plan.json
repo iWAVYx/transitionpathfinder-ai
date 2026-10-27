@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "draft only; no migration, cleanup worker or hosted test implemented/authorized",
+  "status": "path-exclusivity SQL proposal locally tested; full reservation/cleanup design remains draft; no canonical migration or hosted action authorized",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -22,7 +22,8 @@
     "Use atomic database claim/finalize/cleanup state transitions so a losing/expired attempt cannot finalize while its object is being reconciled. A SELECT-then-delete or browser in-flight flag is insufficient.",
     "Only consider exact manifest paths/IDs for cleanup after proving no document, live attempt, summary job, evidence/source or retention reference can claim them. Storage deletion requires its own confirmed receipt and independent exact absence check.",
     "Preserve required audit retention; never delete unrelated or prefix-matched rows/objects to obtain zero counts. Stop on ambiguous ownership, references, processing or completion.",
-    "Prevent object mutation between fingerprint, sniff, scan and enqueue; bind processing to a verified immutable object version or equivalent bytes. Current separate downloads are not an atomic storage snapshot."
+    "Prevent object mutation between fingerprint, sniff, scan and enqueue; bind processing to a verified immutable object version or equivalent bytes. Current separate downloads are not an atomic storage snapshot.",
+    "Restrict direct client review/scan-state and uploader-identity writes when designing trusted transitions; the current path-only proposal preserves those existing grants and does not certify malware safety."
   ],
   "offline_verification_required": [
     "Disposable database tests for concurrent claims/finalization/cleanup, legacy collision refusal, owner mismatch, all seven role/access decisions and full migration replay/grant inventory.",
@@ -39,5 +40,12 @@
     ],
     "limits": "Pending-row fixtures would validate duplicate handling only, not malware scanning, reservation concurrency, orphan cleanup, real IEP content or end-to-end generated outputs."
   },
-  "authorization": "Fresh explicit migration/release/provider/fixture scope and human GitHub staging reviews remain required before any hosted action."
+  "authorization": "Fresh explicit migration/release/provider/fixture scope and human GitHub staging reviews remain required before any hosted action.",
+  "path_exclusivity_checkpoint": {
+    "proposal": "docs/production-readiness/proposals/document-path-exclusivity.sql",
+    "local_database_cases_passed": 35,
+    "native_concurrency_cases_pending": 2,
+    "canonical_replay_smoke": "pending CI",
+    "not_canonical": true
+  }
 }
