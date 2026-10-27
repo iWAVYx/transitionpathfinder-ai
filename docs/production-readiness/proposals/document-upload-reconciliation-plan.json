@@ -60,5 +60,14 @@
     "native_database_cases_passed": 67,
     "native_database_cases_skipped": 0,
     "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40523528681"
+  },
+  "storage_write_checkpoint": {
+    "proposal": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
+    "combined_local_cases_passed": 89,
+    "native_only_cases_skipped": 2,
+    "native_full_schema": "pending",
+    "not_canonical": true,
+    "hosted_actions": false,
+    "limit": "Client write restriction only; does not prove object ownership or immutable service bytes."
   }
 }

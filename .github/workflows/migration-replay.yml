@@ -21,6 +21,7 @@ on:
       - "tests/database/document-path-exclusivity.test.mjs"
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -57,6 +58,7 @@ on:
       - "tests/database/document-path-exclusivity.test.mjs"
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -625,6 +627,8 @@ jobs:
             -f docs/production-readiness/proposals/document-path-exclusivity.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-scan-state-boundary.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-storage-write-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -656,6 +660,18 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected scan-state execution boundary'; END IF;
           END;
           $scan_verify$;
+          DO $storage_verify$
+          BEGIN
+            IF (SELECT count(*) FROM pg_policy WHERE polrelid='storage.objects'::regclass
+              AND polname IN ('student_document_no_client_replace','student_document_no_client_delete')
+              AND NOT polpermissive AND cardinality(polroles)=2 AND polroles @> ARRAY['anon'::regrole::oid,'authenticated'::regrole::oid])<>2
+              OR NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+                AND polname='student_document_no_client_replace' AND polcmd='w' AND polqual IS NOT NULL AND polwithcheck IS NOT NULL)
+              OR NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+                AND polname='student_document_no_client_delete' AND polcmd='d' AND polqual IS NOT NULL)
+            THEN RAISE EXCEPTION 'Unexpected student storage write boundary'; END IF;
+          END;
+          $storage_verify$;
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 

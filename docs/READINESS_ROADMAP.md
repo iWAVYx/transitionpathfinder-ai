@@ -1,10 +1,21 @@
 # TransitionForward — Readiness Roadmap
 
+## October 27 — Client Storage Replacement and Deletion Proposal
+
+- [x] Previous proposal follow-up `123c6121` passed all eight applicable automatic checks; both replacement builds passed first attempt. The earlier proposal push build hit Node heap exhaustion; its retry was cancelled by that documentation push.
+- [x] Prepared proposal-only restrictive policies blocking ordinary client updates/moves/upserts and deletion in `student-documents`, including management accounts and objects not yet registered. Current new-upload and read policies remain; other buckets keep their own permissions. Trusted service writes/removal still bypass RLS.
+- [x] All 89 local disposable database cases pass, with two native concurrency cases skipped locally. Tests retain canonical access helpers/document/storage policies, all seven role decisions, broad-policy resistance, other-bucket isolation, unchanged reads, trusted maintenance and prerequisite rollback. Initial fixture loading-order failures were corrected before the passing run.
+- [ ] Verify the three proposals together in native disposable PostgreSQL and after all 210 canonical migrations. No hosted Storage API acceptance is claimed.
+- [ ] Prove actual object ownership, prevent trusted-service byte changes during review, bind processing to an immutable object/version and finish content reservations/exact orphan cleanup. Restricting client metadata writes alone does not prove immutable bytes, scanner provenance or cleanup safety. No object owner field is invented or backfilled.
+
+Evidence: `document-storage-proposal-local-2026-10-27.json`; SQL: `proposals/document-storage-write-boundary.sql`. This is not canonical SQL and changes no hosted policy, files, staging publication or production system. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Trusted Scan-State Proposal Prepared Locally
 
 - [x] Prior candidate `3a1e5c73` passed all eight applicable automatic checks, with both builds passing first attempt.
 - [x] Prepared a second proposal-only database guard: client uploads must begin pending with their own uploader; client edits cannot forge scan results, machine-review status or replacement hashes. Uploader identity stays fixed, including trusted service writes. Existing title, archive and human-review markers remain available; Owner management status does not confer scan approval.
-- [x] All 65 local disposable database cases pass; two native concurrency cases await CI. Checks cover forged insert/update/upsert, role-claim spoofing, quarantine resets, atomic failures, service scan writes, preserved grants/policies and prerequisite rollback.
+- [x] All 65 local disposable database cases pass; two native concurrency cases are skipped locally. Checks cover forged insert/update/upsert, role-claim spoofing, quarantine resets, atomic failures, service scan writes, preserved grants/policies and prerequisite rollback.
 - [x] [Disposable native CI 40523528681](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40523528681) passed all 67 combined cases with zero skips, including two observed concurrent insert races. Both proposals also passed verification after the complete 210-migration replay and canonical grant/RLS/security checks. This is not a canonical migration or hosted acceptance.
 - [ ] Finish actual object ownership, immutable stored bytes, legacy scan provenance, content reservations, quarantine/read exceptions and exact orphan cleanup before requesting any hosted upload test. Initial client hashes remain claims until checked against bytes; service permission alone does not prove a real scan occurred.
 

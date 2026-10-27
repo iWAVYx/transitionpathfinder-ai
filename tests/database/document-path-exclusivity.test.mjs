@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const storageProposal = readFileSync('docs/production-readiness/proposals/document-storage-write-boundary.sql','utf8');
 const scanProposal = readFileSync('docs/production-readiness/proposals/document-scan-state-boundary.sql','utf8');
 const sql = name => readFileSync('supabase/migrations/'+name,'utf8');
 const legacy = sql('20260715031029_93358eaf-ed18-40b0-bcf8-383a6d1bc5ac.sql').split('-- 2)')[0];
@@ -39,6 +40,12 @@ before(async()=>{
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon;END IF;
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role BYPASSRLS;END IF;
   END $$;
+  CREATE SCHEMA storage;
+  CREATE FUNCTION storage.foldername(name text) RETURNS text[] LANGUAGE sql IMMUTABLE AS $$ SELECT (string_to_array(name,'/'))[1:cardinality(string_to_array(name,'/'))-1] $$;
+  CREATE TABLE storage.objects(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),bucket_id text NOT NULL,name text NOT NULL,metadata jsonb,UNIQUE(bucket_id,name));
+  GRANT USAGE ON SCHEMA storage TO anon,authenticated,service_role;
+  GRANT SELECT,INSERT,UPDATE,DELETE ON storage.objects TO anon,authenticated,service_role;
+  ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
   CREATE SCHEMA auth;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
   GRANT USAGE ON SCHEMA public,auth TO authenticated,anon,service_role;
@@ -56,18 +63,23 @@ before(async()=>{
   ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`);
   await db.exec(sql('20261024010000_remove_implicit_admin_student_access.sql').split('-- Editing a profile')[0]+'COMMIT;');
   const policies=sql('20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql');
-  await db.exec(policies.slice(policies.indexOf('DROP POLICY IF EXISTS "Access docs via student"'),policies.indexOf('DROP POLICY IF EXISTS "Access student docs via student access" ON storage.objects')));
-  const latest=sql('20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql');await db.exec(latest.slice(latest.indexOf('-- 2)'),latest.indexOf('-- 3)')));
+  const storageStart=policies.indexOf('DROP POLICY IF EXISTS "Access student docs via student access" ON storage.objects');
+  await db.exec(policies.slice(policies.indexOf('DROP POLICY IF EXISTS "Access docs via student"'),storageStart));
+  const latest=sql('20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql');
+  await db.exec(latest.slice(latest.indexOf('-- 2)'),latest.indexOf('-- 3)')));
+  await db.exec(latest.slice(0,latest.indexOf('-- 2)')));
+  await db.exec(policies.slice(storageStart));
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
   for(const actor of [actors.educator,actors.partner]) await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actor]);
   await db.exec(proposal);
   await db.exec(scanProposal);
+  await db.exec(storageProposal);
 });
 for(const [role,actor] of Object.entries(actors)) test('existing database insert permission is preserved for '+role,async()=>{
   await as(actor);const allowed=['family','educator','student'].includes(role);
@@ -231,4 +243,75 @@ for(const finish of ['COMMIT','ROLLBACK']) test('concurrent same-path insertion 
   await a.exec(finish);const outcome=await second;
   if(finish==='COMMIT') assert.equal(outcome.error?.code,'23505');else assert.equal(outcome.result?.rows.length,1);
   const rows=await all();assert.equal(rows.length,1);assert.equal(rows[0].title,finish==='COMMIT'?'First transaction':'Second transaction');
+});
+
+
+function objectInsert(client=db,bucket='student-documents',name=path) {
+  return client.query('INSERT INTO storage.objects(bucket_id,name,metadata) VALUES($1,$2,$3) RETURNING id',[bucket,name,{marker:'original'}]);
+}
+for(const [role,actor] of Object.entries(actors)) test('storage new-upload access remains explicit for '+role,async()=>{
+  await as(actor);if(['family','educator','student'].includes(role))assert.equal((await objectInsert()).rows.length,1);
+  else await assert.rejects(objectInsert(),{code:'42501'});
+});
+for(const [role,actor] of Object.entries(actors)) test('client cannot replace or delete stored student bytes as '+role,async()=>{
+  await objectInsert();await as(actor);
+  assert.equal((await db.query("UPDATE storage.objects SET metadata='{\"marker\":\"changed\"}'::jsonb RETURNING id")).rows.length,0);
+  assert.equal((await db.query('DELETE FROM storage.objects RETURNING id')).rows.length,0);
+  await db.exec('RESET ROLE');const [row]=(await db.query('SELECT * FROM storage.objects')).rows;
+  assert.equal(row.name,path);assert.deepEqual(row.metadata,{marker:'original'});
+});
+test('explicit Owner edit permission preserves uploads but not replacement or removal',async()=>{
+  await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors.owner]);
+  await as(actors.owner);await objectInsert();assert.equal((await db.query("UPDATE storage.objects SET name=$1 RETURNING id",[student+'/moved.txt'])).rows.length,0);
+  assert.equal((await db.query('DELETE FROM storage.objects RETURNING id')).rows.length,0);
+});
+test('upload conflict cannot overwrite an existing object',async()=>{
+  await as();await objectInsert();await assert.rejects(db.query(`INSERT INTO storage.objects(bucket_id,name,metadata) VALUES('student-documents',$1,'{"marker":"replacement"}'::jsonb) ON CONFLICT(bucket_id,name) DO UPDATE SET metadata=excluded.metadata`,[path]),{code:'42501'});
+  await db.exec('RESET ROLE');assert.deepEqual((await db.query('SELECT metadata FROM storage.objects')).rows[0].metadata,{marker:'original'});
+});
+test('a broad permissive policy cannot reopen protected client replacement or deletion',async()=>{
+  await objectInsert();await db.exec('CREATE POLICY test_broad_policy ON storage.objects FOR ALL TO anon,authenticated USING(true) WITH CHECK(true)');
+  for(const role of ['anon','authenticated']) {await as(actors.family,role);assert.equal((await db.query("UPDATE storage.objects SET metadata='{}'::jsonb RETURNING id")).rows.length,0);assert.equal((await db.query('DELETE FROM storage.objects RETURNING id')).rows.length,0);}
+});
+test('other buckets retain their own permitted edits and deletes, but cannot move into protected storage',async()=>{
+  await db.exec("CREATE POLICY test_other_bucket ON storage.objects FOR ALL TO authenticated USING(bucket_id='fixture-other-bucket') WITH CHECK(true)");
+  await as();const id=(await objectInsert(db,'fixture-other-bucket','fictional.txt')).rows[0].id;
+  await assert.rejects(db.query("UPDATE storage.objects SET bucket_id='student-documents' WHERE id=$1",[id]),{code:'42501'});
+  assert.equal((await db.query("UPDATE storage.objects SET metadata='{}'::jsonb WHERE id=$1 RETURNING id",[id])).rows.length,1);
+  assert.equal((await db.query('DELETE FROM storage.objects WHERE id=$1 RETURNING id',[id])).rows.length,1);
+});
+test('existing student-object read policy is preserved',async()=>{
+  await objectInsert();await as();assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,1);
+  await as(actors.partner);assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,0);
+});
+test('trusted service storage maintenance remains available; no real object deletion is performed',async()=>{
+  await objectInsert();await as(actors.family,'service_role');
+  assert.equal((await db.query("UPDATE storage.objects SET metadata='{}'::jsonb RETURNING id")).rows.length,1);
+  assert.equal((await db.query('DELETE FROM storage.objects RETURNING id')).rows.length,1);
+});
+test('client role-claim spoofing does not allow stored-file replacement',async()=>{
+  await objectInsert();await as();await db.exec("SELECT set_config('request.jwt.claim.role','service_role',false)");
+  assert.equal((await db.query("UPDATE storage.objects SET metadata='{}'::jsonb RETURNING id")).rows.length,0);
+  await db.exec("SELECT set_config('request.jwt.claim.role','',false)");
+});
+test('missing canonical upload policy stops storage proposal atomically',async()=>{
+  await db.exec('DROP POLICY student_document_no_client_replace ON storage.objects;DROP POLICY student_document_no_client_delete ON storage.objects;DROP POLICY "Upload student docs" ON storage.objects');
+  try {await assert.rejects(db.exec(storageProposal),{code:'55000'});await db.exec('ROLLBACK');
+    assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname LIKE 'student_document_no_client_%'")).rows[0].n,0);
+  }finally{await db.exec(sql('20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql').slice(sql('20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql').indexOf('DROP POLICY IF EXISTS "Access student docs via student access" ON storage.objects')));}
+});
+test('storage guard preserves baseline grants and policies without adding routines',async()=>{
+  await db.exec('DROP POLICY student_document_no_client_replace ON storage.objects;DROP POLICY student_document_no_client_delete ON storage.objects');
+  const baseline=async()=>({acl:(await db.query("SELECT relacl::text AS acl FROM pg_class WHERE oid='storage.objects'::regclass")).rows,policies:(await db.query("SELECT policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname NOT LIKE 'student_document_no_client_%' ORDER BY policyname")).rows});
+  const before=await baseline();await db.exec(storageProposal);assert.deepEqual(await baseline(),before);
+  const rows=(await db.query("SELECT polcmd,polpermissive FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname LIKE 'student_document_no_client_%' ORDER BY polcmd")).rows;
+  assert.deepEqual(rows,[{polcmd:'d',polpermissive:false},{polcmd:'w',polpermissive:false}]);
+});
+
+test('disabled storage RLS stops the proposal without silently enabling it',async()=>{
+  await db.exec('DROP POLICY student_document_no_client_replace ON storage.objects;DROP POLICY student_document_no_client_delete ON storage.objects;ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY');
+  try{await assert.rejects(db.exec(storageProposal),{code:'55000'});await db.exec('ROLLBACK');
+    assert.equal((await db.query("SELECT relrowsecurity FROM pg_class WHERE oid='storage.objects'::regclass")).rows[0].relrowsecurity,false);
+    assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname LIKE 'student_document_no_client_%'")).rows[0].n,0);
+  }finally{await db.exec('ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY');}
 });
