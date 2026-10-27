@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "local proposal; native/full-schema CI pending; not canonical or hosted",
+  "status": "proposal verified locally and in disposable native/full-schema CI; not canonical or hosted",
   "base_commit": "123c6121e372110c5ddbd2fa415f4f782f494b72",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
@@ -41,5 +41,23 @@
     "published": false,
     "provider_calls": 0,
     "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40525444065",
+    "source_commit": "94d61846c766161473beca38550651b0925edd07",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 91,
+    "native_database_cases_skipped": 0,
+    "full_schema": "All 210 canonical migrations replayed; existing grants/RLS/security checks passed before applying all three proposals and verifying restrictive storage policy commands/roles alongside document indexes/triggers.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "94d61846c766161473beca38550651b0925edd07",
+    "all_eight_applicable_passed": true,
+    "both_builds_passed_first_attempt": true,
+    "unit_tests_passed": 5118,
+    "unit_files_passed": 344,
+    "protected_skipped_jobs": "unperformed; not hosted acceptance"
   }
 }
