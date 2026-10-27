@@ -54,7 +54,7 @@
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 16,
     "canonicalInventoryReviewedAt": "2026-10-26",
-    "canonicalInventorySourceCommit": "32466326c1bc7612fe4dd8728a7e72ceaab38349",
-    "canonicalInventoryStatus": "210 canonical migrations in the working candidate based on 32466326; new evidence-save migration20261026010000 is prepared locally only, not applied to any hosted backend. Production16 pending is a comparison against saved September17 evidence only, not a fresh production read. Staging remains the previously verified e3d10dd8 application; no production access."
+    "canonicalInventorySourceCommit": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
+    "canonicalInventoryStatus": "210 canonical migrations; isolated staging migration20261026010000 and exact canonical ledger applied and independently verified. Authorized bounded evidence acceptance40434461119 passed; independent read-only checks confirm22 exact/related counts zero for each of two scopes. Both stable sites match c95a008f fingerprint/1190 files. Production16 pending is only a comparison against saved September17 evidence; no production access."
   }
 }
