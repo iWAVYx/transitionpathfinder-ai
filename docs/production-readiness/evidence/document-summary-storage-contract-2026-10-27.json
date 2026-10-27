@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "local metadata correction verified; current candidate CI pending",
+  "status": "local and applicable automatic checks passed on 2032a9c0; hosted acceptance remains open",
   "hosted_actions": false,
   "baseline": {
     "commit": "85263c2c",
@@ -22,7 +22,17 @@
     "focused_worker_tests": 55,
     "real_deno_handler_cases_no_network": 9,
     "deno_type_check": "passed",
-    "sql_unchanged": "previous 204 native cases and full canonical210 plus six-proposal verification remain applicable; CI will repeat"
+    "sql_unchanged": "previous 204 native cases and full canonical210 plus six-proposal verification remain applicable; CI will repeat",
+    "automatic": {
+      "source_commit": "2032a9c045a48ab7d405952b1595067be950ddee",
+      "all_applicable_passed": true,
+      "native_database_pass": 204,
+      "native_skips": 0,
+      "native_full_schema_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40554941476",
+      "accessibility_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40554949869",
+      "builds": "Push build passed first attempt; PR build passed one unchanged-source retry after confirmed Node heap exhaustion. No heap-cap/source/settings change.",
+      "protected_skipped": "Unperformed; not hosted role/provider acceptance."
+    }
   },
   "worker_artifact_sha256": {
     "supabase/functions/ai-job-processor/verified-document-summary.ts": "f73a9a60b81ca5b050985c5eb8e4f41e90efa914b4b0c722d1b9451a574cb888",
