@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const summaryProposal = readFileSync('docs/production-readiness/proposals/document-summary-job-boundary.sql','utf8');
 const bindingProposal = readFileSync('docs/production-readiness/proposals/document-storage-binding.sql','utf8');
 const storageProposal = readFileSync('docs/production-readiness/proposals/document-storage-write-boundary.sql','utf8');
 const scanProposal = readFileSync('docs/production-readiness/proposals/document-scan-state-boundary.sql','utf8');
@@ -56,13 +57,19 @@ before(async()=>{
   CREATE TABLE public.user_roles(user_id uuid,role text);
   CREATE FUNCTION public.is_partner_only(actor uuid) RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=actor AND role='partner') $$;
   CREATE FUNCTION public.is_platform_admin(actor uuid) RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=actor AND role='owner') $$;
-  CREATE FUNCTION public.can_view_document(actor uuid,doc uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE FUNCTION public.has_audience(actor uuid,audience text) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE FUNCTION public.has_role(actor uuid,wanted text) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=actor AND role=CASE WHEN wanted='admin' THEN 'owner' ELSE wanted END) $$;
+  CREATE TABLE public.document_permissions(document_id uuid,user_id uuid,role_type text,permission_level text);
   CREATE FUNCTION public.has_recent_admin_doc_access(actor uuid,doc uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
   CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
   GRANT SELECT,INSERT,UPDATE,DELETE ON public.documents TO authenticated;
   GRANT ALL ON public.documents TO service_role;
   ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`);
   await db.exec(sql('20261024010000_remove_implicit_admin_student_access.sql').split('-- Editing a profile')[0]+'COMMIT;');
+  const docAccess=sql('20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql');
+  await db.exec(docAccess.slice(docAccess.indexOf('CREATE OR REPLACE FUNCTION public.can_view_document'),docAccess.indexOf('-- 7.')));
+  const jobs=sql('20260528231645_00134e64-b642-4fba-b713-8f13ac348250.sql');
+  await db.exec(jobs.slice(jobs.indexOf('CREATE TABLE IF NOT EXISTS public.ai_jobs'),jobs.indexOf('CREATE TRIGGER trg_aijobs_updated')));
   const policies=sql('20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql');
   const storageStart=policies.indexOf('DROP POLICY IF EXISTS "Access student docs via student access" ON storage.objects');
   await db.exec(policies.slice(policies.indexOf('DROP POLICY IF EXISTS "Access docs via student"'),storageStart));
@@ -73,7 +80,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -393,4 +400,111 @@ for(const finish of ['COMMIT','ROLLBACK'])test('binding observes locked object m
   try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
   await a.exec(finish);const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.rows.length,1);
   assert.equal((await all())[0].storage_object_version,finish==='COMMIT'?'fictional-version-two':'fictional-version-one');
+});
+
+const summaryId=uid(40);
+async function summaryFixture() {
+  const id=(await insert()).rows[0].id;
+  await db.exec("UPDATE public.documents SET scan_status='clean'");
+  await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source,status,result_payload) VALUES($1,$2,$3,'document_summary',$4,'completed',$5)",[summaryId,student,actors.family,{document_id:id},{summary:'Fictional result'}]);
+  await db.exec(summaryProposal);return id;
+}
+function createSummary(documentId,actor=actors.family,extra={}) {
+  return db.query("INSERT INTO public.ai_jobs(student_id,triggered_by_user_id,job_type,input_source,status,result_payload,result_id,attempts,error_message,locked_at) VALUES($1,$2,'document_summary',$3,$4,$5,$6,$7,$8,$9) RETURNING id",[extra.student??student,actor,{document_id:documentId},extra.status??'queued',extra.result_payload??null,extra.result_id??null,extra.attempts??0,extra.error_message??null,extra.locked_at??null]);
+}
+for(const [role,actor] of Object.entries(actors))test('summary job reads require current document/student access for '+role,async()=>{
+  await summaryFixture();await as(actor);
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,['family','educator','student'].includes(role)?1:0);
+});
+for(const role of ['school','district','owner'])test('summary job read/request works for '+role+' with explicit student access',async()=>{
+  const id=await summaryFixture();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,1);
+  assert.equal((await createSummary(id,actors[role])).rows.length,1);
+});
+test('creator status does not preserve summary access after student access removal',async()=>{
+  const id=await summaryFixture();await as(actors.educator);await createSummary(id,actors.educator);
+  await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.educator]);await as(actors.educator);
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+test('broad admin and job-creator read paths cannot bypass summary document access',async()=>{
+  await summaryFixture();await db.query('UPDATE public.ai_jobs SET triggered_by_user_id=$1',[actors.owner]);await as(actors.owner);
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+for(const patch of ["archived_at=now()","deleted_at=now()","scan_status='failed'","review_status='rejected'"])test('summary results close when their source changes: '+patch,async()=>{
+  await summaryFixture();await db.exec('UPDATE public.documents SET '+patch);await as();assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+for(const documentId of [null,'bad-id','',uid(999),17,{id:uid(999)},[]])test('invalid or missing summary document reference fails closed '+String(documentId),async()=>{
+  await summaryFixture();await db.query('UPDATE public.ai_jobs SET input_source=$1',[{document_id:documentId}]);await as();
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);await assert.rejects(createSummary(documentId),{code:'42501'});
+});
+test('summary student and document must match even when the actor owns both students',async()=>{
+  const id=await summaryFixture();await db.query('UPDATE public.ai_jobs SET student_id=$1',[otherStudent]);await as();
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);await assert.rejects(createSummary(id,actors.family,{student:otherStudent}),{code:'42501'});
+});
+for(const extra of [{status:'completed'},{status:'processing'},{result_payload:{summary:'Forged'}},{result_id:uid(999)},{attempts:1},{error_message:'Forged'},{locked_at:'2026-10-27T00:00:00Z'}])test('client summary requests cannot forge server results/state '+JSON.stringify(extra),async()=>{
+  const id=await summaryFixture();await as();await assert.rejects(createSummary(id,actors.family,extra),{code:'42501'});
+});
+test('valid summary request remains queued, with no fabricated result',async()=>{
+  const id=await summaryFixture();await as();const inserted=(await createSummary(id)).rows[0];
+  const [row]=(await db.query('SELECT status,result_payload,attempts FROM public.ai_jobs WHERE id=$1',[inserted.id])).rows;
+  assert.deepEqual(row,{status:'queued',result_payload:null,attempts:0});
+});
+test('another explicit document grant does not replace current student access',async()=>{
+  const id=await summaryFixture();await db.query("INSERT INTO public.document_permissions VALUES($1,$2,NULL,'view')",[id,actors.school]);await as(actors.school);
+  assert.equal((await db.query('SELECT public.can_view_document($1,$2) AS allowed',[actors.school,id])).rows[0].allowed,true);
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+test('broad permissive policies cannot reopen summary update/delete or move other job types into summaries',async()=>{
+  const id=await summaryFixture();await db.exec('CREATE POLICY fixture_broad_jobs ON public.ai_jobs FOR ALL TO authenticated USING(true) WITH CHECK(true)');await as();
+  assert.equal((await db.query("UPDATE public.ai_jobs SET result_payload='{}'::jsonb RETURNING id")).rows.length,0);
+  assert.equal((await db.query('DELETE FROM public.ai_jobs RETURNING id')).rows.length,0);
+  const other=(await db.query("INSERT INTO public.ai_jobs(triggered_by_user_id,job_type) VALUES($1,'meeting_prep') RETURNING id",[actors.family])).rows[0].id;
+  await assert.rejects(db.query("UPDATE public.ai_jobs SET job_type='document_summary',student_id=$1,input_source=$2 WHERE id=$3",[student,{document_id:id},other]),{code:'42501'});
+  assert.equal((await db.query("UPDATE public.ai_jobs SET status='completed' WHERE id=$1 RETURNING id",[other])).rows.length,1);
+  assert.equal((await db.query('DELETE FROM public.ai_jobs WHERE id=$1 RETURNING id',[other])).rows.length,1);
+});
+test('unrelated job types retain existing broad admin read policy',async()=>{
+  await summaryFixture();await db.query("INSERT INTO public.ai_jobs(triggered_by_user_id,job_type) VALUES($1,'meeting_prep')",[actors.family]);await as(actors.owner);
+  assert.deepEqual((await db.query('SELECT job_type FROM public.ai_jobs')).rows,[{job_type:'meeting_prep'}]);
+});
+test('trusted service job maintenance remains available',async()=>{
+  await summaryFixture();await as(actors.owner,'service_role');
+  assert.equal((await db.query("UPDATE public.ai_jobs SET status='failed' RETURNING id")).rows.length,1);assert.equal((await db.query('DELETE FROM public.ai_jobs RETURNING id')).rows.length,1);
+});
+test('summary helper cannot be used to probe another actor and has narrow execution grants',async()=>{
+  const id=await summaryFixture();await as();assert.equal((await db.query('SELECT public.can_read_document_summary_job($1,$2,$3) AS allowed',[actors.educator,student,id])).rows[0].allowed,false);
+  await db.exec('RESET ROLE');const signature='public.can_read_document_summary_job(uuid,uuid,text)';
+  const [fn]=(await db.query('SELECT prosecdef,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows;assert.equal(fn.prosecdef,true);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+  for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS allowed",[role,signature])).rows[0].allowed,role==='authenticated');
+});
+test('summary proposal preserves prior policy expressions and table grants',async()=>{
+  const snapshot=async()=>({policies:(await db.query("SELECT policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname='public' AND tablename='ai_jobs' AND policyname NOT LIKE 'document_summary_%' ORDER BY policyname")).rows,acl:(await db.query("SELECT relacl::text AS acl FROM pg_class WHERE oid='public.ai_jobs'::regclass")).rows});
+  const baseline=await snapshot();await db.exec(summaryProposal);assert.deepEqual(await snapshot(),baseline);
+});
+test('missing expected job policy aborts proposal installation atomically',async()=>{
+  await db.exec('ALTER POLICY "View own or student-accessible jobs" ON public.ai_jobs RENAME TO fixture_old_jobs_read');
+  try{await assert.rejects(db.exec(summaryProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regprocedure('public.can_read_document_summary_job(uuid,uuid,text)') AS fn")).rows[0].fn,null);}
+  finally{await db.exec('ALTER POLICY fixture_old_jobs_read ON public.ai_jobs RENAME TO "View own or student-accessible jobs"');}
+});
+
+test('control: the existing creator/admin summary read exception is observable before the restriction',async()=>{
+  const id=(await insert()).rows[0].id;await db.exec("UPDATE public.documents SET scan_status='clean'");
+  await db.query("INSERT INTO public.ai_jobs(student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,'document_summary',$3)",[student,actors.owner,{document_id:id}]);
+  await as(actors.owner);assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,1);
+  await db.exec('RESET ROLE');await db.exec(summaryProposal);await as(actors.owner);assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+test('explicit student viewers can read permitted summaries without gaining generation permission',async()=>{
+  const id=await summaryFixture();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','viewer')",[student,actors.school]);await as(actors.school);
+  assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,1);await assert.rejects(createSummary(id,actors.school),{code:'42501'});
+});
+test('disabled job RLS stops the proposal without silently enabling it',async()=>{
+  await db.exec('ALTER TABLE public.ai_jobs DISABLE ROW LEVEL SECURITY');
+  try{await assert.rejects(db.exec(summaryProposal),{code:'55000'});await db.exec('ROLLBACK');
+    assert.equal((await db.query("SELECT relrowsecurity FROM pg_class WHERE oid='public.ai_jobs'::regclass")).rows[0].relrowsecurity,false);
+    assert.equal((await db.query("SELECT to_regprocedure('public.can_read_document_summary_job(uuid,uuid,text)') AS fn")).rows[0].fn,null);
+  }finally{await db.exec('ALTER TABLE public.ai_jobs ENABLE ROW LEVEL SECURITY');}
+});
+test('a broad permissive insert policy cannot let a client impersonate another summary requester',async()=>{
+  const id=await summaryFixture();await db.exec('CREATE POLICY fixture_broad_jobs ON public.ai_jobs FOR ALL TO authenticated USING(true) WITH CHECK(true)');await as();
+  await assert.rejects(createSummary(id,actors.educator),{code:'42501'});
 });

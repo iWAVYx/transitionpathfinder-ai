@@ -23,6 +23,7 @@ on:
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -61,6 +62,7 @@ on:
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -633,6 +635,8 @@ jobs:
             -f docs/production-readiness/proposals/document-storage-write-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-storage-binding.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-summary-job-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -690,6 +694,19 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected object binding boundary'; END IF;
           END;
           $binding_verify$;
+          DO $summary_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.can_read_document_summary_job(uuid,uuid,text)'::regprocedure
+                AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.can_read_document_summary_job(uuid,uuid,text)','EXECUTE')
+              OR has_function_privilege('service_role','public.can_read_document_summary_job(uuid,uuid,text)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.can_read_document_summary_job(uuid,uuid,text)','EXECUTE')
+              OR (SELECT count(*) FROM pg_policy WHERE polrelid='public.ai_jobs'::regclass
+                AND polname IN ('document_summary_explicit_read','document_summary_scoped_request','document_summary_server_update','document_summary_server_delete')
+                AND NOT polpermissive AND polroles=ARRAY['authenticated'::regrole::oid])<>4
+            THEN RAISE EXCEPTION 'Unexpected document summary job boundary'; END IF;
+          END;
+          $summary_verify$;
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 

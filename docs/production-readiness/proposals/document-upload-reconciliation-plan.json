@@ -104,6 +104,16 @@
       "supabase/functions/ai-job-processor/index.ts"
     ],
     "status": "functional grounding gap; no uploaded-file content extraction acceptance",
-    "next": "Implement private hash/scan/version-bound content processing and tests before any separately authorized live document-summary test."
+    "next": "Implement private hash/scan/version-bound content processing and tests before any separately authorized live document-summary test.",
+    "privacy_prerequisite": "Existing job creator/admin read exceptions must not expose derived private text. Summary-only restrictive policy proposal prepared; not canonical or hosted."
+  },
+  "summary_result_privacy_checkpoint": {
+    "proposal": "docs/production-readiness/proposals/document-summary-job-boundary.sql",
+    "combined_local_cases_passed": 164,
+    "native_only_cases_skipped": 4,
+    "native_full_schema": "pending",
+    "not_canonical": true,
+    "hosted_actions": false,
+    "limit": "Prerequisite to private file-text grounding; actual worker/source reads remain unimplemented, other job types retain existing rules."
   }
 }

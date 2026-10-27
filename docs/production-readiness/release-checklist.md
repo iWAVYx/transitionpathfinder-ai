@@ -1,5 +1,18 @@
 # Production release checklist
 
+## October 27 — Background Summary Result Privacy Prerequisite
+
+- [x] Prior evidence follow-up `8e7804eb` passed all eight applicable automatic checks, including both first-attempt builds. No new hosted acceptance was performed.
+- [x] Found a prerequisite to private text grounding: the current `ai_jobs` read policy grants creator access even after student access is removed and includes a broad admin exception. Prepared proposal-only restrictive policies for `document_summary` reads, scoped queued requests and server-only updates/deletes. No AI text processing has been enabled.
+- [x] Summary reads require current explicit student access, current document-view permission, matching student/document, a live clean source and non-partner status. A former creator or management-only Owner gets no bypass. Legitimate student viewers can read without gaining generation permission; requests still require the existing student edit permission.
+- [x] Clients cannot invent completed results, nonzero attempt counts or lock/error state, impersonate requesters, or bypass update/delete protection with another permissive policy. Other job types and trusted service maintenance retain existing behavior. No existing results are rewritten or retrospectively attested.
+- [x] All 164 local disposable database cases pass; four native concurrency cases are skipped locally. Includes all seven baseline roles, explicit School/District/Owner access, removed-access and retired-source cases, malformed/mismatched IDs, a demonstrated old-policy exposure control, unchanged grants/baseline policies and disabled-RLS/missing-policy rollback. Canonical document permission/job policies and student helpers are loaded into the fixture; audience/role stubs do not certify every hosted organization policy.
+- [ ] Verify the combined proposals in native disposable PostgreSQL and after the complete 210-migration replay. Review the new narrow definer helper and its authenticated-only execution before canonical promotion.
+- [ ] Then implement current-authorized, hash/scan/version-bound text reads, server-side redaction, source-grounded worker prompts, source changes during processing, safe persistence and exact cleanup before a separately authorized hosted provider test. The current worker is unchanged and still forwards queued metadata; file-text grounding remains unimplemented.
+
+Evidence: `document-summary-job-boundary-local-2026-10-27.json`; SQL: `proposals/document-summary-job-boundary.sql`. Other AI job classes still retain their existing broader access and need their own review. This is not a certificate for all jobs, document row/download permissions, immutable bytes or legacy results. Runtime remains `12011271…7e74d6e2` / 1,194 files; stable staging remains `7814afa7` / 1,190 files. No canonical migration, worker/app runtime change, deployment/publication, provider call, hosted fixture or production action. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 27 — One Reviewed Copy for Registration Checks
 
 - [x] Local registration now holds one immutable server-side Blob through SHA-256 fingerprinting, type checks and malware provider submission; no independent storage re-download between these three steps. The clean verdict records this copy's hash/source. No public byte-copy field or role/access grant was added.
