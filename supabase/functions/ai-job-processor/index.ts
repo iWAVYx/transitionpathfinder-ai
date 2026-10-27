@@ -11,6 +11,8 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+import { processVerifiedDocumentSummary, SUMMARY_REVIEW_MESSAGE } from "./verified-document-summary.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -33,6 +35,8 @@ type Job = {
     | "goal_suggestions";
   input_source: Record<string, unknown>;
   attempts: number;
+  claim_at?: string;
+  claim_attempt?: number;
 };
 
 const DISCLAIMER =
@@ -43,7 +47,7 @@ function systemPromptFor(jobType: Job["job_type"]) {
     "You support special-education transition planning. Be specific, actionable, plain-language, and never make clinical or legal claims.";
   switch (jobType) {
     case "document_summary":
-      return `${base} Summarize the provided document and extract: key_findings, strengths_identified, needs_identified, goals_identified, important_dates, missing_information, recommended_followups. Return strict JSON.`;
+      return `${base} Summarize only the provided source text. Distinguish reported observations, stated goals and proposed followups; never fill missing facts. Extract: key_findings, strengths_identified, needs_identified, goals_identified, important_dates, missing_information, recommended_followups. Return strict JSON.`;
     case "pathway_report":
       return `${base} Produce a pathway report with: executive_summary, student_snapshot, strengths_needs_analysis, postsecondary_goal_summary, recommended_pathways (3-5), family_action_plan, teacher_action_plan, missing_information. Return strict JSON.`;
     case "resource_recommendation":
@@ -56,6 +60,7 @@ function systemPromptFor(jobType: Job["job_type"]) {
 }
 
 async function callLovableAI(systemPrompt: string, user: string) {
+  if (!LOVABLE_API_KEY?.trim()) throw new Error("The AI service is not configured.");
   const res = await fetch(
     "https://ai.gateway.lovable.dev/v1/chat/completions",
     {
@@ -162,7 +167,7 @@ function sanitizeInputSource(source: unknown): {
 type PipelineStage = "upload" | "sniff" | "hash" | "sanitize" | "extract" | "verify" | "publish";
 type PipelineStatus = "pending" | "running" | "succeeded" | "failed" | "quarantined" | "skipped";
 async function recordPipelineRun(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient<any, "public", any>,
   input: {
     document_id: string;
     student_id?: string | null;
@@ -207,149 +212,66 @@ async function recordPipelineRun(
 }
 
 // deno-lint-ignore no-explicit-any
-async function processJob(supabase: SupabaseClient<any, "public", any>, job: Job) {
-  let systemPrompt = systemPromptFor(job.job_type);
-  const MODEL_VERSION = "google/gemini-3-flash-preview";
-  const PROMPT_VERSION = "v1";
-  const SANITIZE_VERSION = "sanitize-v1";
-
-  // Slice C5 — worker-side breadcrumbs, only for document_summary jobs
-  // where the enqueue included a document_id (upload/hash/extract-pending
-  // breadcrumbs already exist from the upload path).
-  const docId = job.job_type === "document_summary"
-    ? (job.input_source?.document_id as string | undefined)
-    : undefined;
-
-  // Slice C8 — sanitize untrusted document text embedded in input_source
-  // before it ever reaches the AI gateway, wrap the payload in an
-  // UNTRUSTED_DOCUMENT_TEXT fence, and append a hardened refuse-to-follow
-  // suffix to the system prompt. Applied to document_summary jobs where
-  // the payload originates from user-uploaded documents; other job types
-  // fall through to the legacy prompt shape.
-  let userPrompt: string;
-  if (job.job_type === "document_summary") {
-    const sanitizeStartedAt = Date.now();
-    const { value, report } = sanitizeInputSource(job.input_source ?? {});
-    userPrompt = `${UNTRUSTED_OPEN}\n${JSON.stringify(value, null, 2)}\n${UNTRUSTED_CLOSE}`;
-    systemPrompt = `${systemPrompt}${UNTRUSTED_SYSTEM_SUFFIX}`;
-    if (docId) {
-      await recordPipelineRun(supabase, {
-        document_id: docId,
-        student_id: job.student_id,
-        stage: "sanitize",
-        status: "succeeded",
-        attempt: job.attempts + 1,
-        model_version: MODEL_VERSION,
-        prompt_version: SANITIZE_VERSION,
-        latency_ms: Date.now() - sanitizeStartedAt,
-        payload: {
-          strings_scanned: report.strings_scanned,
-          redactions: report.redactions,
-          patterns: report.patterns,
-          truncated_strings: report.truncated_strings,
-        },
-      });
-    }
-  } else {
-    userPrompt = JSON.stringify(job.input_source ?? {}, null, 2);
-  }
-
-  if (docId) {
-    await recordPipelineRun(supabase, {
-      document_id: docId,
-      student_id: job.student_id,
-      stage: "extract",
-      status: "running",
-      attempt: job.attempts + 1,
-      model_version: MODEL_VERSION,
-      prompt_version: PROMPT_VERSION,
-    });
-  }
-
-
-  const extractStartedAt = Date.now();
-  let result: Record<string, unknown>;
-  try {
-    result = await callLovableAI(systemPrompt, userPrompt);
-  } catch (err) {
-    if (docId) {
-      await recordPipelineRun(supabase, {
-        document_id: docId,
-        student_id: job.student_id,
-        stage: "extract",
-        status: "failed",
-        attempt: job.attempts + 1,
-        model_version: MODEL_VERSION,
-        prompt_version: PROMPT_VERSION,
-        error_code: "ai_gateway_error",
-        error_message: err instanceof Error ? err.message : String(err),
-        latency_ms: Date.now() - extractStartedAt,
-      });
-    }
-    throw err;
-  }
-  const extractLatency = Date.now() - extractStartedAt;
-
-  if (docId) {
-    await recordPipelineRun(supabase, {
-      document_id: docId,
-      student_id: job.student_id,
-      stage: "extract",
-      status: "succeeded",
-      attempt: job.attempts + 1,
-      model_version: MODEL_VERSION,
-      prompt_version: PROMPT_VERSION,
-      latency_ms: extractLatency,
-      payload: { has_raw_fallback: "raw" in result },
-    });
-
-    // Verify stage: shadow-mode check that the AI returned structured JSON
-    // instead of a raw string blob. We never quarantine or drop the row —
-    // downstream review still gates promotion to evidence.
-    const verifyOk = !("raw" in result);
-    await recordPipelineRun(supabase, {
-      document_id: docId,
-      student_id: job.student_id,
-      stage: "verify",
-      status: verifyOk ? "succeeded" : "skipped",
-      attempt: job.attempts + 1,
-      model_version: MODEL_VERSION,
-      prompt_version: PROMPT_VERSION,
-      error_code: verifyOk ? null : "non_json_response",
-      payload: { checks: ["json_shape"] },
-    });
-  }
-
-  await supabase
-    .from("ai_jobs")
-    .update({
-      status: "completed",
-      result_payload: { ...result, _disclaimer: DISCLAIMER },
-      locked_at: null,
-    })
-    .eq("id", job.id);
-
-  if (job.student_id) {
-    await supabase.from("feed_events").insert({
-      student_id: job.student_id,
-      actor_id: job.triggered_by_user_id,
-      kind: `ai.${job.job_type}.completed`,
-      title: `AI ${job.job_type.replace(/_/g, " ")} ready`,
-      body: "Review the AI-generated draft with your team before acting.",
-      ref_table: "ai_jobs",
-      ref_id: job.id,
-    });
-  }
-
-  await supabase.from("notifications").insert({
-    user_id: job.triggered_by_user_id,
-    notification_type: "ai_job_complete",
-    title: `AI ${job.job_type.replace(/_/g, " ")} ready`,
-    message: "Your AI-generated draft is ready to review.",
-    related_student_id: job.student_id,
-    related_record_type: "ai_jobs",
-    related_record_id: job.id,
+async function notifyJobReady(supabase: SupabaseClient<any, "public", any>, job: Job) {
+  const label = job.job_type === "document_summary" ? "Document Summary" : `AI ${job.job_type.replace(/_/g, " ")}`;
+  if (job.student_id) await supabase.from("feed_events").insert({
+    student_id: job.student_id, actor_id: job.triggered_by_user_id, kind: `ai.${job.job_type}.completed`,
+    title: `${label} Ready`, body: "Review the AI-generated draft with your team before acting.", ref_table: "ai_jobs", ref_id: job.id,
   });
+  await supabase.from("notifications").insert({
+    user_id: job.triggered_by_user_id, notification_type: "ai_job_complete", title: `${label} Ready`,
+    message: "Your AI-generated draft is ready to review.", related_student_id: job.student_id,
+    related_record_type: "ai_jobs", related_record_id: job.id,
+  });
+}
+
+// Document summaries have a separate fail-closed source and commit path. Queued
+// text/title/path are never trusted as file contents. Missing proposal RPCs stop
+// before storage/provider IO; publication requires their separate SQL rollout.
+async function processJob(supabase: SupabaseClient<any, "public", any>, job: Job) {
+  if (job.job_type === "document_summary") {
+    const claim = { id: job.id, at: job.claim_at ?? "", attempt: job.claim_attempt ?? 0 };
+    const verified = await processVerifiedDocumentSummary(claim, {
+      readSource: async () => await supabase.rpc("read_verified_document_summary_source", {
+        _job_id: claim.id, _claim_at: claim.at, _attempt: claim.attempt,
+      }),
+      info: async (path) => {
+        const encoded = path.split("/").map(encodeURIComponent).join("/");
+        const response = await fetch(`${SUPABASE_URL}/storage/v1/object/info/student-documents/${encoded}`, {
+          headers: { Authorization: `Bearer ${SERVICE_ROLE}`, apikey: SERVICE_ROLE, "Cache-Control": "no-cache" }, cache: "no-store",
+        });
+        if (!response.ok) return { data: null, error: "Source metadata unavailable" };
+        return { data: await response.json(), error: null };
+      },
+      download: async (path) => await supabase.storage.from("student-documents").download(path),
+      generate: async (text, source) => {
+        const { value, report } = sanitizeInputSource({ document_text: text });
+        if (report.truncated_strings !== 0) throw new Error(SUMMARY_REVIEW_MESSAGE);
+        await recordPipelineRun(supabase, {
+          document_id: source.document_id, student_id: source.student_id, stage: "extract", status: "running",
+          attempt: claim.attempt, prompt_version: "verified-document-summary-v1", payload: { verified_source: true },
+        });
+        return await callLovableAI(systemPromptFor("document_summary") + UNTRUSTED_SYSTEM_SUFFIX,
+          `${UNTRUSTED_OPEN}\n${JSON.stringify(value)}\n${UNTRUSTED_CLOSE}`);
+      },
+      commit: async (source, payload) => await supabase.rpc("complete_verified_document_summary", {
+        _job_id: claim.id, _claim_at: claim.at, _attempt: claim.attempt,
+        _actor_id: source.actor_id, _student_id: source.student_id, _document_id: source.document_id,
+        _object_id: source.object_id, _object_version: source.object_version, _content_sha256: source.content_sha256,
+        _privacy_context: source.context, _payload: payload,
+      }),
+    });
+    await recordPipelineRun(supabase, {
+      document_id: verified.document_id, student_id: verified.student_id, stage: "extract", status: "succeeded",
+      attempt: claim.attempt, prompt_version: "verified-document-summary-v1", payload: { verified_source: true },
+    });
+    await notifyJobReady(supabase, { ...job, student_id: verified.student_id, triggered_by_user_id: verified.actor_id });
+    return;
+  }
+  // Other job types retain their existing source/prompt and result behavior.
+  const result = await callLovableAI(systemPromptFor(job.job_type), JSON.stringify(job.input_source ?? {}, null, 2));
+  await supabase.from("ai_jobs").update({ status: "completed", result_payload: { ...result, _disclaimer: DISCLAIMER }, locked_at: null }).eq("id", job.id);
+  await notifyJobReady(supabase, job);
 }
 
 
@@ -358,6 +280,9 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  if (!SUPABASE_URL?.trim() || !SERVICE_ROLE?.trim() || !LOVABLE_API_KEY?.trim()) {
+    return new Response(JSON.stringify({ error: "The processing service is not configured." }), { status: 503, headers: corsHeaders });
+  }
   // Require service-role bearer token. pg_cron and authenticated server-side
   // callers pass it; anonymous browser callers cannot.
   const authHeader = req.headers.get("Authorization") ?? "";
@@ -369,7 +294,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
+  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
 
   // Claim up to 5 queued jobs.
   const { data: jobs, error } = await supabase
@@ -398,24 +323,27 @@ Deno.serve(async (req) => {
       })
       .eq("id", j.id)
       .eq("status", "queued")
-      .select("id")
+      .eq("job_type", j.job_type)
+      .select("id, locked_at, attempts")
       .maybeSingle();
 
     if (!locked) continue;
 
     try {
-      await processJob(supabase, j);
+      await processJob(supabase, { ...j, claim_at: locked.locked_at, claim_attempt: locked.attempts });
       processed.push({ id: j.id, ok: true });
     } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      await supabase
-        .from("ai_jobs")
-        .update({
-          status: j.attempts >= 2 ? "failed" : "queued",
-          error_message: message,
-          locked_at: null,
-        })
-        .eq("id", j.id);
+      const isSummary = j.job_type === "document_summary";
+      const message = isSummary ? SUMMARY_REVIEW_MESSAGE : e instanceof Error ? e.message : String(e);
+      let failed = supabase.from("ai_jobs").update({
+        status: isSummary ? "needs_review" : j.attempts >= 2 ? "failed" : "queued",
+        error_message: message, locked_at: null,
+      }).eq("id", j.id);
+      if (isSummary) {
+        // Never auto-repeat AI or overwrite an uncertain-but-completed commit.
+        failed = failed.eq("status", "processing").eq("locked_at", locked.locked_at).eq("attempts", locked.attempts);
+      }
+      await failed;
       processed.push({ id: j.id, ok: false, error: message });
     }
   }

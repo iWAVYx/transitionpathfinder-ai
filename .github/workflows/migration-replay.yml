@@ -24,6 +24,10 @@ on:
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-binding.sql"
       - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
+      - "docs/production-readiness/proposals/verified-document-summary-source.sql"
+      - "supabase/functions/ai-job-processor/**"
+      - "tests/unit/verified-document-summary.test.ts"
+      - "tests/edge/ai-job-processor.test.ts"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -63,6 +67,10 @@ on:
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-binding.sql"
       - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
+      - "docs/production-readiness/proposals/verified-document-summary-source.sql"
+      - "supabase/functions/ai-job-processor/**"
+      - "tests/unit/verified-document-summary.test.ts"
+      - "tests/edge/ai-job-processor.test.ts"
       - "tests/database/report-evidence-rollout-sql.mjs"
       - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
       - "tests/database/report-linked-student-rollout-sql.mjs"
@@ -115,6 +123,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+
+      - name: Setup Deno for credential-free worker type checking
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check verified document worker without credentials
+        run: deno check --no-config --no-lock --node-modules-dir=none supabase/functions/ai-job-processor/index.ts
+
+      - name: Exercise document-summary worker with intercepted IO only
+        run: deno test --no-config --no-lock --node-modules-dir=none --allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,LOVABLE_API_KEY tests/edge/ai-job-processor.test.ts
 
       - name: Test membership removal and frozen chat history without credentials
         run: |
@@ -637,6 +656,8 @@ jobs:
             -f docs/production-readiness/proposals/document-storage-binding.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-summary-job-boundary.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/verified-document-summary-source.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -707,6 +728,21 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected document summary job boundary'; END IF;
           END;
           $summary_verify$;
+          DO $verified_summary$
+          DECLARE signature text;
+          BEGIN
+            FOREACH signature IN ARRAY ARRAY[
+              'public.read_verified_document_summary_source(uuid,timestamptz,integer)',
+              'public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb)'
+            ] LOOP
+              IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE')
+                OR NOT has_function_privilege('service_role',signature,'EXECUTE') THEN
+                RAISE EXCEPTION 'Unexpected verified summary RPC boundary';
+              END IF;
+            END LOOP;
+          END;
+          $verified_summary$;
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 

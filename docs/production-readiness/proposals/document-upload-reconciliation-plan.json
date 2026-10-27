@@ -103,7 +103,7 @@
       "src/lib/documents.functions.ts",
       "supabase/functions/ai-job-processor/index.ts"
     ],
-    "status": "functional grounding gap; no uploaded-file content extraction acceptance",
+    "status": "Superseded: verified file-text processing implemented locally; hosted worker unchanged and acceptance pending.",
     "next": "Implement private hash/scan/version-bound content processing and tests before any separately authorized live document-summary test.",
     "privacy_prerequisite": "Existing job creator/admin read exceptions must not expose derived private text. Summary-only restrictive policy proposal prepared; not canonical or hosted."
   },
@@ -124,5 +124,45 @@
       "unit_tests_passed": 5135,
       "build_memory": "one unchanged-source retry required; recurring constrained-heap concern remains"
     }
+  },
+  "verified_summary_worker_checkpoint": {
+    "date": "2026-10-27",
+    "status": "local implementation verified; native/full-schema CI pending",
+    "hosted_actions": false,
+    "canonical_migration_count": 210,
+    "sql_proposal": "proposals/verified-document-summary-source.sql",
+    "sql_is_canonical": false,
+    "edge_artifact_sha256": {
+      "supabase/functions/ai-job-processor/index.ts": "f1cb1b36f78bdfd0da2fe7c94d3a5409dd0a771d35f935c97476dbd65d4bac7b",
+      "supabase/functions/ai-job-processor/verified-document-summary.ts": "9b308c66e1a2ac5e6e04305f1589c602bb3872d30162ed690a5fe6cb8a7b64c3",
+      "supabase/functions/ai-job-processor/sensitive-text-redaction.ts": "e491c0db74f00433269e42dba3905ce346b0588b961f6987d31bb70d9a15adbf"
+    },
+    "checks": {
+      "unit_tests": 5177,
+      "unit_files": 346,
+      "focused_worker_units": 42,
+      "real_deno_handler_tests_no_network_permission": 7,
+      "deno_version": "2.9.8",
+      "deno_entrypoint_type_check": "passed",
+      "local_database_pass": 199,
+      "local_native_only_skip": 5,
+      "static_security_readiness_contracts": 57
+    },
+    "boundaries": [
+      "Service-only verified-source and compare-and-set completion RPC proposals require the five preceding proposals.",
+      "Worker downloads actual private bytes, verifies hash/metadata, redacts identifiers, rechecks current source/access before and after one generation, and persists only through guarded completion.",
+      "Queued title/path/text are not model sources. Missing RPCs, legacy unbound rows, changed sources or uncertain completion stop for review without automatic AI retry.",
+      "Only canonical privacy-safe text/plain copies up to 1 MiB / 200000 characters are supported; oversize or malformed content is refused, not truncated.",
+      "All handler fetches are intercepted; no hosted provider, database, storage or application acceptance is claimed.",
+      "Pattern redaction is not complete deidentification or factual accuracy proof. Metadata locks do not freeze remote storage bytes or atomically lock every access-graph edge.",
+      "Other job classes retain their existing behavior and need separate review."
+    ],
+    "artifact_boundary": "The existing ten-entry app archive/fingerprint excludes supabase/functions. These three worker files require their own reviewed artifact and separately authorized deployment; app src fingerprint remains 12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2 / 1194 files.",
+    "remaining": [
+      "Native PostgreSQL concurrency and full 210-migration plus six-proposal smoke verification.",
+      "Canonical promotion review, storage API response/version behavior, immutable remote bytes, durable upload reservation and exact cleanup design.",
+      "Fresh scoped authorization before hosted SQL/worker/app release, provider/fixture acceptance or publication. Production remains NO-GO."
+    ],
+    "corrections": "Initial real Deno check found four Supabase client generic mismatches, fixed with explicit client types. A fixture-owner context mutation initially ran as restricted service_role; corrected the test identity without widening production grants."
   }
 }

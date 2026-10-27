@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 27 — Verified Document Summary Worker (Local Only)
+
+- [x] Implemented actual private text reads in the local Edge worker. It ignores queued titles/paths/text as source material, checks the current actor/document/student and matching clean scan/object/version/hash, verifies downloaded bytes, redacts input/output and checks again before guarded completion. Missing prerequisites or uncertain completion stop for review without another automatic AI request.
+- [x] All 5,177 unit tests (346 files), 57 security/readiness contracts, the real Deno entrypoint type check and seven intercepted-handler tests pass. Local disposable database coverage passes 199 cases; five native-only concurrency cases remain pending CI. No external IO is permitted in the handler tests.
+- [x] Prepared a sixth proposal-only SQL file for service-only source receipts and atomic completion. Canonical inventory remains 210. The prior five proposals and this sixth proposal are not applied to hosted databases.
+- [ ] Complete native/full-schema disposable verification, canonical promotion review, managed Storage API/remote-byte verification, durable upload reconciliation and a separately authorized hosted acceptance run.
+
+Evidence: `production-readiness/evidence/verified-document-summary-local-2026-10-27.json`. This supersedes earlier entries saying the worker is unchanged: the worker is now implemented locally, while hosted behavior is unchanged. App `src/` and its fingerprint remain unchanged; Edge files are excluded from the ten-entry app archive and need their own reviewed artifact/deployment. Redaction is pattern-based, and metadata receipts do not guarantee immutable remote storage or every permission-graph race. Other job types remain a separate review. No hosted SQL, deployment/publication, provider calls, fixtures or production changes. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Background Summary Result Privacy Prerequisite
 
 - [x] Prior evidence follow-up `8e7804eb` passed all eight applicable automatic checks, including both first-attempt builds. No new hosted acceptance was performed.

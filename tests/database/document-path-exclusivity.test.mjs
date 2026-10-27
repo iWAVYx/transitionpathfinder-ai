@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const sourceProposal = readFileSync('docs/production-readiness/proposals/verified-document-summary-source.sql','utf8');
 const summaryProposal = readFileSync('docs/production-readiness/proposals/document-summary-job-boundary.sql','utf8');
 const bindingProposal = readFileSync('docs/production-readiness/proposals/document-storage-binding.sql','utf8');
 const storageProposal = readFileSync('docs/production-readiness/proposals/document-storage-write-boundary.sql','utf8');
@@ -51,7 +52,7 @@ before(async()=>{
   CREATE SCHEMA auth;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
   GRANT USAGE ON SCHEMA public,auth TO authenticated,anon,service_role;
-  CREATE TABLE public.students(id uuid PRIMARY KEY,owner_id uuid,student_user_id uuid);
+  CREATE TABLE public.students(id uuid PRIMARY KEY,owner_id uuid,student_user_id uuid,first_name text,last_name text,school_name text,date_of_birth date);
   CREATE TABLE public.student_collaborators(student_id uuid,user_id uuid,status text,role text);
   CREATE TABLE public.student_relationships(student_id uuid,related_user_id uuid,consent_status text,permission_level text);
   CREATE TABLE public.user_roles(user_id uuid,role text);
@@ -61,7 +62,7 @@ before(async()=>{
   CREATE FUNCTION public.has_role(actor uuid,wanted text) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=actor AND role=CASE WHEN wanted='admin' THEN 'owner' ELSE wanted END) $$;
   CREATE TABLE public.document_permissions(document_id uuid,user_id uuid,role_type text,permission_level text);
   CREATE FUNCTION public.has_recent_admin_doc_access(actor uuid,doc uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
-  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
+  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,mime_type text DEFAULT 'text/plain',scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
   GRANT SELECT,INSERT,UPDATE,DELETE ON public.documents TO authenticated;
   GRANT ALL ON public.documents TO service_role;
   ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`);
@@ -80,9 +81,9 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
-  await db.query('INSERT INTO public.students VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
+  await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
   for(const actor of [actors.educator,actors.partner]) await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actor]);
   await db.exec(proposal);
@@ -507,4 +508,78 @@ test('disabled job RLS stops the proposal without silently enabling it',async()=
 test('a broad permissive insert policy cannot let a client impersonate another summary requester',async()=>{
   const id=await summaryFixture();await db.exec('CREATE POLICY fixture_broad_jobs ON public.ai_jobs FOR ALL TO authenticated USING(true) WITH CHECK(true)');await as();
   await assert.rejects(createSummary(id,actors.educator),{code:'42501'});
+});
+
+const claimAt='2026-10-27T12:00:00.000Z';
+const readSignature='public.read_verified_document_summary_source(uuid,timestamptz,integer)';
+const finishSignature='public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb)';
+async function verifiedSourceFixture() {
+  await db.exec(summaryProposal);await installBinding();const docId=(await insert()).rows[0].id;
+  await db.query("UPDATE public.documents SET scan_status='clean',content_hash=$1,scan_verdict=$2,scanned_at=now(),scan_data_id=$3",['a'.repeat(64),{code:'clean',provider:'cloudmersive',clean_result:true,blocked_reasons:[],content_sha256:'a'.repeat(64),source:'registration_reviewed_copy'},uid(90)]);
+  await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,locked_at,attempts,input_source) VALUES($1,$2,$3,'document_summary','processing',$4,1,$5)",[summaryId,student,actors.family,claimAt,{document_id:docId,title:'UNTRUSTED TITLE',storage_path:'untrusted/path',document_text:'UNTRUSTED QUEUED TEXT'}]);
+  await db.exec(sourceProposal);await as('','service_role');return docId;
+}
+async function readVerified(client=db,at=claimAt,attempt=1) {
+  return (await client.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[summaryId,at,attempt])).rows[0].source;
+}
+async function finishVerified(source,patch={},client=db) {
+  const input={actor:source.actor_id,student:source.student_id,doc:source.document_id,obj:source.object_id,version:source.object_version,hash:source.content_sha256,context:source.context,at:claimAt,attempt:1,...patch};
+  const payload=patch.payload??{key_findings:['Fictional SQL fixture result'],_source:{document_id:input.doc,object_id:input.obj,object_version:input.version,content_sha256:input.hash}};
+  return client.query('SELECT public.complete_verified_document_summary($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) AS receipt',[summaryId,input.at,input.attempt,input.actor,input.student,input.doc,input.obj,input.version,input.hash,input.context,payload]);
+}
+test('trusted source RPC uses actual rows and ignores queued text/title/path',async()=>{
+  const docId=await verifiedSourceFixture();const source=await readVerified();
+  assert.equal(source.document_id,docId);assert.equal(source.storage_path,path);assert.equal(source.actor_id,actors.family);assert.equal(source.content_sha256,'a'.repeat(64));
+  assert.equal(source.schema,'verified-document-summary-source-v1');assert.ok(!JSON.stringify(source).includes('UNTRUSTED'));assert.equal(source.context.studentLastName,null);
+});
+for(const [role,actor] of Object.entries(actors))test('source/completion RPCs are not callable by signed-in '+role,async()=>{
+  await verifiedSourceFixture();const source=await readVerified();await as(actor);
+  await assert.rejects(readVerified(),{code:'42501'});await assert.rejects(finishVerified(source),{code:'42501'});
+});
+for(const patch of ["scan_status='failed'","review_status='rejected'","archived_at=now()","deleted_at=now()","scan_verdict='{}'::jsonb","content_hash='legacy-placeholder'","mime_type='application/pdf'"])test('source RPC stops on unverified/retired document '+patch,async()=>{
+  await verifiedSourceFixture();await db.exec('RESET ROLE;UPDATE public.documents SET '+patch);await as('','service_role');await assert.rejects(readVerified(),{code:'42501'});
+});
+for(const patch of ["version='changed'","owner_id='different-uploader'"])test('source RPC stops on changed managed object '+patch,async()=>{
+  await verifiedSourceFixture();await db.exec('UPDATE storage.objects SET '+patch);await assert.rejects(readVerified(),{code:'42501'});
+});
+for(const scenario of ['wrong-time','wrong-attempt','completed','foreign-student','lost-access','legacy-unbound'])test('source RPC requires exact active claim and current actor access: '+scenario,async()=>{
+  await verifiedSourceFixture();
+  if(scenario==='wrong-time'){await assert.rejects(readVerified(db,'2026-10-27T12:00:01Z'),{code:'42501'});return;}
+  if(scenario==='wrong-attempt'){await assert.rejects(readVerified(db,claimAt,2),{code:'42501'});return;}
+  await db.exec('RESET ROLE');
+  if(scenario==='completed')await db.exec("UPDATE public.ai_jobs SET status='completed'");
+  if(scenario==='foreign-student')await db.query('UPDATE public.ai_jobs SET student_id=$1',[otherStudent]);
+  if(scenario==='lost-access')await db.query('UPDATE public.students SET owner_id=$1',[actors.owner]);
+  if(scenario==='legacy-unbound')await db.exec('DROP TRIGGER documents_guard_storage_binding ON public.documents;UPDATE public.documents SET storage_object_id=NULL,storage_object_version=NULL');
+  await as('','service_role');await assert.rejects(readVerified(),{code:'42501'});
+});
+test('completion atomically saves one result and refuses a second completion of the claim',async()=>{
+  await verifiedSourceFixture();const source=await readVerified();const [done]=(await finishVerified(source)).rows;assert.equal(done.receipt.status,'completed');assert.equal(done.receipt.actor_id,actors.family);
+  await assert.rejects(finishVerified(source),{code:'42501'});const [row]=(await db.query('SELECT status,result_payload,locked_at FROM public.ai_jobs')).rows;
+  assert.equal(row.status,'completed');assert.equal(row.locked_at,null);assert.equal(row.result_payload._source.content_sha256,'a'.repeat(64));
+});
+for(const patch of [{actor:actors.educator},{student:otherStudent},{doc:uid(999)},{obj:uid(999)},{version:'different'},{hash:'b'.repeat(64)},{context:{}},{payload:{raw:'Unbound result'}}])test('completion rejects stale or forged source tuple '+JSON.stringify(patch),async()=>{
+  await verifiedSourceFixture();const source=await readVerified();await assert.rejects(finishVerified(source,patch),{code:'42501'});
+  const [row]=(await db.query('SELECT status,result_payload FROM public.ai_jobs')).rows;assert.equal(row.status,'processing');assert.equal(row.result_payload,null);
+});
+test('completion rechecks access, privacy context and object state after model work',async()=>{
+  await verifiedSourceFixture();const source=await readVerified();await db.exec("RESET ROLE;UPDATE public.students SET last_name='Changed context'");await as('','service_role');
+  await assert.rejects(finishVerified(source),{code:'42501'});assert.equal((await db.query('SELECT result_payload FROM public.ai_jobs')).rows[0].result_payload,null);
+});
+test('source RPCs are fixed-path definer routines executable only by service',async()=>{
+  await verifiedSourceFixture();await db.exec('RESET ROLE');
+  for(const signature of [readSignature,finishSignature]){
+    const [fn]=(await db.query('SELECT prosecdef,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows;assert.equal(fn.prosecdef,true);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+    for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS allowed",[role,signature])).rows[0].allowed,role==='service_role');
+  }
+});
+test('missing result privacy prerequisite rolls back both source RPC installations',async()=>{
+  await db.exec(summaryProposal);await installBinding();await db.exec('DROP POLICY document_summary_explicit_read ON public.ai_jobs');
+  await assert.rejects(db.exec(sourceProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query('SELECT to_regprocedure($1) AS fn',[readSignature])).rows[0].fn,null);
+});
+test('completion waits for a held source read then cannot complete the same claim twice',{skip:!native},async()=>{
+  await verifiedSourceFixture();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');const source=await readVerified(a);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishVerified(source,{},b).then(result=>({result}),error=>({error}));
+  try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.rows[0].receipt.status,'completed');await assert.rejects(finishVerified(source),{code:'42501'});
 });
