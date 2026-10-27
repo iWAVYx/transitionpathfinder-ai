@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "local proposal; native/full-schema verification pending; not canonical or hosted",
+  "status": "proposal verified locally and in disposable native/full-schema CI; not canonical or hosted",
   "base_commit": "3a1e5c736967574fca896c4cfb60d304ba090b03",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-scan-state-boundary.sql",
@@ -31,5 +31,21 @@
     "deployed": false,
     "published": false,
     "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40523528681",
+    "source_commit": "261a2d005b5c09d5e836b552eb3803037d9a8c8c",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 67,
+    "native_database_cases_skipped": 0,
+    "concurrency": "Observed simultaneous path inserts after both COMMIT and ROLLBACK with scan-state guard installed.",
+    "full_schema": "All 210 canonical migrations replayed; canonical grants/RLS/security checks passed before both proposals were applied and their indexes/triggers/invoker configurations/private execution grants verified.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "261a2d005b5c09d5e836b552eb3803037d9a8c8c",
+    "push_build": "First attempt failed with Node heap exhaustion; one unchanged-source retry requested. Parallel PR build passed first attempt.",
+    "other_checks": "Remaining automatic results pending at this evidence update; protected skipped checks are unperformed."
   }
 }

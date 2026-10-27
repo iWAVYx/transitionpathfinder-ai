@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "path-exclusivity proposal passed disposable native/full-schema CI; scan-state proposal passed local tests with native replay pending; reservations/cleanup remain draft, no canonical or hosted migration",
+  "status": "path/scan-state proposals passed local and disposable native/full-schema verification; reservation/cleanup remain draft, no canonical or hosted migration",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -54,8 +54,11 @@
     "proposal": "docs/production-readiness/proposals/document-scan-state-boundary.sql",
     "combined_local_cases_passed": 65,
     "native_only_cases_skipped": 2,
-    "native_full_schema": "pending",
+    "native_full_schema": "passed after all 210 canonical migrations and canonical grants/RLS/security checks",
     "not_canonical": true,
-    "hosted_actions": false
+    "hosted_actions": false,
+    "native_database_cases_passed": 67,
+    "native_database_cases_skipped": 0,
+    "ci_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40523528681"
   }
 }
