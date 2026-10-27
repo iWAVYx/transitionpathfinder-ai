@@ -53,9 +53,9 @@ it("keeps the AI scope manual, explicitly confirmed, separate and human-protecte
   expect(step).toContain("STAGING_SUPABASE_PUBLISHABLE_KEY");
   expect(step).not.toMatch(/SERVICE_ROLE|LOVABLE_API_KEY|deploy|migrate/);
   expect(w).toContain(
-    "group: ${{ inputs.scope == 'iep-extraction-live-bounded' && 'staging-iep-extraction-live-bounded' || inputs.scope == 'report-assist-live-bounded' && 'staging-report-assist-live-bounded' || inputs.scope == 'readiness-live-bounded' && 'staging-readiness-live-bounded' || inputs.scope == 'pathway-creator-live-bounded' && 'staging-pathway-creator-live-bounded' || inputs.scope == 'ppt-live-bounded' && 'staging-ppt-live-bounded' || 'staging-role-verification' }}",
+    "group: ${{ inputs.scope == 'evidence-live-bounded' && 'staging-evidence-live-bounded' || inputs.scope == 'iep-extraction-live-bounded' && 'staging-iep-extraction-live-bounded' || inputs.scope == 'report-assist-live-bounded' && 'staging-report-assist-live-bounded' || inputs.scope == 'readiness-live-bounded' && 'staging-readiness-live-bounded' || inputs.scope == 'pathway-creator-live-bounded' && 'staging-pathway-creator-live-bounded' || inputs.scope == 'ppt-live-bounded' && 'staging-ppt-live-bounded' || 'staging-role-verification' }}",
   );
-  expect(w).toContain("cancel-in-progress: ${{ inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'pathway-creator-live-bounded' }}");
+  expect(w).toContain("cancel-in-progress: ${{ inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'evidence-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'pathway-creator-live-bounded' }}");
   const old = readFileSync(".github/workflows/ppt-live-staging-qa.yml", "utf8");
   expect(old).toContain("if: github.ref == 'refs/heads/main'");
   expect(old).toContain("This protected workflow may run only from main.");
