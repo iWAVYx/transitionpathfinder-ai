@@ -148,3 +148,36 @@ it.each([null, {}, [{ id: "invalid" }], [{ id: sourceId }, { id: studentId }]])(
   await expect(evidence()).rejects.toThrow("Refresh your linked evidence before trying again");
   expect(api.generate).toHaveBeenCalledTimes(1);
 });
+
+const saveGoals = (list = [goal]) => (saveExtractedGoals as any)({ data: { student_id: studentId, goals: list, expected_viewer_id: "current-viewer" } });
+it("saves reviewed goals only after current edit access and confirms the exact receipt", async () => {
+  insert.mockReturnValueOnce({ select: async () => ({ data: [{ id: sourceId }], error: null }) });
+  expect(await saveGoals()).toEqual({ inserted: 1 });
+  expect(rpc).toHaveBeenCalledWith("can_edit_student", { _user_id: "current-viewer", _student_id: studentId });
+  expect(insert).toHaveBeenCalledWith([{ student_id: studentId, created_by: "current-viewer", title: goal.title, category: goal.category, description: goal.description, measurable_criteria: null, status: "not-started" }]);
+  expect(api.generate).not.toHaveBeenCalled();
+});
+it.each([false, null])("refuses goal writes without confirmed edit access %j", async allowed => {
+  rpc.mockResolvedValue({ data: allowed, error: null });
+  await expect(saveGoals()).rejects.toThrow("access to this student could not be confirmed");expect(from).not.toHaveBeenCalled();
+});
+it("fails closed on goal access errors or rejected permission reads", async () => {
+  rpc.mockResolvedValueOnce({ data: true, error: { message: "PRIVATE" } }).mockRejectedValueOnce(new Error("PRIVATE"));
+  for (let i = 0; i < 2; i++) await expect(saveGoals()).rejects.toThrow("access to this student could not be confirmed");
+  expect(from).not.toHaveBeenCalled();
+});
+it.each([null, [], [{ id: "invalid" }], [{ id: sourceId }, { id: studentId }]])("does not report success for an incomplete goal receipt %j", async data => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  insert.mockReturnValueOnce({ select: async () => ({ data, error: null }) });
+  await expect(saveGoals()).rejects.toThrow("Refresh this page and review the saved goals");expect(insert).toHaveBeenCalledOnce();
+});
+it("rejects duplicate returned IDs even when the goal count matches", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  insert.mockReturnValueOnce({ select: async () => ({ data: [{ id: sourceId }, { id: sourceId }], error: null }) });
+  await expect(saveGoals([goal, { ...goal, title: "Another explicit goal" }])).rejects.toThrow("couldn't confirm");
+});
+it.each([false, true])("keeps failed goal writes private without replaying them (rejected %s)", async rejected => {
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  insert.mockReturnValueOnce({ select: async () => { if (rejected) throw new Error("PRIVATE source details"); return { data: null, error: { message: "PRIVATE source details" } }; } });
+  await expect(saveGoals()).rejects.toThrow("couldn't confirm");expect(insert).toHaveBeenCalledOnce();expect(log.mock.calls).toEqual([["Extracted goal save could not be confirmed."]]);
+});

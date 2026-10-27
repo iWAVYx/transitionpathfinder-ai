@@ -1,5 +1,15 @@
 # Production release checklist
 
+## October 26 — Reviewed Goal-Save Confirmation and Retry Safeguards Corrected Locally
+
+- [x] Goal saving no longer treats a missing receipt as “Added 0 goals.” It confirms existing student edit access before one caller-RLS bulk insert, derives the author from the authenticated context and requires the exact requested count of distinct valid saved IDs. Existing table policies remain authoritative; no migration or permission expansion.
+- [x] The shared student-page review now pauses after an unconfirmed save instead of inviting an immediate replay. Proposals remain visible with a plain-language instruction to refresh and inspect saved goals; Save, Remove, Cancel and further extraction pause in that review. Pending saves/extractions cannot overlap or replace the review, and departed student/viewer results cannot affect a new session. Read-only viewers no longer see the extraction action. Applicable roles share the same implementation; Owner/admin gain no implicit student access and public demo retains its no-provider/no-upload boundary.
+- [x] Passed 69 focused handler/hook/page tests, all 4,976 unit tests / 340 files with zero unhandled errors, TypeScript, isolated staging build/service-worker generation, 15 role/document security contracts and diff checks. An earlier full run exposed an outdated read-only action mock; corrected it to reflect the hidden action and added page-level tests, then the complete suite passed cleanly.
+- [ ] Candidate identity is `fd81fffe…38a4d4fb` / 1,191 files, local only. Complete automatic review, continue document registration/deduplication/quarantine/private-download/error handling audit and prepare a concrete bounded goal/document/storage test with exact cleanup before requesting fresh rollout/test authorization. This per-review pause is not database or cross-tab/cross-refresh idempotency; the user must inspect saved goals before a new attempt. Live goal-save/upload/storage acceptance remains open.
+- [ ] Both staging publications remain the previously verified `7814afa7` application / `c95a008f…06ae5c8`, 1,190 files. No new hosted records, AI/provider calls, migrations, release/publication, account/access, payment/secret, original-main merge or production action occurred. Preserve the full TF-01–TF-26/six milestones, remaining language/role workflows and production gates; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+Evidence: `reviewed-goal-save-local-2026-10-26.json`. Earlier checkpoints below are historical.
+
 ## October 26 — Family/Educator Evidence Persistence and Independent Cleanup Passed
 
 - [x] User completed the separate human review; [bounded run 40434461119](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40434461119) passed on exact `7814afa7`. Seven standing role sign-ins passed; both creator cases completed in 47.7 seconds with zero retries. Both stable staging sites remain on reviewed `c95a008f…06ae5c8` / 1,190 files with passing isolation. Workflow elapsed time includes the human-review wait/setup.

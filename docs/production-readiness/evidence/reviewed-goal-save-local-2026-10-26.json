@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-26",
+  "status": "local candidate; automatic review pending; not deployed",
+  "base_commit": "492e3d0d",
+  "finding": "saveExtractedGoals previously returned inserted?.length ??0, allowing missing receipts to be reported as Added0goals; a lost response left the same proposal immediately saveable.",
+  "correction": [
+    "Confirm existing can_edit_student before one caller-RLS bulk insert; derive created_by from authenticated context",
+    "Require exactly one distinct valid UUID per requested goal before reporting confirmed success",
+    "Keep database/network errors content-free; no insert/provider replay",
+    "Pause the current review after an uncertain response; preserve its proposals and request page refresh plus inspection of saved goals before retry",
+    "Freeze remove/cancel/extract/save conflicts while saving and ignore departed student/viewer outcomes",
+    "Hide extraction action for read-only viewers through existing shared student page; no new entitlements"
+  ],
+  "validation": {
+    "focused_tests": 69,
+    "full_unit_files": 340,
+    "full_unit_tests": 4976,
+    "unhandled_errors": 0,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "role_document_security_contracts": 15,
+    "diff_check": "passed"
+  },
+  "test_correction": "The first full unit run reported all assertions passed but one unhandled exception from an outdated read-only StandardDocActions test double. Corrected the double to match the optional writer action and added page-level regressions; final complete run passes cleanly.",
+  "runtime_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "fd81fffe785e9c756f43bf07a20aba09e2896f14e30c87f07426371238a4d4fb",
+    "file_count": 1191
+  },
+  "limits": [
+    "Per-review pause is not database or cross-tab/cross-refresh idempotency; users must review saved goals before another attempt",
+    "No new database migration or permission-policy change",
+    "Live goal-save and uploaded/stored-document/storage acceptance still open",
+    "No upload, AI/provider call, hosted fixture, deployment/publication, production/main merge, account/access, payment or secrets change"
+  ],
+  "next": [
+    "Complete automatic candidate review",
+    "Continue registration/dedupe/quarantine/private-download/error audit and prepare bounded goal/document/storage acceptance and exact cleanup",
+    "Obtain fresh staging release/test authorization before hosted changes or provider/fixture actions"
+  ],
+  "preserved": [
+    "Shared applicable-role behavior and public demo no-provider/no-upload boundary",
+    "Existing row-level policies and explicit student access for Owner/admin",
+    "Lovable heading edit and protected environments/dependencies/generated types/widget views",
+    "Full TF-01\u2013TF-26/six milestones; deferred report polish and Parent Pilot/Pathway Snapshot"
+  ]
+}

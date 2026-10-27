@@ -1,3 +1,4 @@
+import { useReviewedGoalSave } from "@/hooks/use-reviewed-goal-save";
 import { useAuth } from "@/hooks/use-auth";
 import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
@@ -146,7 +147,8 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
-  const [saving, setSaving] = useState(false);
+  const goalSave = useReviewedGoalSave();
+  const saving = goalSave.saving;
 
   async function reload() {
     const [s, d, g, e] = await Promise.all([
@@ -184,7 +186,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   }
 
   async function handleParse(doc: DocumentRow) {
-    if (!active.current || parsePending.current || !canEdit) return;
+    if (!active.current || parsePending.current || savePending.current || goalSave.unconfirmed || !canEdit) return;
     parsePending.current = true;
     setParsing(doc.id);
     try {
@@ -225,27 +227,28 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   }
 
   async function handleSaveGoals() {
-    if (!proposed || !active.current || savePending.current || !canEdit) return;
+    if (!proposed || !active.current || savePending.current || parsePending.current || goalSave.unconfirmed || !canEdit) return;
     savePending.current = true;
-    setSaving(true);
+    const review = proposed;
     try {
-      const { inserted } = await saveGoals({
-        data: { student_id: studentId, goals: proposed.goals, expected_viewer_id: viewerId },
-      });
+      const outcome = await goalSave.run(() => saveGoals({
+        data: { student_id: studentId, goals: review.goals, expected_viewer_id: viewerId },
+      }), review.goals.length);
       if (!active.current) return;
-      toast.success(`Added ${inserted} goal${inserted === 1 ? "" : "s"}.`);
-      setProposed(null);
-      await reload();
-    } catch (err) {
-      if (active.current) toast.error("We couldn't save those goals. Please refresh and try again.");
+      if (outcome === "saved") {
+        toast.success(`Added ${review.goals.length} goal${review.goals.length === 1 ? "" : "s"}.`);
+        setProposed(null);
+        await reload();
+      } else if (outcome === "uncertain") {
+        toast.error("We couldn't confirm the save. Refresh this page and review the saved goals before trying again.");
+      }
     } finally {
       savePending.current = false;
-      if (active.current) setSaving(false);
     }
   }
 
   function toggleProposed(idx: number) {
-    if (!proposed) return;
+    if (!proposed || saving || goalSave.unconfirmed) return;
     setProposed({
       ...proposed,
       goals: proposed.goals.filter((_, i) => i !== idx),
@@ -381,7 +384,8 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
               <StandardDocActions
                 doc={d}
                 parsing={parsing}
-                onExtract={handleParse}
+                onExtract={canEdit ? handleParse : undefined}
+                extractionDisabled={saving || goalSave.unconfirmed}
                 onDownload={handleDownload}
                 onDelete={canEdit ? handleDelete : undefined}
               />
@@ -395,12 +399,13 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-display text-xl">Goals We Found</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Review and remove any you don't want before saving. Nothing is added until you
-                  click Save.
+                <p className="mt-1 text-sm text-muted-foreground" role={goalSave.unconfirmed ? "alert" : undefined}>
+                  {goalSave.unconfirmed
+                    ? "We couldn't confirm the save. Refresh this page and review the saved goals before trying again."
+                    : "Review and remove any you don't want before saving. Nothing is added until you click Save."}
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setProposed(null)}>
+              <Button variant="ghost" size="sm" onClick={() => setProposed(null)} disabled={saving || goalSave.unconfirmed}>
                 Cancel
               </Button>
             </div>
@@ -424,14 +429,14 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
                       </p>
                     )}
                   </div>
-                  <Button size="sm" variant="ghost" onClick={() => toggleProposed(i)}>
+                  <Button size="sm" variant="ghost" onClick={() => toggleProposed(i)} disabled={saving || goalSave.unconfirmed}>
                     Remove
                   </Button>
                 </li>
               ))}
             </ul>
             <div className="mt-4 flex justify-end">
-              <Button onClick={handleSaveGoals} disabled={saving || proposed.goals.length === 0}>
+              <Button onClick={handleSaveGoals} disabled={saving || !!parsing || goalSave.unconfirmed || !canEdit || proposed.goals.length === 0}>
                 {saving
                   ? "Saving…"
                   : `Save ${proposed.goals.length} goal${proposed.goals.length === 1 ? "" : "s"}`}

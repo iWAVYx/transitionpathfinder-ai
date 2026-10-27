@@ -9,7 +9,7 @@ vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: unkn
 vi.mock("@/components/withRoleGuard", () => ({ withRoleGuard: (_roles: unknown, component: unknown) => component }));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => <main>{children}</main> }));
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
-vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract }: any) => <button onClick={() => onExtract(doc)}>Read {doc.id}</button> }));
+vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract, parsing, extractionDisabled }: any) => onExtract ? <button disabled={!!parsing || extractionDisabled} onClick={() => onExtract(doc)}>Read {doc.id}</button> : null }));
 vi.mock("@/components/students/StudentProfileSupport", () => ({ StudentProfileSupport: () => null }));
 vi.mock("@/components/students/StudentPathwayReportPanel", () => ({ StudentPathwayReportPanel: () => null }));
 vi.mock("@/components/students/StudentPlanningTools", () => ({ StudentPlanningTools: () => null }));
@@ -74,6 +74,30 @@ it("keeps provider details out of browser errors and notices", async () => {
   expect(JSON.stringify(log.mock.calls)).not.toContain("PRIVATE"); log.mockRestore();
 });
 it("does not extract goals with viewing access alone", async () => {
-  api.canEdit.mockResolvedValue({ canEdit: false }); render(<Component />); await read();
+  api.canEdit.mockResolvedValue({ canEdit: false }); render(<Component />); await screen.findByRole("heading", { name: "student-a" });
+  expect(screen.queryByRole("button", { name: "Read doc-student-a" })).toBeNull();
   expect(api.sign).not.toHaveBeenCalled(); expect(api.extract).not.toHaveBeenCalled();
+});
+
+it("pauses the visible review after an uncertain save and does not replay it", async () => {
+  api.save.mockRejectedValueOnce(new Error("PRIVATE response was lost"));render(<Component />);await read();
+  await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Save 1 goal"})));
+  expect(screen.getByRole("alert").textContent).toContain("Refresh this page and review the saved goals");expect(screen.getByText(goal.title)).toBeTruthy();
+  for(const name of ["Save 1 goal","Remove","Cancel","Read doc-student-a"]){const button=screen.getByRole("button",{name});expect((button as HTMLButtonElement).disabled).toBe(true);await act(async()=>fireEvent.click(button));}
+  expect(api.save).toHaveBeenCalledOnce();expect(api.extract).toHaveBeenCalledOnce();expect(api.success).not.toHaveBeenCalled();expect(api.error.mock.calls.flat().join(" ")).not.toContain("PRIVATE");
+});
+it("freezes review changes and extraction while a save is pending",async()=>{
+ const request=pending();api.save.mockReturnValueOnce(request.promise);render(<Component />);await read();
+ await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Save 1 goal"})));
+ for(const name of ["Saving…","Remove","Cancel","Read doc-student-a"])expect((screen.getByRole("button",{name}) as HTMLButtonElement).disabled).toBe(true);
+ await act(async()=>request.resolve({inserted:1}));expect(api.success).toHaveBeenCalledWith("Added 1 goal.");expect(screen.queryByText(goal.title)).toBeNull();
+});
+it("cannot save the prior proposal while another extraction is pending",async()=>{
+ render(<Component />);await read();const request=pending();api.extract.mockReturnValueOnce(request.promise);await read();
+ expect((screen.getByRole("button",{name:"Save 1 goal"}) as HTMLButtonElement).disabled).toBe(true);await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Save 1 goal"})));expect(api.save).not.toHaveBeenCalled();await act(async()=>request.resolve({goals:[goal]}));
+});
+it.each(["student","viewer"])("does not apply a departed save to the new %s review",async change=>{
+ const request=pending();api.save.mockReturnValueOnce(request.promise);const view=render(<Component />);await read();await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Save 1 goal"})));
+ if(change==="student")api.id="student-b";else api.auth={user:{id:"viewer-b"},loading:false};view.rerender(<Component />);await read();
+ await act(async()=>request.resolve({inserted:1}));expect(api.success).not.toHaveBeenCalled();expect(screen.getByText(goal.title)).toBeTruthy();expect((screen.getByRole("button",{name:"Save 1 goal"}) as HTMLButtonElement).disabled).toBe(false);
 });

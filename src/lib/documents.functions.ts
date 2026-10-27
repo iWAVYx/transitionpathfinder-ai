@@ -997,6 +997,12 @@ export const saveExtractedGoals = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     assertExpectedViewer(data, context.userId);
     const { supabase, userId } = context;
+    let mayEdit = false;
+    try {
+      const access = await supabase.rpc("can_edit_student", { _user_id: userId, _student_id: data.student_id });
+      mayEdit = !access.error && access.data === true;
+    } catch { /* Access must be confirmed before any write. */ }
+    if (!mayEdit) throw new Error("Your access to this student could not be confirmed. Please refresh before saving goals.");
     const rows = data.goals.map((g) => ({
       student_id: data.student_id,
       created_by: userId,
@@ -1006,12 +1012,17 @@ export const saveExtractedGoals = createServerFn({ method: "POST" })
       category: g.category,
       status: "not-started",
     }));
-    const { data: inserted, error } = await supabase.from("goals").insert(rows).select("id");
-    if (error) {
-      console.error("Extracted goal save failed.");
-      throw new Error("Could not save goals.");
+    try {
+      const { data: inserted, error } = await supabase.from("goals").insert(rows).select("id");
+      if (error) throw new Error("Goal write was not confirmed.");
+      const receipt = z.array(z.object({ id: z.string().uuid() })).length(rows.length)
+        .refine(ids => new Set(ids.map(row => row.id)).size === ids.length).safeParse(inserted);
+      if (!receipt.success) throw new Error("Goal receipt was not confirmed.");
+      return { inserted: receipt.data.length };
+    } catch {
+      console.error("Extracted goal save could not be confirmed.");
+      throw new Error("We couldn't confirm that all goals were saved. Refresh this page and review the saved goals before trying again.");
     }
-    return { inserted: inserted?.length ?? 0 };
   });
 
 /* ---------- DOCUMENT PERMISSIONS ---------- */

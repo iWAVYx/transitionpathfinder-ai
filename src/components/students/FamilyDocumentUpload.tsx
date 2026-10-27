@@ -631,24 +631,26 @@ export function StandardDocActions({
   doc,
   parsing,
   onExtract,
+  extractionDisabled = false,
   onDownload,
   onDelete,
 }: {
   doc: DocumentRow;
   parsing?: string | null;
-  onExtract: (doc: DocumentRow) => void;
+  onExtract?: (doc: DocumentRow) => void;
+  extractionDisabled?: boolean;
   onDownload: (doc: DocumentRow) => void;
   onDelete?: (doc: DocumentRow) => void;
 }) {
   const [permsOpen, setPermsOpen] = useState(false);
   return (
     <>
-      {["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
+      {onExtract && ["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
         <Button
           size="sm"
           variant="outline"
           onClick={() => onExtract(doc)}
-          disabled={parsing === doc.id}
+          disabled={!!parsing || extractionDisabled}
         >
           {parsing === doc.id ? (
             <>
