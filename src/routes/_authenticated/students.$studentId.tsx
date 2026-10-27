@@ -372,6 +372,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
         {/* DOCUMENTS */}
         <div className="mt-10" data-testid="student-document-section">
           <FamilyDocumentUpload
+            viewerId={viewerId}
             studentId={studentId}
             studentFirstName={student?.first_name ?? null}
             studentLastName={student?.last_name ?? null}

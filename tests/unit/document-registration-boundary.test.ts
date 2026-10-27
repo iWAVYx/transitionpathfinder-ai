@@ -11,7 +11,7 @@ vi.mock("../../src/lib/protected-file-uploads", () => ({ assertProtectedFileUplo
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-correlation" }));
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan }));
-import { registerDocument } from "../../src/lib/documents.functions";
+import { registerDocument, assertCanUploadForStudent } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
 const filename = "123-privacy-safe-document.txt";
@@ -65,4 +65,33 @@ it.each([filename, "privacy-safe-document.txt"])("preserves canonical reviewed-t
 it("preserves the protected upload gate before permission or storage work", async () => {
   api.gate.mockImplementation(() => { throw new Error("Uploads remain paused"); });
   await expect(register()).rejects.toThrow("Uploads remain paused"); expect(api.rpc).not.toHaveBeenCalled(); noProcessing();
+});
+
+it.each([registerDocument, assertCanUploadForStudent])("rejects departed viewer intent before any database work", async fn => {
+  await expect((fn as any)({ data: { ...input, expected_viewer_id: "departed-viewer" } })).rejects.toThrow("sign-in changed");
+  expect(api.rpc).not.toHaveBeenCalled(); noProcessing();
+});
+it("retains authenticated ownership when viewer intent matches", async () => {
+  await expect(register({ expected_viewer_id: "current-viewer" })).rejects.toThrow("reached caller table boundary");
+  expect(api.rpc).toHaveBeenCalledExactlyOnceWith("can_edit_student", { _user_id: "current-viewer", _student_id: student });
+});
+it.each([
+  { edit: false, partner: false }, { edit: null, partner: false }, { edit: "true", partner: false },
+  { edit: true, partner: true }, { edit: true, partner: null }, { edit: true, partner: "false" },
+  { edit: true, partner: false, error: "can_edit_student" }, { edit: true, partner: false, error: "is_partner_only" },
+])("fails closed on uncertain preflight permission responses (%j)", async test => {
+  api.rpc.mockImplementation(async (name: string) => ({ data: name === "can_edit_student" ? test.edit : test.partner, error: name === test.error ? { message: "PRIVATE permission detail" } : null }));
+  await expect((assertCanUploadForStudent as any)({ data: { student_id: student, expected_viewer_id: "current-viewer" } })).rejects.toThrow("couldn't confirm permission to upload"); noProcessing();
+});
+it("confirms preflight only with current edit access and explicit non-partner status", async () => {
+  api.rpc.mockImplementation(async (name: string) => ({ data: name === "can_edit_student", error: null }));
+  expect(await (assertCanUploadForStudent as any)({ data: { student_id: student, expected_viewer_id: "current-viewer" } })).toEqual({ ok: true });
+  expect(api.rpc).toHaveBeenNthCalledWith(1, "can_edit_student", { _user_id: "current-viewer", _student_id: student });
+  expect(api.rpc).toHaveBeenNthCalledWith(2, "is_partner_only", { _user_id: "current-viewer" }); noProcessing();
+});
+it("does not leak or retry a rejected preflight request", async () => {
+  api.rpc.mockRejectedValue(new Error("PRIVATE permission detail"));
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  await expect((assertCanUploadForStudent as any)({ data: { student_id: student } })).rejects.toThrow("couldn't confirm permission to upload");
+  expect(api.rpc).toHaveBeenCalledOnce(); expect(log).not.toHaveBeenCalled(); noProcessing(); log.mockRestore();
 });

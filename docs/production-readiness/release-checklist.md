@@ -1,5 +1,17 @@
 # Production release checklist
 
+## October 27 — Upload Student and Account Session Safeguards
+
+- [x] Previous candidate `8a8b481f` passed all eight applicable automatic checks; hosted checks remain unperformed.
+- [x] Locally reset the shared upload review when student, viewer or edit access changes. Reject old privacy callbacks and stop advancing after departed preflight/storage/registration requests; ignore late notices, form resets and refresh failures.
+- [x] Bind both server calls to expected viewer intent, retain authenticated ownership and fail closed on uncertain edit/partner checks. Require an explicit browser preflight receipt before uploading. All 5,073 unit tests across 343 files, 91 focused cases, five static upload-gate contracts and TypeScript pass.
+- [x] Isolated staging build and service worker pass.
+- [ ] Complete fresh automatic review. Candidate `dadc5d6a…5e6a907b` / 1,192 files is local only; both stable staging sites remain on verified `7814afa7` / 1,190 files.
+- [ ] Complete duplicate/hash/exact orphan reconciliation and background-job cleanup mapping. An in-flight request may complete after departure; this guard neither cancels nor blindly deletes it. Retain unavailable-versus-empty list handling and effective quarantine/private-download policy review. Prepare separate bounded goal-save/storage tests before fresh rollout/test authorization.
+
+Evidence: `document-upload-session-local-2026-10-27.json`. No hosted uploads, fixtures, provider calls, migration, deployment or publication occurred. Preserve all TF-01–TF-26/six milestones and production gates; report polish and Parent Pilot/Pathway Snapshot remain deferred.
+
+
 ## October 27 — Truthful Upload Results and Confirmed Scan Transitions
 
 - [x] Prior registration candidate `0a045f5a` passed all eight applicable automatic checks. Skipped hosted checks are not acceptance passes.

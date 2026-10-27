@@ -94,6 +94,7 @@ export const registerDocument = createServerFn({ method: "POST" })
       source: z.string().trim().max(200).optional(),
       consent_acknowledged: z.boolean().default(false),
       content_hash: z.string().trim().regex(/^[a-f0-9]{64}$/i).optional(),
+      ...viewerIntentSchema.shape,
     }).refine((data) => {
       // Registration later reads/scans this object with server privileges.
       // Accept only the canonical student folder and a single safe filename.
@@ -107,6 +108,7 @@ export const registerDocument = createServerFn({ method: "POST" })
     assertProtectedFileUploadsEnabled();
     assertPrivacySafeDerivedUpload(data.storage_path, data.mime_type ?? null);
     const { supabase, userId } = context;
+    assertExpectedViewer(data, userId);
 
     // Recheck edit access at registration, including duplicate-return paths,
     // before any privileged storage read, scan, cleanup or pipeline processing.
@@ -755,20 +757,24 @@ export const deleteDocument = archiveDocument;
  */
 export const assertCanUploadForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ student_id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid(), ...viewerIntentSchema.shape }).parse(i))
   .handler(async ({ data, context }) => {
     assertProtectedFileUploadsEnabled();
     const { supabase, userId } = context;
-    const { data: ok } = await supabase.rpc("can_edit_student", {
-      _user_id: userId,
-      _student_id: data.student_id,
-    });
-    const { data: partner } = await supabase.rpc("is_partner_only", { _user_id: userId });
-    if (partner) {
-      throw new Error("Partner accounts cannot upload documents to student records.");
+    assertExpectedViewer(data, userId);
+    let allowed = false;
+    try {
+      const edit = await supabase.rpc("can_edit_student", {
+        _user_id: userId,
+        _student_id: data.student_id,
+      });
+      const partner = await supabase.rpc("is_partner_only", { _user_id: userId });
+      allowed = !edit.error && edit.data === true && !partner.error && partner.data === false;
+    } catch {
+      // Fail closed without copying private service details to the client.
     }
-    if (!ok) {
-      throw new Error("You don't have permission to upload documents for this student.");
+    if (!allowed) {
+      throw new Error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     }
     return { ok: true };
   });

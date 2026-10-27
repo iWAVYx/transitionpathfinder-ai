@@ -1,5 +1,5 @@
 import { documentUploadOutcome, DOCUMENT_UPLOAD_UNCONFIRMED } from "@/lib/document-upload-outcome";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -132,6 +132,7 @@ const GUIDANCE = [
 ];
 
 type Props = {
+  viewerId: string;
   studentId: string;
   studentFirstName: string | null;
   studentLastName?: string | null;
@@ -147,7 +148,14 @@ type Props = {
   canEdit?: boolean;
 };
 
-export function FamilyDocumentUpload({
+export function FamilyDocumentUpload(props: Props) {
+  // A new student, account or edit entitlement starts a fresh review session.
+  // Pending work from the previous session may finish, but cannot advance it.
+  return <FamilyDocumentUploadSession key={`${props.viewerId}:${props.studentId}:${props.canEdit === false ? "view" : "edit"}`} {...props} />;
+}
+
+function FamilyDocumentUploadSession({
+  viewerId,
   studentId,
   studentFirstName,
   studentLastName,
@@ -162,6 +170,11 @@ export function FamilyDocumentUpload({
   const assertCanUpload = useServerFn(assertCanUploadForStudent);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const active = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const uploadPending = useRef(false);
   const uploadUnconfirmed = useRef(false);
   const [unconfirmed, setUnconfirmed] = useState(false);
@@ -180,7 +193,7 @@ export function FamilyDocumentUpload({
   const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
   async function upload(file: File, consentAcknowledged = consent) {
-    if (uploadPending.current || uploadUnconfirmed.current || !canEdit) return;
+    if (!active.current || uploadPending.current || uploadUnconfirmed.current || !canEdit) return;
     if (!PROTECTED_FILE_UPLOADS_ENABLED) {
       toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
       return;
@@ -209,17 +222,21 @@ export function FamilyDocumentUpload({
       toast.error(DOCUMENT_UPLOAD_UNCONFIRMED);
     }
     try {
-      await assertCanUpload({ data: { student_id: studentId } });
+      const permission = await assertCanUpload({ data: { student_id: studentId, expected_viewer_id: viewerId } });
+      if (!active.current) return;
+      if (permission?.ok !== true) throw new Error("Unconfirmed upload permission");
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
       const path = `${studentId}/${Date.now()}-${safeName}`;
       writeAttempted = true;
       const { error: upErr } = await supabase.storage
         .from("student-documents")
         .upload(path, file, { contentType: file.type, upsert: false });
+      if (!active.current) return;
       if (upErr) throw upErr;
       const receipt = await register({
         data: {
           student_id: studentId,
+          expected_viewer_id: viewerId,
           title: (title.trim() || file.name).slice(0, 200),
           storage_path: path,
           mime_type: file.type || undefined,
@@ -236,6 +253,7 @@ export function FamilyDocumentUpload({
           consent_acknowledged: true,
         },
       });
+      if (!active.current) return;
       const outcome = documentUploadOutcome(receipt, studentId, path);
       if (outcome === "uncertain") {
         pauseUnconfirmed();
@@ -260,17 +278,21 @@ export function FamilyDocumentUpload({
       try {
         await onChange();
       } catch {
+        if (!active.current) return;
         toast.error("The upload result is confirmed, but the document list couldn't be refreshed. Refresh this page to view its current status.");
       }
     } catch {
+      if (!active.current) return;
       // Do not expose filenames, storage paths or private service errors.
       // A lost write response does not prove that no file or row was saved.
       if (writeAttempted) pauseUnconfirmed();
       else toast.error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     } finally {
       uploadPending.current = false;
-      setBusy(false);
-      if (fileRef.current) fileRef.current.value = "";
+      if (active.current) {
+        setBusy(false);
+        if (fileRef.current) fileRef.current.value = "";
+      }
     }
   }
 
