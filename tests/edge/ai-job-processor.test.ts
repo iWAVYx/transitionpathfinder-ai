@@ -9,7 +9,7 @@ const text="Jamie Example reports progress on 4 of 5 tasks. Email jamie@example.
 const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));
 const hash=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,"0")).join("");
 const path=`${uuid(3)}/nonce-privacy-safe-document.txt`;
-type Scenario="success"|"missing-rpc"|"changed-bytes"|"revoked-after-ai"|"uncertain-commit"|"bad-model";
+type Scenario="success"|"missing-rpc"|"changed-bytes"|"revoked-after-ai"|"uncertain-commit"|"bad-model"|"retired-object"|"missing-mime";
 let scenario:Scenario="success",status="queued",at="",attempt=0,ai=0,reads=0,commits=0,stored:any=null,prompt="",unexpected:string[]=[];
 function reset(next:Scenario){scenario=next;status="queued";at="";attempt=0;ai=0;reads=0;commits=0;stored=null;prompt="";unexpected=[];}
 const json=(body:unknown,code=200)=>new Response(JSON.stringify(body),{status:code,headers:{"Content-Type":"application/json"}});
@@ -41,7 +41,7 @@ globalThis.fetch=async(input:RequestInfo|URL,init?:RequestInit)=>{
     if(body._claim_at!==at||body._attempt!==attempt||body._job_id!==uuid(1))throw Error("Wrong source lease");
     return json(source());
   }
-  if(target.pathname.startsWith("/storage/v1/object/info/student-documents/"))return json({id:uuid(5),version:"version-one",name:path,bucket_id:"student-documents",size:new Blob([text]).size,content_type:"text/plain"});
+  if(target.pathname.startsWith("/storage/v1/object/info/student-documents/"))return json({id:uuid(5),version:"version-one",name:path,bucket_id:"student-documents",size:new Blob([text]).size,content_type:scenario==="missing-mime"?undefined:"text/plain; charset=utf-8",archived_at:scenario==="retired-object"?"2026-10-27T12:00:00Z":null,is_delete_marker:false,is_versioned:true});
   if(target.pathname===`/storage/v1/object/student-documents/${path}`||target.pathname===`/storage/v1/object/authenticated/student-documents/${path}`)return new Response(scenario==="changed-bytes"?"x".repeat(new Blob([text]).size):text);
   if(target.pathname==="/rest/v1/rpc/complete_verified_document_summary"){
     commits++;if(body._claim_at!==at||body._attempt!==attempt)throw Error("Wrong completion lease");
@@ -60,7 +60,7 @@ Deno.test("actual handler submits verified redacted text and commits once",async
   assert(prompt.includes("4 of 5 tasks"),"Missing actual file text");for(const privateText of ["Jamie Example","jamie@example.test","UNTRUSTED TITLE","UNTRUSTED QUEUED TEXT","untrusted/path",path,uuid(2)])assert(!prompt.includes(privateText),"Untrusted/private metadata reached provider");
   assert(stored?._source?.content_sha256===hash,"Missing source lineage");assert(unexpected.length===0,"Unexpected IO");
 });
-for(const next of ["missing-rpc","changed-bytes"] as const)Deno.test(`actual handler stops ${next} before AI and does not requeue`,async()=>{
+for(const next of ["missing-rpc","changed-bytes","retired-object","missing-mime"] as const)Deno.test(`actual handler stops ${next} before AI and does not requeue`,async()=>{
   reset(next);const result=await (await invoke()).json();assert(result.processed[0]?.ok===false,"Expected failure");assert(ai===0&&commits===0&&status==="needs_review","Expected no AI and manual review");
   const again=await(await invoke()).json();assert(again.count===0&&ai===0,"Must not auto-repeat");assert(!JSON.stringify(result).includes("PRIVATE"),"Private diagnostics leaked");assert(unexpected.length===0,"Unexpected IO");
 });

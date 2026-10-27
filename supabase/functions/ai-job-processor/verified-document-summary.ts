@@ -63,11 +63,17 @@ function sameSource(a: SummarySource, b: SummarySource) {
   // A changed privacy context also requires a fresh reviewed run.
   if (JSON.stringify(a.context) !== JSON.stringify(b.context)) throw new Error(SUMMARY_REVIEW_MESSAGE);
 }
+// Raw Storage InfoRenderer response, not storage-js camel-cased output.
+// Require known UTF-8-compatible text and refuse retired/delete-marker objects.
+// Older Storage versions omit lifecycle fields; an explicit unsafe value fails.
 function info(receipt: Receipt, expected: SummarySource): number {
   const row = data(receipt);
   if (row.id !== expected.object_id || row.version !== expected.object_version || row.name !== expected.storage_path ||
       row.bucket_id !== "student-documents" || !Number.isSafeInteger(row.size) || (row.size as number) < 1 ||
-      (row.size as number) > MAX_SUMMARY_BYTES || (row.content_type !== undefined && row.content_type !== "text/plain")) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      (row.size as number) > MAX_SUMMARY_BYTES ||
+      typeof row.content_type !== "string" || !/^text\/plain(?:\s*;\s*charset\s*=\s*(?:utf-8|us-ascii))?$/i.test(row.content_type.trim()) ||
+      (row.archived_at !== undefined && row.archived_at !== null) ||
+      (row.is_delete_marker !== undefined && row.is_delete_marker !== false)) throw new Error(SUMMARY_REVIEW_MESSAGE);
   return row.size as number;
 }
 function result(value: unknown, context: SensitiveTextContext): Record<string, unknown> {

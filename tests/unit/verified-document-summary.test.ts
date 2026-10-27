@@ -29,8 +29,17 @@ it.each([null,{}, {data:null,error:null},{data:undefined,error:null},{data:{},er
 it.each([{job_id:id(9)},{claim_attempt:2},{claim_at:"invalid"},{schema:"old"},{document_id:"invalid"},{student_id:"invalid"},{object_id:"invalid"},{object_version:""},{content_sha256:"legacy-hash"},{context:{}},{storage_path:`${id(9)}/nonce-privacy-safe-document.txt`}])("rejects malformed/mismatched source identity %j",async(patch)=>{
   Object.assign(receipt,patch);await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.info).not.toHaveBeenCalled();expect(io.generate).not.toHaveBeenCalled();
 });
-it.each([{version:"changed"},{id:id(9)},{name:"foreign.txt"},{bucket_id:"other"},{size:0},{size:MAX_SUMMARY_BYTES+1},{content_type:"application/pdf"}])("rejects mismatched or unsafe storage metadata before download %j",async(patch)=>{
+it.each([{version:"changed"},{id:id(9)},{name:"foreign.txt"},{bucket_id:"other"},{size:0},{size:MAX_SUMMARY_BYTES+1},{content_type:"application/pdf"},{content_type:undefined},{content_type:null},{content_type:"text/plain;charset=iso-8859-1"},{content_type:"text/plain;charset=utf-8;extra=1"},{archived_at:"2026-10-27T12:00:00Z"},{archived_at:false},{is_delete_marker:true},{is_delete_marker:null}])("rejects mismatched or unsafe storage metadata before download %j",async(patch)=>{
   Object.assign(metadata,patch);await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.download).not.toHaveBeenCalled();expect(io.generate).not.toHaveBeenCalled();
+});
+it.each(["text/plain", "text/plain; charset=utf-8", "TEXT/PLAIN;CHARSET=UTF-8", "text/plain;charset=us-ascii"])("accepts explicit supported text MIME %s with current raw lifecycle metadata",async(content_type)=>{
+  Object.assign(metadata,{content_type,archived_at:null,is_delete_marker:false,is_versioned:true});
+  await expect(processVerifiedDocumentSummary(claim,io)).resolves.toMatchObject({document_id:id(2)});
+  expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).toHaveBeenCalledOnce();
+});
+it("rechecks retirement metadata after generation before committing",async()=>{
+  vi.mocked(io.info).mockResolvedValueOnce({data:structuredClone(metadata),error:null}).mockResolvedValueOnce({data:structuredClone(metadata),error:null}).mockResolvedValue({data:{...metadata,is_delete_marker:true},error:null});
+  await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).not.toHaveBeenCalled();
 });
 it("rejects changed bytes even when object metadata is unchanged",async()=>{
   vi.mocked(io.download).mockResolvedValue({data:new Blob(["x".repeat(metadata.size)]),error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).not.toHaveBeenCalled();expect(io.commit).not.toHaveBeenCalled();

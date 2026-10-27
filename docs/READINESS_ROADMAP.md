@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 27 — Storage Metadata Contract Verification
+
+- [x] All eight applicable automatic checks pass on evidence follow-up `85263c2c`, including accessibility and both first-attempt builds. Earlier same-runtime heap failures remain recorded as an intermittent constrained-build risk; memory limits are unchanged.
+- [x] Checked official Supabase Storage route/renderer source at `a6a773fc766f51edd7689fbbecf4f67151b216dd`. Local worker now accepts explicit UTF-8/ASCII text MIME forms and rejects missing/unsupported MIME, archived objects and delete markers. Retirement is also rechecked after generation before saving.
+- [x] All 5,190 unit tests across 346 files, 55 focused worker cases, nine no-network real-handler cases and the real Deno type check pass. SQL is unchanged; prior 204 native cases/full 210-migration plus six-proposal smoke remain applicable. Current candidate automatic checks are pending.
+- [ ] Verify the actual isolated Storage deployment's response/version behavior under a separately authorized hosted scope, then finish canonical review, durable upload reconciliation and exact cleanup before worker rollout/provider acceptance.
+
+Evidence: `production-readiness/evidence/document-summary-storage-contract-2026-10-27.json`. The upstream implementation is a reviewed contract, not hosted acceptance. Existing live-document/access/hash/version checks remain mandatory; optional lifecycle fields may be absent on older Storage versions. No app runtime/fingerprint change, hosted migration/deployment/publication, provider call, fixture or production action. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 27 — Verified Document Summary Worker (Local Only)
 
 - [x] Implemented actual private text reads in the local Edge worker. It ignores queued titles/paths/text as source material, checks the current actor/document/student and matching clean scan/object/version/hash, verifies downloaded bytes, redacts input/output and checks again before guarded completion. Missing prerequisites or uncertain completion stop for review without another automatic AI request.

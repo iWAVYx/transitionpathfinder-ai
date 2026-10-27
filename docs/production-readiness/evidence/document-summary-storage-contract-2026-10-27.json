@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-27",
+  "status": "local metadata correction verified; current candidate CI pending",
+  "hosted_actions": false,
+  "baseline": {
+    "commit": "85263c2c",
+    "all_eight_applicable_checks": "passed",
+    "both_builds": "passed first attempt on documentation-only followup; prior identical runtime heap failures remain an intermittent risk",
+    "accessibility_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40553530005"
+  },
+  "upstream_contract": {
+    "repository": "supabase/storage",
+    "commit": "a6a773fc766f51edd7689fbbecf4f67151b216dd",
+    "route": "https://github.com/supabase/storage/blob/a6a773fc766f51edd7689fbbecf4f67151b216dd/src/http/routes/object/getObjectInfo.ts",
+    "renderer": "https://github.com/supabase/storage/blob/a6a773fc766f51edd7689fbbecf4f67151b216dd/src/storage/renderer/info.ts",
+    "verified": "Raw response uses bucket_id/content_type and includes archived_at/is_delete_marker on supported Storage versions. This is source contract research, not proof of the hosted backend version."
+  },
+  "change": "Require explicit supported text MIME; accept optional UTF-8/us-ascii charset case-insensitively, reject missing/null MIME and other charset/extra parameters. Reject explicit archived/delete-marker values at every metadata read, including after AI. Older APIs may omit lifecycle flags; exact database live-document/object/hash/version checks remain mandatory.",
+  "checks": {
+    "unit_tests": 5190,
+    "unit_files": 346,
+    "focused_worker_tests": 55,
+    "real_deno_handler_cases_no_network": 9,
+    "deno_type_check": "passed",
+    "sql_unchanged": "previous 204 native cases and full canonical210 plus six-proposal verification remain applicable; CI will repeat"
+  },
+  "worker_artifact_sha256": {
+    "supabase/functions/ai-job-processor/verified-document-summary.ts": "f73a9a60b81ca5b050985c5eb8e4f41e90efa914b4b0c722d1b9451a574cb888",
+    "supabase/functions/ai-job-processor/sensitive-text-redaction.ts": "e491c0db74f00433269e42dba3905ce346b0588b961f6987d31bb70d9a15adbf",
+    "supabase/functions/ai-job-processor/index.ts": "f1cb1b36f78bdfd0da2fe7c94d3a5409dd0a771d35f935c97476dbd65d4bac7b"
+  },
+  "limits": [
+    "No hosted object read, provider call, deployment, migration, publication, record change or production action.",
+    "No claim of immutable remote bytes, complete deidentification or live Storage API acceptance.",
+    "App src/fingerprint remains 12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2 / 1194 files; Edge worker requires a separate artifact/release."
+  ]
+}
