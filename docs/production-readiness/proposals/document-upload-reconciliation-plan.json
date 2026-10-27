@@ -89,7 +89,11 @@
     "runtime_fingerprint": "12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2",
     "file_count": 1194,
     "unit_tests_passed": 5135,
-    "automatic_checks": "pending",
+    "automatic_checks": {
+      "source_commit": "fdd9511e12754a264943f6c32c0c0d12f3984568",
+      "all_eight_applicable_passed": true,
+      "build_memory": "one unchanged-source retry required; recurring constrained heap risk remains"
+    },
     "hosted_actions": false,
     "limit": "Initial registration fingerprint/sniff/scan use one held Blob. Later version-bound processing/read/removal and remote-byte immutability remain open."
   },

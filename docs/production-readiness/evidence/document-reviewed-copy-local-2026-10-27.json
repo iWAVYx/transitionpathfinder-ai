@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "local application change verified; automatic review and hosted acceptance pending",
+  "status": "local application change verified; all eight applicable automatic checks passed; no hosted acceptance",
   "base_commit": "499163cc",
   "runtime": {
     "fingerprint": "12011271983ab01846eb8a33edab423d8ff87cfa836287afb2fe6ce67e74d6e2",
@@ -43,5 +43,13 @@
     "deployed": false,
     "published": false,
     "production_touched": false
+  },
+  "automatic_checks": {
+    "source_commit": "fdd9511e12754a264943f6c32c0c0d12f3984568",
+    "all_eight_applicable_passed": true,
+    "unit_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40530157133",
+    "replay_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40530157319",
+    "builds": "PR build passed first attempt; push build passed on one unchanged-source retry after Node heap exhaustion. Heap cap/settings unchanged.",
+    "protected_skipped_jobs": "unperformed; not hosted acceptance"
   }
 }
