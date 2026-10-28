@@ -1598,5 +1598,6 @@ The history migration is applied only to isolated staging under specific user au
 ### Draft Upload Admission Limits — October 28, 2026
 
 - [x] Prepare unapplied eleventh proposal for five unresolved claims per actor and ten per student; count review holds, preserve exact reserved retries and existing over-limit rows, retain explicit role/access guards. Local disposable checks pass; this is not hosted acceptance.
-- [ ] Confirm native contention and full canonical-schema installation, review prototype cap values/global-lock throughput and connect safe recovery/terminal resolution before promotion.
+- [x] Verify corrected candidate `579db67a`: both native runs 395 passed / zero skips, full 210 canonical migrations plus eleven proposals, and all nine applicable automatic checks pass; both builds pass first attempt. Initial harness failures remain documented.
+- [ ] Review prototype cap values/global-lock throughput and connect safe recovery/terminal resolution before promotion.
 - [ ] Separately authorize any staging migration, application integration, Storage acceptance or cleanup run. No deletion, expiry or permission expansion is authorized by a quota refusal.

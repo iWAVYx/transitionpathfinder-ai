@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "Ten SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, quotas, guarded cleanup and actual Storage acceptance remain rollout gates.",
+  "status": "Eleven SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, admission integration, guarded cleanup and actual Storage acceptance remain rollout gates.",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -489,7 +489,7 @@
     }
   },
   "unresolved_admission_checkpoint_2026_10_28": {
-    "status": "eleventh proposal; local disposable checks passed; exact-source native concurrency and full-schema CI pending",
+    "status": "Corrected candidate 579db67a passes all nine applicable checks; both native runs 395 passed / zero skips, full 210 canonical migrations plus eleven proposals pass.",
     "proposal": "docs/production-readiness/proposals/document-upload-admission-limits.sql",
     "evidence": "docs/production-readiness/evidence/document-upload-admission-local-2026-10-28.json",
     "limits": {
@@ -497,6 +497,6 @@
       "student_unresolved": 10
     },
     "scope": "All currently eligible actors; existing explicit student editing and partner-only exclusions preserved. No hosted action.",
-    "next": "Native/full-schema validation, verified recovery and terminal resolution; no expiry/deletion shortcut."
+    "next": "Review prototype cap values and global-lock operational behavior; verified recovery and terminal resolution remain open. No expiry/deletion shortcut."
   }
 }
