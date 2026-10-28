@@ -302,7 +302,7 @@
   },
   "caller_integration_checkpoint": {
     "date": "2026-10-28",
-    "status": "local caller integration verified; candidate CI pending; not ready for hosted rollout",
+    "status": "local caller integration verified; native/unit/role/a11y checks pass on 8ba1f095, one constrained build failed initial and single retry; not ready for rollout",
     "hosted_actions": false,
     "application_fingerprint": "a54db47c961c6204b0f0de741fad67a9afc4d1677366afb58f6c84f570ee5af1",
     "application_file_count": 1196,
@@ -315,7 +315,20 @@
       "local_isolated_staging_build": "passed; does not exercise constrained Lovable heap profile",
       "service_worker_generation": "passed explicitly",
       "student_channel_privacy_static_contracts": 32,
-      "prior_sql_proposal_proof": "282 native cases and full 210-migration replay plus eight proposals pass on 14888a42; no SQL changes this turn"
+      "prior_sql_proposal_proof": "282 native cases and full 210-migration replay plus eight proposals pass on 14888a42; no SQL changes this turn",
+      "candidate_ci": {
+        "source_commit": "8ba1f09531d13b61a874399bf7a258f7b73a258b",
+        "units": "passed",
+        "native_database_cases_passed": 282,
+        "native_database_skipped": 0,
+        "migration_replay": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40690626759",
+        "real_worker_no_network_cases": 9,
+        "role_static_readiness_accessibility": "passed",
+        "push_build": "passed first attempt",
+        "pr_build": "Node heap exhaustion on initial and one unchanged-source retry; no memory-limit/source/settings change",
+        "failed_build_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40690626865",
+        "protected_skipped": "unperformed; not hosted acceptance"
+      }
     },
     "implemented": [
       "Shared authorized student document panel captures review metadata before asynchronous work and reserves a unique attempt before private storage upload. Verified duplicate discovery remains before reservation/storage.",
@@ -329,6 +342,7 @@
       "A static IEP privacy test expected a removed 100000-character slice. It now requires the existing bounded 120000-character input and redacted full-text interpolation, rejects raw input interpolation, and leaves IEP runtime unchanged."
     ],
     "remaining_rollout_gates": [
+      "Resolve the constrained build memory failure; the parallel passing build and local isolated build do not make this gate green.",
       "Do not deploy callers without reviewed/authorized promotion of all eight SQL proposals; missing functions intentionally block uploads. Canonical inventory remains 210.",
       "Review/replace existing infected-file purge and admin hard-delete handlers before rollout: their deletion receipts/absence are not verified, and a storage deletion can precede database failure. No cleanup safety is claimed.",
       "Add reservation-gated Storage INSERT, guarded trusted recovery/terminal states, quotas, exact reference inventory/deletion claims/receipts and independent absence proof. No automatic expiry or cleanup authority is added.",
