@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "installed SDK transport boundaries verified locally; exact-source CI pending; no physical Storage acceptance",
+  "status": "installed SDK transport boundaries pass locally and exact-source CI; all eight applicable checks pass; no physical Storage acceptance",
   "source_base": "87944fd6",
   "hosted_actions": false,
   "application_changed": false,
@@ -19,7 +19,102 @@
     "pass": 88,
     "fail": 0,
     "skip": 0,
-    "ci": "pending"
+    "ci": {
+      "sdk_probe_pass": 18,
+      "sdk_probe_fail": 0,
+      "sdk_probe_skip": 0,
+      "sdk_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40734257926",
+      "native_replay": {
+        "tests": 441,
+        "pass": 441,
+        "fail": 0,
+        "skip": 0,
+        "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40734257800",
+        "schema": "Full 210 canonical migration replay plus unchanged twelve proposal installations/catalog assertions pass."
+      },
+      "automatic_checks_pass": 8,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40734258090,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734258082,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734258240,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40734257941,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257926,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734258000,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257963,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40734257953,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257800,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257827,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734248304,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt under unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
   },
   "model_boundary": "Actual installed StorageClient with injected synthetic fetch responses. globalThis.fetch throws; only the exact storage-contract.invalid endpoint/method is accepted. No key, Supabase connection, hosted account or real object store is used. Modeled apply-then-response-loss is a fault scenario, not evidence of actual server ordering.",
   "findings": [
@@ -36,5 +131,6 @@
     "No new runtime adapter, receipt validator, endpoint, SQL proposal, state transition or cleanup capability is introduced. Twelve SQL proposals remain unapplied.",
     "Current paths-only remove cannot be treated as verified exact-version deletion. Unknown results remain held; no automatic replay or prefix cleanup.",
     "Related channel attachment removal paths remain a separate recorded review gate; this test does not fix them."
-  ]
+  ],
+  "verified_source": "a414e483215dfd3194ef8156f21c1419ec7010ae"
 }

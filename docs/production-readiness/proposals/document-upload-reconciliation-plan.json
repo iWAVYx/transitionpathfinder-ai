@@ -507,7 +507,7 @@
     "next": "Actual Storage observation/physical-byte proof and terminal-resolution design; no permission to retry, release or clean up from this read receipt."
   },
   "storage_transport_checkpoint": {
-    "status": "installed SDK transport boundaries verified locally; exact-source CI pending; no physical Storage acceptance",
+    "status": "Exact candidate a414e483 passes all eight applicable checks: 18 SDK probes, full replay with 441 native cases/zero skips, both builds first attempt. No physical Storage acceptance.",
     "evidence": "docs/production-readiness/evidence/document-storage-transport-local-2026-10-28.json",
     "terminal_plan": "docs/production-readiness/proposals/document-upload-terminal-resolution-plan.json",
     "key_boundary": "SDK success/404/metadata observations cannot free claims or authorize cleanup. Default paths-only remove has no verified version precondition.",

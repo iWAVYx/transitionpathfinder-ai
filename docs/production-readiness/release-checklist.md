@@ -1611,5 +1611,5 @@ The history migration is applied only to isolated staging under specific user au
 ### Storage Transport and Terminal Resolution — October 28, 2026
 
 - [x] Verify installed-SDK uncertainty with 18 intercepted-response probes; 88 combined local contracts pass without network access. Record six terminal-resolution gates.
-- [ ] Confirm exact-source CI runs the new probes. These checks do not certify a real Storage server.
+- [x] Verify exact candidate `a414e483`: 18 no-network SDK probes and all eight applicable automatic checks pass; full replay retains 441 native cases/zero skips and both capped builds first attempt. These checks do not certify a real Storage server.
 - [ ] Prove a durable resolution/reference fence and actual immutable-version or equivalent safe discard capability before any hosted test, cleanup or claim release is proposed. Keep uncertain results held.
