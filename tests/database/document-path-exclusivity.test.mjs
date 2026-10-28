@@ -1,6 +1,6 @@
 // Proposal tests only. PGlite or a newly-created loopback PostgreSQL database;
 // never accept a hosted URL, service key or production database name.
-import test, { before, beforeEach, after } from 'node:test';
+import test, { before, beforeEach, afterEach, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -26,7 +26,7 @@ const legacy = sql('20260715031029_93358eaf-ed18-40b0-bcf8-383a6d1bc5ac.sql').sp
 const uid = n => '00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 const actors = { family:uid(1), educator:uid(2), student:uid(3), partner:uid(4), school:uid(5), district:uid(6), owner:uid(7) };
 const student = uid(10), otherStudent = uid(11), path = student+'/fictional-privacy-safe-document.txt';
-let db, close, newSession;
+let db, close, newSession, closeCaseSessions;
 async function as(actor=actors.family, role='authenticated', client=db) {
   assert.ok(['authenticated','anon','service_role'].includes(role));
   await client.exec('RESET ROLE'); await client.query("SELECT set_config('request.jwt.claim.sub',$1,false)",[actor]); await client.exec('SET ROLE '+role);
@@ -43,6 +43,9 @@ before(async()=>{
     const options={host:'127.0.0.1',port:Number(process.env.PGPORT||5432),user:process.env.PGUSER,password:process.env.PGPASSWORD,statement_timeout:10000};
     const control=new Client({...options,database:'postgres'});await control.connect();const name='tf_doc_path_'+randomUUID().replaceAll('-','');await control.query(`CREATE DATABASE ${name}`);const clients=[];
     newSession=async()=>{const c=new Client({...options,database:name});await c.connect();clients.push(c);return {query:(...args)=>c.query(...args),exec:s=>c.query(s)};};
+    // Keep all competing sessions alive through each test, then release them.
+    // Accumulating prior cases must not exhaust PostgreSQL max_connections.
+    closeCaseSessions=async()=>{await Promise.all(clients.splice(1).map(c=>c.end()));};
     db=await newSession();close=async()=>{try{await Promise.all(clients.map(c=>c.end()));}finally{try{await control.query(`DROP DATABASE ${name}`);}finally{await control.end();}}};
   } else {
     const {PGlite}=await import(pathToFileURL(process.env.PATHWAY_HISTORY_PGLITE_MODULE).href);db=new PGlite();close=()=>db.close();
@@ -91,6 +94,7 @@ before(async()=>{
   await db.exec(policies.slice(storageStart));
 });
 after(async()=>{if(close) await close();});
+afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('RESET ROLE;DROP TRIGGER IF EXISTS ai_jobs_guard_bound_document_source ON public.ai_jobs;DROP FUNCTION IF EXISTS public.guard_bound_document_summary_job();DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP TABLE IF EXISTS public.document_summary_source_bindings;DROP FUNCTION IF EXISTS public.reject_document_source_binding_mutation();DROP FUNCTION IF EXISTS public.claim_document_upload_resolution(uuid,text,uuid);DO $$ BEGIN IF to_regclass(\'public.document_upload_attempts\') IS NOT NULL THEN EXECUTE \'DROP TRIGGER IF EXISTS upload_attempt_resolution_frozen ON public.document_upload_attempts\'; END IF; END $$;DROP FUNCTION IF EXISTS public.guard_claimed_upload_attempt();DROP TABLE IF EXISTS public.document_upload_resolution_claims;DROP FUNCTION IF EXISTS public.reject_upload_resolution_claim_mutation();DROP FUNCTION IF EXISTS public.read_document_upload_recovery(uuid,text);DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);

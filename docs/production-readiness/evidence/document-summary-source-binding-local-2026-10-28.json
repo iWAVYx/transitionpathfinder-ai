@@ -7,8 +7,8 @@
   "canonical_migration_count": 210,
   "unapplied_upload_proposals": 14,
   "hosted_actions": false,
-  "application_changed": false,
-  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_changed": true,
+  "application_fingerprint": "9e3d77f10b30dc4f0043a241cbffd048571c9ee87d8c0eaf16741871299ea5d6",
   "application_file_count": 1199,
   "checked": [
     "First successful verified-source admission retains job/actor/student/document/path/object/version/reviewed hash and first claim identity before provider IO; no document text or student context is copied.",
@@ -30,7 +30,14 @@
       "fail": 0,
       "skip": 0
     },
-    "native_full_schema": "pending"
+    "native_full_schema": "pending",
+    "local_unit": {
+      "pass": 5280,
+      "files": 348,
+      "fail": 0
+    },
+    "local_typescript": "pass",
+    "local_capped_staging_build": "pass, first attempt, unchanged 1216 MiB old-space / 4 MiB semi-space configuration"
   },
   "rollout_gates": [
     "All fourteen proposals remain unapplied and outside the canonical 210 migrations. Prepare/review a coordinated migration and worker rollout before requesting separate hosted authorization.",
@@ -42,5 +49,33 @@
     "Direct service result/status writes, unrelated job types, provider cancellation, dynamic/external references and the full permission/reference writer graph remain outside this boundary. Current permission checks are not a durable permission lease.",
     "Ordinary DML guards do not constrain a privileged owner disabling triggers, issuing DDL or TRUNCATE. No direct object-store foreign key is added.",
     "Report-length polish and Parent Pilot / Pathway Snapshot remain deferred; the complete TF-01\u2013TF-26 and six-milestone roadmap is retained."
-  ]
+  ],
+  "security_patch": {
+    "package": "seroval",
+    "from": "1.6.7",
+    "to": "1.6.8",
+    "scope": "Only the existing override and corresponding lock entry changed; no other dependency versions changed.",
+    "advisories": [
+      "https://github.com/advisories/GHSA-97r2-qh9m-474h",
+      "https://github.com/advisories/GHSA-wp97-x4hv-qvhp",
+      "https://github.com/advisories/GHSA-7rv5-mrxv-xcr9"
+    ],
+    "initial_source": "3ad3a6ed01f02081f9e3ea4839205edabe9ed306",
+    "initial_build_runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40784544018",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40784535289"
+    ],
+    "initial_failure": "Both builds stopped at high-severity dependency audit before application compilation. No audit gate was weakened.",
+    "local_audit": "Frozen install succeeds; bun audit --audit-level=high passes, 1119 packages checked, 15 below high threshold."
+  },
+  "initial_native_harness_failure": {
+    "source": "3ad3a6ed01f02081f9e3ea4839205edabe9ed306",
+    "runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40784543921",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40784535362"
+    ],
+    "result": "551 passed / 9 failed / zero skipped in PR native suite; later cases stopped opening sessions with SQLSTATE 53300 (too many clients).",
+    "cause": "The shared harness retained every test session until suite teardown. Added contention cases exceeded the disposable server connection limit.",
+    "correction": "Close extra native sessions in afterEach, preserving all competing sessions until each test finishes. No raised database limits, removed assertions or weakened SQL guards."
+  }
 }
