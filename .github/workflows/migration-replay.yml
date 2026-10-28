@@ -887,7 +887,20 @@ jobs:
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
-          CREATE ROLE tf_document_catalog_reader NOLOGIN NOINHERIT;
+          DO $reader$
+          DECLARE reader_oid oid;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_catalog_reader') THEN
+              CREATE ROLE tf_document_catalog_reader NOLOGIN NOINHERIT;
+            END IF;
+            SELECT oid INTO reader_oid FROM pg_roles WHERE rolname='tf_document_catalog_reader'
+              AND NOT rolcanlogin AND NOT rolinherit AND NOT rolsuper AND NOT rolbypassrls
+              AND NOT rolcreaterole AND NOT rolcreatedb AND NOT rolreplication;
+            IF reader_oid IS NULL OR EXISTS(SELECT 1 FROM pg_auth_members WHERE member=reader_oid) THEN
+              RAISE EXCEPTION 'Catalog reader role is not isolated';
+            END IF;
+          END;
+          $reader$;
           GRANT USAGE ON SCHEMA public,storage TO tf_document_catalog_reader;
           SQL
           PGOPTIONS='-c default_transaction_read_only=on' PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \

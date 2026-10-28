@@ -57,5 +57,14 @@
     "FK CASCADE/SET NULL behavior must be reviewed for retention; constraint existence or a reference count never authorizes file deletion. Named storage_object_id/path references may lack foreign keys.",
     "The catalog-reader role exists only in disposable tests/CI, not in canonical migrations or any hosted database. Its lack of protected SELECT privileges is independently asserted.",
     "No terminal resolution, quota release, job retry, file/object/metadata IO, provider call, hosted fixture, new account/access relationship, permission migration, deployment or publication is performed. Provider immutable-version/physical-absence proof remains open."
-  ]
+  ],
+  "initial_catalog_harness_failure": {
+    "source": "6cea87093ef7a4dc4368e087075f903796dadef7",
+    "runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40754336591",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40754322609"
+    ],
+    "cause": "The native disposable test creates the catalog-reader role at cluster scope; later canonical-schema inventory attempted unconditional CREATE ROLE and stopped because the role already existed.",
+    "correction": "Reuse/create the role only after checking NOLOGIN, NOINHERIT, no elevated attributes and no memberships. Protected SELECT privilege/read-only/catalog assertions remain unchanged. No canonical permissions or proposal guards changed."
+  }
 }
