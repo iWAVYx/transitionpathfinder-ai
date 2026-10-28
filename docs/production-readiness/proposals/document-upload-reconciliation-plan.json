@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "Nine SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; guarded cleanup, storage enforcement and recovery remain blocking rollout gates.",
+  "status": "Ten SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, quotas, guarded cleanup and actual Storage acceptance remain rollout gates.",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -421,5 +421,40 @@
       "unit_role_static_readiness_accessibility": "passed",
       "protected_skipped": "Unperformed; no hosted acceptance."
     }
+  },
+  "review_hold_checkpoint": {
+    "date": "2026-10-28",
+    "status": "tenth proposal prepared; local disposable checks pass; native contention/full-schema CI pending; no hosted or application integration",
+    "source_base": "13d50b70",
+    "hosted_actions": false,
+    "canonical_migration_count": 210,
+    "noncanonical_proposal_count": 10,
+    "application_changed": false,
+    "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+    "application_file_count": 1199,
+    "proposal": "docs/production-readiness/proposals/document-upload-review-hold.sql",
+    "proposal_sha256": "81a1f12e31b7ef21be7f30c20f9316fe6cb089c6a5b068addd6777231d73468d",
+    "implemented": [
+      "An authenticated original uploader with unchanged review intent and current explicit edit access can request a durable review hold. The first reason/timestamp are retained. Repeating the same request returns the same receipt; foreign, registered, changed-reason and removed-access requests are denied.",
+      "Client Storage metadata INSERT requires the exact reserved actor/path and matching owner, in addition to existing permissive policies and current edit access. Anonymous database roles cannot use a forged subject or broad permissive grant to insert. Other buckets and trusted service maintenance retain existing policy behavior.",
+      "The insertion predicate holds the attempt FOR SHARE until the metadata transaction ends. Hold and registration lock the same attempt FOR UPDATE. No physical bytes, provider processing, reservation release, deletion or retry is performed.",
+      "Unknown preexisting review_required states cause installation to stop rather than inventing provenance. Direct ledger mutation and direct service/anonymous RPC execution remain unavailable."
+    ],
+    "checks": {
+      "local_disposable_passed": 346,
+      "native_only_skipped_locally": 19,
+      "credential_free_build_upload_channel_contracts": 70,
+      "application_identity": "unchanged; existing 5280-unit/TypeScript/capped-build proof is recorded on a42e0300, automatic checks of this proposal candidate pending",
+      "native_pending": "365 total native cases, including eight new observed hold/insert/registration lock races across COMMIT and ROLLBACK, and full 210-migration + ten-proposal replay/catalog verification."
+    },
+    "fixture_note": "Initial four empty-bucket expectations ignored the existing object-binding fixture. Assertions now preserve the complete before/after object snapshot, retaining strict denial and proving no prior object was removed.",
+    "limits": [
+      "Proposal only; no canonical/hosted migration, generated type update, app caller, UI hold action or authenticated hosted test is included.",
+      "The boundary gates committed Storage metadata rows, not the physical object-store upload transaction. Actual Storage API owner assignment/rollback/orphan behavior needs separate review and authorized acceptance.",
+      "Holds do not expire or release unique content claims. They can retain unresolved uploads and block later uploads/student deletion; guarded terminal recovery, quotas and retention rules remain required before promotion.",
+      "No deletion claim, Storage deletion receipt, independent absence check, cleanup worker or permanent-removal authority is implemented. Existing local permanent removal remains paused.",
+      "Attempt row locks do not atomically freeze every permission-graph edge, prove actual immutable bytes or attest consent/privacy/scan results. Trusted service storage writes remain outside the client restriction.",
+      "All TF-01\u2013TF-26/six milestones remain. Report polish/length and Parent Pilot/Pathway Snapshot remain deferred. Production/main and both stable staging sites are unchanged."
+    ]
   }
 }

@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 28 — Durable Review Hold and Reserved Storage Insert (Proposal Only)
+
+- [x] Prepared a tenth noncanonical proposal: the original uploader, with unchanged review intent and current explicit edit access, can place an unresolved attempt on a durable review hold. Same-request repeats preserve the first reason/time. Registered, foreign, changed-reason and revoked-access requests stop without changing files or links.
+- [x] Client Storage metadata INSERT now has a proposed restrictive check for the exact reserved actor/path/owner, retaining existing access policies. It locks the attempt for the metadata transaction; review hold and registration take conflicting locks. Anonymous roles and broad permissive grants cannot bypass the boundary. No service maintenance or other-bucket permission is expanded.
+- [x] Local disposable coverage passes 346 cases; 19 native-only cases are skipped locally. All 70 build/upload/channel contracts pass. App/Edge/generated-type source and application fingerprint are unchanged; canonical migration inventory stays 210. Initial fixture assertions were corrected to preserve preexisting objects, not delete them to obtain an empty bucket.
+- [ ] Complete exact-candidate native lock-race/full-schema proof and automatic review. This is not a terminal recovery or cleanup implementation. Caller integration, quotas, retention/release rules, exact deletion receipts/absence and hosted Storage behavior remain open before any promotion.
+
+Evidence: `production-readiness/evidence/document-upload-review-hold-local-2026-10-28.json`. No automatic expiry, physical-file IO, provider call, hosted fixture, migration, release/publication or production action. The metadata guard does not prove physical upload rollback or freeze the full permission graph. All TF-01–TF-26/six milestones remain; report polish/length and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 28 — Truthful Quarantine and Paused Unsafe Removal (Local Only)
 
 - [x] Registration/rescan now retain infected files in an explicitly blocked state instead of deleting bytes and claiming success without proof. Quarantine receipts must match the exact document/student/path/state; uncertain results stop without another scan or AI request. Previously infected/retired files cannot be rescanned. New application file links require a clean security state, including admin override links.

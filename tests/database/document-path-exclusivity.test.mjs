@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const reviewHoldProposal = readFileSync('docs/production-readiness/proposals/document-upload-review-hold.sql','utf8');
 const quarantineReadProposal = readFileSync('docs/production-readiness/proposals/document-quarantine-read-boundary.sql','utf8');
 const registrationProposal = readFileSync('docs/production-readiness/proposals/document-upload-registration.sql','utf8');
 const reservationProposal = readFileSync('docs/production-readiness/proposals/document-upload-reservations.sql','utf8');
@@ -84,7 +85,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -827,4 +828,109 @@ for(const finish of ['COMMIT','ROLLBACK']) test('new read observes infection onl
     await writer.exec(finish);
     assert.equal((await reader.query('SELECT id FROM storage.objects')).rows.length,finish==='COMMIT'?0:1);
   } finally {await writer.exec('ROLLBACK');}
+});
+
+// Tenth proposal: durable review hold + exact reserved client metadata insert.
+async function installReviewHold() {
+  await installReservations();await db.exec(registrationProposal);await db.exec(quarantineReadProposal);await db.exec(reviewHoldProposal);
+}
+async function hold(client=db,patch={}) {
+  const input={id:attemptId,review:reviewHash,reason:'upload_uncertain',...patch};
+  return (await client.query('SELECT public.hold_document_upload_for_review($1,$2,$3) AS receipt',[input.id,input.review,input.reason])).rows[0].receipt;
+}
+async function reservedObject(client=db,patch={}) {
+  const input={path:student+'/'+attemptId+'-privacy-safe-document.txt',owner:actors.family,bucket:'student-documents',...patch};
+  return client.query('INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES($1,$2,$3,$4) RETURNING id',[input.bucket,input.path,input.owner,'held-version-one']);
+}
+async function ownReviewIntent(actor=actors.family) {
+  await installReviewHold();await as(actor);return reserve();
+}
+for(const role of ['family','educator','student']) test('reserved storage insert and same-actor review hold work for '+role,async()=>{
+  await ownReviewIntent(actors[role]);assert.equal((await reservedObject(db,{owner:actors[role]})).rows.length,1);
+  const receipt=await hold();assert.equal(receipt.actor_id,actors[role]);assert.equal(receipt.state,'review_required');assert.equal(receipt.reason,'upload_uncertain');
+  const repeated=await hold();assert.deepEqual(repeated,receipt);await assert.rejects(reserve(),{code:'42501'});
+});
+for(const role of ['school','district','owner']) test('explicit '+role+' student editor can hold only their own reserved upload',async()=>{
+  await installReviewHold();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);await reserve();assert.equal((await reservedObject(db,{owner:actors[role]})).rows.length,1);assert.equal((await hold()).actor_id,actors[role]);
+});
+for(const [role,actor] of Object.entries(actors)) test('a foreign reservation gives no hold or upload authority to '+role,async()=>{
+  await ownReviewIntent();if(role==='family') {await hold();await assert.rejects(reservedObject(),{code:'42501'});return;}
+  await as(actor);await assert.rejects(hold(),{code:'42501'});await assert.rejects(reservedObject(db,{owner:actor}),{code:'42501'});
+  assert.equal((await registrationState()).state,'reserved');
+});
+for(const patch of [{id:uid(999)},{review:'e'.repeat(64)},{review:null},{reason:null},{reason:'free form private notes'},{id:null}]) test('hold rejects uncertain intent without creating a reservation '+JSON.stringify(patch),async()=>{
+  await ownReviewIntent();await assert.rejects(hold(db,patch),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
+});
+test('hold does not delete, modify or release an already uploaded copy or allow its registration',async()=>{
+  await ownReviewIntent();await reservedObject();await db.exec('RESET ROLE');const before=(await db.query('SELECT * FROM storage.objects')).rows;
+  await as();await hold();await assert.rejects(registerReserved(),{code:'42501'});await db.exec('RESET ROLE');assert.deepEqual((await db.query('SELECT * FROM storage.objects')).rows,before);assert.equal((await db.query('SELECT id FROM public.documents')).rows.length,0);assert.equal((await db.query('SELECT id FROM public.ai_jobs')).rows.length,0);
+});
+test('a completed registration cannot be held or silently unlinked',async()=>{
+  await ownReviewIntent();await reservedObject();const doc=await registerReserved();await assert.rejects(hold(),{code:'42501'});assert.equal((await readRegistration()).document_id,doc.id);assert.equal((await registrationState()).state,'registered');
+});
+test('removed access prevents a hold and a late upload without erasing the attempt',async()=>{
+  await ownReviewIntent(actors.educator);await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await as(actors.educator);await assert.rejects(hold(),{code:'42501'});await assert.rejects(reservedObject(db,{owner:actors.educator}),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
+});
+for(const role of ['anon','service_role']) test('hold RPC is unavailable to '+role,async()=>{
+  await ownReviewIntent();await as(actors.family,role);await assert.rejects(hold(),{code:'42501'});
+});
+for(const patch of [{path:student+'/unreserved-privacy-safe-document.txt'},{owner:actors.owner},{owner:null},{path:otherStudent+'/'+attemptId+'-privacy-safe-document.txt'}]) test('reserved client insert rejects unbound path/owner '+JSON.stringify(patch),async()=>{
+  await ownReviewIntent();await db.exec('RESET ROLE');const before=(await db.query('SELECT * FROM storage.objects ORDER BY id')).rows;await as();await assert.rejects(reservedObject(db,patch),{code:'42501'});await db.exec('RESET ROLE');assert.deepEqual((await db.query('SELECT * FROM storage.objects ORDER BY id')).rows,before);
+});
+test('a broad permissive policy and a spoofed role cannot create unreserved student metadata',async()=>{
+  await installReviewHold();await db.exec('CREATE POLICY test_broad_policy ON storage.objects FOR ALL TO anon,authenticated USING(true) WITH CHECK(true)');await as();await db.exec("SELECT set_config('request.jwt.claim.role','service_role',false)");await assert.rejects(reservedObject(),{code:'42501'});await db.exec("SELECT set_config('request.jwt.claim.role','',false)");
+});
+test('other buckets retain their own insert policy and service maintenance stays unchanged',async()=>{
+  await installReviewHold();await db.exec("CREATE POLICY test_other_bucket ON storage.objects FOR ALL TO authenticated USING(bucket_id='fixture-other-bucket') WITH CHECK(true)");await as();assert.equal((await reservedObject(db,{bucket:'fixture-other-bucket'})).rows.length,1);await as(actors.family,'service_role');assert.equal((await reservedObject()).rows.length,1);
+});
+test('hold reason and first timestamp cannot be changed by another idempotent request',async()=>{
+  await ownReviewIntent();const receipt=await hold();await assert.rejects(hold(db,{reason:'user_cancelled'}),{code:'42501'});assert.deepEqual(await hold(),receipt);
+});
+test('review hold creates no direct client or service mutation authority',async()=>{
+  await ownReviewIntent();for(const role of ['authenticated','service_role']) {await as(actors.family,role);await assert.rejects(db.query("UPDATE public.document_upload_attempts SET state='review_required' WHERE id=$1",[attemptId]),{code:'42501'});await assert.rejects(db.query('DELETE FROM public.document_upload_attempts WHERE id=$1',[attemptId]),{code:'42501'});}
+});
+test('unknown old review states stop installation without invented hold metadata',async()=>{
+  await installReservations();await db.exec(registrationProposal);await db.exec(quarantineReadProposal);await as();await reserve();await db.exec("RESET ROLE;UPDATE public.document_upload_attempts SET state='review_required'");
+  await assert.rejects(db.exec(reviewHoldProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema='public' AND table_name='document_upload_attempts' AND column_name='held_at'")).rows[0].n,0);
+});
+test('missing quarantine prerequisite stops hold/install atomically',async()=>{
+  await installReservations();await db.exec(registrationProposal);await assert.rejects(db.exec(reviewHoldProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regprocedure('public.hold_document_upload_for_review(uuid,text,text)') AS name")).rows[0].name,null);
+});
+test('review hold and reserved insert use fixed-path definer scope and narrow execution grants',async()=>{
+  await installReviewHold();for(const signature of ['public.hold_document_upload_for_review(uuid,text,text)','public.can_insert_reserved_student_document(text,text)']) {
+    const fn=(await db.query('SELECT prosecdef,provolatile,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows[0];assert.deepEqual(fn,{prosecdef:true,provolatile:'v',proconfig:['search_path=pg_catalog']});
+    for(const role of ['anon','authenticated','service_role']) assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS allowed",[role,signature])).rows[0].allowed,role==='authenticated');
+  }
+  const pol=(await db.query("SELECT polcmd,polpermissive FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname='student_document_reserved_insert'")).rows[0];assert.deepEqual(pol,{polcmd:'a',polpermissive:false});
+});
+
+test('anonymous role cannot insert even with a user-like claim and broad permissive policy',async()=>{
+  await ownReviewIntent();await db.exec('RESET ROLE;CREATE POLICY test_broad_policy ON storage.objects FOR ALL TO anon,authenticated USING(true) WITH CHECK(true)');await as(actors.family,'anon');await assert.rejects(reservedObject(),{code:'42501'});
+  await assert.rejects(db.query('SELECT public.can_insert_reserved_student_document($1,$2)',[student+'/'+attemptId+'-privacy-safe-document.txt',actors.family]),{code:'42501'});
+});
+for(const finish of ['COMMIT','ROLLBACK']) test('held review blocks a competing reserved insert only after '+finish,{skip:!native},async()=>{
+  await ownReviewIntent();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  await a.exec('BEGIN');await hold(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=reservedObject(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.result.rows.length,1);
+});
+for(const finish of ['COMMIT','ROLLBACK']) test('review hold waits for the exact in-flight storage metadata insert after '+finish,{skip:!native},async()=>{
+  await ownReviewIntent();await db.exec('RESET ROLE');const baseline=(await db.query('SELECT id FROM storage.objects')).rows.length;
+  const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  await a.exec('BEGIN');await reservedObject(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=hold(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.state,'review_required');
+  assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,baseline+(finish==='COMMIT'?1:0));
+});
+for(const finish of ['COMMIT','ROLLBACK']) test('registration waits for review hold and cannot consume it after '+finish,{skip:!native},async()=>{
+  await ownReviewIntent();await reservedObject();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  await a.exec('BEGIN');await hold(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=registerReserved(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.result.upload_attempt_id,attemptId);
+});
+for(const finish of ['COMMIT','ROLLBACK']) test('review hold cannot detach a registration racing through '+finish,{skip:!native},async()=>{
+  await ownReviewIntent();await reservedObject();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  await a.exec('BEGIN');const doc=await registerReserved(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=hold(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;if(finish==='COMMIT'){assert.equal(outcome.error?.code,'42501');assert.equal((await registrationState()).registered_document_id,doc.id);}else{assert.equal(outcome.result.state,'review_required');assert.equal((await registrationState()).registered_document_id,null);}
 });

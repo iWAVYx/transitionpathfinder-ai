@@ -668,6 +668,8 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-registration.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-quarantine-read-boundary.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-upload-review-hold.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -724,6 +726,25 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected retained-file read boundary'; END IF;
           END;
           $quarantine_verify$;
+          DO $review_hold_verify$
+          DECLARE signature text;
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+              AND polname='student_document_reserved_insert' AND polcmd='a' AND NOT polpermissive
+              AND cardinality(polroles)=2 AND polroles @> ARRAY['anon'::regrole::oid,'authenticated'::regrole::oid])
+              OR NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='public.document_upload_attempts'::regclass
+                AND conname='document_upload_attempts_hold_check' AND convalidated)
+            THEN RAISE EXCEPTION 'Unexpected review hold/storage insert boundary'; END IF;
+            FOREACH signature IN ARRAY ARRAY['public.hold_document_upload_for_review(uuid,text,text)','public.can_insert_reserved_student_document(text,text)'] LOOP
+              IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure
+                  AND prosecdef AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE')
+                OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+              THEN RAISE EXCEPTION 'Unexpected review hold execution boundary'; END IF;
+            END LOOP;
+          END;
+          $review_hold_verify$;
           DO $binding_verify$
           BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass
