@@ -521,10 +521,12 @@
     "next": "Design coordinated processing/reference writer fencing and actual provider immutable-version/absence verification before terminal resolution. Claim-only proof does not authorize file IO, quota release or cleanup."
   },
   "processing_reference_checkpoint": {
-    "status": "local processing-boundary and metadata inventory checks pass; exact-source native/full-schema audit pending",
+    "status": "Exact corrected candidate ea29cf2b passes all nine applicable checks; both native runs 522 passed/zero skips; restricted-reader metadata artifacts match exactly and are retained. No hosted acceptance.",
     "evidence": "docs/production-readiness/evidence/document-processing-reference-local-2026-10-28.json",
     "catalog_query": "docs/production-readiness/proposals/document-reference-catalog.sql",
     "boundary": "Verified summary source/completion rejects unregistered held uploads; metadata inventory does not freeze all writers or prove absence.",
-    "next": "Review full-schema FK/delete-action and JSON reference artifact; design retained processing/source identity and coordinated writer fencing before terminal resolution."
+    "next": "Review full-schema FK/delete-action and JSON reference artifact; design retained processing/source identity and coordinated writer fencing before terminal resolution.",
+    "snapshot": "docs/production-readiness/evidence/document-reference-catalog-2026-10-28.json",
+    "findings": "17 FK relationships, 29 named candidates, 101 plain JSON/JSONB columns and 21 routine candidates across the audited schema. Six document child relations cascade; document storage identity has no direct object FK; jobs have untyped document references. Candidate counts are not confirmed live references."
   }
 }

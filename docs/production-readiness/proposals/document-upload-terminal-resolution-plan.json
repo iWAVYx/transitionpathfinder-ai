@@ -32,12 +32,13 @@
     },
     {
       "id": "reference-and-retention",
-      "status": "partial local discovery only: read-only FK/delete-action/JSON/routine/grant catalog prepared; full-schema artifact pending; complete semantic inventory and writer fences remain open",
+      "status": "partial disposable discovery verified: candidate ea29cf2b passes both native/full-schema runs; matching metadata snapshot retained (17 FK, 29 named, 101 JSON, 21 routine candidates). Complete semantic inventory, retention decisions and writer fences remain open.",
       "requirements": [
         "Inventory all canonical and proposed references by exact id/path/version, including hidden/archived/deleted documents, reciprocal upload links, AI jobs and processing, evidence/source references, grants and required audit/retention records. Schema FKs alone miss JSON/text/external references.",
         "Lock or otherwise fence every relevant writer through terminal commit. A point-in-time count or caller-visible empty list is insufficient. Preserve referenced objects and retained audit records."
       ],
-      "prepared_checkpoint": "docs/production-readiness/evidence/document-processing-reference-local-2026-10-28.json"
+      "prepared_checkpoint": "docs/production-readiness/evidence/document-processing-reference-local-2026-10-28.json",
+      "catalog_snapshot": "docs/production-readiness/evidence/document-reference-catalog-2026-10-28.json"
     },
     {
       "id": "provider-capability",

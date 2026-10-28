@@ -1623,5 +1623,6 @@ The history migration is applied only to isolated staging under specific user au
 ### Processing and Reference Discovery — October 28, 2026
 
 - [x] Test held-upload rejection at the real verified-summary source/completion SQL boundary across six eligible roles. Prepare metadata-only reference discovery under a disposable reader with no protected-row SELECT privilege; local checks pass.
-- [ ] Verify full-schema inventory artifacts and native results; review FK delete actions, JSON/named references and candidate writers without treating the catalog as a complete semantic inventory.
+- [x] Verify corrected exact candidate `ea29cf2b`: both native runs 522 passed / zero skips, full replay/catalog audits and all nine applicable checks pass; both builds first attempt. Retain matching metadata-only snapshots and the original catalog-role setup failure.
+- [ ] Complete semantic review of FK delete actions, JSON/named references and candidate writers. Six document child cascades, untyped job references, legacy file_url and non-FK storage identity remain review gates; the catalog is not a complete semantic inventory.
 - [ ] Add reviewed durable processing/source binding and coordinated writer/retention fences; service direct writes, existing provider IO and unrelated job types are not fenced by these tests. No terminal action or hosted rollout is authorized.
