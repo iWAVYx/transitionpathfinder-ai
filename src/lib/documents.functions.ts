@@ -1,3 +1,4 @@
+import { documentRegistrationRequestSchema, documentUploadReservationRequestSchema, documentUploadRecoveryRequestSchema } from "./document-upload-intent";
 import { documentUploadFingerprint } from "./document-upload-fingerprint";
 import { documentUploadOutcome } from "./document-upload-outcome";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
@@ -65,44 +66,31 @@ export const listDocuments = createServerFn({ method: "POST" })
     return { documents: (rows ?? []) as DocumentRow[] };
   });
 
+export const reserveDocumentUpload = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i: unknown) => documentUploadReservationRequestSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    assertProtectedFileUploadsEnabled();
+    assertExpectedViewer(data, context.userId);
+    assertPrivacySafeDerivedUpload("privacy-safe-document.txt", data.mime_type ?? null);
+    const { reserveDocumentUploadIntent } = await import("./document-upload-reservation.server");
+    return reserveDocumentUploadIntent(context.supabase, context.userId, data);
+  });
+
+export const recoverDocumentUpload = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i: unknown) => documentUploadRecoveryRequestSchema.parse(i))
+  .handler(async ({ data, context }) => {
+    assertProtectedFileUploadsEnabled();
+    assertExpectedViewer(data, context.userId);
+    const { recoverDocumentUploadIntent } = await import("./document-upload-reservation.server");
+    return recoverDocumentUploadIntent(context.supabase, context.userId, data);
+  });
+
 export const registerDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>
-    z.object({
-      student_id: z.string().uuid(),
-      title: z.string().trim().min(1).max(200),
-      storage_path: z.string().trim().min(1).max(500),
-      mime_type: z.string().trim().max(120).optional(),
-      size_bytes: z.number().int().nonnegative().optional(),
-      doc_type: z.enum([
-        "iep",
-        "current-iep",
-        "previous-iep",
-        "evaluation",
-        "transition-plan",
-        "progress-report",
-        "meeting-notes",
-        "other",
-      ]).default("current-iep"),
-      visibility: z.enum(["private", "team", "family", "student"]).default("team"),
-      school_year: z.string().trim().max(20).optional(),
-      meeting_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-      effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-      review_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-      annual_review_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-      reevaluation_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-      notes: z.string().trim().max(2000).optional(),
-      source: z.string().trim().max(200).optional(),
-      consent_acknowledged: z.boolean().default(false),
-      content_hash: z.string().trim().regex(/^[a-f0-9]{64}$/i).optional(),
-      ...viewerIntentSchema.shape,
-    }).refine((data) => {
-      // Registration later reads/scans this object with server privileges.
-      // Accept only the canonical student folder and a single safe filename.
-      const parts = data.storage_path.split("/");
-      return parts.length === 2 && parts[0] === data.student_id &&
-        /^[a-zA-Z0-9._-]+$/.test(parts[1]) && ![".", ".."].includes(parts[1]);
-    }, { message: "The uploaded file does not match this student. Refresh the page before continuing.", path: ["storage_path"] }).parse(i),
+    documentRegistrationRequestSchema.parse(i),
   )
 
   .handler(async ({ data, context }) => {
@@ -147,6 +135,14 @@ export const registerDocument = createServerFn({ method: "POST" })
     const priority = ["student","parent","guardian","case_manager","educator","teacher","school_admin","district_admin","admin"];
     const uploaderRole = priority.find((r) => roleList.includes(r)) ?? roleList[0] ?? null;
 
+    // Reconfirm the exact reserved intent before any storage read or scan.
+    // Missing proposal RPCs fail closed; never fall back to unreserved inserts.
+    const { reserveDocumentUploadIntent } = await import("./document-upload-reservation.server");
+    const reservation = await reserveDocumentUploadIntent(supabase, userId, {
+      ...data, attempt_id: data.upload_attempt_id,
+    }, data.upload_review_context_sha256);
+    if (reservation.storage_path !== data.storage_path) throw new Error("The upload reservation could not be confirmed.");
+
     // Find an active org membership to stamp on the doc (best-effort).
     const { data: org } = await supabase
       .from("organization_memberships")
@@ -190,6 +186,8 @@ export const registerDocument = createServerFn({ method: "POST" })
     const correlationId = newCorrelationId();
     const uploadStartedAt = new Date().toISOString();
 
+    // Proposal columns are intentionally scoped here; canonical generated types
+    // remain unchanged until the reviewed migration is promoted.
     // Duplicate checks happen before browser storage upload. Do not return a
     // different path here: that would leave this attempted object unaccounted for.
     const { data: row, error } = await supabase
@@ -197,6 +195,8 @@ export const registerDocument = createServerFn({ method: "POST" })
       .insert({
         student_id: data.student_id,
         uploaded_by: userId,
+        upload_attempt_id: data.upload_attempt_id,
+        upload_review_context_sha256: data.upload_review_context_sha256,
         uploaded_by_role: uploaderRole,
         organization_id: org?.organization_id ?? null,
         title: data.title,
@@ -217,7 +217,7 @@ export const registerDocument = createServerFn({ method: "POST" })
         source: data.source ?? null,
         consent_acknowledged_at: data.consent_acknowledged ? new Date().toISOString() : null,
         content_hash: contentHash,
-      })
+      } as never)
       .select("*")
       .single();
     if (error || !row) {

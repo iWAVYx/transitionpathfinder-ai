@@ -12,11 +12,12 @@ vi.mock("../../src/lib/document-upload-duplicate.server", () => ({ hasVerifiedDo
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-correlation" }));
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan }));
-import { registerDocument, assertCanUploadForStudent } from "../../src/lib/documents.functions";
+import { registerDocument, assertCanUploadForStudent, reserveDocumentUpload, recoverDocumentUpload } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
-const filename = "123-privacy-safe-document.txt";
-const input = { student_id: student, title: "Fictional reviewed text", storage_path: `${student}/${filename}`, mime_type: "text/plain", consent_acknowledged: true };
+const attempt="44444444-4444-4444-8444-444444444444";
+const filename = attempt+"-privacy-safe-document.txt";
+const input = { upload_attempt_id:attempt, upload_review_context_sha256:"b".repeat(64), content_hash:"a".repeat(64), student_id: student, title: "Fictional reviewed text", storage_path: `${student}/${filename}`, mime_type: "text/plain", consent_acknowledged: true };
 const register = (patch: object = {}) => (registerDocument as any)({ data: { ...input, ...patch } });
 beforeEach(() => {
   vi.resetAllMocks(); api.duplicate.mockResolvedValue(false);
@@ -56,7 +57,7 @@ it.each([false, true])("requires edit access before stored-byte work as well (%s
   api.rpc.mockResolvedValue({ data: false, error: null });
   await expect(register(hash ? { content_hash: "a".repeat(64) } : {})).rejects.toThrow("couldn't confirm permission"); noProcessing();
 });
-it.each([filename, "privacy-safe-document.txt"])("preserves canonical reviewed-text registration (%s)", async name => {
+it.each([filename])("preserves canonical reviewed-text registration (%s)", async name => {
   await expect(register({ storage_path: `${student}/${name}` })).rejects.toThrow("reached caller table boundary");
   expect(api.rpc).toHaveBeenCalledExactlyOnceWith("can_edit_student", { _user_id: "current-viewer", _student_id: student });
   expect(api.from).toHaveBeenCalledExactlyOnceWith("user_roles");
@@ -107,4 +108,10 @@ it("does not inspect duplicate candidates after permission denial", async () => 
   api.rpc.mockResolvedValue({ data: false, error: null });
   await expect((assertCanUploadForStudent as any)({ data: { student_id: student, content_hash: "a".repeat(64) } })).rejects.toThrow("couldn't confirm permission");
   expect(api.duplicate).not.toHaveBeenCalled();
+});
+
+it.each([reserveDocumentUpload,recoverDocumentUpload])("new reservation/recovery endpoints retain the upload and viewer gates",async fn=>{
+  const data={...input,attempt_id:attempt,review_context_sha256:"b".repeat(64),expected_viewer_id:"departed-viewer"};
+  await expect((fn as any)({data})).rejects.toThrow("sign-in changed");expect(api.rpc).not.toHaveBeenCalled();
+  api.gate.mockImplementation(()=>{throw new Error("Uploads remain paused");});await expect((fn as any)({data:{...data,expected_viewer_id:"current-viewer"}})).rejects.toThrow("Uploads remain paused");expect(api.rpc).not.toHaveBeenCalled();
 });

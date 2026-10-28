@@ -14,13 +14,18 @@ vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: ap
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff, MAX_UPLOAD_BYTES: 25_000_000 }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan, MALWARE_SCAN_PROVIDER: "mock-scanner" }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { storage: { from: () => ({ remove: api.remove }) }, from: () => ({ update: api.cleanWrite }) } }));
+import { documentUploadReviewHash } from "../../src/lib/document-upload-intent";
 import { registerDocument } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const id = "22222222-2222-4222-8222-222222222222";
-const path = `${student}/123-privacy-safe-document.txt`;
+const attempt="44444444-4444-4444-8444-444444444444";
+const path = `${student}/${attempt}-privacy-safe-document.txt`;
 const pending = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", scan_status: "pending", review_status: "pending_review", archived_at: null, deleted_at: null };
 const clean = { ...pending, scan_status: "clean" };
-const register = (patch: object = {}) => (registerDocument as any)({ data: { student_id: student, title: pending.title, storage_path: path, mime_type: "text/plain", consent_acknowledged: true, ...patch } });
+const register = async (patch: object = {}) => {
+  const data={student_id:student,title:pending.title,storage_path:path,mime_type:"text/plain",consent_acknowledged:true,content_hash:createHash("sha256").update("Fictional reviewed source").digest("hex"),...patch};
+  return (registerDocument as any)({data:{...data,upload_attempt_id:attempt,upload_review_context_sha256:await documentUploadReviewHash("current-viewer",data)}});
+};
 beforeEach(() => {
   vi.resetAllMocks(); api.cleanWrite.mockReturnValue({ eq: () => ({ select: () => ({ single: api.clean }) }) }); api.pathAvailable.mockResolvedValue(undefined); api.download.mockResolvedValue({ data: new Blob(["Fictional reviewed source"]), error: null }); api.remove.mockResolvedValue({ error: null }); api.clean.mockResolvedValue({ data: clean, error: null });
   api.sniff.mockResolvedValue({ ok: true, detected_kind: "text" });
@@ -30,7 +35,7 @@ beforeEach(() => {
   api.insert.mockReturnValue({ select: () => ({ single: async () => ({ data: pending, error: null }) }) });
   const documentQuery = { insert: api.insert };
   api.enqueue.mockResolvedValue({ error: null });
-  api.context = { userId: "current-viewer", supabase: { storage: { from: () => ({ download: api.download }) }, rpc: async () => ({ data: true, error: null }), from: (table: string) => {
+  api.context = { userId: "current-viewer", supabase: { storage: { from: () => ({ download: api.download }) }, rpc: async (name:string,args:any) => name==="reserve_document_upload" ? ({data:{schema:"document-upload-reservation-v1",attempt_id:args._attempt_id,student_id:args._student_id,actor_id:"current-viewer",storage_path:path,state:"reserved"},error:null}) : ({ data: true, error: null }), from: (table: string) => {
     if (table === "user_roles") return roleQuery;
     if (table === "organization_memberships") return orgQuery;
     if (table === "documents") return documentQuery;
@@ -136,4 +141,12 @@ it("ignores a caller's proposed copy and still uses authenticated storage bytes"
   api.download.mockResolvedValue({ data: copy, error: null });
   await register({ reviewedCopy: new Blob(["Caller replacement"]) });
   expect(api.sniff.mock.calls[0][1]).toBe(copy); expect(api.scan.mock.calls[0][1]).toBe(copy);
+});
+
+it("fails closed on missing reservation RPC before storage or scanning, without an old insert fallback",async()=>{
+  const previous=api.context.supabase.rpc;api.context.supabase.rpc=async(name:string,args:any)=>name==="reserve_document_upload"?{data:null,error:{message:"PRIVATE missing function"}}:previous(name,args);
+  await expect(register()).rejects.toThrow("couldn't confirm this upload attempt");expect(api.download).not.toHaveBeenCalled();expect(api.insert).not.toHaveBeenCalled();expect(api.scan).not.toHaveBeenCalled();expect(api.enqueue).not.toHaveBeenCalled();
+});
+it("persists the exact reservation identifiers alongside the verified stored-byte hash",async()=>{
+  await register();const row=api.insert.mock.calls[0][0];expect(row.upload_attempt_id).toBe(attempt);expect(row.upload_review_context_sha256).toMatch(/^[a-f0-9]{64}$/);expect(row.content_hash).toBe(createHash("sha256").update("Fictional reviewed source").digest("hex"));
 });

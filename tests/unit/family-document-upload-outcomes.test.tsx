@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ register: vi.fn(), preflight: vi.fn(), upload: vi.fn(), refresh: vi.fn(), success: vi.fn(), info: vi.fn(), error: vi.fn(), file: null as any, reviewConfirm: null as any, hash: vi.fn() }));
+const api = vi.hoisted(() => ({ register: vi.fn(), reserve: vi.fn(), recover: vi.fn(), preflight: vi.fn(), upload: vi.fn(), refresh: vi.fn(), success: vi.fn(), info: vi.fn(), error: vi.fn(), file: null as any, reviewConfirm: null as any, hash: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: any) => <a>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { storage: { from: () => ({ upload: api.upload }) } } }));
-vi.mock("@/lib/documents.functions", () => ({ registerDocument: api.register, assertCanUploadForStudent: api.preflight }));
+vi.mock("@/lib/documents.functions", () => ({ registerDocument: api.register, reserveDocumentUpload: api.reserve, recoverDocumentUpload: api.recover, assertCanUploadForStudent: api.preflight }));
 vi.mock("@/lib/document-upload-fingerprint", () => ({ documentUploadFingerprint: api.hash }));
 vi.mock("@/lib/protected-file-uploads", () => ({ PROTECTED_FILE_UPLOADS_ENABLED: true, PROTECTED_FILE_UPLOADS_MESSAGE: "Paused" }));
 vi.mock("@/components/privacy/SensitiveFilePrivacyReviewDialog", () => ({ SensitiveFilePrivacyReviewDialog: ({ source, onConfirm }: any) => {
@@ -23,6 +23,7 @@ function pending() { let resolve!: (value: any) => void, reject!: (error: Error)
 beforeEach(() => {
   vi.resetAllMocks(); vi.spyOn(crypto, "randomUUID").mockReturnValue("44444444-4444-4444-8444-444444444444"); api.hash.mockResolvedValue("a".repeat(64));
   api.file = new File(["Fictional reviewed routine: two steps using written directions."], "privacy-safe-document.txt", { type: "text/plain" });
+  api.reserve.mockImplementation(async({data}:any)=>({schema:"document-upload-reservation-v1",attempt_id:data.attempt_id,actor_id:data.expected_viewer_id,student_id:data.student_id,storage_path:`${data.student_id}/${data.attempt_id}-privacy-safe-document.txt`,state:"reserved",review_context_sha256:"b".repeat(64)})); api.recover.mockRejectedValue(new Error("PRIVATE unavailable status"));
   api.preflight.mockResolvedValue({ ok: true }); api.upload.mockResolvedValue({ error: null }); api.register.mockResolvedValue(receipt()); api.refresh.mockResolvedValue(undefined);
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
@@ -175,4 +176,30 @@ it("uses different object IDs for separate attempts even without a clock change"
   expect(api.upload).toHaveBeenCalledTimes(2); expect(api.upload.mock.calls[0][0]).not.toBe(api.upload.mock.calls[1][0]);
   expect(api.upload.mock.calls[1][2]).toMatchObject({ upsert: false });
   expect(api.register.mock.calls[1][0].data.content_hash).toBe("a".repeat(64));
+});
+
+it.each([null,{}, {schema:"old"}])("stops before storage and pauses an uncertain reservation %j",async value=>{
+  api.reserve.mockResolvedValue(value);const view=open();await act(async()=>view.approve());
+  expect(api.upload).not.toHaveBeenCalled();expect(api.register).not.toHaveBeenCalled();expect(view.input.disabled).toBe(true);expect(api.error).toHaveBeenCalledWith(DOCUMENT_UPLOAD_UNCONFIRMED);
+});
+it("does not replay an unknown reservation write or expose its error",async()=>{
+  api.reserve.mockRejectedValue(new Error("PRIVATE reservation failure"));const view=open();await act(async()=>view.approve());
+  expect(api.upload).not.toHaveBeenCalled();expect(view.input.disabled).toBe(true);expect(api.error.mock.calls.flat().join(" ")).not.toContain("PRIVATE");
+  await act(async()=>api.reviewConfirm({file:api.file}));expect(api.reserve).toHaveBeenCalledOnce();
+});
+it.each(["pending","clean","failed"])("reconciles one lost registration response as %s without reupload or scan",async scan_status=>{
+  api.register.mockRejectedValue(new Error("PRIVATE lost response"));api.recover.mockResolvedValue(receipt({scan_status}));const view=open();await act(async()=>view.approve());
+  expect(api.reserve).toHaveBeenCalledOnce();expect(api.upload).toHaveBeenCalledOnce();expect(api.register).toHaveBeenCalledOnce();expect(api.recover).toHaveBeenCalledOnce();expect(api.refresh).toHaveBeenCalledOnce();
+  expect(api.recover.mock.calls[0][0].data).toMatchObject({attempt_id:"44444444-4444-4444-8444-444444444444",review_context_sha256:"b".repeat(64),expected_viewer_id:"current-viewer"});
+  expect(api.success).toHaveBeenCalledTimes(scan_status==="clean"?1:0);
+});
+it("freezes metadata while permission/reservation work is pending",async()=>{
+  const request=pending();api.preflight.mockReturnValueOnce(request.promise);const view=open();await act(async()=>view.approve());
+  fireEvent.change(screen.getByLabelText("Short title (optional)"),{target:{value:"Later changed title"}});
+  await act(async()=>request.resolve({ok:true}));expect(api.reserve.mock.calls[0][0].data.title).toBe("Fictional planning notes");expect(api.register.mock.calls[0][0].data.title).toBe("Fictional planning notes");
+});
+it.each(["reservation","recovery"].flatMap(stage=>["student","account","access","leave"].map(change=>[stage,change])))("stops departed %s work after %s changes",async(stage,change)=>{
+  const request=pending();if(stage==="reservation")api.reserve.mockReturnValueOnce(request.promise);else {api.register.mockRejectedValue(new Error("Lost"));api.recover.mockReturnValueOnce(request.promise);}
+  const view=open();await act(async()=>view.approve());await act(async()=>depart(view,change));await act(async()=>request.resolve(stage==="reservation"?{}:receipt()));
+  if(stage==="reservation")expect(api.upload).not.toHaveBeenCalled();expect(api.refresh).not.toHaveBeenCalled();expect(api.success).not.toHaveBeenCalled();expect(api.error).not.toHaveBeenCalled();
 });

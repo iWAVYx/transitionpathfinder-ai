@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "status": "Eight proposal-only boundaries prepared; document insert and reservation linkage now commit atomically in disposable tests. No canonical/hosted migration; caller/storage integration and trusted cleanup remain unimplemented.",
+  "status": "Eight SQL proposals plus local shared upload caller integration prepared and tested. No canonical/hosted migration or deployment; storage enforcement and safe removal remain blocking rollout gates.",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -299,5 +299,42 @@
     "native_contention": "Observed database blocking: two registration attempts consume the reservation exactly once after COMMIT or ROLLBACK, leaving exactly one linked document.",
     "automatic_checks": "All applicable checks pass, including both first-attempt builds, units, roles/readiness, accessibility and both native replays. No retry or memory-limit change. Protected skipped checks are unperformed; intermittent prior heap risk remains open.",
     "test_limits": "Disposable role fixture loads canonical access helpers/policies with narrow role/audience stubs; not live sign-in, complete organization-policy, Storage API or provider acceptance."
+  },
+  "caller_integration_checkpoint": {
+    "date": "2026-10-28",
+    "status": "local caller integration verified; candidate CI pending; not ready for hosted rollout",
+    "hosted_actions": false,
+    "application_fingerprint": "a54db47c961c6204b0f0de741fad67a9afc4d1677366afb58f6c84f570ee5af1",
+    "application_file_count": 1196,
+    "canonical_migration_count": 210,
+    "sql_changed": false,
+    "checks": {
+      "unit_tests_passed": 5245,
+      "unit_files": 347,
+      "typescript": "passed",
+      "local_isolated_staging_build": "passed; does not exercise constrained Lovable heap profile",
+      "service_worker_generation": "passed explicitly",
+      "student_channel_privacy_static_contracts": 32,
+      "prior_sql_proposal_proof": "282 native cases and full 210-migration replay plus eight proposals pass on 14888a42; no SQL changes this turn"
+    },
+    "implemented": [
+      "Shared authorized student document panel captures review metadata before asynchronous work and reserves a unique attempt before private storage upload. Verified duplicate discovery remains before reservation/storage.",
+      "Server recomputes a deterministic actor-bound digest over normalized review fields, consent claim and content hash; registration rechecks the same reserved intent before download/scan and supplies exact proposal columns. This digest is not a consent, redaction, scan or byte attestation.",
+      "Missing RPCs, malformed/foreign receipts, unknown reservation completion or review changes stop without an old unreserved-insert fallback. No generated canonical types or permissions are changed.",
+      "If registration fails or returns an incomplete receipt, the active caller makes one read-only receipt lookup. A confirmed pending/blocked/clean state is reported accurately; an unknown result pauses further uploads without repeating storage, scan, registration or generation.",
+      "Session changes during reservation or recovery discard later UI callbacks. The same component/server checks serve applicable roles; read-only and partner restrictions remain."
+    ],
+    "test_corrections": [
+      "One older UI fixture returned a fixed path for a second attempt. It now returns each requested attempt path; the strict receipt check is retained.",
+      "A static IEP privacy test expected a removed 100000-character slice. It now requires the existing bounded 120000-character input and redacted full-text interpolation, rejects raw input interpolation, and leaves IEP runtime unchanged."
+    ],
+    "remaining_rollout_gates": [
+      "Do not deploy callers without reviewed/authorized promotion of all eight SQL proposals; missing functions intentionally block uploads. Canonical inventory remains 210.",
+      "Review/replace existing infected-file purge and admin hard-delete handlers before rollout: their deletion receipts/absence are not verified, and a storage deletion can precede database failure. No cleanup safety is claimed.",
+      "Add reservation-gated Storage INSERT, guarded trusted recovery/terminal states, quotas, exact reference inventory/deletion claims/receipts and independent absence proof. No automatic expiry or cleanup authority is added.",
+      "Remote immutable-byte guarantees, hosted Storage behavior, permission-graph races and a separately authorized all-role/provider/fixture acceptance run remain open.",
+      "Production protected uploads remain disabled by the unchanged environment/backend gate. Existing hosted staging/runtime is unchanged."
+    ],
+    "prior_ci_note": "Evidence-only 1b01012d had one confirmed Node heap failure and a passing parallel build; intermittent capped-build risk remains open, not fixed by this integration."
   }
 }

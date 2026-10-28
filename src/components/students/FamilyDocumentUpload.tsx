@@ -1,3 +1,4 @@
+import { confirmDocumentUploadReservation } from "@/lib/document-upload-intent";
 import { documentUploadFingerprint } from "@/lib/document-upload-fingerprint";
 import { documentUploadOutcome, DOCUMENT_UPLOAD_UNCONFIRMED } from "@/lib/document-upload-outcome";
 import { useEffect, useRef, useState } from "react";
@@ -42,6 +43,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   assertCanUploadForStudent,
   registerDocument,
+  reserveDocumentUpload,
+  recoverDocumentUpload,
   type DocumentRow,
 } from "@/lib/documents.functions";
 import {
@@ -168,6 +171,8 @@ function FamilyDocumentUploadSession({
   canEdit = true,
 }: Props) {
   const register = useServerFn(registerDocument);
+  const reserve = useServerFn(reserveDocumentUpload);
+  const recover = useServerFn(recoverDocumentUpload);
   const assertCanUpload = useServerFn(assertCanUploadForStudent);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -214,9 +219,29 @@ function FamilyDocumentUploadSession({
       toast.error("Please confirm the privacy notice below before uploading.");
       return;
     }
+    // Capture the reviewed metadata before asynchronous work; later edits cannot
+    // silently change this attempt's review/registration intent.
+    const details = {
+      student_id: studentId,
+      expected_viewer_id: viewerId,
+      title: (title.trim() || file.name).slice(0, 200),
+      mime_type: file.type || undefined,
+      size_bytes: file.size,
+      doc_type: docType,
+      visibility,
+      school_year: schoolYear.trim() || undefined,
+      meeting_date: meetingDate || undefined,
+      review_date: reviewDate || undefined,
+      annual_review_date: annualReviewDate || undefined,
+      reevaluation_date: reevaluationDate || undefined,
+      notes: notes.trim() || undefined,
+      source: source.trim() || undefined,
+      consent_acknowledged: true,
+    };
     uploadPending.current = true;
     setBusy(true);
     let writeAttempted = false;
+    let reservationAttempted = false;
     let prepared = false;
     function pauseUnconfirmed() {
       uploadUnconfirmed.current = true;
@@ -237,36 +262,34 @@ function FamilyDocumentUploadSession({
         }
         return;
       }
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
-      const path = `${studentId}/${crypto.randomUUID()}-${safeName}`;
+      const attemptId = crypto.randomUUID();
+      const intent = { ...details, content_hash: contentHash, attempt_id: attemptId };
+      reservationAttempted = true;
+      const reserved = await reserve({ data: intent });
+      if (!active.current) return;
+      const reservation = confirmDocumentUploadReservation(reserved, viewerId, studentId, attemptId);
+      const path = reservation.storage_path;
       writeAttempted = true;
       const { error: upErr } = await supabase.storage
         .from("student-documents")
         .upload(path, file, { contentType: file.type, upsert: false });
       if (!active.current) return;
       if (upErr) throw upErr;
-      const receipt = await register({
-        data: {
-          student_id: studentId,
-          expected_viewer_id: viewerId,
-          content_hash: contentHash,
-          title: (title.trim() || file.name).slice(0, 200),
-          storage_path: path,
-          mime_type: file.type || undefined,
-          size_bytes: file.size,
-          doc_type: docType,
-          visibility,
-          school_year: schoolYear.trim() || undefined,
-          meeting_date: meetingDate || undefined,
-          review_date: reviewDate || undefined,
-          annual_review_date: annualReviewDate || undefined,
-          reevaluation_date: reevaluationDate || undefined,
-          notes: notes.trim() || undefined,
-          source: source.trim() || undefined,
-          consent_acknowledged: true,
-        },
-      });
+      let receipt: unknown;
+      try {
+        receipt = await register({ data: {
+          ...intent, storage_path: path,
+          upload_attempt_id: attemptId,
+          upload_review_context_sha256: reservation.review_context_sha256,
+        } });
+      } catch { receipt = null; }
       if (!active.current) return;
+      // One read-only reconciliation. Never repeat upload, scan or generation.
+      if (documentUploadOutcome(receipt, studentId, path) === "uncertain") {
+        try { receipt = await recover({ data: { ...intent, review_context_sha256: reservation.review_context_sha256 } }); }
+        catch { receipt = null; }
+        if (!active.current) return;
+      }
       const outcome = documentUploadOutcome(receipt, studentId, path);
       if (outcome === "uncertain") {
         pauseUnconfirmed();
@@ -298,7 +321,7 @@ function FamilyDocumentUploadSession({
       if (!active.current) return;
       // Do not expose filenames, storage paths or private service errors.
       // A lost write response does not prove that no file or row was saved.
-      if (writeAttempted) pauseUnconfirmed();
+      if (writeAttempted || reservationAttempted) pauseUnconfirmed();
       else if (!prepared) toast.error("We couldn't prepare this privacy-safe copy. Choose it again before continuing.");
       else toast.error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     } finally {

@@ -1,5 +1,16 @@
 # Production release checklist
 
+## October 28 — Reserved Upload Caller and Read-Only Recovery (Local Only)
+
+- [x] Shared document upload panel now freezes review details, reserves an attempt before storage and carries its exact ID/path/review digest into registration. Server registration recomputes that actor-bound intent before reading/scanning; missing RPCs or mismatches stop with no unreserved-write fallback. Verified duplicate checks remain before storage.
+- [x] A failed/incomplete registration response gets one read-only recovery lookup. Confirmed pending/blocked/clean states are reported without another upload, scan or generation; unknown completion pauses the form. Account/student/access/departure changes reject late reservation and recovery callbacks. This shared path applies to every authorized role using the document panel.
+- [x] All 5,245 unit tests across 347 files, TypeScript, isolated staging build, explicit service-worker generation and 32 upload/privacy/channel contracts pass. SQL is unchanged; prior 282 native cases/full 210-migration plus eight-proposal proof remains applicable. Current candidate automatic checks are pending.
+- [ ] Coordinate reviewed SQL promotion before any caller rollout. No proposal is canonical/applied hosted; a missing function deliberately blocks uploads. Keep production protected uploads disabled under the unchanged gate.
+- [ ] Resolve existing purge/hard-delete receipt/absence gaps, reservation-gated Storage INSERT, terminal recovery/quotas and exact reference-safe cleanup before hosted acceptance. This change introduces no deletion authority, expiry or permission expansion.
+
+Evidence: `production-readiness/evidence/document-upload-callers-local-2026-10-28.json`. New local application fingerprint is `a54db47c…70ee5af1` / 1,196 files; hosted staging remains unchanged. Review digests are intent identifiers, not privacy/consent/byte or malware attestations. The local isolated build does not prove the capped Lovable heap profile; the earlier evidence-only `1b01012d` has a recorded heap failure. No hosted migration, deployment/publication, provider call, fixture or production action. All TF-01–TF-26/six milestones remain; report polish and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 27 — Atomic Upload Registration Link (Proposal Only)
 
 - [x] Prepared an eighth noncanonical proposal linking each new document to its exact reserved actor/student/path/content/review-context intent. A BEFORE guard locks the attempt; an AFTER insert links one document atomically. Existing object-binding, ordinary row permissions and pending-only scan protections remain effective. Legacy documents remain unlinked.
