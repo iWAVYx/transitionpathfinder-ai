@@ -1,0 +1,1830 @@
+{
+  "schema": "document-reference-catalog-v1",
+  "targets": [
+    {
+      "name": "public.documents",
+      "present": true
+    },
+    {
+      "name": "public.document_upload_attempts",
+      "present": true
+    },
+    {
+      "name": "public.document_upload_resolution_claims",
+      "present": true
+    },
+    {
+      "name": "storage.objects",
+      "present": true
+    }
+  ],
+  "triggers": [
+    {
+      "name": "admin_doc_access_grants_immutable",
+      "enabled": "O",
+      "table_name": "public.admin_doc_access_grants",
+      "function_signature": "tg_admin_doc_access_grants_immutable()"
+    },
+    {
+      "name": "ai_jobs_guard_bound_document_source",
+      "enabled": "O",
+      "table_name": "public.ai_jobs",
+      "function_signature": "guard_bound_document_summary_job()"
+    },
+    {
+      "name": "trg_aijobs_updated",
+      "enabled": "O",
+      "table_name": "public.ai_jobs",
+      "function_signature": "set_updated_at()"
+    },
+    {
+      "name": "document_extractions_set_updated_at",
+      "enabled": "O",
+      "table_name": "public.document_extractions",
+      "function_signature": "set_updated_at()"
+    },
+    {
+      "name": "set_document_permissions_updated_at",
+      "enabled": "O",
+      "table_name": "public.document_permissions",
+      "function_signature": "set_updated_at()"
+    },
+    {
+      "name": "update_document_pipeline_runs_updated_at",
+      "enabled": "O",
+      "table_name": "public.document_pipeline_runs",
+      "function_signature": "set_document_pipeline_runs_updated_at()"
+    },
+    {
+      "name": "trg_ds_updated",
+      "enabled": "O",
+      "table_name": "public.document_summaries",
+      "function_signature": "set_updated_at()"
+    },
+    {
+      "name": "document_source_binding_immutable",
+      "enabled": "O",
+      "table_name": "public.document_summary_source_bindings",
+      "function_signature": "reject_document_source_binding_mutation()"
+    },
+    {
+      "name": "upload_attempt_resolution_frozen",
+      "enabled": "O",
+      "table_name": "public.document_upload_attempts",
+      "function_signature": "guard_claimed_upload_attempt()"
+    },
+    {
+      "name": "upload_resolution_claim_immutable",
+      "enabled": "O",
+      "table_name": "public.document_upload_resolution_claims",
+      "function_signature": "reject_upload_resolution_claim_mutation()"
+    },
+    {
+      "name": "documents_aa_guard_upload_registration",
+      "enabled": "O",
+      "table_name": "public.documents",
+      "function_signature": "guard_document_upload_registration()"
+    },
+    {
+      "name": "documents_enforce_storage_path",
+      "enabled": "O",
+      "table_name": "public.documents",
+      "function_signature": "tg_documents_enforce_storage_path()"
+    },
+    {
+      "name": "documents_guard_scan_state",
+      "enabled": "O",
+      "table_name": "public.documents",
+      "function_signature": "guard_document_scan_state()"
+    },
+    {
+      "name": "documents_guard_storage_binding",
+      "enabled": "O",
+      "table_name": "public.documents",
+      "function_signature": "guard_document_storage_binding()"
+    },
+    {
+      "name": "documents_link_upload_registration",
+      "enabled": "O",
+      "table_name": "public.documents",
+      "function_signature": "link_document_upload_registration()"
+    },
+    {
+      "name": "set_updated_at_documents",
+      "enabled": "O",
+      "table_name": "public.documents",
+      "function_signature": "set_updated_at()"
+    }
+  ],
+  "reader_role": "tf_document_catalog_reader",
+  "foreign_keys": [
+    {
+      "name": "admin_doc_access_grants_actor_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.admin_doc_access_grants",
+      "target_table": "auth.users",
+      "delete_action": "cascade",
+      "source_columns": [
+        "actor_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "admin_doc_access_grants_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.admin_doc_access_grants",
+      "target_table": "public.documents",
+      "delete_action": "cascade",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "ai_jobs_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.ai_jobs",
+      "target_table": "public.students",
+      "delete_action": "cascade",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_access_log_actor_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_access_log",
+      "target_table": "auth.users",
+      "delete_action": "cascade",
+      "source_columns": [
+        "actor_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_access_log_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_access_log",
+      "target_table": "public.documents",
+      "delete_action": "cascade",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_access_log_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_access_log",
+      "target_table": "public.students",
+      "delete_action": "cascade",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_extractions_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_extractions",
+      "target_table": "public.documents",
+      "delete_action": "cascade",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_extractions_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_extractions",
+      "target_table": "public.students",
+      "delete_action": "cascade",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_permissions_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_permissions",
+      "target_table": "public.documents",
+      "delete_action": "cascade",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_permissions_granted_by_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_permissions",
+      "target_table": "auth.users",
+      "delete_action": "no_action",
+      "source_columns": [
+        "granted_by"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_permissions_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_permissions",
+      "target_table": "public.students",
+      "delete_action": "cascade",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_permissions_user_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_permissions",
+      "target_table": "auth.users",
+      "delete_action": "cascade",
+      "source_columns": [
+        "user_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_pipeline_runs_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_pipeline_runs",
+      "target_table": "public.documents",
+      "delete_action": "cascade",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_pipeline_runs_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_pipeline_runs",
+      "target_table": "public.students",
+      "delete_action": "set_null",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_summaries_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_summaries",
+      "target_table": "public.documents",
+      "delete_action": "cascade",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_summaries_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_summaries",
+      "target_table": "public.students",
+      "delete_action": "cascade",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_summary_source_bindings_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_summary_source_bindings",
+      "target_table": "public.documents",
+      "delete_action": "restrict",
+      "source_columns": [
+        "document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_summary_source_bindings_job_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_summary_source_bindings",
+      "target_table": "public.ai_jobs",
+      "delete_action": "restrict",
+      "source_columns": [
+        "job_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_summary_source_bindings_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_summary_source_bindings",
+      "target_table": "public.students",
+      "delete_action": "restrict",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_upload_attempts_registered_document_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_upload_attempts",
+      "target_table": "public.documents",
+      "delete_action": "restrict",
+      "source_columns": [
+        "registered_document_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_upload_attempts_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_upload_attempts",
+      "target_table": "public.students",
+      "delete_action": "restrict",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_upload_resolution_claims_attempt_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.document_upload_resolution_claims",
+      "target_table": "public.document_upload_attempts",
+      "delete_action": "restrict",
+      "source_columns": [
+        "attempt_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "documents_archived_by_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.documents",
+      "target_table": "auth.users",
+      "delete_action": "set_null",
+      "source_columns": [
+        "archived_by"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "documents_deleted_by_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.documents",
+      "target_table": "auth.users",
+      "delete_action": "set_null",
+      "source_columns": [
+        "deleted_by"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "documents_organization_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.documents",
+      "target_table": "public.organizations",
+      "delete_action": "set_null",
+      "source_columns": [
+        "organization_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "documents_reviewed_by_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.documents",
+      "target_table": "auth.users",
+      "delete_action": "set_null",
+      "source_columns": [
+        "reviewed_by"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "documents_student_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.documents",
+      "target_table": "public.students",
+      "delete_action": "cascade",
+      "source_columns": [
+        "student_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "documents_upload_attempt_id_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "public.documents",
+      "target_table": "public.document_upload_attempts",
+      "delete_action": "restrict",
+      "source_columns": [
+        "upload_attempt_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "objects_bucketId_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "storage.objects",
+      "target_table": "storage.buckets",
+      "delete_action": "no_action",
+      "source_columns": [
+        "bucket_id"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    },
+    {
+      "name": "objects_owner_fkey",
+      "validated": true,
+      "deferrable": false,
+      "source_table": "storage.objects",
+      "target_table": "auth.users",
+      "delete_action": "no_action",
+      "source_columns": [
+        "owner"
+      ],
+      "target_columns": [
+        "id"
+      ]
+    }
+  ],
+  "cleanup_authorized": false,
+  "routine_candidates": [
+    {
+      "settings": [
+        "search_path=\"\""
+      ],
+      "signature": "public.apply_student_chat_removal(p_student uuid, p_user uuid, p_history text)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=public"
+      ],
+      "signature": "public.can_edit_student(_user_id uuid, _student_id uuid)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.can_insert_reserved_student_document(_path text, _owner text)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=\"\""
+      ],
+      "signature": "public.can_read_chat_history_attachment(p_path text)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.can_read_document_summary_job(_user_id uuid, _student_id uuid, _document_id text)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=public"
+      ],
+      "signature": "public.can_view_document(_user_id uuid, _document_id uuid)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.claim_document_upload_resolution(_attempt_id uuid, _review_context_sha256 text, _operation_id uuid)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.complete_verified_document_summary(_job_id uuid, _claim_at timestamp with time zone, _attempt integer, _actor_id uuid, _student_id uuid, _document_id uuid, _object_id uuid, _object_version text, _content_sha256 text, _privacy_context jsonb, _payload jsonb)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.guard_bound_document_summary_job()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.guard_claimed_upload_attempt()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.guard_document_storage_binding()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.guard_document_upload_registration()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.has_explicit_planning_student_access(_student_id uuid, _require_edit boolean)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.hold_document_upload_for_review(_attempt_id uuid, _review_context_sha256 text, _reason text)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.link_document_upload_registration()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.read_document_upload_recovery(_attempt_id uuid, _review_context_sha256 text)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.read_document_upload_registration(_attempt_id uuid, _review_context_sha256 text)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.read_verified_document_summary_source(_job_id uuid, _claim_at timestamp with time zone, _attempt integer)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.reject_document_source_binding_mutation()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.reserve_document_upload(_attempt_id uuid, _student_id uuid, _claimed_content_sha256 text, _review_context_sha256 text)",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=public"
+      ],
+      "signature": "public.storage_can_read_student_doc(_user_id uuid, _path text)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.student_document_not_blocked(_path text)",
+      "volatility": "s",
+      "routine_kind": "f",
+      "security_definer": true
+    },
+    {
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "signature": "public.tg_documents_enforce_storage_path()",
+      "volatility": "v",
+      "routine_kind": "f",
+      "security_definer": false
+    }
+  ],
+  "data_rows_inspected": false,
+  "catalog_metadata_only": true,
+  "read_only_transaction": true,
+  "effective_table_grants": [
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.admin_doc_access_grants",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.admin_doc_access_grants",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.admin_doc_access_grants",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.ai_jobs",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.ai_jobs",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.ai_jobs",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_access_log",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_access_log",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_access_log",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_extractions",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_extractions",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_extractions",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_permissions",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_permissions",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_permissions",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_pipeline_runs",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_pipeline_runs",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_pipeline_runs",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_summaries",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_summaries",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.document_summaries",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_summary_source_bindings",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_summary_source_bindings",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_summary_source_bindings",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_upload_attempts",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": true,
+      "can_update": false,
+      "table_name": "public.document_upload_attempts",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": true,
+      "can_update": false,
+      "table_name": "public.document_upload_attempts",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_upload_resolution_claims",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": true,
+      "can_update": false,
+      "table_name": "public.document_upload_resolution_claims",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.document_upload_resolution_claims",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": false,
+      "can_insert": false,
+      "can_select": false,
+      "can_update": false,
+      "table_name": "public.documents",
+      "can_truncate": false
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.documents",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "public.documents",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "anon",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "storage.objects",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "authenticated",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "storage.objects",
+      "can_truncate": true
+    },
+    {
+      "rls": true,
+      "force_rls": false,
+      "role_name": "service_role",
+      "can_delete": true,
+      "can_insert": true,
+      "can_select": true,
+      "can_update": true,
+      "table_name": "storage.objects",
+      "can_truncate": true
+    }
+  ],
+  "untyped_json_candidates": [
+    {
+      "data_type": "jsonb",
+      "table_name": "public.activity_history",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.admin_activity_logs",
+      "column_name": "details"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.ai_jobs",
+      "column_name": "input_source"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.ai_jobs",
+      "column_name": "result_payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.audit_log",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.bridgeforward_readiness_snapshots",
+      "column_name": "before_high_school_checklist"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.bridgeforward_readiness_snapshots",
+      "column_name": "thirty_day_plan"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.bridgeforward_school_matches",
+      "column_name": "reasons"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.bridgeforward_school_matches",
+      "column_name": "student_factors"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.bridgeforward_source_records",
+      "column_name": "normalized"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.bridgeforward_source_records",
+      "column_name": "raw"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.calendar_events",
+      "column_name": "reminder_settings"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.channel_actions",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.channel_audit_events",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.demo_meeting_edits",
+      "column_name": "agenda"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.demo_meeting_edits",
+      "column_name": "minutes"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_access_log",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_extractions",
+      "column_name": "raw_extract"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_extractions",
+      "column_name": "sections"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_pipeline_runs",
+      "column_name": "payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "goals_identified"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "important_dates"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "key_findings"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "missing_information"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "needs_identified"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "recommended_followups"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.document_summaries",
+      "column_name": "strengths_identified"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.documents",
+      "column_name": "parsed_summary"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.documents",
+      "column_name": "scan_verdict"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.email_send_log",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.entitlement_audit_events",
+      "column_name": "after_state"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.entitlement_audit_events",
+      "column_name": "before_state"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.evidence_items",
+      "column_name": "payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.feed_events",
+      "column_name": "payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.form_responses",
+      "column_name": "answers"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.form_templates",
+      "column_name": "schema"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.high_school_fit_reviews",
+      "column_name": "comparison_priorities"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.iep_access_alerts",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.jurisdiction_resource_packs",
+      "column_name": "payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.jurisdiction_versions",
+      "column_name": "planning_rules"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.jurisdiction_versions",
+      "column_name": "privacy_requirements"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.jurisdiction_versions",
+      "column_name": "role_labels"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.jurisdiction_versions",
+      "column_name": "terminology"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.license_lifecycle_events",
+      "column_name": "payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.messages",
+      "column_name": "attachments"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.next_actions",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.obs_alert_state",
+      "column_name": "last_payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.obs_events",
+      "column_name": "attributes"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.obs_events",
+      "column_name": "error"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.org_access_audit",
+      "column_name": "context"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.page_sections",
+      "column_name": "content"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.partner_impact_events",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.partner_opportunities",
+      "column_name": "related_career_clusters"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.partner_opportunities",
+      "column_name": "required_documents"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.partner_opportunities",
+      "column_name": "support_needs_accepted"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.partner_opportunities",
+      "column_name": "support_needs_fit"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_knowledge_sources",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "action_steps_1_year"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "action_steps_30_days"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "action_steps_6_months"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "action_steps_90_days"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "career_clusters"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "community_based_experiences"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "credentials_or_training"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "possible_barriers"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "related_strengths"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "school_based_experiences"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "suggested_courses"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "suggested_programs"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_recommendations",
+      "column_name": "supports_needed"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_report_versions",
+      "column_name": "content"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "career_matches"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "content"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "family_action_plan"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "iep_transition_translator"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "knowledge_snapshot"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "meeting_prep_summary"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "missing_information"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "opportunity_matches"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "readiness_scorecard_summary"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "recommended_pathways"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "resource_recommendations"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "strengths_needs_analysis"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "student_snapshot"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_reports",
+      "column_name": "teacher_action_plan"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_rules_versions",
+      "column_name": "ruleset"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.pathway_shadow_run_log",
+      "column_name": "diff"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.ppt_meeting_preps",
+      "column_name": "agenda"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.profiles",
+      "column_name": "onboarding_answers"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.security_events",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.sharing_permissions",
+      "column_name": "shared_items"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.site_settings",
+      "column_name": "setting_value"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.student_workflow_drafts",
+      "column_name": "payload"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.suppressed_emails",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.testing_scripts",
+      "column_name": "checklist"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.usage_events",
+      "column_name": "metadata"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.user_ui_prefs",
+      "column_name": "accessibility"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.user_ui_prefs",
+      "column_name": "dashboard_layout"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.user_ui_prefs",
+      "column_name": "onboarding"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "public.user_ui_prefs",
+      "column_name": "report_viewer"
+    },
+    {
+      "data_type": "jsonb",
+      "table_name": "storage.objects",
+      "column_name": "metadata"
+    }
+  ],
+  "named_reference_candidates": [
+    {
+      "data_type": "uuid",
+      "table_name": "public.activity_history",
+      "column_name": "related_document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.admin_doc_access_grants",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.channel_attachments",
+      "column_name": "file_name"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.channel_attachments",
+      "column_name": "storage_path"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.channel_history_attachments",
+      "column_name": "attachment_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.channel_history_attachments",
+      "column_name": "file_name"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.channel_history_attachments",
+      "column_name": "storage_object_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.channel_history_attachments",
+      "column_name": "storage_path"
+    },
+    {
+      "data_type": "timestamp with time zone",
+      "table_name": "public.channel_history_attachments",
+      "column_name": "storage_updated_at"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_access_log",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_extractions",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_permissions",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_pipeline_runs",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_summaries",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_summary_source_bindings",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_summary_source_bindings",
+      "column_name": "object_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.document_summary_source_bindings",
+      "column_name": "object_version"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.document_summary_source_bindings",
+      "column_name": "storage_path"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.document_upload_attempts",
+      "column_name": "registered_document_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.document_upload_attempts",
+      "column_name": "storage_path"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "document_category"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "file_name"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "file_type"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "file_url"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.documents",
+      "column_name": "storage_object_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "storage_object_version"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "storage_path"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.documents",
+      "column_name": "upload_attempt_id"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.documents",
+      "column_name": "upload_review_context_sha256"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.iep_access_alerts",
+      "column_name": "document_id"
+    },
+    {
+      "data_type": "bigint",
+      "table_name": "public.media_assets",
+      "column_name": "file_size"
+    },
+    {
+      "data_type": "text",
+      "table_name": "public.media_assets",
+      "column_name": "storage_path"
+    },
+    {
+      "data_type": "uuid",
+      "table_name": "public.next_actions",
+      "column_name": "related_document_id"
+    }
+  ],
+  "reader_can_select_job_rows": false,
+  "reference_inventory_complete": false,
+  "reader_can_select_protected_relations": false
+}

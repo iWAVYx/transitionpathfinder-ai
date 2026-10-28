@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "Prepared locally; exact-source native concurrency/full-schema CI pending; no hosted acceptance",
+  "status": "Verified corrected candidate fa9eb716 passes all nine applicable checks; both native runs 560 passed/zero skips; full 210 canonical migrations plus fourteen proposals and matching restricted metadata catalogs pass. No hosted acceptance.",
   "source_base": "0fb7a447",
   "proposal": "docs/production-readiness/proposals/document-summary-source-binding.sql",
   "proposal_sha256": "889c67343813028d24a232035d3670af2ecb79b0848d57c928d31e38ffdda44e",
@@ -30,14 +30,124 @@
       "fail": 0,
       "skip": 0
     },
-    "native_full_schema": "pending",
+    "native_full_schema": {
+      "tests": 560,
+      "pass": 560,
+      "fail": 0,
+      "skip": 0,
+      "runs": [
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40785066374",
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40785060519"
+      ],
+      "schema": "Both full 210 canonical replays plus fourteen proposals pass, with original canonical snapshots unchanged.",
+      "catalogs_identical": true,
+      "artifact_bytes_sha256": "47bbfcf70148703553507f9b8f5866459e9ca8aa01144afb0110eec0d2a8bc4f",
+      "stored_snapshot": "docs/production-readiness/evidence/document-reference-catalog-source-binding-2026-10-28.json",
+      "stored_snapshot_sha256": "2dd6a1c9e6d6b8fdba3a42b8970cae33d70b8203cd6e0ba148f70b3f9e7b972b",
+      "foreign_keys": 30,
+      "named_candidates": 33,
+      "json_candidates": 101,
+      "routine_candidates": 23,
+      "catalog_note": "Counts are candidates, not live references. Query now includes outbound FKs of discovered referencing relations and object-named columns; growth is not solely caused by the new table. Previous thirteen-proposal snapshot is preserved."
+    },
     "local_unit": {
       "pass": 5280,
       "files": 348,
       "fail": 0
     },
     "local_typescript": "pass",
-    "local_capped_staging_build": "pass, first attempt, unchanged 1216 MiB old-space / 4 MiB semi-space configuration"
+    "local_capped_staging_build": "pass, first attempt, unchanged 1216 MiB old-space / 4 MiB semi-space configuration",
+    "automatic_checks": {
+      "applicable_pass": 9,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066395,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066374,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066331,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066429,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066349,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40785066366,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40785066338,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40785066448,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066335,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785066319,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785060519,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40785060534,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt on corrected candidate under unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
   },
   "rollout_gates": [
     "All fourteen proposals remain unapplied and outside the canonical 210 migrations. Prepare/review a coordinated migration and worker rollout before requesting separate hosted authorization.",
@@ -77,5 +187,7 @@
     "result": "551 passed / 9 failed / zero skipped in PR native suite; later cases stopped opening sessions with SQLSTATE 53300 (too many clients).",
     "cause": "The shared harness retained every test session until suite teardown. Added contention cases exceeded the disposable server connection limit.",
     "correction": "Close extra native sessions in afterEach, preserving all competing sessions until each test finishes. No raised database limits, removed assertions or weakened SQL guards."
-  }
+  },
+  "verified_source": "fa9eb716f694d640f0a82e7ffae40fd7563d8b00",
+  "catalog_query_sha256": "613219db36880d8226193fc5af3c93738fee9796c3ecc124f003fa132b9dc233"
 }
