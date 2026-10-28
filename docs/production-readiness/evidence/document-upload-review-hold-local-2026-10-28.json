@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "legacy-schema compatibility correction verified locally; corrected candidate native/full-schema CI pending; no hosted or application integration",
+  "status": "corrected tenth proposal passes both native/full-schema replays and all nine applicable automatic checks; no hosted or application integration",
   "source_base": "13d50b70",
   "hosted_actions": false,
   "canonical_migration_count": 210,
@@ -20,8 +20,11 @@
     "local_disposable_passed": 350,
     "native_only_skipped_locally": 19,
     "credential_free_build_upload_channel_contracts": 70,
-    "application_identity": "unchanged; existing 5280-unit/TypeScript/capped-build proof is recorded on a42e0300, automatic checks of this proposal candidate pending",
-    "native_pending": "369 total native cases, including eight new observed hold/insert/registration lock races across COMMIT and ROLLBACK, and full 210-migration + ten-proposal replay/catalog verification."
+    "application_identity": "unchanged; candidate CI repeats unit/build/role/readiness/accessibility checks successfully; prior local app TypeScript proof remains on unchanged source",
+    "native_pending": [],
+    "native_database_passed": 369,
+    "native_database_skipped": 0,
+    "full_schema": "All ten noncanonical proposals install and pass catalog verification after all 210 canonical migrations in both disposable native replays."
   },
   "fixture_note": "Initial four empty-bucket expectations ignored the existing object-binding fixture. Assertions now preserve the complete before/after object snapshot, retaining strict denial and proving no prior object was removed.",
   "limits": [
@@ -43,5 +46,21 @@
     ],
     "other_automatic_checks": "Both capped builds, units, role/static/readiness and accessibility pass. No unchanged-source rerun."
   },
-  "schema_correction": "Read the managed owner_id using to_jsonb(objects) instead of a direct column reference. Older schemas install but missing managed ownership denies insertion. No legacy owner fallback, Storage DDL change or permission relaxation. New tests cover owner-only schemas, contradictory owner fields, viewer downgrade and Owner access revocation."
+  "schema_correction": "Read the managed owner_id using to_jsonb(objects) instead of a direct column reference. Older schemas install but missing managed ownership denies insertion. No legacy owner fallback, Storage DDL change or permission relaxation. New tests cover owner-only schemas, contradictory owner fields, viewer downgrade and Owner access revocation.",
+  "candidate_ci": {
+    "source_commit": "966861776d6f09a4031b87a568d383864c17d838",
+    "applicable_checks_passed": 9,
+    "native_replays": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717086843",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717098201"
+    ],
+    "builds": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717086838",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717097979"
+    ],
+    "build_attempts": "Both first attempt under unchanged 1216 MiB old-space cap; no reruns.",
+    "native_contention": "All eight new cases observe actual database lock waits before COMMIT/ROLLBACK. Hold blocks later reserved inserts/registration; an earlier committed metadata insert is retained; completed registration cannot be detached by a hold.",
+    "other_checks": "unit, role/static/readiness and accessibility passed",
+    "protected_skipped": "Unperformed; not hosted acceptance."
+  }
 }
