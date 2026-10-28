@@ -32,6 +32,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-admission-limits.sql"
       - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
       - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
+      - "docs/production-readiness/proposals/document-reference-catalog.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -82,6 +83,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-admission-limits.sql"
       - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
       - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
+      - "docs/production-readiness/proposals/document-reference-catalog.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -882,6 +884,33 @@ jobs:
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 
+      - name: Inventory document reference metadata without reading user rows
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE tf_document_catalog_reader NOLOGIN NOINHERIT;
+          GRANT USAGE ON SCHEMA public,storage TO tf_document_catalog_reader;
+          SQL
+          PGOPTIONS='-c default_transaction_read_only=on' PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -c 'SET ROLE tf_document_catalog_reader' \
+            -f docs/production-readiness/proposals/document-reference-catalog.sql > /tmp/document-reference-catalog.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/document-reference-catalog.json','utf8'));
+          assert.equal(x.schema,'document-reference-catalog-v1');
+          assert.equal(x.reader_role,'tf_document_catalog_reader');assert.equal(x.read_only_transaction,true);
+          assert.equal(x.reader_can_select_protected_relations,false);assert.equal(x.reader_can_select_job_rows,false);
+          assert.equal(x.catalog_metadata_only,true);
+          assert.equal(x.data_rows_inspected,false);
+          assert.equal(x.reference_inventory_complete,false);
+          assert.equal(x.cleanup_authorized,false);
+          assert.equal(x.targets.length,4);assert.ok(x.targets.every(t=>t.present));
+          assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_upload_resolution_claims'&&k.target_table==='public.document_upload_attempts'&&k.delete_action==='restrict'));
+          assert.ok(x.untyped_json_candidates.some(c=>c.table_name==='public.ai_jobs'&&c.column_name==='input_source'));
+          assert.ok(x.triggers.some(t=>t.name==='upload_attempt_resolution_frozen'&&t.enabled==='O'));
+          console.log(JSON.stringify({foreign_keys:x.foreign_keys.length,named_candidates:x.named_reference_candidates.length,json_candidates:x.untyped_json_candidates.length,routine_candidates:x.routine_candidates.length}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -891,4 +920,5 @@ jobs:
             /tmp/realtime_policies.txt
             /tmp/security-finding-inventory.txt
             /tmp/document-path-proposal-verification.txt
+            /tmp/document-reference-catalog.json
           if-no-files-found: ignore

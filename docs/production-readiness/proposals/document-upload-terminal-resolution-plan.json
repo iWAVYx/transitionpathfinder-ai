@@ -32,11 +32,12 @@
     },
     {
       "id": "reference-and-retention",
-      "status": "open",
+      "status": "partial local discovery only: read-only FK/delete-action/JSON/routine/grant catalog prepared; full-schema artifact pending; complete semantic inventory and writer fences remain open",
       "requirements": [
         "Inventory all canonical and proposed references by exact id/path/version, including hidden/archived/deleted documents, reciprocal upload links, AI jobs and processing, evidence/source references, grants and required audit/retention records. Schema FKs alone miss JSON/text/external references.",
         "Lock or otherwise fence every relevant writer through terminal commit. A point-in-time count or caller-visible empty list is insufficient. Preserve referenced objects and retained audit records."
-      ]
+      ],
+      "prepared_checkpoint": "docs/production-readiness/evidence/document-processing-reference-local-2026-10-28.json"
     },
     {
       "id": "provider-capability",
@@ -95,6 +96,6 @@
     "ai_jobs payloads and verified-summary source/result links",
     "Other evidence, report/document-source JSON and retention references require a complete writer inventory before a deletion design is accepted."
   ],
-  "next_safe_work": "Design and prove coordinated processing/reference writer fencing and assess actual provider immutable-version/physical-absence behavior. The review claim is proven only in disposable databases. No hosted test or terminal mutation is ready to run.",
+  "next_safe_work": "Review the full-schema reference/delete-action artifact, then design retained processing/source identity and coordinated writer fences. Actual provider immutable-version/physical-absence behavior remains open. No hosted test or terminal mutation is ready to run.",
   "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here."
 }

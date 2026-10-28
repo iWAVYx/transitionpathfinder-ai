@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-28",
+  "status": "local processing-boundary and metadata inventory checks pass; exact-source native/full-schema audit pending",
+  "source_base": "89be7fb5",
+  "hosted_actions": false,
+  "application_changed": false,
+  "canonical_migration_count": 210,
+  "unapplied_upload_proposals": 13,
+  "new_mutation_proposals": 0,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "catalog_query": "docs/production-readiness/proposals/document-reference-catalog.sql",
+  "catalog_query_sha256": "e517172017a43c2814c6ca09a9e99f3064d8597cf2d31a3b2827fb28c9dacf98",
+  "checked": [
+    "Eighteen source/completion cases cover claimed held uploads for Family, Educator, Student, School, District and Owner with current explicit editing where required. Missing document IDs, attempt IDs masquerading as document IDs, and queued paths/text cannot source or complete a verified document summary.",
+    "A queued held path cannot replace another legitimate saved source. The verified source RPC returns the actual permitted document path/object identity and preserves unrelated legitimate processing.",
+    "Read-only catalog output inventories inbound/outbound foreign keys and delete actions, named file/document/storage/upload columns, all plain JSON/JSONB candidate columns, referencing routine signatures/attributes, triggers and effective table grants.",
+    "The inventory runs under a disposable NOLOGIN/NOINHERIT catalog reader in a read-only transaction. Its protected document/attempt/claim/object and job SELECT privileges must all be false; function bodies and user rows are not returned.",
+    "A deliberately unknown FK/CASCADE and an opaque JSON payload column are discovered by the audit rather than silently omitted. Reference completeness and cleanup authority remain explicitly false."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 522,
+      "pass": 476,
+      "fail": 0,
+      "skip": 46,
+      "skips": "Prior real PostgreSQL contention cases only; not local concurrency proof."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_full_schema_and_catalog_artifact": "pending; complete 210 canonical migrations plus unchanged thirteen proposals; reference inventory artifact generated only in the disposable CI database"
+  },
+  "known_writer_review_starting_points": [
+    {
+      "source": "src/lib/documents.functions.ts",
+      "operations": "Summary enqueue after registration/rescan; document/summary/extraction and pipeline lifecycle handlers. No full writer-fence acceptance claimed."
+    },
+    {
+      "source": "supabase/functions/ai-job-processor/index.ts",
+      "operations": "Job selection/processing claim, verified source and completion RPC use, guarded needs_review on summary failure, unrelated job completion and notification references."
+    },
+    {
+      "source": "docs/production-readiness/proposals/verified-document-summary-source.sql",
+      "operations": "Service-only actual saved-source verification and exact completion compare-and-set. Source is rechecked, but model IO occurs outside these database transactions."
+    },
+    {
+      "source": "src/lib/document-pipeline.server.ts",
+      "operations": "Best-effort pipeline records; logging is not an authoritative processing or cleanup lease."
+    }
+  ],
+  "limitations": [
+    "The catalog is metadata discovery, not a complete semantic writer/reference/retention inventory. Names and routine-text matches can miss dynamic SQL, opaque scalar/array/domain fields, external systems or alternate object paths. No user JSON/text payload is scanned.",
+    "Service-role direct ai_jobs mutation and unrelated job types remain outside the verified-summary RPC gate. Existing provider work is not cancelled, and no durable source/reference lease or writer freeze is added by this step.",
+    "FK CASCADE/SET NULL behavior must be reviewed for retention; constraint existence or a reference count never authorizes file deletion. Named storage_object_id/path references may lack foreign keys.",
+    "The catalog-reader role exists only in disposable tests/CI, not in canonical migrations or any hosted database. Its lack of protected SELECT privileges is independently asserted.",
+    "No terminal resolution, quota release, job retry, file/object/metadata IO, provider call, hosted fixture, new account/access relationship, permission migration, deployment or publication is performed. Provider immutable-version/physical-absence proof remains open."
+  ]
+}

@@ -1619,3 +1619,9 @@ The history migration is applied only to isolated staging under specific user au
 - [x] Prepare immutable original-actor review claims on existing holds, preserving admission/content claims and forbidding takeover/ordinary row changes. Local disposable cases pass; no release or cleanup operation exists.
 - [x] Verify exact candidate `76e36f47`: both native runs 501 passed / zero skips, full 210 canonical migrations plus thirteen proposals pass, all nine applicable automatic checks pass and both capped builds first attempt. This is disposable proof only.
 - [ ] Coordinate processing/reference/provider fences and current permissions, review stronger-mode maintenance restrictions, preserve original operation recovery, and prove exact-version/absence evidence before proposing terminal resolution or hosted rollout.
+
+### Processing and Reference Discovery — October 28, 2026
+
+- [x] Test held-upload rejection at the real verified-summary source/completion SQL boundary across six eligible roles. Prepare metadata-only reference discovery under a disposable reader with no protected-row SELECT privilege; local checks pass.
+- [ ] Verify full-schema inventory artifacts and native results; review FK delete actions, JSON/named references and candidate writers without treating the catalog as a complete semantic inventory.
+- [ ] Add reviewed durable processing/source binding and coordinated writer/retention fences; service direct writes, existing provider IO and unrelated job types are not fenced by these tests. No terminal action or hosted rollout is authorized.

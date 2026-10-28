@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const referenceCatalog = readFileSync('docs/production-readiness/proposals/document-reference-catalog.sql','utf8');
 const resolutionClaimProposal = readFileSync('docs/production-readiness/proposals/document-upload-resolution-claim.sql','utf8');
 const recoveryReadProposal = readFileSync('docs/production-readiness/proposals/document-upload-recovery-read.sql','utf8');
 const admissionProposal = readFileSync('docs/production-readiness/proposals/document-upload-admission-limits.sql','utf8');
@@ -49,6 +50,7 @@ before(async()=>{
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated;END IF;
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon;END IF;
     IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role BYPASSRLS;END IF;
+    IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_catalog_reader') THEN CREATE ROLE tf_document_catalog_reader NOLOGIN NOINHERIT;END IF;
   END $$;
   CREATE SCHEMA storage;
   CREATE FUNCTION storage.foldername(name text) RETURNS text[] LANGUAGE sql IMMUTABLE AS $$ SELECT (string_to_array(name,'/'))[1:cardinality(string_to_array(name,'/'))-1] $$;
@@ -56,6 +58,7 @@ before(async()=>{
   GRANT USAGE ON SCHEMA storage TO anon,authenticated,service_role;
   GRANT SELECT,INSERT,UPDATE,DELETE ON storage.objects TO anon,authenticated,service_role;
   ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+  GRANT USAGE ON SCHEMA public,storage TO tf_document_catalog_reader;
   CREATE SCHEMA auth;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
   GRANT USAGE ON SCHEMA public,auth TO authenticated,anon,service_role;
@@ -1241,4 +1244,26 @@ test('claim refuses a conflicting hidden legacy document without claiming cleanu
 for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('old '+isolation+' writer cannot miss a claim committed during its lock wait',{skip:!native},async()=>{
   await resolutionFixture();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await b.exec('BEGIN ISOLATION LEVEL '+isolation);await b.query('SELECT id FROM public.document_upload_attempts WHERE id=$1',[attemptId]);await a.exec('BEGIN');await claimResolution(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
   const pending=b.exec("UPDATE public.document_upload_attempts SET state='reserved',held_at=NULL,hold_reason=NULL").then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;await b.exec('ROLLBACK');throw error;}await a.exec('COMMIT');const outcome=await pending;await b.exec('ROLLBACK');assert.equal(outcome.error?.code,'42501');assert.equal((await db.query('SELECT state FROM public.document_upload_attempts')).rows[0].state,'review_required');
+});
+
+// Confirm the existing verified worker boundary remains closed for held uploads.
+for(const role of ['family','educator','student','school','district','owner'])for(const reference of ['missing-document','attempt-as-document','path-only'])test('claimed '+role+' upload cannot source or complete a summary through '+reference,async()=>{
+  await installResolutionClaim();if(['school','district','owner'].includes(role))await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);await reserve();await hold();await claimResolution();
+  const queued={storage_path:student+'/'+attemptId+'-privacy-safe-document.txt',upload_attempt_id:attemptId,document_text:'Fictional queued text'};if(reference!=='path-only')queued.document_id=reference==='attempt-as-document'?attemptId:uid(401);
+  await as('','service_role');await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,locked_at,attempts,input_source) VALUES($1,$2,$3,'document_summary','processing',$4,1,$5)",[summaryId,student,actors[role],claimAt,queued]);
+  await assert.rejects(readVerified(),{code:'42501'});await assert.rejects(finishVerified({actor_id:actors[role],student_id:student,document_id:uid(401),object_id:uid(999),object_version:'fictional-version',content_sha256:claimedHash,context:{}}),{code:'42501'});
+  const job=(await db.query('SELECT status,result_payload FROM public.ai_jobs WHERE id=$1',[summaryId])).rows[0];assert.equal(job.status,'processing');assert.equal(job.result_payload,null);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT state FROM public.document_upload_attempts')).rows[0].state,'review_required');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_resolution_claims')).rows[0].n,1);
+});
+test('queued held path cannot substitute for a different legitimate saved source document',async()=>{
+  const doc=await verifiedSourceFixture();await db.exec('RESET ROLE');for(const sqlText of [reservationProposal,registrationProposal,quarantineReadProposal,reviewHoldProposal,admissionProposal,recoveryReadProposal,resolutionClaimProposal])await db.exec(sqlText);await as();await reserve();await hold();await claimResolution();await as('','service_role');
+  await db.query('UPDATE public.ai_jobs SET input_source=$1 WHERE id=$2',[{document_id:doc,storage_path:student+'/'+attemptId+'-privacy-safe-document.txt',upload_attempt_id:attemptId,document_text:'Fictional held text'},summaryId]);const source=await readVerified();assert.equal(source.document_id,doc);assert.equal(source.storage_path,path);assert.notEqual(source.storage_path,student+'/'+attemptId+'-privacy-safe-document.txt');
+});
+async function catalogInventory(){return (await db.query(referenceCatalog)).rows[0].inventory;}
+test('reference catalog is metadata-only and discovers reciprocal claims, JSON jobs and guards',async()=>{
+  await resolutionFixture();await claimResolution();await db.exec('RESET ROLE');const before=(await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows;await db.exec('BEGIN READ ONLY;SET LOCAL ROLE tf_document_catalog_reader');let inventory;try{inventory=await catalogInventory();}finally{await db.exec('ROLLBACK');}
+  assert.equal(inventory.schema,'document-reference-catalog-v1');assert.equal(inventory.reader_role,'tf_document_catalog_reader');assert.equal(inventory.read_only_transaction,true);assert.equal(inventory.reader_can_select_protected_relations,false);assert.equal(inventory.reader_can_select_job_rows,false);assert.equal(inventory.catalog_metadata_only,true);assert.equal(inventory.data_rows_inspected,false);assert.equal(inventory.reference_inventory_complete,false);assert.equal(inventory.cleanup_authorized,false);assert.equal(inventory.targets.length,4);assert.ok(inventory.targets.every(t=>t.present));
+  assert.ok(inventory.foreign_keys.some(k=>k.source_table==='public.document_upload_resolution_claims'&&k.target_table==='public.document_upload_attempts'&&k.delete_action==='restrict'));assert.ok(inventory.untyped_json_candidates.some(c=>c.table_name==='public.ai_jobs'&&c.column_name==='input_source'));assert.ok(inventory.triggers.some(t=>t.name==='upload_attempt_resolution_frozen'&&t.enabled==='O'));assert.ok(inventory.routine_candidates.some(r=>r.signature.startsWith('public.read_verified_document_summary_source(')));assert.deepEqual((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows,before);assert.ok(!JSON.stringify(inventory).includes(resolutionOperation));
+});
+test('catalog discovers a new FK with cascade behavior and an opaque JSON reference channel',async()=>{
+  await installResolutionClaim();await db.exec('CREATE TABLE public.fixture_unreviewed_reference(id uuid,opaque_payload jsonb,doc uuid REFERENCES public.documents(id) ON DELETE CASCADE)');try{const inventory=await catalogInventory();assert.ok(inventory.foreign_keys.some(k=>k.source_table==='public.fixture_unreviewed_reference'&&k.source_columns[0]==='doc'&&k.delete_action==='cascade'));assert.ok(inventory.untyped_json_candidates.some(c=>c.table_name==='public.fixture_unreviewed_reference'&&c.column_name==='opaque_payload'));assert.equal(inventory.reference_inventory_complete,false);}finally{await db.exec('DROP TABLE public.fixture_unreviewed_reference');}
 });

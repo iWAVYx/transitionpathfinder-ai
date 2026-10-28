@@ -519,5 +519,12 @@
     "evidence": "docs/production-readiness/evidence/document-upload-resolution-claim-local-2026-10-28.json",
     "boundary": "Pins original held intent to one immutable actor-scoped operation; no processing/provider/reference fence or terminal/cleanup capability.",
     "next": "Design coordinated processing/reference writer fencing and actual provider immutable-version/absence verification before terminal resolution. Claim-only proof does not authorize file IO, quota release or cleanup."
+  },
+  "processing_reference_checkpoint": {
+    "status": "local processing-boundary and metadata inventory checks pass; exact-source native/full-schema audit pending",
+    "evidence": "docs/production-readiness/evidence/document-processing-reference-local-2026-10-28.json",
+    "catalog_query": "docs/production-readiness/proposals/document-reference-catalog.sql",
+    "boundary": "Verified summary source/completion rejects unregistered held uploads; metadata inventory does not freeze all writers or prove absence.",
+    "next": "Review full-schema FK/delete-action and JSON reference artifact; design retained processing/source identity and coordinated writer fencing before terminal resolution."
   }
 }
