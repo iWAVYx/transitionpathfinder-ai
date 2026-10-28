@@ -1617,5 +1617,5 @@ The history migration is applied only to isolated staging under specific user au
 ### Draft Durable Upload Review Claim — October 28, 2026
 
 - [x] Prepare immutable original-actor review claims on existing holds, preserving admission/content claims and forbidding takeover/ordinary row changes. Local disposable cases pass; no release or cleanup operation exists.
-- [ ] Verify native hold/claim/key/reopening/access/snapshot contention and full 210 canonical migrations plus thirteen proposals.
+- [x] Verify exact candidate `76e36f47`: both native runs 501 passed / zero skips, full 210 canonical migrations plus thirteen proposals pass, all nine applicable automatic checks pass and both capped builds first attempt. This is disposable proof only.
 - [ ] Coordinate processing/reference/provider fences and current permissions, review stronger-mode maintenance restrictions, preserve original operation recovery, and prove exact-version/absence evidence before proposing terminal resolution or hosted rollout.

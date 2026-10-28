@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "thirteenth unapplied proposal; local immutable review-claim checks pass; native/full-schema CI pending",
+  "status": "thirteenth unapplied proposal passes all nine applicable checks; both native runs pass 501 cases with zero skips; no hosted integration",
   "source_base": "52e70a85",
   "hosted_actions": false,
   "application_changed": false,
@@ -30,7 +30,109 @@
       "fail": 0,
       "skip": 0
     },
-    "native_and_full_schema": "pending: thirteen new contention cases plus prior thirty-three; full 210 canonical migrations followed by all thirteen proposals"
+    "native_and_full_schema": {
+      "tests": 501,
+      "pass": 501,
+      "fail": 0,
+      "skip": 0,
+      "runs": [
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40741667004",
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40741656430"
+      ],
+      "schema": "Both full 210 canonical migration replays plus all thirteen proposals and catalog assertions pass.",
+      "contention": "Thirteen new cases observe actual lock waits: same/different operation COMMIT/ROLLBACK; reopening COMMIT/ROLLBACK; hold COMMIT/ROLLBACK; cross-attempt key reuse COMMIT/ROLLBACK; editing removal; old REPEATABLE READ and SERIALIZABLE writers."
+    },
+    "automatic_checks": {
+      "applicable_pass": 9,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40741667262,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40741667240,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40741666992,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667339,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667266,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667322,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667243,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667224,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667286,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741667004,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741656429,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40741656430,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt under unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
   },
   "limits": [
     "Unapplied database proposal only. No app caller, UI, hosted schema, account, permission relationship, provider, file or object metadata is changed.",
@@ -40,5 +142,6 @@
     "Claims do not expire or free quota/content uniqueness. There is no takeover, terminal release, retry, registration, byte/metadata verification, deletion, processing launch or cleanup authority in the receipt. A lost original operation key requires separately reviewed recovery; no new key can silently adopt the claim.",
     "Actual immutable-version provider behavior, reference/retention writer inventory, exact receipts and independent physical absence proof remain open. The existing paths-only delete SDK remains insufficient for automatic cleanup.",
     "Disposable roles use actual explicit access helpers with narrow organization/audience stubs; no hosted seven-role/browser acceptance is certified. App fingerprint excludes SQL; proposal SHA and exact-source CI remain separate proof."
-  ]
+  ],
+  "verified_source": "76e36f47ca3c3f82feab401c2d1073fd3685c619"
 }

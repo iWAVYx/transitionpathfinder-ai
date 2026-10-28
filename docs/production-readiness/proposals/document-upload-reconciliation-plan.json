@@ -514,10 +514,10 @@
     "next": "Design and prove the durable resolution fence/reference protocol in disposable databases, and assess actual provider conditional/version semantics before proposing any bounded hosted probe. No hosted test or terminal mutation is ready to run."
   },
   "resolution_claim_checkpoint": {
-    "status": "thirteenth unapplied proposal; local immutable review-claim checks pass; native/full-schema CI pending",
+    "status": "Exact candidate 76e36f47 passes all nine applicable checks; both native runs 501 passed / zero skips, full 210 canonical migrations plus thirteen proposals pass. No hosted integration.",
     "proposal": "docs/production-readiness/proposals/document-upload-resolution-claim.sql",
     "evidence": "docs/production-readiness/evidence/document-upload-resolution-claim-local-2026-10-28.json",
     "boundary": "Pins original held intent to one immutable actor-scoped operation; no processing/provider/reference fence or terminal/cleanup capability.",
-    "next": "Native/full-schema proof, then coordinated writer/reference fence design and provider capability acceptance."
+    "next": "Design coordinated processing/reference writer fencing and actual provider immutable-version/absence verification before terminal resolution. Claim-only proof does not authorize file IO, quota release or cleanup."
   }
 }
