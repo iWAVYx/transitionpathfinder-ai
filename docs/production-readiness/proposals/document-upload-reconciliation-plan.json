@@ -487,5 +487,16 @@
       "other_checks": "unit, role/static/readiness and accessibility passed",
       "protected_skipped": "Unperformed; not hosted acceptance."
     }
+  },
+  "unresolved_admission_checkpoint_2026_10_28": {
+    "status": "eleventh proposal; local disposable checks passed; exact-source native concurrency and full-schema CI pending",
+    "proposal": "docs/production-readiness/proposals/document-upload-admission-limits.sql",
+    "evidence": "docs/production-readiness/evidence/document-upload-admission-local-2026-10-28.json",
+    "limits": {
+      "actor_unresolved": 5,
+      "student_unresolved": 10
+    },
+    "scope": "All currently eligible actors; existing explicit student editing and partner-only exclusions preserved. No hosted action.",
+    "next": "Native/full-schema validation, verified recovery and terminal resolution; no expiry/deletion shortcut."
   }
 }

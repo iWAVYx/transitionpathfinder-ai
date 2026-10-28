@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const admissionProposal = readFileSync('docs/production-readiness/proposals/document-upload-admission-limits.sql','utf8');
 const reviewHoldProposal = readFileSync('docs/production-readiness/proposals/document-upload-review-hold.sql','utf8');
 const quarantineReadProposal = readFileSync('docs/production-readiness/proposals/document-quarantine-read-boundary.sql','utf8');
 const registrationProposal = readFileSync('docs/production-readiness/proposals/document-upload-registration.sql','utf8');
@@ -958,4 +959,94 @@ test('downgrading the uploader to viewer blocks holding and reserved insertion',
 test('Owner management role cannot retain upload authority after explicit student access is removed',async()=>{
   await installReviewHold();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors.owner]);await as(actors.owner);await reserve();await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.owner]);
   await as(actors.owner);await assert.rejects(hold(),{code:'42501'});await assert.rejects(reservedObject(db,{owner:actors.owner}),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
+});
+
+// Eleventh proposal: unresolved admission limits; no release/expiry/cleanup.
+async function installAdmission() {await installReviewHold();await db.exec(admissionProposal);}
+const admissionIntent=n=>({id:uid(1000+n),hash:n.toString(16).padStart(64,'0')});
+async function fillAdmission(n,client=db,start=0,patch={}) {
+  for(let i=0;i<n;i++)await reserve(client,{...admissionIntent(start+i),...patch});
+}
+for(const role of ['family','educator','student'])test('unresolved actor admission cap preserves exact retries for '+role,async()=>{
+  await installAdmission();await as(actors[role]);await fillAdmission(5);const first=await reserve(db,admissionIntent(0));
+  assert.deepEqual(await reserve(db,admissionIntent(0)),first);await assert.rejects(reserve(db,admissionIntent(5)),{code:'42501'});
+  assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,5);
+});
+for(const role of ['school','district','owner'])test('admission limits do not grant implicit student access to '+role,async()=>{
+  await installAdmission();await as(actors[role]);await assert.rejects(reserve(),{code:'42501'});await db.exec('RESET ROLE');
+  await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);await fillAdmission(5);
+  await assert.rejects(reserve(db,admissionIntent(5)),{code:'42501'});
+});
+test('partner-only actor remains excluded from bounded reservation admission',async()=>{
+  await installAdmission();await as(actors.partner);await assert.rejects(reserve(),{code:'42501'});
+});
+test('actor unresolved quota spans students and counts durable review holds',async()=>{
+  await installAdmission();await as();await reserve();await hold();await fillAdmission(4,db,0,{student:otherStudent});
+  await assert.rejects(reserve(db,admissionIntent(8)),{code:'42501'});await assert.rejects(reserve(),{code:'42501'});
+  await db.exec('RESET ROLE');assert.equal((await db.query("SELECT count(*)::int AS n FROM public.document_upload_attempts WHERE state='review_required'")).rows[0].n,1);
+});
+test('student unresolved cap includes other actors without leaking their receipts',async()=>{
+  await installAdmission();await as();await fillAdmission(5);await as(actors.educator);await fillAdmission(5,db,5);await as(actors.student);
+  const failure=await reserve(db,admissionIntent(10)).then(()=>null,e=>e);assert.equal(failure.code,'42501');assert.equal(failure.message,'This upload attempt could not be confirmed.');
+  assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,0);
+  await assert.rejects(reserve(db,admissionIntent(0)),{code:'42501'});
+});
+test('completed registration frees only its unresolved slot while preserving its receipt and content claim',async()=>{
+  await installAdmission();await as();await reserve();await fillAdmission(4);await reservedObject();await registerReserved();
+  assert.equal((await reserve(db,admissionIntent(4))).state,'reserved');await assert.rejects(reserve(db,admissionIntent(5)),{code:'42501'});
+  await assert.rejects(reserve(),{code:'42501'});await assert.rejects(reserve(db,{id:uid(8000)}),{code:'42501'});
+  assert.equal((await readRegistration()).document_id,uid(401));
+});
+test('installing caps preserves over-limit legacy claims and their exact reserved retries',async()=>{
+  await installReviewHold();await as();await fillAdmission(7);const before=(await db.query('SELECT * FROM public.document_upload_attempts ORDER BY id')).rows;
+  await db.exec('RESET ROLE');await db.exec(admissionProposal);await as();assert.deepEqual((await db.query('SELECT * FROM public.document_upload_attempts ORDER BY id')).rows,before);
+  assert.equal((await reserve(db,admissionIntent(0))).attempt_id,admissionIntent(0).id);await assert.rejects(reserve(db,admissionIntent(9)),{code:'42501'});
+});
+for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('admission refuses stale transaction snapshot mode '+isolation,async()=>{
+  await installAdmission();await as();await db.exec('BEGIN ISOLATION LEVEL '+isolation);
+  try{await assert.rejects(reserve(),{code:'42501'});}finally{await db.exec('ROLLBACK');}
+  assert.equal((await db.query('SELECT id FROM public.document_upload_attempts')).rows.length,0);
+});
+test('bounded admission retains narrow execution and ledger privileges',async()=>{
+  await installAdmission();const signature='public.reserve_document_upload(uuid,uuid,text,text)';
+  const fn=(await db.query('SELECT prosecdef,provolatile,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows[0];assert.equal(fn.prosecdef,true);assert.equal(fn.provolatile,'v');assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+  for(const role of ['anon','authenticated','service_role']){
+    assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,role==='authenticated');
+    for(const privilege of ['INSERT','UPDATE','DELETE'])assert.equal((await db.query("SELECT has_table_privilege($1,'public.document_upload_attempts',$2) AS ok",[role,privilege])).rows[0].ok,false);
+  }
+});
+test('admission proposal requires the hold and reserved-insert boundary',async()=>{
+  await installReservations();await db.exec(registrationProposal);await assert.rejects(db.exec(admissionProposal),{code:'55000'});await db.exec('ROLLBACK');
+  assert.equal((await db.query("SELECT to_regclass('public.document_upload_unresolved_actor') AS name")).rows[0].name,null);
+});
+for(const scope of ['actor','student'])for(const finish of ['COMMIT','ROLLBACK'])test('concurrent final '+scope+' admission slot is serialized after '+finish,{skip:!native},async()=>{
+  await installAdmission();await as();await fillAdmission(scope==='actor'?4:5);
+  if(scope==='student'){await as(actors.educator);await fillAdmission(4,db,5);}
+  const a=await newSession(),b=await newSession();await as(scope==='actor'?actors.family:actors.educator,'authenticated',a);await as(scope==='actor'?actors.family:actors.student,'authenticated',b);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');await reserve(a,admissionIntent(20));
+  const pending=reserve(b,{...admissionIntent(21),...(scope==='actor'?{student:otherStudent}:{})}).then(result=>({result}),error=>({error}));
+  try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);
+  await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,scope==='actor'?5:10);
+});
+for(const patch of [{review:'f'.repeat(64)},{hash:'f'.repeat(64)},{student:otherStudent}])test('admission retry still refuses changed intent '+JSON.stringify(patch),async()=>{
+  await installAdmission();await as();await reserve();await assert.rejects(reserve(db,patch),{code:'42501'});
+});
+test('lost editor access blocks admission retry even when an actor has capacity',async()=>{
+  await installAdmission();await as(actors.educator);await reserve();await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await as(actors.educator);
+  await assert.rejects(reserve(),{code:'42501'});await assert.rejects(reserve(db,admissionIntent(0)),{code:'42501'});
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('same-intent concurrent admission returns one receipt after '+finish,{skip:!native},async()=>{
+  await installAdmission();await as();await fillAdmission(4);const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');const first=await reserve(a);
+  const pending=reserve(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await a.exec(finish);const outcome=await pending;assert.equal(outcome.error,undefined);assert.deepEqual(outcome.result,first);
+  await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,5);
+});
+test('current access is rechecked after an admission lock wait',{skip:!native},async()=>{
+  await installAdmission();const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.educator,'authenticated',b);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');await reserve(a);
+  const pending=reserve(b,admissionIntent(1)).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error?.code,'42501');
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,1);
 });

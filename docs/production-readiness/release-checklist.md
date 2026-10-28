@@ -1594,3 +1594,9 @@ remaining production boxes below.
 The history migration is applied only to isolated staging under specific user authorization and remains unused by hosted handlers until deployment; draft callers now use it. Its presence in this draft does not authorize production migration, another pending migration, a bulk migration runner or deployment.
 
 - [x] Reconcile the atomic-history staging ledger entry: both canonical hashes now match, installed function definition/configuration/grants remain unchanged; all 16 real disposable PostgreSQL cases pass. This closes one entry only, not full staging/production migration alignment. See [candidate review](../pr211-release-review.md).
+
+### Draft Upload Admission Limits — October 28, 2026
+
+- [x] Prepare unapplied eleventh proposal for five unresolved claims per actor and ten per student; count review holds, preserve exact reserved retries and existing over-limit rows, retain explicit role/access guards. Local disposable checks pass; this is not hosted acceptance.
+- [ ] Confirm native contention and full canonical-schema installation, review prototype cap values/global-lock throughput and connect safe recovery/terminal resolution before promotion.
+- [ ] Separately authorize any staging migration, application integration, Storage acceptance or cleanup run. No deletion, expiry or permission expansion is authorized by a quota refusal.

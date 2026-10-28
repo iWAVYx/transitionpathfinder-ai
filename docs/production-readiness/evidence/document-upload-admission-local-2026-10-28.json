@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-28",
+  "status": "eleventh proposal; local disposable checks passed; exact-source native concurrency and full-schema CI pending",
+  "source_base": "163d575a",
+  "hosted_actions": false,
+  "canonical_migration_count": 210,
+  "noncanonical_proposal_count": 11,
+  "application_changed": false,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "proposal": "docs/production-readiness/proposals/document-upload-admission-limits.sql",
+  "proposal_sha256": "b7334ca0b44dc38a9d03ed71a3e8ff935dd8448ec90577713f60eab09a3b3dc8",
+  "implemented": [
+    "Prototype limits: at most five unresolved reservations per actor across students and ten per student across actors. Reserved and review_required count; registered claims do not.",
+    "Exact existing reserved receipts remain idempotent at or above capacity. Changed, held, registered, foreign and inaccessible intents retain generic refusals. No count or foreign receipt is exposed.",
+    "A single transaction-scoped global advisory admission lock (824601,11) serializes new claims. READ COMMITTED is required; stronger snapshot modes are refused. Current edit/partner authority is rechecked after the wait.",
+    "Bounded count queries use partial indexes. Existing over-limit rows are preserved without resetting, deleting, expiring, releasing or changing their timestamps. No new table or role mutation rights."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 395,
+      "pass": 369,
+      "skip": 26,
+      "fail": 0,
+      "skips": "Native-only lock/contention cases; not local concurrency proof."
+    },
+    "local_contracts": {
+      "pass": 70,
+      "fail": 0
+    },
+    "native_ci": "pending; seven new contention cases plus existing nineteen",
+    "canonical_replay": "pending; all eleven proposals installed only after 210 canonical migrations"
+  },
+  "limits": [
+    "Proposal only; no live RPC replacement or app caller integration. Numeric defaults require release review before any promotion.",
+    "Global admission serialization intentionally favors correctness over throughput. Long caller transactions can block all reservations; contention/timeout UX, throughput and lock ordering with future recovery operations remain review gates. PostgreSQL deadlock/timeout aborts are not successful receipts.",
+    "Admission is an unresolved-row bound, not a byte, bandwidth, daily rate, object-store orphan, provider or spending cap. It cannot stop trusted database owners from bypassing the RPC.",
+    "Permission checks are fresh after the admission lock wait but do not lock the full permission graph against later changes.",
+    "Held claims remain indefinite and can exhaust capacity. Verified recovery, terminal resolution, retention, expiry and safe cleanup authority remain unimplemented; quota denial never authorizes deletion.",
+    "Physical Storage API ownership/rollback/in-flight byte behavior and hosted all-role acceptance remain unperformed. App fingerprint does not include these SQL files; proposal hash and exact CI source are separate proof."
+  ]
+}

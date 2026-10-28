@@ -670,6 +670,8 @@ jobs:
             -f docs/production-readiness/proposals/document-quarantine-read-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-upload-review-hold.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-upload-admission-limits.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -745,6 +747,19 @@ jobs:
             END LOOP;
           END;
           $review_hold_verify$;
+          DO $admission_verify$
+          DECLARE signature text := 'public.reserve_document_upload(uuid,uuid,text,text)';
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure
+                AND prosecdef AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon',signature,'EXECUTE')
+              OR has_function_privilege('service_role',signature,'EXECUTE')
+              OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+              OR NOT EXISTS(SELECT 1 FROM pg_index WHERE indexrelid='public.document_upload_unresolved_actor'::regclass AND indisvalid AND indpred IS NOT NULL)
+              OR NOT EXISTS(SELECT 1 FROM pg_index WHERE indexrelid='public.document_upload_unresolved_student'::regclass AND indisvalid AND indpred IS NOT NULL)
+            THEN RAISE EXCEPTION 'Unexpected unresolved admission boundary'; END IF;
+          END;
+          $admission_verify$;
           DO $binding_verify$
           BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass
