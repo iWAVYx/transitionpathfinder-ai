@@ -1,5 +1,5 @@
 -- READ-ONLY CATALOG AUDIT. No user rows, payloads or function bodies returned.
--- Run after the complete canonical replay and thirteen unapplied proposals.
+-- Run after the complete canonical replay and the reviewed unapplied proposals.
 -- Candidate references, not proof of a complete writer/retention inventory.
 WITH targets AS (
   SELECT name,to_regclass(name) AS oid FROM (VALUES
@@ -26,7 +26,7 @@ WITH targets AS (
   FROM pg_catalog.pg_constraint k
     JOIN pg_catalog.pg_class s ON s.oid=k.conrelid JOIN pg_catalog.pg_namespace ns ON ns.oid=s.relnamespace
     JOIN pg_catalog.pg_class t ON t.oid=k.confrelid JOIN pg_catalog.pg_namespace nt ON nt.oid=t.relnamespace
-  WHERE k.contype='f' AND (k.confrelid IN(SELECT oid FROM targets) OR k.conrelid IN(SELECT oid FROM targets))
+  WHERE k.contype='f' AND (k.confrelid IN(SELECT oid FROM targets) OR k.conrelid IN(SELECT oid FROM relations))
 ), columns AS (
   SELECT format('%I.%I',n.nspname,c.relname) AS table_name,a.attname AS column_name,
     pg_catalog.format_type(a.atttypid,a.atttypmod) AS data_type
@@ -38,7 +38,7 @@ WITH targets AS (
     p.prokind AS routine_kind,p.prosecdef AS security_definer,p.provolatile AS volatility,p.proconfig AS settings
   FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
   WHERE n.nspname='public' AND p.prokind IN('f','p')
-    AND CASE WHEN p.prokind IN('f','p') THEN pg_catalog.pg_get_functiondef(p.oid) ELSE '' END ~* '(documents|document_upload_attempts|document_upload_resolution_claims|storage[.]objects|ai_jobs)'
+    AND CASE WHEN p.prokind IN('f','p') THEN pg_catalog.pg_get_functiondef(p.oid) ELSE '' END ~* '(documents|document_upload_attempts|document_upload_resolution_claims|document_summary_source_bindings|document_source_binding|storage[.]objects|ai_jobs)'
 ), triggers AS (
   SELECT r.name AS table_name,t.tgname AS name,t.tgenabled AS enabled,
     t.tgfoid::regprocedure::text AS function_signature
@@ -61,7 +61,7 @@ SELECT jsonb_build_object(
   'targets',(SELECT jsonb_agg(jsonb_build_object('name',name,'present',oid IS NOT NULL) ORDER BY name) FROM targets),
   'foreign_keys',(SELECT coalesce(jsonb_agg(to_jsonb(fk) ORDER BY source_table,name),'[]'::jsonb) FROM fk),
   'named_reference_candidates',(SELECT coalesce(jsonb_agg(to_jsonb(c) ORDER BY table_name,column_name),'[]'::jsonb)
-    FROM columns c WHERE column_name ~* '(^|_)(document|attachment|storage|upload|file)(_|$)'),
+    FROM columns c WHERE column_name ~* '(^|_)(document|attachment|storage|upload|file|object)(_|$)'),
   'untyped_json_candidates',(SELECT coalesce(jsonb_agg(to_jsonb(c) ORDER BY table_name,column_name),'[]'::jsonb)
     FROM columns c WHERE data_type IN('json','jsonb')),
   'routine_candidates',(SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY signature),'[]'::jsonb) FROM routines r),

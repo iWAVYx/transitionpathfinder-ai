@@ -528,5 +528,11 @@
     "next": "Review full-schema FK/delete-action and JSON reference artifact; design retained processing/source identity and coordinated writer fencing before terminal resolution.",
     "snapshot": "docs/production-readiness/evidence/document-reference-catalog-2026-10-28.json",
     "findings": "17 FK relationships, 29 named candidates, 101 plain JSON/JSONB columns and 21 routine candidates across the audited schema. Six document child relations cascade; document storage identity has no direct object FK; jobs have untyped document references. Candidate counts are not confirmed live references."
+  },
+  "source_binding_checkpoint": {
+    "status": "Prepared locally: 560 cases, 502 pass and 58 native-only skips; exact-source CI pending. Fourteen proposals remain unapplied.",
+    "evidence": "docs/production-readiness/evidence/document-summary-source-binding-local-2026-10-28.json",
+    "boundary": "Retained original source identity and committed admission required; no physical provider, complete writer fence or cleanup capability.",
+    "next": "Verify native contention/full replay and restricted metadata; review in-flight-job reconciliation and retention, then continue provider and semantic reference gates."
   }
 }

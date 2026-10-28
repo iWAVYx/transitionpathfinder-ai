@@ -33,6 +33,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
       - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
       - "docs/production-readiness/proposals/document-reference-catalog.sql"
+      - "docs/production-readiness/proposals/document-summary-source-binding.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -84,6 +85,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
       - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
       - "docs/production-readiness/proposals/document-reference-catalog.sql"
+      - "docs/production-readiness/proposals/document-summary-source-binding.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -688,6 +690,8 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-recovery-read.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-upload-resolution-claim.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-summary-source-binding.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -763,6 +767,27 @@ jobs:
             END LOOP;
           END;
           $review_hold_verify$;
+          DO $source_binding_verify$
+          DECLARE signature text; role_name text; privilege_name text;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_summary_source_bindings'::regclass AND relrowsecurity)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_summary_source_bindings'::regclass AND tgname='document_source_binding_immutable' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.ai_jobs'::regclass AND tgname='ai_jobs_guard_bound_document_source' AND tgenabled='O' AND NOT tgisinternal)
+              OR (SELECT count(*) FROM pg_constraint WHERE conrelid='public.document_summary_source_bindings'::regclass AND contype='f' AND confdeltype='r' AND convalidated)<>3
+            THEN RAISE EXCEPTION 'Unexpected retained source binding boundary'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                IF has_table_privilege(role_name,'public.document_summary_source_bindings',privilege_name)
+                THEN RAISE EXCEPTION 'Unexpected direct source binding table grant'; END IF;
+              END LOOP;
+            END LOOP;
+            FOREACH signature IN ARRAY ARRAY['public.reject_document_source_binding_mutation()','public.guard_bound_document_summary_job()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+              THEN RAISE EXCEPTION 'Unexpected source binding trigger execution grant'; END IF;
+            END LOOP;
+          END;
+          $source_binding_verify$;
           DO $resolution_claim_verify$
           DECLARE signature text; role_name text; privilege_name text;
           BEGIN
@@ -920,6 +945,9 @@ jobs:
           assert.equal(x.targets.length,4);assert.ok(x.targets.every(t=>t.present));
           assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_upload_resolution_claims'&&k.target_table==='public.document_upload_attempts'&&k.delete_action==='restrict'));
           assert.ok(x.untyped_json_candidates.some(c=>c.table_name==='public.ai_jobs'&&c.column_name==='input_source'));
+          assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_summary_source_bindings'&&k.target_table==='public.ai_jobs'&&k.delete_action==='restrict'));
+          const sourceGrants=x.effective_table_grants.filter(g=>g.table_name==='public.document_summary_source_bindings');
+          assert.equal(sourceGrants.length,3);assert.ok(sourceGrants.every(g=>!g.can_select&&!g.can_insert&&!g.can_update&&!g.can_delete&&!g.can_truncate));
           assert.ok(x.triggers.some(t=>t.name==='upload_attempt_resolution_frozen'&&t.enabled==='O'));
           console.log(JSON.stringify({foreign_keys:x.foreign_keys.length,named_candidates:x.named_reference_candidates.length,json_candidates:x.untyped_json_candidates.length,routine_candidates:x.routine_candidates.length}));
           NODE

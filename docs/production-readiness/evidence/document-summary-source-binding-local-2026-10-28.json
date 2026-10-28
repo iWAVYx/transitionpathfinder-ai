@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-28",
+  "status": "Prepared locally; exact-source native concurrency/full-schema CI pending; no hosted acceptance",
+  "source_base": "0fb7a447",
+  "proposal": "docs/production-readiness/proposals/document-summary-source-binding.sql",
+  "proposal_sha256": "889c67343813028d24a232035d3670af2ecb79b0848d57c928d31e38ffdda44e",
+  "canonical_migration_count": 210,
+  "unapplied_upload_proposals": 14,
+  "hosted_actions": false,
+  "application_changed": false,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "checked": [
+    "First successful verified-source admission retains job/actor/student/document/path/object/version/reviewed hash and first claim identity before provider IO; no document text or student context is copied.",
+    "Binding is immutable to ordinary UPDATE/DELETE, including owner DML. Three RESTRICT foreign keys preserve the job, document and student. Bound jobs cannot be deleted or retargeted through input_source, actor, student, type or ID.",
+    "Completion requires an admission committed in an earlier transaction and rechecks current claim, source, scan, privacy context and permissions. A missing binding cannot be invented at completion.",
+    "Manual later claims retain the same original tuple; this does not authorize retries. Concurrent admissions/completions, retarget/delete lock waits and stale stronger-isolation writers have native-only cases.",
+    "Direct binding access is revoked for anonymous, authenticated and service roles. Existing service-only RPC signatures and response schemas are preserved. The restricted metadata catalog discovers the new references without reading user rows."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 560,
+      "pass": 502,
+      "fail": 0,
+      "skip": 58,
+      "skips": "Real PostgreSQL concurrency cases; not local concurrency proof."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_full_schema": "pending"
+  },
+  "rollout_gates": [
+    "All fourteen proposals remain unapplied and outside the canonical 210 migrations. Prepare/review a coordinated migration and worker rollout before requesting separate hosted authorization.",
+    "Pause/drain and reconcile existing in-flight unbound summary jobs. There is no invented backfill: old work without a prior binding must fail completion.",
+    "Review indefinite job/document/student retention and maintenance implications. Stronger transaction isolation is rejected for summary changes; READ COMMITTED remains required."
+  ],
+  "limitations": [
+    "No provider or Storage IO, job retry, expiry, cleanup, quota release or terminal resolution. Stored object metadata is not physical-byte or immutable-provider proof.",
+    "Direct service result/status writes, unrelated job types, provider cancellation, dynamic/external references and the full permission/reference writer graph remain outside this boundary. Current permission checks are not a durable permission lease.",
+    "Ordinary DML guards do not constrain a privileged owner disabling triggers, issuing DDL or TRUNCATE. No direct object-store foreign key is added.",
+    "Report-length polish and Parent Pilot / Pathway Snapshot remain deferred; the complete TF-01\u2013TF-26 and six-milestone roadmap is retained."
+  ]
+}

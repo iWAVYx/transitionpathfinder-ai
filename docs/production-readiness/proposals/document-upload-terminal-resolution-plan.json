@@ -2,7 +2,7 @@
   "date": "2026-10-28",
   "status": "Design gates only; no executable resolution or cleanup implementation; no hosted authorization",
   "canonical_migrations": 210,
-  "unapplied_upload_proposals": 13,
+  "unapplied_upload_proposals": 14,
   "current_boundary": "Paused attempts retain their claims. The recovery read returns a registration receipt or a metadata observation, never a file-absence or deletion capability.",
   "observed_transport_findings": [
     "The installed SDK sends the exact upload path with x-upsert:false, but a 2xx upload body is not validated against expected Id/Key, actor, version or reviewed bytes.",
@@ -15,7 +15,7 @@
   "required_gates": [
     {
       "id": "identity-and-authority",
-      "status": "open",
+      "status": "partial local source identity proposal prepared; native/full-schema verification pending; current permission checks are not a permission lease",
       "requirements": [
         "Capture immutable original attempt/actor/student/path/review-context and current managed object id/version in a trusted server operation. Recheck current explicit student and document permissions; Owner management alone grants none.",
         "Bind all evidence to the exact environment, backend, reviewed release and operation key. Unknown auth, foreign identity, stale review or uncertain response stops; no raw client observation authorizes a mutation."
@@ -26,7 +26,8 @@
       "status": "partial disposable proof: original held attempt/operation frozen; candidate 76e36f47 passes both native/full-schema runs (501 cases, zero skips); processing, provider and reference writers remain unfenced",
       "requirements": [
         "Design a reviewed durable resolution claim that fences reserve, upload insertion, registration, processing and competing resolution across tabs and workers. Keep it counted in unresolved admission until a terminal receipt commits.",
-        "Prove the object service cannot finish an earlier physical upload or replace bytes after the decision. Metadata row locks alone do not prove this. Do not expire a claim on timeout or reuse its storage path."
+        "Prove the object service cannot finish an earlier physical upload or replace bytes after the decision. Metadata row locks alone do not prove this. Do not expire a claim on timeout or reuse its storage path.",
+        "Retained verified-summary source binding is a separate unapplied proposal. It does not fence physical provider writes, all reference writers or direct service result/status writes."
       ],
       "prepared_checkpoint": "docs/production-readiness/evidence/document-upload-resolution-claim-local-2026-10-28.json"
     },
@@ -98,5 +99,6 @@
     "Other evidence, report/document-source JSON and retention references require a complete writer inventory before a deletion design is accepted."
   ],
   "next_safe_work": "Review the full-schema reference/delete-action artifact, then design retained processing/source identity and coordinated writer fences. Actual provider immutable-version/physical-absence behavior remains open. No hosted test or terminal mutation is ready to run.",
-  "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here."
+  "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here.",
+  "source_binding_checkpoint": "docs/production-readiness/proposals/document-summary-source-binding.sql"
 }

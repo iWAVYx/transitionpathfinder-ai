@@ -1626,3 +1626,12 @@ The history migration is applied only to isolated staging under specific user au
 - [x] Verify corrected exact candidate `ea29cf2b`: both native runs 522 passed / zero skips, full replay/catalog audits and all nine applicable checks pass; both builds first attempt. Retain matching metadata-only snapshots and the original catalog-role setup failure.
 - [ ] Complete semantic review of FK delete actions, JSON/named references and candidate writers. Six document child cascades, untyped job references, legacy file_url and non-FK storage identity remain review gates; the catalog is not a complete semantic inventory.
 - [ ] Add reviewed durable processing/source binding and coordinated writer/retention fences; service direct writes, existing provider IO and unrelated job types are not fenced by these tests. No terminal action or hosted rollout is authorized.
+
+
+## October 28 — Retained Document Summary Source Prepared
+
+- [x] Prepared a fourteenth unapplied proposal retaining the exact first verified job/actor/student/document/path/object/version/hash identity, without copying private text or student context. Completion requires a source admission from an earlier committed transaction and current source, claim, scan and permission checks. Bound job identity and retained references cannot be changed or deleted through ordinary DML. Shared eligible-role checks preserve explicit access and management-only Owner Hub.
+- [x] Local disposable checks: **560 cases, 502 passed, 58 native-only skipped**; 88 safety/transport contracts pass. Exact-source native concurrency, full 210-migration replay plus fourteen proposals, restricted metadata and automatic checks remain pending.
+- [ ] Before any rollout: review in-flight unbound-job drain/reconciliation, indefinite reference retention, canonical migration/ledger compatibility and coordinated worker cutover. No fabricated backfill or newly authorized retry. Provider immutable-byte/absence proof, complete semantic references and coordinated writer fencing remain open; no cleanup or capacity release is enabled.
+
+See [source-binding evidence](evidence/document-summary-source-binding-local-2026-10-28.json). No hosted migration, deployment/publication, records, AI/provider calls, account/access/payment/secret or production/main change. Report-length polish and Parent Pilot / Pathway Snapshot stay deferred; all TF-01–TF-26 items and six milestones remain retained.
