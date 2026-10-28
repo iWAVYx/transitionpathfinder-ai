@@ -60,8 +60,8 @@ it("infection on rescan confirms quarantine without claiming or attempting remov
   expect(entries).toEqual(expect.arrayContaining([expect.objectContaining({ action: "document.scan.quarantined", metadata: expect.objectContaining({ removal_status: "not_attempted" }) })]));
   expect(entries.some(entry => entry.action === "document.scan.deleted" || entry.metadata?.storage_path_removed === true)).toBe(false);
 });
-it.each(["infected", "deleted", "failed-with-infected-verdict"])("previously blocked files cannot be rescanned or released (%s)", async state => {
-  api.read.mockResolvedValue({ data: { ...row, scan_status: state === "failed-with-infected-verdict" ? "failed" : state, scan_verdict: state === "failed-with-infected-verdict" ? { code: "infected" } : null }, error: null });
+it.each(["infected", "deleted", "failed-with-infected-verdict", "clean-with-infected-verdict"])("previously blocked files cannot be rescanned or released (%s)", async state => {
+  api.read.mockResolvedValue({ data: { ...row, scan_status: state.endsWith("-with-infected-verdict") ? state.split("-")[0] : state, scan_verdict: state.endsWith("-with-infected-verdict") ? { code: "infected" } : null }, error: null });
   await expect(runRescan()).rejects.toThrow("blocked for your safety");
   expect(api.update).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
 });

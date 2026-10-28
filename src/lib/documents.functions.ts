@@ -1357,13 +1357,13 @@ export const rescanDocument = createServerFn({ method: "POST" })
       "You don't have permission to rescan this document.",
     );
 
-    if (row.scan_status === "clean") {
-      throw new Error("This document already passed the scan; nothing to retry.");
-    }
     const priorVerdict = row.scan_verdict && typeof row.scan_verdict === "object" && !Array.isArray(row.scan_verdict)
       ? row.scan_verdict.code : null;
     if (row.scan_status === "deleted" || row.scan_status === "infected" || priorVerdict === "infected") {
       throw new Error("This file was blocked for your safety and cannot be rescanned.");
+    }
+    if (row.scan_status === "clean") {
+      throw new Error("This document already passed the scan; nothing to retry.");
     }
     if (!row.storage_path) {
       throw new Error("This document has no file attached to rescan.");
