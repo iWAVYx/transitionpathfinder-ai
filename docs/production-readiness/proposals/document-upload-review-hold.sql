@@ -82,11 +82,14 @@ END;
 $insert_guard$;
 REVOKE ALL ON FUNCTION public.can_insert_reserved_student_document(text,text) FROM PUBLIC,anon,authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.can_insert_reserved_student_document(text,text) TO authenticated;
+-- Managed owner_id may be absent on an older Storage schema. Read it through
+-- the row's JSON representation so installation is compatible and missing data
+-- fails closed. Never substitute the legacy owner field or change Storage DDL.
 CREATE POLICY student_document_reserved_insert ON storage.objects
   AS RESTRICTIVE FOR INSERT TO anon,authenticated
   WITH CHECK (CASE
     WHEN bucket_id IS DISTINCT FROM 'student-documents' THEN true
-    WHEN CURRENT_USER='authenticated' THEN public.can_insert_reserved_student_document(name,owner_id::text)
+    WHEN CURRENT_USER='authenticated' THEN public.can_insert_reserved_student_document(name,pg_catalog.to_jsonb(objects)->>'owner_id')
     ELSE false END);
 COMMENT ON TABLE public.document_upload_attempts IS
   'Reserved/review/registered intents with actor-requested non-expiring holds. Client Storage metadata INSERT requires a reserved exact actor/path. No byte attestation, terminal release, expiry, quota, cleanup or deletion authority.';

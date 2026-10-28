@@ -853,7 +853,7 @@ for(const role of ['family','educator','student']) test('reserved storage insert
 for(const role of ['school','district','owner']) test('explicit '+role+' student editor can hold only their own reserved upload',async()=>{
   await installReviewHold();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);await reserve();assert.equal((await reservedObject(db,{owner:actors[role]})).rows.length,1);assert.equal((await hold()).actor_id,actors[role]);
 });
-for(const [role,actor] of Object.entries(actors)) test('a foreign reservation gives no hold or upload authority to '+role,async()=>{
+for(const [role,actor] of Object.entries(actors)) test(role==='family'?'a held original reservation blocks later client insertion':'a foreign reservation gives no hold or upload authority to '+role,async()=>{
   await ownReviewIntent();if(role==='family') {await hold();await assert.rejects(reservedObject(),{code:'42501'});return;}
   await as(actor);await assert.rejects(hold(),{code:'42501'});await assert.rejects(reservedObject(db,{owner:actor}),{code:'42501'});
   assert.equal((await registrationState()).state,'reserved');
@@ -933,4 +933,29 @@ for(const finish of ['COMMIT','ROLLBACK']) test('review hold cannot detach a reg
   await a.exec('BEGIN');const doc=await registerReserved(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
   const pending=hold(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
   await a.exec(finish);const outcome=await pending;if(finish==='COMMIT'){assert.equal(outcome.error?.code,'42501');assert.equal((await registrationState()).registered_document_id,doc.id);}else{assert.equal(outcome.result.state,'review_required');assert.equal((await registrationState()).registered_document_id,null);}
+});
+
+test('older Storage schema without managed owner_id installs but refuses new client metadata',async()=>{
+  await installReservations();await db.exec(registrationProposal);await db.exec(quarantineReadProposal);
+  await db.exec("ALTER TABLE storage.objects ADD COLUMN owner uuid;UPDATE storage.objects SET owner=owner_id::uuid;ALTER TABLE storage.objects DROP COLUMN owner_id");
+  try {
+    await db.exec(reviewHoldProposal);await as();const receipt=await reserve();
+    await assert.rejects(db.query('INSERT INTO storage.objects(bucket_id,name,owner,version) VALUES($1,$2,$3,$4)',['student-documents',receipt.storage_path,actors.family,'legacy-version']),{code:'42501'});
+  } finally {
+    await db.exec('RESET ROLE;ALTER TABLE storage.objects ADD COLUMN owner_id text;UPDATE storage.objects SET owner_id=owner::text;ALTER TABLE storage.objects DROP COLUMN owner');
+  }
+});
+test('a contradictory legacy owner cannot substitute for the managed uploader identity',async()=>{
+  await ownReviewIntent();await db.exec('RESET ROLE;ALTER TABLE storage.objects ADD COLUMN owner uuid');
+  try {
+    await as();await assert.rejects(db.query('INSERT INTO storage.objects(bucket_id,name,owner_id,owner,version) VALUES($1,$2,$3,$4,$5)',['student-documents',student+'/'+attemptId+'-privacy-safe-document.txt',actors.owner,actors.family,'mixed-version']),{code:'42501'});
+  } finally {await db.exec('RESET ROLE;ALTER TABLE storage.objects DROP COLUMN owner');}
+});
+test('downgrading the uploader to viewer blocks holding and reserved insertion',async()=>{
+  await ownReviewIntent(actors.educator);await db.exec('RESET ROLE');await db.query("UPDATE public.student_collaborators SET role='viewer' WHERE user_id=$1",[actors.educator]);
+  await as(actors.educator);await assert.rejects(hold(),{code:'42501'});await assert.rejects(reservedObject(db,{owner:actors.educator}),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
+});
+test('Owner management role cannot retain upload authority after explicit student access is removed',async()=>{
+  await installReviewHold();await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors.owner]);await as(actors.owner);await reserve();await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.owner]);
+  await as(actors.owner);await assert.rejects(hold(),{code:'42501'});await assert.rejects(reservedObject(db,{owner:actors.owner}),{code:'42501'});assert.equal((await registrationState()).state,'reserved');
 });
