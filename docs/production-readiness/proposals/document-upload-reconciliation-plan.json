@@ -350,5 +350,15 @@
       "Production protected uploads remain disabled by the unchanged environment/backend gate. Existing hosted staging/runtime is unchanged."
     ],
     "prior_ci_note": "Evidence-only 1b01012d had one confirmed Node heap failure and a passing parallel build; intermittent capped-build risk remains open, not fixed by this integration."
+  },
+  "build_cache_checkpoint": {
+    "date": "2026-10-28",
+    "status": "local constrained-build mitigation validated; exact-candidate Linux CI pending; hosted acceptance unperformed",
+    "evidence": "docs/production-readiness/evidence/compiler-cache-build-local-2026-10-28.json",
+    "fingerprint": "dfffe410be8b4aaa4d4792cc6b19bd8fdce0c17088bb410dc85eeae2b916244f",
+    "file_count": 1198,
+    "heap_limit_mib": 1216,
+    "sql_changed": false,
+    "hosted_actions": false
   }
 }

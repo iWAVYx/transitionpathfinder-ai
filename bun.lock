@@ -117,6 +117,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "@tanstack/start-plugin-core@1.171.49": "scripts/patches/@tanstack%2Fstart-plugin-core@1.171.49.patch",
+  },
   "overrides": {
     "browserslist": "4.28.8",
     "dompurify": "3.4.17",

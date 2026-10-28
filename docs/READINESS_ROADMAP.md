@@ -1,5 +1,15 @@
 # TransitionForward — Readiness Roadmap
 
+## October 28 — Constrained Build Compiler Cache (Local Only)
+
+- [x] Reproduced the intermittent failure under Node 22 and the original 1,216 MiB heap cap. Discarded extra-GC experiments after a repeat failed. Prepared a pinned Bun patch for the existing compiler version: release build-only transform caches before rendering, retain server-function metadata and development/HMR state. No dependency upgrade, heap increase or application authorization change.
+- [x] Three fixed-comparison patched builds pass; all 511 client/server JavaScript and CSS outputs match the passing unpatched control byte for byte. The unpatched baseline also failed once, so these passes do not prove elimination. Persisted patch/frozen install build passes; a clean environment-free temporary frozen install reproduces both patched files without package/lock changes.
+- [x] 5,245 unit tests / 347 files, TypeScript, 44 existing build/readiness contracts and three real compiler lifecycle cases pass. The lifecycle test covers client/server cache release, retained callable server-function registry, unknown-function rejection and development retention; it now runs before CI builds.
+- [ ] Exact candidate Linux CI and separately authorized hosted memory acceptance remain required. No retries or increased cap count as proof. Existing upload/cleanup, proposal promotion and production gates remain open.
+
+Evidence: `production-readiness/evidence/compiler-cache-build-local-2026-10-28.json`. Candidate fingerprint `dfffe410…916244f` / 1,198 files. Stable hosted staging and production are unchanged. All TF-01–TF-26/six milestones remain; report polish/length and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 28 — Reserved Upload Caller and Read-Only Recovery (Local Only)
 
 - [x] Shared document upload panel now freezes review details, reserves an attempt before storage and carries its exact ID/path/review digest into registration. Server registration recomputes that actor-bound intent before reading/scanning; missing RPCs or mismatches stop with no unreserved-write fallback. Verified duplicate checks remain before storage.

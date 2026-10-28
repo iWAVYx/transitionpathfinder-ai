@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-28",
+  "status": "local constrained-build mitigation validated; exact-candidate Linux CI pending; hosted acceptance unperformed",
+  "hosted_actions": false,
+  "source_base": "186d4d9d",
+  "application_fingerprint": "dfffe410be8b4aaa4d4792cc6b19bd8fdce0c17088bb410dc85eeae2b916244f",
+  "application_file_count": 1198,
+  "dependency": "@tanstack/start-plugin-core@1.171.49",
+  "dependency_versions_changed": false,
+  "heap_limit_mib": 1216,
+  "semi_space_limit_mib": 4,
+  "local_runtime": "Node 22.23.4, Darwin arm64; CI uses Linux Node 22",
+  "change": "Pinned Bun patch drops only the per-environment build compiler at buildEnd; retains the separate server-function registry and development/HMR compiler state. Source and executed ESM file patched. No application authorization or SQL changes.",
+  "rejected_experiment": "Extra build-phase and post-close GC did not pass the controlled repeat; all experimental tracked changes were reverted before this patch.",
+  "baseline": "Unpatched Node 22 build exhausted the original heap once; the fixed comparison control later passed. Original failures are intermittent, so local passes do not prove elimination.",
+  "comparison_source": "Base tracked source with only the temporary dependency cache-release patch; constant build timestamp and unchanged heap flags. The comparison predates persisting package/lock/patch entries.",
+  "comparison": [
+    {
+      "case": "control-disabled",
+      "exit_code": 0,
+      "seconds": 29.78,
+      "output_files": 511,
+      "matches_control": true,
+      "cache_lifecycle": []
+    },
+    {
+      "case": "enabled-1",
+      "exit_code": 0,
+      "seconds": 28.23,
+      "output_files": 511,
+      "matches_control": true,
+      "cache_lifecycle": [
+        "[start-compiler-cache] client: released",
+        "[start-compiler-cache] ssr: released"
+      ]
+    },
+    {
+      "case": "enabled-2",
+      "exit_code": 0,
+      "seconds": 29.79,
+      "output_files": 511,
+      "matches_control": true,
+      "cache_lifecycle": [
+        "[start-compiler-cache] client: released",
+        "[start-compiler-cache] ssr: released"
+      ]
+    },
+    {
+      "case": "enabled-3",
+      "exit_code": 0,
+      "seconds": 29.41,
+      "output_files": 511,
+      "matches_control": true,
+      "cache_lifecycle": [
+        "[start-compiler-cache] client: released",
+        "[start-compiler-cache] ssr: released"
+      ]
+    }
+  ],
+  "output_table_sha256": "eaf6bc95547819804fe43c944109a68be7f32b4d62af3e770f3c22ecf15e0087",
+  "output_scope": "All 511 dist/client and dist/server .js/.mjs/.css files; service-worker content excluded from this comparison. Split server-function resolver and manifest are consumed during successful SSR builds.",
+  "persisted_candidate_build": {
+    "passed": true,
+    "seconds": 30.12,
+    "max_resident_bytes": 1508524032,
+    "rss_is_not_v8_old_space": true,
+    "service_worker_generation": "passed as final build command stage",
+    "cache_lifecycle": [
+      "client: released",
+      "ssr: released"
+    ]
+  },
+  "clean_temporary_frozen_install": {
+    "exit_code": 0,
+    "package_json_unchanged": true,
+    "lockfile_unchanged": true,
+    "matching_patched_files": {
+      "dist/esm/vite/start-compiler-plugin/plugin.js": true,
+      "src/vite/start-compiler-plugin/plugin.ts": true
+    }
+  },
+  "checks": {
+    "unit_tests": 5245,
+    "unit_files": 347,
+    "typescript": "passed",
+    "existing_build_readiness_contracts": 44,
+    "real_dependency_lifecycle_cases": 3,
+    "lifecycle_scope": "Real client/server transforms and resolver metadata, callable discovered function, unknown-function rejection, build cache release, dev retention, diagnostic control. Local fictional modules only; no services."
+  },
+  "remaining": [
+    "Verify exact candidate Linux automatic checks without retries; no all-green claim yet.",
+    "Obtain separately authorized isolated hosted memory/route acceptance before any release claim.",
+    "Keep all eight upload SQL proposals noncanonical (210 canonical migrations) and finish storage INSERT, reconciliation/cleanup receipts and deletion ordering review before rollout.",
+    "All roadmap milestones remain; report polish/length and Parent Pilot/Pathway Snapshot stay deferred."
+  ]
+}
