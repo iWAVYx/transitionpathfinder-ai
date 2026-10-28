@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), clean: vi.fn(), enqueue: vi.fn(), remove: vi.fn(), download: vi.fn(), insert: vi.fn(), cleanWrite: vi.fn(), pathAvailable: vi.fn() }));
+const api = vi.hoisted(() => ({ context: null as any, gate: vi.fn(), pipeline: vi.fn(), sniff: vi.fn(), scan: vi.fn(), clean: vi.fn(), enqueue: vi.fn(), remove: vi.fn(), download: vi.fn(), insert: vi.fn(), cleanWrite: vi.fn(), pathAvailable: vi.fn(), audit: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   let validate = (input: unknown) => input;
   const builder = { middleware: () => builder, validator: (fn: typeof validate) => { validate = fn; return builder; },
@@ -34,12 +34,12 @@ beforeEach(() => {
   const orgQuery: any = { select: () => orgQuery, eq: () => orgQuery, limit: () => orgQuery, maybeSingle: async () => ({ data: null, error: null }) };
   api.insert.mockReturnValue({ select: () => ({ single: async () => ({ data: pending, error: null }) }) });
   const documentQuery = { insert: api.insert };
-  api.enqueue.mockResolvedValue({ error: null });
+  api.enqueue.mockResolvedValue({ error: null }); api.audit.mockResolvedValue({ error: null });
   api.context = { userId: "current-viewer", supabase: { storage: { from: () => ({ download: api.download }) }, rpc: async (name:string,args:any) => name==="reserve_document_upload" ? ({data:{schema:"document-upload-reservation-v1",attempt_id:args._attempt_id,student_id:args._student_id,actor_id:"current-viewer",storage_path:path,state:"reserved"},error:null}) : ({ data: true, error: null }), from: (table: string) => {
     if (table === "user_roles") return roleQuery;
     if (table === "organization_memberships") return orgQuery;
     if (table === "documents") return documentQuery;
-    return { insert: table === "ai_jobs" ? api.enqueue : async () => ({ error: null }) };
+    return { insert: table === "ai_jobs" ? api.enqueue : table === "audit_log" ? api.audit : async () => ({ error: null }) };
   } } };
 });
 it("returns the persisted clean receipt, not the pre-scan row, and then enqueues once", async () => {
@@ -74,11 +74,18 @@ function rejectScan(stage: string) {
 }
 it.each(["sniff", "timeout", "infected"])("returns a persisted blocked receipt without summary processing after %s", async stage => {
   rejectScan(stage);
-  const blocked = { ...pending, review_status: "rejected", archived_at: "2026-10-27", scan_status: stage === "sniff" ? "pending" : stage === "infected" ? "deleted" : "failed" };
+  const blocked = { ...pending, review_status: "rejected", archived_at: "2026-10-27", scan_status: stage === "sniff" ? "pending" : stage === "infected" ? "infected" : "failed" };
   api.clean.mockResolvedValue({ data: blocked, error: null });
   expect(await register()).toEqual(blocked); expect(api.enqueue).not.toHaveBeenCalled();
   expect(api.scan).toHaveBeenCalledTimes(stage === "sniff" ? 0 : 1);
-  expect(api.remove).toHaveBeenCalledTimes(stage === "infected" ? 1 : 0);
+  expect(api.remove).not.toHaveBeenCalled();
+  if (stage === "infected") {
+    expect(api.cleanWrite).toHaveBeenCalledWith(expect.objectContaining({ scan_status: "infected", review_status: "rejected" }));
+    expect(api.cleanWrite.mock.calls[0][0]).not.toHaveProperty("deleted_at");
+    const entries = api.audit.mock.calls.flatMap(([entry]) => Array.isArray(entry) ? entry : [entry]);
+    expect(entries).toEqual(expect.arrayContaining([expect.objectContaining({ action: "document.scan.quarantined", metadata: expect.objectContaining({ removal_status: "not_attempted" }) })]));
+    expect(entries.some(entry => entry.action === "document.scan.deleted" || entry.metadata?.storage_path_removed === true)).toBe(false);
+  }
 });
 it.each(["sniff", "timeout"])("does not fabricate a persisted quarantine result when its update fails (%s)", async stage => {
   rejectScan(stage); api.clean.mockResolvedValue({ data: pending, error: { message: "PRIVATE persistence error" } });
@@ -149,4 +156,11 @@ it("fails closed on missing reservation RPC before storage or scanning, without 
 });
 it("persists the exact reservation identifiers alongside the verified stored-byte hash",async()=>{
   await register();const row=api.insert.mock.calls[0][0];expect(row.upload_attempt_id).toBe(attempt);expect(row.upload_review_context_sha256).toMatch(/^[a-f0-9]{64}$/);expect(row.content_hash).toBe(createHash("sha256").update("Fictional reviewed source").digest("hex"));
+});
+
+it.each(["deleted", "failed", "clean"])("an infected scan cannot claim a different persisted security state (%s)", async status => {
+  rejectScan("infected");
+  api.clean.mockResolvedValue({ data: { ...pending, scan_status: status, review_status: "rejected", archived_at: "2026-10-28" }, error: null });
+  await expect(register()).rejects.toThrow("couldn't confirm the document's security review");
+  expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
 });

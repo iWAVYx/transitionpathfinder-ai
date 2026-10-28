@@ -1,5 +1,16 @@
 # TransitionForward — Readiness Roadmap
 
+## October 28 — Truthful Quarantine and Paused Unsafe Removal (Local Only)
+
+- [x] Registration/rescan now retain infected files in an explicitly blocked state instead of deleting bytes and claiming success without proof. Quarantine receipts must match the exact document/student/path/state; uncertain results stop without another scan or AI request. Previously infected/retired files cannot be rescanned. New application file links require a clean security state, including admin override links.
+- [x] Permanent admin deletion is paused in the local candidate before privileged reads or destructive IO; archive/restore permissions are unchanged. Shared document UI reports blocked/quarantined states without removal claims or raw status codes. This shared server path applies to every authorized role using it.
+- [x] Prepared a ninth noncanonical proposal restricting new Storage reads/signing for committed infected/retired states, including hidden uploader/admin exceptions and stale infected verdicts. All seven roles are denied even with a broad permissive grant in the disposable fixture. Canonical inventory remains 210; no proposal is applied hosted.
+- [x] 5,279 unit tests / 348 files, 66 focused handler cases, TypeScript, 70 build/upload/channel contracts and the unchanged capped build pass. Local database coverage passes 310 cases; 11 native-only cases await CI. Draft legacy malware QA is paused before credentials/requests/fixtures because its purge assertions and prefix-based cleanup are unsafe for the new lifecycle.
+- [ ] Obtain exact-candidate native/full-schema proof, then finish guarded cleanup claims, exact receipts/independent absence, terminal recovery/quotas, reservation-gated INSERT and permission/immutability review. Related channel removal receipt/absence gaps are now explicitly tracked too. No deletion authority or cleanup acceptance is claimed.
+
+Evidence: `production-readiness/evidence/document-quarantine-safety-local-2026-10-28.json`. Candidate `424344c1…bf986cf` / 1,199 files. New read rules do not revoke prior signed URLs or constrain trusted service reads; pending/unregistered exceptions remain review gates. No hosted action, provider call, fixture, migration, release/publication or production change. All TF-01–TF-26/six milestones remain; report polish/length and Parent Pilot/Pathway Snapshot stay deferred.
+
+
 ## October 28 — Constrained Build Compiler Cache (Local Only)
 
 - [x] Reproduced the intermittent failure under Node 22 and the original 1,216 MiB heap cap. Discarded extra-GC experiments after a repeat failed. Prepared a pinned Bun patch for the existing compiler version: release build-only transform caches before rendering, retain server-function metadata and development/HMR state. No dependency upgrade, heap increase or application authorization change.

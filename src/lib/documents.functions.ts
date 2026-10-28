@@ -1,6 +1,7 @@
 import { documentRegistrationRequestSchema, documentUploadReservationRequestSchema, documentUploadRecoveryRequestSchema } from "./document-upload-intent";
 import { documentUploadFingerprint } from "./document-upload-fingerprint";
 import { documentUploadOutcome } from "./document-upload-outcome";
+import { assertDocumentFileReady } from "./document-file-readiness";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -283,6 +284,7 @@ export const registerDocument = createServerFn({ method: "POST" })
           .select("*")
           .single();
         if (receipt.error || receipt.data?.id !== row.id ||
+            receipt.data.scan_status !== "pending" ||
             documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
           throw new Error("Unconfirmed quarantine receipt");
         }
@@ -345,8 +347,8 @@ export const registerDocument = createServerFn({ method: "POST" })
     // ── Private Cloudmersive advanced malware scan ────────────────────
     // Bytes are quarantined (scan_status = 'pending' via default) until we
     // receive a "clean" verdict. Everything else fails closed: no AI job
-    // is enqueued and the file is either hard-deleted (infected) or held
-    // in quarantine (failed/timeout/indeterminate).
+    // is enqueued. Non-clean files stay quarantined. Storage removal awaits
+    // a guarded claim, reference checks, receipt and independent absence proof.
     const { MALWARE_SCAN_PROVIDER, scanUploadedDocument } = await import(
       "./document-av-scan.server"
     );
@@ -374,21 +376,16 @@ export const registerDocument = createServerFn({ method: "POST" })
       const isInfected = scanResult.code === "infected";
       const now = new Date().toISOString();
 
-      if (isInfected) {
-        // Infected → remove the object from storage entirely.
-        try {
-          await adminForScan.storage.from("student-documents").remove([data.storage_path]);
-        } catch (rmErr) {
-          console.error("av_scan: failed to purge infected object", rmErr);
-        }
-      }
+      // Do not delete bytes here: a scan result is not a reference-safe
+      // deletion claim, and a successful Storage response would not by itself
+      // prove permanent absence. Preserve the record and quarantine instead.
 
       let quarantinedDocument: DocumentRow;
       try {
         const receipt = await adminForScan
           .from("documents")
           .update({
-            scan_status: isInfected ? "deleted" : "failed",
+            scan_status: isInfected ? "infected" : "failed",
             scan_verdict: {
               code: scanResult.code,
               provider: scanResult.provider,
@@ -403,12 +400,12 @@ export const registerDocument = createServerFn({ method: "POST" })
             archived_at: now,
             archived_by: userId,
             archive_reason: `auto-quarantined by av_scan: ${scanResult.code}`,
-            ...(isInfected ? { deleted_at: now, deleted_by: userId, delete_reason: "av_scan_infected" } : {}),
           })
           .eq("id", row.id)
           .select("*")
           .single();
         if (receipt.error || receipt.data?.id !== row.id ||
+            receipt.data.scan_status !== (isInfected ? "infected" : "failed") ||
             documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
           throw new Error("Unconfirmed quarantine receipt");
         }
@@ -475,11 +472,11 @@ export const registerDocument = createServerFn({ method: "POST" })
           },
           {
             actor_id: userId,
-            action: "document.scan.deleted",
+            action: "document.scan.quarantined",
             entity_type: "document",
             entity_id: row.id,
             student_id: data.student_id,
-            metadata: { ...baseMeta, storage_path_removed: true },
+            metadata: { ...baseMeta, removal_status: "not_attempted" },
           },
         ]);
       } else {
@@ -636,7 +633,7 @@ export const registerDocument = createServerFn({ method: "POST" })
 /**
  * Soft-archive a document. The file is retained but hidden from active views.
  * Editors can restore via the same fn with `restore: true`. Hard delete is
- * reserved to platform admins via `hardDeleteDocument`.
+ * paused pending guarded cleanup; `hardDeleteDocument` fails closed.
  */
 export const archiveDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -680,8 +677,10 @@ export const archiveDocument = createServerFn({ method: "POST" })
   });
 
 /**
- * Hard delete — restricted to platform admins, requires a reason, fully audited.
- * Removes the storage object and the DB row.
+ * Permanent removal is paused until a guarded cleanup protocol can prove
+ * exact references, deletion receipts and independent object absence.
+ * Keep the existing endpoint and admin check; never delete bytes first or
+ * bypass restrictive document/upload-attempt retention to report success.
  */
 export const hardDeleteDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -689,42 +688,17 @@ export const hardDeleteDocument = createServerFn({ method: "POST" })
     id: z.string().uuid(),
     reason: z.string().trim().min(8, "Reason must be at least 8 characters.").max(500),
   }).parse(i))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("is_platform_admin", { _user_id: userId });
-    if (!isAdmin) throw new Error("Only platform admins may permanently delete documents.");
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: doc } = await supabaseAdmin
-      .from("documents")
-      .select("id, student_id, storage_path")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (!doc) throw new Error("Document not found.");
-
-    if (doc.storage_path) {
-      await supabaseAdmin.storage.from("student-documents").remove([doc.storage_path]);
+    let isAdmin = false;
+    try {
+      const receipt = await supabase.rpc("is_platform_admin", { _user_id: userId });
+      isAdmin = !receipt.error && receipt.data === true;
+    } catch {
+      // Uncertain authorization grants no data or deletion access.
     }
-    const { error } = await supabaseAdmin.from("documents").delete().eq("id", data.id);
-    if (error) throw new Error("Could not delete document.");
-
-    await supabaseAdmin.from("document_access_log").insert({
-      document_id: doc.id,
-      student_id: doc.student_id,
-      actor_id: userId,
-      action: "hard_delete",
-      reason: data.reason,
-    });
-    await supabaseAdmin.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.hard_delete",
-      entity_type: "document",
-      entity_id: doc.id,
-      student_id: doc.student_id,
-      metadata: { reason: data.reason },
-    });
-
-    return { ok: true };
+    if (!isAdmin) throw new Error("Only platform admins may permanently delete documents.");
+    throw new Error("Permanent removal is temporarily unavailable while safe removal is being finalized.");
   });
 
 /**
@@ -778,7 +752,7 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
     // signal and raise an alert before refusing.
     const { data: row, error } = await supabase
       .from("documents")
-      .select("id, storage_path, student_id, doc_type, title")
+      .select("id, storage_path, student_id, doc_type, title, scan_status, scan_verdict")
       .eq("id", data.id)
       .maybeSingle();
 
@@ -827,6 +801,8 @@ export const getDocumentSignedUrl = createServerFn({ method: "POST" })
       { supabase, userId, action: "view", resourceType: "document", resourceId: row.id },
       "You don't have permission to view this document.",
     );
+
+    assertDocumentFileReady(row);
 
     const { data: signed, error: signErr } = await supabase.storage
       .from("student-documents")
@@ -912,10 +888,12 @@ export const requestAdminDocAccess = createServerFn({ method: "POST" })
     // Now that the grant exists, RLS lets us load metadata + mint a URL.
     const { data: doc } = await supabase
       .from("documents")
-      .select("id, student_id, storage_path, doc_type, title")
+      .select("id, student_id, storage_path, doc_type, title, scan_status, scan_verdict")
       .eq("id", data.document_id)
       .maybeSingle();
     if (!doc) throw new Error("Document not found.");
+
+    assertDocumentFileReady(doc);
 
     const { data: signed, error: signErr } = await supabase.storage
       .from("student-documents")
@@ -1358,8 +1336,8 @@ export const markDocumentReviewed = createServerFn({ method: "POST" })
  * Re-run the Cloudmersive advanced scan on a document whose previous scan
  * ended in `failed` / `timeout` / other indeterminate state. Fails closed:
  * a non-clean verdict leaves the row quarantined and never enqueues an AI
- * job. Rows whose bytes were already purged (`scan_status = 'deleted'`,
- * i.e. previously infected) cannot be retried.
+ * job. Previously infected or retired files cannot be retried, even while
+ * their bytes are retained awaiting guarded cleanup.
  */
 export const rescanDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -1369,7 +1347,7 @@ export const rescanDocument = createServerFn({ method: "POST" })
 
     const { data: row, error: readErr } = await supabase
       .from("documents")
-      .select("id, student_id, title, doc_type, storage_path, mime_type, size_bytes, scan_status")
+      .select("id, student_id, title, doc_type, storage_path, mime_type, size_bytes, scan_status, scan_verdict")
       .eq("id", data.id)
       .maybeSingle();
     if (readErr || !row) throw new Error("Document not found or access denied.");
@@ -1382,8 +1360,10 @@ export const rescanDocument = createServerFn({ method: "POST" })
     if (row.scan_status === "clean") {
       throw new Error("This document already passed the scan; nothing to retry.");
     }
-    if (row.scan_status === "deleted") {
-      throw new Error("This file was removed after a previous infection and cannot be rescanned.");
+    const priorVerdict = row.scan_verdict && typeof row.scan_verdict === "object" && !Array.isArray(row.scan_verdict)
+      ? row.scan_verdict.code : null;
+    if (row.scan_status === "deleted" || row.scan_status === "infected" || priorVerdict === "infected") {
+      throw new Error("This file was blocked for your safety and cannot be rescanned.");
     }
     if (!row.storage_path) {
       throw new Error("This document has no file attached to rescan.");
@@ -1428,38 +1408,42 @@ export const rescanDocument = createServerFn({ method: "POST" })
 
     if (!scanResult.ok) {
       const isInfected = scanResult.code === "infected";
-      if (isInfected) {
-        try {
-          await supabaseAdmin.storage.from("student-documents").remove([row.storage_path]);
-        } catch (rmErr) {
-          console.error("rescanDocument: failed to purge infected object", rmErr);
+      // A failed security review never authorizes storage deletion.
+      // Confirm quarantine for this exact row before reporting its outcome.
+      try {
+        const receipt = await supabaseAdmin
+          .from("documents")
+          .update({
+            scan_status: isInfected ? "infected" : "failed",
+            scan_verdict: {
+              code: scanResult.code,
+              provider: scanResult.provider,
+              clean_result: scanResult.clean_result,
+              blocked_reasons: scanResult.blocked_reasons,
+              threats: scanResult.threats,
+              error_message: scanResult.error_message,
+              retry: true,
+            },
+            scan_data_id: scanResult.scan_id,
+            scanned_at: finishedAt,
+            review_status: "rejected",
+            archived_at: finishedAt,
+            archived_by: userId,
+            archive_reason: `auto-quarantined by av_scan retry: ${scanResult.code}`,
+          })
+          .eq("id", row.id)
+          .eq("student_id", row.student_id)
+          .eq("storage_path", row.storage_path)
+          .select("*")
+          .single();
+        if (receipt.error || receipt.data?.id !== row.id ||
+            receipt.data.scan_status !== (isInfected ? "infected" : "failed") ||
+            documentUploadOutcome(receipt.data, row.student_id, row.storage_path) !== "blocked") {
+          throw new Error("Unconfirmed quarantine receipt");
         }
+      } catch {
+        throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
       }
-
-      await supabaseAdmin
-        .from("documents")
-        .update({
-          scan_status: isInfected ? "deleted" : "failed",
-          scan_verdict: {
-            code: scanResult.code,
-            provider: scanResult.provider,
-            clean_result: scanResult.clean_result,
-            blocked_reasons: scanResult.blocked_reasons,
-            threats: scanResult.threats,
-            error_message: scanResult.error_message,
-            retry: true,
-          },
-          scan_data_id: scanResult.scan_id,
-          scanned_at: finishedAt,
-          review_status: "rejected",
-          archived_at: finishedAt,
-          archived_by: userId,
-          archive_reason: `auto-quarantined by av_scan retry: ${scanResult.code}`,
-          ...(isInfected
-            ? { deleted_at: finishedAt, deleted_by: userId, delete_reason: "av_scan_infected" }
-            : {}),
-        })
-        .eq("id", row.id);
 
       await recordPipelineRun({
         document_id: row.id,
@@ -1496,7 +1480,7 @@ export const rescanDocument = createServerFn({ method: "POST" })
       if (isInfected) {
         await supabase.from("audit_log").insert([
           { actor_id: userId, action: "document.scan.infected", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: meta },
-          { actor_id: userId, action: "document.scan.deleted", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: { ...meta, storage_path_removed: true } },
+          { actor_id: userId, action: "document.scan.quarantined", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: { ...meta, removal_status: "not_attempted" } },
         ]);
       } else {
         await supabase.from("audit_log").insert([

@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-28",
+  "status": "local quarantine-only safeguard and ninth SQL proposal verified; exact-candidate native/full-schema CI pending; guarded cleanup still unimplemented",
+  "hosted_actions": false,
+  "canonical_migration_count": 210,
+  "noncanonical_proposal_count": 9,
+  "application_fingerprint": "424344c10dc0c9f9e96934049d9b410a2317d3e4794c5656841fa9730bf986cf",
+  "application_file_count": 1199,
+  "sha256": {
+    "src/lib/documents.functions.ts": "21185e88886f7b0885fe88a407a5ba560c892ef6873b5e26ac01f101e8235241",
+    "src/lib/document-file-readiness.ts": "f5e98e8f031f2151eca1a4a7c6e130aa1fc5cf2ab5f89f0df76a20c95f225767",
+    "src/routes/_authenticated/documents.tsx": "1a1b61e4438b410eddb904d67ea4537e6d8b856e3082d8f0316da5201fb6dd20",
+    "docs/production-readiness/proposals/document-quarantine-read-boundary.sql": "b91fbca224345b06266c24ccd3ad97ba918247c1a56313d1a6ab66febd3681f0"
+  },
+  "implemented": [
+    "Registration/rescan no longer delete Storage bytes or write deleted timestamps/removal-success audit events after an infected verdict. They retain an infected/rejected/archived quarantine record, verify the persisted blocked receipt, and never enqueue AI for that outcome.",
+    "Permanent administrative removal fails closed after a strict error-aware admin check, without privileged document reads, Storage operations, database deletion or success audit. Archive/restore permissions are unchanged.",
+    "Previously infected or deleted files, including a stale failed status with an infected verdict, cannot enter another rescan.",
+    "New application download links and metadata-override file links require a clean, non-infected security state as well as existing authorization. UI messages say quarantined/blocked rather than falsely claiming removal; unknown scan values are not printed as codes.",
+    "Ninth proposal adds a restrictive Storage SELECT predicate for committed infected/deleted status or infected verdict, seeing archived references despite uploader/admin read exceptions. Existing permissive policies still determine other reads. No deletion or additional read grant is introduced.",
+    "Legacy manual malware fixture workflow is paused in draft before identity requests, protected credentials, account setup and fixture execution because its prefix-based cleanup and purge assertions are incompatible. Historical proof remains release-specific."
+  ],
+  "checks": {
+    "unit_tests_passed": 5279,
+    "unit_files": 348,
+    "final_real_handler_focused": 66,
+    "typescript": "passed",
+    "credential_free_build_upload_channel_contracts": 70,
+    "disposable_database_passed": 310,
+    "native_only_skipped_locally": 11,
+    "native_pending": "Existing nine contention cases plus two new commit/rollback read-visibility cases. Full 210-migration + nine-proposal installation/catalog check pending CI.",
+    "final_capped_build": "passed",
+    "heap_limit_mib": 1216
+  },
+  "role_scope": "Actual disposable SQL denial across Student, Family, Educator, School, District, Partner and Owner, even under a deliberately broad permissive policy; caller tests use intercepted fictional IO. This is not live signed-in or Storage API acceptance.",
+  "limits": [
+    "No cleanup worker, terminal recovery RPC, deletion claim/receipt/independent absence check, reservation-gated INSERT, quota or retention release is implemented. Permanent deletion remains intentionally unavailable in the local candidate.",
+    "The new read restriction is proposal-only. It cannot protect hosted files until separately reviewed/authorized promotion. Do not deploy the retained-infection candidate without the reviewed read boundary and all required foundational proposals.",
+    "The predicate does not revoke previously issued signed URLs or in-flight snapshots, block service-role reads, or establish immutable remote bytes. Pending/unregistered review-read exceptions and hosted Storage behavior remain separate review gates.",
+    "Other rescan transitions still require guarded concurrent claim/finalization and completion/error review. Do not describe all rescan recovery as complete.",
+    "Related channel scan and pending-upload removal paths check API errors but do not prove exact removal receipts/absence; they remain unchanged and require their own reference/lifecycle review.",
+    "All TF-01\u2013TF-26/six milestones remain; report polish/length and Parent Pilot/Pathway Snapshot remain deferred. Production and main unchanged."
+  ]
+}

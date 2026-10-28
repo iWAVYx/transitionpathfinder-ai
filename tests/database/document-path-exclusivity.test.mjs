@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const quarantineReadProposal = readFileSync('docs/production-readiness/proposals/document-quarantine-read-boundary.sql','utf8');
 const registrationProposal = readFileSync('docs/production-readiness/proposals/document-upload-registration.sql','utf8');
 const reservationProposal = readFileSync('docs/production-readiness/proposals/document-upload-reservations.sql','utf8');
 const sourceProposal = readFileSync('docs/production-readiness/proposals/verified-document-summary-source.sql','utf8');
@@ -83,7 +84,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -760,4 +761,70 @@ test('registration definer helpers have fixed paths and no direct execution gran
 test('missing reservation prerequisite rolls back document linkage installation',async()=>{
   await assert.rejects(db.exec(registrationProposal),{code:'55000'});await db.exec('ROLLBACK');
   assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_attribute WHERE attrelid='public.documents'::regclass AND attname='upload_attempt_id' AND NOT attisdropped")).rows[0].n,0);
+});
+
+// New proposal: retained infected objects must not inherit uploader/admin
+// review-read exceptions. No Storage API requests or real bytes are involved.
+async function blockedObject(status='infected',verdict=null) {
+  await objectInsert();const doc=(await insert()).rows[0];
+  await db.query("UPDATE public.documents SET scan_status=$1,scan_verdict=$2,review_status='rejected',archived_at=now() WHERE id=$3",[status,verdict,doc.id]);
+  return doc.id;
+}
+for(const [role,actor] of Object.entries(actors)) for(const state of ['infected','deleted','failed-with-infected-verdict','clean-with-infected-verdict']) test('blocked retained object is unreadable to '+role+' after '+state,async()=>{
+  await blockedObject(state.endsWith('-with-infected-verdict')?state.split('-')[0]:state,state.endsWith('-with-infected-verdict')?{code:'infected'}:null);
+  await db.exec(quarantineReadProposal);
+  // Broad permissive policy deliberately tests that a second grant, including
+  // an Owner review exception, cannot reopen this restrictive byte boundary.
+  await db.exec('CREATE POLICY test_broad_policy ON storage.objects FOR SELECT TO anon,authenticated USING(true)');
+  await as(actor);assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,0);
+  await db.exec('RESET ROLE');assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,1);
+});
+test('quarantine read guard closes existing hidden uploader and platform-admin exceptions',async()=>{
+  await blockedObject();
+  for(const actor of [actors.family,actors.owner]) {await as(actor);assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,1);}
+  await db.exec('RESET ROLE');await db.exec(quarantineReadProposal);
+  for(const actor of [actors.family,actors.owner]) {await as(actor);assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,0);}
+});
+for(const state of ['unregistered','pending','clean']) test('quarantine guard preserves baseline permitted read for '+state,async()=>{
+  await objectInsert();if(state!=='unregistered'){const doc=(await insert()).rows[0];await db.query('UPDATE public.documents SET scan_status=$1 WHERE id=$2',[state,doc.id]);}
+  await db.exec(quarantineReadProposal);await as();assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,1);
+  await as(actors.partner);assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,0);
+});
+test('other buckets keep their read policy even when an object name matches a blocked document',async()=>{
+  await blockedObject();await objectInsert(db,'fixture-other-bucket',path);await db.exec(quarantineReadProposal);
+  await db.exec("CREATE POLICY test_other_bucket ON storage.objects FOR SELECT TO authenticated USING(bucket_id='fixture-other-bucket')");
+  await as();const rows=(await db.query('SELECT bucket_id FROM storage.objects')).rows;assert.deepEqual(rows,[{bucket_id:'fixture-other-bucket'}]);
+});
+test('anonymous and spoofed service JWT roles do not bypass a blocked read',async()=>{
+  await blockedObject();await db.exec(quarantineReadProposal);await db.exec('CREATE POLICY test_broad_policy ON storage.objects FOR SELECT TO anon,authenticated USING(true)');
+  for(const role of ['anon','authenticated']){await as(actors.family,role);await db.exec("SELECT set_config('request.jwt.claim.role','service_role',false)");assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,0);}
+  await db.exec("SELECT set_config('request.jwt.claim.role','',false)");
+});
+test('trusted service can still inspect retained rows; no cleanup or byte deletion is introduced',async()=>{
+  await blockedObject();await db.exec(quarantineReadProposal);await as(actors.family,'service_role');assert.equal((await db.query('SELECT id FROM storage.objects')).rows.length,1);
+});
+test('read guard is restrictive with fixed-path definer and narrow boolean grants',async()=>{
+  await db.exec(quarantineReadProposal);
+  const fn=(await db.query("SELECT prosecdef,provolatile,proconfig,pg_get_function_result(oid) AS result FROM pg_proc WHERE oid='public.student_document_not_blocked(text)'::regprocedure")).rows[0];
+  assert.deepEqual(fn,{prosecdef:true,provolatile:'s',proconfig:['search_path=pg_catalog'],result:'boolean'});
+  const pol=(await db.query("SELECT polcmd,polpermissive FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname='student_document_no_blocked_read'")).rows[0];assert.deepEqual(pol,{polcmd:'r',polpermissive:false});
+  for(const role of ['anon','authenticated']) assert.equal((await db.query("SELECT has_function_privilege($1,'public.student_document_not_blocked(text)','EXECUTE') AS allowed",[role])).rows[0].allowed,true);
+  assert.equal((await db.query("SELECT has_function_privilege('service_role','public.student_document_not_blocked(text)','EXECUTE') AS allowed")).rows[0].allowed,false);
+});
+test('missing path prerequisite stops read guard atomically without installing a policy or function',async()=>{
+  await db.exec('DROP INDEX public.documents_storage_path_unique');await assert.rejects(db.exec(quarantineReadProposal),{code:'55000'});await db.exec('ROLLBACK');
+  assert.equal((await db.query("SELECT to_regprocedure('public.student_document_not_blocked(text)') AS name")).rows[0].name,null);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_policy WHERE polrelid='storage.objects'::regclass AND polname='student_document_no_blocked_read'")).rows[0].n,0);
+});
+
+for(const finish of ['COMMIT','ROLLBACK']) test('new read observes infection only after committed state ('+finish+')',{skip:!native},async()=>{
+  await objectInsert();const doc=(await insert()).rows[0];await db.query("UPDATE public.documents SET scan_status='clean' WHERE id=$1",[doc.id]);await db.exec(quarantineReadProposal);
+  const writer=await newSession(),reader=await newSession();await as(actors.family,'authenticated',reader);
+  await writer.exec('BEGIN');
+  try {
+    await writer.query("UPDATE public.documents SET scan_status='infected',review_status='rejected',archived_at=now() WHERE id=$1",[doc.id]);
+    assert.equal((await reader.query('SELECT id FROM storage.objects')).rows.length,1,'uncommitted state cannot revoke an earlier snapshot');
+    await writer.exec(finish);
+    assert.equal((await reader.query('SELECT id FROM storage.objects')).rows.length,finish==='COMMIT'?0:1);
+  } finally {await writer.exec('ROLLBACK');}
 });

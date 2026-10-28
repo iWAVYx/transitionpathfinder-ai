@@ -666,6 +666,8 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-reservations.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-upload-registration.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-quarantine-read-boundary.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -709,6 +711,19 @@ jobs:
             THEN RAISE EXCEPTION 'Unexpected student storage write boundary'; END IF;
           END;
           $storage_verify$;
+          DO $quarantine_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+              AND polname='student_document_no_blocked_read' AND polcmd='r' AND NOT polpermissive
+              AND cardinality(polroles)=2 AND polroles @> ARRAY['anon'::regrole::oid,'authenticated'::regrole::oid])
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.student_document_not_blocked(text)'::regprocedure
+                AND prosecdef AND provolatile='s' AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('service_role','public.student_document_not_blocked(text)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.student_document_not_blocked(text)','EXECUTE')
+              OR NOT has_function_privilege('anon','public.student_document_not_blocked(text)','EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected retained-file read boundary'; END IF;
+          END;
+          $quarantine_verify$;
           DO $binding_verify$
           BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass

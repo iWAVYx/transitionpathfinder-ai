@@ -109,8 +109,8 @@ function DocumentsHubPage() {
       } else {
         toast.error(
           res.code === "infected"
-            ? "Threat detected. File removed from storage."
-            : `Rescan still ${res.code}. File remains quarantined.`,
+            ? "Threat detected. The file is quarantined; removal has not been confirmed."
+            : "The scan could not clear this file. It remains quarantined.",
         );
       }
       reload();
@@ -276,9 +276,9 @@ function DocumentsHubPage() {
                         {rescanning[d.id] ? "Rescanning…" : "Retry scan"}
                       </Button>
                     )}
-                    {d.scan_status === "deleted" ? (
+                    {d.scan_status === "deleted" || d.scan_status === "infected" ? (
                       <span className="text-xs text-muted-foreground">
-                        File removed — upload again to retry.
+                        This file is blocked for your safety.
                       </span>
                     ) : d.review_status === "uploaded" || d.review_status === "linked" ? (
                       <Button asChild size="sm" variant="outline">
@@ -365,13 +365,14 @@ function ScanStatusBadge({ scan }: { scan: string | null }) {
       label: "Scan failed",
       tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
     },
+    infected: { label: "Threat detected", tone: "bg-destructive/10 text-destructive" },
     deleted: {
-      label: "Infected — removed",
+      label: "Blocked",
       tone: "bg-destructive/10 text-destructive",
     },
   };
   const m = meta[scan] ?? {
-    label: `Scan ${scan}`,
+    label: "Review needed",
     tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
   };
   return (
