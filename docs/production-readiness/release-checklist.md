@@ -1607,3 +1607,9 @@ The history migration is applied only to isolated staging under specific user au
 - [x] Prepare read-only original-actor recovery observations: exact registered receipt or held metadata observation with ownership/version and role/access safeguards. Local checks pass; no retry, release or cleanup authority.
 - [x] Verify exact candidate `f8462ef6`: both native runs 441 passed / zero skips and full 210 canonical migrations plus twelve proposals pass. All nine applicable checks pass; both capped builds first attempt. This remains disposable-database proof, not hosted acceptance.
 - [ ] Verify actual Storage semantics and design terminal resolution/reference/absence proof before any separately authorized migration, integration or cleanup run.
+
+### Storage Transport and Terminal Resolution — October 28, 2026
+
+- [x] Verify installed-SDK uncertainty with 18 intercepted-response probes; 88 combined local contracts pass without network access. Record six terminal-resolution gates.
+- [ ] Confirm exact-source CI runs the new probes. These checks do not certify a real Storage server.
+- [ ] Prove a durable resolution/reference fence and actual immutable-version or equivalent safe discard capability before any hosted test, cleanup or claim release is proposed. Keep uncertain results held.
