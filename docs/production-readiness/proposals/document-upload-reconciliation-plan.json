@@ -353,12 +353,15 @@
   },
   "build_cache_checkpoint": {
     "date": "2026-10-28",
-    "status": "local constrained-build mitigation validated; exact-candidate Linux CI pending; hosted acceptance unperformed",
+    "status": "local and exact-candidate automatic checks pass; both Linux builds pass first attempt; hosted memory acceptance unperformed",
     "evidence": "docs/production-readiness/evidence/compiler-cache-build-local-2026-10-28.json",
     "fingerprint": "dfffe410be8b4aaa4d4792cc6b19bd8fdce0c17088bb410dc85eeae2b916244f",
     "file_count": 1198,
     "heap_limit_mib": 1216,
     "sql_changed": false,
-    "hosted_actions": false
+    "hosted_actions": false,
+    "candidate_ci_source": "c3a5faa67f8a6134b7294bbd70dfd3197dc7c80e",
+    "applicable_checks_passed": 8,
+    "protected_skipped": "unperformed"
   }
 }

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "local constrained-build mitigation validated; exact-candidate Linux CI pending; hosted acceptance unperformed",
+  "status": "local and exact-candidate automatic checks pass; both Linux builds pass first attempt; hosted memory acceptance unperformed",
   "hosted_actions": false,
   "source_base": "186d4d9d",
   "application_fingerprint": "dfffe410be8b4aaa4d4792cc6b19bd8fdce0c17088bb410dc85eeae2b916244f",
@@ -88,9 +88,23 @@
     "lifecycle_scope": "Real client/server transforms and resolver metadata, callable discovered function, unknown-function rejection, build cache release, dev retention, diagnostic control. Local fictional modules only; no services."
   },
   "remaining": [
-    "Verify exact candidate Linux automatic checks without retries; no all-green claim yet.",
+    "Observe sustained capped-build behavior; two first-attempt Linux builds support mitigation but do not prove every hosted build will succeed.",
     "Obtain separately authorized isolated hosted memory/route acceptance before any release claim.",
     "Keep all eight upload SQL proposals noncanonical (210 canonical migrations) and finish storage INSERT, reconciliation/cleanup receipts and deletion ordering review before rollout.",
     "All roadmap milestones remain; report polish/length and Parent Pilot/Pathway Snapshot stay deferred."
-  ]
+  ],
+  "candidate_ci": {
+    "source_commit": "c3a5faa67f8a6134b7294bbd70dfd3197dc7c80e",
+    "applicable_automatic_checks_passed": 8,
+    "push_build": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40699465273",
+    "pr_build": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40699474232",
+    "build_attempts": "Both pass on first attempt with unchanged heap cap; three lifecycle cases pass and client/SSR cache-release messages present in both logs. No reruns.",
+    "native_replay": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40699474150",
+    "native_document_boundary_cases": 282,
+    "native_document_boundary_skipped": 0,
+    "full_schema": "210 canonical migrations plus all eight noncanonical proposals pass disposable installation/catalog checks.",
+    "unit": "passed",
+    "readiness_role_static_accessibility": "passed",
+    "protected_skipped": "Unperformed; not hosted acceptance."
+  }
 }
