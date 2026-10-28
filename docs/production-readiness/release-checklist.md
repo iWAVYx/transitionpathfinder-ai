@@ -1605,5 +1605,5 @@ The history migration is applied only to isolated staging under specific user au
 ### Draft Paused Upload Recovery Reads — October 28, 2026
 
 - [x] Prepare read-only original-actor recovery observations: exact registered receipt or held metadata observation with ownership/version and role/access safeguards. Local checks pass; no retry, release or cleanup authority.
-- [ ] Verify native transaction waits and installation after all 210 canonical migrations and twelve proposals.
+- [x] Verify exact candidate `f8462ef6`: both native runs 441 passed / zero skips and full 210 canonical migrations plus twelve proposals pass. All nine applicable checks pass; both capped builds first attempt. This remains disposable-database proof, not hosted acceptance.
 - [ ] Verify actual Storage semantics and design terminal resolution/reference/absence proof before any separately authorized migration, integration or cleanup run.

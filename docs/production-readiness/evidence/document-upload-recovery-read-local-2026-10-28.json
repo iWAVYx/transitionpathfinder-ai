@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "twelfth unapplied proposal; local read-only recovery checks pass; native/full-schema CI pending",
+  "status": "twelfth unapplied proposal passes all nine applicable checks; both native runs pass 441 cases with zero skips; no hosted integration",
   "source_base": "aad325cd",
   "hosted_actions": false,
   "application_changed": false,
@@ -28,7 +28,109 @@
       "pass": 70,
       "fail": 0
     },
-    "native_and_full_schema": "pending: seven new lock-wait cases, 210 canonical migrations followed by all twelve proposals and catalog assertions"
+    "native_and_full_schema": {
+      "tests": 441,
+      "pass": 441,
+      "fail": 0,
+      "skip": 0,
+      "runs": [
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40727698028",
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40727685390"
+      ],
+      "schema": "Both full 210 canonical migration replays plus all twelve proposal installations and catalog checks pass.",
+      "contention": "Seven new cases observe actual database lock waits: hold/registration COMMIT/ROLLBACK, managed version update COMMIT/ROLLBACK, and explicit editing removal while recovery waits."
+    },
+    "automatic_checks": {
+      "applicable_pass": 9,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40727698263,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698185,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698734,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40727697992,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40727698053,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698246,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698136,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698028,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698540,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727698541,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727685483,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40727685390,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt under unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
   },
   "limits": [
     "Read-only proposal; no live application caller, endpoint or hosted function is changed.",
@@ -36,6 +138,8 @@
     "Observed version/owner is managed metadata only, not immutable-byte, consent, hash or malware attestation. No file payload is read.",
     "Locks last only through the database transaction. Permissions, references and trusted service changes can differ after return. No full permission-graph, physical object-store or privileged-writer serialization is certified.",
     "Held claims remain indefinite and count toward unresolved caps. Terminal recovery, verified absence/reference checks, retention, exact cleanup receipts and independent absence verification remain open. No automatic replay, re-registration, scan, AI, expiry or cleanup is enabled.",
-    "Application fingerprint excludes SQL proposals; exact proposal SHA and candidate CI are separate proof. Protected skipped checks remain unperformed."
-  ]
+    "Application fingerprint excludes SQL proposals; exact proposal SHA and candidate CI are separate proof. Protected skipped checks remain unperformed.",
+    "Disposable role fixtures use real explicit-access helpers with narrow role/audience/organization stubs; they do not certify live account, organization membership, provider or signed-in browser acceptance. Full canonical replay proves installation/catalog compatibility, not all production data behavior."
+  ],
+  "verified_source": "f8462ef633bf235ec18c3578ed81d0412800da9d"
 }

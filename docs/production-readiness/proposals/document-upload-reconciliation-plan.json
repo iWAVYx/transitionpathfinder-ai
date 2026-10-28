@@ -500,10 +500,10 @@
     "next": "Review prototype cap values and global-lock operational behavior; verified recovery and terminal resolution remain open. No expiry/deletion shortcut."
   },
   "recovery_read_checkpoint": {
-    "status": "twelfth unapplied proposal; local read-only recovery checks pass; native/full-schema CI pending",
+    "status": "Exact candidate f8462ef6 passes all nine applicable checks; both native runs 441 passed / zero skips, full 210 canonical migrations plus twelve proposals pass. No hosted integration.",
     "proposal": "docs/production-readiness/proposals/document-upload-recovery-read.sql",
     "evidence": "docs/production-readiness/evidence/document-upload-recovery-read-local-2026-10-28.json",
     "boundary": "Original-actor registered receipt or held metadata observation only. No release, retry or deletion capability.",
-    "next": "Native/full-schema verification, then actual Storage observation/physical-byte proof and terminal-resolution design."
+    "next": "Actual Storage observation/physical-byte proof and terminal-resolution design; no permission to retry, release or clean up from this read receipt."
   }
 }
