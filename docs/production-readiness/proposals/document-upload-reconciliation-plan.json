@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "Twelve SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, admission integration, guarded cleanup and actual Storage acceptance remain rollout gates.",
+  "status": "Thirteen SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, admission integration, guarded cleanup and actual Storage acceptance remain rollout gates.",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -512,5 +512,12 @@
     "terminal_plan": "docs/production-readiness/proposals/document-upload-terminal-resolution-plan.json",
     "key_boundary": "SDK success/404/metadata observations cannot free claims or authorize cleanup. Default paths-only remove has no verified version precondition.",
     "next": "Design and prove the durable resolution fence/reference protocol in disposable databases, and assess actual provider conditional/version semantics before proposing any bounded hosted probe. No hosted test or terminal mutation is ready to run."
+  },
+  "resolution_claim_checkpoint": {
+    "status": "thirteenth unapplied proposal; local immutable review-claim checks pass; native/full-schema CI pending",
+    "proposal": "docs/production-readiness/proposals/document-upload-resolution-claim.sql",
+    "evidence": "docs/production-readiness/evidence/document-upload-resolution-claim-local-2026-10-28.json",
+    "boundary": "Pins original held intent to one immutable actor-scoped operation; no processing/provider/reference fence or terminal/cleanup capability.",
+    "next": "Native/full-schema proof, then coordinated writer/reference fence design and provider capability acceptance."
   }
 }

@@ -2,7 +2,7 @@
   "date": "2026-10-28",
   "status": "Design gates only; no executable resolution or cleanup implementation; no hosted authorization",
   "canonical_migrations": 210,
-  "unapplied_upload_proposals": 12,
+  "unapplied_upload_proposals": 13,
   "current_boundary": "Paused attempts retain their claims. The recovery read returns a registration receipt or a metadata observation, never a file-absence or deletion capability.",
   "observed_transport_findings": [
     "The installed SDK sends the exact upload path with x-upsert:false, but a 2xx upload body is not validated against expected Id/Key, actor, version or reviewed bytes.",
@@ -23,11 +23,12 @@
     },
     {
       "id": "durable-fence",
-      "status": "open",
+      "status": "partial local proposal only: original held attempt identity/operation frozen; native proof pending; processing, provider and reference writers remain unfenced",
       "requirements": [
         "Design a reviewed durable resolution claim that fences reserve, upload insertion, registration, processing and competing resolution across tabs and workers. Keep it counted in unresolved admission until a terminal receipt commits.",
         "Prove the object service cannot finish an earlier physical upload or replace bytes after the decision. Metadata row locks alone do not prove this. Do not expire a claim on timeout or reuse its storage path."
-      ]
+      ],
+      "prepared_checkpoint": "docs/production-readiness/evidence/document-upload-resolution-claim-local-2026-10-28.json"
     },
     {
       "id": "reference-and-retention",
@@ -94,6 +95,6 @@
     "ai_jobs payloads and verified-summary source/result links",
     "Other evidence, report/document-source JSON and retention references require a complete writer inventory before a deletion design is accepted."
   ],
-  "next_safe_work": "Design and prove the durable resolution fence/reference protocol in disposable databases, and assess actual provider conditional/version semantics before proposing any bounded hosted probe. No hosted test or terminal mutation is ready to run.",
+  "next_safe_work": "Verify the draft review claim in native/full-schema replay, then design and prove coordinated processing/reference writer fencing and assess actual provider immutable-version behavior. No hosted test or terminal mutation is ready to run.",
   "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here."
 }

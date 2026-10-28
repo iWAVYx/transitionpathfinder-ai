@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const resolutionClaimProposal = readFileSync('docs/production-readiness/proposals/document-upload-resolution-claim.sql','utf8');
 const recoveryReadProposal = readFileSync('docs/production-readiness/proposals/document-upload-recovery-read.sql','utf8');
 const admissionProposal = readFileSync('docs/production-readiness/proposals/document-upload-admission-limits.sql','utf8');
 const reviewHoldProposal = readFileSync('docs/production-readiness/proposals/document-upload-review-hold.sql','utf8');
@@ -87,7 +88,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.read_document_upload_recovery(uuid,text);DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.claim_document_upload_resolution(uuid,text,uuid);DO $$ BEGIN IF to_regclass(\'public.document_upload_attempts\') IS NOT NULL THEN EXECUTE \'DROP TRIGGER IF EXISTS upload_attempt_resolution_frozen ON public.document_upload_attempts\'; END IF; END $$;DROP FUNCTION IF EXISTS public.guard_claimed_upload_attempt();DROP TABLE IF EXISTS public.document_upload_resolution_claims;DROP FUNCTION IF EXISTS public.reject_upload_resolution_claim_mutation();DROP FUNCTION IF EXISTS public.read_document_upload_recovery(uuid,text);DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -1139,4 +1140,105 @@ test('a partner-only role change closes the original uploader recovery path',asy
 });
 test('same path in another bucket is not student-document metadata evidence',async()=>{
   await heldRecoveryFixture();await db.exec('RESET ROLE');await db.query('INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES($1,$2,$3,$4)',['other-bucket',student+'/'+attemptId+'-privacy-safe-document.txt',actors.family,'foreign-bucket-version']);await as();assert.deepEqual((await recoveryRead()).metadata,{status:'not_observed'});
+});
+
+// Thirteenth proposal: immutable original-actor review claim; no terminal IO.
+const resolutionOperation=uid(8100);
+async function installResolutionClaim(){await installRecoveryRead();await db.exec(resolutionClaimProposal);}
+async function claimResolution(client=db,patch={}){
+  const input={id:attemptId,review:reviewHash,operation:resolutionOperation,...patch};
+  return (await client.query('SELECT public.claim_document_upload_resolution($1,$2,$3) AS receipt',[input.id,input.review,input.operation])).rows[0].receipt;
+}
+async function resolutionFixture(actor=actors.family){await installResolutionClaim();await as(actor);await reserve();await hold();}
+for(const role of ['family','educator','student'])test('original '+role+' can pin one held attempt without file or state mutation',async()=>{
+  await resolutionFixture(actors[role]);const before=(await db.query('SELECT * FROM public.document_upload_attempts')).rows;const first=await claimResolution();assert.deepEqual(await claimResolution(),first);
+  assert.equal(first.schema,'document-upload-resolution-claim-v1');assert.equal(first.actor_id,actors[role]);assert.equal(first.operation_id,resolutionOperation);assert.equal(first.state,'review_required');assert.equal(first.storage_path,student+'/'+attemptId+'-privacy-safe-document.txt');assert.ok(!Number.isNaN(Date.parse(first.claimed_at)));
+  assert.deepEqual((await db.query('SELECT * FROM public.document_upload_attempts')).rows,before);assert.equal((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows.length,1);
+  await db.exec('RESET ROLE');for(const table of ['documents','ai_jobs'])assert.equal((await db.query('SELECT count(*)::int AS n FROM public.'+table)).rows[0].n,0);assert.equal((await db.query('SELECT count(*)::int AS n FROM storage.objects')).rows[0].n,1);
+});
+for(const role of ['school','district','owner'])test('claim requires explicit student editing rather than '+role+' management',async()=>{
+  await installResolutionClaim();await as(actors[role]);await assert.rejects(claimResolution(),{code:'42501'});await db.exec('RESET ROLE');await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);await reserve();await hold();assert.equal((await claimResolution()).actor_id,actors[role]);
+});
+for(const role of ['educator','student','partner','school','district','owner'])test('known operation key does not authorize another '+role+' to claim Family intent',async()=>{
+  await resolutionFixture();await claimResolution();await as(actors[role]);await assert.rejects(claimResolution(),{code:'42501'});assert.equal((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows.length,0);
+});
+for(const patch of [{id:null},{id:uid(9999)},{operation:null},{review:null},{review:'invalid'},{review:'f'.repeat(64)}])test('resolution claim refuses changed or incomplete intent '+JSON.stringify(patch),async()=>{
+  await resolutionFixture();await assert.rejects(claimResolution(db,patch),{code:'42501'});assert.equal((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows.length,0);
+});
+test('a second operation cannot take over an already claimed attempt',async()=>{
+  await resolutionFixture();const first=await claimResolution();await assert.rejects(claimResolution(db,{operation:uid(8101)}),{code:'42501'});assert.deepEqual(await claimResolution(),first);
+});
+test('one actor cannot reuse an operation key for a different held attempt',async()=>{
+  await resolutionFixture();await claimResolution();await reserve(db,admissionIntent(1));await hold(db,{id:admissionIntent(1).id});await assert.rejects(claimResolution(db,{id:admissionIntent(1).id}),{code:'42501'});
+});
+test('operation keys are actor-scoped rather than granting or blocking another actor identity',async()=>{
+  await resolutionFixture();await claimResolution();await as(actors.educator);await reserve(db,admissionIntent(1));await hold(db,{id:admissionIntent(1).id});assert.equal((await claimResolution(db,{id:admissionIntent(1).id})).actor_id,actors.educator);
+});
+for(const state of ['reserved','registered'])test('a '+state+' attempt cannot be turned into a resolution hold implicitly',async()=>{
+  await installResolutionClaim();await as();await reserve();if(state==='registered'){await reservedObject();await registerReserved();}await assert.rejects(claimResolution(),{code:'42501'});await db.exec('RESET ROLE');assert.equal((await db.query('SELECT state FROM public.document_upload_attempts')).rows[0].state,state);
+});
+test('claimed holds retain their unresolved quota and reject new client insertion/registration',async()=>{
+  await resolutionFixture();await claimResolution();await fillAdmission(4);await assert.rejects(reserve(db,admissionIntent(4)),{code:'42501'});await assert.rejects(reservedObject(),{code:'42501'});await assert.rejects(registerReserved(),{code:'42501'});await assert.rejects(reserve(),{code:'42501'});assert.equal((await recoveryRead()).state,'review_required');
+});
+for(const update of ["state='reserved',held_at=NULL,hold_reason=NULL","actor_id='"+actors.owner+"'","claimed_content_sha256=repeat('e',64)","review_context_sha256=repeat('e',64)","created_at='2000-01-01'","hold_reason='user_cancelled'"])test('claimed attempt ordinary database updates remain frozen: '+update,async()=>{
+  await resolutionFixture();await claimResolution();await db.exec('RESET ROLE');await assert.rejects(db.exec('UPDATE public.document_upload_attempts SET '+update),{code:'42501'});
+});
+for(const action of ["UPDATE public.document_upload_resolution_claims SET operation_id=gen_random_uuid()","UPDATE public.document_upload_resolution_claims SET claimed_at='2000-01-01'","UPDATE public.document_upload_resolution_claims SET operation_id=operation_id","DELETE FROM public.document_upload_resolution_claims","DELETE FROM public.document_upload_attempts"])test('ordinary owner statements cannot erase or rewrite a committed claim: '+action,async()=>{
+  await resolutionFixture();const first=await claimResolution();await db.exec('RESET ROLE');await assert.rejects(db.exec(action),{code:'42501'});await as();assert.deepEqual(await claimResolution(),first);
+});
+test('lost editing closes both claim confirmation and claim-table visibility without dropping the claim',async()=>{
+  await resolutionFixture(actors.educator);await claimResolution();await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.educator]);await as(actors.educator);await assert.rejects(claimResolution(),{code:'42501'});assert.equal((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows.length,0);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_resolution_claims')).rows[0].n,1);
+});
+test('partner-only role changes cannot claim an original upload',async()=>{
+  await resolutionFixture();await db.exec('RESET ROLE');await db.query("UPDATE public.user_roles SET role='partner' WHERE user_id=$1",[actors.family]);await as();await assert.rejects(claimResolution(),{code:'42501'});
+});
+for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('claim refuses stale snapshot mode '+isolation,async()=>{
+  await resolutionFixture();await db.exec('BEGIN ISOLATION LEVEL '+isolation);try{await assert.rejects(claimResolution(),{code:'42501'});}finally{await db.exec('ROLLBACK');}
+});
+test('claim installation preserves old held rows and does not block unclaimed registration',async()=>{
+  await heldRecoveryFixture();await db.exec('RESET ROLE');const before=(await db.query('SELECT * FROM public.document_upload_attempts')).rows;await db.exec(resolutionClaimProposal);assert.deepEqual((await db.query('SELECT * FROM public.document_upload_attempts')).rows,before);assert.equal((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows.length,0);
+  await as();await reserve(db,admissionIntent(1));const p=student+'/'+admissionIntent(1).id+'-privacy-safe-document.txt';await reservedObject(db,{path:p});await registerReserved(db,{attempt:admissionIntent(1).id,path:p,hash:admissionIntent(1).hash});assert.equal((await db.query('SELECT state FROM public.document_upload_attempts WHERE id=$1',[admissionIntent(1).id])).rows[0].state,'registered');
+});
+test('claim exposes no direct mutation or anonymous/service execution grant',async()=>{
+  await installResolutionClaim();const signature='public.claim_document_upload_resolution(uuid,text,uuid)';for(const role of ['anon','authenticated','service_role']){
+    assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,role==='authenticated');for(const privilege of ['INSERT','UPDATE','DELETE'])assert.equal((await db.query("SELECT has_table_privilege($1,'public.document_upload_resolution_claims',$2) AS ok",[role,privilege])).rows[0].ok,false);
+  }
+  for(const fn of [signature,'public.guard_claimed_upload_attempt()','public.reject_upload_resolution_claim_mutation()']){const row=(await db.query('SELECT prosecdef,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[fn])).rows[0];assert.equal(row.prosecdef,true);assert.deepEqual(row.proconfig,['search_path=pg_catalog']);}
+});
+for(const role of ['anon','service_role'])test('resolution RPC and ledger reads remain unavailable to '+role,async()=>{
+  await resolutionFixture();await claimResolution();await as(actors.family,role);await assert.rejects(claimResolution(),{code:'42501'});await assert.rejects(db.query('SELECT * FROM public.document_upload_resolution_claims'),{code:'42501'});
+});
+test('resolution claim requires the preceding recovery proposal',async()=>{
+  await installAdmission();await assert.rejects(db.exec(resolutionClaimProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_upload_resolution_claims') AS name")).rows[0].name,null);
+});
+for(const same of [true,false])for(const finish of ['COMMIT','ROLLBACK'])test('competing resolution operation same='+same+' waits for '+finish,{skip:!native},async()=>{
+  await resolutionFixture();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);await a.exec('BEGIN');const first=await claimResolution(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=claimResolution(b,{operation:same?resolutionOperation:uid(8101)}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await a.exec(finish);const outcome=await pending;if(!same&&finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else{assert.equal(outcome.error,undefined);assert.equal(outcome.result.operation_id,same?resolutionOperation:uid(8101));if(same&&finish==='COMMIT')assert.deepEqual(outcome.result,first);}
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('attempt reopening waits for resolution claim '+finish,{skip:!native},async()=>{
+  await resolutionFixture();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await a.exec('BEGIN');await claimResolution(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=b.exec("UPDATE public.document_upload_attempts SET state='reserved',held_at=NULL,hold_reason=NULL").then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await a.exec(finish);const outcome=await pending;if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('resolution waits for the original hold '+finish,{skip:!native},async()=>{
+  await installResolutionClaim();await as();await reserve();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);await a.exec('BEGIN');await hold(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=claimResolution(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await a.exec(finish);const outcome=await pending;if(finish==='ROLLBACK')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('cross-attempt operation key reuse serializes after '+finish,{skip:!native},async()=>{
+  await resolutionFixture();await reserve(db,admissionIntent(1));await hold(db,{id:admissionIntent(1).id});await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);await a.exec('BEGIN');await claimResolution(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=claimResolution(b,{id:admissionIntent(1).id}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await a.exec(finish);const outcome=await pending;if(finish==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);
+});
+test('claim rechecks current editing after waiting for a held attempt',{skip:!native},async()=>{
+  await installResolutionClaim();await as(actors.educator);await reserve();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.educator,'authenticated',a);await as(actors.educator,'authenticated',b);await a.exec('BEGIN');await hold(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=claimResolution(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.educator]);await a.exec('COMMIT');assert.equal((await pending).error?.code,'42501');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_resolution_claims')).rows[0].n,0);
+});
+
+for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('attempt mutation cannot bypass a resolution claim with '+isolation+' snapshot',async()=>{
+  await resolutionFixture();await claimResolution();await db.exec('RESET ROLE');await db.exec('BEGIN ISOLATION LEVEL '+isolation);try{await assert.rejects(db.exec("UPDATE public.document_upload_attempts SET state='reserved',held_at=NULL,hold_reason=NULL"),{code:'42501'});}finally{await db.exec('ROLLBACK');}
+});
+test('claim refuses a conflicting hidden legacy document without claiming cleanup authority',async()=>{
+  await resolutionFixture();await db.exec('RESET ROLE;ALTER TABLE public.documents DISABLE TRIGGER USER');try{await db.query('INSERT INTO public.documents(student_id,uploaded_by,title,storage_path,archived_at) VALUES($1,$2,$3,$4,now())',[student,actors.owner,'Hidden legacy fixture',student+'/'+attemptId+'-privacy-safe-document.txt']);}finally{await db.exec('ALTER TABLE public.documents ENABLE TRIGGER USER');}await as();await assert.rejects(claimResolution(),{code:'42501'});assert.equal((await db.query('SELECT * FROM public.document_upload_resolution_claims')).rows.length,0);
+});
+for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('old '+isolation+' writer cannot miss a claim committed during its lock wait',{skip:!native},async()=>{
+  await resolutionFixture();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await b.exec('BEGIN ISOLATION LEVEL '+isolation);await b.query('SELECT id FROM public.document_upload_attempts WHERE id=$1',[attemptId]);await a.exec('BEGIN');await claimResolution(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=b.exec("UPDATE public.document_upload_attempts SET state='reserved',held_at=NULL,hold_reason=NULL").then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;await b.exec('ROLLBACK');throw error;}await a.exec('COMMIT');const outcome=await pending;await b.exec('ROLLBACK');assert.equal(outcome.error?.code,'42501');assert.equal((await db.query('SELECT state FROM public.document_upload_attempts')).rows[0].state,'review_required');
 });

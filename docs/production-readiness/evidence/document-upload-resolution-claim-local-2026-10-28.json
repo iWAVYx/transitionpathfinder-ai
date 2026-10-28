@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-28",
+  "status": "thirteenth unapplied proposal; local immutable review-claim checks pass; native/full-schema CI pending",
+  "source_base": "52e70a85",
+  "hosted_actions": false,
+  "application_changed": false,
+  "canonical_migration_count": 210,
+  "noncanonical_proposal_count": 13,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "proposal": "docs/production-readiness/proposals/document-upload-resolution-claim.sql",
+  "proposal_sha256": "de4b0b59e4b365627cc9b2b94ba23d0851e31d62ff4a742f790999a0b9ae593d",
+  "implemented": [
+    "One immutable actor-scoped operation key per original uploader/held attempt. Exact same-key confirmation returns the original timestamp/receipt; a changed key, foreign actor, reused same-actor key on another attempt or changed review intent is refused.",
+    "The attempt stays review_required, retains its content/path/review/hold identity, and remains counted by unresolved admission. Existing held rows are not backfilled with invented claims. Default READ COMMITTED unclaimed registration remains available.",
+    "Before UPDATE/DELETE guards freeze claimed attempt rows and all claim-row changes, including ordinary owner DML. The attempt mutation guard rejects stronger transaction snapshots so a previously established snapshot cannot miss a newly committed claim.",
+    "Original-actor/current explicit editing RLS applies to claim reads. No direct mutation, anonymous/service RPC or claim-table read grants. Owner management alone gives no authority. Access is rechecked after the attempt lock wait.",
+    "Replay installs after all twelve prior proposals; catalog assertions cover RLS, enabled guards, fixed function paths and narrow execution/table grants. CI trigger paths now include all five recent upload proposals on both push and pull request."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 501,
+      "pass": 455,
+      "fail": 0,
+      "skip": 46,
+      "skips": "Real PostgreSQL lock-wait cases only; no local concurrency proof claimed."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_and_full_schema": "pending: thirteen new contention cases plus prior thirty-three; full 210 canonical migrations followed by all thirteen proposals"
+  },
+  "limits": [
+    "Unapplied database proposal only. No app caller, UI, hosted schema, account, permission relationship, provider, file or object metadata is changed.",
+    "This pins the held attempt/claim row protocol. It does not fence physical object-store writes, trusted Storage maintenance, processing jobs, all references or the complete permission graph.",
+    "Attempt UPDATE/DELETE now requires READ COMMITTED even for unclaimed rows; unsupported stronger modes fail closed. Current default READ COMMITTED lifecycle is exercised; future callers/maintenance must account for this restriction.",
+    "Freeze guards cover ordinary row UPDATE/DELETE, not a privileged database owner disabling/altering guards or using DDL/TRUNCATE. Ordinary auth/anon/service roles get no such table mutation grant.",
+    "Claims do not expire or free quota/content uniqueness. There is no takeover, terminal release, retry, registration, byte/metadata verification, deletion, processing launch or cleanup authority in the receipt. A lost original operation key requires separately reviewed recovery; no new key can silently adopt the claim.",
+    "Actual immutable-version provider behavior, reference/retention writer inventory, exact receipts and independent physical absence proof remain open. The existing paths-only delete SDK remains insufficient for automatic cleanup.",
+    "Disposable roles use actual explicit access helpers with narrow organization/audience stubs; no hosted seven-role/browser acceptance is certified. App fingerprint excludes SQL; proposal SHA and exact-source CI remain separate proof."
+  ]
+}

@@ -1613,3 +1613,9 @@ The history migration is applied only to isolated staging under specific user au
 - [x] Verify installed-SDK uncertainty with 18 intercepted-response probes; 88 combined local contracts pass without network access. Record six terminal-resolution gates.
 - [x] Verify exact candidate `a414e483`: 18 no-network SDK probes and all eight applicable automatic checks pass; full replay retains 441 native cases/zero skips and both capped builds first attempt. These checks do not certify a real Storage server.
 - [ ] Prove a durable resolution/reference fence and actual immutable-version or equivalent safe discard capability before any hosted test, cleanup or claim release is proposed. Keep uncertain results held.
+
+### Draft Durable Upload Review Claim — October 28, 2026
+
+- [x] Prepare immutable original-actor review claims on existing holds, preserving admission/content claims and forbidding takeover/ordinary row changes. Local disposable cases pass; no release or cleanup operation exists.
+- [ ] Verify native hold/claim/key/reopening/access/snapshot contention and full 210 canonical migrations plus thirteen proposals.
+- [ ] Coordinate processing/reference/provider fences and current permissions, review stronger-mode maintenance restrictions, preserve original operation recovery, and prove exact-version/absence evidence before proposing terminal resolution or hosted rollout.

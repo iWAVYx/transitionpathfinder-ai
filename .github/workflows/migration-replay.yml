@@ -27,6 +27,11 @@ on:
       - "docs/production-readiness/proposals/verified-document-summary-source.sql"
       - "docs/production-readiness/proposals/document-upload-reservations.sql"
       - "docs/production-readiness/proposals/document-upload-registration.sql"
+      - "docs/production-readiness/proposals/document-quarantine-read-boundary.sql"
+      - "docs/production-readiness/proposals/document-upload-review-hold.sql"
+      - "docs/production-readiness/proposals/document-upload-admission-limits.sql"
+      - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
+      - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -72,6 +77,11 @@ on:
       - "docs/production-readiness/proposals/verified-document-summary-source.sql"
       - "docs/production-readiness/proposals/document-upload-reservations.sql"
       - "docs/production-readiness/proposals/document-upload-registration.sql"
+      - "docs/production-readiness/proposals/document-quarantine-read-boundary.sql"
+      - "docs/production-readiness/proposals/document-upload-review-hold.sql"
+      - "docs/production-readiness/proposals/document-upload-admission-limits.sql"
+      - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
+      - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -674,6 +684,8 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-admission-limits.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-upload-recovery-read.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-upload-resolution-claim.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -749,6 +761,28 @@ jobs:
             END LOOP;
           END;
           $review_hold_verify$;
+          DO $resolution_claim_verify$
+          DECLARE signature text; role_name text; privilege_name text;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_upload_resolution_claims'::regclass AND relrowsecurity)
+              OR NOT EXISTS(SELECT 1 FROM pg_policy WHERE polrelid='public.document_upload_resolution_claims'::regclass AND polname='upload_resolution_creator_read' AND polcmd='r')
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_upload_attempts'::regclass AND tgname='upload_attempt_resolution_frozen' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_upload_resolution_claims'::regclass AND tgname='upload_resolution_claim_immutable' AND tgenabled='O' AND NOT tgisinternal)
+            THEN RAISE EXCEPTION 'Unexpected durable upload claim boundary'; END IF;
+            FOREACH signature IN ARRAY ARRAY['public.claim_document_upload_resolution(uuid,text,uuid)','public.guard_claimed_upload_attempt()','public.reject_upload_resolution_claim_mutation()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR has_function_privilege('authenticated',signature,'EXECUTE') IS DISTINCT FROM (signature='public.claim_document_upload_resolution(uuid,text,uuid)')
+              THEN RAISE EXCEPTION 'Unexpected durable claim execution boundary'; END IF;
+            END LOOP;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              FOREACH privilege_name IN ARRAY ARRAY['INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                IF has_table_privilege(role_name,'public.document_upload_resolution_claims',privilege_name)
+                THEN RAISE EXCEPTION 'Unexpected direct resolution claim mutation grant'; END IF;
+              END LOOP;
+            END LOOP;
+          END;
+          $resolution_claim_verify$;
           DO $recovery_read_verify$
           DECLARE signature text := 'public.read_document_upload_recovery(uuid,text)';
           BEGIN
