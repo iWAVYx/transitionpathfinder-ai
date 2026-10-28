@@ -1022,6 +1022,7 @@ test('admission proposal requires the hold and reserved-insert boundary',async()
 for(const scope of ['actor','student'])for(const finish of ['COMMIT','ROLLBACK'])test('concurrent final '+scope+' admission slot is serialized after '+finish,{skip:!native},async()=>{
   await installAdmission();await as();await fillAdmission(scope==='actor'?4:5);
   if(scope==='student'){await as(actors.educator);await fillAdmission(4,db,5);}
+  await db.exec('RESET ROLE');
   const a=await newSession(),b=await newSession();await as(scope==='actor'?actors.family:actors.educator,'authenticated',a);await as(scope==='actor'?actors.family:actors.student,'authenticated',b);
   const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');await reserve(a,admissionIntent(20));
   const pending=reserve(b,{...admissionIntent(21),...(scope==='actor'?{student:otherStudent}:{})}).then(result=>({result}),error=>({error}));
@@ -1037,7 +1038,7 @@ test('lost editor access blocks admission retry even when an actor has capacity'
   await assert.rejects(reserve(),{code:'42501'});await assert.rejects(reserve(db,admissionIntent(0)),{code:'42501'});
 });
 for(const finish of ['COMMIT','ROLLBACK'])test('same-intent concurrent admission returns one receipt after '+finish,{skip:!native},async()=>{
-  await installAdmission();await as();await fillAdmission(4);const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  await installAdmission();await as();await fillAdmission(4);await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
   const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');const first=await reserve(a);
   const pending=reserve(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
   await a.exec(finish);const outcome=await pending;assert.equal(outcome.error,undefined);assert.deepEqual(outcome.result,first);
@@ -1047,6 +1048,6 @@ test('current access is rechecked after an admission lock wait',{skip:!native},a
   await installAdmission();const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.educator,'authenticated',b);
   const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;await a.exec('BEGIN');await reserve(a);
   const pending=reserve(b,admissionIntent(1)).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
-  await db.exec('RESET ROLE;TRUNCATE public.student_collaborators');await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error?.code,'42501');
+  await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.educator]);await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error?.code,'42501');
   assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,1);
 });

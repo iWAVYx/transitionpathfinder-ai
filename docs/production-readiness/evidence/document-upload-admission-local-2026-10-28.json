@@ -38,5 +38,15 @@
     "Permission checks are fresh after the admission lock wait but do not lock the full permission graph against later changes.",
     "Held claims remain indefinite and can exhaust capacity. Verified recovery, terminal resolution, retention, expiry and safe cleanup authority remain unimplemented; quota denial never authorizes deletion.",
     "Physical Storage API ownership/rollback/in-flight byte behavior and hosted all-role acceptance remain unperformed. App fingerprint does not include these SQL files; proposal hash and exact CI source are separate proof."
-  ]
+  ],
+  "initial_native_failure": {
+    "source": "eab342e2",
+    "runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40719407545",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40719393916"
+    ],
+    "result": "388 passed; seven new contention cases failed; zero skips. Full-schema installation did not run after the test failure.",
+    "cause": "Six test lock observers still ran as authenticated and could not read competing backend wait details. The access-removal case used TRUNCATE, which blocks on a table lock retained by the test transaction.",
+    "correction": "Reset only the observer connection role before watching; tested sessions remain authenticated. Revoke only the exact Educator collaborator row via DELETE, retaining strict lock-wait and denial assertions. No SQL proposal or production role grants changed."
+  }
 }
