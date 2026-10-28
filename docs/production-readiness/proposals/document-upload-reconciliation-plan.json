@@ -1,6 +1,6 @@
 {
   "date": "2026-10-28",
-  "status": "Eleven SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, admission integration, guarded cleanup and actual Storage acceptance remain rollout gates.",
+  "status": "Twelve SQL proposals plus local shared upload callers and non-destructive quarantine safeguards prepared. No canonical/hosted migration or deployment; terminal recovery, admission integration, guarded cleanup and actual Storage acceptance remain rollout gates.",
   "target": "isolated staging qgrertkqbwanerqqemph only; production excluded",
   "findings": [
     "Existing documents_student_content_hash_idx is non-unique. Historical backfill hashes storage_path, not file bytes; caller-provided hashes cannot certify contents.",
@@ -498,5 +498,12 @@
     },
     "scope": "All currently eligible actors; existing explicit student editing and partner-only exclusions preserved. No hosted action.",
     "next": "Review prototype cap values and global-lock operational behavior; verified recovery and terminal resolution remain open. No expiry/deletion shortcut."
+  },
+  "recovery_read_checkpoint": {
+    "status": "twelfth unapplied proposal; local read-only recovery checks pass; native/full-schema CI pending",
+    "proposal": "docs/production-readiness/proposals/document-upload-recovery-read.sql",
+    "evidence": "docs/production-readiness/evidence/document-upload-recovery-read-local-2026-10-28.json",
+    "boundary": "Original-actor registered receipt or held metadata observation only. No release, retry or deletion capability.",
+    "next": "Native/full-schema verification, then actual Storage observation/physical-byte proof and terminal-resolution design."
   }
 }

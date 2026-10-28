@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const recoveryReadProposal = readFileSync('docs/production-readiness/proposals/document-upload-recovery-read.sql','utf8');
 const admissionProposal = readFileSync('docs/production-readiness/proposals/document-upload-admission-limits.sql','utf8');
 const reviewHoldProposal = readFileSync('docs/production-readiness/proposals/document-upload-review-hold.sql','utf8');
 const quarantineReadProposal = readFileSync('docs/production-readiness/proposals/document-quarantine-read-boundary.sql','utf8');
@@ -86,7 +87,7 @@ before(async()=>{
 });
 after(async()=>{if(close) await close();});
 beforeEach(async()=>{
-  await db.exec('RESET ROLE;DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.read_document_upload_recovery(uuid,text);DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);
@@ -1050,4 +1051,92 @@ test('current access is rechecked after an admission lock wait',{skip:!native},a
   const pending=reserve(b,admissionIntent(1)).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
   await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.educator]);await a.exec('COMMIT');const outcome=await pending;assert.equal(outcome.error?.code,'42501');
   assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,1);
+});
+
+// Twelfth proposal: read-only held/registered recovery observations, no release.
+async function installRecoveryRead(){await installAdmission();await db.exec(recoveryReadProposal);}
+async function recoveryRead(client=db,patch={}){
+  const input={id:attemptId,review:reviewHash,...patch};
+  return (await client.query('SELECT public.read_document_upload_recovery($1,$2) AS receipt',[input.id,input.review])).rows[0].receipt;
+}
+async function heldRecoveryFixture(actor=actors.family,object=false){
+  await installRecoveryRead();await as(actor);await reserve();if(object)await reservedObject(db,{owner:actor});await hold();
+}
+for(const role of ['family','educator','student'])for(const object of [false,true])test('original '+role+' receives only held metadata observation '+object,async()=>{
+  await heldRecoveryFixture(actors[role],object);const before=(await db.query('SELECT * FROM public.document_upload_attempts')).rows;
+  const receipt=await recoveryRead();assert.equal(receipt.schema,'document-upload-recovery-v1');assert.equal(receipt.actor_id,actors[role]);assert.equal(receipt.student_id,student);assert.equal(receipt.state,'review_required');assert.equal(receipt.registration,null);
+  assert.equal(receipt.metadata.status,object?'observed':'not_observed');assert.equal(receipt.reason,'upload_uncertain');assert.ok(!Number.isNaN(Date.parse(receipt.observed_at)));
+  assert.equal('storage_path' in receipt,false);assert.equal('content' in receipt,false);assert.equal('can_delete' in receipt,false);assert.equal('can_retry' in receipt,false);
+  if(object){assert.equal(receipt.metadata.version,'held-version-one');assert.match(receipt.metadata.object_id,/^[0-9a-f-]{36}$/);}else assert.deepEqual(receipt.metadata,{status:'not_observed'});
+  assert.deepEqual((await db.query('SELECT * FROM public.document_upload_attempts')).rows,before);await assert.rejects(reserve(),{code:'42501'});
+});
+for(const role of ['school','district','owner'])test('recovery requires original actor and explicit editing for '+role,async()=>{
+  await installRecoveryRead();await as(actors[role]);await assert.rejects(recoveryRead(),{code:'42501'});await db.exec('RESET ROLE');await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);
+  await as(actors[role]);await reserve();await hold();assert.equal((await recoveryRead()).actor_id,actors[role]);await db.exec('RESET ROLE');await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors[role]]);await as(actors[role]);await assert.rejects(recoveryRead(),{code:'42501'});
+});
+for(const role of ['family','educator'])test('registered '+role+' recovery returns the existing exact document receipt without modifying it',async()=>{
+  await installRecoveryRead();await as(actors[role]);await reserve();await reservedObject(db,{owner:actors[role]});await registerReserved(db,{actor:actors[role]});
+  const expected=await readRegistration();const receipt=await recoveryRead();assert.equal(receipt.state,'registered');assert.equal(receipt.metadata,null);assert.deepEqual(receipt.registration,expected);
+  await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.documents')).rows[0].n,1);assert.equal((await db.query('SELECT state FROM public.document_upload_attempts')).rows[0].state,'registered');
+});
+test('active reservation recovery refuses without silently placing or releasing a hold',async()=>{
+  await installRecoveryRead();await as();await reserve();await reservedObject();await assert.rejects(recoveryRead(),{code:'42501'});
+  await db.exec('RESET ROLE');assert.equal((await db.query('SELECT state FROM public.document_upload_attempts')).rows[0].state,'reserved');assert.equal((await db.query('SELECT count(*)::int AS n FROM storage.objects')).rows[0].n,2);
+});
+for(const patch of [{id:null},{id:uid(9000)},{review:null},{review:'invalid'},{review:'a'.repeat(64)}])test('recovery refuses unknown or changed intent '+JSON.stringify(patch),async()=>{
+  await heldRecoveryFixture();await assert.rejects(recoveryRead(db,patch),{code:'42501'});
+});
+for(const role of ['educator','student','partner','school','district','owner'])test('other '+role+' cannot recover a known Family upload',async()=>{
+  await heldRecoveryFixture();await as(actors[role]);await assert.rejects(recoveryRead(),{code:'42501'});
+});
+for(const role of ['anon','service_role'])test('recovery observation RPC remains unavailable to '+role,async()=>{
+  await heldRecoveryFixture();await as(actors.family,role);await assert.rejects(recoveryRead(),{code:'42501'});
+});
+for(const change of ["owner_id=NULL","owner_id='"+actors.owner+"'","version=NULL","version=''","version=repeat('x',1025)"])test('recovery refuses unconfirmed owned metadata '+change,async()=>{
+  await heldRecoveryFixture(actors.family,true);await db.exec('RESET ROLE');await db.query('UPDATE storage.objects SET '+change+' WHERE name=$1',[student+'/'+attemptId+'-privacy-safe-document.txt']);await as();await assert.rejects(recoveryRead(),{code:'42501'});
+});
+test('recovery cannot substitute legacy owner for missing managed ownership',async()=>{
+  await heldRecoveryFixture(actors.family,true);await db.exec('RESET ROLE;ALTER TABLE storage.objects ADD COLUMN owner uuid;UPDATE storage.objects SET owner=owner_id::uuid;ALTER TABLE storage.objects DROP COLUMN owner_id');
+  try{await as();await assert.rejects(recoveryRead(),{code:'42501'});}finally{await db.exec('RESET ROLE;ALTER TABLE storage.objects ADD COLUMN owner_id text;UPDATE storage.objects SET owner_id=owner::text;ALTER TABLE storage.objects DROP COLUMN owner');}
+});
+test('recovery retains stored quarantine state rather than claiming a registered document is safe',async()=>{
+  await installRecoveryRead();await as();await reserve();await reservedObject();await registerReserved();await as(actors.family,'service_role');await db.query("UPDATE public.documents SET scan_status='infected',scan_verdict=' {\"code\":\"infected\"}'::jsonb,archived_at=now() WHERE id=$1",[uid(401)]);await as();
+  const receipt=await recoveryRead();assert.equal(receipt.state,'registered');assert.equal(receipt.registration.scan_status,'infected');assert.ok(receipt.registration.archived_at);assert.equal(receipt.metadata,null);
+});
+for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('recovery refuses a stale observation snapshot '+isolation,async()=>{
+  await heldRecoveryFixture();await db.exec('BEGIN ISOLATION LEVEL '+isolation);try{await assert.rejects(recoveryRead(),{code:'42501'});}finally{await db.exec('ROLLBACK');}
+});
+test('recovery function has narrow grants, fixed path and no ledger mutation grant',async()=>{
+  await installRecoveryRead();const signature='public.read_document_upload_recovery(uuid,text)';const fn=(await db.query('SELECT prosecdef,provolatile,proconfig FROM pg_proc WHERE oid=$1::regprocedure',[signature])).rows[0];assert.equal(fn.prosecdef,true);assert.equal(fn.provolatile,'v');assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);
+  for(const role of ['anon','authenticated','service_role']){assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,role==='authenticated');for(const privilege of ['INSERT','UPDATE','DELETE'])assert.equal((await db.query("SELECT has_table_privilege($1,'public.document_upload_attempts',$2) AS ok",[role,privilege])).rows[0].ok,false);}
+});
+test('recovery refuses installation without the admission safeguards',async()=>{
+  await installReviewHold();await assert.rejects(db.exec(recoveryReadProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regprocedure('public.read_document_upload_recovery(uuid,text)') AS fn")).rows[0].fn,null);
+});
+for(const transition of ['hold','register'])for(const finish of ['COMMIT','ROLLBACK'])test('recovery observes '+transition+' only after '+finish,{skip:!native},async()=>{
+  await installRecoveryRead();await as();await reserve();if(transition==='register')await reservedObject();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.family,'authenticated',b);
+  await a.exec('BEGIN');if(transition==='hold')await hold(a);else await registerReserved(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=recoveryRead(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await a.exec(finish);const outcome=await pending;
+  if(finish==='ROLLBACK')assert.equal(outcome.error?.code,'42501');else{assert.equal(outcome.error,undefined);assert.equal(outcome.result.state,transition==='hold'?'review_required':'registered');}
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('recovery metadata version observes a prior trusted update after '+finish,{skip:!native},async()=>{
+  await heldRecoveryFixture(actors.family,true);await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'service_role',a);await as(actors.family,'authenticated',b);
+  await a.exec('BEGIN');await a.query("UPDATE storage.objects SET version='held-version-two' WHERE name=$1",[student+'/'+attemptId+'-privacy-safe-document.txt']);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+  const pending=recoveryRead(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}await a.exec(finish);const outcome=await pending;assert.equal(outcome.error,undefined);assert.equal(outcome.result.metadata.version,finish==='COMMIT'?'held-version-two':'held-version-one');
+});
+test('recovery rechecks editing after a hold wait and does not reveal held metadata after removal',{skip:!native},async()=>{
+  await installRecoveryRead();await as(actors.educator);await reserve();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.educator,'authenticated',a);await as(actors.educator,'authenticated',b);
+  await a.exec('BEGIN');await hold(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=recoveryRead(b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);}catch(error){await a.exec('ROLLBACK');await pending;throw error;}
+  await db.query('DELETE FROM public.student_collaborators WHERE user_id=$1',[actors.educator]);await a.exec('COMMIT');assert.equal((await pending).error?.code,'42501');
+});
+test('held recovery refuses a conflicting hidden legacy document without exposing its identity',async()=>{
+  await heldRecoveryFixture(actors.family,true);await db.exec('RESET ROLE;ALTER TABLE public.documents DISABLE TRIGGER USER');
+  try{await db.query('INSERT INTO public.documents(id,student_id,uploaded_by,title,storage_path,archived_at) VALUES($1,$2,$3,$4,$5,now())',[uid(7001),student,actors.owner,'Hidden legacy fixture',student+'/'+attemptId+'-privacy-safe-document.txt']);}finally{await db.exec('ALTER TABLE public.documents ENABLE TRIGGER USER');}
+  await as();const error=await recoveryRead().then(()=>null,e=>e);assert.equal(error.code,'42501');assert.equal(error.message,'This upload recovery could not be confirmed.');
+});
+test('a partner-only role change closes the original uploader recovery path',async()=>{
+  await heldRecoveryFixture();await db.exec('RESET ROLE');await db.query("UPDATE public.user_roles SET role='partner' WHERE user_id=$1",[actors.family]);await as();await assert.rejects(recoveryRead(),{code:'42501'});
+});
+test('same path in another bucket is not student-document metadata evidence',async()=>{
+  await heldRecoveryFixture();await db.exec('RESET ROLE');await db.query('INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES($1,$2,$3,$4)',['other-bucket',student+'/'+attemptId+'-privacy-safe-document.txt',actors.family,'foreign-bucket-version']);await as();assert.deepEqual((await recoveryRead()).metadata,{status:'not_observed'});
 });

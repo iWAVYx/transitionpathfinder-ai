@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-28",
+  "status": "twelfth unapplied proposal; local read-only recovery checks pass; native/full-schema CI pending",
+  "source_base": "aad325cd",
+  "hosted_actions": false,
+  "application_changed": false,
+  "canonical_migration_count": 210,
+  "noncanonical_proposal_count": 12,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "proposal": "docs/production-readiness/proposals/document-upload-recovery-read.sql",
+  "proposal_sha256": "8968011339a21aca23c531fe115cd40d98f0d7ad1805715f3f659947db0bc029",
+  "implemented": [
+    "Original actor plus unchanged review-context claim and current explicit student edit access may observe a held or registered attempt. Partner-only and management-only roles remain excluded; no direct anonymous/service execution.",
+    "Registered observations reuse the exact existing registration receipt and document permission checks, retaining infection/archive/deletion status rather than claiming safe or AI-processed bytes.",
+    "Unresolved observations require an existing review hold and no conflicting document path reference. They return only whether exact student-documents metadata was observed, and its managed original-actor identity/version if confirmed. Missing/legacy/foreign ownership or invalid version refuses the observation.",
+    "Attempt-before-object shared locks and READ COMMITTED enforcement observe committed hold/registration/metadata changes. Access is checked after waiting. No state, quota, file, version, reservation, document, reference or audit write occurs."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 441,
+      "pass": 408,
+      "fail": 0,
+      "skip": 33,
+      "skips": "All 33 native-only cases require real PostgreSQL sessions; no local concurrency proof claimed."
+    },
+    "local_contracts": {
+      "pass": 70,
+      "fail": 0
+    },
+    "native_and_full_schema": "pending: seven new lock-wait cases, 210 canonical migrations followed by all twelve proposals and catalog assertions"
+  },
+  "limits": [
+    "Read-only proposal; no live application caller, endpoint or hosted function is changed.",
+    "not_observed means database metadata was not observed under this request, never physical-byte absence, a completed remote upload rollback, a clean scan, a deletion receipt, permission to retry or authority to release a content claim.",
+    "Observed version/owner is managed metadata only, not immutable-byte, consent, hash or malware attestation. No file payload is read.",
+    "Locks last only through the database transaction. Permissions, references and trusted service changes can differ after return. No full permission-graph, physical object-store or privileged-writer serialization is certified.",
+    "Held claims remain indefinite and count toward unresolved caps. Terminal recovery, verified absence/reference checks, retention, exact cleanup receipts and independent absence verification remain open. No automatic replay, re-registration, scan, AI, expiry or cleanup is enabled.",
+    "Application fingerprint excludes SQL proposals; exact proposal SHA and candidate CI are separate proof. Protected skipped checks remain unperformed."
+  ]
+}

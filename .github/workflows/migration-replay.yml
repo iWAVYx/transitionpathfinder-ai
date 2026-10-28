@@ -672,6 +672,8 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-review-hold.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-upload-admission-limits.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-upload-recovery-read.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -747,6 +749,17 @@ jobs:
             END LOOP;
           END;
           $review_hold_verify$;
+          DO $recovery_read_verify$
+          DECLARE signature text := 'public.read_document_upload_recovery(uuid,text)';
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure
+                AND prosecdef AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon',signature,'EXECUTE')
+              OR has_function_privilege('service_role',signature,'EXECUTE')
+              OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected upload recovery read boundary'; END IF;
+          END;
+          $recovery_read_verify$;
           DO $admission_verify$
           DECLARE signature text := 'public.reserve_document_upload(uuid,uuid,text,text)';
           BEGIN

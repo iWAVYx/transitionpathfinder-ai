@@ -1601,3 +1601,9 @@ The history migration is applied only to isolated staging under specific user au
 - [x] Verify corrected candidate `579db67a`: both native runs 395 passed / zero skips, full 210 canonical migrations plus eleven proposals, and all nine applicable automatic checks pass; both builds pass first attempt. Initial harness failures remain documented.
 - [ ] Review prototype cap values/global-lock throughput and connect safe recovery/terminal resolution before promotion.
 - [ ] Separately authorize any staging migration, application integration, Storage acceptance or cleanup run. No deletion, expiry or permission expansion is authorized by a quota refusal.
+
+### Draft Paused Upload Recovery Reads — October 28, 2026
+
+- [x] Prepare read-only original-actor recovery observations: exact registered receipt or held metadata observation with ownership/version and role/access safeguards. Local checks pass; no retry, release or cleanup authority.
+- [ ] Verify native transaction waits and installation after all 210 canonical migrations and twelve proposals.
+- [ ] Verify actual Storage semantics and design terminal resolution/reference/absence proof before any separately authorized migration, integration or cleanup run.
