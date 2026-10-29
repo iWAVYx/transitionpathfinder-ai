@@ -97,5 +97,7 @@
   ],
   "hosted_actions": false,
   "production_access": false,
-  "authorization_recorded": false
+  "authorization_recorded": false,
+  "adapter_verified_source": "b88a024a79630723e9150da004b80632a983d156",
+  "adapter_verification": "Eight applicable automatic checks, both builds,5334 unit tests/350 files,40 focused cases, TypeScript and local capped build pass. Automatic cumulative PR database check also passes694/694 and225 canonical plus admission proposal; SQL unchanged. No handler integration or hosted activation."
 }
