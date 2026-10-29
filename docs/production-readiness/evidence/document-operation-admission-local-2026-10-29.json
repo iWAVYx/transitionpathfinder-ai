@@ -38,5 +38,16 @@
   ],
   "hosted_actions": false,
   "production_access": false,
-  "authorization_recorded": false
+  "authorization_recorded": false,
+  "initial_native_failure": {
+    "source": "88c27e1f8e4e731165d05888970452fc3fcc6c3c",
+    "pr_run": 40925279496,
+    "push_run": 40925270325,
+    "tests": 694,
+    "pass": 690,
+    "fail": 4,
+    "skip": 0,
+    "failure": "Four new lock-observation cases timed out: the pg_stat_activity observer retained the restricted service role. No application SQL assertion failed before those four observer timeouts.",
+    "correction": "Reset only the separate disposable observer to its test-owner session and assert it explicitly. Both competing callers remain service_role with explicit role assertions. SQL/grants/assertions unchanged; corrected native verification pending."
+  }
 }
