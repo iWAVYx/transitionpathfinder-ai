@@ -30,6 +30,11 @@ const legacy = sql('20260715031029_93358eaf-ed18-40b0-bcf8-383a6d1bc5ac.sql').sp
 const uid = n => '00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 const actors = { family:uid(1), educator:uid(2), student:uid(3), partner:uid(4), school:uid(5), district:uid(6), owner:uid(7) };
 const student = uid(10), otherStudent = uid(11), path = student+'/fictional-privacy-safe-document.txt';
+const documentFixtureSql=`  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,mime_type text DEFAULT 'text/plain',scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
+  GRANT SELECT,INSERT,UPDATE,DELETE ON public.documents TO authenticated;
+  GRANT ALL ON public.documents TO service_role;
+  ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`;
+let documentFixturePolicies,documentFixtureAcl;
 let db, close, newSession, closeCaseSessions;
 async function as(actor=actors.family, role='authenticated', client=db) {
   assert.ok(['authenticated','anon','service_role'].includes(role));
@@ -80,10 +85,7 @@ before(async()=>{
   CREATE FUNCTION public.has_role(actor uuid,wanted text) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$ SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=actor AND role=CASE WHEN wanted='admin' THEN 'owner' ELSE wanted END) $$;
   CREATE TABLE public.document_permissions(document_id uuid,user_id uuid,role_type text,permission_level text);
   CREATE FUNCTION public.has_recent_admin_doc_access(actor uuid,doc uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
-  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,mime_type text DEFAULT 'text/plain',scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
-  GRANT SELECT,INSERT,UPDATE,DELETE ON public.documents TO authenticated;
-  GRANT ALL ON public.documents TO service_role;
-  ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`);
+  ${documentFixtureSql}`);
   await db.exec(sql('20261024010000_remove_implicit_admin_student_access.sql').split('-- Editing a profile')[0]+'COMMIT;');
   const docAccess=sql('20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql');
   await db.exec(docAccess.slice(docAccess.indexOf('CREATE OR REPLACE FUNCTION public.can_view_document'),docAccess.indexOf('-- 7.')));
@@ -96,11 +98,24 @@ before(async()=>{
   await db.exec(latest.slice(latest.indexOf('-- 2)'),latest.indexOf('-- 3)')));
   await db.exec(latest.slice(0,latest.indexOf('-- 2)')));
   await db.exec(policies.slice(storageStart));
+  const policyRows=await db.query(`SELECT format('CREATE POLICY %I ON public.documents AS %s FOR %s TO %s%s%s;',policyname,permissive,cmd,
+    array_to_string(ARRAY(SELECT quote_ident(role_name::text) FROM unnest(roles) role_name),','),
+    CASE WHEN qual IS NULL THEN '' ELSE ' USING ('||qual||')' END,
+    CASE WHEN with_check IS NULL THEN '' ELSE ' WITH CHECK ('||with_check||')' END) AS ddl
+    FROM pg_policies WHERE schemaname='public' AND tablename='documents' ORDER BY policyname`);
+  documentFixturePolicies=policyRows.rows.map(row=>row.ddl).join('\n');
+  documentFixtureAcl=(await db.query("SELECT relacl::text AS acl FROM pg_class WHERE oid='public.documents'::regclass")).rows[0].acl;
 });
 after(async()=>{if(close) await close();});
 afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
+  await db.exec('ROLLBACK');
   await db.exec('RESET ROLE;ALTER TABLE public.students DISABLE ROW LEVEL SECURITY;DROP POLICY IF EXISTS fixture_student_read ON public.students;DROP POLICY IF EXISTS fixture_student_edit ON public.students;DROP TABLE IF EXISTS supabase_migrations.schema_migrations;DROP FUNCTION IF EXISTS public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean);DROP TABLE IF EXISTS public.evidence_items,public.transition_profiles,public.audit_log,public.document_extractions;DROP FUNCTION IF EXISTS public.fixture_extraction_revision();DROP FUNCTION IF EXISTS public.fixture_fail_apply();DROP TRIGGER IF EXISTS ai_jobs_guard_bound_document_source ON public.ai_jobs;DROP FUNCTION IF EXISTS public.guard_bound_document_summary_job();DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP TABLE IF EXISTS public.document_summary_source_bindings;DROP FUNCTION IF EXISTS public.reject_document_source_binding_mutation();DROP FUNCTION IF EXISTS public.claim_document_upload_resolution(uuid,text,uuid);DO $$ BEGIN IF to_regclass(\'public.document_upload_attempts\') IS NOT NULL THEN EXECUTE \'DROP TRIGGER IF EXISTS upload_attempt_resolution_frozen ON public.document_upload_attempts\'; END IF; END $$;DROP FUNCTION IF EXISTS public.guard_claimed_upload_attempt();DROP TABLE IF EXISTS public.document_upload_resolution_claims;DROP FUNCTION IF EXISTS public.reject_upload_resolution_claim_mutation();DROP FUNCTION IF EXISTS public.read_document_upload_recovery(uuid,text);DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
+  // A fresh table keeps PostgreSQL dropped-column slots bounded. Restore the
+  // exact original fixture ACL/policies; never CASCADE away an unknown writer.
+  await db.exec('DROP TABLE public.documents;'+documentFixtureSql+documentFixturePolicies);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_attribute WHERE attrelid='public.documents'::regclass AND attisdropped")).rows[0].n,0);
+  assert.equal((await db.query("SELECT relacl::text AS acl FROM pg_class WHERE oid='public.documents'::regclass")).rows[0].acl,documentFixtureAcl);
   await db.exec(legacy);
   await db.query('INSERT INTO public.students(id,owner_id,student_user_id) VALUES($1,$2,$3),($4,$2,NULL)',[student,actors.family,actors.student,otherStudent]);
   for(const [role,actor] of Object.entries(actors)) await db.query('INSERT INTO public.user_roles VALUES($1,$2)',[actor,role]);

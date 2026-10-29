@@ -33,7 +33,18 @@
       "skip": 0
     },
     "native_full_schema": "pending",
-    "local_fixture_note": "The new disposable-ledger seed initially met an existing empty test namespace; its test now starts from the same absent namespace as CI. No hosted schema, assertions, migration guards or grants were relaxed."
+    "local_fixture_note": "The new disposable-ledger seed initially met an existing empty test namespace; its test now starts from the same absent namespace as CI. No hosted schema, assertions, migration guards or grants were relaxed.",
+    "initial_native_run": {
+      "source": "f7b0272335daface83b676ddaaecb76d016ac37e",
+      "pr_run": 40894190030,
+      "push_run": 40894177354,
+      "tests": 647,
+      "pass": 627,
+      "fail": 20,
+      "skip": 0,
+      "first_failure": "Test 628: SQLSTATE 54011, disposable documents table exhausted PostgreSQL dropped-column slots; subsequent aborted-transaction errors were cascading harness failures."
+    },
+    "fixture_correction": "Recreate the disposable documents table for each case, preserving the captured original policies and exact ACL, asserting zero dropped-column slots and ACL parity, without CASCADE. Roll back any failed case transaction before resetting. No migration assertions or guards relaxed. Corrected local run: 579 pass, 68 native-only skips, zero failures; native verification pending."
   },
   "limitations": [
     "Rollback-only hosted acceptance is prepared, not executable/authorized; exact existing verified fictional sources and baseline reconciliation must be reviewed first. No invented clean receipt or real-user substitution.",
