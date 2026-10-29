@@ -1,0 +1,264 @@
+{
+  "date": "2026-10-29",
+  "schema": "document-upload-canonical-preparation-v1",
+  "status": "Source-bound ordered preparation only; no new canonical files or executable deployment batch",
+  "reviewed_source": "471a4848f60e4be5c6dc0ebdcf94015909d05a47",
+  "current_canonical_count": 211,
+  "remaining_proposal_count": 14,
+  "order_evidence": {
+    "workflow": ".github/workflows/migration-replay.yml",
+    "runs": [
+      40896112196,
+      40896103226
+    ],
+    "native_cases_per_run": 647,
+    "full_canonical_replay": 211,
+    "limits": "Disposable full-schema compatibility, not hosted data/provider compatibility or approval."
+  },
+  "sequence": [
+    {
+      "order": 1,
+      "proposal": "docs/production-readiness/proposals/document-path-exclusivity.sql",
+      "sha256": "3e4d4278fe6b55b37db492e406da9925134c39fe880e0b24b3b79a2ea4bf84f5",
+      "requires_preceding_proposals": [],
+      "compatibility_review": "Reject duplicate or changed student/object paths; inspect existing conflicts first.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 2,
+      "proposal": "docs/production-readiness/proposals/document-scan-state-boundary.sql",
+      "sha256": "b23ec1505be0c512f2ab6ee8147dfb113e9e71f2f428e12c066e9c2877851870",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity"
+      ],
+      "compatibility_review": "Restrict scan/review state writes; scan-provider receipt and legacy reconciliation remain separate.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 3,
+      "proposal": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
+      "sha256": "571286dfb7433d4aae1e5cac878afbfd4738acaf160c491b7ea6f843aa18eb85",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary"
+      ],
+      "compatibility_review": "Restrict ordinary client object replacement/move/deletion; service/provider writes remain separate.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 4,
+      "proposal": "docs/production-readiness/proposals/document-storage-binding.sql",
+      "sha256": "e5da4d650210e8457c0fa6d7309940df770fd1ba53140f723fbb7582d36f150e",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary"
+      ],
+      "compatibility_review": "Require exact managed object identity/version/uploader for new document rows.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 5,
+      "proposal": "docs/production-readiness/proposals/document-summary-job-boundary.sql",
+      "sha256": "1ec8e84a820b1d862ccd31f46b467156d88f8b3a473251f3c6ba0f2c761c6dc4",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding"
+      ],
+      "compatibility_review": "Restrict summary job access and writes before storing private source/results.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 6,
+      "proposal": "docs/production-readiness/proposals/verified-document-summary-source.sql",
+      "sha256": "06a2463cdd7717f66741456f24a681d692f092c96aee36dfedb96d565ea336e6",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary"
+      ],
+      "compatibility_review": "Require service-only verified source reads and guarded completion; coordinate worker source and job drain.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 7,
+      "proposal": "docs/production-readiness/proposals/document-upload-reservations.sql",
+      "sha256": "b8c7c52cc7fbd0a4374c41f741e9d400988a19e4e728e468ab1fc22b9ea878a2",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source"
+      ],
+      "compatibility_review": "Introduce retained upload reservations without automatic expiry or capacity release.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 8,
+      "proposal": "docs/production-readiness/proposals/document-upload-registration.sql",
+      "sha256": "28c1576e75c17b1b98b7726feb8b526f5ecf3c2bee3e319dd80a66bd70c75471",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations"
+      ],
+      "compatibility_review": "Require reservations and review intent on every new document; old upload callers must stop before cutover.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 9,
+      "proposal": "docs/production-readiness/proposals/document-quarantine-read-boundary.sql",
+      "sha256": "b91fbca224345b06266c24ccd3ad97ba918247c1a56313d1a6ab66febd3681f0",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations",
+        "document-upload-registration"
+      ],
+      "compatibility_review": "Restrict infected/retired authenticated object reads; existing signed URLs and service reads need separate review.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 10,
+      "proposal": "docs/production-readiness/proposals/document-upload-review-hold.sql",
+      "sha256": "ad73b6e9b54a083a38acd099d3b22e28bde766385cee5f3b32d35e6b25b17c91",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations",
+        "document-upload-registration",
+        "document-quarantine-read-boundary"
+      ],
+      "compatibility_review": "Gate ordinary object insertion by a retained reservation; old upload paths must be drained.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 11,
+      "proposal": "docs/production-readiness/proposals/document-upload-admission-limits.sql",
+      "sha256": "b7334ca0b44dc38a9d03ed71a3e8ff935dd8448ec90577713f60eab09a3b3dc8",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations",
+        "document-upload-registration",
+        "document-quarantine-read-boundary",
+        "document-upload-review-hold"
+      ],
+      "compatibility_review": "Apply unresolved-claim admission caps; held/uncertain work remains counted.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 12,
+      "proposal": "docs/production-readiness/proposals/document-upload-recovery-read.sql",
+      "sha256": "8968011339a21aca23c531fe115cd40d98f0d7ad1805715f3f659947db0bc029",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations",
+        "document-upload-registration",
+        "document-quarantine-read-boundary",
+        "document-upload-review-hold",
+        "document-upload-admission-limits"
+      ],
+      "compatibility_review": "Provide original-actor recovery observations without file-absence or retry authority.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 13,
+      "proposal": "docs/production-readiness/proposals/document-upload-resolution-claim.sql",
+      "sha256": "de4b0b59e4b365627cc9b2b94ba23d0851e31d62ff4a742f790999a0b9ae593d",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations",
+        "document-upload-registration",
+        "document-quarantine-read-boundary",
+        "document-upload-review-hold",
+        "document-upload-admission-limits",
+        "document-upload-recovery-read"
+      ],
+      "compatibility_review": "Retain immutable operation claims; no terminal release or physical-provider fence.",
+      "canonical_file": null,
+      "hosted_applied": false
+    },
+    {
+      "order": 14,
+      "proposal": "docs/production-readiness/proposals/document-summary-source-binding.sql",
+      "sha256": "889c67343813028d24a232035d3670af2ecb79b0848d57c928d31e38ffdda44e",
+      "requires_preceding_proposals": [
+        "document-path-exclusivity",
+        "document-scan-state-boundary",
+        "document-storage-write-boundary",
+        "document-storage-binding",
+        "document-summary-job-boundary",
+        "verified-document-summary-source",
+        "document-upload-reservations",
+        "document-upload-registration",
+        "document-quarantine-read-boundary",
+        "document-upload-review-hold",
+        "document-upload-admission-limits",
+        "document-upload-recovery-read",
+        "document-upload-resolution-claim"
+      ],
+      "compatibility_review": "Persist first verified summary source identity before IO; older workers must stop before cutover.",
+      "canonical_file": null,
+      "hosted_applied": false
+    }
+  ],
+  "required_before_canonical_promotion": [
+    "Confirm exact proposal hashes and assign unique ordered migration versions; keep review mirrors byte-identical from BEGIN and prevent double installation in CI.",
+    "Review existing duplicate paths, managed-object metadata gaps, legacy jobs and retained unresolved claims with separately authorized full-visibility metadata/count preflight. Never invent clean scans, alter ownership or delete conflicts to pass.",
+    "Prepare coordinated old upload/scan/registration/summary-worker pause and drain. The accumulated caller requires the full chain; partial installation is not a deployable application.",
+    "Verify application archive and separately released Edge worker source/identity, environment/flag mapping and exact schema/ledger prerequisites before proposing any hosted cutover.",
+    "Define recovery that preserves reservations, source bindings, held capacity, audit and legitimate user data; do not restore unsafe legacy callers or enable destructive cleanup.",
+    "Retain provider-byte, semantic-reference, retention/privacy/security and bounded all-role acceptance gates. Passing database replay does not close these.",
+    "Obtain fresh explicit authorization for any hosted preflight access, migration/ledger application, release/publication, worker/provider request or bounded fixture/AI test."
+  ],
+  "role_contract": "One shared boundary for every eligible role; explicit current student/document access remains required. Owner Hub management alone grants no private access. Demo samples cannot invoke signed-in persistence endpoints.",
+  "cleanup_or_capacity_release_authorized": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false
+}
