@@ -4,7 +4,7 @@ import test, { before, beforeEach, afterEach, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
 const rolloutInventory = readFileSync('docs/production-readiness/proposals/document-summary-rollout-inventory.sql','utf8');
@@ -1466,3 +1466,28 @@ for(const finish of ['COMMIT','ROLLBACK'])test('atomic exact-ledger rollout seri
 test('atomic preflight refuses filtered replacement views rather than hidden-row zeros',async()=>{await extractionRolloutFixture();await db.exec('DROP TABLE public.transition_profiles;CREATE VIEW public.transition_profiles AS SELECT id AS student_id FROM public.students WHERE false');try{await assert.rejects(extractionReview(),{code:'55000'});}finally{await db.exec('DROP VIEW public.transition_profiles');}});
 
 test('disposable preflight ledger fixture matches only the three prerequisites and canonical new source',async()=>{await atomicApplyFixture();await db.exec('RESET ROLE;DROP SCHEMA IF EXISTS supabase_migrations');await db.exec(extractionPreflightLedgerSql);const x=await extractionReview();assert.equal(x.ledger.length,4);assert.equal(x.routine.auth_execute,true);assert.equal(x.routine.service_execute,false);const row=(await db.query('SELECT statements FROM supabase_migrations.schema_migrations WHERE version=$1',[extractionMigrationVersion])).rows[0];assert.deepEqual(row.statements,[extractionMigrationSource]);assert.equal(x.rollout_authorized,false);});
+
+
+test('all fourteen canonical upload migrations preserve reviewed executable bodies and exact order',()=>{
+ const plan=JSON.parse(readFileSync('docs/production-readiness/proposals/document-upload-canonical-preparation.json','utf8'));
+ assert.equal(plan.sequence.length,14);assert.equal(plan.current_canonical_count,225);
+ let previous='20261029010000';
+ for(const item of plan.sequence){
+  const canonical=readFileSync(item.canonical_file,'utf8'),mirror=readFileSync(item.proposal,'utf8');
+  assert.equal(canonical.slice(canonical.indexOf('BEGIN;')),mirror.slice(mirror.indexOf('BEGIN;')));
+  assert.equal(createHash('sha256').update(canonical).digest('hex'),item.canonical_sha256);
+  assert.equal(createHash('sha256').update(mirror).digest('hex'),item.sha256);
+  const version=item.canonical_file.split('/').at(-1).slice(0,14);assert.ok(version>previous);previous=version;
+  assert.equal(item.hosted_applied,false);
+ }
+});
+
+test('full replay installs upload migrations only through the canonical loop, retaining boundary assertions',()=>{
+ const workflow=readFileSync('.github/workflows/migration-replay.yml','utf8');
+ const plan=JSON.parse(readFileSync('docs/production-readiness/proposals/document-upload-canonical-preparation.json','utf8'));
+ for(const item of plan.sequence)assert.ok(!workflow.includes('-f '+item.proposal),'review mirror must not be installed twice');
+ assert.match(workflow,/for f in \$\(ls supabase\/migrations\/\*\.sql \| sort\)/);
+ assert.match(workflow,/test "\$count" -eq 225/);
+ assert.match(workflow,/name: Verify canonical document upload boundaries after complete replay/);
+ assert.match(workflow,/documents_storage_path_unique/);assert.match(workflow,/student_document_reserved_insert/);
+});

@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY: not canonical, not authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020600_document_upload_reservations.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Foundation only. No app/storage policy integration, finalizer, expiry, cleanup,
 -- deletion authority or provider IO. Apply after the six reviewed proposals.
 BEGIN;

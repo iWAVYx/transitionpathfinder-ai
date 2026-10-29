@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Apply after all thirteen preceding upload proposals.
+-- CANONICAL REVIEW MIRROR: 20261029021300_document_summary_source_binding.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- First verified source admission persists identity before storage/provider IO.
 -- No text/context copies, expiry, binding deletion, file IO or cleanup authority.
 BEGIN;

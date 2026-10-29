@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Apply after all seven preceding proposals.
+-- CANONICAL REVIEW MIRROR: 20261029020700_document_upload_registration.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Requires coordinated caller rollout: every NEW document needs its reservation
 -- and review-context claim. No storage INSERT gate, cleanup, byte attestation,
 -- provider call, expiry or automatic retry is introduced here.

@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Apply after all eleven preceding upload proposals.
+-- CANONICAL REVIEW MIRROR: 20261029021100_document_upload_recovery_read.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Read-only recovery observations for the original actor and review intent.
 -- No file reads, registration, hold release, retry, expiry or cleanup authority.
 BEGIN;

@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-29",
+  "status": "Fourteen canonical upload/summary files prepared; exact-source native/full replay pending",
+  "source_base": "74b31e1b",
+  "canonical_count": 225,
+  "prepared_unapplied_upload_migrations": 14,
+  "atomic_extraction_migration_also_unapplied": true,
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "manifest": "docs/production-readiness/proposals/document-upload-canonical-preparation.json",
+  "local_sql": {
+    "tests": 649,
+    "pass": 581,
+    "fail": 0,
+    "skip": 68,
+    "skips": "Native PostgreSQL contention only; no local concurrency proof."
+  },
+  "security_readiness_contracts": {
+    "tests": 97,
+    "pass": 93,
+    "fail": 0,
+    "skip": 4,
+    "skips": "Hosted database-dependent document checks unperformed; no hosted credentials supplied."
+  },
+  "changes": [
+    "Fourteen ordered canonical migration bodies are byte-identical from BEGIN to COMMIT to their reviewed SQL. Review mirrors are labeled and excluded from the canonical replay installation loop.",
+    "Snapshot adds the four existing restrictive storage policies, preserving previous permissive student-scope predicates. Native replay must independently match exact expressions.",
+    "Exact SECURITY DEFINER inventory includes seventeen new routines from the reviewed chain: eight caller helpers, seven internal triggers, two service-only worker endpoints. Existing SQL grants are unchanged; PUBLIC execute stays absent.",
+    "Saved production-history comparisons now report31 pending against the same September17 evidence; no production inspection or new applied-state claim."
+  ],
+  "release_gates": [
+    "Data/ledger/schema preflight with independently verified target and specifically authorized metadata visibility.",
+    "Old upload/scan/registration/summary-handler drain and coordinated application plus separate Edge-worker cutover.",
+    "Provider-byte correctness, legacy/in-flight reconciliation, retention/privacy approval, remaining reference/writer review and bounded all-role acceptance.",
+    "Exact ledger batch, recovery limits and fresh hosted migration/deployment/publication/test authorization."
+  ],
+  "hosted_actions": false,
+  "authorization_recorded": false
+}

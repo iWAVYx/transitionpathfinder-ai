@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not a canonical or authorized hosted migration.
+-- CANONICAL REVIEW MIRROR: 20261029020000_document_path_exclusivity.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- First boundary: one document per nonempty object path, with fixed student/path.
 -- Does not reserve content hashes, prove object ownership, freeze stored bytes,
 -- or authorize deletion. Existing row/table permissions remain unchanged.

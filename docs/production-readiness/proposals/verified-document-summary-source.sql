@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020500_verified_document_summary_source.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Apply after the five reviewed document/upload/summary-privacy proposals.
 -- Service-only source receipt and compare-and-set completion; no provider IO.
 BEGIN;

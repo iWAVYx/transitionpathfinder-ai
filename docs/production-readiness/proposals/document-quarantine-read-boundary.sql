@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020800_document_quarantine_read_boundary.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Apply after all eight reviewed upload proposals. Restricts new authenticated
 -- Storage reads/signing for infected/retired files, including uploader/admin
 -- exceptions and hidden document rows. It grants no new read/delete authority.

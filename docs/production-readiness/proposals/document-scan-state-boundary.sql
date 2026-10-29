@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for a hosted database.
+-- CANONICAL REVIEW MIRROR: 20261029020100_document_scan_state_boundary.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Apply after document-path-exclusivity.sql. Does not prove object ownership,
 -- immutable stored bytes, provider provenance or retrospective legacy safety.
 BEGIN;

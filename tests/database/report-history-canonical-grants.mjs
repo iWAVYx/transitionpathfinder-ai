@@ -26,7 +26,7 @@ try {
     assert.equal(r.authenticated_execute,allow.authenticatedExecute.includes(r.signature),r.signature+' authenticated');
     assert.equal(r.service_execute,!allow.serviceRoleExecuteForbidden.includes(r.signature),r.signature+' service');
     if(allow.serviceRoleExecuteForbidden.includes(r.signature)) {
-      const privateNonTriggers=new Map([['public.report_share_is_eligible(uuid)','boolean'],['public.close_report_links_after_access_loss(uuid, uuid)','void']]);
+      const privateNonTriggers=new Map([['public.report_share_is_eligible(uuid)','boolean'],['public.close_report_links_after_access_loss(uuid, uuid)','void'],['public.can_read_document_summary_job(uuid, uuid, text)','boolean'],['public.reserve_document_upload(uuid, uuid, text, text)','jsonb'],['public.read_document_upload_registration(uuid, text)','jsonb'],['public.student_document_not_blocked(text)','boolean'],['public.hold_document_upload_for_review(uuid, text, text)','jsonb'],['public.can_insert_reserved_student_document(text, text)','boolean'],['public.read_document_upload_recovery(uuid, text)','jsonb'],['public.claim_document_upload_resolution(uuid, text, uuid)','jsonb']]);
       if(privateNonTriggers.has(r.signature)) assert.equal(r.return_type,privateNonTriggers.get(r.signature));
       else assert.equal(r.trigger_return,true,r.signature+' must remain a trigger');
       assert.deepEqual(r.proconfig,['search_path=pg_catalog']);

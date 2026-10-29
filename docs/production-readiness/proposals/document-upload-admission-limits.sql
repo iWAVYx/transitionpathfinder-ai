@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY: not canonical, not authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029021000_document_upload_admission_limits.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Apply after all ten preceding document proposals. Prototype admission caps:
 -- five unresolved claims per actor, ten per student, including review holds.
 -- No release, expiry, deletion, byte/rate/spending quota or new access rights.

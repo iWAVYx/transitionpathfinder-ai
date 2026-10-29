@@ -18,7 +18,7 @@
     "Review unsupported grades/section shapes, inaccessible/archived/quarantined/mismatched sources and conflicting historical evidence. The migration does not repair, relabel, backfill or delete them.",
     "Record the server evidence-flag decision without silently flipping it. The RPC supports explicit disabled shadow mode and requires enabled evidence to commit atomically.",
     "Prepare old Apply-handler drain/maintenance and confirm no sequential old-version work can continue during cutover. Current preflight always reports drain/flag decision as unverified.",
-    "Prepare separate canonical/release plans for the fourteen upload/summary proposals before deploying the complete accumulated application. Making this atomic function canonical does not make those proposals applied or the whole PR deployable.",
+    "Fourteen upload/summary migrations are now prepared canonically, with exact-source full replay pending. Complete their ordered data/schema/ledger preflight and caller/worker cutover review before deploying the accumulated application; canonical source preparation is not hosted application or release approval.",
     "Get fresh specific authorization for the exact staging migration/ledger, app/worker release or publication and any test. Earlier completed approvals do not apply.",
     "Compare revision-trigger definition/body hash, exact evidence-index columns/predicate and caller table grants/RLS in preflight. A matching object name alone is insufficient; no automatic repair or grant widening."
   ],

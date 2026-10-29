@@ -45,16 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 211,
-    "latestCanonicalFile": "20261029010000_apply_reviewed_document_extraction.sql",
+    "canonicalCount": 225,
+    "latestCanonicalFile": "20261029021300_document_summary_source_binding.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 17,
+    "pendingProductionCount": 31,
     "canonicalInventoryReviewedAt": "2026-10-29",
-    "canonicalInventorySourceCommit": "471a4848f60e4be5c6dc0ebdcf94015909d05a47",
-    "canonicalInventoryStatus": "211 canonical migrations; new 20261029010000 atomic extraction application is prepared only, not applied hosted. Isolated staging remains at authorized 20261026010000 and prior c95a008f/1190-file release. Production17 pending is a comparison against saved September17 evidence only; no production access or refreshed baseline is claimed."
+    "canonicalInventorySourceCommit": "74b31e1b",
+    "canonicalInventoryStatus": "225 canonical migrations prepared; atomic extraction and fourteen upload/summary boundaries remain unapplied hosted. Source promotion exact-source CI pending. Isolated staging remains at authorized 20261026010000 and c95a008f/1190-file release. Production31 pending compares the same saved September17 evidence only; no production access or refreshed baseline."
   }
 }

@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020400_document_summary_job_boundary.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Prerequisite to putting verified document text/results into background jobs.
 -- Does not implement file reads, grounding, provider calls or job reservations.
 BEGIN;

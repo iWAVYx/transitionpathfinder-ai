@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020200_document_storage_write_boundary.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Blocks ordinary client replacement, moves and deletion in student-documents.
 -- Does not prove object ownership, immutable service writes or provider scanning.
 -- Use Storage APIs for byte operations; never delete storage metadata as cleanup.

@@ -1,10 +1,10 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-canonical-preparation-v1",
-  "status": "Source-bound ordered preparation only; no new canonical files or executable deployment batch",
+  "status": "Fourteen canonical files prepared with identical reviewed executable bodies; hosted rollout unauthorized/unapplied; exact-source verification pending",
   "reviewed_source": "471a4848f60e4be5c6dc0ebdcf94015909d05a47",
-  "current_canonical_count": 211,
-  "remaining_proposal_count": 14,
+  "current_canonical_count": 225,
+  "remaining_proposal_count": 0,
   "order_evidence": {
     "workflow": ".github/workflows/migration-replay.yml",
     "runs": [
@@ -13,58 +13,66 @@
     ],
     "native_cases_per_run": 647,
     "full_canonical_replay": 211,
-    "limits": "Disposable full-schema compatibility, not hosted data/provider compatibility or approval."
+    "limits": "Prior disposable runs verified the same executable SQL as 211 canonical plus fourteen proposals. New canonical-only 225 replay is pending; neither proves hosted/provider compatibility or approval."
   },
   "sequence": [
     {
       "order": 1,
       "proposal": "docs/production-readiness/proposals/document-path-exclusivity.sql",
-      "sha256": "3e4d4278fe6b55b37db492e406da9925134c39fe880e0b24b3b79a2ea4bf84f5",
+      "sha256": "e4ff58b864b313d3613302002e4d7abefd2891608f972038f4d8104297fddb2d",
       "requires_preceding_proposals": [],
       "compatibility_review": "Reject duplicate or changed student/object paths; inspect existing conflicts first.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020000_document_path_exclusivity.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "3e4d4278fe6b55b37db492e406da9925134c39fe880e0b24b3b79a2ea4bf84f5",
+      "canonical_sha256": "3c657d0ac2fb4f25f93666d9d3b63cafbabbf37328e11d91176f7d9646fb7adc"
     },
     {
       "order": 2,
       "proposal": "docs/production-readiness/proposals/document-scan-state-boundary.sql",
-      "sha256": "b23ec1505be0c512f2ab6ee8147dfb113e9e71f2f428e12c066e9c2877851870",
+      "sha256": "9ed0ce97dece5e4bb71638b6efcb85d92bf901b60745eb6bec6cc40767e72e19",
       "requires_preceding_proposals": [
         "document-path-exclusivity"
       ],
       "compatibility_review": "Restrict scan/review state writes; scan-provider receipt and legacy reconciliation remain separate.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020100_document_scan_state_boundary.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "b23ec1505be0c512f2ab6ee8147dfb113e9e71f2f428e12c066e9c2877851870",
+      "canonical_sha256": "534c18804293fb5ada192ac53aaa811e386a3e3fad252aac55b363b14d32d99e"
     },
     {
       "order": 3,
       "proposal": "docs/production-readiness/proposals/document-storage-write-boundary.sql",
-      "sha256": "571286dfb7433d4aae1e5cac878afbfd4738acaf160c491b7ea6f843aa18eb85",
+      "sha256": "0ff8cf71a92ca44c125c98fc4fc5d5760d0a597737a77fc70b17c83bc45ea490",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary"
       ],
       "compatibility_review": "Restrict ordinary client object replacement/move/deletion; service/provider writes remain separate.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020200_document_storage_write_boundary.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "571286dfb7433d4aae1e5cac878afbfd4738acaf160c491b7ea6f843aa18eb85",
+      "canonical_sha256": "8aba6cb1d578a4e09a4d1d5b077db968c07274571767329ccf9a2f8ebcda78d2"
     },
     {
       "order": 4,
       "proposal": "docs/production-readiness/proposals/document-storage-binding.sql",
-      "sha256": "e5da4d650210e8457c0fa6d7309940df770fd1ba53140f723fbb7582d36f150e",
+      "sha256": "e048b6c852674b8512d139bf347feb51e4565bba9031ec5d339f8722bf150723",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
         "document-storage-write-boundary"
       ],
       "compatibility_review": "Require exact managed object identity/version/uploader for new document rows.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020300_document_storage_binding.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "e5da4d650210e8457c0fa6d7309940df770fd1ba53140f723fbb7582d36f150e",
+      "canonical_sha256": "2c9700a8e60e952d52c2e84774b3a571ff8509965634e5cc96f8e33e4722462c"
     },
     {
       "order": 5,
       "proposal": "docs/production-readiness/proposals/document-summary-job-boundary.sql",
-      "sha256": "1ec8e84a820b1d862ccd31f46b467156d88f8b3a473251f3c6ba0f2c761c6dc4",
+      "sha256": "a0aa2bef8bca06f1265a3be9b9aab29c64059c0d9a3b0cc7db930480526d7861",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -72,13 +80,15 @@
         "document-storage-binding"
       ],
       "compatibility_review": "Restrict summary job access and writes before storing private source/results.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020400_document_summary_job_boundary.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "1ec8e84a820b1d862ccd31f46b467156d88f8b3a473251f3c6ba0f2c761c6dc4",
+      "canonical_sha256": "47171c1e9e795e177b8e9d5de2c177c1b89acecf4ec75819e33de3f7d07cd398"
     },
     {
       "order": 6,
       "proposal": "docs/production-readiness/proposals/verified-document-summary-source.sql",
-      "sha256": "06a2463cdd7717f66741456f24a681d692f092c96aee36dfedb96d565ea336e6",
+      "sha256": "4dc4db8703bb74683965796ed2c787634ceaee98568eab4aec16fe9208130978",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -87,13 +97,15 @@
         "document-summary-job-boundary"
       ],
       "compatibility_review": "Require service-only verified source reads and guarded completion; coordinate worker source and job drain.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020500_verified_document_summary_source.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "06a2463cdd7717f66741456f24a681d692f092c96aee36dfedb96d565ea336e6",
+      "canonical_sha256": "1bc6a08a987ad92bccdce5726c9c74da8883e3a4852907112477eb9263ed2830"
     },
     {
       "order": 7,
       "proposal": "docs/production-readiness/proposals/document-upload-reservations.sql",
-      "sha256": "b8c7c52cc7fbd0a4374c41f741e9d400988a19e4e728e468ab1fc22b9ea878a2",
+      "sha256": "b49f3a731b5d719d3b88a9a4ff861ad8d9ac4ad1d0923420dfcc997c874ec9eb",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -103,13 +115,15 @@
         "verified-document-summary-source"
       ],
       "compatibility_review": "Introduce retained upload reservations without automatic expiry or capacity release.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020600_document_upload_reservations.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "b8c7c52cc7fbd0a4374c41f741e9d400988a19e4e728e468ab1fc22b9ea878a2",
+      "canonical_sha256": "b124a0a76d9e9502dcf29ca9b884653be71862a23ff585252f8a20d4fb68c6ef"
     },
     {
       "order": 8,
       "proposal": "docs/production-readiness/proposals/document-upload-registration.sql",
-      "sha256": "28c1576e75c17b1b98b7726feb8b526f5ecf3c2bee3e319dd80a66bd70c75471",
+      "sha256": "f67f16a65c05b278748bdce4cd1c83164c0a35a8100d805d42485a325e6873d3",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -120,13 +134,15 @@
         "document-upload-reservations"
       ],
       "compatibility_review": "Require reservations and review intent on every new document; old upload callers must stop before cutover.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020700_document_upload_registration.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "28c1576e75c17b1b98b7726feb8b526f5ecf3c2bee3e319dd80a66bd70c75471",
+      "canonical_sha256": "828646de769fda93fb2bbc856aab9b1826a5dacd1025d23b359d21f7504ac1b9"
     },
     {
       "order": 9,
       "proposal": "docs/production-readiness/proposals/document-quarantine-read-boundary.sql",
-      "sha256": "b91fbca224345b06266c24ccd3ad97ba918247c1a56313d1a6ab66febd3681f0",
+      "sha256": "7ea5dda46eed84701bbe163dfe7ced29cbce3d4b02978f7afd51bc007848ba2f",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -138,13 +154,15 @@
         "document-upload-registration"
       ],
       "compatibility_review": "Restrict infected/retired authenticated object reads; existing signed URLs and service reads need separate review.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020800_document_quarantine_read_boundary.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "b91fbca224345b06266c24ccd3ad97ba918247c1a56313d1a6ab66febd3681f0",
+      "canonical_sha256": "31076fda2f24a847c096928263f9ed21e9ba37446358ac1ee1a31f3627058e7e"
     },
     {
       "order": 10,
       "proposal": "docs/production-readiness/proposals/document-upload-review-hold.sql",
-      "sha256": "ad73b6e9b54a083a38acd099d3b22e28bde766385cee5f3b32d35e6b25b17c91",
+      "sha256": "c19c5fc94d764e3e3c7b56519c7bb443ecbd0fbce93f05c783ff473c2cb41da0",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -157,13 +175,15 @@
         "document-quarantine-read-boundary"
       ],
       "compatibility_review": "Gate ordinary object insertion by a retained reservation; old upload paths must be drained.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029020900_document_upload_review_hold.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "ad73b6e9b54a083a38acd099d3b22e28bde766385cee5f3b32d35e6b25b17c91",
+      "canonical_sha256": "f029cd68ebca8e2e3de3f83f29d65be6dfd442a9ce1e5a96c43661d9ab5a8b07"
     },
     {
       "order": 11,
       "proposal": "docs/production-readiness/proposals/document-upload-admission-limits.sql",
-      "sha256": "b7334ca0b44dc38a9d03ed71a3e8ff935dd8448ec90577713f60eab09a3b3dc8",
+      "sha256": "1b4223189e23593650825719e7f70a134f05829ba1e23cc7f65473906881a20f",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -177,13 +197,15 @@
         "document-upload-review-hold"
       ],
       "compatibility_review": "Apply unresolved-claim admission caps; held/uncertain work remains counted.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029021000_document_upload_admission_limits.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "b7334ca0b44dc38a9d03ed71a3e8ff935dd8448ec90577713f60eab09a3b3dc8",
+      "canonical_sha256": "8801594b167d665186f38ad705913f0a62a9b21144d0326fae251a4ba903327e"
     },
     {
       "order": 12,
       "proposal": "docs/production-readiness/proposals/document-upload-recovery-read.sql",
-      "sha256": "8968011339a21aca23c531fe115cd40d98f0d7ad1805715f3f659947db0bc029",
+      "sha256": "319c6e0fd7ec2980231e1aea9e7a7a2576a11f8be236f593c5ae273680eb5716",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -198,13 +220,15 @@
         "document-upload-admission-limits"
       ],
       "compatibility_review": "Provide original-actor recovery observations without file-absence or retry authority.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029021100_document_upload_recovery_read.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "8968011339a21aca23c531fe115cd40d98f0d7ad1805715f3f659947db0bc029",
+      "canonical_sha256": "b1a3864cff49c6c349968c8e03b9fc84d68e38c18b056d3f876e727422368835"
     },
     {
       "order": 13,
       "proposal": "docs/production-readiness/proposals/document-upload-resolution-claim.sql",
-      "sha256": "de4b0b59e4b365627cc9b2b94ba23d0851e31d62ff4a742f790999a0b9ae593d",
+      "sha256": "6f0b65be0b048e05194065986d48bc2dd3751ca92d02948452243e8232f7cfb7",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -220,13 +244,15 @@
         "document-upload-recovery-read"
       ],
       "compatibility_review": "Retain immutable operation claims; no terminal release or physical-provider fence.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029021200_document_upload_resolution_claim.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "de4b0b59e4b365627cc9b2b94ba23d0851e31d62ff4a742f790999a0b9ae593d",
+      "canonical_sha256": "d10c99e907edd8162288c417d04025cff4034f8ddd81390f45d932b307d23f6c"
     },
     {
       "order": 14,
       "proposal": "docs/production-readiness/proposals/document-summary-source-binding.sql",
-      "sha256": "889c67343813028d24a232035d3670af2ecb79b0848d57c928d31e38ffdda44e",
+      "sha256": "44a12f1153a08fe7087b62a511d368dc9070ce4a692f42469ddc91fbe5f94b6d",
       "requires_preceding_proposals": [
         "document-path-exclusivity",
         "document-scan-state-boundary",
@@ -243,22 +269,26 @@
         "document-upload-resolution-claim"
       ],
       "compatibility_review": "Persist first verified summary source identity before IO; older workers must stop before cutover.",
-      "canonical_file": null,
-      "hosted_applied": false
+      "canonical_file": "supabase/migrations/20261029021300_document_summary_source_binding.sql",
+      "hosted_applied": false,
+      "reviewed_proposal_sha256": "889c67343813028d24a232035d3670af2ecb79b0848d57c928d31e38ffdda44e",
+      "canonical_sha256": "3b9a7077cec49856de04f2d53f1dc4328a12465b25522c790e55c8d44b30be2c"
     }
   ],
-  "required_before_canonical_promotion": [
-    "Confirm exact proposal hashes and assign unique ordered migration versions; keep review mirrors byte-identical from BEGIN and prevent double installation in CI.",
+  "role_contract": "One shared boundary for every eligible role; explicit current student/document access remains required. Owner Hub management alone grants no private access. Demo samples cannot invoke signed-in persistence endpoints.",
+  "cleanup_or_capacity_release_authorized": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false,
+  "base_canonical_count": 211,
+  "prepared_unapplied_upload_migration_count": 14,
+  "required_before_hosted_rollout": [
+    "Verify exact-source native replay, mirror/canonical body parity, final permission inventory and all canonical migration hashes; prepare an exact source/ledger application batch and full-visibility preflight before proposing hosted execution.",
     "Review existing duplicate paths, managed-object metadata gaps, legacy jobs and retained unresolved claims with separately authorized full-visibility metadata/count preflight. Never invent clean scans, alter ownership or delete conflicts to pass.",
     "Prepare coordinated old upload/scan/registration/summary-worker pause and drain. The accumulated caller requires the full chain; partial installation is not a deployable application.",
     "Verify application archive and separately released Edge worker source/identity, environment/flag mapping and exact schema/ledger prerequisites before proposing any hosted cutover.",
     "Define recovery that preserves reservations, source bindings, held capacity, audit and legitimate user data; do not restore unsafe legacy callers or enable destructive cleanup.",
     "Retain provider-byte, semantic-reference, retention/privacy/security and bounded all-role acceptance gates. Passing database replay does not close these.",
     "Obtain fresh explicit authorization for any hosted preflight access, migration/ledger application, release/publication, worker/provider request or bounded fixture/AI test."
-  ],
-  "role_contract": "One shared boundary for every eligible role; explicit current student/document access remains required. Owner Hub management alone grants no private access. Demo samples cannot invoke signed-in persistence endpoints.",
-  "cleanup_or_capacity_release_authorized": false,
-  "hosted_actions": false,
-  "production_access": false,
-  "authorization_recorded": false
+  ]
 }

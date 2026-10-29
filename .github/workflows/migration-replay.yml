@@ -38,6 +38,7 @@ on:
       - "docs/production-readiness/proposals/atomic-extraction-application.sql"
       - "docs/production-readiness/proposals/atomic-extraction-preflight.sql"
       - "tests/database/atomic-extraction-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -94,6 +95,7 @@ on:
       - "docs/production-readiness/proposals/atomic-extraction-application.sql"
       - "docs/production-readiness/proposals/atomic-extraction-preflight.sql"
       - "tests/database/atomic-extraction-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -304,7 +306,7 @@ jobs:
             count=$((count+1))
           done
           echo "replayed $count migrations"
-          test "$count" -ge 175
+          test "$count" -eq 225
 
       - name: Verify combined canonical history and privileged routine permissions
         run: |
@@ -670,36 +672,8 @@ jobs:
               and (select count(*) >= 0 from public.blog_posts)
               and (select count(*) >= 0 from public.media_assets);" | grep -qx t
 
-      - name: Verify document upload proposals against the complete canonical replay
+      - name: Verify canonical document upload boundaries after complete replay
         run: |
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-path-exclusivity.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-scan-state-boundary.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-storage-write-boundary.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-storage-binding.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-summary-job-boundary.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/verified-document-summary-source.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-upload-reservations.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-upload-registration.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-quarantine-read-boundary.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-upload-review-hold.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-upload-admission-limits.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-upload-recovery-read.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-upload-resolution-claim.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/document-summary-source-binding.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN

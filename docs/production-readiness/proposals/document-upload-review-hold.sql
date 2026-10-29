@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020900_document_upload_review_hold.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Apply after the nine reviewed upload proposals. Adds an actor-requested,
 -- non-expiring review hold and reservation-gated client Storage INSERT.
 -- No application caller, terminal release, quota, expiry, cleanup, byte IO,

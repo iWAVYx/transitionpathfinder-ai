@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Apply after all twelve preceding upload proposals.
+-- CANONICAL REVIEW MIRROR: 20261029021200_document_upload_resolution_claim.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Pins an existing original-actor review hold to one immutable operation key.
 -- No file IO, provider/processing fence, terminal state, release or cleanup.
 BEGIN;

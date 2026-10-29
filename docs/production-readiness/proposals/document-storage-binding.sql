@@ -1,4 +1,5 @@
--- REVIEW PROPOSAL ONLY. Not canonical or authorized for hosted execution.
+-- CANONICAL REVIEW MIRROR: 20261029020300_document_storage_binding.sql.
+-- Do not execute this mirror as an additional migration. Hosted authorization is separate.
 -- Apply after the path, scan-state and storage client-write proposals.
 -- Binds new document rows to exact managed object identity/version and uploader.
 -- Not an immutable object store, byte hash attestation, scan receipt or cleanup lock.
