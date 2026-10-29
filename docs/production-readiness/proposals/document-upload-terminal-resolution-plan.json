@@ -114,6 +114,11 @@
     "evidence": "docs/production-readiness/evidence/atomic-extraction-application-local-2026-10-29.json",
     "proposal": "docs/production-readiness/proposals/atomic-extraction-application.sql",
     "boundary": "One additional independent application proposal; fourteen upload/summary proposals and 210 canonical migrations unchanged. No hosted change or complete writer fence.",
-    "next": "Prepare canonical migration/ledger and compatibility/data/evidence-flag preflight, including old-handler drain and bounded no-AI hosted acceptance scope, before requesting any new release authorization."
+    "next": "Prepare canonical migration/ledger and compatibility/data/evidence-flag preflight, including old-handler drain and bounded no-AI hosted acceptance scope, before requesting any new release authorization.",
+    "rollout_preparation": {
+      "status": "211th canonical migration prepared only; fourteen upload/summary proposals remain noncanonical/unapplied. Native/replay checks pending.",
+      "evidence": "docs/production-readiness/evidence/atomic-extraction-rollout-local-2026-10-29.json",
+      "release_plan": "docs/production-readiness/proposals/atomic-extraction-release-plan.json"
+    }
   }
 }

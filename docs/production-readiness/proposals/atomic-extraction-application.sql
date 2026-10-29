@@ -1,8 +1,33 @@
 -- REVIEW PROPOSAL ONLY; not a canonical migration and not applied hosted.
+-- Review mirror of canonical 20261029010000; execute neither without approval.
+-- Do not execute this mirror in addition to the canonical migration.
 -- Caller must switch in a coordinated separately authorized release.
 BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='30s';
+DO $application_prerequisites$
+DECLARE relation_name text;
+BEGIN
+  FOREACH relation_name IN ARRAY ARRAY['public.students','public.documents','public.document_extractions','public.transition_profiles','public.evidence_items'] LOOP
+    IF to_regclass(relation_name) IS NULL THEN RAISE EXCEPTION 'Atomic review relations are required.' USING ERRCODE='55000'; END IF;
+    EXECUTE format('LOCK TABLE %s IN ACCESS SHARE MODE',relation_name);
+    IF NOT EXISTS(SELECT 1 FROM pg_catalog.pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity) THEN
+      RAISE EXCEPTION 'Atomic review prerequisites require existing row security.' USING ERRCODE='55000';
+    END IF;
+  END LOOP;
+  IF NOT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger WHERE tgrelid='public.document_extractions'::regclass
+    AND tgname='document_extractions_set_updated_at' AND tgenabled='O' AND NOT tgisinternal
+    AND tgtype=19 AND tgnargs=0 AND tgqual IS NULL)
+    OR NOT EXISTS(SELECT 1 FROM pg_catalog.pg_index i WHERE indexrelid=to_regclass('public.evidence_items_source_unique')
+      AND indrelid='public.evidence_items'::regclass AND indisunique AND indisvalid AND indpred IS NOT NULL
+      AND indexprs IS NULL AND indnkeyatts=3 AND indnatts=3
+      AND ARRAY(SELECT a.attname::text FROM unnest(i.indkey) WITH ORDINALITY k(attnum,ord)
+        JOIN pg_catalog.pg_attribute a ON a.attrelid=i.indrelid AND a.attnum=k.attnum ORDER BY k.ord)=ARRAY['student_id','source_kind','source_id']
+      AND regexp_replace(pg_get_expr(i.indpred,i.indrelid),'[[:space:]()]','','g')='source_idISNOTNULL') THEN
+    RAISE EXCEPTION 'Atomic review revision and evidence safeguards are required.' USING ERRCODE='55000';
+  END IF;
+END;
+$application_prerequisites$;
 CREATE FUNCTION public.apply_reviewed_document_extraction(
   _extraction_id uuid,_student_id uuid,_document_id uuid,
   _expected_updated_at timestamptz,_expected_sections jsonb,_emit_evidence boolean

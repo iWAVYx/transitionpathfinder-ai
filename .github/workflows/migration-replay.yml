@@ -36,6 +36,8 @@ on:
       - "docs/production-readiness/proposals/document-summary-source-binding.sql"
       - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
       - "docs/production-readiness/proposals/atomic-extraction-application.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-preflight.sql"
+      - "tests/database/atomic-extraction-rollout-sql.mjs"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -90,6 +92,8 @@ on:
       - "docs/production-readiness/proposals/document-summary-source-binding.sql"
       - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
       - "docs/production-readiness/proposals/atomic-extraction-application.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-preflight.sql"
+      - "tests/database/atomic-extraction-rollout-sql.mjs"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -696,8 +700,6 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-resolution-claim.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-summary-source-binding.sql
-          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
-            -f docs/production-readiness/proposals/atomic-extraction-application.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -985,6 +987,31 @@ jobs:
           console.log('Read-only empty-schema counts verified; no worker/provider or rollout authority inferred.');
           NODE
 
+      - name: Seed disposable-only preflight ledger fixture
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          import {extractionPreflightLedgerSql} from './tests/database/atomic-extraction-rollout-sql.mjs';
+          writeFileSync('/tmp/atomic-extraction-ledger-fixture.sql',extractionPreflightLedgerSql);
+          NODE
+          PGUSER=supabase_admin psql -q -v ON_ERROR_STOP=1 -f /tmp/atomic-extraction-ledger-fixture.sql
+
+      - name: Review atomic extraction preflight without private values
+        run: |
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/atomic-extraction-preflight.sql \
+            > /tmp/atomic-extraction-preflight.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/atomic-extraction-preflight.json','utf8'));
+          assert.equal(x.schema,'atomic-extraction-preflight-v1');assert.equal(x.read_only,true);
+          assert.equal(x.complete_relation_visibility,true);assert.equal(x.review_count,0);
+          for(const k of ['source_conflict_count','unavailable_source_count','malformed_review_count','evidence_conflict_count','unknown_state_count'])assert.equal(x[k],0);
+          for(const k of ['old_handlers_drained','evidence_flag_decision_recorded','data_repaired','rollout_authorized'])assert.equal(x[k],false);
+          assert.equal(x.ledger.length,4);assert.equal(x.routine.definer,false);assert.equal(x.routine.auth_execute,true);
+          assert.equal(x.routine.anon_execute,false);assert.equal(x.routine.service_execute,false);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -996,4 +1023,5 @@ jobs:
             /tmp/document-path-proposal-verification.txt
             /tmp/document-reference-catalog.json
             /tmp/document-summary-rollout-inventory.json
+            /tmp/atomic-extraction-preflight.json
           if-no-files-found: ignore

@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-29",
+  "status": "Canonical migration, exact-ledger batch and read-only preflight prepared locally; exact-source native/full replay pending",
+  "source_base": "1ce0cec3",
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "canonical_migration_count": 211,
+  "new_migration": "supabase/migrations/20261029010000_apply_reviewed_document_extraction.sql",
+  "new_migration_sha256": "cc0ded8c47b1a009cbe7477e84f2902fe43fedeb4845a52ebd15d50689200600",
+  "upload_summary_proposals_remaining_unapplied": 14,
+  "hosted_actions": false,
+  "release_plan": "docs/production-readiness/proposals/atomic-extraction-release-plan.json",
+  "checked": [
+    "Canonical function body remains identical to the previously verified atomic implementation; new installation guard requires existing RLS, extraction revision trigger and evidence uniqueness. No data/permission rewrite.",
+    "Rollout generator only prepares SQL strings, never connections. Exact prerequisite sources/names, absence of new version/routine, serialized installation and exact full-source ledger commit together. Duplicate/drift or failed ledger insertion rolls back function DDL.",
+    "Read-only trusted preflight emits only fixed state/count/catalog/ledger values, never student/document UUIDs, content, notes or evidence payloads. Incomplete RLS visibility fails closed. Existing problems are counted, not repaired.",
+    "Saved production-history comparisons now report 211 canonical and 17 pending against the same September17 saved evidence, not a new production read or approval.",
+    "Full application release is still blocked on fourteen noncanonical upload/summary proposals, old-handler drain, explicit flag/data review and separate authorization. No migration or test has run hosted.",
+    "Disposable CI seeds an explicitly synthetic four-row prerequisite/new ledger after the complete psql replay, because psql does not create a Supabase ledger. This is never evidence of hosted application."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 647,
+      "pass": 579,
+      "fail": 0,
+      "skip": 68,
+      "skips": "Real PostgreSQL contention only; no local concurrency proof."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_full_schema": "pending",
+    "local_fixture_note": "The new disposable-ledger seed initially met an existing empty test namespace; its test now starts from the same absent namespace as CI. No hosted schema, assertions, migration guards or grants were relaxed."
+  },
+  "limitations": [
+    "Rollback-only hosted acceptance is prepared, not executable/authorized; exact existing verified fictional sources and baseline reconciliation must be reviewed first. No invented clean receipt or real-user substitution.",
+    "Canonical preparation does not close direct-writer, edit lost-update, whole-permission graph, provider-byte, retention or complete-reference gates.",
+    "No production/main, hosted migration/deployment/publication, fixtures, account/access/payment/secret, provider/AI action. Parent Pilot / Pathway Snapshot and report polish remain deferred."
+  ],
+  "preflight_sha256": "a4f51971766a8266a09da5124a4cfb628505937701a7a3e7b980ef5ca8d1c8c4"
+}

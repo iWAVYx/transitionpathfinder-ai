@@ -45,16 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 210,
-    "latestCanonicalFile": "20261026010000_save_extracted_report_evidence.sql",
+    "canonicalCount": 211,
+    "latestCanonicalFile": "20261029010000_apply_reviewed_document_extraction.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 16,
+    "pendingProductionCount": 17,
     "canonicalInventoryReviewedAt": "2026-10-26",
     "canonicalInventorySourceCommit": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
-    "canonicalInventoryStatus": "210 canonical migrations; isolated staging migration20261026010000 and exact canonical ledger applied and independently verified. Authorized bounded evidence acceptance40434461119 passed; independent read-only checks confirm22 exact/related counts zero for each of two scopes. Both stable sites match c95a008f fingerprint/1190 files. Production16 pending is only a comparison against saved September17 evidence; no production access."
+    "canonicalInventoryStatus": "211 canonical migrations; new 20261029010000 atomic extraction application is prepared only, not applied hosted. Isolated staging remains at authorized 20261026010000 and prior c95a008f/1190-file release. Production17 pending is a comparison against saved September17 evidence only; no production access or refreshed baseline is claimed."
   }
 }
