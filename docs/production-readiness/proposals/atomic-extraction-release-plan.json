@@ -71,5 +71,6 @@
     "rollback_is_not_deployment_approval": true
   },
   "authorization_recorded": false,
-  "hosted_actions": false
+  "hosted_actions": false,
+  "combined_cutover": "For a baseline where atomic extraction and all fourteen upload migrations are absent, document-upload-cutover-plan.json selects one fifteen-migration transaction from document-upload-rollout-sql.mjs. Do not execute the standalone atomic batch first or also execute review mirrors. Any already-applied/partial state requires a new reviewed plan; no automatic resume."
 }

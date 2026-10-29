@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-29",
+  "status": "Combined rollout, legacy preflight and cutover packet prepared; exact-source native verification pending",
+  "source_base": "d384e434",
+  "canonical_count": 225,
+  "new_canonical_migrations_this_step": 0,
+  "migration_batch_size": 15,
+  "source_hashes": {
+    "tests/database/document-upload-rollout-sql.mjs": "f81b41d600a1b669e591d102ae18a8b1e9b0f830f3758a17c28dd472488ff478",
+    "docs/production-readiness/proposals/document-upload-chain-preflight.sql": "4319cbb34743055fbe0a57bb4d3626518922a563f74e80c18ac3795cf1601aca",
+    "docs/production-readiness/proposals/document-upload-cutover-plan.json": "08b74107d0ed4ff9b235eff3aacc901742a43a49203faed6e902d3600c757241"
+  },
+  "local_sql": {
+    "tests": 669,
+    "pass": 599,
+    "fail": 0,
+    "skip": 70,
+    "skips": "Native PostgreSQL contention only; no local concurrency claim."
+  },
+  "local_security_transport_contracts": {
+    "pass": 92,
+    "fail": 0,
+    "skip": 0
+  },
+  "checked": [
+    "All fifteen reviewed migration bodies and exact source ledger rows commit together, with cooperative advisory and ledger locks and no separate review-mirror installation.",
+    "Duplicate/reused/future migration history and exact prerequisite drift abort without retaining DDL. A final ledger-write failure and duplicate legacy paths roll back even the first atomic function creation.",
+    "Existing legacy document columns remain unchanged; new provenance columns stay NULL rather than inventing historic reservation/object receipts.",
+    "Read-only preflight exposes aggregate legacy/queue/catalog counts only. Missing owner/version metadata is reported, never repaired; hidden RLS and filtered relations are refused.",
+    "Competing-installer commit/rollback cases are prepared for real PostgreSQL; native verification pending."
+  ],
+  "limits": [
+    "The exact batch checks three recent prerequisite ledger rows, not every one of the prior210 rows. Independent authorized full ledger/schema comparison remains required.",
+    "Database lock/DDL atomicity does not stop older external Storage/AV/AI requests or prove a durable admission pause. That mechanism remains unimplemented/unverified; hosted release stays blocked.",
+    "Cutover plan contains zero provider or fixture requests and no automatic cleanup, hold expiry, capacity release, legacy provenance backfill or fallback to unsafe old handlers.",
+    "Full TF-01\u2013TF-26/six milestones and deferred report polish / Parent Pilot / Pathway Snapshot remain retained."
+  ],
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false
+}

@@ -1,0 +1,149 @@
+{
+  "date": "2026-10-29",
+  "schema": "document-upload-cutover-plan-v1",
+  "status": "Review preparation only; no pause control implemented or hosted action authorized",
+  "source_base": "d384e434",
+  "canonical_count": 225,
+  "unapplied_new_migrations": 15,
+  "source_manifest": [
+    {
+      "path": "src/routes/_authenticated/documents.tsx",
+      "sha256": "1a1b61e4438b410eddb904d67ea4537e6d8b856e3082d8f0316da5201fb6dd20"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "22b740965ee2eb578a9140fa643a3c1fdffa0536b3774c4735d998f8c6a7456c"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "cbee8ab5784326612d573551a29db5ec524eb86ae1f5ffb46ac9af72e8122495"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "99ce632404a27608f9b7c8db818a52c730643eafcd76d8ffb3b496a7fbfc80e6"
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "1a6a93c68399f319d560b19842c157e65919b964f6ccaed0aa3fb62748c8c7f9"
+    },
+    {
+      "path": "src/lib/evidence-writers.functions.ts",
+      "sha256": "922abf0d2709bcda824eabd909ff1a2bb6e9155e56f27e81ee3318345a9ca0c4"
+    },
+    {
+      "path": "src/lib/document-pipeline.server.ts",
+      "sha256": "0ed4c222d66ee224c636278af72a46de1cd1b31c20b71728a3dc136e96d90c11"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "f1cb1b36f78bdfd0da2fe7c94d3a5409dd0a771d35f935c97476dbd65d4bac7b"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+      "sha256": "f73a9a60b81ca5b050985c5eb8e4f41e90efa914b4b0c722d1b9451a574cb888"
+    },
+    {
+      "path": "tests/database/document-upload-rollout-sql.mjs",
+      "sha256": "f81b41d600a1b669e591d102ae18a8b1e9b0f830f3758a17c28dd472488ff478"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-chain-preflight.sql",
+      "sha256": "4319cbb34743055fbe0a57bb4d3626518922a563f74e80c18ac3795cf1601aca"
+    }
+  ],
+  "batch": {
+    "generator": "tests/database/document-upload-rollout-sql.mjs",
+    "mode": "One transaction for atomic extraction plus fourteen upload/summary migrations and fifteen exact full-source ledger rows. Same cooperative advisory lock as atomic installer; ledger relation lock.",
+    "prerequisites": "Three exact source/name prerequisite ledger arrays; independently reviewed full historical ledger/schema must also match. The batch does not certify all 210 prior migration rows or physical provider state.",
+    "stop_on": "Any prepared or newer version/name already recorded, atomic routine already present, source-hash drift, schema/index/policy/trigger prerequisite failure, duplicate legacy path or failed ledger insert. Roll back all fifteen; no blind rerun or automatic repair.",
+    "timeouts": "5-second lock and 30-second statement limits; not a total transaction-duration guarantee."
+  },
+  "preflight": {
+    "path": "docs/production-readiness/proposals/document-upload-chain-preflight.sql",
+    "scope": "Pre-install trusted full-visibility metadata/count review. No student/document UUIDs, file paths, content or managed identity values emitted.",
+    "counts": [
+      "Legacy documents and invalid/colliding locations",
+      "Missing students or managed object metadata, owner/version inconsistencies",
+      "Quarantined/rejected/retired rows",
+      "Summary job states, processing/claimed jobs and unknown states",
+      "Three prerequisite ledger names/versions/statement hashes"
+    ],
+    "limits": "One snapshot only; not live worker/provider quiescence, bytes, scan authenticity, safe cleanup or a complete dependency catalog. Existing gaps stop for separate review, never a synthetic provenance backfill.",
+    "authority_fields_always_false": [
+      "old_handlers_drained",
+      "legacy_data_reconciled",
+      "provider_bytes_verified",
+      "retention_approved",
+      "rollout_authorized",
+      "cleanup_authorized"
+    ]
+  },
+  "cutover_sequence": [
+    {
+      "step": 1,
+      "action": "Pin exact application, canonical/ledger batch and separate Edge worker source hashes; confirm actual isolated backend in trusted controls. Source labels are not target proof.",
+      "status": "prepared source inventory; no hosted verification authorized"
+    },
+    {
+      "step": 2,
+      "action": "Review and implement a narrowly scoped maintenance/admission mechanism that stops old upload, registration, rescan, reviewed Apply and summary-dispatch entry points. Identify every actual scheduler/direct caller in the environment.",
+      "status": "BLOCKED: no durable pause/drain mechanism verified or implemented; do not invent a flag or assume a worker comment proves the live scheduler"
+    },
+    {
+      "step": 3,
+      "action": "Drain existing application/database work and reconcile in-flight Storage, malware-scan and model requests. Do not kill/replay them or infer cancellation from a database status/lock. Freeze or retain uncertain work for separate authorized reconciliation.",
+      "status": "unverified; zero provider requests permitted"
+    },
+    {
+      "step": 4,
+      "action": "With fresh specifically bounded authorization, inspect pre-install ledger/schema/data counts using full trusted visibility. Preserve legacy jobs/documents and stop on conflicts; no repair, relabeling, deletion or forged clean receipts.",
+      "status": "not authorized or performed"
+    },
+    {
+      "step": 5,
+      "action": "With fresh exact migration/ledger authorization, apply the fifteen-migration transaction. If any part fails, roll back; independently reconcile before any repeat.",
+      "status": "prepared for disposable verification only"
+    },
+    {
+      "step": 6,
+      "action": "While admissions remain paused, release the compatible application to both staging surfaces and the separately identified Edge worker. Archive sync alone does not deploy the worker. Verify actual runtime/environment, sandbox payments, exact hashes and routine grants without provider calls.",
+      "status": "not authorized; application archive and worker are separate release units"
+    },
+    {
+      "step": 7,
+      "action": "Record the EVIDENCE_GRAPH_WRITES decision explicitly without changing it implicitly. New Apply supports either deliberate mode; old sequential handlers must remain drained.",
+      "status": "source confirms exact variable; environment value not inspected or changed"
+    },
+    {
+      "step": 8,
+      "action": "Prepare fresh bounded acceptance using only independently verified fictional sources/accounts, with explicit bounds for Storage, AV/AI, rows, claims, evidence/audit, cleanup or retention. Rollback-only database acceptance does not authorize browser/file operations.",
+      "status": "not authorized; no fixtures/providers requested"
+    },
+    {
+      "step": 9,
+      "action": "Reopen admissions only after reviewed hosted acceptance and reconciliation. Monitor aggregate errors and preserved uncertain holds. Any unknown state stops admission, not a retry or capacity reset.",
+      "status": "not implemented or authorized"
+    }
+  ],
+  "recovery": {
+    "before_commit": "Database failure rolls back schema and ledger together. Preserve failure-stage evidence without private payloads; no automated repeat.",
+    "after_commit": "Retain additive schema, exact ledger, reservations, source bindings and legitimate saved data. Keep relevant admission paused; do not revert to unsafe old upload or sequential Apply handlers.",
+    "partial_release": "Keep admissions closed until both app surfaces and separate worker are verified. No best-effort fallback to an incompatible runtime.",
+    "forbidden_automatic_actions": [
+      "Deleting files, metadata, source bindings, held attempts or ledger history",
+      "Expiring holds or freeing capacity",
+      "Inventing ownership/version/scan receipts for legacy sources",
+      "Canceling/retrying provider work or mutating current feature/secret/access settings"
+    ]
+  },
+  "role_scope": "Shared boundary for every eligible role; current explicit student/document access remains required and Owner management grants no private access. Demo does not perform signed-in uploads or persistence.",
+  "retained_open_gates": [
+    "Physical provider-byte/conditional mutation/absence proof",
+    "Complete semantic reference and direct/service-writer fencing",
+    "Retention/privacy/security review and full hosted acceptance",
+    "Full TF-01\u2013TF-26 and six milestones; deferred report polish and Parent Pilot/Pathway Snapshot"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false
+}
