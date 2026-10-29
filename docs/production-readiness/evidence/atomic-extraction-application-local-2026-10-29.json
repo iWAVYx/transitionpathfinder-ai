@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-29",
+  "status": "Prepared local atomic correction; exact-source native/full-schema automatic checks pending; not deployed",
+  "issue": "DOC-APPLY-01",
+  "source_base": "b07ae5f6",
+  "application_changed": true,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "canonical_migrations": 210,
+  "unapplied_upload_summary_proposals": 14,
+  "additional_atomic_extraction_proposals": 1,
+  "hosted_actions": false,
+  "proposal": "docs/production-readiness/proposals/atomic-extraction-application.sql",
+  "checked": [
+    "One SECURITY INVOKER RPC preserves caller RLS and requires current explicit editing/document access, a clean available source, matching student/document, browser-observed updated_at and exact reviewed sections. Partner-only and unlinked Owner/admin accounts are denied.",
+    "Profile fields, transition fields, review completion, enabled human-confirmed evidence and audit insertion share one database transaction. Any error or suppressed zero-row required write aborts everything. The disabled evidence flag explicitly skips evidence while preserving required audit/completion atomicity.",
+    "Only accepted/edited nonempty supported profile fields are mapped. Unrelated fields are preserved; the existing extractor grade 6-8 is supported alongside older valid grades. No applicable profile field means no false completion.",
+    "Completion/revision comparison and row locks reject a second Apply, changed review or source/claim mismatch. Section/meta saves require affected-row receipts and return a fresh revision; Apply waits for pending saves and requires reload after failed edit persistence.",
+    "The application makes exactly one RPC and validates the exact completion/evidence receipt. Missing functions, permission errors, malformed/foreign receipts and lost responses yield a constant user-friendly uncertainty message, with no sequential-write fallback or retry."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 625,
+      "pass": 559,
+      "fail": 0,
+      "skip": 66,
+      "skips": "Real PostgreSQL contention cases; no local concurrency proof."
+    },
+    "local_unit": {
+      "pass": 5294,
+      "files": 349,
+      "focused_atomic_receipt_tests": 14,
+      "fail": 0
+    },
+    "local_typescript": "pass",
+    "local_capped_staging_build": "pass first attempt after final UI edits; existing memory limits unchanged",
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_full_schema": "pending"
+  },
+  "rollout_gates": [
+    "SQL remains noncanonical and unapplied. Prepare canonical migration/ledger/preflight and review exact existing data, policies, evidence flag behavior and error/recovery compatibility before any hosted request.",
+    "Deploy database and caller together through a separately authorized release; the new caller intentionally stops on a missing RPC. Drain old handler work so a prior sequential server version does not continue outside the new path.",
+    "No existing evidence is backfilled, retargeted or deleted. An existing evidence row with conflicting provenance stops the transaction.",
+    "Hosted all-role/current-access, actual UI browser and bounded fixture acceptance remain open; no provider/AI invocation is needed for the proposed atomic save test."
+  ],
+  "limitations": [
+    "The transaction protects this new application path. Other direct table writers, extraction edit lost-update races and the complete permission/reference graph remain separate review items. Current checks and source/student row locks are not a durable lease over every relationship/grant writer.",
+    "Source availability checks require a clean document; this does not attest physical immutable bytes, factual extraction accuracy or privacy consent.",
+    "Ambiguous completion must be reconciled by reloading review state, not automatically repeating Apply. A fresh re-review can be applied only with a current revision and supported reviewed fields.",
+    "No hosted migration, fixture, deployment/publication, account/access/payment/secret, provider/AI or production/main action. Report polish and Parent Pilot / Pathway Snapshot remain deferred; full roadmap retained."
+  ],
+  "proposal_sha256": "589ec7bad9958e7fe271326f008bf1c2de8eb399229ce94ef279961ca72c1368"
+}

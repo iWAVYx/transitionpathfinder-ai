@@ -55,6 +55,7 @@ type Extraction = {
   document_id: string;
   student_id: string;
   status: string;
+  updated_at: string;
   sections: Record<string, ExtractionSection>;
   missing_information: string[];
   suggested_questions: string[];
@@ -77,6 +78,8 @@ function ReviewPage() {
   const [pastedText, setPastedText] = useState("");
   const [running, setRunning] = useState(false);
   const [applying, setApplying] = useState(false);
+  const [pendingSaves, setPendingSaves] = useState(0);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -128,7 +131,7 @@ function ReviewPage() {
     key: ExtractionSectionKey,
     patch: Partial<ExtractionSection>,
   ) {
-    if (!extraction) return;
+    if (!extraction || applying) return;
     const prev = extraction.sections[key] ?? {
       state: "pending" as SectionReviewState,
       value: "",
@@ -140,8 +143,9 @@ function ReviewPage() {
       ...extraction,
       sections: { ...extraction.sections, [key]: next },
     });
+    setPendingSaves(count => count + 1);
     try {
-      await fnSection({
+      const saved = await fnSection({
         data: {
           extraction_id: extraction.id,
           key,
@@ -150,17 +154,22 @@ function ReviewPage() {
           notes: next.notes,
         },
       });
+      setExtraction(current => current?.id === extraction.id ? { ...current, status: "in_review", updated_at: saved.updated_at } : current);
     } catch (e) {
+      setSaveFailed(true);
       toast.error(e instanceof Error ? e.message : "Could not save change.");
+    } finally {
+      setPendingSaves(count => count - 1);
     }
   }
 
   async function saveMeta(patch: Partial<Pick<Extraction, "missing_information" | "suggested_questions" | "review_notes">>) {
-    if (!extraction) return;
+    if (!extraction || applying) return;
     const next = { ...extraction, ...patch };
     setExtraction(next);
+    setPendingSaves(count => count + 1);
     try {
-      await fnMeta({
+      const saved = await fnMeta({
         data: {
           extraction_id: extraction.id,
           missing_information: next.missing_information,
@@ -168,16 +177,20 @@ function ReviewPage() {
           review_notes: next.review_notes ?? "",
         },
       });
+      setExtraction(current => current?.id === extraction.id ? { ...current, updated_at: saved.updated_at } : current);
     } catch (e) {
+      setSaveFailed(true);
       toast.error(e instanceof Error ? e.message : "Could not save notes.");
+    } finally {
+      setPendingSaves(count => count - 1);
     }
   }
 
   async function handleApply() {
-    if (!extraction) return;
+    if (!extraction || applying || pendingSaves > 0 || saveFailed) return;
     setApplying(true);
     try {
-      await fnApply({ data: { extraction_id: extraction.id } });
+      await fnApply({ data: { extraction_id: extraction.id, student_id: extraction.student_id, document_id: extraction.document_id, expected_updated_at: extraction.updated_at, expected_sections: extraction.sections } });
       toast.success("Accepted sections saved to the student profile.");
       navigate({ to: "/students/$studentId", params: { studentId: extraction.student_id } });
     } catch (e) {
@@ -324,6 +337,9 @@ function ReviewPage() {
               </CardContent>
             </Card>
 
+            {saveFailed && <div role="alert" className="text-sm text-destructive">
+              Some review edits could not be saved. <button type="button" className="underline" onClick={() => window.location.reload()}>Reload the review</button> before applying changes.
+            </div>}
             <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
               <div className="text-sm">
                 <div className="font-medium">Apply accepted sections to the student profile</div>
@@ -331,7 +347,7 @@ function ReviewPage() {
                   Only sections marked <Badge variant="outline" className="mx-1">Accept</Badge> or <Badge variant="outline" className="mx-1">Edit</Badge> are saved. You can re-run review later.
                 </div>
               </div>
-              <Button onClick={handleApply} disabled={applying || acceptedCount === 0}>
+              <Button onClick={handleApply} disabled={applying || running || pendingSaves > 0 || saveFailed || extraction.status === "complete" || acceptedCount === 0}>
                 {applying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
                 Save to student profile
               </Button>

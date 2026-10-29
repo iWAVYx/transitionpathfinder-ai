@@ -142,5 +142,11 @@
     "Polymorphic evidence subject/source IDs, report evidence, JSON payloads, derived student/profile fields and external writers are not fully covered by direct document FKs.",
     "The review does not freeze writers, make extraction application atomic, establish provider-byte identity or choose a retention schedule.",
     "DOC-APPLY-01 is an open correctness/release follow-up, shared by every role permitted to apply a reviewed extraction. No role gains application permission."
-  ]
+  ],
+  "atomic_extraction_checkpoint": {
+    "status": "DOC-APPLY-01 prepared locally; exact-source native/full-schema checks pending; not deployed",
+    "evidence": "docs/production-readiness/evidence/atomic-extraction-application-local-2026-10-29.json",
+    "proposal": "docs/production-readiness/proposals/atomic-extraction-application.sql",
+    "boundary": "One additional independent application proposal; fourteen upload/summary proposals and 210 canonical migrations unchanged. No hosted change or complete writer fence."
+  }
 }

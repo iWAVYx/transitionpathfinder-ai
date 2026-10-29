@@ -35,6 +35,7 @@ on:
       - "docs/production-readiness/proposals/document-reference-catalog.sql"
       - "docs/production-readiness/proposals/document-summary-source-binding.sql"
       - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-application.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -88,6 +89,7 @@ on:
       - "docs/production-readiness/proposals/document-reference-catalog.sql"
       - "docs/production-readiness/proposals/document-summary-source-binding.sql"
       - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-application.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -694,6 +696,8 @@ jobs:
             -f docs/production-readiness/proposals/document-upload-resolution-claim.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
             -f docs/production-readiness/proposals/document-summary-source-binding.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/atomic-extraction-application.sql
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
           DO $verify$
           BEGIN
@@ -769,6 +773,15 @@ jobs:
             END LOOP;
           END;
           $review_hold_verify$;
+          DO $extraction_apply_verify$
+          DECLARE signature text:='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)';
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+              OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected atomic extraction application boundary'; END IF;
+          END;
+          $extraction_apply_verify$;
           DO $source_binding_verify$
           DECLARE signature text; role_name text; privilege_name text;
           BEGIN
