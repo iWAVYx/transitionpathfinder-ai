@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-29",
+  "status": "Primary-documentation review only; actual staging/provider capabilities unverified",
+  "hosted_actions": false,
+  "api_calls": 0,
+  "sources": [
+    {
+      "url": "https://supabase.com/docs/guides/storage/schema/design",
+      "supports": "Storage tables represent metadata, not physical bytes; deleting SQL metadata does not delete underlying objects. File operations belong to the Storage API."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/storage/security/ownership",
+      "supports": "owner_id derives from the JWT subject for user-created objects. Service-key or dashboard creation can leave ownership unset. Ownership alone does not enforce access."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/storage/security/access-control",
+      "supports": "Service-key Storage requests bypass RLS. SQL restrictions on authenticated callers do not fence trusted service API writers."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/storage/s3/compatibility",
+      "supports": "S3 bucket versioning and object locking are not supported in the documented compatibility surface. Conditional reads are listed for HeadObject/GetObject; the DeleteObject feature row does not establish a conditional-delete guarantee."
+    }
+  ],
+  "conclusions": [
+    {
+      "kind": "documented",
+      "finding": "SQL metadata absence cannot certify underlying byte deletion or safe capacity release."
+    },
+    {
+      "kind": "documented",
+      "finding": "A service-created object can lack owner_id; service access bypasses Storage RLS. User ownership assumptions cannot silently carry over to another upload/authentication path."
+    },
+    {
+      "kind": "inference",
+      "finding": "An internal storage.objects version field must not be treated as an S3 VersionId or immutable deletion precondition merely because its name is version."
+    },
+    {
+      "kind": "unverified",
+      "finding": "No exact-version conditional-delete guarantee is established for this hosted project or the current REST SDK. Absence from a documentation feature row does not prove the capability is unsupported."
+    },
+    {
+      "kind": "scope",
+      "finding": "Do not switch protocols, create S3 keys, change access settings, enable purge/cleanup or invent If-Match semantics to bypass missing proof."
+    }
+  ],
+  "required_before_any_provider_probe": [
+    "Prepare a narrowly scoped staging-only fixture protocol using exact source/backend identity, reviewed authentication path and explicit bounds. No existing user objects or private bytes.",
+    "Capture actual owner/id/version/hash assignment and relation between API/object metadata and bytes. Test interrupted/delayed writes without inferring physical absence from client errors.",
+    "Establish documented and observed conditional mutation behavior or keep terminal discard disabled. Conditional reads alone do not imply conditional deletes.",
+    "Define exact cleanup and independent verification first. The existing default paths-only remove adapter is not a verified exact-version cleanup capability.",
+    "Obtain fresh specific authorization before provider requests, fixtures, settings, secrets or mutation; this document is not that authorization."
+  ],
+  "application_changed": false,
+  "cleanup_authorized": false,
+  "rollout_authorized": false
+}

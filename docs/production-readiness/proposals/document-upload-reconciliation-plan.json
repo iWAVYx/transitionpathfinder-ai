@@ -534,5 +534,13 @@
     "evidence": "docs/production-readiness/evidence/document-summary-source-binding-local-2026-10-28.json",
     "boundary": "Retained original source identity and committed admission required; no physical provider, complete writer fence or cleanup capability.",
     "next": "Review in-flight unbound-job reconciliation and indefinite retention; continue provider immutable-version/absence proof and complete semantic reference/writer fencing before terminal resolution or a hosted rollout request."
+  },
+  "rollout_retention_checkpoint": {
+    "status": "45469879 passes all nine applicable checks; both native suites 583 passed/zero skips and full 210/fourteen replay plus read-only inventory pass. No hosted acceptance.",
+    "evidence": "docs/production-readiness/evidence/document-summary-rollout-inventory-local-2026-10-29.json",
+    "retention_review": "docs/production-readiness/proposals/document-retention-review.json",
+    "provider_review": "docs/production-readiness/evidence/document-storage-provider-review-2026-10-29.json",
+    "boundary": "Counts only, post-prerequisite full-visibility operator review; no private values, job mutation, quiescence inference or new retention policy. No new mutation proposal.",
+    "next": "Concrete provider/semantic reference and writer acceptance design; retain all pre-install drain, maintenance, physical proof and fresh authorization gates."
   }
 }
