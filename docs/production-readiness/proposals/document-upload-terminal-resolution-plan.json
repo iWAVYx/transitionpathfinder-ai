@@ -110,9 +110,10 @@
   "source_writer_review": "docs/production-readiness/proposals/document-reference-writer-review.json",
   "provider_preparation_evidence": "docs/production-readiness/evidence/document-provider-probe-preparation-2026-10-29.json",
   "atomic_extraction_checkpoint": {
-    "status": "DOC-APPLY-01 prepared locally; exact-source native/full-schema checks pending; not deployed",
+    "status": "DOC-APPLY-01 corrected in reviewed ba136e85 application path: all nine checks and two 625/625 native suites pass. Not migrated/deployed; other direct writers still open.",
     "evidence": "docs/production-readiness/evidence/atomic-extraction-application-local-2026-10-29.json",
     "proposal": "docs/production-readiness/proposals/atomic-extraction-application.sql",
-    "boundary": "One additional independent application proposal; fourteen upload/summary proposals and 210 canonical migrations unchanged. No hosted change or complete writer fence."
+    "boundary": "One additional independent application proposal; fourteen upload/summary proposals and 210 canonical migrations unchanged. No hosted change or complete writer fence.",
+    "next": "Prepare canonical migration/ledger and compatibility/data/evidence-flag preflight, including old-handler drain and bounded no-AI hosted acceptance scope, before requesting any new release authorization."
   }
 }
