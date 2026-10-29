@@ -98,12 +98,15 @@
     "ai_jobs payloads and verified-summary source/result links",
     "Other evidence, report/document-source JSON and retention references require a complete writer inventory before a deletion design is accepted."
   ],
-  "next_safe_work": "Read-only inventory verified on 45469879: 583 native cases in both runs and complete replay; retention/provider documentation review recorded. Next prepare concrete provider capability and semantic writer/reference acceptance design. Pre-install worker drain/reconciliation, actual physical-provider proof and approved retention remain open. No terminal mutation or hosted operation is authorized.",
+  "next_safe_work": "Prepare DOC-APPLY-01 atomic extraction-application correction and local failure/concurrency proof. Continue remaining semantic reference/provider design; the retained-canary plan is not executable or authorized, and conditional mutation remains blocked.",
   "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here.",
   "source_binding_checkpoint": "docs/production-readiness/proposals/document-summary-source-binding.sql",
   "source_binding_evidence": "docs/production-readiness/evidence/document-summary-source-binding-local-2026-10-28.json",
   "retention_review": "docs/production-readiness/proposals/document-retention-review.json",
   "rollout_inventory": "docs/production-readiness/proposals/document-summary-rollout-inventory.sql",
   "rollout_inventory_evidence": "docs/production-readiness/evidence/document-summary-rollout-inventory-local-2026-10-29.json",
-  "provider_documentation_review": "docs/production-readiness/evidence/document-storage-provider-review-2026-10-29.json"
+  "provider_documentation_review": "docs/production-readiness/evidence/document-storage-provider-review-2026-10-29.json",
+  "bounded_provider_probe_plan": "docs/production-readiness/proposals/document-storage-provider-probe-plan.json",
+  "source_writer_review": "docs/production-readiness/proposals/document-reference-writer-review.json",
+  "provider_preparation_evidence": "docs/production-readiness/evidence/document-provider-probe-preparation-2026-10-29.json"
 }

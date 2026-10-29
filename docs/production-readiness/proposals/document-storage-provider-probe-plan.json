@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-29",
+  "schema": "document-storage-provider-probe-plan-v1",
+  "status": "Review packet only; not executable and not authorized. Hosted prerequisites and retention approval remain open.",
+  "application_changed": false,
+  "provider_requests_made": 0,
+  "authorization_recorded": false,
+  "target": {
+    "environment": "isolated staging only",
+    "supabase_project_ref": "qgrertkqbwanerqqemph",
+    "bucket": "student-documents",
+    "forbidden_project": "lrqcntqyekucamifpffs",
+    "identity": "Pin exact reviewed application/Edge/SQL source and matching stable staging health before any fixture or upload. Private aliases, unknown fingerprints, redirects or production flags stop."
+  },
+  "prerequisites": [
+    "Prepare and review the coordinated canonical migration/ledger, worker and caller release. Fourteen proposals are still unapplied; this plan authorizes none of them.",
+    "Review pre-install worker pause/drain and outstanding provider reconciliation. The post-prerequisite counts inventory alone cannot perform or prove this.",
+    "Review current INSERT/SELECT policies, original-actor reservation/hold/recovery RPCs and API route semantics against exact installed versions before implementing the runner.",
+    "Fresh authorization must explicitly cover fixture creation AND retaining the fictional student, held attempt and any file. Earlier exact-cleanup approvals do not authorize this retained-canary design.",
+    "Use the existing Family test account, with no new account, collaborator, grant or credential. Prepare exact private reconciliation coordinates outside Git/CI logs, readable only by the operator (file mode 0600).",
+    "No credentialed runner is supplied. Implement and intercept every network/DB path locally before proposing an actual run."
+  ],
+  "stage_a": {
+    "name": "One retained fictional canary; no deletion experiment",
+    "purpose": "Observe actual user-owned upload identity and bytes without making a deletion or absence claim.",
+    "maxima": {
+      "existing_role_accounts": 1,
+      "fictional_students": 1,
+      "upload_attempt_rows": 1,
+      "document_rows": 0,
+      "jobs_or_reports": 0,
+      "relationships_or_shares": 0,
+      "payload_bytes": 1024,
+      "storage_upload_requests": 1,
+      "storage_info_requests": 1,
+      "storage_download_requests": 1,
+      "reserve_rpc_requests": 1,
+      "hold_rpc_requests": 1,
+      "recovery_rpc_requests": 1,
+      "exact_metadata_sql_reads": 1,
+      "staging_health_requests": 2,
+      "provider_delete_requests": 0,
+      "test_retries": 0,
+      "ai_or_antivirus_requests": 0
+    },
+    "payload": {
+      "text": "TransitionForward Storage Canary. Fictional text for a non-destructive staging observation. This file contains no student information.\n",
+      "utf8_bytes": 135,
+      "sha256": "a8f2d76ef2539b5a780da339e51d770bc7571bc338cd7b41c728112b030aa372",
+      "mime_type": "text/plain",
+      "contains_private_data": false
+    },
+    "path": "New fictional student UUID / new attempt UUID - privacy-safe-document.txt; exact canonical server-confirmed path only. No prefix listing, existing-file read, shared path or overwrite.",
+    "sequence": [
+      "Verify exact staging source/backend/payment isolation before creating anything. Read no credentials into output.",
+      "Create at most one fictional owned student. Compute the existing documentUploadReviewHash over the fixed reviewed details; reserve the exact new attempt through reserve_document_upload. Require an exact matching receipt before storage.",
+      "Make at most one user-authenticated upload with upsert:false, fixed harmless bytes and a 30-second deadline. Timeout/lost response is uncertain, not permission to retry or infer absence. The request count is consumed when dispatched.",
+      "Call hold_document_upload_for_review at most once using the original actor and unchanged reviewed intent. If the response is uncertain or access changed, stop further observations and reconcile through separately authorized trusted access; do not repeat upload or hold.",
+      "Only after an exact hold receipt: observe read_document_upload_recovery once. Metadata not_observed never means physical absence. Observe Storage info once and compare the exact original path/owner/object/version before any download.",
+      "Only if identity is exact and current access is confirmed: download the single harmless file once, enforce 1024-byte maximum and compare the fixed SHA-256. Do not retain response bodies or generated signed URLs in logs.",
+      "At most one trusted exact metadata SELECT can independently compare the expected row tuple. Do not scan a bucket or read any existing user objects. This is a metadata cross-check, not physical deletion proof.",
+      "Stop. Preserve exact fixture/operation coordinates privately and report only stage, request counts, match booleans and constant result codes. No registration, scanning, extraction, job generation or deletion follows."
+    ],
+    "timeouts": "Each dispatched call has a 30-second deadline; the runner must have a five-minute overall deadline and count attempts before dispatch. Cancellation is not proof that a provider write stopped.",
+    "uncertainty": "Any missing/foreign receipt, changed identity/access, HTTP error, timeout or unexpected extra request stops. Keep the attempt reserved/held and counted; no blind retry, compensating write or deletion.",
+    "retained_artifacts": "Zero or one harmless object, one fictional student and one attempt remain intentionally retained for separate reconciliation. Do not delete the student or attempt to reset capacity. Even a failure may leave the upload present.",
+    "cleanup": "NONE in stage A. This deliberately replaces the earlier generic cleanup prerequisite only for a future specifically authorized retained canary; it does not waive cleanup requirements for other tests or grant terminal resolution.",
+    "acceptance": "Exact observed tuple and fixed byte hash can accept this one upload/read path only. It cannot accept all roles, concurrency, rollback/absence, deletion, production, scan accuracy, provider quiescence or reference completeness."
+  },
+  "stage_b": {
+    "name": "Conditional mutation/absence/concurrency",
+    "status": "Blocked; no runnable scope or authorization",
+    "requests_permitted": 0,
+    "required": [
+      "Establish a supported exact-version mutation capability or another reviewed protocol that cannot affect replacement/referenced bytes. Do not infer delete semantics from conditional reads, internal version fields or AWS behavior.",
+      "Finish semantic references, writer fencing and retention obligations, including direct service writers and legacy access/pipeline/extraction records.",
+      "Design controlled delayed/in-flight upload, replacement and lost-response cases using exact fictional objects; predefine limits and independent byte-store verification.",
+      "Require separate explicit authorization and an exact cleanup/reconciliation protocol before any mutation test. Never expand stage A automatically."
+    ]
+  },
+  "other_roles": "Family canary acceptance is not Educator, Student, School, District, Partner or Owner acceptance. Later role-specific checks require their own reviewed access/fixture bounds. Owner remains management-only.",
+  "not_authorized": [
+    "production or main",
+    "migration or ledger write",
+    "deployment or publication",
+    "new credentials/S3 keys/settings",
+    "buckets/policies/grants changes",
+    "deletion or quota release",
+    "AI/antivirus/model calls",
+    "other existing student/document reads"
+  ]
+}

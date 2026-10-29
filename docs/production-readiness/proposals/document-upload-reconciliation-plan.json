@@ -542,5 +542,9 @@
     "provider_review": "docs/production-readiness/evidence/document-storage-provider-review-2026-10-29.json",
     "boundary": "Counts only, post-prerequisite full-visibility operator review; no private values, job mutation, quiescence inference or new retention policy. No new mutation proposal.",
     "next": "Concrete provider/semantic reference and writer acceptance design; retain all pre-install drain, maintenance, physical proof and fresh authorization gates."
-  }
+  },
+  "bounded_provider_probe_plan": "docs/production-readiness/proposals/document-storage-provider-probe-plan.json",
+  "source_writer_review": "docs/production-readiness/proposals/document-reference-writer-review.json",
+  "provider_preparation_evidence": "docs/production-readiness/evidence/document-provider-probe-preparation-2026-10-29.json",
+  "next_safe_work": "Prepare DOC-APPLY-01 atomic extraction-application correction and local failure/concurrency proof. Continue remaining semantic reference/provider design; the retained-canary plan is not executable or authorized, and conditional mutation remains blocked."
 }
