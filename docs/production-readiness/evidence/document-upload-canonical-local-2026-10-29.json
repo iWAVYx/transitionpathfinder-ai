@@ -1,6 +1,6 @@
 {
   "date": "2026-10-29",
-  "status": "Fourteen canonical upload/summary files prepared; exact-source native/full replay pending",
+  "status": "Canonical-only 225-migration replay and exact privileged/storage boundaries verified in disposable CI; all fifteen new migrations remain unapplied hosted",
   "source_base": "74b31e1b",
   "canonical_count": 225,
   "prepared_unapplied_upload_migrations": 14,
@@ -36,5 +36,57 @@
     "Exact ledger batch, recovery limits and fresh hosted migration/deployment/publication/test authorization."
   ],
   "hosted_actions": false,
-  "authorization_recorded": false
+  "authorization_recorded": false,
+  "verified_source": "b784f51f0599a4d4e063c8878ead8016e41af2ca",
+  "native_sql": {
+    "tests": 649,
+    "pass": 649,
+    "fail": 0,
+    "skip": 0,
+    "pr_run": 40910590863,
+    "push_run": 40910580025,
+    "canonical_replay": 225,
+    "additional_review_mirror_installs": 0,
+    "final_catalog_grants_and_policy_snapshot": "pass on both runs",
+    "matching_artifacts": [
+      {
+        "name": "atomic-extraction-preflight.json",
+        "raw_sha256": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45",
+        "retained_semantically_identical_artifact": "docs/production-readiness/evidence/atomic-extraction-preflight-disposable-2026-10-29.json",
+        "retained_sha256": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+      },
+      {
+        "name": "document-summary-rollout-inventory.json",
+        "raw_sha256": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+        "retained_semantically_identical_artifact": "docs/production-readiness/evidence/document-summary-rollout-disposable-2026-10-29.json",
+        "retained_sha256": "3620c9867b7b2a2024d51b889f3c1a8b8f037a77c55f16fc91fa4b5423e28cd0"
+      },
+      {
+        "name": "document-reference-catalog.json",
+        "raw_sha256": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+        "retained_semantically_identical_artifact": "docs/production-readiness/evidence/document-reference-catalog-atomic-application-2026-10-29.json",
+        "retained_sha256": "84a1c0330918baa2030730d3792f05af0bdf056b2220300e1734ee40f9be508b"
+      }
+    ]
+  },
+  "automatic_checks": {
+    "pass": 9,
+    "build_runs": [
+      40910590737,
+      40910580120
+    ],
+    "unit_run": 40910590829,
+    "unit_tests": 5294,
+    "unit_files": 349,
+    "role_run": 40910590772,
+    "accessibility_run": 40910590712,
+    "readiness_run": 40910590955,
+    "static_run": 40910590732,
+    "protected_hosted_checks": "Skipped; unperformed, not acceptance evidence."
+  },
+  "limitations": [
+    "Empty disposable counts and synthetic four-row atomic preflight ledger are not hosted data or 225-row Supabase ledger proof. Exact ordered hosted ledger batch and full legacy-data compatibility review remain required.",
+    "The retained reference catalog is partial semantic discovery only. Canonical promotion neither fences all external/direct writers nor proves provider bytes, conditional mutation, absence, retention or worker drain.",
+    "No hosted migration, deployment/publication, record, account/access/payment/secret or provider/AI action. Production and main unchanged."
+  ]
 }

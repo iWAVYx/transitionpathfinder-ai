@@ -54,7 +54,7 @@
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 31,
     "canonicalInventoryReviewedAt": "2026-10-29",
-    "canonicalInventorySourceCommit": "74b31e1b",
-    "canonicalInventoryStatus": "225 canonical migrations prepared; atomic extraction and fourteen upload/summary boundaries remain unapplied hosted. Source promotion exact-source CI pending. Isolated staging remains at authorized 20261026010000 and c95a008f/1190-file release. Production31 pending compares the same saved September17 evidence only; no production access or refreshed baseline."
+    "canonicalInventorySourceCommit": "b784f51f0599a4d4e063c8878ead8016e41af2ca",
+    "canonicalInventoryStatus": "225 canonical migrations verified in disposable full replay; atomic extraction and fourteen upload/summary boundaries remain unapplied hosted. Isolated staging remains at authorized 20261026010000 and c95a008f/1190-file release. Production31 pending compares unchanged saved September17 evidence only; no production access or refreshed baseline."
   }
 }

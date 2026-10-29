@@ -1,19 +1,20 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-canonical-preparation-v1",
-  "status": "Fourteen canonical files prepared with identical reviewed executable bodies; hosted rollout unauthorized/unapplied; exact-source verification pending",
-  "reviewed_source": "471a4848f60e4be5c6dc0ebdcf94015909d05a47",
+  "status": "All fourteen canonical source files verified in exact-source 225-migration disposable replay; hosted rollout unauthorized and unapplied",
+  "reviewed_source": "b784f51f0599a4d4e063c8878ead8016e41af2ca",
   "current_canonical_count": 225,
   "remaining_proposal_count": 0,
   "order_evidence": {
     "workflow": ".github/workflows/migration-replay.yml",
     "runs": [
-      40896112196,
-      40896103226
+      40910590863,
+      40910580025
     ],
-    "native_cases_per_run": 647,
-    "full_canonical_replay": 211,
-    "limits": "Prior disposable runs verified the same executable SQL as 211 canonical plus fourteen proposals. New canonical-only 225 replay is pending; neither proves hosted/provider compatibility or approval."
+    "native_cases_per_run": 649,
+    "full_canonical_replay": 225,
+    "review_mirror_install_count": 0,
+    "limits": "Disposable full-schema compatibility, exact final permission inventory and policy snapshot; not hosted data, full hosted ledger or provider compatibility and not approval."
   },
   "sequence": [
     {
