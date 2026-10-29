@@ -53,8 +53,8 @@
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
     "pendingProductionCount": 17,
-    "canonicalInventoryReviewedAt": "2026-10-26",
-    "canonicalInventorySourceCommit": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
+    "canonicalInventoryReviewedAt": "2026-10-29",
+    "canonicalInventorySourceCommit": "471a4848f60e4be5c6dc0ebdcf94015909d05a47",
     "canonicalInventoryStatus": "211 canonical migrations; new 20261029010000 atomic extraction application is prepared only, not applied hosted. Isolated staging remains at authorized 20261026010000 and prior c95a008f/1190-file release. Production17 pending is a comparison against saved September17 evidence only; no production access or refreshed baseline is claimed."
   }
 }
