@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-29",
+  "status": "Prepared; final local and exact-source native/full-schema checks pending",
+  "source_base": "44731ffe",
+  "query": "docs/production-readiness/proposals/document-summary-rollout-inventory.sql",
+  "query_sha256": "108efc8f07b473f6b129780e011b2c800c29c44b1691dfa540a2603af42bde46",
+  "application_changed": false,
+  "application_fingerprint": "9e3d77f10b30dc4f0043a241cbffd048571c9ee87d8c0eaf16741871299ea5d6",
+  "application_file_count": 1199,
+  "canonical_migrations": 210,
+  "unapplied_mutation_proposals": 14,
+  "hosted_actions": false,
+  "boundaries": [
+    "Explicit read-only transaction, bounded timeouts and access-share relation locks before full-visibility checks. No rows, schema, grants or worker state are changed.",
+    "Requires broad relation SELECT and inactive RLS for all source relations. Limited roles fail rather than returning hidden-row zeros. This is a trusted operator review script, not an endpoint or role grant.",
+    "Only fixed state labels, counts and fixed booleans are emitted. No IDs, paths, names, hashes, private text, source/result payloads or raw error messages are output.",
+    "Counts distinguish bound/unbound queued/processing/needs_review/completed/failed jobs, unknown states, invalid claim/lock shapes and retained identity conflicts. Historical unbound jobs still need review; no backfill is created.",
+    "Read-only row snapshots do not stop workers or prove absence. Quiescence, provider reconciliation, retention completion, rollout and cleanup authority stay false even for an empty database."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 583,
+      "pass": 521,
+      "fail": 0,
+      "skip": 62,
+      "skips": "Real PostgreSQL concurrency cases only; no local concurrency proof."
+    },
+    "native_full_schema": "pending",
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "retention_review": "docs/production-readiness/proposals/document-retention-review.json",
+  "limitations": [
+    "This script requires the retained-source proposal, so it is not a pre-install scan for the unchanged hosted schema. A separate authorized pre-install plan and worker drain/reconciliation are still required.",
+    "Counts are one snapshot and cannot enumerate which exact private jobs need action. Any per-record review needs specifically authorized access and must not expose private payloads in CI artifacts.",
+    "No actual provider/Storage behavior, hosted worker pause/drain, migration, deployment/publication, AI/provider request, account/access/payment/secret or production action has occurred."
+  ]
+}

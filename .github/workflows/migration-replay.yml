@@ -34,6 +34,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
       - "docs/production-readiness/proposals/document-reference-catalog.sql"
       - "docs/production-readiness/proposals/document-summary-source-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -86,6 +87,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
       - "docs/production-readiness/proposals/document-reference-catalog.sql"
       - "docs/production-readiness/proposals/document-summary-source-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
       - "tests/edge/ai-job-processor.test.ts"
@@ -952,6 +954,24 @@ jobs:
           console.log(JSON.stringify({foreign_keys:x.foreign_keys.length,named_candidates:x.named_reference_candidates.length,json_candidates:x.untyped_json_candidates.length,routine_candidates:x.routine_candidates.length}));
           NODE
 
+      - name: Review summary rollout counts without private values
+        run: |
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-summary-rollout-inventory.sql \
+            > /tmp/document-summary-rollout-inventory.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/document-summary-rollout-inventory.json','utf8'));
+          assert.equal(x.schema,'document-summary-rollout-inventory-v1');
+          assert.equal(x.read_only_transaction,true);assert.equal(x.complete_relation_visibility,true);
+          assert.equal(x.private_values_emitted,false);assert.equal(x.by_state.length,5);
+          for(const s of x.by_state){assert.equal(s.bound,0);assert.equal(s.unbound,0);}
+          for(const k of ['unknown_state_count','processing_claim_conflict_count','nonprocessing_locked_count','unbound_reconciliation_count','retained_binding_count','retained_job_identity_conflict_count','retained_document_identity_conflict_count'])assert.equal(x[k],0);
+          for(const k of ['worker_quiescence_verified','provider_work_reconciled','retention_review_complete','rollout_authorized','cleanup_authorized'])assert.equal(x[k],false);
+          console.log('Read-only empty-schema counts verified; no worker/provider or rollout authority inferred.');
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -962,4 +982,5 @@ jobs:
             /tmp/security-finding-inventory.txt
             /tmp/document-path-proposal-verification.txt
             /tmp/document-reference-catalog.json
+            /tmp/document-summary-rollout-inventory.json
           if-no-files-found: ignore

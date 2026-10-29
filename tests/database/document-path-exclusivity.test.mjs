@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 const native = process.env.PATHWAY_HISTORY_POSTGRES === '1';
 const proposal = readFileSync('docs/production-readiness/proposals/document-path-exclusivity.sql','utf8');
+const rolloutInventory = readFileSync('docs/production-readiness/proposals/document-summary-rollout-inventory.sql','utf8');
 const sourceBindingProposal = readFileSync('docs/production-readiness/proposals/document-summary-source-binding.sql','utf8');
 const referenceCatalog = readFileSync('docs/production-readiness/proposals/document-reference-catalog.sql','utf8');
 const resolutionClaimProposal = readFileSync('docs/production-readiness/proposals/document-upload-resolution-claim.sql','utf8');
@@ -1343,4 +1344,41 @@ for(const finish of ['COMMIT','ROLLBACK'])test('bound completion has one committ
 
 test('restricted catalog discovers retained job/document source references without reading binding rows',async()=>{
   await sourceBindingFixture();await db.exec('RESET ROLE;BEGIN READ ONLY;SET LOCAL ROLE tf_document_catalog_reader');let x;try{x=await catalogInventory();}finally{await db.exec('ROLLBACK');}assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_summary_source_bindings'&&k.target_table==='public.ai_jobs'&&k.delete_action==='restrict'));assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_summary_source_bindings'&&k.target_table==='public.documents'&&k.delete_action==='restrict'));const grants=x.effective_table_grants.filter(g=>g.table_name==='public.document_summary_source_bindings');assert.equal(grants.length,3);assert.ok(grants.every(g=>!g.can_select&&!g.can_insert&&!g.can_update&&!g.can_delete&&!g.can_truncate));assert.ok(x.named_reference_candidates.some(c=>c.table_name==='public.document_summary_source_bindings'&&c.column_name==='object_id'));assert.ok(x.routine_candidates.some(r=>r.signature.startsWith('public.guard_bound_document_summary_job(')));assert.equal(x.cleanup_authorized,false);
+});
+
+// Counts-only review. Never infer worker quiescence or grant rollout authority.
+async function summaryRolloutInventory(client=db){
+  const [guard,query]=rolloutInventory.split('-- COUNTS QUERY\n');
+  assert.ok(query);try{await client.exec(guard);const result=await client.query(query.replace(/\nCOMMIT;\s*$/,''));await client.exec('COMMIT');return result.rows[0].inventory;}catch(error){await client.exec('ROLLBACK');throw error;}
+}
+function reviewState(x,state){return x.by_state.find(s=>s.state===state);}
+test('empty source inventory stays non-authorizing and read-only',async()=>{
+  await sourceBindingFixture(false);await db.exec('RESET ROLE;DELETE FROM public.ai_jobs');const x=await summaryRolloutInventory();assert.equal(x.unbound_reconciliation_count,0);assert.equal(x.retained_binding_count,0);assert.equal(x.read_only_transaction,true);for(const key of ['worker_quiescence_verified','provider_work_reconciled','retention_review_complete','rollout_authorized','cleanup_authorized'])assert.equal(x[key],false);
+});
+for(const bound of [false,true])for(const state of ['queued','processing','needs_review','completed','failed'])test('source review counts '+state+' '+(bound?'bound':'unbound')+' without changing jobs',async()=>{
+  const {doc}=await sourceBindingFixture(bound);await db.exec('RESET ROLE');await db.query("UPDATE public.ai_jobs SET status=$1,locked_at=CASE WHEN $1='processing' THEN $2::timestamptz ELSE NULL END",[state,claimAt]);const before=(await db.query('SELECT * FROM public.ai_jobs')).rows;const x=await summaryRolloutInventory();assert.equal(reviewState(x,state)[bound?'bound':'unbound'],1);assert.equal(x.unbound_reconciliation_count,bound?0:1);assert.equal(x.retained_binding_count,bound?1:0);assert.equal(x.retained_job_identity_conflict_count,0);assert.equal(x.retained_document_identity_conflict_count,0);assert.deepEqual((await db.query('SELECT * FROM public.ai_jobs')).rows,before);assert.equal(x.rollout_authorized,false);for(const secret of [summaryId,doc,student,actors.family,path,'a'.repeat(64)])assert.ok(!JSON.stringify(x).includes(secret));
+});
+test('unknown schema-drift states and missing claim fields are explicit, not omitted rows',async()=>{
+  await sourceBindingFixture(false);await db.exec('RESET ROLE;ALTER TABLE public.ai_jobs DROP CONSTRAINT ai_jobs_status_check');
+  try{await db.exec("UPDATE public.ai_jobs SET status='unrecognized-state',locked_at=now()");const x=await summaryRolloutInventory();assert.equal(x.unknown_state_count,1);assert.equal(x.nonprocessing_locked_count,1);assert.equal(x.unbound_reconciliation_count,1);}
+  finally{await db.exec("UPDATE public.ai_jobs SET status='processing',locked_at=NULL,attempts=0;ALTER TABLE public.ai_jobs ADD CONSTRAINT ai_jobs_status_check CHECK(status IN ('queued','processing','completed','failed','needs_review'))");}
+  const x=await summaryRolloutInventory();assert.equal(x.processing_claim_conflict_count,1);
+});
+test('retained document hash changes are counted without emitting either hash or source text',async()=>{
+  await sourceBindingFixture();await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET content_hash=$1,scan_verdict=jsonb_set(scan_verdict,'{content_sha256}',to_jsonb($1::text))",['b'.repeat(64)]);const x=await summaryRolloutInventory();assert.equal(x.retained_document_identity_conflict_count,1);assert.equal(x.retained_job_identity_conflict_count,0);assert.ok(!JSON.stringify(x).includes('b'.repeat(64)));
+});
+for(const role of ['anon','authenticated','service_role','tf_document_catalog_reader'])test('source rollout inventory rejects incomplete visibility for '+role,async()=>{
+  await sourceBindingFixture();await db.exec('RESET ROLE;SET ROLE '+role);await assert.rejects(summaryRolloutInventory(),{code:'42501'});
+});
+test('SELECT grants with active RLS cannot turn hidden jobs into an empty rollout inventory',async()=>{
+  await sourceBindingFixture();await db.exec('RESET ROLE;GRANT SELECT ON public.document_summary_source_bindings TO authenticated;SET ROLE authenticated');try{await assert.rejects(summaryRolloutInventory(),{code:'42501'});}finally{await db.exec('RESET ROLE;REVOKE SELECT ON public.document_summary_source_bindings FROM authenticated');}
+});
+test('missing retained-source prerequisites stop the inventory rather than reporting empty',async()=>{
+  await verifiedSourceFixture();await db.exec('RESET ROLE');await assert.rejects(summaryRolloutInventory(),{code:'55000'});
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('counts cannot see uncommitted source admission after '+finish,{skip:!native},async()=>{
+  await sourceBindingFixture(false);await db.exec('RESET ROLE');const a=await newSession();await as('','service_role',a);await a.exec('BEGIN');await readVerified(a);try{const during=await summaryRolloutInventory();assert.equal(reviewState(during,'processing').unbound,1);assert.equal(during.retained_binding_count,0);await a.exec(finish);const after=await summaryRolloutInventory();assert.equal(after.retained_binding_count,finish==='COMMIT'?1:0);assert.equal(after.worker_quiescence_verified,false);}finally{await a.exec('ROLLBACK');}
+});
+for(const finish of ['COMMIT','ROLLBACK'])test('read-only source inventory holds table/RLS DDL until '+finish,{skip:!native},async()=>{
+  await sourceBindingFixture(false);await db.exec('RESET ROLE');const [guard,query]=rolloutInventory.split('-- COUNTS QUERY\n');await db.exec(guard);const writer=await newSession();await writer.exec('BEGIN');const pid=(await writer.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=writer.exec('ALTER TABLE public.ai_jobs FORCE ROW LEVEL SECURITY').then(result=>({result}),error=>({error}));try{await waitForLock(pid);const x=(await db.query(query.replace(/\nCOMMIT;\s*$/,''))).rows[0].inventory;assert.equal(reviewState(x,'processing').unbound,1);assert.equal(x.rollout_authorized,false);await db.exec(finish);assert.equal((await pending).error,undefined);}finally{await db.exec('ROLLBACK');await writer.exec('ROLLBACK');await pending;}
 });

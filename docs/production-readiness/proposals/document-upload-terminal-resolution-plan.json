@@ -98,8 +98,10 @@
     "ai_jobs payloads and verified-summary source/result links",
     "Other evidence, report/document-source JSON and retention references require a complete writer inventory before a deletion design is accepted."
   ],
-  "next_safe_work": "Review the full-schema reference/delete-action artifact, then design retained processing/source identity and coordinated writer fences. Actual provider immutable-version/physical-absence behavior remains open. No hosted test or terminal mutation is ready to run.",
+  "next_safe_work": "Verify read-only rollout inventory and retention review in disposable/full-schema tests, then review actual provider capabilities and complete semantic references/writer fencing. No terminal mutation, hosted worker drain or provider probe is authorized.",
   "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here.",
   "source_binding_checkpoint": "docs/production-readiness/proposals/document-summary-source-binding.sql",
-  "source_binding_evidence": "docs/production-readiness/evidence/document-summary-source-binding-local-2026-10-28.json"
+  "source_binding_evidence": "docs/production-readiness/evidence/document-summary-source-binding-local-2026-10-28.json",
+  "retention_review": "docs/production-readiness/proposals/document-retention-review.json",
+  "rollout_inventory": "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
 }
