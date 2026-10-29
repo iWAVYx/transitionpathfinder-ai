@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Review preparation only; no pause control implemented or hosted action authorized",
+  "status": "Durable admission SQL foundation prepared as a noncanonical proposal; application/worker integration and old-handler coverage remain unimplemented/unverified; no hosted authorization",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -49,6 +49,10 @@
     {
       "path": "docs/production-readiness/proposals/document-upload-chain-preflight.sql",
       "sha256": "4319cbb34743055fbe0a57bb4d3626518922a563f74e80c18ac3795cf1601aca"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-operation-admission.sql",
+      "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb"
     }
   ],
   "batch": {
@@ -87,7 +91,7 @@
     {
       "step": 2,
       "action": "Review and implement a narrowly scoped maintenance/admission mechanism that stops old upload, registration, rescan, reviewed Apply and summary-dispatch entry points. Identify every actual scheduler/direct caller in the environment.",
-      "status": "BLOCKED: no durable pause/drain mechanism verified or implemented; do not invent a flag or assume a worker comment proves the live scheduler"
+      "status": "PARTIAL: durable SQL admission foundation prepared and locally tested; application/worker integration, actual scheduler/direct-caller inventory and old-handler/provider drain still unimplemented/unverified"
     },
     {
       "step": 3,
@@ -145,5 +149,20 @@
   ],
   "hosted_actions": false,
   "production_access": false,
-  "authorization_recorded": false
+  "authorization_recorded": false,
+  "unapplied_admission_proposals": 1,
+  "admission_foundation": {
+    "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
+    "default": "paused",
+    "operation_kinds": [
+      "register",
+      "rescan",
+      "apply",
+      "summary"
+    ],
+    "accounting": "Durable active/completed/needs_review receipts. No expiry, reuse, automatic uncertain release or deletion.",
+    "controls": "Four service-only RPCs with no ordinary raw table access. Operator UUID is service-supplied audit attribution, not independent proof of human identity/approval.",
+    "limits": "Tracks only explicitly integrated new handlers; no file/provider actions or student access grants. ready_for_cutover and legacy/provider proof fields stay false. needs_review has no release/complete path in this foundation.",
+    "verification": "620 local SQL passes /74 native-only skips; full-schema/concurrency CI pending"
+  }
 }

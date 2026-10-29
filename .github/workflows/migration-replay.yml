@@ -40,6 +40,7 @@ on:
       - "tests/database/atomic-extraction-rollout-sql.mjs"
       - "tests/database/document-upload-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-upload-chain-preflight.sql"
+      - "docs/production-readiness/proposals/document-operation-admission.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -99,6 +100,7 @@ on:
       - "tests/database/atomic-extraction-rollout-sql.mjs"
       - "tests/database/document-upload-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-upload-chain-preflight.sql"
+      - "docs/production-readiness/proposals/document-operation-admission.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -904,6 +906,51 @@ jobs:
           SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
           SQL
 
+      - name: Verify proposed durable admission against complete canonical replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-operation-admission.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $admission_grants$
+          DECLARE signature text; relation_name text; role_name text; privilege_name text;
+          BEGIN
+            FOREACH signature IN ARRAY ARRAY['public.begin_document_operation(uuid,uuid,text)','public.finish_document_operation(uuid,uuid,uuid,text)','public.set_document_operation_pause(uuid,bigint,boolean,text)','public.inspect_document_operation_drain()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR EXISTS(SELECT 1 FROM pg_proc p,LATERAL aclexplode(COALESCE(p.proacl,acldefault('f',p.proowner))) a WHERE p.oid=signature::regprocedure AND a.grantee=0 AND a.privilege_type='EXECUTE')
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE')
+                OR NOT has_function_privilege('service_role',signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected admission execution boundary'; END IF;
+            END LOOP;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases','public.document_operation_control_events'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=relation_name::regclass AND relrowsecurity) THEN RAISE EXCEPTION 'Admission RLS required'; END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected direct admission table privilege'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+          END; $admission_grants$;
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $tracked_work$
+          DECLARE receipt jsonb;
+          BEGIN
+            PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',1,false,'resume');
+            receipt:=public.begin_document_operation('00000000-0000-4000-8000-000000000901','00000000-0000-4000-8000-000000000001','summary');
+            PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',2,true,'maintenance');
+            PERFORM public.finish_document_operation((receipt->>'operation_id')::uuid,'00000000-0000-4000-8000-000000000001',(receipt->>'receipt_id')::uuid,'needs_review');
+            IF (public.inspect_document_operation_drain()->>'tracked_operations_clear')::boolean THEN RAISE EXCEPTION 'Uncertain work disappeared'; END IF;
+          END; $tracked_work$;
+          ROLLBACK;
+          SQL
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 -c "SET ROLE service_role;SELECT public.inspect_document_operation_drain();" > /tmp/document-operation-admission.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/document-operation-admission.json','utf8'));
+          assert.equal(x.schema,'document-operation-drain-v1');assert.equal(x.paused,true);assert.equal(x.revision,1);
+          assert.equal(x.tracked_operations_clear,true);assert.equal(x.by_kind.length,4);
+          for(const k of x.by_kind){assert.equal(k.active,0);assert.equal(k.needs_review,0);}
+          for(const k of ['legacy_handlers_covered','provider_quiescence_verified','ready_for_cutover','cleanup_authorized'])assert.equal(x[k],false);
+          NODE
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1002,4 +1049,5 @@ jobs:
             /tmp/document-reference-catalog.json
             /tmp/document-summary-rollout-inventory.json
             /tmp/atomic-extraction-preflight.json
+            /tmp/document-operation-admission.json
           if-no-files-found: ignore

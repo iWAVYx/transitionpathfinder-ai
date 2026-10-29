@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-29",
+  "status": "Noncanonical durable document-operation admission foundation prepared; native/full-schema proof pending",
+  "source_base": "12860f08",
+  "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
+  "proposal_sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb",
+  "canonical_count": 225,
+  "new_canonical_migrations": 0,
+  "prepared_admission_proposals": 1,
+  "application_changed": false,
+  "application_fingerprint": "2052a88b3659f352848ca036c45a8b358c4edb7066039b260bcb34b39aefe886",
+  "application_file_count": 1200,
+  "local_sql": {
+    "tests": 694,
+    "pass": 620,
+    "fail": 0,
+    "skip": 74,
+    "skips": "Native PostgreSQL contention only."
+  },
+  "local_safety_transport_contracts": {
+    "pass": 92,
+    "fail": 0,
+    "skip": 0
+  },
+  "verified_locally": [
+    "Default paused, service-only admission/pause/finish/aggregate inspection; no raw table access for anon/authenticated/service roles. Forged role claims do not grant execution.",
+    "Shared control-row locking and READ COMMITTED only; stale revisions, duplicate operation IDs, foreign receipts/actors, unknown kinds and wrong outcomes are refused.",
+    "Active work remains counted across pause; completion can drain it. needs_review stays permanently held through these RPCs, with no expiry, automatic replay, release or delete.",
+    "Audit insertion and control revision update are atomic; missing singleton cannot admit work or return a ready status.",
+    "Inspection returns only per-kind active/needs_review counts plus version/paused state; legacy_handlers_covered, provider_quiescence_verified, ready_for_cutover and cleanup_authorized remain false."
+  ],
+  "remaining": [
+    "Native waiting-admission/pause commit/rollback and full225-schema compatibility pending.",
+    "Application/browser upload intervals, register/rescan/Apply and background worker are not integrated. Old handlers and external provider work remain untracked; the foundation cannot certify cutover readiness.",
+    "Proposal not canonical or applied hosted; service-supplied operator attribution is not human approval. Permission to control admission is not permission to access student data.",
+    "Complete ledger/data/provider/reference/retention gates and fresh authorization remain required; no effect on current staging or production.",
+    "Full TF-01\u2013TF-26/six milestones retained; report polish and Parent Pilot/Pathway Snapshot deferred."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false
+}
