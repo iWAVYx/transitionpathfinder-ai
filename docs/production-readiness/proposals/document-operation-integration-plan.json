@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-29",
+  "schema": "document-operation-integration-plan-v1",
+  "status": "Dormant Node service adapter implemented; handler/browser/worker integration remains unimplemented and unauthorized hosted",
+  "source_base": "35b2d4de",
+  "adapter": "src/lib/document-operation-admission.server.ts",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-operation-admission.server.ts",
+      "sha256": "f4ffe955ed2d2bdea5ecdb648de34e8fa4fc4d2e997973b540bfa99f9e32cc88"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "cbee8ab5784326612d573551a29db5ec524eb86ae1f5ffb46ac9af72e8122495"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "99ce632404a27608f9b7c8db818a52c730643eafcd76d8ffb3b496a7fbfc80e6"
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "1a6a93c68399f319d560b19842c157e65919b964f6ccaed0aa3fb62748c8c7f9"
+    },
+    {
+      "path": "src/lib/document-upload-reservation.server.ts",
+      "sha256": "36ab424d7c9941c0e20b3e0282a2a2e26cffbd8693524d543bc55a70713f807a"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.tsx",
+      "sha256": "1a1b61e4438b410eddb904d67ea4537e6d8b856e3082d8f0316da5201fb6dd20"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "22b740965ee2eb578a9140fa643a3c1fdffa0536b3774c4735d998f8c6a7456c"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "f1cb1b36f78bdfd0da2fe7c94d3a5409dd0a771d35f935c97476dbd65d4bac7b"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+      "sha256": "f73a9a60b81ca5b050985c5eb8e4f41e90efa914b4b0c722d1b9451a574cb888"
+    }
+  ],
+  "adapter_contract": {
+    "scope": "Fresh single service-side callback invocation only; no public server endpoint, default bypass flag, database control activation or work-recovery capability.",
+    "before_work": "Validate server actor/kind, generate a fresh operation UUID, issue one begin RPC and validate its exact schema/identity/token/safe integer revision. Error-bearing, missing, foreign or malformed reply means no work and no finish attempt. An uncertain begin can leave a durable active receipt.",
+    "after_work": "Successful callback means its caller has independently confirmed the operation-specific result. Issue one completed finish and validate exact operation/state. Lost or invalid completion may already have committed; no second finish, uncertainty rewrite, result return or replay.",
+    "failed_work": "Issue at most one needs_review finish with the known receipt. If marking fails, leave active work counted. Surface a generic safe error; never expose private/provider text, raw causes or receipts.",
+    "unfinished_work": "No automatic timeout, expiry, cleanup or early completion. Callback/process failure cannot establish that external work stopped.",
+    "privilege_boundary": "Service client is used only for begin/finish RPCs and is not passed to callbacks. Each handler must continue using its existing caller-RLS client and current authorization/source checks for private data. Admission is not student access.",
+    "refusal_classification": "A callback may resolve a confirmed negative domain result only when that handler can prove work is settled. Never convert an unknown network/provider/save outcome to a confirmed result. Present generic errors without treating them as permission/source proof."
+  },
+  "integration_targets": [
+    {
+      "target": "reservation and direct browser upload interval",
+      "implemented": false,
+      "requirements": [
+        "Admission must span reviewed reservation through actual browser upload and registration, including reload/session changes and interrupted requests.",
+        "The fresh-call adapter cannot reattach a receipt across requests. Prepare a separately reviewed actor/attempt/kind/source-bound continuation protocol; do not pass service credentials to the browser or invent receipt recovery.",
+        "Do not mark the interval complete at reservation response or from client 404/timeout/metadata observations."
+      ]
+    },
+    {
+      "target": "register and rescan",
+      "implemented": false,
+      "requirements": [
+        "Establish expected viewer, current edit/source permission and fixed server operation kind before admission.",
+        "Keep existing byte-copy/fingerprint/scan/registration/source receipt checks and caller-RLS data writes.",
+        "Keep a confirmed queued summary separate from completed summary processing. Do not clear an interval merely because an enqueue was attempted."
+      ]
+    },
+    {
+      "target": "reviewed Apply",
+      "implemented": false,
+      "requirements": [
+        "Preserve strict atomic source/student/revision/section and current-access checks on the caller client.",
+        "Review pre-admission authorization and confirmed-refusal versus uncertainty handling before exposing a route that can create retained holds.",
+        "Only a validated existing atomic save receipt may be treated as a confirmed save; no sequential fallback."
+      ]
+    },
+    {
+      "target": "separate summary worker",
+      "implemented": false,
+      "requirements": [
+        "Prepare a Deno-compatible adapter/protocol with the same loss/mismatch boundaries; do not introduce an app-source import outside the worker release package.",
+        "Use actual job claim/actor/source identity and keep verified source admission and guarded completion.",
+        "Hold/count outstanding model/storage requests independently; no automatic retry, cancellation or unobserved drain claim."
+      ]
+    }
+  ],
+  "activation_gates": [
+    "Review and integrate every relevant shared handler and direct/scheduled entry point; default-paused SQL alone does not cover old code.",
+    "Review retained-operation abuse/admission limits and a separately authorized manual reconciliation path; do not let routine invalid/stale requests create unbounded permanent global resume blockers.",
+    "Canonical/ledger/data review, compatible application plus separate worker cutover, old-runtime/provider drain and fresh bounded acceptance remain required.",
+    "Keep management-only Owner semantics and all existing role/student permissions. Demo remains no-upload/no-persistence/no-provider."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false
+}

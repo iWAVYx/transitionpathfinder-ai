@@ -163,6 +163,8 @@
     "accounting": "Durable active/completed/needs_review receipts. No expiry, reuse, automatic uncertain release or deletion.",
     "controls": "Four service-only RPCs with no ordinary raw table access. Operator UUID is service-supplied audit attribution, not independent proof of human identity/approval.",
     "limits": "Tracks only explicitly integrated new handlers; no file/provider actions or student access grants. ready_for_cutover and legacy/provider proof fields stay false. needs_review has no release/complete path in this foundation.",
-    "verification": "Exact f0c96396 source: both native694/694 runs, complete225-schema plus admission proposal, exact service-only grants, default-paused rollback smoke, nine automatic checks and both builds pass. No hosted integration or activation."
-  }
+    "verification": "Exact f0c96396 source: both native694/694 runs, complete225-schema plus admission proposal, exact service-only grants, default-paused rollback smoke, nine automatic checks and both builds pass. No hosted integration or activation.",
+    "dormant_adapter": "src/lib/document-operation-admission.server.ts; prepared and locally validated, no handler imports/calls or activation"
+  },
+  "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json"
 }
