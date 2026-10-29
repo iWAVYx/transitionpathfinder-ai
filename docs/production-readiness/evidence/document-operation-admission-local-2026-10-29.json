@@ -1,6 +1,6 @@
 {
   "date": "2026-10-29",
-  "status": "Noncanonical durable document-operation admission foundation prepared; native/full-schema proof pending",
+  "status": "Noncanonical durable admission foundation verified in both native/full-schema runs; no handler integration or hosted activation",
   "source_base": "12860f08",
   "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
   "proposal_sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb",
@@ -30,7 +30,7 @@
     "Inspection returns only per-kind active/needs_review counts plus version/paused state; legacy_handlers_covered, provider_quiescence_verified, ready_for_cutover and cleanup_authorized remain false."
   ],
   "remaining": [
-    "Native waiting-admission/pause commit/rollback and full225-schema compatibility pending.",
+    "Four waiting-admission/pause commit/rollback cases and complete225-schema compatibility now pass natively; application/worker integration remains pending.",
     "Application/browser upload intervals, register/rescan/Apply and background worker are not integrated. Old handlers and external provider work remain untracked; the foundation cannot certify cutover readiness.",
     "Proposal not canonical or applied hosted; service-supplied operator attribution is not human approval. Permission to control admission is not permission to access student data.",
     "Complete ledger/data/provider/reference/retention gates and fresh authorization remain required; no effect on current staging or production.",
@@ -48,6 +48,55 @@
     "fail": 4,
     "skip": 0,
     "failure": "Four new lock-observation cases timed out: the pg_stat_activity observer retained the restricted service role. No application SQL assertion failed before those four observer timeouts.",
-    "correction": "Reset only the separate disposable observer to its test-owner session and assert it explicitly. Both competing callers remain service_role with explicit role assertions. SQL/grants/assertions unchanged; corrected native verification pending."
+    "correction": "Reset only the separate disposable observer to its test-owner session and assert it explicitly. Both competing callers remain service_role with explicit role assertions. SQL/grants/assertions unchanged; both corrected native runs now pass694/694, zero skips."
+  },
+  "verified_source": "f0c963961dc437373e3d979e0763af78530f96ae",
+  "native_sql": {
+    "tests": 694,
+    "pass": 694,
+    "fail": 0,
+    "skip": 0,
+    "canonical_replay": 225,
+    "additional_proposal": "document-operation-admission.sql",
+    "full_schema_service_grants_and_rollback_smoke": "passed on both runs; aggregate returns initial paused state after smoke rollback",
+    "artifacts": [
+      {
+        "event": "pr",
+        "run": 40926545339,
+        "sha256": {
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+          "atomic-extraction-preflight.json": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+        }
+      },
+      {
+        "event": "push",
+        "run": 40926536704,
+        "sha256": {
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+          "atomic-extraction-preflight.json": "a652eab9a228c0d183a79e0b49032112fdd69e8a0d6357ce6350b4125c117f45"
+        }
+      }
+    ],
+    "retained_admission_artifact": "docs/production-readiness/evidence/document-operation-admission-disposable-2026-10-29.json",
+    "retained_catalog_artifact": "docs/production-readiness/evidence/document-reference-catalog-admission-2026-10-29.json",
+    "limits": "Disposable schema/data only. tracked_operations_clear describes this new register, not legacy or provider quiescence."
+  },
+  "automatic_checks": {
+    "pass": 9,
+    "build_runs": [
+      40926545364,
+      40926536683
+    ],
+    "unit_run": 40926545368,
+    "unit_tests": 5294,
+    "role_run": 40926545316,
+    "accessibility_run": 40926545147,
+    "readiness_run": 40926545253,
+    "static_run": 40926545286,
+    "protected_hosted_checks": "Skipped/unperformed; no live acceptance inferred."
   }
 }
