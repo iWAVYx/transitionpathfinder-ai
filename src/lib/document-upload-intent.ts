@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_PRIVACY_SAFE_DOCUMENT_BYTES } from "./document-upload-fingerprint";
 import { viewerIntentSchema } from "./viewer-intent";
 export const documentUploadDetailsSchema = z.object({
   student_id: z.string().uuid(),
@@ -58,9 +59,11 @@ export const documentUploadRecoveryRequestSchema = documentUploadReservationRequ
 export const documentRegistrationRequestSchema = documentUploadDetailsSchema
   .extend({
     storage_path: z.string().trim().min(1).max(500),
+    size_bytes: z.number().int().positive().max(MAX_PRIVACY_SAFE_DOCUMENT_BYTES),
+    mime_type: z.literal("text/plain"),
     upload_attempt_id: z.string().uuid(),
     upload_review_context_sha256: z.string().regex(/^[a-f0-9]{64}$/),
-    ...viewerIntentSchema.shape,
+    expected_viewer_id: z.string().uuid({ message: "Refresh the page to confirm your current sign-in before continuing." }),
   })
   .refine(
     (data) =>

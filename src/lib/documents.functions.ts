@@ -109,7 +109,7 @@ export const registerDocument = createServerFn({ method: "POST" })
         _user_id: userId,
         _student_id: data.student_id,
       });
-      canRegister = !access.error && access.data === true;
+      canRegister = access.error === null && access.data === true;
     } catch {
       // Fail closed without exposing database details or retrying the request.
     }
@@ -117,20 +117,16 @@ export const registerDocument = createServerFn({ method: "POST" })
       throw new Error("We couldn't confirm permission to add this document. Refresh the page and check your access before continuing.");
     }
 
-    // Hard partner deny — RLS would block this anyway, but we want a clean error.
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    const roleList = (roles ?? []).map((r) => r.role as string);
-    const isPartnerOnly =
-      roleList.includes("partner") &&
-      !roleList.some((r) =>
-        ["student","parent","guardian","educator","teacher","case_manager","school_admin","district_admin","admin"].includes(r),
-      );
-    if (isPartnerOnly) {
-      throw new Error("Partner accounts cannot upload documents to student records.");
-    }
+    try {
+      const partner = await supabase.rpc("is_partner_only", { _user_id: userId });
+      if (partner.error !== null || partner.data !== false) throw new Error();
+    } catch { throw new Error("We couldn't confirm permission to add this document."); }
+    let roleList: string[];
+    try {
+      const { data: roles, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+      if (roleError !== null || !Array.isArray(roles)) throw new Error();
+      roleList = roles.map(r => r.role as string);
+    } catch { throw new Error("We couldn't confirm permission to add this document."); }
 
     // Pick the most specific uploader role for audit metadata.
     const priority = ["student","parent","guardian","case_manager","educator","teacher","school_admin","district_admin","admin"];
@@ -165,302 +161,285 @@ export const registerDocument = createServerFn({ method: "POST" })
     const { supabaseAdmin: registrationAdmin } = await import("@/integrations/supabase/client.server");
     await assertDocumentUploadPathAvailable(registrationAdmin, data.storage_path);
 
-    // Derive identity from the actual caller-readable stored bytes. Never trust
-    // a supplied or legacy placeholder hash as evidence of file contents.
-    let contentHash: string;
-    let reviewedCopy: Blob;
-    try {
-      const stored = await supabase.storage.from("student-documents").download(data.storage_path);
-      if (stored.error || !(stored.data instanceof Blob)) throw new Error("Unconfirmed uploaded bytes");
-      // Blob bytes are immutable. Keep this exact copy through fingerprint,
-      // type checks and AV submission instead of reading a changing path again.
-      reviewedCopy = stored.data;
-      contentHash = await documentUploadFingerprint(reviewedCopy);
-      if (data.content_hash && data.content_hash.toLowerCase() !== contentHash) {
-        throw new Error("Uploaded bytes do not match the reviewed copy");
+    const { runClaimedDocumentRegistration } = await import("./document-upload-registration-operation.server");
+    const { prepareDocumentRegistrationCopy } = await import("./document-registration-source.server");
+    return runClaimedDocumentRegistration({
+      serviceClient: registrationAdmin, actorId: userId, studentId: data.student_id,
+      attemptId: data.upload_attempt_id, contentSha256: data.content_hash,
+      reviewContextSha256: data.upload_review_context_sha256,
+    }, async source => {
+      const reviewed = await prepareDocumentRegistrationCopy(supabase, userId, data.student_id, data.size_bytes, source);
+      const reviewedCopy = reviewed.copy;
+      const contentHash = reviewed.contentHash;
+      const sourceReceipt = z.object({
+        id: z.string().uuid(), student_id: z.literal(data.student_id), uploaded_by: z.literal(userId),
+        upload_attempt_id: z.literal(data.upload_attempt_id), upload_review_context_sha256: z.literal(data.upload_review_context_sha256),
+        storage_path: z.literal(source.storagePath), storage_object_id: z.literal(source.objectId), storage_object_version: z.literal(source.objectVersion),
+        content_hash: z.literal(contentHash), mime_type: z.literal("text/plain"), size_bytes: z.literal(reviewedCopy.size),
+        updated_at: z.string().datetime({ offset: true }), deleted_at: z.null(),
+      });
+      await reviewed.confirm();
+
+      const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
+      const correlationId = newCorrelationId();
+      const uploadStartedAt = new Date().toISOString();
+
+      // Proposal columns are intentionally scoped here; canonical generated types
+      // remain unchanged until the reviewed migration is promoted.
+      // Duplicate checks happen before browser storage upload. Do not return a
+      // different path here: that would leave this attempted object unaccounted for.
+      const { data: row, error } = await supabase
+        .from("documents")
+        .insert({
+          student_id: data.student_id,
+          uploaded_by: userId,
+          upload_attempt_id: data.upload_attempt_id,
+          upload_review_context_sha256: data.upload_review_context_sha256,
+          uploaded_by_role: uploaderRole,
+          organization_id: org?.organization_id ?? null,
+          title: data.title,
+          storage_path: data.storage_path,
+          mime_type: data.mime_type ?? null,
+          size_bytes: data.size_bytes ?? null,
+          doc_type: data.doc_type,
+          visibility: data.visibility,
+          review_status: "pending_review",
+          consent_required: sensitive.includes(data.doc_type),
+          school_year: data.school_year ?? null,
+          meeting_date: data.meeting_date ?? null,
+          effective_date: data.effective_date ?? null,
+          review_date: data.review_date ?? null,
+          annual_review_date: data.annual_review_date ?? null,
+          reevaluation_date: data.reevaluation_date ?? null,
+          notes: data.notes ?? null,
+          source: data.source ?? null,
+          consent_acknowledged_at: data.consent_acknowledged ? new Date().toISOString() : null,
+          content_hash: contentHash,
+        } as never)
+        .select("*")
+        .single();
+      if (error || !row) {
+        console.error("Document registration could not be confirmed.");
+        throw new Error("Could not save document record.");
       }
-    } catch {
-      throw new Error("We couldn't confirm the uploaded copy. Refresh the page and review the document list before uploading again.");
-    }
 
-    const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
-    const correlationId = newCorrelationId();
-    const uploadStartedAt = new Date().toISOString();
+      const savedSource = sourceReceipt.parse(row);
+      if (row.scan_status !== "pending" || row.review_status !== "pending_review" || row.archived_at !== null) throw new Error("The saved upload needs review.");
+      const pendingRevision = savedSource.updated_at;
+      const confirmSavedSource = async (expected: unknown, status: "pending" | "clean" | "infected") => {
+        const previous = sourceReceipt.parse(expected);
+        await reviewed.confirm();
+        const access = await supabase.rpc("can_view_document", { _user_id: userId, _document_id: row.id });
+        if (access.error !== null || access.data !== true) throw new Error("The saved document needs review.");
+        // Metadata only, using the caller's RLS client; no summary/content read.
+        const read = await supabase.from("documents").select("id, student_id, uploaded_by, upload_attempt_id, upload_review_context_sha256, storage_path, storage_object_id, storage_object_version, content_hash, mime_type, size_bytes, updated_at, deleted_at, scan_status, review_status, archived_at").eq("id", row.id).maybeSingle();
+        if (read.error !== null) throw new Error("The saved document needs review.");
+        const current = sourceReceipt.extend({ scan_status: z.literal(status), review_status: z.string().min(1), archived_at: z.string().nullable() }).parse(read.data);
+        if (current.id !== row.id || current.updated_at !== previous.updated_at ||
+            (status === "infected" ? documentUploadOutcome(current, data.student_id, source.storagePath) !== "blocked" : current.archived_at !== null || current.review_status === "rejected")) throw new Error("The saved document needs review.");
+      };
 
-    // Proposal columns are intentionally scoped here; canonical generated types
-    // remain unchanged until the reviewed migration is promoted.
-    // Duplicate checks happen before browser storage upload. Do not return a
-    // different path here: that would leave this attempted object unaccounted for.
-    const { data: row, error } = await supabase
-      .from("documents")
-      .insert({
+
+      // Breadcrumb: upload row created.
+      const uploadFinishedAt = new Date().toISOString();
+      await recordPipelineRun({
+        document_id: row.id,
         student_id: data.student_id,
-        uploaded_by: userId,
-        upload_attempt_id: data.upload_attempt_id,
-        upload_review_context_sha256: data.upload_review_context_sha256,
-        uploaded_by_role: uploaderRole,
-        organization_id: org?.organization_id ?? null,
-        title: data.title,
+        correlation_id: correlationId,
+        stage: "upload",
+        status: "succeeded",
+        started_at: uploadStartedAt,
+        finished_at: uploadFinishedAt,
+        latency_ms: Date.parse(uploadFinishedAt) - Date.parse(uploadStartedAt),
+        payload: {
+          doc_type: data.doc_type,
+          visibility: data.visibility,
+          actor_role: uploaderRole,
+          size_bytes: data.size_bytes ?? null,
+          mime_type: data.mime_type ?? null,
+        },
+      });
+
+      // This fingerprint was computed from stored bytes, not a client claim.
+      await recordPipelineRun({
+        document_id: row.id,
+        student_id: data.student_id,
+        correlation_id: correlationId,
+        stage: "hash",
+        status: "succeeded",
+        payload: { algorithm: "sha256", source: "stored_bytes" },
+      });
+
+      await confirmSavedSource(row, "pending");
+
+      // Magic-byte/type checks inspect the same held copy used for hashing.
+      // Confirm it matches the
+      // declared type against a strict allowlist. A mismatch stays pending with
+      // held work; it is not a completed provider security review.
+      const { sniffUploadedDocument } = await import("./document-sniff.server");
+      const sniff = await sniffUploadedDocument({
         storage_path: data.storage_path,
-        mime_type: data.mime_type ?? null,
-        size_bytes: data.size_bytes ?? null,
-        doc_type: data.doc_type,
-        visibility: data.visibility,
-        review_status: "pending_review",
-        consent_required: sensitive.includes(data.doc_type),
-        school_year: data.school_year ?? null,
-        meeting_date: data.meeting_date ?? null,
-        effective_date: data.effective_date ?? null,
-        review_date: data.review_date ?? null,
-        annual_review_date: data.annual_review_date ?? null,
-        reevaluation_date: data.reevaluation_date ?? null,
-        notes: data.notes ?? null,
-        source: data.source ?? null,
-        consent_acknowledged_at: data.consent_acknowledged ? new Date().toISOString() : null,
-        content_hash: contentHash,
-      } as never)
-      .select("*")
-      .single();
-    if (error || !row) {
-      console.error("Document registration could not be confirmed.");
-      throw new Error("Could not save document record.");
-    }
+        declared_mime: data.mime_type ?? null,
+        declared_size: data.size_bytes ?? null,
+      }, reviewedCopy);
 
-    // Breadcrumb: upload row created.
-    const uploadFinishedAt = new Date().toISOString();
-    await recordPipelineRun({
-      document_id: row.id,
-      student_id: data.student_id,
-      correlation_id: correlationId,
-      stage: "upload",
-      status: "succeeded",
-      started_at: uploadStartedAt,
-      finished_at: uploadFinishedAt,
-      latency_ms: Date.parse(uploadFinishedAt) - Date.parse(uploadStartedAt),
-      payload: {
-        doc_type: data.doc_type,
-        visibility: data.visibility,
-        actor_role: uploaderRole,
-        size_bytes: data.size_bytes ?? null,
-        mime_type: data.mime_type ?? null,
-      },
-    });
+      if (!sniff.ok) throw new Error("This document's file type needs review before further work.");
+      await confirmSavedSource(row, "pending");
 
-    // This fingerprint was computed from stored bytes, not a client claim.
-    await recordPipelineRun({
-      document_id: row.id,
-      student_id: data.student_id,
-      correlation_id: correlationId,
-      stage: "hash",
-      status: "succeeded",
-      payload: { algorithm: "sha256", source: "stored_bytes" },
-    });
-
-    // Magic-byte/type checks inspect the same held copy used for hashing.
-    // Confirm it matches the
-    // declared mime_type against a strict allowlist. Rejections quarantine
-    // the row (review_status='rejected' + archived) and skip AI extract.
-    const { sniffUploadedDocument, MAX_UPLOAD_BYTES } = await import("./document-sniff.server");
-    const sniff = await sniffUploadedDocument({
-      storage_path: data.storage_path,
-      declared_mime: data.mime_type ?? null,
-      declared_size: data.size_bytes ?? null,
-    }, reviewedCopy);
-
-    if (!sniff.ok) {
-      // Quarantine: reject the row and mark it archived with an audit reason.
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      let quarantinedDocument: DocumentRow;
-      try {
-        const receipt = await supabaseAdmin
-          .from("documents")
-          .update({
-            review_status: "rejected",
-            archived_at: new Date().toISOString(),
-            archived_by: userId,
-            archive_reason: `auto-quarantined: ${sniff.error_code}`,
-          })
-          .eq("id", row.id)
-          .select("*")
-          .single();
-        if (receipt.error || receipt.data?.id !== row.id ||
-            receipt.data.scan_status !== "pending" ||
-            documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
-          throw new Error("Unconfirmed quarantine receipt");
-        }
-        quarantinedDocument = receipt.data as DocumentRow;
-      } catch {
-        throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
-      }
-
+      // Sniff passed — record breadcrumb before running the AV scan.
       await recordPipelineRun({
         document_id: row.id,
         student_id: data.student_id,
         correlation_id: correlationId,
         stage: "sniff",
-        status: "quarantined",
-        error_code: sniff.error_code,
-        error_message: sniff.error_message,
+        status: "succeeded",
         payload: {
           declared_mime: data.mime_type ?? null,
           detected_kind: sniff.detected_kind,
           declared_size: data.size_bytes ?? null,
-          max_bytes: MAX_UPLOAD_BYTES,
         },
       });
-      await recordPipelineRun({
-        document_id: row.id,
-        student_id: data.student_id,
-        correlation_id: correlationId,
-        stage: "extract",
-        status: "skipped",
-        error_code: "quarantined",
-        payload: { reason: sniff.error_code },
-      });
 
-      await supabase.from("document_access_log").insert({
-        document_id: row.id,
-        student_id: data.student_id,
-        actor_id: userId,
-        actor_role: uploaderRole,
-        action: "upload_quarantined",
-        metadata: { error_code: sniff.error_code, declared_mime: data.mime_type ?? null },
-      });
-
-      return quarantinedDocument;
-    }
-
-    // Sniff passed — record breadcrumb before running the AV scan.
-    await recordPipelineRun({
-      document_id: row.id,
-      student_id: data.student_id,
-      correlation_id: correlationId,
-      stage: "sniff",
-      status: "succeeded",
-      payload: {
-        declared_mime: data.mime_type ?? null,
-        detected_kind: sniff.detected_kind,
-        declared_size: data.size_bytes ?? null,
-      },
-    });
-
-    // ── Private Cloudmersive advanced malware scan ────────────────────
-    // Bytes are quarantined (scan_status = 'pending' via default) until we
-    // receive a "clean" verdict. Everything else fails closed: no AI job
-    // is enqueued. Non-clean files stay quarantined. Storage removal awaits
-    // a guarded claim, reference checks, receipt and independent absence proof.
-    const { MALWARE_SCAN_PROVIDER, scanUploadedDocument } = await import(
-      "./document-av-scan.server"
-    );
-    const scanStartedAt = new Date().toISOString();
-    await recordPipelineRun({
-      document_id: row.id,
-      student_id: data.student_id,
-      correlation_id: correlationId,
-      stage: "av_scan",
-      status: "running",
-      started_at: scanStartedAt,
-      payload: { provider: MALWARE_SCAN_PROVIDER, mode: "advanced", fail_closed: true },
-    });
-    const scanResult = await scanUploadedDocument({
-      storage_path: data.storage_path,
-      declared_mime: data.mime_type ?? null,
-      declared_size: data.size_bytes ?? null,
-    }, reviewedCopy);
-    const scanFinishedAt = new Date().toISOString();
-    const scanLatencyMs = Date.parse(scanFinishedAt) - Date.parse(scanStartedAt);
-    const { supabaseAdmin: adminForScan } = await import("@/integrations/supabase/client.server");
-
-    if (!scanResult.ok) {
-      // ── Not clean: fail closed. ───────────────────────────────────
-      const isInfected = scanResult.code === "infected";
-      const now = new Date().toISOString();
-
-      // Do not delete bytes here: a scan result is not a reference-safe
-      // deletion claim, and a successful Storage response would not by itself
-      // prove permanent absence. Preserve the record and quarantine instead.
-
-      let quarantinedDocument: DocumentRow;
-      try {
-        const receipt = await adminForScan
-          .from("documents")
-          .update({
-            scan_status: isInfected ? "infected" : "failed",
-            scan_verdict: {
-              code: scanResult.code,
-              provider: scanResult.provider,
-              clean_result: scanResult.clean_result,
-              blocked_reasons: scanResult.blocked_reasons,
-              threats: scanResult.threats,
-              error_message: scanResult.error_message,
-            },
-            scan_data_id: scanResult.scan_id,
-            scanned_at: now,
-            review_status: "rejected",
-            archived_at: now,
-            archived_by: userId,
-            archive_reason: `auto-quarantined by av_scan: ${scanResult.code}`,
-          })
-          .eq("id", row.id)
-          .select("*")
-          .single();
-        if (receipt.error || receipt.data?.id !== row.id ||
-            receipt.data.scan_status !== (isInfected ? "infected" : "failed") ||
-            documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
-          throw new Error("Unconfirmed quarantine receipt");
-        }
-        quarantinedDocument = receipt.data as DocumentRow;
-      } catch {
-        throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
-      }
-
-      // Pipeline breadcrumbs
+      // ── Private Cloudmersive advanced malware scan ────────────────────
+      // Bytes are quarantined (scan_status = 'pending' via default) until we
+      // receive a "clean" verdict. Everything else fails closed: no AI job
+      // is enqueued. Non-clean files stay quarantined. Storage removal awaits
+      // a guarded claim, reference checks, receipt and independent absence proof.
+      const { MALWARE_SCAN_PROVIDER, scanUploadedDocument } = await import(
+        "./document-av-scan.server"
+      );
+      const scanStartedAt = new Date().toISOString();
       await recordPipelineRun({
         document_id: row.id,
         student_id: data.student_id,
         correlation_id: correlationId,
         stage: "av_scan",
-        status: "quarantined",
+        status: "running",
         started_at: scanStartedAt,
-        finished_at: scanFinishedAt,
-        latency_ms: scanLatencyMs,
-        error_code: scanResult.code,
-        error_message: scanResult.error_message,
-        payload: {
+        payload: { provider: MALWARE_SCAN_PROVIDER, mode: "advanced", fail_closed: true },
+      });
+      const scanResult = await scanUploadedDocument({
+        storage_path: data.storage_path,
+        declared_mime: data.mime_type ?? null,
+        declared_size: data.size_bytes ?? null,
+      }, reviewedCopy);
+      const scanFinishedAt = new Date().toISOString();
+      const scanLatencyMs = Date.parse(scanFinishedAt) - Date.parse(scanStartedAt);
+      const { supabaseAdmin: adminForScan } = await import("@/integrations/supabase/client.server");
+
+      await confirmSavedSource(row, "pending");
+      const confirmedScan = z.object({
+        ok: z.boolean(), code: z.enum(["clean", "infected", "failed", "indeterminate", "timeout"]),
+        provider: z.literal("cloudmersive"), scan_id: z.string().trim().min(1),
+        clean_result: z.boolean(), blocked_reasons: z.array(z.string()), threats: z.array(z.string()),
+      }).safeParse(scanResult);
+      if (!confirmedScan.success || (scanResult.ok && (scanResult.code !== "clean" || scanResult.clean_result !== true || scanResult.blocked_reasons.length > 0 || scanResult.threats.length > 0))) {
+        throw new Error("This security review needs confirmation before further work.");
+      }
+
+      if (!scanResult.ok) {
+        // ── Not clean: fail closed. ───────────────────────────────────
+        if (scanResult.code !== "infected" || scanResult.clean_result !== false) throw new Error("This security review needs confirmation before further work.");
+        const now = new Date().toISOString();
+
+        // Do not delete bytes here: a scan result is not a reference-safe
+        // deletion claim, and a successful Storage response would not by itself
+        // prove permanent absence. Preserve the record and quarantine instead.
+
+        let quarantinedDocument: DocumentRow;
+        try {
+          const receipt = await adminForScan
+            .from("documents")
+            .update({
+              scan_status: "infected",
+              scan_verdict: {
+                code: scanResult.code,
+                provider: scanResult.provider,
+                clean_result: scanResult.clean_result,
+                blocked_reasons: scanResult.blocked_reasons,
+                threats: scanResult.threats,
+                error_message: scanResult.error_message,
+              },
+              scan_data_id: scanResult.scan_id,
+              scanned_at: now,
+              review_status: "rejected",
+              archived_at: now,
+              archived_by: userId,
+              archive_reason: `auto-quarantined by av_scan: ${scanResult.code}`,
+            })
+            .eq("id", row.id)
+            .eq("student_id", data.student_id)
+            .eq("storage_path", source.storagePath)
+            .eq("storage_object_id" as never, source.objectId)
+            .eq("storage_object_version" as never, source.objectVersion)
+            .eq("content_hash", contentHash)
+            .eq("uploaded_by", userId)
+            .eq("upload_attempt_id" as never, data.upload_attempt_id)
+            .eq("upload_review_context_sha256" as never, data.upload_review_context_sha256)
+            .eq("scan_status", "pending")
+            .eq("updated_at", pendingRevision)
+            .is("deleted_at", null)
+            .select("*")
+            .single();
+          if (receipt.error || !sourceReceipt.safeParse(receipt.data).success || !z.object({
+                scanned_at: z.string().datetime({ offset: true }), scan_data_id: z.literal(scanResult.scan_id),
+                scan_verdict: z.object({ provider: z.literal("cloudmersive"), code: z.literal("infected"), clean_result: z.literal(false) }),
+              }).safeParse(receipt.data).success || receipt.data?.id !== row.id ||
+              receipt.data.scan_status !== "infected" ||
+              documentUploadOutcome(receipt.data, data.student_id, data.storage_path) !== "blocked") {
+            throw new Error("Unconfirmed quarantine receipt");
+          }
+          quarantinedDocument = receipt.data as DocumentRow;
+        } catch {
+          throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
+        }
+
+        // Pipeline breadcrumbs
+        await recordPipelineRun({
+          document_id: row.id,
+          student_id: data.student_id,
+          correlation_id: correlationId,
+          stage: "av_scan",
+          status: "quarantined",
+          started_at: scanStartedAt,
+          finished_at: scanFinishedAt,
+          latency_ms: scanLatencyMs,
+          error_code: scanResult.code,
+          error_message: scanResult.error_message,
+          payload: {
+            provider: scanResult.provider,
+            scan_id: scanResult.scan_id,
+            clean_result: scanResult.clean_result,
+            blocked_reason_count: scanResult.blocked_reasons.length,
+            threat_count: scanResult.threats.length,
+          },
+        });
+        await recordPipelineRun({
+          document_id: row.id,
+          student_id: data.student_id,
+          correlation_id: correlationId,
+          stage: "extract",
+          status: "skipped",
+          error_code: "av_scan_" + scanResult.code,
+          payload: { reason: `blocked_by_av_scan:${scanResult.code}` },
+        });
+
+        // Audit + access-log breadcrumbs. Access log's action column has a
+        // narrow CHECK constraint (view_metadata|download|preview|summarize|
+        // archive|restore|hard_delete|admin_override|upload) so scan-specific
+        // events go through audit_log where the shape is richer.
+        const baseMeta = {
+          title: data.title,
+          doc_type: data.doc_type,
+          scan_code: scanResult.code,
           provider: scanResult.provider,
           scan_id: scanResult.scan_id,
           clean_result: scanResult.clean_result,
-          blocked_reason_count: scanResult.blocked_reasons.length,
-          threat_count: scanResult.threats.length,
-        },
-      });
-      await recordPipelineRun({
-        document_id: row.id,
-        student_id: data.student_id,
-        correlation_id: correlationId,
-        stage: "extract",
-        status: "skipped",
-        error_code: "av_scan_" + scanResult.code,
-        payload: { reason: `blocked_by_av_scan:${scanResult.code}` },
-      });
+          blocked_reasons: scanResult.blocked_reasons,
+          threats: scanResult.threats,
+          uploader_role: uploaderRole,
+        };
 
-      // Audit + access-log breadcrumbs. Access log's action column has a
-      // narrow CHECK constraint (view_metadata|download|preview|summarize|
-      // archive|restore|hard_delete|admin_override|upload) so scan-specific
-      // events go through audit_log where the shape is richer.
-      const baseMeta = {
-        title: data.title,
-        doc_type: data.doc_type,
-        scan_code: scanResult.code,
-        provider: scanResult.provider,
-        scan_id: scanResult.scan_id,
-        clean_result: scanResult.clean_result,
-        blocked_reasons: scanResult.blocked_reasons,
-        threats: scanResult.threats,
-        uploader_role: uploaderRole,
-      };
-
-      if (isInfected) {
         await supabase.from("audit_log").insert([
           {
             actor_id: userId,
@@ -479,155 +458,135 @@ export const registerDocument = createServerFn({ method: "POST" })
             metadata: { ...baseMeta, removal_status: "not_attempted" },
           },
         ]);
-      } else {
-        await supabase.from("audit_log").insert([
-          {
-            actor_id: userId,
-            action:
-              scanResult.code === "failed" || scanResult.code === "timeout"
-                ? "document.scan.failed"
-                : "document.scan.quarantined",
-            entity_type: "document",
-            entity_id: row.id,
-            student_id: data.student_id,
-            metadata: { ...baseMeta, error_message: scanResult.error_message },
-          },
-          {
-            actor_id: userId,
-            action: "document.scan.quarantined",
-            entity_type: "document",
-            entity_id: row.id,
-            student_id: data.student_id,
-            metadata: baseMeta,
-          },
-        ]);
+
+        await confirmSavedSource(quarantinedDocument, "infected");
+        return quarantinedDocument;
       }
 
-      return quarantinedDocument;
-    }
+      // ── Clean verdict: mark the row clean and proceed to AI extract. ─
+      let confirmedDocument: DocumentRow;
+      try {
+        const cleanReceipt = await adminForScan
+          .from("documents")
+          .update({
+            scan_status: "clean",
+            scan_verdict: {
+              code: "clean",
+              content_sha256: contentHash,
+              source: "registration_reviewed_copy",
+              provider: scanResult.provider,
+              clean_result: scanResult.clean_result,
+              blocked_reasons: scanResult.blocked_reasons,
+            },
+            scan_data_id: scanResult.scan_id,
+            scanned_at: scanFinishedAt,
+          })
+          .eq("id", row.id)
+            .eq("student_id", data.student_id)
+            .eq("storage_path", source.storagePath)
+            .eq("storage_object_id" as never, source.objectId)
+            .eq("storage_object_version" as never, source.objectVersion)
+            .eq("content_hash", contentHash)
+            .eq("uploaded_by", userId)
+            .eq("upload_attempt_id" as never, data.upload_attempt_id)
+            .eq("upload_review_context_sha256" as never, data.upload_review_context_sha256)
+            .eq("scan_status", "pending")
+            .eq("updated_at", pendingRevision)
+            .is("deleted_at", null)
+          .select("*")
+          .single();
+        if (cleanReceipt.error || !sourceReceipt.safeParse(cleanReceipt.data).success || !z.object({
+              scanned_at: z.string().datetime({ offset: true }), scan_data_id: z.literal(scanResult.scan_id),
+              scan_verdict: z.object({ provider: z.literal("cloudmersive"), code: z.literal("clean"), content_sha256: z.literal(contentHash),
+                source: z.literal("registration_reviewed_copy"), clean_result: z.literal(true), blocked_reasons: z.array(z.string()).length(0) }),
+            }).safeParse(cleanReceipt.data).success || cleanReceipt.data?.id !== row.id ||
+            documentUploadOutcome(cleanReceipt.data, data.student_id, data.storage_path) !== "saved") {
+          // A scanner verdict alone does not prove the database transition committed.
+          // Never queue summary processing or claim a clean result without a receipt.
+          throw new Error("Unconfirmed security-review receipt");
+        }
 
-    // ── Clean verdict: mark the row clean and proceed to AI extract. ─
-    let confirmedDocument: DocumentRow;
-    try {
-      const cleanReceipt = await adminForScan
-        .from("documents")
-        .update({
-          scan_status: "clean",
-          scan_verdict: {
-            code: "clean",
-            content_sha256: contentHash,
-            source: "registration_reviewed_copy",
-            provider: scanResult.provider,
-            clean_result: scanResult.clean_result,
-            blocked_reasons: scanResult.blocked_reasons,
-          },
-          scan_data_id: scanResult.scan_id,
-          scanned_at: scanFinishedAt,
-        })
-        .eq("id", row.id)
-        .select("*")
-        .single();
-      if (cleanReceipt.error || cleanReceipt.data?.id !== row.id ||
-          documentUploadOutcome(cleanReceipt.data, data.student_id, data.storage_path) !== "saved") {
-        // A scanner verdict alone does not prove the database transition committed.
-        // Never queue summary processing or claim a clean result without a receipt.
-        throw new Error("Unconfirmed security-review receipt");
+        confirmedDocument = cleanReceipt.data as DocumentRow;
+      } catch {
+        throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
       }
 
-      confirmedDocument = cleanReceipt.data as DocumentRow;
-    } catch {
-      throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
-    }
-
-    await recordPipelineRun({
-      document_id: row.id,
-      student_id: data.student_id,
-      correlation_id: correlationId,
-      stage: "av_scan",
-      status: "succeeded",
-      started_at: scanStartedAt,
-      finished_at: scanFinishedAt,
-      latency_ms: scanLatencyMs,
-      payload: {
-        provider: scanResult.provider,
-        scan_id: scanResult.scan_id,
-        clean_result: scanResult.clean_result,
-      },
-    });
-
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.scan.clean",
-      entity_type: "document",
-      entity_id: row.id,
-      student_id: data.student_id,
-      metadata: {
-        title: data.title,
-        doc_type: data.doc_type,
-        provider: scanResult.provider,
-        scan_id: scanResult.scan_id,
-        clean_result: scanResult.clean_result,
-      },
-    });
-
-    // Only now — after a clean verdict — do we hand the file to AI.
-    const { error: jobErr } = await supabase.from("ai_jobs").insert({
-      student_id: data.student_id,
-      triggered_by_user_id: userId,
-      job_type: "document_summary",
-      status: "queued",
-      input_source: {
+      await recordPipelineRun({
         document_id: row.id,
-        title: data.title,
-        doc_type: data.doc_type,
-        storage_path: data.storage_path,
-      },
+        student_id: data.student_id,
+        correlation_id: correlationId,
+        stage: "av_scan",
+        status: "succeeded",
+        started_at: scanStartedAt,
+        finished_at: scanFinishedAt,
+        latency_ms: scanLatencyMs,
+        payload: {
+          provider: scanResult.provider,
+          scan_id: scanResult.scan_id,
+          clean_result: scanResult.clean_result,
+        },
+      });
+
+      await supabase.from("audit_log").insert({
+        actor_id: userId,
+        action: "document.scan.clean",
+        entity_type: "document",
+        entity_id: row.id,
+        student_id: data.student_id,
+        metadata: {
+          title: data.title,
+          doc_type: data.doc_type,
+          provider: scanResult.provider,
+          scan_id: scanResult.scan_id,
+          clean_result: scanResult.clean_result,
+        },
+      });
+
+      // Only now — after a clean verdict — do we hand the file to AI.
+      // Confirm the exact persisted queue receipt before completing admission.
+      await confirmSavedSource(confirmedDocument, "clean");
+      const job = await supabase.from("ai_jobs").insert({
+        student_id: data.student_id, triggered_by_user_id: userId, job_type: "document_summary", status: "queued",
+        input_source: { document_id: row.id, title: data.title, doc_type: data.doc_type, storage_path: source.storagePath },
+      }).select("id, student_id, triggered_by_user_id, job_type, status, input_source").single();
+      const queued = z.object({
+        id: z.string().uuid(), student_id: z.literal(data.student_id), triggered_by_user_id: z.literal(userId),
+        job_type: z.literal("document_summary"), status: z.literal("queued"),
+        input_source: z.object({ document_id: z.literal(row.id), title: z.literal(data.title), doc_type: z.literal(data.doc_type), storage_path: z.literal(source.storagePath) }),
+      });
+      if (job.error || !queued.safeParse(job.data).success) throw new Error("We couldn't confirm the document's summary work. Check its status before continuing.");
+      await recordPipelineRun({ document_id: row.id, student_id: data.student_id, correlation_id: correlationId, stage: "extract", status: "pending", payload: { job_type: "document_summary" } });
+
+      // Audit log (best-effort)
+      await supabase.from("audit_log").insert({
+        actor_id: userId,
+        action: "document.upload",
+        entity_type: "document",
+        entity_id: row.id,
+        student_id: data.student_id,
+        metadata: {
+          title: data.title,
+          doc_type: data.doc_type,
+          visibility: data.visibility,
+          consent: data.consent_acknowledged,
+          uploader_role: uploaderRole,
+          organization_id: org?.organization_id ?? null,
+        },
+      });
+
+      // Structured document access log
+      await supabase.from("document_access_log").insert({
+        document_id: row.id,
+        student_id: data.student_id,
+        actor_id: userId,
+        actor_role: uploaderRole,
+        action: "upload",
+        metadata: { doc_type: data.doc_type, visibility: data.visibility },
+      });
+
+      await confirmSavedSource(confirmedDocument, "clean");
+      return confirmedDocument;
     });
-    if (jobErr) console.error("ai_jobs enqueue failed", jobErr);
-
-    // Breadcrumb: extract stage is pending until the AI worker picks it up.
-    // On enqueue failure, mark it failed so operators can spot the drop.
-    await recordPipelineRun({
-      document_id: row.id,
-      student_id: data.student_id,
-      correlation_id: correlationId,
-      stage: "extract",
-      status: jobErr ? "failed" : "pending",
-      error_code: jobErr ? "ai_jobs_enqueue_failed" : null,
-      error_message: jobErr?.message ?? null,
-      payload: { job_type: "document_summary" },
-    });
-
-
-
-    // Audit log (best-effort)
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.upload",
-      entity_type: "document",
-      entity_id: row.id,
-      student_id: data.student_id,
-      metadata: {
-        title: data.title,
-        doc_type: data.doc_type,
-        visibility: data.visibility,
-        consent: data.consent_acknowledged,
-        uploader_role: uploaderRole,
-        organization_id: org?.organization_id ?? null,
-      },
-    });
-
-    // Structured document access log
-    await supabase.from("document_access_log").insert({
-      document_id: row.id,
-      student_id: data.student_id,
-      actor_id: userId,
-      actor_role: uploaderRole,
-      action: "upload",
-      metadata: { doc_type: data.doc_type, visibility: data.visibility },
-    });
-
-    return confirmedDocument;
   });
 
 /**

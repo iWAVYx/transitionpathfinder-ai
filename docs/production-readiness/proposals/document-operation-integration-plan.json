@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Apply/rescan/worker and durable upload database foundation prepared; registration app continuation, held-work/handoff controls and hosted activation remain open",
+  "status": "Apply/rescan/worker, durable upload foundation and registration continuation prepared; interrupted-work/held-work/handoff controls and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -11,7 +11,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "d74fda5fc643865f7184ef05b24eab4c2c1ca85fb068fe363315cfc67519513d"
+      "sha256": "86b0c637bc3c59fe87db820a63acc4d70a063761bc24acb1c1ae440311e78a62"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -60,6 +60,14 @@
     {
       "path": "src/lib/document-upload-registration-operation.server.ts",
       "sha256": "5729e6b88578e81133203ca130038eeaeca64cb267a7035c43ef3f357db0b984"
+    },
+    {
+      "path": "src/lib/document-upload-intent.ts",
+      "sha256": "f82cc0148b4e8bb47d1375cbba0a9792d0cc6bd2fb65a8550e85f5a2477f1b13"
+    },
+    {
+      "path": "src/lib/document-registration-source.server.ts",
+      "sha256": "82aae6ca86126a7ce0e5319cf1b33bbc6e683a0008f6f11bb8deb2f16d4bbc57"
     }
   ],
   "adapter_contract": {
@@ -80,16 +88,17 @@
         "The fresh-call adapter cannot reattach a receipt across requests. Prepare a separately reviewed actor/attempt/kind/source-bound continuation protocol; do not pass service credentials to the browser or invent receipt recovery.",
         "Do not mark the interval complete at reservation response or from client 404/timeout/metadata observations."
       ],
-      "status": "Durable database binding, one-use service handoff and completion/recovery guards prepared. Application continuation/current-viewer and browser interrupted-work integration remain open."
+      "status": "Durable database interval and one-use registration continuation are prepared and locally verified. Browser interruption/reload/session handling and retained-work bounds remain open."
     },
     {
       "target": "register",
-      "implemented": false,
+      "implemented": true,
       "requirements": [
         "Establish expected viewer, current edit/source permission and fixed server operation kind before admission.",
         "Keep existing byte-copy/fingerprint/scan/registration/source receipt checks and caller-RLS data writes.",
         "Keep a confirmed queued summary separate from completed summary processing. Do not clear an interval merely because an enqueue was attempted."
-      ]
+      ],
+      "status": "Wired and locally verified in prepared source only; current viewer/source, same-copy/scan/queue receipts and one-use completion protocol. Hosted activation remains open."
     },
     {
       "target": "rescan",
@@ -224,8 +233,8 @@
     "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-pause-fence-local-2026-10-30.json",
     "remaining": [
-      "Actor/source-bound durable reservation-to-registration continuation, required loaded viewer and interrupted-work handling.",
-      "Registration provider/queue admission and held-work bounds/manual reconciliation.",
+      "Browser interruption/reload/session handling around the prepared actor/source-bound registration continuation.",
+      "Physical provider/queue acceptance and retained-work bounds/manual reconciliation.",
       "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
   },
@@ -233,21 +242,23 @@
     "implemented_in_proposal": true,
     "canonical": false,
     "hosted_verified": false,
-    "registration_handler_wired": false,
+    "registration_handler_wired": true,
     "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
     "remaining": [
-      "Required loaded-viewer/current source preflight and one-use service continuation adapter in registration handler.",
-      "Actual same-copy scan/queue receipt validation inside the continuation, with no finish/replay after uncertain claim.",
+      "Browser interruption/reload/session handling and retained active-registered/held-work limits with manual reconciliation.",
       "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
       "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
-    ]
+    ],
+    "scope": "Wired in prepared local source only; retained native SQL artifacts describe the earlier database-only stage and remain unchanged."
   },
   "registration_continuation_adapter": {
     "prepared": true,
     "path": "src/lib/document-upload-registration-operation.server.ts",
-    "handler_wired": false,
+    "handler_wired": true,
     "evidence": "docs/production-readiness/evidence/document-registration-continuation-local-2026-10-30.json",
-    "scope": "One service-only claim of the existing reservation; strict bound metadata receipt; no token to work/browser; uncertain claim means no IO or finish; one finish after validated work; no retry or recovery reattachment."
+    "scope": "One service-only claim of the existing reservation; strict bound metadata receipt; no token to work/browser; uncertain claim means no IO or finish; one finish after validated work; no retry or recovery reattachment.",
+    "hosted_verified": false,
+    "handler_evidence": "docs/production-readiness/evidence/document-registration-handler-local-2026-10-30.json"
   }
 }

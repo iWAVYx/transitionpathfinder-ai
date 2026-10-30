@@ -6,7 +6,7 @@ vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: any) => <a>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { storage: { from: () => ({ upload: api.upload }) } } }));
 vi.mock("@/lib/documents.functions", () => ({ registerDocument: api.register, reserveDocumentUpload: api.reserve, recoverDocumentUpload: api.recover, assertCanUploadForStudent: api.preflight }));
-vi.mock("@/lib/document-upload-fingerprint", () => ({ documentUploadFingerprint: api.hash }));
+vi.mock("@/lib/document-upload-fingerprint", () => ({ MAX_PRIVACY_SAFE_DOCUMENT_BYTES:20*1024*1024, documentUploadFingerprint: api.hash }));
 vi.mock("@/lib/protected-file-uploads", () => ({ PROTECTED_FILE_UPLOADS_ENABLED: true, PROTECTED_FILE_UPLOADS_MESSAGE: "Paused" }));
 vi.mock("@/components/privacy/SensitiveFilePrivacyReviewDialog", () => ({ SensitiveFilePrivacyReviewDialog: ({ source, onConfirm }: any) => {
   if (source) api.reviewConfirm = onConfirm;
