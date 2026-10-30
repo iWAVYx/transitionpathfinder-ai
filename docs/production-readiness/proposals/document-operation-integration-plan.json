@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Prepared atomic summary metadata handoff foundation; worker continuation, queued capacity/general limits, trusted reconciliation and hosted activation remain open",
+  "status": "Atomic summary worker continuation wired in prepared source; queued capacity/general held-work limits, trusted reconciliation and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -35,11 +35,11 @@
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
-      "sha256": "9e50c1fc58f19d3f662688e9dfee336d58ef892b515609b9819897847e52e2b5"
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
     },
     {
       "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
-      "sha256": "4f54028ba51b6fa01fe0bb6e478d12e217e3bd4eab2ecd3b5751e3f13cb40f37"
+      "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a"
     },
     {
       "path": "src/lib/document-rescan-source.server.ts",
@@ -47,7 +47,7 @@
     },
     {
       "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
-      "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
     },
     {
       "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
@@ -206,21 +206,21 @@
   "summary_worker_admission_preparation": {
     "implemented_in_prepared_source": true,
     "hosted_verified": false,
-    "claim_binding_handoff_fenced": false,
+    "claim_binding_handoff_fenced": true,
     "worker_package": {
       "schema": "document-summary-worker-manifest-v1",
       "algorithm": "sha256",
-      "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+      "fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
       "method": "sha256(schema + NUL + compact UTF-8 JSON manifest with path,sha256 keys; manifest sorted by path)",
       "files": 4,
       "source_manifest": [
         {
           "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
-          "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+          "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
         },
         {
           "path": "supabase/functions/ai-job-processor/index.ts",
-          "sha256": "9e50c1fc58f19d3f662688e9dfee336d58ef892b515609b9819897847e52e2b5"
+          "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
         },
         {
           "path": "supabase/functions/ai-job-processor/sensitive-text-redaction.ts",
@@ -228,18 +228,19 @@
         },
         {
           "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
-          "sha256": "4f54028ba51b6fa01fe0bb6e478d12e217e3bd4eab2ecd3b5751e3f13cb40f37"
+          "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a"
         }
       ]
     },
-    "evidence": "docs/production-readiness/evidence/document-summary-worker-admission-local-2026-10-30.json",
+    "evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
     "remaining": [
-      "Job claiming and initial verified-source/binding metadata preflight occur before admission. Their handoff/held claims must be fenced and accounted separately at cutover; no global drain proof is claimed.",
-      "Existing processing jobs, held-operation limits/manual reconciliation, all old/direct/scheduled workers and provider quiescence remain unverified.",
-      "Register/browser continuation, final canonical/ledger packaging, real storage/provider behavior and authorized hosted acceptance remain open.",
-      "Other AI job types keep their existing behavior; this boundary is for document summaries.",
-      "The separately deployed worker must match its reviewed source manifest; website publication alone cannot install or verify it."
-    ]
+      "Reserve queued capacity and bound active/held work together; a counted queue item must drain without duplicate admission or starvation.",
+      "Trusted manual reconciliation, old/direct/scheduled workers, source/writer fences and physical provider/drain proof.",
+      "Exact-source CI, coordinated canonical/ledger and separate worker/application packaging, freshly authorized hosted acceptance."
+    ],
+    "scope": "Current prepared document-summary dispatcher only; old/direct/scheduled sources and hosted wiring are not verified.",
+    "current_handoff_evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
+    "previous_fresh_admission_evidence": "docs/production-readiness/evidence/document-summary-worker-admission-local-2026-10-30.json"
   },
   "upload_pause_fence_preparation": {
     "implemented_in_proposal": true,
@@ -313,16 +314,19 @@
     "hosted_verified": false,
     "review": "docs/production-readiness/proposals/document-summary-operation-handoff-review.json",
     "evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-local-2026-10-30.json",
-    "worker_handler_wired": false,
+    "worker_handler_wired": true,
     "legacy_reader_paths_fenced": false,
     "queue_budget_reservation_implemented": false,
     "general_operation_limits_implemented": false,
     "manual_reconciliation_implemented": false,
     "remaining": [
-      "Wire the worker to strict one-use handoff receipt validation before metadata/file/provider work and finish the same existing operation, never begin another.",
-      "Reconcile queued capacity reservation and general active/held limits so counted jobs can drain without double admission or starvation.",
-      "Fence old/direct/scheduled worker readers/claimers and preserve uncertain work with trusted manual reconciliation.",
-      "Native six-race and full225+six-proposal replay proof; final canonical/ledger packaging and newly authorized hosted/provider acceptance."
-    ]
+      "Reserve queued capacity and bound active/held work together; a counted queue item must drain without duplicate admission or starvation.",
+      "Trusted manual reconciliation, old/direct/scheduled workers, source/writer fences and physical provider/drain proof.",
+      "Exact-source CI, coordinated canonical/ledger and separate worker/application packaging, freshly authorized hosted acceptance."
+    ],
+    "worker_wiring_scope": "Prepared source only; standalone database proof artifacts preserve their database-only false flag and hosted wiring remains unverified.",
+    "worker_evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
+    "database_verified_source": "363ad8c2de7476cc2fa09e5d147df8458cdb3ec5",
+    "database_verification_evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-verified-2026-10-30.json"
   }
 }

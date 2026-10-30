@@ -11,6 +11,7 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+import { claimAdmittedSummaryOperation, type SummaryOperationClaim } from "./document-operation-admission.ts";
 import { processVerifiedDocumentSummary, SUMMARY_REVIEW_MESSAGE } from "./verified-document-summary.ts";
 
 const corsHeaders = {
@@ -35,6 +36,7 @@ type Job = {
     | "goal_suggestions";
   input_source: Record<string, unknown>;
   attempts: number;
+  summary_operation?: SummaryOperationClaim;
   claim_at?: string;
   claim_attempt?: number;
 };
@@ -212,7 +214,7 @@ async function recordPipelineRun(
 }
 
 // deno-lint-ignore no-explicit-any
-async function notifyJobReady(supabase: SupabaseClient<any, "public", any>, job: Job) {
+async function notifyJobReady(supabase: SupabaseClient<any, "public", any>, job: Pick<Job, "id" | "student_id" | "triggered_by_user_id" | "job_type">) {
   const label = job.job_type === "document_summary" ? "Document Summary" : `AI ${job.job_type.replace(/_/g, " ")}`;
   if (job.student_id) await supabase.from("feed_events").insert({
     student_id: job.student_id, actor_id: job.triggered_by_user_id, kind: `ai.${job.job_type}.completed`,
@@ -230,7 +232,7 @@ async function notifyJobReady(supabase: SupabaseClient<any, "public", any>, job:
 // before storage/provider IO; publication requires their separate SQL rollout.
 async function processJob(supabase: SupabaseClient<any, "public", any>, job: Job) {
   if (job.job_type === "document_summary") {
-    const claim = { id: job.id, at: job.claim_at ?? "", attempt: job.claim_attempt ?? 0 };
+    const claim = { id: job.id, at: job.claim_at ?? "", attempt: job.claim_attempt ?? 0, operation: job.summary_operation };
     const verified = await processVerifiedDocumentSummary(claim, {
       admission: { rpc: async (name: string, args: Record<string, unknown>) => await supabase.rpc(name, args) },
       readSource: async () => await supabase.rpc("read_verified_document_summary_source", {
@@ -266,7 +268,7 @@ async function processJob(supabase: SupabaseClient<any, "public", any>, job: Job
       document_id: verified.document_id, student_id: verified.student_id, stage: "extract", status: "succeeded",
       attempt: claim.attempt, prompt_version: "verified-document-summary-v1", payload: { verified_source: true },
     });
-    await notifyJobReady(supabase, { ...job, student_id: verified.student_id, triggered_by_user_id: verified.actor_id });
+    await notifyJobReady(supabase, { id: job.id, job_type: job.job_type, student_id: verified.student_id, triggered_by_user_id: verified.actor_id });
     return;
   }
   // Other job types retain their existing source/prompt and result behavior.
@@ -315,7 +317,19 @@ Deno.serve(async (req) => {
   const processed: { id: string; ok: boolean; error?: string }[] = [];
 
   for (const j of (jobs ?? []) as Job[]) {
-    const { data: locked, error: claimError } = await supabase
+    let locked: { id: string; locked_at: string; attempts: number };
+    let summaryOperation: SummaryOperationClaim | undefined;
+    if (j.job_type === "document_summary") {
+      try {
+        summaryOperation = await claimAdmittedSummaryOperation(supabase, j);
+        locked = { id: summaryOperation.job_id, locked_at: summaryOperation.claim_at, attempts: summaryOperation.claim_attempt };
+      } catch {
+        // The atomic claim may have committed. No fallback PATCH/begin, finish,
+        // source/file IO or automatic reattachment of an unknown capability.
+        continue;
+      }
+    } else {
+      const { data: row, error: claimError } = await supabase
       .from("ai_jobs")
       .update({
         status: "processing",
@@ -328,15 +342,12 @@ Deno.serve(async (req) => {
       .select("id, locked_at, attempts")
       .maybeSingle();
 
-    // An uncertain claim may already have committed. Never dispatch or replay
-    // it from a missing/error-bearing/foreign receipt. Retain for reconciliation.
-    if (claimError || !locked) continue;
-    if (j.job_type === "document_summary" && (locked.id !== j.id ||
-        typeof locked.locked_at !== "string" || !Number.isFinite(Date.parse(locked.locked_at)) ||
-        !Number.isSafeInteger(locked.attempts) || locked.attempts !== j.attempts + 1)) continue;
+      if (claimError || !row) continue;
+      locked = row;
+    }
 
     try {
-      await processJob(supabase, { ...j, claim_at: locked.locked_at, claim_attempt: locked.attempts });
+      await processJob(supabase, { ...j, summary_operation: summaryOperation, claim_at: locked.locked_at, claim_attempt: locked.attempts });
       processed.push({ id: j.id, ok: true });
     } catch (e) {
       const isSummary = j.job_type === "document_summary";

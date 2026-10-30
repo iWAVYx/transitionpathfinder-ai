@@ -1,4 +1,4 @@
-import { runAdmittedSummaryOperation } from "./document-operation-admission.ts";
+import { confirmSummaryOperationClaim, runClaimedSummaryOperation } from "./document-operation-admission.ts";
 // No provider/storage SDK dependency: the worker supplies narrowly scoped IO.
 // Missing receipts or uncertain completion stop; this module never retries AI.
 import { redactSensitiveText, type SensitiveTextContext } from "./sensitive-text-redaction.ts";
@@ -9,7 +9,7 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const sha = /^[0-9a-f]{64}$/;
 const keys = ["key_findings", "strengths_identified", "needs_identified", "goals_identified", "important_dates", "missing_information", "recommended_followups"];
 type Receipt = { data: unknown; error: unknown };
-export type SummaryClaim = { id: string; at: string; attempt: number };
+export type SummaryClaim = { id: string; at: string; attempt: number; operation: unknown };
 export type SummarySource = {
   job_id: string; claim_at: string; claim_attempt: number;
   document_id: string; student_id: string; actor_id: string;
@@ -97,10 +97,14 @@ export async function processVerifiedDocumentSummary(claim: SummaryClaim, io: Su
   try {
     if (typeof claim.id !== "string" || !uuid.test(claim.id) || !Number.isSafeInteger(claim.attempt) || claim.attempt < 1 ||
         typeof claim.at !== "string" || !Number.isFinite(Date.parse(claim.at))) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    const current = source(await io.readSource(), claim);
-    return await runAdmittedSummaryOperation(io.admission, current.actor_id, async () => {
-      // Admission can wait behind maintenance. Recheck this exact current claim,
-      // source and authority before any file read or provider work begins.
+    const operation = confirmSummaryOperationClaim(claim.operation, { jobId: claim.id, at: claim.at, attempt: claim.attempt });
+    return await runClaimedSummaryOperation(io.admission, operation, async () => {
+      // SQL has already admitted this exact claim. All metadata reads, file IO,
+      // generation and guarded commit remain inside the same counted operation.
+      const current = source(await io.readSource(), claim);
+      for (const key of ["document_id", "student_id", "actor_id", "object_id", "object_version", "storage_path", "content_sha256"] as const) {
+        if (current[key] !== operation[key]) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      }
       sameSource(current, source(await io.readSource(), claim));
       const size = info(await io.info(current.storage_path), current);
       const stored = await io.download(current.storage_path);

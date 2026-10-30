@@ -3,13 +3,14 @@ import { readFileSync } from "node:fs";
 import { beforeEach, expect, it, vi } from "vitest";
 import { processVerifiedDocumentSummary, MAX_SUMMARY_BYTES, MAX_SUMMARY_TEXT, SUMMARY_REVIEW_MESSAGE, type SummaryIO } from "../../supabase/functions/ai-job-processor/verified-document-summary";
 const id=(n:number)=>`00000000-0000-4000-8000-${String(n).padStart(12,"0")}`;
-const claim={id:id(1),at:"2026-10-27T12:00:00.000Z",attempt:1};
+const claim={id:id(1),at:"2026-10-27T12:00:00.000Z",attempt:1,operation:null as any};
 const text="Jamie Example attends Fictional School. Email jamie@example.test. Student ID: DEMO123. Reported reading progress: 4 of 5 tasks. Proposed goal: practice weekly.";
 const hash=(text:string|Uint8Array)=>createHash("sha256").update(text).digest("hex");
 let receipt:any,metadata:any,output:any,io:SummaryIO;
 const safe=()=>({data:structuredClone(receipt),error:null});
 beforeEach(()=>{
   receipt={schema:"verified-document-summary-source-v1",job_id:claim.id,claim_at:claim.at,claim_attempt:1,document_id:id(2),student_id:id(3),actor_id:id(4),object_id:id(5),object_version:"version-one",storage_path:`${id(3)}/nonce-privacy-safe-document.txt`,content_sha256:hash(text),context:{studentFirstName:"Jamie",studentLastName:"Example",schoolName:"Fictional School",dateOfBirth:null}};
+  claim.operation={schema:"document-summary-operation-claim-v1",job_id:claim.id,claim_at:claim.at,claim_attempt:1,document_id:id(2),student_id:id(3),actor_id:id(4),object_id:id(5),object_version:"version-one",storage_path:receipt.storage_path,content_sha256:hash(text),operation_id:id(7),receipt_id:id(8),revision:2};
   metadata={id:id(5),version:"version-one",name:receipt.storage_path,bucket_id:"student-documents",size:new Blob([text]).size,content_type:"text/plain"};
   output={key_findings:["Reported reading progress: 4 of 5 tasks."],strengths_identified:[],needs_identified:[],goals_identified:["Proposed weekly practice."],important_dates:[],missing_information:["No observation dates were supplied."],recommended_followups:["Confirm the reported observations with the team."]};
   io={admission:{rpc:vi.fn(async(name:string,args:Record<string,unknown>)=>({data:name==="begin_document_operation"?{schema:"document-operation-admitted-v1",operation_id:args._operation_id,receipt_id:id(8),revision:2}:{schema:"document-operation-finished-v1",operation_id:args._operation_id,state:args._outcome},error:null}))},readSource:vi.fn(async()=>safe()),info:vi.fn(async()=>({data:structuredClone(metadata),error:null})),download:vi.fn(async()=>({data:new Blob([text]),error:null})),generate:vi.fn(async()=>structuredClone(output)),commit:vi.fn(async(source)=>({data:{schema:"verified-document-summary-commit-v1",job_id:claim.id,status:"completed",document_id:source.document_id,student_id:source.student_id,actor_id:source.actor_id,content_sha256:source.content_sha256},error:null}))};
@@ -55,7 +56,7 @@ it.each(["before-ai","after-ai"])("rechecks source/access and refuses changed re
   vi.mocked(io.readSource).mockResolvedValue({data:{...receipt,actor_id:id(9)},error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).toHaveBeenCalledTimes(stage==="after-ai"?1:0);expect(io.commit).not.toHaveBeenCalled();
 });
 it.each([new Uint8Array([0xff]),new Uint8Array([0]),new TextEncoder().encode(" "),new TextEncoder().encode("x".repeat(MAX_SUMMARY_TEXT+1))])("rejects invalid/binary/empty/oversize text without silent truncation",async(bytes)=>{
-  receipt.content_sha256=hash(bytes);metadata.size=bytes.byteLength;vi.mocked(io.download).mockResolvedValue({data:new Blob([bytes]),error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).not.toHaveBeenCalled();
+  receipt.content_sha256=hash(bytes);claim.operation.content_sha256=hash(bytes);metadata.size=bytes.byteLength;vi.mocked(io.download).mockResolvedValue({data:new Blob([bytes]),error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).not.toHaveBeenCalled();
 });
 it.each([null,{raw:"Unstructured"},{...{},key_findings:[]},{key_findings:"Not an array"}])("rejects unstructured/incomplete model output %j",async(value)=>{
   vi.mocked(io.generate).mockResolvedValue(value);await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).not.toHaveBeenCalled();
@@ -72,27 +73,22 @@ it("does not retry an uncertain commit, even if the server completed it",async()
 it("requires the exact completion receipt",async()=>{
   vi.mocked(io.commit).mockResolvedValue({data:{status:"completed"},error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.commit).toHaveBeenCalledOnce();
 });
-it("uses only the current verified source actor for worker admission",async()=>{
-  await processVerifiedDocumentSummary(claim,io);
-  const rpc=(io.admission as any).rpc;
-  expect(rpc.mock.calls[0][1]).toMatchObject({_actor_id:receipt.actor_id,_operation_kind:"summary"});
-  expect(rpc.mock.calls[1][1]).toMatchObject({_actor_id:receipt.actor_id,_outcome:"completed"});
-  expect(vi.mocked(io.commit).mock.invocationCallOrder[0]).toBeLessThan(rpc.mock.invocationCallOrder[1]);
+it("finishes only the already claimed operation after verified commit",async()=>{
+  await processVerifiedDocumentSummary(claim,io);const rpc=(io.admission as any).rpc;
+  expect(rpc).toHaveBeenCalledExactlyOnceWith("finish_document_operation",{_actor_id:receipt.actor_id,_operation_id:id(7),_receipt_id:id(8),_outcome:"completed"});
+  expect(vi.mocked(io.commit).mock.invocationCallOrder[0]).toBeLessThan(rpc.mock.invocationCallOrder[0]);
 });
-it.each(["paused","lost","malformed"])("does not read files after %s summary admission",async mode=>{
-  const rpc=(io.admission as any).rpc;
-  if(mode==="lost")rpc.mockRejectedValue(new Error("PRIVATE control"));else rpc.mockResolvedValue({data:mode==="malformed"?{}:null,error:mode==="paused"?{code:"55000",message:"PRIVATE control"}:null});
-  await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
-  expect(rpc).toHaveBeenCalledOnce();expect(io.info).not.toHaveBeenCalled();expect(io.download).not.toHaveBeenCalled();expect(io.generate).not.toHaveBeenCalled();
+it.each([null,{}, {schema:"old"}])("does no metadata/file work or finish without a fully validated claim %#",async operation=>{
+  claim.operation=operation;await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
+  expect((io.admission as any).rpc).not.toHaveBeenCalled();expect(io.readSource).not.toHaveBeenCalled();expect(io.info).not.toHaveBeenCalled();expect(io.generate).not.toHaveBeenCalled();
 });
-it("holds the admitted operation if source access disappears while admission is pending",async()=>{
+it("holds the known operation if source access disappears before file IO",async()=>{
   vi.mocked(io.readSource).mockResolvedValueOnce(safe()).mockResolvedValue({data:null,error:{code:"42501",message:"PRIVATE access"}});
   await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
-  expect((io.admission as any).rpc.mock.calls[1][1]._outcome).toBe("needs_review");expect(io.info).not.toHaveBeenCalled();
+  expect((io.admission as any).rpc.mock.calls[0][1]._outcome).toBe("needs_review");expect(io.info).not.toHaveBeenCalled();
 });
-it("does not turn a confirmed commit into success when summary admission finish is lost",async()=>{
-  const rpc=(io.admission as any).rpc, normal=rpc.getMockImplementation();
-  rpc.mockImplementation(async(name:string,args:Record<string,unknown>)=>{if(name==="begin_document_operation")return normal(name,args);throw Error("PRIVATE lost finish");});
+it("does not turn a confirmed commit into success when the existing operation finish is lost",async()=>{
+  const rpc=(io.admission as any).rpc;rpc.mockRejectedValue(Error("PRIVATE lost finish"));
   await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
-  expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).toHaveBeenCalledOnce();expect(rpc).toHaveBeenCalledTimes(2);
+  expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).toHaveBeenCalledOnce();expect(rpc).toHaveBeenCalledExactlyOnceWith("finish_document_operation",{_operation_id:id(7),_actor_id:id(4),_receipt_id:id(8),_outcome:"completed"});
 });
