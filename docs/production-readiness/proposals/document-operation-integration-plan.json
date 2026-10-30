@@ -294,10 +294,13 @@
     "review": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-retained-limits-local-2026-10-30.json",
     "remaining": [
-      "Corrected exact-source native867-case and complete225+five-proposal replay proof; previous observer-corrected native865/865 passed twice but full-schema ownership preflight stopped.",
       "General-operation retained/held-work bounds and trusted manual reconciliation.",
       "Physical/provider/legacy writer and hosted acceptance proof, final canonical/ledger packaging."
     ],
-    "owner_correction_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-owner-correction-2026-10-30.json"
+    "owner_correction_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-owner-correction-2026-10-30.json",
+    "verified_source": "f40a9ba47a1c598d7af605aae2660d5b24944d92",
+    "verified_prepared_source": true,
+    "verification_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-verified-2026-10-30.json",
+    "verification": "All nine applicable checks, both867/867 native zero-skip suites, both complete225+five-proposal replays; quota hash/path and distinct owners verified in retained artifacts."
   }
 }
