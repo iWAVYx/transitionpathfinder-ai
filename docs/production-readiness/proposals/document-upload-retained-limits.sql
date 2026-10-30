@@ -8,6 +8,10 @@ SET LOCAL statement_timeout='30s';
 DO $retained_quota_preflight$
 DECLARE expected record; signature text; role_name text; relation_name text; action text; paused_state boolean;
 BEGIN
+ -- Upload routines/bindings retain the migration executor as owner. The
+ -- separately installed admission begin/finish routines retain the existing
+ -- control/lease owner, which can differ in a canonical Supabase replay.
+ -- Never transfer ownership or repair an unexpected ownership arrangement.
  FOR expected IN SELECT * FROM (VALUES
    ('public.lock_document_upload_interval_control()','38603745b263fde8b7d35473dc43c682'),
    ('public.assert_document_upload_interval(uuid,text)','5e323dc02b8883f9b88642b0e999b69d'),
@@ -24,7 +28,9 @@ BEGIN
    ('public.begin_document_operation(uuid,uuid,text)','4ff01874b39fa3e46c24a6bf3d8149fc'),
    ('public.finish_document_operation(uuid,uuid,uuid,text)','b7d311f760d66a7b9c8f6244c1441caa')) AS signatures(signature,body_md5) LOOP
   IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature)
-   AND prosecdef AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+   AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5
+   AND proowner=CASE WHEN expected.signature IN ('public.begin_document_operation(uuid,uuid,text)','public.finish_document_operation(uuid,uuid,uuid,text)')
+     THEN (SELECT relowner FROM pg_class WHERE oid=to_regclass('public.document_operation_control')) ELSE current_user::regrole::oid END) THEN
    RAISE EXCEPTION 'Reviewed upload interval definitions are required.' USING ERRCODE='55000';
   END IF;
  END LOOP;
@@ -53,7 +59,9 @@ BEGIN
   END LOOP;
  END LOOP;
  FOREACH relation_name IN ARRAY ARRAY['public.document_upload_operation_bindings','public.document_operation_leases','public.document_operation_control'] LOOP
-  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity) THEN
+  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity
+    AND relowner=CASE WHEN relation_name='public.document_upload_operation_bindings' THEN current_user::regrole::oid
+      ELSE (SELECT relowner FROM pg_class WHERE oid=to_regclass('public.document_operation_control')) END) THEN
    RAISE EXCEPTION 'Reviewed private tracking tables are required.' USING ERRCODE='55000';
   END IF;
   FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP

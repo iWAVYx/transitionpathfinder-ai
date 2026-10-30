@@ -1914,3 +1914,14 @@ for(const boundary of ['actor','student'])for(const ending of ['COMMIT','ROLLBAC
  const pending=reserve(b,{id:uid(5999),hash:'f'.repeat(64)}).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);const rows=await intervalRows();assert.equal(rows.bindings.length,boundary==='actor'?5:10);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
 });
+
+
+test('retained limits preserve a distinct coherent admission owner without transferring ownership',async()=>{
+ await uploadIntervalFixture();await db.exec('RESET ROLE');await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_admission_owner') THEN CREATE ROLE tf_document_admission_owner NOLOGIN NOINHERIT;END IF;END $$;ALTER TABLE public.document_operation_control OWNER TO tf_document_admission_owner;ALTER TABLE public.document_operation_leases OWNER TO tf_document_admission_owner;ALTER FUNCTION public.begin_document_operation(uuid,uuid,text) OWNER TO tf_document_admission_owner;ALTER FUNCTION public.finish_document_operation(uuid,uuid,uuid,text) OWNER TO tf_document_admission_owner;");
+ const before=(await db.query("SELECT oid::regprocedure::text AS signature,proowner FROM pg_proc WHERE oid IN ('public.begin_document_operation(uuid,uuid,text)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure) ORDER BY 1")).rows;
+ await db.exec(retainedUploadLimits);assert.deepEqual((await db.query("SELECT oid::regprocedure::text AS signature,proowner FROM pg_proc WHERE oid IN ('public.begin_document_operation(uuid,uuid,text)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure) ORDER BY 1")).rows,before);
+});
+test('retained limits reject an incoherent admission routine owner without repairing it',async()=>{
+ await uploadIntervalFixture();await db.exec('RESET ROLE');await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_admission_owner') THEN CREATE ROLE tf_document_admission_owner NOLOGIN NOINHERIT;END IF;END $$;ALTER FUNCTION public.begin_document_operation(uuid,uuid,text) OWNER TO tf_document_admission_owner;");
+ await assert.rejects(db.exec(retainedUploadLimits),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT proowner='tf_document_admission_owner'::regrole AS retained FROM pg_proc WHERE oid='public.begin_document_operation(uuid,uuid,text)'::regprocedure")).rows[0].retained,true);
+});

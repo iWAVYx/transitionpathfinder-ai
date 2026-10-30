@@ -79,7 +79,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
-      "sha256": "2cfcc1d39fb3db561bd86ada041fbf7246d7e1660bae94d8cf4774b9e238ed7d"
+      "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
     }
   ],
   "adapter_contract": {
@@ -294,9 +294,10 @@
     "review": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-retained-limits-local-2026-10-30.json",
     "remaining": [
-      "Native four-race and exact-source disposable225+five-proposal replay proof.",
+      "Corrected exact-source native867-case and complete225+five-proposal replay proof; previous observer-corrected native865/865 passed twice but full-schema ownership preflight stopped.",
       "General-operation retained/held-work bounds and trusted manual reconciliation.",
       "Physical/provider/legacy writer and hosted acceptance proof, final canonical/ledger packaging."
-    ]
+    ],
+    "owner_correction_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-owner-correction-2026-10-30.json"
   }
 }

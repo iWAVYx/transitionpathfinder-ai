@@ -3,7 +3,7 @@
   "date": "2026-10-30",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
-    "sha256": "2cfcc1d39fb3db561bd86ada041fbf7246d7e1660bae94d8cf4774b9e238ed7d"
+    "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
   },
   "expected_previous_reservation_body_md5": "7521db3914d60d480c48cee8874f7b82",
   "reservation_body_md5": "dc8972ceac29738817b32b74ad411e1b",
@@ -27,5 +27,10 @@
   "general_operation_limits_implemented": false,
   "hosted_execution_authorized": false,
   "production_access_authorized": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "ownership_policy": {
+    "upload_routines_and_binding_table": "Preserve the existing migration executor owner.",
+    "begin_finish_and_control_lease_tables": "Preserve coherent existing admission ownership, which can differ from migration executor.",
+    "ownership_transfer_or_automatic_repair": false
+  }
 }

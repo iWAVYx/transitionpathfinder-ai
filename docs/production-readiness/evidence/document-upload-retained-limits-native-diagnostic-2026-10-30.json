@@ -25,8 +25,19 @@
   "deadlines_increased": false,
   "test_retries_added": false,
   "assertions_removed_or_weakened": false,
-  "native_rerun": "pending; cause must be confirmed by actual native execution",
+  "native_rerun": "Observer correction confirmed: both e77d7775 native suites passed865/865, zero skips. Later full-schema prerequisite mismatch remains separately open.",
   "hosted_actions": false,
   "production_access": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "verified_observer_source": "e77d7775163b5555c0af3863f3e533116b7b82e5",
+  "verified_observer_runs": [
+    41107863133,
+    41107871873
+  ],
+  "observed_corrected_each": {
+    "tests": 865,
+    "passed": 865,
+    "failed": 0,
+    "skipped": 0
+  }
 }

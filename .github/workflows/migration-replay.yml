@@ -1088,8 +1088,6 @@ jobs:
           SQL
 
       - name: Verify retained upload limits after durable interval replay
-        env:
-          PGUSER: supabase_admin
         run: |
           psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-upload-retained-limits.sql
           psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1111,6 +1109,7 @@ jobs:
           SELECT jsonb_build_object('schema','document-upload-retained-limits-proof-v1','phase','after-fifth-proposal',
             'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
             'actor_limit',5,'student_limit',10,'registered_unsettled_counted',true,
+            'migration_owner',current_user,'admission_owner',(SELECT relowner::regrole::text FROM pg_class WHERE oid='public.document_operation_control'::regclass),
             'automatic_expiry_or_release',false,'manual_reconciliation_implemented',false,
             'general_operation_limits_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
             'routine',(SELECT jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig)
