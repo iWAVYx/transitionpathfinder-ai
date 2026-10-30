@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Reviewed Apply/rescan and separate summary file/provider/save admission connected in prepared source; register/browser, metadata handoff/held-work and hosted acceptance remain open",
+  "status": "Apply/rescan/worker and durable upload database foundation prepared; registration app continuation, held-work/handoff controls and hosted activation remain open",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -69,6 +69,14 @@
     {
       "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
       "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "c58ecb8f1738e821b2300bd6ae34ef887e96d6e8f2b27f10152814ed337adae8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
     }
   ],
   "batch": {
@@ -166,7 +174,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 3,
+  "unapplied_admission_proposals": 4,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -184,7 +192,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Operation admission, reviewed Apply gate and upload transaction fence all remain noncanonical/unapplied and require final canonical/ledger packaging. The existing fifteen-migration batch installs none of these three proposals.",
+  "remaining_batch_preparation": "Operation admission, Apply gate, upload transaction fence and durable upload interval all remain noncanonical/unapplied and require final canonical/ledger packaging. The existing fifteen-migration batch installs none of these four proposals.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -275,6 +283,20 @@
       "Actor/source-bound durable reservation-to-registration continuation, required loaded viewer and interrupted-work handling.",
       "Registration provider/queue admission and held-work bounds/manual reconciliation.",
       "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
+    ]
+  },
+  "upload_interval_preparation": {
+    "implemented_in_proposal": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "registration_handler_wired": false,
+    "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
+    "remaining": [
+      "Required loaded-viewer/current source preflight and one-use service continuation adapter in registration handler.",
+      "Actual same-copy scan/queue receipt validation inside the continuation, with no finish/replay after uncertain claim.",
+      "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
+      "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
   }
 }

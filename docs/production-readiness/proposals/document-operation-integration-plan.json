@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Reviewed Apply/rescan and separate summary file/provider/save admission connected in prepared source; register/browser, metadata handoff/held-work and hosted acceptance remain open",
+  "status": "Apply/rescan/worker and durable upload database foundation prepared; registration app continuation, held-work/handoff controls and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -52,6 +52,14 @@
     {
       "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
       "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "c58ecb8f1738e821b2300bd6ae34ef887e96d6e8f2b27f10152814ed337adae8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
     }
   ],
   "adapter_contract": {
@@ -71,7 +79,8 @@
         "Admission must span reviewed reservation through actual browser upload and registration, including reload/session changes and interrupted requests.",
         "The fresh-call adapter cannot reattach a receipt across requests. Prepare a separately reviewed actor/attempt/kind/source-bound continuation protocol; do not pass service credentials to the browser or invent receipt recovery.",
         "Do not mark the interval complete at reservation response or from client 404/timeout/metadata observations."
-      ]
+      ],
+      "status": "Durable database binding, one-use service handoff and completion/recovery guards prepared. Application continuation/current-viewer and browser interrupted-work integration remain open."
     },
     {
       "target": "register",
@@ -218,6 +227,20 @@
       "Actor/source-bound durable reservation-to-registration continuation, required loaded viewer and interrupted-work handling.",
       "Registration provider/queue admission and held-work bounds/manual reconciliation.",
       "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
+    ]
+  },
+  "upload_interval_preparation": {
+    "implemented_in_proposal": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "registration_handler_wired": false,
+    "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
+    "remaining": [
+      "Required loaded-viewer/current source preflight and one-use service continuation adapter in registration handler.",
+      "Actual same-copy scan/queue receipt validation inside the continuation, with no finish/replay after uncertain claim.",
+      "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
+      "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
   }
 }

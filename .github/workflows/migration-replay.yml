@@ -43,6 +43,7 @@ on:
       - "docs/production-readiness/proposals/document-operation-admission.sql"
       - "docs/production-readiness/proposals/document-apply-admission.sql"
       - "docs/production-readiness/proposals/document-upload-pause-fence.sql"
+      - "docs/production-readiness/proposals/document-upload-interval.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -105,6 +106,7 @@ on:
       - "docs/production-readiness/proposals/document-operation-admission.sql"
       - "docs/production-readiness/proposals/document-apply-admission.sql"
       - "docs/production-readiness/proposals/document-upload-pause-fence.sql"
+      - "docs/production-readiness/proposals/document-upload-interval.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -1029,6 +1031,60 @@ jobs:
                 'public.guard_document_upload_registration()'::regprocedure)));
           SQL
 
+      - name: Verify durable upload interval after canonical replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-upload-interval.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $interval_grants$
+          DECLARE signature text; role_name text; action text;
+          BEGIN
+            FOREACH signature IN ARRAY ARRAY['public.lock_document_upload_interval_control()',
+              'public.assert_document_upload_interval(uuid,text)','public.assert_document_upload_registered_outcome(uuid)','public.bind_document_upload_operation()',
+              'public.guard_document_upload_operation_binding()','public.guard_document_upload_interval_attempt()',
+              'public.guard_document_upload_interval_completion()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog']) THEN
+                RAISE EXCEPTION 'Unexpected interval helper definition';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected interval helper grant'; END IF;
+              END LOOP;
+            END LOOP;
+            signature:='public.claim_document_upload_registration_operation(uuid,uuid,text)';
+            IF has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE')
+              OR NOT has_function_privilege('service_role',signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected handoff grant'; END IF;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_upload_operation_bindings'::regclass AND relrowsecurity) THEN
+              RAISE EXCEPTION 'Interval binding row security is required';
+            END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              FOREACH action IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER'] LOOP
+                IF has_table_privilege(role_name,'public.document_upload_operation_bindings',action) THEN RAISE EXCEPTION 'Unexpected raw interval grant'; END IF;
+              END LOOP;
+            END LOOP;
+          END; $interval_grants$;
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $paused_interval$
+          BEGIN
+            PERFORM public.begin_document_operation('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000001','register');
+            RAISE EXCEPTION 'Paused interval was admitted';
+          EXCEPTION WHEN SQLSTATE '55000' THEN NULL;
+          END; $paused_interval$;
+          ROLLBACK;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-upload-interval.json
+          SELECT jsonb_build_object('schema','document-upload-interval-proof-v1','phase','after-fourth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'binding_count',(SELECT count(*) FROM public.document_upload_operation_bindings),
+            'reservation_binding_prepared',true,'registration_handler_wired',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.lock_document_upload_interval_control()'::regprocedure,
+                'public.assert_document_upload_interval(uuid,text)'::regprocedure,'public.assert_document_upload_registered_outcome(uuid)'::regprocedure,'public.bind_document_upload_operation()'::regprocedure,
+                'public.guard_document_upload_operation_binding()'::regprocedure,'public.guard_document_upload_interval_attempt()'::regprocedure,
+                'public.guard_document_upload_interval_completion()'::regprocedure,'public.claim_document_upload_registration_operation(uuid,uuid,text)'::regprocedure,
+                'public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure,'public.can_insert_reserved_student_document(text,text)'::regprocedure,
+                'public.guard_document_upload_registration()'::regprocedure,'public.read_document_upload_registration(uuid,text)'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1129,4 +1185,5 @@ jobs:
             /tmp/atomic-extraction-preflight.json
             /tmp/document-operation-admission.json
             /tmp/document-upload-pause-fence.json
+            /tmp/document-upload-interval.json
           if-no-files-found: ignore

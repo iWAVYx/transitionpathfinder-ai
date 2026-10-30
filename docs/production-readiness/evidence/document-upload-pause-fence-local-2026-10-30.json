@@ -2,7 +2,7 @@
   "schema": "document-upload-pause-fence-local-v1",
   "date": "2026-10-30",
   "source_base": "717460dcf0d9df20e25083154347c2b25d1fdbda",
-  "status": "Local SQL and contracts passed; native/exact-source checks pending",
+  "status": "Verified prepared source: all nine applicable automatic checks passed",
   "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
   "validation": {
     "sql_cases": 771,
@@ -47,5 +47,18 @@
   "provider_calls": false,
   "fixtures_created_hosted": false,
   "browser_interval_tracked": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "verified_source": "b561db3ad4562e72974dd72bd38190107efe190f",
+  "automatic_checks": {
+    "successes": 9,
+    "failures": 0,
+    "pending": 0,
+    "database_runs": [
+      41073251058,
+      41073241553
+    ],
+    "native_sql": "Both771/771, zero skips;225 canonical plus3 unapplied proposals.",
+    "aggregate_proofs": "Both match the four reviewed routine hashes/fixed paths, paused true and interval/provider/cutover fields false.",
+    "hosted_tests": "Protected hosted tests skipped and unperformed."
+  }
 }
