@@ -2,7 +2,7 @@
   "schema": "document-upload-interval-local-v1",
   "date": "2026-10-30",
   "source_base": "b561db3ad4562e72974dd72bd38190107efe190f",
-  "status": "All local checks passed; native/exact-source checks pending",
+  "status": "Verified: nine applicable automatic checks passed; both native SQL suites passed 836/836 with zero skips.",
   "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
   "validation": {
     "sql_cases": 836,
@@ -12,7 +12,21 @@
     "private_grant_focused_case": "pass",
     "safety_contracts": 92,
     "workflow_yaml": "parsed with existing js-yaml",
-    "application": "Source unchanged; retain5504 unit tests/19 intercepted Deno cases and previous nine automatic checks. No new local app/type/build run claimed."
+    "application": "Source unchanged; retain5504 unit tests/19 intercepted Deno cases and previous nine automatic checks. No new local app/type/build run claimed.",
+    "native": {
+      "pr_run": 41088010474,
+      "push_run": 41087999054,
+      "tests_each": 836,
+      "passed_each": 836,
+      "skipped_each": 0,
+      "canonical_migrations": 225,
+      "noncanonical_control_proposals": 4
+    },
+    "automatic_checks": {
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    }
   },
   "source_manifest": [
     {
@@ -48,5 +62,6 @@
   "provider_quiescence_verified": false,
   "hosted_actions": false,
   "production_access": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "verified_source": "74136d4d7830980f6bcce579cb367136979f7976"
 }

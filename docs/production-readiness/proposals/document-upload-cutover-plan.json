@@ -72,11 +72,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-upload-interval.sql",
-      "sha256": "c58ecb8f1738e821b2300bd6ae34ef887e96d6e8f2b27f10152814ed337adae8"
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
     },
     {
-      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
-      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
+      "path": "src/lib/document-upload-registration-operation.server.ts",
+      "sha256": "5729e6b88578e81133203ca130038eeaeca64cb267a7035c43ef3f357db0b984"
     }
   ],
   "batch": {
@@ -298,5 +298,12 @@
       "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
       "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
+  },
+  "registration_continuation_adapter": {
+    "prepared": true,
+    "path": "src/lib/document-upload-registration-operation.server.ts",
+    "handler_wired": false,
+    "evidence": "docs/production-readiness/evidence/document-registration-continuation-local-2026-10-30.json",
+    "scope": "One service-only claim of the existing reservation; strict bound metadata receipt; no token to work/browser; uncertain claim means no IO or finish; one finish after validated work; no retry or recovery reattachment."
   }
 }
