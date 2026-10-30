@@ -1832,3 +1832,80 @@ test('recovery refuses a registered clean row while its durable outcome remains 
 test('confirmed outcome recovers after a lost reply without exposing tokens or repeating work',async()=>{
  await readyInterval();await as(actors.family,'service_role');const receipt=await claimUploadInterval();await as();await registerReserved();await confirmIntervalOutcome();await as(actors.family,'service_role');await finishOperation(receipt);await as();const recovered=(await db.query('SELECT public.read_document_upload_registration($1,$2) AS receipt',[attemptId,reviewHash])).rows[0].receipt;assert.equal(recovered.scan_status,'clean');assert.equal('operation_id' in recovered,false);assert.equal('receipt_id' in recovered,false);const rows=await intervalRows();assert.equal(rows.leases.length,1);assert.equal(rows.leases[0].state,'completed');
 });
+
+// Fifth proposal: unchanged cap values include registered-but-unsettled work.
+const retainedUploadLimits=readFileSync('docs/production-readiness/proposals/document-upload-retained-limits.sql','utf8');
+async function retainedQuotaFixture(){await uploadIntervalFixture();await db.exec('RESET ROLE');await db.exec(retainedUploadLimits);await as(actors.family,'service_role');await pauseOperation(false);}
+async function quotaAttempt(n,{actor=actors.family,target=student,registered=true}={}){
+ const attempt=uid(5000+n),document=uid(6000+n),hash=n.toString(16).padStart(64,'0');
+ await as(actor);await reserve(db,{id:attempt,student:target,hash});
+ if(!registered)return {attempt,actor,target,hash};
+ const path=target+'/'+attempt+'-privacy-safe-document.txt';await reservedObject(db,{path,owner:actor});
+ await as(actor,'service_role');const receipt=await claimUploadInterval(db,{attempt,actor});
+ await as(actor);await registerReserved(db,{id:document,student:target,actor,path,attempt,hash});
+ return {attempt,actor,target,hash,path,document,receipt};
+}
+async function completeQuotaAttempt(x,kind='clean'){
+ await db.exec('RESET ROLE');const verdict={code:kind,provider:'cloudmersive',content_sha256:x.hash,source:'registration_reviewed_copy',clean_result:kind==='clean',blocked_reasons:kind==='clean'?[]:['Fictional threat']};
+ await db.query("UPDATE public.documents SET scan_status=$1,scan_verdict=$2,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status=$3,archived_at=CASE WHEN $1='infected' THEN now() ELSE NULL END WHERE id=$4",[kind,verdict,kind==='infected'?'rejected':'pending_review',x.document]);
+ if(kind==='clean')await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[uid(7000+Number(x.attempt.slice(-4))),x.target,x.actor,{document_id:x.document,storage_path:x.path}]);
+ await as(x.actor,'service_role');await finishOperation(x.receipt,'completed',db,x.actor);
+}
+for(const state of ['active','needs_review'])test('registered '+state+' intervals still consume the actor cap across students',async()=>{
+ await retainedQuotaFixture();const entries=[];for(let n=1;n<=5;n++)entries.push(await quotaAttempt(n,{target:n%2?student:otherStudent}));
+ if(state==='needs_review')for(const x of entries){await as(x.actor,'service_role');await finishOperation(x.receipt,'needs_review',db,x.actor);}
+ await as();await assert.rejects(reserve(db,{id:uid(5999),hash:'e'.repeat(64)}),{code:'42501'});
+ const rows=await intervalRows();assert.equal(rows.bindings.length,5);assert.equal(rows.leases.filter(x=>x.state===state).length,5);
+});
+test('registered intervals consume the student cap across several authorized actors',async()=>{
+ await retainedQuotaFixture();const roster=[actors.family,actors.educator,actors.student];
+ for(let n=1;n<=10;n++)await quotaAttempt(n,{actor:roster[(n-1)%3]});
+ await as(actors.educator);await assert.rejects(reserve(db,{id:uid(5999),hash:'e'.repeat(64)}),{code:'42501'});assert.equal((await intervalRows()).bindings.length,10);
+});
+test('mixed reserved, held and registered work shares the same actor cap',async()=>{
+ await retainedQuotaFixture();await quotaAttempt(1);await quotaAttempt(2);const held=await quotaAttempt(3,{registered:false});await as();await hold(db,{id:held.attempt});await quotaAttempt(4,{registered:false});const exact=await quotaAttempt(5,{registered:false});
+ await as();await assert.rejects(reserve(db,{id:uid(5999),hash:'e'.repeat(64)}),{code:'42501'});
+ const before=await intervalRows();await as();const retry=await reserve(db,{id:exact.attempt,hash:exact.hash});assert.equal(retry.attempt_id,exact.attempt);assert.equal((await intervalRows()).bindings.length,before.bindings.length);
+});
+for(const kind of ['clean','infected'])test('only exact confirmed '+kind+' completion frees one reservation slot',async()=>{
+ await retainedQuotaFixture();const entries=[];for(let n=1;n<=5;n++)entries.push(await quotaAttempt(n));
+ await as();await assert.rejects(reserve(db,{id:uid(5998),hash:'e'.repeat(64)}),{code:'42501'});await completeQuotaAttempt(entries[0],kind);
+ await as();await reserve(db,{id:uid(5998),hash:'e'.repeat(64)});await assert.rejects(reserve(db,{id:uid(5999),hash:'f'.repeat(64)}),{code:'42501'});
+ const rows=await intervalRows();assert.equal(rows.bindings.length,6);assert.equal(rows.leases.filter(x=>x.state==='completed').length,1);
+});
+test('an old needs-review interval is retained without expiry or automatic release',async()=>{
+ await retainedQuotaFixture();for(let n=1;n<=5;n++){const x=await quotaAttempt(n);await as(x.actor,'service_role');await finishOperation(x.receipt,'needs_review',db,x.actor);}
+ await db.exec("RESET ROLE;UPDATE public.document_operation_leases SET started_at='2000-01-01',finished_at='2000-01-02'");
+ await as();await assert.rejects(reserve(db,{id:uid(5999),hash:'f'.repeat(64)}),{code:'42501'});assert.equal((await intervalRows()).leases.filter(x=>x.state==='needs_review').length,5);
+});
+test('row registration and a clean document alone cannot free quota or complete a held operation',async()=>{
+ await retainedQuotaFixture();const entries=[];for(let n=1;n<=5;n++)entries.push(await quotaAttempt(n));
+ const x=entries[0];await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='clean' WHERE id=$1",[x.document]);await as(x.actor,'service_role');await assert.rejects(finishOperation(x.receipt),{code:'55000'});await finishOperation(x.receipt,'needs_review');await assert.rejects(finishOperation(x.receipt),{code:'42501'});
+ await as();await assert.rejects(reserve(db,{id:uid(5999),hash:'f'.repeat(64)}),{code:'42501'});assert.equal((await intervalRows()).leases.filter(x=>x.state==='completed').length,0);
+});
+for(const [role,actor] of Object.entries(actors))test('retained-limit reservation preserves current explicit scope for '+role,async()=>{
+ await retainedQuotaFixture();await as(actor);if(['family','educator','student'].includes(role))assert.equal((await reserve()).actor_id,actor);else await assert.rejects(reserve(),{code:'42501'});
+});
+for(const role of ['school','district','owner'])test('retained-limit reservation still honors explicit editor '+role,async()=>{
+ await retainedQuotaFixture();await db.exec('RESET ROLE');await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);assert.equal((await reserve()).actor_id,actors[role]);
+});
+test('retained-limit installation preserves function ACL, owner, path and token-free response',async()=>{
+ await uploadIntervalFixture();await db.exec('RESET ROLE');const q="SELECT proacl::text AS acl,proowner,proconfig FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure";const before=(await db.query(q)).rows[0];await db.exec(retainedUploadLimits);assert.deepEqual((await db.query(q)).rows[0],before);assert.equal((await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure")).rows[0].hash,'dc8972ceac29738817b32b74ad411e1b');await as(actors.family,'service_role');await pauseOperation(false);await as();const receipt=await reserve();assert.deepEqual(Object.keys(receipt).sort(),['schema','attempt_id','actor_id','student_id','storage_path','state'].sort());
+});
+for(const drift of ['open','existing','grant','column-grant','path','body'])test('retained-limit installation refuses '+drift+' without repairing it',async()=>{
+ await uploadIntervalFixture();if(drift==='open')await pauseOperation(false);if(drift==='existing'){await pauseOperation(false);await as();await reserve();await as(actors.family,'service_role');await pauseOperation(true);}
+ await db.exec('RESET ROLE');if(drift==='grant')await db.exec('GRANT EXECUTE ON FUNCTION public.reserve_document_upload(uuid,uuid,text,text) TO anon');
+ if(drift==='column-grant')await db.exec('GRANT SELECT(actor_id) ON public.document_upload_operation_bindings TO service_role');
+ if(drift==='path')await db.exec("ALTER FUNCTION public.reserve_document_upload(uuid,uuid,text,text) RESET ALL");
+ if(drift==='body'){const def=(await db.query("SELECT pg_get_functiondef('public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure) AS definition")).rows[0].definition;await db.exec(def.replace('\nBEGIN','\nBEGIN\n -- fixture-only definition drift'));}
+ const expectedHash=(await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure")).rows[0].hash;
+ await assert.rejects(db.exec(retainedUploadLimits),{code:'55000'});await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure")).rows[0].hash,expectedHash);
+});
+for(const boundary of ['actor','student'])for(const ending of ['COMMIT','ROLLBACK'])test('registered '+boundary+' quota serializes concurrent new attempts after '+ending,{skip:!native},async()=>{
+ await retainedQuotaFixture();const roster=[actors.family,actors.educator,actors.student];for(let n=1;n<=(boundary==='actor'?4:9);n++)await quotaAttempt(n,{actor:boundary==='actor'?actors.family:roster[(n-1)%3]});
+ const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(boundary==='actor'?actors.family:actors.educator,'authenticated',b);
+ await a.exec('BEGIN');await reserve(a,{id:uid(5998),hash:'e'.repeat(64)});const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+ const pending=reserve(b,{id:uid(5999),hash:'f'.repeat(64)}).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);const rows=await intervalRows();assert.equal(rows.bindings.length,boundary==='actor'?5:10);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});

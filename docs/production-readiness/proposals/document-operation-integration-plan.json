@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Apply/rescan/worker, durable upload foundation, registration continuation and tab-local interruption recovery prepared; retained-work/handoff controls and hosted activation remain open",
+  "status": "Upload registration, tab-local interruption recovery and registered-unsettled upload quota prepared; general held-work limits, trusted reconciliation, handoff and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -76,6 +76,10 @@
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
       "sha256": "c0bf5717356ef915a92408135b760b8dd5d5583315e0fa020edb384cb2f41f45"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "2cfcc1d39fb3db561bd86ada041fbf7246d7e1660bae94d8cf4774b9e238ed7d"
     }
   ],
   "adapter_contract": {
@@ -96,7 +100,7 @@
         "The fresh-call adapter cannot reattach a receipt across requests. Prepare a separately reviewed actor/attempt/kind/source-bound continuation protocol; do not pass service credentials to the browser or invent receipt recovery.",
         "Do not mark the interval complete at reservation response or from client 404/timeout/metadata observations."
       ],
-      "status": "Durable database interval, registration continuation and tab-local interruption reminder/completed-only recovery prepared and locally verified. Cross-tab/device, retained-work server bounds, trusted reconciliation and hosted lifecycle acceptance remain open."
+      "status": "Database interval, registration continuation, tab-local completed-only recovery and registered-unsettled quota correction are prepared. General held-work bounds, trusted reconciliation and native/hosted lifecycle acceptance remain open."
     },
     {
       "target": "register",
@@ -254,7 +258,7 @@
     "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
     "remaining": [
-      "Hosted interruption/reload/session acceptance, cross-tab/device and retained active-registered/held-work server limits with trusted manual reconciliation.",
+      "Hosted interruption/reload/session and cross-tab/device quota acceptance; broader held-operation limits with trusted manual reconciliation.",
       "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
       "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ],
@@ -276,8 +280,23 @@
     "scope": "Tab-local viewer/student reminder; attempt UUID only; no content or capability persistence. One current-caller completed-only read check, no upload/scan/admission replay or absence-based clearing.",
     "evidence": "docs/production-readiness/evidence/document-upload-interruption-local-2026-10-30.json",
     "remaining": [
-      "Cross-tab/device and active-registered/held-work server limits; trusted manual reconciliation.",
+      "Server-side registered-unsettled cap correction prepared separately; native/hosted cross-tab/device acceptance and general held-work limits/trusted manual reconciliation remain open.",
       "Browser closure/storage loss and physical hosted lifecycle/provider acceptance."
+    ]
+  },
+  "retained_upload_limits_preparation": {
+    "prepared": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "actor_limit": 5,
+    "student_limit": 10,
+    "registered_unsettled_counted": true,
+    "review": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-retained-limits-local-2026-10-30.json",
+    "remaining": [
+      "Native four-race and exact-source disposable225+five-proposal replay proof.",
+      "General-operation retained/held-work bounds and trusted manual reconciliation.",
+      "Physical/provider/legacy writer and hosted acceptance proof, final canonical/ledger packaging."
     ]
   }
 }

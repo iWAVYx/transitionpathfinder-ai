@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Apply/rescan/worker, durable upload foundation, registration continuation and tab-local interruption recovery prepared; retained-work/handoff controls and hosted activation remain open",
+  "status": "Upload registration, tab-local interruption recovery and registered-unsettled upload quota prepared; general held-work limits, trusted reconciliation, handoff and hosted activation remain open",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -97,6 +97,10 @@
     {
       "path": "src/lib/document-upload-reservation.server.ts",
       "sha256": "ca6c746834e2deca8524ea47a37f39a2a16f2d2ffe46f6ae65746d58a3e9bf80"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "2cfcc1d39fb3db561bd86ada041fbf7246d7e1660bae94d8cf4774b9e238ed7d"
     }
   ],
   "batch": {
@@ -194,7 +198,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 4,
+  "unapplied_admission_proposals": 5,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -212,7 +216,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Operation admission, Apply gate, upload transaction fence and durable upload interval all remain noncanonical/unapplied and require final canonical/ledger packaging. The existing fifteen-migration batch installs none of these four proposals.",
+  "remaining_batch_preparation": "Operation admission, Apply gate, upload transaction fence, durable upload interval and retained-upload quota correction remain noncanonical/unapplied and require final canonical/ledger packaging. The existing fifteen-migration batch installs none of these five proposals.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -313,7 +317,7 @@
     "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
     "remaining": [
-      "Hosted interruption/reload/session acceptance, cross-tab/device and retained active-registered/held-work server limits with trusted manual reconciliation.",
+      "Hosted interruption/reload/session and cross-tab/device quota acceptance; broader held-operation limits with trusted manual reconciliation.",
       "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
       "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ],
@@ -335,8 +339,23 @@
     "scope": "Tab-local viewer/student reminder; attempt UUID only; no content or capability persistence. One current-caller completed-only read check, no upload/scan/admission replay or absence-based clearing.",
     "evidence": "docs/production-readiness/evidence/document-upload-interruption-local-2026-10-30.json",
     "remaining": [
-      "Cross-tab/device and active-registered/held-work server limits; trusted manual reconciliation.",
+      "Server-side registered-unsettled cap correction prepared separately; native/hosted cross-tab/device acceptance and general held-work limits/trusted manual reconciliation remain open.",
       "Browser closure/storage loss and physical hosted lifecycle/provider acceptance."
+    ]
+  },
+  "retained_upload_limits_preparation": {
+    "prepared": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "actor_limit": 5,
+    "student_limit": 10,
+    "registered_unsettled_counted": true,
+    "review": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-retained-limits-local-2026-10-30.json",
+    "remaining": [
+      "Native four-race and exact-source disposable225+five-proposal replay proof.",
+      "General-operation retained/held-work bounds and trusted manual reconciliation.",
+      "Physical/provider/legacy writer and hosted acceptance proof, final canonical/ledger packaging."
     ]
   }
 }
