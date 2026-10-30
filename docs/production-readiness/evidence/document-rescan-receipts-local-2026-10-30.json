@@ -1,0 +1,33 @@
+{
+  "schema": "document-rescan-receipts-local-v1",
+  "date": "2026-10-30",
+  "base_source": "3e53c4cf2764fd3f10f3f33a0a243ab9020030e5",
+  "status": "Local validation passed; exact-source automatic checks pending",
+  "runtime_fingerprint": "acc07652399d08aef10b7af9e8c75535776003a41d41054f9324dfce751fbb34",
+  "runtime_file_count": 1201,
+  "changed_source": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "be69160e370e8b429297a0267c92d686ff2db00ace142074ab5da8e922ab1a22"
+    },
+    {
+      "path": "tests/unit/document-removal-safety.test.ts",
+      "sha256": "d0b2a9224893893e4ed30ba0934fdc238db709e895fe7bf7a0d43b8714e15f73"
+    }
+  ],
+  "validation": {
+    "focused": 66,
+    "unit_tests": 5404,
+    "unit_files": 352,
+    "safety_contracts": 92,
+    "typecheck": "pass",
+    "local_build": "pass",
+    "sql": "Unchanged; prior native 716/716 and 225 canonical plus two unapplied proposals retained. No new database run claimed."
+  },
+  "scope": "Shared signed-in rescan handler only; role permissions unchanged. Demo remains no-upload/no-provider. Concurrent-request proof is mocked, not a hosted/provider/storage proof.",
+  "remaining": "Rescan admission, viewer/source-byte identity, provider uncertainty reconciliation, complete upload/worker coverage and all later merge-readiness packages remain open.",
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "fixtures_created": false
+}

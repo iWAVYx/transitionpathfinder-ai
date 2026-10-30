@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ context: null as any, authorize: vi.fn(), rpc: vi.fn(), read: vi.fn(), from: vi.fn(), update: vi.fn(), write: vi.fn(), scan: vi.fn(), pipeline: vi.fn(), remove: vi.fn(), adminDelete: vi.fn(), audit: vi.fn(), enqueue: vi.fn(), fetch: vi.fn(), sign: vi.fn() }));
+const api = vi.hoisted(() => ({ context: null as any, authorize: vi.fn(), rpc: vi.fn(), read: vi.fn(), from: vi.fn(), update: vi.fn(), write: vi.fn(), match: vi.fn(), notDeleted: vi.fn(), scan: vi.fn(), pipeline: vi.fn(), remove: vi.fn(), adminDelete: vi.fn(), audit: vi.fn(), enqueue: vi.fn(), fetch: vi.fn(), sign: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   let validate = (input: unknown) => input;
   const builder = { middleware: () => builder, validator: (fn: typeof validate) => { validate = fn; return builder; },
@@ -15,7 +15,7 @@ import { getDocumentSignedUrl, requestAdminDocAccess, hardDeleteDocument, rescan
 const student = "11111111-1111-4111-8111-111111111111";
 const id = "22222222-2222-4222-8222-222222222222";
 const path = `${student}/fictional-privacy-safe-document.txt`;
-const row = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", doc_type: "other", mime_type: "text/plain", size_bytes: 20, scan_status: "failed", scan_verdict: null, review_status: "rejected", archived_at: "2026-10-28", deleted_at: null };
+const row = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", doc_type: "other", mime_type: "text/plain", size_bytes: 20, scan_status: "failed", scan_verdict: null, review_status: "rejected", archived_at: "2026-10-28", deleted_at: null, updated_at: "2026-10-30T10:00:00.000Z" };
 const runRescan = () => (rescanDocument as any)({ data: { id } });
 const runDelete = () => (hardDeleteDocument as any)({ data: { id, reason: "Fictional deletion request" } });
 beforeEach(() => {
@@ -25,12 +25,17 @@ beforeEach(() => {
   api.read.mockResolvedValue({ data: row, error: null });
   const query: any = { select: () => query, eq: () => query, maybeSingle: api.read };
   api.context = { userId: "fictional-viewer", supabase: { storage: { from: () => ({ createSignedUrl: api.sign }) }, rpc: api.rpc, from: (table: string) => ["documents", "students", "student_collaborators", "user_roles"].includes(table) ? query : { insert: table === "ai_jobs" ? api.enqueue : api.audit } } };
-  const writeQuery: any = { eq: () => writeQuery, select: () => writeQuery, single: api.write };
+  const writeQuery: any = { eq: api.match, is: api.notDeleted, select: () => writeQuery, single: api.write };
+  api.match.mockReturnValue(writeQuery); api.notDeleted.mockReturnValue(writeQuery);
   api.update.mockReturnValue(writeQuery);
   api.from.mockReturnValue({ update: api.update, delete: api.adminDelete });
   api.write.mockImplementation(async () => ({ data: { ...row, ...api.update.mock.calls.at(-1)?.[0] }, error: null }));
   api.scan.mockResolvedValue({ ok: false, code: "infected", provider: "mock-scanner", clean_result: false, blocked_reasons: ["Fictional threat"], threats: [], scan_id: "fictional-scan" });
   api.audit.mockResolvedValue({ error: null });
+  api.enqueue.mockReturnValue({ select: () => ({ single: async () => ({ data: {
+    id, student_id: student, triggered_by_user_id: api.context.userId,
+    job_type: "document_summary", status: "queued", input_source: { document_id: id, storage_path: path, title: row.title, doc_type: row.doc_type },
+  }, error: null }) }) });
 });
 afterEach(() => { expect(api.fetch).not.toHaveBeenCalled(); vi.unstubAllGlobals(); });
 
@@ -67,15 +72,18 @@ it.each(["infected", "deleted", "failed-with-infected-verdict", "clean-with-infe
 });
 it.each(["error", "rejection", "missing", "wrong-id", "wrong-student", "wrong-path", "unchanged"])("rescan stops on an unconfirmed quarantine receipt (%s)", async mode => {
   const quarantined = { ...row, scan_status: "infected" };
-  if (mode === "error") api.write.mockResolvedValue({ data: quarantined, error: { message: "PRIVATE storage detail" } });
-  if (mode === "rejection") api.write.mockRejectedValue(new Error("PRIVATE storage detail"));
-  if (mode === "missing") api.write.mockResolvedValue({ data: null, error: null });
-  if (mode === "wrong-id") api.write.mockResolvedValue({ data: { ...quarantined, id: student }, error: null });
-  if (mode === "wrong-student") api.write.mockResolvedValue({ data: { ...quarantined, student_id: id }, error: null });
-  if (mode === "wrong-path") api.write.mockResolvedValue({ data: { ...quarantined, storage_path: "another-private-path" }, error: null });
-  if (mode === "unchanged") api.write.mockResolvedValue({ data: row, error: null });
+  const normalWrite = api.write.getMockImplementation()!;
+  api.write.mockImplementation(async () => {
+    if (api.update.mock.calls.at(-1)?.[0].scan_status === "pending") return normalWrite();
+    if (mode === "rejection") throw new Error("PRIVATE storage detail");
+    const data = mode === "missing" ? null : mode === "wrong-id" ? { ...quarantined, id: student }
+      : mode === "wrong-student" ? { ...quarantined, student_id: id }
+      : mode === "wrong-path" ? { ...quarantined, storage_path: "another-private-path" }
+      : mode === "unchanged" ? row : quarantined;
+    return { data, error: mode === "error" ? { message: "PRIVATE storage detail" } : null };
+  });
   await expect(runRescan()).rejects.toThrow("couldn't confirm the document's security review");
-  expect(api.write).toHaveBeenCalledOnce(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
+  expect(api.write).toHaveBeenCalledTimes(2); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
 });
 it("denied student access stops before scan, quarantine writes or storage operations", async () => {
   api.authorize.mockRejectedValue(new Error("Access denied"));
@@ -105,4 +113,100 @@ it("a metadata override cannot mint an infected-file link", async () => {
   api.read.mockResolvedValue({ data: { ...row, scan_status: "infected", scan_verdict: { code: "infected" } }, error: null });
   await expect((requestAdminDocAccess as any)({ data: { document_id: id, reason: "Fictional support request" } })).rejects.toThrow("security review is incomplete or blocked");
   expect(api.sign).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
+});
+
+const cleanScan = { ok: true, code: "clean", provider: "mock-scanner", clean_result: true, blocked_reasons: [], threats: [], scan_id: "fictional-clean" };
+it.each(["pending", "unknown", "missing-revision", "soft-deleted"])("does not start a rescan for an unavailable source (%s)", async mode => {
+  api.read.mockResolvedValue({ data: { ...row,
+    scan_status: ["pending", "unknown"].includes(mode) ? mode : "failed",
+    updated_at: mode === "missing-revision" ? null : row.updated_at,
+    deleted_at: mode === "soft-deleted" ? "2026-10-30" : null,
+  }, error: null });
+  await expect(runRescan()).rejects.toThrow();
+  expect(api.update).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled();
+});
+it.each(["error", "lost", "missing", "foreign", "unchanged", "deleted", "revision"])("does not submit bytes after an unconfirmed pending transition (%s)", async mode => {
+  if (mode === "lost") api.write.mockRejectedValue(new Error("PRIVATE lost write"));
+  else api.write.mockResolvedValue({ data: mode === "missing" ? null : { ...row,
+    id: mode === "foreign" ? student : id,
+    scan_status: mode === "unchanged" ? "failed" : "pending",
+    deleted_at: mode === "deleted" ? "2026-10-30" : null,
+    updated_at: mode === "revision" ? null : row.updated_at,
+  }, error: mode === "error" ? { message: "PRIVATE database detail" } : null });
+  await expect(runRescan()).rejects.toThrow("couldn't confirm the document's security review");
+  expect(api.write).toHaveBeenCalledOnce(); expect(api.scan).not.toHaveBeenCalled();
+  expect(api.pipeline).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
+});
+it.each(["error", "lost", "missing", "foreign", "student", "path", "blocked", "review"])("does not queue a summary after an unconfirmed clean transition (%s)", async mode => {
+  api.scan.mockResolvedValue(cleanScan);
+  const normalWrite = api.write.getMockImplementation()!;
+  api.write.mockImplementation(async () => {
+    if (api.update.mock.calls.at(-1)?.[0].scan_status === "pending") return normalWrite();
+    if (mode === "lost") throw new Error("PRIVATE lost write");
+    return { data: mode === "missing" ? null : { ...row, scan_status: "clean", review_status: "pending_review", archived_at: null,
+      ...(mode === "foreign" ? { id: student } : mode === "student" ? { student_id: id } : mode === "path" ? { storage_path: "another-private-path" }
+        : mode === "blocked" ? { deleted_at: "2026-10-30" } : mode === "review" ? { review_status: "rejected" } : {}),
+    }, error: mode === "error" ? { message: "PRIVATE database detail" } : null };
+  });
+  await expect(runRescan()).rejects.toThrow("couldn't confirm the document's security review");
+  expect(api.scan).toHaveBeenCalledOnce(); expect(api.write).toHaveBeenCalledTimes(2);
+  expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
+});
+it.each(["error", "lost", "missing", "id", "student", "actor", "kind", "status", "document", "path", "title", "type"])("does not report success or repeat an uncertain summary insert (%s)", async mode => {
+  api.scan.mockResolvedValue(cleanScan);
+  api.enqueue.mockReturnValue({ select: () => ({ single: async () => {
+    if (mode === "lost") throw new Error("PRIVATE queue detail");
+    return { data: mode === "missing" ? null : {
+      id: mode === "id" ? "invalid" : id,
+      student_id: mode === "student" ? id : student,
+      triggered_by_user_id: mode === "actor" ? "other-account" : api.context.userId,
+      job_type: mode === "kind" ? "another-job" : "document_summary",
+      status: mode === "status" ? "failed" : "queued",
+      input_source: { document_id: mode === "document" ? student : id, storage_path: mode === "path" ? "another-private-path" : path, title: mode === "title" ? "other" : row.title, doc_type: mode === "type" ? "other-type" : row.doc_type },
+    }, error: mode === "error" ? { message: "PRIVATE queue detail" } : null };
+  } }) });
+  await expect(runRescan()).rejects.toThrow("couldn't confirm that the summary was queued");
+  expect(api.scan).toHaveBeenCalledOnce(); expect(api.enqueue).toHaveBeenCalledOnce();
+  expect(JSON.stringify(api.pipeline.mock.calls)).not.toContain("PRIVATE");
+});
+it("confirms each revision before clean success and matches the exact summary job", async () => {
+  api.scan.mockResolvedValue(cleanScan);
+  expect(await runRescan()).toEqual({ ok: true, code: "clean" });
+  expect(api.match.mock.calls).toEqual(expect.arrayContaining([
+    ["id", id], ["student_id", student], ["storage_path", path], ["scan_status", "failed"], ["scan_status", "pending"], ["updated_at", row.updated_at],
+  ]));
+  expect(api.notDeleted).toHaveBeenCalledWith("deleted_at", null);
+  expect(api.scan).toHaveBeenCalledOnce(); expect(api.enqueue).toHaveBeenCalledOnce();
+});
+
+it("only one simultaneous request can claim the failed revision", async () => {
+  let stored = { ...row };
+  const writes: Record<string, unknown>[] = [];
+  api.from.mockImplementation(() => ({ update: (patch: Record<string, unknown>) => {
+    const filters: [string, unknown][] = [];
+    const query: any = {
+      eq: (key: string, value: unknown) => { filters.push([key, value]); return query; },
+      is: (key: string, value: unknown) => { filters.push([key, value]); return query; },
+      select: () => query,
+      single: async () => {
+        if (!filters.every(([key, value]) => (stored as any)[key] === value)) return { data: null, error: null };
+        writes.push(patch);
+        stored = { ...stored, ...patch, updated_at: `2026-10-30T10:0${writes.length}:00.000Z` };
+        return { data: { ...stored }, error: null };
+      },
+    };
+    return query;
+  } }));
+  api.scan.mockResolvedValue(cleanScan);
+  const results = await Promise.allSettled([runRescan(), runRescan()]);
+  expect(results.filter(result => result.status === "fulfilled")).toHaveLength(1);
+  expect(results.filter(result => result.status === "rejected")).toHaveLength(1);
+  expect(api.scan).toHaveBeenCalledOnce(); expect(api.enqueue).toHaveBeenCalledOnce();
+  expect(writes.map(patch => patch.scan_status)).toEqual(["pending", "clean"]);
+});
+it("does not release, delete or queue after a thrown scanner request", async () => {
+  api.scan.mockRejectedValue(new Error("Fictional scanner failure"));
+  await expect(runRescan()).rejects.toThrow();
+  expect(api.write).toHaveBeenCalledOnce(); expect(api.update.mock.calls[0][0]).toEqual({ scan_status: "pending" });
+  expect(api.enqueue).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
 });

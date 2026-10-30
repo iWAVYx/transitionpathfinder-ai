@@ -11,7 +11,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "cbee8ab5784326612d573551a29db5ec524eb86ae1f5ffb46ac9af72e8122495"
+      "sha256": "be69160e370e8b429297a0267c92d686ff2db00ace142074ab5da8e922ab1a22"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -103,5 +103,21 @@
   "adapter_verified_source": "b88a024a79630723e9150da004b80632a983d156",
   "adapter_verification": "Eight applicable automatic checks, both builds,5334 unit tests/350 files,40 focused cases, TypeScript and local capped build pass. Automatic cumulative PR database check also passes694/694 and225 canonical plus admission proposal; SQL unchanged. No handler integration or hosted activation.",
   "apply_integration_review": "docs/production-readiness/proposals/document-apply-admission-review.json",
-  "apply_verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66"
+  "apply_verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
+  "rescan_completion_preparation": {
+    "date": "2026-10-30",
+    "status": "Prepared local prerequisite; rescan admission remains unimplemented",
+    "changes": [
+      "Require a confirmed pending transition from the exact failed, nondeleted document revision before scan submission.",
+      "Match document/student/path/pending revision for clean and quarantine writes; confirm returned outcome before continuing.",
+      "Require an exact summary queue receipt; uncertain insert is not retried and does not report success."
+    ],
+    "remaining": [
+      "Bind current viewer and source byte/object identity before provider work.",
+      "Integrate rescan with durable pause/admission and uncertain-provider reconciliation; a failed scanner reply is not proof that provider work stopped.",
+      "Complete reservation/register/browser interval and separate worker coverage; retain held-operation limits and authorized manual reconciliation."
+    ],
+    "evidence": "docs/production-readiness/evidence/document-rescan-receipts-local-2026-10-30.json",
+    "hosted_actions": false
+  }
 }

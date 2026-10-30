@@ -1347,7 +1347,7 @@ export const rescanDocument = createServerFn({ method: "POST" })
 
     const { data: row, error: readErr } = await supabase
       .from("documents")
-      .select("id, student_id, title, doc_type, storage_path, mime_type, size_bytes, scan_status, scan_verdict")
+      .select("id, student_id, title, doc_type, storage_path, mime_type, size_bytes, scan_status, scan_verdict, review_status, archived_at, deleted_at, updated_at")
       .eq("id", data.id)
       .maybeSingle();
     if (readErr || !row) throw new Error("Document not found or access denied.");
@@ -1359,11 +1359,14 @@ export const rescanDocument = createServerFn({ method: "POST" })
 
     const priorVerdict = row.scan_verdict && typeof row.scan_verdict === "object" && !Array.isArray(row.scan_verdict)
       ? row.scan_verdict.code : null;
-    if (row.scan_status === "deleted" || row.scan_status === "infected" || priorVerdict === "infected") {
+    if (row.deleted_at !== null || row.scan_status === "deleted" || row.scan_status === "infected" || priorVerdict === "infected") {
       throw new Error("This file was blocked for your safety and cannot be rescanned.");
     }
     if (row.scan_status === "clean") {
       throw new Error("This document already passed the scan; nothing to retry.");
+    }
+    if (row.scan_status !== "failed" || !row.updated_at) {
+      throw new Error("This document already has a security review in progress. Refresh the page and check its status.");
     }
     if (!row.storage_path) {
       throw new Error("This document has no file attached to rescan.");
@@ -1378,10 +1381,30 @@ export const rescanDocument = createServerFn({ method: "POST" })
     const correlationId = newCorrelationId();
     const startedAt = new Date().toISOString();
 
-    await supabaseAdmin
-      .from("documents")
-      .update({ scan_status: "pending" })
-      .eq("id", row.id);
+    const unconfirmedReview = "We couldn't confirm the document's security review. Refresh the page and review its status before trying again.";
+    // Claim this exact failed revision before provider work. A missing/lost
+    // receipt is not permission to scan or to repeat a potentially committed write.
+    let pendingRevision: string;
+    try {
+      const pending = await supabaseAdmin
+        .from("documents")
+        .update({ scan_status: "pending" })
+        .eq("id", row.id)
+        .eq("student_id", row.student_id)
+        .eq("storage_path", row.storage_path)
+        .eq("scan_status", "failed")
+        .eq("updated_at", row.updated_at)
+        .is("deleted_at", null)
+        .select("*")
+        .single();
+      if (pending.error || pending.data?.id !== row.id ||
+          pending.data.student_id !== row.student_id || pending.data.storage_path !== row.storage_path ||
+          pending.data.scan_status !== "pending" || pending.data.deleted_at !== null ||
+          typeof pending.data.updated_at !== "string" || !pending.data.updated_at) throw new Error();
+      pendingRevision = pending.data.updated_at;
+    } catch {
+      throw new Error(unconfirmedReview);
+    }
 
     await recordPipelineRun({
       document_id: row.id,
@@ -1434,6 +1457,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
           .eq("id", row.id)
           .eq("student_id", row.student_id)
           .eq("storage_path", row.storage_path)
+          .eq("scan_status", "pending")
+          .eq("updated_at", pendingRevision)
+          .is("deleted_at", null)
           .select("*")
           .single();
         if (receipt.error || receipt.data?.id !== row.id ||
@@ -1505,25 +1531,38 @@ export const rescanDocument = createServerFn({ method: "POST" })
       };
     }
 
-    await supabaseAdmin
-      .from("documents")
-      .update({
-        scan_status: "clean",
-        scan_verdict: {
-          code: "clean",
-          provider: scanResult.provider,
-          clean_result: scanResult.clean_result,
-          blocked_reasons: scanResult.blocked_reasons,
-          retry: true,
-        },
-        scan_data_id: scanResult.scan_id,
-        scanned_at: finishedAt,
-        review_status: "pending_review",
-        archived_at: null,
-        archived_by: null,
-        archive_reason: null,
-      })
-      .eq("id", row.id);
+    try {
+      const clean = await supabaseAdmin
+        .from("documents")
+        .update({
+          scan_status: "clean",
+          scan_verdict: {
+            code: "clean",
+            provider: scanResult.provider,
+            clean_result: scanResult.clean_result,
+            blocked_reasons: scanResult.blocked_reasons,
+            retry: true,
+          },
+          scan_data_id: scanResult.scan_id,
+          scanned_at: finishedAt,
+          review_status: "pending_review",
+          archived_at: null,
+          archived_by: null,
+          archive_reason: null,
+        })
+        .eq("id", row.id)
+        .eq("student_id", row.student_id)
+        .eq("storage_path", row.storage_path)
+        .eq("scan_status", "pending")
+        .eq("updated_at", pendingRevision)
+        .is("deleted_at", null)
+        .select("*")
+        .single();
+      if (clean.error || clean.data?.id !== row.id || clean.data.review_status !== "pending_review" ||
+          documentUploadOutcome(clean.data, row.student_id, row.storage_path) !== "saved") throw new Error();
+    } catch {
+      throw new Error(unconfirmedReview);
+    }
 
     await recordPipelineRun({
       document_id: row.id,
@@ -1558,31 +1597,47 @@ export const rescanDocument = createServerFn({ method: "POST" })
       },
     });
 
-    const { error: jobErr } = await supabase.from("ai_jobs").insert({
-      student_id: row.student_id,
-      triggered_by_user_id: userId,
-      job_type: "document_summary",
-      status: "queued",
-      input_source: {
-        document_id: row.id,
-        title: row.title,
-        doc_type: row.doc_type,
-        storage_path: row.storage_path,
-      },
-    });
-    if (jobErr) console.error("rescanDocument: ai_jobs enqueue failed", jobErr);
+    // A clean scan does not prove summary work was queued. Confirm the exact
+    // queue receipt; never retry an uncertain insert or report a false success.
+    let queued = false;
+    try {
+      const job = await supabase.from("ai_jobs").insert({
+        student_id: row.student_id,
+        triggered_by_user_id: userId,
+        job_type: "document_summary",
+        status: "queued",
+        input_source: {
+          document_id: row.id,
+          title: row.title,
+          doc_type: row.doc_type,
+          storage_path: row.storage_path,
+        },
+      }).select("id, student_id, triggered_by_user_id, job_type, status, input_source").single();
+      queued = !job.error && z.object({
+        id: z.string().uuid(),
+        student_id: z.literal(row.student_id),
+        triggered_by_user_id: z.literal(userId),
+        job_type: z.literal("document_summary"),
+        status: z.literal("queued"),
+        input_source: z.object({
+          document_id: z.literal(row.id), storage_path: z.literal(row.storage_path),
+          title: z.literal(row.title), doc_type: z.literal(row.doc_type),
+        }),
+      }).safeParse(job.data).success;
+    } catch { /* The insert may have committed; do not replay it. */ }
 
     await recordPipelineRun({
       document_id: row.id,
       student_id: row.student_id,
       correlation_id: correlationId,
       stage: "extract",
-      status: jobErr ? "failed" : "pending",
-      error_code: jobErr ? "ai_jobs_enqueue_failed" : null,
-      error_message: jobErr?.message ?? null,
+      status: queued ? "pending" : "failed",
+      error_code: queued ? null : "ai_jobs_enqueue_unconfirmed",
+      error_message: queued ? null : "Summary queue receipt could not be confirmed.",
       payload: { job_type: "document_summary", retry: true },
     });
 
+    if (!queued) throw new Error("The security scan passed, but we couldn't confirm that the summary was queued. Refresh the page and check its status before trying again.");
     return { ok: true as const, code: "clean" as const };
   });
 
