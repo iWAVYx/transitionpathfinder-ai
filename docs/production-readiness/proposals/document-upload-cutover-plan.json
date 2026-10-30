@@ -387,5 +387,20 @@
     "worker_evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
     "database_verified_source": "363ad8c2de7476cc2fa09e5d147df8458cdb3ec5",
     "database_verification_evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-verified-2026-10-30.json"
+  },
+  "capacity_transfer_preparation": {
+    "status": "Design/model complete; enforcement not implemented",
+    "design": "docs/production-readiness/proposals/document-capacity-transfer-design.json",
+    "evidence": "docs/production-readiness/evidence/document-capacity-transfer-design-local-2026-10-30.json",
+    "offline_model": "tests/document-capacity-transfer-model.test.mjs",
+    "offline_tests": 18,
+    "enumerated_accounting_states": 197,
+    "scope": "Capacity reservation must precede producer work and transfer one counted obligation through exact queue and worker bindings. At-cap drain never bypasses pause/current authority.",
+    "numeric_policy_selected": false,
+    "general_operation_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "next": "Coupled producer/queue/claim/settlement SQL plus shared-role adapter integration; no standalone generic cap."
   }
 }

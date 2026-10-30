@@ -1,0 +1,50 @@
+{
+  "schema": "document-capacity-transfer-design-local-v1",
+  "date": "2026-10-30",
+  "source_base": "a3a4e2c1bc4c13be7e2e0070d220a6f48df34705",
+  "status": "Offline protocol design/model passed; SQL enforcement and adapter integration remain unimplemented",
+  "manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-transfer-design.json",
+      "sha256": "fdcd883edd15807726088bf5d2333e49a9f11278d8173fced57ffd91d1e16d96"
+    },
+    {
+      "path": "tests/document-capacity-transfer-model.test.mjs",
+      "sha256": "c6dd1cda867035318fee6f933a01040ef4d1c84efef7a37ced0b01c980c45c10"
+    }
+  ],
+  "validation": {
+    "offline_tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "enumerated_accounting_states": 197,
+    "boundary": "Serial transaction accounting model only. No database isolation, concurrency, authorization, private binding/token, scanner/provider or hosted behavior is modeled or proved.",
+    "documentation_contracts": 44
+  },
+  "findings": [
+    "Two caller-client queue inserts follow scan work without future-summary budget reservation.",
+    "Current generic actor/kind admission does not carry student/source identity needed for student-scoped general limits.",
+    "A generic fresh-start cap would either double-count summary work or strand an accepted queue. Reserve both producer obligations first, then transfer one immutable counted obligation through queue/claim.",
+    "Keep the current pause policy: new queued starts stay blocked while paused. Already-counted at-cap transfers are allowed only when otherwise authorized/unpaused; active guarded completion can still settle."
+  ],
+  "artifacts_unchanged": {
+    "canonical_migrations": 225,
+    "noncanonical_controls": 6,
+    "existing_unapplied_batch": 15,
+    "website_fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "website_files": 1205,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "general_operation_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "numeric_policy_selected": false,
+  "runtime_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "next": "Implement and test coupled private obligation reservation/queue/claim/settlement SQL, then wire all applicable shared-role adapters. Preserve actual source/access/outcome guards and separate owners; no partial cap release."
+}
