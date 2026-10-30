@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Upload registration, tab-local interruption recovery and registered-unsettled upload quota prepared; general held-work limits, trusted reconciliation, handoff and hosted activation remain open",
+  "status": "Prepared atomic summary metadata handoff foundation; worker continuation, queued capacity/general limits, trusted reconciliation and hosted activation remain open",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -101,6 +101,10 @@
     {
       "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
       "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
     }
   ],
   "batch": {
@@ -198,7 +202,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 5,
+  "unapplied_admission_proposals": 6,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -216,7 +220,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Operation admission, Apply gate, upload transaction fence, durable upload interval and retained-upload quota correction remain noncanonical/unapplied and require final canonical/ledger packaging. The existing fifteen-migration batch installs none of these five proposals.",
+  "remaining_batch_preparation": "Operation admission, Apply fence, upload transaction fence, durable upload interval, retained-upload quota and atomic summary handoff remain noncanonical/unapplied. The existing fifteen-migration batch installs none of these six; final canonical/ledger packaging remains required.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -361,5 +365,23 @@
     "verified_prepared_source": true,
     "verification_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-verified-2026-10-30.json",
     "verification": "All nine applicable checks, both867/867 native zero-skip suites, both complete225+five-proposal replays; quota hash/path and distinct owners verified in retained artifacts."
+  },
+  "summary_operation_handoff_preparation": {
+    "prepared_database_foundation": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "review": "docs/production-readiness/proposals/document-summary-operation-handoff-review.json",
+    "evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-local-2026-10-30.json",
+    "worker_handler_wired": false,
+    "legacy_reader_paths_fenced": false,
+    "queue_budget_reservation_implemented": false,
+    "general_operation_limits_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "remaining": [
+      "Wire the worker to strict one-use handoff receipt validation before metadata/file/provider work and finish the same existing operation, never begin another.",
+      "Reconcile queued capacity reservation and general active/held limits so counted jobs can drain without double admission or starvation.",
+      "Fence old/direct/scheduled worker readers/claimers and preserve uncertain work with trusted manual reconciliation.",
+      "Native six-race and full225+six-proposal replay proof; final canonical/ledger packaging and newly authorized hosted/provider acceptance."
+    ]
   }
 }

@@ -1,0 +1,48 @@
+{
+  "schema": "document-summary-operation-handoff-review-v1",
+  "date": "2026-10-30",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+    "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
+  },
+  "read_source_body_md5": "6beb7e73b75e358ff530c8316650c1e5",
+  "functions": [
+    {
+      "name": "guard_document_summary_operation_binding",
+      "body_md5": "b049daec1448ce2bc28812c4588c8b97"
+    },
+    {
+      "name": "claim_admitted_document_summary",
+      "body_md5": "f583bd75fedfe8ab4ce31abefe7b12b3"
+    },
+    {
+      "name": "guard_document_summary_operation_completion",
+      "body_md5": "80e1d39564ed282104abea744faa45ea"
+    }
+  ],
+  "scope": "Sixth noncanonical/unapplied control proposal. Atomic metadata claim/binding/admission foundation; worker integration and general budget still open.",
+  "service_only_rpc": "claim_admitted_document_summary(uuid,integer)",
+  "owner_internal_helpers": [
+    "guard_document_summary_operation_binding",
+    "guard_document_summary_operation_completion"
+  ],
+  "raw_binding_grants": false,
+  "one_use_claim": true,
+  "automatic_reclaim_expiry_release": false,
+  "source_context_or_text_in_new_binding_or_reply": false,
+  "worker_handler_wired": false,
+  "general_operation_limits_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "provider_quiescence_verified": false,
+  "hosted_execution_authorized": false,
+  "ready_for_cutover": false,
+  "legacy_reader_paths_fenced": false,
+  "queue_budget_reservation_implemented": false,
+  "limitations": [
+    "Prepared database foundation only; current worker does not call the new one-use handoff.",
+    "Existing service-only source/claim paths are not revoked or fenced by this proposal; legacy/direct/scheduled coverage remains open.",
+    "Queued budget reservation and general active/held limits must be designed together so already-counted jobs can drain without duplicate admission.",
+    "No trusted manual reconciliation, expiry, reclaim, cleanup or provider quiescence proof is implemented.",
+    "Final canonical/ledger packaging and freshly authorized hosted acceptance remain required."
+  ]
+}

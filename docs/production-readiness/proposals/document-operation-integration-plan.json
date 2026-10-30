@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Upload registration, tab-local interruption recovery and registered-unsettled upload quota prepared; general held-work limits, trusted reconciliation, handoff and hosted activation remain open",
+  "status": "Prepared atomic summary metadata handoff foundation; worker continuation, queued capacity/general limits, trusted reconciliation and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -80,6 +80,10 @@
     {
       "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
       "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
     }
   ],
   "adapter_contract": {
@@ -302,5 +306,23 @@
     "verified_prepared_source": true,
     "verification_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-verified-2026-10-30.json",
     "verification": "All nine applicable checks, both867/867 native zero-skip suites, both complete225+five-proposal replays; quota hash/path and distinct owners verified in retained artifacts."
+  },
+  "summary_operation_handoff_preparation": {
+    "prepared_database_foundation": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "review": "docs/production-readiness/proposals/document-summary-operation-handoff-review.json",
+    "evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-local-2026-10-30.json",
+    "worker_handler_wired": false,
+    "legacy_reader_paths_fenced": false,
+    "queue_budget_reservation_implemented": false,
+    "general_operation_limits_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "remaining": [
+      "Wire the worker to strict one-use handoff receipt validation before metadata/file/provider work and finish the same existing operation, never begin another.",
+      "Reconcile queued capacity reservation and general active/held limits so counted jobs can drain without double admission or starvation.",
+      "Fence old/direct/scheduled worker readers/claimers and preserve uncertain work with trusted manual reconciliation.",
+      "Native six-race and full225+six-proposal replay proof; final canonical/ledger packaging and newly authorized hosted/provider acceptance."
+    ]
   }
 }

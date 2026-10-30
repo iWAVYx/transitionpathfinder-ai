@@ -118,6 +118,18 @@ beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
     DO $$ BEGIN
+      IF to_regclass('public.document_operation_leases') IS NOT NULL THEN
+        DROP TRIGGER IF EXISTS document_operation_summary_completion ON public.document_operation_leases;
+      END IF;
+      IF to_regclass('public.document_summary_operation_bindings') IS NOT NULL THEN
+        DROP TRIGGER IF EXISTS summary_operation_binding_frozen ON public.document_summary_operation_bindings;
+      END IF;
+    END $$;
+    DROP FUNCTION IF EXISTS public.guard_document_summary_operation_completion();
+    DROP FUNCTION IF EXISTS public.guard_document_summary_operation_binding();
+    DROP FUNCTION IF EXISTS public.claim_admitted_document_summary(uuid,integer);
+    DROP TABLE IF EXISTS public.document_summary_operation_bindings;
+    DO $$ BEGIN
       IF to_regclass('public.document_upload_attempts') IS NOT NULL THEN
         DROP TRIGGER IF EXISTS upload_attempt_bind_operation ON public.document_upload_attempts;
         DROP TRIGGER IF EXISTS upload_attempt_interval_guard ON public.document_upload_attempts;
@@ -1924,4 +1936,99 @@ test('retained limits preserve a distinct coherent admission owner without trans
 test('retained limits reject an incoherent admission routine owner without repairing it',async()=>{
  await uploadIntervalFixture();await db.exec('RESET ROLE');await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_admission_owner') THEN CREATE ROLE tf_document_admission_owner NOLOGIN NOINHERIT;END IF;END $$;ALTER FUNCTION public.begin_document_operation(uuid,uuid,text) OWNER TO tf_document_admission_owner;");
  await assert.rejects(db.exec(retainedUploadLimits),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT proowner='tf_document_admission_owner'::regrole AS retained FROM pg_proc WHERE oid='public.begin_document_operation(uuid,uuid,text)'::regprocedure")).rows[0].retained,true);
+});
+
+
+// Atomic metadata handoff foundation; no worker/provider activation.
+const summaryHandoff=readFileSync('docs/production-readiness/proposals/document-summary-operation-handoff.sql','utf8');
+const handoffJob=uid(12001);
+async function handoffFixture(install=true){
+ await uploadIntervalFixture();await db.exec('RESET ROLE');await db.exec(retainedUploadLimits);await db.exec(sourceBindingProposal);if(install)await db.exec(summaryHandoff);
+}
+async function queuedHandoff(){await handoffFixture();await as(actors.family,'service_role');await pauseOperation(false);const entry=await quotaAttempt(1);await completeQuotaAttempt(entry);return entry;}
+async function claimHandoff(client=db,job=handoffJob,attempt=0){return (await client.query('SELECT public.claim_admitted_document_summary($1,$2) AS receipt',[job,attempt])).rows[0].receipt;}
+async function handoffRows(){await db.exec('RESET ROLE');return {jobs:(await db.query('SELECT id,status,locked_at,attempts FROM public.ai_jobs ORDER BY id')).rows,operations:(await db.query("SELECT operation_id,actor_id,operation_kind,state FROM public.document_operation_leases WHERE operation_kind='summary'")).rows,bindings:(await db.query('SELECT * FROM public.document_summary_operation_bindings')).rows,sourceBindings:(await db.query('SELECT job_id,first_claim_at,first_claim_attempt FROM public.document_summary_source_bindings')).rows};}
+test('one summary handoff atomically claims metadata, binds source and admits exactly one operation',async()=>{
+ const entry=await queuedHandoff();const receipt=await claimHandoff();assert.equal(receipt.schema,'document-summary-operation-claim-v1');assert.equal(receipt.job_id,handoffJob);assert.equal(receipt.claim_attempt,1);assert.equal(receipt.actor_id,actors.family);assert.equal(receipt.student_id,student);assert.equal(receipt.document_id,entry.document);assert.equal(receipt.storage_path,entry.path);assert.equal(receipt.content_sha256,entry.hash);assert.equal('context' in receipt,false);assert.equal('document_text' in receipt,false);assert.equal('result_payload' in receipt,false);
+ const rows=await handoffRows();assert.equal(rows.jobs[0].status,'processing');assert.equal(rows.jobs[0].attempts,1);assert.equal(rows.operations.length,1);assert.equal(rows.operations[0].state,'active');assert.equal(rows.bindings.length,1);assert.equal(rows.bindings[0].operation_id,receipt.operation_id);assert.equal(rows.sourceBindings.length,1);assert.equal('context' in rows.bindings[0],false);
+});
+test('a lost committed handoff reply cannot reattach or create another operation',async()=>{
+ await queuedHandoff();await claimHandoff();await assert.rejects(claimHandoff(),{code:'42501'});const rows=await handoffRows();assert.equal(rows.operations.length,1);assert.equal(rows.bindings.length,1);assert.equal(rows.jobs[0].attempts,1);
+});
+test('explicit rollback retains the queued job without either metadata binding or admission',async()=>{
+ await queuedHandoff();await db.exec('BEGIN');await claimHandoff();await db.exec('ROLLBACK');const rows=await handoffRows();assert.equal(rows.jobs[0].status,'queued');assert.equal(rows.jobs[0].attempts,0);assert.equal(rows.jobs[0].locked_at,null);assert.equal(rows.operations.length,0);assert.equal(rows.bindings.length,0);assert.equal(rows.sourceBindings.length,0);
+});
+for(const role of ['anon',...Object.keys(actors)])test('summary handoff cannot be called by '+role,async()=>{
+ await queuedHandoff();await as(actors[role]??actors.family,role==='anon'?'anon':'authenticated');await assert.rejects(claimHandoff(),{code:'42501'});const rows=await handoffRows();assert.equal(rows.jobs[0].status,'queued');assert.equal(rows.operations.length,0);
+});
+for(const fault of ['actor-access','partner','source-hash','object-version','scan','foreign-document','stale-attempt','wrong-kind'])test('summary handoff refuses '+fault+' without a partial claim or operation',async()=>{
+ const entry=await queuedHandoff();await db.exec('RESET ROLE');
+ if(fault==='actor-access')await db.query('UPDATE public.students SET owner_id=NULL WHERE id=$1',[student]);
+ if(fault==='partner')await db.query("UPDATE public.user_roles SET role='partner' WHERE user_id=$1",[actors.family]);
+ if(fault==='source-hash')await db.query('UPDATE public.documents SET content_hash=$1 WHERE id=$2',['f'.repeat(64),entry.document]);
+ if(fault==='object-version')await db.query("UPDATE storage.objects SET version='changed' WHERE name=$1",[entry.path]);
+ if(fault==='scan')await db.query("UPDATE public.documents SET scan_status='failed' WHERE id=$1",[entry.document]);
+ if(fault==='foreign-document')await db.query("UPDATE public.ai_jobs SET input_source=jsonb_set(input_source,'{document_id}',to_jsonb($1::text)) WHERE id=$2",[uid(999999),handoffJob]);
+ if(fault==='wrong-kind')await db.query("UPDATE public.ai_jobs SET job_type='pathway_report' WHERE id=$1",[handoffJob]);
+ await as(actors.family,'service_role');await assert.rejects(claimHandoff(db,handoffJob,fault==='stale-attempt'?1:0));
+ const rows=await handoffRows();assert.equal(rows.jobs[0].status,'queued');assert.equal(rows.jobs[0].attempts,0);assert.equal(rows.operations.length,0);assert.equal(rows.bindings.length,0);assert.equal(rows.sourceBindings.length,0);
+});
+test('pause refuses a queued summary handoff before changing its status',async()=>{
+ await queuedHandoff();await pauseOperation(true);await assert.rejects(claimHandoff(),{code:'55000'});const rows=await handoffRows();assert.equal(rows.jobs[0].status,'queued');assert.equal(rows.operations.length,0);
+});
+test('a known summary claim alone cannot settle the operation',async()=>{
+ await queuedHandoff();const receipt=await claimHandoff();await assert.rejects(finishOperation(receipt),{code:'55000'});const rows=await handoffRows();assert.equal(rows.operations[0].state,'active');assert.equal(rows.jobs[0].status,'processing');
+});
+test('a guarded completed summary can settle only its exact bound operation',async()=>{
+ await queuedHandoff();const receipt=await claimHandoff();const s=(await db.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[handoffJob,receipt.claim_at,receipt.claim_attempt])).rows[0].source;
+ const payload={key_findings:['Fictional confirmed outcome'],_source:{document_id:s.document_id,object_id:s.object_id,object_version:s.object_version,content_sha256:s.content_sha256}};
+ await db.query('SELECT public.complete_verified_document_summary($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[handoffJob,receipt.claim_at,receipt.claim_attempt,s.actor_id,s.student_id,s.document_id,s.object_id,s.object_version,s.content_sha256,s.context,payload]);await finishOperation(receipt);
+ const rows=await handoffRows();assert.equal(rows.operations[0].state,'completed');assert.equal(rows.jobs[0].status,'completed');assert.equal(rows.bindings.length,1);
+});
+test('uncertain summary work remains counted and cannot be completed through ordinary finish',async()=>{
+ await queuedHandoff();const receipt=await claimHandoff();await finishOperation(receipt,'needs_review');await assert.rejects(finishOperation(receipt),{code:'42501'});const rows=await handoffRows();assert.equal(rows.operations[0].state,'needs_review');assert.equal(rows.bindings.length,1);await as(actors.family,'service_role');await pauseOperation(true);await assert.rejects(pauseOperation(false,3),{code:'55000'});
+});
+for(const action of ['UPDATE public.document_summary_operation_bindings SET claim_attempt=claim_attempt+1','DELETE FROM public.document_summary_operation_bindings'])test('summary handoff binding refuses '+action.split(' ')[0]+' even from fixture owner',async()=>{
+ await queuedHandoff();await claimHandoff();await db.exec('RESET ROLE');await assert.rejects(db.exec(action),{code:'42501'});assert.equal((await handoffRows()).bindings.length,1);
+});
+test('summary handoff exposes only one service RPC and no raw binding privilege',async()=>{
+ await handoffFixture();await db.exec('RESET ROLE');for(const role of ['anon','authenticated','service_role']){
+  assert.equal((await db.query("SELECT has_function_privilege($1,'public.claim_admitted_document_summary(uuid,integer)','EXECUTE') AS ok",[role])).rows[0].ok,role==='service_role');
+  for(const signature of ['public.guard_document_summary_operation_binding()','public.guard_document_summary_operation_completion()'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,false);
+  for(const privilege of ['SELECT','INSERT','UPDATE','DELETE'])assert.equal((await db.query("SELECT has_table_privilege($1,'public.document_summary_operation_bindings',$2) AS ok",[role,privilege])).rows[0].ok,false);
+ }
+ assert.equal((await db.query("SELECT relrowsecurity FROM pg_class WHERE oid='public.document_summary_operation_bindings'::regclass")).rows[0].relrowsecurity,true);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('competing atomic summary handoffs admit one queued job after '+ending,{skip:!native},async()=>{
+ await queuedHandoff();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);for(const writer of [a,b])assert.equal((await writer.query("SELECT current_user='service_role' AS restricted_writer")).rows[0].restricted_writer,true);
+ await a.exec('BEGIN');await claimHandoff(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=claimHandoff(b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);const rows=await handoffRows();assert.equal(rows.operations.length,1);assert.equal(rows.bindings.length,1);assert.equal(rows.jobs[0].attempts,1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+
+test('atomic handoff refuses an older untracked source binding instead of replaying it',async()=>{
+ await queuedHandoff();await db.exec('RESET ROLE');await db.query("UPDATE public.ai_jobs SET status='processing',locked_at=$1,attempts=1 WHERE id=$2",[claimAt,handoffJob]);await as('','service_role');await db.query('SELECT public.read_verified_document_summary_source($1,$2,1)',[handoffJob,claimAt]);await db.exec('RESET ROLE');await db.query("UPDATE public.ai_jobs SET status='queued',locked_at=NULL WHERE id=$1",[handoffJob]);await as('','service_role');await assert.rejects(claimHandoff(db,handoffJob,1),{code:'42501'});const rows=await handoffRows();assert.equal(rows.jobs[0].status,'queued');assert.equal(rows.operations.length,0);assert.equal(rows.bindings.length,0);assert.equal(rows.sourceBindings.length,1);
+});
+for(const drift of ['open','queued','read-body','grant','column-grant'])test('summary handoff installation refuses '+drift+' without repair',async()=>{
+ await handoffFixture(false);
+ if(drift==='open'){await as('','service_role');await pauseOperation(false);}
+ if(drift==='queued'){await as('','service_role');await pauseOperation(false);const x=await quotaAttempt(1);await completeQuotaAttempt(x);await pauseOperation(true);}
+ await db.exec('RESET ROLE');
+ if(drift==='read-body')await db.exec("ALTER FUNCTION public.read_verified_document_summary_source(uuid,timestamptz,integer) RESET ALL");
+ if(drift==='grant')await db.exec('GRANT EXECUTE ON FUNCTION public.read_verified_document_summary_source(uuid,timestamptz,integer) TO authenticated');
+ if(drift==='column-grant')await db.exec('GRANT SELECT(actor_id) ON public.document_summary_source_bindings TO service_role');
+ await assert.rejects(db.exec(summaryHandoff),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_summary_operation_bindings') AS name")).rows[0].name,null);
+});
+for(const attempt of [null,-1,2147483647])test('atomic summary handoff rejects unsupported expected attempt '+attempt,async()=>{
+ await queuedHandoff();await assert.rejects(claimHandoff(db,handoffJob,attempt),{code:'42501'});const rows=await handoffRows();assert.equal(rows.jobs[0].status,'queued');assert.equal(rows.operations.length,0);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('atomic summary claim and maintenance pause serialize after '+ending,{skip:!native},async()=>{
+ await queuedHandoff();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);for(const writer of [a,b])assert.equal((await writer.query("SELECT current_user='service_role' AS restricted_writer")).rows[0].restricted_writer,true);
+ await a.exec('BEGIN');await claimHandoff(a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=pauseOperation(true,2,b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);assert.equal((await pending).error,undefined);const rows=await handoffRows();assert.equal(rows.jobs[0].status,ending==='COMMIT'?'processing':'queued');assert.equal(rows.operations.length,ending==='COMMIT'?1:0);assert.equal(rows.bindings.length,ending==='COMMIT'?1:0);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('queued summary claim observes a waiting pause after '+ending,{skip:!native},async()=>{
+ await queuedHandoff();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);for(const writer of [a,b])assert.equal((await writer.query("SELECT current_user='service_role' AS restricted_writer")).rows[0].restricted_writer,true);
+ await a.exec('BEGIN');await pauseOperation(true,2,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=claimHandoff(b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'55000');else assert.equal(result.error,undefined);const rows=await handoffRows();assert.equal(rows.jobs[0].status,ending==='COMMIT'?'queued':'processing');assert.equal(rows.operations.length,ending==='COMMIT'?0:1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
 });

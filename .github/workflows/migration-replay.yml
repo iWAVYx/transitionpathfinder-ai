@@ -45,6 +45,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-pause-fence.sql"
       - "docs/production-readiness/proposals/document-upload-interval.sql"
       - "docs/production-readiness/proposals/document-upload-retained-limits.sql"
+      - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -109,6 +110,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-pause-fence.sql"
       - "docs/production-readiness/proposals/document-upload-interval.sql"
       - "docs/production-readiness/proposals/document-upload-retained-limits.sql"
+      - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -1116,6 +1118,53 @@ jobs:
               FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure));
           SQL
 
+      - name: Verify atomic summary operation handoff after retained upload limits
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-summary-operation-handoff.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $handoff$
+          DECLARE role_name text; signature text; expected record;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.guard_document_summary_operation_binding()','b049daec1448ce2bc28812c4588c8b97'),
+              ('public.claim_admitted_document_summary(uuid,integer)','f583bd75fedfe8ab4ce31abefe7b12b3'),
+              ('public.guard_document_summary_operation_completion()','80e1d39564ed282104abea744faa45ea')) AS x(signature,body_md5) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND prosecdef
+                AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected summary handoff definition or owner';
+              END IF;
+            END LOOP;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              IF has_function_privilege(role_name,'public.claim_admitted_document_summary(uuid,integer)','EXECUTE') IS DISTINCT FROM (role_name='service_role') THEN
+                RAISE EXCEPTION 'Unexpected summary handoff grant';
+              END IF;
+              FOREACH signature IN ARRAY ARRAY['public.guard_document_summary_operation_binding()','public.guard_document_summary_operation_completion()'] LOOP
+                IF has_function_privilege(role_name,signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected summary handoff helper grant'; END IF;
+              END LOOP;
+              IF has_table_privilege(role_name,'public.document_summary_operation_bindings','SELECT')
+                OR has_table_privilege(role_name,'public.document_summary_operation_bindings','INSERT')
+                OR has_table_privilege(role_name,'public.document_summary_operation_bindings','UPDATE')
+                OR has_table_privilege(role_name,'public.document_summary_operation_bindings','DELETE') THEN
+                RAISE EXCEPTION 'Unexpected raw summary handoff grant';
+              END IF;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_summary_operation_bindings'::regclass AND relrowsecurity) THEN
+              RAISE EXCEPTION 'Summary handoff row security required';
+            END IF;
+          END; $handoff$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-summary-operation-handoff.json
+          SELECT jsonb_build_object('schema','document-summary-operation-handoff-proof-v1','phase','after-sixth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'binding_count',(SELECT count(*) FROM public.document_summary_operation_bindings),
+            'atomic_handoff_prepared',true,'worker_handler_wired',false,'legacy_reader_paths_fenced',false,'queue_budget_reservation_implemented',false,
+            'general_operation_limits_implemented',false,'manual_reconciliation_implemented',false,
+            'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.claim_admitted_document_summary(uuid,integer)'::regprocedure,
+                'public.guard_document_summary_operation_binding()'::regprocedure,'public.guard_document_summary_operation_completion()'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1218,4 +1267,5 @@ jobs:
             /tmp/document-upload-pause-fence.json
             /tmp/document-upload-interval.json
             /tmp/document-upload-retained-limits.json
+            /tmp/document-summary-operation-handoff.json
           if-no-files-found: ignore
