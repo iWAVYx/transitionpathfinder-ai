@@ -1,0 +1,66 @@
+{
+  "schema": "document-rescan-admission-local-v1",
+  "date": "2026-10-30",
+  "source_base": "a3d7f575fdc5a114446d8e3f7d606c9c997619d2",
+  "status": "All local checks passed; exact-source automatic checks pending",
+  "runtime_fingerprint": "d68c055d1272efe7e14792fa24fbb54dfa16cfbeb9109490c1d02e2e5d2178e9",
+  "runtime_file_count": 1202,
+  "source_manifest": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "d74fda5fc643865f7184ef05b24eab4c2c1ca85fb068fe363315cfc67519513d"
+    },
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8"
+    },
+    {
+      "path": "src/lib/document-operation-admission.server.ts",
+      "sha256": "5d990ab99ce2248f16b7c6bcb541e5c1b39c63a3f3614609a5024cea91b4b425"
+    },
+    {
+      "path": "tests/unit/document-removal-safety.test.ts",
+      "sha256": "5ce22019d53fd722ec3cd1bec0feca7fac348f2681820b8a21f21913b89f386b"
+    },
+    {
+      "path": "tests/unit/document-rescan-source.test.ts",
+      "sha256": "e0e3d4da39043ef84c2067cefe4bf0dcc9e0a52fe5397fde2829934e7c3b3941"
+    },
+    {
+      "path": ".github/workflows/report-a11y.yml",
+      "sha256": "6bfcc72b9231bb5889171935dc1c0a86d9b5853c1b8bc1e890beaba3aafd1190"
+    },
+    {
+      "path": "tests/production-readiness-contract.test.mjs",
+      "sha256": "3d8ec0a567009dae9fb168ece8ce9da1fe4b2c63acfe78fc0fba25a13770f0f8"
+    }
+  ],
+  "validation": {
+    "focused": 176,
+    "unit_tests": 5474,
+    "unit_files": 354,
+    "contracts": 92,
+    "typecheck": "pass",
+    "capped_local_staging_build": "pass",
+    "database": "SQL unchanged; retained225 canonical plus2 unapplied proposals and previous native716/716 proof. No new local/native/hosted run claimed."
+  },
+  "admission_scope": [
+    "Viewer/gate/caller-RLS/current source metadata preflight before metadata-only service admission.",
+    "No Storage Info, download or provider request before a valid begin receipt. Recheck authority and source when callback starts.",
+    "Same immutable downloaded Blob for hash and scan; exact revision CAS for pending and clean/quarantine.",
+    "Non-infected negative scanner replies remain pending and hold needs_review, since timeout/failure is not provider quiescence proof.",
+    "Only confirmed infection/quarantine or confirmed clean scan plus queued summary settles the rescan; neither claims AI summary completion.",
+    "Unconfirmed begin/queue/finish never replays, clears a hold or returns success."
+  ],
+  "remaining": [
+    "Held-operation limits/manual reconciliation; conservative CAS refusals can retain a hold even if no provider was called.",
+    "Legacy/direct/service writer fences and transaction-held current authority review.",
+    "Register/browser multi-request interval and separately packaged Deno worker integration.",
+    "Canonical/ledger packaging, provider/storage proof and fresh authorized hosted acceptance."
+  ],
+  "ci_runner_fix": "Pin report-a11y to ubuntu-24.04 after observed ubuntu26.04 unsupported browser-install failure. Preserve15-minute job,10-minute installer, frozen install and actual accessibility suite.",
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "fixtures_created": false
+}

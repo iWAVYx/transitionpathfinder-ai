@@ -946,11 +946,11 @@ test("role-guard browser CI uses the bounded standardized Playwright installer",
   assert.doesNotMatch(workflow, /bunx playwright install/);
 });
 
-test("accessibility CI uses the bounded standardized Playwright installer", () => {
+test("accessibility CI pins a supported runner and uses the bounded standardized Playwright installer", () => {
   const workflow = read(".github/workflows/report-a11y.yml");
   assert.match(
     workflow,
-    /report-a11y:\s*\n\s+runs-on:\s*ubuntu-latest\s*\n\s+timeout-minutes:\s*15/,
+    /report-a11y:\s*\n\s+runs-on:\s*ubuntu-24\.04\s*\n\s+timeout-minutes:\s*15/,
   );
   assert.match(
     workflow,

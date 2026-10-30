@@ -2,7 +2,7 @@
   "schema": "document-rescan-source-local-v1",
   "date": "2026-10-30",
   "base_source": "b5c4b55662cbecb7208585ece08c04d3bf56fd54",
-  "status": "Local verification passed; exact-source automatic checks pending",
+  "status": "Prepared source verified locally; automatic accessibility job stopped before tests on unsupported ubuntu26.04 runner",
   "runtime_fingerprint": "c84252fc5cb30880cb9369957d9d6161be1d65481fdea9a6ac80d4791593c80c",
   "runtime_file_count": 1202,
   "source_manifest": [
@@ -57,5 +57,24 @@
   "hosted_actions": false,
   "production_access": false,
   "provider_calls": false,
-  "fixtures_created": false
+  "fixtures_created": false,
+  "verified_source": "a3d7f575fdc5a114446d8e3f7d606c9c997619d2",
+  "automatic_checks": {
+    "successes": 7,
+    "failures": 1,
+    "failure": {
+      "run": 41057702496,
+      "stage": "Install Playwright browsers",
+      "cause": "ubuntu-latest moved to ubuntu26.04-x64, unsupported by installed Playwright1.60.0; no accessibility test executed."
+    },
+    "database_replay": {
+      "run": 41057702437,
+      "conclusion": "success"
+    },
+    "builds": [
+      41057702351,
+      41057693400
+    ],
+    "fix": "Next prepared source pins only the affected report-a11y job to ubuntu-24.04; all assertions and install/test timeouts retained."
+  }
 }

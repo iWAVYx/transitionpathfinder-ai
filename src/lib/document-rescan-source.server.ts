@@ -36,7 +36,7 @@ async function authority(client: Client, actor: string, source: Source) {
 /** Uses storage-js camel-cased Info, under the caller's Storage authorization.
  * Missing version/lifecycle support fails closed; metadata is not physical-byte
  * or conditional-write proof. The immutable downloaded Blob supplies the scan. */
-export async function prepareDocumentRescanCopy(privateClient: unknown, actorId: string, value: unknown) {
+export async function authorizeDocumentRescanSource(privateClient: unknown, actorId: string, value: unknown) {
   try {
     const actor = z.string().uuid().parse(actorId);
     const source = sourceSchema.parse(value);
@@ -61,16 +61,29 @@ export async function prepareDocumentRescanCopy(privateClient: unknown, actorId:
       })) throw new Error();
       await confirmObject();
     };
+    // Only current caller authority and source metadata are checked here.
+    // File IO belongs to the admitted callback, after a confirmed begin reply.
     await authority(client, actor, source);
-    await confirmObject();
-    const downloaded = await bucket.download(source.storage_path);
-    if (downloaded.error || !(downloaded.data instanceof Blob) || downloaded.data.size !== source.size_bytes) throw new Error();
-    const copy = downloaded.data;
-    const contentHash = await documentUploadFingerprint(copy);
-    if (contentHash !== source.content_hash) throw new Error();
-    await confirm(source.updated_at, "failed");
-    return { copy, contentHash, confirmPending: async (revision: string) => {
-      try { await confirm(revision, "pending"); } catch { throw new Error(RESCAN_SOURCE_MESSAGE); }
+    return { prepareCopy: async () => {
+      try {
+        await authority(client, actor, source);
+        await confirmObject();
+        const downloaded = await bucket.download(source.storage_path);
+        if (downloaded.error || !(downloaded.data instanceof Blob) || downloaded.data.size !== source.size_bytes) throw new Error();
+        const copy = downloaded.data;
+        const contentHash = await documentUploadFingerprint(copy);
+        if (contentHash !== source.content_hash) throw new Error();
+        await confirm(source.updated_at, "failed");
+        return { copy, contentHash, confirmPending: async (revision: string) => {
+          try { await confirm(revision, "pending"); } catch { throw new Error(RESCAN_SOURCE_MESSAGE); }
+        } };
+      } catch { throw new Error(RESCAN_SOURCE_MESSAGE); }
     } };
   } catch { throw new Error(RESCAN_SOURCE_MESSAGE); }
+}
+
+/** Internal convenience wrapper for local source verification; the rescan
+ * endpoint uses authorizeDocumentRescanSource and admits before prepareCopy. */
+export async function prepareDocumentRescanCopy(privateClient: unknown, actorId: string, value: unknown) {
+  return (await authorizeDocumentRescanSource(privateClient, actorId, value)).prepareCopy();
 }

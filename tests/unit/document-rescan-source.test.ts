@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { beforeEach, expect, it, vi } from "vitest";
-import { prepareDocumentRescanCopy, RESCAN_SOURCE_MESSAGE } from "../../src/lib/document-rescan-source.server";
+import { authorizeDocumentRescanSource, prepareDocumentRescanCopy, RESCAN_SOURCE_MESSAGE } from "../../src/lib/document-rescan-source.server";
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const text = "Fictional reviewed source";
 const row = { id: id(1), student_id: id(2), storage_path: `${id(2)}/privacy-safe-document.txt`, storage_object_id: id(3), storage_object_version: "version-one", content_hash: createHash("sha256").update(text).digest("hex"), mime_type: "text/plain", size_bytes: Buffer.byteLength(text), title: "Fictional text", doc_type: "other", updated_at: "2026-10-30T12:00:00.123456+00:00", scan_status: "failed", deleted_at: null };
@@ -14,7 +14,7 @@ beforeEach(() => {
 it("hashes one caller-readable immutable copy between exact object/current-source checks", async () => {
   const prepared = await prepareDocumentRescanCopy(client, id(4), row);
   expect(prepared.copy).toBe(copy); expect(prepared.contentHash).toBe(row.content_hash); expect(download).toHaveBeenCalledExactlyOnceWith(row.storage_path);
-  expect(object).toHaveBeenCalledTimes(2); expect(rpc).toHaveBeenCalledTimes(6);
+  expect(object).toHaveBeenCalledTimes(2); expect(rpc).toHaveBeenCalledTimes(9);
   read.mockResolvedValue({ data: { ...row, scan_status: "pending", updated_at: "2026-10-30T12:01:00Z" }, error: null });
   await prepared.confirmPending("2026-10-30T12:01:00Z"); expect(object).toHaveBeenCalledTimes(3);
 });
@@ -51,4 +51,14 @@ it("rechecks revoked authority before using a pending scan result", async () => 
 it.each(["storage_object_id", "storage_object_version", "content_hash", "mime_type"])("legacy or unsupported source without %s stops before IO", async field => {
   await expect(prepareDocumentRescanCopy(client, id(4), { ...row, [field]: null })).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
   expect(rpc).not.toHaveBeenCalled(); expect(download).not.toHaveBeenCalled();
+});
+
+it("preflight authority does not read file metadata or bytes before admission", async () => {
+  const preflight = await authorizeDocumentRescanSource(client, id(4), row);
+  expect(rpc).toHaveBeenCalledTimes(3); expect(object).not.toHaveBeenCalled(); expect(download).not.toHaveBeenCalled();
+  await preflight.prepareCopy(); expect(download).toHaveBeenCalledOnce();
+});
+it("rechecks revoked access after preflight and before the admitted file read", async () => {
+  const preflight = await authorizeDocumentRescanSource(client, id(4), row); rpc.mockResolvedValue({ data: false, error: null });
+  await expect(preflight.prepareCopy()).rejects.toThrow(RESCAN_SOURCE_MESSAGE); expect(object).not.toHaveBeenCalled(); expect(download).not.toHaveBeenCalled();
 });

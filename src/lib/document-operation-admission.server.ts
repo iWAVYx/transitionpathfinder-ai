@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Dormant service-side adapter. This does not authorize student access, pause
+/** Shared service-side adapter. This does not authorize student access, pause
  * legacy handlers or prove provider completion. Callers must establish current
  * viewer/student/source authority before admitting a fixed operation kind and
  * return from work only after validating their own completion receipts. */

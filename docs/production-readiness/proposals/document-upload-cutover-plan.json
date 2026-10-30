@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Reviewed Apply integration and transaction pause fence prepared; remaining runtime/provider/legacy drain unverified, no hosted authorization",
+  "status": "Reviewed Apply and rescan admission connected in prepared source; browser/register/separate worker and hosted acceptance remain open",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -16,7 +16,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "e0226ad841621569683c1549757384ed20af1de2ba7f12052082b89a5b825d54"
+      "sha256": "d74fda5fc643865f7184ef05b24eab4c2c1ca85fb068fe363315cfc67519513d"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -60,7 +60,7 @@
     },
     {
       "path": "src/lib/document-rescan-source.server.ts",
-      "sha256": "b53bef2af82b81e688e662d7815a29895564b958c405bea9b0977913b126bcb3"
+      "sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8"
     }
   ],
   "batch": {
@@ -99,7 +99,7 @@
     {
       "step": 2,
       "action": "Review and implement a narrowly scoped maintenance/admission mechanism that stops old upload, registration, rescan, reviewed Apply and summary-dispatch entry points. Identify every actual scheduler/direct caller in the environment.",
-      "status": "PARTIAL: durable SQL admission foundation prepared and locally tested; application/worker integration, actual scheduler/direct-caller inventory and old-handler/provider drain still unimplemented/unverified"
+      "status": "PARTIAL: Apply and rescan handlers connected in prepared source; register/browser/separate worker, held-operation controls, actual scheduler/direct-writer inventory and legacy/provider drain remain open"
     },
     {
       "step": 3,
@@ -199,10 +199,23 @@
     "status": "Account/source checks prepared and locally verified; durable rescan admission remains open",
     "evidence": "docs/production-readiness/evidence/document-rescan-source-local-2026-10-30.json",
     "remaining": [
-      "Integrate durable pause/admission and uncertain-provider reconciliation, including retained-hold limits/manual reconciliation.",
+      "Durable rescan admission now prepared separately; see rescan_admission_preparation. Retained-hold limits/manual reconciliation remain open.",
       "Review transaction-held authority/writer fences and legacy/provider drain.",
       "Authorize and verify real isolated Storage/version/bytes behavior before activation."
     ],
     "hosted_actions": false
+  },
+  "rescan_admission_preparation": {
+    "date": "2026-10-30",
+    "implemented_in_prepared_source": true,
+    "hosted_verified": false,
+    "scope": "Caller/viewer/source metadata preflight before admission; same-copy download and scan/conditional outcome/queue receipt checks stay inside the admitted callback. Confirmed quarantine or clean-plus-queued results settle only this rescan; summary processing is separate.",
+    "uncertainty": "Any non-infected negative scanner result leaves the document pending and marks the operation needs_review. Missing/lost begin runs no file work. Uncertain queue/finish never retries or reports success.",
+    "remaining": [
+      "Retained-hold abuse/limits and separately authorized manual reconciliation.",
+      "Legacy/direct/service-writer and transaction-held authority fences; physical Storage/provider proof.",
+      "Register/browser interval and separately packaged Deno worker integration, final canonical/ledger packaging and bounded hosted acceptance."
+    ],
+    "evidence": "docs/production-readiness/evidence/document-rescan-admission-local-2026-10-30.json"
   }
 }

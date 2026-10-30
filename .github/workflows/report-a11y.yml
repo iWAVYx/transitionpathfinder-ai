@@ -18,8 +18,9 @@ on:
     branches: [main]
 
 jobs:
+  # Playwright 1.60 supports Ubuntu 24.04; ubuntu-latest may move ahead.
   report-a11y:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

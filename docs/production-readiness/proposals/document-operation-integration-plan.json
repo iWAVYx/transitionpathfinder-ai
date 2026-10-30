@@ -1,17 +1,17 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Reviewed Apply connected in prepared source with viewer/current-access prechecks and database pause fence; other handler/browser/worker integration remains pending and unapplied hosted",
+  "status": "Reviewed Apply and rescan admission connected in prepared source; browser/register/separate worker and hosted acceptance remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
     {
       "path": "src/lib/document-operation-admission.server.ts",
-      "sha256": "f4ffe955ed2d2bdea5ecdb648de34e8fa4fc4d2e997973b540bfa99f9e32cc88"
+      "sha256": "5d990ab99ce2248f16b7c6bcb541e5c1b39c63a3f3614609a5024cea91b4b425"
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "e0226ad841621569683c1549757384ed20af1de2ba7f12052082b89a5b825d54"
+      "sha256": "d74fda5fc643865f7184ef05b24eab4c2c1ca85fb068fe363315cfc67519513d"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -43,7 +43,7 @@
     },
     {
       "path": "src/lib/document-rescan-source.server.ts",
-      "sha256": "b53bef2af82b81e688e662d7815a29895564b958c405bea9b0977913b126bcb3"
+      "sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8"
     }
   ],
   "adapter_contract": {
@@ -66,12 +66,23 @@
       ]
     },
     {
-      "target": "register and rescan",
+      "target": "register",
       "implemented": false,
       "requirements": [
         "Establish expected viewer, current edit/source permission and fixed server operation kind before admission.",
         "Keep existing byte-copy/fingerprint/scan/registration/source receipt checks and caller-RLS data writes.",
         "Keep a confirmed queued summary separate from completed summary processing. Do not clear an interval merely because an enqueue was attempted."
+      ]
+    },
+    {
+      "target": "rescan",
+      "implemented": true,
+      "status": "Locally verified prepared source only; exact-source automatic checks and all hosted activation remain open",
+      "requirements": [
+        "Current loaded viewer, protected upload gate and caller/source authority before admission.",
+        "File IO, same-copy hash/version confirmation, provider request, conditional scan receipts and exact queue receipt inside the confirmed rescan operation.",
+        "Non-infected provider uncertainty leaves pending work and a needs_review hold; no auto-retry, expiration, removal or success.",
+        "Complete retained-hold limits/reconciliation, legacy/writer review, canonical/ledger packaging and authorized hosted proof before activation."
       ]
     },
     {
@@ -129,10 +140,23 @@
     "status": "Account/source checks prepared and locally verified; durable rescan admission remains open",
     "evidence": "docs/production-readiness/evidence/document-rescan-source-local-2026-10-30.json",
     "remaining": [
-      "Integrate durable pause/admission and uncertain-provider reconciliation, including retained-hold limits/manual reconciliation.",
+      "Durable rescan admission now prepared separately; see rescan_admission_preparation. Retained-hold limits/manual reconciliation remain open.",
       "Review transaction-held authority/writer fences and legacy/provider drain.",
       "Authorize and verify real isolated Storage/version/bytes behavior before activation."
     ],
     "hosted_actions": false
+  },
+  "rescan_admission_preparation": {
+    "date": "2026-10-30",
+    "implemented_in_prepared_source": true,
+    "hosted_verified": false,
+    "scope": "Caller/viewer/source metadata preflight before admission; same-copy download and scan/conditional outcome/queue receipt checks stay inside the admitted callback. Confirmed quarantine or clean-plus-queued results settle only this rescan; summary processing is separate.",
+    "uncertainty": "Any non-infected negative scanner result leaves the document pending and marks the operation needs_review. Missing/lost begin runs no file work. Uncertain queue/finish never retries or reports success.",
+    "remaining": [
+      "Retained-hold abuse/limits and separately authorized manual reconciliation.",
+      "Legacy/direct/service-writer and transaction-held authority fences; physical Storage/provider proof.",
+      "Register/browser interval and separately packaged Deno worker integration, final canonical/ledger packaging and bounded hosted acceptance."
+    ],
+    "evidence": "docs/production-readiness/evidence/document-rescan-admission-local-2026-10-30.json"
   }
 }
