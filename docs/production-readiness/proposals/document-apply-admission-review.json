@@ -47,5 +47,15 @@
   ],
   "hosted_actions": false,
   "production_access": false,
-  "authorization_recorded": false
+  "authorization_recorded": false,
+  "verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
+  "native_verification": {
+    "pr_run": 40987411633,
+    "push_run": 40987405073,
+    "tests_per_run": 716,
+    "fail": 0,
+    "skip": 0,
+    "gated_prosrc_md5": "931e2c8dda387bacd5829d3f5b81749d",
+    "note": "All prior atomic body/grants retained, direct RPC pause enforced and both transaction race directions pass. No whole-writer/provider fence or hosted approval inferred."
+  }
 }

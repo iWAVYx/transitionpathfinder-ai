@@ -77,9 +77,9 @@
         "Required loaded-viewer intent and caller-RLS authority/source prechecks precede metadata admission.",
         "Retained invoker atomic save has a separately proposed transaction-held pause fence; exact old body plus only the gate lock is parity tested.",
         "Null-data SQL42501/55000 refusals close tracked work but return a safe failure; all uncertain outcomes retain holds with no replay.",
-        "Complete native/coordinated hosted migration/client-refresh and bounded acceptance before activation."
+        "Prepare final canonical/ledger package, coherent client refresh and separately authorized hosted migration/application/DB/UI acceptance before activation."
       ],
-      "status": "prepared/local validation; not deployed or accepted hosted"
+      "status": "verified prepared source: both native716/716, nine automatic checks,5370 unit tests and both builds pass; not deployed or accepted hosted"
     },
     {
       "target": "separate summary worker",
@@ -102,5 +102,6 @@
   "authorization_recorded": false,
   "adapter_verified_source": "b88a024a79630723e9150da004b80632a983d156",
   "adapter_verification": "Eight applicable automatic checks, both builds,5334 unit tests/350 files,40 focused cases, TypeScript and local capped build pass. Automatic cumulative PR database check also passes694/694 and225 canonical plus admission proposal; SQL unchanged. No handler integration or hosted activation.",
-  "apply_integration_review": "docs/production-readiness/proposals/document-apply-admission-review.json"
+  "apply_integration_review": "docs/production-readiness/proposals/document-apply-admission-review.json",
+  "apply_verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66"
 }

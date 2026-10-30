@@ -1,6 +1,6 @@
 {
   "date": "2026-10-29",
-  "status": "Reviewed Apply integration, loaded-viewer lifetime and database pause fence prepared and locally verified; native/exact-source CI pending",
+  "status": "Reviewed Apply integration, loaded-viewer lifetime and database pause fence verified on exact-source automatic/native checks; not deployed or applied hosted",
   "source_base": "e08e1365",
   "runtime_source_fingerprint": "385a87046fea210386e6e1ff0e3f3dc71e4d1652c882071bf3bbf67eb2e542a4",
   "runtime_source_file_count": 1201,
@@ -39,7 +39,7 @@
   ],
   "review": "docs/production-readiness/proposals/document-apply-admission-review.json",
   "remaining": [
-    "Native direct-save/pause commit/rollback cases and complete225-schema plus both admission proposals still pending.",
+    "Native direct-save/pause commit/rollback and complete225-schema plus both admission proposals now pass in both runs. Hosted application/DB/UI acceptance remains open.",
     "Register/rescan, multi-request browser-upload continuation and separately packaged summary worker remain unintegrated. Other direct writers/legacy sequential handlers and provider work are not fenced by this Apply-only change.",
     "Per-actor retained-hold admission bounds and authorized manual reconciliation remain required before activation. No automatic cleanup, expiry or recovery.",
     "Both control proposals still require canonical/ledger packaging and fresh specifically bounded hosted preflight/migration/release/test authorization. Existing fifteen-migration batch does not install them.",
@@ -47,5 +47,59 @@
   ],
   "hosted_actions": false,
   "production_access": false,
-  "authorization_recorded": false
+  "authorization_recorded": false,
+  "verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
+  "native_sql": {
+    "tests": 716,
+    "pass": 716,
+    "fail": 0,
+    "skip": 0,
+    "canonical_replay": 225,
+    "additional_proposals": [
+      "document-operation-admission.sql",
+      "document-apply-admission.sql"
+    ],
+    "pr_run": 40987411633,
+    "push_run": 40987405073,
+    "artifacts": [
+      {
+        "event": "pr",
+        "run": 40987411633,
+        "sha256": {
+          "atomic-extraction-preflight.json": "61362297c4fd237fef71378b80dfcee6e776d5e33d5e93950ca4d2edb34bcd81",
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92"
+        }
+      },
+      {
+        "event": "push",
+        "run": 40987405073,
+        "sha256": {
+          "atomic-extraction-preflight.json": "61362297c4fd237fef71378b80dfcee6e776d5e33d5e93950ca4d2edb34bcd81",
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92"
+        }
+      }
+    ],
+    "retained_preflight": "docs/production-readiness/evidence/document-apply-admission-disposable-preflight-2026-10-29.json",
+    "retained_catalog": "docs/production-readiness/evidence/document-reference-catalog-apply-admission-2026-10-29.json",
+    "scope": "Disposable full-schema and fictional rows only; gated prosrc MD5 and exact invoker/client/service grants independently verified. Not hosted data/ledger/provider acceptance."
+  },
+  "automatic_checks": {
+    "pass": 9,
+    "build_runs": [
+      40987411666,
+      40987405062
+    ],
+    "unit_run": 40987411711,
+    "unit_tests": 5370,
+    "unit_files": 352,
+    "role_run": 40987411657,
+    "accessibility_run": 40987411685,
+    "readiness_run": 40987411623,
+    "static_run": 40987411710,
+    "protected_hosted_checks": "Skipped/unperformed; not live acceptance."
+  }
 }

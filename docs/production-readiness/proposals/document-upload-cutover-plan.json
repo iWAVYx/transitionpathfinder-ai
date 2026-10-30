@@ -12,7 +12,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "22b740965ee2eb578a9140fa643a3c1fdffa0536b3774c4735d998f8c6a7456c"
+      "sha256": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898"
     },
     {
       "path": "src/lib/documents.functions.ts",
@@ -20,11 +20,11 @@
     },
     {
       "path": "src/lib/extractions.functions.ts",
-      "sha256": "99ce632404a27608f9b7c8db818a52c730643eafcd76d8ffb3b496a7fbfc80e6"
+      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
-      "sha256": "1a6a93c68399f319d560b19842c157e65919b964f6ccaed0aa3fb62748c8c7f9"
+      "sha256": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458"
     },
     {
       "path": "src/lib/evidence-writers.functions.ts",
@@ -53,6 +53,10 @@
     {
       "path": "docs/production-readiness/proposals/document-operation-admission.sql",
       "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-admission.sql",
+      "sha256": "e79a8d152da88eb6f6c85f5bffcb2b246a6f0af83b31a8cd2acf6a0b761dc0ff"
     }
   ],
   "batch": {
@@ -165,8 +169,9 @@
     "limits": "Tracks only explicitly integrated new handlers; no file/provider actions or student access grants. ready_for_cutover and legacy/provider proof fields stay false. needs_review has no release/complete path in this foundation.",
     "verification": "Exact f0c96396 source: both native694/694 runs, complete225-schema plus admission proposal, exact service-only grants, default-paused rollback smoke, nine automatic checks and both builds pass. No hosted integration or activation.",
     "dormant_adapter": "src/lib/document-operation-admission.server.ts; prepared and locally validated, no handler imports/calls or activation",
-    "apply_integration": "Prepared in the shared authenticated endpoint; caller-RLS writes retained. New document-apply-admission.sql is a separate unapplied guard. Other targets and legacy/provider work remain unintegrated."
+    "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Both admission and Apply-gate proposals still need canonical/ledger packaging after review; the existing fifteen-migration batch must not be described as installing them."
+  "remaining_batch_preparation": "Both admission and Apply-gate proposals still need canonical/ledger packaging after review; the existing fifteen-migration batch must not be described as installing them.",
+  "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66"
 }
