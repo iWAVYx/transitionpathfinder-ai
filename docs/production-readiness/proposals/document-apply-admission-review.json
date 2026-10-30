@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-29",
+  "schema": "document-apply-admission-review-v1",
+  "status": "Prepared source review; no hosted authorization",
+  "source_base": "e08e1365",
+  "source_hashes": {
+    "src/lib/document-extraction-apply.server.ts": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458",
+    "src/lib/extractions.functions.ts": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806",
+    "src/routes/_authenticated/documents.$documentId.review.tsx": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898",
+    "src/lib/document-operation-admission.server.ts": "f4ffe955ed2d2bdea5ecdb648de34e8fa4fc4d2e997973b540bfa99f9e32cc88",
+    "docs/production-readiness/proposals/document-apply-admission.sql": "e79a8d152da88eb6f6c85f5bffcb2b246a6f0af83b31a8cd2acf6a0b761dc0ff",
+    "docs/production-readiness/proposals/document-operation-admission.sql": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb"
+  },
+  "privileged_source_delta": {
+    "before": 63,
+    "after": 64,
+    "only_added_path": "src/lib/document-extraction-apply.server.ts",
+    "capability": "Lazy existing server-only Supabase client, only after caller-RLS prechecks, used only for service admission begin/finish. No service client private-data reads/writes and no credential/settings change."
+  },
+  "caller_boundary": [
+    "Authenticated middleware and server actor retained. Required loaded-viewer UUID must match current actor before any read/admission.",
+    "Caller-RLS can_edit_student, non-partner, can_view_document and exact active extraction/document source checks happen before loading the service capability.",
+    "Atomic student/transition/evidence/audit/completion writes stay on the caller client. SQL retains invoker permissions and all original body statements, adding only the transaction-held control-row lock."
+  ],
+  "refusal_boundary": {
+    "confirmed": "Only received null-data errors with exact string SQLSTATE42501 or55000 from this fixed database-only atomic RPC are settled refusals. Finish operation once as completed, then report failure, never saved success.",
+    "uncertain": "Lost response, gateway/missing function, mixed data/error, malformed/foreign success or malformed code retain uncertainty; no fallback/retry. Failed finish never returns success or issues a second finish.",
+    "assumption": "Deployment must verify the reviewed routine/schema/trigger context. This classification is not reusable for arbitrary provider or nontransactional endpoints."
+  },
+  "sql_gate": {
+    "proposal": "docs/production-readiness/proposals/document-apply-admission.sql",
+    "canonical_migration_changed": false,
+    "requires": "Reviewed canonical atomic prosrc MD5, invoker/search path, admission control RLS, paused control and no unresolved tracked operations before installation.",
+    "helper": "Authenticated-only definer reads/locks only control state; no new student access, table privilege or service execution.",
+    "scope": "One database-only atomic Apply transaction, including direct RPC. Does not fence other direct student writers, sequential legacy handlers, storage/provider work or all review mutations."
+  },
+  "client_boundary": [
+    "Review is bound to loaded account/document generation, including leave-and-return. Prior account data is hidden immediately while the next review loads.",
+    "Late load, extract, section/meta save or Apply outcomes cannot update a departed screen, toast or navigate. Old request continuations are not canceled or undone.",
+    "Old cached clients without expected_viewer_id fail before admission with a plain reload message; coherent client refresh remains a release requirement."
+  ],
+  "remaining": [
+    "Register/rescan, browser upload continuation and separate worker still require admission integration.",
+    "Retained-hold admission limits and audited manual reconciliation remain open; no automatic expiry/delete/release.",
+    "Admission/control and Apply gate remain two noncanonical unapplied proposals, outside the prepared fifteen-migration batch. Final canonical/ledger packaging and hosted data/preflight are required before release.",
+    "No provider/legacy complete-drain, retention or whole-writer-graph proof; current status flags remain false."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false
+}

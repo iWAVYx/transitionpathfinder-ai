@@ -41,6 +41,7 @@ on:
       - "tests/database/document-upload-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-upload-chain-preflight.sql"
       - "docs/production-readiness/proposals/document-operation-admission.sql"
+      - "docs/production-readiness/proposals/document-apply-admission.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -101,6 +102,7 @@ on:
       - "tests/database/document-upload-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-upload-chain-preflight.sql"
       - "docs/production-readiness/proposals/document-operation-admission.sql"
+      - "docs/production-readiness/proposals/document-apply-admission.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -950,6 +952,33 @@ jobs:
           for(const k of x.by_kind){assert.equal(k.active,0);assert.equal(k.needs_review,0);}
           for(const k of ['legacy_handlers_covered','provider_quiescence_verified','ready_for_cutover','cleanup_authorized'])assert.equal(x[k],false);
           NODE
+
+      - name: Verify atomic Apply pause fence against complete replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-apply-admission.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $apply_gate_grants$
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.lock_document_apply_admission()'::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND provolatile='v')
+              OR has_function_privilege('anon','public.lock_document_apply_admission()','EXECUTE')
+              OR has_function_privilege('service_role','public.lock_document_apply_admission()','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.lock_document_apply_admission()','EXECUTE')
+              OR NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)'::regprocedure AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE')
+              OR has_function_privilege('service_role','public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE') THEN RAISE EXCEPTION 'Unexpected Apply gate permissions'; END IF;
+          END; $apply_gate_grants$;
+          BEGIN;
+          SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+          SET LOCAL ROLE authenticated;
+          DO $paused_save$
+          BEGIN
+            PERFORM public.apply_reviewed_document_extraction('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000004',now(),'{}',false);
+            RAISE EXCEPTION 'Paused save was not refused';
+          EXCEPTION WHEN SQLSTATE '55000' THEN NULL;
+          END; $paused_save$;
+          ROLLBACK;
+          SQL
 
       - name: Inventory document reference metadata without reading user rows
         run: |

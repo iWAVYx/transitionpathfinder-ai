@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractFromIep, type IepExtract } from "./iep-extract.functions";
-import { applyReviewedExtraction, extractionApplyRequest } from "./document-extraction-apply.server";
+import { applyReviewedExtractionWithAdmission, parseExtractionApplyRequest } from "./document-extraction-apply.server";
 
 /** Section keys we surface in the review UI, mapped to IepExtract fields. */
 export const EXTRACTION_SECTION_KEYS = [
@@ -192,5 +192,5 @@ export const updateExtractionMeta = createServerFn({ method: "POST" })
 
 export const applyAcceptedExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => extractionApplyRequest.parse(i))
-  .handler(async ({ data, context }) => applyReviewedExtraction(context.supabase, data));
+  .validator((i: unknown) => parseExtractionApplyRequest(i))
+  .handler(async ({ data, context }) => applyReviewedExtractionWithAdmission(context.supabase, context.userId, data));

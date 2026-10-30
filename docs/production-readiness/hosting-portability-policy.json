@@ -57,8 +57,8 @@
         "sha256": "498c642ac88d377a624a0b8deb517691c8c46e9c22383dbbd3bb63d3311df71e"
       },
       "privilegedRuntimeFiles": {
-        "count": 63,
-        "sha256": "eef7a2018dc3d1d726a85cb0fdcacbab7f224f8c8a7f1a2365bc7a053a217337"
+        "count": 64,
+        "sha256": "b8e7def5c973bfcc4ef13b5570049df5327cdea120e822913420e2553de63b4e"
       },
       "explicitEndpointFiles": {
         "count": 12,
@@ -66,15 +66,20 @@
       }
     },
     "draftReview": {
-      "observedAt": "2026-10-15",
-      "baseDraftSha": "9281abdfe198a20ae68ed9d926bda487bd37392b",
-      "change": "Reviewed three added authenticated caller-RLS read function files: organization-widget-actions, student-hub-context and organization-history. No privileged runtime, public/authenticated route or explicit endpoint inventory change. No host, credential, database binding or production authorization change. See hosting-boundary-release-review-2026-10-15.md; live permission acceptance remains open."
+      "observedAt": "2026-10-29",
+      "baseDraftSha": "e08e13659f75b3d3df89b631f4cc8ecdae93397f",
+      "change": "Reviewed one added privileged source file: document-extraction-apply.server.ts lazily loads the existing server-only client after caller-RLS authority/source checks, using it only for admission begin/finish metadata. Student/evidence/completion writes remain on the caller client through the retained invoker atomic save, with a separately proposed control-row pause fence. No host, credentials, public/authenticated route, server-function file or explicit endpoint inventory change. No production authorization. See document-apply-admission-review.json; SQL gate and hosted acceptance remain unapplied."
     },
     "draftReviewHistory": [
       {
         "observedAt": "2026-10-06",
         "baseDraftSha": "6ec011e6",
         "change": "src/lib/share.functions.ts now lazily uses the existing server-only Supabase client for token-authorized RPCs before document projection. No new host, credential type, database binding or production authorization. Deployment acceptance and the prepared grant migration remain separately gated."
+      },
+      {
+        "observedAt": "2026-10-15",
+        "baseDraftSha": "9281abdfe198a20ae68ed9d926bda487bd37392b",
+        "change": "Reviewed three added authenticated caller-RLS read function files: organization-widget-actions, student-hub-context and organization-history. No privileged runtime, public/authenticated route or explicit endpoint inventory change. No host, credential, database binding or production authorization change. See hosting-boundary-release-review-2026-10-15.md; live permission acceptance remains open."
       }
     ]
   },

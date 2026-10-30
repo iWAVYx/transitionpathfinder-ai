@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Dormant Node service adapter implemented; handler/browser/worker integration remains unimplemented and unauthorized hosted",
+  "status": "Reviewed Apply connected in prepared source with viewer/current-access prechecks and database pause fence; other handler/browser/worker integration remains pending and unapplied hosted",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -15,11 +15,11 @@
     },
     {
       "path": "src/lib/extractions.functions.ts",
-      "sha256": "99ce632404a27608f9b7c8db818a52c730643eafcd76d8ffb3b496a7fbfc80e6"
+      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
-      "sha256": "1a6a93c68399f319d560b19842c157e65919b964f6ccaed0aa3fb62748c8c7f9"
+      "sha256": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458"
     },
     {
       "path": "src/lib/document-upload-reservation.server.ts",
@@ -31,7 +31,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "22b740965ee2eb578a9140fa643a3c1fdffa0536b3774c4735d998f8c6a7456c"
+      "sha256": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898"
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
@@ -72,12 +72,14 @@
     },
     {
       "target": "reviewed Apply",
-      "implemented": false,
+      "implemented": true,
       "requirements": [
-        "Preserve strict atomic source/student/revision/section and current-access checks on the caller client.",
-        "Review pre-admission authorization and confirmed-refusal versus uncertainty handling before exposing a route that can create retained holds.",
-        "Only a validated existing atomic save receipt may be treated as a confirmed save; no sequential fallback."
-      ]
+        "Required loaded-viewer intent and caller-RLS authority/source prechecks precede metadata admission.",
+        "Retained invoker atomic save has a separately proposed transaction-held pause fence; exact old body plus only the gate lock is parity tested.",
+        "Null-data SQL42501/55000 refusals close tracked work but return a safe failure; all uncertain outcomes retain holds with no replay.",
+        "Complete native/coordinated hosted migration/client-refresh and bounded acceptance before activation."
+      ],
+      "status": "prepared/local validation; not deployed or accepted hosted"
     },
     {
       "target": "separate summary worker",
@@ -99,5 +101,6 @@
   "production_access": false,
   "authorization_recorded": false,
   "adapter_verified_source": "b88a024a79630723e9150da004b80632a983d156",
-  "adapter_verification": "Eight applicable automatic checks, both builds,5334 unit tests/350 files,40 focused cases, TypeScript and local capped build pass. Automatic cumulative PR database check also passes694/694 and225 canonical plus admission proposal; SQL unchanged. No handler integration or hosted activation."
+  "adapter_verification": "Eight applicable automatic checks, both builds,5334 unit tests/350 files,40 focused cases, TypeScript and local capped build pass. Automatic cumulative PR database check also passes694/694 and225 canonical plus admission proposal; SQL unchanged. No handler integration or hosted activation.",
+  "apply_integration_review": "docs/production-readiness/proposals/document-apply-admission-review.json"
 }

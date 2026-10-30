@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Durable admission SQL foundation prepared as a noncanonical proposal; application/worker integration and old-handler coverage remain unimplemented/unverified; no hosted authorization",
+  "status": "Reviewed Apply integration and transaction pause fence prepared; remaining runtime/provider/legacy drain unverified, no hosted authorization",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -150,7 +150,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 1,
+  "unapplied_admission_proposals": 2,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -164,7 +164,9 @@
     "controls": "Four service-only RPCs with no ordinary raw table access. Operator UUID is service-supplied audit attribution, not independent proof of human identity/approval.",
     "limits": "Tracks only explicitly integrated new handlers; no file/provider actions or student access grants. ready_for_cutover and legacy/provider proof fields stay false. needs_review has no release/complete path in this foundation.",
     "verification": "Exact f0c96396 source: both native694/694 runs, complete225-schema plus admission proposal, exact service-only grants, default-paused rollback smoke, nine automatic checks and both builds pass. No hosted integration or activation.",
-    "dormant_adapter": "src/lib/document-operation-admission.server.ts; prepared and locally validated, no handler imports/calls or activation"
+    "dormant_adapter": "src/lib/document-operation-admission.server.ts; prepared and locally validated, no handler imports/calls or activation",
+    "apply_integration": "Prepared in the shared authenticated endpoint; caller-RLS writes retained. New document-apply-admission.sql is a separate unapplied guard. Other targets and legacy/provider work remain unintegrated."
   },
-  "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json"
+  "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
+  "remaining_batch_preparation": "Both admission and Apply-gate proposals still need canonical/ledger packaging after review; the existing fifteen-migration batch must not be described as installing them."
 }

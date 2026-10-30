@@ -1,7 +1,8 @@
+import { useAuth } from "@/hooks/use-auth";
 import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Sparkles, XCircle, HelpCircle, Pencil } from "lucide-react";
@@ -65,6 +66,14 @@ type Extraction = {
 function ReviewPage() {
   const { documentId } = Route.useParams();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const scopeKey = !authLoading && user?.id ? `${user.id}:${documentId}` : null;
+  type ReviewScope = { key: string | null; viewerId: string | null };
+  const scope = useRef<ReviewScope>({ key: scopeKey, viewerId: user?.id ?? null });
+  if (scope.current.key !== scopeKey) scope.current = { key: scopeKey, viewerId: user?.id ?? null };
+  const [loadedScope, setLoadedScope] = useState<ReviewScope | null>(null);
+  const current = (request: ReviewScope | null) => request !== null && request.key !== null && scope.current === request;
+  useEffect(() => () => { scope.current = { ...scope.current }; }, []);
 
   const fnGet = useServerFn(getOrCreateExtraction);
   const fnRun = useServerFn(runExtractionFromText);
@@ -74,7 +83,8 @@ function ReviewPage() {
   const fnLogView = useServerFn(logDocumentView);
 
   const [loading, setLoading] = useState(true);
-  const [extraction, setExtraction] = useState<Extraction | null>(null);
+  const [storedExtraction, setExtraction] = useState<Extraction | null>(null);
+  const extraction = current(loadedScope) ? storedExtraction : null;
   const [pastedText, setPastedText] = useState("");
   const [running, setRunning] = useState(false);
   const [applying, setApplying] = useState(false);
@@ -82,19 +92,25 @@ function ReviewPage() {
   const [saveFailed, setSaveFailed] = useState(false);
 
   useEffect(() => {
+    const request = scope.current;
+    let active = true;
+    setExtraction(null); setLoadedScope(null); setPastedText("");
+    setRunning(false); setApplying(false); setPendingSaves(0); setSaveFailed(false); setLoading(true);
+    if (!request.key || !request.viewerId) return;
     (async () => {
       try {
         const res = await fnGet({ data: { document_id: documentId } });
+        if (!active || !current(request)) return;
         setExtraction(res.extraction as unknown as Extraction);
-        // Best-effort audit log; never block the page.
         fnLogView({ data: { document_id: documentId, context: "extraction_review" } }).catch(() => {});
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Could not load extraction.");
+        if (active && current(request)) toast.error(e instanceof Error ? e.message : "Could not load extraction.");
       } finally {
-        setLoading(false);
+        if (active && current(request)) { setLoadedScope(request); setLoading(false); }
       }
     })();
-  }, [documentId, fnGet, fnLogView]);
+    return () => { active = false; };
+  }, [scopeKey, documentId, fnGet, fnLogView]);
 
   const sections = useMemo(() => {
     const s = extraction?.sections ?? ({} as Record<string, ExtractionSection>);
@@ -110,7 +126,8 @@ function ReviewPage() {
   const totalWithValue = sections.filter((s) => (s.data.original_value || "").trim().length > 0).length;
 
   async function handleRun() {
-    if (!extraction) return;
+    const request = scope.current;
+    if (!extraction || !current(loadedScope)) return;
     if (pastedText.trim().length < 40) {
       toast.error("Paste at least a paragraph of the IEP to extract from.");
       return;
@@ -118,12 +135,13 @@ function ReviewPage() {
     setRunning(true);
     try {
       const res = await fnRun({ data: { document_id: documentId, text: pastedText } });
+      if (!current(request)) return;
       setExtraction(res.extraction as unknown as Extraction);
       toast.success("Draft extracted — review each section below.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Extraction failed.");
+      if (current(request)) toast.error(e instanceof Error ? e.message : "Extraction failed.");
     } finally {
-      setRunning(false);
+      if (current(request)) setRunning(false);
     }
   }
 
@@ -131,7 +149,8 @@ function ReviewPage() {
     key: ExtractionSectionKey,
     patch: Partial<ExtractionSection>,
   ) {
-    if (!extraction || applying) return;
+    const request = scope.current;
+    if (!extraction || applying || !current(loadedScope)) return;
     const prev = extraction.sections[key] ?? {
       state: "pending" as SectionReviewState,
       value: "",
@@ -154,17 +173,20 @@ function ReviewPage() {
           notes: next.notes,
         },
       });
+      if (!current(request)) return;
       setExtraction(current => current?.id === extraction.id ? { ...current, status: "in_review", updated_at: saved.updated_at } : current);
     } catch (e) {
+      if (!current(request)) return;
       setSaveFailed(true);
       toast.error(e instanceof Error ? e.message : "Could not save change.");
     } finally {
-      setPendingSaves(count => count - 1);
+      if (current(request)) setPendingSaves(count => count - 1);
     }
   }
 
   async function saveMeta(patch: Partial<Pick<Extraction, "missing_information" | "suggested_questions" | "review_notes">>) {
-    if (!extraction || applying) return;
+    const request = scope.current;
+    if (!extraction || applying || !current(loadedScope)) return;
     const next = { ...extraction, ...patch };
     setExtraction(next);
     setPendingSaves(count => count + 1);
@@ -177,28 +199,34 @@ function ReviewPage() {
           review_notes: next.review_notes ?? "",
         },
       });
+      if (!current(request)) return;
       setExtraction(current => current?.id === extraction.id ? { ...current, updated_at: saved.updated_at } : current);
     } catch (e) {
+      if (!current(request)) return;
       setSaveFailed(true);
       toast.error(e instanceof Error ? e.message : "Could not save notes.");
     } finally {
-      setPendingSaves(count => count - 1);
+      if (current(request)) setPendingSaves(count => count - 1);
     }
   }
 
   async function handleApply() {
-    if (!extraction || applying || pendingSaves > 0 || saveFailed) return;
+    const request = scope.current;
+    if (!extraction || applying || pendingSaves > 0 || saveFailed || !current(loadedScope) || !request.viewerId) return;
     setApplying(true);
     try {
-      await fnApply({ data: { extraction_id: extraction.id, student_id: extraction.student_id, document_id: extraction.document_id, expected_updated_at: extraction.updated_at, expected_sections: extraction.sections } });
+      await fnApply({ data: { expected_viewer_id: request.viewerId, extraction_id: extraction.id, student_id: extraction.student_id, document_id: extraction.document_id, expected_updated_at: extraction.updated_at, expected_sections: extraction.sections } });
+      if (!current(request)) return;
       toast.success("Accepted sections saved to the student profile.");
       navigate({ to: "/students/$studentId", params: { studentId: extraction.student_id } });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not apply changes.");
+      if (current(request)) toast.error(e instanceof Error ? e.message : "Could not apply changes.");
     } finally {
-      setApplying(false);
+      if (current(request)) setApplying(false);
     }
   }
+
+  if (authLoading || !current(loadedScope)) return <SiteShell><div className="container mx-auto max-w-4xl px-4 py-6" role="status">Loading your document review…</div></SiteShell>;
 
   return (
     <SiteShell>
