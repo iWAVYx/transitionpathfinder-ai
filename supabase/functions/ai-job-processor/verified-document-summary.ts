@@ -1,3 +1,4 @@
+import { runAdmittedSummaryOperation } from "./document-operation-admission.ts";
 // No provider/storage SDK dependency: the worker supplies narrowly scoped IO.
 // Missing receipts or uncertain completion stop; this module never retries AI.
 import { redactSensitiveText, type SensitiveTextContext } from "./sensitive-text-redaction.ts";
@@ -16,6 +17,7 @@ export type SummarySource = {
   content_sha256: string; context: SensitiveTextContext;
 };
 export type SummaryIO = {
+  admission: unknown;
   readSource: () => Promise<Receipt>;
   info: (path: string) => Promise<Receipt>;
   download: (path: string) => Promise<Receipt>;
@@ -96,34 +98,39 @@ export async function processVerifiedDocumentSummary(claim: SummaryClaim, io: Su
     if (typeof claim.id !== "string" || !uuid.test(claim.id) || !Number.isSafeInteger(claim.attempt) || claim.attempt < 1 ||
         typeof claim.at !== "string" || !Number.isFinite(Date.parse(claim.at))) throw new Error(SUMMARY_REVIEW_MESSAGE);
     const current = source(await io.readSource(), claim);
-    const size = info(await io.info(current.storage_path), current);
-    const stored = await io.download(current.storage_path);
-    if (stored.error !== null || !(stored.data instanceof Blob) || stored.data.size !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    const bytes = await stored.data.arrayBuffer();
-    if (bytes.byteLength !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
-    if (fingerprint !== current.content_sha256) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    if (info(await io.info(current.storage_path), current) !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    if (!text.trim() || text.length > MAX_SUMMARY_TEXT || /[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text)) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    const safeText = redactSensitiveText(text, current.context).text;
-    sameSource(current, source(await io.readSource(), claim));
-    const generated = result(await io.generate(safeText, current), current.context);
-    if (info(await io.info(current.storage_path), current) !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    const payload = {
-      ...generated,
-      _source: { document_id: current.document_id, object_id: current.object_id, object_version: current.object_version, content_sha256: current.content_sha256 },
-      _disclaimer: "This draft summarizes reported information. Review it against the source and with the school team; it is not a legal, clinical or official IEP determination.",
-      _prompt_version: "verified-document-summary-v1",
-    };
-    sameSource(current, source(await io.readSource(), claim));
-    const committed = data(await io.commit(current, payload));
-    if (committed.schema !== "verified-document-summary-commit-v1" || committed.job_id !== claim.id ||
-        committed.status !== "completed" || committed.document_id !== current.document_id ||
-        committed.actor_id !== current.actor_id || committed.student_id !== current.student_id ||
-        committed.content_sha256 !== current.content_sha256) throw new Error(SUMMARY_REVIEW_MESSAGE);
-    return { document_id: current.document_id, student_id: current.student_id, actor_id: current.actor_id, content_sha256: current.content_sha256 };
+    return await runAdmittedSummaryOperation(io.admission, current.actor_id, async () => {
+      // Admission can wait behind maintenance. Recheck this exact current claim,
+      // source and authority before any file read or provider work begins.
+      sameSource(current, source(await io.readSource(), claim));
+      const size = info(await io.info(current.storage_path), current);
+      const stored = await io.download(current.storage_path);
+      if (stored.error !== null || !(stored.data instanceof Blob) || stored.data.size !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      const bytes = await stored.data.arrayBuffer();
+      if (bytes.byteLength !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+      if (fingerprint !== current.content_sha256) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      if (info(await io.info(current.storage_path), current) !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      if (!text.trim() || text.length > MAX_SUMMARY_TEXT || /[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(text)) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      const safeText = redactSensitiveText(text, current.context).text;
+      sameSource(current, source(await io.readSource(), claim));
+      const generated = result(await io.generate(safeText, current), current.context);
+      if (info(await io.info(current.storage_path), current) !== size) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      const payload = {
+        ...generated,
+        _source: { document_id: current.document_id, object_id: current.object_id, object_version: current.object_version, content_sha256: current.content_sha256 },
+        _disclaimer: "This draft summarizes reported information. Review it against the source and with the school team; it is not a legal, clinical or official IEP determination.",
+        _prompt_version: "verified-document-summary-v1",
+      };
+      sameSource(current, source(await io.readSource(), claim));
+      const committed = data(await io.commit(current, payload));
+      if (committed.schema !== "verified-document-summary-commit-v1" || committed.job_id !== claim.id ||
+          committed.status !== "completed" || committed.document_id !== current.document_id ||
+          committed.actor_id !== current.actor_id || committed.student_id !== current.student_id ||
+          committed.content_sha256 !== current.content_sha256) throw new Error(SUMMARY_REVIEW_MESSAGE);
+      return { document_id: current.document_id, student_id: current.student_id, actor_id: current.actor_id, content_sha256: current.content_sha256 };
+    });
   } catch {
     // No private source/provider/database diagnostics and no automatic retry.
     throw new Error(SUMMARY_REVIEW_MESSAGE);

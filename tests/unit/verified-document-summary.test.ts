@@ -12,11 +12,11 @@ beforeEach(()=>{
   receipt={schema:"verified-document-summary-source-v1",job_id:claim.id,claim_at:claim.at,claim_attempt:1,document_id:id(2),student_id:id(3),actor_id:id(4),object_id:id(5),object_version:"version-one",storage_path:`${id(3)}/nonce-privacy-safe-document.txt`,content_sha256:hash(text),context:{studentFirstName:"Jamie",studentLastName:"Example",schoolName:"Fictional School",dateOfBirth:null}};
   metadata={id:id(5),version:"version-one",name:receipt.storage_path,bucket_id:"student-documents",size:new Blob([text]).size,content_type:"text/plain"};
   output={key_findings:["Reported reading progress: 4 of 5 tasks."],strengths_identified:[],needs_identified:[],goals_identified:["Proposed weekly practice."],important_dates:[],missing_information:["No observation dates were supplied."],recommended_followups:["Confirm the reported observations with the team."]};
-  io={readSource:vi.fn(async()=>safe()),info:vi.fn(async()=>({data:structuredClone(metadata),error:null})),download:vi.fn(async()=>({data:new Blob([text]),error:null})),generate:vi.fn(async()=>structuredClone(output)),commit:vi.fn(async(source)=>({data:{schema:"verified-document-summary-commit-v1",job_id:claim.id,status:"completed",document_id:source.document_id,student_id:source.student_id,actor_id:source.actor_id,content_sha256:source.content_sha256},error:null}))};
+  io={admission:{rpc:vi.fn(async(name:string,args:Record<string,unknown>)=>({data:name==="begin_document_operation"?{schema:"document-operation-admitted-v1",operation_id:args._operation_id,receipt_id:id(8),revision:2}:{schema:"document-operation-finished-v1",operation_id:args._operation_id,state:args._outcome},error:null}))},readSource:vi.fn(async()=>safe()),info:vi.fn(async()=>({data:structuredClone(metadata),error:null})),download:vi.fn(async()=>({data:new Blob([text]),error:null})),generate:vi.fn(async()=>structuredClone(output)),commit:vi.fn(async(source)=>({data:{schema:"verified-document-summary-commit-v1",job_id:claim.id,status:"completed",document_id:source.document_id,student_id:source.student_id,actor_id:source.actor_id,content_sha256:source.content_sha256},error:null}))};
 });
 it("uses verified file text, redacts known identifiers and commits source lineage once",async()=>{
   await expect(processVerifiedDocumentSummary(claim,io)).resolves.toMatchObject({document_id:id(2),actor_id:id(4)});
-  expect(io.readSource).toHaveBeenCalledTimes(3);expect(io.info).toHaveBeenCalledTimes(3);expect(io.download).toHaveBeenCalledExactlyOnceWith(receipt.storage_path);expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).toHaveBeenCalledOnce();
+  expect(io.readSource).toHaveBeenCalledTimes(4);expect(io.info).toHaveBeenCalledTimes(3);expect(io.download).toHaveBeenCalledExactlyOnceWith(receipt.storage_path);expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).toHaveBeenCalledOnce();
   const sent=vi.mocked(io.generate).mock.calls[0][0];expect(sent).toContain("4 of 5 tasks");expect(sent).not.toContain("Jamie Example");expect(sent).not.toContain("Fictional School");expect(sent).not.toContain("jamie@example.test");expect(sent).not.toContain("DEMO123");expect(sent).not.toContain(receipt.storage_path);
   expect(vi.mocked(io.commit).mock.calls[0][1]).toMatchObject({_source:{document_id:id(2),object_version:"version-one",content_sha256:hash(text)}});
 });
@@ -51,7 +51,7 @@ it.each(["before-ai","after-ai"])("stops on a noticed metadata change %s",async(
   await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).toHaveBeenCalledTimes(stage==="after-ai"?1:0);expect(io.commit).not.toHaveBeenCalled();
 });
 it.each(["before-ai","after-ai"])("rechecks source/access and refuses changed receipts %s",async(stage)=>{
-  vi.mocked(io.readSource).mockResolvedValueOnce(safe());if(stage==="after-ai")vi.mocked(io.readSource).mockResolvedValueOnce(safe());
+  vi.mocked(io.readSource).mockResolvedValueOnce(safe()).mockResolvedValueOnce(safe());if(stage==="after-ai")vi.mocked(io.readSource).mockResolvedValueOnce(safe());
   vi.mocked(io.readSource).mockResolvedValue({data:{...receipt,actor_id:id(9)},error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.generate).toHaveBeenCalledTimes(stage==="after-ai"?1:0);expect(io.commit).not.toHaveBeenCalled();
 });
 it.each([new Uint8Array([0xff]),new Uint8Array([0]),new TextEncoder().encode(" "),new TextEncoder().encode("x".repeat(MAX_SUMMARY_TEXT+1))])("rejects invalid/binary/empty/oversize text without silent truncation",async(bytes)=>{
@@ -71,4 +71,28 @@ it("does not retry an uncertain commit, even if the server completed it",async()
 });
 it("requires the exact completion receipt",async()=>{
   vi.mocked(io.commit).mockResolvedValue({data:{status:"completed"},error:null});await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);expect(io.commit).toHaveBeenCalledOnce();
+});
+it("uses only the current verified source actor for worker admission",async()=>{
+  await processVerifiedDocumentSummary(claim,io);
+  const rpc=(io.admission as any).rpc;
+  expect(rpc.mock.calls[0][1]).toMatchObject({_actor_id:receipt.actor_id,_operation_kind:"summary"});
+  expect(rpc.mock.calls[1][1]).toMatchObject({_actor_id:receipt.actor_id,_outcome:"completed"});
+  expect(vi.mocked(io.commit).mock.invocationCallOrder[0]).toBeLessThan(rpc.mock.invocationCallOrder[1]);
+});
+it.each(["paused","lost","malformed"])("does not read files after %s summary admission",async mode=>{
+  const rpc=(io.admission as any).rpc;
+  if(mode==="lost")rpc.mockRejectedValue(new Error("PRIVATE control"));else rpc.mockResolvedValue({data:mode==="malformed"?{}:null,error:mode==="paused"?{code:"55000",message:"PRIVATE control"}:null});
+  await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
+  expect(rpc).toHaveBeenCalledOnce();expect(io.info).not.toHaveBeenCalled();expect(io.download).not.toHaveBeenCalled();expect(io.generate).not.toHaveBeenCalled();
+});
+it("holds the admitted operation if source access disappears while admission is pending",async()=>{
+  vi.mocked(io.readSource).mockResolvedValueOnce(safe()).mockResolvedValue({data:null,error:{code:"42501",message:"PRIVATE access"}});
+  await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
+  expect((io.admission as any).rpc.mock.calls[1][1]._outcome).toBe("needs_review");expect(io.info).not.toHaveBeenCalled();
+});
+it("does not turn a confirmed commit into success when summary admission finish is lost",async()=>{
+  const rpc=(io.admission as any).rpc, normal=rpc.getMockImplementation();
+  rpc.mockImplementation(async(name:string,args:Record<string,unknown>)=>{if(name==="begin_document_operation")return normal(name,args);throw Error("PRIVATE lost finish");});
+  await expect(processVerifiedDocumentSummary(claim,io)).rejects.toThrow(SUMMARY_REVIEW_MESSAGE);
+  expect(io.generate).toHaveBeenCalledOnce();expect(io.commit).toHaveBeenCalledOnce();expect(rpc).toHaveBeenCalledTimes(2);
 });

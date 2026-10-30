@@ -232,6 +232,7 @@ async function processJob(supabase: SupabaseClient<any, "public", any>, job: Job
   if (job.job_type === "document_summary") {
     const claim = { id: job.id, at: job.claim_at ?? "", attempt: job.claim_attempt ?? 0 };
     const verified = await processVerifiedDocumentSummary(claim, {
+      admission: { rpc: async (name: string, args: Record<string, unknown>) => await supabase.rpc(name, args) },
       readSource: async () => await supabase.rpc("read_verified_document_summary_source", {
         _job_id: claim.id, _claim_at: claim.at, _attempt: claim.attempt,
       }),
@@ -314,7 +315,7 @@ Deno.serve(async (req) => {
   const processed: { id: string; ok: boolean; error?: string }[] = [];
 
   for (const j of (jobs ?? []) as Job[]) {
-    const { data: locked } = await supabase
+    const { data: locked, error: claimError } = await supabase
       .from("ai_jobs")
       .update({
         status: "processing",
@@ -327,7 +328,12 @@ Deno.serve(async (req) => {
       .select("id, locked_at, attempts")
       .maybeSingle();
 
-    if (!locked) continue;
+    // An uncertain claim may already have committed. Never dispatch or replay
+    // it from a missing/error-bearing/foreign receipt. Retain for reconciliation.
+    if (claimError || !locked) continue;
+    if (j.job_type === "document_summary" && (locked.id !== j.id ||
+        typeof locked.locked_at !== "string" || !Number.isFinite(Date.parse(locked.locked_at)) ||
+        !Number.isSafeInteger(locked.attempts) || locked.attempts !== j.attempts + 1)) continue;
 
     try {
       await processJob(supabase, { ...j, claim_at: locked.locked_at, claim_attempt: locked.attempts });

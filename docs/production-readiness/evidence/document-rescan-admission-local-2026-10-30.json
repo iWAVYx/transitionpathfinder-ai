@@ -2,7 +2,7 @@
   "schema": "document-rescan-admission-local-v1",
   "date": "2026-10-30",
   "source_base": "a3d7f575fdc5a114446d8e3f7d606c9c997619d2",
-  "status": "All local checks passed; exact-source automatic checks pending",
+  "status": "Prepared source verified: all eight applicable automatic checks passed",
   "runtime_fingerprint": "d68c055d1272efe7e14792fa24fbb54dfa16cfbeb9109490c1d02e2e5d2178e9",
   "runtime_file_count": 1202,
   "source_manifest": [
@@ -62,5 +62,20 @@
   "hosted_actions": false,
   "production_access": false,
   "provider_calls": false,
-  "fixtures_created": false
+  "fixtures_created": false,
+  "verified_source": "e9986c5fab6c2abfe890c5f3ca6246d184af3798",
+  "automatic_checks": {
+    "successes": 8,
+    "failures": 0,
+    "pending": 0,
+    "database_replay": 41058944665,
+    "accessibility": 41058944831,
+    "unit": 41058944640,
+    "builds": [
+      41058944852,
+      41058934991
+    ],
+    "native_sql": "716/716, zero skips;225 canonical migrations plus2 unapplied proposals.",
+    "hosted_tests": "Protected tests skipped and unperformed."
+  }
 }

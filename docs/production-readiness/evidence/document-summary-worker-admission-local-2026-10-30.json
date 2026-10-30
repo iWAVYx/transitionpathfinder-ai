@@ -1,0 +1,94 @@
+{
+  "schema": "document-summary-worker-admission-local-v1",
+  "date": "2026-10-30",
+  "source_base": "e9986c5fab6c2abfe890c5f3ca6246d184af3798",
+  "status": "All local checks passed; exact-source automatic checks pending",
+  "application_runtime": {
+    "fingerprint": "d68c055d1272efe7e14792fa24fbb54dfa16cfbeb9109490c1d02e2e5d2178e9",
+    "files": 1202,
+    "changed": false,
+    "scope": "Ten-entry website archive excludes the separately deployed Edge worker. Website health is not proof of this worker source."
+  },
+  "worker_package": {
+    "schema": "document-summary-worker-manifest-v1",
+    "algorithm": "sha256",
+    "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+    "method": "sha256(schema + NUL + compact UTF-8 JSON manifest with path,sha256 keys; manifest sorted by path)",
+    "files": 4,
+    "source_manifest": [
+      {
+        "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+        "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+      },
+      {
+        "path": "supabase/functions/ai-job-processor/index.ts",
+        "sha256": "9e50c1fc58f19d3f662688e9dfee336d58ef892b515609b9819897847e52e2b5"
+      },
+      {
+        "path": "supabase/functions/ai-job-processor/sensitive-text-redaction.ts",
+        "sha256": "e491c0db74f00433269e42dba3905ce346b0588b961f6987d31bb70d9a15adbf"
+      },
+      {
+        "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+        "sha256": "4f54028ba51b6fa01fe0bb6e478d12e217e3bd4eab2ecd3b5751e3f13cb40f37"
+      }
+    ]
+  },
+  "validation": {
+    "unit_tests": 5504,
+    "unit_files": 355,
+    "focused_worker_parity_and_source_tests": 85,
+    "deno_entrypoint_tests": 19,
+    "deno_permissions": "Only three fictional env names; no allow-net. All IO intercepted. Static check uses cached dependencies only.",
+    "deno_check": "pass",
+    "typecheck": "pass",
+    "capped_staging_build": "pass; supplemental web check, not worker deployment proof",
+    "safety_contracts": 92,
+    "sql": "Unchanged. Prior716/716 native proof retained; no new local database run claimed."
+  },
+  "test_source_manifest": [
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "9e50c1fc58f19d3f662688e9dfee336d58ef892b515609b9819897847e52e2b5"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+      "sha256": "4f54028ba51b6fa01fe0bb6e478d12e217e3bd4eab2ecd3b5751e3f13cb40f37"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+    },
+    {
+      "path": "tests/edge/ai-job-processor.test.ts",
+      "sha256": "7bf6ff12aa60ced5906736af3eeaf3d4ec27da0a439d5765bfabbb6d153c1493"
+    },
+    {
+      "path": "tests/unit/verified-document-summary.test.ts",
+      "sha256": "77aeccd81d3cd9b60eb2f78d25135e890ee6353c93149c644f6320e6ab9d2fd3"
+    },
+    {
+      "path": "tests/unit/document-worker-admission.test.ts",
+      "sha256": "d9ee1e0b288d910e422cd0f15f2c7163c1df2953ff0f53a97c882112adebeb2d"
+    }
+  ],
+  "behavior": [
+    "Validate exact current processing claim/source/actor before summary metadata admission; never trust queued text or actor hints.",
+    "Worker-local SDK-free adapter uses fixed summary kind and exact begin/finish schemas; parity tested against app adapter under loss/mismatch faults. No app-package import or new remote dependency.",
+    "Repeat source/authority check after admission before file IO; keep existing hash/object/version/privacy and guarded completion checks.",
+    "Lost/error-bearing/foreign claim replies cannot dispatch work. Paused/missing/lost/malformed admission cannot read files or invoke the provider.",
+    "Generation/source/commit uncertainty retains a needs_review operation and guarded job state; uncertain-but-completed saves are preserved, never regenerated or overwritten.",
+    "No automatic retry, hold expiry, deletion, requeue or second finish. Metadata capability and receipt never enter callback arguments."
+  ],
+  "limitations": [
+    "Job claiming and initial verified-source/binding metadata preflight occur before admission. Their handoff/held claims must be fenced and accounted separately at cutover; no global drain proof is claimed.",
+    "Existing processing jobs, held-operation limits/manual reconciliation, all old/direct/scheduled workers and provider quiescence remain unverified.",
+    "Register/browser continuation, final canonical/ledger packaging, real storage/provider behavior and authorized hosted acceptance remain open.",
+    "Other AI job types keep their existing behavior; this boundary is for document summaries.",
+    "The separately deployed worker must match its reviewed source manifest; website publication alone cannot install or verify it."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "fixtures_created": false
+}

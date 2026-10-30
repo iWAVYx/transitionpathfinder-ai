@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Reviewed Apply and rescan admission connected in prepared source; browser/register/separate worker and hosted acceptance remain open",
+  "status": "Reviewed Apply/rescan and separate summary file/provider/save admission connected in prepared source; register/browser, metadata handoff/held-work and hosted acceptance remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -35,15 +35,19 @@
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
-      "sha256": "f1cb1b36f78bdfd0da2fe7c94d3a5409dd0a771d35f935c97476dbd65d4bac7b"
+      "sha256": "9e50c1fc58f19d3f662688e9dfee336d58ef892b515609b9819897847e52e2b5"
     },
     {
       "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
-      "sha256": "f73a9a60b81ca5b050985c5eb8e4f41e90efa914b4b0c722d1b9451a574cb888"
+      "sha256": "4f54028ba51b6fa01fe0bb6e478d12e217e3bd4eab2ecd3b5751e3f13cb40f37"
     },
     {
       "path": "src/lib/document-rescan-source.server.ts",
       "sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
     }
   ],
   "adapter_contract": {
@@ -98,12 +102,14 @@
     },
     {
       "target": "separate summary worker",
-      "implemented": false,
+      "implemented": true,
       "requirements": [
-        "Prepare a Deno-compatible adapter/protocol with the same loss/mismatch boundaries; do not introduce an app-source import outside the worker release package.",
-        "Use actual job claim/actor/source identity and keep verified source admission and guarded completion.",
-        "Hold/count outstanding model/storage requests independently; no automatic retry, cancellation or unobserved drain claim."
-      ]
+        "Use separate worker-local adapter with exact protocol parity; no imports outside worker release package.",
+        "Verified current claim/source/actor precedes admission; recheck current source after admission before file/provider IO.",
+        "Keep generation and guarded completion inside admitted work; retain all unknown outcomes without retry, cleanup or false finish.",
+        "Fence/account pre-admission claim/binding metadata, held jobs, old workers and outstanding provider work separately; finish canonical/ledger and authorized actual-worker acceptance before activation."
+      ],
+      "status": "Local source/file/provider/save admission verified; claim/source-binding metadata handoff and hosted activation remain open"
     }
   ],
   "activation_gates": [
@@ -158,5 +164,43 @@
       "Register/browser interval and separately packaged Deno worker integration, final canonical/ledger packaging and bounded hosted acceptance."
     ],
     "evidence": "docs/production-readiness/evidence/document-rescan-admission-local-2026-10-30.json"
+  },
+  "summary_worker_admission_preparation": {
+    "implemented_in_prepared_source": true,
+    "hosted_verified": false,
+    "claim_binding_handoff_fenced": false,
+    "worker_package": {
+      "schema": "document-summary-worker-manifest-v1",
+      "algorithm": "sha256",
+      "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+      "method": "sha256(schema + NUL + compact UTF-8 JSON manifest with path,sha256 keys; manifest sorted by path)",
+      "files": 4,
+      "source_manifest": [
+        {
+          "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+          "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+        },
+        {
+          "path": "supabase/functions/ai-job-processor/index.ts",
+          "sha256": "9e50c1fc58f19d3f662688e9dfee336d58ef892b515609b9819897847e52e2b5"
+        },
+        {
+          "path": "supabase/functions/ai-job-processor/sensitive-text-redaction.ts",
+          "sha256": "e491c0db74f00433269e42dba3905ce346b0588b961f6987d31bb70d9a15adbf"
+        },
+        {
+          "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+          "sha256": "4f54028ba51b6fa01fe0bb6e478d12e217e3bd4eab2ecd3b5751e3f13cb40f37"
+        }
+      ]
+    },
+    "evidence": "docs/production-readiness/evidence/document-summary-worker-admission-local-2026-10-30.json",
+    "remaining": [
+      "Job claiming and initial verified-source/binding metadata preflight occur before admission. Their handoff/held claims must be fenced and accounted separately at cutover; no global drain proof is claimed.",
+      "Existing processing jobs, held-operation limits/manual reconciliation, all old/direct/scheduled workers and provider quiescence remain unverified.",
+      "Register/browser continuation, final canonical/ledger packaging, real storage/provider behavior and authorized hosted acceptance remain open.",
+      "Other AI job types keep their existing behavior; this boundary is for document summaries.",
+      "The separately deployed worker must match its reviewed source manifest; website publication alone cannot install or verify it."
+    ]
   }
 }
