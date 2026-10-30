@@ -65,6 +65,10 @@
     {
       "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
       "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+      "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
     }
   ],
   "batch": {
@@ -162,7 +166,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 2,
+  "unapplied_admission_proposals": 3,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -180,7 +184,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Both admission and Apply-gate proposals still need canonical/ledger packaging after review; the existing fifteen-migration batch must not be described as installing them.",
+  "remaining_batch_preparation": "Operation admission, reviewed Apply gate and upload transaction fence all remain noncanonical/unapplied and require final canonical/ledger packaging. The existing fifteen-migration batch installs none of these three proposals.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -258,6 +262,19 @@
       "Register/browser continuation, final canonical/ledger packaging, real storage/provider behavior and authorized hosted acceptance remain open.",
       "Other AI job types keep their existing behavior; this boundary is for document summaries.",
       "The separately deployed worker must match its reviewed source manifest; website publication alone cannot install or verify it."
+    ]
+  },
+  "upload_pause_fence_preparation": {
+    "implemented_in_proposal": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "browser_interval_tracked": false,
+    "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-pause-fence-local-2026-10-30.json",
+    "remaining": [
+      "Actor/source-bound durable reservation-to-registration continuation, required loaded viewer and interrupted-work handling.",
+      "Registration provider/queue admission and held-work bounds/manual reconciliation.",
+      "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
   }
 }

@@ -2,7 +2,7 @@
   "schema": "document-summary-worker-admission-local-v1",
   "date": "2026-10-30",
   "source_base": "e9986c5fab6c2abfe890c5f3ca6246d184af3798",
-  "status": "All local checks passed; exact-source automatic checks pending",
+  "status": "Verified prepared source: all nine applicable automatic checks passed",
   "application_runtime": {
     "fingerprint": "d68c055d1272efe7e14792fa24fbb54dfa16cfbeb9109490c1d02e2e5d2178e9",
     "files": 1202,
@@ -90,5 +90,18 @@
   "hosted_actions": false,
   "production_access": false,
   "provider_calls": false,
-  "fixtures_created": false
+  "fixtures_created": false,
+  "verified_source": "717460dcf0d9df20e25083154347c2b25d1fdbda",
+  "automatic_checks": {
+    "successes": 9,
+    "failures": 0,
+    "pending": 0,
+    "database_runs": [
+      41068323552,
+      41068313375
+    ],
+    "native_sql": "Both716/716, zero skips;225 canonical plus2 unapplied proposals.",
+    "deno": "Both workflows passed19 intercepted entrypoint cases and Deno check.",
+    "hosted_tests": "Protected hosted tests remained skipped and unperformed."
+  }
 }

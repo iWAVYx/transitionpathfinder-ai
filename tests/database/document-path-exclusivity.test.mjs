@@ -14,6 +14,7 @@ import {uploadChainRolloutSql,uploadChainMigrations} from './document-upload-rol
 const uploadChainPreflight=readFileSync('docs/production-readiness/proposals/document-upload-chain-preflight.sql','utf8');
 const operationAdmission=readFileSync('docs/production-readiness/proposals/document-operation-admission.sql','utf8');
 const applyAdmission=readFileSync('docs/production-readiness/proposals/document-apply-admission.sql','utf8');
+const uploadPauseFence=readFileSync('docs/production-readiness/proposals/document-upload-pause-fence.sql','utf8');
 const atomicExtractionProposal = readFileSync('docs/production-readiness/proposals/atomic-extraction-application.sql','utf8');
 const sourceBindingProposal = readFileSync('docs/production-readiness/proposals/document-summary-source-binding.sql','utf8');
 const referenceCatalog = readFileSync('docs/production-readiness/proposals/document-reference-catalog.sql','utf8');
@@ -114,7 +115,7 @@ after(async()=>{if(close) await close();});
 afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
-  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.lock_document_apply_admission();DROP FUNCTION IF EXISTS public.begin_document_operation(uuid,uuid,text),public.finish_document_operation(uuid,uuid,uuid,text),public.set_document_operation_pause(uuid,bigint,boolean,text),public.inspect_document_operation_drain();DROP TABLE IF EXISTS public.document_operation_control_events,public.document_operation_leases,public.document_operation_control;');
+  await db.exec('RESET ROLE;DROP FUNCTION IF EXISTS public.lock_document_upload_admission();DROP FUNCTION IF EXISTS public.lock_document_apply_admission();DROP FUNCTION IF EXISTS public.begin_document_operation(uuid,uuid,text),public.finish_document_operation(uuid,uuid,uuid,text),public.set_document_operation_pause(uuid,bigint,boolean,text),public.inspect_document_operation_drain();DROP TABLE IF EXISTS public.document_operation_control_events,public.document_operation_leases,public.document_operation_control;');
   await db.exec('RESET ROLE;ALTER TABLE public.students DISABLE ROW LEVEL SECURITY;DROP POLICY IF EXISTS fixture_student_read ON public.students;DROP POLICY IF EXISTS fixture_student_edit ON public.students;DROP TABLE IF EXISTS supabase_migrations.schema_migrations;DROP FUNCTION IF EXISTS public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean);DROP TABLE IF EXISTS public.evidence_items,public.transition_profiles,public.audit_log,public.document_extractions;DROP FUNCTION IF EXISTS public.fixture_extraction_revision();DROP FUNCTION IF EXISTS public.fixture_fail_apply();DROP TRIGGER IF EXISTS ai_jobs_guard_bound_document_source ON public.ai_jobs;DROP FUNCTION IF EXISTS public.guard_bound_document_summary_job();DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP TABLE IF EXISTS public.document_summary_source_bindings;DROP FUNCTION IF EXISTS public.reject_document_source_binding_mutation();DROP FUNCTION IF EXISTS public.claim_document_upload_resolution(uuid,text,uuid);DO $$ BEGIN IF to_regclass(\'public.document_upload_attempts\') IS NOT NULL THEN EXECUTE \'DROP TRIGGER IF EXISTS upload_attempt_resolution_frozen ON public.document_upload_attempts\'; END IF; END $$;DROP FUNCTION IF EXISTS public.guard_claimed_upload_attempt();DROP TABLE IF EXISTS public.document_upload_resolution_claims;DROP FUNCTION IF EXISTS public.reject_upload_resolution_claim_mutation();DROP FUNCTION IF EXISTS public.read_document_upload_recovery(uuid,text);DROP POLICY IF EXISTS student_document_reserved_insert ON storage.objects;DROP FUNCTION IF EXISTS public.can_insert_reserved_student_document(text,text);DROP FUNCTION IF EXISTS public.hold_document_upload_for_review(uuid,text,text);DROP POLICY IF EXISTS student_document_no_blocked_read ON storage.objects;DROP FUNCTION IF EXISTS public.student_document_not_blocked(text);DROP FUNCTION IF EXISTS public.read_document_upload_registration(uuid,text);DROP TRIGGER IF EXISTS documents_aa_guard_upload_registration ON public.documents;DROP TRIGGER IF EXISTS documents_link_upload_registration ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_upload_registration();DROP FUNCTION IF EXISTS public.link_document_upload_registration();ALTER TABLE public.documents DROP COLUMN IF EXISTS upload_attempt_id,DROP COLUMN IF EXISTS upload_review_context_sha256;DROP FUNCTION IF EXISTS public.reserve_document_upload(uuid,uuid,text,text);DROP TABLE IF EXISTS public.document_upload_attempts;DROP FUNCTION IF EXISTS public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb);DROP FUNCTION IF EXISTS public.read_verified_document_summary_source(uuid,timestamptz,integer);DROP POLICY IF EXISTS document_summary_explicit_read ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_scoped_request ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_update ON public.ai_jobs;DROP POLICY IF EXISTS document_summary_server_delete ON public.ai_jobs;DROP POLICY IF EXISTS fixture_broad_jobs ON public.ai_jobs;DROP FUNCTION IF EXISTS public.can_read_document_summary_job(uuid,uuid,text);DROP TRIGGER IF EXISTS documents_guard_storage_binding ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_storage_binding();ALTER TABLE public.documents DROP COLUMN IF EXISTS storage_object_id,DROP COLUMN IF EXISTS storage_object_version; DROP POLICY IF EXISTS student_document_no_client_replace ON storage.objects;DROP POLICY IF EXISTS student_document_no_client_delete ON storage.objects;DROP POLICY IF EXISTS test_other_bucket ON storage.objects;DROP POLICY IF EXISTS test_broad_policy ON storage.objects;TRUNCATE storage.objects; DROP TRIGGER IF EXISTS documents_guard_scan_state ON public.documents;DROP FUNCTION IF EXISTS public.guard_document_scan_state();DROP INDEX IF EXISTS public.documents_storage_path_unique; TRUNCATE public.ai_jobs,public.document_permissions,public.documents,public.student_collaborators,public.student_relationships,public.user_roles,public.students;');
   // A fresh table keeps PostgreSQL dropped-column slots bounded. Restore the
   // exact original fixture ACL/policies; never CASCADE away an unknown writer.
@@ -1568,3 +1569,115 @@ test('Apply gate refuses unpaused installation without altering the original rou
 test('Apply gate refuses drift in the reviewed atomic function body without repair',async()=>{await atomicApplyFixture();await db.exec('RESET ROLE');await admissionFixture();await db.exec('RESET ROLE');const changed=atomicExtractionProposal.replace('CREATE FUNCTION public.apply_reviewed_document_extraction','CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction').replace('DECLARE\n  actor uuid','DECLARE\n  -- Fictional body drift\n  actor uuid');await db.exec(changed);const before=await applyGateRoutineSnapshot();await assert.rejects(db.exec(applyAdmission),{code:'55000'});await db.exec('ROLLBACK');assert.deepEqual(await applyGateRoutineSnapshot(),before);});
 for(const finish of ['COMMIT','ROLLBACK'])test('Apply pause waits for direct save transaction '+finish,{skip:!native},async()=>{const f=await gatedApplyFixture();await pauseOperation(false);await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.owner,'service_role',b);await a.exec('BEGIN');await applyAtomic(f,{client:a});const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=pauseOperation(true,2,b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(finish);assert.equal((await pending).error,undefined);assert.equal((await inspectOperations()).paused,true);const saved=await applicationSnapshot();assert.equal(saved.audit.length,finish==='COMMIT'?1:0);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}});
 for(const finish of ['COMMIT','ROLLBACK'])test('direct Apply rechecks a waiting pause after '+finish,{skip:!native},async()=>{const f=await gatedApplyFixture();await pauseOperation(false);await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as(actors.owner,'service_role',a);await as(actors.family,'authenticated',b);await a.exec('BEGIN');await pauseOperation(true,2,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=applyAtomic(f,{client:b}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(finish);const x=await pending;if(finish==='COMMIT'){assert.equal(x.error?.code,'55000');assert.equal((await applicationSnapshot()).audit.length,0);}else{assert.equal(x.error,undefined);assert.equal(x.result.rows[0].receipt.status,'complete');}}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}});
+
+
+// Prepared upload transaction fence only; the browser interval is not settled.
+async function uploadFenceFixture(install=true){
+  await installResolutionClaim();await admissionFixture();await db.exec('RESET ROLE');
+  if(install)await db.exec(uploadPauseFence);
+  await as(actors.family,'service_role');
+}
+async function uploadFenceBodies(){
+  await db.exec('RESET ROLE');return (await db.query("SELECT oid::regprocedure::text AS signature,prosrc,prosecdef,proconfig FROM pg_proc WHERE oid IN ('public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure,'public.can_insert_reserved_student_document(text,text)'::regprocedure,'public.guard_document_upload_registration()'::regprocedure) ORDER BY oid::regprocedure::text")).rows;
+}
+async function uploadFenceAction(action,client=db){
+  if(action==='reserve')return reserve(client);
+  if(action==='storage')return reservedObject(client);
+  return registerReserved(client);
+}
+async function prepareUploadFenceAction(action){
+  await uploadFenceFixture();await pauseOperation(false);await as();
+  if(action!=='reserve')await reserve();
+  if(action==='register')await reservedObject();
+  await db.exec('RESET ROLE');
+}
+for(const [role,actor] of Object.entries(actors))test('upload pause preserves closed reservation for '+role,async()=>{
+  await uploadFenceFixture();await as(actor);
+  await assert.rejects(reserve(),{code:'55000'});await db.exec('RESET ROLE');
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,0);
+});
+for(const [role,actor] of Object.entries(actors))test('unpaused upload fence preserves current private access for '+role,async()=>{
+  await uploadFenceFixture();await pauseOperation(false);await as(actor);
+  if(['family','educator','student'].includes(role)){await reserve();await reservedObject(db,{owner:actor});await registerReserved(db,{actor});}
+  else await assert.rejects(reserve(),{code:'42501'});
+});
+for(const role of ['school','district','owner'])test('upload fence accepts explicit editing access without a management bypass for '+role,async()=>{
+  await uploadFenceFixture();await pauseOperation(false);await db.exec('RESET ROLE');
+  await db.query("INSERT INTO public.student_collaborators VALUES($1,$2,'accepted','editor')",[student,actors[role]]);await as(actors[role]);await reserve();await reservedObject(db,{owner:actors[role]});await registerReserved(db,{actor:actors[role]});
+});
+for(const action of ['storage','register'])test('pause refuses direct '+action+' after a confirmed reservation without deleting it',async()=>{
+  await prepareUploadFenceAction(action);await as(actors.owner,'service_role');await pauseOperation(true);await as();
+  await assert.rejects(uploadFenceAction(action),{code:'55000'});await db.exec('RESET ROLE');
+  const attempt=(await db.query('SELECT state,registered_document_id FROM public.document_upload_attempts WHERE id=$1',[attemptId])).rows[0];assert.equal(attempt.state,'reserved');assert.equal(attempt.registered_document_id,null);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM public.documents')).rows[0].n,0);
+});
+test('paused uploads still allow an exact actor review hold without completing or releasing it',async()=>{
+  await prepareUploadFenceAction('storage');await as(actors.owner,'service_role');await pauseOperation(true);await as();await hold();
+  await db.exec('RESET ROLE');const row=(await db.query('SELECT state,hold_reason FROM public.document_upload_attempts')).rows[0];assert.equal(row.state,'review_required');assert.equal(row.hold_reason,'upload_uncertain');
+});
+test('upload fence preserves every original body except its transaction pause call',async()=>{
+  await uploadFenceFixture(false);const before=await uploadFenceBodies();await db.exec(uploadPauseFence);const after=await uploadFenceBodies();
+  for(let i=0;i<before.length;i++){
+    const registration=before[i].signature.includes('guard_document_upload_registration');
+    const call=registration?"  IF TG_OP='INSERT' THEN PERFORM public.lock_document_upload_admission(); END IF;":before[i].signature.includes('reserve_document_upload')?'      PERFORM public.lock_document_upload_admission();':'  PERFORM public.lock_document_upload_admission();';
+    assert.equal(after[i].prosrc,before[i].prosrc.replace('\nBEGIN','\nBEGIN\n'+call));assert.equal(after[i].prosecdef,before[i].prosecdef);assert.deepEqual(after[i].proconfig,before[i].proconfig);
+  }
+});
+test('upload helper is volatile auth-only with no control table grant or role expansion',async()=>{
+  await uploadFenceFixture();await db.exec('RESET ROLE');const fn=(await db.query("SELECT prosecdef,proconfig,provolatile FROM pg_proc WHERE oid='public.lock_document_upload_admission()'::regprocedure")).rows[0];assert.equal(fn.prosecdef,true);assert.deepEqual(fn.proconfig,['search_path=pg_catalog']);assert.equal(fn.provolatile,'v');
+  for(const role of ['anon','authenticated','service_role']){
+    for(const name of ['lock_document_upload_admission()','reserve_document_upload(uuid,uuid,text,text)','can_insert_reserved_student_document(text,text)'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,'public.'+name])).rows[0].ok,role==='authenticated');
+    assert.equal((await db.query("SELECT has_function_privilege($1,'public.guard_document_upload_registration()','EXECUTE') AS ok",[role])).rows[0].ok,false);
+    for(const action of ['SELECT','INSERT','UPDATE','DELETE'])assert.equal((await db.query('SELECT has_table_privilege($1,$2,$3) AS ok',[role,'public.document_operation_control',action])).rows[0].ok,false);
+  }
+});
+for(const role of ['anon','service_role'])test('forged subject cannot call upload pause helper as '+role,async()=>{
+  await uploadFenceFixture();await as(actors.family,role);await assert.rejects(db.query('SELECT public.lock_document_upload_admission()'),{code:'42501'});
+});
+for(const isolation of ['REPEATABLE READ','SERIALIZABLE'])test('upload fence rejects stale snapshot '+isolation,async()=>{
+  await uploadFenceFixture();await pauseOperation(false);await as();await db.exec('BEGIN ISOLATION LEVEL '+isolation);await assert.rejects(reserve(),{code:'42501'});await db.exec('ROLLBACK');
+});
+for(const state of ['open','active','held-upload','pending-document','queued-summary','processing-summary','needs_review-summary'])test('upload fence installation refuses '+state+' without repairing data',async()=>{
+  await uploadFenceFixture(false);
+  if(state==='open'){await pauseOperation(false);}
+  if(state==='active'){await pauseOperation(false);await beginOperation();await pauseOperation(true);}
+  if(state==='held-upload'){await as();await reserve();await hold();}
+  if(state==='pending-document'){await as();await reserve();await db.exec('RESET ROLE');await reservedObject();await as();await registerReserved();}
+  if(state.endsWith('-summary')){await db.exec('RESET ROLE');await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status) VALUES($1,$2,$3,'document_summary',$4)",[uid(992),student,actors.family,state.split('-')[0]]);}
+  await db.exec('RESET ROLE');const before=await uploadFenceBodies();await assert.rejects(db.exec(uploadPauseFence),{code:'55000'});await db.exec('ROLLBACK');assert.deepEqual(await uploadFenceBodies(),before);assert.equal((await db.query("SELECT to_regprocedure('public.lock_document_upload_admission()') AS fn")).rows[0].fn,null);
+});
+for(const target of ['reserve_document_upload','can_insert_reserved_student_document','guard_document_upload_registration'])test('upload fence refuses prior body drift in '+target,async()=>{
+  await uploadFenceFixture(false);await db.exec('RESET ROLE');const row=(await db.query("SELECT oid::regprocedure::text AS signature,pg_get_functiondef(oid) AS definition FROM pg_proc WHERE proname=$1 AND pronamespace='public'::regnamespace",[target])).rows[0];await db.exec(row.definition.replace('BEGIN','BEGIN\n-- Fictional prior body drift'));
+  const before=await uploadFenceBodies();await assert.rejects(db.exec(uploadPauseFence),{code:'55000'});await db.exec('ROLLBACK');assert.deepEqual(await uploadFenceBodies(),before);
+});
+for(const action of ['reserve','storage','register'])for(const finish of ['COMMIT','ROLLBACK'])test('upload '+action+' holds pause until its transaction '+finish,{skip:!native},async()=>{
+  await prepareUploadFenceAction(action);const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(actors.owner,'service_role',b);assert.equal((await a.query('SELECT current_user AS role')).rows[0].role,'authenticated');assert.equal((await b.query('SELECT current_user AS role')).rows[0].role,'service_role');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);await a.exec('BEGIN');await uploadFenceAction(action,a);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=pauseOperation(true,2,b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(finish);assert.equal((await pending).error,undefined);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+for(const action of ['reserve','storage','register'])for(const finish of ['COMMIT','ROLLBACK'])test('waiting upload '+action+' rechecks pause after '+finish,{skip:!native},async()=>{
+  await prepareUploadFenceAction(action);const a=await newSession(),b=await newSession();await as(actors.owner,'service_role',a);await as(actors.family,'authenticated',b);assert.equal((await a.query('SELECT current_user AS role')).rows[0].role,'service_role');assert.equal((await b.query('SELECT current_user AS role')).rows[0].role,'authenticated');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);await a.exec('BEGIN');await pauseOperation(true,2,a);
+  const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=uploadFenceAction(action,b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(finish);const x=await pending;if(finish==='COMMIT')assert.equal(x.error?.code,'55000');else assert.equal(x.error,undefined);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+test('upload fence refuses differing routine ownership without reassigning it',async()=>{
+  await uploadFenceFixture(false);await db.exec("RESET ROLE;ALTER FUNCTION public.reserve_document_upload(uuid,uuid,text,text) OWNER TO service_role");
+  await assert.rejects(db.exec(uploadPauseFence),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT proowner::regrole::text AS owner FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure")).rows[0].owner,'service_role');
+});
+test('missing upload control row fails closed without creating a reservation',async()=>{
+  await uploadFenceFixture();await db.exec('RESET ROLE;DELETE FROM public.document_operation_control');await as();await assert.rejects(reserve(),{code:'55000'});await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_attempts')).rows[0].n,0);
+});
+test('upload pause preserves authorized metadata updates and existing registration reads',async()=>{
+  await prepareUploadFenceAction('register');await as();await registerReserved();await as(actors.owner,'service_role');await pauseOperation(true);await as();
+  await db.query("UPDATE public.documents SET title='Fictional reviewed label' WHERE id=$1",[uid(401)]);
+  assert.equal((await db.query('SELECT title FROM public.documents WHERE id=$1',[uid(401)])).rows[0].title,'Fictional reviewed label');
+  const receipt=(await db.query('SELECT public.read_document_upload_registration($1,$2) AS receipt',[attemptId,reviewHash])).rows[0].receipt;assert.equal(receipt.document_id,uid(401));
+});
+test('upload pause does not fence unrelated public-site media Storage inserts',async()=>{
+  await uploadFenceFixture();await db.exec("RESET ROLE;CREATE POLICY test_other_bucket ON storage.objects FOR INSERT TO authenticated WITH CHECK(bucket_id='public-site-media')");await as();
+  await db.query("INSERT INTO storage.objects(bucket_id,name,owner_id,version) VALUES('public-site-media','fictional-owner-site-image.png',$1,'public-version')",[actors.family]);await db.exec('RESET ROLE');assert.equal((await db.query("SELECT count(*)::int AS n FROM storage.objects WHERE bucket_id='public-site-media'")).rows[0].n,1);
+});
+
+for(const signature of ['reserve_document_upload(uuid,uuid,text,text)','can_insert_reserved_student_document(text,text)','guard_document_upload_registration()'])test('upload fence refuses grant drift without silently repairing '+signature,async()=>{
+  await uploadFenceFixture(false);await db.exec('RESET ROLE;GRANT EXECUTE ON FUNCTION public.'+signature+' TO service_role');
+  await assert.rejects(db.exec(uploadPauseFence),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT has_function_privilege('service_role',$1,'EXECUTE') AS ok",['public.'+signature])).rows[0].ok,true);
+});

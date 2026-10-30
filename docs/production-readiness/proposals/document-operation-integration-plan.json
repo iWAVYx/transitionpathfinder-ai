@@ -48,6 +48,10 @@
     {
       "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
       "sha256": "5dea695b3b11391165274e1e7cab439b1ed7b41a1ba6fb6d4a1b80312af3846e"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+      "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
     }
   ],
   "adapter_contract": {
@@ -201,6 +205,19 @@
       "Register/browser continuation, final canonical/ledger packaging, real storage/provider behavior and authorized hosted acceptance remain open.",
       "Other AI job types keep their existing behavior; this boundary is for document summaries.",
       "The separately deployed worker must match its reviewed source manifest; website publication alone cannot install or verify it."
+    ]
+  },
+  "upload_pause_fence_preparation": {
+    "implemented_in_proposal": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "browser_interval_tracked": false,
+    "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-pause-fence-local-2026-10-30.json",
+    "remaining": [
+      "Actor/source-bound durable reservation-to-registration continuation, required loaded viewer and interrupted-work handling.",
+      "Registration provider/queue admission and held-work bounds/manual reconciliation.",
+      "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
   }
 }
