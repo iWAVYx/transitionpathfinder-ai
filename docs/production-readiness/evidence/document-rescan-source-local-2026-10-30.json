@@ -1,0 +1,61 @@
+{
+  "schema": "document-rescan-source-local-v1",
+  "date": "2026-10-30",
+  "base_source": "b5c4b55662cbecb7208585ece08c04d3bf56fd54",
+  "status": "Local verification passed; exact-source automatic checks pending",
+  "runtime_fingerprint": "c84252fc5cb30880cb9369957d9d6161be1d65481fdea9a6ac80d4791593c80c",
+  "runtime_file_count": 1202,
+  "source_manifest": [
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "sha256": "b53bef2af82b81e688e662d7815a29895564b958c405bea9b0977913b126bcb3"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "e0226ad841621569683c1549757384ed20af1de2ba7f12052082b89a5b825d54"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.tsx",
+      "sha256": "02f23b8b6e2be6bd16eb1ca14d76429dd0ce45ba3195f656782cf00686133801"
+    },
+    {
+      "path": "tests/unit/document-rescan-source.test.ts",
+      "sha256": "0dadc6e07aa43139965a61e4671c603a388cdba64eec671fa25c4d0523def22d"
+    },
+    {
+      "path": "tests/unit/document-hub-account-lifetime.test.tsx",
+      "sha256": "3d6eb2cea71fb4b32b26d66b5bc9c0c616ce761dc271c6a9a96f7e1fca58c715"
+    },
+    {
+      "path": "tests/unit/document-removal-safety.test.ts",
+      "sha256": "9fd7500796a4ead195043cc68039669cd4d6d053f3c7080688d399e81066828d"
+    }
+  ],
+  "validation": {
+    "focused_tests": 115,
+    "unit_tests": 5453,
+    "unit_files": 354,
+    "typecheck": "pass",
+    "capped_local_staging_build": "pass",
+    "safety_contracts": 92,
+    "sql": "Unchanged; previous native/disposable proof retained, no new local database run claimed."
+  },
+  "behavior": [
+    "Required loaded-viewer UUID and protected staging upload gate precede private reads. Old clients must reload.",
+    "Caller-RLS edit, non-partner and document-view authority precedes any privileged writer.",
+    "Caller Storage Info and download verify saved object identity/version/path/bucket/size/text MIME and saved SHA-256; same immutable Blob is passed to the scanner.",
+    "Current source revision, access and object identity are rechecked around downloaded bytes and before/after provider submission. Detected drift leaves the pending record retained.",
+    "Clean scan provenance records the hash of the same registration-bound reviewed copy.",
+    "Documents hub immediately hides departed-account rows and ignores old fetch/rescan callbacks, including leave-and-return and auth-loading transitions."
+  ],
+  "limitations": [
+    "Mocked storage/concurrency tests do not verify hosted SDK responses, physical object bytes, conditional writes or provider quiescence.",
+    "Application prechecks are not a transaction-held permission fence; trusted writers and provider races remain part of the pending cutover review.",
+    "Rescan durable admission/pause and uncertain-provider reconciliation remain unimplemented. Register/browser intervals and separate worker remain open.",
+    "Missing legacy hash/object/version fails closed; no backfill, replacement, permission expansion or fallback was added."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "fixtures_created": false
+}

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ context: null as any, authorize: vi.fn(), rpc: vi.fn(), read: vi.fn(), from: vi.fn(), update: vi.fn(), write: vi.fn(), match: vi.fn(), notDeleted: vi.fn(), scan: vi.fn(), pipeline: vi.fn(), remove: vi.fn(), adminDelete: vi.fn(), audit: vi.fn(), enqueue: vi.fn(), fetch: vi.fn(), sign: vi.fn() }));
+const api = vi.hoisted(() => ({ context: null as any, source: vi.fn(), confirmSource: vi.fn(), gate: vi.fn(), authorize: vi.fn(), rpc: vi.fn(), read: vi.fn(), from: vi.fn(), update: vi.fn(), write: vi.fn(), match: vi.fn(), notDeleted: vi.fn(), scan: vi.fn(), pipeline: vi.fn(), remove: vi.fn(), adminDelete: vi.fn(), audit: vi.fn(), enqueue: vi.fn(), fetch: vi.fn(), sign: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
   let validate = (input: unknown) => input;
   const builder = { middleware: () => builder, validator: (fn: typeof validate) => { validate = fn; return builder; },
@@ -11,20 +11,22 @@ vi.mock("../../src/lib/authz", () => ({ assertAuthorized: api.authorize }));
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-removal-correlation" }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan, MALWARE_SCAN_PROVIDER: "mock-scanner" }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { storage: { from: () => ({ remove: api.remove }) }, from: api.from } }));
+vi.mock("../../src/lib/protected-file-uploads", () => ({ assertProtectedFileUploadsEnabled: api.gate }));
+vi.mock("../../src/lib/document-rescan-source.server", () => ({ prepareDocumentRescanCopy: api.source }));
 import { getDocumentSignedUrl, requestAdminDocAccess, hardDeleteDocument, rescanDocument } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const id = "22222222-2222-4222-8222-222222222222";
 const path = `${student}/fictional-privacy-safe-document.txt`;
 const row = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", doc_type: "other", mime_type: "text/plain", size_bytes: 20, scan_status: "failed", scan_verdict: null, review_status: "rejected", archived_at: "2026-10-28", deleted_at: null, updated_at: "2026-10-30T10:00:00.000Z" };
-const runRescan = () => (rescanDocument as any)({ data: { id } });
+const runRescan = (patch: object = {}) => (rescanDocument as any)({ data: { id, expected_viewer_id: "33333333-3333-4333-8333-333333333333", ...patch } });
 const runDelete = () => (hardDeleteDocument as any)({ data: { id, reason: "Fictional deletion request" } });
 beforeEach(() => {
-  vi.resetAllMocks(); vi.stubGlobal("fetch", api.fetch);
+  vi.resetAllMocks(); api.source.mockResolvedValue({ copy: new Blob(["Fictional reviewed text"]), contentHash: "a".repeat(64), confirmPending: api.confirmSource }); vi.stubGlobal("fetch", api.fetch);
   api.fetch.mockRejectedValue(new Error("Unexpected network request"));
   api.rpc.mockResolvedValue({ data: false, error: null });
   api.read.mockResolvedValue({ data: row, error: null });
   const query: any = { select: () => query, eq: () => query, maybeSingle: api.read };
-  api.context = { userId: "fictional-viewer", supabase: { storage: { from: () => ({ createSignedUrl: api.sign }) }, rpc: api.rpc, from: (table: string) => ["documents", "students", "student_collaborators", "user_roles"].includes(table) ? query : { insert: table === "ai_jobs" ? api.enqueue : api.audit } } };
+  api.context = { userId: "33333333-3333-4333-8333-333333333333", supabase: { storage: { from: () => ({ createSignedUrl: api.sign }) }, rpc: api.rpc, from: (table: string) => ["documents", "students", "student_collaborators", "user_roles"].includes(table) ? query : { insert: table === "ai_jobs" ? api.enqueue : api.audit } } };
   const writeQuery: any = { eq: api.match, is: api.notDeleted, select: () => writeQuery, single: api.write };
   api.match.mockReturnValue(writeQuery); api.notDeleted.mockReturnValue(writeQuery);
   api.update.mockReturnValue(writeQuery);
@@ -209,4 +211,28 @@ it("does not release, delete or queue after a thrown scanner request", async () 
   await expect(runRescan()).rejects.toThrow();
   expect(api.write).toHaveBeenCalledOnce(); expect(api.update.mock.calls[0][0]).toEqual({ scan_status: "pending" });
   expect(api.enqueue).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
+});
+
+it.each([undefined, "invalid", "11111111-1111-4111-8111-111111111111"])("stale or missing viewer cannot start a rescan (%s)", async viewer => {
+  await expect(runRescan({ expected_viewer_id: viewer })).rejects.toThrow();
+  expect(api.read).not.toHaveBeenCalled(); expect(api.source).not.toHaveBeenCalled(); expect(api.update).not.toHaveBeenCalled();
+});
+it("does not load the privileged writer if caller source checks fail", async () => {
+  api.source.mockRejectedValue(new Error("Unconfirmed source"));
+  await expect(runRescan()).rejects.toThrow("Unconfirmed source");
+  expect(api.from).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled();
+});
+it.each(["before", "after"])("source drift %s scanning cannot publish a clean result", async stage => {
+  api.scan.mockResolvedValue(cleanScan);
+  if (stage === "before") api.confirmSource.mockRejectedValueOnce(new Error("Source changed"));
+  else api.confirmSource.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("Source changed"));
+  await expect(runRescan()).rejects.toThrow("Source changed");
+  expect(api.write).toHaveBeenCalledOnce(); expect(api.scan).toHaveBeenCalledTimes(stage === "before" ? 0 : 1); expect(api.enqueue).not.toHaveBeenCalled();
+});
+it("passes only the same reviewed Blob to the scanner and preserves its hash", async () => {
+  api.scan.mockResolvedValue(cleanScan); const copy = new Blob(["Fictional same copy"]);
+  api.source.mockResolvedValue({ copy, contentHash: "b".repeat(64), confirmPending: api.confirmSource });
+  await runRescan();
+  expect(api.scan.mock.calls[0][1]).toBe(copy);
+  expect(api.update.mock.calls.at(-1)?.[0].scan_verdict).toMatchObject({ content_sha256: "b".repeat(64), source: "registration_reviewed_copy", rescan_reviewed_copy: true });
 });

@@ -11,7 +11,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "be69160e370e8b429297a0267c92d686ff2db00ace142074ab5da8e922ab1a22"
+      "sha256": "e0226ad841621569683c1549757384ed20af1de2ba7f12052082b89a5b825d54"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -27,7 +27,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.tsx",
-      "sha256": "1a1b61e4438b410eddb904d67ea4537e6d8b856e3082d8f0316da5201fb6dd20"
+      "sha256": "02f23b8b6e2be6bd16eb1ca14d76429dd0ce45ba3195f656782cf00686133801"
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
@@ -40,6 +40,10 @@
     {
       "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
       "sha256": "f73a9a60b81ca5b050985c5eb8e4f41e90efa914b4b0c722d1b9451a574cb888"
+    },
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "sha256": "b53bef2af82b81e688e662d7815a29895564b958c405bea9b0977913b126bcb3"
     }
   ],
   "adapter_contract": {
@@ -113,11 +117,22 @@
       "Require an exact summary queue receipt; uncertain insert is not retried and does not report success."
     ],
     "remaining": [
-      "Bind current viewer and source byte/object identity before provider work.",
+      "Account/source-copy checks now prepared separately; see rescan_source_preparation. No hosted verification.",
       "Integrate rescan with durable pause/admission and uncertain-provider reconciliation; a failed scanner reply is not proof that provider work stopped.",
       "Complete reservation/register/browser interval and separate worker coverage; retain held-operation limits and authorized manual reconciliation."
     ],
     "evidence": "docs/production-readiness/evidence/document-rescan-receipts-local-2026-10-30.json",
+    "hosted_actions": false
+  },
+  "rescan_source_preparation": {
+    "date": "2026-10-30",
+    "status": "Account/source checks prepared and locally verified; durable rescan admission remains open",
+    "evidence": "docs/production-readiness/evidence/document-rescan-source-local-2026-10-30.json",
+    "remaining": [
+      "Integrate durable pause/admission and uncertain-provider reconciliation, including retained-hold limits/manual reconciliation.",
+      "Review transaction-held authority/writer fences and legacy/provider drain.",
+      "Authorize and verify real isolated Storage/version/bytes behavior before activation."
+    ],
     "hosted_actions": false
   }
 }

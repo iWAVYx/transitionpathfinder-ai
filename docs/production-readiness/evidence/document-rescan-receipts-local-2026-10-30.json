@@ -2,7 +2,7 @@
   "schema": "document-rescan-receipts-local-v1",
   "date": "2026-10-30",
   "base_source": "3e53c4cf2764fd3f10f3f33a0a243ab9020030e5",
-  "status": "Local validation passed; exact-source automatic checks pending",
+  "status": "Verified prepared source; all eight applicable automatic checks passed",
   "runtime_fingerprint": "acc07652399d08aef10b7af9e8c75535776003a41d41054f9324dfce751fbb34",
   "runtime_file_count": 1201,
   "changed_source": [
@@ -29,5 +29,20 @@
   "hosted_actions": false,
   "production_access": false,
   "provider_calls": false,
-  "fixtures_created": false
+  "fixtures_created": false,
+  "verified_source": "b5c4b55662cbecb7208585ece08c04d3bf56fd54",
+  "automatic_checks": {
+    "successful": 8,
+    "runs": {
+      "build_pr": 41017771011,
+      "build_push": 41017765878,
+      "unit": 41017770992,
+      "disposable_database": 41017771128,
+      "role_guard": 41017771076,
+      "readiness": 41017770973,
+      "accessibility": 41017771067,
+      "static": 41017771105
+    },
+    "protected_skips": "Hosted role/data tests remained skipped and unperformed."
+  }
 }

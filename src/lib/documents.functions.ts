@@ -1341,13 +1341,19 @@ export const markDocumentReviewed = createServerFn({ method: "POST" })
  */
 export const rescanDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i: unknown) => {
+    const parsed = z.object({ id: z.string().uuid(), expected_viewer_id: z.string().uuid() }).safeParse(i);
+    if (!parsed.success) throw new Error("Reload the document list before requesting a security review.");
+    return parsed.data;
+  })
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
+    assertProtectedFileUploadsEnabled();
     const { supabase, userId } = context;
 
     const { data: row, error: readErr } = await supabase
       .from("documents")
-      .select("id, student_id, title, doc_type, storage_path, mime_type, size_bytes, scan_status, scan_verdict, review_status, archived_at, deleted_at, updated_at")
+      .select("*")
       .eq("id", data.id)
       .maybeSingle();
     if (readErr || !row) throw new Error("Document not found or access denied.");
@@ -1371,6 +1377,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
     if (!row.storage_path) {
       throw new Error("This document has no file attached to rescan.");
     }
+
+    const { prepareDocumentRescanCopy } = await import("./document-rescan-source.server");
+    const reviewed = await prepareDocumentRescanCopy(supabase, userId, row);
 
     const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -1406,6 +1415,8 @@ export const rescanDocument = createServerFn({ method: "POST" })
       throw new Error(unconfirmedReview);
     }
 
+    await reviewed.confirmPending(pendingRevision);
+
     await recordPipelineRun({
       document_id: row.id,
       student_id: row.student_id,
@@ -1425,7 +1436,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
       storage_path: row.storage_path,
       declared_mime: row.mime_type ?? null,
       declared_size: row.size_bytes ?? null,
-    });
+    }, reviewed.copy);
+    // Access/object drift after the provider request cannot release this file.
+    await reviewed.confirmPending(pendingRevision);
     const finishedAt = new Date().toISOString();
     const latencyMs = Date.parse(finishedAt) - Date.parse(startedAt);
 
@@ -1538,6 +1551,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
           scan_status: "clean",
           scan_verdict: {
             code: "clean",
+            content_sha256: reviewed.contentHash,
+            source: "registration_reviewed_copy",
+            rescan_reviewed_copy: true,
             provider: scanResult.provider,
             clean_result: scanResult.clean_result,
             blocked_reasons: scanResult.blocked_reasons,
