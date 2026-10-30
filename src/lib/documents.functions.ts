@@ -88,6 +88,18 @@ export const recoverDocumentUpload = createServerFn({ method: "POST" })
     return recoverDocumentUploadIntent(context.supabase, context.userId, data);
   });
 
+export const recoverInterruptedDocumentUpload = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i: unknown) => z.object({
+    student_id: z.string().uuid(), attempt_id: z.string().uuid(), expected_viewer_id: z.string().uuid(),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    assertProtectedFileUploadsEnabled();
+    assertExpectedViewer(data, context.userId);
+    const { recoverInterruptedDocumentUploadIntent } = await import("./document-upload-reservation.server");
+    return recoverInterruptedDocumentUploadIntent(context.supabase, context.userId, data);
+  });
+
 export const registerDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) =>

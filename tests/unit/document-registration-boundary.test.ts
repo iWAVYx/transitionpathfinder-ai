@@ -12,7 +12,7 @@ vi.mock("../../src/lib/document-upload-duplicate.server", () => ({ hasVerifiedDo
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-correlation" }));
 vi.mock("../../src/lib/document-sniff.server", () => ({ sniffUploadedDocument: api.sniff }));
 vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan }));
-import { registerDocument, assertCanUploadForStudent, reserveDocumentUpload, recoverDocumentUpload } from "../../src/lib/documents.functions";
+import { registerDocument, recoverInterruptedDocumentUpload, assertCanUploadForStudent, reserveDocumentUpload, recoverDocumentUpload } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
 const attempt="44444444-4444-4444-8444-444444444444";
@@ -122,4 +122,11 @@ it.each([undefined,"", "invalid"])("requires loaded viewer identity at registrat
 });
 it.each([undefined,0,1.5,21*1024*1024])("rejects unsupported registration size before any work (%s)",async size_bytes=>{
  await expect(register({size_bytes})).rejects.toThrow();expect(api.rpc).not.toHaveBeenCalled();noProcessing();
+});
+
+
+it("interrupted recovery requires the current loaded viewer and upload gate before metadata reads",async()=>{
+ const data={student_id:student,attempt_id:attempt,expected_viewer_id:"88888888-8888-4888-8888-888888888888"};
+ await expect((recoverInterruptedDocumentUpload as any)({data})).rejects.toThrow("sign-in changed");expect(api.from).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
+ api.gate.mockImplementation(()=>{throw Error("Uploads remain paused");});await expect((recoverInterruptedDocumentUpload as any)({data:{...data,expected_viewer_id:"99999999-9999-4999-8999-999999999999"}})).rejects.toThrow("Uploads remain paused");expect(api.from).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
 });

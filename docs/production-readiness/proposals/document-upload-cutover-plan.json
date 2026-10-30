@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Apply/rescan/worker, durable upload foundation and registration continuation prepared; interrupted-work/held-work/handoff controls and hosted activation remain open",
+  "status": "Apply/rescan/worker, durable upload foundation, registration continuation and tab-local interruption recovery prepared; retained-work/handoff controls and hosted activation remain open",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -16,7 +16,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "86b0c637bc3c59fe87db820a63acc4d70a063761bc24acb1c1ae440311e78a62"
+      "sha256": "2449e83eaa6ef7705c9b50f3f092de00df794ec0fe80477250bc4e0ccf632c16"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -85,6 +85,18 @@
     {
       "path": "src/lib/document-registration-source.server.ts",
       "sha256": "82aae6ca86126a7ce0e5319cf1b33bbc6e683a0008f6f11bb8deb2f16d4bbc57"
+    },
+    {
+      "path": "src/lib/document-upload-interruption.ts",
+      "sha256": "074dd1d6d7256dd3e4220879af1ed2ff5852264ca75c8942c241c3dd19af629f"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "c0bf5717356ef915a92408135b760b8dd5d5583315e0fa020edb384cb2f41f45"
+    },
+    {
+      "path": "src/lib/document-upload-reservation.server.ts",
+      "sha256": "ca6c746834e2deca8524ea47a37f39a2a16f2d2ffe46f6ae65746d58a3e9bf80"
     }
   ],
   "batch": {
@@ -288,7 +300,7 @@
     "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-pause-fence-local-2026-10-30.json",
     "remaining": [
-      "Browser interruption/reload/session handling around the prepared actor/source-bound registration continuation.",
+      "Hosted browser interruption/reload/session acceptance around the prepared tab-local reminder and completed-only recovery.",
       "Physical provider/queue acceptance and retained-work bounds/manual reconciliation.",
       "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ]
@@ -301,7 +313,7 @@
     "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
     "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
     "remaining": [
-      "Browser interruption/reload/session handling and retained active-registered/held-work limits with manual reconciliation.",
+      "Hosted interruption/reload/session acceptance, cross-tab/device and retained active-registered/held-work server limits with trusted manual reconciliation.",
       "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
       "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
     ],
@@ -315,5 +327,16 @@
     "scope": "One service-only claim of the existing reservation; strict bound metadata receipt; no token to work/browser; uncertain claim means no IO or finish; one finish after validated work; no retry or recovery reattachment.",
     "hosted_verified": false,
     "handler_evidence": "docs/production-readiness/evidence/document-registration-handler-local-2026-10-30.json"
+  },
+  "interruption_reminder": {
+    "prepared": true,
+    "hosted_verified": false,
+    "authoritative": false,
+    "scope": "Tab-local viewer/student reminder; attempt UUID only; no content or capability persistence. One current-caller completed-only read check, no upload/scan/admission replay or absence-based clearing.",
+    "evidence": "docs/production-readiness/evidence/document-upload-interruption-local-2026-10-30.json",
+    "remaining": [
+      "Cross-tab/device and active-registered/held-work server limits; trusted manual reconciliation.",
+      "Browser closure/storage loss and physical hosted lifecycle/provider acceptance."
+    ]
   }
 }
