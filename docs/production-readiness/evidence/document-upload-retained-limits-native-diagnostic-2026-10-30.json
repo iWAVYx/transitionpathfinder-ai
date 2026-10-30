@@ -1,0 +1,32 @@
+{
+  "schema": "document-upload-retained-limits-native-diagnostic-v1",
+  "date": "2026-10-30",
+  "failed_source": "8e41f7a3e53e0a1692e9470fe54dec67e31aa794",
+  "failed_runs": [
+    41104947929,
+    41104959057
+  ],
+  "observed_each": {
+    "tests": 865,
+    "passed": 861,
+    "failed": 4,
+    "skipped": 0
+  },
+  "failure_scope": "Four newly added actor/student COMMIT/ROLLBACK quota races; observer could not see the expected pg_stat_activity lock. Earlier861 native cases passed.",
+  "diagnosis": "quotaAttempt leaves the shared observer connection SET ROLE authenticated. waitForLock reads other-session pg_stat_activity wait fields through that same connection, whose restricted role cannot observe them. Existing independent-writer tests explicitly reset the observer role.",
+  "correction": "Reset only the independent observer connection; assert current_user=session_user on the observer and current_user=authenticated on both actual writer sessions before the unchanged lock wait and exact quota assertions.",
+  "test_source": {
+    "path": "tests/database/document-path-exclusivity.test.mjs",
+    "sha256": "670f112a8780c44c116abc6e2504e7bf74c3541875e090f7f6b2c947324b6186"
+  },
+  "sql_source_changed": false,
+  "application_source_changed": false,
+  "worker_source_changed": false,
+  "deadlines_increased": false,
+  "test_retries_added": false,
+  "assertions_removed_or_weakened": false,
+  "native_rerun": "pending; cause must be confirmed by actual native execution",
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

@@ -1905,6 +1905,11 @@ for(const drift of ['open','existing','grant','column-grant','path','body'])test
 for(const boundary of ['actor','student'])for(const ending of ['COMMIT','ROLLBACK'])test('registered '+boundary+' quota serializes concurrent new attempts after '+ending,{skip:!native},async()=>{
  await retainedQuotaFixture();const roster=[actors.family,actors.educator,actors.student];for(let n=1;n<=(boundary==='actor'?4:9);n++)await quotaAttempt(n,{actor:boundary==='actor'?actors.family:roster[(n-1)%3]});
  const a=await newSession(),b=await newSession();await as(actors.family,'authenticated',a);await as(boundary==='actor'?actors.family:actors.educator,'authenticated',b);
+ // Observe from the independent owner connection; restricted writers cannot
+ // inspect the other session's pg_stat_activity wait fields. Keep both actual
+ // reservations authenticated, not privileged, throughout the race.
+ await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);
+ for(const writer of [a,b])assert.equal((await writer.query("SELECT current_user='authenticated' AS restricted_writer")).rows[0].restricted_writer,true);
  await a.exec('BEGIN');await reserve(a,{id:uid(5998),hash:'e'.repeat(64)});const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
  const pending=reserve(b,{id:uid(5999),hash:'f'.repeat(64)}).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);const rows=await intervalRows();assert.equal(rows.bindings.length,boundary==='actor'?5:10);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
