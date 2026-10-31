@@ -4,7 +4,7 @@
   "source_base": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
-    "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
+    "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f"
   },
   "scope": "Ninth noncanonical/unapplied proposal. Registration producer only: immutable guarded-finish receipt, one-unit clean-plus-exact-queue settlement or two-unit no-summary quarantine. Rescan/Apply and source-bound admission/queue/worker capacity hooks remain open.",
   "routines": [
@@ -72,7 +72,7 @@
   "required_next": [
     "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
     "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
-    "Verify current native1045-case races and full225+all-nine proposal replay; select reviewed numeric ceilings and finish canonical/ledger packaging.",
+    "Verify current native owner-context refusal/restoration and full225+all-nine replay before rescan work; select reviewed numeric ceilings and finish canonical/ledger packaging.",
     "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
   ],
   "preflight_comparison_correction": {
@@ -82,7 +82,13 @@
     "cleanup": "ON COMMIT DROP; rollback removes newly created reference. Existing reference-name collision refuses without replacing/deleting the object.",
     "actual_policies_or_grants_changed": false,
     "runtime_routine_hashes_changed": false,
-    "native_confirmation_pending": true,
-    "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json"
+    "native_confirmation_pending": false,
+    "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json",
+    "native_confirmation": "Both source60dfc08b suites pass1052/1052 zero skips; full225+9 separately fails at preexisting finish owner."
+  },
+  "owner_context_correction": {
+    "method": "Explicit authorized admin session with restricted postgres current role; use existing owner/admin context only while replacing finish, verify its owner unchanged, then restore original executor before subsequent DDL. No ownership transfer, role membership or application grants added.",
+    "evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json",
+    "native_full_replay_pending": true
   }
 }

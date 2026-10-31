@@ -234,13 +234,13 @@ jobs:
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
 
-      - name: Verify registration read-policy compatibility before full database suites
+      - name: Verify registration policy and owner context before full database suites
         env:
           PGUSER: supabase_admin
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='registration read-policy|registration owner-context' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -1309,7 +1309,12 @@ jobs:
 
       - name: Verify source-bound registration completion and capacity settlement
         run: |
-          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-capacity-settlement.sql
+          # Explicit admin session; application migration work stays postgres.
+          # The proposal uses owner/admin context only for the existing finish
+          # definition and restores postgres before all subsequent object work.
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-registration-capacity-settlement.sql \
+            -c "DO \$\$ BEGIN IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted migration executor was not restored'; END IF; END \$\$;"
           psql -v ON_ERROR_STOP=1 <<'SQL'
           DO $registration$
           DECLARE expected record;role_name text;relation_name text;privilege_name text;admission_owner oid;
@@ -1369,6 +1374,21 @@ jobs:
             END IF;
           END; $registration$;
           SQL
+          # Disposable service completion crosses the original admission owner
+          # and the private recorder owner. Rollback leaves no leases or receipts.
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $owner_bridge_smoke$
+          DECLARE receipt jsonb;
+          BEGIN
+            PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',1,false,'resume');
+            receipt:=public.begin_document_operation('00000000-0000-4000-8000-000000000902','00000000-0000-4000-8000-000000000001','register');
+            PERFORM public.finish_document_operation((receipt->>'operation_id')::uuid,'00000000-0000-4000-8000-000000000001',(receipt->>'receipt_id')::uuid,'completed');
+            IF NOT (public.inspect_document_operation_drain()->>'tracked_operations_clear')::boolean THEN RAISE EXCEPTION 'Disposable completion remained active'; END IF;
+          END; $owner_bridge_smoke$;
+          ROLLBACK;
+          SQL
           psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-registration-capacity-settlement.json
           SELECT jsonb_build_object('schema','document-registration-capacity-settlement-proof-v1','phase','after-ninth-proposal',
             'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
@@ -1376,6 +1396,7 @@ jobs:
             'registration_receipts',(SELECT count(*) FROM public.document_registration_completion_receipts),
             'registration_settlements',(SELECT count(*) FROM public.document_capacity_registration_settlements),
             'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'restricted_executor_restored',true,'service_owner_bridge_rollback_passed',true,
             'registration_receipt_prepared',true,'clean_registration_units',1,'no_summary_quarantine_units',2,
             'rescan_apply_settlement_implemented',false,'producer_worker_capacity_hooks_installed',false,'general_application_limits_implemented',false,
             'queue_budget_reservation_implemented',false,'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,

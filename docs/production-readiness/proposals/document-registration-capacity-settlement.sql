@@ -6,7 +6,7 @@ BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='30s';
 DO $registration_settlement_preflight$
-DECLARE expected record; relation_name text; role_name text; privilege_name text; paused_state boolean;
+DECLARE expected record; relation_name text; role_name text; privilege_name text; paused_state boolean; admission_owner oid;
 BEGIN
  FOR expected IN SELECT * FROM (VALUES
   ('public.finish_document_operation(uuid,uuid,uuid,text)','b7d311f760d66a7b9c8f6244c1441caa',true),
@@ -28,6 +28,13 @@ BEGIN
    END IF;
   END LOOP;
  END LOOP;
+ -- An existing function owner is not replaced by a restricted migration
+ -- role. Require an explicitly authorized session before creating any objects.
+ SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+ IF current_user::regrole::oid<>admission_owner AND NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=session_user AND rolsuper)
+  AND (NOT pg_has_role(session_user::regrole::oid,admission_owner,'MEMBER') OR NOT has_schema_privilege(admission_owner,'public'::regnamespace::oid,'CREATE')) THEN
+  RAISE EXCEPTION 'Use an authorized owner/admin session for the existing completion function.' USING ERRCODE='55000';
+ END IF;
  FOREACH relation_name IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases','public.document_capacity_policy','public.document_capacity_reservations','public.document_capacity_summary_settlements','public.document_upload_operation_bindings'] LOOP
   IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity AND relowner=CASE WHEN relation_name IN ('public.document_operation_control','public.document_operation_leases')
     THEN (SELECT relowner FROM pg_class WHERE oid='public.document_operation_control'::regclass) ELSE current_user::regrole::oid END) THEN
@@ -285,6 +292,21 @@ BEGIN
  IF NOT FOUND THEN RAISE EXCEPTION 'The upload completion proof could not be confirmed.' USING ERRCODE='55000'; END IF;
 END; $settle_registration_capacity$;
 
+-- Keep every new object under the migration executor. Only replacement of
+-- the preexisting completion function uses the existing owner or an explicitly
+-- supplied administrative session. SET LOCAL restores context at transaction end;
+-- no ownership, membership, schema privilege or role attributes are changed.
+DO $replace_owned_finish$
+DECLARE migration_executor name:=current_user; admission_owner name; editing_role name; original_owner oid;
+BEGIN
+ SELECT proowner INTO original_owner FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure;
+ SELECT rolname INTO admission_owner FROM pg_roles WHERE oid=original_owner;
+ IF current_user<>admission_owner THEN
+  IF EXISTS(SELECT 1 FROM pg_roles WHERE rolname=session_user AND rolsuper) THEN editing_role:=session_user;
+  ELSE editing_role:=admission_owner; END IF;
+  EXECUTE format('SET LOCAL ROLE %I',editing_role);
+ END IF;
+ EXECUTE $owned_finish_definition$
 CREATE OR REPLACE FUNCTION public.finish_document_operation(_operation_id uuid,_actor_id uuid,_receipt_id uuid,_outcome text)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
 AS $finish_operation$
@@ -303,6 +325,14 @@ BEGIN
  IF _outcome='completed' THEN PERFORM public.record_internal_document_registration_completion(_operation_id); END IF;
  RETURN jsonb_build_object('schema','document-operation-finished-v1','operation_id',_operation_id,'state',_outcome);
 END; $finish_operation$;
+ $owned_finish_definition$;
+ IF (SELECT proowner FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure) IS DISTINCT FROM original_owner THEN
+  RAISE EXCEPTION 'Completion function ownership must be preserved.' USING ERRCODE='55000';
+ END IF;
+ IF current_user<>migration_executor THEN EXECUTE format('SET LOCAL ROLE %I',migration_executor); END IF;
+ IF current_user<>migration_executor THEN RAISE EXCEPTION 'Migration role restoration failed.' USING ERRCODE='55000'; END IF;
+END; $replace_owned_finish$;
+
 CREATE OR REPLACE FUNCTION public.guard_document_capacity_reservation()
 RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog
 AS $capacity_guard$

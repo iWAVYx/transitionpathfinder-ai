@@ -435,5 +435,19 @@
         41220558801
       ]
     }
+  },
+  "registration_owner_context_correction": {
+    "previous_source": "60dfc08b",
+    "native_tests_passed": 1052,
+    "native_skipped": 0,
+    "runs": [
+      41225935830,
+      41225933286
+    ],
+    "full_schema_failure": "225 canonical migrations replay; ninth proposal refuses replacing supabase_admin-owned finish as restricted postgres. No permission repair or owner transfer.",
+    "evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json",
+    "correction_prepared": true,
+    "native_full_replay_pending": true,
+    "rescan_work_blocked_until_replay_passes": true
   }
 }

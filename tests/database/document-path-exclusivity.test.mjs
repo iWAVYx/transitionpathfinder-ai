@@ -2406,3 +2406,38 @@ test('registration read-policy reference never replaces a preexisting session ob
  await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);await db.exec(summaryCapacitySettlement);await db.exec('CREATE TEMP TABLE tf_registration_read_policy_reference(original_marker integer)');
  try{await assert.rejects(db.exec(registrationCapacitySettlement),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_attribute WHERE attrelid='pg_temp.tf_registration_read_policy_reference'::regclass AND attname='original_marker' AND NOT attisdropped")).rows[0].n,1);}finally{await db.exec('DROP TABLE pg_temp.tf_registration_read_policy_reference');}
 });
+
+// Model the real replay split: restricted application migration owner versus
+// an existing admission owner. Fixture roles are disposable, not app accounts.
+async function restrictedRegistrationExecutor(){
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);await db.exec(summaryCapacitySettlement);
+ const relations=['ai_jobs','documents','document_capacity_policy','document_capacity_reservations','document_capacity_summary_settlements','document_upload_operation_bindings','document_upload_attempts'];
+ const routines=['lock_internal_document_capacity_completion()','guard_document_capacity_reservation()','guard_document_upload_interval_completion()','guard_document_upload_operation_binding()','guard_document_upload_interval_attempt()'];
+ const tables=(await db.query("SELECT oid::regclass::text AS identity,relowner::regrole::text AS owner FROM pg_class WHERE relnamespace='public'::regnamespace AND relname=ANY($1)",[relations])).rows;
+ const funcs=(await db.query('SELECT oid::regprocedure::text AS identity,proowner::regrole::text AS owner FROM pg_proc WHERE oid=ANY($1::regprocedure[])',[routines.map(s=>'public.'+s)])).rows;
+ await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_registration_migration_executor') THEN CREATE ROLE tf_registration_migration_executor NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS;END IF;END $$;GRANT USAGE,CREATE ON SCHEMA public TO tf_registration_migration_executor;GRANT USAGE ON SCHEMA auth,storage TO tf_registration_migration_executor;GRANT SELECT,UPDATE ON public.document_operation_control,public.document_operation_leases TO tf_registration_migration_executor;");
+ for(const row of tables)await db.exec((await db.query("SELECT format('ALTER TABLE %s OWNER TO %I',$1::text,'tf_registration_migration_executor') AS ddl",[row.identity])).rows[0].ddl);
+ for(const row of funcs)await db.exec((await db.query("SELECT format('ALTER FUNCTION %s OWNER TO %I',$1::text,'tf_registration_migration_executor') AS ddl",[row.identity])).rows[0].ddl);
+ const restore=async()=>{await db.exec('ROLLBACK;RESET ROLE');for(const row of funcs)await db.exec((await db.query("SELECT format('ALTER FUNCTION %s OWNER TO %I',$1::text,$2::text) AS ddl",[row.identity,row.owner])).rows[0].ddl);for(const row of tables)await db.exec((await db.query("SELECT format('ALTER TABLE %s OWNER TO %I',$1::text,$2::text) AS ddl",[row.identity,row.owner])).rows[0].ddl);};
+ await db.exec('SET ROLE tf_registration_migration_executor');return restore;
+}
+test('registration owner-context preserves existing owner and restores a restricted migration executor',async()=>{
+ const restore=await restrictedRegistrationExecutor();try{
+  const before=(await db.query("SELECT proowner FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].proowner;
+  assert.equal((await db.query('SELECT rolsuper FROM pg_roles WHERE rolname=current_user')).rows[0].rolsuper,false);
+  const original=operationAdmission.match(/CREATE FUNCTION public.finish_document_operation[\s\S]*?\$finish_operation\$;/)[0].replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION');
+  await assert.rejects(db.exec(original),{code:'42501'});
+  await db.exec(registrationCapacitySettlement);
+  assert.equal((await db.query('SELECT current_user AS role')).rows[0].role,'tf_registration_migration_executor');
+  assert.equal((await db.query("SELECT proowner FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].proowner,before);
+  assert.equal((await db.query("SELECT relowner='tf_registration_migration_executor'::regrole AS owned FROM pg_class WHERE oid='public.document_registration_completion_receipts'::regclass")).rows[0].owned,true);
+ }finally{await restore();}
+});
+test('registration owner-context refuses an unprivileged session before any installation',{skip:!native},async()=>{
+ const restore=await restrictedRegistrationExecutor();const client=await newSession();try{
+  await client.exec('SET SESSION AUTHORIZATION tf_registration_migration_executor');
+  assert.equal((await client.query("SELECT session_user='tf_registration_migration_executor' AS restricted")).rows[0].restricted,true);
+  await assert.rejects(client.exec(registrationCapacitySettlement),{code:'55000',message:'Use an authorized owner/admin session for the existing completion function.'});await client.exec('ROLLBACK');
+  assert.equal((await client.query("SELECT to_regclass('public.document_registration_completion_receipts') AS name")).rows[0].name,null);
+ }finally{await client.exec('ROLLBACK');await restore();}
+});
