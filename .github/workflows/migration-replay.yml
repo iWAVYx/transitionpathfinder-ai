@@ -46,6 +46,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-interval.sql"
       - "docs/production-readiness/proposals/document-upload-retained-limits.sql"
       - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
+      - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -111,6 +112,7 @@ on:
       - "docs/production-readiness/proposals/document-upload-interval.sql"
       - "docs/production-readiness/proposals/document-upload-retained-limits.sql"
       - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
+      - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -1165,6 +1167,61 @@ jobs:
                 'public.guard_document_summary_operation_binding()'::regprocedure,'public.guard_document_summary_operation_completion()'::regprocedure)));
           SQL
 
+      - name: Verify dormant private capacity foundation after atomic summary handoff
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-capacity-ledger-foundation.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $capacity$
+          DECLARE expected record; role_name text; relation_name text; privilege_name text;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.lock_internal_document_capacity()','2f5b3f16774b99e22e8e61bcce8d7828'),
+              ('public.guard_document_capacity_reservation()','d07897b4d300a74245ed98aa37311015'),
+              ('public.reserve_internal_document_capacity(uuid,uuid)','08c62d8c20c1c5cb0eb6b1bbd14cde2d'),
+              ('public.queue_internal_document_capacity(uuid,uuid)','0435890175e2aeefe0af6fd93344e4f7'),
+              ('public.claim_internal_document_capacity(uuid,uuid)','7cd786969a6084b1c51e26a182cc9200')) x(signature,body_md5) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND NOT prosecdef
+                AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected private capacity definition or owner';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected private capacity helper grant'; END IF;
+              END LOOP;
+            END LOOP;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_capacity_policy','public.document_capacity_reservations'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity AND relowner=current_user::regrole) THEN
+                RAISE EXCEPTION 'Private capacity ownership and row security required';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected private capacity table grant'; END IF;
+                END LOOP;
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE'] LOOP
+                  IF has_any_column_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected private capacity column grant'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+            IF (SELECT count(*) FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL)<>1
+              OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_capacity_reservations'::regclass
+                AND tgname='document_capacity_frozen' AND tgenabled='O' AND tgfoid='public.guard_document_capacity_reservation()'::regprocedure) THEN
+              RAISE EXCEPTION 'Capacity foundation must remain dormant and empty';
+            END IF;
+          END; $capacity$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-capacity-ledger-foundation.json
+          SELECT jsonb_build_object('schema','document-capacity-ledger-foundation-proof-v1','phase','after-seventh-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'reservation_count',(SELECT count(*) FROM public.document_capacity_reservations),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'owner_internal_only',true,'runtime_hooks_installed',false,'settlement_implemented',false,
+            'general_application_limits_implemented',false,'queue_budget_reservation_implemented',false,
+            'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN ('lock_internal_document_capacity','guard_document_capacity_reservation',
+                'reserve_internal_document_capacity','queue_internal_document_capacity','claim_internal_document_capacity')));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1268,4 +1325,5 @@ jobs:
             /tmp/document-upload-interval.json
             /tmp/document-upload-retained-limits.json
             /tmp/document-summary-operation-handoff.json
+            /tmp/document-capacity-ledger-foundation.json
           if-no-files-found: ignore

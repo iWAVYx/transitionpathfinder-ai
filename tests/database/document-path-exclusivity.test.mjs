@@ -117,6 +117,13 @@ afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
+    DO $$ BEGIN IF to_regclass('public.document_capacity_reservations') IS NOT NULL THEN
+      DROP TRIGGER IF EXISTS document_capacity_frozen ON public.document_capacity_reservations;
+    END IF; END $$;
+    DROP FUNCTION IF EXISTS public.reserve_internal_document_capacity(uuid,uuid),public.queue_internal_document_capacity(uuid,uuid),public.claim_internal_document_capacity(uuid,uuid),public.guard_document_capacity_reservation(),public.lock_internal_document_capacity();
+    DROP TABLE IF EXISTS public.document_capacity_reservations,public.document_capacity_policy;
+  `);
+  await db.exec(`RESET ROLE;
     DO $$ BEGIN
       IF to_regclass('public.document_operation_leases') IS NOT NULL THEN
         DROP TRIGGER IF EXISTS document_operation_summary_completion ON public.document_operation_leases;
@@ -2031,4 +2038,112 @@ for(const ending of ['COMMIT','ROLLBACK'])test('queued summary claim observes a 
  await queuedHandoff();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);for(const writer of [a,b])assert.equal((await writer.query("SELECT current_user='service_role' AS restricted_writer")).rows[0].restricted_writer,true);
  await a.exec('BEGIN');await pauseOperation(true,2,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=claimHandoff(b).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'55000');else assert.equal(result.error,undefined);const rows=await handoffRows();assert.equal(rows.jobs[0].status,ending==='COMMIT'?'queued':'processing');assert.equal(rows.operations.length,ending==='COMMIT'?0:1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+
+// Owner-internal capacity foundation only: no app grants/hooks or release path.
+const capacityFoundation=readFileSync('docs/production-readiness/proposals/document-capacity-ledger-foundation.sql','utf8');
+async function capacityFixture({global=4,actor=4,target=4,configured=true}={}){
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);
+ if(configured)await db.query('UPDATE public.document_capacity_policy SET global_units=$1,actor_units=$2,student_units=$3',[global,actor,target]);
+ await as('','service_role');await pauseOperation(false);await db.exec('RESET ROLE');
+}
+async function capacityReserve(operation=operationId,target=student,client=db){return client.query('SELECT public.reserve_internal_document_capacity($1,$2)',[operation,target]);}
+async function capacityQueue(operation,job=handoffJob,client=db){return client.query('SELECT public.queue_internal_document_capacity($1,$2)',[operation,job]);}
+async function capacityClaim(operation,job=handoffJob,client=db){return client.query('SELECT public.claim_internal_document_capacity($1,$2)',[job,operation]);}
+async function capacityRows(){await db.exec('RESET ROLE');return (await db.query('SELECT * FROM public.document_capacity_reservations ORDER BY operation_id')).rows;}
+async function capacityQueued(){
+ await capacityFixture({global:2,actor:2,target:2});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
+ const verdict={code:'clean',provider:'cloudmersive',content_sha256:x.hash,source:'registration_reviewed_copy',clean_result:true,blocked_reasons:[]};
+ await db.query("UPDATE public.documents SET scan_status='clean',scan_verdict=$1,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status='pending_review' WHERE id=$2",[verdict,x.document]);
+ await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]);
+ await capacityQueue(x.receipt.operation_id);return x;
+}
+test('capacity foundation defaults unset and grants no app/service access',async()=>{
+ await capacityFixture({configured:false});await beginOperation();await assert.rejects(capacityReserve(),{code:'55000'});assert.equal((await capacityRows()).length,0);
+ const privileges=(await db.query(`SELECT rol,has_table_privilege(rol,'public.document_capacity_reservations','SELECT,INSERT,UPDATE,DELETE') AS raw,
+  has_any_column_privilege(rol,'public.document_capacity_reservations','SELECT,INSERT,UPDATE') AS column_access,
+  has_function_privilege(rol,'public.reserve_internal_document_capacity(uuid,uuid)','EXECUTE') AS reserve,
+  has_function_privilege(rol,'public.queue_internal_document_capacity(uuid,uuid)','EXECUTE') AS queue,
+  has_function_privilege(rol,'public.claim_internal_document_capacity(uuid,uuid)','EXECUTE') AS claim
+  FROM unnest(ARRAY['anon','authenticated','service_role']) rol`)).rows;
+ for(const row of privileges)for(const field of ['raw','column_access','reserve','queue','claim'])assert.equal(row[field],false);
+});
+for(const kind of ['register','rescan','apply'])test('capacity internal '+kind+' reserves fixed complete units',async()=>{
+ await capacityFixture();await beginOperation(kind);await capacityReserve();const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].reserved_units,kind==='apply'?1:2);assert.equal(rows[0].actor_id,actors.family);assert.equal(rows[0].student_id,student);
+});
+for(const boundary of ['global','actor','target'])test('capacity foundation enforces '+boundary+' without partial reservation',async()=>{
+ await capacityFixture({[boundary]:3});await beginOperation();await capacityReserve();await beginOperation('rescan',uid(22002));await assert.rejects(capacityReserve(uid(22002)),{code:'42501'});assert.equal((await capacityRows()).length,1);
+});
+test('capacity duplicate reservation refuses without another unit',async()=>{
+ await capacityFixture();await beginOperation();await capacityReserve();await assert.rejects(capacityReserve(),{code:'23505'});assert.equal((await capacityRows()).length,1);
+});
+for(const role of ['anon','authenticated','service_role'])test('capacity internal helpers cannot be executed as '+role,async()=>{
+ await capacityFixture();await beginOperation();await as(actors.family,role);await assert.rejects(capacityReserve(),{code:'42501'});await assert.rejects(capacityQueue(operationId),{code:'42501'});await assert.rejects(capacityClaim(operationId),{code:'42501'});assert.equal((await capacityRows()).length,0);
+});
+for(const fault of ['missing-operation','completed','held','foreign-student','partner'])test('capacity reservation refuses '+fault,async()=>{
+ await capacityFixture();let id=operationId;
+ if(fault!=='missing-operation'){const receipt=await beginOperation('rescan');if(fault==='completed'||fault==='held')await finishOperation(receipt,fault==='held'?'needs_review':'completed');}
+ if(fault==='foreign-student')await db.query('UPDATE public.students SET owner_id=NULL WHERE id=$1',[student]);
+ if(fault==='partner')await db.query("UPDATE public.user_roles SET role='partner' WHERE user_id=$1",[actors.family]);
+ await assert.rejects(capacityReserve(id),{code:'42501'});assert.equal((await capacityRows()).length,0);
+});
+test('capacity queue and exact atomic summary claim transfer at the full ceiling',async()=>{
+ const x=await capacityQueued();const before=await capacityRows();assert.equal(before[0].summary_job_id,handoffJob);assert.equal(before[0].reserved_units,2);
+ await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);const after=await capacityRows();assert.equal(after.length,1);assert.equal(after[0].summary_operation_id,claim.operation_id);assert.equal(after[0].reserved_units,2);assert.equal(after[0].operation_id,x.receipt.operation_id);
+});
+test('capacity held producer cannot start a new transfer but its committed queue can be claimed',async()=>{
+ const x=await capacityQueued();await finishOperation(x.receipt,'needs_review');await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);assert.equal((await capacityRows())[0].reserved_units,2);
+});
+test('capacity unknown and completed producer outcomes do not free any foundation units',async()=>{
+ const x=await capacityQueued();await finishOperation(x.receipt,'completed');await beginOperation('apply',uid(22002));await assert.rejects(capacityReserve(uid(22002)),{code:'42501'});assert.equal((await capacityRows())[0].reserved_units,2);
+});
+for(const field of ['actor_id','student_id','reserved_units','operation_id','created_at'])test('capacity identity '+field+' cannot be rewritten',async()=>{
+ await capacityFixture();await beginOperation();await capacityReserve();const expression={actor_id:`'${actors.educator}'`,student_id:`'${otherStudent}'`,reserved_units:'1',operation_id:`'${uid(22002)}'`,created_at:"now()+interval '1 day'"}[field];
+ await assert.rejects(db.exec('UPDATE public.document_capacity_reservations SET '+field+'='+expression),{code:'42501'});
+});
+test('capacity rows cannot be deleted or expire with wall-clock passage',async()=>{
+ await capacityFixture();await beginOperation();await capacityReserve();await assert.rejects(db.exec('DELETE FROM public.document_capacity_reservations'),{code:'42501'});await db.exec("UPDATE public.document_operation_leases SET started_at=now()-interval '100 days'");assert.equal((await capacityRows())[0].reserved_units,2);
+});
+test('capacity refuses a duplicate queue and duplicate claimed handoff',async()=>{
+ const x=await capacityQueued();await assert.rejects(capacityQueue(x.receipt.operation_id),{code:'42501'});await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);await assert.rejects(capacityClaim(claim.operation_id),{code:'42501'});assert.equal((await capacityRows()).length,1);
+});
+test('capacity refuses an unbound or wrong summary operation without changing its queue',async()=>{
+ await capacityQueued();const fake=await beginOperation('summary',uid(22002));await assert.rejects(capacityClaim(fake.operation_id),{code:'42501'});assert.equal((await capacityRows())[0].summary_operation_id,null);
+});
+for(const paused of [true,false])test('capacity refuses new reservations when '+(paused?'paused':'using a stale transaction snapshot'),async()=>{
+ await capacityFixture();await beginOperation();
+ if(paused){await pauseOperation(true);await assert.rejects(capacityReserve(),{code:'55000'});}
+ else{await db.exec('BEGIN ISOLATION LEVEL REPEATABLE READ');await assert.rejects(capacityReserve(),{code:'42501'});await db.exec('ROLLBACK');}
+ assert.equal((await capacityRows()).length,0);
+});
+for(const drift of ['unpaused','body','column-grant'])test('capacity installation refuses '+drift+' without repair',async()=>{
+ await handoffFixture();if(drift==='unpaused'){await as('','service_role');await pauseOperation(false);}await db.exec('RESET ROLE');
+ if(drift==='body')await db.exec('ALTER FUNCTION public.claim_admitted_document_summary(uuid,integer) RESET ALL');
+ if(drift==='column-grant')await db.exec('GRANT SELECT(actor_id) ON public.document_summary_operation_bindings TO service_role');
+ await assert.rejects(db.exec(capacityFoundation),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_capacity_reservations') AS name")).rows[0].name,null);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('capacity owner-internal competing final-slot reservation after '+ending,{skip:!native},async()=>{
+ await capacityFixture({global:3,actor:3,target:3});await beginOperation('rescan',uid(22001));await beginOperation('rescan',uid(22002));
+ const a=await newSession(),b=await newSession();await db.exec('RESET ROLE');for(const client of [a,b,db])assert.equal((await client.query('SELECT current_user=session_user AS owner_internal')).rows[0].owner_internal,true);
+ await a.exec('BEGIN');await capacityReserve(uid(22001),student,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+ const pending=capacityReserve(uid(22002),student,b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);assert.equal((await capacityRows()).length,1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+for(const [field,value] of [['global_units',0],['actor_units',-1],['student_units',1000001],['actor_units',null]])test('capacity policy rejects invalid '+field+' '+value,async()=>{
+ await capacityFixture();await assert.rejects(db.query('UPDATE public.document_capacity_policy SET '+field+'=$1',[value]),{code:'23514'});
+});
+for(const fault of ['foreign-actor','foreign-student','wrong-kind','processing','held-producer'])test('capacity queue transfer refuses '+fault+' without accepting a job binding',async()=>{
+ await capacityFixture();const receipt=await beginOperation('rescan');await capacityReserve();
+ await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,$4,$5,'{}')",[handoffJob,fault==='foreign-student'?otherStudent:student,fault==='foreign-actor'?actors.educator:actors.family,fault==='wrong-kind'?'pathway_report':'document_summary',fault==='processing'?'processing':'queued']);
+ if(fault==='held-producer')await finishOperation(receipt,'needs_review');
+ await assert.rejects(capacityQueue(operationId),{code:'42501'});assert.equal((await capacityRows())[0].summary_job_id,null);
+});
+test('capacity queue/claim rollback restores the exact counted obligation',async()=>{
+ const x=await capacityQueued();await as('','service_role');await db.exec('BEGIN');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);await db.exec('ROLLBACK');const rows=await capacityRows();assert.equal(rows[0].summary_job_id,handoffJob);assert.equal(rows[0].summary_operation_id,null);assert.equal(rows[0].reserved_units,2);assert.equal((await handoffRows()).jobs[0].status,'queued');
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('capacity reservation observes a competing pause after '+ending,{skip:!native},async()=>{
+ await capacityFixture();await beginOperation();const a=await newSession(),b=await newSession();await db.exec('RESET ROLE');await a.exec('BEGIN');await pauseOperation(true,2,a);
+ const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=capacityReserve(operationId,student,b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'55000');else assert.equal(result.error,undefined);assert.equal((await capacityRows()).length,ending==='COMMIT'?0:1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
 });

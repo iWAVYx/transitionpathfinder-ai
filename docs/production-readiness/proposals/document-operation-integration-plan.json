@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Atomic summary worker continuation wired in prepared source; queued capacity/general held-work limits, trusted reconciliation and hosted activation remain open",
+  "status": "Private capacity ledger/transfer foundation prepared; source-bound hooks, safe settlement, general enforcement and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -84,6 +84,10 @@
     {
       "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
       "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+      "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021"
     }
   ],
   "adapter_contract": {
@@ -343,5 +347,28 @@
     "manual_reconciliation_implemented": false,
     "hosted_verified": false,
     "next": "Coupled producer/queue/claim/settlement SQL plus shared-role adapter integration; no standalone generic cap."
+  },
+  "capacity_ledger_foundation_preparation": {
+    "date": "2026-10-31",
+    "status": "Dormant private SQL foundation prepared; no application enforcement or safe settlement yet",
+    "proposal": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+    "review": "docs/production-readiness/proposals/document-capacity-ledger-foundation-review.json",
+    "evidence": "docs/production-readiness/evidence/document-capacity-ledger-foundation-local-2026-10-31.json",
+    "private_ledger_foundation_prepared": true,
+    "owner_internal_only": true,
+    "numeric_policy_selected": false,
+    "runtime_hooks_installed": false,
+    "settlement_implemented": false,
+    "general_application_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "required_next": [
+      "Derive exact registration/rescan/Apply source identity and reserve both units in their admission transaction before IO; exact existing reservation retry must not reserve again.",
+      "Replace raw queue writes with exact source-bound queue insertion and ledger transfer in one transaction. The internal counter alone verifies metadata identity, not producer document/source authority.",
+      "Acquire the common capacity fence before the atomic worker claim, then transfer its exact existing obligation in the same transaction; no second capacity slot or capability recovery.",
+      "Add exact source/domain/operation-bound producer and summary settlement. Never free an unknown/held result through status, clock, deletion, a caller flag or ordinary finish.",
+      "Fence legacy/direct starts, choose reviewed finite ceilings, prove native races and full225+seven replay, then review final canonical/ledger packaging and freshly authorized hosted acceptance."
+    ]
   }
 }
