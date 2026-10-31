@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Summary domain receipt and one-unit private settlement prepared; producer/Apply settlement, source-bound capacity hooks and hosted activation remain open",
+  "status": "Upload producer and summary completion/settlement prepared; rescan/Apply proof, source-bound capacity hooks and hosted activation remain open",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -92,6 +92,10 @@
     {
       "path": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
       "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "7267aadb7fc06a5866d3df55673f19efe64de6c5919fb4c7412a19f189162520"
     }
   ],
   "adapter_contract": {
@@ -396,6 +400,29 @@
       "Atomic source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker transfer; preserve existing reserved retry, current caller authority and one reviewed lock order.",
       "Native995-case races, full225+eight replay, exact private-grant/source parity and original-reader behavior; no hosted acceptance inferred from offline proof.",
       "Legacy/direct/scheduled fencing, trusted held-work reconciliation, reviewed numeric policy, physical Storage/provider/drain acceptance and final canonical/ledger packaging before any freshly authorized hosted rollout."
+    ],
+    "verified_source": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
+    "verification_evidence": "docs/production-readiness/evidence/document-summary-capacity-settlement-verified-2026-10-31.json"
+  },
+  "registration_capacity_settlement_preparation": {
+    "date": "2026-10-31",
+    "proposal": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-registration-capacity-settlement-review.json",
+    "evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-local-2026-10-31.json",
+    "status": "Source-bound upload completion and private settlement prepared; rescan/Apply and application capacity integration remain open",
+    "registration_finish_receipt_hook_prepared": true,
+    "registration_capacity_settlement_prepared": true,
+    "rescan_apply_settlement_implemented": false,
+    "source_bound_admission_queue_worker_hooks_installed": false,
+    "general_application_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "required_next": [
+      "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
+      "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
+      "Verify current native1045-case races and full225+all-nine proposal replay; select reviewed numeric ceilings and finish canonical/ledger packaging.",
+      "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
     ]
   }
 }

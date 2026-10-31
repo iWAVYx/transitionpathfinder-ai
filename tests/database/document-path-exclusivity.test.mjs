@@ -36,7 +36,7 @@ const legacy = sql('20260715031029_93358eaf-ed18-40b0-bcf8-383a6d1bc5ac.sql').sp
 const uid = n => '00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 const actors = { family:uid(1), educator:uid(2), student:uid(3), partner:uid(4), school:uid(5), district:uid(6), owner:uid(7) };
 const student = uid(10), otherStudent = uid(11), path = student+'/fictional-privacy-safe-document.txt';
-const documentFixtureSql=`  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,mime_type text DEFAULT 'text/plain',scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz);
+const documentFixtureSql=`  CREATE TABLE public.documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),student_id uuid NOT NULL REFERENCES public.students(id),uploaded_by uuid NOT NULL,title text NOT NULL,storage_path text NOT NULL,mime_type text DEFAULT 'text/plain',scan_status text NOT NULL DEFAULT 'pending',scan_verdict jsonb,scan_data_id text,scanned_at timestamptz,review_status text NOT NULL DEFAULT 'pending_review',content_hash text,reviewed_at timestamptz,reviewed_by uuid,archived_at timestamptz,deleted_at timestamptz,updated_at timestamptz NOT NULL DEFAULT now());
   GRANT SELECT,INSERT,UPDATE,DELETE ON public.documents TO authenticated;
   GRANT ALL ON public.documents TO service_role;
   ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;`;
@@ -116,6 +116,15 @@ after(async()=>{if(close) await close();});
 afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
+  await db.exec(`RESET ROLE;
+    DROP TRIGGER IF EXISTS ai_jobs_guard_registered_document_summary ON public.ai_jobs;
+    DO $$ BEGIN
+      IF to_regclass('public.document_registration_completion_receipts') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_registration_completion_frozen ON public.document_registration_completion_receipts; END IF;
+      IF to_regclass('public.document_capacity_registration_settlements') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_capacity_registration_settlement_frozen ON public.document_capacity_registration_settlements; END IF;
+    END $$;
+    DROP FUNCTION IF EXISTS public.read_internal_document_registration_completion(uuid),public.guard_document_registration_completion_receipt(),public.record_internal_document_registration_completion(uuid),public.guard_registered_document_summary_queue(),public.guard_document_capacity_registration_settlement(),public.settle_internal_document_registration_capacity(uuid);
+    DROP TABLE IF EXISTS public.document_capacity_registration_settlements,public.document_registration_completion_receipts;
+  `);
   await db.exec(`RESET ROLE;
     DROP TRIGGER IF EXISTS ai_jobs_guard_completed_document_summary ON public.ai_jobs;
     DO $$ BEGIN
@@ -1864,8 +1873,8 @@ test('confirmed outcome recovers after a lost reply without exposing tokens or r
 // Fifth proposal: unchanged cap values include registered-but-unsettled work.
 const retainedUploadLimits=readFileSync('docs/production-readiness/proposals/document-upload-retained-limits.sql','utf8');
 async function retainedQuotaFixture(){await uploadIntervalFixture();await db.exec('RESET ROLE');await db.exec(retainedUploadLimits);await as(actors.family,'service_role');await pauseOperation(false);}
-async function quotaAttempt(n,{actor=actors.family,target=student,registered=true}={}){
- const attempt=uid(5000+n),document=uid(6000+n),hash=n.toString(16).padStart(64,'0');
+async function quotaAttempt(n,{actor=actors.family,target=student,registered=true,documentId=uid(6000+n)}={}){
+ const attempt=uid(5000+n),document=documentId,hash=n.toString(16).padStart(64,'0');
  await as(actor);await reserve(db,{id:attempt,student:target,hash});
  if(!registered)return {attempt,actor,target,hash};
  const path=target+'/'+attempt+'-privacy-safe-document.txt';await reservedObject(db,{path,owner:actor});
@@ -2053,8 +2062,11 @@ for(const ending of ['COMMIT','ROLLBACK'])test('queued summary claim observes a 
 // Owner-internal capacity foundation only: no app grants/hooks or release path.
 const capacityFoundation=readFileSync('docs/production-readiness/proposals/document-capacity-ledger-foundation.sql','utf8');
 const summaryCapacitySettlement=readFileSync('docs/production-readiness/proposals/document-summary-capacity-settlement.sql','utf8');
-async function capacityFixture({global=4,actor=4,target=4,configured=true,settlement=false}={}){
- await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);if(settlement)await db.exec(summaryCapacitySettlement);
+const registrationCapacitySettlement=readFileSync('docs/production-readiness/proposals/document-registration-capacity-settlement.sql','utf8');
+async function capacityFixture({global=4,actor=4,target=4,configured=true,settlement=false,registration=false,separateAdmissionOwner=false}={}){
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);if(settlement||registration)await db.exec(summaryCapacitySettlement);
+ if(separateAdmissionOwner)await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_admission_owner') THEN CREATE ROLE tf_document_admission_owner NOLOGIN NOINHERIT;END IF;END $$;ALTER TABLE public.document_operation_control OWNER TO tf_document_admission_owner;ALTER TABLE public.document_operation_leases OWNER TO tf_document_admission_owner;ALTER FUNCTION public.begin_document_operation(uuid,uuid,text) OWNER TO tf_document_admission_owner;ALTER FUNCTION public.finish_document_operation(uuid,uuid,uuid,text) OWNER TO tf_document_admission_owner;");
+ if(registration)await db.exec(registrationCapacitySettlement);
  if(configured)await db.query('UPDATE public.document_capacity_policy SET global_units=$1,actor_units=$2,student_units=$3',[global,actor,target]);
  await as('','service_role');await pauseOperation(false);await db.exec('RESET ROLE');
 }
@@ -2062,8 +2074,8 @@ async function capacityReserve(operation=operationId,target=student,client=db){r
 async function capacityQueue(operation,job=handoffJob,client=db){return client.query('SELECT public.queue_internal_document_capacity($1,$2)',[operation,job]);}
 async function capacityClaim(operation,job=handoffJob,client=db){return client.query('SELECT public.claim_internal_document_capacity($1,$2)',[job,operation]);}
 async function capacityRows(){await db.exec('RESET ROLE');return (await db.query('SELECT * FROM public.document_capacity_reservations ORDER BY operation_id')).rows;}
-async function capacityQueued({settlement=false}={}){
- await capacityFixture({global:2,actor:2,target:2,settlement});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
+async function capacityQueued({settlement=false,registration=false,separateAdmissionOwner=false}={}){
+ await capacityFixture({global:2,actor:2,target:2,settlement,registration,separateAdmissionOwner});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
  const verdict={code:'clean',provider:'cloudmersive',content_sha256:x.hash,source:'registration_reviewed_copy',clean_result:true,blocked_reasons:[]};
  await db.query("UPDATE public.documents SET scan_status='clean',scan_verdict=$1,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status='pending_review' WHERE id=$2",[verdict,x.document]);
  await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]);
@@ -2160,8 +2172,8 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity reservation observes a 
 
 
 // Atomic persisted summary receipt and one-unit settlement, still owner-internal.
-async function claimedSummaryCapacity(){
- const x=await capacityQueued({settlement:true});await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);
+async function claimedSummaryCapacity({registration=false}={}){
+ const x=await capacityQueued({settlement:true,registration});await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);
  await as('','service_role');const source=(await db.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[handoffJob,claim.claim_at,claim.claim_attempt])).rows[0].source;
  const payload={key_findings:['Fictional confirmed outcome'],_source:{document_id:source.document_id,object_id:source.object_id,object_version:source.object_version,content_sha256:source.content_sha256}};
  return {x,claim,source,payload};
@@ -2262,4 +2274,115 @@ for(const ending of ['COMMIT','ROLLBACK'])test('summary settlement competing rec
  const c=await completedSummaryCapacity();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();for(const client of [a,b,db])assert.equal((await client.query('SELECT current_user=session_user AS owner_internal')).rows[0].owner_internal,true);
  await a.exec('BEGIN');await settleSummaryCapacity(c.x.receipt.operation_id,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=settleSummaryCapacity(c.x.receipt.operation_id,b).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);const rows=await summarySettlementRows();assert.equal(rows.units,1);assert.equal(rows.settlements.length,1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+
+// Source-bound upload producer settlement; rescan/Apply remain counted.
+async function registrationQuarantine({finish=true}={}){
+ await capacityFixture({global:2,actor:2,target:2,registration:true});const x=await quotaAttempt(1,{documentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'});await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
+ await db.query("UPDATE public.documents SET scan_status='infected',scan_verdict=$1,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status='rejected',archived_at=now() WHERE id=$2",[{provider:'cloudmersive',code:'infected',clean_result:false},x.document]);
+ if(finish){await as('','service_role');await finishOperation(x.receipt);}return x;
+}
+async function settleRegistrationCapacity(operation,client=db){return client.query('SELECT public.settle_internal_document_registration_capacity($1)',[operation]);}
+async function registrationSettlementRows(){await db.exec('RESET ROLE');return {receipts:(await db.query('SELECT * FROM public.document_registration_completion_receipts')).rows,settlements:(await db.query('SELECT * FROM public.document_capacity_registration_settlements')).rows,units:Number((await db.query('SELECT coalesce(sum(r.reserved_units-CASE WHEN done.operation_id IS NULL THEN 0 ELSE 1 END-COALESCE(producer.released_units,0)),0) AS units FROM public.document_capacity_reservations r LEFT JOIN public.document_capacity_summary_settlements done ON done.operation_id=r.operation_id LEFT JOIN public.document_capacity_registration_settlements producer ON producer.operation_id=r.operation_id')).rows[0].units)};}
+test('registration settlement clean upload records exact metadata and retains its summary unit',async()=>{
+ const x=await capacityQueued({registration:true});await as('','service_role');await finishOperation(x.receipt);let rows=await registrationSettlementRows();assert.equal(rows.receipts.length,1);assert.equal(rows.units,2);const r=rows.receipts[0];assert.equal(r.attempt_id,x.attempt);assert.equal(r.document_id,x.document);assert.equal(r.content_sha256,x.hash);assert.equal(r.summary_job_id,handoffJob);assert.equal(r.disposition,'clean_queued');
+ for(const key of ['receipt_id','context','scan_data_id','scan_verdict','document_text','result_payload'])assert.equal(key in r,false);
+ await settleRegistrationCapacity(x.receipt.operation_id);rows=await registrationSettlementRows();assert.equal(rows.units,1);assert.equal(rows.settlements[0].released_units,1);
+});
+test('registration settlement no-summary quarantine records completion and releases exactly two units',async()=>{
+ const x=await registrationQuarantine();let rows=await registrationSettlementRows();assert.equal(rows.receipts[0].disposition,'quarantined');assert.equal(rows.receipts[0].summary_job_id,null);assert.equal(rows.units,2);await settleRegistrationCapacity(x.receipt.operation_id);rows=await registrationSettlementRows();assert.equal(rows.units,0);assert.equal(rows.settlements[0].released_units,2);await beginOperation('rescan',uid(24002));await capacityReserve(uid(24002));assert.equal((await registrationSettlementRows()).units,2);
+});
+for(const reverse of [false,true])test('registration settlement and completed summary each release their own unit in order '+reverse,async()=>{
+ const c=await claimedSummaryCapacity({registration:true});await finishOperation(c.x.receipt);await commitSummaryCapacity(c);await finishOperation(c.claim);await db.exec('RESET ROLE');
+ if(reverse){await settleSummaryCapacity(c.x.receipt.operation_id);await settleRegistrationCapacity(c.x.receipt.operation_id);}else{await settleRegistrationCapacity(c.x.receipt.operation_id);await settleSummaryCapacity(c.x.receipt.operation_id);}
+ assert.equal((await registrationSettlementRows()).units,0);
+});
+test('registration settlement held producer has no receipt and cannot be released',async()=>{
+ const x=await capacityQueued({registration:true});await as('','service_role');await finishOperation(x.receipt,'needs_review');await db.exec('RESET ROLE');await assert.rejects(settleRegistrationCapacity(x.receipt.operation_id),{code:'55000'});const rows=await registrationSettlementRows();assert.equal(rows.receipts.length,0);assert.equal(rows.units,2);
+});
+test('registration settlement typed completed status without private finish receipt frees nothing',async()=>{
+ const x=await capacityQueued({registration:true});await db.query("UPDATE public.document_operation_leases SET state='completed',finished_at=now() WHERE operation_id=$1",[x.receipt.operation_id]);await assert.rejects(settleRegistrationCapacity(x.receipt.operation_id),{code:'55000'});assert.equal((await registrationSettlementRows()).receipts.length,0);
+});
+for(const kind of ['rescan','apply'])test('registration settlement does not release unsupported '+kind+' work',async()=>{
+ await capacityFixture({registration:true});const receipt=await beginOperation(kind);await capacityReserve();await as('','service_role');await finishOperation(receipt);await db.exec('RESET ROLE');await assert.rejects(settleRegistrationCapacity(receipt.operation_id),{code:'55000'});assert.equal((await registrationSettlementRows()).units,kind==='apply'?1:2);
+});
+test('registration settlement requires the exact counted queued job, not another matching job',async()=>{
+ const x=await capacityQueued({registration:true});await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[uid(24003),student,actors.family,{document_id:x.document,storage_path:x.path}]);await db.query('UPDATE public.ai_jobs SET input_source=$1 WHERE id=$2',[{document_id:uid(24999),storage_path:x.path},handoffJob]);await as('','service_role');await assert.rejects(finishOperation(x.receipt),{code:'55000'});const rows=await registrationSettlementRows();assert.equal(rows.receipts.length,0);assert.equal(rows.units,2);
+});
+for(const fault of ['wrong-verdict','wrong-clean-result','missing-scan','source-hash','queued-summary'])test('registration settlement quarantine refuses '+fault+' without clearing its operation',async()=>{
+ const x=await registrationQuarantine({finish:false});
+ if(fault==='wrong-verdict')await db.query('UPDATE public.documents SET scan_verdict=scan_verdict||$1::jsonb WHERE id=$2',[{code:'timeout'},x.document]);
+ if(fault==='wrong-clean-result')await db.query('UPDATE public.documents SET scan_verdict=scan_verdict||$1::jsonb WHERE id=$2',[{clean_result:true},x.document]);
+ if(fault==='missing-scan')await db.query('UPDATE public.documents SET scan_data_id=NULL WHERE id=$1',[x.document]);
+ if(fault==='source-hash')await db.query('UPDATE public.documents SET content_hash=$1 WHERE id=$2',['f'.repeat(64),x.document]);
+ if(fault==='queued-summary')await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]);
+ await as('','service_role');await assert.rejects(finishOperation(x.receipt),{code:'55000'});const rows=await registrationSettlementRows();assert.equal(rows.receipts.length,0);assert.equal(rows.units,2);assert.equal((await intervalRows()).leases.find(r=>r.operation_id===x.receipt.operation_id).state,'active');
+});
+test('registration settlement receipt failure rolls back the exact guarded operation finish',async()=>{
+ const x=await capacityQueued({registration:true});await db.exec("CREATE FUNCTION public.fixture_refuse_registration_receipt() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'fictional receipt failure' USING ERRCODE='55000';END $$;CREATE TRIGGER z_fixture_refuse_registration BEFORE INSERT ON public.document_registration_completion_receipts FOR EACH ROW EXECUTE FUNCTION public.fixture_refuse_registration_receipt()");
+ try{await as('','service_role');await assert.rejects(finishOperation(x.receipt),{code:'55000'});assert.equal((await registrationSettlementRows()).receipts.length,0);assert.equal((await intervalRows()).leases.find(r=>r.operation_id===x.receipt.operation_id).state,'active');}finally{await db.exec('RESET ROLE;DROP TRIGGER z_fixture_refuse_registration ON public.document_registration_completion_receipts;DROP FUNCTION public.fixture_refuse_registration_receipt()');}
+});
+for(const action of ['finish','settle'])test('registration settlement '+action+' rollback retains its exact units',async()=>{
+ const x=await capacityQueued({registration:true});await as('','service_role');if(action==='settle')await finishOperation(x.receipt);await db.exec('RESET ROLE;BEGIN');if(action==='finish')await finishOperation(x.receipt);else await settleRegistrationCapacity(x.receipt.operation_id);await db.exec('ROLLBACK');const rows=await registrationSettlementRows();assert.equal(rows.units,2);assert.equal(rows.receipts.length,action==='finish'?0:1);assert.equal(rows.settlements.length,0);
+});
+test('registration settlement duplicate cannot release the pending summary unit',async()=>{
+ const x=await capacityQueued({registration:true});await as('','service_role');await finishOperation(x.receipt);await db.exec('RESET ROLE');await settleRegistrationCapacity(x.receipt.operation_id);await assert.rejects(settleRegistrationCapacity(x.receipt.operation_id),{code:'42501'});assert.equal((await registrationSettlementRows()).units,1);
+});
+for(const action of ["UPDATE public.document_registration_completion_receipts SET disposition='quarantined'", "DELETE FROM public.document_registration_completion_receipts", "UPDATE public.document_capacity_registration_settlements SET released_units=2", "DELETE FROM public.document_capacity_registration_settlements"])test('registration settlement immutable receipt '+action,async()=>{
+ const x=await registrationQuarantine();await db.exec('RESET ROLE');await settleRegistrationCapacity(x.receipt.operation_id);await assert.rejects(db.exec(action),{code:'42501'});
+});
+for(const role of ['anon','authenticated','service_role'])test('registration settlement private helpers and receipts remain unavailable to '+role,async()=>{
+ const x=await registrationQuarantine();await as(actors.family,role);for(const fn of ['read_internal_document_registration_completion','record_internal_document_registration_completion','settle_internal_document_registration_capacity'])await assert.rejects(db.query('SELECT public.'+fn+'($1)',[x.receipt.operation_id]),{code:'42501'});for(const table of ['document_registration_completion_receipts','document_capacity_registration_settlements'])await assert.rejects(db.query('SELECT * FROM public.'+table),{code:'42501'});
+});
+for(const [patch,values] of [["input_source='{}'::jsonb",[]],['triggered_by_user_id=$2',[actors.educator]],['student_id=$2',[otherStudent]]])test('registration settlement retained queued source refuses '+patch,async()=>{
+ const x=await capacityQueued({registration:true});await as('','service_role');await finishOperation(x.receipt);await db.exec('RESET ROLE');await assert.rejects(db.query('UPDATE public.ai_jobs SET '+patch+' WHERE id=$1',[handoffJob,...values]),{code:'42501'});
+});
+for(const upper of [false,true])test('registration settlement rejects a new summary of confirmed quarantine with uppercase '+upper,async()=>{
+ const x=await registrationQuarantine();await db.exec('RESET ROLE');await assert.rejects(db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[handoffJob,student,actors.family,{document_id:upper?x.document.toUpperCase():x.document,storage_path:x.path}]),{code:'42501'});
+});
+test('registration settlement permits unrelated job types and active-work completion while paused',async()=>{
+ const x=await registrationQuarantine({finish:false});await as('','service_role');await pauseOperation(true);await finishOperation(x.receipt);await db.exec('RESET ROLE');await settleRegistrationCapacity(x.receipt.operation_id);await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'meeting_prep',$4)",[handoffJob,student,actors.family,{document_id:x.document}]);assert.equal((await registrationSettlementRows()).units,0);await assert.rejects(beginOperation(),{code:'55000'});
+});
+test('registration settlement preserves separate admission ownership and only grants its private helper calls',async()=>{
+ const x=await capacityQueued({registration:true,separateAdmissionOwner:true});await as('','service_role');await finishOperation(x.receipt);await db.exec('RESET ROLE');const owners=(await db.query("SELECT proowner='tf_document_admission_owner'::regrole AS retained FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0];assert.equal(owners.retained,true);assert.equal((await db.query("SELECT has_function_privilege('tf_document_admission_owner','public.record_internal_document_registration_completion(uuid)','EXECUTE') AS allowed")).rows[0].allowed,true);await settleRegistrationCapacity(x.receipt.operation_id);assert.equal((await registrationSettlementRows()).units,1);
+});
+test('registration settlement preserves all original private-capability finish checks and reply',async()=>{
+ const original=operationAdmission.match(/AS \$finish_operation\$([\s\S]*?)\$finish_operation\$;/)[1];const updated=registrationCapacitySettlement.match(/AS \$finish_operation\$([\s\S]*?)\$finish_operation\$;/)[1];const retained=updated.replace(' PERFORM public.lock_internal_document_capacity_completion();\n','').replace(" IF _outcome='completed' THEN PERFORM public.record_internal_document_registration_completion(_operation_id); END IF;\n",'');assert.equal(retained,original);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('registration settlement and a final two-unit reservation serialize after '+ending,{skip:!native},async()=>{
+ const x=await registrationQuarantine();await db.exec('RESET ROLE');await beginOperation('rescan',uid(24002));const a=await newSession(),b=await newSession();await a.exec('BEGIN');await settleRegistrationCapacity(x.receipt.operation_id,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=capacityReserve(uid(24002),student,b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error,undefined);else assert.equal(result.error?.code,'42501');assert.equal((await registrationSettlementRows()).units,2);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('registration settlement quarantine finish fences a competing queue insert after '+ending,{skip:!native},async()=>{
+ const x=await registrationQuarantine({finish:false});const a=await newSession(),b=await newSession();await as('','service_role',a);await db.exec('RESET ROLE');await a.exec('BEGIN');await finishOperation(x.receipt,'completed',a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=b.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);assert.equal((await registrationSettlementRows()).receipts.length,ending==='COMMIT'?1:0);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+for(const fault of ['receipt','actor','operation'])test('registration settlement finish still requires exact private '+fault,async()=>{
+ const x=await capacityQueued({registration:true});await as('','service_role');await assert.rejects(db.query('SELECT public.finish_document_operation($1,$2,$3,$4)',[fault==='operation'?uid(24999):x.receipt.operation_id,fault==='actor'?actors.educator:actors.family,fault==='receipt'?uid(24999):x.receipt.receipt_id,'completed']),{code:'42501'});const rows=await registrationSettlementRows();assert.equal(rows.receipts.length,0);assert.equal(rows.units,2);
+});
+for(const drift of ['read-policy','write-grant','finish-grant','source-guard','control-grant'])test('registration settlement install refuses '+drift+' without changing existing access',async()=>{
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);await db.exec(summaryCapacitySettlement);
+ if(drift==='read-policy')await db.exec('ALTER POLICY upload_attempt_creator_read ON public.document_upload_attempts USING(true)');
+ if(drift==='write-grant')await db.exec('GRANT UPDATE(actor_id) ON public.document_upload_attempts TO authenticated');
+ if(drift==='finish-grant')await db.exec('GRANT EXECUTE ON FUNCTION public.finish_document_operation(uuid,uuid,uuid,text) TO authenticated');
+ if(drift==='source-guard')await db.exec('ALTER TABLE public.document_upload_operation_bindings DISABLE TRIGGER upload_operation_binding_frozen');
+ if(drift==='control-grant')await db.exec('GRANT SELECT(paused) ON public.document_operation_control TO authenticated');
+ await assert.rejects(db.exec(registrationCapacitySettlement),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_registration_completion_receipts') AS name")).rows[0].name,null);
+});
+test('registration settlement counter preserves all existing admission and summary-transfer guards',async()=>{
+ const original=summaryCapacitySettlement.match(/AS \$capacity_guard\$([\s\S]*?)\$capacity_guard\$;/)[1];const updated=registrationCapacitySettlement.match(/AS \$capacity_guard\$([\s\S]*?)\$capacity_guard\$;/)[1];const retained=updated.replaceAll('-COALESCE(producer.released_units,0)','').replaceAll(' LEFT JOIN public.document_capacity_registration_settlements producer ON producer.operation_id=r.operation_id','');assert.equal(retained,original);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('registration settlement waiting quarantine finish observes an earlier queue insert after '+ending,{skip:!native},async()=>{
+ const x=await registrationQuarantine({finish:false});const a=await newSession(),b=await newSession();await as('','service_role',b);await db.exec('RESET ROLE');assert.equal((await a.query('SELECT current_user=session_user AS owner_internal')).rows[0].owner_internal,true);assert.equal((await b.query("SELECT current_user='service_role' AS private_finish_caller")).rows[0].private_finish_caller,true);
+ await a.exec('BEGIN');await a.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishOperation(x.receipt,'completed',b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'55000');else assert.equal(result.error,undefined);assert.equal((await registrationSettlementRows()).receipts.length,ending==='COMMIT'?0:1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+test('registration settlement does not fabricate adoption of an untracked legacy operation',async()=>{
+ await capacityFixture({registration:true});const receipt=await beginOperation();await as('','service_role');await finishOperation(receipt);const rows=await registrationSettlementRows();assert.equal(rows.receipts.length,0);assert.equal(rows.settlements.length,0);
+});
+
+test('registration settlement queue refusals do not expose private quarantine to a foreign actor',async()=>{
+ const x=await registrationQuarantine();await as(actors.family);for(const actor of [actors.family,actors.owner])await assert.rejects(db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[handoffJob,student,actor,{document_id:x.document,storage_path:x.path}]),error=>error.code==='42501'&&error.message==='This summary request could not be confirmed.');
 });

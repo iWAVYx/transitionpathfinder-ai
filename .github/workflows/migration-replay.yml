@@ -48,6 +48,7 @@ on:
       - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
       - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
       - "docs/production-readiness/proposals/document-summary-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -115,6 +116,7 @@ on:
       - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
       - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
       - "docs/production-readiness/proposals/document-summary-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -1297,6 +1299,86 @@ jobs:
                 'public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb)'::regprocedure)));
           SQL
 
+      - name: Verify source-bound registration completion and capacity settlement
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-capacity-settlement.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $registration$
+          DECLARE expected record;role_name text;relation_name text;privilege_name text;admission_owner oid;
+          BEGIN
+            SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.read_internal_document_registration_completion(uuid)','dc3b28d28174e13759e47896e549a3b8',false),
+              ('public.guard_document_registration_completion_receipt()','47defe9db1ab2e654d178d25e8dcb199',false),
+              ('public.record_internal_document_registration_completion(uuid)','4b2881100167d594248a391149957ae8',true),
+              ('public.guard_registered_document_summary_queue()','0bdef1bb3b14b5e0bb6f341e5464bbeb',true),
+              ('public.guard_document_capacity_registration_settlement()','f624d20bfd7c81e6fa2e2f56ac786d60',false),
+              ('public.settle_internal_document_registration_capacity(uuid)','174b6e74b5cd821d41f731915b546d73',false),
+              ('public.finish_document_operation(uuid,uuid,uuid,text)','e17e9ae509adc829e867f9723a15748d',true),
+              ('public.guard_document_capacity_reservation()','fd1a2d66f6a7c7e6a0b6f115a0b71b3a',false)) x(signature,body_md5,definer) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND prosecdef=expected.definer
+                AND proowner=CASE WHEN expected.signature='public.finish_document_operation(uuid,uuid,uuid,text)' THEN admission_owner ELSE current_user::regrole::oid END
+                AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected registration completion definition or owner';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') IS DISTINCT FROM
+                   (role_name='service_role' AND expected.signature='public.finish_document_operation(uuid,uuid,uuid,text)') THEN
+                  RAISE EXCEPTION 'Unexpected registration completion execution grant';
+                END IF;
+              END LOOP;
+            END LOOP;
+            IF NOT has_function_privilege(admission_owner,'public.lock_internal_document_capacity_completion()','EXECUTE')
+              OR NOT has_function_privilege(admission_owner,'public.record_internal_document_registration_completion(uuid)','EXECUTE') THEN
+              RAISE EXCEPTION 'Existing admission owner requires only its private completion helper calls';
+            END IF;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_registration_completion_receipts','public.document_capacity_registration_settlements'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity AND relowner=current_user::regrole) THEN
+                RAISE EXCEPTION 'Private registration receipt ownership and row security required';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected registration receipt table grant'; END IF;
+                END LOOP;
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE'] LOOP
+                  IF has_any_column_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected registration receipt column grant'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.document_registration_completion_receipts','document_registration_completion_frozen','public.guard_document_registration_completion_receipt()'),
+              ('public.document_capacity_registration_settlements','document_capacity_registration_settlement_frozen','public.guard_document_capacity_registration_settlement()'),
+              ('public.ai_jobs','ai_jobs_guard_registered_document_summary','public.guard_registered_document_summary_queue()')
+            ) x(relation_name,trigger_name,signature) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(expected.relation_name) AND tgname=expected.trigger_name
+                AND tgfoid=to_regprocedure(expected.signature) AND tgenabled='O' AND NOT tgisinternal) THEN
+                RAISE EXCEPTION 'Registration receipt/source guards must remain enabled';
+              END IF;
+            END LOOP;
+            IF EXISTS(SELECT 1 FROM public.document_registration_completion_receipts) OR EXISTS(SELECT 1 FROM public.document_capacity_registration_settlements)
+              OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN
+              RAISE EXCEPTION 'Registration capacity must remain dormant and empty';
+            END IF;
+          END; $registration$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-registration-capacity-settlement.json
+          SELECT jsonb_build_object('schema','document-registration-capacity-settlement-proof-v1','phase','after-ninth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'admission_owner',(SELECT relowner::regrole::text FROM pg_class WHERE oid='public.document_operation_control'::regclass),
+            'registration_receipts',(SELECT count(*) FROM public.document_registration_completion_receipts),
+            'registration_settlements',(SELECT count(*) FROM public.document_capacity_registration_settlements),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'registration_receipt_prepared',true,'clean_registration_units',1,'no_summary_quarantine_units',2,
+            'rescan_apply_settlement_implemented',false,'producer_worker_capacity_hooks_installed',false,'general_application_limits_implemented',false,
+            'queue_budget_reservation_implemented',false,'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.read_internal_document_registration_completion(uuid)'::regprocedure,
+                'public.guard_document_registration_completion_receipt()'::regprocedure,'public.record_internal_document_registration_completion(uuid)'::regprocedure,
+                'public.guard_registered_document_summary_queue()'::regprocedure,'public.guard_document_capacity_registration_settlement()'::regprocedure,
+                'public.settle_internal_document_registration_capacity(uuid)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,
+                'public.guard_document_capacity_reservation()'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1402,4 +1484,5 @@ jobs:
             /tmp/document-summary-operation-handoff.json
             /tmp/document-capacity-ledger-foundation.json
             /tmp/document-summary-capacity-settlement.json
+            /tmp/document-registration-capacity-settlement.json
           if-no-files-found: ignore
