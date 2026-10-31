@@ -4,7 +4,7 @@
   "source_base": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
   "proposal": {
     "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
-    "sha256": "7267aadb7fc06a5866d3df55673f19efe64de6c5919fb4c7412a19f189162520"
+    "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
   },
   "scope": "Ninth noncanonical/unapplied proposal. Registration producer only: immutable guarded-finish receipt, one-unit clean-plus-exact-queue settlement or two-unit no-summary quarantine. Rescan/Apply and source-bound admission/queue/worker capacity hooks remain open.",
   "routines": [
@@ -74,5 +74,15 @@
     "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
     "Verify current native1045-case races and full225+all-nine proposal replay; select reviewed numeric ceilings and finish canonical/ledger packaging.",
     "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
-  ]
+  ],
+  "preflight_comparison_correction": {
+    "corrected_from_source": "a8ef79db312a719135d40362c00ec4a18d149e65",
+    "previous_proposal_sha256": "7267aadb7fc06a5866d3df55673f19efe64de6c5919fb4c7412a19f189162520",
+    "method": "Create a private zero-row temporary LIKE reference and parse the expected two policies using the same database. Compare names, commands, permissiveness, exact roles and database-deparsed USING/WITH CHECK expressions under the same session context; no whitespace/parenthesis stripping or textual qualification assumption.",
+    "cleanup": "ON COMMIT DROP; rollback removes newly created reference. Existing reference-name collision refuses without replacing/deleting the object.",
+    "actual_policies_or_grants_changed": false,
+    "runtime_routine_hashes_changed": false,
+    "native_confirmation_pending": true,
+    "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json"
+  }
 }

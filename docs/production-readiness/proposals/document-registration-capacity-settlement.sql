@@ -42,16 +42,27 @@ BEGIN
    END LOOP;
   END LOOP;
  END LOOP;
- -- Upload attempts intentionally retain scoped authenticated reads and a
- -- trusted service read. Preserve those exact existing policies and grants.
+ -- Parse the expected policy in this database and compare catalog output
+ -- under the same role/search_path. Deparser formatting/qualification differs
+ -- across engines and session paths; never normalize away Boolean structure.
+ -- This reference has no rows or app grants and disappears at COMMIT/rollback.
+ IF EXISTS(SELECT 1 FROM pg_class WHERE relnamespace=pg_my_temp_schema() AND relname='tf_registration_read_policy_reference') THEN
+  RAISE EXCEPTION 'The private policy reference name is already in use.' USING ERRCODE='55000';
+ END IF;
+ CREATE TEMP TABLE tf_registration_read_policy_reference (LIKE public.document_upload_attempts) ON COMMIT DROP;
+ REVOKE ALL ON pg_temp.tf_registration_read_policy_reference FROM PUBLIC,anon,authenticated,service_role;
+ CREATE POLICY upload_attempt_creator_read ON pg_temp.tf_registration_read_policy_reference FOR SELECT TO authenticated
+  USING(actor_id=auth.uid() AND public.is_partner_only(auth.uid()) IS FALSE AND public.can_edit_student(auth.uid(),student_id) IS TRUE);
+ CREATE POLICY upload_attempt_service_read ON pg_temp.tf_registration_read_policy_reference FOR SELECT TO service_role USING(true);
  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_upload_attempts'::regclass AND relrowsecurity AND relowner=current_user::regrole)
   OR (SELECT count(*) FROM pg_policy WHERE polrelid='public.document_upload_attempts'::regclass)<>2
-  OR NOT EXISTS(SELECT 1 FROM pg_policy WHERE polrelid='public.document_upload_attempts'::regclass AND polname='upload_attempt_creator_read'
-   AND polcmd='r' AND polpermissive AND polroles=ARRAY['authenticated'::regrole::oid]
-   AND lower(regexp_replace(replace(pg_get_expr(polqual,polrelid),'public.',''),'[[:space:]()]','','g'))=
-    'actor_id=auth.uidandis_partner_onlyauth.uidisfalseandcan_edit_studentauth.uid,student_idistrue')
-  OR NOT EXISTS(SELECT 1 FROM pg_policy WHERE polrelid='public.document_upload_attempts'::regclass AND polname='upload_attempt_service_read'
-   AND polcmd='r' AND polpermissive AND polroles=ARRAY['service_role'::regrole::oid] AND lower(pg_get_expr(polqual,polrelid))='true') THEN
+  OR (SELECT count(*) FROM pg_policy installed_policy JOIN pg_policy reference_policy ON reference_policy.polname=installed_policy.polname
+   WHERE installed_policy.polrelid='public.document_upload_attempts'::regclass
+    AND reference_policy.polrelid='pg_temp.tf_registration_read_policy_reference'::regclass
+    AND installed_policy.polcmd=reference_policy.polcmd AND installed_policy.polpermissive=reference_policy.polpermissive
+    AND installed_policy.polroles IS NOT DISTINCT FROM reference_policy.polroles
+    AND pg_get_expr(installed_policy.polqual,installed_policy.polrelid) IS NOT DISTINCT FROM pg_get_expr(reference_policy.polqual,reference_policy.polrelid)
+    AND pg_get_expr(installed_policy.polwithcheck,installed_policy.polrelid) IS NOT DISTINCT FROM pg_get_expr(reference_policy.polwithcheck,reference_policy.polrelid))<>2 THEN
   RAISE EXCEPTION 'Reviewed scoped upload reads must be preserved.' USING ERRCODE='55000';
  END IF;
  FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP

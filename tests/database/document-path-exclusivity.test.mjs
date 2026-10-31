@@ -2386,3 +2386,23 @@ test('registration settlement does not fabricate adoption of an untracked legacy
 test('registration settlement queue refusals do not expose private quarantine to a foreign actor',async()=>{
  const x=await registrationQuarantine();await as(actors.family);for(const actor of [actors.family,actors.owner])await assert.rejects(db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,input_source) VALUES($1,$2,$3,'document_summary',$4)",[handoffJob,student,actor,{document_id:x.document,storage_path:x.path}]),error=>error.code==='42501'&&error.message==='This summary request could not be confirmed.');
 });
+for(const searchPath of ['public','public, auth','pg_catalog, public, auth'])test('registration read-policy accepts exact policies under '+searchPath,async t=>{
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);await db.exec(summaryCapacitySettlement);await db.exec('SET search_path TO '+searchPath);
+ try{
+  const policies=(await db.query("SELECT polname,pg_get_expr(polqual,polrelid) AS expression FROM pg_policy WHERE polrelid='public.document_upload_attempts'::regclass ORDER BY polname")).rows;
+  t.diagnostic(JSON.stringify({search_path:searchPath,server:(await db.query('SHOW server_version')).rows[0].server_version,policies}));
+  if(searchPath.includes('auth')){const legacy=policies.find(p=>p.polname==='upload_attempt_creator_read').expression.replaceAll('public.','').replace(/[\s()]/g,'').toLowerCase();assert.notEqual(legacy,'actor_id=auth.uidandis_partner_onlyauth.uidisfalseandcan_edit_studentauth.uid,student_idistrue');}
+  await db.exec(registrationCapacitySettlement);assert.equal((await db.query("SELECT to_regclass('pg_temp.tf_registration_read_policy_reference') AS name")).rows[0].name,null);
+ }finally{await db.exec('ROLLBACK;RESET search_path');}
+});
+for(const fault of ['creator-role','creator-predicate','creator-restrictive'])test('registration read-policy refuses changed '+fault,async()=>{
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);await db.exec(summaryCapacitySettlement);
+ if(fault==='creator-role')await db.exec('ALTER POLICY upload_attempt_creator_read ON public.document_upload_attempts TO service_role');
+ if(fault==='creator-predicate')await db.exec('ALTER POLICY upload_attempt_creator_read ON public.document_upload_attempts USING(actor_id=auth.uid() AND public.is_partner_only(auth.uid()) IS FALSE)');
+ if(fault==='creator-restrictive')await db.exec('DROP POLICY upload_attempt_creator_read ON public.document_upload_attempts;CREATE POLICY upload_attempt_creator_read ON public.document_upload_attempts AS RESTRICTIVE FOR SELECT TO authenticated USING(actor_id=auth.uid() AND public.is_partner_only(auth.uid()) IS FALSE AND public.can_edit_student(auth.uid(),student_id) IS TRUE)');
+ await assert.rejects(db.exec(registrationCapacitySettlement),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_registration_completion_receipts') AS name")).rows[0].name,null);
+});
+test('registration read-policy reference never replaces a preexisting session object',async()=>{
+ await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);await db.exec(summaryCapacitySettlement);await db.exec('CREATE TEMP TABLE tf_registration_read_policy_reference(original_marker integer)');
+ try{await assert.rejects(db.exec(registrationCapacitySettlement),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT count(*)::int AS n FROM pg_attribute WHERE attrelid='pg_temp.tf_registration_read_policy_reference'::regclass AND attname='original_marker' AND NOT attisdropped")).rows[0].n,1);}finally{await db.exec('DROP TABLE pg_temp.tf_registration_read_policy_reference');}
+});

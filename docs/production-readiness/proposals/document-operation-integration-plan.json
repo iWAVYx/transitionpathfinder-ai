@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Upload producer and summary completion/settlement prepared; rescan/Apply proof, source-bound capacity hooks and hosted activation remain open",
+  "status": "Registration policy compatibility correction verified locally; native/full-schema confirmation required before rescan/Apply additions",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -95,7 +95,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
-      "sha256": "7267aadb7fc06a5866d3df55673f19efe64de6c5919fb4c7412a19f189162520"
+      "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
     }
   ],
   "adapter_contract": {
@@ -423,6 +423,17 @@
       "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
       "Verify current native1045-case races and full225+all-nine proposal replay; select reviewed numeric ceilings and finish canonical/ledger packaging.",
       "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
-    ]
+    ],
+    "policy_compatibility_correction": {
+      "source": "a8ef79db312a719135d40362c00ec4a18d149e65",
+      "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json",
+      "local_verified": true,
+      "native_verified": false,
+      "runtime_function_or_permission_change": false,
+      "failed_native_runs": [
+        41220561351,
+        41220558801
+      ]
+    }
   }
 }
