@@ -1,0 +1,48 @@
+{
+  "schema": "document-rescan-source-claim-review-v1",
+  "date": "2026-10-31",
+  "source_base": "1151b02f4983045b4115d278e3d53c1e41d49cee",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+    "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406"
+  },
+  "scope": "Tenth noncanonical/unapplied owner-internal exact-source rescan reservation foundation. No ordinary/API/service execution, endpoint wiring, provider dispatch or source-bound pending/completion/settlement implementation.",
+  "routines": [
+    {
+      "name": "guard_document_rescan_source_binding",
+      "body_md5": "9cde41dda57eaaac0ac7aacb666e27a2",
+      "definer": false
+    },
+    {
+      "name": "begin_internal_document_rescan",
+      "body_md5": "5813809f271e1b2b94af7ffa0b11ffd4",
+      "definer": false
+    },
+    {
+      "name": "guard_unfinished_document_rescan",
+      "body_md5": "5df6d295d63bfe0a3441e1050fef1212",
+      "definer": true
+    }
+  ],
+  "source": "Exact failed nondeleted/nonarchived/nonrejected document revision, current editor/view/non-partner authority, registered attempt and immutable upload binding, actual guarded clean-registration completion receipt plus matching original finish timestamp, original object/version/uploader/hash/review identity, text/plain and positive <=20MiB size, matching current managed object size/type. Missing historical proof refuses; no typed completed-state adoption.",
+  "atomicity": "One transaction takes common control/capacity fence, begins one rescan lease, reserves both units and inserts source binding. Any source/quota/duplicate/private-proof failure rolls the entire call back. Binding unique per document/revision, metadata-only, retained and immutable. Duplicate/lost-reply paths do not return an existing capability.",
+  "lock_order": "Control SHARE, advisory824601/19, registered attempt/upload binding/origin lease, document UPDATE and object SHARE, new lease/capacity SHARE. Current authority is checked before private bookkeeping and rechecked after source locks. Separate transaction-held authority/direct-writer fences remain open.",
+  "uncertainty": "Unresolved original registration, prior source-bound rescans, any observed actor-only unresolved rescan with unknown source, and outstanding summary jobs refuse another claim. Legacy/direct admission still needs a shared writer fence before activation. Newly tracked rescans cannot be typed completed; needs_review stays counted. No expiry, held release, manual reconciliation, provider cancellation or historical provider-quiescence inference.",
+  "fixture": "Uses real guarded registration and summary completion and both unit settlements, then models a later failed source revision with the canonical-style timestamp trigger. The fixture does not prove why a future row failed or physical/provider quiescence. No existing safeguard is disabled to make a valid claim. The disposable documents fixture now includes canonical nullable integer size_bytes.",
+  "private_claim_prepared": true,
+  "endpoint_wired": false,
+  "pending_transition_implemented": false,
+  "rescan_completion_settlement_implemented": false,
+  "held_reconciliation_implemented": false,
+  "numeric_limits_selected": false,
+  "ordinary_execution_grants": false,
+  "legacy_provider_drain_proved": false,
+  "ready_for_cutover": false,
+  "hosted_execution_authorized": false,
+  "required_next": [
+    "Verify native concurrent claim/pause cases and complete225+ten-proposal replay.",
+    "Prepare one-use exact-source pending transition before provider dispatch, source-bound outcome/exact queue/completion and conservative settlement.",
+    "Connect reviewed source-bound server adapter and all-kind admission/queue/worker hooks under existing permission boundaries only after trusted reconciliation and legacy/direct writer/physical provider gates are resolved.",
+    "Finish Apply, final canonical/ledger packaging and fresh authorization for coordinated isolated staging rollout and bounded acceptance."
+  ]
+}

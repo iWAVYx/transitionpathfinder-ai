@@ -49,6 +49,7 @@ on:
       - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
       - "docs/production-readiness/proposals/document-summary-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -117,6 +118,7 @@ on:
       - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
       - "docs/production-readiness/proposals/document-summary-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -234,13 +236,13 @@ jobs:
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
 
-      - name: Verify registration policy and owner context before full database suites
+      - name: Verify registration compatibility and private rescan boundaries before full database suites
         env:
           PGUSER: supabase_admin
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy|registration owner-context' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -1408,6 +1410,54 @@ jobs:
                 'public.guard_document_capacity_reservation()'::regprocedure)));
           SQL
 
+      - name: Verify private rescan source claim and dormant capacity boundary
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-rescan-source-claim.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $rescan_proof$
+          DECLARE expected record;role_name text;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.guard_document_rescan_source_binding()','9cde41dda57eaaac0ac7aacb666e27a2',false),
+              ('public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)','5813809f271e1b2b94af7ffa0b11ffd4',false),
+              ('public.guard_unfinished_document_rescan()','5df6d295d63bfe0a3441e1050fef1212',true)
+            ) x(signature,body_md5,definer) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND md5(prosrc)=expected.body_md5
+                AND prosecdef=expected.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN
+                RAISE EXCEPTION 'Unexpected private rescan definition or owner'; END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected private rescan execution'; END IF;
+              END LOOP;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_rescan_source_bindings'::regclass AND relrowsecurity AND relowner=current_user::regrole::oid) THEN
+              RAISE EXCEPTION 'Private rescan row security/ownership required'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              IF has_table_privilege(role_name,'public.document_rescan_source_bindings','SELECT,INSERT,UPDATE,DELETE,TRUNCATE')
+                OR has_any_column_privilege(role_name,'public.document_rescan_source_bindings','SELECT,INSERT,UPDATE') THEN RAISE EXCEPTION 'Unexpected private rescan data privilege'; END IF;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_rescan_source_bindings'::regclass AND tgname='document_rescan_source_frozen'
+              AND tgfoid='public.guard_document_rescan_source_binding()'::regprocedure AND tgtype=31 AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_operation_leases'::regclass AND tgname='document_rescan_no_false_finish'
+              AND tgfoid='public.guard_unfinished_document_rescan()'::regprocedure AND tgtype=19 AND tgenabled='O' AND NOT tgisinternal) THEN
+              RAISE EXCEPTION 'Rescan source and unfinished-work guards must stay enabled'; END IF;
+            IF EXISTS(SELECT 1 FROM public.document_rescan_source_bindings) OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+              OR NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused)
+              OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN
+              RAISE EXCEPTION 'Rescan foundation must remain paused, empty and unset'; END IF;
+          END; $rescan_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-source-claim.json
+          SELECT jsonb_build_object('schema','document-rescan-source-claim-proof-v1','phase','after-tenth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'source_bindings',(SELECT count(*) FROM public.document_rescan_source_bindings),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'private_source_capacity_claim_prepared',true,'reserved_units',2,'ordinary_execution_grants',false,
+            'pending_transition_implemented',false,'rescan_completion_settlement_implemented',false,'endpoint_source_claim_wired',false,
+            'general_application_limits_implemented',false,'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.guard_document_rescan_source_binding()'::regprocedure,'public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)'::regprocedure,'public.guard_unfinished_document_rescan()'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1514,4 +1564,5 @@ jobs:
             /tmp/document-capacity-ledger-foundation.json
             /tmp/document-summary-capacity-settlement.json
             /tmp/document-registration-capacity-settlement.json
+            /tmp/document-rescan-source-claim.json
           if-no-files-found: ignore

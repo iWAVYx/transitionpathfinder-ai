@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Registration completion stage verified in both native1054/1054 suites and complete225+all-nine disposable replays; rescan/Apply and source-bound application capacity integration next, no hosted activation.",
+  "status": "Registration stage native/full225+9 verified. Tenth private rescan source/capacity claim prepared; native/full225+10 confirmation and pending/completion/settlement/app integration remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -518,7 +518,7 @@
     "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json"
   },
   "rescan_source_bound_capacity_next_step": {
-    "status": "Reviewed next implementation boundary; not yet implemented or activated",
+    "status": "Private source/capacity foundation now prepared; pending transition/completion and activation gates remain open",
     "current_endpoint": "src/lib/documents.functions.ts: rescanDocument uses generic actor-only begin, downloads the reviewed copy, then conditionally claims failed->pending. Generic lease does not yet bind exact source/capacity.",
     "required_sequence": [
       "Before file IO, atomically validate current edit/view/non-partner authority plus exact failed document/student/revision, registered attempt, path/object/version/hash, text MIME and bounded positive size.",
@@ -544,5 +544,22 @@
       "Prepare a one-use exact-source pending transition before scanner dispatch and its separately source-bound outcome/queue/settlement receipts.",
       "Do not bypass unresolved original registration or provider work because a row says failed. Trusted held-work reconciliation and legacy/direct writer fences remain prerequisites before activation."
     ]
+  },
+  "rescan_source_bound_capacity_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+    "review": "docs/production-readiness/proposals/document-rescan-source-claim-review.json",
+    "evidence": "docs/production-readiness/evidence/document-rescan-source-claim-local-2026-10-31.json",
+    "private_source_and_two_unit_claim_prepared": true,
+    "ordinary_execution_or_endpoint_wiring": false,
+    "pending_transition_implemented": false,
+    "rescan_completion_settlement_implemented": false,
+    "native_full_schema_pending": true,
+    "remaining": [
+      "Verify native concurrent claim/pause cases and complete225+ten-proposal replay.",
+      "Prepare one-use exact-source pending transition before provider dispatch, source-bound outcome/exact queue/completion and conservative settlement.",
+      "Connect reviewed source-bound server adapter and all-kind admission/queue/worker hooks under existing permission boundaries only after trusted reconciliation and legacy/direct writer/physical provider gates are resolved.",
+      "Finish Apply, final canonical/ledger packaging and fresh authorization for coordinated isolated staging rollout and bounded acceptance."
+    ],
+    "hosted_authorized": false
   }
 }
