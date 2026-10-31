@@ -72,7 +72,7 @@
   "required_next": [
     "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
     "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
-    "Verify current native owner-context refusal/restoration and full225+all-nine replay before rescan work; select reviewed numeric ceilings and finish canonical/ledger packaging.",
+    "Native1054 and full225+all-nine replay verified; select reviewed numeric ceilings and finish canonical/ledger packaging after remaining source-bound hooks.",
     "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
   ],
   "preflight_comparison_correction": {
@@ -89,6 +89,8 @@
   "owner_context_correction": {
     "method": "Explicit authorized admin session with restricted postgres current role; use existing owner/admin context only while replacing finish, verify its owner unchanged, then restore original executor before subsequent DDL. No ownership transfer, role membership or application grants added.",
     "evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json",
-    "native_full_replay_pending": true
+    "native_full_replay_pending": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json",
+    "verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308"
   }
 }

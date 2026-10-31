@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Registration policy compatibility correction verified locally; native/full-schema confirmation required before rescan/Apply additions",
+  "status": "Registration completion stage verified in both native1054/1054 suites and complete225+all-nine disposable replays; rescan/Apply and source-bound application capacity integration next, no hosted activation.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -468,7 +468,7 @@
     "proposal": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
     "review": "docs/production-readiness/proposals/document-registration-capacity-settlement-review.json",
     "evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-local-2026-10-31.json",
-    "status": "Source-bound upload completion and private settlement prepared; rescan/Apply and application capacity integration remain open",
+    "status": "Prepared registration completion and quarantine settlement verified in both full native/schema replays; no hosted activation or general application limits.",
     "registration_finish_receipt_hook_prepared": true,
     "registration_capacity_settlement_prepared": true,
     "rescan_apply_settlement_implemented": false,
@@ -480,20 +480,22 @@
     "required_next": [
       "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
       "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
-      "Verify current native1045-case races and full225+all-nine proposal replay; select reviewed numeric ceilings and finish canonical/ledger packaging.",
+      "Verified native1054 and full225+all-nine replay; next select reviewed numeric ceilings and finish canonical/ledger packaging.",
       "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
     ],
     "policy_compatibility_correction": {
       "source": "a8ef79db312a719135d40362c00ec4a18d149e65",
       "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json",
       "local_verified": true,
-      "native_verified": false,
+      "native_verified": true,
       "runtime_function_or_permission_change": false,
       "failed_native_runs": [
         41220561351,
         41220558801
       ]
-    }
+    },
+    "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json",
+    "verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308"
   },
   "registration_owner_context_correction": {
     "previous_source": "60dfc08b",
@@ -506,7 +508,28 @@
     "full_schema_failure": "225 canonical migrations replay; ninth proposal refuses replacing supabase_admin-owned finish as restricted postgres. No permission repair or owner transfer.",
     "evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json",
     "correction_prepared": true,
-    "native_full_replay_pending": true,
-    "rescan_work_blocked_until_replay_passes": true
+    "native_full_replay_pending": false,
+    "rescan_work_blocked_until_replay_passes": false,
+    "native_full_replay_verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308",
+    "verified_runs": [
+      41229731209,
+      41229725871
+    ],
+    "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json"
+  },
+  "rescan_source_bound_capacity_next_step": {
+    "status": "Reviewed next implementation boundary; not yet implemented or activated",
+    "current_endpoint": "src/lib/documents.functions.ts: rescanDocument uses generic actor-only begin, downloads the reviewed copy, then conditionally claims failed->pending. Generic lease does not yet bind exact source/capacity.",
+    "required_sequence": [
+      "Before file IO, atomically validate current edit/view/non-partner authority plus exact failed document/student/revision, registered attempt, path/object/version/hash, text MIME and bounded positive size.",
+      "Use one common control/capacity lock order; create immutable private source binding and reserve both producer/summary units in the same transaction. One claim per exact failed revision; never attach a different source or return a private capability again after a lost reply.",
+      "Reject unresolved prior source-bound registration/rescan/provider work even if a later row says failed. An uncertain provider reply, status timestamp or expiry cannot authorize another scan; trusted reconciliation remains a separate prerequisite.",
+      "Download and hash the same authorized immutable copy only after a confirmed claim. Use a one-use source-bound pending transition before scanner dispatch; missing/lost/foreign transition receipt stops provider work.",
+      "Bind exact persisted outcome and counted queued summary before completion/settlement. Rescan completion must not fabricate registration proof or reuse registration-only settlement."
+    ],
+    "permissions": "Private owner-internal proposal first; no ordinary execution grants until source-bound server adapter and legacy-writer fences are reviewed together.",
+    "schema_fixture_note": "Disposable documents fixture lacks canonical size_bytes; model actual column/constraints before SQL source tests rather than dropping the size requirement.",
+    "implementation_complete": false,
+    "hosted_authorized": false
   }
 }
