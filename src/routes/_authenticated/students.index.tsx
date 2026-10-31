@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useEffect, useState, type FormEvent } from "react";
@@ -177,7 +178,7 @@ function StudentsPage() {
                       {toTitleCase(s.first_name)} {s.last_name ?? ""}
                     </h2>
                     <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">
-                      {s.grade_band ?? "Grade not set"} {s.school ? `· ${s.school}` : ""}
+                      {formatGradeBand(s.grade_band)} {s.school ? `· ${s.school}` : ""}
                     </p>
                   </Link>
                   <button

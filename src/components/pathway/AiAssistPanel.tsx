@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { ReportSessionBoundary } from "@/components/pathway/ReportSessionBoundary";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Languages, Sparkles, Loader2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,19 +15,37 @@ import {
 } from "@/lib/ai-assist.functions";
 import type { PathwayReport } from "@/lib/pathway.functions";
 
-export function AiAssistPanel({
+type AssistProps = Omit<Parameters<typeof AiAssistSession>[0], "viewerId">;
+export function AiAssistPanel(props: AssistProps) {
+  const { user, loading } = useAuth();
+  if (loading || !user) return null;
+  return <ReportSessionBoundary key={user.id} report={props.report} studentName={props.studentName}>
+    <AiAssistSession {...props} viewerId={user.id} />
+  </ReportSessionBoundary>;
+}
+
+function AiAssistSession({
   studentName,
   report,
   onTranslated,
   onReset,
   translatedTo,
+  viewerId,
 }: {
   studentName: string;
   report: PathwayReport;
   onTranslated: (next: PathwayReport, lang: SupportedLanguage) => void;
   onReset: () => void;
   translatedTo: SupportedLanguage | null;
+  viewerId: string;
 }) {
+  const active = useRef(false);
+  const translationPending = useRef(false);
+  const suggestionsPending = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const translate = useServerFn(translateReport);
   const suggest = useServerFn(suggestNextSteps);
 
@@ -35,29 +55,36 @@ export function AiAssistPanel({
   const [loadingSteps, setLoadingSteps] = useState(false);
 
   async function handleTranslate() {
+    if (!active.current || translationPending.current) return;
+    translationPending.current = true;
     setTranslating(true);
     try {
-      const r = await translate({ data: { report, language: lang } });
+      const r = await translate({ data: { report, language: lang, expected_viewer_id: viewerId } });
+      if (!active.current) return;
       onTranslated(r.report, r.language);
       toast.success("Translated.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Translation failed.");
+      if (active.current) toast.error(e instanceof Error ? e.message : "Translation failed.");
     } finally {
-      setTranslating(false);
+      translationPending.current = false;
+      if (active.current) setTranslating(false);
     }
   }
 
   async function handleSuggest() {
+    if (!active.current || suggestionsPending.current) return;
+    suggestionsPending.current = true;
     setLoadingSteps(true);
     try {
       const r = await suggest({
-        data: { student_first_name: studentName, report },
+        data: { student_first_name: studentName, report, expected_viewer_id: viewerId },
       });
-      setSteps(r.next_steps);
+      if (active.current) setSteps(r.next_steps);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Couldn't generate next steps.");
+      if (active.current) toast.error(e instanceof Error ? e.message : "Couldn't generate next steps.");
     } finally {
-      setLoadingSteps(false);
+      suggestionsPending.current = false;
+      if (active.current) setLoadingSteps(false);
     }
   }
 

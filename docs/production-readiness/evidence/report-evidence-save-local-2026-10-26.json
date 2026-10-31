@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "status": "local-only; automatic review pending",
+  "base_commit": "32466326c1bc7612fe4dd8728a7e72ceaab38349",
+  "migration": "20261026010000_save_extracted_report_evidence.sql",
+  "runtime_fingerprint": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "c95a008f5ae678a66311b906fffd8983ca790f9fb6738c24daa60f4a906ae5c8",
+    "file_count": 1190
+  },
+  "validation": {
+    "unit_files": 338,
+    "unit_tests_passed": 4910,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "readiness_security_contracts_passed": 44,
+    "pglite_cases_passed": 38,
+    "native_concurrent_case": "pending CI; skipped locally",
+    "full_210_migration_replay": "pending CI",
+    "prepared_transaction": "exact ledger + function atomic commit; ledger failure rollback; prerequisite mismatch and repeat refusal; metadata-only read-only preflight"
+  },
+  "behavior": [
+    "atomic batch of at most 12 items",
+    "existing canonical dedupe expression index retained",
+    "null source IDs deduplicate",
+    "duplicates do not overwrite stored evidence",
+    "created_by derives from auth.uid, never JSON input",
+    "security invoker; authenticated execution only; existing table RLS retained",
+    "malformed or missing save receipt rejects without automatic retry"
+  ],
+  "limits": [
+    "PGlite is not native concurrent PostgreSQL or hosted acceptance",
+    "caller/source text is not independently verified documentation",
+    "no provider calls, hosted data/schema changes, deployment or publication",
+    "fresh authorization required for staging rollout and live fixtures",
+    "production baseline comparison uses saved evidence only"
+  ],
+  "staging_unchanged": {
+    "release": "e3d10dd870bd944bcc08b98bd2df017bf2cce927",
+    "fingerprint": "704262c570a44d5b431520cbfb4a37a8d1db8f00a28c04fa1bfbcef03f881513",
+    "file_count": 1190
+  },
+  "application_commit": "124bbfa46cd2a261b1fc6d1ad904d5038ed816e4",
+  "preflight": "docs/production-readiness/proposals/report-evidence-save-preflight.sql",
+  "prepared_transaction_generator": "tests/database/report-evidence-rollout-sql.mjs"
+}

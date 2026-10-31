@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-24",
+  "status": "native-database-validated-security-patch-final-ci-pending",
+  "baseSourceSha": "31f6e4ef3996cc24317224e9cc1d4bd7c116c68b",
+  "userDirection": "Owner/admin requires explicit student access; Owner Hub remains website management only.",
+  "migration": {
+    "path": "supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql",
+    "sha256": "02ccd0acc33466c5c53f0382eafead622d72d8d135517978f2b7db9267ebc306",
+    "applied": false
+  },
+  "localReproductions": [
+    "Unlinked admin takes student ownership through broad can_edit_student fallback, then reads a restricted report.",
+    "Ordinary linked editor takes report ownership and retains access after relationship removal.",
+    "Admin viewer self-promotes through consent guard that trusts broad can_edit_student fallback."
+  ],
+  "correction": [
+    "Remove implicit admin fallback from canonical student access/edit helpers, preserving actual ownership, self identity, accepted collaboration and approved relationships.",
+    "Pin student owner/self identity and report owner/original intake against direct ordinary API reassignment.",
+    "Allow report owner to link/unlink an authorized student; deny nonowner editor relinking.",
+    "Keep normal content edits and truthful history attribution, internal privileged maintenance and separate CMS administration."
+  ],
+  "validation": {
+    "disposableSql": {
+      "passed": 65,
+      "failed": 0,
+      "skipped": 2,
+      "reason": "Two concurrency cases require native PostgreSQL",
+      "log": "/private/tmp/tf-explicit-student-boundary-2026-10-24.log"
+    },
+    "typeScript": "passed",
+    "contracts": {
+      "passed": 45,
+      "failed": 0,
+      "log": "/private/tmp/tf-student-boundary-contracts-final-2026-10-24.log"
+    },
+    "fullUnit": {
+      "runtime": "Node",
+      "passed": 4439,
+      "files": 313,
+      "failed": 0,
+      "log": "/private/tmp/tf-linked-access-node-full-unit-2026-10-24.log",
+      "earlierFailure": "Bun-invoked full run failed Zod import/runtime resolution; supported Node invocation passes, no runtime source or dependencies changed to accommodate it."
+    },
+    "nativeReplay": {
+      "sha": "6937b4fa",
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40102467169",
+      "passed": 67,
+      "skipped": 0,
+      "canonicalMigrations": 207,
+      "privilegedRoutines": 93,
+      "status": "success",
+      "log": "/private/tmp/tf-student-boundary-native-6937b4fa.log"
+    },
+    "workflowYaml": "parsed",
+    "testDiscovery": "One bounded test plus seven existing sign-in dependencies listed; no tests executed."
+  },
+  "preparedHostedTest": {
+    "status": "not-authorized-not-run",
+    "workflowScope": "linked-report-access-no-ai",
+    "confirmation": "disposable-linked-report-access",
+    "existingRoleSignIns": 7,
+    "maximumFictionalRows": {
+      "students": 1,
+      "intakes": 1,
+      "reports": 1,
+      "relationships": 2,
+      "historyVersions": 3
+    },
+    "checks": [
+      "Unlinked denial across six other roles",
+      "Educator and Owner/admin pending/viewer/editor/revoked transitions",
+      "Viewer self-promotion and identity takeover denied",
+      "Permitted editor writes retain actual history actor",
+      "Educator reader hides owner-only controls"
+    ],
+    "cleanup": "Exact identifiers saved before attempted writes, caller-RLS cleanup plus separately required independent table-owner read-only zero-count verification.",
+    "newAccounts": 0,
+    "aiCalls": 0,
+    "shareLinks": 0,
+    "pdfExports": 0,
+    "retries": 0
+  },
+  "unchangedApplication": {
+    "previousDeployedFingerprint": "92e0e923f97ac074b9a53c5420928bf0c5413543dde9b367153c6c1bb6cbadd6",
+    "candidateFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+    "files": 1184,
+    "deploymentOrPublicationNeeded": true,
+    "reason": "Database proposal alone is runtime-neutral, but newly disclosed Undici advisory requires a two-file build dependency security update. Final staging authorization must include both builds/publication as well as migration/test."
+  },
+  "production": {
+    "touched": false,
+    "mergeAuthorized": false,
+    "canonicalMigrationCount": 207,
+    "pendingAgainstSavedSeptember17Observation": 13,
+    "newProductionObservation": false
+  },
+  "remaining": [
+    "Native candidate checks",
+    "New staging-only migration and bounded fixture authorization",
+    "Hosted explicit editor/admin acceptance and independent cleanup",
+    "All-role feature/generation, stale browser intent, bearer lifecycle and broader production gates"
+  ],
+  "deferred": [
+    "Report length/cosmetic polish",
+    "Parent Pilot/Pathway Snapshot after current roadmap"
+  ],
+  "roadmapPreserved": "Full TF-01 through TF-26 retained.",
+  "securityPatch": {
+    "package": "undici",
+    "before": "7.29.1",
+    "after": "7.30.1",
+    "advisory": "https://github.com/advisories/GHSA-xjj6-f33q-929c",
+    "scope": "Existing same-major override and corresponding lockfile package only; no supply-chain-age exclusion or security gate bypass.",
+    "initialBuilds": "Both failed high-severity audit on 6937b4fa; no build pass claimed.",
+    "frozenInstall": "passed",
+    "highCriticalAudit": "passed; twelve below threshold findings remain",
+    "typeScript": "passed",
+    "unit": "First patched full run 4438 pass, one role-guard asynchronous-effect assertion failed; unchanged focused 42-case recheck passed, full confirmation pending."
+  }
+}

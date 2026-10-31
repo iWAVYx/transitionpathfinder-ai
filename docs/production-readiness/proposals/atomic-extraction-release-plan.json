@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-29",
+  "schema": "atomic-extraction-release-plan-v1",
+  "status": "Prepared for review only; no hosted authorization or execution",
+  "migration": "supabase/migrations/20261029010000_apply_reviewed_document_extraction.sql",
+  "migration_sha256": "cc0ded8c47b1a009cbe7477e84f2902fe43fedeb4845a52ebd15d50689200600",
+  "rollout_generator": "tests/database/atomic-extraction-rollout-sql.mjs",
+  "read_only_preflight": "docs/production-readiness/proposals/atomic-extraction-preflight.sql",
+  "target": {
+    "environment": "isolated staging only",
+    "project_ref": "qgrertkqbwanerqqemph",
+    "production_forbidden": true,
+    "label_is_identity_proof": false
+  },
+  "release_prerequisites": [
+    "Independently confirm the actual backend/project and reviewed release in trusted environment controls. A project label in SQL is not identity proof.",
+    "Use specifically authorized metadata/count access to compare exact prerequisite ledgers, source/RLS/revision trigger/index state, existing routine hash/grants and aggregate data conflicts. Unexpected existing routine or version stops for reconciliation.",
+    "Review unsupported grades/section shapes, inaccessible/archived/quarantined/mismatched sources and conflicting historical evidence. The migration does not repair, relabel, backfill or delete them.",
+    "Record the server evidence-flag decision without silently flipping it. The RPC supports explicit disabled shadow mode and requires enabled evidence to commit atomically.",
+    "Prepare old Apply-handler drain/maintenance and confirm no sequential old-version work can continue during cutover. Current preflight always reports drain/flag decision as unverified.",
+    "Fourteen upload/summary migrations are now prepared canonically, with exact-source full replay pending. Complete their ordered data/schema/ledger preflight and caller/worker cutover review before deploying the accumulated application; canonical source preparation is not hosted application or release approval.",
+    "Get fresh specific authorization for the exact staging migration/ledger, app/worker release or publication and any test. Earlier completed approvals do not apply.",
+    "Compare revision-trigger definition/body hash, exact evidence-index columns/predicate and caller table grants/RLS in preflight. A matching object name alone is insufficient; no automatic repair or grant widening."
+  ],
+  "migration_scope": {
+    "version": "20261029010000",
+    "name": "apply_reviewed_document_extraction",
+    "new_tables": 0,
+    "existing_rows_rewritten": 0,
+    "base_grants_or_policies_changed": 0,
+    "new_rpcs": 1,
+    "execute": "authenticated only; SECURITY INVOKER; no caller RLS bypass",
+    "transaction": "One exact reviewed migration and exact full-source ledger row, serialized by cooperative advisory and ledger relation locks. Any prerequisite, schema or ledger failure rolls back both.",
+    "rerun": "Stop on any existing routine or version, including an identical one. Reconcile; never blind-replace, append duplicate ledger or remove history to rerun."
+  },
+  "bounded_database_acceptance": {
+    "status": "Scope prepared, not runnable or authorized; exact existing fictional fixture IDs and eligibility must be reviewed first",
+    "mode": "Two outer transactions that always ROLLBACK, on the isolated staging database under seven existing test identities as authenticated. This requires explicit authorization for trusted operator role/claim switching; no new login/grant/relationship.",
+    "maxima": {
+      "existing_fictional_student_document_pairs": 2,
+      "existing_role_accounts": 7,
+      "outer_transactions": 2,
+      "rpc_invocations": 13,
+      "temporary_extraction_rows": 2,
+      "temporary_transition_profiles": 2,
+      "temporary_evidence_rows": 1,
+      "temporary_audit_rows": 2,
+      "committed_fixture_rows": 0,
+      "new_students_or_documents": 0,
+      "storage_requests": 0,
+      "ai_or_antivirus_calls": 0,
+      "test_retries": 0
+    },
+    "cases": [
+      "Use existing Family and Educator test identities with explicit editing of two existing verified fictional document/student pairs. Each source must already be clean, available and correctly linked. Stop before any writes if exact fixtures cannot be identified; do not create a clean status or provider receipt.",
+      "Inside each outer transaction, use an existing eligible extraction or at most one temporary extraction for that exact document. Synthetic reviewed values are limited to known profile fields and remain inside the rollback transaction. Capture baseline hashes/coordinates privately, never full review text in CI output.",
+      "At most one successful Apply per role (two calls), one stale-revision refusal and one duplicate refusal per role (four calls), plus one unrelated-access denial for each of seven existing roles (seven calls): thirteen invocations total. Expected failures use savepoints, not transaction-wide retries.",
+      "Family exercises evidence disabled; Educator exercises evidence enabled. These are direct RPC boolean arguments, not environment/feature-setting changes. Verify required target, completion, evidence and audit behavior and absence of unrelated field/source changes.",
+      "ROLLBACK each entire outer transaction, including successful application. Independently verify exact baseline hashes/counts and absence of all temporary row IDs with separately authorized read-only access. Never delete student/document objects or run generic prefix cleanup."
+    ],
+    "uncertainty": "Any timeout, lost session, unexpected write, receipt mismatch or failed baseline verification stops for trusted reconciliation. No retry, backend termination, compensating delete, flag change or expansion to other records.",
+    "limits": "This accepts a rollback-only database boundary, not committed HTTP/UI saves, browser lifetime behavior, scan/provider correctness or all-role feature completion. Those remain separate bounded acceptance gates."
+  },
+  "browser_acceptance": {
+    "status": "Separate preparation required; zero requests authorized by this plan",
+    "reason": "Review-page entry can create extraction/audit rows. Do not call it read-only or reuse the rollback-only fixture scope. A later browser plan must explicitly bound every committed write, source fixture, evidence/audit row and cleanup/retention action."
+  },
+  "recovery": {
+    "before_real_apply": "Stop the release and preserve exact preflight/ledger/routine evidence. Do not alter data or drop/recreate the routine to clear a mismatch.",
+    "after_possible_apply": "Keep the additive RPC/ledger and legitimate committed data; stop further Apply work for review. Do not roll back to the unsafe sequential handler or automatically undo profile/evidence/history. Any disable/rollback/repair needs a reviewed separately authorized scope.",
+    "rollback_is_not_deployment_approval": true
+  },
+  "authorization_recorded": false,
+  "hosted_actions": false,
+  "combined_cutover": "For a baseline where atomic extraction and all fourteen upload migrations are absent, document-upload-cutover-plan.json selects one fifteen-migration transaction from document-upload-rollout-sql.mjs. Do not execute the standalone atomic batch first or also execute review mirrors. Any already-applied/partial state requires a new reviewed plan; no automatic resume."
+}

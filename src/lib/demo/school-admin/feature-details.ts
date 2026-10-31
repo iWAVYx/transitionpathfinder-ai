@@ -403,7 +403,7 @@ const COMPREHENSIVE: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     eyebrow: "Launch Readiness",
     summary:
       "Onboarding, staff participation, student connection progress across 22 educators and 168 IEPs.",
-    what: "See how launch is progressing and confirm the next milestone owner.",
+    what: "Explore this fictional rollout example. The signed-in tool uses recorded staff access and report coverage; training progress and compliance dates are not inferred.",
     dataSource: "Onboarding checklist · staff activation · student connection events",
     primaryAction: { label: "Open Implementation", to: "/school/implementation" },
     connectsTo: ["Team Access", "School Overview", "Support Needs"],
@@ -833,7 +833,7 @@ const SPECIALIZED: Record<SchoolAdminFeatureId, SchoolAdminFeatureDetail> = {
     eyebrow: "Launch Readiness",
     summary:
       "Onboarding across 18 team members and 94 IEPs, plus the specialized program's next milestone.",
-    what: "See how launch is progressing and confirm the next milestone owner.",
+    what: "Explore this fictional rollout example. The signed-in tool uses recorded staff access and report coverage; training progress and compliance dates are not inferred.",
     dataSource: "Onboarding checklist · team activation · student connection events",
     primaryAction: { label: "Open Implementation", to: "/school/implementation" },
     connectsTo: ["Team Access", "School Overview", "Support Needs"],

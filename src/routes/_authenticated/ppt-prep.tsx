@@ -1,3 +1,5 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
+import { PptAgendaDocument } from "@/components/documents/PptAgendaDocument";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
@@ -10,7 +12,6 @@ import { z } from "zod";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { InfoBox } from "@/components/site/InfoBox";
-import { AIDisclaimer } from "@/components/site/AIDisclaimer";
 import { Term, GLOSSARY } from "@/components/site/Term";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,9 +66,15 @@ function PptPrepPage() {
   const loadPrep = useServerFn(getPptPrep);
   const listPreps = useServerFn(listPptPreps);
   const removePrep = useServerFn(deletePptPrep);
+  const addAction = useServerFn(createStudentActionItem);
 
   const [reports, setReports] = useState<ReportSummary[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [reportsError, setReportsError] = useState(false);
+  const [reportsAttempt, setReportsAttempt] = useState(0);
+  const [prepsLoading, setPrepsLoading] = useState(true);
+  const [prepsError, setPrepsError] = useState(false);
+  const [prepsAttempt, setPrepsAttempt] = useState(0);
   const [savedPreps, setSavedPreps] = useState<PptPrepSummary[]>([]);
   const [reportId, setReportId] = useState<string>("");
   const [meetingDate, setMeetingDate] = useState("");
@@ -78,40 +85,67 @@ function PptPrepPage() {
   const [hydrating, setHydrating] = useState(false);
 
   useEffect(() => {
-    list()
-      .then((r) => setReports(r.reports))
-      .finally(() => setLoadingReports(false));
-    listPreps()
-      .then((r) => setSavedPreps(r.preps))
-      .catch(() => {});
-  }, [list, listPreps]);
+    let cancelled = false;
+    setLoadingReports(true);
+    setReportsError(false);
+    list().then(result => {
+      if (cancelled) return;
+      if (result.loadFailed) throw new Error("Reports unavailable");
+      setReports(result.reports);
+      setReportId(current => result.reports.some(report => report.id === current) ? current : "");
+    }).catch(() => {
+      if (!cancelled) { setReportsError(true); setReports([]); setReportId(""); }
+    }).finally(() => { if (!cancelled) setLoadingReports(false); });
+    return () => { cancelled = true; };
+  }, [list, reportsAttempt]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setPrepsLoading(true);
+    setPrepsError(false);
+    setSavedPreps([]);
+    listPreps().then(result => {
+      if (cancelled) return;
+      if (result.loadFailed) throw new Error("Saved meeting preps unavailable");
+      setSavedPreps(result.preps);
+    }).catch(() => { if (!cancelled) setPrepsError(true); })
+      .finally(() => { if (!cancelled) setPrepsLoading(false); });
+    return () => { cancelled = true; };
+  }, [listPreps, prepsAttempt]);
 
   // Hydrate saved prep from ?id= search param
   useEffect(() => {
-    if (!search.id) {
-      setAgenda(null);
+    let cancelled = false;
+    const selectedId = search.id;
+    setAgenda(null);
+    if (!selectedId) {
+      setHydrating(false);
       return;
     }
     setHydrating(true);
-    loadPrep({ data: { id: search.id } })
-      .then((row) =>
+    loadPrep({ data: { id: selectedId } })
+      .then((row) => {
+        if (cancelled) return;
+        if (row.id !== selectedId) throw new Error("Couldn't load that meeting prep.");
         setAgenda({
           id: row.id,
           agenda: row.agenda,
           studentName: row.studentName,
           studentId: row.studentId,
           meetingDate: row.meetingDate,
-        }),
-      )
+        });
+      })
       .catch((e) => {
+        if (cancelled) return;
         toast.error(e instanceof Error ? e.message : "Couldn't load that meeting prep.");
         navigate({ to: "/ppt-prep", search: {} });
       })
-      .finally(() => setHydrating(false));
+      .finally(() => { if (!cancelled) setHydrating(false); });
+    return () => { cancelled = true; };
   }, [search.id, loadPrep, navigate]);
 
   const onGenerate = async () => {
-    if (!reportId) {
+    if (loadingReports || reportsError || !reports.some(report => report.id === reportId)) {
       toast.error("Pick a Pathway Report first.");
       return;
     }
@@ -121,7 +155,7 @@ function PptPrepPage() {
         data: { report_id: reportId, meeting_date: meetingDate, top_concerns: topConcerns, desired_outcomes: desiredOutcomes },
       });
       // Refresh saved list so the new one appears when they come back.
-      listPreps().then((r) => setSavedPreps(r.preps)).catch(() => {});
+      setPrepsAttempt(current => current + 1);
       if (res.id) {
         // Navigate to the canonical URL so reload/share works.
         navigate({ to: "/ppt-prep", search: { id: res.id } });
@@ -159,7 +193,7 @@ function PptPrepPage() {
     }
   };
 
-  if (hydrating) {
+  if (hydrating || (search.id && agenda?.id !== search.id)) {
     return (
       <SiteShell>
         <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
@@ -169,14 +203,24 @@ function PptPrepPage() {
     );
   }
 
-  if (agenda) {
+  if (agenda && agenda.id === (search.id ?? null)) {
     return (
       <SiteShell>
-        <AgendaView
+        <PptAgendaDocument
           name={agenda.studentName}
           agenda={agenda.agenda}
           studentId={agenda.studentId}
           meetingDate={agenda.meetingDate}
+          partnerContent={<MeetingPrepPartners studentId={agenda.studentId} meetingDate={agenda.meetingDate} />}
+          onAddAction={async (title) => {
+            if (!agenda.studentId) return;
+            try {
+              await addAction({ data: { student_id: agenda.studentId, title: title.slice(0, 200), category: "team", priority: "medium" } });
+              toast.success("Added to action items.");
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : "Could not add.");
+            }
+          }}
           onReset={onReset}
         />
       </SiteShell>
@@ -194,8 +238,8 @@ function PptPrepPage() {
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           Pick a Pathway Report, tell us what you most want from this meeting, and we'll
-          draft a detailed agenda, evidence-focused questions, and family and educator scripts you can
-          borrow word-for-word.
+          draft a meeting plan, questions about progress and supports, and suggested wording
+          for families and educators to adapt.
         </p>
 
         <InfoBox label="What's a PPT meeting?" className="mt-6">
@@ -211,7 +255,12 @@ function PptPrepPage() {
           </p>
         </InfoBox>
 
-        {savedPreps.length > 0 && (
+        {prepsLoading && <p className="mt-6 text-sm text-muted-foreground" role="status">Loading saved meeting preps…</p>}
+        {prepsError && <div className="mt-6 rounded-lg border p-4" role="alert">
+          <p>Your saved meeting preps could not be loaded. Please try again.</p>
+          <Button className="mt-3" variant="outline" onClick={() => setPrepsAttempt(current => current + 1)}>Reload Saved Meeting Preps</Button>
+        </div>}
+        {!prepsLoading && !prepsError && savedPreps.length > 0 && (
           <div className="mt-8 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
             <div className="flex items-center gap-2">
               <History className="h-4 w-4 text-primary" />
@@ -250,7 +299,10 @@ function PptPrepPage() {
           </div>
         )}
 
-        {!loadingReports && reports.length === 0 ? (
+        {reportsError ? <div className="mt-10 rounded-lg border p-6" role="alert">
+          <p>Your Pathway Reports could not be loaded. Please try again.</p>
+          <Button className="mt-3" variant="outline" onClick={() => setReportsAttempt(current => current + 1)}>Reload Pathway Reports</Button>
+        </div> : !loadingReports && reports.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-dashed border-border/70 bg-gradient-hero p-10 text-center shadow-soft">
             <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 shadow-soft">
               <CalendarHeart className="h-6 w-6 text-primary" aria-hidden />
@@ -277,13 +329,13 @@ function PptPrepPage() {
             {loadingReports ? (
               <p className="text-sm text-muted-foreground">Loading your reports…</p>
             ) : (
-              <Select onValueChange={setReportId}>
+              <Select value={reportId} onValueChange={setReportId} disabled={loadingReports || generating}>
                 <SelectTrigger id="ppt-report" aria-label="Pathway Report to build from"><SelectValue placeholder="Choose a report…" /></SelectTrigger>
                 <SelectContent>
                   {reports.map((r) => (
                     <SelectItem key={r.id} value={r.id}>
                       {r.student_first_name}
-                      {r.grade_band ? ` · ${r.grade_band}` : ""} ·{" "}
+                      {r.grade_band ? ` · ${formatGradeBand(r.grade_band)}` : ""} ·{" "}
                       {new Date(r.created_at).toLocaleDateString()}
                     </SelectItem>
                   ))}
@@ -309,7 +361,7 @@ function PptPrepPage() {
             <Textarea id="ppt-outcomes" rows={3} value={desiredOutcomes} onChange={(e) => setDesiredOutcomes(e.target.value)} />
           </div>
 
-          <Button onClick={onGenerate} disabled={generating || !reportId} className="w-full">
+          <Button onClick={onGenerate} disabled={generating || loadingReports || reportsError || !reportId} className="w-full">
             {generating ? "Drafting your meeting prep…" : "Generate meeting prep"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
@@ -318,7 +370,7 @@ function PptPrepPage() {
         </div>
         )}
 
-        {!(!loadingReports && reports.length === 0) && (
+        {!reportsError && !(!loadingReports && reports.length === 0) && (
           <div className="mt-6">
             <PreMeetingChecklist />
           </div>
@@ -327,140 +379,5 @@ function PptPrepPage() {
       </section>
       </div>
     </SiteShell>
-  );
-}
-
-function AgendaView({
-  name,
-  agenda,
-  studentId,
-  meetingDate,
-  onReset,
-}: {
-  name: string;
-  agenda: PptAgenda;
-  studentId: string | null;
-  meetingDate: string | null;
-  onReset: () => void;
-}) {
-  return (
-    <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="rounded-3xl bg-gradient-hero p-8 shadow-soft sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">PPT Meeting Prep</p>
-        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          A Meeting Plan For {toTitleCase(name)}.
-        </h1>
-        <p className="mt-4 text-base italic leading-relaxed text-foreground/80">{agenda.opening_note}</p>
-      </div>
-
-      <div className="mt-6">
-        <AIDisclaimer />
-      </div>
-
-
-      <Block title="Suggested agenda">
-        <ol className="space-y-3">
-          {agenda.agenda.map((item, i) => (
-            <li key={i} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card p-4">
-              <span className="mt-0.5 inline-flex h-8 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
-                {item.minutes} min
-              </span>
-              <div>
-                <p className="font-display text-base font-medium">{item.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{item.purpose}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </Block>
-
-      <Block title="Partner contacts & deadlines">
-        <MeetingPrepPartners studentId={studentId} meetingDate={meetingDate} />
-      </Block>
-
-      <Block title="Questions to ask">
-        <BulletList items={agenda.questions_to_ask} studentId={studentId} category="team" />
-      </Block>
-
-      <Block title="What to bring as evidence">
-        <BulletList items={agenda.evidence_to_bring} studentId={studentId} category="team" />
-      </Block>
-
-      <Block title="Language that works">
-        <ul className="mt-2 space-y-3">
-          {agenda.language_that_works.map((s, i) => (
-            <li key={i} className="rounded-2xl border border-border/60 bg-card p-4 text-sm italic text-foreground/90">
-              "{s}"
-            </li>
-          ))}
-        </ul>
-      </Block>
-
-      <div className="mt-10 rounded-3xl border border-border/60 bg-card p-6 shadow-soft">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary">If things get stuck</p>
-        <p className="mt-3 font-display text-lg italic text-foreground/90">{agenda.if_things_get_stuck}</p>
-      </div>
-
-      <div className="mt-10 flex flex-wrap gap-3 print:hidden">
-        <Button onClick={onReset} variant="outline">Prep another meeting</Button>
-        <Button onClick={() => window.print()}>Print / save as PDF</Button>
-      </div>
-    </section>
-  );
-}
-
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mt-10">
-      <h2 className="font-display text-2xl font-medium tracking-tight">{toTitleCase(title)}</h2>
-      <div className="mt-4">{children}</div>
-    </div>
-  );
-}
-
-function BulletList({
-  items,
-  studentId,
-  category,
-}: {
-  items: string[];
-  studentId?: string | null;
-  category?: "family" | "team" | "educator" | "student" | "school";
-}) {
-  const addAction = useServerFn(createStudentActionItem);
-  return (
-    <ul className="mt-2 space-y-2 text-sm leading-relaxed text-muted-foreground">
-      {items.map((it, i) => (
-        <li key={i} className="flex items-start justify-between gap-3">
-          <div className="flex gap-2">
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-            <span>{it}</span>
-          </div>
-          {studentId && (
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  await addAction({
-                    data: {
-                      student_id: studentId,
-                      title: it.slice(0, 200),
-                      category: category ?? "team",
-                      priority: "medium",
-                    },
-                  });
-                  toast.success("Added to action items.");
-                } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "Could not add.");
-                }
-              }}
-              className="print:hidden shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted"
-            >
-              + Action
-            </button>
-          )}
-        </li>
-      ))}
-    </ul>
   );
 }

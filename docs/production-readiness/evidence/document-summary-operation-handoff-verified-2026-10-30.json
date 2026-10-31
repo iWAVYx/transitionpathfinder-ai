@@ -1,0 +1,34 @@
+{
+  "schema": "document-summary-operation-handoff-verified-v1",
+  "date": "2026-10-30",
+  "verified_source": "363ad8c2de7476cc2fa09e5d147df8458cdb3ec5",
+  "automatic_checks": {
+    "successes": 9,
+    "failures": 0,
+    "pending": 0
+  },
+  "native_each": {
+    "tests": 908,
+    "passed": 908,
+    "failed": 0,
+    "skipped": 0,
+    "canonical_migrations": 225,
+    "noncanonical_controls": 6
+  },
+  "proof_artifacts": [
+    {
+      "path": "docs/production-readiness/evidence/document-summary-operation-handoff-proof-41125624659-2026-10-30.json",
+      "sha256": "3df285e381db17e6d12277921fae025b613d10ada054927ae76819ede448ace0",
+      "run": 41125624659
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-summary-operation-handoff-proof-41125616202-2026-10-30.json",
+      "sha256": "3df285e381db17e6d12277921fae025b613d10ada054927ae76819ede448ace0",
+      "run": 41125616202
+    }
+  ],
+  "artifact_scope": "Standalone database stage; worker_handler_wired:false in these immutable artifacts is not a statement about the later prepared worker consumer or a hosted deployment.",
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

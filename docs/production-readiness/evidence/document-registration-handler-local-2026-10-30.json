@@ -1,0 +1,77 @@
+{
+  "schema": "document-registration-handler-local-v1",
+  "date": "2026-10-30",
+  "source_base": "272c637f38803da965fcff060885b48f9a7b6b9d",
+  "status": "Locally verified prepared registration handler; not hosted or activated",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-upload-intent.ts",
+      "sha256": "f82cc0148b4e8bb47d1375cbba0a9792d0cc6bd2fb65a8550e85f5a2477f1b13"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "86b0c637bc3c59fe87db820a63acc4d70a063761bc24acb1c1ae440311e78a62"
+    },
+    {
+      "path": "src/lib/document-registration-source.server.ts",
+      "sha256": "82aae6ca86126a7ce0e5319cf1b33bbc6e683a0008f6f11bb8deb2f16d4bbc57"
+    },
+    {
+      "path": "tests/unit/document-registration-boundary.test.ts",
+      "sha256": "5dd2ef537b417db63d8b5706c4279644cb4319755267d72fc700890dbbbb1267"
+    },
+    {
+      "path": "tests/unit/document-registration-scan-receipt.test.ts",
+      "sha256": "1f86480cd8585b705271971d3945373162fdc1e2d2ae4c09786ecb0c9e2819d4"
+    },
+    {
+      "path": "tests/unit/document-registration-source.test.ts",
+      "sha256": "1f16aa37e4da56abc33a756949612ed77682fc4ade778acac0ae0355bcc37545"
+    },
+    {
+      "path": "tests/unit/family-document-upload-outcomes.test.tsx",
+      "sha256": "758275172bb8f17c42a381c8daf200a5e3d225029d4e21067409141e8c588e80"
+    },
+    {
+      "path": "tests/student-document-malware-gate.test.mjs",
+      "sha256": "9fb77828fdcf9656ae7090d832a5936e248a83093dc1c1f2f0a837087ff0cac1"
+    }
+  ],
+  "validation": {
+    "unit_tests": 5609,
+    "unit_files": 357,
+    "typescript": "passed",
+    "safety_contracts": 92,
+    "isolated_staging_build": "passed",
+    "automatic_checks": "pending for this candidate",
+    "prior_adapter_candidate": "272c637f passed all eight applicable automatic checks"
+  },
+  "application_runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "dcd5f7ec84e32de379099724ebd1144f80cce5262b63b803a3fb0c2283d75faf",
+    "files": 1204
+  },
+  "behavior": [
+    "Requires loaded current-viewer UUID, supported text MIME and bounded positive size before work.",
+    "Current edit/non-partner role checks and reserved review identity precede the private one-use claim. No caller receipt or new operation supplied.",
+    "Lost/foreign/malformed claim cannot cause file IO, provider work or finish.",
+    "Caller-authorized object identity/version/size and actual held Blob hash checked before insert and use; exact same Blob supplies type checking and scanner.",
+    "Current caller-RLS document source metadata and visibility rechecked around scan and queue; source/revision/status/object filters guard result writes.",
+    "Only exact persisted clean scan plus exact queued summary, or confirmed infected quarantine, may finish completed. Type mismatch and all other scanner uncertainty retain pending work with needs-review.",
+    "Failed callback marks needs-review at most once. Uncertain completed response never retries or returns saved success; existing browser recovery can only read a completed interval through the reviewed database proposal."
+  ],
+  "registration_handler_wired_in_prepared_source": true,
+  "hosted_verified": false,
+  "provider_calls": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "limitations": [
+    "Four noncanonical control proposals remain unapplied and must not be installed without coherent reviewed handler release.",
+    "Physical Storage/provider integration and provider-quiescence proof remain unverified.",
+    "Browser reload/session interruption, active-registered and retained-work bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled callers remain open.",
+    "A changed saved revision conservatively holds work; no automatic reattachment, expiry or release.",
+    "Full canonical/ledger packaging and fresh authorized hosted acceptance remain required."
+  ]
+}

@@ -1,0 +1,506 @@
+{
+  "date": "2026-10-29",
+  "schema": "document-operation-integration-plan-v1",
+  "status": "Registration stage native/full225+9 verified. Tenth private rescan source/capacity claim prepared; native/full225+10 confirmation and pending/completion/settlement/app integration remain open.",
+  "source_base": "35b2d4de",
+  "adapter": "src/lib/document-operation-admission.server.ts",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-operation-admission.server.ts",
+      "sha256": "5d990ab99ce2248f16b7c6bcb541e5c1b39c63a3f3614609a5024cea91b4b425"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "2449e83eaa6ef7705c9b50f3f092de00df794ec0fe80477250bc4e0ccf632c16"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458"
+    },
+    {
+      "path": "src/lib/document-upload-reservation.server.ts",
+      "sha256": "ca6c746834e2deca8524ea47a37f39a2a16f2d2ffe46f6ae65746d58a3e9bf80"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.tsx",
+      "sha256": "02f23b8b6e2be6bd16eb1ca14d76429dd0ce45ba3195f656782cf00686133801"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
+      "sha256": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+      "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a"
+    },
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+      "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
+    },
+    {
+      "path": "src/lib/document-upload-registration-operation.server.ts",
+      "sha256": "5729e6b88578e81133203ca130038eeaeca64cb267a7035c43ef3f357db0b984"
+    },
+    {
+      "path": "src/lib/document-upload-intent.ts",
+      "sha256": "f82cc0148b4e8bb47d1375cbba0a9792d0cc6bd2fb65a8550e85f5a2477f1b13"
+    },
+    {
+      "path": "src/lib/document-registration-source.server.ts",
+      "sha256": "82aae6ca86126a7ce0e5319cf1b33bbc6e683a0008f6f11bb8deb2f16d4bbc57"
+    },
+    {
+      "path": "src/lib/document-upload-interruption.ts",
+      "sha256": "074dd1d6d7256dd3e4220879af1ed2ff5852264ca75c8942c241c3dd19af629f"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "c0bf5717356ef915a92408135b760b8dd5d5583315e0fa020edb384cb2f41f45"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+      "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
+      "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
+    }
+  ],
+  "adapter_contract": {
+    "scope": "Fresh single service-side callback invocation only; no public server endpoint, default bypass flag, database control activation or work-recovery capability.",
+    "before_work": "Validate server actor/kind, generate a fresh operation UUID, issue one begin RPC and validate its exact schema/identity/token/safe integer revision. Error-bearing, missing, foreign or malformed reply means no work and no finish attempt. An uncertain begin can leave a durable active receipt.",
+    "after_work": "Successful callback means its caller has independently confirmed the operation-specific result. Issue one completed finish and validate exact operation/state. Lost or invalid completion may already have committed; no second finish, uncertainty rewrite, result return or replay.",
+    "failed_work": "Issue at most one needs_review finish with the known receipt. If marking fails, leave active work counted. Surface a generic safe error; never expose private/provider text, raw causes or receipts.",
+    "unfinished_work": "No automatic timeout, expiry, cleanup or early completion. Callback/process failure cannot establish that external work stopped.",
+    "privilege_boundary": "Service client is used only for begin/finish RPCs and is not passed to callbacks. Each handler must continue using its existing caller-RLS client and current authorization/source checks for private data. Admission is not student access.",
+    "refusal_classification": "A callback may resolve a confirmed negative domain result only when that handler can prove work is settled. Never convert an unknown network/provider/save outcome to a confirmed result. Present generic errors without treating them as permission/source proof."
+  },
+  "integration_targets": [
+    {
+      "target": "reservation and direct browser upload interval",
+      "implemented": false,
+      "requirements": [
+        "Admission must span reviewed reservation through actual browser upload and registration, including reload/session changes and interrupted requests.",
+        "The fresh-call adapter cannot reattach a receipt across requests. Prepare a separately reviewed actor/attempt/kind/source-bound continuation protocol; do not pass service credentials to the browser or invent receipt recovery.",
+        "Do not mark the interval complete at reservation response or from client 404/timeout/metadata observations."
+      ],
+      "status": "Database interval, registration continuation, tab-local completed-only recovery and registered-unsettled quota correction are prepared. General held-work bounds, trusted reconciliation and native/hosted lifecycle acceptance remain open."
+    },
+    {
+      "target": "register",
+      "implemented": true,
+      "requirements": [
+        "Establish expected viewer, current edit/source permission and fixed server operation kind before admission.",
+        "Keep existing byte-copy/fingerprint/scan/registration/source receipt checks and caller-RLS data writes.",
+        "Keep a confirmed queued summary separate from completed summary processing. Do not clear an interval merely because an enqueue was attempted."
+      ],
+      "status": "Wired and locally verified in prepared source only; current viewer/source, same-copy/scan/queue receipts and one-use completion protocol. Hosted activation remains open."
+    },
+    {
+      "target": "rescan",
+      "implemented": true,
+      "status": "Locally verified prepared source only; exact-source automatic checks and all hosted activation remain open",
+      "requirements": [
+        "Current loaded viewer, protected upload gate and caller/source authority before admission.",
+        "File IO, same-copy hash/version confirmation, provider request, conditional scan receipts and exact queue receipt inside the confirmed rescan operation.",
+        "Non-infected provider uncertainty leaves pending work and a needs_review hold; no auto-retry, expiration, removal or success.",
+        "Complete retained-hold limits/reconciliation, legacy/writer review, canonical/ledger packaging and authorized hosted proof before activation."
+      ]
+    },
+    {
+      "target": "reviewed Apply",
+      "implemented": true,
+      "requirements": [
+        "Required loaded-viewer intent and caller-RLS authority/source prechecks precede metadata admission.",
+        "Retained invoker atomic save has a separately proposed transaction-held pause fence; exact old body plus only the gate lock is parity tested.",
+        "Null-data SQL42501/55000 refusals close tracked work but return a safe failure; all uncertain outcomes retain holds with no replay.",
+        "Prepare final canonical/ledger package, coherent client refresh and separately authorized hosted migration/application/DB/UI acceptance before activation."
+      ],
+      "status": "verified prepared source: both native716/716, nine automatic checks,5370 unit tests and both builds pass; not deployed or accepted hosted"
+    },
+    {
+      "target": "separate summary worker",
+      "implemented": true,
+      "requirements": [
+        "Use separate worker-local adapter with exact protocol parity; no imports outside worker release package.",
+        "Verified current claim/source/actor precedes admission; recheck current source after admission before file/provider IO.",
+        "Keep generation and guarded completion inside admitted work; retain all unknown outcomes without retry, cleanup or false finish.",
+        "Fence/account pre-admission claim/binding metadata, held jobs, old workers and outstanding provider work separately; finish canonical/ledger and authorized actual-worker acceptance before activation."
+      ],
+      "status": "Local source/file/provider/save admission verified; claim/source-binding metadata handoff and hosted activation remain open"
+    }
+  ],
+  "activation_gates": [
+    "Review and integrate every relevant shared handler and direct/scheduled entry point; default-paused SQL alone does not cover old code.",
+    "Review retained-operation abuse/admission limits and a separately authorized manual reconciliation path; do not let routine invalid/stale requests create unbounded permanent global resume blockers.",
+    "Canonical/ledger/data review, compatible application plus separate worker cutover, old-runtime/provider drain and fresh bounded acceptance remain required.",
+    "Keep management-only Owner semantics and all existing role/student permissions. Demo remains no-upload/no-persistence/no-provider."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false,
+  "adapter_verified_source": "b88a024a79630723e9150da004b80632a983d156",
+  "adapter_verification": "Eight applicable automatic checks, both builds,5334 unit tests/350 files,40 focused cases, TypeScript and local capped build pass. Automatic cumulative PR database check also passes694/694 and225 canonical plus admission proposal; SQL unchanged. No handler integration or hosted activation.",
+  "apply_integration_review": "docs/production-readiness/proposals/document-apply-admission-review.json",
+  "apply_verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
+  "rescan_completion_preparation": {
+    "date": "2026-10-30",
+    "status": "Prepared local prerequisite; rescan admission remains unimplemented",
+    "changes": [
+      "Require a confirmed pending transition from the exact failed, nondeleted document revision before scan submission.",
+      "Match document/student/path/pending revision for clean and quarantine writes; confirm returned outcome before continuing.",
+      "Require an exact summary queue receipt; uncertain insert is not retried and does not report success."
+    ],
+    "remaining": [
+      "Account/source-copy checks now prepared separately; see rescan_source_preparation. No hosted verification.",
+      "Integrate rescan with durable pause/admission and uncertain-provider reconciliation; a failed scanner reply is not proof that provider work stopped.",
+      "Complete reservation/register/browser interval and separate worker coverage; retain held-operation limits and authorized manual reconciliation."
+    ],
+    "evidence": "docs/production-readiness/evidence/document-rescan-receipts-local-2026-10-30.json",
+    "hosted_actions": false
+  },
+  "rescan_source_preparation": {
+    "date": "2026-10-30",
+    "status": "Account/source checks prepared and locally verified; durable rescan admission remains open",
+    "evidence": "docs/production-readiness/evidence/document-rescan-source-local-2026-10-30.json",
+    "remaining": [
+      "Durable rescan admission now prepared separately; see rescan_admission_preparation. Retained-hold limits/manual reconciliation remain open.",
+      "Review transaction-held authority/writer fences and legacy/provider drain.",
+      "Authorize and verify real isolated Storage/version/bytes behavior before activation."
+    ],
+    "hosted_actions": false
+  },
+  "rescan_admission_preparation": {
+    "date": "2026-10-30",
+    "implemented_in_prepared_source": true,
+    "hosted_verified": false,
+    "scope": "Caller/viewer/source metadata preflight before admission; same-copy download and scan/conditional outcome/queue receipt checks stay inside the admitted callback. Confirmed quarantine or clean-plus-queued results settle only this rescan; summary processing is separate.",
+    "uncertainty": "Any non-infected negative scanner result leaves the document pending and marks the operation needs_review. Missing/lost begin runs no file work. Uncertain queue/finish never retries or reports success.",
+    "remaining": [
+      "Retained-hold abuse/limits and separately authorized manual reconciliation.",
+      "Legacy/direct/service-writer and transaction-held authority fences; physical Storage/provider proof.",
+      "Register/browser interval and separately packaged Deno worker integration, final canonical/ledger packaging and bounded hosted acceptance."
+    ],
+    "evidence": "docs/production-readiness/evidence/document-rescan-admission-local-2026-10-30.json"
+  },
+  "summary_worker_admission_preparation": {
+    "implemented_in_prepared_source": true,
+    "hosted_verified": false,
+    "claim_binding_handoff_fenced": true,
+    "worker_package": {
+      "schema": "document-summary-worker-manifest-v1",
+      "algorithm": "sha256",
+      "fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+      "method": "sha256(schema + NUL + compact UTF-8 JSON manifest with path,sha256 keys; manifest sorted by path)",
+      "files": 4,
+      "source_manifest": [
+        {
+          "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+          "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+        },
+        {
+          "path": "supabase/functions/ai-job-processor/index.ts",
+          "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+        },
+        {
+          "path": "supabase/functions/ai-job-processor/sensitive-text-redaction.ts",
+          "sha256": "e491c0db74f00433269e42dba3905ce346b0588b961f6987d31bb70d9a15adbf"
+        },
+        {
+          "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+          "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a"
+        }
+      ]
+    },
+    "evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
+    "remaining": [
+      "Reserve queued capacity and bound active/held work together; a counted queue item must drain without duplicate admission or starvation.",
+      "Trusted manual reconciliation, old/direct/scheduled workers, source/writer fences and physical provider/drain proof.",
+      "Exact-source CI, coordinated canonical/ledger and separate worker/application packaging, freshly authorized hosted acceptance."
+    ],
+    "scope": "Current prepared document-summary dispatcher only; old/direct/scheduled sources and hosted wiring are not verified.",
+    "current_handoff_evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
+    "previous_fresh_admission_evidence": "docs/production-readiness/evidence/document-summary-worker-admission-local-2026-10-30.json"
+  },
+  "upload_pause_fence_preparation": {
+    "implemented_in_proposal": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "browser_interval_tracked": false,
+    "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-pause-fence-local-2026-10-30.json",
+    "remaining": [
+      "Hosted browser interruption/reload/session acceptance around the prepared tab-local reminder and completed-only recovery.",
+      "Physical provider/queue acceptance and retained-work bounds/manual reconciliation.",
+      "Physical Storage/provider proof, legacy/direct/scheduled work, final canonical/ledger packaging and fresh authorized hosted acceptance."
+    ]
+  },
+  "upload_interval_preparation": {
+    "implemented_in_proposal": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "registration_handler_wired": true,
+    "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-interval-local-2026-10-30.json",
+    "remaining": [
+      "Hosted interruption/reload/session and cross-tab/device quota acceptance; broader held-operation limits with trusted manual reconciliation.",
+      "Broader held-operation bounds/manual reconciliation, worker metadata handoff and legacy/direct/scheduled provider drain.",
+      "Physical Storage/provider proof, final canonical/ledger packaging and fresh authorized hosted acceptance."
+    ],
+    "scope": "Wired in prepared local source only; retained native SQL artifacts describe the earlier database-only stage and remain unchanged."
+  },
+  "registration_continuation_adapter": {
+    "prepared": true,
+    "path": "src/lib/document-upload-registration-operation.server.ts",
+    "handler_wired": true,
+    "evidence": "docs/production-readiness/evidence/document-registration-continuation-local-2026-10-30.json",
+    "scope": "One service-only claim of the existing reservation; strict bound metadata receipt; no token to work/browser; uncertain claim means no IO or finish; one finish after validated work; no retry or recovery reattachment.",
+    "hosted_verified": false,
+    "handler_evidence": "docs/production-readiness/evidence/document-registration-handler-local-2026-10-30.json"
+  },
+  "interruption_reminder": {
+    "prepared": true,
+    "hosted_verified": false,
+    "authoritative": false,
+    "scope": "Tab-local viewer/student reminder; attempt UUID only; no content or capability persistence. One current-caller completed-only read check, no upload/scan/admission replay or absence-based clearing.",
+    "evidence": "docs/production-readiness/evidence/document-upload-interruption-local-2026-10-30.json",
+    "remaining": [
+      "Server-side registered-unsettled cap correction prepared separately; native/hosted cross-tab/device acceptance and general held-work limits/trusted manual reconciliation remain open.",
+      "Browser closure/storage loss and physical hosted lifecycle/provider acceptance."
+    ]
+  },
+  "retained_upload_limits_preparation": {
+    "prepared": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "actor_limit": 5,
+    "student_limit": 10,
+    "registered_unsettled_counted": true,
+    "review": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
+    "evidence": "docs/production-readiness/evidence/document-upload-retained-limits-local-2026-10-30.json",
+    "remaining": [
+      "General-operation retained/held-work bounds and trusted manual reconciliation.",
+      "Physical/provider/legacy writer and hosted acceptance proof, final canonical/ledger packaging."
+    ],
+    "owner_correction_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-owner-correction-2026-10-30.json",
+    "verified_source": "f40a9ba47a1c598d7af605aae2660d5b24944d92",
+    "verified_prepared_source": true,
+    "verification_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-verified-2026-10-30.json",
+    "verification": "All nine applicable checks, both867/867 native zero-skip suites, both complete225+five-proposal replays; quota hash/path and distinct owners verified in retained artifacts."
+  },
+  "summary_operation_handoff_preparation": {
+    "prepared_database_foundation": true,
+    "canonical": false,
+    "hosted_verified": false,
+    "review": "docs/production-readiness/proposals/document-summary-operation-handoff-review.json",
+    "evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-local-2026-10-30.json",
+    "worker_handler_wired": true,
+    "legacy_reader_paths_fenced": false,
+    "queue_budget_reservation_implemented": false,
+    "general_operation_limits_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "remaining": [
+      "Reserve queued capacity and bound active/held work together; a counted queue item must drain without duplicate admission or starvation.",
+      "Trusted manual reconciliation, old/direct/scheduled workers, source/writer fences and physical provider/drain proof.",
+      "Exact-source CI, coordinated canonical/ledger and separate worker/application packaging, freshly authorized hosted acceptance."
+    ],
+    "worker_wiring_scope": "Prepared source only; standalone database proof artifacts preserve their database-only false flag and hosted wiring remains unverified.",
+    "worker_evidence": "docs/production-readiness/evidence/document-summary-worker-handoff-local-2026-10-30.json",
+    "database_verified_source": "363ad8c2de7476cc2fa09e5d147df8458cdb3ec5",
+    "database_verification_evidence": "docs/production-readiness/evidence/document-summary-operation-handoff-verified-2026-10-30.json"
+  },
+  "capacity_transfer_preparation": {
+    "status": "Design/model complete; enforcement not implemented",
+    "design": "docs/production-readiness/proposals/document-capacity-transfer-design.json",
+    "evidence": "docs/production-readiness/evidence/document-capacity-transfer-design-local-2026-10-30.json",
+    "offline_model": "tests/document-capacity-transfer-model.test.mjs",
+    "offline_tests": 18,
+    "enumerated_accounting_states": 197,
+    "scope": "Capacity reservation must precede producer work and transfer one counted obligation through exact queue and worker bindings. At-cap drain never bypasses pause/current authority.",
+    "numeric_policy_selected": false,
+    "general_operation_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "next": "Coupled producer/queue/claim/settlement SQL plus shared-role adapter integration; no standalone generic cap."
+  },
+  "capacity_ledger_foundation_preparation": {
+    "date": "2026-10-31",
+    "status": "Dormant private SQL foundation prepared; no application enforcement or safe settlement yet",
+    "proposal": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+    "review": "docs/production-readiness/proposals/document-capacity-ledger-foundation-review.json",
+    "evidence": "docs/production-readiness/evidence/document-capacity-ledger-foundation-local-2026-10-31.json",
+    "private_ledger_foundation_prepared": true,
+    "owner_internal_only": true,
+    "numeric_policy_selected": false,
+    "runtime_hooks_installed": false,
+    "settlement_implemented": false,
+    "general_application_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "required_next": [
+      "Derive exact registration/rescan/Apply source identity and reserve both units in their admission transaction before IO; exact existing reservation retry must not reserve again.",
+      "Replace raw queue writes with exact source-bound queue insertion and ledger transfer in one transaction. The internal counter alone verifies metadata identity, not producer document/source authority.",
+      "Acquire the common capacity fence before the atomic worker claim, then transfer its exact existing obligation in the same transaction; no second capacity slot or capability recovery.",
+      "Add exact source/domain/operation-bound producer and summary settlement. Never free an unknown/held result through status, clock, deletion, a caller flag or ordinary finish.",
+      "Fence legacy/direct starts, choose reviewed finite ceilings, prove native races and full225+seven replay, then review final canonical/ledger packaging and freshly authorized hosted acceptance."
+    ],
+    "verified_source": "496ad3695f23e5c8e983f87b01a55494fcc8a0d9",
+    "verification_evidence": "docs/production-readiness/evidence/document-capacity-ledger-foundation-verified-2026-10-31.json"
+  },
+  "summary_capacity_settlement_preparation": {
+    "date": "2026-10-31",
+    "proposal": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-summary-capacity-settlement-review.json",
+    "evidence": "docs/production-readiness/evidence/document-summary-capacity-settlement-local-2026-10-31.json",
+    "status": "Summary-only guarded receipt/settlement prepared; no hosted activation or general application enforcement",
+    "summary_domain_receipt_prepared": true,
+    "summary_capacity_settlement_prepared": true,
+    "producer_apply_settlement_implemented": false,
+    "producer_worker_capacity_hooks_installed": false,
+    "general_application_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "required_next": [
+      "Source-bound guarded producer/Apply completion and quarantine/no-summary handling; never infer settlement from a typed lease/job status.",
+      "Atomic source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker transfer; preserve existing reserved retry, current caller authority and one reviewed lock order.",
+      "Native995-case races, full225+eight replay, exact private-grant/source parity and original-reader behavior; no hosted acceptance inferred from offline proof.",
+      "Legacy/direct/scheduled fencing, trusted held-work reconciliation, reviewed numeric policy, physical Storage/provider/drain acceptance and final canonical/ledger packaging before any freshly authorized hosted rollout."
+    ],
+    "verified_source": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
+    "verification_evidence": "docs/production-readiness/evidence/document-summary-capacity-settlement-verified-2026-10-31.json"
+  },
+  "registration_capacity_settlement_preparation": {
+    "date": "2026-10-31",
+    "proposal": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-registration-capacity-settlement-review.json",
+    "evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-local-2026-10-31.json",
+    "status": "Prepared registration completion and quarantine settlement verified in both full native/schema replays; no hosted activation or general application limits.",
+    "registration_finish_receipt_hook_prepared": true,
+    "registration_capacity_settlement_prepared": true,
+    "rescan_apply_settlement_implemented": false,
+    "source_bound_admission_queue_worker_hooks_installed": false,
+    "general_application_limits_implemented": false,
+    "queue_budget_reservation_implemented": false,
+    "manual_reconciliation_implemented": false,
+    "hosted_verified": false,
+    "required_next": [
+      "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
+      "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
+      "Verified native1054 and full225+all-nine replay; next select reviewed numeric ceilings and finish canonical/ledger packaging.",
+      "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
+    ],
+    "policy_compatibility_correction": {
+      "source": "a8ef79db312a719135d40362c00ec4a18d149e65",
+      "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json",
+      "local_verified": true,
+      "native_verified": true,
+      "runtime_function_or_permission_change": false,
+      "failed_native_runs": [
+        41220561351,
+        41220558801
+      ]
+    },
+    "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json",
+    "verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308"
+  },
+  "registration_owner_context_correction": {
+    "previous_source": "60dfc08b",
+    "native_tests_passed": 1052,
+    "native_skipped": 0,
+    "runs": [
+      41225935830,
+      41225933286
+    ],
+    "full_schema_failure": "225 canonical migrations replay; ninth proposal refuses replacing supabase_admin-owned finish as restricted postgres. No permission repair or owner transfer.",
+    "evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json",
+    "correction_prepared": true,
+    "native_full_replay_pending": false,
+    "rescan_work_blocked_until_replay_passes": false,
+    "native_full_replay_verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308",
+    "verified_runs": [
+      41229731209,
+      41229725871
+    ],
+    "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json"
+  },
+  "rescan_source_bound_capacity_next_step": {
+    "status": "Private source/capacity foundation now prepared; pending transition/completion and activation gates remain open",
+    "current_endpoint": "src/lib/documents.functions.ts: rescanDocument uses generic actor-only begin, downloads the reviewed copy, then conditionally claims failed->pending. Generic lease does not yet bind exact source/capacity.",
+    "required_sequence": [
+      "Before file IO, atomically validate current edit/view/non-partner authority plus exact failed document/student/revision, registered attempt, path/object/version/hash, text MIME and bounded positive size.",
+      "Use one common control/capacity lock order; create immutable private source binding and reserve both producer/summary units in the same transaction. One claim per exact failed revision; never attach a different source or return a private capability again after a lost reply.",
+      "Reject unresolved prior source-bound registration/rescan/provider work even if a later row says failed. An uncertain provider reply, status timestamp or expiry cannot authorize another scan; trusted reconciliation remains a separate prerequisite.",
+      "Download and hash the same authorized immutable copy only after a confirmed claim. Use a one-use source-bound pending transition before scanner dispatch; missing/lost/foreign transition receipt stops provider work.",
+      "Bind exact persisted outcome and counted queued summary before completion/settlement. Rescan completion must not fabricate registration proof or reuse registration-only settlement."
+    ],
+    "permissions": "Private owner-internal proposal first; no ordinary execution grants until source-bound server adapter and legacy-writer fences are reviewed together.",
+    "schema_fixture_note": "Disposable documents fixture lacks canonical size_bytes; model actual column/constraints before SQL source tests rather than dropping the size requirement.",
+    "implementation_complete": false,
+    "hosted_authorized": false
+  },
+  "rescan_source_continuation_preparation": {
+    "implemented_in_prepared_source": true,
+    "scope": "One-use preparation; pinned pending revision; any pending-check failure permanently stops the in-process continuation. All existing document-editor roles share this helper.",
+    "evidence": "docs/production-readiness/evidence/document-rescan-continuation-local-2026-10-31.json",
+    "cross_request_or_database_admission_complete": false,
+    "capacity_reservation_before_io_complete": false,
+    "hosted_verified": false,
+    "remaining": [
+      "Implement the reviewed private exact-source/failed-revision claim and both-unit capacity reservation before file IO; retain no-replay handling for lost claim replies.",
+      "Prepare a one-use exact-source pending transition before scanner dispatch and its separately source-bound outcome/queue/settlement receipts.",
+      "Do not bypass unresolved original registration or provider work because a row says failed. Trusted held-work reconciliation and legacy/direct writer fences remain prerequisites before activation."
+    ]
+  },
+  "rescan_source_bound_capacity_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+    "review": "docs/production-readiness/proposals/document-rescan-source-claim-review.json",
+    "evidence": "docs/production-readiness/evidence/document-rescan-source-claim-local-2026-10-31.json",
+    "private_source_and_two_unit_claim_prepared": true,
+    "ordinary_execution_or_endpoint_wiring": false,
+    "pending_transition_implemented": false,
+    "rescan_completion_settlement_implemented": false,
+    "native_full_schema_pending": true,
+    "remaining": [
+      "Verify native concurrent claim/pause cases and complete225+ten-proposal replay.",
+      "Prepare one-use exact-source pending transition before provider dispatch, source-bound outcome/exact queue/completion and conservative settlement.",
+      "Connect reviewed source-bound server adapter and all-kind admission/queue/worker hooks under existing permission boundaries only after trusted reconciliation and legacy/direct writer/physical provider gates are resolved.",
+      "Finish Apply, final canonical/ledger packaging and fresh authorization for coordinated isolated staging rollout and bounded acceptance."
+    ],
+    "hosted_authorized": false
+  }
+}

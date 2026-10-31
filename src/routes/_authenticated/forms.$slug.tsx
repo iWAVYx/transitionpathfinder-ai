@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -71,12 +72,8 @@ function FormDetailPage() {
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
           <h1 className="font-display text-2xl">We couldn't load this form</h1>
           <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
-          <Link
-            to="/forms"
-            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
-            ← Back to Forms
-          </Link>
+          <ContextualBackLink to="/forms" label="← Back to Forms"
+            className="mt-6 inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted" />
         </div>
       </SiteShell>
     );

@@ -1,0 +1,36 @@
+{
+  "schema": "document-upload-retained-limits-review-v1",
+  "date": "2026-10-30",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+    "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
+  },
+  "expected_previous_reservation_body_md5": "7521db3914d60d480c48cee8874f7b82",
+  "reservation_body_md5": "dc8972ceac29738817b32b74ad411e1b",
+  "scope": "Fifth noncanonical/unapplied control proposal; one replacement routine only. Earlier four proposals/artifacts remain unchanged.",
+  "actor_limit": 5,
+  "student_limit": 10,
+  "counted": [
+    "reserved",
+    "review_required",
+    "registered without exact completed actor/student/source-bound private register operation"
+  ],
+  "freed_only_by": "Existing guarded completion of the exact bound registration operation. No new finish/release/expiry path.",
+  "retained_semantics": [
+    "Advisory serialization, READ COMMITTED and fresh post-wait checks preserved.",
+    "Exact reserved retry does not create another claim and retains current checks.",
+    "Same generic refusal, existing private grants/owner/fixed path and token-free response.",
+    "No automatic expiry, deletion, reset, backfill or held-state completion.",
+    "Install only with paused control and empty reviewed upload/work state; drift refuses without repair."
+  ],
+  "manual_reconciliation_implemented": false,
+  "general_operation_limits_implemented": false,
+  "hosted_execution_authorized": false,
+  "production_access_authorized": false,
+  "ready_for_cutover": false,
+  "ownership_policy": {
+    "upload_routines_and_binding_table": "Preserve the existing migration executor owner.",
+    "begin_finish_and_control_lease_tables": "Preserve coherent existing admission ownership, which can differ from migration executor.",
+    "ownership_transfer_or_automatic_repair": false
+  }
+}

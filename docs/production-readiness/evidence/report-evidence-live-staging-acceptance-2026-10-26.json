@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-26",
+  "status": "bounded staging text-evidence functional/private-access/cleanup acceptance passed",
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40434461119",
+  "source_commit": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
+  "application_commit": "124bbfa46cd2a261b1fc6d1ad904d5038ed816e4",
+  "fingerprint": "c95a008f5ae678a66311b906fffd8983ca790f9fb6738c24daa60f4a906ae5c8",
+  "runtime_source_file_count": 1190,
+  "authorization_consumed": true,
+  "automatic_repeat_authorized": false,
+  "existing_role_signins_passed": 7,
+  "existing_role_signins_duration_seconds": 31.6,
+  "bounded_cases_passed": 2,
+  "bounded_cases_duration_seconds": 47.7,
+  "workflow_total_duration": "8m49s including human-review wait/setup",
+  "test_retries": 0,
+  "actual_bounds": {
+    "students_created_and_deleted": 2,
+    "links_created_and_deleted": 10,
+    "extraction_actions": 2,
+    "duplicate_only_rpc_checks": 2,
+    "duplicate_rows_inserted": 0,
+    "other_role_cases": 12,
+    "student_read_denials": 12,
+    "evidence_read_denials": 12,
+    "empty_batch_rpc_denials": 12,
+    "screenshots": 2,
+    "uploads": 0,
+    "profile_saves": 0,
+    "intakes_reports_goals_versions_pdfs_shares": 0,
+    "new_accounts_relationships": 0
+  },
+  "provider_limit": "At most two model invocations/six SDK attempts under reviewed call-site retries. Gateway retries/billing not independently observed; not a spending cap. One observed completed200 browser POST per role is transport evidence, not a model/billing counter.",
+  "sanitization": {
+    "passed_before_download": true,
+    "unsafe_files_removed": 0
+  },
+  "roles": {
+    "parent": {
+      "result": {
+        "role": "parent",
+        "completed": true,
+        "extractionActions": 1,
+        "inserted": 5,
+        "duplicateInserted": 0,
+        "savedRowsUnchanged": true,
+        "otherRoleChecks": 6,
+        "manualMeaningReviewRequired": true
+      },
+      "caller_cleanup": {
+        "ownerId": "fee1b881-8d46-4375-949a-db15487af9dc",
+        "studentId": "88f6127d-d9a3-4f43-8d20-006870147955",
+        "marker": "QA Evidence 40434461119-1 parent",
+        "role": "parent",
+        "evidenceIds": [
+          "19a6c034-0d2f-4fa2-9096-8b0b592c463b",
+          "6103b0bc-0c30-493a-89f4-c98f12e31126",
+          "78e53bb6-b393-4929-83d0-e37037716eb4",
+          "8f6b762d-eb95-44a2-a9a4-424e9936889f",
+          "d504f4b9-b2ae-4dab-b42a-89bda23fa1e5"
+        ],
+        "callerVisibleCountsZero": true,
+        "independentPrivilegedAbsenceRequired": true
+      },
+      "independent_cleanup": {
+        "operator": "postgres",
+        "read_only": "on",
+        "run_marker": "QA Evidence 40434461119-1 parent",
+        "goals_count": 0,
+        "observed_at": "2026-10-27T01:56:23.389276+00:00",
+        "student_count": 0,
+        "documents_count": 0,
+        "action_items_count": 0,
+        "evidence_items_count": 0,
+        "pathway_reports_count": 0,
+        "student_intakes_count": 0,
+        "readiness_scores_count": 0,
+        "ppt_meeting_preps_count": 0,
+        "student_guardians_count": 0,
+        "document_extractions_count": 0,
+        "student_team_members_count": 0,
+        "report_evidence_links_count": 0,
+        "student_collaborators_count": 0,
+        "student_relationships_count": 0,
+        "bridgeforward_profiles_count": 0,
+        "student_saved_partners_count": 0,
+        "high_school_fit_reviews_count": 0,
+        "student_voice_responses_count": 0,
+        "student_opportunity_matches_count": 0,
+        "student_resource_recommendations_count": 0,
+        "bridgeforward_readiness_snapshots_count": 0
+      },
+      "transport": {
+        "phase": "complete",
+        "uncertainCompletion": false,
+        "primaryFailureKind": "unknown",
+        "failedPostStatuses": [],
+        "failedPostRequests": 0,
+        "postResponseStatuses": [
+          200
+        ],
+        "startedPostRequests": 1,
+        "finishedPostRequests": 1,
+        "pendingPostRequests": 0
+      },
+      "fictional_source_review": {
+        "role": "parent",
+        "items": [
+          {
+            "section": "questions_for_team",
+            "note": "AI-extracted (high): Longitudinal progress data and verified program placements were not supplied for this report; the team should confirm these records."
+          },
+          {
+            "section": "snapshot",
+            "note": "AI-extracted (medium): Current supports and accommodations reported include written directions and a quiet workspace. Text-to-speech is listed as assistive technology, though actual use has not been observed."
+          },
+          {
+            "section": "readiness",
+            "note": "AI-extracted (high): The family reports a baseline of two familiar routine steps with a written checklist and one verbal prompt as of October 1, 2026."
+          },
+          {
+            "section": "student_voice",
+            "note": "AI-extracted (high): The student reports an interest in animal care and art, according to middle school planning notes."
+          },
+          {
+            "section": "snapshot",
+            "note": "AI-extracted (high): Proposed target: A four-step routine is a proposed draft not yet adopted by the team and does not reflect measured progress at this time."
+          }
+        ],
+        "manualMeaningReviewRequired": true
+      }
+    },
+    "educator": {
+      "result": {
+        "role": "educator",
+        "completed": true,
+        "extractionActions": 1,
+        "inserted": 5,
+        "duplicateInserted": 0,
+        "savedRowsUnchanged": true,
+        "otherRoleChecks": 6,
+        "manualMeaningReviewRequired": true
+      },
+      "caller_cleanup": {
+        "ownerId": "d606bc69-8605-4e84-904d-dcc7632fa595",
+        "studentId": "68ca77db-c5fb-4e92-ad26-ba829469b1c5",
+        "marker": "QA Evidence 40434461119-1 educator",
+        "role": "educator",
+        "evidenceIds": [
+          "1886b567-736c-4bf3-9f85-154b6fe68f16",
+          "9753b092-18d4-4fc0-8785-8a707701a416",
+          "b182c447-ecf2-4ad1-a1ba-55019b7fac9f",
+          "fb0095b0-9126-4e77-903a-fa77371b7d72",
+          "fea6830e-19b2-482e-b33e-5e110e0e7a32"
+        ],
+        "callerVisibleCountsZero": true,
+        "independentPrivilegedAbsenceRequired": true
+      },
+      "independent_cleanup": {
+        "operator": "postgres",
+        "read_only": "on",
+        "run_marker": "QA Evidence 40434461119-1 educator",
+        "goals_count": 0,
+        "observed_at": "2026-10-27T01:56:53.465178+00:00",
+        "student_count": 0,
+        "documents_count": 0,
+        "action_items_count": 0,
+        "evidence_items_count": 0,
+        "pathway_reports_count": 0,
+        "student_intakes_count": 0,
+        "readiness_scores_count": 0,
+        "ppt_meeting_preps_count": 0,
+        "student_guardians_count": 0,
+        "document_extractions_count": 0,
+        "student_team_members_count": 0,
+        "report_evidence_links_count": 0,
+        "student_collaborators_count": 0,
+        "student_relationships_count": 0,
+        "bridgeforward_profiles_count": 0,
+        "student_saved_partners_count": 0,
+        "high_school_fit_reviews_count": 0,
+        "student_voice_responses_count": 0,
+        "student_opportunity_matches_count": 0,
+        "student_resource_recommendations_count": 0,
+        "bridgeforward_readiness_snapshots_count": 0
+      },
+      "transport": {
+        "phase": "complete",
+        "uncertainCompletion": false,
+        "primaryFailureKind": "unknown",
+        "failedPostStatuses": [],
+        "failedPostRequests": 0,
+        "postResponseStatuses": [
+          200
+        ],
+        "startedPostRequests": 1,
+        "finishedPostRequests": 1,
+        "pendingPostRequests": 0
+      },
+      "fictional_source_review": {
+        "role": "educator",
+        "items": [
+          {
+            "section": "student_voice",
+            "note": "AI-extracted (high): The student reports an interest in animal care and art according to family/student intake notes."
+          },
+          {
+            "section": "plan_30_60_90",
+            "note": "AI-extracted (medium): A four-step routine target is a proposed draft. This has not been adopted by the team and does not represent measured progress."
+          },
+          {
+            "section": "snapshot",
+            "note": "AI-extracted (high): Listed supports and accommodations include written directions and a quiet workspace. Text-to-speech is listed as assistive technology, though actual use has not been observed."
+          },
+          {
+            "section": "documents",
+            "note": "AI-extracted (medium): No longitudinal progress data or verified program placement is provided in the current source material."
+          },
+          {
+            "section": "readiness",
+            "note": "AI-extracted (high): The family reports a baseline of two familiar routine steps with a written checklist and one verbal prompt as of October 1, 2026."
+          }
+        ],
+        "manualMeaningReviewRequired": true
+      }
+    }
+  },
+  "manual_review": {
+    "reviewer": "Codex manual review of both fictional source excerpts and all ten saved snippets",
+    "baseline": "Both roles retain the family-reported two familiar steps, written checklist, one verbal prompt and October1,2026 source date.",
+    "target": "Both roles identify four steps as a proposed/draft target not adopted by the team and not measured progress.",
+    "supports": "Written directions and quiet workspace remain listed/reported supports. Both outputs say text-to-speech is listed and actual use has not been observed.",
+    "missing_data": "Both retain the absence of longitudinal progress data and verified program placement.",
+    "scope_limit": "Source consistency for two fictional English text cases only; not independent verification, every language, uploaded document/storage, goal-save or every role generation.",
+    "screenshots": "Functional desktop form artifacts. Textareas show their current internal scroll position; Educator toast expired before capture. Not full-document/mobile visual acceptance or a report-polish change."
+  },
+  "independent_cleanup": "Subsequent postgres/table-owner/read-only checks return all22 counts zero for each exact scope; no broad deletion or privileged cleanup workaround.",
+  "production_touched": false,
+  "remaining": [
+    "Goal extraction/save and uploaded/stored-document workflows",
+    "Arabic/right-to-left/remaining languages and every applicable role workflow",
+    "Full TF-01\u2013TF-26/six-milestone production gates",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot"
+  ]
+}

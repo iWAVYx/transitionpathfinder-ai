@@ -1,3 +1,4 @@
+import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -5,29 +6,31 @@ import { generateText, Output } from "ai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { redactSensitiveText } from "./sensitive-text-redaction";
+import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
 
 const InputSchema = z.object({
+  ...viewerIntentSchema.shape,
   text: z.string().trim().min(40, "Not enough text to read from.").max(120_000),
 });
 
 const ExtractSchema = z.object({
-  student_first_name: z.string().default(""),
+  student_first_name: z.string().trim().max(80).default(""),
   grade_band: z.enum(["6-8", "9-10", "11-12", "post-secondary", "not-applicable", ""]).default(""),
-  strengths: z.string().default(""),
-  interests: z.string().default(""),
-  needs: z.string().default(""),
-  supports: z.string().default(""),
-  transportation: z.string().default(""),
-  communication: z.string().default(""),
-  current_goals: z.string().default(""),
-  family_concerns: z.string().default(""),
-  student_voice: z.string().default(""),
-  educator_input: z.string().default(""),
-  assistive_technology: z.string().default(""),
-  accommodations: z.string().default(""),
-  services_received: z.string().default(""),
-  readiness_evidence: z.string().default(""),
-  evidence_source_dates: z.string().default(""),
+  strengths: z.string().trim().max(1500).default(""),
+  interests: z.string().trim().max(1500).default(""),
+  needs: z.string().trim().max(1500).default(""),
+  supports: z.string().trim().max(1500).default(""),
+  transportation: z.string().trim().max(1500).default(""),
+  communication: z.string().trim().max(1500).default(""),
+  current_goals: z.string().trim().max(1500).default(""),
+  family_concerns: z.string().trim().max(1500).default(""),
+  student_voice: z.string().trim().max(1500).default(""),
+  educator_input: z.string().trim().max(1500).default(""),
+  assistive_technology: z.string().trim().max(1500).default(""),
+  accommodations: z.string().trim().max(1500).default(""),
+  services_received: z.string().trim().max(1500).default(""),
+  readiness_evidence: z.string().trim().max(1500).default(""),
+  evidence_source_dates: z.string().trim().max(1500).default(""),
 });
 
 export type IepExtract = z.infer<typeof ExtractSchema>;
@@ -35,7 +38,8 @@ export type IepExtract = z.infer<typeof ExtractSchema>;
 export const extractFromIep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const privacySafeText = redactSensitiveText(data.text).text;
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
@@ -55,24 +59,26 @@ Rules:
 - "readiness_evidence" = measurable transition-readiness performance, including prompting or conditions when stated.
 - "evidence_source_dates" = source labels and dates that are safe after redaction; omit identifying names and exact birth dates.
 - "grade_band" must be exactly one of: "6-8", "9-10", "11-12", "post-secondary", "not-applicable", or "" if unclear.
-- Keep each field under ~1500 characters.
+- Keep each narrative field at most 1500 characters and the first name at most 80 characters.
+- Preserve recorded baseline numbers, units, dates and prompting conditions. Distinguish a proposed target from a measured result or adopted goal; do not turn a reported observation into verified progress.
 
 IEP TEXT:
 """
-${privacySafeText.slice(0, 100_000)}
+${privacySafeText}
 """`;
 
     try {
       const { experimental_output } = await generateText({
         model: gateway("google/gemini-2.5-flash"),
         experimental_output: Output.object({ schema: ExtractSchema }),
-        system: await buildStructuredOutputSystem(ExtractSchema),
+        system: await buildStructuredOutputSystem(ExtractSchema, PLANNING_SOURCE_GROUNDING),
         prompt,
       });
       return { extract: ExtractSchema.parse(experimental_output) };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error("IEP extract failed", msg);
+      // Provider/schema errors can include private document text.
+      console.error("IEP extraction failed.");
       if (msg.includes("429"))
         throw new Error("The AI is busy right now. Please try again in a moment.");
       if (msg.includes("402"))

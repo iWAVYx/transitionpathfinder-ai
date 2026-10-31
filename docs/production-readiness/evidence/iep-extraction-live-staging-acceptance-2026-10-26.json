@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-26",
+  "status": "passed-with-explicit-scope-limits",
+  "run": 40374082334,
+  "source_revision": "e3d10dd870bd944bcc08b98bd2df017bf2cce927",
+  "existing_role_signins_passed": 7,
+  "bounded_cases_passed": 2,
+  "case_duration_seconds": 41.3,
+  "results": {
+    "parent": {
+      "role": "parent",
+      "completed": true,
+      "extractionActions": 1,
+      "privacyReviewRequired": true,
+      "savedStudentIntakeReportIdsUnchanged": true,
+      "noFixtureCreationOrCleanup": true,
+      "manualMeaningReviewRequired": true
+    },
+    "educator": {
+      "role": "educator",
+      "completed": true,
+      "extractionActions": 1,
+      "privacyReviewRequired": true,
+      "savedStudentIntakeReportIdsUnchanged": true,
+      "noFixtureCreationOrCleanup": true,
+      "manualMeaningReviewRequired": true
+    }
+  },
+  "transport": {
+    "parent": {
+      "phase": "complete",
+      "uncertainCompletion": false,
+      "primaryFailureKind": "unknown",
+      "failedPostStatuses": [],
+      "failedPostRequests": 0,
+      "postResponseStatuses": [
+        200,
+        202
+      ],
+      "startedPostRequests": 2,
+      "finishedPostRequests": 2,
+      "pendingPostRequests": 0
+    },
+    "educator": {
+      "phase": "complete",
+      "uncertainCompletion": false,
+      "primaryFailureKind": "unknown",
+      "failedPostStatuses": [],
+      "failedPostRequests": 0,
+      "postResponseStatuses": [
+        200
+      ],
+      "startedPostRequests": 1,
+      "finishedPostRequests": 1,
+      "pendingPostRequests": 0
+    }
+  },
+  "transport_is_not_model_or_billing_count": true,
+  "review": {
+    "sampled_baseline_preserved": true,
+    "family_reported_attribution_preserved": true,
+    "one_verbal_prompt_and_written_checklist_preserved": true,
+    "proposed_four_step_target_not_adopted_preserved": true,
+    "source_date_preserved": true,
+    "listed_accommodations_and_technology_preserved": true,
+    "caveats": [
+      "Educator uses wording is stronger than merely listing documented assistive technology; no successful-use claim is accepted",
+      "Fictional pasted English material only; not real documents/all languages/legal verification",
+      "Caller ID lists unchanged, not a privileged or full-row audit",
+      "Screenshots have sticky-header overlap and textarea clipping; no new full-page/mobile visual acceptance"
+    ]
+  },
+  "sanitizer": {
+    "passed": true,
+    "unsafe_files_removed": 0
+  },
+  "budget": {
+    "actions": 2,
+    "model_invocations_max": 2,
+    "sdk_attempts_max": 6,
+    "gateway_retries_billing_observed": false,
+    "spending_cap": false,
+    "screenshots": 2,
+    "pdfs": 0,
+    "uploads": 0,
+    "fixtures_created_deleted": 0,
+    "test_retries": 0
+  },
+  "future_repeat_authorized": false,
+  "staging_fingerprint": "704262c570a44d5b431520cbfb4a37a8d1db8f00a28c04fa1bfbcef03f881513",
+  "staging_files": 1190,
+  "artifact_root": "/private/tmp/tf-iep-live-40374082334",
+  "production_changes": false
+}

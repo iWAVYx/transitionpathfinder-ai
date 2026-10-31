@@ -1,6 +1,8 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { existsSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
+import { cleanupLivePathwayExact } from "../helpers/pathway-live-exact-cleanup";
 
 import type { Database, Json } from "../../../src/integrations/supabase/types";
 import { ROLES, type RoleSpec } from "../helpers/roles";
@@ -17,7 +19,7 @@ const educator = ROLES.find((role) => role.key === "educator")!;
 const partner = ROLES.find((role) => role.key === "partner")!;
 const acceptanceRoles = [family, student, educator, partner];
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "serial", retries: 0 });
 test.skip(
   process.env.RUN_PATHWAY_LIVE_STAGING_QA !== "true",
   "manual protected-staging Pathway acceptance was not explicitly enabled",
@@ -36,9 +38,9 @@ let syntheticStudentId = "";
 let collaboratorId = "";
 let intakeId = "";
 let reportId = "";
+let fixtureSetupStarted = false;
 
-const rawRunId = process.env.PATHWAY_QA_RUN_ID?.trim() || "local-protected-run";
-const runId = rawRunId.replace(/[^a-zA-Z0-9-]/g, "-").slice(0, 36);
+const runId = process.env.PATHWAY_QA_RUN_ID?.trim() ?? "";
 const qaName = `${QA_NAME_PREFIX} ${runId}`;
 const qaMarker = `Synthetic staging Pathway acceptance ${runId}`;
 const qaCollaboratorEmail = `${QA_COLLABORATOR_PREFIX}${runId.toLowerCase()}@staging.transitionforwardct.test`;
@@ -56,46 +58,14 @@ async function profileId(email: string): Promise<string> {
 }
 
 async function deleteQaRows() {
-  if (!admin || !parentId) return;
-
-  const { data: intakes, error: intakeReadError } = await admin
-    .from("student_intakes")
-    .select("id")
-    .eq("user_id", parentId)
-    .like("student_first_name", `${QA_NAME_PREFIX} %`);
-  if (intakeReadError)
-    throw new Error(`Could not list Pathway QA intakes: ${intakeReadError.message}`);
-
-  const intakeIds = (intakes ?? []).map((row) => row.id);
-  if (intakeIds.length > 0) {
-    const { error: reportDeleteError } = await admin
-      .from("pathway_reports")
-      .delete()
-      .in("intake_id", intakeIds);
-    if (reportDeleteError)
-      throw new Error(`Could not remove Pathway QA reports: ${reportDeleteError.message}`);
-
-    const { error: intakeDeleteError } = await admin
-      .from("student_intakes")
-      .delete()
-      .in("id", intakeIds);
-    if (intakeDeleteError)
-      throw new Error(`Could not remove Pathway QA intakes: ${intakeDeleteError.message}`);
-  }
-
-  if (syntheticStudentId && educatorId) {
-    const { error: collaboratorDeleteError } = await admin
-      .from("student_collaborators")
-      .delete()
-      .eq("student_id", syntheticStudentId)
-      .eq("user_id", educatorId)
-      .like("invited_email", `${QA_COLLABORATOR_PREFIX}%@staging.transitionforwardct.test`);
-    if (collaboratorDeleteError) {
-      throw new Error(
-        `Could not remove the temporary Pathway QA collaborator: ${collaboratorDeleteError.message}`,
-      );
-    }
-  }
+  if (!admin || !parentId || !fixtureSetupStarted) return;
+  const receipt = await cleanupLivePathwayExact(admin, {
+    ownerId: parentId, studentId: syntheticStudentId, educatorId,
+    marker: qaName, collaboratorEmail: qaCollaboratorEmail, intakeId, reportId, collaboratorId,
+  }, async scope => {
+    await writeFile(test.info().outputPath("pathway-exact-cleanup-scope.json"), JSON.stringify({runId, ownerId: parentId, studentId: syntheticStudentId, educatorId, marker: qaName, collaboratorEmail: qaCollaboratorEmail, ...scope}, null, 2));
+  });
+  await writeFile(test.info().outputPath("pathway-exact-cleanup-result.json"), JSON.stringify({runId, ...receipt}, null, 2));
 }
 
 async function rolePage(browser: Browser, role: RoleSpec) {
@@ -137,6 +107,7 @@ function contentSummary(content: Json): string | null {
 }
 
 test.beforeAll(async () => {
+  if (!/^\d+-\d+$/.test(runId)) throw new Error("A unique protected Pathway run identity is required");
   const supabaseUrl = requiredEnv("STAGING_SUPABASE_URL");
   const serviceRoleKey = requiredEnv("STAGING_SUPABASE_SERVICE_ROLE_KEY");
   const supabaseHost = new URL(supabaseUrl).hostname;
@@ -175,8 +146,20 @@ test.beforeAll(async () => {
   }
   syntheticStudentId = syntheticStudent.id;
 
-  await deleteQaRows();
-
+  // An occupied marker is not permission to clean an earlier attempt.
+  const [priorIntakes, priorCollaborators] = await Promise.all([
+    admin.from("student_intakes").select("id").eq("user_id", parentId).eq("student_first_name", qaName).limit(1),
+    admin.from("student_collaborators").select("id").eq("student_id", syntheticStudentId).eq("invited_email", qaCollaboratorEmail).limit(1),
+  ]);
+  if (priorIntakes.error || priorCollaborators.error || !priorIntakes.data || !priorCollaborators.data ||
+    priorIntakes.data.length || priorCollaborators.data.length)
+    throw new Error("Current Pathway run marker is unavailable or already occupied; no fixtures started");
+  await writeFile(test.info().outputPath("pathway-planned-fixture-scope.json"), JSON.stringify({
+    runId, ownerId: parentId, studentId: syntheticStudentId, educatorId,
+    marker: qaName, collaboratorEmail: qaCollaboratorEmail,
+  }, null, 2));
+  fixtureSetupStarted = true;
+  // Never delete another run's fixtures before setup.
   const { data: collaborator, error: collaboratorError } = await admin
     .from("student_collaborators")
     .insert({

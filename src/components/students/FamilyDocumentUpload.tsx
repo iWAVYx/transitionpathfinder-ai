@@ -1,4 +1,8 @@
-import { useRef, useState } from "react";
+import { readUploadInterruption, rememberUploadInterruption, forgetCompletedUploadInterruption, confirmedInterruptedUploadOutcome } from "@/lib/document-upload-interruption";
+import { confirmDocumentUploadReservation } from "@/lib/document-upload-intent";
+import { documentUploadFingerprint } from "@/lib/document-upload-fingerprint";
+import { documentUploadOutcome, DOCUMENT_UPLOAD_UNCONFIRMED } from "@/lib/document-upload-outcome";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -40,6 +44,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   assertCanUploadForStudent,
   registerDocument,
+  reserveDocumentUpload,
+  recoverDocumentUpload,
+  recoverInterruptedDocumentUpload,
   type DocumentRow,
 } from "@/lib/documents.functions";
 import {
@@ -131,6 +138,7 @@ const GUIDANCE = [
 ];
 
 type Props = {
+  viewerId: string;
   studentId: string;
   studentFirstName: string | null;
   studentLastName?: string | null;
@@ -146,7 +154,14 @@ type Props = {
   canEdit?: boolean;
 };
 
-export function FamilyDocumentUpload({
+export function FamilyDocumentUpload(props: Props) {
+  // A new student, account or edit entitlement starts a fresh review session.
+  // Pending work from the previous session may finish, but cannot advance it.
+  return <FamilyDocumentUploadSession key={`${props.viewerId}:${props.studentId}:${props.canEdit === false ? "view" : "edit"}`} {...props} />;
+}
+
+function FamilyDocumentUploadSession({
+  viewerId,
   studentId,
   studentFirstName,
   studentLastName,
@@ -158,9 +173,53 @@ export function FamilyDocumentUpload({
   canEdit = true,
 }: Props) {
   const register = useServerFn(registerDocument);
+  const reserve = useServerFn(reserveDocumentUpload);
+  const recover = useServerFn(recoverDocumentUpload);
+  const recoverInterrupted = useServerFn(recoverInterruptedDocumentUpload);
   const assertCanUpload = useServerFn(assertCanUploadForStudent);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const active = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
+  const uploadPending = useRef(false);
+  // Start blocked until this tab's reminder has been checked after hydration.
+  const uploadUnconfirmed = useRef(true);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const interruptedAttempt = useRef<string | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+  const statusCheckPending = useRef(false);
+
+  async function checkInterruptedUpload(attempt: string) {
+    if (!active.current || statusCheckPending.current || !canEdit || !PROTECTED_FILE_UPLOADS_ENABLED) return;
+    statusCheckPending.current = true;
+    setCheckingStatus(true);
+    try {
+      const result = await recoverInterrupted({ data: { student_id: studentId, attempt_id: attempt, expected_viewer_id: viewerId } });
+      if (!active.current || interruptedAttempt.current !== attempt) return;
+      if (confirmedInterruptedUploadOutcome(result, viewerId, studentId, attempt) === "uncertain" ||
+          !forgetCompletedUploadInterruption(viewerId, studentId, attempt)) return;
+      interruptedAttempt.current = null;
+      uploadUnconfirmed.current = false;
+      setUnconfirmed(false);
+      try { await onChange(); } catch {
+        if (active.current) toast.error("The upload result is confirmed, but the document list couldn't be refreshed. Refresh this page to view its current status.");
+      }
+    } catch { /* No automatic replay or absence-based reset. Keep the reminder. */ }
+    finally { statusCheckPending.current = false; if (active.current) setCheckingStatus(false); }
+  }
+  useEffect(() => {
+    const previous = readUploadInterruption(viewerId, studentId);
+    uploadUnconfirmed.current = previous.state !== "clear";
+    setUnconfirmed(previous.state !== "clear");
+    interruptedAttempt.current = previous.state === "pending" ? previous.attemptId : null;
+    if (previous.state === "pending") void checkInterruptedUpload(previous.attemptId);
+    // The keyed component gives each viewer/student/access session its own
+    // lifetime. A departed session cannot clear this or the next session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewerId, studentId]);
   const [docType, setDocType] = useState<DocType>("current-iep");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
@@ -176,11 +235,17 @@ export function FamilyDocumentUpload({
   const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
   async function upload(file: File, consentAcknowledged = consent) {
+    if (!active.current || uploadPending.current || uploadUnconfirmed.current || !canEdit) return;
     if (!PROTECTED_FILE_UPLOADS_ENABLED) {
       toast.error(PROTECTED_FILE_UPLOADS_MESSAGE);
       return;
     }
-    assertPrivacySafeDerivedUpload(file.name, file.type);
+    try {
+      assertPrivacySafeDerivedUpload(file.name, file.type);
+    } catch {
+      toast.error("Please approve the privacy-safe text copy before uploading.");
+      return;
+    }
     if (file.size > MAX_BYTES) {
       toast.error("That file is over 20 MB. Try a smaller export or split it.");
       return;
@@ -190,35 +255,96 @@ export function FamilyDocumentUpload({
       toast.error("Please confirm the privacy notice below before uploading.");
       return;
     }
+    // Capture the reviewed metadata before asynchronous work; later edits cannot
+    // silently change this attempt's review/registration intent.
+    const details = {
+      student_id: studentId,
+      expected_viewer_id: viewerId,
+      title: (title.trim() || file.name).slice(0, 200),
+      mime_type: file.type || undefined,
+      size_bytes: file.size,
+      doc_type: docType,
+      visibility,
+      school_year: schoolYear.trim() || undefined,
+      meeting_date: meetingDate || undefined,
+      review_date: reviewDate || undefined,
+      annual_review_date: annualReviewDate || undefined,
+      reevaluation_date: reevaluationDate || undefined,
+      notes: notes.trim() || undefined,
+      source: source.trim() || undefined,
+      consent_acknowledged: true,
+    };
+    uploadPending.current = true;
     setBusy(true);
+    let writeAttempted = false;
+    let reservationAttempted = false;
+    let prepared = false;
+    function pauseUnconfirmed() {
+      uploadUnconfirmed.current = true;
+      setUnconfirmed(true);
+      toast.error(DOCUMENT_UPLOAD_UNCONFIRMED);
+    }
     try {
-      await assertCanUpload({ data: { student_id: studentId } });
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
-      const path = `${studentId}/${Date.now()}-${safeName}`;
+      const contentHash = await documentUploadFingerprint(file);
+      if (!active.current) return;
+      prepared = true;
+      const permission = await assertCanUpload({ data: { student_id: studentId, expected_viewer_id: viewerId, content_hash: contentHash } });
+      if (!active.current) return;
+      if (permission?.ok !== true || (permission.duplicate !== undefined && typeof permission.duplicate !== "boolean")) throw new Error("Unconfirmed upload permission");
+      if (permission.duplicate === true) {
+        toast.info("This file is already in this student's documents. Review the existing file; your new upload details have not been saved.");
+        try { await onChange(); } catch {
+          if (active.current) toast.error("We found the existing file, but couldn't refresh the document list. Refresh this page to review it.");
+        }
+        return;
+      }
+      const attemptId = crypto.randomUUID();
+      const intent = { ...details, content_hash: contentHash, attempt_id: attemptId };
+      // Persist only the attempt ID before the first possible backend write.
+      // Failure to retain progress must stop before reservation, not after it.
+      if (!rememberUploadInterruption(viewerId, studentId, attemptId)) {
+        pauseUnconfirmed();
+        return;
+      }
+      interruptedAttempt.current = attemptId;
+      reservationAttempted = true;
+      const reserved = await reserve({ data: intent });
+      if (!active.current) return;
+      const reservation = confirmDocumentUploadReservation(reserved, viewerId, studentId, attemptId);
+      const path = reservation.storage_path;
+      writeAttempted = true;
       const { error: upErr } = await supabase.storage
         .from("student-documents")
         .upload(path, file, { contentType: file.type, upsert: false });
+      if (!active.current) return;
       if (upErr) throw upErr;
-      await register({
-        data: {
-          student_id: studentId,
-          title: (title.trim() || file.name).slice(0, 200),
-          storage_path: path,
-          mime_type: file.type || undefined,
-          size_bytes: file.size,
-          doc_type: docType,
-          visibility,
-          school_year: schoolYear.trim() || undefined,
-          meeting_date: meetingDate || undefined,
-          review_date: reviewDate || undefined,
-          annual_review_date: annualReviewDate || undefined,
-          reevaluation_date: reevaluationDate || undefined,
-          notes: notes.trim() || undefined,
-          source: source.trim() || undefined,
-          consent_acknowledged: true,
-        },
-      });
-      toast.success("Document uploaded. Only people you've granted access can see it.");
+      let receipt: unknown;
+      try {
+        receipt = await register({ data: {
+          ...intent, storage_path: path,
+          upload_attempt_id: attemptId,
+          upload_review_context_sha256: reservation.review_context_sha256,
+        } });
+      } catch { receipt = null; }
+      if (!active.current) return;
+      // One read-only reconciliation. Never repeat upload, scan or generation.
+      if (documentUploadOutcome(receipt, studentId, path) === "uncertain") {
+        try { receipt = await recover({ data: { ...intent, review_context_sha256: reservation.review_context_sha256 } }); }
+        catch { receipt = null; }
+        if (!active.current) return;
+      }
+      const outcome = documentUploadOutcome(receipt, studentId, path);
+      if (outcome === "uncertain" || outcome === "pending" ||
+          !forgetCompletedUploadInterruption(viewerId, studentId, attemptId)) {
+        pauseUnconfirmed();
+        return;
+      }
+      interruptedAttempt.current = null;
+      if (outcome === "blocked") {
+        toast.error("This file could not be cleared for use. Review its status before trying again.");
+      } else {
+        toast.success("Document saved. Review its status in the document list.");
+      }
       setTitle("");
       setSchoolYear("");
       setMeetingDate("");
@@ -228,13 +354,25 @@ export function FamilyDocumentUpload({
       setNotes("");
       setSource("");
       setPendingFile(null);
-      await onChange();
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Upload failed.");
+      try {
+        await onChange();
+      } catch {
+        if (!active.current) return;
+        toast.error("The upload result is confirmed, but the document list couldn't be refreshed. Refresh this page to view its current status.");
+      }
+    } catch {
+      if (!active.current) return;
+      // Do not expose filenames, storage paths or private service errors.
+      // A lost write response does not prove that no file or row was saved.
+      if (writeAttempted || reservationAttempted) pauseUnconfirmed();
+      else if (!prepared) toast.error("We couldn't prepare this privacy-safe copy. Choose it again before continuing.");
+      else toast.error("We couldn't confirm permission to upload. Refresh the page and check your access before continuing.");
     } finally {
-      setBusy(false);
-      if (fileRef.current) fileRef.current.value = "";
+      uploadPending.current = false;
+      if (active.current) {
+        setBusy(false);
+        if (fileRef.current) fileRef.current.value = "";
+      }
     }
   }
 
@@ -504,7 +642,7 @@ export function FamilyDocumentUpload({
 
         <label
           className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background p-6 text-center transition-colors sm:p-8 ${
-            busy ? "opacity-60" : "cursor-pointer hover:border-primary/60 hover:bg-primary/[0.03]"
+            busy || unconfirmed ? "opacity-60" : "cursor-pointer hover:border-primary/60 hover:bg-primary/[0.03]"
           }`}
         >
           <input
@@ -512,7 +650,7 @@ export function FamilyDocumentUpload({
             type="file"
             accept=".pdf,.txt,application/pdf,text/plain"
             className="hidden"
-            disabled={busy}
+            disabled={busy || unconfirmed}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) {
@@ -557,6 +695,15 @@ export function FamilyDocumentUpload({
 
 
 
+
+      {unconfirmed && (
+        <div role="alert" className="border-t px-5 py-3 text-sm text-amber-950 dark:text-amber-100 sm:px-6">
+          <p>An earlier upload still needs confirmation. You can review existing documents while it is checked. Uploading again will stay paused until its result is confirmed.</p>
+          {interruptedAttempt.current && <Button type="button" variant="outline" size="sm" className="mt-2" disabled={checkingStatus || busy} onClick={() => void checkInterruptedUpload(interruptedAttempt.current!)}>
+            {checkingStatus ? "Checking Upload Status…" : "Check Upload Status"}
+          </Button>}
+        </div>
+      )}
 
       {/* File list */}
       <div className="border-t">
@@ -631,24 +778,26 @@ export function StandardDocActions({
   doc,
   parsing,
   onExtract,
+  extractionDisabled = false,
   onDownload,
   onDelete,
 }: {
   doc: DocumentRow;
   parsing?: string | null;
-  onExtract: (doc: DocumentRow) => void;
+  onExtract?: (doc: DocumentRow) => void;
+  extractionDisabled?: boolean;
   onDownload: (doc: DocumentRow) => void;
   onDelete?: (doc: DocumentRow) => void;
 }) {
   const [permsOpen, setPermsOpen] = useState(false);
   return (
     <>
-      {["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
+      {onExtract && ["iep", "current-iep", "previous-iep", "transition-plan"].includes(doc.doc_type) ? (
         <Button
           size="sm"
           variant="outline"
           onClick={() => onExtract(doc)}
-          disabled={parsing === doc.id}
+          disabled={!!parsing || extractionDisabled}
         >
           {parsing === doc.id ? (
             <>

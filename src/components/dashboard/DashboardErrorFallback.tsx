@@ -211,7 +211,7 @@ export function dashboardErrorComponent(role: DashboardFallbackRole) {
   return function RouteDashboardErrorComponent({
     reset,
   }: {
-    error: Error;
+    error: unknown;
     reset: () => void;
   }) {
     return <DashboardErrorFallback role={role} onRetry={reset} />;

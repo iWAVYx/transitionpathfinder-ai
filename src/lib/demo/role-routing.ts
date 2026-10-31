@@ -151,7 +151,7 @@ export function resolveDemoRoleDestination(args: {
     if (isWorkspaceRoleId(targetRole) && info.stage) {
       return {
         to: `/demo/workspace/${info.stage}`,
-        search: studentQs,
+        search: { ...studentQs, role: targetRole },
       };
     }
     // Non-workspace target → exit to canonical dashboard.
@@ -161,7 +161,7 @@ export function resolveDemoRoleDestination(args: {
   // 2. Shared feature page — preserve if target supports it.
   if (info.kind === "shared-role-feature" && info.slug) {
     if (sharedFeatureSupportsRole(info.slug, targetRole)) {
-      return { to: `/demo/feature/${targetRole}/${info.slug}` };
+      return { to: `/demo/feature/${targetRole}/${info.slug}`, search: studentQs };
     }
     return { to: canonicalDemoDashboard(targetRole), search: studentQs };
   }
@@ -169,7 +169,7 @@ export function resolveDemoRoleDestination(args: {
   // 3. Pathway report is workspace-adjacent — workspace roles may stay.
   if (info.kind === "pathway-report") {
     if (isWorkspaceRoleId(targetRole)) {
-      return { to: "/demo/report", search: studentQs };
+      return { to: "/demo/report", search: { ...studentQs, role: targetRole } };
     }
     return { to: canonicalDemoDashboard(targetRole), search: studentQs };
   }

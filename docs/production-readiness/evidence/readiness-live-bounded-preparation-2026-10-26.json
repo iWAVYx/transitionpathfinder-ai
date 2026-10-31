@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "bounded readiness acceptance prepared offline; not authorized or dispatched",
+  "application_candidate": "d5741a5b (includes prior 7bf0d605 lifecycle correction)",
+  "runtime": {
+    "fingerprint": "eebb4f81f22e87e90e6a9184f31086b8050e366465ef124c9dff51b97a2f0159",
+    "file_count": 1189,
+    "changed_runtime_paths_since_staging": [
+      "src/components/students/ReadinessInsightsCard.tsx",
+      "src/lib/readiness-insights.functions.ts"
+    ]
+  },
+  "proposed_scope": {
+    "existing_generator_accounts": [
+      "Family/Guardian",
+      "Educator"
+    ],
+    "other_role_checks": "Each fictional student is unreadable to the other six existing role accounts, including management-only Owner; no new generation privileges",
+    "students_max": 2,
+    "readiness_rows_max": 1,
+    "intakes_reports_versions_documents_shares_relationships_new_accounts": 0,
+    "ui_generation_actions_max": 2,
+    "model_invocations_max": 2,
+    "sdk_request_attempts_max": 6,
+    "billing_limit": "Gateway retries/billing are unobserved; this is not a spending cap",
+    "screenshots_max": 2,
+    "pdfs": 0,
+    "test_retries": 0,
+    "no_refresh_reload_regeneration": true
+  },
+  "acceptance": [
+    "Both stable staging sites must match exact approved runtime, isolated backend and sandbox/isolation settings before fixtures",
+    "Separate Family no-score and Educator recorded Employment score 75 cases; wait for actual completed Readiness UI, not merely a transport status",
+    "No-score case requires at least two Not Assessed badges and no recorded-score source claim",
+    "Scored case requires exact 75, Steady and recorded-score source coverage",
+    "All other existing role callers receive zero visible rows for that exact fictional student; this is private-record denial, not proof of other tools",
+    "Manual review of fictional output/screenshot for source fidelity remains required"
+  ],
+  "cleanup": [
+    "Preallocate exact identifiers and save scope plus independent read-only SQL before any mutation",
+    "Use existing caller/RLS public-key clients only; refuse production targets, privileged key, malformed identities and missing exact source identity",
+    "On uncertain insertion/generation completion, stop and retain exact scope for trusted reconciliation; no blind retry or cascade",
+    "Before deletes validate exact owner/student/marker/demo/account linkage and score id/category/75/evidence/updated_by identity; refuse unexpected children or unreadable counts",
+    "Delete exact synthetic score first, then exact owned synthetic student; failed child removal retains parent; save cleanup receipt",
+    "Independently run table-owner READ ONLY guarded SQL and verify every exact count zero before claiming clean"
+  ],
+  "workflow": "New manual readiness-live-bounded scope in existing human-protected staging workflow. Matching disposable-readiness-live confirmation; dedicated non-cancelling concurrency group; one worker; retries zero; no unrelated dashboard/role/PPT/Pathway fixture scope; existing artifact sanitization gate retained.",
+  "validation": {
+    "focused_policy_cleanup_tests": 65,
+    "new_preparation_tests": 27,
+    "browser_discovery": "exactly two cases; discovery only",
+    "browser_spec_and_helpers_typescript": "passed",
+    "full_unit_suite": {
+      "passed": 4746,
+      "files": 329
+    },
+    "runtime_fingerprint": "unchanged by test/workflow preparation",
+    "hosted_queries_fixtures_provider_calls": 0,
+    "workflow_yaml": "passed; manual workflow_dispatch and staging environment retained"
+  },
+  "automatic_build_retry": {
+    "run": 40273068803,
+    "first_attempt": "heap exhaustion",
+    "retry_attempt": 2,
+    "retry_result": "success",
+    "source_or_settings_changed": false,
+    "retry_count": 1
+  },
+  "limitations": [
+    "Readiness output is ephemeral, not a saved report/document; no fabricated export/save feature is added",
+    "Two-role generation/access test does not certify every source, every role tool or production readiness",
+    "Separate source reads are not an atomic snapshot; access-loss during an issued model request remains open",
+    "No historical Pathway cause attribution from passing readiness tests"
+  ],
+  "next": "Complete automatic review on the test-only follow-up; then request one concrete staging-only release/sync/publication and bounded readiness run. No approval is inferred from continue.",
+  "preserved": "Full TF-01\u2013TF-26/six milestones; remaining generators/IEP/document workflows and production gates; deferred report polish and Parent Pilot/Pathway Snapshot; Lovable title-case edit; production untouched",
+  "fixture_schema_review": {
+    "canonical_storage": "readiness_scores.score integer CHECK (score BETWEEN 0 AND 100)",
+    "fixture_score": 75,
+    "correction": "The initial unexecuted packet used 75.5; corrected to 75 before any hosted fixture or AI run. Product runtime unchanged.",
+    "regression": "Exact live fixture score must be an in-range integer compatible with the canonical column."
+  }
+}

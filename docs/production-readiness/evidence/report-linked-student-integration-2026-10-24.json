@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-24",
+  "status": "caller-integration-and-native-concurrency-passed-canonical-preparation-pending",
+  "baseProposalCommit": "08114b1d460ad56564f85c7ed5483bf1a764121c",
+  "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+  "runtimeFiles": 1185,
+  "canonicalMigrationAdded": false,
+  "proposal": "proposals/report-linked-student-save.sql",
+  "callerIntegration": [
+    "Shared report writer requires an explicitly supplied nullable linked-student ID and rejects malformed/missing context before network access",
+    "Authenticated Save/Restore sends the actual server-read student; browser revision still independently validates the observed report/context before writing",
+    "Regenerate retains its captured pre-generation student through the final atomic call, so a relink during provider work is compared at commit",
+    "Both call paths use the context-aware RPC only; no fallback to context-free saves, direct writes, history fabrication or provider retry",
+    "Generated Supabase types, role permissions, Owner management scope, demo/public rendering and document presentation unchanged"
+  ],
+  "validation": {
+    "fullUnit": {
+      "files": 314,
+      "pass": 4484,
+      "fail": 0
+    },
+    "focusedCallerRevisionUnits": 81,
+    "typescript": "passed",
+    "retainedAtomicSourceContracts": 3,
+    "newSqlLocal": {
+      "pass": 19,
+      "fail": 0,
+      "skip": 4,
+      "skipReason": "Native multi-session cases are skipped in PGlite and explicitly selected by automatic disposable PostgreSQL CI"
+    },
+    "nativeConcurrencyCases": [
+      "Relink commit precedes a waiting save: reject after acquiring row lock, no history change",
+      "Relink rollback precedes a waiting save: original context saves successfully",
+      "Save already holds lock: later metadata UPDATE waits until content/history commit",
+      "Two saves share observed context: loser waits, then rejects changed content"
+    ],
+    "nativeEvidenceRequirements": "Assert the competing backend is actually waiting for a row lock; unrelated report save proceeds; retain all history/content assertions. No retries.",
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006590/job/121015938412",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006467/job/121015565479",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006465/job/121015552173",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006590/job/121015517504",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006504/job/121015517279",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006705/job/121015518225",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006467/job/121015516954",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006592/job/121015517555",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006521/job/121015516887",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006567/job/121015517282",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006466/job/121015518030",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006623/job/121015518444",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006592/job/121015518518",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142002143/job/121015504845",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142002210/job/121015504831",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
+    "automaticSuccessfulChecks": 9,
+    "nativePostgres": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142006705",
+      "pass": 23,
+      "fail": 0,
+      "skip": 0,
+      "retries": 0,
+      "nativeSessionConcurrencyPassed": 4,
+      "log": "/private/tmp/tf-report-context-native-40142006705.log",
+      "sha256": "70332ae8e20826ba8afdb81a9355dda0bf2a4de6d2bfa6af127f921a4424c2f1",
+      "fullCanonicalReplay": "Existing 207-migration baseline passed in the same job; proposal is tested in its own disposable database and is not yet part of canonical migration replay."
+    }
+  },
+  "releaseCompatibility": "Not deployable yet: current staging database lacks the new RPC. Old-client writes stop if proposal grants are applied first; new-client writes stop if application is deployed first. Prepare canonical migration/ledger, native full replay and a coordinated authorized release window. Never use compatibility fallback to bypass context verification.",
+  "remaining": [
+    "Prepare a canonical migration/ledger/recovery candidate and test the final combined migration inventory; current proposal and integrated callers passed native concurrency and all exact-source checks.",
+    "Canonical migration/replay, ledger/preflight and recovery/maintenance review",
+    "Other metadata such as intake association and permitted direct-client writers remain separate review",
+    "Bearer-link issuer access/removal/relink/lifetime policy remains open",
+    "Authorized staging migration/deployment/publication and bounded hosted acceptance before production consideration"
+  ],
+  "logs": [
+    "/private/tmp/tf-report-context-integrated-pglite.log",
+    "/private/tmp/tf-report-context-integrated-unit.log",
+    "/private/tmp/tf-report-context-full-unit.log",
+    "/private/tmp/tf-report-context-source.log",
+    "/private/tmp/tf-report-context-typecheck.log"
+  ],
+  "hostedChanges": {
+    "migration": false,
+    "deployment": false,
+    "publication": false,
+    "records": 0,
+    "aiCalls": 0,
+    "accountsOrRelationships": false,
+    "secretsOrPayments": false,
+    "productionOrMain": false
+  },
+  "roadmap": "All TF-01\u2013TF-26 retained; report polish and Parent Pilot/Pathway Snapshot remain deferred.",
+  "applicationCandidateSha": "93f03b414915681949be8e2946a3bfb1a894e233"
+}

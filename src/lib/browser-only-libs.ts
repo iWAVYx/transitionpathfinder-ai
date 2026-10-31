@@ -25,7 +25,10 @@ export async function extractPdfText(file: File, maxPages = 40): Promise<string>
   try {
     const document = await loadingTask.promise;
     let output = "";
-    const pageCount = Math.min(document.numPages, maxPages);
+    if (!Number.isInteger(maxPages) || maxPages < 1 || document.numPages > maxPages) {
+      throw new Error("This PDF is too long to read in one request. Please use a shorter document or paste the relevant pages.");
+    }
+    const pageCount = document.numPages;
     for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();

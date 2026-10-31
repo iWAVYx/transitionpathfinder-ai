@@ -81,7 +81,7 @@ function EducatorActionItemsPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="educator-action-items-page"
         className="mx-auto max-w-5xl px-4 py-8"
       >
@@ -141,7 +141,7 @@ function EducatorActionItemsPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

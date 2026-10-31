@@ -1,0 +1,67 @@
+{
+  "schema": "document-upload-interval-local-v1",
+  "date": "2026-10-30",
+  "source_base": "b561db3ad4562e72974dd72bd38190107efe190f",
+  "status": "Verified: nine applicable automatic checks passed; both native SQL suites passed 836/836 with zero skips.",
+  "review": "docs/production-readiness/proposals/document-upload-interval-review.json",
+  "validation": {
+    "sql_cases": 836,
+    "pglite_pass": 734,
+    "native_only_skipped": 102,
+    "new_native_race_cases": 12,
+    "private_grant_focused_case": "pass",
+    "safety_contracts": 92,
+    "workflow_yaml": "parsed with existing js-yaml",
+    "application": "Source unchanged; retain5504 unit tests/19 intercepted Deno cases and previous nine automatic checks. No new local app/type/build run claimed.",
+    "native": {
+      "pr_run": 41088010474,
+      "push_run": 41087999054,
+      "tests_each": 836,
+      "passed_each": 836,
+      "skipped_each": 0,
+      "canonical_migrations": 225,
+      "noncanonical_control_proposals": 4
+    },
+    "automatic_checks": {
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "59e4b19b86906e9ddf4eb40177e48f3d72032baf760dfa1ce9ea4dd83923601b"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "230b59091aeb8c95952a1a70042fdb6d9ee4906e507070893cd8b1fddf28c957"
+    }
+  ],
+  "database": {
+    "canonical_count": 225,
+    "unapplied_noncanonical_control_proposals": 4,
+    "existing_fifteen_migration_batch_includes_these": false
+  },
+  "application_runtime": {
+    "fingerprint": "d68c055d1272efe7e14792fa24fbb54dfa16cfbeb9109490c1d02e2e5d2178e9",
+    "files": 1202,
+    "changed": false
+  },
+  "worker_package": {
+    "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+    "files": 4,
+    "changed": false
+  },
+  "reservation_binding_prepared": true,
+  "registration_handler_wired": false,
+  "provider_quiescence_verified": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "verified_source": "74136d4d7830980f6bcce579cb367136979f7976"
+}

@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-28",
+  "status": "installed SDK transport boundaries pass locally and exact-source CI; all eight applicable checks pass; no physical Storage acceptance",
+  "source_base": "87944fd6",
+  "hosted_actions": false,
+  "application_changed": false,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "sdk": {
+    "name": "@supabase/storage-js",
+    "version": "2.106.2",
+    "installed_entry_sha256": "16736e34d2932d79f7f0b125c8afbc28e96d2e78f9875a96eeae35b2864189bd",
+    "lockfile_sha256": "a17a0c8df435dbd79ebe21cda654867e75d6d70b3f3a12c83e7f6af0cf70842c"
+  },
+  "test": "tests/document-storage-transport.test.mjs",
+  "validation": {
+    "sdk_transport_tests": 18,
+    "combined_existing_and_new_contracts": 88,
+    "pass": 88,
+    "fail": 0,
+    "skip": 0,
+    "ci": {
+      "sdk_probe_pass": 18,
+      "sdk_probe_fail": 0,
+      "sdk_probe_skip": 0,
+      "sdk_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40734257926",
+      "native_replay": {
+        "tests": 441,
+        "pass": 441,
+        "fail": 0,
+        "skip": 0,
+        "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40734257800",
+        "schema": "Full 210 canonical migration replay plus unchanged twelve proposal installations/catalog assertions pass."
+      },
+      "automatic_checks_pass": 8,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40734258090,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734258082,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734258240,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40734257941,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257926,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734258000,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257963,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40734257953,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257800,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734257827,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40734248304,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt under unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
+  },
+  "model_boundary": "Actual installed StorageClient with injected synthetic fetch responses. globalThis.fetch throws; only the exact storage-contract.invalid endpoint/method is accepted. No key, Supabase connection, hosted account or real object store is used. Modeled apply-then-response-loss is a fault scenario, not evidence of actual server ordering.",
+  "findings": [
+    "The installed SDK sends the exact upload path with x-upsert:false, but a 2xx upload body is not validated against expected Id/Key, actor, version or reviewed bytes.",
+    "An interrupted upload/delete response can report an error after the synthetic transport model has applied the write. The SDK issues no automatic retry in the tested default calls.",
+    "exists() for 400/404 returns false together with an error; 403/500 throws. No result distinguishes missing bytes from caller visibility, policy or stale metadata.",
+    "info() passes through server-provided metadata without binding it to the requested actor/path/object/version. download() returns bytes with no reviewed-hash attestation or If-Match precondition in the tested default request.",
+    "remove([exactPath]) sends DELETE with a prefixes array, but accepts empty, foreign or malformed successful response bodies. That request body alone does not prove server exact-match behavior or deletion.",
+    "The tested remove request carries no object-id/version precondition. Do not invent a conditional header or assume the storage server honors one."
+  ],
+  "plan": "docs/production-readiness/proposals/document-upload-terminal-resolution-plan.json",
+  "limitations": [
+    "No physical bytes, owner/version assignment, RLS, rollback, overwrite, exact-delete semantics, provider consistency or hosted acceptance is certified.",
+    "No new runtime adapter, receipt validator, endpoint, SQL proposal, state transition or cleanup capability is introduced. Twelve SQL proposals remain unapplied.",
+    "Current paths-only remove cannot be treated as verified exact-version deletion. Unknown results remain held; no automatic replay or prefix cleanup.",
+    "Related channel attachment removal paths remain a separate recorded review gate; this test does not fix them."
+  ],
+  "verified_source": "a414e483215dfd3194ef8156f21c1419ec7010ae"
+}

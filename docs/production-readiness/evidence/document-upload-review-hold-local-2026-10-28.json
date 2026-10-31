@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-28",
+  "status": "corrected tenth proposal passes both native/full-schema replays and all nine applicable automatic checks; no hosted or application integration",
+  "source_base": "13d50b70",
+  "hosted_actions": false,
+  "canonical_migration_count": 210,
+  "noncanonical_proposal_count": 10,
+  "application_changed": false,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "proposal": "docs/production-readiness/proposals/document-upload-review-hold.sql",
+  "proposal_sha256": "ad73b6e9b54a083a38acd099d3b22e28bde766385cee5f3b32d35e6b25b17c91",
+  "implemented": [
+    "An authenticated original uploader with unchanged review intent and current explicit edit access can request a durable review hold. The first reason/timestamp are retained. Repeating the same request returns the same receipt; foreign, registered, changed-reason and removed-access requests are denied.",
+    "Client Storage metadata INSERT requires the exact reserved actor/path and matching owner, in addition to existing permissive policies and current edit access. Anonymous database roles cannot use a forged subject or broad permissive grant to insert. Other buckets and trusted service maintenance retain existing policy behavior.",
+    "The insertion predicate holds the attempt FOR SHARE until the metadata transaction ends. Hold and registration lock the same attempt FOR UPDATE. No physical bytes, provider processing, reservation release, deletion or retry is performed.",
+    "Unknown preexisting review_required states cause installation to stop rather than inventing provenance. Direct ledger mutation and direct service/anonymous RPC execution remain unavailable."
+  ],
+  "checks": {
+    "local_disposable_passed": 350,
+    "native_only_skipped_locally": 19,
+    "credential_free_build_upload_channel_contracts": 70,
+    "application_identity": "unchanged; candidate CI repeats unit/build/role/readiness/accessibility checks successfully; prior local app TypeScript proof remains on unchanged source",
+    "native_pending": [],
+    "native_database_passed": 369,
+    "native_database_skipped": 0,
+    "full_schema": "All ten noncanonical proposals install and pass catalog verification after all 210 canonical migrations in both disposable native replays."
+  },
+  "fixture_note": "Initial four empty-bucket expectations ignored the existing object-binding fixture. Assertions now preserve the complete before/after object snapshot, retaining strict denial and proving no prior object was removed.",
+  "limits": [
+    "Proposal only; no canonical/hosted migration, generated type update, app caller, UI hold action or authenticated hosted test is included.",
+    "The boundary gates committed Storage metadata rows, not the physical object-store upload transaction. Actual Storage API owner assignment/rollback/orphan behavior needs separate review and authorized acceptance.",
+    "Holds do not expire or release unique content claims. They can retain unresolved uploads and block later uploads/student deletion; guarded terminal recovery, quotas and retention rules remain required before promotion.",
+    "No deletion claim, Storage deletion receipt, independent absence check, cleanup worker or permanent-removal authority is implemented. Existing local permanent removal remains paused.",
+    "Attempt row locks do not atomically freeze every permission-graph edge, prove actual immutable bytes or attest consent/privacy/scan results. Trusted service storage writes remain outside the client restriction.",
+    "All TF-01\u2013TF-26/six milestones remain. Report polish/length and Parent Pilot/Pathway Snapshot remain deferred. Production/main and both stable staging sites are unchanged."
+  ],
+  "initial_ci_failure": {
+    "source_commit": "045d5e2564ca83d9ddf6a1629d8900a7c66cffbe",
+    "native_cases_passed": 365,
+    "native_skipped": 0,
+    "full_schema": "Both replays fail while creating the INSERT policy: canonical legacy Storage stub has owner but no owner_id. Proposal transaction does not commit.",
+    "runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40712634975",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40712644749"
+    ],
+    "other_automatic_checks": "Both capped builds, units, role/static/readiness and accessibility pass. No unchanged-source rerun."
+  },
+  "schema_correction": "Read the managed owner_id using to_jsonb(objects) instead of a direct column reference. Older schemas install but missing managed ownership denies insertion. No legacy owner fallback, Storage DDL change or permission relaxation. New tests cover owner-only schemas, contradictory owner fields, viewer downgrade and Owner access revocation.",
+  "candidate_ci": {
+    "source_commit": "966861776d6f09a4031b87a568d383864c17d838",
+    "applicable_checks_passed": 9,
+    "native_replays": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717086843",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717098201"
+    ],
+    "builds": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717086838",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40717097979"
+    ],
+    "build_attempts": "Both first attempt under unchanged 1216 MiB old-space cap; no reruns.",
+    "native_contention": "All eight new cases observe actual database lock waits before COMMIT/ROLLBACK. Hold blocks later reserved inserts/registration; an earlier committed metadata insert is retained; completed registration cannot be detached by a hold.",
+    "other_checks": "unit, role/static/readiness and accessibility passed",
+    "protected_skipped": "Unperformed; not hosted acceptance."
+  }
+}

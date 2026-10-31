@@ -15,6 +15,60 @@ on:
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
+      - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/report-linked-student-save.test.mjs"
+      - "tests/database/report-evidence-save.test.mjs"
+      - "tests/database/document-path-exclusivity.test.mjs"
+      - "docs/production-readiness/proposals/document-path-exclusivity.sql"
+      - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
+      - "docs/production-readiness/proposals/verified-document-summary-source.sql"
+      - "docs/production-readiness/proposals/document-upload-reservations.sql"
+      - "docs/production-readiness/proposals/document-upload-registration.sql"
+      - "docs/production-readiness/proposals/document-quarantine-read-boundary.sql"
+      - "docs/production-readiness/proposals/document-upload-review-hold.sql"
+      - "docs/production-readiness/proposals/document-upload-admission-limits.sql"
+      - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
+      - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
+      - "docs/production-readiness/proposals/document-reference-catalog.sql"
+      - "docs/production-readiness/proposals/document-summary-source-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-application.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-preflight.sql"
+      - "tests/database/atomic-extraction-rollout-sql.mjs"
+      - "tests/database/document-upload-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/document-upload-chain-preflight.sql"
+      - "docs/production-readiness/proposals/document-operation-admission.sql"
+      - "docs/production-readiness/proposals/document-apply-admission.sql"
+      - "docs/production-readiness/proposals/document-upload-pause-fence.sql"
+      - "docs/production-readiness/proposals/document-upload-interval.sql"
+      - "docs/production-readiness/proposals/document-upload-retained-limits.sql"
+      - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
+      - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
+      - "docs/production-readiness/proposals/document-summary-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
+      - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
+      - "supabase/functions/ai-job-processor/**"
+      - "tests/unit/verified-document-summary.test.ts"
+      - "tests/edge/ai-job-processor.test.ts"
+      - "tests/database/report-evidence-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
+      - "tests/database/report-linked-student-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-linked-student-save.sql"
+      - "docs/production-readiness/proposals/report-linked-student-preflight.sql"
+      - "tests/database/report-history-canonical-grants.mjs"
+      - "tests/database/atomic-history-ledger-sql.mjs"
+      - "tests/database/share-token-write-restriction.test.mjs"
+      - "tests/database/report-share-lifecycle.test.mjs"
+      - "tests/database/report-share-lifecycle-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle-preflight.sql"
+      - "tests/database/report-share-lifecycle-replay.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle.sql"
+      - "docs/production-readiness/proposals/share-token-*.sql"
+      - "docs/production-readiness/proposals/report-content-history-boundary.sql"
       - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
@@ -30,6 +84,60 @@ on:
       - "tests/security-definer-routine-grants.test.mjs"
       - "tests/channel-attachment-malware-gate.test.mjs"
       - "tests/database/channel-history-removal.test.mjs"
+      - "tests/database/atomic-pathway-history.test.mjs"
+      - "tests/database/report-linked-student-save.test.mjs"
+      - "tests/database/report-evidence-save.test.mjs"
+      - "tests/database/document-path-exclusivity.test.mjs"
+      - "docs/production-readiness/proposals/document-path-exclusivity.sql"
+      - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
+      - "docs/production-readiness/proposals/document-storage-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-job-boundary.sql"
+      - "docs/production-readiness/proposals/verified-document-summary-source.sql"
+      - "docs/production-readiness/proposals/document-upload-reservations.sql"
+      - "docs/production-readiness/proposals/document-upload-registration.sql"
+      - "docs/production-readiness/proposals/document-quarantine-read-boundary.sql"
+      - "docs/production-readiness/proposals/document-upload-review-hold.sql"
+      - "docs/production-readiness/proposals/document-upload-admission-limits.sql"
+      - "docs/production-readiness/proposals/document-upload-recovery-read.sql"
+      - "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
+      - "docs/production-readiness/proposals/document-reference-catalog.sql"
+      - "docs/production-readiness/proposals/document-summary-source-binding.sql"
+      - "docs/production-readiness/proposals/document-summary-rollout-inventory.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-application.sql"
+      - "docs/production-readiness/proposals/atomic-extraction-preflight.sql"
+      - "tests/database/atomic-extraction-rollout-sql.mjs"
+      - "tests/database/document-upload-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/document-upload-chain-preflight.sql"
+      - "docs/production-readiness/proposals/document-operation-admission.sql"
+      - "docs/production-readiness/proposals/document-apply-admission.sql"
+      - "docs/production-readiness/proposals/document-upload-pause-fence.sql"
+      - "docs/production-readiness/proposals/document-upload-interval.sql"
+      - "docs/production-readiness/proposals/document-upload-retained-limits.sql"
+      - "docs/production-readiness/proposals/document-summary-operation-handoff.sql"
+      - "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql"
+      - "docs/production-readiness/proposals/document-summary-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
+      - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
+      - "supabase/functions/ai-job-processor/**"
+      - "tests/unit/verified-document-summary.test.ts"
+      - "tests/edge/ai-job-processor.test.ts"
+      - "tests/database/report-evidence-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-evidence-save-preflight.sql"
+      - "tests/database/report-linked-student-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-linked-student-save.sql"
+      - "docs/production-readiness/proposals/report-linked-student-preflight.sql"
+      - "tests/database/report-history-canonical-grants.mjs"
+      - "tests/database/atomic-history-ledger-sql.mjs"
+      - "tests/database/share-token-write-restriction.test.mjs"
+      - "tests/database/report-share-lifecycle.test.mjs"
+      - "tests/database/report-share-lifecycle-rollout-sql.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle-preflight.sql"
+      - "tests/database/report-share-lifecycle-replay.mjs"
+      - "docs/production-readiness/proposals/report-share-lifecycle.sql"
+      - "docs/production-readiness/proposals/share-token-*.sql"
+      - "docs/production-readiness/proposals/report-content-history-boundary.sql"
       - "tests/channel-start-boundary.test.mjs"
       - "tests/e2e/release-readiness/channel-attachment-malware.signedin.spec.ts"
       - ".github/workflows/channel-attachment-malware-qa.yml"
@@ -68,11 +176,94 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Setup Deno for credential-free worker type checking
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check verified document worker without credentials
+        run: deno check --no-config --no-lock --node-modules-dir=none supabase/functions/ai-job-processor/index.ts
+
+      - name: Exercise document-summary worker with intercepted IO only
+        run: deno test --no-config --no-lock --node-modules-dir=none --allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,LOVABLE_API_KEY tests/edge/ai-job-processor.test.ts
+
       - name: Test membership removal and frozen chat history without credentials
         run: |
           npm install --prefix "$RUNNER_TEMP/channel-history-tests" --ignore-scripts --no-save --package-lock=false @electric-sql/pglite@0.5.8
           CHANNEL_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/channel-history-removal.test.mjs
+
+      - name: Test proposed report-share lifecycle without hosted credentials
+        run: |
+          SHARE_POLICY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/report-share-lifecycle.test.mjs
+
+      - name: Test atomic report history in a disposable multi-session database
+        env:
+          PGUSER: supabase_admin
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/atomic-pathway-history.test.mjs
+
+      - name: Test proposed share lifecycle in disposable concurrent sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          SHARE_LIFECYCLE_POSTGRES=1 \
+          SHARE_POLICY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/report-share-lifecycle.test.mjs
+
+      - name: Test canonical linked-student save in disposable concurrent sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/report-linked-student-save.test.mjs
+
+      - name: Test evidence saves without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Test evidence saves in disposable concurrent PostgreSQL sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Verify registration compatibility and private rescan boundaries before full database suites
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private' tests/database/document-path-exclusivity.test.mjs
+
+      - name: Test proposed document upload boundaries without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-path-exclusivity.test.mjs
+
+      - name: Test proposed document upload boundaries in concurrent disposable sessions
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-path-exclusivity.test.mjs
+
+      - name: Test report-share restrictions in a disposable PostgreSQL database
+        env:
+          PGUSER: supabase_admin
+        run: |
+          SHARE_POLICY_POSTGRES=1 \
+          SHARE_POLICY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/share-token-write-restriction.test.mjs
 
       - name: Bootstrap Supabase-like roles and schemas
         run: |
@@ -138,12 +329,22 @@ jobs:
           count=0
           for f in $(ls supabase/migrations/*.sql | sort); do
             echo "::group::$f"
+            if [[ "$f" == *20261024030000_enforce_report_share_lifecycle.sql ]]; then
+              node tests/database/report-share-lifecycle-replay.mjs > "$RUNNER_TEMP/report-share-lifecycle-replay.sql"
+              psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/report-share-lifecycle-replay.sql"
+            fi
             psql -v ON_ERROR_STOP=1 -f "$f"
             echo "::endgroup::"
             count=$((count+1))
           done
           echo "replayed $count migrations"
-          test "$count" -ge 175
+          test "$count" -eq 225
+
+      - name: Verify combined canonical history and privileged routine permissions
+        run: |
+          REPORT_HISTORY_CANONICAL_REPLAY=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node tests/database/report-history-canonical-grants.mjs
 
       - name: Assert realtime.messages policies applied (no silent drift)
         run: |
@@ -503,6 +704,846 @@ jobs:
               and (select count(*) >= 0 from public.blog_posts)
               and (select count(*) >= 0 from public.media_assets);" | grep -qx t
 
+      - name: Verify canonical document upload boundaries after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL' > /tmp/document-path-proposal-verification.txt
+          DO $verify$
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_index
+              WHERE indexrelid='public.documents_storage_path_unique'::regclass
+                AND indrelid='public.documents'::regclass AND indisunique AND indisvalid
+                AND indpred IS NOT NULL
+                AND indkey::text=(SELECT attnum::text FROM pg_attribute WHERE attrelid='public.documents'::regclass AND attname='storage_path')
+            ) THEN RAISE EXCEPTION 'Expected exclusive path index is missing'; END IF;
+            IF EXISTS (
+              SELECT 1 FROM pg_proc WHERE oid='public.tg_documents_enforce_storage_path()'::regprocedure
+                AND (prosecdef OR proconfig IS DISTINCT FROM ARRAY['search_path=pg_catalog'])
+            ) OR has_function_privilege('anon','public.tg_documents_enforce_storage_path()','EXECUTE')
+              OR has_function_privilege('authenticated','public.tg_documents_enforce_storage_path()','EXECUTE')
+              OR has_function_privilege('service_role','public.tg_documents_enforce_storage_path()','EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected trigger execution boundary'; END IF;
+          END;
+          $verify$;
+          DO $scan_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass
+              AND tgname='documents_guard_scan_state' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.guard_document_scan_state()'::regprocedure
+                AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.guard_document_scan_state()','EXECUTE')
+              OR has_function_privilege('authenticated','public.guard_document_scan_state()','EXECUTE')
+              OR has_function_privilege('service_role','public.guard_document_scan_state()','EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected scan-state execution boundary'; END IF;
+          END;
+          $scan_verify$;
+          DO $storage_verify$
+          BEGIN
+            IF (SELECT count(*) FROM pg_policy WHERE polrelid='storage.objects'::regclass
+              AND polname IN ('student_document_no_client_replace','student_document_no_client_delete')
+              AND NOT polpermissive AND cardinality(polroles)=2 AND polroles @> ARRAY['anon'::regrole::oid,'authenticated'::regrole::oid])<>2
+              OR NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+                AND polname='student_document_no_client_replace' AND polcmd='w' AND polqual IS NOT NULL AND polwithcheck IS NOT NULL)
+              OR NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+                AND polname='student_document_no_client_delete' AND polcmd='d' AND polqual IS NOT NULL)
+            THEN RAISE EXCEPTION 'Unexpected student storage write boundary'; END IF;
+          END;
+          $storage_verify$;
+          DO $quarantine_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+              AND polname='student_document_no_blocked_read' AND polcmd='r' AND NOT polpermissive
+              AND cardinality(polroles)=2 AND polroles @> ARRAY['anon'::regrole::oid,'authenticated'::regrole::oid])
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.student_document_not_blocked(text)'::regprocedure
+                AND prosecdef AND provolatile='s' AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('service_role','public.student_document_not_blocked(text)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.student_document_not_blocked(text)','EXECUTE')
+              OR NOT has_function_privilege('anon','public.student_document_not_blocked(text)','EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected retained-file read boundary'; END IF;
+          END;
+          $quarantine_verify$;
+          DO $review_hold_verify$
+          DECLARE signature text;
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policy WHERE polrelid='storage.objects'::regclass
+              AND polname='student_document_reserved_insert' AND polcmd='a' AND NOT polpermissive
+              AND cardinality(polroles)=2 AND polroles @> ARRAY['anon'::regrole::oid,'authenticated'::regrole::oid])
+              OR NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='public.document_upload_attempts'::regclass
+                AND conname='document_upload_attempts_hold_check' AND convalidated)
+            THEN RAISE EXCEPTION 'Unexpected review hold/storage insert boundary'; END IF;
+            FOREACH signature IN ARRAY ARRAY['public.hold_document_upload_for_review(uuid,text,text)','public.can_insert_reserved_student_document(text,text)'] LOOP
+              IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure
+                  AND prosecdef AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE')
+                OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+              THEN RAISE EXCEPTION 'Unexpected review hold execution boundary'; END IF;
+            END LOOP;
+          END;
+          $review_hold_verify$;
+          DO $extraction_apply_verify$
+          DECLARE signature text:='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)';
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+              OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected atomic extraction application boundary'; END IF;
+          END;
+          $extraction_apply_verify$;
+          DO $source_binding_verify$
+          DECLARE signature text; role_name text; privilege_name text;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_summary_source_bindings'::regclass AND relrowsecurity)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_summary_source_bindings'::regclass AND tgname='document_source_binding_immutable' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.ai_jobs'::regclass AND tgname='ai_jobs_guard_bound_document_source' AND tgenabled='O' AND NOT tgisinternal)
+              OR (SELECT count(*) FROM pg_constraint WHERE conrelid='public.document_summary_source_bindings'::regclass AND contype='f' AND confdeltype='r' AND convalidated)<>3
+            THEN RAISE EXCEPTION 'Unexpected retained source binding boundary'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                IF has_table_privilege(role_name,'public.document_summary_source_bindings',privilege_name)
+                THEN RAISE EXCEPTION 'Unexpected direct source binding table grant'; END IF;
+              END LOOP;
+            END LOOP;
+            FOREACH signature IN ARRAY ARRAY['public.reject_document_source_binding_mutation()','public.guard_bound_document_summary_job()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+              THEN RAISE EXCEPTION 'Unexpected source binding trigger execution grant'; END IF;
+            END LOOP;
+          END;
+          $source_binding_verify$;
+          DO $resolution_claim_verify$
+          DECLARE signature text; role_name text; privilege_name text;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_upload_resolution_claims'::regclass AND relrowsecurity)
+              OR NOT EXISTS(SELECT 1 FROM pg_policy WHERE polrelid='public.document_upload_resolution_claims'::regclass AND polname='upload_resolution_creator_read' AND polcmd='r')
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_upload_attempts'::regclass AND tgname='upload_attempt_resolution_frozen' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_upload_resolution_claims'::regclass AND tgname='upload_resolution_claim_immutable' AND tgenabled='O' AND NOT tgisinternal)
+            THEN RAISE EXCEPTION 'Unexpected durable upload claim boundary'; END IF;
+            FOREACH signature IN ARRAY ARRAY['public.claim_document_upload_resolution(uuid,text,uuid)','public.guard_claimed_upload_attempt()','public.reject_upload_resolution_claim_mutation()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR has_function_privilege('authenticated',signature,'EXECUTE') IS DISTINCT FROM (signature='public.claim_document_upload_resolution(uuid,text,uuid)')
+              THEN RAISE EXCEPTION 'Unexpected durable claim execution boundary'; END IF;
+            END LOOP;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              FOREACH privilege_name IN ARRAY ARRAY['INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                IF has_table_privilege(role_name,'public.document_upload_resolution_claims',privilege_name)
+                THEN RAISE EXCEPTION 'Unexpected direct resolution claim mutation grant'; END IF;
+              END LOOP;
+            END LOOP;
+          END;
+          $resolution_claim_verify$;
+          DO $recovery_read_verify$
+          DECLARE signature text := 'public.read_document_upload_recovery(uuid,text)';
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure
+                AND prosecdef AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon',signature,'EXECUTE')
+              OR has_function_privilege('service_role',signature,'EXECUTE')
+              OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+            THEN RAISE EXCEPTION 'Unexpected upload recovery read boundary'; END IF;
+          END;
+          $recovery_read_verify$;
+          DO $admission_verify$
+          DECLARE signature text := 'public.reserve_document_upload(uuid,uuid,text,text)';
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure
+                AND prosecdef AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon',signature,'EXECUTE')
+              OR has_function_privilege('service_role',signature,'EXECUTE')
+              OR NOT has_function_privilege('authenticated',signature,'EXECUTE')
+              OR NOT EXISTS(SELECT 1 FROM pg_index WHERE indexrelid='public.document_upload_unresolved_actor'::regclass AND indisvalid AND indpred IS NOT NULL)
+              OR NOT EXISTS(SELECT 1 FROM pg_index WHERE indexrelid='public.document_upload_unresolved_student'::regclass AND indisvalid AND indpred IS NOT NULL)
+            THEN RAISE EXCEPTION 'Unexpected unresolved admission boundary'; END IF;
+          END;
+          $admission_verify$;
+          DO $binding_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.documents'::regclass
+              AND tgname='documents_guard_storage_binding' AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.guard_document_storage_binding()'::regprocedure
+                AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.guard_document_storage_binding()','EXECUTE')
+              OR has_function_privilege('authenticated','public.guard_document_storage_binding()','EXECUTE')
+              OR has_function_privilege('service_role','public.guard_document_storage_binding()','EXECUTE')
+              OR (SELECT count(*) FROM pg_attribute WHERE attrelid='public.documents'::regclass
+                AND attname IN ('storage_object_id','storage_object_version') AND NOT attisdropped)<>2
+            THEN RAISE EXCEPTION 'Unexpected object binding boundary'; END IF;
+          END;
+          $binding_verify$;
+          DO $summary_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.can_read_document_summary_job(uuid,uuid,text)'::regprocedure
+                AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.can_read_document_summary_job(uuid,uuid,text)','EXECUTE')
+              OR has_function_privilege('service_role','public.can_read_document_summary_job(uuid,uuid,text)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.can_read_document_summary_job(uuid,uuid,text)','EXECUTE')
+              OR (SELECT count(*) FROM pg_policy WHERE polrelid='public.ai_jobs'::regclass
+                AND polname IN ('document_summary_explicit_read','document_summary_scoped_request','document_summary_server_update','document_summary_server_delete')
+                AND NOT polpermissive AND polroles=ARRAY['authenticated'::regrole::oid])<>4
+            THEN RAISE EXCEPTION 'Unexpected document summary job boundary'; END IF;
+          END;
+          $summary_verify$;
+          DO $verified_summary$
+          DECLARE signature text;
+          BEGIN
+            FOREACH signature IN ARRAY ARRAY[
+              'public.read_verified_document_summary_source(uuid,timestamptz,integer)',
+              'public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb)'
+            ] LOOP
+              IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE')
+                OR NOT has_function_privilege('service_role',signature,'EXECUTE') THEN
+                RAISE EXCEPTION 'Unexpected verified summary RPC boundary';
+              END IF;
+            END LOOP;
+          END;
+          $verified_summary$;
+          DO $reservation_verify$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid='public.document_upload_attempts'::regclass AND relrowsecurity)
+              OR NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure
+                AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.reserve_document_upload(uuid,uuid,text,text)','EXECUTE')
+              OR has_function_privilege('service_role','public.reserve_document_upload(uuid,uuid,text,text)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.reserve_document_upload(uuid,uuid,text,text)','EXECUTE')
+              OR has_table_privilege('authenticated','public.document_upload_attempts','INSERT,UPDATE,DELETE')
+              OR has_table_privilege('anon','public.document_upload_attempts','SELECT,INSERT,UPDATE,DELETE')
+              OR has_table_privilege('service_role','public.document_upload_attempts','INSERT,UPDATE,DELETE')
+            THEN RAISE EXCEPTION 'Unexpected upload reservation boundary'; END IF;
+          END;
+          $reservation_verify$;
+          DO $registration_verify$
+          DECLARE signature text;
+          BEGIN
+            IF (SELECT count(*) FROM pg_trigger WHERE tgrelid='public.documents'::regclass
+              AND tgname IN ('documents_aa_guard_upload_registration','documents_link_upload_registration') AND tgenabled='O' AND NOT tgisinternal)<>2 THEN
+              RAISE EXCEPTION 'Missing document registration guards';
+            END IF;
+            FOREACH signature IN ARRAY ARRAY['public.guard_document_upload_registration()','public.link_document_upload_registration()','public.read_document_upload_registration(uuid,text)'] LOOP
+              IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR has_function_privilege('authenticated',signature,'EXECUTE') IS DISTINCT FROM (signature='public.read_document_upload_registration(uuid,text)') THEN
+                RAISE EXCEPTION 'Unexpected document registration RPC boundary';
+              END IF;
+            END LOOP;
+          END;
+          $registration_verify$;
+          SELECT 'Proposals applied and verified in disposable canonical replay only' AS result;
+          SQL
+
+      - name: Verify proposed durable admission against complete canonical replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-operation-admission.sql
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $admission_grants$
+          DECLARE signature text; relation_name text; role_name text; privilege_name text;
+          BEGIN
+            FOREACH signature IN ARRAY ARRAY['public.begin_document_operation(uuid,uuid,text)','public.finish_document_operation(uuid,uuid,uuid,text)','public.set_document_operation_pause(uuid,bigint,boolean,text)','public.inspect_document_operation_drain()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+                OR EXISTS(SELECT 1 FROM pg_proc p,LATERAL aclexplode(COALESCE(p.proacl,acldefault('f',p.proowner))) a WHERE p.oid=signature::regprocedure AND a.grantee=0 AND a.privilege_type='EXECUTE')
+                OR has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE')
+                OR NOT has_function_privilege('service_role',signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected admission execution boundary'; END IF;
+            END LOOP;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases','public.document_operation_control_events'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=relation_name::regclass AND relrowsecurity) THEN RAISE EXCEPTION 'Admission RLS required'; END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected direct admission table privilege'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+          END; $admission_grants$;
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $tracked_work$
+          DECLARE receipt jsonb;
+          BEGIN
+            PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',1,false,'resume');
+            receipt:=public.begin_document_operation('00000000-0000-4000-8000-000000000901','00000000-0000-4000-8000-000000000001','summary');
+            PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',2,true,'maintenance');
+            PERFORM public.finish_document_operation((receipt->>'operation_id')::uuid,'00000000-0000-4000-8000-000000000001',(receipt->>'receipt_id')::uuid,'needs_review');
+            IF (public.inspect_document_operation_drain()->>'tracked_operations_clear')::boolean THEN RAISE EXCEPTION 'Uncertain work disappeared'; END IF;
+          END; $tracked_work$;
+          ROLLBACK;
+          SQL
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 -c "SET ROLE service_role;SELECT public.inspect_document_operation_drain();" > /tmp/document-operation-admission.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/document-operation-admission.json','utf8'));
+          assert.equal(x.schema,'document-operation-drain-v1');assert.equal(x.paused,true);assert.equal(x.revision,1);
+          assert.equal(x.tracked_operations_clear,true);assert.equal(x.by_kind.length,4);
+          for(const k of x.by_kind){assert.equal(k.active,0);assert.equal(k.needs_review,0);}
+          for(const k of ['legacy_handlers_covered','provider_quiescence_verified','ready_for_cutover','cleanup_authorized'])assert.equal(x[k],false);
+          NODE
+
+      - name: Verify atomic Apply pause fence against complete replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-apply-admission.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $apply_gate_grants$
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.lock_document_apply_admission()'::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND provolatile='v')
+              OR has_function_privilege('anon','public.lock_document_apply_admission()','EXECUTE')
+              OR has_function_privilege('service_role','public.lock_document_apply_admission()','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.lock_document_apply_admission()','EXECUTE')
+              OR NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)'::regprocedure AND NOT prosecdef AND proconfig=ARRAY['search_path=pg_catalog'])
+              OR has_function_privilege('anon','public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE')
+              OR has_function_privilege('service_role','public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE')
+              OR NOT has_function_privilege('authenticated','public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE') THEN RAISE EXCEPTION 'Unexpected Apply gate permissions'; END IF;
+          END; $apply_gate_grants$;
+          BEGIN;
+          SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+          SET LOCAL ROLE authenticated;
+          DO $paused_save$
+          BEGIN
+            PERFORM public.apply_reviewed_document_extraction('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000004',now(),'{}',false);
+            RAISE EXCEPTION 'Paused save was not refused';
+          EXCEPTION WHEN SQLSTATE '55000' THEN NULL;
+          END; $paused_save$;
+          ROLLBACK;
+          SQL
+
+      - name: Verify reviewed upload pause fence after canonical replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-upload-pause-fence.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $upload_gate_grants$
+          DECLARE signature text;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.lock_document_upload_admission()'::regprocedure
+              AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND provolatile='v') THEN
+              RAISE EXCEPTION 'Unexpected upload gate definition';
+            END IF;
+            FOREACH signature IN ARRAY ARRAY['public.lock_document_upload_admission()',
+              'public.reserve_document_upload(uuid,uuid,text,text)','public.can_insert_reserved_student_document(text,text)'] LOOP
+              IF has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('service_role',signature,'EXECUTE')
+                OR NOT has_function_privilege('authenticated',signature,'EXECUTE') THEN
+                RAISE EXCEPTION 'Unexpected upload gate permission';
+              END IF;
+            END LOOP;
+            IF has_function_privilege('authenticated','public.guard_document_upload_registration()','EXECUTE')
+              OR has_function_privilege('service_role','public.guard_document_upload_registration()','EXECUTE')
+              OR has_function_privilege('anon','public.guard_document_upload_registration()','EXECUTE') THEN
+              RAISE EXCEPTION 'Unexpected registration trigger grant';
+            END IF;
+          END; $upload_gate_grants$;
+          BEGIN;
+          SELECT set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+          SET LOCAL ROLE authenticated;
+          DO $paused_upload$
+          BEGIN
+            PERFORM public.reserve_document_upload('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000003',repeat('a',64),repeat('b',64));
+            RAISE EXCEPTION 'Paused upload was not refused';
+          EXCEPTION WHEN SQLSTATE '55000' THEN NULL;
+          END; $paused_upload$;
+          ROLLBACK;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-upload-pause-fence.json
+          SELECT jsonb_build_object('schema','document-upload-pause-fence-proof-v1',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'browser_interval_tracked',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),
+              'definer',prosecdef,'fixed_path',proconfig) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.lock_document_upload_admission()'::regprocedure,
+                'public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure,
+                'public.can_insert_reserved_student_document(text,text)'::regprocedure,
+                'public.guard_document_upload_registration()'::regprocedure)));
+          SQL
+
+      - name: Verify durable upload interval after canonical replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-upload-interval.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $interval_grants$
+          DECLARE signature text; role_name text; action text;
+          BEGIN
+            FOREACH signature IN ARRAY ARRAY['public.lock_document_upload_interval_control()',
+              'public.assert_document_upload_interval(uuid,text)','public.assert_document_upload_registered_outcome(uuid)','public.bind_document_upload_operation()',
+              'public.guard_document_upload_operation_binding()','public.guard_document_upload_interval_attempt()',
+              'public.guard_document_upload_interval_completion()'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=signature::regprocedure AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog']) THEN
+                RAISE EXCEPTION 'Unexpected interval helper definition';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected interval helper grant'; END IF;
+              END LOOP;
+            END LOOP;
+            signature:='public.claim_document_upload_registration_operation(uuid,uuid,text)';
+            IF has_function_privilege('anon',signature,'EXECUTE') OR has_function_privilege('authenticated',signature,'EXECUTE')
+              OR NOT has_function_privilege('service_role',signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected handoff grant'; END IF;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_upload_operation_bindings'::regclass AND relrowsecurity) THEN
+              RAISE EXCEPTION 'Interval binding row security is required';
+            END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              FOREACH action IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER'] LOOP
+                IF has_table_privilege(role_name,'public.document_upload_operation_bindings',action) THEN RAISE EXCEPTION 'Unexpected raw interval grant'; END IF;
+              END LOOP;
+            END LOOP;
+          END; $interval_grants$;
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $paused_interval$
+          BEGIN
+            PERFORM public.begin_document_operation('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000001','register');
+            RAISE EXCEPTION 'Paused interval was admitted';
+          EXCEPTION WHEN SQLSTATE '55000' THEN NULL;
+          END; $paused_interval$;
+          ROLLBACK;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-upload-interval.json
+          SELECT jsonb_build_object('schema','document-upload-interval-proof-v1','phase','after-fourth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'binding_count',(SELECT count(*) FROM public.document_upload_operation_bindings),
+            'reservation_binding_prepared',true,'registration_handler_wired',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.lock_document_upload_interval_control()'::regprocedure,
+                'public.assert_document_upload_interval(uuid,text)'::regprocedure,'public.assert_document_upload_registered_outcome(uuid)'::regprocedure,'public.bind_document_upload_operation()'::regprocedure,
+                'public.guard_document_upload_operation_binding()'::regprocedure,'public.guard_document_upload_interval_attempt()'::regprocedure,
+                'public.guard_document_upload_interval_completion()'::regprocedure,'public.claim_document_upload_registration_operation(uuid,uuid,text)'::regprocedure,
+                'public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure,'public.can_insert_reserved_student_document(text,text)'::regprocedure,
+                'public.guard_document_upload_registration()'::regprocedure,'public.read_document_upload_registration(uuid,text)'::regprocedure)));
+          SQL
+
+      - name: Verify retained upload limits after durable interval replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-upload-retained-limits.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $limits$
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure
+              AND prosecdef AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog']
+              AND md5(prosrc)='dc8972ceac29738817b32b74ad411e1b') THEN
+              RAISE EXCEPTION 'Unexpected retained-upload limit definition';
+            END IF;
+            IF NOT has_function_privilege('authenticated','public.reserve_document_upload(uuid,uuid,text,text)','EXECUTE')
+              OR has_function_privilege('anon','public.reserve_document_upload(uuid,uuid,text,text)','EXECUTE')
+              OR has_function_privilege('service_role','public.reserve_document_upload(uuid,uuid,text,text)','EXECUTE') THEN
+              RAISE EXCEPTION 'Unexpected retained-upload reservation permissions';
+            END IF;
+          END; $limits$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-upload-retained-limits.json
+          SELECT jsonb_build_object('schema','document-upload-retained-limits-proof-v1','phase','after-fifth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'actor_limit',5,'student_limit',10,'registered_unsettled_counted',true,
+            'migration_owner',current_user,'admission_owner',(SELECT relowner::regrole::text FROM pg_class WHERE oid='public.document_operation_control'::regclass),
+            'automatic_expiry_or_release',false,'manual_reconciliation_implemented',false,
+            'general_operation_limits_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routine',(SELECT jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig)
+              FROM pg_proc WHERE oid='public.reserve_document_upload(uuid,uuid,text,text)'::regprocedure));
+          SQL
+
+      - name: Verify atomic summary operation handoff after retained upload limits
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-summary-operation-handoff.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $handoff$
+          DECLARE role_name text; signature text; expected record;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.guard_document_summary_operation_binding()','b049daec1448ce2bc28812c4588c8b97'),
+              ('public.claim_admitted_document_summary(uuid,integer)','f583bd75fedfe8ab4ce31abefe7b12b3'),
+              ('public.guard_document_summary_operation_completion()','80e1d39564ed282104abea744faa45ea')) AS x(signature,body_md5) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND prosecdef
+                AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected summary handoff definition or owner';
+              END IF;
+            END LOOP;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              IF has_function_privilege(role_name,'public.claim_admitted_document_summary(uuid,integer)','EXECUTE') IS DISTINCT FROM (role_name='service_role') THEN
+                RAISE EXCEPTION 'Unexpected summary handoff grant';
+              END IF;
+              FOREACH signature IN ARRAY ARRAY['public.guard_document_summary_operation_binding()','public.guard_document_summary_operation_completion()'] LOOP
+                IF has_function_privilege(role_name,signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected summary handoff helper grant'; END IF;
+              END LOOP;
+              IF has_table_privilege(role_name,'public.document_summary_operation_bindings','SELECT')
+                OR has_table_privilege(role_name,'public.document_summary_operation_bindings','INSERT')
+                OR has_table_privilege(role_name,'public.document_summary_operation_bindings','UPDATE')
+                OR has_table_privilege(role_name,'public.document_summary_operation_bindings','DELETE') THEN
+                RAISE EXCEPTION 'Unexpected raw summary handoff grant';
+              END IF;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_summary_operation_bindings'::regclass AND relrowsecurity) THEN
+              RAISE EXCEPTION 'Summary handoff row security required';
+            END IF;
+          END; $handoff$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-summary-operation-handoff.json
+          SELECT jsonb_build_object('schema','document-summary-operation-handoff-proof-v1','phase','after-sixth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'binding_count',(SELECT count(*) FROM public.document_summary_operation_bindings),
+            'atomic_handoff_prepared',true,'worker_handler_wired',false,'legacy_reader_paths_fenced',false,'queue_budget_reservation_implemented',false,
+            'general_operation_limits_implemented',false,'manual_reconciliation_implemented',false,
+            'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.claim_admitted_document_summary(uuid,integer)'::regprocedure,
+                'public.guard_document_summary_operation_binding()'::regprocedure,'public.guard_document_summary_operation_completion()'::regprocedure)));
+          SQL
+
+      - name: Verify dormant private capacity foundation after atomic summary handoff
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-capacity-ledger-foundation.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $capacity$
+          DECLARE expected record; role_name text; relation_name text; privilege_name text;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.lock_internal_document_capacity()','2f5b3f16774b99e22e8e61bcce8d7828'),
+              ('public.guard_document_capacity_reservation()','d07897b4d300a74245ed98aa37311015'),
+              ('public.reserve_internal_document_capacity(uuid,uuid)','08c62d8c20c1c5cb0eb6b1bbd14cde2d'),
+              ('public.queue_internal_document_capacity(uuid,uuid)','0435890175e2aeefe0af6fd93344e4f7'),
+              ('public.claim_internal_document_capacity(uuid,uuid)','7cd786969a6084b1c51e26a182cc9200')) x(signature,body_md5) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND NOT prosecdef
+                AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected private capacity definition or owner';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected private capacity helper grant'; END IF;
+              END LOOP;
+            END LOOP;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_capacity_policy','public.document_capacity_reservations'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity AND relowner=current_user::regrole) THEN
+                RAISE EXCEPTION 'Private capacity ownership and row security required';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected private capacity table grant'; END IF;
+                END LOOP;
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE'] LOOP
+                  IF has_any_column_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected private capacity column grant'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+            IF (SELECT count(*) FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL)<>1
+              OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_capacity_reservations'::regclass
+                AND tgname='document_capacity_frozen' AND tgenabled='O' AND tgfoid='public.guard_document_capacity_reservation()'::regprocedure) THEN
+              RAISE EXCEPTION 'Capacity foundation must remain dormant and empty';
+            END IF;
+          END; $capacity$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-capacity-ledger-foundation.json
+          SELECT jsonb_build_object('schema','document-capacity-ledger-foundation-proof-v1','phase','after-seventh-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'reservation_count',(SELECT count(*) FROM public.document_capacity_reservations),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'owner_internal_only',true,'runtime_hooks_installed',false,'settlement_implemented',false,
+            'general_application_limits_implemented',false,'queue_budget_reservation_implemented',false,
+            'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN ('lock_internal_document_capacity','guard_document_capacity_reservation',
+                'reserve_internal_document_capacity','queue_internal_document_capacity','claim_internal_document_capacity')));
+          SQL
+
+      - name: Verify atomic summary completion receipt and private capacity settlement
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-summary-capacity-settlement.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $settlement$
+          DECLARE expected record; role_name text; relation_name text; privilege_name text;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.lock_internal_document_capacity_completion()','be973fc53b7930db60f9456ba1f26548',false),
+              ('public.guard_document_summary_completion_receipt()','bce8b9ca58259f9b3f237d79f4167069',false),
+              ('public.guard_completed_document_summary_job()','a01db85f8c132ac05ac3a1227616278c',true),
+              ('public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb)','540e960a20055d3a28d1327752a1c57d',true),
+              ('public.guard_document_capacity_summary_settlement()','b1b7f4cb2e1c0bb2ce0e5d4035c19029',false),
+              ('public.settle_internal_document_summary_capacity(uuid)','2a8cd633152ab18e7343edff5c70e2e2',false),
+              ('public.guard_document_capacity_reservation()','0c99e9855dd99906fcb3e93c78bba1b6',false)) x(signature,body_md5,definer) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND prosecdef=expected.definer
+                AND proowner=current_user::regrole AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected summary settlement definition or owner';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') IS DISTINCT FROM
+                  (role_name='service_role' AND expected.signature LIKE 'public.complete_verified_document_summary(%') THEN
+                  RAISE EXCEPTION 'Unexpected summary settlement execution grant';
+                END IF;
+              END LOOP;
+            END LOOP;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_summary_completion_receipts','public.document_capacity_summary_settlements'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity AND relowner=current_user::regrole) THEN
+                RAISE EXCEPTION 'Private summary settlement ownership and row security required';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected summary settlement raw grant'; END IF;
+                END LOOP;
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE'] LOOP
+                  IF has_any_column_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected summary settlement column grant'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.document_summary_completion_receipts','summary_completion_receipt_frozen','public.guard_document_summary_completion_receipt()'),
+              ('public.document_capacity_summary_settlements','document_capacity_summary_settlement_frozen','public.guard_document_capacity_summary_settlement()'),
+              ('public.ai_jobs','ai_jobs_guard_completed_document_summary','public.guard_completed_document_summary_job()')
+            ) x(relation_name,trigger_name,signature) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(expected.relation_name) AND tgname=expected.trigger_name
+                AND tgfoid=to_regprocedure(expected.signature) AND tgenabled='O' AND NOT tgisinternal) THEN
+                RAISE EXCEPTION 'Summary receipt and settlement guards must remain enabled';
+              END IF;
+            END LOOP;
+            IF EXISTS(SELECT 1 FROM public.document_summary_completion_receipts) OR EXISTS(SELECT 1 FROM public.document_capacity_summary_settlements)
+              OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+              OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN
+              RAISE EXCEPTION 'Summary settlement must remain dormant and empty';
+            END IF;
+          END; $settlement$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-summary-capacity-settlement.json
+          SELECT jsonb_build_object('schema','document-summary-capacity-settlement-proof-v1','phase','after-eighth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'completion_receipts',(SELECT count(*) FROM public.document_summary_completion_receipts),
+            'summary_settlements',(SELECT count(*) FROM public.document_capacity_summary_settlements),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'atomic_summary_receipt_prepared',true,'owner_internal_summary_settlement_prepared',true,'producer_apply_settlement_implemented',false,
+            'producer_worker_capacity_hooks_installed',false,'general_application_limits_implemented',false,'queue_budget_reservation_implemented',false,
+            'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.lock_internal_document_capacity_completion()'::regprocedure,
+                'public.guard_document_summary_completion_receipt()'::regprocedure,'public.guard_completed_document_summary_job()'::regprocedure,
+                'public.guard_document_capacity_summary_settlement()'::regprocedure,'public.settle_internal_document_summary_capacity(uuid)'::regprocedure,
+                'public.guard_document_capacity_reservation()'::regprocedure,
+                'public.complete_verified_document_summary(uuid,timestamptz,integer,uuid,uuid,uuid,uuid,text,text,jsonb,jsonb)'::regprocedure)));
+          SQL
+
+      - name: Verify source-bound registration completion and capacity settlement
+        run: |
+          # Explicit admin session; application migration work stays postgres.
+          # The proposal uses owner/admin context only for the existing finish
+          # definition and restores postgres before all subsequent object work.
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-registration-capacity-settlement.sql \
+            -c "DO \$\$ BEGIN IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted migration executor was not restored'; END IF; END \$\$;"
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $registration$
+          DECLARE expected record;role_name text;relation_name text;privilege_name text;admission_owner oid;
+          BEGIN
+            SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.read_internal_document_registration_completion(uuid)','dc3b28d28174e13759e47896e549a3b8',false),
+              ('public.guard_document_registration_completion_receipt()','47defe9db1ab2e654d178d25e8dcb199',false),
+              ('public.record_internal_document_registration_completion(uuid)','4b2881100167d594248a391149957ae8',true),
+              ('public.guard_registered_document_summary_queue()','0bdef1bb3b14b5e0bb6f341e5464bbeb',true),
+              ('public.guard_document_capacity_registration_settlement()','f624d20bfd7c81e6fa2e2f56ac786d60',false),
+              ('public.settle_internal_document_registration_capacity(uuid)','174b6e74b5cd821d41f731915b546d73',false),
+              ('public.finish_document_operation(uuid,uuid,uuid,text)','e17e9ae509adc829e867f9723a15748d',true),
+              ('public.guard_document_capacity_reservation()','fd1a2d66f6a7c7e6a0b6f115a0b71b3a',false)) x(signature,body_md5,definer) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND prosecdef=expected.definer
+                AND proowner=CASE WHEN expected.signature='public.finish_document_operation(uuid,uuid,uuid,text)' THEN admission_owner ELSE current_user::regrole::oid END
+                AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)=expected.body_md5) THEN
+                RAISE EXCEPTION 'Unexpected registration completion definition or owner';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') IS DISTINCT FROM
+                   (role_name='service_role' AND expected.signature='public.finish_document_operation(uuid,uuid,uuid,text)') THEN
+                  RAISE EXCEPTION 'Unexpected registration completion execution grant';
+                END IF;
+              END LOOP;
+            END LOOP;
+            IF NOT has_function_privilege(admission_owner,'public.lock_internal_document_capacity_completion()','EXECUTE')
+              OR NOT has_function_privilege(admission_owner,'public.record_internal_document_registration_completion(uuid)','EXECUTE') THEN
+              RAISE EXCEPTION 'Existing admission owner requires only its private completion helper calls';
+            END IF;
+            FOREACH relation_name IN ARRAY ARRAY['public.document_registration_completion_receipts','public.document_capacity_registration_settlements'] LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity AND relowner=current_user::regrole) THEN
+                RAISE EXCEPTION 'Private registration receipt ownership and row security required';
+              END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE'] LOOP
+                  IF has_table_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected registration receipt table grant'; END IF;
+                END LOOP;
+                FOREACH privilege_name IN ARRAY ARRAY['SELECT','INSERT','UPDATE'] LOOP
+                  IF has_any_column_privilege(role_name,relation_name,privilege_name) THEN RAISE EXCEPTION 'Unexpected registration receipt column grant'; END IF;
+                END LOOP;
+              END LOOP;
+            END LOOP;
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.document_registration_completion_receipts','document_registration_completion_frozen','public.guard_document_registration_completion_receipt()'),
+              ('public.document_capacity_registration_settlements','document_capacity_registration_settlement_frozen','public.guard_document_capacity_registration_settlement()'),
+              ('public.ai_jobs','ai_jobs_guard_registered_document_summary','public.guard_registered_document_summary_queue()')
+            ) x(relation_name,trigger_name,signature) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(expected.relation_name) AND tgname=expected.trigger_name
+                AND tgfoid=to_regprocedure(expected.signature) AND tgenabled='O' AND NOT tgisinternal) THEN
+                RAISE EXCEPTION 'Registration receipt/source guards must remain enabled';
+              END IF;
+            END LOOP;
+            IF EXISTS(SELECT 1 FROM public.document_registration_completion_receipts) OR EXISTS(SELECT 1 FROM public.document_capacity_registration_settlements)
+              OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN
+              RAISE EXCEPTION 'Registration capacity must remain dormant and empty';
+            END IF;
+          END; $registration$;
+          SQL
+          # Disposable service completion crosses the original admission owner
+          # and the private recorder owner. Rollback leaves no leases or receipts.
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $owner_bridge_smoke$
+          DECLARE receipt jsonb;
+          BEGIN
+            PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',1,false,'resume');
+            receipt:=public.begin_document_operation('00000000-0000-4000-8000-000000000902','00000000-0000-4000-8000-000000000001','register');
+            PERFORM public.finish_document_operation((receipt->>'operation_id')::uuid,'00000000-0000-4000-8000-000000000001',(receipt->>'receipt_id')::uuid,'completed');
+            IF NOT (public.inspect_document_operation_drain()->>'tracked_operations_clear')::boolean THEN RAISE EXCEPTION 'Disposable completion remained active'; END IF;
+          END; $owner_bridge_smoke$;
+          ROLLBACK;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-registration-capacity-settlement.json
+          SELECT jsonb_build_object('schema','document-registration-capacity-settlement-proof-v1','phase','after-ninth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'admission_owner',(SELECT relowner::regrole::text FROM pg_class WHERE oid='public.document_operation_control'::regclass),
+            'registration_receipts',(SELECT count(*) FROM public.document_registration_completion_receipts),
+            'registration_settlements',(SELECT count(*) FROM public.document_capacity_registration_settlements),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'restricted_executor_restored',true,'service_owner_bridge_rollback_passed',true,
+            'registration_receipt_prepared',true,'clean_registration_units',1,'no_summary_quarantine_units',2,
+            'rescan_apply_settlement_implemented',false,'producer_worker_capacity_hooks_installed',false,'general_application_limits_implemented',false,
+            'queue_budget_reservation_implemented',false,'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.read_internal_document_registration_completion(uuid)'::regprocedure,
+                'public.guard_document_registration_completion_receipt()'::regprocedure,'public.record_internal_document_registration_completion(uuid)'::regprocedure,
+                'public.guard_registered_document_summary_queue()'::regprocedure,'public.guard_document_capacity_registration_settlement()'::regprocedure,
+                'public.settle_internal_document_registration_capacity(uuid)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,
+                'public.guard_document_capacity_reservation()'::regprocedure)));
+          SQL
+
+      - name: Verify private rescan source claim and dormant capacity boundary
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-rescan-source-claim.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $rescan_proof$
+          DECLARE expected record;role_name text;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.guard_document_rescan_source_binding()','9cde41dda57eaaac0ac7aacb666e27a2',false),
+              ('public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)','5813809f271e1b2b94af7ffa0b11ffd4',false),
+              ('public.guard_unfinished_document_rescan()','5df6d295d63bfe0a3441e1050fef1212',true)
+            ) x(signature,body_md5,definer) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND md5(prosrc)=expected.body_md5
+                AND prosecdef=expected.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN
+                RAISE EXCEPTION 'Unexpected private rescan definition or owner'; END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected private rescan execution'; END IF;
+              END LOOP;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_rescan_source_bindings'::regclass AND relrowsecurity AND relowner=current_user::regrole::oid) THEN
+              RAISE EXCEPTION 'Private rescan row security/ownership required'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              IF has_table_privilege(role_name,'public.document_rescan_source_bindings','SELECT,INSERT,UPDATE,DELETE,TRUNCATE')
+                OR has_any_column_privilege(role_name,'public.document_rescan_source_bindings','SELECT,INSERT,UPDATE') THEN RAISE EXCEPTION 'Unexpected private rescan data privilege'; END IF;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_rescan_source_bindings'::regclass AND tgname='document_rescan_source_frozen'
+              AND tgfoid='public.guard_document_rescan_source_binding()'::regprocedure AND tgtype=31 AND tgenabled='O' AND NOT tgisinternal)
+              OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_operation_leases'::regclass AND tgname='document_rescan_no_false_finish'
+              AND tgfoid='public.guard_unfinished_document_rescan()'::regprocedure AND tgtype=19 AND tgenabled='O' AND NOT tgisinternal) THEN
+              RAISE EXCEPTION 'Rescan source and unfinished-work guards must stay enabled'; END IF;
+            IF EXISTS(SELECT 1 FROM public.document_rescan_source_bindings) OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+              OR NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused)
+              OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN
+              RAISE EXCEPTION 'Rescan foundation must remain paused, empty and unset'; END IF;
+          END; $rescan_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-source-claim.json
+          SELECT jsonb_build_object('schema','document-rescan-source-claim-proof-v1','phase','after-tenth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'source_bindings',(SELECT count(*) FROM public.document_rescan_source_bindings),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'private_source_capacity_claim_prepared',true,'reserved_units',2,'ordinary_execution_grants',false,
+            'pending_transition_implemented',false,'rescan_completion_settlement_implemented',false,'endpoint_source_claim_wired',false,
+            'general_application_limits_implemented',false,'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.guard_document_rescan_source_binding()'::regprocedure,'public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)'::regprocedure,'public.guard_unfinished_document_rescan()'::regprocedure)));
+          SQL
+
+      - name: Inventory document reference metadata without reading user rows
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $reader$
+          DECLARE reader_oid oid;
+          BEGIN
+            IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_catalog_reader') THEN
+              CREATE ROLE tf_document_catalog_reader NOLOGIN NOINHERIT;
+            END IF;
+            SELECT oid INTO reader_oid FROM pg_roles WHERE rolname='tf_document_catalog_reader'
+              AND NOT rolcanlogin AND NOT rolinherit AND NOT rolsuper AND NOT rolbypassrls
+              AND NOT rolcreaterole AND NOT rolcreatedb AND NOT rolreplication;
+            IF reader_oid IS NULL OR EXISTS(SELECT 1 FROM pg_auth_members WHERE member=reader_oid) THEN
+              RAISE EXCEPTION 'Catalog reader role is not isolated';
+            END IF;
+          END;
+          $reader$;
+          GRANT USAGE ON SCHEMA public,storage TO tf_document_catalog_reader;
+          SQL
+          PGOPTIONS='-c default_transaction_read_only=on' PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -c 'SET ROLE tf_document_catalog_reader' \
+            -f docs/production-readiness/proposals/document-reference-catalog.sql > /tmp/document-reference-catalog.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/document-reference-catalog.json','utf8'));
+          assert.equal(x.schema,'document-reference-catalog-v1');
+          assert.equal(x.reader_role,'tf_document_catalog_reader');assert.equal(x.read_only_transaction,true);
+          assert.equal(x.reader_can_select_protected_relations,false);assert.equal(x.reader_can_select_job_rows,false);
+          assert.equal(x.catalog_metadata_only,true);
+          assert.equal(x.data_rows_inspected,false);
+          assert.equal(x.reference_inventory_complete,false);
+          assert.equal(x.cleanup_authorized,false);
+          assert.equal(x.targets.length,4);assert.ok(x.targets.every(t=>t.present));
+          assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_upload_resolution_claims'&&k.target_table==='public.document_upload_attempts'&&k.delete_action==='restrict'));
+          assert.ok(x.untyped_json_candidates.some(c=>c.table_name==='public.ai_jobs'&&c.column_name==='input_source'));
+          assert.ok(x.foreign_keys.some(k=>k.source_table==='public.document_summary_source_bindings'&&k.target_table==='public.ai_jobs'&&k.delete_action==='restrict'));
+          const sourceGrants=x.effective_table_grants.filter(g=>g.table_name==='public.document_summary_source_bindings');
+          assert.equal(sourceGrants.length,3);assert.ok(sourceGrants.every(g=>!g.can_select&&!g.can_insert&&!g.can_update&&!g.can_delete&&!g.can_truncate));
+          assert.ok(x.triggers.some(t=>t.name==='upload_attempt_resolution_frozen'&&t.enabled==='O'));
+          console.log(JSON.stringify({foreign_keys:x.foreign_keys.length,named_candidates:x.named_reference_candidates.length,json_candidates:x.untyped_json_candidates.length,routine_candidates:x.routine_candidates.length}));
+          NODE
+
+      - name: Review summary rollout counts without private values
+        run: |
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-summary-rollout-inventory.sql \
+            > /tmp/document-summary-rollout-inventory.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/document-summary-rollout-inventory.json','utf8'));
+          assert.equal(x.schema,'document-summary-rollout-inventory-v1');
+          assert.equal(x.read_only_transaction,true);assert.equal(x.complete_relation_visibility,true);
+          assert.equal(x.private_values_emitted,false);assert.equal(x.by_state.length,5);
+          for(const s of x.by_state){assert.equal(s.bound,0);assert.equal(s.unbound,0);}
+          for(const k of ['unknown_state_count','processing_claim_conflict_count','nonprocessing_locked_count','unbound_reconciliation_count','retained_binding_count','retained_job_identity_conflict_count','retained_document_identity_conflict_count'])assert.equal(x[k],0);
+          for(const k of ['worker_quiescence_verified','provider_work_reconciled','retention_review_complete','rollout_authorized','cleanup_authorized'])assert.equal(x[k],false);
+          console.log('Read-only empty-schema counts verified; no worker/provider or rollout authority inferred.');
+          NODE
+
+      - name: Seed disposable-only preflight ledger fixture
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          import {extractionPreflightLedgerSql} from './tests/database/atomic-extraction-rollout-sql.mjs';
+          writeFileSync('/tmp/atomic-extraction-ledger-fixture.sql',extractionPreflightLedgerSql);
+          NODE
+          PGUSER=supabase_admin psql -q -v ON_ERROR_STOP=1 -f /tmp/atomic-extraction-ledger-fixture.sql
+
+      - name: Review atomic extraction preflight without private values
+        run: |
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/atomic-extraction-preflight.sql \
+            > /tmp/atomic-extraction-preflight.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('/tmp/atomic-extraction-preflight.json','utf8'));
+          assert.equal(x.schema,'atomic-extraction-preflight-v1');assert.equal(x.read_only,true);
+          assert.equal(x.complete_relation_visibility,true);assert.equal(x.review_count,0);
+          for(const k of ['source_conflict_count','unavailable_source_count','malformed_review_count','evidence_conflict_count','unknown_state_count'])assert.equal(x[k],0);
+          for(const k of ['old_handlers_drained','evidence_flag_decision_recorded','data_repaired','rollout_authorized'])assert.equal(x[k],false);
+          assert.equal(x.ledger.length,4);assert.equal(x.routine.definer,false);assert.equal(x.routine.auth_execute,true);
+          assert.equal(x.routine.anon_execute,false);assert.equal(x.routine.service_execute,false);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -511,4 +1552,17 @@ jobs:
           path: |
             /tmp/realtime_policies.txt
             /tmp/security-finding-inventory.txt
+            /tmp/document-path-proposal-verification.txt
+            /tmp/document-reference-catalog.json
+            /tmp/document-summary-rollout-inventory.json
+            /tmp/atomic-extraction-preflight.json
+            /tmp/document-operation-admission.json
+            /tmp/document-upload-pause-fence.json
+            /tmp/document-upload-interval.json
+            /tmp/document-upload-retained-limits.json
+            /tmp/document-summary-operation-handoff.json
+            /tmp/document-capacity-ledger-foundation.json
+            /tmp/document-summary-capacity-settlement.json
+            /tmp/document-registration-capacity-settlement.json
+            /tmp/document-rescan-source-claim.json
           if-no-files-found: ignore

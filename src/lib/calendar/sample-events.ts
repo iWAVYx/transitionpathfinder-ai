@@ -32,7 +32,7 @@ export interface CalendarEvent {
   title: string;
   /** ISO datetime. All-day events use 00:00 local. */
   start: string;
-  /** Optional end ISO for multi-hour blocks. */
+  /** Optional end ISO; for all-day events the end date is exclusive. */
   end?: string;
   type: CalendarEventType;
   allDay?: boolean;
@@ -146,7 +146,7 @@ const EDUCATOR_EVENTS: CalendarEvent[] = [
 const SCHOOL_ADMIN_EVENTS: CalendarEvent[] = [
   { id: "sa1", title: "Staff PD — transition rubric", start: iso(3, 14, 0), end: iso(3, 15, 30), type: "milestone", location: "Media Center", scope: "Staff" },
   { id: "sa2", title: "Monthly readiness review", start: iso(7, 9, 0), end: iso(7, 10, 0), type: "meeting", scope: "Leadership", href: "/school/readiness-trends" },
-  { id: "sa3", title: "Report completion deadline", start: iso(10, 17, 0), type: "report", scope: "School", href: "/school/report-completion" },
+  { id: "sa3", title: "Report completion deadline", start: iso(10, 17, 0), type: "report", scope: "School", href: "/school/reports" },
   { id: "sa4", title: "Family engagement night", start: iso(14, 18, 0), end: iso(14, 20, 0), type: "milestone", location: "Auditorium", scope: "Community" },
   { id: "sa5", title: "Implementation checklist review", start: iso(21, 15, 0), type: "milestone", scope: "Leadership", href: "/school/implementation" },
 ];

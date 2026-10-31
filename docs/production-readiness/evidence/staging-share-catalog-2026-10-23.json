@@ -1,0 +1,261 @@
+{
+  "provenance": {
+    "target": "qgrertkqbwanerqqemph",
+    "source": "Signed-in Supabase SQL editor; metadata-only BEGIN READ ONLY query; visible result and downloaded CSV agree",
+    "queryObservedAt": "2026-10-23T00:52:21.896332+00:00",
+    "browserExport": "Supabase Snippet Untitled query.csv",
+    "csvSha256": "be388cc96ba887c60ed15fc91a58373683b5a26c633d0ac7ea81bed37c91888d",
+    "scope": "Catalog metadata and three selected migration-ledger versions only; no application rows, tokens, credentials or secrets"
+  },
+  "catalog": {
+    "roles": [
+      {
+        "name": "authenticated",
+        "inherit": true,
+        "superuser": false,
+        "bypass_rls": false
+      },
+      {
+        "name": "anon",
+        "inherit": true,
+        "superuser": false,
+        "bypass_rls": false
+      },
+      {
+        "name": "service_role",
+        "inherit": true,
+        "superuser": false,
+        "bypass_rls": true
+      }
+    ],
+    "ledger": [
+      {
+        "name": "8ed7834a-7f65-4ccc-987e-ad11d1ded410",
+        "version": "20260715152133",
+        "statements_md5": "b8fc798a94df744208b2f13970d8b2f5"
+      },
+      {
+        "name": "atomic_pathway_report_content",
+        "version": "20261012190000",
+        "statements_md5": "06379cb286297b929e168adfe25a4d0e"
+      }
+    ],
+    "tables": [
+      {
+        "rls": true,
+        "name": "pathway_reports",
+        "owner": "postgres",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "name": "share_tokens",
+        "owner": "postgres",
+        "force_rls": false
+      }
+    ],
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "token",
+        "type": "text",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "report_id",
+        "type": "uuid",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "created_by",
+        "type": "uuid",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "audience",
+        "type": "text",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "expires_at",
+        "type": "timestamp with time zone",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "revoked",
+        "type": "boolean",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "view_count",
+        "type": "integer",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "last_viewed_at",
+        "type": "timestamp with time zone",
+        "anon_update": false,
+        "auth_update": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "anon_update": false,
+        "auth_update": true
+      }
+    ],
+    "operator": "postgres",
+    "policies": [
+      {
+        "name": "Owners and editors can update reports",
+        "check": "((auth.uid() = user_id) OR ((student_id IS NOT NULL) AND can_edit_student(auth.uid(), student_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "pathway_reports",
+        "using": "((auth.uid() = user_id) OR ((student_id IS NOT NULL) AND can_edit_student(auth.uid(), student_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users delete own reports",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "pathway_reports",
+        "using": "(auth.uid() = user_id)",
+        "command": "DELETE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Users insert own reports",
+        "check": "(auth.uid() = user_id)",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "pathway_reports",
+        "using": null,
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "View reports via owner or student access",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "pathway_reports",
+        "using": "((auth.uid() = user_id) OR ((student_id IS NOT NULL) AND can_access_student(auth.uid(), student_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Owners create share tokens",
+        "check": "((auth.uid() = created_by) AND (EXISTS ( SELECT 1\n   FROM pathway_reports r\n  WHERE ((r.id = share_tokens.report_id) AND ((r.user_id = auth.uid()) OR ((r.student_id IS NOT NULL) AND can_access_student(auth.uid(), r.student_id)) OR has_role(auth.uid(), 'admin'::app_role))))))",
+        "roles": [
+          "authenticated"
+        ],
+        "table": "share_tokens",
+        "using": null,
+        "command": "INSERT",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Owners delete share tokens",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "share_tokens",
+        "using": "(auth.uid() = created_by)",
+        "command": "DELETE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Owners revoke share tokens",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "share_tokens",
+        "using": "(auth.uid() = created_by)",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "name": "Owners view their share tokens",
+        "check": null,
+        "roles": [
+          "authenticated"
+        ],
+        "table": "share_tokens",
+        "using": "(auth.uid() = created_by)",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE"
+      }
+    ],
+    "routines": [
+      {
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "body_md5": "202a554b5536957147d0cd9a3b4873e2",
+        "signature": "resolve_share_token(text)",
+        "anon_execute": true,
+        "auth_execute": true,
+        "service_execute": true
+      },
+      {
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "body_md5": "0b5ec346923e2ec0dc29ea4a302c9a10",
+        "signature": "track_share_view(text)",
+        "anon_execute": true,
+        "auth_execute": true,
+        "service_execute": true
+      }
+    ],
+    "read_only": "on",
+    "memberships": null,
+    "observed_at": "2026-10-23T00:52:21.896332+00:00",
+    "table_grants": [
+      {
+        "role": "anon",
+        "delete": false,
+        "insert": false,
+        "select": false,
+        "update": false
+      },
+      {
+        "role": "authenticated",
+        "delete": true,
+        "insert": true,
+        "select": true,
+        "update": true
+      },
+      {
+        "role": "service_role",
+        "delete": true,
+        "insert": true,
+        "select": true,
+        "update": true
+      }
+    ]
+  }
+}

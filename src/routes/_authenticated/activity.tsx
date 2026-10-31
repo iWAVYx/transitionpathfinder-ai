@@ -29,7 +29,7 @@ function ActivityPage() {
   ];
   return (
     <SiteShell>
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <section className="mx-auto max-w-4xl px-4 py-8">
         <DashboardSection
           eyebrow="Recordkeeping"
           title="Activity History"
@@ -37,7 +37,7 @@ function ActivityPage() {
         >
           <ActivityHistoryList events={events} />
         </DashboardSection>
-      </main>
+      </section>
     </SiteShell>
   );
 }

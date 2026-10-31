@@ -16,7 +16,7 @@ const tools: Partial<Record<RoleAudience, Tool[]>> = {
   student: [
     { to: "/student-voice", label: "Student Voice" },
     { to: "/pathway/student", label: "My Pathway Report" },
-    { to: "/action-items", label: "My Next Actions" },
+    { to: "/action-items", label: "My Action Items" },
     { to: "/calendar", label: "Calendar" },
     { to: "/resources", label: "Resources" },
     { to: "/partner-network", label: "Partner Network" },

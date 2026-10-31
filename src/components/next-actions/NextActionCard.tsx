@@ -35,7 +35,7 @@ export function NextActionCard({
   suggestionRoute,
   title = "Your Next Actions",
   eyebrow = "What Needs Attention",
-  description = "Ranked by urgency. Complete an item to move it to activity history.",
+  description = "Ranked by urgency. Open a tool to work on an item, then mark it complete.",
   defaultLimit = 5,
   onComplete,
   completingId,

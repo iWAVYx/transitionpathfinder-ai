@@ -1,0 +1,75 @@
+{
+  "schema": "document-upload-retained-limits-local-v1",
+  "date": "2026-10-30",
+  "source_base": "59074dc0f0c3526be1321aba1e62d1dd094fbecb",
+  "status": "Local SQL-only quota correction verified; native/exact-source CI pending; unapplied",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "2cfcc1d39fb3db561bd86ada041fbf7246d7e1660bae94d8cf4774b9e238ed7d"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
+      "sha256": "6356ae2ae197988484dbcac1c7b25cac9882b1a2a1381193c5af70cdbeec93ea"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "e5a117a350718bd97f8069b2593e8bd32cd52baedd1c661d9a8818878749d1ab"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "a05750743d383d000db571415267021d2405e9e044a9d521783aaf7ebb9a3ffd"
+    }
+  ],
+  "validation": {
+    "sql_cases": 865,
+    "pglite_pass": 759,
+    "native_only_skipped": 106,
+    "new_cases": 29,
+    "new_native_races": 4,
+    "new_native_race_scope": "Actor and student boundary, COMMIT and ROLLBACK, distinct restricted sessions with independent observer.",
+    "focused_installation_cases": 7,
+    "safety_contracts": 92,
+    "workflow_yaml": "parsed with existing js-yaml",
+    "application": "Unchanged; retain5661 prior unit tests/359 files, TypeScript and isolated-staging build. Not rerun for this SQL-only change.",
+    "worker": "Unchanged; retain prior intercepted Deno proof.",
+    "native_and_exact_source_checks": "pending"
+  },
+  "limits": {
+    "actor": 5,
+    "student": 10,
+    "includes_registered_active": true,
+    "includes_registered_needs_review": true,
+    "reserved_and_review_required_retained": true,
+    "missing_or_mismatched_completion_proof_counted": true,
+    "completed_slot_reuse": "Exact bound completed register operation only; no new release path."
+  },
+  "database": {
+    "canonical_migrations": 225,
+    "unapplied_noncanonical_control_proposals": 5,
+    "existing_fifteen_migration_batch_installs_these": false,
+    "earlier_four_proposal_sources_changed": false,
+    "new_routines": 0,
+    "replaced_routines": [
+      "public.reserve_document_upload(uuid,uuid,text,text)"
+    ],
+    "new_grants": 0,
+    "automatic_expiry_or_release": false,
+    "manual_reconciliation_implemented": false,
+    "general_operation_limits_implemented": false
+  },
+  "application_runtime": {
+    "fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "files": 1205,
+    "changed": false
+  },
+  "worker_package": {
+    "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+    "files": 4,
+    "changed": false
+  },
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

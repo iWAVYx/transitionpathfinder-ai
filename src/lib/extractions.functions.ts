@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractFromIep, type IepExtract } from "./iep-extract.functions";
-import { emitEvidenceForConfirmedExtraction } from "./evidence-writers.functions";
+import { applyReviewedExtractionWithAdmission, parseExtractionApplyRequest } from "./document-extraction-apply.server";
 
 /** Section keys we surface in the review UI, mapped to IepExtract fields. */
 export const EXTRACTION_SECTION_KEYS = [
@@ -158,12 +158,12 @@ export const updateExtractionSection = createServerFn({ method: "POST" })
       notes: data.notes,
     };
 
-    const { error: upErr } = await supabase
+    const { data: saved, error: upErr } = await supabase
       .from("document_extractions")
       .update({ sections: sections as any, status: "in_review" })
-      .eq("id", data.extraction_id);
-    if (upErr) throw new Error("Could not update section.");
-    return { ok: true };
+      .eq("id", data.extraction_id).select("updated_at").maybeSingle();
+    if (upErr || !saved) throw new Error("Could not update section.");
+    return { ok: true, updated_at: saved.updated_at };
   });
 
 export const updateExtractionMeta = createServerFn({ method: "POST" })
@@ -182,116 +182,15 @@ export const updateExtractionMeta = createServerFn({ method: "POST" })
     if (data.missing_information) patch.missing_information = data.missing_information;
     if (data.suggested_questions) patch.suggested_questions = data.suggested_questions;
     if (data.review_notes !== undefined) patch.review_notes = data.review_notes;
-    const { error } = await supabase
+    const { data: saved, error } = await supabase
       .from("document_extractions")
       .update(patch)
-      .eq("id", data.extraction_id);
-    if (error) throw new Error("Could not save review notes.");
-    return { ok: true };
+      .eq("id", data.extraction_id).select("updated_at").maybeSingle();
+    if (error || !saved) throw new Error("Could not save review notes.");
+    return { ok: true, updated_at: saved.updated_at };
   });
 
 export const applyAcceptedExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ extraction_id: z.string().uuid() }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: row, error } = await supabase
-      .from("document_extractions")
-      .select("id, student_id, document_id, sections")
-      .eq("id", data.extraction_id)
-      .maybeSingle();
-    if (error || !row) throw new Error("Extraction not found.");
-
-    const sections = (row.sections ?? {}) as Record<string, ExtractionSection>;
-    const accepted = (k: ExtractionSectionKey) => {
-      const s = sections[k];
-      if (!s) return null;
-      return s.state === "accepted" || s.state === "edited" ? (s.value || "").trim() : null;
-    };
-
-    // Map accepted sections into students + transition_profiles fields.
-    const studentPatch: any = {};
-    const tp: any = {};
-
-    const firstName = accepted("student_first_name");
-    if (firstName) studentPatch.first_name = firstName;
-    const grade = accepted("grade_band");
-    if (grade && ["9-10", "11-12", "post-secondary", "not-applicable"].includes(grade)) {
-      studentPatch.grade_band = grade;
-    }
-    const strengths = accepted("strengths");
-    if (strengths) studentPatch.strengths_summary = strengths;
-    const interests = accepted("interests");
-    if (interests) studentPatch.interests_summary = interests;
-    const needs = accepted("needs");
-    if (needs) studentPatch.support_needs_summary = needs;
-    const voice = accepted("student_voice");
-    if (voice) studentPatch.student_voice_statement = voice;
-    const familyConcerns = accepted("family_concerns");
-    if (familyConcerns) studentPatch.family_priorities = familyConcerns;
-
-    const transportation = accepted("transportation");
-    if (transportation) tp.transportation_goal = transportation;
-    const supports = accepted("supports");
-    if (supports) tp.current_services_summary = supports;
-    const currentGoals = accepted("current_goals");
-    if (currentGoals) tp.education_training_goal = currentGoals;
-
-    if (Object.keys(studentPatch).length) {
-      const { error: sErr } = await supabase
-        .from("students")
-        .update(studentPatch)
-        .eq("id", row.student_id);
-      if (sErr) console.error("apply students update failed", sErr);
-    }
-
-    if (Object.keys(tp).length) {
-      const { error: tErr } = await supabase
-        .from("transition_profiles")
-        .upsert({ student_id: row.student_id, ...tp }, { onConflict: "student_id" });
-      if (tErr) console.error("apply transition_profiles upsert failed", tErr);
-    }
-
-    const { error: finErr } = await supabase
-      .from("document_extractions")
-      .update({
-        status: "complete",
-        reviewer_id: userId,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", row.id);
-    if (finErr) throw new Error("Could not finalize the review.");
-
-    // Slice B4: emit one evidence_item for this confirmed extraction (flagged).
-    // Idempotent: partial unique index on (student_id, source_kind, source_id).
-    await emitEvidenceForConfirmedExtraction({
-      supabase,
-      userId,
-      extractionId: row.id,
-      studentId: row.student_id,
-      documentId: (row as { document_id?: string | null }).document_id ?? null,
-      verificationState: "human_confirmed",
-      payload: {
-        applied_student_fields: Object.keys(studentPatch),
-        applied_transition_fields: Object.keys(tp),
-      },
-    });
-
-
-
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.extraction.applied",
-      entity_type: "document_extraction",
-      entity_id: row.id,
-      student_id: row.student_id,
-      metadata: {
-        applied_student_fields: Object.keys(studentPatch),
-        applied_transition_fields: Object.keys(tp),
-      },
-    });
-
-    return { ok: true };
-  });
+  .validator((i: unknown) => parseExtractionApplyRequest(i))
+  .handler(async ({ data, context }) => applyReviewedExtractionWithAdmission(context.supabase, context.userId, data));

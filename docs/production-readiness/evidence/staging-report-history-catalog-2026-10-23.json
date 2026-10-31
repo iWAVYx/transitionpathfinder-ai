@@ -1,0 +1,228 @@
+{
+  "roles": [
+    {
+      "name": "authenticated",
+      "inherits": true,
+      "superuser": false,
+      "bypass_rls": false
+    },
+    {
+      "name": "anon",
+      "inherits": true,
+      "superuser": false,
+      "bypass_rls": false
+    },
+    {
+      "name": "service_role",
+      "inherits": true,
+      "superuser": false,
+      "bypass_rls": true
+    }
+  ],
+  "tables": [
+    {
+      "rls": true,
+      "name": "pathway_reports",
+      "owner": "postgres",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "name": "pathway_report_versions",
+      "owner": "postgres",
+      "force_rls": false
+    }
+  ],
+  "operator": "postgres",
+  "policies": [
+    {
+      "name": "Team can insert report versions",
+      "check": "(EXISTS ( SELECT 1\n FROM pathway_reports r\n WHERE ((r.id = pathway_report_versions.report_id) AND (((r.user_id = auth.uid()) AND ((r.student_id IS NULL) OR can_access_student(auth.uid(), r.student_id))) OR ((r.student_id IS NOT NULL) AND can_edit_student(auth.uid(), r.student_id))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "pathway_report_versions",
+      "using": null,
+      "command": "INSERT",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "Team can view report versions",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "pathway_report_versions",
+      "using": "(EXISTS ( SELECT 1\n FROM pathway_reports r\n WHERE ((r.id = pathway_report_versions.report_id) AND (((r.user_id = auth.uid()) AND ((r.student_id IS NULL) OR can_access_student(auth.uid(), r.student_id))) OR ((r.student_id IS NOT NULL) AND can_access_student(auth.uid(), r.student_id))))))",
+      "command": "SELECT",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "Owners and editors can update reports",
+      "check": "((auth.uid() = user_id) OR ((student_id IS NOT NULL) AND can_edit_student(auth.uid(), student_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "pathway_reports",
+      "using": "((auth.uid() = user_id) OR ((student_id IS NOT NULL) AND can_edit_student(auth.uid(), student_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+      "command": "UPDATE",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "Users delete own reports",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "pathway_reports",
+      "using": "(auth.uid() = user_id)",
+      "command": "DELETE",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "Users insert own reports",
+      "check": "(auth.uid() = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "pathway_reports",
+      "using": null,
+      "command": "INSERT",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "View reports via owner or student access",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "pathway_reports",
+      "using": "((auth.uid() = user_id) OR ((student_id IS NOT NULL) AND can_access_student(auth.uid(), student_id)) OR has_role(auth.uid(), 'admin'::app_role))",
+      "command": "SELECT",
+      "permissive": "PERMISSIVE"
+    }
+  ],
+  "routines": [
+    {
+      "owner": "postgres",
+      "config": [
+        "search_path=pg_catalog"
+      ],
+      "definer": false,
+      "body_md5": "f80313504d2ea967cabc32dbb55d3af3",
+      "signature": "save_pathway_report_content_atomic(uuid,jsonb,jsonb,text)",
+      "anon_execute": false,
+      "auth_execute": true,
+      "service_execute": false
+    }
+  ],
+  "triggers": null,
+  "read_only": "on",
+  "observed_at": "2026-10-23T13:45:51.211563+00:00",
+  "history_ledger": [
+    {
+      "name": "atomic_pathway_report_content",
+      "version": "20261012190000",
+      "statements_md5": "06379cb286297b929e168adfe25a4d0e"
+    }
+  ],
+  "version_columns": [
+    {
+      "name": "id",
+      "auth_insert": true,
+      "auth_update": true
+    },
+    {
+      "name": "report_id",
+      "auth_insert": true,
+      "auth_update": true
+    },
+    {
+      "name": "version_number",
+      "auth_insert": true,
+      "auth_update": true
+    },
+    {
+      "name": "content",
+      "auth_insert": true,
+      "auth_update": true
+    },
+    {
+      "name": "change_summary",
+      "auth_insert": true,
+      "auth_update": true
+    },
+    {
+      "name": "created_by",
+      "auth_insert": true,
+      "auth_update": true
+    },
+    {
+      "name": "created_at",
+      "auth_insert": true,
+      "auth_update": true
+    }
+  ],
+  "effective_grants": [
+    {
+      "role": "anon",
+      "table": "public.pathway_reports",
+      "delete": false,
+      "insert": false,
+      "select": false,
+      "update": false,
+      "trigger": false,
+      "truncate": false
+    },
+    {
+      "role": "anon",
+      "table": "public.pathway_report_versions",
+      "delete": false,
+      "insert": false,
+      "select": false,
+      "update": false,
+      "trigger": false,
+      "truncate": false
+    },
+    {
+      "role": "authenticated",
+      "table": "public.pathway_reports",
+      "delete": true,
+      "insert": true,
+      "select": true,
+      "update": true,
+      "trigger": true,
+      "truncate": true
+    },
+    {
+      "role": "authenticated",
+      "table": "public.pathway_report_versions",
+      "delete": true,
+      "insert": true,
+      "select": true,
+      "update": true,
+      "trigger": true,
+      "truncate": true
+    },
+    {
+      "role": "service_role",
+      "table": "public.pathway_reports",
+      "delete": true,
+      "insert": true,
+      "select": true,
+      "update": true,
+      "trigger": true,
+      "truncate": true
+    },
+    {
+      "role": "service_role",
+      "table": "public.pathway_report_versions",
+      "delete": true,
+      "insert": true,
+      "select": true,
+      "update": true,
+      "trigger": true,
+      "truncate": true
+    }
+  ]
+}

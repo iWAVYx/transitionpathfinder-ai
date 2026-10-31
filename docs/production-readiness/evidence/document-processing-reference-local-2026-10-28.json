@@ -1,0 +1,207 @@
+{
+  "date": "2026-10-28",
+  "status": "corrected candidate passes all nine applicable checks; both native runs 522 passed/zero skips; matching restricted-reader full-schema catalog retained; no hosted acceptance",
+  "source_base": "89be7fb5",
+  "hosted_actions": false,
+  "application_changed": false,
+  "canonical_migration_count": 210,
+  "unapplied_upload_proposals": 13,
+  "new_mutation_proposals": 0,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "catalog_query": "docs/production-readiness/proposals/document-reference-catalog.sql",
+  "catalog_query_sha256": "e517172017a43c2814c6ca09a9e99f3064d8597cf2d31a3b2827fb28c9dacf98",
+  "checked": [
+    "Eighteen source/completion cases cover claimed held uploads for Family, Educator, Student, School, District and Owner with current explicit editing where required. Missing document IDs, attempt IDs masquerading as document IDs, and queued paths/text cannot source or complete a verified document summary.",
+    "A queued held path cannot replace another legitimate saved source. The verified source RPC returns the actual permitted document path/object identity and preserves unrelated legitimate processing.",
+    "Read-only catalog output inventories inbound/outbound foreign keys and delete actions, named file/document/storage/upload columns, all plain JSON/JSONB candidate columns, referencing routine signatures/attributes, triggers and effective table grants.",
+    "The inventory runs under a disposable NOLOGIN/NOINHERIT catalog reader in a read-only transaction. Its protected document/attempt/claim/object and job SELECT privileges must all be false; function bodies and user rows are not returned.",
+    "A deliberately unknown FK/CASCADE and an opaque JSON payload column are discovered by the audit rather than silently omitted. Reference completeness and cleanup authority remain explicitly false."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 522,
+      "pass": 476,
+      "fail": 0,
+      "skip": 46,
+      "skips": "Prior real PostgreSQL contention cases only; not local concurrency proof."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "native_full_schema_and_catalog_artifact": {
+      "tests": 522,
+      "pass": 522,
+      "fail": 0,
+      "skip": 0,
+      "runs": [
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40755341129",
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40755328035"
+      ],
+      "schema": "Both full 210 canonical migration replays plus all thirteen unchanged proposals pass. Metadata inventory runs read-only as isolated reader with no protected/job SELECT privilege.",
+      "catalogs_identical": true,
+      "artifact_bytes_sha256": "8ff56bea334ca5d26b69fe5272486c5ea0a3241592a9cf99f8cf3e0229a64a89",
+      "stored_snapshot": "docs/production-readiness/evidence/document-reference-catalog-2026-10-28.json",
+      "stored_snapshot_sha256": "d881fd1bb801010b546bb3d1f2398096eccbea1442b109e033ebb76b452bfd0b",
+      "foreign_keys": 17,
+      "named_candidates": 29,
+      "json_candidates": 101,
+      "routine_candidates": 21
+    },
+    "automatic_checks": {
+      "applicable_pass": 9,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40755341112,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40755341165,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341104,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341129,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341102,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40755341372,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341122,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341149,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341103,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755341342,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755328035,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40755327896,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt under unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
+  },
+  "known_writer_review_starting_points": [
+    {
+      "source": "src/lib/documents.functions.ts",
+      "operations": "Summary enqueue after registration/rescan; document/summary/extraction and pipeline lifecycle handlers. No full writer-fence acceptance claimed."
+    },
+    {
+      "source": "supabase/functions/ai-job-processor/index.ts",
+      "operations": "Job selection/processing claim, verified source and completion RPC use, guarded needs_review on summary failure, unrelated job completion and notification references."
+    },
+    {
+      "source": "docs/production-readiness/proposals/verified-document-summary-source.sql",
+      "operations": "Service-only actual saved-source verification and exact completion compare-and-set. Source is rechecked, but model IO occurs outside these database transactions."
+    },
+    {
+      "source": "src/lib/document-pipeline.server.ts",
+      "operations": "Best-effort pipeline records; logging is not an authoritative processing or cleanup lease."
+    }
+  ],
+  "limitations": [
+    "The catalog is metadata discovery, not a complete semantic writer/reference/retention inventory. Names and routine-text matches can miss dynamic SQL, opaque scalar/array/domain fields, external systems or alternate object paths. No user JSON/text payload is scanned.",
+    "Service-role direct ai_jobs mutation and unrelated job types remain outside the verified-summary RPC gate. Existing provider work is not cancelled, and no durable source/reference lease or writer freeze is added by this step.",
+    "FK CASCADE/SET NULL behavior must be reviewed for retention; constraint existence or a reference count never authorizes file deletion. Named storage_object_id/path references may lack foreign keys.",
+    "The catalog-reader role exists only in disposable tests/CI, not in canonical migrations or any hosted database. Its lack of protected SELECT privileges is independently asserted.",
+    "No terminal resolution, quota release, job retry, file/object/metadata IO, provider call, hosted fixture, new account/access relationship, permission migration, deployment or publication is performed. Provider immutable-version/physical-absence proof remains open."
+  ],
+  "initial_catalog_harness_failure": {
+    "source": "6cea87093ef7a4dc4368e087075f903796dadef7",
+    "runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40754336591",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40754322609"
+    ],
+    "cause": "The native disposable test creates the catalog-reader role at cluster scope; later canonical-schema inventory attempted unconditional CREATE ROLE and stopped because the role already existed.",
+    "correction": "Reuse/create the role only after checking NOLOGIN, NOINHERIT, no elevated attributes and no memberships. Protected SELECT privilege/read-only/catalog assertions remain unchanged. No canonical permissions or proposal guards changed.",
+    "native_result_before_catalog_failure": "522 passed / zero skips in the initial PR replay; canonical/proposal verification passed, but the later role creation prevented catalog inventory completion."
+  },
+  "verified_source": "ea29cf2b20785bb5503b46d39c8a34a66b870986",
+  "selected_catalog_observations": [
+    {
+      "finding": "Six direct child FK relations cascade if document deletion is otherwise permitted.",
+      "tables": [
+        "public.admin_doc_access_grants",
+        "public.document_access_log",
+        "public.document_extractions",
+        "public.document_permissions",
+        "public.document_pipeline_runs",
+        "public.document_summaries"
+      ],
+      "implication": "Access logs, pipeline records and other retained dependencies require explicit retention/writer review. This snapshot does not say any record was deleted."
+    },
+    {
+      "finding": "Document object/path/version columns are present without a direct FK from documents to storage.objects.",
+      "implication": "SQL row identity and metadata binding alone do not establish physical-byte retention or safe cleanup."
+    },
+    {
+      "finding": "ai_jobs input_source/result_payload are JSON channels, not document foreign keys.",
+      "implication": "Future durable processing/source binding must retain exact identity and coordinate all relevant writers, not count only FKs."
+    },
+    {
+      "finding": "The named candidate inventory includes legacy documents.file_url as well as storage_path and storage_object_id/version.",
+      "implication": "Exact-path cleanup design must account for legacy/alternate reference representations; no actual URLs or file contents were read."
+    }
+  ]
+}

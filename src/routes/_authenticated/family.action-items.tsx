@@ -111,7 +111,7 @@ function FamilyActionItemsPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="family-action-items-page"
         className="mx-auto max-w-4xl px-4 py-8"
       >
@@ -184,7 +184,7 @@ function FamilyActionItemsPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

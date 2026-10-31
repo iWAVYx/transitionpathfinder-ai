@@ -1,8 +1,11 @@
+import { useReviewedGoalSave } from "@/hooks/use-reviewed-goal-save";
+import { useAuth } from "@/hooks/use-auth";
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { z } from "zod";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
-import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from "react";
+import { Component, Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -59,7 +62,7 @@ const StudentPlanningTools = lazy(() =>
 
 export const Route = createFileRoute("/_authenticated/students/$studentId")({
   head: () => ({ meta: [{ title: "Student — TransitionForward" }] }),
-  validateSearch: z.object({ tab: z.enum(["overview", "documents", "plan", "resources", "team", "partners", "opportunities"]).catch("overview") }),
+  validateSearch: z.object({ tab: z.enum(["overview", "documents", "plan", "resources", "team", "partners", "opportunities"]).default("overview").catch("overview") }),
   component: withRoleGuard(["family", "educator", "admin"], StudentDetailPage),
 });
 
@@ -110,6 +113,20 @@ function StudentPanelLoading() {
 }
 
 function StudentDetailPage() {
+  const { user, loading } = useAuth();
+  const { studentId } = Route.useParams();
+  if (loading || !user) return <StudentPanelLoading />;
+  return <StudentDetailSession key={`${user.id}:${studentId}`} viewerId={user.id} />;
+}
+
+function StudentDetailSession({ viewerId }: { viewerId: string }) {
+  const active = useRef(false);
+  const parsePending = useRef(false);
+  const savePending = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const { studentId } = Route.useParams();
   const { tab } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -130,7 +147,8 @@ function StudentDetailPage() {
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [parsing, setParsing] = useState<string | null>(null);
   const [proposed, setProposed] = useState<{ docId: string; goals: ExtractedGoal[] } | null>(null);
-  const [saving, setSaving] = useState(false);
+  const goalSave = useReviewedGoalSave();
+  const saving = goalSave.saving;
 
   async function reload() {
     const [s, d, g, e] = await Promise.all([
@@ -139,6 +157,7 @@ function StudentDetailPage() {
       fetchGoals({ data: { student_id: studentId } }).catch(() => ({ goals: [] })),
       fetchCanEdit({ data: { student_id: studentId } }).catch(() => ({ canEdit: false })),
     ]);
+    if (!active.current) return;
     setStudent(s);
     setDocs(d.documents);
     setGoals(g.goals);
@@ -153,6 +172,7 @@ function StudentDetailPage() {
   async function handleDownload(doc: DocumentRow) {
     try {
       const { url } = await sign({ data: { id: doc.id } });
+      if (!active.current) return;
       window.open(url, "_blank", "noopener,noreferrer");
     } catch {
       toast.error("Could not open file.");
@@ -166,10 +186,14 @@ function StudentDetailPage() {
   }
 
   async function handleParse(doc: DocumentRow) {
+    if (!active.current || parsePending.current || savePending.current || goalSave.unconfirmed || !canEdit) return;
+    parsePending.current = true;
     setParsing(doc.id);
     try {
       const { url } = await sign({ data: { id: doc.id } });
+      if (!active.current) return;
       const res = await fetch(url);
+      if (!res.ok) throw new Error("Document download failed.");
       const blob = await res.blob();
       const file = new File([blob], doc.title, { type: doc.mime_type ?? blob.type });
       let text = "";
@@ -178,43 +202,53 @@ function StudentDetailPage() {
       } else {
         text = await file.text();
       }
+      if (!active.current) return;
       if (!text.trim()) {
         toast.error("Couldn't read text from this file.");
         return;
       }
-      const out = await extractGoals({ data: { text } });
+      const out = await extractGoals({ data: { text, expected_viewer_id: viewerId } });
+      if (!active.current) return;
       if (!out.goals.length) {
         toast.info("No goals detected in this document.");
         return;
       }
       setProposed({ docId: doc.id, goals: out.goals });
     } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Couldn't parse goals.");
+      if (active.current) toast.error(
+        err instanceof Error && err.message === "This PDF is too long to read in one request. Please use a shorter document or paste the relevant pages."
+          ? "This PDF is too long to read in one request. Please use a shorter document or paste the relevant pages."
+          : "We couldn't read goals from that document. Please try again.",
+      );
     } finally {
-      setParsing(null);
+      parsePending.current = false;
+      if (active.current) setParsing(null);
     }
   }
 
   async function handleSaveGoals() {
-    if (!proposed) return;
-    setSaving(true);
+    if (!proposed || !active.current || savePending.current || parsePending.current || goalSave.unconfirmed || !canEdit) return;
+    savePending.current = true;
+    const review = proposed;
     try {
-      const { inserted } = await saveGoals({
-        data: { student_id: studentId, goals: proposed.goals },
-      });
-      toast.success(`Added ${inserted} goal${inserted === 1 ? "" : "s"}.`);
-      setProposed(null);
-      await reload();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save goals.");
+      const outcome = await goalSave.run(() => saveGoals({
+        data: { student_id: studentId, goals: review.goals, expected_viewer_id: viewerId },
+      }), review.goals.length);
+      if (!active.current) return;
+      if (outcome === "saved") {
+        toast.success(`Added ${review.goals.length} goal${review.goals.length === 1 ? "" : "s"}.`);
+        setProposed(null);
+        await reload();
+      } else if (outcome === "uncertain") {
+        toast.error("We couldn't confirm the save. Refresh this page and review the saved goals before trying again.");
+      }
     } finally {
-      setSaving(false);
+      savePending.current = false;
     }
   }
 
   function toggleProposed(idx: number) {
-    if (!proposed) return;
+    if (!proposed || saving || goalSave.unconfirmed) return;
     setProposed({
       ...proposed,
       goals: proposed.goals.filter((_, i) => i !== idx),
@@ -252,7 +286,7 @@ function StudentDetailPage() {
                 </h1>
                 {student && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {student.grade_band ?? "Grade not set"}
+                    {formatGradeBand(student.grade_band)}
                     {student.school ? ` · ${student.school}` : ""}
                   </p>
                 )}
@@ -286,7 +320,7 @@ function StudentDetailPage() {
             <StatTile
               icon={<Compass className="h-4 w-4" />}
               label="Grade"
-              value={student?.grade_band ?? "Not set"}
+              value={formatGradeBand(student?.grade_band, "Not set")}
               small
             />
             <StatTile
@@ -327,7 +361,8 @@ function StudentDetailPage() {
           <Suspense fallback={<StudentPanelLoading />}>
             <StudentPathwayReportPanel
               studentId={studentId}
-              studentFirstName={student?.first_name ?? null}
+              studentFirstName={student?.id === studentId ? student.first_name : null}
+              canCreateReport={student?.id === studentId && canEdit === true}
             />
           </Suspense>
         </StudentPanelBoundary>
@@ -337,6 +372,7 @@ function StudentDetailPage() {
         {/* DOCUMENTS */}
         <div className="mt-10" data-testid="student-document-section">
           <FamilyDocumentUpload
+            viewerId={viewerId}
             studentId={studentId}
             studentFirstName={student?.first_name ?? null}
             studentLastName={student?.last_name ?? null}
@@ -349,7 +385,8 @@ function StudentDetailPage() {
               <StandardDocActions
                 doc={d}
                 parsing={parsing}
-                onExtract={handleParse}
+                onExtract={canEdit ? handleParse : undefined}
+                extractionDisabled={saving || goalSave.unconfirmed}
                 onDownload={handleDownload}
                 onDelete={canEdit ? handleDelete : undefined}
               />
@@ -363,12 +400,13 @@ function StudentDetailPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="font-display text-xl">Goals We Found</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Review and remove any you don't want before saving. Nothing is added until you
-                  click Save.
+                <p className="mt-1 text-sm text-muted-foreground" role={goalSave.unconfirmed ? "alert" : undefined}>
+                  {goalSave.unconfirmed
+                    ? "We couldn't confirm the save. Refresh this page and review the saved goals before trying again."
+                    : "Review and remove any you don't want before saving. Nothing is added until you click Save."}
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setProposed(null)}>
+              <Button variant="ghost" size="sm" onClick={() => setProposed(null)} disabled={saving || goalSave.unconfirmed}>
                 Cancel
               </Button>
             </div>
@@ -392,14 +430,14 @@ function StudentDetailPage() {
                       </p>
                     )}
                   </div>
-                  <Button size="sm" variant="ghost" onClick={() => toggleProposed(i)}>
+                  <Button size="sm" variant="ghost" onClick={() => toggleProposed(i)} disabled={saving || goalSave.unconfirmed}>
                     Remove
                   </Button>
                 </li>
               ))}
             </ul>
             <div className="mt-4 flex justify-end">
-              <Button onClick={handleSaveGoals} disabled={saving || proposed.goals.length === 0}>
+              <Button onClick={handleSaveGoals} disabled={saving || !!parsing || goalSave.unconfirmed || !canEdit || proposed.goals.length === 0}>
                 {saving
                   ? "Saving…"
                   : `Save ${proposed.goals.length} goal${proposed.goals.length === 1 ? "" : "s"}`}

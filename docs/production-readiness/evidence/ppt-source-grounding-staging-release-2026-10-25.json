@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-25",
+  "status": "authorized staging release verified; one authorized bounded test queued for human review",
+  "application_commit": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+  "cloudflare_release": {
+    "id": 40230616911,
+    "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40230616911",
+    "conclusion": "success",
+    "headSha": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+    "status": "completed"
+  },
+  "cloudflare_health": {
+    "app_env": "staging",
+    "vite_app_env": "staging",
+    "hostname": "transitionforward-staging.caysi101.workers.dev",
+    "supabase_project_ref": "qgrertkqbwanerqqemph",
+    "is_production_project": false,
+    "is_production_hostname": false,
+    "is_staging_target": true,
+    "is_production_target": false,
+    "stripe_mode": "sandbox",
+    "stripe_public_mode": "sandbox",
+    "stripe_server_mode": "sandbox",
+    "stripe_livemode": false,
+    "ai_gateway_configured": false,
+    "ai_runtime": "unconfigured",
+    "runtime_source_fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+    "runtime_source_fingerprint_algorithm": "sha256",
+    "runtime_source_file_count": 1185,
+    "git_commit_sha": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+    "isolation": {
+      "ok": true,
+      "errors": []
+    }
+  },
+  "lovable_sync": {
+    "commit": "eefa5849e36b1c09ae4de37ab5e5cde8c146454f",
+    "repository": "iWAVYx/gentle-forward-reach",
+    "source_files": [
+      "src/lib/ppt.functions.ts",
+      "src/lib/demo/meeting-guide.ts"
+    ],
+    "builder_changes_since_previous_sync": 0,
+    "protected_hashes_unchanged": true
+  },
+  "lovable_health": {
+    "app_env": "staging",
+    "vite_app_env": "staging",
+    "hostname": "gentle-forward-reach.lovable.app",
+    "supabase_project_ref": "qgrertkqbwanerqqemph",
+    "is_production_project": false,
+    "is_production_hostname": false,
+    "is_staging_target": true,
+    "is_production_target": false,
+    "stripe_mode": "sandbox",
+    "stripe_public_mode": "sandbox",
+    "stripe_server_mode": "sandbox",
+    "stripe_livemode": false,
+    "ai_gateway_configured": true,
+    "ai_runtime": "lovable-managed",
+    "runtime_source_fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+    "runtime_source_fingerprint_algorithm": "sha256",
+    "runtime_source_file_count": 1185,
+    "git_commit_sha": "eefa5849e36b1c09ae4de37ab5e5cde8c146454f",
+    "isolation": {
+      "ok": true,
+      "errors": []
+    }
+  },
+  "publication": "Updated existing gentle-forward-reach.lovable.app once after exact private preview fingerprint verification. Explicit Update preview was required; no support request, AI builder prompt or duplicate publication used. Private alias isolation remains false as expected; stable alias passes.",
+  "bounded_test": {
+    "run_id": 40231246197,
+    "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40231246197",
+    "candidate": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+    "status": "waiting for GitHub human staging review when recorded",
+    "new_user_authorization_recorded": true,
+    "generation_invocations_max": 2,
+    "sdk_attempts_max": 6,
+    "gateway_billing_or_retries_independently_observed": false,
+    "intake_report_pairs_max": 2,
+    "ppt_packets_max": 2,
+    "pdfs_max": 2,
+    "test_retries": 0,
+    "independent_cleanup_required": true,
+    "results": "not yet available; no acceptance claim"
+  },
+  "validation_before_release": "All eight automatic checks, 4564 unit tests, TypeScript and final isolated staging build passed.",
+  "not_performed": [
+    "original main merge",
+    "production access or release",
+    "migration",
+    "manual environment/dependency/generated-type/payment/secret/access change",
+    "new accounts, students, relationships or shares",
+    "additional unapproved AI/fixture run"
+  ],
+  "limits": "Shared instructions and demo wording are released, but live source-grounding, Educator generation, private denial and PDF acceptance remain open until the protected run and manual review complete. Earlier partial run remains failed with independently verified exact cleanup.",
+  "roadmap": "TF-01\u2013TF-26 and six milestones retained. Report polish and Parent Pilot/Pathway Snapshot deferred."
+}

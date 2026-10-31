@@ -1,18 +1,29 @@
 import { useEffect } from "react";
 import { useElementScrollRestoration, useRouterState } from "@tanstack/react-router";
+import { useNavigationScrollIntent } from "@/hooks/use-navigation-scroll-intent";
 
 /** Complete router restoration after async tools have grown to their saved height. */
 export function ScrollToTop() {
-  const location = useRouterState({ select: (s) => s.location });
+  const { intent, href: intendedHref, position: pendingPosition } = useNavigationScrollIntent();
+  // A requested route can be pending while the previous page is still visible.
+  // Apply arrival scrolling only to the route that has actually committed.
+  const location = useRouterState({ select: (s) => s.resolvedLocation ?? s.location });
+  const renderedPath = useRouterState({ select: s => s.matches.at(-1)?.pathname });
   const position = useElementScrollRestoration({
     getElement: () => (typeof window === "undefined" ? undefined : window),
     getKey: (location) => location.href,
   });
 
+  const savedY = intent === "restore" ? (pendingPosition ?? position)?.scrollY : undefined;
+  const savedX = intent === "restore" ? (pendingPosition ?? position)?.scrollX : undefined;
+
   useEffect(() => {
-    const targetY = position?.scrollY;
-    const targetX = position?.scrollX ?? 0;
-    if (targetY === undefined && !location.hash) return;
+    // History updates can precede the new route render; never scroll the departing page.
+    if (intendedHref !== location.href || renderedPath !== location.pathname) return;
+    if (intent === "preserve" && !location.hash) return;
+    const targetY = intent === "restore" ? savedY : location.hash ? undefined : 0;
+    const targetX = savedX ?? 0;
+    if (intent === "restore" && targetY === undefined && !location.hash) return;
     let stopped = false;
     let frame = 0;
     const stop = () => {
@@ -39,9 +50,15 @@ export function ScrollToTop() {
       // DOM should instead reach the nearest possible position, including the footer.
       if (targetY !== undefined && y > maxY) return;
       const destination = Math.max(0, Math.min(y, maxY));
-      if (window.__lenis) window.__lenis.scrollTo(destination, { immediate: true, force: true });
-      else window.scrollTo({ top: destination, left: targetX, behavior: "instant" });
-      stop();
+      if (window.__lenis) {
+        // Async route content may outgrow the smooth scroller's cached limit.
+        window.__lenis.resize();
+        window.__lenis.scrollTo(destination, { immediate: true, force: true });
+      } else window.scrollTo({ top: destination, left: targetX, behavior: "instant" });
+      // A requested scroll can still be clamped during route/layout changes.
+      // Keep bounded recovery alive until the viewport reaches the destination.
+      if (Math.abs(window.scrollY - destination) <= 1) stop();
+      else schedule();
     };
     const schedule = () => {
       cancelAnimationFrame(frame);
@@ -64,6 +81,6 @@ export function ScrollToTop() {
       window.removeEventListener("touchstart", stop);
       window.removeEventListener("keydown", stop);
     };
-  }, [location.href, location.hash, position?.scrollY, position?.scrollX]);
+  }, [location.href, location.hash, renderedPath, savedY, savedX, intent, intendedHref]);
   return null;
 }

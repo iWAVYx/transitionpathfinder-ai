@@ -1,0 +1,196 @@
+{
+  "date": "2026-10-24",
+  "status": "opened-tools-menu-destination-gate-accepted-all-seven-roles",
+  "applicationSha": "fb40e06ab93c9f9fcb07c095caa35568f6517a8b",
+  "runtimeFingerprint": "a91b789ba5a1c8289a044e5fc4a2b4c1566b331629a9a249f0da76ff538cc289",
+  "runtimeFiles": 1184,
+  "workflowSha": "b8726c4a0171b05181e306f48adb0739e5ef7ff3",
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298",
+  "scope": "all-roles",
+  "declaredCases": 333,
+  "existingRoleAccounts": 7,
+  "hostedTestsExecuted": true,
+  "retries": 0,
+  "fixtureScopesSelected": false,
+  "aiCallsRequested": 0,
+  "applicationDeploymentRequested": false,
+  "localValidation": {
+    "files": [
+      "tests/unit/workspace-tool-applicability.test.ts",
+      "tests/unit/site-header-workspace-resolution.test.tsx",
+      "tests/unit/dashboard-links.test.ts"
+    ],
+    "passed": 65,
+    "failed": 0,
+    "log": "/private/tmp/tf-all-role-audit-fb40e06a/local-menu-contracts.log"
+  },
+  "coverageLimitations": [
+    "Closed-menu navigation scans cannot establish actual opened desktop/mobile Tools menu contents.",
+    "Existing workspace-stage fallback acceptance proves a page exists, not that each role receives the exact intended feature.",
+    "Configured all-role check runs on Cloudflare; matching Lovable source does not by itself prove every hosted Lovable journey.",
+    "The older School timeout and two skips are retained; do not label the broad run a complete pass."
+  ],
+  "nextFocusedCoverage": [
+    "Open desktop/mobile Tools menus for each role and compare actual links with relevant dashboard actions.",
+    "Verify each actual shortcut reaches its intended tool instead of an unrelated fallback.",
+    "Preserve Owner Hub management-only navigation."
+  ],
+  "dataAndReleaseSafety": "Read-only existing-account audit. No fixtures, generation/provider calls, migration, deployment/publication, account/access, payment/secret or production/main changes.",
+  "browserPreference": "Codex in-app browser only for further user-browser actions.",
+  "roadmapPreserved": "Full TF-01 through TF-26 and deferred Parent Pilot/Pathway Snapshot retained; report length and cosmetic polish remain tabled.",
+  "dashboardStage": "84 passed",
+  "focusedMenuProposal": {
+    "status": "completed-fourteen-passed-two-owner-failures",
+    "scope": "role-tools-readonly",
+    "spec": "tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts",
+    "specSha256": "57bfd77e166be5a461b49ed9f7625da7a4d4eb9e2201d4a0a2171a259bd3f4d7",
+    "declaredCases": 14,
+    "viewports": [
+      "desktop 1440x900",
+      "mobile 390x844"
+    ],
+    "checks": [
+      "Open actual desktop menu or mobile sheet/Tools group",
+      "Every shortcut matches a rendered dashboard action, except separately scoped Owner management",
+      "Owner shortcuts remain /owner/ management only",
+      "Readable labels and unique destinations",
+      "Each destination renders a heading on its exact intended route, with no unrelated fallback or error state"
+    ],
+    "limits": [
+      "Uses Cloudflare existing role sessions; Lovable stable source/isolation checked before tests but its full role journeys are not duplicated.",
+      "Menu destination probes are direct reads; existing contextual return/history acceptance remains separate."
+    ],
+    "localValidation": {
+      "typeScript": "passed",
+      "scopeUnitTestsPassed": 22,
+      "workflowYaml": "parsed",
+      "discovery": "16 cases in two files; no hosted execution",
+      "accessReadinessContractsPassed": 37
+    },
+    "runtimeSourceChanged": false,
+    "credentialsAdded": false,
+    "fixtureOrProviderActions": false,
+    "menuCases": 14,
+    "focusedCommandTotalCases": 16,
+    "additionalCases": [
+      "School forbidden PartnerForward entry using automatic page/context fixture, DOM-content readiness and unchanged allow/deny polarity plus correct dashboard fallback.",
+      "Known high-school QA student: readable High School label, actual Student Voice/Pathway links, no raw grade codes or middle-school intake."
+    ],
+    "remainingGradeCoverage": "Positive middle-school cohort needs an existing authorized account or separately authorized fixture; not inferred from high-school pass.",
+    "localPreparationNote": "Discovery/type validation caught an uncommitted edit-boundary error; original test sections were restored and only the two targeted cases reapplied before validation/commit.",
+    "dashboardReadiness": "Wait for actual menu shortcuts to appear among completed dashboard actions; retain strict membership and exact destination assertions.",
+    "workflowSha": "3cb757b2fc74749be7d96c991d85f2b106c7f523",
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594",
+    "automaticChecks": "All eight automatic checks passed on exact workflow SHA before dispatch; credentialed optional jobs were skipped, not counted as passes.",
+    "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/focused-github-review.png"
+  },
+  "hostedResult": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40107769298",
+    "conclusion": "failure",
+    "retries": 0,
+    "authSetupPassed": 7,
+    "dashboardCasesPassed": 84,
+    "roleAccessCasesPassed": 246,
+    "roleAccessFailed": 1,
+    "roleAccessSkipped": 2,
+    "totalDeclared": 333,
+    "passedExcludingAuthSetup": 330,
+    "failedCase": "School Administrator does not see /partners-manage",
+    "failureEvidence": "60000ms test timeout at explicit ctx.close; permission assertion had progressed and sanitized snapshot shows School Overview. Root cause/hosted acceptance not yet closed.",
+    "sanitizer": "success before evidence download",
+    "skipDetails": [
+      "Owner demo forbidden-link rule intentionally has an empty admin denial set; this is not a passed rule test.",
+      "Student grade test searched rendered text for raw grade-code copy. The live snapshot shows High School; absence of that obsolete regex match does not prove the database grade is missing."
+    ]
+  },
+  "focusedHostedResult": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40111115594",
+    "workflowSha": "3cb757b2fc74749be7d96c991d85f2b106c7f523",
+    "conclusion": "failure",
+    "authSetupPassed": 7,
+    "passed": 14,
+    "failed": 2,
+    "skipped": 0,
+    "retries": 0,
+    "passedCoverage": [
+      "School denied PartnerForward entry with correct dashboard fallback",
+      "Known High School student label and applicable planning links",
+      "Desktop and mobile opened Tools menus and exact destinations for Student, Family, Educator, School, District and Partner"
+    ],
+    "failedCoverage": [
+      "Owner desktop: three management page titles were sought inside main, while OwnerShell renders them in its preceding management header. Exact routes were retained.",
+      "Owner mobile: the test opened a public-page hamburger before resolved Owner navigation; the failure screenshot shows the sheet closed. Auth readiness/remount is a source-supported explanation, not a completed hosted recheck."
+    ],
+    "sanitizer": "Passed before artifact retrieval: 0 unsafe files removed; upload safe.",
+    "evidenceDirectory": "/private/tmp/tf-all-role-audit-fb40e06a/focused-artifacts",
+    "liveProgressCaveat": "GitHub job API and browser reported no steps/Starting job while execution was active; completed logs establish actual stage execution and results.",
+    "applicationChanges": false,
+    "fixtures": 0,
+    "aiCalls": 0
+  },
+  "ownerFollowup": {
+    "status": "completed-two-passed-zero-failures-zero-skips",
+    "scope": "owner-tools-readonly",
+    "cases": 2,
+    "specSha256": "b92e5fb8e57bdb46c8d12837c882b589be71b25a77d8fd46bab4845e28bb6ecc",
+    "correction": "Require resolved Owner link before opening public-page header; verify exact route-specific h1 in management header and ready Owner main, retaining destination/label/management-only/error checks.",
+    "localValidation": {
+      "typescript": "passed",
+      "workflowSafetyTestsPassed": 23,
+      "yaml": "parsed",
+      "discovery": "2 cases in 1 file; no hosted execution"
+    },
+    "runtimeChanged": false,
+    "requiresGithubHumanReview": true,
+    "workflowSha": "bfb448f418fb3a7d1df6d5c4c21c1ca9295bd634",
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40135312293",
+    "automaticChecks": "Eight passed before dispatch. Optional credentialed jobs skipped, not counted as passes.",
+    "buildFailureRetained": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40119057293",
+      "attempt1": "Node heap exhausted at existing 1216 MB build limit during client compilation; no source or security audit error reported in that failed stage.",
+      "attempt2": "One unchanged-source, unchanged-settings retry passed. Parallel PR build also passed.",
+      "limitation": "Does not establish sustained constrained-build memory headroom; retain first failure as operational evidence."
+    },
+    "reviewScreenshot": "/private/tmp/tf-all-role-audit-fb40e06a/owner-github-review.png",
+    "hostedResult": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40135312293",
+      "conclusion": "success",
+      "workflowSha": "bfb448f418fb3a7d1df6d5c4c21c1ca9295bd634",
+      "authSetupPassed": 7,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "durationSeconds": 86,
+      "caseDurationSeconds": 16.1,
+      "sanitizer": "success; zero unsafe files removed",
+      "artifactsUploaded": 0,
+      "evidence": "Completed job metadata and log; successful run produced no uploaded artifact.",
+      "screenshot": "/private/tmp/tf-all-role-audit-fb40e06a/owner-audit-passed.png",
+      "fixtureSteps": "All three fixture scopes skipped",
+      "aiCalls": 0,
+      "applicationDeployment": false
+    }
+  },
+  "acceptedGate": {
+    "scope": "Opened desktop/mobile Tools menus and intended destination pages for all seven existing staging roles",
+    "evidenceRuns": [
+      40111115594,
+      40135312293
+    ],
+    "passedCasesAcrossFocusedRuns": 16,
+    "notASingleAllGreenBroadRerun": true,
+    "additionalAcceptedChecks": [
+      "School denied PartnerForward entry returns to School Overview",
+      "Existing High School student has readable grade and applicable planning links"
+    ],
+    "limitations": [
+      "Cloudflare existing-role browser journeys; stable Lovable source/isolation parity verified, not duplicate Lovable role journeys",
+      "Direct read-only destination probes do not certify every actual menu-click and Back sequence",
+      "Positive middle-school cohort remains untested",
+      "No generation/provider calls or hosted record writes/exports were included",
+      "Original broad330/1/2 and first focused14/2 results are retained; not relabeled as a clean whole-product audit"
+    ]
+  },
+  "nextTrackedGate": "Review stale browser report-save/restore intent: server compares its own freshly read content atomically, while updateReportContent currently accepts no browser-observed revision. Prepare a bounded local correction/review before any new release, migration or hosted fixture authorization."
+}

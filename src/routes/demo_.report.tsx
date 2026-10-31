@@ -1,4 +1,6 @@
-import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
+import { DemoOptionalReportSections } from "@/components/demo/DemoOptionalReportSections";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site/SiteShell";
 import { DemoRoleLens } from "@/components/demo/DemoRoleLens";
 import { StudentSwitcher } from "@/components/demo/StudentSwitcher";
@@ -17,7 +19,7 @@ export const Route = createFileRoute("/demo_/report")({
       {
         name: "description",
         content:
-          "Public sample Pathway Report generated live from a fictional student profile. Sample data only.",
+          "Public sample Pathway Report based on a fictional student profile. Sample data only.",
       },
     ],
   }),
@@ -29,8 +31,18 @@ function DemoReportRoute() {
     string,
     unknown
   >;
-  if (search.example === "builder")
-    return <BuilderSampleReport audience={search.role === "educator" ? "educator" : "family"} />;
+  if (search.example === "plan-details") {
+    const requested = search.view ?? search.audience ?? search.role;
+    const audience = requested === "student" || requested === "educator" ? requested : "family";
+    return <DemoOptionalReportSections audience={audience} builderRole={search.role === "educator" ? "educator" : "family"} />;
+  }
+  if (search.example === "builder") {
+    const explicitView = search.view ?? search.audience;
+    const builderAudience = explicitView === "family" || explicitView === "educator"
+      ? explicitView : search.role === "educator" ? "educator" : "family";
+    const reportView = explicitView === "student" || explicitView === "family" || explicitView === "educator" ? explicitView : builderAudience;
+    return <BuilderSampleReport audience={builderAudience} view={reportView} />;
+  }
   return <DemoReportPage />;
 }
 
@@ -53,13 +65,8 @@ function DemoReportPage() {
     <SiteShell>
       <DemoRoleLens selectedRole={viewRole} onSelectRole={setRole} />
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link
-          to={demoRoleDashboardPath(viewRole)}
-          search={{ student: profile.id }}
-          className="mb-5 inline-block text-sm font-medium text-primary hover:underline"
-        >
-          ← Back to {demoRoleDashboardLabel(viewRole)}
-        </Link>
+        <ContextualBackLink to={demoRoleDashboardPath(viewRole)} search={{ student: profile.id }}
+          label={`← Back to ${demoRoleDashboardLabel(viewRole)}`} className="mb-5 inline-block text-sm font-medium text-primary hover:underline" />
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -70,7 +77,7 @@ function DemoReportPage() {
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Choose a fictional student to see how the pathway engine tailors the report to their
-              grade, product, evidence, and voice — while filtering out themes that don't belong
+              grade, planning needs, sample information, and voice — while filtering out themes that don't belong
               yet.
             </p>
           </div>

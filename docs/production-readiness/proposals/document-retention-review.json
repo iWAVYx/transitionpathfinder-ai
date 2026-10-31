@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-29",
+  "status": "Engineering review inventory only; retention policy, provider proof and hosted reconciliation remain open",
+  "mutation_proposals": 14,
+  "canonical_migrations": 210,
+  "hosted_actions": false,
+  "retention_policy_approved": false,
+  "source_checkpoint": "fa9eb716f694d640f0a82e7ffae40fd7563d8b00",
+  "default": "Retain existing rows, claims and bytes until specifically reviewed. This is a conservative engineering hold, not a legal retention schedule.",
+  "groups": [
+    {
+      "records": [
+        "documents",
+        "storage.objects",
+        "legacy documents.file_url"
+      ],
+      "observed_boundary": "Saved path/object/version/hash metadata has no direct physical-object FK. Legacy URL and alternate reference representations remain candidates.",
+      "review_needed": "Physical owner/version assignment, in-flight writes, immutable-version capability, independent absence and legacy references. Metadata deletion is not physical proof.",
+      "source": [
+        "docs/production-readiness/evidence/document-reference-catalog-source-binding-2026-10-28.json",
+        "tests/document-storage-transport.test.mjs"
+      ]
+    },
+    {
+      "records": [
+        "document_upload_attempts",
+        "document_upload_resolution_claims"
+      ],
+      "observed_boundary": "Registration has reciprocal RESTRICT links. Original held claims and resolution operations remain retained, immutable and counted.",
+      "review_needed": "A reviewed terminal protocol and tombstone policy before any capacity release. No expiry, path reuse or deletion to reset limits.",
+      "source": [
+        "docs/production-readiness/proposals/document-upload-registration.sql",
+        "docs/production-readiness/proposals/document-upload-resolution-claim.sql"
+      ]
+    },
+    {
+      "records": [
+        "document_summary_source_bindings",
+        "ai_jobs"
+      ],
+      "observed_boundary": "Original source binding has three RESTRICT references; bound job identity cannot be retargeted or deleted through ordinary DML. Existing unbound work is not backfilled.",
+      "review_needed": "Drain/reconcile existing work and define archival/maintenance policy without inventing provenance or silently dropping history. Provider work and direct status/result writes remain outside this fence.",
+      "source": [
+        "docs/production-readiness/proposals/document-summary-source-binding.sql",
+        "supabase/functions/ai-job-processor/index.ts"
+      ]
+    },
+    {
+      "records": [
+        "admin_doc_access_grants",
+        "document_access_log",
+        "document_pipeline_runs"
+      ],
+      "observed_boundary": "All three direct document-child FKs cascade if document deletion is otherwise permitted. Access logs and pipeline writes exist in application/worker source.",
+      "review_needed": "Decide required access/audit/operational retention and all writers before changing deletion behavior. Best-effort logs are not a processing lease.",
+      "source": [
+        "src/lib/documents.functions.ts",
+        "src/lib/document-pipeline.server.ts",
+        "supabase/functions/ai-job-processor/index.ts"
+      ]
+    },
+    {
+      "records": [
+        "document_extractions",
+        "document_permissions",
+        "document_summaries"
+      ],
+      "observed_boundary": "All three direct document-child FKs cascade if deletion is otherwise permitted. Extraction and permission writers are identified; summary writer discovery remains incomplete.",
+      "review_needed": "Preserve required evidence, permissions and derived content under an approved policy; inventory dynamic/external readers and writers. Cascades are not permission to purge.",
+      "source": [
+        "src/lib/extractions.functions.ts",
+        "src/lib/documents.functions.ts",
+        "src/lib/pathway.functions.ts",
+        "src/lib/readiness-insights.functions.ts"
+      ]
+    },
+    {
+      "records": [
+        "Report/evidence/source JSON and external references"
+      ],
+      "observed_boundary": "The metadata catalog identifies candidates only, including 101 JSON columns; it does not inspect payloads or prove semantic completeness.",
+      "review_needed": "Finish exact id/path/version semantic and external reference inventory with specifically authorized visibility before designing terminal cleanup.",
+      "source": [
+        "docs/production-readiness/proposals/document-reference-catalog.sql"
+      ]
+    }
+  ],
+  "rollout_sequence_not_authorized": [
+    "Review environment/backend/source identity and a coordinated caller/database/worker release packet.",
+    "Pause new summary admissions and scheduled/external worker invocations through reviewed controls; independently reconcile outstanding provider requests. No such controls are implemented or exercised here.",
+    "With separately authorized trusted access, run the counts-only inventory after the prerequisite proposal in the intended review context. Review every unbound state, unexpected lock/claim and identity conflict. Do not relabel completed/failed old jobs as bound.",
+    "Review retained job/document/student references, legacy audit cascades and the maintenance policy. Do not delete or backfill to clear counts.",
+    "A zero-count snapshot never proves quiescence, physical absence, provider reconciliation, full reference review or release permission. Keep those gates separately recorded.",
+    "Only request hosted rollout/testing authorization once the implementation, canonical migration/ledger, compatibility/recovery and bounded acceptance scope are concrete."
+  ],
+  "next": "Complete actual provider capability and remaining semantic reference/writer review; no terminal cleanup or provider probe is authorized by this inventory."
+}

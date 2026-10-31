@@ -6,27 +6,58 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Type "staging" to run all seven roles'
+        description: 'Type "staging" to confirm isolated staging verification'
         required: true
+      scope:
+        description: 'Full audit, fixed read-only diagnostics, or explicitly confirmed bounded fixture/AI acceptance'
+        type: choice
+        default: all-roles
+        options:
+          - all-roles
+          - partner-demo-plan
+          - owner-history-return
+          - seven-role-history-return
+          - signed-out-history-return
+          - directional-navigation
+          - focused-return-position
+          - scroll-diagnosis
+          - remaining-role-scroll
+          - deep-role-history-return
+          - pathway-creator-live-bounded
+          - ppt-live-bounded
+          - readiness-live-bounded
+          - report-assist-live-bounded
+          - iep-extraction-live-bounded
+          - evidence-live-bounded
+          - report-reader-lenses
+          - report-history-no-ai
+          - report-sharing-no-ai
+          - linked-report-access-no-ai
+          - linked-report-sharing-lifecycle-no-ai
+          - role-tools-readonly
+          - owner-tools-readonly
+      fixture_confirmation:
+        description: 'Fixture scopes require their matching disposable-* confirmation after explicit owner authorization'
+        required: false
+        default: ''
 
 concurrency:
-  group: staging-role-verification
-  cancel-in-progress: true
+  group: ${{ inputs.scope == 'evidence-live-bounded' && 'staging-evidence-live-bounded' || inputs.scope == 'iep-extraction-live-bounded' && 'staging-iep-extraction-live-bounded' || inputs.scope == 'report-assist-live-bounded' && 'staging-report-assist-live-bounded' || inputs.scope == 'readiness-live-bounded' && 'staging-readiness-live-bounded' || inputs.scope == 'pathway-creator-live-bounded' && 'staging-pathway-creator-live-bounded' || inputs.scope == 'ppt-live-bounded' && 'staging-ppt-live-bounded' || 'staging-role-verification' }}
+  cancel-in-progress: ${{ inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'evidence-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'pathway-creator-live-bounded' }}
 
 jobs:
   verify-seven-roles:
-    name: Verify All Seven Staging Roles
+    name: Verify Staging Acceptance
     runs-on: ubuntu-latest
     environment: staging
     timeout-minutes: 60
     env:
+      STAGING_TEST_SCOPE: ${{ inputs.scope }}
       PLAYWRIGHT_BASE_URL: https://transitionforward-staging.caysi101.workers.dev
       LIVE_VERIFICATION: "true"
       REQUIRE_ALL_ROLES: "true"
       ALLOW_STAGING_OWNER_WITHOUT_TOTP: "true"
-      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
-      STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
-      STAGING_E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_READ_ONLY: "true"
       E2E_STUDENT_EMAIL: e2e.student@staging.transitionforwardct.test
       E2E_STUDENT_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
       E2E_PARENT_EMAIL: e2e.parent@staging.transitionforwardct.test
@@ -44,9 +75,53 @@ jobs:
 
     steps:
       - name: Confirm staging intent
+        env:
+          STAGING_INTENT: ${{ inputs.confirm }}
+          STAGING_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
         run: |
-          if [ "${{ github.event.inputs.confirm }}" != "staging" ]; then
+          if [ "$STAGING_INTENT" != "staging" ]; then
             echo "Confirmation text did not match 'staging'." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "pathway-creator-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-pathway-creator" ]; then
+            echo "Explicit bounded Pathway creator authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "evidence-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-evidence-live" ]; then
+            echo "Explicit bounded evidence authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "iep-extraction-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "synthetic-iep-only" ]; then
+            echo "Explicit no-save IEP extraction authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "report-assist-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-report-assist" ]; then
+            echo "Explicit bounded report-assist authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "readiness-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-readiness-live" ]; then
+            echo "Explicit bounded Readiness acceptance authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "ppt-live-bounded" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-ppt-live" ]; then
+            echo "Explicit two-request PPT live fixture authorization required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "report-history-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-report-history" ]; then
+            echo "Explicit disposable report-history fixture confirmation is required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "report-sharing-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-report-sharing" ]; then
+            echo "Explicit disposable report-sharing fixture confirmation is required." >&2
+            exit 1
+          fi
+          if [ "$STAGING_TEST_SCOPE" = "linked-report-access-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-linked-report-access" ]; then
+            echo "Explicit bounded linked-report fixture confirmation is required." >&2
+            exit 1
+          fi
+
+          if [ "$STAGING_TEST_SCOPE" = "linked-report-sharing-lifecycle-no-ai" ] && [ "$STAGING_FIXTURE_CONFIRMATION" != "disposable-linked-report-sharing" ]; then
+            echo "Explicit bounded linked-report sharing confirmation is required." >&2
             exit 1
           fi
 
@@ -72,6 +147,8 @@ jobs:
       - name: Verify Staging Deployment Identity
         run: |
           node --input-type=module <<'NODE'
+          import { appendFileSync } from "node:fs";
+          import { createRuntimeSourceFingerprint, runtimeSourceParityErrors } from "./scripts/runtime-source-fingerprint.mjs";
           const base = process.env.PLAYWRIGHT_BASE_URL;
           const response = await fetch(`${base}/api/public/env-health`);
           const body = await response.text();
@@ -80,7 +157,16 @@ jobs:
           }
           const health = JSON.parse(body);
           const expectedRef = "qgrertkqbwanerqqemph";
-          const errors = [];
+          const expected = createRuntimeSourceFingerprint();
+          const errors = runtimeSourceParityErrors({
+            expectedFingerprint: expected.fingerprint,
+            actualFingerprint: health.runtime_source_fingerprint,
+            schema: health.runtime_source_fingerprint_schema,
+            algorithm: health.runtime_source_fingerprint_algorithm,
+            fileCount: health.runtime_source_file_count,
+          });
+          if (health.runtime_source_file_count !== expected.fileCount) errors.push("Runtime file count mismatch");
+          if (!/^[a-f0-9]{40}$/i.test(health.git_commit_sha ?? "")) errors.push("Exact deployed Git identity is missing");
           if (health.app_env !== "staging") errors.push(`app_env=${health.app_env}`);
           if (health.supabase_project_ref !== expectedRef) {
             errors.push(`supabase_project_ref=${health.supabase_project_ref}`);
@@ -96,20 +182,9 @@ jobs:
           if (errors.length) {
             throw new Error(`Staging isolation check failed: ${errors.join(", ")}`);
           }
-          console.log("Staging deployment identity verified.");
+          appendFileSync(process.env.GITHUB_ENV, `E2E_EXPECTED_BUILD_SHA=${health.git_commit_sha}\nEXPECTED_RUNTIME_SOURCE_FINGERPRINT=${expected.fingerprint}\nEXPECTED_RUNTIME_SOURCE_FILE_COUNT=${expected.fileCount}\n`);
+          console.log("Exact staging runtime verified; existing role accounts only, no fixture reconciliation.");
           NODE
-
-      - name: Reconcile Synthetic Staging Identities
-        run: |
-          if [ -z "$STAGING_SUPABASE_URL" ]; then
-            echo "::error::STAGING_SUPABASE_URL is missing from the GitHub staging environment."
-            exit 1
-          fi
-          if [ -z "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "::error::STAGING_SUPABASE_SERVICE_ROLE_KEY is missing from the GitHub staging environment."
-            exit 1
-          fi
-          node scripts/seed-staging-identities.mjs
 
       - name: E2E Base URL Reachability Preflight
         run: node tests/e2e/scripts/check-base-url.mjs
@@ -118,6 +193,7 @@ jobs:
         run: bunx playwright test --project=dashboard-setup
 
       - name: Require All Seven Auth Storage States
+        id: require-role-states
         run: |
           missing=0
           for role in student parent educator school_admin district_admin partner owner; do
@@ -134,10 +210,186 @@ jobs:
           fi
 
       - name: Dashboard Regression (Mobile, Tablet, Desktop)
+        if: ${{ inputs.scope != 'partner-demo-plan' && inputs.scope != 'owner-history-return' && inputs.scope != 'seven-role-history-return' && inputs.scope != 'signed-out-history-return' && inputs.scope != 'directional-navigation' && inputs.scope != 'focused-return-position' && inputs.scope != 'scroll-diagnosis' && inputs.scope != 'remaining-role-scroll' && inputs.scope != 'deep-role-history-return' && inputs.scope != 'pathway-creator-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'evidence-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-reader-lenses' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
         run: bunx playwright test --project=dashboard-regression --no-deps
 
       - name: Role Access and Role-Leak Protection
-        run: bunx playwright test --project=role-access --no-deps
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope != 'pathway-creator-live-bounded' && inputs.scope != 'readiness-live-bounded' && inputs.scope != 'report-assist-live-bounded' && inputs.scope != 'iep-extraction-live-bounded' && inputs.scope != 'evidence-live-bounded' && inputs.scope != 'ppt-live-bounded' && inputs.scope != 'report-history-no-ai' && inputs.scope != 'report-sharing-no-ai' && inputs.scope != 'linked-report-access-no-ai' && inputs.scope != 'linked-report-sharing-lifecycle-no-ai' && inputs.scope != 'role-tools-readonly' && inputs.scope != 'owner-tools-readonly' }}
+        run: |
+          if [ "$STAGING_TEST_SCOPE" = "partner-demo-plan" ]; then
+            bunx playwright test tests/e2e/demo-roles.signedin.spec.ts --project=role-access --no-deps --retries=0 --grep 'Partner Organization /demo signed-in coverage renders /demo/plan$'
+          elif [ "$STAGING_TEST_SCOPE" = "report-reader-lenses" ]; then
+            bunx playwright test tests/e2e/report-reader-lenses.spec.ts --project=anon --no-deps --retries=0 --workers=1 --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "deep-role-history-return" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts --project=role-access --no-deps --retries=0 --workers=1 --grep '— deep-source return' --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "remaining-role-scroll" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts --project=role-access --no-deps --retries=0 --workers=1 --grep 'School Administrator — actual-source return|Platform Admin — actual-source return' --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "scroll-diagnosis" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts tests/e2e/public-origin-navigation.spec.ts --project=role-access --project=anon --no-deps --retries=0 --workers=1 --grep 'signed-out source-aware navigation 390px.*(student demo|Platform returns)|signed-out source-aware navigation 1440px.*educator demo|District Administrator — actual-source return|Platform Admin — actual-source return' --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "focused-return-position" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts tests/e2e/public-origin-navigation.spec.ts --project=role-access --project=anon --no-deps --retries=0 --workers=1 --grep 'signed-out source-aware navigation 390px.*student demo|Student — actual-source return|Platform Admin — actual-source return' --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "directional-navigation" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts tests/e2e/public-origin-navigation.spec.ts --project=role-access --project=anon --no-deps --retries=0 --workers=1 --grep '— actual-source return|signed-out source-aware navigation' --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "signed-out-history-return" ]; then
+            bunx playwright test tests/e2e/public-origin-navigation.spec.ts --project=anon --no-deps --retries=0 --workers=1 --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "seven-role-history-return" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts --project=role-access --no-deps --retries=0 --workers=1 --grep '— actual-source return' --reporter=line,html
+          elif [ "$STAGING_TEST_SCOPE" = "owner-history-return" ]; then
+            bunx playwright test tests/e2e/dashboard-tile-navigation.signedin.spec.ts --project=role-access --no-deps --retries=0 --workers=1 --grep 'Platform Admin — actual-source return'
+          else
+            bunx playwright test --project=role-access --no-deps
+          fi
+
+      - name: Opened role Tools menus and exact destinations (read-only)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'role-tools-readonly' }}
+        env:
+          RUN_ROLE_TOOLS_READONLY: "true"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts
+          tests/e2e/role-access-rules.signedin.spec.ts
+          --project=release-signedin --project=role-access --no-deps --retries=0 --workers=1
+          --grep 'opened Tools|School Administrator does not see /partners-manage$|High-school student sees readable grade and applicable planning links$' --reporter=line
+
+      - name: Focused Owner Tools recheck (read-only)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'owner-tools-readonly' }}
+        env:
+          RUN_ROLE_TOOLS_READONLY: "true"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/role-tools-readonly.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1
+          --grep 'Platform Admin opened Tools' --reporter=line
+
+      - name: Disposable report history acceptance (no AI)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'report-history-no-ai' }}
+        env:
+          RUN_REPORT_HISTORY_STAGING_QA: "true"
+          REPORT_HISTORY_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          REPORT_HISTORY_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/report-history-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1
+
+      - name: Disposable report-sharing acceptance (no AI)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'report-sharing-no-ai' }}
+        env:
+          RUN_REPORT_SHARING_STAGING_QA: "true"
+          REPORT_SHARING_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          REPORT_SHARING_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/report-sharing-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Linked report access acceptance (no AI)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'linked-report-access-no-ai' }}
+        env:
+          RUN_LINKED_REPORT_ACCESS_STAGING_QA: "true"
+          LINKED_REPORT_ACCESS_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          LINKED_REPORT_ACCESS_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/linked-report-access-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Permanent linked-report sharing acceptance (no AI)
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'linked-report-sharing-lifecycle-no-ai' }}
+        env:
+          RUN_LINKED_REPORT_ACCESS_STAGING_QA: "true"
+          RUN_LINKED_REPORT_SHARE_LIFECYCLE_QA: "true"
+          LINKED_REPORT_ACCESS_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          LINKED_REPORT_ACCESS_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/linked-report-access-no-ai.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator PPT live acceptance
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'ppt-live-bounded' }}
+        env:
+          RUN_PPT_LIVE_STAGING_QA: "true"
+          PPT_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          PPT_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_READ_ONLY: "false"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/ppt-live-staging.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator Pathway creator acceptance
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'pathway-creator-live-bounded' }}
+        env:
+          RUN_PATHWAY_CREATOR_QA: "true"
+          PATHWAY_CREATOR_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          PATHWAY_CREATOR_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_READ_ONLY: "false"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/pathway-creator-live.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator Readiness acceptance
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'readiness-live-bounded' }}
+        env:
+          RUN_READINESS_LIVE_QA: "true"
+          READINESS_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          READINESS_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_READ_ONLY: "false"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/readiness-live-staging.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator report-assist acceptance
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'report-assist-live-bounded' }}
+        env:
+          RUN_REPORT_ASSIST_LIVE_QA: "true"
+          REPORT_ASSIST_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          REPORT_ASSIST_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_READ_ONLY: "false"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/report-assist-live.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator no-save IEP extraction
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'iep-extraction-live-bounded' }}
+        env:
+          RUN_IEP_EXTRACTION_LIVE_QA: "true"
+          IEP_EXTRACTION_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          IEP_EXTRACTION_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/iep-extraction-live.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
+
+      - name: Bounded Family and Educator evidence persistence
+        if: ${{ !cancelled() && steps.require-role-states.outcome == 'success' && inputs.scope == 'evidence-live-bounded' }}
+        env:
+          RUN_EVIDENCE_LIVE_QA: "true"
+          EVIDENCE_FIXTURE_CONFIRMATION: ${{ inputs.fixture_confirmation }}
+          EVIDENCE_QA_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+          PLAYWRIGHT_BASE_URL: https://gentle-forward-reach.lovable.app
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_READ_ONLY: "false"
+        run: >-
+          bunx playwright test tests/e2e/release-readiness/evidence-live.signedin.spec.ts
+          --project=release-signedin --no-deps --retries=0 --workers=1 --reporter=line
 
       - name: Remove credential-bearing Playwright artifacts
         id: sanitize-artifacts

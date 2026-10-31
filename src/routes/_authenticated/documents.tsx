@@ -1,8 +1,9 @@
+import { useAuth } from "@/hooks/use-auth";
 import { RoutePageOutlet } from "@/components/RoutePageOutlet";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   FileText,
@@ -84,43 +85,57 @@ const STATUS_META: Record<
 function DocumentsHubPage() {
   const fetchAll = useServerFn(listAllDocuments);
   const rescan = useServerFn(rescanDocument);
-  const [rows, setRows] = useState<CrossDocumentRow[] | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const scopeKey = !authLoading && user?.id ? user.id : null;
+  type Scope = { key: string | null; serial: number };
+  const scope = useRef<Scope>({ key: scopeKey, serial: 0 });
+  if (scope.current.key !== scopeKey) scope.current = { key: scopeKey, serial: 0 };
+  const current = (request: Scope) => request.key !== null && scope.current === request;
+  useEffect(() => () => { scope.current = { ...scope.current }; }, []);
+  const [loadedScope, setLoadedScope] = useState<Scope | null>(null);
+  const [storedRows, setRows] = useState<CrossDocumentRow[] | null>(null);
+  const rows = loadedScope && current(loadedScope) ? storedRows : null;
   const [filter, setFilter] = useState<FilterKey>("all");
   const [q, setQ] = useState("");
   const [rescanning, setRescanning] = useState<Record<string, boolean>>({});
 
   const reload = () => {
+    const request = scope.current;
+    if (!request.key) return;
+    const serial = ++request.serial;
     fetchAll()
-      .then((r) => setRows(r.documents))
-      .catch(() => setRows([]));
+      .then((r) => { if (current(request) && request.serial === serial) { setRows(r.documents); setLoadedScope(request); } })
+      .catch(() => { if (current(request) && request.serial === serial) { setRows([]); setLoadedScope(request); } });
   };
 
   useEffect(() => {
+    setRows(null); setLoadedScope(null); setRescanning({}); setFilter("all"); setQ("");
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchAll]);
+  }, [fetchAll, scopeKey]);
 
   const handleRescan = async (id: string) => {
+    const request = scope.current;
+    if (!current(request) || loadedScope !== request || !rows?.some(row => row.id === id && row.scan_status === "failed")) return;
     setRescanning((s) => ({ ...s, [id]: true }));
     try {
-      const res = await rescan({ data: { id } });
+      const res = await rescan({ data: { id, expected_viewer_id: request.key! } });
+      if (!current(request)) return;
       if (res.ok) {
-        toast.success("Scan clean — sending to AI for review.");
+        toast.success("Scan clean — summary review queued.");
       } else {
-        toast.error(
-          res.code === "infected"
-            ? "Threat detected. File removed from storage."
-            : `Rescan still ${res.code}. File remains quarantined.`,
-        );
+        toast.error(res.code === "infected"
+          ? "Threat detected. The file is quarantined; removal has not been confirmed."
+          : "The scan could not clear this file. It remains quarantined.");
       }
       reload();
     } catch (err) {
+      if (!current(request)) return;
       toast.error(err instanceof Error ? err.message : "Could not rescan document.");
+      reload();
     } finally {
-      setRescanning((s) => {
-        const next = { ...s };
-        delete next[id];
-        return next;
+      if (current(request)) setRescanning((s) => {
+        const next = { ...s }; delete next[id]; return next;
       });
     }
   };
@@ -276,9 +291,9 @@ function DocumentsHubPage() {
                         {rescanning[d.id] ? "Rescanning…" : "Retry scan"}
                       </Button>
                     )}
-                    {d.scan_status === "deleted" ? (
+                    {d.scan_status === "deleted" || d.scan_status === "infected" ? (
                       <span className="text-xs text-muted-foreground">
-                        File removed — upload again to retry.
+                        This file is blocked for your safety.
                       </span>
                     ) : d.review_status === "uploaded" || d.review_status === "linked" ? (
                       <Button asChild size="sm" variant="outline">
@@ -365,13 +380,14 @@ function ScanStatusBadge({ scan }: { scan: string | null }) {
       label: "Scan failed",
       tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
     },
+    infected: { label: "Threat detected", tone: "bg-destructive/10 text-destructive" },
     deleted: {
-      label: "Infected — removed",
+      label: "Blocked",
       tone: "bg-destructive/10 text-destructive",
     },
   };
   const m = meta[scan] ?? {
-    label: `Scan ${scan}`,
+    label: "Review needed",
     tone: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
   };
   return (

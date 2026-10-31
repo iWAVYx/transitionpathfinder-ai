@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "status": "named-staging-history-acceptance-passed-not-production-readiness",
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39980508504",
+  "runAttempt": 1,
+  "authorization": "User explicitly authorized one bounded repeat with test-only readiness correction d44620fb",
+  "testSource": "d44620fb3ffde948c7dbee71cb64ed2caa6147d0",
+  "deployedCloudflareSource": "098243387a4fd9f98fa84e9171506750e5ac27b5",
+  "runtimeFingerprint": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+  "runtimeFileCount": 1184,
+  "target": "qgrertkqbwanerqqemph",
+  "jobs": [
+    {
+      "id": 120506269925,
+      "name": "Verify Staging Acceptance",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 39980508504,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Confirm staging intent",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Run bun install --frozen-lockfile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Install Playwright Chromium",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Require Isolated Staging Password",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify Staging Deployment Identity",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "E2E Base URL Reachability Preflight",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Create All Seven Auth Storage States",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Require All Seven Auth Storage States",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Dashboard Regression (Mobile, Tablet, Desktop)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 12
+        },
+        {
+          "name": "Role Access and Role-Leak Protection",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13
+        },
+        {
+          "name": "Disposable report history acceptance (no AI)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Disposable report-sharing acceptance (no AI)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 15
+        },
+        {
+          "name": "Remove credential-bearing Playwright artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Upload Staging Playwright Evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Run oven-sh/setup-bun@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 33
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 34
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 35
+        }
+      ]
+    }
+  ],
+  "resultChecks": [
+    "2026-10-23T16:05:32.5140373Z   7 passed (48.2s)",
+    "2026-10-23T16:06:02.6224237Z   \u2713  1 [release-signedin] \u203a tests/e2e/release-readiness/report-history-no-ai.signedin.spec.ts:33:3 \u203a parent restores, reopens and exports only its disposable report (28.1s)",
+    "2026-10-23T16:06:22.9824885Z   \u2713  2 [release-signedin] \u203a tests/e2e/release-readiness/report-history-no-ai.signedin.spec.ts:33:3 \u203a educator restores, reopens and exports only its disposable report (20.4s)",
+    "2026-10-23T16:06:23.0279296Z   2 passed (49.8s)",
+    "2026-10-23T16:06:23.4356205Z Playwright artifacts sanitized: 0 unsafe file(s) removed; upload is safe."
+  ],
+  "fixtures": [
+    {
+      "role": "parent",
+      "reportAudience": "family",
+      "runId": "39980508504-1",
+      "reportId": "80bf9e73-d9ae-4968-8571-e51197160905",
+      "intakeId": "bb2e6e9d-0771-4f90-891f-94b3887c80af",
+      "aiCalls": 0,
+      "rpcAndDirectEditHistory": true,
+      "clientHistoryFabricationDenied": true,
+      "linkedEditorAcceptance": "Unperformed: unlinked fixtures; no new relationship authorized",
+      "existingOwnerAdminFixtureIdVisible": true,
+      "nonownerAdminControlsHidden": true,
+      "versionNumbers": [
+        1,
+        2,
+        3
+      ],
+      "pdfCreated": true,
+      "cleanup": {
+        "errors": [],
+        "scope": "Exact IDs; caller-RLS readback, not privileged global row-count proof"
+      }
+    },
+    {
+      "role": "educator",
+      "reportAudience": "educator",
+      "runId": "39980508504-1",
+      "reportId": "0119f4a2-5f71-442d-b4df-67bd2c9228d7",
+      "intakeId": "8d543ae6-5739-430e-baef-9ae6a701feb0",
+      "aiCalls": 0,
+      "rpcAndDirectEditHistory": true,
+      "clientHistoryFabricationDenied": true,
+      "linkedEditorAcceptance": "Unperformed: unlinked fixtures; no new relationship authorized",
+      "existingOwnerAdminFixtureIdVisible": true,
+      "nonownerAdminControlsHidden": true,
+      "versionNumbers": [
+        1,
+        2,
+        3
+      ],
+      "pdfCreated": true,
+      "cleanup": {
+        "errors": [],
+        "scope": "Exact IDs; caller-RLS readback, not privileged global row-count proof"
+      }
+    }
+  ],
+  "scope": {
+    "existingRoleSessions": 7,
+    "intakesCreated": 2,
+    "reportsCreated": 2,
+    "historyVersionsCreated": 6,
+    "pdfExports": 2,
+    "sharingGrantsOrLinks": 0,
+    "newAccountsOrRelationships": 0,
+    "aiCalls": 0,
+    "applicationDeploymentOrMigrationOrPublicationThisRepeat": false,
+    "productionTouched": false,
+    "retries": 0
+  },
+  "independentCleanup": {
+    "result": {
+      "run_id": "39980508504-1",
+      "operator": "postgres",
+      "read_only": "on",
+      "observed_at": "2026-10-23T16:57:47.486993+00:00",
+      "intake_count": 0,
+      "report_count": 0,
+      "version_count": 0,
+      "fixture_receipts": 2,
+      "share_token_count": 0
+    },
+    "querySha256": "33c0d054c1f0fd3fe195ff2c324bb39efae6104493f607020d69c1449e88800a",
+    "method": "BEGIN READ ONLY; verified postgres table ownership and no FORCE RLS; exact run report/intake UUID sets and report foreign keys only"
+  },
+  "artifact": {
+    "id": 12514003935,
+    "sizeBytes": 10398286,
+    "providerArchiveDigest": "sha256:66f38df6551779ee14e9084d77f2c1245f3e6cba26132ca1173e89698f3f6e55",
+    "archiveDigestIndependentlyCompared": false,
+    "sanitizer": "passed before download; zero unsafe files removed",
+    "authStatesOrTracesDownloaded": false
+  },
+  "pdfReview": [
+    {
+      "role": "parent",
+      "path": "/private/tmp/tf-history-acceptance-39980508504/test-results/release-readiness-report-h-d29d2--only-its-disposable-report-release-signedin/parent-history-report.pdf",
+      "sha256": "3d9b094876bbc6778005b08fc65065854b3b65721a456c02c71245434205c53a",
+      "pages": 32,
+      "textEmptyPages": [],
+      "restoredSummaryPresent": true,
+      "allTextWithinPageBounds": true,
+      "outOfBounds": [],
+      "lastPageEnding": "y a licensed clinician\nor attorney.\nCONFIDENTIALITY\nShare only with the student,\nfamily, and authorized members\nof the school team. Treat this\ndocument like any other\nplanning record from the IEP\nfile.\n\u2014 End of report \u2014\n",
+      "meetingPages": [
+        8,
+        10,
+        11
+      ],
+      "contactSheets": [
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/parent-contact-1.jpg",
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/parent-contact-2.jpg",
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/parent-contact-3.jpg",
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/parent-contact-4.jpg"
+      ],
+      "restoredSummaryPage": [
+        2
+      ],
+      "page8ContainsCompleteMeetingSheet": true
+    },
+    {
+      "role": "educator",
+      "path": "/private/tmp/tf-history-acceptance-39980508504/test-results/release-readiness-report-h-6aa6e--only-its-disposable-report-release-signedin/educator-history-report.pdf",
+      "sha256": "d1837db5059223c975421440457f2f757e5011e2daa7380f59e2924aff486e12",
+      "pages": 32,
+      "textEmptyPages": [],
+      "restoredSummaryPresent": true,
+      "allTextWithinPageBounds": true,
+      "outOfBounds": [],
+      "lastPageEnding": "y a licensed clinician\nor attorney.\nCONFIDENTIALITY\nShare only with the student,\nfamily, and authorized members\nof the school team. Treat this\ndocument like any other\nplanning record from the IEP\nfile.\n\u2014 End of report \u2014\n",
+      "meetingPages": [
+        8,
+        10,
+        11
+      ],
+      "contactSheets": [
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/educator-contact-1.jpg",
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/educator-contact-2.jpg",
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/educator-contact-3.jpg",
+        "/private/tmp/tf-history-acceptance-39980508504/tmp/pdfs/educator-contact-4.jpg"
+      ],
+      "restoredSummaryPage": [
+        2
+      ],
+      "page8ContainsCompleteMeetingSheet": true
+    }
+  ],
+  "visualInspection": {
+    "all64PagesReviewedAsContactSheets": true,
+    "fullResolutionPages": [
+      "Family page8 meeting sheet",
+      "Educator page32 report ending/disclaimer"
+    ],
+    "observed": "Aligned sections, top-right subtle logo watermarks, complete meeting questions/follow-ups/source note on page8, no observed new clipping/overlap or empty pages",
+    "scopeLimit": "Contact sheets are a layout overview, not all-text proofreading or native browser print acceptance",
+    "toolWarning": "pdfplumber emitted FontBBox descriptor warnings; Poppler rendered both documents successfully. These are not treated as proof of a product font defect."
+  },
+  "firstFailedRunRetained": "docs/production-readiness/evidence/report-history-acceptance-2026-10-23.json",
+  "infrastructure": "Ubuntu dependency downloads delayed installation; job completed successfully in14m9s. One read-only shell status permission review timed out; browser/connector inspection recovered the completed result without rerunning.",
+  "remaining": [
+    "Report density remains32pages for each sample; native-print acceptance remains open",
+    "Existing Owner/admin backend report SELECT/UPDATE policy remains unchanged and needs separate review",
+    "Hosted linked-editor acceptance unperformed; fixtures are unlinked, no new relationship authorized",
+    "Stale browser intent, report identity/provenance mutation boundaries, retention/storage and removed-member bearer lifecycle remain open",
+    "This is no-AI synthetic save/history/export acceptance; no provider-quality, all-role generation or whole-product production readiness claim"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-27",
+  "status": "proposal verified locally and in disposable native/full-schema CI; not canonical or hosted",
+  "base_commit": "3a1e5c736967574fca896c4cfb60d304ba090b03",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-scan-state-boundary.sql",
+    "sha256": "b23ec1505be0c512f2ab6ee8147dfb113e9e71f2f428e12c066e9c2877851870",
+    "requires": "document-path-exclusivity.sql",
+    "canonical_migration_count_unchanged": 210
+  },
+  "behavior": [
+    "Actual authenticated/anon execution roles cannot insert scanner evidence or nonpending machine-review state; uploads identify the authenticated uploader. JWT role claims do not confer service execution.",
+    "Clients cannot change persisted scan status/verdict/data ID/time, machine review status or content hash. Uploader identity is immutable for all ordinary database writers.",
+    "Trusted service writer can store results; normal title/archive and human-review markers remain editable subject to existing RLS. Table grants and policy expressions are unchanged.",
+    "No legacy rows rewritten, no claim that a legacy clean row or privileged write proves provider scanning. Missing exclusive-path prerequisite aborts installation."
+  ],
+  "local_validation": {
+    "combined_database_cases_passed": 65,
+    "native_only_cases_skipped": 2,
+    "provider_calls": 0
+  },
+  "limitations": [
+    "Initial client fingerprints remain untrusted until checked against stored bytes.",
+    "No proof of actual object uploader/immutable bytes, no content reservation or orphan cleanup.",
+    "Existing quarantine/read exceptions, background processing, direct deletion and provider result integrity require separate review.",
+    "The minimal behavioral fixture uses canonical student access helpers and document policies; full canonical replay and actual hosted all-role/upload acceptance are distinct."
+  ],
+  "authorization": {
+    "canonical_migration_added": false,
+    "hosted_database_changed": false,
+    "deployed": false,
+    "published": false,
+    "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40523528681",
+    "source_commit": "261a2d005b5c09d5e836b552eb3803037d9a8c8c",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 67,
+    "native_database_cases_skipped": 0,
+    "concurrency": "Observed simultaneous path inserts after both COMMIT and ROLLBACK with scan-state guard installed.",
+    "full_schema": "All 210 canonical migrations replayed; canonical grants/RLS/security checks passed before both proposals were applied and their indexes/triggers/invoker configurations/private execution grants verified.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "261a2d005b5c09d5e836b552eb3803037d9a8c8c",
+    "push_build": "First attempt failed with Node heap exhaustion; one unchanged-source retry requested. Parallel PR build passed first attempt.",
+    "other_checks": "Remaining automatic results pending at this evidence update; protected skipped checks are unperformed."
+  }
+}

@@ -1,3 +1,5 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { districtDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { DistrictAdminOverviewGrid } from "@/components/dashboard/role/DistrictAdminOverviewGrid";
 import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { createFileRoute } from "@tanstack/react-router";
@@ -9,16 +11,17 @@ import { DistrictPageShell, useDistrictDashboard } from "@/components/district/D
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/district/overview")({
+  ...districtDashboardNavigation,
   head: () => ({
     meta: [{ title: "District Overview — TransitionForward" }],
   }),
   beforeLoad: () => ensureRoleAccess(["district_admin", "admin"]),
-  errorComponent: dashboardErrorComponent("district_admin"),
+  errorComponent: organizationRouteErrorComponent("district", "/district/overview", dashboardErrorComponent("district_admin")),
   component: withRoleGuard(["district_admin", "admin"], DistrictOverviewPage),
 });
 
 function DistrictOverviewPage() {
-  const { data, loading, districtId, reload } = useDistrictDashboard();
+  const { data, loading, districtId, reload, recoverSelection } = useDistrictDashboard();
   return (
     <DistrictPageShell
       path="/district/overview"
@@ -28,11 +31,12 @@ function DistrictOverviewPage() {
       loading={loading}
       districtId={districtId}
       onSwitchDistrict={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
       {(_, d) => (
         <div className="space-y-6 sm:space-y-8">
           <DistrictAdminOverviewGrid liveData={d} selectedDistrictId={districtId} hideOverview />
-          <DashboardWidgetBoard role="district_admin" />
+          <DashboardWidgetBoard role="district_admin" organizationId={loading ? undefined : districtId} />
         </div>
       )}
     </DistrictPageShell>

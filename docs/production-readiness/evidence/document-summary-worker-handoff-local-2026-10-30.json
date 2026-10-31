@@ -1,0 +1,99 @@
+{
+  "schema": "document-summary-worker-handoff-local-v1",
+  "date": "2026-10-30",
+  "source_base": "363ad8c2de7476cc2fa09e5d147df8458cdb3ec5",
+  "status": "Worker wired in prepared source; exact-source automatic and hosted acceptance remain pending",
+  "source_manifest": [
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+      "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a"
+    },
+    {
+      "path": "tests/unit/summary-operation-continuation.test.ts",
+      "sha256": "e048aa3ff8cbd7c25a6fbbb0a791fd6e22e810324ce89d61708dba5bc83dacc4"
+    },
+    {
+      "path": "tests/unit/verified-document-summary.test.ts",
+      "sha256": "64a07792deddd75b7b08507a6b30c0c4a7cea12424118b98e256981d6b66b50a"
+    },
+    {
+      "path": "tests/edge/ai-job-processor.test.ts",
+      "sha256": "5357a83b8723c9019c97c2c7fc500c59ff843d9919bba04cd0a5023ee2dc31d2"
+    }
+  ],
+  "worker_package": {
+    "schema": "document-summary-worker-manifest-v1",
+    "algorithm": "sha256",
+    "fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "method": "sha256(schema + NUL + compact UTF-8 JSON manifest with path,sha256 keys; manifest sorted by path)",
+    "files": 4,
+    "source_manifest": [
+      {
+        "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+        "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+      },
+      {
+        "path": "supabase/functions/ai-job-processor/index.ts",
+        "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+      },
+      {
+        "path": "supabase/functions/ai-job-processor/sensitive-text-redaction.ts",
+        "sha256": "e491c0db74f00433269e42dba3905ce346b0588b961f6987d31bb70d9a15adbf"
+      },
+      {
+        "path": "supabase/functions/ai-job-processor/verified-document-summary.ts",
+        "sha256": "bf13240b34d042ad3c3ceff22412f07411e2ba4c4986731a651f14be92717a7a"
+      }
+    ]
+  },
+  "validation": {
+    "unit_tests": 5703,
+    "unit_files": 360,
+    "focused_claim_and_source_cases": 103,
+    "deno_entrypoint_cases": 23,
+    "deno_typecheck": "passed with cached-only imports",
+    "deno_permissions": "Only fictional SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY/LOVABLE_API_KEY env access; no --allow-net, actual handler IO fully intercepted.",
+    "typescript": "passed",
+    "safety_contracts": 92,
+    "database": "Unchanged SQL; verified foundation source363ad8c2 passed all9 checks, both908/908 zero-skip native suites and full225+six replays.",
+    "web_build": "Website source unchanged; prior build retained, not rerun locally.",
+    "new_source_automatic_checks": "pending"
+  },
+  "behavior": [
+    "Document summaries use exactly one claim_admitted_document_summary RPC; current listed job/actor/student/attempt and exact source/fence fields must match its strict reply.",
+    "Unknown/error-bearing/malformed/foreign claim means no source/file/provider IO, finish, legacy PATCH, fresh begin, replay or capability reattachment. Committed unknown work stays counted.",
+    "Continue the operation returned by SQL. All source reads, same-copy privacy/file checks, provider generation and guarded domain completion run inside that same admitted operation.",
+    "Source actor/student/document/object/version/path/hash must match the atomic claim before file IO; subsequent source/access/retirement checks are retained.",
+    "Successful callback finishes once only after guarded commit. Work failure marks needs-review once; lost/invalid finish cannot replay AI or overwrite completed job state.",
+    "No operation capability is passed to callback arguments, provider prompts, saved outputs, pipeline entries or notification payloads. Other job types retain their prior claim path."
+  ],
+  "worker_handler_wired_in_prepared_source": true,
+  "hosted_worker_handler_wired": false,
+  "legacy_reader_paths_fenced": false,
+  "queue_budget_reservation_implemented": false,
+  "general_operation_limits_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "provider_quiescence_verified": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "application_runtime": {
+    "fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "files": 1205,
+    "changed": false
+  },
+  "remaining": [
+    "Reserve queued capacity and bound active/held work together; a counted queue item must drain without duplicate admission or starvation.",
+    "Trusted manual reconciliation, old/direct/scheduled workers, source/writer fences and physical provider/drain proof.",
+    "Exact-source CI, coordinated canonical/ledger and separate worker/application packaging, freshly authorized hosted acceptance."
+  ]
+}

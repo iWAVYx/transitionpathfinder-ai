@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { GraduationCap } from "lucide-react";
 
 type Student = { id: string; grade_band?: string | null };
@@ -9,13 +10,10 @@ const ORDER = [
   "11th",
   "12th",
   "18-21 Transition",
-  "Post-secondary",
+  "Post-Secondary",
 ];
 
-function normalize(band: string | null | undefined): string {
-  if (!band) return "Not set";
-  return band;
-}
+
 
 /**
  * Bins already-loaded students by grade band — pure presentational, no
@@ -26,7 +24,7 @@ export function GradeBandBreakdown({ students }: { students: Student[] }) {
   if (students.length === 0) return null;
   const counts = new Map<string, number>();
   for (const s of students) {
-    const key = normalize(s.grade_band);
+    const key = formatGradeBand(s.grade_band, "Not set");
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   const total = students.length;

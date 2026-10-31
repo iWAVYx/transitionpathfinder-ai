@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-28",
+  "status": "Design gates only; no executable resolution or cleanup implementation; no hosted authorization",
+  "canonical_migrations": 210,
+  "unapplied_upload_proposals": 14,
+  "current_boundary": "Paused attempts retain their claims. The recovery read returns a registration receipt or a metadata observation, never a file-absence or deletion capability.",
+  "observed_transport_findings": [
+    "The installed SDK sends the exact upload path with x-upsert:false, but a 2xx upload body is not validated against expected Id/Key, actor, version or reviewed bytes.",
+    "An interrupted upload/delete response can report an error after the synthetic transport model has applied the write. The SDK issues no automatic retry in the tested default calls.",
+    "exists() for 400/404 returns false together with an error; 403/500 throws. No result distinguishes missing bytes from caller visibility, policy or stale metadata.",
+    "info() passes through server-provided metadata without binding it to the requested actor/path/object/version. download() returns bytes with no reviewed-hash attestation or If-Match precondition in the tested default request.",
+    "remove([exactPath]) sends DELETE with a prefixes array, but accepts empty, foreign or malformed successful response bodies. That request body alone does not prove server exact-match behavior or deletion.",
+    "The tested remove request carries no object-id/version precondition. Do not invent a conditional header or assume the storage server honors one."
+  ],
+  "required_gates": [
+    {
+      "id": "identity-and-authority",
+      "status": "partial disposable proof verified: fa9eb716 passes both 560-case native/full-schema runs; immutable first summary source admission retained. Current permission checks are not a durable permission lease; physical provider identity remains open.",
+      "requirements": [
+        "Capture immutable original attempt/actor/student/path/review-context and current managed object id/version in a trusted server operation. Recheck current explicit student and document permissions; Owner management alone grants none.",
+        "Bind all evidence to the exact environment, backend, reviewed release and operation key. Unknown auth, foreign identity, stale review or uncertain response stops; no raw client observation authorizes a mutation."
+      ]
+    },
+    {
+      "id": "durable-fence",
+      "status": "partial disposable proof: held resolution claims and retained summary source identity verified; physical provider and complete reference writer fencing remain open",
+      "requirements": [
+        "Design a reviewed durable resolution claim that fences reserve, upload insertion, registration, processing and competing resolution across tabs and workers. Keep it counted in unresolved admission until a terminal receipt commits.",
+        "Prove the object service cannot finish an earlier physical upload or replace bytes after the decision. Metadata row locks alone do not prove this. Do not expire a claim on timeout or reuse its storage path.",
+        "Retained verified-summary source binding is a separate unapplied proposal. It does not fence physical provider writes, all reference writers or direct service result/status writes."
+      ],
+      "prepared_checkpoint": "docs/production-readiness/evidence/document-upload-resolution-claim-local-2026-10-28.json"
+    },
+    {
+      "id": "reference-and-retention",
+      "status": "partial disposable discovery verified: candidate ea29cf2b passes both native/full-schema runs; matching metadata snapshot retained (17 FK, 29 named, 101 JSON, 21 routine candidates). Complete semantic inventory, retention decisions and writer fences remain open.",
+      "requirements": [
+        "Inventory all canonical and proposed references by exact id/path/version, including hidden/archived/deleted documents, reciprocal upload links, AI jobs and processing, evidence/source references, grants and required audit/retention records. Schema FKs alone miss JSON/text/external references.",
+        "Lock or otherwise fence every relevant writer through terminal commit. A point-in-time count or caller-visible empty list is insufficient. Preserve referenced objects and retained audit records."
+      ],
+      "prepared_checkpoint": "docs/production-readiness/evidence/document-processing-reference-local-2026-10-28.json",
+      "catalog_snapshot": "docs/production-readiness/evidence/document-reference-catalog-2026-10-28.json"
+    },
+    {
+      "id": "provider-capability",
+      "status": "open; current default SDK remove is insufficient",
+      "requirements": [
+        "Verify actual Storage owner/version assignment, object-store/metadata ordering, failed-insert rollback, overwrite prohibition and in-flight upload behavior with specifically authorized fictional fixtures. These transport tests do not prove server behavior.",
+        "Require an exact immutable-version deletion capability or another reviewed protocol that cannot delete replacement/referenced bytes. The current paths-only remove adapter does not establish this; do not enable automated cleanup based on it."
+      ]
+    },
+    {
+      "id": "receipts-and-independent-verification",
+      "status": "open",
+      "requirements": [
+        "Validate the exact object/path/version and operation attribution of any mutation receipt; empty/foreign/malformed success or interrupted response remains uncertain. Never retry a destructive call blindly.",
+        "Perform an independent trusted origin/object-store check with adequate visibility and understood consistency after any permitted operation. Metadata absence, a client 404 or an expired signed URL is not physical absence.",
+        "Persist the observed stage and uncertainty for reconciliation without retaining private file contents in logs. A failed final database commit must not be described as successful cleanup."
+      ]
+    },
+    {
+      "id": "terminal-commit-and-new-attempt",
+      "status": "open; no states or unique-index changes implemented",
+      "requirements": [
+        "Only a separately reviewed atomic terminal operation may free unresolved capacity. Preserve the attempt and immutable outcome as a tombstone; never delete rows merely to reset limits.",
+        "Any future change to content-claim uniqueness must permit a new explicitly reviewed attempt only after terminal proof. It must not revive old paths, held files, quarantined content or old credentials.",
+        "Registered recovery uses the existing document receipt; it never re-registers, copies or declares the file safe. Unresolved or conflicting evidence remains held."
+      ]
+    }
+  ],
+  "possible_outcomes_not_implemented": [
+    {
+      "outcome": "registered",
+      "meaning": "An exact existing registration is confirmed through current document permission checks. No upload retry or cleanup follows."
+    },
+    {
+      "outcome": "remain-held",
+      "meaning": "Any missing, foreign, contradictory, inaccessible or uncertain evidence preserves the hold and admission claim."
+    },
+    {
+      "outcome": "verified-empty-terminal",
+      "meaning": "Only after durable fencing and independently verified physical absence plus reference/retention review; not derivable from not_observed or exists false."
+    },
+    {
+      "outcome": "verified-discard-terminal",
+      "meaning": "Only after separately authorized exact-version discard, exact receipt, independent absence and atomic terminal commit. This capability is not implemented."
+    }
+  ],
+  "nonexhaustive_reference_inventory_from_source": [
+    "documents.storage_path and proposed storage_object_id/storage_object_version/upload_attempt_id",
+    "document_upload_attempts reciprocal registered_document_id and unique content claims",
+    "admin_doc_access_grants",
+    "document_access_log",
+    "document_extractions",
+    "document_permissions",
+    "document_pipeline_runs",
+    "document_summaries",
+    "ai_jobs payloads and verified-summary source/result links",
+    "Other evidence, report/document-source JSON and retention references require a complete writer inventory before a deletion design is accepted."
+  ],
+  "next_safe_work": "Prepare DOC-APPLY-01 atomic extraction-application correction and local failure/concurrency proof. Continue remaining semantic reference/provider design; the retained-canary plan is not executable or authorized, and conditional mutation remains blocked.",
+  "authorization": "No deployment, publication, migration, provider call, hosted fixture, new account/relationship/share, credential or production action is authorized here.",
+  "source_binding_checkpoint": "docs/production-readiness/proposals/document-summary-source-binding.sql",
+  "source_binding_evidence": "docs/production-readiness/evidence/document-summary-source-binding-local-2026-10-28.json",
+  "retention_review": "docs/production-readiness/proposals/document-retention-review.json",
+  "rollout_inventory": "docs/production-readiness/proposals/document-summary-rollout-inventory.sql",
+  "rollout_inventory_evidence": "docs/production-readiness/evidence/document-summary-rollout-inventory-local-2026-10-29.json",
+  "provider_documentation_review": "docs/production-readiness/evidence/document-storage-provider-review-2026-10-29.json",
+  "bounded_provider_probe_plan": "docs/production-readiness/proposals/document-storage-provider-probe-plan.json",
+  "source_writer_review": "docs/production-readiness/proposals/document-reference-writer-review.json",
+  "provider_preparation_evidence": "docs/production-readiness/evidence/document-provider-probe-preparation-2026-10-29.json",
+  "atomic_extraction_checkpoint": {
+    "status": "DOC-APPLY-01 corrected in reviewed ba136e85 application path: all nine checks and two 625/625 native suites pass. Not migrated/deployed; other direct writers still open.",
+    "evidence": "docs/production-readiness/evidence/atomic-extraction-application-local-2026-10-29.json",
+    "proposal": "docs/production-readiness/proposals/atomic-extraction-application.sql",
+    "boundary": "One additional independent application proposal; fourteen upload/summary proposals and 210 canonical migrations unchanged. No hosted change or complete writer fence.",
+    "next": "Prepare canonical migration/ledger and compatibility/data/evidence-flag preflight, including old-handler drain and bounded no-AI hosted acceptance scope, before requesting any new release authorization.",
+    "rollout_preparation": {
+      "status": "211th canonical migration prepared only; fourteen upload/summary proposals remain noncanonical/unapplied. Native/replay checks pending.",
+      "evidence": "docs/production-readiness/evidence/atomic-extraction-rollout-local-2026-10-29.json",
+      "release_plan": "docs/production-readiness/proposals/atomic-extraction-release-plan.json"
+    }
+  }
+}

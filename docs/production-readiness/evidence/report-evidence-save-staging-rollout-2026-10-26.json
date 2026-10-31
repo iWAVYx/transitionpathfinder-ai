@@ -1,0 +1,376 @@
+{
+  "date": "2026-10-26",
+  "authorization": "User explicitly authorized staging rollout and one bounded evidence test, then submitted required release review",
+  "release_commit": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
+  "application_commit": "124bbfa46cd2a261b1fc6d1ad904d5038ed816e4",
+  "automatic_review": "All eight automatic checks passed on7814afa7. Both clean builds pass; previous f9c3b21b PR build/retry heap exhaustion remains historical, not an unresolved current-candidate failure. No memory/dependency workaround.",
+  "migration": {
+    "version": "20261026010000",
+    "filename": "20261026010000_save_extracted_report_evidence.sql",
+    "backend": "qgrertkqbwanerqqemph",
+    "committed": true,
+    "canonical_ledger_and_function_body_md5_verified": true,
+    "table_rls_index_and_policies_unchanged": true,
+    "preflight": {
+      "table": {
+        "rls": true,
+        "owner": "postgres",
+        "force_rls": false
+      },
+      "ledger": [
+        {
+          "name": "remove_implicit_admin_student_access",
+          "version": "20261024010000",
+          "statements_md5": "a4b99e30dc4fba433937ba5cac9bedb2"
+        }
+      ],
+      "indexes": [
+        {
+          "valid": true,
+          "unique": true,
+          "definition": "CREATE UNIQUE INDEX report_evidence_links_pkey ON public.report_evidence_links USING btree (id)"
+        },
+        {
+          "valid": true,
+          "unique": false,
+          "definition": "CREATE INDEX report_evidence_links_student_idx ON public.report_evidence_links USING btree (student_id, report_section)"
+        },
+        {
+          "valid": true,
+          "unique": false,
+          "definition": "CREATE INDEX report_evidence_links_source_idx ON public.report_evidence_links USING btree (source_kind, source_id)"
+        },
+        {
+          "valid": true,
+          "unique": true,
+          "definition": "CREATE UNIQUE INDEX report_evidence_links_dedupe_idx ON public.report_evidence_links USING btree (student_id, report_section, source_kind, COALESCE((source_id)::text, ''::text), snippet_hash) WHERE (snippet_hash IS NOT NULL)"
+        },
+        {
+          "valid": true,
+          "unique": false,
+          "definition": "CREATE INDEX idx_report_evidence_links_created_by ON public.report_evidence_links USING btree (created_by)"
+        }
+      ],
+      "database": "postgres",
+      "operator": "postgres",
+      "policies": [
+        {
+          "name": "Add evidence for students you can edit",
+          "check": "can_edit_student(auth.uid(), student_id)",
+          "roles": [
+            "authenticated"
+          ],
+          "using": null,
+          "command": "INSERT"
+        },
+        {
+          "name": "Delete evidence for students you can edit",
+          "check": null,
+          "roles": [
+            "authenticated"
+          ],
+          "using": "can_edit_student(auth.uid(), student_id)",
+          "command": "DELETE"
+        },
+        {
+          "name": "Update evidence for students you can edit",
+          "check": "can_edit_student(auth.uid(), student_id)",
+          "roles": [
+            "authenticated"
+          ],
+          "using": "can_edit_student(auth.uid(), student_id)",
+          "command": "UPDATE"
+        },
+        {
+          "name": "View evidence for students you can access",
+          "check": null,
+          "roles": [
+            "authenticated"
+          ],
+          "using": "can_access_student(auth.uid(), student_id)",
+          "command": "SELECT"
+        }
+      ],
+      "routines": [
+        {
+          "name": "can_access_student(uuid,uuid)",
+          "owner": "postgres",
+          "config": [
+            "search_path=public"
+          ],
+          "body_md5": "c2dcc71ecab9bc4b982d7f81793da2aa",
+          "anon_execute": false,
+          "service_execute": true,
+          "security_definer": true,
+          "authenticated_execute": true
+        },
+        {
+          "name": "can_edit_student(uuid,uuid)",
+          "owner": "postgres",
+          "config": [
+            "search_path=public"
+          ],
+          "body_md5": "79b05b69377dd61a33938fe5ebb06fc7",
+          "anon_execute": false,
+          "service_execute": true,
+          "security_definer": true,
+          "authenticated_execute": true
+        }
+      ],
+      "read_only": "on",
+      "expected_project_label": "qgrertkqbwanerqqemph"
+    },
+    "postflight": {
+      "table": {
+        "rls": true,
+        "owner": "postgres",
+        "force_rls": false
+      },
+      "ledger": [
+        {
+          "name": "remove_implicit_admin_student_access",
+          "version": "20261024010000",
+          "statements_md5": "a4b99e30dc4fba433937ba5cac9bedb2"
+        },
+        {
+          "name": "save_extracted_report_evidence",
+          "version": "20261026010000",
+          "statements_md5": "638529ca9a4367b45ceb262a20f90a3d"
+        }
+      ],
+      "indexes": [
+        {
+          "valid": true,
+          "unique": true,
+          "definition": "CREATE UNIQUE INDEX report_evidence_links_pkey ON public.report_evidence_links USING btree (id)"
+        },
+        {
+          "valid": true,
+          "unique": false,
+          "definition": "CREATE INDEX report_evidence_links_student_idx ON public.report_evidence_links USING btree (student_id, report_section)"
+        },
+        {
+          "valid": true,
+          "unique": false,
+          "definition": "CREATE INDEX report_evidence_links_source_idx ON public.report_evidence_links USING btree (source_kind, source_id)"
+        },
+        {
+          "valid": true,
+          "unique": true,
+          "definition": "CREATE UNIQUE INDEX report_evidence_links_dedupe_idx ON public.report_evidence_links USING btree (student_id, report_section, source_kind, COALESCE((source_id)::text, ''::text), snippet_hash) WHERE (snippet_hash IS NOT NULL)"
+        },
+        {
+          "valid": true,
+          "unique": false,
+          "definition": "CREATE INDEX idx_report_evidence_links_created_by ON public.report_evidence_links USING btree (created_by)"
+        }
+      ],
+      "database": "postgres",
+      "operator": "postgres",
+      "policies": [
+        {
+          "name": "Add evidence for students you can edit",
+          "check": "can_edit_student(auth.uid(), student_id)",
+          "roles": [
+            "authenticated"
+          ],
+          "using": null,
+          "command": "INSERT"
+        },
+        {
+          "name": "Delete evidence for students you can edit",
+          "check": null,
+          "roles": [
+            "authenticated"
+          ],
+          "using": "can_edit_student(auth.uid(), student_id)",
+          "command": "DELETE"
+        },
+        {
+          "name": "Update evidence for students you can edit",
+          "check": "can_edit_student(auth.uid(), student_id)",
+          "roles": [
+            "authenticated"
+          ],
+          "using": "can_edit_student(auth.uid(), student_id)",
+          "command": "UPDATE"
+        },
+        {
+          "name": "View evidence for students you can access",
+          "check": null,
+          "roles": [
+            "authenticated"
+          ],
+          "using": "can_access_student(auth.uid(), student_id)",
+          "command": "SELECT"
+        }
+      ],
+      "routines": [
+        {
+          "name": "can_access_student(uuid,uuid)",
+          "owner": "postgres",
+          "config": [
+            "search_path=public"
+          ],
+          "body_md5": "c2dcc71ecab9bc4b982d7f81793da2aa",
+          "anon_execute": false,
+          "service_execute": true,
+          "security_definer": true,
+          "authenticated_execute": true
+        },
+        {
+          "name": "can_edit_student(uuid,uuid)",
+          "owner": "postgres",
+          "config": [
+            "search_path=public"
+          ],
+          "body_md5": "79b05b69377dd61a33938fe5ebb06fc7",
+          "anon_execute": false,
+          "service_execute": true,
+          "security_definer": true,
+          "authenticated_execute": true
+        },
+        {
+          "name": "save_extracted_report_evidence(uuid,text,uuid,text,jsonb)",
+          "owner": "postgres",
+          "config": [
+            "search_path=pg_catalog"
+          ],
+          "body_md5": "a833b63a37a886ccbc43443761957245",
+          "anon_execute": false,
+          "service_execute": false,
+          "security_definer": false,
+          "authenticated_execute": true
+        }
+      ],
+      "read_only": "on",
+      "expected_project_label": "qgrertkqbwanerqqemph"
+    }
+  },
+  "cloudflare": {
+    "release_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40433881673",
+    "conclusion": "success",
+    "stable_health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "c95a008f5ae678a66311b906fffd8983ca790f9fb6738c24daa60f4a906ae5c8",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1190,
+      "git_commit_sha": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "lovable": {
+    "project_id": "95c97302-11c6-4e89-bac3-2c68b970dd3d",
+    "repository": "iWAVYx/gentle-forward-reach",
+    "sync_commit": "c2396acbcd6b4e47b44de2a725e2ca3a77faaa10",
+    "changed_runtime_files": [
+      "src/lib/report-evidence/extract.functions.ts"
+    ],
+    "protected_hashes_preserved": 8,
+    "frozen_install": "no changes",
+    "existing_preview_update_completed": true,
+    "publication_confirmation": "Your website was updated",
+    "private_preview_health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "preview--gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "c95a008f5ae678a66311b906fffd8983ca790f9fb6738c24daa60f4a906ae5c8",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1190,
+      "git_commit_sha": "dev",
+      "isolation": {
+        "ok": false,
+        "errors": [
+          "\"preview--gentle-forward-reach.lovable.app\" is not an allowed staging hostname.",
+          "GIT_COMMIT_SHA must contain the exact 40-character Git commit SHA."
+        ]
+      }
+    },
+    "stable_health": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "c95a008f5ae678a66311b906fffd8983ca790f9fb6738c24daa60f4a906ae5c8",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1190,
+      "git_commit_sha": "c2396acbcd6b4e47b44de2a725e2ca3a77faaa10",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "preview_limit": "Private alias reports dev and isolation false under existing hostname/commit rules. Stable publication independently passes isolation with actual isolated Git sync SHA; no manual SHA or health-policy change."
+  },
+  "bounded_test": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40434461119",
+    "captured_status": {
+      "conclusion": "",
+      "headSha": "7814afa7369bc4a74470457856fb6b7c71deaa6e",
+      "jobs": [
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "databaseId": 121959693912,
+          "name": "Verify Staging Acceptance",
+          "startedAt": "2026-10-27T01:45:37Z",
+          "status": "waiting",
+          "steps": [],
+          "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40434461119/job/121959693912"
+        }
+      ],
+      "status": "waiting"
+    },
+    "authorized_once": true,
+    "acceptance": "not yet claimed; separate human review requested",
+    "budget_source": "report-evidence-live-bounded-preparation-2026-10-26.json",
+    "cleanup_independent_absence_still_required": true
+  },
+  "production_touched": false,
+  "unchanged": [
+    "Original repository main unmerged",
+    "Production backend/settings",
+    "Existing environment files, dependencies, generated types and widget views",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot; full TF-01\u2013TF-26/six milestones remain"
+  ]
+}

@@ -107,46 +107,51 @@ for (const role of ROLES) {
 }
 
 // PartnerForward management tools: only Partner + Owner.
+// Use the per-test page fixture so navigation and teardown have independent
+// lifetimes. Network idle is not an authorization signal (background reads can
+// remain active); do not swallow a failed navigation and inspect a blank page.
 test.describe("PartnerForward management visibility", () => {
   for (const role of ROLES) {
-    const shouldSee = role.key === "partner" || role.key === "owner";
-    test(`${role.label} ${shouldSee ? "sees" : "does not see"} /partners-manage`, async ({ browser }) => {
-      test.skip(!existsSync(role.storageState), `no storageState for ${role.key}`);
-      const ctx = await browser.newContext({ storageState: role.storageState });
-      const page = await ctx.newPage();
-      await page.goto("/partners-manage", { waitUntil: "networkidle" }).catch(() => {});
-      const onPage = new URL(page.url()).pathname.startsWith("/partners-manage");
-      expect(
-        onPage,
-        `${role.key} access to /partners-manage = ${onPage}, expected ${shouldSee}`,
-      ).toBe(shouldSee);
-      await ctx.close();
+    test.describe(role.label, () => {
+      test.skip(() => !existsSync(role.storageState), `no storageState for ${role.key}`);
+      test.use({ storageState: role.storageState });
+      const shouldSee = role.key === "partner" || role.key === "owner";
+      test(`${role.label} ${shouldSee ? "sees" : "does not see"} /partners-manage`, async ({ page }) => {
+        await page.goto("/partners-manage", { waitUntil: "domcontentloaded", timeout: 20_000 });
+        await expect.poll(() => new URL(page.url()).pathname.startsWith("/partners-manage"), {
+          timeout: 15_000,
+          message: `${role.key} access to /partners-manage must match ${shouldSee}`,
+        }).toBe(shouldSee);
+        const main = page.locator('main:not([data-auth-state="route-pending"]):not([data-auth-state="session-loading"]):not([data-auth-state="checking"])').first();
+        await expect(main).toBeVisible({ timeout: 15_000 });
+        await expect(main.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+        const finalPath = new URL(page.url()).pathname.replace(/\/+$/, "") || "/";
+        expect(finalPath.startsWith("/partners-manage")).toBe(shouldSee);
+        if (!shouldSee) {
+          expect(finalPath, "Denied access must return to this role's real dashboard, not blank/sign-in").toBe(role.dashboard.replace(/\/+$/, "") || "/");
+        }
+      });
     });
   }
 });
 
-// Grade-band coupling on the Student dashboard.
+// The existing QA student is a high-school student. Check the actual readable
+// grade and tool links, not obsolete "grade\n11-12"/marketing copy. A separate
+// middle-school cohort still needs its own authorized account/fixture coverage.
 test.describe("Student grade-band tools", () => {
   const student = ROLES.find((r) => r.key === "student")!;
   test.skip(() => !existsSync(student.storageState), "no student storageState");
   test.use({ storageState: student.storageState });
 
-  test("BridgeForward shown only for 6-8; TransitionForward only for 9-12", async ({ page }) => {
-    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  test("High-school student sees readable grade and applicable planning links", async ({ page }) => {
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded", timeout: 20_000 });
     const main = page.locator('main[data-testid="student-dashboard-main"]');
-    await main.waitFor({ state: "attached", timeout: 30_000 });
-    // Give the dashboard a moment to hydrate the student snapshot.
-    await page.waitForLoadState("networkidle").catch(() => {});
-    const text = (await main.innerText()).toLowerCase();
-    const grade = text.match(/grade\s*\n?\s*(6-8|9-10|11-12)/)?.[1];
-    test.skip(!grade, "seeded student has no grade_band — coupling check skipped");
-    const isMiddle = grade === "6-8";
-    const hasBridge = /bridgeforward/i.test(text);
-    const hasTransition = /opportunities for you|transitionforward/i.test(text);
-    if (isMiddle) {
-      expect(hasBridge, "6-8 student dashboard should show BridgeForward").toBe(true);
-    } else {
-      expect(hasTransition, "9-12 student dashboard should show TransitionForward tools").toBe(true);
-    }
+    const overview = page.getByTestId("live-student-dashboard-overview");
+    await expect(overview).toBeVisible({ timeout: 30_000 });
+    await expect(overview.getByText(/^High School ·/)).toBeVisible();
+    await expect(main).not.toContainText(/\bhigh_school\b|\bmiddle_school\b/);
+    await expect(main.locator('a[href="/student-voice"]').first()).toBeVisible();
+    await expect.poll(() => main.locator('a[href^="/pathway/student"],a[href^="/reports/"]').count()).toBeGreaterThan(0);
+    await expect(main.locator('a[href^="/bridgeforward/intake"]')).toHaveCount(0);
   });
 });

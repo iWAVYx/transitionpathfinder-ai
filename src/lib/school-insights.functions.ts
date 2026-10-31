@@ -1,3 +1,4 @@
+import { readOrganizationPages, readOrganizationBatches, organizationReadError } from "./organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -20,10 +21,11 @@ export type SchoolSupportNeeds = {
   org_name: string | null;
   total_students: number;
   needing_support: SupportNeedRow[];
+  total_needing_support?: number;
 };
 
 /**
- * Students in the selected org (or across all orgs the caller admins) who
+ * Caller-visible students in the selected authorized organization who
  * need extra support: no Pathway Report yet, OR average readiness < 60,
  * OR any readiness pillar < 50. Sorted worst-first.
  */
@@ -35,15 +37,14 @@ export const getSchoolSupportNeeds = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<SchoolSupportNeeds> => {
     const { supabase, userId } = context;
 
-    const { data: myAdmin } = await supabase
-      .from("organization_memberships")
-      .select("organization_id")
-      .eq("user_id", userId)
-      .eq("status", "active")
-      .in("role_within_org", ["admin", "owner", "school_admin"]);
+    const myAdmin = await readOrganizationPages<AdminMembership>((from, to) => supabase
+      .from("organization_memberships").select("organization_id", { count: "exact" })
+      .eq("user_id", userId).eq("status", "active")
+      .in("role_within_org", ["admin", "owner", "school_admin"]).order("id").range(from, to));
     const adminOrgIds = (myAdmin ?? []).map(
       (m: { organization_id: string }) => m.organization_id,
     );
+    assertRequestedOrganization(data.org_id, adminOrgIds);
     if (adminOrgIds.length === 0) {
       return {
         is_school_admin: false,
@@ -51,30 +52,17 @@ export const getSchoolSupportNeeds = createServerFn({ method: "POST" })
         org_name: null,
         total_students: 0,
         needing_support: [],
+        total_needing_support: 0,
       };
     }
 
     const orgId =
       data.org_id && adminOrgIds.includes(data.org_id) ? data.org_id : adminOrgIds[0];
-    const { data: orgRow } = await supabase
-      .from("organizations")
-      .select("id, name")
-      .eq("id", orgId)
-      .maybeSingle();
+    const orgRow = await organizationName(context, orgId);
 
-    const { data: orgStudents } = await supabase
-      .from("students")
-      .select("id, first_name, preferred_name, grade_band, owner_id")
-      .eq("organization_id", orgId)
-      .limit(500);
-    const students =
-      (orgStudents ?? []) as Array<{
-        id: string;
-        first_name: string | null;
-        preferred_name: string | null;
-        grade_band: string | null;
-        owner_id: string;
-      }>;
+    const students = await readOrganizationPages<{ id: string; first_name: string | null; preferred_name: string | null; grade_band: string | null; owner_id: string }>((from, to) => supabase
+      .from("students").select("id, first_name, preferred_name, grade_band, owner_id", { count: "exact" })
+      .eq("organization_id", orgId).order("id").range(from, to));
     const studentIds = students.map((s) => s.id);
 
     if (studentIds.length === 0) {
@@ -84,39 +72,20 @@ export const getSchoolSupportNeeds = createServerFn({ method: "POST" })
         org_name: orgRow?.name ?? null,
         total_students: 0,
         needing_support: [],
+        total_needing_support: 0,
       };
     }
 
-    const [scoresRes, reportsRes, ownersRes] = await Promise.all([
-      supabase
-        .from("readiness_scores")
-        .select("student_id, category, score")
-        .in("student_id", studentIds),
-      supabase
-        .from("pathway_reports")
-        .select("student_id")
-        .in("student_id", studentIds),
-      supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", Array.from(new Set(students.map((s) => s.owner_id)))),
+    const [scores, reports, owners] = await Promise.all([
+      readOrganizationBatches<Score>(studentIds, (ids, from, to) => supabase.from("readiness_scores")
+        .select("student_id, category, score", { count: "exact" }).in("student_id", ids).order("id").range(from, to)),
+      readOrganizationBatches<{ student_id: string | null }>(studentIds, (ids, from, to) => supabase.from("pathway_reports")
+        .select("student_id", { count: "exact" }).in("student_id", ids).order("id").range(from, to)),
+      readOrganizationBatches<{ id: string; full_name: string | null }>(students.map(row => row.owner_id), (ids, from, to) => supabase.from("profiles")
+        .select("id, full_name", { count: "exact" }).in("id", ids).order("id").range(from, to)),
     ]);
-    const scores =
-      (scoresRes.data ?? []) as Array<{
-        student_id: string;
-        category: string;
-        score: number | null;
-      }>;
-    const reportedIds = new Set(
-      ((reportsRes.data ?? []) as Array<{ student_id: string }>).map(
-        (r) => r.student_id,
-      ),
-    );
-    const ownerNames = new Map(
-      ((ownersRes.data ?? []) as Array<{ id: string; full_name: string | null }>).map(
-        (p) => [p.id, p.full_name],
-      ),
-    );
+    const reportedIds = new Set(reports.map(row => row.student_id));
+    const ownerNames = new Map(owners.map(row => [row.id, row.full_name]));
 
     const byStudent = new Map<
       string,
@@ -166,15 +135,15 @@ export const getSchoolSupportNeeds = createServerFn({ method: "POST" })
         const av = a.avg_score ?? -1;
         const bv = b.avg_score ?? -1;
         return av - bv;
-      })
-      .slice(0, 50);
+      });
 
     return {
       is_school_admin: true,
       org_id: orgId,
       org_name: orgRow?.name ?? null,
       total_students: students.length,
-      needing_support: flagged,
+      total_needing_support: flagged.length,
+      needing_support: flagged.slice(0, 50),
     };
   });
 
@@ -183,15 +152,24 @@ export const getSchoolSupportNeeds = createServerFn({ method: "POST" })
 /* ------------------------------------------------------------------ */
 
 type SupabaseCtx = { supabase: any; userId: string };
+type AdminMembership = { organization_id: string };
+type Score = { student_id: string; category: string; score: number | null };
+function assertRequestedOrganization(id: string | undefined, ids: string[]) {
+  if (id && !ids.includes(id)) throw new Error("This workspace is unavailable.");
+}
+async function organizationName(ctx: SupabaseCtx, id: string) {
+  const result = await ctx.supabase.from("organizations").select("id, name").eq("id", id).maybeSingle();
+  if (result.error) throw organizationReadError();
+  return result.data as { id: string; name: string } | null;
+}
+
 
 async function myAdminOrgIds(ctx: SupabaseCtx): Promise<string[]> {
-  const { data } = await ctx.supabase
-    .from("organization_memberships")
-    .select("organization_id")
-    .eq("user_id", ctx.userId)
-    .eq("status", "active")
-    .in("role_within_org", ["admin", "owner", "school_admin"]);
-  return (data ?? []).map((m: { organization_id: string }) => m.organization_id);
+  const rows = await readOrganizationPages<AdminMembership>((from, to) => ctx.supabase
+    .from("organization_memberships").select("organization_id", { count: "exact" })
+    .eq("user_id", ctx.userId).eq("status", "active")
+    .in("role_within_org", ["admin", "owner", "school_admin"]).order("id").range(from, to));
+  return [...new Set(rows.map(row => row.organization_id))];
 }
 
 /* ------------------------------------------------------------------ */
@@ -221,21 +199,20 @@ export const getSchoolPlanningStatus = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<SchoolPlanningStatus> => {
     const orgIds = await myAdminOrgIds(context);
+    assertRequestedOrganization(data.org_id, orgIds);
     if (orgIds.length === 0) {
       return { is_school_admin: false, org_id: null, org_name: null, total_students: 0, total_with_report: 0, by_grade: [] };
     }
     const orgId = data.org_id && orgIds.includes(data.org_id) ? data.org_id : orgIds[0];
-    const { data: orgRow } = await context.supabase
-      .from("organizations").select("id, name").eq("id", orgId).maybeSingle();
-    const { data: students } = await context.supabase
-      .from("students").select("id, grade_band").eq("organization_id", orgId).limit(2000);
-    const rows = (students ?? []) as Array<{ id: string; grade_band: string | null }>;
+    const orgRow = await organizationName(context, orgId);
+    const rows = await readOrganizationPages<{ id: string; grade_band: string | null }>((from, to) => context.supabase
+      .from("students").select("id, grade_band", { count: "exact" }).eq("organization_id", orgId).order("id").range(from, to));
     const ids = rows.map((r) => r.id);
     const reported = new Set<string>();
     if (ids.length) {
-      const { data: reps } = await context.supabase
-        .from("pathway_reports").select("student_id").in("student_id", ids);
-      for (const r of (reps ?? []) as Array<{ student_id: string }>) reported.add(r.student_id);
+      const reps = await readOrganizationBatches<{ student_id: string | null }>(ids, (batch, from, to) => context.supabase
+        .from("pathway_reports").select("student_id", { count: "exact" }).in("student_id", batch).order("id").range(from, to));
+      for (const row of reps) if (row.student_id !== null) reported.add(row.student_id);
     }
     const map = new Map<string, { total: number; with_report: number }>();
     for (const s of rows) {
@@ -286,32 +263,27 @@ export type ReadinessTrendData = {
 };
 
 async function trendsFor(context: SupabaseCtx, orgId: string, scope: "school" | "district"): Promise<ReadinessTrendData> {
-  const { data: orgRow } = await context.supabase
-    .from("organizations").select("id, name").eq("id", orgId).maybeSingle();
+  const orgRow = await organizationName(context, orgId);
 
   // For district scope: gather student IDs across child schools.
   let studentIds: string[] = [];
   if (scope === "district") {
-    const { data: schools } = await context.supabase
-      .from("organizations").select("id").eq("parent_organization_id", orgId);
-    const schoolIds = ((schools ?? []) as Array<{ id: string }>).map((s) => s.id);
-    if (schoolIds.length) {
-      const { data: ss } = await context.supabase
-        .from("students").select("id").in("organization_id", schoolIds).limit(5000);
-      studentIds = ((ss ?? []) as Array<{ id: string }>).map((s) => s.id);
-    }
+    const schools = await readOrganizationPages<{ id: string }>((from, to) => context.supabase
+      .from("organizations").select("id", { count: "exact" }).eq("parent_organization_id", orgId).order("id").range(from, to));
+    const students = await readOrganizationBatches<{ id: string }>(schools.map(row => row.id), (ids, from, to) => context.supabase
+      .from("students").select("id", { count: "exact" }).in("organization_id", ids).order("id").range(from, to));
+    studentIds = students.map(row => row.id);
   } else {
-    const { data: ss } = await context.supabase
-      .from("students").select("id").eq("organization_id", orgId).limit(2000);
-    studentIds = ((ss ?? []) as Array<{ id: string }>).map((s) => s.id);
+    const students = await readOrganizationPages<{ id: string }>((from, to) => context.supabase
+      .from("students").select("id", { count: "exact" }).eq("organization_id", orgId).order("id").range(from, to));
+    studentIds = students.map(row => row.id);
   }
   if (studentIds.length === 0) {
     return { scope, is_admin: true, org_id: orgId, org_name: orgRow?.name ?? null,
       total_students: 0, scored_students: 0, pillar_averages: [] };
   }
-  const { data: scoresRes } = await context.supabase
-    .from("readiness_scores").select("student_id, category, score").in("student_id", studentIds);
-  const scores = (scoresRes ?? []) as Array<{ student_id: string; category: string; score: number | null }>;
+  const scores = await readOrganizationBatches<Score>(studentIds, (ids, from, to) => context.supabase
+    .from("readiness_scores").select("student_id, category, score", { count: "exact" }).in("student_id", ids).order("id").range(from, to));
 
   const byCat = new Map<string, { total: number; count: number; below50: number; below60: number; students: Set<string> }>();
   const scoredStudents = new Set<string>();
@@ -351,6 +323,7 @@ export const getSchoolReadinessTrends = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<ReadinessTrendData> => {
     const orgIds = await myAdminOrgIds(context);
+    assertRequestedOrganization(data.org_id, orgIds);
     if (orgIds.length === 0) {
       return { scope: "school", is_admin: false, org_id: null, org_name: null,
         total_students: 0, scored_students: 0, pillar_averages: [] };
@@ -365,21 +338,21 @@ export const getDistrictReadinessTrends = createServerFn({ method: "POST" })
     z.object({ district_id: z.string().uuid().optional() }).parse(i ?? {}),
   )
   .handler(async ({ data, context }): Promise<ReadinessTrendData> => {
-    const { data: myAdmin } = await context.supabase
-      .from("organization_memberships")
-      .select("organization_id")
-      .eq("user_id", context.userId)
-      .eq("status", "active")
-      .in("role_within_org", ["admin", "owner", "district_admin"]);
+    const myAdmin = await readOrganizationPages<AdminMembership>((from, to) => context.supabase
+      .from("organization_memberships").select("organization_id", { count: "exact" })
+      .eq("user_id", context.userId).eq("status", "active")
+      .in("role_within_org", ["admin", "owner", "district_admin"]).order("id").range(from, to));
     const adminIds = ((myAdmin ?? []) as Array<{ organization_id: string }>).map((m) => m.organization_id);
+    assertRequestedOrganization(data.district_id, adminIds);
     if (adminIds.length === 0) {
       return { scope: "district", is_admin: false, org_id: null, org_name: null,
         total_students: 0, scored_students: 0, pillar_averages: [] };
     }
     // Filter to organizations of type 'district'
-    const { data: districts } = await context.supabase
-      .from("organizations").select("id, name, type").in("id", adminIds).eq("type", "district");
+    const districts = await readOrganizationBatches<{ id: string }>(adminIds, (ids, from, to) => context.supabase
+      .from("organizations").select("id, name, type", { count: "exact" }).in("id", ids).eq("type", "district").order("id").range(from, to));
     const districtIds = ((districts ?? []) as Array<{ id: string }>).map((d) => d.id);
+    assertRequestedOrganization(data.district_id, districtIds);
     if (districtIds.length === 0) {
       return { scope: "district", is_admin: false, org_id: null, org_name: null,
         total_students: 0, scored_students: 0, pillar_averages: [] };
@@ -417,21 +390,20 @@ export const getSchoolResourceUsage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<SchoolResourceUsage> => {
     const orgIds = await myAdminOrgIds(context);
+    assertRequestedOrganization(data.org_id, orgIds);
     if (orgIds.length === 0) {
       return { is_school_admin: false, org_id: null, org_name: null, team_size: 0, total_saves: 0, top_resources: [] };
     }
     const orgId = data.org_id && orgIds.includes(data.org_id) ? data.org_id : orgIds[0];
-    const { data: orgRow } = await context.supabase
-      .from("organizations").select("id, name").eq("id", orgId).maybeSingle();
-    const { data: members } = await context.supabase
-      .from("organization_memberships").select("user_id").eq("organization_id", orgId).eq("status", "active");
-    const userIds = Array.from(new Set(((members ?? []) as Array<{ user_id: string }>).map((m) => m.user_id)));
+    const orgRow = await organizationName(context, orgId);
+    const members = await readOrganizationPages<{ user_id: string }>((from, to) => context.supabase
+      .from("organization_memberships").select("user_id", { count: "exact" }).eq("organization_id", orgId).eq("status", "active").order("id").range(from, to));
+    const userIds = [...new Set(members.map(row => row.user_id))];
     if (userIds.length === 0) {
       return { is_school_admin: true, org_id: orgId, org_name: orgRow?.name ?? null, team_size: 0, total_saves: 0, top_resources: [] };
     }
-    const { data: savedRes } = await context.supabase
-      .from("saved_resources").select("resource_id, user_id, created_at").in("user_id", userIds).limit(2000);
-    const saves = (savedRes ?? []) as Array<{ resource_id: string; user_id: string; created_at: string }>;
+    const saves = await readOrganizationBatches<{ resource_id: string; user_id: string; created_at: string }>(userIds, (ids, from, to) => context.supabase
+      .from("saved_resources").select("resource_id, user_id, created_at", { count: "exact" }).in("user_id", ids).order("id").range(from, to));
     const byRes = new Map<string, { count: number; users: Set<string>; last: string | null }>();
     for (const s of saves) {
       const cur = byRes.get(s.resource_id) ?? { count: 0, users: new Set<string>(), last: null };
@@ -443,9 +415,9 @@ export const getSchoolResourceUsage = createServerFn({ method: "POST" })
     const resourceIds = Array.from(byRes.keys());
     const titles = new Map<string, { title: string | null; category: string | null }>();
     if (resourceIds.length) {
-      const { data: resRows } = await context.supabase
-        .from("resources").select("id, title, topic").in("id", resourceIds);
-      for (const r of (resRows ?? []) as Array<{ id: string; title: string | null; topic: string | null }>) {
+      const resRows = await readOrganizationBatches<{ id: string; title: string | null; topic: string | null }>(resourceIds, (ids, from, to) => context.supabase
+        .from("resources").select("id, title, topic", { count: "exact" }).in("id", ids).order("id").range(from, to));
+      for (const r of resRows) {
         titles.set(r.id, { title: r.title, category: r.topic });
       }
     }

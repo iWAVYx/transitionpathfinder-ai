@@ -1,0 +1,80 @@
+{
+  "schema": "document-capacity-ledger-foundation-review-v1",
+  "date": "2026-10-31",
+  "source_base": "43e17a05f6b71b6af41f100205a8389b7f6f5f21",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+    "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021"
+  },
+  "scope": "Seventh noncanonical/unapplied proposal: owner-internal reservation/queue/claim bookkeeping only. Existing six controls and canonical225 remain unchanged.",
+  "routines": [
+    {
+      "signature": "public.lock_internal_document_capacity()",
+      "body_md5": "2f5b3f16774b99e22e8e61bcce8d7828",
+      "security_definer": false,
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ],
+      "execution": "Owner only; no PUBLIC/anon/authenticated/service_role execution"
+    },
+    {
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "d07897b4d300a74245ed98aa37311015",
+      "security_definer": false,
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ],
+      "execution": "Owner only; no PUBLIC/anon/authenticated/service_role execution"
+    },
+    {
+      "signature": "public.reserve_internal_document_capacity(uuid,uuid)",
+      "body_md5": "08c62d8c20c1c5cb0eb6b1bbd14cde2d",
+      "security_definer": false,
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ],
+      "execution": "Owner only; no PUBLIC/anon/authenticated/service_role execution"
+    },
+    {
+      "signature": "public.queue_internal_document_capacity(uuid,uuid)",
+      "body_md5": "0435890175e2aeefe0af6fd93344e4f7",
+      "security_definer": false,
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ],
+      "execution": "Owner only; no PUBLIC/anon/authenticated/service_role execution"
+    },
+    {
+      "signature": "public.claim_internal_document_capacity(uuid,uuid)",
+      "body_md5": "7cd786969a6084b1c51e26a182cc9200",
+      "security_definer": false,
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ],
+      "execution": "Owner only; no PUBLIC/anon/authenticated/service_role execution"
+    }
+  ],
+  "policy": "All three ceilings default NULL and refuse reservations until separately reviewed. Tiny test values are fictional inputs, not selected deployment policy or a spending cap.",
+  "counting": "Register/rescan reserve two units, Apply one. Queue and exact immutable-bound summary claim transfer add no units, even at the ceiling. All reservations remain counted regardless of parent/job states.",
+  "conservative_boundary": "No settlement/release/reset/expiry/delete path. Completed/held work still counts in this foundation; source-bound safe settlement must be added before activation.",
+  "permissions": "Private RLS tables, ordinary table/column/execute grants revoked. Internal helpers are invoker functions; no source/data authority or capabilities are returned.",
+  "locking": "Internal helpers acquire control shared fence and common capacity advisory lock before UPDATE takes a reservation row lock. INSERT trigger repeats serialization and current lease/actor/student/access/policy checks. READ COMMITTED only. Final integrated producer/worker/finish lock order still requires review.",
+  "ownership": "Keep coherent existing control/lease/admission ownership and the distinct migration-executor ownership of the summary binding and new foundation; no ownership transfer or automatic repair.",
+  "retention": "New RESTRICT foreign keys retain operation, summary job and student identities. No retention duration, deletion authority or purge policy is added.",
+  "source_identity_authorization_implemented": false,
+  "runtime_hooks_installed": false,
+  "settlement_implemented": false,
+  "general_application_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "hosted_execution_authorized": false,
+  "production_access_authorized": false,
+  "ready_for_cutover": false,
+  "required_next": [
+    "Derive exact registration/rescan/Apply source identity and reserve both units in their admission transaction before IO; exact existing reservation retry must not reserve again.",
+    "Replace raw queue writes with exact source-bound queue insertion and ledger transfer in one transaction. The internal counter alone verifies metadata identity, not producer document/source authority.",
+    "Acquire the common capacity fence before the atomic worker claim, then transfer its exact existing obligation in the same transaction; no second capacity slot or capability recovery.",
+    "Add exact source/domain/operation-bound producer and summary settlement. Never free an unknown/held result through status, clock, deletion, a caller flag or ordinary finish.",
+    "Fence legacy/direct starts, choose reviewed finite ceilings, prove native races and full225+seven replay, then review final canonical/ledger packaging and freshly authorized hosted acceptance."
+  ]
+}

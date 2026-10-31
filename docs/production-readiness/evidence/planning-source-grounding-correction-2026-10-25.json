@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-25",
+  "status": "locally implemented and validated; automatic review pending; no release or AI retest authorized",
+  "changes": [
+    "Use one higher-priority evidence-language rule in initial Pathway generation, both regeneration passes and Family/Educator PPT preparation. Existing specific PPT rules remain in place.",
+    "Distinguish reported context from independent verification, baseline from proposed target, suggested dates/owners from agreement, listed technology from observed effectiveness, and unsupplied records from nonexistent records. Do not invent personal record-review history, diagnoses, eligibility, citations, completed milestones or student quotes.",
+    "Remove initial-prompt pressure to fill six-to-fourteen inferred readiness ratings; omit the optional scorecard unless at least six actual recorded category ratings were supplied. Omit optional blocks when required facts lack an unknown representation. Required narrative/list slots can state gaps or ask questions instead of inventing facts.",
+    "Add backward-compatible JSON SourceKind intake, displayed as Pathway Builder. Generation instructions identify builder fields as builder-origin information rather than separately verified profile/goal/IEP records.",
+    "Before saving a freshly generated v2 payload, bind explicit builder references (kind intake or labels beginning Intake/Pathway Builder) to the actual attached response record. An unavailable/invalid attachment stops the save; no extra model retry. Other origins and older stored reports remain unchanged.",
+    "Shared Family views retain source counts; shared Educator views retain permitted kind/label with IDs stripped. No new role access, sharing grants or database schema change."
+  ],
+  "validation": {
+    "focused_tests": 100,
+    "full_unit_tests": 4654,
+    "unit_files": 322,
+    "typescript": "passed",
+    "isolated_staging_build": "passed under bundled Node",
+    "offline_source_label_browser_case": "passed at 390/1024px on screen and print with long labels, readable Pathway Builder category, no horizontal overflow and no ID rendered",
+    "browser": "temporary Playwright-managed headless shell; all requests intercepted, no personal browser/auth/records/AI",
+    "live_model_calls": 0
+  },
+  "candidate_runtime": {
+    "fingerprint": "2e4d4362b11d4982db68b8922262d0db952f5fad1e852af3116746472db56b7c",
+    "file_count": 1188
+  },
+  "deployed_runtime_unchanged": {
+    "fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "file_count": 1185,
+    "app_commit": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f"
+  },
+  "combined_release_includes": [
+    "reviewed local builder-voice coverage correction 7d6cf6d6",
+    "reviewed local current-content/earlier-section correction b612f924",
+    "this grounding/source-origin correction"
+  ],
+  "planned_bounded_acceptance_requires_new_approval": {
+    "workflows": "One pathway-creator-live-bounded run and one ppt-live-bounded run, each protected by required GitHub human staging review; do not dispatch automatically.",
+    "roles": "Existing Family and Educator accounts; both scopes also verify the seven standing role sign-ins.",
+    "synthetic_students_max": 2,
+    "disposable_grade_updates_max": 2,
+    "intake_report_pairs_max": 4,
+    "pair_details": "Two real builder-generated pairs for Pathway creation/regeneration; two separate synthetic saved pairs as PPT context. PPT creates no students.",
+    "history_versions_max": 2,
+    "saved_ppt_packets_max": 2,
+    "pdfs_max": 4,
+    "explicit_synthetic_screenshots_max": 4,
+    "initial_generation_actions_max": 2,
+    "regeneration_actions_max": 2,
+    "ppt_generation_actions_max": 2,
+    "model_invocations_max": 8,
+    "sdk_request_attempts_max": 24,
+    "provider_limit": "Existing weak-summary and SDK retries; actual gateway retries/billing unobserved; not a monetary cap.",
+    "safety": "Zero test retries. Uncertain completion stops for reconciliation. Exact cleanup and independent privileged read-only absence verification for every scope. No new accounts/relationships/shares, migration, production/main merge, payments or secrets."
+  },
+  "limitations": [
+    "Rules and bindings are tested; perfect factual prose is not proven without manual live-output review.",
+    "Binding confirms explicit builder-origin record identity, not semantic truth of every model statement or every other source reference.",
+    "Old report versions are not retroactively rewritten; existing legacy sections remain subject to their recorded history.",
+    "Broader document/IEP workflows and other generator/applicable-role coverage remain open."
+  ],
+  "roadmap": "Full TF-01\u2013TF-26, six milestones and production/provider/privacy/security/operations gates retained. Report-length/cosmetic polish and Parent Pilot/Pathway Snapshot deferred."
+}
