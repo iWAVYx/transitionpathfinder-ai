@@ -531,5 +531,18 @@
     "schema_fixture_note": "Disposable documents fixture lacks canonical size_bytes; model actual column/constraints before SQL source tests rather than dropping the size requirement.",
     "implementation_complete": false,
     "hosted_authorized": false
+  },
+  "rescan_source_continuation_preparation": {
+    "implemented_in_prepared_source": true,
+    "scope": "One-use preparation; pinned pending revision; any pending-check failure permanently stops the in-process continuation. All existing document-editor roles share this helper.",
+    "evidence": "docs/production-readiness/evidence/document-rescan-continuation-local-2026-10-31.json",
+    "cross_request_or_database_admission_complete": false,
+    "capacity_reservation_before_io_complete": false,
+    "hosted_verified": false,
+    "remaining": [
+      "Implement the reviewed private exact-source/failed-revision claim and both-unit capacity reservation before file IO; retain no-replay handling for lost claim replies.",
+      "Prepare a one-use exact-source pending transition before scanner dispatch and its separately source-bound outcome/queue/settlement receipts.",
+      "Do not bypass unresolved original registration or provider work because a row says failed. Trusted held-work reconciliation and legacy/direct writer fences remain prerequisites before activation."
+    ]
   }
 }

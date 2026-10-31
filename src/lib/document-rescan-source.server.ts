@@ -64,7 +64,13 @@ export async function authorizeDocumentRescanSource(privateClient: unknown, acto
     // Only current caller authority and source metadata are checked here.
     // File IO belongs to the admitted callback, after a confirmed begin reply.
     await authority(client, actor, source);
+    // Spend this in-process continuation before the first await. Reusing it
+    // after success, a lost reply or a failed check must never download again.
+    // Durable source/capacity admission remains a separate database prerequisite.
+    let preparationUsed = false;
     return { prepareCopy: async () => {
+      if (preparationUsed) throw new Error(RESCAN_SOURCE_MESSAGE);
+      preparationUsed = true;
       try {
         await authority(client, actor, source);
         await confirmObject();
@@ -74,8 +80,26 @@ export async function authorizeDocumentRescanSource(privateClient: unknown, acto
         const contentHash = await documentUploadFingerprint(copy);
         if (contentHash !== source.content_hash) throw new Error();
         await confirm(source.updated_at, "failed");
+        let pendingRevision: string | undefined;
+        let stopped = false;
+        let confirming = false;
         return { copy, contentHash, confirmPending: async (revision: string) => {
-          try { await confirm(revision, "pending"); } catch { throw new Error(RESCAN_SOURCE_MESSAGE); }
+          // The same pending source is checked before and after scanning. Never
+          // adopt a newer revision or resume a continuation after uncertainty.
+          if (stopped || confirming || !sourceSchema.shape.updated_at.safeParse(revision).success ||
+              (pendingRevision !== undefined && revision !== pendingRevision)) {
+            stopped = true;
+            throw new Error(RESCAN_SOURCE_MESSAGE);
+          }
+          pendingRevision = revision;
+          confirming = true;
+          try {
+            await confirm(pendingRevision, "pending");
+            if (stopped) throw new Error();
+          } catch {
+            stopped = true;
+            throw new Error(RESCAN_SOURCE_MESSAGE);
+          } finally { confirming = false; }
         } };
       } catch { throw new Error(RESCAN_SOURCE_MESSAGE); }
     } };

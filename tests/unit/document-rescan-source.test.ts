@@ -62,3 +62,67 @@ it("rechecks revoked access after preflight and before the admitted file read", 
   const preflight = await authorizeDocumentRescanSource(client, id(4), row); rpc.mockResolvedValue({ data: false, error: null });
   await expect(preflight.prepareCopy()).rejects.toThrow(RESCAN_SOURCE_MESSAGE); expect(object).not.toHaveBeenCalled(); expect(download).not.toHaveBeenCalled();
 });
+
+const pendingRevision = "2026-10-30T12:01:00Z";
+function savedPending(revision = pendingRevision) {
+  read.mockResolvedValue({ data: { ...row, scan_status: "pending", updated_at: revision }, error: null });
+}
+it("spends one preparation before concurrent or later calls can download again", async () => {
+  const source = await authorizeDocumentRescanSource(client, id(4), row);
+  const first = source.prepareCopy();
+  await expect(source.prepareCopy()).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  await first;
+  const calls = [rpc.mock.calls.length, object.mock.calls.length, read.mock.calls.length];
+  await expect(source.prepareCopy()).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  expect(download).toHaveBeenCalledOnce();
+  expect([rpc.mock.calls.length, object.mock.calls.length, read.mock.calls.length]).toEqual(calls);
+});
+it("does not retry a lost download through the original preparation", async () => {
+  const source = await authorizeDocumentRescanSource(client, id(4), row);
+  download.mockRejectedValueOnce(new Error("PRIVATE provider detail"));
+  await expect(source.prepareCopy()).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  download.mockResolvedValue({ data: copy, error: null });
+  await expect(source.prepareCopy()).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  expect(download).toHaveBeenCalledOnce();
+});
+it("can recheck the same pending revision around provider work", async () => {
+  const source = await prepareDocumentRescanCopy(client, id(4), row); savedPending();
+  await source.confirmPending(pendingRevision); await source.confirmPending(pendingRevision);
+  expect(read).toHaveBeenCalledTimes(3); expect(download).toHaveBeenCalledOnce();
+});
+it("never reattaches to a newer pending revision even when that row is readable", async () => {
+  const source = await prepareDocumentRescanCopy(client, id(4), row); savedPending();
+  await source.confirmPending(pendingRevision);
+  const calls = rpc.mock.calls.length; savedPending("2026-10-30T12:02:00Z");
+  await expect(source.confirmPending("2026-10-30T12:02:00Z")).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  expect(rpc).toHaveBeenCalledTimes(calls);
+  savedPending(); await expect(source.confirmPending(pendingRevision)).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+});
+it.each(["authority", "source", "object", "lost"])("a failed pending check cannot resume after recovery (%s)", async fault => {
+  const source = await prepareDocumentRescanCopy(client, id(4), row); savedPending();
+  if (fault === "authority") rpc.mockResolvedValueOnce({ data: false, error: null });
+  if (fault === "source") read.mockResolvedValueOnce({ data: { ...row, scan_status: "failed" }, error: null });
+  if (fault === "object") object.mockResolvedValueOnce({ data: { ...info, version: "changed" }, error: null });
+  if (fault === "lost") object.mockRejectedValueOnce(new Error("PRIVATE detail"));
+  await expect(source.confirmPending(pendingRevision)).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  const calls = [rpc.mock.calls.length, object.mock.calls.length, read.mock.calls.length];
+  await expect(source.confirmPending(pendingRevision)).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  expect([rpc.mock.calls.length, object.mock.calls.length, read.mock.calls.length]).toEqual(calls);
+});
+it.each(["", "not-a-revision", null, 42])("invalid pending revision stops without IO and cannot be repaired in place (%s)", async revision => {
+  const source = await prepareDocumentRescanCopy(client, id(4), row); savedPending();
+  const calls = rpc.mock.calls.length;
+  await expect(source.confirmPending(revision as string)).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  await expect(source.confirmPending(pendingRevision)).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  expect(rpc).toHaveBeenCalledTimes(calls);
+});
+it("overlapping pending checks stop the continuation instead of allowing a racing success", async () => {
+  const source = await prepareDocumentRescanCopy(client, id(4), row); savedPending();
+  let resolve!: (value: unknown) => void;
+  read.mockImplementationOnce(() => new Promise(r => { resolve = r; }));
+  const first = source.confirmPending(pendingRevision);
+  await vi.waitFor(() => expect(resolve).toBeTypeOf("function"));
+  await expect(source.confirmPending(pendingRevision)).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+  resolve({ data: { ...row, scan_status: "pending", updated_at: pendingRevision }, error: null });
+  await expect(first).rejects.toThrow(RESCAN_SOURCE_MESSAGE);
+});
