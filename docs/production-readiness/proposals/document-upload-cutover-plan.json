@@ -568,20 +568,20 @@
     "review": "docs/production-readiness/proposals/document-rescan-pending-transition-review.json",
     "evidence": "docs/production-readiness/evidence/document-rescan-pending-transition-local-2026-10-31.json",
     "private_one_use_transition_prepared": true,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "ordinary_execution_or_endpoint_wiring": false,
     "scanner_dispatch_implemented": false,
     "completion_settlement_implemented": false,
     "remaining": [
-      "Verify final native races and complete225+eleven-proposal replay before extending this SQL stage.",
       "Prepare exact persisted rescan outcome, counted summary queue, completion and conservative settlement receipts; keep held or uncertain provider work counted.",
       "Connect the reviewed claim -> same-copy verification -> one-use pending -> dispatch path under current viewer/source checks only after source-bound hooks, trusted reconciliation, legacy/direct writers and physical/provider gates are resolved.",
       "Finish Apply, shared queue/worker hooks, canonical/ledger packaging and freshly authorized coordinated staging acceptance."
     ],
-    "hosted_authorized": false
+    "hosted_authorized": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-rescan-pending-transition-verified-2026-11-01.json"
   },
   "rescan_outcome_contract_review": {
-    "status": "Reviewed implementation contract only; no new SQL or runtime implementation until eleventh-stage native/full-schema verification completes.",
+    "status": "Reviewed implementation contract; eleventh-stage native/full-schema verification now complete. Outcome SQL and runtime integration remain unimplemented.",
     "source_files_reviewed": [
       "src/lib/document-av-scan.server.ts",
       "src/lib/documents.functions.ts",
@@ -611,7 +611,7 @@
       "scope": "Existing AV normalizer, rescan safety and upload UI outcome tests with mocked IO; not validation of an unimplemented outcome RPC.",
       "log_sha256": "1a522aa6860e65ad44c43916674fbb967f06262161b3b34888ba0024165cae67",
       "pending_stage_source": "ad94ac7202b46112b896cc1a63c5fce12c9de004",
-      "pending_stage_full_native_schema_verified": false
+      "pending_stage_full_native_schema_verified": true
     }
   }
 }

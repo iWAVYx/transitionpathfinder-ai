@@ -44,9 +44,17 @@
   "ready_for_cutover": false,
   "hosted_authorized": false,
   "required_next": [
-    "Verify final native races and complete225+eleven-proposal replay before extending this SQL stage.",
     "Prepare exact persisted rescan outcome, counted summary queue, completion and conservative settlement receipts; keep held or uncertain provider work counted.",
     "Connect the reviewed claim -> same-copy verification -> one-use pending -> dispatch path under current viewer/source checks only after source-bound hooks, trusted reconciliation, legacy/direct writers and physical/provider gates are resolved.",
     "Finish Apply, shared queue/worker hooks, canonical/ledger packaging and freshly authorized coordinated staging acceptance."
-  ]
+  ],
+  "verification": {
+    "source": "ad94ac7202b46112b896cc1a63c5fce12c9de004",
+    "evidence": "docs/production-readiness/evidence/document-rescan-pending-transition-verified-2026-11-01.json",
+    "native_full_schema_verified": true,
+    "runs": [
+      41262897640,
+      41262893002
+    ]
+  }
 }
