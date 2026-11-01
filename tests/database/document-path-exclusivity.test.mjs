@@ -2736,7 +2736,7 @@ async function claimedRescanOutcomeConsumer({actor=actors.family}={}){
 async function commitRescanOutcomeConsumer(c){const s=c.source;return db.query('SELECT public.complete_verified_document_summary($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) AS receipt',[c.job,c.claim.claim_at,c.claim.claim_attempt,s.actor_id,s.student_id,s.document_id,s.object_id,s.object_version,s.content_sha256,s.context,c.payload]);}
 async function rescanConsumerSettlement(c){await db.exec('RESET ROLE');return (await db.query('SELECT * FROM public.document_capacity_summary_settlements WHERE operation_id=$1',[c.x.claim.operation_id])).rows;}
 async function countedRescanConsumerUnits(operation){await db.exec('RESET ROLE');return Number((await db.query(`SELECT r.reserved_units-CASE WHEN s.operation_id IS NULL THEN 0 ELSE 1 END-COALESCE(p.released_units,0) AS units FROM public.document_capacity_reservations r LEFT JOIN public.document_capacity_summary_settlements s USING(operation_id) LEFT JOIN public.document_capacity_registration_settlements p USING(operation_id) WHERE r.operation_id=$1`,[operation])).rows[0].units);}
-for(const role of ['family','educator'])test('rescan outcome consumer completes the exact selected job for '+role+' without freeing producer capacity',async()=>{
+for(const role of ['family','educator','student','school','district','owner'])test('rescan outcome consumer completes the exact selected job for '+role+' without freeing producer capacity',async()=>{
  const c=await claimedRescanOutcomeConsumer({actor:actors[role]});assert.equal(c.source.document_id,c.x.document);assert.equal(c.source.content_sha256,c.x.hash);assert.equal(c.claim.job_id,c.result.summary_job_id);
  await commitRescanOutcomeConsumer(c);await finishOperation(c.claim,'completed',db,c.x.actor);await db.exec('RESET ROLE');await settleSummaryCapacity(c.x.claim.operation_id);
  const rows=await rescanOutcomeRows(c.x);const done=await rescanConsumerSettlement(c);assert.equal(done.length,1);assert.equal(await countedRescanConsumerUnits(c.x.claim.operation_id),1);assert.equal(done[0].summary_job_id,c.job);assert.equal(done[0].summary_operation_id,c.claim.operation_id);assert.equal(rows.leases[0].state,'active');assert.equal(rows.capacity[0].reserved_units,2);assert.equal(rows.capacity[0].summary_operation_id,c.claim.operation_id);
@@ -2751,4 +2751,13 @@ test('rescan outcome consumer holds its unit after uncertain worker finish even 
 });
 test('rescan outcome consumer stays queued and counted when the current worker admission is paused',async()=>{
  const x=await outcomeRescanFixture();const result=await saveRescanOutcome(x);await pauseOperation(true,2);await as('','service_role');await assert.rejects(claimHandoff(db,result.summary_job_id),{code:'55000'});const rows=await rescanOutcomeRows(x);assert.equal(rows.jobs.find(j=>j.id===result.summary_job_id).status,'queued');assert.equal(rows.capacity[0].summary_operation_id,null);assert.equal(rows.capacity[0].reserved_units,2);assert.equal(await countedRescanConsumerUnits(x.claim.operation_id),2);
+});
+
+
+test('rescan outcome consumer refuses a Partner-only actor before claiming or queueing new work',async()=>{
+ await assert.rejects(claimedRescanOutcomeConsumer({actor:actors.partner}),{code:'42501'});await db.exec('RESET ROLE');
+ assert.equal((await db.query('SELECT count(*)::integer AS n FROM public.document_rescan_source_bindings')).rows[0].n,0);
+ assert.equal((await db.query('SELECT count(*)::integer AS n FROM public.document_rescan_outcome_receipts')).rows[0].n,0);
+ assert.equal((await db.query("SELECT count(*)::integer AS n FROM public.document_operation_leases WHERE operation_kind='rescan'")).rows[0].n,0);
+ assert.equal((await db.query("SELECT count(*)::integer AS n FROM public.ai_jobs WHERE job_type='document_summary' AND status<>'completed'")).rows[0].n,0);
 });

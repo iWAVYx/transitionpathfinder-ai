@@ -9,7 +9,9 @@
     "outcome_group_cases": 81,
     "outcome_group_passed": 72,
     "outcome_group_native_only_skips": 9,
-    "native_consumer_bridge_pending": true
+    "native_consumer_bridge_pending": false,
+    "native_evidence": "docs/production-readiness/evidence/document-rescan-consumer-bridge-verified-2026-11-01.json",
+    "native_verified_source": "182dbb2e2d8ed43ada9497558f8804ecab3337e2"
   },
   "findings": [
     "Family/Educator exact selected job/source -> service claim -> private capacity attachment -> guarded source read/output commit -> verified summary finish -> exact summary settlement succeeds. Explicit stored actor is used; the older fixture helper Family default cannot stand in for Educator.",

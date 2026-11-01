@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Private atomic rescan result/queue verified on both native1234/full225+12 replays. Completion/settlement, exact endpoint/worker and general capacity integration remain open.",
+  "status": "Private result/queue and five consumer bridge cases verified on both native1239/full225+12 replays. All six allowed consumer roles and Partner refusal pass locally; added role combinations await native CI. Producer completion/settlement and automatic endpoint/worker/general capacity integration remain open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -623,9 +623,13 @@
   "rescan_consumer_protocol_local": {
     "evidence": "docs/production-readiness/evidence/document-rescan-consumer-bridge-local-2026-11-01.json",
     "focused_cases_passed": 5,
-    "native_consumer_bridge_pending": true,
+    "native_consumer_bridge_pending": false,
     "automatic_worker_capacity_hook_installed": false,
     "producer_completion_settlement_implemented": false,
-    "hosted_actions": false
+    "hosted_actions": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-rescan-consumer-bridge-verified-2026-11-01.json",
+    "all_role_local_evidence": "docs/production-readiness/evidence/document-rescan-consumer-roles-local-2026-11-01.json",
+    "all_role_cases_passed": 10,
+    "native_new_role_cases_pending": true
   }
 }

@@ -1,0 +1,38 @@
+{
+  "schema": "document-rescan-consumer-roles-local-v1",
+  "date": "2026-11-01",
+  "base_source": "182dbb2e2d8ed43ada9497558f8804ecab3337e2",
+  "local_cases": 10,
+  "passed": 10,
+  "native_new_role_cases_pending": true,
+  "roles_tested": [
+    "family",
+    "educator",
+    "student",
+    "school",
+    "district",
+    "owner"
+  ],
+  "partner_only": "Refused before a new rescan operation/source binding/outcome/summary queue can be created, even with an explicit student relationship.",
+  "owner_scope": "Backend policy only, requiring explicit approved student access; no Owner dashboard or private planning tool is exposed in Owner Hub.",
+  "scope": "Direct disposable SQL protocol bridge with explicit owner-internal capacity attachment. No actual Deno worker, automatic worker/service capacity hook, AI/file/provider execution, runtime/SQL/grant or hosted change.",
+  "assertions": [
+    "Every allowed actor uses its exact selected job, source binding, private capability and current explicit student access.",
+    "The actual actor is passed to operation finish; the old Family fixture default cannot satisfy another role.",
+    "Verified summary settlement releases only its own one unit, cannot repeat, and leaves one counted unit for the still-active/held producer.",
+    "Uncertain worker finish retains both obligations until producer completion is separately implemented; paused worker start leaves the selected job queued/count2."
+  ],
+  "retained_native_evidence": "docs/production-readiness/evidence/document-rescan-consumer-bridge-verified-2026-11-01.json",
+  "producer_completion_settlement_implemented": false,
+  "automatic_worker_capacity_hook_installed": false,
+  "new_sql_proposal_added": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "log_sha256": "1b3c0c4da2e814b3ca12caf4d4f519a6c729777454456938b06c6b1f7012f632",
+  "source_manifest": [
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "369689f5eec8b44736845b1c2bfd634c4a32f9b3d508005b54e4ea56c01e8c57"
+    }
+  ]
+}
