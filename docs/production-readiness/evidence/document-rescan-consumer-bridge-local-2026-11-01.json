@@ -1,0 +1,46 @@
+{
+  "schema": "document-rescan-consumer-bridge-local-v1",
+  "date": "2026-11-01",
+  "base_source": "0126134b83f8fcbffba01271f6e6c4dff57b43b0",
+  "scope": "Five no-provider disposable SQL protocol journeys. The selected rescan job is claimed through the existing service RPC, then attached through an explicit owner-internal capacityClaim fixture call. This models the required bridge; it does not install a worker/service capacity hook or run the actual Deno worker/AI/file transport.",
+  "verification": {
+    "focused_consumer_cases": 5,
+    "passed": 5,
+    "outcome_group_cases": 81,
+    "outcome_group_passed": 72,
+    "outcome_group_native_only_skips": 9,
+    "native_consumer_bridge_pending": true
+  },
+  "findings": [
+    "Family/Educator exact selected job/source -> service claim -> private capacity attachment -> guarded source read/output commit -> verified summary finish -> exact summary settlement succeeds. Explicit stored actor is used; the older fixture helper Family default cannot stand in for Educator.",
+    "Verified worker settlement releases exactly one unit and cannot repeat; the rescan producer remains active with one unit counted and its completion blocked by the existing source-bound review guard.",
+    "A held rescan producer remains held/counted after the exact worker obligation settles; no producer unit is freed.",
+    "A worker finished needs_review cannot settle even after a saved guarded output; both rescan obligations remain counted.",
+    "Current claim_admitted_document_summary still refuses a new worker start during pause and leaves the selected job queued/count2. Paused already-counted queue draining and automatic private capacity handoff remain implementation gates."
+  ],
+  "sql_changed": false,
+  "runtime_changed": false,
+  "new_sql_proposal_added": false,
+  "automatic_worker_capacity_hook_installed": false,
+  "producer_completion_settlement_implemented": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false,
+  "runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "4697165c8043961d2b667850953c48548c992134a66d4a37cd716e208ee307d6",
+    "fileCount": 1205
+  },
+  "source_manifest": [
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "a031b856721bb0ebbb2c148874ed7045d7786f83411c759ea0f87192a77d0c5a"
+    }
+  ],
+  "log_sha256": {
+    "focused_final": "4280287167bb6c523589de1fc2be0b7ab56fba129467ecb110657274a8c91756",
+    "outcome_group": "e3c9678df7d82a3e2760d48742739a81de99b90f7481f0d9fbfcc49ad3228aec"
+  },
+  "retained_sql_verification": "docs/production-readiness/evidence/document-rescan-outcome-queue-verified-2026-11-01.json"
+}

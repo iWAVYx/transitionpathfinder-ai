@@ -82,7 +82,7 @@
       "native_only_skips": 5
     },
     "full_local_pending": false,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "local_model_partitions": [
       {
         "filter": "exclude rescan/registration/capacity/summary prefixes",
@@ -110,16 +110,21 @@
       "tests": 76,
       "passed": 67,
       "native_only_skips": 9
-    }
+    },
+    "verified_source": "0126134b83f8fcbffba01271f6e6c4dff57b43b0",
+    "evidence": "docs/production-readiness/evidence/document-rescan-outcome-queue-verified-2026-11-01.json",
+    "runs": [
+      41281391140,
+      41281389551
+    ]
   },
   "required_next": [
-    "Verify final native races and complete225+twelfth-proposal replay before extending this stage.",
     "Prepare source-bound rescan completion and conservative settlement: producer one only after exact clean/queue proof; both rescan units only after confirmed no-new-summary quarantine. Keep held/uncertain provider work counted.",
     "Wire exact claim -> same copy -> committed pending -> dispatch -> projected result protocol and separately identified worker only after transaction-held authority, shared source/capacity hooks, legacy/direct writers, trusted reconciliation and physical/provider gates are resolved.",
     "Complete Apply and canonical/ledger packaging, then seek fresh specific authorization for coordinated hosted staging rollout/acceptance."
   ],
   "completion_followup_review": {
-    "status": "Reviewed follow-up only; no completion/settlement implementation before twelfth-stage native/full-schema verification.",
+    "status": "Reviewed follow-up contract; twelfth-stage native/full-schema verification complete. Completion/settlement remains unimplemented.",
     "sources_reviewed": [
       "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
       "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
