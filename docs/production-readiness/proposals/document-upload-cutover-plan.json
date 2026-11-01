@@ -579,5 +579,39 @@
       "Finish Apply, shared queue/worker hooks, canonical/ledger packaging and freshly authorized coordinated staging acceptance."
     ],
     "hosted_authorized": false
+  },
+  "rescan_outcome_contract_review": {
+    "status": "Reviewed implementation contract only; no new SQL or runtime implementation until eleventh-stage native/full-schema verification completes.",
+    "source_files_reviewed": [
+      "src/lib/document-av-scan.server.ts",
+      "src/lib/documents.functions.ts",
+      "src/lib/document-upload-outcome.ts",
+      "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
+    ],
+    "rules": [
+      "Require the exact committed private pending receipt, original actor/operation capability, pending revision, unchanged source/object/hash/size/type, current edit/view/non-partner access and still-counted two-unit reservation before applying any result. Never use the generic UI saved/blocked status helper as source-bound completion proof.",
+      "Accept only normalized explicit clean (true clean result, empty threats and policy blocks) or explicit infection (false clean result and confirmed threats) from the trusted same-copy server path. Timeout, failed, malformed, contradictory or indeterminate results remain pending/held and counted.",
+      "scanUploadedDocument creates scan_id with crypto.randomUUID before submitFile. It is a local correlation identifier, not a provider job ID, cancellation token, idempotency key or proof that a timed-out request stopped.",
+      "Clean outcome must atomically persist the exact result/revision, create one new summary job, bind that exact job to the already reserved summary unit, and store immutable source-bound outcome metadata. Duplicate/lost replies cannot requeue or rescan.",
+      "Confirmed quarantine must atomically persist the exact blocked source/revision and a no-new-summary receipt. Prior completed historical summaries may exist; reject new or unresolved summary work and any summary linked to this rescan, rather than copying registration-only logic that rejects all historical jobs.",
+      "Extend the common serialized queue/quarantine fence to rescan outcome receipts. Current actor/source authority must precede private quarantine lookup with the same generic refusal; do not permit a new job to slip in after quarantine.",
+      "Preserve compatibility of the existing worker source format until its reader and the new outcome/source proof are reviewed together. The current clean handler deliberately uses source=registration_reviewed_copy with rescan_reviewed_copy=true; changing that tag alone would break the existing strict worker reader. The private pending/outcome receipt must distinguish the actual rescan operation regardless of compatibility text.",
+      "Freeze counted job identity, retain exact immutable producer/summary outcome receipts, and release only the producer unit for clean-plus-bound-queue or both rescan units for confirmed no-new-summary quarantine. Held/uncertain work, unknown old writers and provider uncertainty never release from status, timestamps or scan IDs alone.",
+      "Store only necessary immutable metadata in receipts, without document text, names, provider response bodies or admission capabilities. Physical-copy, provider/privacy approval, legacy/direct writer and transaction-held authority fences remain explicit activation gates."
+    ],
+    "implementation_complete": false,
+    "new_sql_proposal_added": false,
+    "runtime_changes": false,
+    "provider_calls": false,
+    "hosted_actions": false,
+    "verification": {
+      "existing_targeted_files": 3,
+      "existing_targeted_tests_passed": 179,
+      "scope": "Existing AV normalizer, rescan safety and upload UI outcome tests with mocked IO; not validation of an unimplemented outcome RPC.",
+      "log_sha256": "1a522aa6860e65ad44c43916674fbb967f06262161b3b34888ba0024165cae67",
+      "pending_stage_source": "ad94ac7202b46112b896cc1a63c5fce12c9de004",
+      "pending_stage_full_native_schema_verified": false
+    }
   }
 }
