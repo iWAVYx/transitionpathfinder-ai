@@ -1,0 +1,64 @@
+{
+  "schema": "document-rescan-result-receipts-local-v1",
+  "date": "2026-11-01",
+  "base_source": "64f86f99dfa8e2eeebda364e2c0bc1390c9bb652",
+  "scope": "Existing shared rescan endpoint response/CAS hardening. Every authorized editor role uses the same handler; existing viewer/edit/view/non-partner checks remain. Demo does not dispatch file scans.",
+  "changes": [
+    "Require registered object/version/attempt/review fields and bounded text source shape before admission or file IO; proposal-only columns are runtime parsed locally rather than added to generated canonical types.",
+    "Pending response must preserve exact source identity and move the revision strictly forward. Timestamp comparisons preserve PostgreSQL microseconds and accept equivalent offsets, without treating a timestamp as provider or operation proof.",
+    "Accept only explicit normalized clean with true clean result and empty threats/blocks, or explicit infection with false clean result and at least one named threat from the reviewed provider. Contradictory, malformed and uncertain replies remain held without terminal writes, summary queue or success bookkeeping.",
+    "Both result writes include source identity in their conditional filters. Actual returned source/revision/scan-correlation/timestamp/verdict fields must match before generic UI state can imply success; generic saved/blocked classification is no longer used by this endpoint.",
+    "Quarantine now retains same-copy hash/source/rescan provenance and requires confirmed archive/rejection/actor state. Clean result retains worker-compatible registration_reviewed_copy plus rescan mark and records empty threats explicitly.",
+    "Missing/changed/error-bearing receipts stop without another scan/write/queue attempt or successful finish; the existing admission wrapper records needs_review on uncertain work."
+  ],
+  "verification": {
+    "focused_files": 3,
+    "focused_tests": 226,
+    "unit_files": 360,
+    "unit_tests": 5791,
+    "safety_contracts": 110,
+    "typescript": "tsc --noEmit passed",
+    "build": "Isolated staging Vite client/server/Nitro compilation and service-worker generation passed locally",
+    "log_sha256": {
+      "focused": "8133179bc7522bfe2325075e86062890af347d9c688fd3ea48cd2a39aa87c629",
+      "unit": "3c36de364d89510fbee34055cca04e43fbd49d1c930317a6c4f70951fa9971cd",
+      "safety": "538595921f8063d62d0a3f22acb979a83048953ef727e250feba05272d5877ac",
+      "typescript": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build": "8f861ccadbfd9e9f6051aaf398ea03fcade71db5c3b28fa85df2a13b15a8379a"
+    }
+  },
+  "runtime": {
+    "website_fingerprint": "4697165c8043961d2b667850953c48548c992134a66d4a37cd716e208ee307d6",
+    "website_file_count": 1205,
+    "worker_changed": false,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_file_count": 4
+  },
+  "source_manifest": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "87a1dfea0cc671425d632a83a25a94f0e2202c19b10d9a492e81a76a2a100fd0"
+    },
+    {
+      "path": "tests/unit/document-removal-safety.test.ts",
+      "sha256": "5fe08c77c51255ffed653d3dfedddb16da616230b3495177829a4083d3859130"
+    }
+  ],
+  "boundaries": {
+    "new_sql_proposal": false,
+    "schema_changed": false,
+    "private_source_claim_pending_endpoint_wired": false,
+    "atomic_result_queue_implemented": false,
+    "rescan_completion_settlement_implemented": false,
+    "physical_copy_provider_acceptance": false,
+    "hosted_actions": false,
+    "provider_ai_calls": false,
+    "ready_for_cutover": false
+  },
+  "database_evidence": "docs/production-readiness/evidence/document-rescan-pending-transition-verified-2026-11-01.json",
+  "remaining": [
+    "Implement and verify private source-bound persisted outcome, counted queue, completion and conservative settlement together; response validation alone is not durable operation proof.",
+    "Integrate exact private claim/copy/pending/dispatch path, Apply and shared worker/capacity hooks under current source/access and common writer fences.",
+    "Resolve held reconciliation, legacy/direct writers and physical/provider acceptance, package canonical SQL/ledger and obtain fresh authorization for hosted rollout/acceptance."
+  ]
+}

@@ -1306,8 +1306,8 @@ export const markDocumentReviewed = createServerFn({ method: "POST" })
 /**
  * Re-run the Cloudmersive advanced scan on a document whose previous scan
  * ended in `failed` / `timeout` / other indeterminate state. Fails closed:
- * a non-clean verdict leaves the row quarantined and never enqueues an AI
- * job. Previously infected or retired files cannot be retried, even while
+ * confirmed infection quarantines the row; uncertain results remain pending
+ * without enqueueing AI. Previously infected or retired files cannot be retried, even while
  * their bytes are retained awaiting guarded cleanup.
  */
 export const rescanDocument = createServerFn({ method: "POST" })
@@ -1349,6 +1349,16 @@ export const rescanDocument = createServerFn({ method: "POST" })
       throw new Error("This document has no file attached to rescan.");
     }
 
+    // Keep proposal-only columns scoped to this guarded endpoint; do not
+    // rewrite canonical generated backend types before migration promotion.
+    const identityResult = z.object({
+      storage_object_id: z.string().uuid(), storage_object_version: z.string().trim().min(1).max(1024),
+      upload_attempt_id: z.string().uuid(), upload_review_context_sha256: z.string().regex(/^[a-f0-9]{64}$/),
+      mime_type: z.literal("text/plain"), size_bytes: z.number().int().positive(),
+    }).safeParse(row);
+    if (!identityResult.success) throw new Error("We couldn't confirm this document's saved copy. Refresh the page and check its status before continuing.");
+    const identity = identityResult.data;
+
     const { authorizeDocumentRescanSource } = await import("./document-rescan-source.server");
     const sourceAdmission = await authorizeDocumentRescanSource(supabase, userId, row);
 
@@ -1361,6 +1371,28 @@ export const rescanDocument = createServerFn({ method: "POST" })
     const { runAdmittedDocumentOperation } = await import("./document-operation-admission.server");
     return runAdmittedDocumentOperation({ serviceClient: supabaseAdmin, actorId: userId, kind: "rescan" }, async () => {
       const reviewed = await sourceAdmission.prepareCopy();
+      // These fields must stay attached to the exact caller-reviewed source.
+      // This response check is not a durable operation/outcome or byte proof.
+      const revisionSchema = z.string().datetime({ offset: true }).refine(value =>
+        (value.match(/\.(\d+)(?:Z|[+-]\d{2}:\d{2})$/)?.[1]?.length ?? 0) <= 6);
+      // PostgreSQL revisions can differ inside one JavaScript millisecond.
+      // Compare instants at database precision, accepting equivalent UTC offsets.
+      const revisionMicros = (value: string) => {
+        const parsed = revisionSchema.parse(value);
+        const fraction = parsed.match(/\.(\d+)(?:Z|[+-]\d{2}:\d{2})$/)?.[1] ?? "";
+        return BigInt(Math.floor(Date.parse(parsed) / 1000)) * 1_000_000n + BigInt(fraction.padEnd(6, "0"));
+      };
+      const sameTime = (expected: string) => revisionSchema.refine(value => revisionMicros(value) === revisionMicros(expected));
+      const sourceReceipt = z.object({
+        id: z.literal(row.id), student_id: z.literal(row.student_id),
+        storage_path: z.literal(row.storage_path), storage_object_id: z.literal(identity.storage_object_id),
+        storage_object_version: z.literal(identity.storage_object_version), content_hash: z.literal(reviewed.contentHash),
+        mime_type: z.literal(identity.mime_type), size_bytes: z.literal(identity.size_bytes),
+        title: z.literal(row.title), doc_type: z.literal(row.doc_type),
+        uploaded_by: z.literal(row.uploaded_by), upload_attempt_id: z.literal(identity.upload_attempt_id),
+        upload_review_context_sha256: z.literal(identity.upload_review_context_sha256), deleted_at: z.null(),
+        updated_at: revisionSchema,
+      });
       const correlationId = newCorrelationId();
       const startedAt = new Date().toISOString();
 
@@ -1380,10 +1412,10 @@ export const rescanDocument = createServerFn({ method: "POST" })
           .is("deleted_at", null)
           .select("*")
           .single();
-        if (pending.error || pending.data?.id !== row.id ||
+        if (pending.error || !sourceReceipt.safeParse(pending.data).success || pending.data?.id !== row.id ||
             pending.data.student_id !== row.student_id || pending.data.storage_path !== row.storage_path ||
             pending.data.scan_status !== "pending" || pending.data.deleted_at !== null ||
-            typeof pending.data.updated_at !== "string" || !pending.data.updated_at) throw new Error();
+            revisionMicros(pending.data.updated_at) <= revisionMicros(row.updated_at)) throw new Error();
         pendingRevision = pending.data.updated_at;
       } catch {
         throw new Error(unconfirmedReview);
@@ -1408,14 +1440,36 @@ export const rescanDocument = createServerFn({ method: "POST" })
 
       const scanResult = await scanUploadedDocument({
         storage_path: row.storage_path,
-        declared_mime: row.mime_type ?? null,
-        declared_size: row.size_bytes ?? null,
+        declared_mime: identity.mime_type ?? null,
+        declared_size: identity.size_bytes ?? null,
       }, reviewed.copy);
       // Detected access/object drift after the request cannot release this file.
       await reviewed.confirmPending(pendingRevision);
+      const confirmedScan = z.discriminatedUnion("ok", [
+        z.object({ ok: z.literal(true), code: z.literal("clean"), provider: z.literal(MALWARE_SCAN_PROVIDER),
+          scan_id: z.string().trim().min(1), clean_result: z.literal(true),
+          blocked_reasons: z.array(z.string()).length(0), threats: z.array(z.string()).length(0) }),
+        z.object({ ok: z.literal(false), code: z.literal("infected"), provider: z.literal(MALWARE_SCAN_PROVIDER),
+          scan_id: z.string().trim().min(1), clean_result: z.literal(false),
+          blocked_reasons: z.array(z.string()), threats: z.array(z.string().trim().min(1).max(200)).min(1) }),
+      ]).safeParse(scanResult);
+      // A type declaration or status word cannot turn an uncertain or
+      // contradictory provider reply into a persisted terminal outcome.
+      if (!confirmedScan.success) throw new Error("This security review needs confirmation before any further work.");
       const finishedAt = new Date().toISOString();
       const latencyMs = Date.parse(finishedAt) - Date.parse(startedAt);
 
+      const verdictReceipt = z.object({
+        code: z.literal(scanResult.code), provider: z.literal(MALWARE_SCAN_PROVIDER),
+        content_sha256: z.literal(reviewed.contentHash), source: z.literal("registration_reviewed_copy"),
+        rescan_reviewed_copy: z.literal(true), clean_result: z.literal(scanResult.clean_result), retry: z.literal(true),
+        blocked_reasons: z.array(z.string()).refine(values => JSON.stringify(values) === JSON.stringify(scanResult.blocked_reasons)),
+        threats: z.array(z.string()).refine(values => JSON.stringify(values) === JSON.stringify(scanResult.threats)),
+      });
+      const resultReceipt = sourceReceipt.extend({
+        updated_at: revisionSchema.refine(value => revisionMicros(value) > revisionMicros(pendingRevision)),
+        scan_data_id: z.literal(scanResult.scan_id), scanned_at: sameTime(finishedAt), scan_verdict: verdictReceipt,
+      });
       if (!scanResult.ok) {
         // Timeout, failed and indeterminate replies do not prove provider work
         // stopped. Leave the exact document pending and retain the admission.
@@ -1430,6 +1484,9 @@ export const rescanDocument = createServerFn({ method: "POST" })
               scan_status: "infected",
               scan_verdict: {
                 code: scanResult.code,
+                content_sha256: reviewed.contentHash,
+                source: "registration_reviewed_copy",
+                rescan_reviewed_copy: true,
                 provider: scanResult.provider,
                 clean_result: scanResult.clean_result,
                 blocked_reasons: scanResult.blocked_reasons,
@@ -1447,14 +1504,26 @@ export const rescanDocument = createServerFn({ method: "POST" })
             .eq("id", row.id)
             .eq("student_id", row.student_id)
             .eq("storage_path", row.storage_path)
+            .eq("storage_object_id" as never, identity.storage_object_id)
+            .eq("storage_object_version" as never, identity.storage_object_version)
+            .eq("content_hash", reviewed.contentHash)
+            .eq("mime_type", identity.mime_type)
+            .eq("size_bytes", identity.size_bytes)
+            .eq("uploaded_by", row.uploaded_by)
+            .eq("upload_attempt_id" as never, identity.upload_attempt_id)
+            .eq("upload_review_context_sha256" as never, identity.upload_review_context_sha256)
+            .eq("title", row.title)
+            .eq("doc_type", row.doc_type)
             .eq("scan_status", "pending")
             .eq("updated_at", pendingRevision)
             .is("deleted_at", null)
             .select("*")
             .single();
-          if (receipt.error || receipt.data?.id !== row.id ||
-              receipt.data.scan_status !== "infected" ||
-              documentUploadOutcome(receipt.data, row.student_id, row.storage_path) !== "blocked") {
+          if (receipt.error || !resultReceipt.extend({
+                scan_status: z.literal("infected"), review_status: z.literal("rejected"),
+                archived_at: sameTime(finishedAt), archived_by: z.literal(userId),
+                archive_reason: z.literal("auto-quarantined by av_scan retry: infected"),
+              }).safeParse(receipt.data).success) {
             throw new Error("Unconfirmed quarantine receipt");
           }
         } catch {
@@ -1518,6 +1587,7 @@ export const rescanDocument = createServerFn({ method: "POST" })
               provider: scanResult.provider,
               clean_result: scanResult.clean_result,
               blocked_reasons: scanResult.blocked_reasons,
+              threats: scanResult.threats,
               retry: true,
             },
             scan_data_id: scanResult.scan_id,
@@ -1530,13 +1600,25 @@ export const rescanDocument = createServerFn({ method: "POST" })
           .eq("id", row.id)
           .eq("student_id", row.student_id)
           .eq("storage_path", row.storage_path)
+          .eq("storage_object_id" as never, identity.storage_object_id)
+          .eq("storage_object_version" as never, identity.storage_object_version)
+          .eq("content_hash", reviewed.contentHash)
+          .eq("mime_type", identity.mime_type)
+          .eq("size_bytes", identity.size_bytes)
+          .eq("uploaded_by", row.uploaded_by)
+          .eq("upload_attempt_id" as never, identity.upload_attempt_id)
+          .eq("upload_review_context_sha256" as never, identity.upload_review_context_sha256)
+          .eq("title", row.title)
+          .eq("doc_type", row.doc_type)
           .eq("scan_status", "pending")
           .eq("updated_at", pendingRevision)
           .is("deleted_at", null)
           .select("*")
           .single();
-        if (clean.error || clean.data?.id !== row.id || clean.data.review_status !== "pending_review" ||
-            documentUploadOutcome(clean.data, row.student_id, row.storage_path) !== "saved") throw new Error();
+        if (clean.error || !resultReceipt.extend({
+              scan_status: z.literal("clean"), review_status: z.literal("pending_review"),
+              archived_at: z.null(), archived_by: z.null(), archive_reason: z.null(),
+            }).safeParse(clean.data).success) throw new Error();
       } catch {
         throw new Error(unconfirmedReview);
       }

@@ -9,7 +9,7 @@ vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
 vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("../../src/lib/authz", () => ({ assertAuthorized: api.authorize }));
 vi.mock("../../src/lib/document-pipeline.server", () => ({ recordPipelineRun: api.pipeline, newCorrelationId: () => "fictional-removal-correlation" }));
-vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan, MALWARE_SCAN_PROVIDER: "mock-scanner" }));
+vi.mock("../../src/lib/document-av-scan.server", () => ({ scanUploadedDocument: api.scan, MALWARE_SCAN_PROVIDER: "cloudmersive" }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { rpc: api.serviceRpc, storage: { from: () => ({ remove: api.remove }) }, from: api.from } }));
 vi.mock("../../src/lib/protected-file-uploads", () => ({ assertProtectedFileUploadsEnabled: api.gate }));
 vi.mock("../../src/lib/document-rescan-source.server", () => ({ authorizeDocumentRescanSource: api.preflight }));
@@ -18,7 +18,10 @@ import { getDocumentSignedUrl, requestAdminDocAccess, hardDeleteDocument, rescan
 const student = "11111111-1111-4111-8111-111111111111";
 const id = "22222222-2222-4222-8222-222222222222";
 const path = `${student}/fictional-privacy-safe-document.txt`;
-const row = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", doc_type: "other", mime_type: "text/plain", size_bytes: 20, scan_status: "failed", scan_verdict: null, review_status: "rejected", archived_at: "2026-10-28", deleted_at: null, updated_at: "2026-10-30T10:00:00.000Z" };
+const row = { id, student_id: student, storage_path: path, title: "Fictional reviewed text", doc_type: "other", mime_type: "text/plain", size_bytes: 20,
+  storage_object_id: "44444444-4444-4444-8444-444444444444", storage_object_version: "fictional-v1",
+  content_hash: "a".repeat(64), uploaded_by: "33333333-3333-4333-8333-333333333333",
+  upload_attempt_id: "55555555-5555-4555-8555-555555555555", upload_review_context_sha256: "c".repeat(64), scan_status: "failed", scan_verdict: null, review_status: "rejected", archived_at: "2026-10-28", deleted_at: null, updated_at: "2026-10-30T10:00:00.000Z" };
 const runRescan = (patch: object = {}) => (rescanDocument as any)({ data: { id, expected_viewer_id: "33333333-3333-4333-8333-333333333333", ...patch } });
 const runDelete = () => (hardDeleteDocument as any)({ data: { id, reason: "Fictional deletion request" } });
 beforeEach(() => {
@@ -32,8 +35,8 @@ beforeEach(() => {
   api.match.mockReturnValue(writeQuery); api.notDeleted.mockReturnValue(writeQuery);
   api.update.mockReturnValue(writeQuery);
   api.from.mockReturnValue({ update: api.update, delete: api.adminDelete });
-  api.write.mockImplementation(async () => ({ data: { ...row, ...api.update.mock.calls.at(-1)?.[0] }, error: null }));
-  api.scan.mockResolvedValue({ ok: false, code: "infected", provider: "mock-scanner", clean_result: false, blocked_reasons: ["Fictional threat"], threats: [], scan_id: "fictional-scan" });
+  api.write.mockImplementation(async () => ({ data: { ...row, ...api.update.mock.calls.at(-1)?.[0], updated_at: api.update.mock.calls.at(-1)?.[0].scan_status === "pending" ? "2026-10-30T10:01:00.000Z" : "2026-10-30T10:02:00.000Z" }, error: null }));
+  api.scan.mockResolvedValue({ ok: false, code: "infected", provider: "cloudmersive", clean_result: false, blocked_reasons: [], threats: ["Fictional threat"], scan_id: "fictional-scan" });
   api.audit.mockResolvedValue({ error: null });
   api.enqueue.mockReturnValue({ select: () => ({ single: async () => ({ data: {
     id, student_id: student, triggered_by_user_id: api.context.userId,
@@ -74,11 +77,11 @@ it.each(["infected", "deleted", "failed-with-infected-verdict", "clean-with-infe
   expect(api.update).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
 });
 it.each(["error", "rejection", "missing", "wrong-id", "wrong-student", "wrong-path", "unchanged"])("rescan stops on an unconfirmed quarantine receipt (%s)", async mode => {
-  const quarantined = { ...row, scan_status: "infected" };
   const normalWrite = api.write.getMockImplementation()!;
   api.write.mockImplementation(async () => {
     if (api.update.mock.calls.at(-1)?.[0].scan_status === "pending") return normalWrite();
     if (mode === "rejection") throw new Error("PRIVATE storage detail");
+    const quarantined = (await normalWrite()).data;
     const data = mode === "missing" ? null : mode === "wrong-id" ? { ...quarantined, id: student }
       : mode === "wrong-student" ? { ...quarantined, student_id: id }
       : mode === "wrong-path" ? { ...quarantined, storage_path: "another-private-path" }
@@ -118,7 +121,7 @@ it("a metadata override cannot mint an infected-file link", async () => {
   expect(api.sign).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
 });
 
-const cleanScan = { ok: true, code: "clean", provider: "mock-scanner", clean_result: true, blocked_reasons: [], threats: [], scan_id: "fictional-clean" };
+const cleanScan = { ok: true, code: "clean", provider: "cloudmersive", clean_result: true, blocked_reasons: [], threats: [], scan_id: "fictional-clean" };
 it.each(["pending", "unknown", "missing-revision", "soft-deleted"])("does not start a rescan for an unavailable source (%s)", async mode => {
   api.read.mockResolvedValue({ data: { ...row,
     scan_status: ["pending", "unknown"].includes(mode) ? mode : "failed",
@@ -146,7 +149,7 @@ it.each(["error", "lost", "missing", "foreign", "student", "path", "blocked", "r
   api.write.mockImplementation(async () => {
     if (api.update.mock.calls.at(-1)?.[0].scan_status === "pending") return normalWrite();
     if (mode === "lost") throw new Error("PRIVATE lost write");
-    return { data: mode === "missing" ? null : { ...row, scan_status: "clean", review_status: "pending_review", archived_at: null,
+    return { data: mode === "missing" ? null : { ...(await normalWrite()).data,
       ...(mode === "foreign" ? { id: student } : mode === "student" ? { student_id: id } : mode === "path" ? { storage_path: "another-private-path" }
         : mode === "blocked" ? { deleted_at: "2026-10-30" } : mode === "review" ? { review_status: "rejected" } : {}),
     }, error: mode === "error" ? { message: "PRIVATE database detail" } : null };
@@ -232,6 +235,9 @@ it.each(["before", "after"])("source drift %s scanning cannot publish a clean re
 });
 it("passes only the same reviewed Blob to the scanner and preserves its hash", async () => {
   api.scan.mockResolvedValue(cleanScan); const copy = new Blob(["Fictional same copy"]);
+  api.read.mockResolvedValue({ data: { ...row, content_hash: "b".repeat(64) }, error: null });
+  const normalWrite = api.write.getMockImplementation()!;
+  api.write.mockImplementation(async () => { const result = await normalWrite(); return { ...result, data: { ...result.data, content_hash: "b".repeat(64) } }; });
   api.source.mockResolvedValue({ copy, contentHash: "b".repeat(64), confirmPending: api.confirmSource });
   await runRescan();
   expect(api.scan.mock.calls[0][1]).toBe(copy);
@@ -269,7 +275,7 @@ it("does not admit an unauthorized caller or unavailable source", async () => {
   await expect(runRescan()).rejects.toThrow("Source unavailable"); expect(api.serviceRpc).not.toHaveBeenCalled(); expect(api.source).not.toHaveBeenCalled();
 });
 it.each(["failed", "timeout", "indeterminate"])("retains %s provider uncertainty with the document still pending", async code => {
-  await useRealRescanAdmission(); api.scan.mockResolvedValue({ ok: false, code, provider: "mock-scanner", clean_result: null, blocked_reasons: [], threats: [], scan_id: null, error_message: "PRIVATE provider detail" });
+  await useRealRescanAdmission(); api.scan.mockResolvedValue({ ok: false, code, provider: "cloudmersive", clean_result: null, blocked_reasons: [], threats: [], scan_id: null, error_message: "PRIVATE provider detail" });
   await expect(runRescan()).rejects.toMatchObject({ phase: "work", reconciliationRequired: true, message: expect.not.stringContaining("PRIVATE") });
   expect(api.write).toHaveBeenCalledOnce(); expect(api.update.mock.calls[0][0]).toEqual({ scan_status: "pending" });
   expect(api.enqueue).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled(); expect(api.scan).toHaveBeenCalledOnce();
@@ -299,4 +305,87 @@ it.each(["lost", "error", "malformed"])("does not report success or requeue afte
   });
   await expect(runRescan()).rejects.toMatchObject({ phase: "completion", reconciliationRequired: true });
   expect(api.serviceRpc).toHaveBeenCalledTimes(2); expect(api.enqueue).toHaveBeenCalledOnce(); expect(api.scan).toHaveBeenCalledOnce();
+});
+
+
+it.each([
+  ["clean code with infection", { ...cleanScan, code: "infected" }],
+  ["clean with false result", { ...cleanScan, clean_result: false }],
+  ["clean with threat", { ...cleanScan, threats: ["Fictional threat"] }],
+  ["clean with policy block", { ...cleanScan, blocked_reasons: ["ContainsScript"] }],
+  ["clean with wrong provider", { ...cleanScan, provider: "unreviewed" }],
+  ["clean with missing scan ID", { ...cleanScan, scan_id: null }],
+  ["clean with blank scan ID", { ...cleanScan, scan_id: " " }],
+  ["infection without threats", { ...cleanScan, ok: false, code: "infected", clean_result: false }],
+  ["infection with blank threat", { ...cleanScan, ok: false, code: "infected", clean_result: false, threats: [" "] }],
+  ["infection with true result", { ...cleanScan, ok: false, code: "infected", threats: ["Fictional threat"] }],
+  ["infection with foreign provider", { ...cleanScan, ok: false, code: "infected", clean_result: false, threats: ["Fictional threat"], provider: "unreviewed" }],
+  ["missing reply", null],
+])("holds malformed or contradictory %s before any terminal write", async (_label, result) => {
+  await useRealRescanAdmission(); api.scan.mockResolvedValue(result);
+  await expect(runRescan()).rejects.toMatchObject({ phase: "work", reconciliationRequired: true });
+  expect(api.write).toHaveBeenCalledOnce(); expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
+  expect(api.serviceRpc.mock.calls[1][1]._outcome).toBe("needs_review");
+});
+
+for (const status of ["clean", "infected"]) {
+  it.each([
+    ["object ID", { storage_object_id: student }], ["object version", { storage_object_version: "other-v2" }],
+    ["hash", { content_hash: "f".repeat(64) }], ["size", { size_bytes: 21 }], ["MIME", { mime_type: "application/pdf" }],
+    ["uploader", { uploaded_by: student }], ["attempt", { upload_attempt_id: student }],
+    ["review fingerprint", { upload_review_context_sha256: "f".repeat(64) }], ["title", { title: "Other document" }],
+    ["document type", { doc_type: "other-type" }], ["scan ID", { scan_data_id: "other-scan" }],
+    ["scan time", { scanned_at: "2026-10-30T10:00:00Z" }], ["unchanged revision", { updated_at: "2026-10-30T10:01:00+00:00" }],
+    ["old revision", { updated_at: row.updated_at }], ["malformed revision", { updated_at: "invalid" }],
+    ["missing verdict", { scan_verdict: null }],
+  ])(`does not complete ${status} after a mismatched %s receipt`, async (_label, patch) => {
+    await useRealRescanAdmission(); if (status === "clean") api.scan.mockResolvedValue(cleanScan);
+    const normal = api.write.getMockImplementation()!;
+    api.write.mockImplementation(async () => { const reply = await normal(); return api.update.mock.calls.at(-1)?.[0].scan_status === "pending" ? reply : { ...reply, data: { ...reply.data, ...patch } }; });
+    await expect(runRescan()).rejects.toMatchObject({ phase: "work", reconciliationRequired: true });
+    expect(api.write).toHaveBeenCalledTimes(2); expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
+    expect(api.serviceRpc.mock.calls[1][1]._outcome).toBe("needs_review"); expect(api.scan).toHaveBeenCalledOnce();
+  });
+  it.each([
+    ["wrong provider", { provider: "unreviewed" }], ["wrong hash", { content_sha256: "f".repeat(64) }],
+    ["missing source", { source: undefined }], ["missing rescan mark", { rescan_reviewed_copy: undefined }],
+    ["wrong code", { code: "failed" }], ["missing clean result", { clean_result: null }],
+    ["different threats", { threats: ["Altered threat"] }], ["different blocks", { blocked_reasons: ["Altered block"] }],
+  ])(`does not complete ${status} with %s in the persisted verdict`, async (_label, patch) => {
+    if (status === "clean") api.scan.mockResolvedValue(cleanScan); const normal = api.write.getMockImplementation()!;
+    api.write.mockImplementation(async () => { const reply = await normal(); return api.update.mock.calls.at(-1)?.[0].scan_status === "pending" ? reply : { ...reply, data: { ...reply.data, scan_verdict: { ...reply.data.scan_verdict, ...patch } } }; });
+    await expect(runRescan()).rejects.toThrow("couldn't confirm"); expect(api.enqueue).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
+  });
+  it(`accepts equivalent timestamp offsets and microsecond revision movement for ${status}`, async () => {
+    if (status === "clean") api.scan.mockResolvedValue(cleanScan); const normal = api.write.getMockImplementation()!;
+    api.write.mockImplementation(async () => { const reply = await normal(); const pending = api.update.mock.calls.at(-1)?.[0].scan_status === "pending";
+      return { ...reply, data: { ...reply.data, updated_at: pending ? "2026-10-30T10:00:00.000001Z" : "2026-10-30T11:00:00.000002+01:00",
+        ...(!pending ? { scanned_at: reply.data.scanned_at.replace("Z", "+00:00"), ...(status === "infected" ? { archived_at: reply.data.archived_at.replace("Z", "+00:00") } : {}) } : {}) } };
+    });
+    await expect(runRescan()).resolves.toMatchObject({ ok: status === "clean", code: status });
+    const patch = api.update.mock.calls.at(-1)![0]; expect(patch.scan_verdict).toMatchObject({ content_sha256: row.content_hash, source: "registration_reviewed_copy", rescan_reviewed_copy: true });
+    expect(api.match.mock.calls).toEqual(expect.arrayContaining([["content_hash", row.content_hash], ["storage_object_id", row.storage_object_id], ["storage_object_version", row.storage_object_version]]));
+  });
+}
+it.each(["same", "old", "invalid", "overprecision"])("does not dispatch after a %s pending revision", async mode => {
+  const normal = api.write.getMockImplementation()!;
+  api.write.mockImplementation(async () => { const reply = await normal(); return { ...reply, data: { ...reply.data,
+    updated_at: mode === "same" ? "2026-10-30T10:00:00+00:00" : mode === "old" ? "2026-10-29T10:00:00Z" : mode === "overprecision" ? "2026-10-30T10:01:00.0000001Z" : "invalid" } }; });
+  await expect(runRescan()).rejects.toThrow("couldn't confirm"); expect(api.scan).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
+});
+it.each(["archive", "rejected", "actor"])("does not complete a loosely blocked row missing confirmed quarantine %s", async mode => {
+  const normal = api.write.getMockImplementation()!;
+  api.write.mockImplementation(async () => { const reply = await normal(); return api.update.mock.calls.at(-1)?.[0].scan_status === "pending" ? reply : { ...reply, data: { ...reply.data, ...(mode === "archive" ? { archived_at: null } : mode === "rejected" ? { review_status: "pending_review" } : { archived_by: student }) } }; });
+  await expect(runRescan()).rejects.toThrow("couldn't confirm"); expect(api.audit).not.toHaveBeenCalled(); expect(api.enqueue).not.toHaveBeenCalled();
+});
+
+
+it.each([
+  ["missing object", { storage_object_id: undefined }], ["missing version", { storage_object_version: undefined }],
+  ["missing attempt", { upload_attempt_id: undefined }], ["missing review", { upload_review_context_sha256: null }],
+  ["missing MIME", { mime_type: null }], ["missing size", { size_bytes: null }],
+])("does not admit or read file bytes without %s provenance", async (_label, patch) => {
+  api.read.mockResolvedValue({ data: { ...row, ...patch }, error: null });
+  await expect(runRescan()).rejects.toThrow("couldn't confirm this document's saved copy");
+  expect(api.admit).not.toHaveBeenCalled(); expect(api.source).not.toHaveBeenCalled(); expect(api.write).not.toHaveBeenCalled(); expect(api.scan).not.toHaveBeenCalled();
 });
