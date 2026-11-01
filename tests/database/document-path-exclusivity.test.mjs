@@ -117,6 +117,11 @@ afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
+    DO $$ BEGIN IF to_regclass('public.document_rescan_pending_receipts') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_rescan_pending_frozen ON public.document_rescan_pending_receipts; END IF; END $$;
+    DROP FUNCTION IF EXISTS public.mark_internal_document_rescan_pending(uuid,uuid,uuid,text),public.guard_document_rescan_pending_receipt(),public.assert_internal_document_rescan_source(uuid,uuid,text,timestamptz);
+    DROP TABLE IF EXISTS public.document_rescan_pending_receipts;
+  `);
+  await db.exec(`RESET ROLE;
     DO $$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_rescan_no_false_finish ON public.document_operation_leases; END IF;
     IF to_regclass('public.document_rescan_source_bindings') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_rescan_source_frozen ON public.document_rescan_source_bindings; END IF; END $$;
     DROP FUNCTION IF EXISTS public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb),public.guard_document_rescan_source_binding(),public.guard_unfinished_document_rescan();
@@ -2069,10 +2074,11 @@ for(const ending of ['COMMIT','ROLLBACK'])test('queued summary claim observes a 
 const capacityFoundation=readFileSync('docs/production-readiness/proposals/document-capacity-ledger-foundation.sql','utf8');
 const summaryCapacitySettlement=readFileSync('docs/production-readiness/proposals/document-summary-capacity-settlement.sql','utf8');
 const registrationCapacitySettlement=readFileSync('docs/production-readiness/proposals/document-registration-capacity-settlement.sql','utf8');
-async function capacityFixture({global=4,actor=4,target=4,configured=true,settlement=false,registration=false,separateAdmissionOwner=false,rescan=false}={}){
+async function capacityFixture({global=4,actor=4,target=4,configured=true,settlement=false,registration=false,separateAdmissionOwner=false,rescan=false,pending=false}={}){
  await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);if(settlement||registration)await db.exec(summaryCapacitySettlement);
  if(separateAdmissionOwner)await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_admission_owner') THEN CREATE ROLE tf_document_admission_owner NOLOGIN NOINHERIT;END IF;END $$;ALTER TABLE public.document_operation_control OWNER TO tf_document_admission_owner;ALTER TABLE public.document_operation_leases OWNER TO tf_document_admission_owner;ALTER FUNCTION public.begin_document_operation(uuid,uuid,text) OWNER TO tf_document_admission_owner;ALTER FUNCTION public.finish_document_operation(uuid,uuid,uuid,text) OWNER TO tf_document_admission_owner;");
- if(registration)await db.exec(registrationCapacitySettlement);if(rescan){await db.exec(rescanSourceClaim);await db.exec(rescanReplayGuard);}
+ if(registration)await db.exec(registrationCapacitySettlement);if(rescan){await db.exec('CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at=now();RETURN NEW;END $$;CREATE TRIGGER set_updated_at_documents BEFORE UPDATE ON public.documents FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()');await db.exec(rescanSourceClaim);await db.exec(rescanReplayGuard);}
+ if(pending){await db.exec(rescanPendingTransition);await db.exec(rescanPendingReplayGuard);}
  if(configured)await db.query('UPDATE public.document_capacity_policy SET global_units=$1,actor_units=$2,student_units=$3',[global,actor,target]);
  await as('','service_role');await pauseOperation(false);await db.exec('RESET ROLE');
 }
@@ -2080,8 +2086,8 @@ async function capacityReserve(operation=operationId,target=student,client=db){r
 async function capacityQueue(operation,job=handoffJob,client=db){return client.query('SELECT public.queue_internal_document_capacity($1,$2)',[operation,job]);}
 async function capacityClaim(operation,job=handoffJob,client=db){return client.query('SELECT public.claim_internal_document_capacity($1,$2)',[job,operation]);}
 async function capacityRows(){await db.exec('RESET ROLE');return (await db.query('SELECT * FROM public.document_capacity_reservations ORDER BY operation_id')).rows;}
-async function capacityQueued({settlement=false,registration=false,separateAdmissionOwner=false,rescan=false}={}){
- await capacityFixture({global:2,actor:2,target:2,settlement,registration,separateAdmissionOwner,rescan});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
+async function capacityQueued({settlement=false,registration=false,separateAdmissionOwner=false,rescan=false,pending=false}={}){
+ await capacityFixture({global:2,actor:2,target:2,settlement,registration,separateAdmissionOwner,rescan,pending});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
  const verdict={code:'clean',provider:'cloudmersive',content_sha256:x.hash,source:'registration_reviewed_copy',clean_result:true,blocked_reasons:[]};
  await db.query("UPDATE public.documents SET scan_status='clean',scan_verdict=$1,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status='pending_review' WHERE id=$2",[verdict,x.document]);
  await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]);
@@ -2178,8 +2184,8 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity reservation observes a 
 
 
 // Atomic persisted summary receipt and one-unit settlement, still owner-internal.
-async function claimedSummaryCapacity({registration=false,rescan=false}={}){
- const x=await capacityQueued({settlement:true,registration,rescan});await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);
+async function claimedSummaryCapacity({registration=false,rescan=false,pending=false}={}){
+ const x=await capacityQueued({settlement:true,registration,rescan,pending});await as('','service_role');const claim=await claimHandoff();await db.exec('RESET ROLE');await capacityClaim(claim.operation_id);
  await as('','service_role');const source=(await db.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[handoffJob,claim.claim_at,claim.claim_attempt])).rows[0].source;
  const payload={key_findings:['Fictional confirmed outcome'],_source:{document_id:source.document_id,object_id:source.object_id,object_version:source.object_version,content_sha256:source.content_sha256}};
  return {x,claim,source,payload};
@@ -2450,14 +2456,13 @@ test('registration owner-context refuses an unprivileged session before any inst
 
 const rescanSourceClaim=readFileSync('docs/production-readiness/proposals/document-rescan-source-claim.sql','utf8');
 const rescanReplayGuard=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$rescan_proof\$[\s\S]*?END; \$rescan_proof\$;/)[0];
-async function rescanClaimFixture(){
+async function rescanClaimFixture({pending=false}={}){
  // Use actual guarded registration and summary completion receipts. Never
  // manufacture a completed lease or disable an existing safeguard for admission.
- const c=await claimedSummaryCapacity({registration:true,rescan:true});const x=c.x;
+ const c=await claimedSummaryCapacity({registration:true,rescan:true,pending});const x=c.x;
  await finishOperation(x.receipt);await commitSummaryCapacity(c);await finishOperation(c.claim);await db.exec('RESET ROLE');
  await settleRegistrationCapacity(x.receipt.operation_id);await settleSummaryCapacity(x.receipt.operation_id);
  await db.exec('UPDATE public.document_capacity_policy SET global_units=4,actor_units=4,student_units=4');
- await db.exec('CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at=now();RETURN NEW;END $$;CREATE TRIGGER set_updated_at_documents BEFORE UPDATE ON public.documents FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()');
  // Model a later failed revision for the metadata foundation. New/legacy writer
  // and provider-quiescence proof are separate activation gates, not inferred here.
  await db.query("UPDATE public.documents SET scan_status='failed',size_bytes=24 WHERE id=$1",[x.document]);
@@ -2536,4 +2541,64 @@ test('rescan private claim refuses completion history whose timestamp no longer 
 
 for(const state of ['active','needs_review'])test('rescan private claim conservatively refuses actor-only unresolved rescans '+state,async()=>{
  const x=await rescanClaimFixture();const unknown=await beginOperation('rescan',uid(27002));if(state==='needs_review')await finishOperation(unknown,'needs_review');await db.exec('RESET ROLE');await assert.rejects(claimRescan(x),{code:'42501'});const r=await rescanClaimRows();assert.equal(r.bindings.length,0);assert.equal(r.capacity.length,0);assert.equal(r.leases.length,1);
+});
+
+const rescanPendingTransition=readFileSync('docs/production-readiness/proposals/document-rescan-pending-transition.sql','utf8');
+const rescanPendingReplayGuard=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$rescan_pending_proof\$[\s\S]*?END; \$rescan_pending_proof\$;/)[0];
+async function pendingRescanFixture(){const x=await rescanClaimFixture({pending:true});const claim=await claimRescan(x);return {...x,claim};}
+async function markRescanPending(x,{actor=actors.family,receipt=x.claim.receipt_id,hash=x.hash,operation=x.claim.operation_id,client=db}={}){return (await client.query('SELECT public.mark_internal_document_rescan_pending($1,$2,$3,$4) AS receipt',[operation,actor,receipt,hash])).rows[0].receipt;}
+async function pendingRescanRows(x){await db.exec('RESET ROLE');return {receipts:(await db.query('SELECT * FROM public.document_rescan_pending_receipts')).rows,source:(await db.query('SELECT scan_status,updated_at::text AS revision FROM public.documents WHERE id=$1',[x.document])).rows[0],leases:(await db.query("SELECT state FROM public.document_operation_leases WHERE operation_id=$1",[x.claim.operation_id])).rows,capacity:(await db.query('SELECT reserved_units FROM public.document_capacity_reservations WHERE operation_id=$1',[x.claim.operation_id])).rows};}
+test('rescan pending transition changes only the claimed failed revision and records one private receipt',async()=>{
+ const x=await pendingRescanFixture();const receipt=await markRescanPending(x);const rows=await pendingRescanRows(x);assert.equal(receipt.schema,'document-rescan-pending-v1');assert.equal(rows.source.scan_status,'pending');assert.equal(rows.receipts.length,1);assert.equal(rows.leases[0].state,'active');assert.equal(rows.capacity[0].reserved_units,2);assert.equal(rows.receipts[0].content_sha256,x.hash);assert.equal('receipt_id' in receipt,false);assert.equal('receipt_id' in rows.receipts[0],false);
+ await assert.rejects(markRescanPending(x),{code:'42501'});assert.equal((await pendingRescanRows(x)).receipts.length,1);
+});
+for(const role of ['anon','authenticated','service_role'])test('rescan pending transition is unavailable to '+role,async()=>{const x=await pendingRescanFixture();await as(actors.family,role);await assert.rejects(markRescanPending(x),{code:'42501'});assert.equal((await pendingRescanRows(x)).source.scan_status,'failed');});
+for(const [field,value] of [['actor',actors.educator],['receipt',uid(29999)],['receipt',null],['hash','f'.repeat(64)],['hash',null],['operation',uid(29999)]])test('rescan pending transition refuses mismatched '+field+' '+value,async()=>{
+ const x=await pendingRescanFixture();await assert.rejects(markRescanPending(x,{[field]:value}),{code:'42501'});const r=await pendingRescanRows(x);assert.equal(r.receipts.length,0);assert.equal(r.source.scan_status,'failed');assert.equal(r.leases[0].state,'active');
+});
+
+for(const fault of ['revision','deleted','archived','review','hash','size','mime'])test('rescan pending transition refuses changed source '+fault,async()=>{
+ const x=await pendingRescanFixture();const patch={revision:"title='Changed title'",deleted:'deleted_at=now()',archived:'archived_at=now()',review:"review_status='rejected'",hash:"content_hash='"+'f'.repeat(64)+"'",size:'size_bytes=25',mime:"mime_type='application/pdf'"}[fault];await db.exec('UPDATE public.documents SET '+patch);const before=await pendingRescanRows(x);await assert.rejects(markRescanPending(x),{code:'42501'});assert.deepEqual(await pendingRescanRows(x),before);
+});
+for(const fault of ['version','owner','size','mime','missing'])test('rescan pending transition refuses changed object '+fault,async()=>{
+ const x=await pendingRescanFixture();if(fault==='missing')await db.query('DELETE FROM storage.objects WHERE name=$1',[x.path]);else if(fault==='version'||fault==='owner')await db.query('UPDATE storage.objects SET '+(fault==='version'?'version':'owner_id')+"='changed' WHERE name=$1",[x.path]);else await db.query('UPDATE storage.objects SET metadata=$1 WHERE name=$2',[{size:fault==='size'?25:24,mimetype:fault==='mime'?'application/pdf':'text/plain'},x.path]);await assert.rejects(markRescanPending(x),{code:'42501'});const r=await pendingRescanRows(x);assert.equal(r.receipts.length,0);assert.equal(r.source.scan_status,'failed');
+});
+for(const fault of ['lost-access','partner','held','unknown-work','typed-pending'])test('rescan pending transition stops at '+fault+' without adopting state',async()=>{
+ const x=await pendingRescanFixture();if(fault==='lost-access')await db.query('UPDATE public.students SET owner_id=$1 WHERE id=$2',[actors.owner,student]);if(fault==='partner')await db.query("INSERT INTO public.user_roles VALUES($1,'partner')",[actors.family]);if(fault==='held')await finishOperation(x.claim,'needs_review');if(fault==='unknown-work')await beginOperation('rescan',uid(28001));if(fault==='typed-pending')await db.exec("UPDATE public.documents SET scan_status='pending'");const before=await pendingRescanRows(x);await assert.rejects(markRescanPending(x),{code:'42501'});assert.deepEqual(await pendingRescanRows(x),before);
+});
+for(const fault of ['skip','change','receipt-skip','receipt-change','receipt-raise','no-revision'])test('rescan pending transition atomically refuses '+fault+' writes',async()=>{
+ const x=await pendingRescanFixture();
+ if(fault==='no-revision')await db.exec('ALTER TABLE public.documents DISABLE TRIGGER set_updated_at_documents');
+ else {const target=fault.startsWith('receipt')?'document_rescan_pending_receipts':'documents';const body=fault.endsWith('skip')?'RETURN NULL;':fault==='receipt-raise'?"RAISE EXCEPTION 'Fictional receipt failure' USING ERRCODE='42501';":target==='documents'?"NEW.title='Unexpected title';RETURN NEW;":"NEW.content_sha256=repeat('f',64);RETURN NEW;";await db.exec('CREATE OR REPLACE FUNCTION public.fixture_pending_write_fault() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN '+body+'END$$;CREATE TRIGGER z_pending_write_fault BEFORE '+(target==='documents'?'UPDATE':'INSERT')+' ON public.'+target+' FOR EACH ROW EXECUTE FUNCTION public.fixture_pending_write_fault()');}
+ const before=await pendingRescanRows(x);try{await assert.rejects(markRescanPending(x),{code:'42501'});assert.deepEqual(await pendingRescanRows(x),before);}finally{if(fault==='no-revision')await db.exec('ALTER TABLE public.documents ENABLE TRIGGER set_updated_at_documents');else await db.exec('DROP TRIGGER z_pending_write_fault ON public.'+(fault.startsWith('receipt')?'document_rescan_pending_receipts':'documents')+';DROP FUNCTION public.fixture_pending_write_fault()');}
+});
+test('rescan pending transition rollback restores the failed revision without releasing capacity',async()=>{
+ const x=await pendingRescanFixture();const before=await pendingRescanRows(x);await db.exec('BEGIN');await markRescanPending(x);await db.exec('ROLLBACK');assert.deepEqual(await pendingRescanRows(x),before);await markRescanPending(x);assert.equal((await pendingRescanRows(x)).receipts.length,1);
+});
+test('rescan pending transition may drain a prior claim while new admission stays paused',async()=>{
+ const x=await pendingRescanFixture();await pauseOperation(true,2);await markRescanPending(x);const r=await pendingRescanRows(x);assert.equal(r.source.scan_status,'pending');assert.equal(r.leases[0].state,'active');assert.equal(r.capacity[0].reserved_units,2);await assert.rejects(claimRescan(x,{id:uid(28002)}),{code:'55000'});await assert.rejects(finishOperation(x.claim,'completed'),{code:'55000'});
+});
+test('rescan pending transition receipts stay immutable and expose no ordinary privileges',async()=>{
+ const x=await pendingRescanFixture();await markRescanPending(x);await assert.rejects(db.exec('DELETE FROM public.document_rescan_pending_receipts'),{code:'42501'});await assert.rejects(db.exec("UPDATE public.document_rescan_pending_receipts SET content_sha256=repeat('f',64)"),{code:'42501'});
+ for(const role of ['anon','authenticated','service_role']){const r=(await db.query("SELECT has_table_privilege($1,'public.document_rescan_pending_receipts','SELECT,INSERT,UPDATE,DELETE,TRUNCATE') AS raw,has_any_column_privilege($1,'public.document_rescan_pending_receipts','SELECT,INSERT,UPDATE') AS columns,has_function_privilege($1,'public.mark_internal_document_rescan_pending(uuid,uuid,uuid,text)','EXECUTE') AS run",[role])).rows[0];assert.deepEqual(r,{raw:false,columns:false,run:false});}
+});
+for(const [role,actor] of Object.entries(actors))test('rescan pending transition preserves actor-bound explicit access for '+role,async()=>{
+ const x=await rescanClaimFixture({pending:true});if(!['family','student'].includes(role))await db.query("INSERT INTO public.student_relationships VALUES($1,$2,'approved','manage_documents')",[student,actor]);if(role==='partner'){await assert.rejects(claimRescan(x,{actor}),{code:'42501'});return;}const claim=await claimRescan(x,{actor});const r=await markRescanPending({...x,claim},{actor});assert.equal(r.schema,'document-rescan-pending-v1');
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('rescan pending transition serializes duplicate transition after '+ending,{skip:!native},async()=>{
+ const x=await pendingRescanFixture();const a=await newSession(),b=await newSession();await a.exec('BEGIN');await markRescanPending(x,{client:a});const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=markRescanPending(x,{client:b}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.result.schema,'document-rescan-pending-v1');assert.equal((await pendingRescanRows(x)).receipts.length,1);}finally{await a.exec('ROLLBACK');await pending;}
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('rescan pending transition rechecks a source writer after '+ending,{skip:!native},async()=>{
+ const x=await pendingRescanFixture();const a=await newSession(),b=await newSession();await a.exec('BEGIN');await a.query("UPDATE public.documents SET title='Later title' WHERE id=$1",[x.document]);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=markRescanPending(x,{client:b}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.result.schema,'document-rescan-pending-v1');assert.equal((await pendingRescanRows(x)).receipts.length,ending==='COMMIT'?0:1);}finally{await a.exec('ROLLBACK');await pending;}
+});
+for(const fault of ['revision-trigger','column-grant','routine-path','not-paused'])test('rescan pending preflight refuses '+fault+' without installation',async()=>{
+ await capacityFixture({registration:true,rescan:true,configured:false});await pauseOperation(true,2);await db.exec('RESET ROLE');
+ if(fault==='revision-trigger')await db.exec('ALTER TABLE public.documents DISABLE TRIGGER set_updated_at_documents');
+ if(fault==='column-grant')await db.exec('GRANT SELECT(actor_id) ON public.document_rescan_source_bindings TO authenticated');
+ if(fault==='routine-path')await db.exec('ALTER FUNCTION public.guard_document_rescan_source_binding() RESET ALL');
+ if(fault==='not-paused')await db.exec('UPDATE public.document_operation_control SET paused=false');
+ await assert.rejects(db.exec(rescanPendingTransition),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regclass('public.document_rescan_pending_receipts') AS name")).rows[0].name,null);
+});
+test('rescan pending transition rechecks revoked editor access after a source lock wait',{skip:!native},async()=>{
+ const x=await rescanClaimFixture({pending:true});const claim=await claimRescan(x,{actor:actors.educator});const f={...x,claim};const a=await newSession(),b=await newSession();await a.exec('BEGIN');await a.query('SELECT id FROM public.documents WHERE id=$1 FOR UPDATE',[x.document]);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=markRescanPending(f,{actor:actors.educator,client:b}).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await db.query("UPDATE public.student_collaborators SET status='revoked' WHERE student_id=$1 AND user_id=$2",[student,actors.educator]);await a.exec('COMMIT');assert.equal((await pending).error?.code,'42501');const r=await pendingRescanRows(f);assert.equal(r.receipts.length,0);assert.equal(r.source.scan_status,'failed');}finally{await a.exec('ROLLBACK');await pending;}
 });

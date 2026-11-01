@@ -40,9 +40,17 @@
   "ready_for_cutover": false,
   "hosted_execution_authorized": false,
   "required_next": [
-    "Verify native concurrent claim/pause cases and complete225+ten-proposal replay.",
+    "Both native1106 and full225+ten replays verified; pending transition is prepared separately and needs its own native/full-schema confirmation.",
     "Prepare one-use exact-source pending transition before provider dispatch, source-bound outcome/exact queue/completion and conservative settlement.",
     "Connect reviewed source-bound server adapter and all-kind admission/queue/worker hooks under existing permission boundaries only after trusted reconciliation and legacy/direct writer/physical provider gates are resolved.",
     "Finish Apply, final canonical/ledger packaging and fresh authorization for coordinated isolated staging rollout and bounded acceptance."
-  ]
+  ],
+  "verification": {
+    "source": "315d629efd209a69ae7dd5ddad961a58b401a73d",
+    "evidence": "docs/production-readiness/evidence/document-rescan-source-claim-verified-2026-10-31.json",
+    "both_native_tests_passed": 1106,
+    "both_native_skipped": 0,
+    "full_canonical_migrations": 225,
+    "full_noncanonical_proposals": 10
+  }
 }

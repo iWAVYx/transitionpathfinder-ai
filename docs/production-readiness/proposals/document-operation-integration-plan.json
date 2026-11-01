@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Registration stage native/full225+9 verified. Tenth private rescan source/capacity claim prepared; native/full225+10 confirmation and pending/completion/settlement/app integration remain open.",
+  "status": "Private rescan source/capacity stage verified in both native1106/full225+10 replays. Eleventh one-use pending transition prepared; new native/full225+11 confirmation, outcome/completion/settlement and app integration remain open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -494,12 +494,30 @@
     "ordinary_execution_or_endpoint_wiring": false,
     "pending_transition_implemented": false,
     "rescan_completion_settlement_implemented": false,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "remaining": [
-      "Verify native concurrent claim/pause cases and complete225+ten-proposal replay.",
+      "Verified both native1106/full225+ten replays. Pending transition prepared separately; its new native/full-schema gate remains open.",
       "Prepare one-use exact-source pending transition before provider dispatch, source-bound outcome/exact queue/completion and conservative settlement.",
       "Connect reviewed source-bound server adapter and all-kind admission/queue/worker hooks under existing permission boundaries only after trusted reconciliation and legacy/direct writer/physical provider gates are resolved.",
       "Finish Apply, final canonical/ledger packaging and fresh authorization for coordinated isolated staging rollout and bounded acceptance."
+    ],
+    "hosted_authorized": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-rescan-source-claim-verified-2026-10-31.json"
+  },
+  "rescan_pending_transition_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-rescan-pending-transition.sql",
+    "review": "docs/production-readiness/proposals/document-rescan-pending-transition-review.json",
+    "evidence": "docs/production-readiness/evidence/document-rescan-pending-transition-local-2026-10-31.json",
+    "private_one_use_transition_prepared": true,
+    "native_full_schema_pending": true,
+    "ordinary_execution_or_endpoint_wiring": false,
+    "scanner_dispatch_implemented": false,
+    "completion_settlement_implemented": false,
+    "remaining": [
+      "Verify final native races and complete225+eleven-proposal replay before extending this SQL stage.",
+      "Prepare exact persisted rescan outcome, counted summary queue, completion and conservative settlement receipts; keep held or uncertain provider work counted.",
+      "Connect the reviewed claim -> same-copy verification -> one-use pending -> dispatch path under current viewer/source checks only after source-bound hooks, trusted reconciliation, legacy/direct writers and physical/provider gates are resolved.",
+      "Finish Apply, shared queue/worker hooks, canonical/ledger packaging and freshly authorized coordinated staging acceptance."
     ],
     "hosted_authorized": false
   }
