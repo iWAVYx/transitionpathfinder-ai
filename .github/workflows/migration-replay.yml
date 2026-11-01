@@ -19,6 +19,7 @@ on:
       - "tests/database/report-linked-student-save.test.mjs"
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
+      - "tests/database/run-document-path-local-model.mjs"
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
@@ -51,6 +52,7 @@ on:
       - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
       - "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
+      - "docs/production-readiness/proposals/document-rescan-outcome-queue.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -89,6 +91,7 @@ on:
       - "tests/database/report-linked-student-save.test.mjs"
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
+      - "tests/database/run-document-path-local-model.mjs"
       - "docs/production-readiness/proposals/document-path-exclusivity.sql"
       - "docs/production-readiness/proposals/document-scan-state-boundary.sql"
       - "docs/production-readiness/proposals/document-storage-write-boundary.sql"
@@ -121,6 +124,7 @@ on:
       - "docs/production-readiness/proposals/document-registration-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
       - "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
+      - "docs/production-readiness/proposals/document-rescan-outcome-queue.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -244,12 +248,12 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
           PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
-            node --test tests/database/document-path-exclusivity.test.mjs
+            node tests/database/run-document-path-local-model.mjs
 
       - name: Test proposed document upload boundaries in concurrent disposable sessions
         env:
@@ -1506,6 +1510,66 @@ jobs:
               FROM pg_proc WHERE oid IN ('public.assert_internal_document_rescan_source(uuid,uuid,text,timestamptz)'::regprocedure,'public.guard_document_rescan_pending_receipt()'::regprocedure,'public.mark_internal_document_rescan_pending(uuid,uuid,uuid,text)'::regprocedure)));
           SQL
 
+      - name: Verify private atomic rescan result and counted queue
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-rescan-outcome-queue.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $rescan_outcome_proof$
+          DECLARE expected record;role_name text;item record;
+          BEGIN
+            FOR expected IN SELECT * FROM (VALUES
+              ('public.guard_document_rescan_outcome_receipt()','8b0ea9df1b8c345c01ecc3ee431328c9',false),
+              ('public.validate_internal_document_rescan_outcome(uuid)','5566056a58c43008264d5050e8a1234f',false),
+              ('public.check_document_rescan_outcome_commit()','1af8dd3b1338f86104829e80be091c29',false),
+              ('public.guard_rescan_document_summary_queue()','87ae8af9a7d7b2b7f30c0f2b5c106112',true),
+              ('public.persist_internal_document_rescan_result(uuid,uuid,uuid,jsonb)','d1c35df9ea20a3416f3fbc2b93e881b5',false),
+              ('public.guard_document_capacity_reservation()','8f98320cb463e998142eca029a46ae38',false),
+              ('public.queue_internal_document_capacity(uuid,uuid)','ad5e04be560b2b4b364031581e886b4b',false)
+            ) x(signature,body_md5,definer) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(expected.signature) AND md5(prosrc)=expected.body_md5
+                AND prosecdef=expected.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN
+                RAISE EXCEPTION 'Unexpected private result definition or owner'; END IF;
+              FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+                IF has_function_privilege(role_name,expected.signature,'EXECUTE') THEN RAISE EXCEPTION 'Unexpected private result execution'; END IF;
+              END LOOP;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_rescan_outcome_receipts'::regclass AND relrowsecurity AND relowner=current_user::regrole::oid) THEN
+              RAISE EXCEPTION 'Private result row security and ownership required'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+              IF has_table_privilege(role_name,'public.document_rescan_outcome_receipts','SELECT,INSERT,UPDATE,DELETE,TRUNCATE')
+                OR has_any_column_privilege(role_name,'public.document_rescan_outcome_receipts','SELECT,INSERT,UPDATE') THEN RAISE EXCEPTION 'Unexpected private result data privilege'; END IF;
+            END LOOP;
+            FOR item IN SELECT * FROM (VALUES
+              ('public.document_rescan_outcome_receipts','document_rescan_outcome_frozen','public.guard_document_rescan_outcome_receipt()',31,false),
+              ('public.document_rescan_outcome_receipts','document_rescan_outcome_committed','public.check_document_rescan_outcome_commit()',5,true),
+              ('public.ai_jobs','ai_jobs_guard_rescan_document_summary','public.guard_rescan_document_summary_queue()',31,false),
+              ('public.document_capacity_reservations','document_capacity_frozen','public.guard_document_capacity_reservation()',31,false)
+            ) x(relation_name,trigger_name,signature,kind,deferred) LOOP
+              IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name) AND tgname=item.trigger_name
+                AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.kind AND tgenabled='O' AND NOT tgisinternal
+                AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred) THEN RAISE EXCEPTION 'Reviewed result/queue triggers required'; END IF;
+            END LOOP;
+            IF NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.document_rescan_outcome_receipts'::regclass AND confrelid='public.ai_jobs'::regclass
+              AND contype='f' AND condeferrable AND condeferred) THEN RAISE EXCEPTION 'Deferred exact job reference required'; END IF;
+            IF EXISTS(SELECT 1 FROM public.document_rescan_outcome_receipts) OR EXISTS(SELECT 1 FROM public.document_rescan_pending_receipts)
+              OR EXISTS(SELECT 1 FROM public.document_rescan_source_bindings) OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+              OR NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused)
+              OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN
+              RAISE EXCEPTION 'Private result foundation must stay paused, empty and unset'; END IF;
+          END; $rescan_outcome_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-outcome-queue.json
+          SELECT jsonb_build_object('schema','document-rescan-outcome-queue-proof-v1','phase','after-twelfth-proposal',
+            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+            'outcome_receipts',(SELECT count(*) FROM public.document_rescan_outcome_receipts),
+            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+            'private_atomic_rescan_result_queue_prepared',true,'ordinary_execution_grants',false,'scanner_dispatch_implemented',false,'physical_copy_attested',false,
+            'rescan_completion_settlement_implemented',false,'endpoint_source_claim_wired',false,'general_application_limits_implemented',false,
+            'manual_reconciliation_implemented',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+              FROM pg_proc WHERE oid IN ('public.guard_document_rescan_outcome_receipt()'::regprocedure,'public.validate_internal_document_rescan_outcome(uuid)'::regprocedure,'public.check_document_rescan_outcome_commit()'::regprocedure,'public.guard_rescan_document_summary_queue()'::regprocedure,'public.persist_internal_document_rescan_result(uuid,uuid,uuid,jsonb)'::regprocedure,'public.guard_document_capacity_reservation()'::regprocedure,'public.queue_internal_document_capacity(uuid,uuid)'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1614,4 +1678,5 @@ jobs:
             /tmp/document-registration-capacity-settlement.json
             /tmp/document-rescan-source-claim.json
             /tmp/document-rescan-pending-transition.json
+            /tmp/document-rescan-outcome-queue.json
           if-no-files-found: ignore
