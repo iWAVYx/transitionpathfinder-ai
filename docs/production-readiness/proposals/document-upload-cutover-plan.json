@@ -16,7 +16,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "2449e83eaa6ef7705c9b50f3f092de00df794ec0fe80477250bc4e0ccf632c16"
+      "sha256": "87a1dfea0cc671425d632a83a25a94f0e2202c19b10d9a492e81a76a2a100fd0"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -60,7 +60,7 @@
     },
     {
       "path": "src/lib/document-rescan-source.server.ts",
-      "sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8"
+      "sha256": "d49457200e6979c1c063047ce0f891634ac7b7d2dc64e5f2c409e9576f5a4ca9"
     },
     {
       "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
@@ -116,7 +116,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
-      "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
+      "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f"
     }
   ],
   "batch": {
@@ -716,5 +716,15 @@
       "skipped": 156
     },
     "evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-local-2026-11-01.json"
+  },
+  "source_manifest_reconciliation": {
+    "date": "2026-11-02",
+    "checked_against_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
+    "evidence": "docs/production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json",
+    "declared_entries_checked": 28,
+    "corrected_entries": 3,
+    "complete_release_manifest": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
   }
 }

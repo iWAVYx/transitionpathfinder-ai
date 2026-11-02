@@ -1,0 +1,46 @@
+{
+  "schema": "document-cutover-manifest-reconciliation-v1",
+  "date": "2026-11-02",
+  "source_base": "1d9fc55399094ab23429ae51df1318f8122e2da4",
+  "scope": "Reconcile the 28 already-declared proposal-manifest entries with current prepared source using existing file-specific evidence. Not a complete deployable package or hosted acceptance.",
+  "manifest": "docs/production-readiness/proposals/document-upload-cutover-plan.json",
+  "declared_entries_checked": 28,
+  "corrected_entries": [
+    {
+      "path": "src/lib/documents.functions.ts",
+      "previous_manifest_sha256": "2449e83eaa6ef7705c9b50f3f092de00df794ec0fe80477250bc4e0ccf632c16",
+      "current_sha256": "87a1dfea0cc671425d632a83a25a94f0e2202c19b10d9a492e81a76a2a100fd0",
+      "existing_evidence": "docs/production-readiness/evidence/document-rescan-result-receipts-local-2026-11-01.json"
+    },
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "previous_manifest_sha256": "32130e034df073db5ace2a4f0e00626314cf7f5b10c2bac2335cc6e72c8332a8",
+      "current_sha256": "d49457200e6979c1c063047ce0f891634ac7b7d2dc64e5f2c409e9576f5a4ca9",
+      "existing_evidence": "docs/production-readiness/evidence/document-rescan-continuation-local-2026-10-31.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "previous_manifest_sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b",
+      "current_sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f",
+      "existing_evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json"
+    }
+  ],
+  "remaining_declared_mismatches": [],
+  "validation": {
+    "all_corrected_hashes_match_existing_evidence": true,
+    "all_declared_hashes_match_current_files": true,
+    "native_stage13": "Corrected replays41454884591 and41454894715 still running; no acceptance claimed"
+  },
+  "remaining": [
+    "Verify corrected native races and full225+thirteen replay.",
+    "Build a final complete exact website, separate worker, canonical migration/ledger and review-proposal release package after implementation gates pass.",
+    "Review physical Storage/provider and trusted reconciliation evidence, all-role/demo acceptance and fresh rollout/merge authorization."
+  ],
+  "runtime_changed": false,
+  "sql_changed": false,
+  "migration_applied": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

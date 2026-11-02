@@ -1,5 +1,25 @@
 # TransitionForward — Readiness Roadmap
 
+## Current Merge Checklist — November 2
+
+PR #211 remains a draft. These are eight work packages, not eight small fixes or a delivery estimate. The full TF01–TF26 roadmap and historical evidence below remain in scope. Report-length polish and Parent Pilot / Pathway Snapshot remain deferred.
+
+| Package | Current Position | Required Before Closing |
+| --- | --- | --- |
+| 1. Shared Document Processing | Private source, queue, worker and completion foundations prepared; last fully verified database baseline is stage12. | Verify corrected stage13 native/full-schema replays, then integrate automatic counted worker/producer hooks and Apply across applicable roles. |
+| 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
+| 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
+| 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 13 unapplied review proposals. All 28 declared cutover-manifest entries reconciled against current source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
+| 5. Security and Product Consistency | Role, privacy, demo/navigation and Lovable-edit evidence retained. | Consolidate current-source review and resolve remaining findings; Owner Hub stays management-only. |
+| 6. Coordinated Staging Release | Current hosted release remains unchanged. | Fresh authorization for the exact schema, website, separate worker and isolated Lovable rollout, followed by source/isolation checks. |
+| 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
+| 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and seek specific merge authorization after all applicable gates pass. Production rollout is a separate authorization. |
+
+**Immediate gate:** corrected disposable PostgreSQL replays [41454884591](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591) and [41454894715](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715). The earlier early-stage runs passed 249/251 and failed two lock-observation cases; those failures remain recorded. No stage13 native/full-schema pass is claimed yet.
+
+Manifest reconciliation: [record](production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json). Worker handoff audit: [record](production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json). No hosted action, AI/provider call, migration, deployment, publication, main merge or production access is authorized by this checklist.
+
+
 ## October 28 — Durable Review Hold and Reserved Storage Insert (Proposal Only)
 
 - [x] Prepared a tenth noncanonical proposal: the original uploader, with unchanged review intent and current explicit edit access, can place an unresolved attempt on a durable review hold. Same-request repeats preserve the first reason/time. Registered, foreign, changed-reason and revoked-access requests stop without changing files or links.
