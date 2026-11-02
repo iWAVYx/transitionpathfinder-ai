@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -1263,4 +1264,33 @@ test("password auth forms fail closed until client hydration", () => {
   assert.match(containment, /artifact `9501164856`[\s\S]*deleted/);
   assert.match(containment, /rotated all seven fixed synthetic staging users/);
   assert.match(containment, /No secret value belongs in this document/);
+});
+
+
+test("declared document cutover source hashes match prepared files without granting release acceptance", () => {
+  const plan = JSON.parse(read("docs/production-readiness/proposals/document-upload-cutover-plan.json"));
+  assert.ok(plan.source_manifest.length > 0, "the reviewed file manifest must not disappear");
+  const paths = new Set();
+  for (const entry of plan.source_manifest) {
+    assert.match(entry.path, /^(?:src|supabase|docs|tests)\//);
+    assert.ok(!entry.path.split("/").includes(".."), "manifest paths stay inside the repository");
+    assert.ok(!paths.has(entry.path), `duplicate manifest path: ${entry.path}`);
+    paths.add(entry.path);
+    assert.match(entry.sha256, /^[a-f0-9]{64}$/);
+    assert.equal(
+      createHash("sha256").update(readFileSync(entry.path)).digest("hex"),
+      entry.sha256,
+      `${entry.path} changed after its recorded cutover identity; review and reconcile the manifest`,
+    );
+  }
+  const reconciliation = plan.source_manifest_reconciliation;
+  assert.equal(reconciliation.declared_entries_checked, paths.size);
+  assert.equal(reconciliation.complete_release_manifest, false);
+  assert.equal(reconciliation.hosted_verified, false);
+  assert.equal(reconciliation.ready_for_cutover, false);
+  const evidence = JSON.parse(read(reconciliation.evidence));
+  assert.equal(evidence.release_authorization_granted, false);
+  assert.equal(evidence.hosted_actions, false);
+  assert.equal(evidence.production_access, false);
+  assert.equal(evidence.ready_for_cutover, false);
 });

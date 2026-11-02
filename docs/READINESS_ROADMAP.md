@@ -15,7 +15,7 @@ PR #211 remains a draft. These are eight work packages, not eight small fixes or
 | 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
 | 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and seek specific merge authorization after all applicable gates pass. Production rollout is a separate authorization. |
 
-**Immediate gate:** corrected disposable PostgreSQL replays [41454884591](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591) and [41454894715](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715). The earlier early-stage runs passed 249/251 and failed two lock-observation cases; those failures remain recorded. No stage13 native/full-schema pass is claimed yet.
+**Immediate gate:** corrected disposable PostgreSQL replays [41454884591](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591) and [41454894715](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715). The earlier early-stage runs passed 249/251 and failed two lock-observation cases; those failures remain recorded. Both corrected early compatibility stages passed; the full stage13 native suite and complete-schema replay remain open.
 
 Manifest reconciliation: [record](production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json). Worker handoff audit: [record](production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json). No hosted action, AI/provider call, migration, deployment, publication, main merge or production access is authorized by this checklist.
 

@@ -29,7 +29,11 @@
   "validation": {
     "all_corrected_hashes_match_existing_evidence": true,
     "all_declared_hashes_match_current_files": true,
-    "native_stage13": "Corrected replays41454884591 and41454894715 still running; no acceptance claimed"
+    "native_stage13": "Corrected replays41454884591 and41454894715 still running; no acceptance claimed",
+    "readiness_and_portability_cases_passed": 41,
+    "regression_old_manifest_stale_entries_rejected": 3,
+    "persistent_guard": "tests/production-readiness-contract.test.mjs",
+    "guard_source_sha256": "0b6b5b287ec340224d91ee709403d86e649409c5c14b40968628c6959bdb177a"
   },
   "remaining": [
     "Verify corrected native races and full225+thirteen replay.",
