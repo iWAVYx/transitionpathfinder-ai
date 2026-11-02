@@ -657,5 +657,15 @@
       "skipped": 156
     },
     "evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-local-2026-11-01.json"
+  },
+  "worker_capacity_handoff_audit": {
+    "evidence": "docs/production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json",
+    "offline_cases_passed": 69,
+    "new_continuation_cases": 3,
+    "automatic_worker_capacity_hook_installed": false,
+    "pause_drain_exception_implemented": false,
+    "native_stage13_gate_open": true,
+    "ready_for_cutover": false,
+    "next": "After verified stage13 artifacts, review one atomic counted transfer including explicit pause semantics and exact producer evidence; do not attach capacity later in the worker or expose private helpers."
   }
 }

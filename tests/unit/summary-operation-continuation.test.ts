@@ -33,3 +33,39 @@ it.each(['lost','error','wrong-id','wrong-state','extra','missing'])('never repe
  if(mode==='lost')rpc.mockRejectedValueOnce(Error('PRIVATE'));else rpc.mockResolvedValueOnce({data:mode==='missing'?null:{schema:'document-operation-finished-v1',operation_id:mode==='wrong-id'?id(9):id(7),state:mode==='wrong-state'?'needs_review':'completed',...(mode==='extra'?{extra:'PRIVATE'}:{})},error:mode==='error'?{message:'PRIVATE'}:null});
  const work=vi.fn(async()=>({saved:true}));const error=await runClaimedSummaryOperation({rpc},receipt,work).catch(e=>e);expect(error.phase).toBe('completion');expect(String(error)).not.toContain('PRIVATE');expect(rpc).toHaveBeenCalledTimes(1);expect(rpc.mock.calls[0][1]._outcome).toBe('completed');expect(work).toHaveBeenCalledExactlyOnceWith();
 });
+
+it.each(["completed", "needs_review"] as const)("keeps a claimed summary active while its guarded work is pending before %s", async outcome => {
+ let resolve!: (value: string) => void;
+ let reject!: (reason: Error) => void;
+ const pendingWork = new Promise<string>((done, fail) => { resolve = done; reject = fail; });
+ const work = vi.fn(() => pendingWork);
+ const pending = runClaimedSummaryOperation({rpc}, receipt, work);
+ // Observe rejection immediately, including in the held-work branch.
+ const observed = pending.then(value => ({value}), error => ({error}));
+ expect(work).toHaveBeenCalledExactlyOnceWith();
+ await Promise.resolve();
+ expect(rpc).not.toHaveBeenCalled();
+ if (outcome === "completed") resolve("guarded domain commit confirmed");
+ else reject(Error("PRIVATE domain failure"));
+ const result = await observed;
+ expect(rpc).toHaveBeenCalledExactlyOnceWith("finish_document_operation", {
+  _operation_id:id(7), _actor_id:id(4), _receipt_id:id(8), _outcome:outcome,
+ });
+ if ("error" in result) {
+  expect(result.error).toMatchObject({phase:"work", reconciliationRequired:true});
+  expect(String(result.error)).not.toContain("PRIVATE");
+ } else expect(result.value).toBe("guarded domain commit confirmed");
+});
+it("freezes the finish capability before asynchronous work can mutate the original claim", async () => {
+ const transport = {...receipt};
+ let resolve!: () => void;
+ const work = vi.fn(() => new Promise<void>(done => { resolve = done; }));
+ const pending = runClaimedSummaryOperation({rpc}, transport, work);
+ transport.operation_id = id(90); transport.receipt_id = id(91); transport.actor_id = id(92);
+ expect(rpc).not.toHaveBeenCalled();
+ resolve(); await pending;
+ expect(work).toHaveBeenCalledExactlyOnceWith();
+ expect(rpc).toHaveBeenCalledExactlyOnceWith("finish_document_operation", {
+  _operation_id:id(7), _actor_id:id(4), _receipt_id:id(8), _outcome:"completed",
+ });
+});
