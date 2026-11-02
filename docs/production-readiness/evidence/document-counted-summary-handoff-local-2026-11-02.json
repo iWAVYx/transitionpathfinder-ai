@@ -8,13 +8,12 @@
     "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c"
   },
   "focused": {
-    "focused_cases": 44,
-    "focused_passed": 36,
+    "tests": 44,
+    "passed": 36,
+    "failed": 0,
     "native_only_skips": 8,
-    "generated_ten_routine_proof": "passed in all applicable local fixtures",
-    "workflow_yaml_and_shell": "passed",
-    "full_local_pending": true,
-    "native_full_schema_pending": true
+    "generated_ten_routine_proof": "passed in applicable local fixtures",
+    "workflow_yaml_and_shell": "passed"
   },
   "source_manifest": [
     {
