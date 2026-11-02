@@ -143,5 +143,52 @@
     "Complete Apply/general hooks, trusted held reconciliation, legacy/direct/writer/relationship fences, physical Storage/provider acceptance and final canonical/ledger packaging.",
     "Seek fresh specific authorization for coordinated isolated staging schema, separate website/worker rollout and bounded acceptance; production/main merge remain separate gates."
   ],
-  "documentation_contracts": 44
+  "documentation_contracts": 44,
+  "native_attempts": [
+    {
+      "run": "41392222821",
+      "source": "7d145bef2ea8c71b555efc43ff5568b14eaca021",
+      "result": "failure",
+      "early_selected_tests": 251,
+      "passed": 249,
+      "failed": 2,
+      "full_schema_reached": false,
+      "failed_cases": [
+        "rescan settlement worker commit and producer finish serialize after COMMIT",
+        "rescan settlement worker commit and producer finish serialize after ROLLBACK"
+      ],
+      "failure": "Expected lock was not visible to observer; native cause remains pending corrected run confirmation.",
+      "retained_log_sha256": "e8b489a374faa7ddf79eee906de7e4cb3e044a9c8b2a8cf4fcbf17853363c6b7"
+    },
+    {
+      "run": "41392220982",
+      "source": "7d145bef2ea8c71b555efc43ff5568b14eaca021",
+      "result": "failure",
+      "early_selected_tests": 251,
+      "passed": 249,
+      "failed": 2,
+      "full_schema_reached": false,
+      "failed_cases": [
+        "rescan settlement worker commit and producer finish serialize after COMMIT",
+        "rescan settlement worker commit and producer finish serialize after ROLLBACK"
+      ],
+      "failure": "Expected lock was not visible to observer; native cause remains pending corrected run confirmation.",
+      "retained_log_sha256": "d87028e8635b2845155fc65e5396fdd6b65f951e2ebbeea851f1832c669e9552"
+    }
+  ],
+  "observer_correction": {
+    "date": "2026-11-02",
+    "scope": "Test-only; reset the independent observer from service_role to its existing session owner. Both operations explicitly retain service_role. Require exact producer pid in pg_blocking_pids as well as an observed Lock wait.",
+    "sql_changed": false,
+    "native_corrected_result": "pending",
+    "no_assertions_removed": true,
+    "no_test_retries": true,
+    "focused_local": {
+      "tests": 52,
+      "pass": 41,
+      "fail": 0,
+      "native_only_skipped": 11
+    },
+    "readiness_contracts_passed": 40
+  }
 }

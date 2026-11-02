@@ -2873,7 +2873,30 @@ test('rescan settlement rechecks educator access after waiting for the document'
  const x=await savedRescanSettlement({actor:actors.educator});const a=await newSession(),b=await newSession();await a.exec('BEGIN');await a.query('SELECT id FROM public.documents WHERE id=$1 FOR UPDATE',[x.document]);await as('','service_role',b);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishRescanProducer(x,'completed',b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await db.query("UPDATE public.student_collaborators SET status='revoked' WHERE student_id=$1 AND user_id=$2",[student,x.actor]);await db.query("UPDATE public.student_relationships SET consent_status='revoked' WHERE student_id=$1 AND related_user_id=$2",[student,x.actor]);await a.exec('COMMIT');assert.equal((await pending).error?.code,'42501');assert.equal((await rescanSettlementRows(x)).completions.length,0);}finally{await a.exec('ROLLBACK');await pending;}
 });
 for(const ending of ['COMMIT','ROLLBACK'])test('rescan settlement worker commit and producer finish serialize after '+ending,{skip:!native},async()=>{
- const c=await claimedRescanOutcomeConsumer({rescanSettlement:true});const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');await finishRescanProducer(c.x,'completed',a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=commitRescanOutcomeConsumer(c,b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);assert.equal((await pending).error,undefined);await finishOperation(c.claim,'completed',b,c.x.actor);await db.exec('RESET ROLE');await settleSummaryCapacity(c.x.claim.operation_id);if(ending==='ROLLBACK'){await as('','service_role');await finishRescanProducer(c.x);await db.exec('RESET ROLE');}await settleRescanCapacity(c.x.claim.operation_id);assert.equal(await effectiveSettlementUnits(),0);}finally{await a.exec('ROLLBACK');await pending;}
+ const c=await claimedRescanOutcomeConsumer({rescanSettlement:true});
+ // The fixture intentionally leaves its caller as service_role. That role is
+ // correct for both operations, but cannot observe another session's wait
+ // details in pg_stat_activity. Restore only this independent observer.
+ assert.equal((await db.query('SELECT current_user AS role')).rows[0].role,'service_role');
+ await db.exec('RESET ROLE');
+ const observer=(await db.query('SELECT current_user AS role,session_user AS owner')).rows[0];
+ assert.equal(observer.role,observer.owner);
+ const a=await newSession(),b=await newSession();
+ await as('','service_role',a);await as('','service_role',b);
+ for(const client of [a,b])assert.equal((await client.query('SELECT current_user AS role')).rows[0].role,'service_role');
+ const blocker=(await a.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+ const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+ await a.exec('BEGIN');await finishRescanProducer(c.x,'completed',a);
+ const pending=commitRescanOutcomeConsumer(c,b).then(result=>({result}),error=>({error}));
+ try{
+  await waitForLock(pid);
+  assert.ok((await db.query('SELECT pg_blocking_pids($1) AS blockers',[pid])).rows[0].blockers.includes(blocker),'Worker must wait for the exact producer transaction');
+  await a.exec(ending);assert.equal((await pending).error,undefined);
+  await finishOperation(c.claim,'completed',b,c.x.actor);
+  await db.exec('RESET ROLE');await settleSummaryCapacity(c.x.claim.operation_id);
+  if(ending==='ROLLBACK'){await as('','service_role');await finishRescanProducer(c.x);await db.exec('RESET ROLE');}
+  await settleRescanCapacity(c.x.claim.operation_id);assert.equal(await effectiveSettlementUnits(),0);
+ }finally{await a.exec('ROLLBACK');await pending;}
 });
 for(const ending of ['COMMIT','ROLLBACK'])test('rescan settlement separate unit releases serialize without freeing twice after '+ending,{skip:!native},async()=>{
  const c=await claimedRescanOutcomeConsumer({rescanSettlement:true});await commitRescanOutcomeConsumer(c);await finishOperation(c.claim,'completed',db,c.x.actor);await finishRescanProducer(c.x);await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await a.exec('BEGIN');await settleRescanCapacity(c.x.claim.operation_id,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=settleSummaryCapacity(c.x.claim.operation_id,b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);assert.equal((await pending).error,undefined);if(ending==='ROLLBACK')await settleRescanCapacity(c.x.claim.operation_id);assert.equal(await effectiveSettlementUnits(),0);}finally{await a.exec('ROLLBACK');await pending;}
