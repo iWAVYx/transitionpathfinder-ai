@@ -7,7 +7,8 @@ if (process.env.PATHWAY_HISTORY_POSTGRES === '1' || !process.env.PATHWAY_HISTORY
 }
 const prefix = '^(?:rescan|registration|capacity|summary)';
 const partitions = [
-  ['other boundaries', [`--test-skip-pattern=${prefix}`], name => !/^(?:rescan|registration|capacity|summary)/.test(name)],
+  ['counted worker', ['--test-name-pattern=^counted worker'], name => /^counted worker/.test(name)],
+  ['other boundaries', [`--test-skip-pattern=${prefix}|^counted worker`], name => !/^(?:rescan|registration|capacity|summary|counted worker)/.test(name)],
   ['producer boundaries', [`--test-name-pattern=${prefix}`, '--test-skip-pattern=^rescan (?:outcome|settlement)'], name => /^(?:rescan|registration|capacity|summary)/.test(name) && !/^rescan (?:outcome|settlement)/.test(name)],
   ['rescan outcome', ['--test-name-pattern=^rescan outcome'], name => /^rescan outcome/.test(name)],
   ['rescan settlement', ['--test-name-pattern=^rescan settlement'], name => /^rescan settlement/.test(name)],

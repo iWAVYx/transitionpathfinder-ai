@@ -54,6 +54,7 @@ on:
       - "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
       - "docs/production-readiness/proposals/document-rescan-outcome-queue.sql"
       - "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-counted-summary-handoff.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -127,6 +128,7 @@ on:
       - "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
       - "docs/production-readiness/proposals/document-rescan-outcome-queue.sql"
       - "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql"
+      - "docs/production-readiness/proposals/document-counted-summary-handoff.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -250,7 +252,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome|rescan settlement' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome|rescan settlement|counted worker' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -1645,6 +1647,97 @@ jobs:
            'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname) FROM pg_proc WHERE oid IN ('public.read_internal_document_rescan_completion(uuid,text)'::regprocedure,'public.guard_document_rescan_completion_receipt()'::regprocedure,'public.record_internal_document_rescan_completion(uuid)'::regprocedure,'public.guard_unfinished_document_rescan()'::regprocedure,'public.guard_completed_document_rescan_lease()'::regprocedure,'public.guard_document_capacity_rescan_settlement()'::regprocedure,'public.settle_internal_document_rescan_capacity(uuid)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.guard_document_capacity_reservation()'::regprocedure)));
           SQL
 
+      - name: Verify atomic already-counted summary worker handoff
+        run: |
+          set -euo pipefail
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-counted-summary-handoff.sql -f - <<'SQL'
+          DO $counted_executor$ BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN
+            RAISE EXCEPTION 'Restricted counted worker executor was not restored'; END IF;
+          END; $counted_executor$;
+          DO $counted_worker_proof$
+          DECLARE item record;role_name text;admission_owner oid;
+          BEGIN
+           SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.guard_document_rescan_completion_receipt()','66fc62f3994165d4d1cc5d2baae32f88',false,false),
+            ('public.record_internal_document_rescan_completion(uuid)','d33cda072581b15c7172ca9046d8b958',true,false),
+            ('public.guard_unfinished_document_rescan()','be1187efef8bef6e42bd2932bbc1f634',true,false),
+            ('public.guard_completed_document_rescan_lease()','1217646df6772f74ae458ce269c71a49',true,false),
+            ('public.guard_document_capacity_rescan_settlement()','d0847740f46ca699471dab7a2df59c00',false,false),
+            ('public.settle_internal_document_rescan_capacity(uuid)','27739ecef53efbe6d20e553200bcca56',false,false),
+            ('public.finish_document_operation(uuid,uuid,uuid,text)','02a82f905e1a198511cdeacade5f5138',true,true),
+            ('public.guard_document_capacity_reservation()','4c09f0f14edc20a934e14923c5d80ff6',false,false),
+            ('public.claim_admitted_document_summary(uuid,integer)','c447fea2a55afefc6ad1451986ac1eea',true,false),
+            ('public.read_internal_document_rescan_completion(uuid,text)','a8217daa37516c4f7a433a64acf8e43f',false,false)
+           ) x(signature,body_md5,definer,admission_owned) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+             AND prosecdef=item.definer AND proconfig=ARRAY['search_path=pg_catalog']
+             AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END) THEN
+             RAISE EXCEPTION 'Exact counted worker definitions and ownership required'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(role_name,item.signature,'EXECUTE') IS DISTINCT FROM (role_name='service_role'
+              AND item.signature IN ('public.finish_document_operation(uuid,uuid,uuid,text)','public.claim_admitted_document_summary(uuid,integer)')) THEN
+              RAISE EXCEPTION 'Unexpected counted worker execution grant'; END IF;
+            END LOOP;
+           END LOOP;
+           FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(role_name,'public.claim_internal_document_capacity(uuid,uuid)','EXECUTE') THEN RAISE EXCEPTION 'Private transfer must not become service callable'; END IF;
+           END LOOP;
+           FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            FOR item IN SELECT * FROM (VALUES ('public.document_capacity_reservations'),('public.document_summary_source_bindings'),
+             ('public.document_summary_operation_bindings'),('public.document_rescan_completion_receipts'),('public.document_capacity_rescan_settlements')) x(relation_name) LOOP
+             IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(item.relation_name) AND relrowsecurity AND relowner=current_user::regrole::oid)
+              OR has_table_privilege(role_name,item.relation_name,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE') OR has_any_column_privilege(role_name,item.relation_name,'SELECT,INSERT,UPDATE') THEN
+              RAISE EXCEPTION 'Private counted worker ownership, RLS and raw permissions required'; END IF;
+            END LOOP;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.document_summary_source_bindings','document_source_binding_immutable','public.reject_document_source_binding_mutation()',27,false),
+            ('public.document_summary_operation_bindings','summary_operation_binding_frozen','public.guard_document_summary_operation_binding()',27,false),
+            ('public.document_capacity_reservations','document_capacity_frozen','public.guard_document_capacity_reservation()',31,false),
+            ('public.document_rescan_outcome_receipts','document_rescan_outcome_committed','public.check_document_rescan_outcome_commit()',5,true),
+            ('public.document_operation_leases','document_rescan_completed_lease_frozen','public.guard_completed_document_rescan_lease()',27,false)
+           ) x(relation_name,trigger_name,signature,kind,deferred) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name) AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature)
+             AND tgtype=item.kind AND tgenabled='O' AND NOT tgisinternal AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred) THEN
+             RAISE EXCEPTION 'Reviewed counted worker triggers required'; END IF;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused)
+            OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL)
+            OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+            OR EXISTS(SELECT 1 FROM public.document_operation_leases WHERE state IN ('active','needs_review'))
+            OR EXISTS(SELECT 1 FROM public.ai_jobs WHERE job_type='document_summary' AND status<>'completed') THEN
+            RAISE EXCEPTION 'Counted worker must remain paused, empty and unset'; END IF;
+          END; $counted_worker_proof$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $paused_counted_worker_smoke$ BEGIN
+           BEGIN
+            PERFORM public.claim_admitted_document_summary('00000000-0000-4000-8000-000000000099',0);
+            RAISE EXCEPTION 'Paused counted worker unexpectedly started';
+           EXCEPTION WHEN SQLSTATE '55000' THEN NULL;
+           END;
+          END; $paused_counted_worker_smoke$;
+          ROLLBACK;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-counted-summary-handoff.json
+          SELECT jsonb_build_object('schema','document-counted-summary-handoff-proof-v1','phase','after-fourteenth-proposal',
+           'admission_owner',(SELECT relowner::regrole::text FROM pg_class WHERE oid='public.document_operation_control'::regclass),
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+           'reservations',(SELECT count(*) FROM public.document_capacity_reservations),'automatic_counted_worker_transfer_prepared',true,
+           'existing_service_claim_preserved',true,'restricted_executor_restored',true,'paused_start_refusal_smoke_passed',true,'fresh_summary_capacity_units_added',0,
+           'paused_new_worker_starts_allowed',false,'unconfirmed_registration_queue_claim_allowed',false,'ordinary_private_execution_grants',false,
+           'held_release_implemented',false,'automatic_summary_settlement_hook_installed',false,'automatic_producer_settlement_hooks_installed',false,'producer_source_endpoints_wired',false,
+           'general_application_limits_implemented',false,'manual_reconciliation_implemented',false,'physical_copy_attested',false,'provider_quiescence_verified',false,'hosted_worker_wired',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname)
+            FROM pg_proc WHERE oid IN ('public.guard_document_rescan_completion_receipt()'::regprocedure,'public.record_internal_document_rescan_completion(uuid)'::regprocedure,'public.guard_unfinished_document_rescan()'::regprocedure,'public.guard_completed_document_rescan_lease()'::regprocedure,'public.guard_document_capacity_rescan_settlement()'::regprocedure,'public.settle_internal_document_rescan_capacity(uuid)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.guard_document_capacity_reservation()'::regprocedure,'public.claim_admitted_document_summary(uuid,integer)'::regprocedure,'public.read_internal_document_rescan_completion(uuid,text)'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1755,4 +1848,5 @@ jobs:
             /tmp/document-rescan-pending-transition.json
             /tmp/document-rescan-outcome-queue.json
             /tmp/document-rescan-capacity-settlement.json
+            /tmp/document-counted-summary-handoff.json
           if-no-files-found: ignore
