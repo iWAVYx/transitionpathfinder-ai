@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Private result/queue and five consumer bridge cases verified on both native1239/full225+12 replays. All six allowed consumer roles and Partner refusal pass locally; added role combinations await native CI. Producer completion/settlement and automatic endpoint/worker/general capacity integration remain open.",
+  "status": "All-role consumer stage verified on both native1244/full225+12 replays. Thirteenth exact rescan completion/producer settlement passes full local1296 coverage; native/full225+13 and automatic endpoint/worker/general capacity integration remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -232,7 +232,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Six admission controls, private capacity foundation, summary settlement, registration settlement, rescan source claim, pending transition and atomic result/queue remain twelve noncanonical/unapplied proposals. The separate fifteen-migration batch installs none of them; final canonical/ledger packaging is still required.",
+  "remaining_batch_preparation": "Six admission controls, private capacity foundation, summary settlement, registration settlement, rescan source claim, pending transition, atomic result/queue and exact producer completion/settlement are thirteen noncanonical/unapplied proposals. The separate fifteen-migration batch installs none of them; final canonical/ledger packaging remains required.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -689,6 +689,32 @@
     "verified_evidence": "docs/production-readiness/evidence/document-rescan-consumer-bridge-verified-2026-11-01.json",
     "all_role_local_evidence": "docs/production-readiness/evidence/document-rescan-consumer-roles-local-2026-11-01.json",
     "all_role_cases_passed": 10,
-    "native_new_role_cases_pending": true
+    "native_new_role_cases_pending": false,
+    "all_role_native_evidence": "docs/production-readiness/evidence/document-rescan-consumer-roles-verified-2026-11-01.json"
+  },
+  "rescan_capacity_settlement_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-rescan-capacity-settlement-review.json",
+    "private_completion_settlement_prepared": true,
+    "full_local_pending": false,
+    "native_full_schema_pending": true,
+    "ordinary_private_execution_grants": false,
+    "automatic_capacity_settlement_hooks_installed": false,
+    "endpoint_source_claim_wired": false,
+    "ready_for_cutover": false,
+    "hosted_authorized": false,
+    "remaining": [
+      "Verify native races, actual owner-context completion and complete225+thirteen-proposal replay before extending this stage.",
+      "Integrate exact source-bound claim/copy/committed-pending/result/finish/settlement wrappers; attach the already-reserved selected worker slot atomically and allow only that counted work to drain while paused/at cap. No broad pause or quota bypass.",
+      "Complete Apply/general hooks, trusted held reconciliation, legacy/direct/writer/relationship fences, physical Storage/provider acceptance and final canonical/ledger packaging.",
+      "Seek fresh specific authorization for coordinated isolated staging schema, separate website/worker rollout and bounded acceptance; production/main merge remain separate gates."
+    ],
+    "full_local": {
+      "tests": 1296,
+      "pass": 1140,
+      "fail": 0,
+      "skipped": 156
+    },
+    "evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-local-2026-11-01.json"
   }
 }

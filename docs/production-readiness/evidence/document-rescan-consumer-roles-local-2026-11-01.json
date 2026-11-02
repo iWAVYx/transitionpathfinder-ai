@@ -4,7 +4,7 @@
   "base_source": "182dbb2e2d8ed43ada9497558f8804ecab3337e2",
   "local_cases": 10,
   "passed": 10,
-  "native_new_role_cases_pending": true,
+  "native_new_role_cases_pending": false,
   "roles_tested": [
     "family",
     "educator",
@@ -34,5 +34,6 @@
       "path": "tests/database/document-path-exclusivity.test.mjs",
       "sha256": "369689f5eec8b44736845b1c2bfd634c4a32f9b3d508005b54e4ea56c01e8c57"
     }
-  ]
+  ],
+  "native_evidence": "docs/production-readiness/evidence/document-rescan-consumer-roles-verified-2026-11-01.json"
 }

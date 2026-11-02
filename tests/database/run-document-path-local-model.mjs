@@ -8,8 +8,9 @@ if (process.env.PATHWAY_HISTORY_POSTGRES === '1' || !process.env.PATHWAY_HISTORY
 const prefix = '^(?:rescan|registration|capacity|summary)';
 const partitions = [
   ['other boundaries', [`--test-skip-pattern=${prefix}`], name => !/^(?:rescan|registration|capacity|summary)/.test(name)],
-  ['producer boundaries', [`--test-name-pattern=${prefix}`, '--test-skip-pattern=^rescan outcome'], name => /^(?:rescan|registration|capacity|summary)/.test(name) && !/^rescan outcome/.test(name)],
+  ['producer boundaries', [`--test-name-pattern=${prefix}`, '--test-skip-pattern=^rescan (?:outcome|settlement)'], name => /^(?:rescan|registration|capacity|summary)/.test(name) && !/^rescan (?:outcome|settlement)/.test(name)],
   ['rescan outcome', ['--test-name-pattern=^rescan outcome'], name => /^rescan outcome/.test(name)],
+  ['rescan settlement', ['--test-name-pattern=^rescan settlement'], name => /^rescan settlement/.test(name)],
 ];
 const totals = { tests: 0, pass: 0, fail: 0, skipped: 0 };
 let failed = false;

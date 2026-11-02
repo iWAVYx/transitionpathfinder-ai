@@ -53,6 +53,7 @@ on:
       - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
       - "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
       - "docs/production-readiness/proposals/document-rescan-outcome-queue.sql"
+      - "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -125,6 +126,7 @@ on:
       - "docs/production-readiness/proposals/document-rescan-source-claim.sql"
       - "docs/production-readiness/proposals/document-rescan-pending-transition.sql"
       - "docs/production-readiness/proposals/document-rescan-outcome-queue.sql"
+      - "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -248,7 +250,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome|rescan settlement' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -1570,6 +1572,79 @@ jobs:
               FROM pg_proc WHERE oid IN ('public.guard_document_rescan_outcome_receipt()'::regprocedure,'public.validate_internal_document_rescan_outcome(uuid)'::regprocedure,'public.check_document_rescan_outcome_commit()'::regprocedure,'public.guard_rescan_document_summary_queue()'::regprocedure,'public.persist_internal_document_rescan_result(uuid,uuid,uuid,jsonb)'::regprocedure,'public.guard_document_capacity_reservation()'::regprocedure,'public.queue_internal_document_capacity(uuid,uuid)'::regprocedure)));
           SQL
 
+      - name: Verify private rescan completion and exact producer settlement
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-rescan-capacity-settlement.sql -f - <<'SQL'
+          DO $executor$ BEGIN IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted executor not restored'; END IF; END $executor$;
+          SQL
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $rescan_settlement_proof$
+          DECLARE e record;t text;role_name text;admission_owner oid;
+          BEGIN
+           SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           FOR e IN SELECT * FROM (VALUES
+           ('public.read_internal_document_rescan_completion(uuid,text)','6027e68e0591c80ac53fe6e79024c513',false),
+           ('public.guard_document_rescan_completion_receipt()','66fc62f3994165d4d1cc5d2baae32f88',false),
+           ('public.record_internal_document_rescan_completion(uuid)','d33cda072581b15c7172ca9046d8b958',true),
+           ('public.guard_unfinished_document_rescan()','be1187efef8bef6e42bd2932bbc1f634',true),
+           ('public.guard_completed_document_rescan_lease()','1217646df6772f74ae458ce269c71a49',true),
+           ('public.guard_document_capacity_rescan_settlement()','d0847740f46ca699471dab7a2df59c00',false),
+           ('public.settle_internal_document_rescan_capacity(uuid)','27739ecef53efbe6d20e553200bcca56',false),
+           ('public.finish_document_operation(uuid,uuid,uuid,text)','02a82f905e1a198511cdeacade5f5138',true),
+           ('public.guard_document_capacity_reservation()','4c09f0f14edc20a934e14923c5d80ff6',false)
+           ) x(signature,body_md5,definer) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(e.signature) AND md5(prosrc)=e.body_md5 AND prosecdef=e.definer AND proconfig=ARRAY['search_path=pg_catalog']
+             AND proowner=CASE WHEN e.signature='public.finish_document_operation(uuid,uuid,uuid,text)' THEN admission_owner ELSE current_user::regrole::oid END) THEN RAISE EXCEPTION 'Unexpected rescan completion definition/owner'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(role_name,e.signature,'EXECUTE') IS DISTINCT FROM (role_name='service_role' AND e.signature='public.finish_document_operation(uuid,uuid,uuid,text)') THEN RAISE EXCEPTION 'Unexpected completion execution'; END IF;
+            END LOOP;
+           END LOOP;
+           IF NOT has_function_privilege(admission_owner,'public.record_internal_document_rescan_completion(uuid)','EXECUTE') THEN RAISE EXCEPTION 'Original finish owner needs private recorder bridge'; END IF;
+           FOREACH t IN ARRAY ARRAY['public.document_rescan_completion_receipts','public.document_capacity_rescan_settlements'] LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(t) AND relrowsecurity AND relowner=current_user::regrole::oid) THEN RAISE EXCEPTION 'Private rescan table ownership/RLS required'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_table_privilege(role_name,t,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE') OR has_any_column_privilege(role_name,t,'SELECT,INSERT,UPDATE') THEN RAISE EXCEPTION 'Unexpected private rescan data access'; END IF;
+            END LOOP;
+           END LOOP;
+           FOR e IN SELECT * FROM (VALUES
+           ('public.document_rescan_completion_receipts','document_rescan_completion_frozen','public.guard_document_rescan_completion_receipt()',31),
+           ('public.document_capacity_rescan_settlements','document_capacity_rescan_settlement_frozen','public.guard_document_capacity_rescan_settlement()',31),
+           ('public.document_operation_leases','document_rescan_completed_lease_frozen','public.guard_completed_document_rescan_lease()',27),
+           ('public.document_operation_leases','document_rescan_no_false_finish','public.guard_unfinished_document_rescan()',19),
+           ('public.document_capacity_reservations','document_capacity_frozen','public.guard_document_capacity_reservation()',31)
+           ) x(relation_name,trigger_name,signature,kind) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(e.relation_name) AND tgname=e.trigger_name AND tgfoid=to_regprocedure(e.signature) AND tgtype=e.kind AND tgenabled='O' AND NOT tgisinternal) THEN RAISE EXCEPTION 'Rescan completion guards required'; END IF;
+           END LOOP;
+           IF EXISTS(SELECT 1 FROM public.document_rescan_completion_receipts) OR EXISTS(SELECT 1 FROM public.document_capacity_rescan_settlements) OR EXISTS(SELECT 1 FROM public.document_capacity_reservations)
+            OR NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units IS NULL AND actor_units IS NULL AND student_units IS NULL) THEN RAISE EXCEPTION 'Rescan completion must stay paused/empty/unset'; END IF;
+          END; $rescan_settlement_proof$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
+          BEGIN;
+          SET LOCAL ROLE service_role;
+          DO $rescan_owner_bridge_smoke$
+          DECLARE receipt jsonb;kind text;
+          BEGIN
+           PERFORM public.set_document_operation_pause('00000000-0000-4000-8000-000000000007',1,false,'resume');
+           FOREACH kind IN ARRAY ARRAY['register','rescan'] LOOP
+            receipt:=public.begin_document_operation(gen_random_uuid(),'00000000-0000-4000-8000-000000000001',kind);
+            PERFORM public.finish_document_operation((receipt->>'operation_id')::uuid,'00000000-0000-4000-8000-000000000001',(receipt->>'receipt_id')::uuid,'completed');
+           END LOOP;
+           IF NOT (public.inspect_document_operation_drain()->>'tracked_operations_clear')::boolean THEN RAISE EXCEPTION 'Disposable finish remained active'; END IF;
+          END; $rescan_owner_bridge_smoke$;
+          ROLLBACK;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-capacity-settlement.json
+          SELECT jsonb_build_object('schema','document-rescan-capacity-settlement-proof-v1','phase','after-thirteenth-proposal',
+           'admission_owner',(SELECT relowner::regrole::text FROM pg_class WHERE oid='public.document_operation_control'::regclass),
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),'completion_receipts',(SELECT count(*) FROM public.document_rescan_completion_receipts),'settlements',(SELECT count(*) FROM public.document_capacity_rescan_settlements),
+           'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+           'private_rescan_completion_settlement_prepared',true,'clean_producer_units',1,'confirmed_quarantine_units',2,'finish_owner_preserved',true,'restricted_executor_restored',true,'service_owner_bridge_rollback_passed',true,
+           'ordinary_private_execution_grants',false,'automatic_capacity_settlement_hooks_installed',false,'endpoint_source_claim_wired',false,'general_application_limits_implemented',false,'manual_reconciliation_implemented',false,'physical_copy_attested',false,'provider_quiescence_verified',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_path',proconfig,'owner',proowner::regrole::text) ORDER BY proname) FROM pg_proc WHERE oid IN ('public.read_internal_document_rescan_completion(uuid,text)'::regprocedure,'public.guard_document_rescan_completion_receipt()'::regprocedure,'public.record_internal_document_rescan_completion(uuid)'::regprocedure,'public.guard_unfinished_document_rescan()'::regprocedure,'public.guard_completed_document_rescan_lease()'::regprocedure,'public.guard_document_capacity_rescan_settlement()'::regprocedure,'public.settle_internal_document_rescan_capacity(uuid)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.guard_document_capacity_reservation()'::regprocedure)));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1679,4 +1754,5 @@ jobs:
             /tmp/document-rescan-source-claim.json
             /tmp/document-rescan-pending-transition.json
             /tmp/document-rescan-outcome-queue.json
+            /tmp/document-rescan-capacity-settlement.json
           if-no-files-found: ignore
