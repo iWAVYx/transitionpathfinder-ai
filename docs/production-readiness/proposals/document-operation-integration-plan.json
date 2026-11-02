@@ -683,5 +683,15 @@
     "hosted_authorized": false,
     "ready_for_cutover": false,
     "automatic_summary_settlement_hook_installed": false
+  },
+  "automatic_summary_release_audit": {
+    "evidence": "docs/production-readiness/evidence/document-summary-auto-release-audit-2026-11-02.json",
+    "baseline_cases_passed": 1,
+    "actual_saved_target_hardening_required": true,
+    "new_sql_proposal_added": false,
+    "parent_native_gate_open": true,
+    "automatic_summary_settlement_hook_installed": false,
+    "hosted_authorized": false,
+    "ready_for_cutover": false
   }
 }

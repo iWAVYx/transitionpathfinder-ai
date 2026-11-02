@@ -3018,3 +3018,23 @@ test('counted worker preserves service-only claim and owner-internal capacity he
 for(const ending of ['COMMIT','ROLLBACK'])test('counted worker native claim and producer finish serialize after '+ending,{skip:!native},async()=>{
  const c=await countedQueued();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');await countedClaim(c,a);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishRescanProducer(c.x,'completed',b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);assert.equal((await pending).error,undefined);const snap=await countedSnapshot(c);assert.equal(snap.job[0].status,ending==='COMMIT'?'processing':'queued');assert.equal(await effectiveSettlementUnits(),2);}finally{await a.exec('ROLLBACK');await pending;}
 });
+
+// Fault injection for the next release-hook review, not an unprivileged exploit
+// claim: only the disposable database owner can install this extra trigger.
+test('summary settlement baseline lacks a final actual-row target check after a late owner trigger',async()=>{
+ const c=await countedQueued();await as('','service_role');const claim=await countedClaim(c);await completeCounted(c,claim);
+ const other=uid(33991);await beginOperation('apply',other);await db.exec('RESET ROLE');await capacityReserve(other);
+ assert.equal(await effectiveSettlementUnits(),3);
+ await db.exec("CREATE FUNCTION public.test_summary_settlement_target() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.operation_id:='"+other+"'::uuid;RETURN NEW;END $$;CREATE TRIGGER zzz_test_summary_settlement_target BEFORE INSERT ON public.document_capacity_summary_settlements FOR EACH ROW EXECUTE FUNCTION public.test_summary_settlement_target()");
+ try{
+  // Baseline helper returns normally even though the actual saved parent was
+  // changed after the normal guard. Preserve this repro until its prepared
+  // replacement verifies RETURNING and rolls the whole transaction back.
+  await settleSummaryCapacity(c.producer.operation_id);
+  const rows=(await db.query('SELECT * FROM public.document_capacity_summary_settlements WHERE summary_job_id=$1',[c.job])).rows;
+  assert.equal(rows.length,1);assert.equal(rows[0].operation_id,other);assert.notEqual(rows[0].operation_id,c.producer.operation_id);
+  assert.equal(rows[0].summary_operation_id,claim.operation_id);
+  assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[other])).rows[0].state,'active');
+  assert.equal((await db.query('SELECT count(*)::integer AS n FROM public.document_capacity_summary_settlements WHERE operation_id=$1',[c.producer.operation_id])).rows[0].n,0);
+ }finally{await db.exec('DROP TRIGGER zzz_test_summary_settlement_target ON public.document_capacity_summary_settlements;DROP FUNCTION public.test_summary_settlement_target()');}
+});
