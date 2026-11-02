@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "All-role consumer stage verified on both native1244/full225+12 replays. Thirteenth exact rescan completion/producer settlement passes full local1296 coverage; native/full225+13 and automatic endpoint/worker/general capacity integration remain open.",
+  "status": "Both corrected stage13 native1296/full225+13 replays verified with exact owner/private-grant/paused-empty artifacts retained. Automatic endpoint/worker/general capacity integration and all hosted acceptance remain open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -638,14 +638,13 @@
     "review": "docs/production-readiness/proposals/document-rescan-capacity-settlement-review.json",
     "private_completion_settlement_prepared": true,
     "full_local_pending": false,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "ordinary_private_execution_grants": false,
     "automatic_capacity_settlement_hooks_installed": false,
     "endpoint_source_claim_wired": false,
     "ready_for_cutover": false,
     "hosted_authorized": false,
     "remaining": [
-      "Verify native races, actual owner-context completion and complete225+thirteen-proposal replay before extending this stage.",
       "Integrate exact source-bound claim/copy/committed-pending/result/finish/settlement wrappers; attach the already-reserved selected worker slot atomically and allow only that counted work to drain while paused/at cap. No broad pause or quota bypass.",
       "Complete Apply/general hooks, trusted held reconciliation, legacy/direct/writer/relationship fences, physical Storage/provider acceptance and final canonical/ledger packaging.",
       "Seek fresh specific authorization for coordinated isolated staging schema, separate website/worker rollout and bounded acceptance; production/main merge remain separate gates."
@@ -656,7 +655,8 @@
       "fail": 0,
       "skipped": 156
     },
-    "evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-local-2026-11-01.json"
+    "evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-local-2026-11-01.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
   },
   "worker_capacity_handoff_audit": {
     "evidence": "docs/production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json",
@@ -664,8 +664,9 @@
     "new_continuation_cases": 3,
     "automatic_worker_capacity_hook_installed": false,
     "pause_drain_exception_implemented": false,
-    "native_stage13_gate_open": true,
+    "native_stage13_gate_open": false,
     "ready_for_cutover": false,
-    "next": "After verified stage13 artifacts, review one atomic counted transfer including explicit pause semantics and exact producer evidence; do not attach capacity later in the worker or expose private helpers."
+    "next": "After verified stage13 artifacts, review one atomic counted transfer including explicit pause semantics and exact producer evidence; do not attach capacity later in the worker or expose private helpers.",
+    "native_verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
   }
 }

@@ -2051,3 +2051,11 @@ Prepared `document-upload-canonical-preparation.json`: exact hashes and tested o
 - [ ] Verify the corrected native cases, all 1,296 native cases and full225+thirteen replay before extending integration. Eight merge packages and the full roadmap remain open/partial as previously recorded. No hosted action or production/main merge. Report polish and Parent Pilot/Pathway Snapshot remain deferred.
 
 Evidence: `document-rescan-capacity-settlement-local-2026-11-01.json` and `document-worker-capacity-handoff-audit-2026-11-02.json`.
+
+## November 2 — Exact Rescan Completion/Settlement Verified
+
+- [x] Corrected source **1d9fc553** passed both **1,296/1,296 native cases with zero skips**, both early **251/251** compatibility stages and both complete **225-canonical-plus-thirteen-proposal** replays. The PR merge checkout and exact push checkout are recorded separately. Both nine-routine proof artifacts have SHA-256 **e689de63…ec71f4**. Prior failed observer runs remain historical evidence.
+- [x] Independently checked exact routine hashes/owners/fixed paths, preserved admission/finish owner, private execution restrictions, restricted-executor restoration, rollback-only service owner bridge, paused/unset/empty state and one-/two-unit settlement metadata. No physical/provider or held-reconciliation proof is implied.
+- [ ] Next implement the automatic exact counted-worker transfer, preserving one-use claims/current source/access and independent producer/worker accounting. Explicit pause policy and native COMMIT/ROLLBACK races remain required. Apply/general hooks, trusted recovery, direct/writer/relationship fences, real Storage/provider acceptance and final release packaging remain open. All eight merge packages and the complete roadmap remain open/partial. No hosted migration/release/publication, provider/AI, account/access/payment/secret, main merge or production action.
+
+Evidence: `document-rescan-capacity-settlement-verified-2026-11-02.json`. Report polish and Parent Pilot/Pathway Snapshot remain deferred.

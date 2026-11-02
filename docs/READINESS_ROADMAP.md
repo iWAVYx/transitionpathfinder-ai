@@ -6,7 +6,7 @@ PR #211 remains a draft. These are eight work packages, not eight small fixes or
 
 | Package | Current Position | Required Before Closing |
 | --- | --- | --- |
-| 1. Shared Document Processing | Private source, queue, worker and completion foundations prepared; last fully verified database baseline is stage12. | Verify corrected stage13 native/full-schema replays, then integrate automatic counted worker/producer hooks and Apply across applicable roles. |
+| 1. Shared Document Processing | Private source, queue, worker and completion foundations verified through stage13 in disposable PostgreSQL. | Integrate automatic counted worker/producer hooks and Apply across applicable roles; keep the two obligations separate. |
 | 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
 | 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
 | 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 13 unapplied review proposals. All 28 declared cutover-manifest entries reconciled against current source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
@@ -15,7 +15,7 @@ PR #211 remains a draft. These are eight work packages, not eight small fixes or
 | 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
 | 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and seek specific merge authorization after all applicable gates pass. Production rollout is a separate authorization. |
 
-**Immediate gate:** corrected disposable PostgreSQL replays [41454884591](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591) and [41454894715](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715). The earlier early-stage runs passed 249/251 and failed two lock-observation cases; those failures remain recorded. Both corrected early compatibility stages passed; the full stage13 native suite and complete-schema replay remain open.
+**Immediate gate:** corrected disposable PostgreSQL replays [41454884591](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591) and [41454894715](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715). The earlier early-stage runs passed 249/251 and failed two lock-observation cases; those failures remain recorded. Both complete replays now pass 1,296/1,296 native cases with zero skips and full225+thirteen proposal installation. Exact proofs are retained in [the verified record](production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json). This closes the stage13 verification gate only.
 
 Manifest reconciliation: [record](production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json). Worker handoff audit: [record](production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json). No hosted action, AI/provider call, migration, deployment, publication, main merge or production access is authorized by this checklist.
 
@@ -6060,3 +6060,11 @@ Prepared `document-upload-canonical-preparation.json`: exact hashes and tested o
 - [ ] Verify the corrected native cases, all 1,296 native cases and full225+thirteen replay before extending integration. Eight merge packages and the full roadmap remain open/partial as previously recorded. No hosted action or production/main merge. Report polish and Parent Pilot/Pathway Snapshot remain deferred.
 
 Evidence: `document-rescan-capacity-settlement-local-2026-11-01.json` and `document-worker-capacity-handoff-audit-2026-11-02.json`.
+
+## November 2 — Exact Rescan Completion/Settlement Verified
+
+- [x] Corrected source **1d9fc553** passed both **1,296/1,296 native cases with zero skips**, both early **251/251** compatibility stages and both complete **225-canonical-plus-thirteen-proposal** replays. The PR merge checkout and exact push checkout are recorded separately. Both nine-routine proof artifacts have SHA-256 **e689de63…ec71f4**. Prior failed observer runs remain historical evidence.
+- [x] Independently checked exact routine hashes/owners/fixed paths, preserved admission/finish owner, private execution restrictions, restricted-executor restoration, rollback-only service owner bridge, paused/unset/empty state and one-/two-unit settlement metadata. No physical/provider or held-reconciliation proof is implied.
+- [ ] Next implement the automatic exact counted-worker transfer, preserving one-use claims/current source/access and independent producer/worker accounting. Explicit pause policy and native COMMIT/ROLLBACK races remain required. Apply/general hooks, trusted recovery, direct/writer/relationship fences, real Storage/provider acceptance and final release packaging remain open. All eight merge packages and the complete roadmap remain open/partial. No hosted migration/release/publication, provider/AI, account/access/payment/secret, main merge or production action.
+
+Evidence: `document-rescan-capacity-settlement-verified-2026-11-02.json`. Report polish and Parent Pilot/Pathway Snapshot remain deferred.

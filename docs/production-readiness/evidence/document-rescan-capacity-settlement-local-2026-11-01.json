@@ -126,7 +126,7 @@
       "sha256": "3f37d75929efc0373722ad635542106badbcaaa6f452d2d866d20e05b6c13fcf"
     }
   ],
-  "native_full_schema_pending": true,
+  "native_full_schema_pending": false,
   "ordinary_private_execution_grants": false,
   "automatic_capacity_settlement_hooks_installed": false,
   "endpoint_source_claim_wired": false,
@@ -138,7 +138,6 @@
   "hosted_actions": false,
   "ready_for_cutover": false,
   "required_next": [
-    "Verify native races, actual owner-context completion and complete225+thirteen-proposal replay before extending this stage.",
     "Integrate exact source-bound claim/copy/committed-pending/result/finish/settlement wrappers; attach the already-reserved selected worker slot atomically and allow only that counted work to drain while paused/at cap. No broad pause or quota bypass.",
     "Complete Apply/general hooks, trusted held reconciliation, legacy/direct/writer/relationship fences, physical Storage/provider acceptance and final canonical/ledger packaging.",
     "Seek fresh specific authorization for coordinated isolated staging schema, separate website/worker rollout and bounded acceptance; production/main merge remain separate gates."
@@ -180,7 +179,7 @@
     "date": "2026-11-02",
     "scope": "Test-only; reset the independent observer from service_role to its existing session owner. Both operations explicitly retain service_role. Require exact producer pid in pg_blocking_pids as well as an observed Lock wait.",
     "sql_changed": false,
-    "native_corrected_result": "Both corrected early compatibility stages passed; full native and full-schema replay remain pending.",
+    "native_corrected_result": "Both corrected early251 cases, complete1296 native suites and full225+thirteen replay passed; exact proofs retained.",
     "no_assertions_removed": true,
     "no_test_retries": true,
     "focused_local": {
@@ -194,6 +193,7 @@
       41454884591,
       41454894715
     ],
-    "native_full_schema_pending": true
-  }
+    "native_full_schema_pending": false
+  },
+  "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
 }
