@@ -12,7 +12,7 @@ Progress updates identify the existing numbered workstream, the specific substep
 | 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
 | 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
 | 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 15 unapplied review proposals. All 28 declared cutover-manifest entries and the ordered15-proposal inventory are reconciled against recorded source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
-| 5. Security and Product Consistency | Role, privacy, demo/navigation and Lovable-edit evidence retained. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
+| 5. Security and Product Consistency | Role/privacy/demo evidence retained; private preflight drift repair locally verified. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
 | 6. Coordinated Staging Release | Current hosted release remains unchanged. | Fresh authorization for the exact schema, website, separate worker and isolated Lovable rollout, followed by source/isolation checks. |
 | 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
 | 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and obtain specific merge authorization; verify main/Lovable auto-deployment cannot bypass production approval. |
@@ -6108,3 +6108,12 @@ Evidence: `document-automatic-summary-settlement-review.json` and `document-auto
 - [ ] **Workstream 1 remains partial:** local automatic-release implementation/checks are complete; native runs41678048798 and41678056736 were still running without reported failures at the last check. Remaining producer/Apply/general integration remains open. No workstream is closed by this update.
 
 Inventory: `document-control-proposal-inventory.json`. No runtime code, SQL behavior, hosted migration, release/publication, AI/provider or production action changed.
+
+## November 3 — Workstream 5 Preflight Drift Repair (Local Verification Complete)
+
+- [x] **Workstream 5 substep completed locally:** four reproducible admission metadata drifts are now rejected before routine replacement. Installation/final proof renew coherent admission owner/RLS/private permissions plus32 inherited private routines and14 inherited private tables. Rollback-only matrices check42 table and32 routine-path drifts in addition to the four concrete admission faults. No runtime routine body or extra SQL proposal is added.
+- [x] Current **45 focused cases /41 pass /four native-only skips**,80 readiness/safety contracts,YAML and shell validation pass. Retain the earlier complete1380 local run honestly; the current1386-case full/local/native and225+fifteen replay remain pending.
+- [x] **Workstream 4 substep refreshed:** the15-proposal inventory matches exact current file hashes and disposable install order, with the corrected pending source identity.
+- [ ] **Workstream 1 remains partial:** supersede older-candidate runs41678048798/41678056736 with corrected-candidate verification before extending integration. Native acceptance is not claimed. No full workstream closed. No hosted migration, deployment/publication, provider/AI, account/access/payment/secret, main merge or production action.
+
+Evidence: `document-automatic-summary-settlement-local-2026-11-03.json` and `document-control-proposal-inventory.json`. All eight workstreams,TF01–TF26/six milestones and the two deferred items remain intact.

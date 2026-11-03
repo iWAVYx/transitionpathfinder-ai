@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Stage14 verified on both1340 native/full225+14 replays. Fifteenth exact automatic worker settlement passes complete local1380 coverage (1212 pass/168 native skips),39 focused cases and80 contracts. Native/full225+15 and remaining producer/Apply/general/hosted gates remain open.",
+  "status": "Proposal15 preflight security repair passes45 focused cases (41 pass/four native skips) and80 contracts. The previous1380-case full local proof is retained; current1386 local/native/full225+15 verification is pending. No runtime routine body, new proposal or hosted action changed.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -701,34 +701,52 @@
     "review": "docs/production-readiness/proposals/document-automatic-summary-settlement-review.json",
     "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
     "automatic_worker_settlement_prepared": true,
-    "full_local_pending": false,
+    "full_local_pending": true,
     "native_full_schema_pending": true,
     "automatic_producer_settlement_hooks_installed": false,
     "producer_source_endpoints_wired": false,
     "held_release_implemented": false,
     "hosted_authorized": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "candidate_source": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2"
   },
   "progress_reporting": {
     "map_actions_to_existing_numbered_workstreams": true,
     "report_completed_substep_and_remaining_closure_conditions": true,
     "prepared_local_native_staging_production_are_distinct": true,
     "latest_completed_substep": {
-      "date": "2026-11-03",
-      "workstream": 4,
-      "title": "Reconciled all15 control proposal hashes and disposable installation order; corrected stale9/13 counts",
-      "evidence": "docs/production-readiness/proposals/document-control-proposal-inventory.json",
+      "workstream": 5,
+      "title": "Reject admission metadata drift and renew inherited private dependency checks",
       "status": "verified_locally",
+      "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
       "whole_workstream_complete": false
     },
     "workstream_1_native_gate": {
-      "runs": [
+      "candidate_source": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
+      "superseded_candidate_runs": [
         41678048798,
         41678056736
       ],
-      "last_observed_status": "in_progress_no_failures_reported",
+      "proof_status": "pending",
+      "automatic_ci_on_push": true,
       "complete": false
     },
-    "whole_workstreams_closed_this_update": []
+    "whole_workstreams_closed_this_update": [],
+    "latest_completed_substeps": [
+      {
+        "workstream": 5,
+        "title": "Reject admission metadata drift and renew inherited private dependency checks",
+        "status": "verified_locally",
+        "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
+        "whole_workstream_complete": false
+      },
+      {
+        "workstream": 4,
+        "title": "Reconcile15 proposal hashes/order and refresh corrected candidate identity",
+        "status": "verified_locally",
+        "evidence": "docs/production-readiness/proposals/document-control-proposal-inventory.json",
+        "whole_workstream_complete": false
+      }
+    ]
   }
 }

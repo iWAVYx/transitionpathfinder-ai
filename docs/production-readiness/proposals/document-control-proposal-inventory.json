@@ -1,7 +1,7 @@
 {
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-03",
-  "source_base": "df29e5a3be131518d02c202f2d9cc98c8fac257c",
+  "source_base": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
   "scope": "Ordered inventory of the fifteen current noncanonical/unapplied control proposals. Order is checked against the disposable replay workflow, not authorized as a hosted installation recipe.",
   "proposal_count": 15,
   "proposals": [
@@ -134,18 +134,14 @@
     {
       "order": 15,
       "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
-      "sha256": "8cc79b7db0d987ddd6b177e45e5c1d1516ce16e377d214c11a285e77f7537aec",
+      "sha256": "59979fc2c2f5c5fd42694f4f12b7dd20210aa97ed75d89006d66b7abeab0e931",
       "disposable_replay_step": "Verify automatic exact worker settlement and preserved finish owner",
-      "source_checked_against": "df29e5a3be131518d02c202f2d9cc98c8fac257c",
+      "source_checked_against": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
       "native_status": "pending_stage15",
       "hosted_applied": false
     }
   ],
   "verified_parent_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
-  "pending_candidate_runs": [
-    41678048798,
-    41678056736
-  ],
   "canonical_migration_count": 225,
   "separate_prepared_canonical_batch_count": 15,
   "canonical_batch_generator": "tests/database/document-upload-rollout-sql.mjs",
@@ -153,5 +149,10 @@
   "final_canonical_ledger_package_prepared": false,
   "complete_release_package": false,
   "hosted_actions": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "superseded_candidate_runs": [
+    41678048798,
+    41678056736
+  ],
+  "new_native_proof_pending": true
 }

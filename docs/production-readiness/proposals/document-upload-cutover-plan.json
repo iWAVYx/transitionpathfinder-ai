@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Stage14 verified on both1340 native/full225+14 replays. Fifteenth exact automatic worker settlement passes complete local1380 coverage (1212 pass/168 native skips),39 focused cases and80 contracts. Native/full225+15 and remaining producer/Apply/general/hosted gates remain open.",
+  "status": "Proposal15 preflight security repair passes45 focused cases (41 pass/four native skips) and80 contracts. The previous1380-case full local proof is retained; current1386 local/native/full225+15 verification is pending. No runtime routine body, new proposal or hosted action changed.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -748,13 +748,14 @@
     "review": "docs/production-readiness/proposals/document-automatic-summary-settlement-review.json",
     "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
     "automatic_worker_settlement_prepared": true,
-    "full_local_pending": false,
+    "full_local_pending": true,
     "native_full_schema_pending": true,
     "automatic_producer_settlement_hooks_installed": false,
     "producer_source_endpoints_wired": false,
     "held_release_implemented": false,
     "hosted_authorized": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "candidate_source": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2"
   },
   "unapplied_control_proposals": 15,
   "control_proposal_inventory": "docs/production-readiness/proposals/document-control-proposal-inventory.json"
