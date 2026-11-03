@@ -1749,9 +1749,71 @@ jobs:
            IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted settlement executor was not restored'; END IF;
           END; $automatic_summary_executor$;
           DO $automatic_summary_proof$
-          DECLARE item record;role_name text;admission_owner oid;
+          DECLARE item record;role_name text;admission_owner oid;admission_table text;
           BEGIN
            SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           FOREACH admission_table IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases'] LOOP
+            IF admission_owner IS NULL OR NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(admission_table)
+             AND relrowsecurity AND relowner=admission_owner) THEN
+             RAISE EXCEPTION 'Coherent private admission ownership and RLS are required.' USING ERRCODE='55000'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_table_privilege(role_name,admission_table,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+              OR has_any_column_privilege(role_name,admission_table,'SELECT,INSERT,UPDATE,REFERENCES') THEN
+              RAISE EXCEPTION 'Admission operation records must remain private.' USING ERRCODE='55000'; END IF;
+            END LOOP;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+           ('public.read_internal_document_rescan_completion(uuid,text)','a8217daa37516c4f7a433a64acf8e43f',false,false),
+           ('public.guard_document_rescan_completion_receipt()','66fc62f3994165d4d1cc5d2baae32f88',false,false),
+           ('public.record_internal_document_rescan_completion(uuid)','d33cda072581b15c7172ca9046d8b958',true,false),
+           ('public.guard_unfinished_document_rescan()','be1187efef8bef6e42bd2932bbc1f634',true,false),
+           ('public.guard_completed_document_rescan_lease()','1217646df6772f74ae458ce269c71a49',true,false),
+           ('public.guard_document_capacity_rescan_settlement()','d0847740f46ca699471dab7a2df59c00',false,false),
+           ('public.settle_internal_document_rescan_capacity(uuid)','27739ecef53efbe6d20e553200bcca56',false,false),
+           ('public.finish_document_operation(uuid,uuid,uuid,text)','e182bc060bdfdca5637ce8685836222d',true,true),
+           ('public.guard_document_capacity_reservation()','4c09f0f14edc20a934e14923c5d80ff6',false,false),
+           ('public.claim_admitted_document_summary(uuid,integer)','c447fea2a55afefc6ad1451986ac1eea',true,false),
+           ('public.claim_internal_document_capacity(uuid,uuid)','7cd786969a6084b1c51e26a182cc9200',false,false),
+           ('public.lock_internal_document_capacity()','2f5b3f16774b99e22e8e61bcce8d7828',false,false),
+           ('public.read_verified_document_summary_source(uuid,timestamptz,integer)','6beb7e73b75e358ff530c8316650c1e5',true,false),
+           ('public.read_internal_document_registration_completion(uuid)','dc3b28d28174e13759e47896e549a3b8',false,false),
+           ('public.guard_document_registration_completion_receipt()','47defe9db1ab2e654d178d25e8dcb199',false,false),
+           ('public.guard_rescan_document_summary_queue()','87ae8af9a7d7b2b7f30c0f2b5c106112',true,false),
+           ('public.guard_document_summary_operation_binding()','b049daec1448ce2bc28812c4588c8b97',true,false),
+           ('public.guard_document_rescan_source_binding()','9cde41dda57eaaac0ac7aacb666e27a2',false,false),
+           ('public.guard_document_rescan_pending_receipt()','29807c2edbe76ea0c3d175e829828b72',false,false),
+           ('public.guard_document_summary_completion_receipt()','bce8b9ca58259f9b3f237d79f4167069',false,false),
+           ('public.guard_completed_document_summary_job()','a01db85f8c132ac05ac3a1227616278c',true,false),
+           ('public.guard_registered_document_summary_queue()','0bdef1bb3b14b5e0bb6f341e5464bbeb',true,false),
+           ('public.guard_document_rescan_outcome_receipt()','8b0ea9df1b8c345c01ecc3ee431328c9',false,false),
+           ('public.validate_internal_document_rescan_outcome(uuid)','5566056a58c43008264d5050e8a1234f',false,false),
+           ('public.check_document_rescan_outcome_commit()','1af8dd3b1338f86104829e80be091c29',false,false),
+           ('public.persist_internal_document_rescan_result(uuid,uuid,uuid,jsonb)','d1c35df9ea20a3416f3fbc2b93e881b5',false,false),
+           ('public.queue_internal_document_capacity(uuid,uuid)','ad5e04be560b2b4b364031581e886b4b',false,false),
+           ('public.begin_document_operation(uuid,uuid,text)','4ff01874b39fa3e46c24a6bf3d8149fc',true,true),
+           ('public.reject_document_source_binding_mutation()','1f541c412d592bef234c15d4309e505c',true,false),
+           ('public.guard_bound_document_summary_job()','bec9836beb73d0e1ee37de07be97438c',true,false),
+           ('public.guard_document_summary_operation_completion()','80e1d39564ed282104abea744faa45ea',true,false),
+           ('public.lock_internal_document_capacity_completion()','be973fc53b7930db60f9456ba1f26548',false,false)
+           ) x(signature,body_md5,definer,admission_owned) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+             AND prosecdef=item.definer AND proconfig=ARRAY['search_path=pg_catalog']
+             AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END) THEN
+             RAISE EXCEPTION 'Inherited private control routines require exact review.' USING ERRCODE='55000'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(role_name,item.signature,'EXECUTE') IS DISTINCT FROM (role_name='service_role' AND item.signature IN ('public.begin_document_operation(uuid,uuid,text)','public.claim_admitted_document_summary(uuid,integer)','public.finish_document_operation(uuid,uuid,uuid,text)','public.read_verified_document_summary_source(uuid,timestamptz,integer)')) THEN
+              RAISE EXCEPTION 'Inherited private control execution drift.' USING ERRCODE='55000'; END IF;
+            END LOOP;
+           END LOOP;
+           FOREACH admission_table IN ARRAY ARRAY['public.document_capacity_reservations','public.document_summary_source_bindings','public.document_summary_operation_bindings','public.document_registration_completion_receipts','public.document_rescan_source_bindings','public.document_rescan_outcome_receipts','public.document_rescan_completion_receipts','public.document_capacity_rescan_settlements','public.document_upload_operation_bindings','public.document_capacity_policy','public.document_capacity_summary_settlements','public.document_capacity_registration_settlements','public.document_summary_completion_receipts','public.document_rescan_pending_receipts'] LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(admission_table) AND relrowsecurity AND relowner=current_user::regrole::oid) THEN
+             RAISE EXCEPTION 'Inherited private control table ownership/RLS drift.' USING ERRCODE='55000'; END IF;
+            FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_table_privilege(role_name,admission_table,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+              OR has_any_column_privilege(role_name,admission_table,'SELECT,INSERT,UPDATE,REFERENCES') THEN
+              RAISE EXCEPTION 'Inherited private control table permission drift.' USING ERRCODE='55000'; END IF;
+            END LOOP;
+           END LOOP;
            FOR item IN SELECT * FROM (VALUES
            ('public.guard_document_rescan_completion_receipt()','66fc62f3994165d4d1cc5d2baae32f88',false,false),
            ('public.record_internal_document_rescan_completion(uuid)','d33cda072581b15c7172ca9046d8b958',true,false),
@@ -1813,7 +1875,7 @@ jobs:
            'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
            'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
            'reservations',(SELECT count(*) FROM public.document_capacity_reservations),'summary_settlements',(SELECT count(*) FROM public.document_capacity_summary_settlements),
-           'automatic_worker_settlement_prepared',true,'exact_saved_target_guard_prepared',true,'settled_worker_lease_frozen',true,'existing_finish_owner_preserved',true,
+           'automatic_worker_settlement_prepared',true,'admission_ownership_rls_permissions_verified',true,'inherited_private_dependencies_rechecked',true,'exact_saved_target_guard_prepared',true,'settled_worker_lease_frozen',true,'existing_finish_owner_preserved',true,
            'restricted_executor_restored',true,'generic_service_owner_bridge_rollback_passed',true,'worker_units_released',1,
            'ordinary_private_execution_grants',false,'held_release_implemented',false,'automatic_producer_settlement_hooks_installed',false,
            'producer_source_endpoints_wired',false,'general_application_limits_implemented',false,'manual_reconciliation_implemented',false,

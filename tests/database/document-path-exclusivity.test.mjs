@@ -3126,3 +3126,34 @@ for(const fault of ['helper-path','private-column','settlement-trigger','finish-
  await assert.rejects(db.exec(automaticSummarySettlement),{code:fault==='finish-owner'?'P0001':'55000'});await db.exec('ROLLBACK');
  assert.equal((await db.query("SELECT to_regprocedure('public.settle_completed_document_summary(uuid)') AS name")).rows[0].name,null);assert.equal((await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].hash,before);
 });
+
+for(const fault of ['lease-owner','lease-receipt-column','lease-rls','control-rls'])test('summary auto installation rejects admission metadata drift '+fault,async()=>{
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,configured:false});await as('','service_role');await pauseOperation(true,2);await db.exec('RESET ROLE');
+ if(fault==='lease-owner')await db.exec('ALTER TABLE public.document_operation_leases OWNER TO service_role');
+ if(fault==='lease-receipt-column')await db.exec('GRANT SELECT(receipt_id) ON public.document_operation_leases TO service_role');
+ if(fault==='lease-rls')await db.exec('ALTER TABLE public.document_operation_leases DISABLE ROW LEVEL SECURITY');
+ if(fault==='control-rls')await db.exec('ALTER TABLE public.document_operation_control DISABLE ROW LEVEL SECURITY');
+ await assert.rejects(db.exec(automaticSummarySettlement),{code:'55000'});await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regprocedure('public.settle_completed_document_summary(uuid)') AS name")).rows[0].name,null);
+});
+
+// Renew the inherited boundary, not only the two changed admission tables.
+test('summary auto renews all inherited private table guards before changing routines',async()=>{
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,configured:false});await as('','service_role');await pauseOperation(true,2);await db.exec('RESET ROLE');
+ const tables=["public.document_capacity_reservations", "public.document_summary_source_bindings", "public.document_summary_operation_bindings", "public.document_registration_completion_receipts", "public.document_rescan_source_bindings", "public.document_rescan_outcome_receipts", "public.document_rescan_completion_receipts", "public.document_capacity_rescan_settlements", "public.document_upload_operation_bindings", "public.document_capacity_policy", "public.document_capacity_summary_settlements", "public.document_capacity_registration_settlements", "public.document_summary_completion_receipts", "public.document_rescan_pending_receipts"];await db.exec('BEGIN');
+ try{for(const table of tables)for(const fault of ['grant','owner','rls']){
+  await db.exec('SAVEPOINT inherited_drift');
+  if(fault==='grant')await db.exec('GRANT SELECT ON '+table+' TO service_role');
+  if(fault==='owner')await db.exec('ALTER TABLE '+table+' OWNER TO service_role');
+  if(fault==='rls')await db.exec('ALTER TABLE '+table+' DISABLE ROW LEVEL SECURITY');
+  await assert.rejects(db.exec(automaticSummarySettlement),error=>['55000','P0001'].includes(error.code),table+' '+fault+' must reject');
+  await db.exec('ROLLBACK TO SAVEPOINT inherited_drift;RELEASE SAVEPOINT inherited_drift');
+ }}finally{await db.exec('ROLLBACK');}
+ assert.equal((await db.query("SELECT to_regprocedure('public.settle_completed_document_summary(uuid)') AS name")).rows[0].name,null);
+});
+test('summary auto renews every inherited private routine path before changing routines',async()=>{
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,configured:false});await as('','service_role');await pauseOperation(true,2);await db.exec('RESET ROLE');
+ const signatures=["public.read_internal_document_rescan_completion(uuid,text)", "public.guard_document_rescan_completion_receipt()", "public.record_internal_document_rescan_completion(uuid)", "public.guard_unfinished_document_rescan()", "public.guard_completed_document_rescan_lease()", "public.guard_document_capacity_rescan_settlement()", "public.settle_internal_document_rescan_capacity(uuid)", "public.finish_document_operation(uuid,uuid,uuid,text)", "public.guard_document_capacity_reservation()", "public.claim_admitted_document_summary(uuid,integer)", "public.claim_internal_document_capacity(uuid,uuid)", "public.lock_internal_document_capacity()", "public.read_verified_document_summary_source(uuid,timestamptz,integer)", "public.read_internal_document_registration_completion(uuid)", "public.guard_document_registration_completion_receipt()", "public.guard_rescan_document_summary_queue()", "public.guard_document_summary_operation_binding()", "public.guard_document_rescan_source_binding()", "public.guard_document_rescan_pending_receipt()", "public.guard_document_summary_completion_receipt()", "public.guard_completed_document_summary_job()", "public.guard_registered_document_summary_queue()", "public.guard_document_rescan_outcome_receipt()", "public.validate_internal_document_rescan_outcome(uuid)", "public.check_document_rescan_outcome_commit()", "public.persist_internal_document_rescan_result(uuid,uuid,uuid,jsonb)", "public.queue_internal_document_capacity(uuid,uuid)", "public.begin_document_operation(uuid,uuid,text)", "public.reject_document_source_binding_mutation()", "public.guard_bound_document_summary_job()", "public.guard_document_summary_operation_completion()", "public.lock_internal_document_capacity_completion()"];await db.exec('BEGIN');
+ try{for(const signature of signatures){await db.exec('SAVEPOINT inherited_routine');await db.exec('ALTER FUNCTION '+signature+' RESET ALL');await assert.rejects(db.exec(automaticSummarySettlement),error=>['55000','P0001'].includes(error.code),signature+' path must reject');await db.exec('ROLLBACK TO SAVEPOINT inherited_routine;RELEASE SAVEPOINT inherited_routine');}}
+ finally{await db.exec('ROLLBACK');}
+});
