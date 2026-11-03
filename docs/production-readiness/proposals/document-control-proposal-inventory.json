@@ -1,0 +1,157 @@
+{
+  "schema": "document-control-proposal-inventory-v1",
+  "date": "2026-11-03",
+  "source_base": "df29e5a3be131518d02c202f2d9cc98c8fac257c",
+  "scope": "Ordered inventory of the fifteen current noncanonical/unapplied control proposals. Order is checked against the disposable replay workflow, not authorized as a hosted installation recipe.",
+  "proposal_count": 15,
+  "proposals": [
+    {
+      "order": 1,
+      "path": "docs/production-readiness/proposals/document-operation-admission.sql",
+      "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb",
+      "disposable_replay_step": "Verify proposed durable admission against complete canonical replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 2,
+      "path": "docs/production-readiness/proposals/document-apply-admission.sql",
+      "sha256": "e79a8d152da88eb6f6c85f5bffcb2b246a6f0af83b31a8cd2acf6a0b761dc0ff",
+      "disposable_replay_step": "Verify atomic Apply pause fence against complete replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 3,
+      "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+      "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1",
+      "disposable_replay_step": "Verify reviewed upload pause fence after canonical replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 4,
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad",
+      "disposable_replay_step": "Verify durable upload interval after canonical replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 5,
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a",
+      "disposable_replay_step": "Verify retained upload limits after durable interval replay",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 6,
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5",
+      "disposable_replay_step": "Verify atomic summary operation handoff after retained upload limits",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 7,
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+      "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021",
+      "disposable_replay_step": "Verify dormant private capacity foundation after atomic summary handoff",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 8,
+      "path": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
+      "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b",
+      "disposable_replay_step": "Verify atomic summary completion receipt and private capacity settlement",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 9,
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f",
+      "disposable_replay_step": "Verify source-bound registration completion and capacity settlement",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 10,
+      "path": "docs/production-readiness/proposals/document-rescan-source-claim.sql",
+      "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406",
+      "disposable_replay_step": "Verify private rescan source claim and dormant capacity boundary",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 11,
+      "path": "docs/production-readiness/proposals/document-rescan-pending-transition.sql",
+      "sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9",
+      "disposable_replay_step": "Verify private one-use rescan pending transition",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 12,
+      "path": "docs/production-readiness/proposals/document-rescan-outcome-queue.sql",
+      "sha256": "02d44e5eb75159b2aaa722e367e9010834713108e9c38a6aab180cbd6f0891a6",
+      "disposable_replay_step": "Verify private atomic rescan result and counted queue",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 13,
+      "path": "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql",
+      "sha256": "b86a3065a5cd7fd0a174398e27dfd727f8ed2bf3218234ca983e904c1c5e54d6",
+      "disposable_replay_step": "Verify private rescan completion and exact producer settlement",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 14,
+      "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+      "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c",
+      "disposable_replay_step": "Verify atomic already-counted summary worker handoff",
+      "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_status": "verified_through_stage14",
+      "hosted_applied": false
+    },
+    {
+      "order": 15,
+      "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+      "sha256": "8cc79b7db0d987ddd6b177e45e5c1d1516ce16e377d214c11a285e77f7537aec",
+      "disposable_replay_step": "Verify automatic exact worker settlement and preserved finish owner",
+      "source_checked_against": "df29e5a3be131518d02c202f2d9cc98c8fac257c",
+      "native_status": "pending_stage15",
+      "hosted_applied": false
+    }
+  ],
+  "verified_parent_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
+  "pending_candidate_runs": [
+    41678048798,
+    41678056736
+  ],
+  "canonical_migration_count": 225,
+  "separate_prepared_canonical_batch_count": 15,
+  "canonical_batch_generator": "tests/database/document-upload-rollout-sql.mjs",
+  "includes_canonical_batch": false,
+  "final_canonical_ledger_package_prepared": false,
+  "complete_release_package": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

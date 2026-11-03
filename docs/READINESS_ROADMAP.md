@@ -4,12 +4,14 @@
 
 PR #211 remains a draft. These are eight work packages, not eight small fixes or a delivery estimate. The full TF01–TF26 roadmap and historical evidence below remain in scope. Report-length polish and Parent Pilot / Pathway Snapshot remain deferred.
 
-| Package | Current Position | Required Before Closing |
+Progress updates identify the existing numbered workstream, the specific substep completed, and remaining checks. Prepared, locally verified, native verified, staging accepted and production accepted are distinct states; completing a substep does not close its workstream.
+
+| Workstream | Current Position | Required Before Closing |
 | --- | --- | --- |
 | 1. Shared Document Processing | Automatic counted-worker transfer verified through stage14 on both native/full-schema runs. | Verify the prepared exact automatic worker-release hook in native/full-schema CI; finish producer/Apply hooks and applicable-role checks. |
 | 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
 | 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
-| 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 15 unapplied review proposals. All 28 declared cutover-manifest entries reconciled against current source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
+| 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 15 unapplied review proposals. All 28 declared cutover-manifest entries and the ordered15-proposal inventory are reconciled against recorded source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
 | 5. Security and Product Consistency | Role, privacy, demo/navigation and Lovable-edit evidence retained. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
 | 6. Coordinated Staging Release | Current hosted release remains unchanged. | Fresh authorization for the exact schema, website, separate worker and isolated Lovable rollout, followed by source/isolation checks. |
 | 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
@@ -6098,3 +6100,11 @@ Evidence: `document-counted-summary-handoff-verified-2026-11-03.json` and `docum
 - [ ] Verify new native duplicate-finish/final-slot admission COMMIT/ROLLBACK cases, all1,380 native cases and complete225+fifteen replay before extending the SQL chain. Remaining producer/Apply/general hooks, trusted recovery/reconciliation, legacy/direct/source/relationship fences, actual isolated Storage/scanner/provider acceptance, final canonical/ledger packaging, authorized coordinated staging rollout and final role/demo/release review remain open. All eight merge packages, TF01–TF26 and six milestones remain tracked. Report polish and Parent Pilot/Pathway Snapshot remain deferred. No hosted migration, deployment/publication, provider/AI, account/access/payment/secret, main merge or production action.
 
 Evidence: `document-automatic-summary-settlement-review.json` and `document-automatic-summary-settlement-local-2026-11-03.json`. Fifteen review proposals remain outside the separate fifteen-canonical-migration batch; canonical inventory stays225. Website and separately identified worker source are unchanged.
+
+## November 3 — Workstream 4 Proposal Inventory Reconciled
+
+- [x] **Workstream 4 substep completed:** checked all15 control-proposal file hashes against the recorded verified/candidate commits, confirmed each appears once in the disposable installation steps, verified dependency order and corrected stale9/13 counts in the cutover plan. The first14 retain their existing native proof; proposal15 remains native-pending.
+- [ ] **Workstream 4 remains partial:** this inventory is not a final canonical/ledger migration package, hosted installation recipe, deployment approval or complete release manifest. The separate15-canonical-migration batch is unchanged.
+- [ ] **Workstream 1 remains partial:** local automatic-release implementation/checks are complete; native runs41678048798 and41678056736 were still running without reported failures at the last check. Remaining producer/Apply/general integration remains open. No workstream is closed by this update.
+
+Inventory: `document-control-proposal-inventory.json`. No runtime code, SQL behavior, hosted migration, release/publication, AI/provider or production action changed.

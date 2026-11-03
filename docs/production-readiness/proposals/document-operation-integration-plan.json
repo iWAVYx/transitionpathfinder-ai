@@ -708,5 +708,27 @@
     "held_release_implemented": false,
     "hosted_authorized": false,
     "ready_for_cutover": false
+  },
+  "progress_reporting": {
+    "map_actions_to_existing_numbered_workstreams": true,
+    "report_completed_substep_and_remaining_closure_conditions": true,
+    "prepared_local_native_staging_production_are_distinct": true,
+    "latest_completed_substep": {
+      "date": "2026-11-03",
+      "workstream": 4,
+      "title": "Reconciled all15 control proposal hashes and disposable installation order; corrected stale9/13 counts",
+      "evidence": "docs/production-readiness/proposals/document-control-proposal-inventory.json",
+      "status": "verified_locally",
+      "whole_workstream_complete": false
+    },
+    "workstream_1_native_gate": {
+      "runs": [
+        41678048798,
+        41678056736
+      ],
+      "last_observed_status": "in_progress_no_failures_reported",
+      "complete": false
+    },
+    "whole_workstreams_closed_this_update": []
   }
 }

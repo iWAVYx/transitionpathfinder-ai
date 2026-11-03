@@ -214,7 +214,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 9,
+  "unapplied_admission_proposals": 15,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -232,7 +232,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Six admission controls, private capacity foundation, summary settlement, registration settlement, rescan source claim, pending transition, atomic result/queue and exact producer completion/settlement are thirteen noncanonical/unapplied proposals. The separate fifteen-migration batch installs none of them; final canonical/ledger packaging remains required.",
+  "remaining_batch_preparation": "Fifteen noncanonical/unapplied control proposals are indexed in document-control-proposal-inventory.json, with hashes and dependency order checked against the disposable replay workflow. This includes the verified counted-worker handoff and the native-pending automatic worker settlement proposal. The separate fifteen-canonical-migration batch installs none of these review proposals; final canonical/ledger packaging and exact hosted preflight remain required.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -755,5 +755,7 @@
     "held_release_implemented": false,
     "hosted_authorized": false,
     "ready_for_cutover": false
-  }
+  },
+  "unapplied_control_proposals": 15,
+  "control_proposal_inventory": "docs/production-readiness/proposals/document-control-proposal-inventory.json"
 }
