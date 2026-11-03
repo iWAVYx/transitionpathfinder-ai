@@ -1,0 +1,48 @@
+{
+  "schema": "document-counted-summary-handoff-verified-v1",
+  "date": "2026-11-03",
+  "verified_source": "574f72208d63d55479c3d238be48bb61ed4c4132",
+  "runs": [
+    {
+      "run": 41535981879,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41535981879",
+      "event": "push",
+      "head_source": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "checkout_commit": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "native_tests": 1340,
+      "passed": 1340,
+      "skipped": 0,
+      "early_cases": 295,
+      "early_passed": 295,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 14,
+      "artifact": "docs/production-readiness/evidence/document-counted-summary-handoff-proof-41535981879-2026-11-03.json",
+      "artifact_sha256": "37f1545ff24b6cfdec1546ddc8dcc110db2f46b7220280b69afb9129b1dc5c65",
+      "log_sha256": "debefae71913f94002702f503cbac69b2c1b648588c989cbed4b9b829661a956"
+    },
+    {
+      "run": 41535988082,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41535988082",
+      "event": "pull_request",
+      "head_source": "574f72208d63d55479c3d238be48bb61ed4c4132",
+      "checkout_commit": "65353360e0327fbc1fe917a26701c81eb7a599cb",
+      "native_tests": 1340,
+      "passed": 1340,
+      "skipped": 0,
+      "early_cases": 295,
+      "early_passed": 295,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 14,
+      "artifact": "docs/production-readiness/evidence/document-counted-summary-handoff-proof-41535988082-2026-11-03.json",
+      "artifact_sha256": "37f1545ff24b6cfdec1546ddc8dcc110db2f46b7220280b69afb9129b1dc5c65",
+      "log_sha256": "b61cc34e18fa39cea21154ec9d14d0f8d2932eb79abf38f24ddc58e686cd4524"
+    }
+  ],
+  "scope": "Both1340-case zero-skip native suites,295-case early checks and complete225+fourteen replay. Exact ten-routine owner/private-execution/paused-empty proof and rollback-only paused service refusal; no hosted or real provider proof. PR merge checkout is distinct from the exact push checkout.",
+  "automatic_counted_transfer_verified_in_disposable_database": true,
+  "automatic_summary_settlement_hook_installed": false,
+  "producer_source_endpoints_wired": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

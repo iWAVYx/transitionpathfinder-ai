@@ -28,7 +28,7 @@
     "records": "Disposable PGlite fixtures only; no hosted records or provider IO."
   },
   "next_hook_requirements": [
-    "Verify both complete1340 native/full225+14 replays before extending the SQL chain; retain exact owner/grant and zero-skip proof.",
+    "Both parent1340-case native/full225+14 replays are now verified; retain those exact proofs while preparing the narrowly scoped actual-row settlement fix and automatic finish hook.",
     "Harden summary settlement with actual INSERT RETURNING identity confirmation, matching the requested producer, exact selected job and worker operation. Suppressed/altered writes must roll back finish and settlement together.",
     "The finish hook must derive the producer from the exact completed worker operation already validated by the capability-checking finish; accept no browser-selected release target or independent release RPC.",
     "Preserve the original finish owner/grants. Use one narrow owner-private bridge to the migration-owner helper, retaining private table permissions; do not grant the broad internal settlement helper to service_role.",
@@ -42,5 +42,6 @@
   "hosted_actions": false,
   "provider_calls": false,
   "production_access": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "parent_native_gate_verified": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
 }

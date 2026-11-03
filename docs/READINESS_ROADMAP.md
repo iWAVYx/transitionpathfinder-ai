@@ -1,21 +1,25 @@
 # TransitionForward — Readiness Roadmap
 
-## Current Merge Checklist — November 2
+## Current Release Checklist — November 3
 
 PR #211 remains a draft. These are eight work packages, not eight small fixes or a delivery estimate. The full TF01–TF26 roadmap and historical evidence below remain in scope. Report-length polish and Parent Pilot / Pathway Snapshot remain deferred.
 
 | Package | Current Position | Required Before Closing |
 | --- | --- | --- |
-| 1. Shared Document Processing | Foundations verified through stage13; automatic counted-worker transfer prepared locally in stage14. | Verify stage14 native/full-schema replay, then finish automatic release, producer/Apply hooks and their applicable-role checks. |
+| 1. Shared Document Processing | Automatic counted-worker transfer verified through stage14 on both native/full-schema runs. | Harden actual saved settlement identity, then finish automatic release, producer/Apply hooks and applicable-role checks. |
 | 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
 | 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
 | 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 14 unapplied review proposals. All 28 declared cutover-manifest entries reconciled against current source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
-| 5. Security and Product Consistency | Role, privacy, demo/navigation and Lovable-edit evidence retained. | Consolidate current-source review and resolve remaining findings; Owner Hub stays management-only. |
+| 5. Security and Product Consistency | Role, privacy, demo/navigation and Lovable-edit evidence retained. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
 | 6. Coordinated Staging Release | Current hosted release remains unchanged. | Fresh authorization for the exact schema, website, separate worker and isolated Lovable rollout, followed by source/isolation checks. |
 | 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
-| 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and seek specific merge authorization after all applicable gates pass. Production rollout is a separate authorization. |
+| 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and obtain specific merge authorization; verify main/Lovable auto-deployment cannot bypass production approval. |
 
-**Immediate gate:** corrected disposable PostgreSQL replays [41454884591](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454884591) and [41454894715](https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41454894715). The earlier early-stage runs passed 249/251 and failed two lock-observation cases; those failures remain recorded. Both complete replays now pass 1,296/1,296 native cases with zero skips and full225+thirteen proposal installation. Exact proofs are retained in [the verified record](production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json). This closes the stage13 verification gate only.
+**Latest verified gate:** source `574f7220` passed both **1,340/1,340 native suites with zero skips**, both **295/295** early checks and complete **225+fourteen** replay. [Verified proofs](production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json). Next: fix the reproduced actual-saved-settlement target check before wiring automatic release. The eight work packages remain open/partial; a verified private foundation is not a completed release package.
+
+**Then production:** complete the exact approved staging rollout and final acceptance first. Before any main merge that could affect hosting, review the deployment boundary and current production go/no-go controls. Confirm current source/build identity, production migration/ledger baseline, live billing, email and provider configuration, privacy approvals, security findings, secret isolation, backup/restore and rollback readiness. Preserve prior successful evidence but confirm its applicability to the exact release. The saved September production snapshot is historical; its pending-migration count is not a fresh production inventory. No production access or readiness approval is implied here.
+
+After explicit production authorization: release the exact tested application/worker/schema package through the reviewed production procedure, then verify health, role access, essential journeys and rollback/monitoring. Staging and production share the reviewed product changes while retaining separate databases, credentials, payment modes and environment settings.
 
 Manifest reconciliation: [record](production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json). Worker handoff audit: [record](production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json). No hosted action, AI/provider call, migration, deployment, publication, main merge or production access is authorized by this checklist.
 
@@ -6077,3 +6081,11 @@ Evidence: `document-rescan-capacity-settlement-verified-2026-11-02.json`. Report
 - [ ] Native duplicate/pause/source/producer COMMIT/ROLLBACK races, all1,340 native cases and complete225+fourteen proposal replay remain open. Automatic summary/producer release, real producer adapter wiring, Apply/general limits, trusted reconciliation, legacy/direct/relationship writer fences, actual Storage/provider acceptance and final canonical/ledger packaging remain open. All eight merge packages and TF01–TF26 remain tracked; report polish and Parent Pilot/Pathway Snapshot remain deferred. No hosted action, migration, deployment/publication, AI/provider, account/access/payment/secret, main merge or production change.
 
 Evidence: `document-counted-summary-handoff-review.json` and `document-counted-summary-handoff-local-2026-11-02.json`. Canonical count225; fourteen review proposals remain outside the separate fifteen-migration batch.
+
+## November 3 — Automatic Counted Worker Transfer Verified
+
+- [x] Source **574f7220** passed both **1,340/1,340 native suites with zero skips**, both **295/295** early stages and full **225-canonical-plus-fourteen-proposal** replay. Retained exact push and PR merge-checkout identities and matching ten-routine artifacts (**37f1545f…dc5c65**). Preserved routine ownership/private grants, paused/unset/empty state, zero fresh summary units and the rollback-only paused-start refusal smoke.
+- [x] The next private release-helper issue is reproduced locally: a late owner-only trigger can change the saved parent after the normal guard while the helper returns success. This is fault-injection evidence, not an ordinary-user exploit claim. The actual-row target check must be hardened before automatic release wiring. No fifteenth SQL proposal or new release hook is added by this checkpoint.
+- [ ] Finish automatic release and producer/Apply/general integration, limits/recovery and trusted reconciliation, source/relationship/direct-writer fences, real isolated Storage/scanner/provider acceptance, exact canonical/ledger/application/worker packaging, consolidated security/privacy/launch review, authorized coordinated staging rollout, final all-role/signed-out/mobile/demo acceptance and separately approved merge/production rollout. The full TF01–TF26 roadmap remains; report-length polish and Parent Pilot/Pathway Snapshot remain deferred. No hosted action, migration, deployment/publication, AI/provider, accounts/access/payments/secrets, main merge or production change.
+
+Evidence: `document-counted-summary-handoff-verified-2026-11-03.json` and `document-summary-auto-release-audit-2026-11-02.json`.

@@ -96,7 +96,7 @@
     "generated_ten_routine_proof": "passed in all applicable local fixtures",
     "workflow_yaml_and_shell": "passed",
     "full_local_pending": false,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "full_local_coverage": {
       "tests": 1340,
       "pass": 1176,
@@ -110,7 +110,8 @@
       86,
       52
     ],
-    "final_focused_overlay": "The full run covers all1340 cases; the final44 focused run additionally verifies the later exact generated proof, added prerequisite hash and unchanged RPC field set."
+    "final_focused_overlay": "The full run covers all1340 cases; the final44 focused run additionally verifies the later exact generated proof, added prerequisite hash and unchanged RPC field set.",
+    "verified_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
   },
   "automatic_counted_transfer_prepared": true,
   "paused_new_worker_starts_allowed": false,

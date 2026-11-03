@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Stage13 verified on both native1296/full225+13 replays. Fourteenth automatic counted-worker claim is prepared with complete local1340 coverage (1176 pass/164 native skips) and final44 focused cases (36 pass/eight native skips). Native/full225+14 and broader source/release/Apply/general integration remain open.",
+  "status": "Automatic counted-worker transfer verified on both1340-case zero-skip native suites and full225+fourteen proposal replays. Automatic release, remaining producer/Apply/general integration and hosted acceptance remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -733,13 +733,14 @@
     "evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-local-2026-11-02.json",
     "automatic_counted_transfer_prepared": true,
     "full_local_pending": false,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "paused_new_worker_starts_allowed": false,
     "unconfirmed_registration_queue_claim_allowed": false,
     "automatic_producer_settlement_hooks_installed": false,
     "producer_source_endpoints_wired": false,
     "hosted_authorized": false,
     "ready_for_cutover": false,
-    "automatic_summary_settlement_hook_installed": false
+    "automatic_summary_settlement_hook_installed": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
   }
 }
