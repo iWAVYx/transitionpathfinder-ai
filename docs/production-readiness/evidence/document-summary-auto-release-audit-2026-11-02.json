@@ -43,5 +43,13 @@
   "provider_calls": false,
   "production_access": false,
   "ready_for_cutover": false,
-  "parent_native_gate_verified": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
+  "parent_native_gate_verified": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
+  "prepared_followup": {
+    "proposal": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-automatic-summary-settlement-review.json",
+    "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
+    "actual_saved_target_fix_prepared": true,
+    "native_full_schema_pending": true,
+    "hosted_actions": false
+  }
 }

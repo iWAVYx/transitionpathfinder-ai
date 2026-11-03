@@ -12,6 +12,8 @@ import {extractionRolloutSql,extractionMigrationSource,extractionPrerequisites,e
 const extractionPreflight=readFileSync('docs/production-readiness/proposals/atomic-extraction-preflight.sql','utf8');
 import {uploadChainRolloutSql,uploadChainMigrations} from './document-upload-rollout-sql.mjs';
 const uploadChainPreflight=readFileSync('docs/production-readiness/proposals/document-upload-chain-preflight.sql','utf8');
+const automaticSummarySettlement=readFileSync('docs/production-readiness/proposals/document-automatic-summary-settlement.sql','utf8');
+const automaticSummaryReplayGuard=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$automatic_summary_proof\$[\s\S]*?END; \$automatic_summary_proof\$;/)[0];
 const countedSummaryHandoff=readFileSync('docs/production-readiness/proposals/document-counted-summary-handoff.sql','utf8');
 const countedWorkerReplayGuard=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$counted_worker_proof\$[\s\S]*?END; \$counted_worker_proof\$;/)[0];
 const operationAdmission=readFileSync('docs/production-readiness/proposals/document-operation-admission.sql','utf8');
@@ -119,6 +121,8 @@ afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
+    DO $reset_auto_summary$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_settled_summary_lease_frozen ON public.document_operation_leases;END IF;END; $reset_auto_summary$;
+    DROP FUNCTION IF EXISTS public.settle_completed_document_summary(uuid),public.guard_settled_document_summary_lease();
     DO $reset_rescan_settlement$ BEGIN IF to_regclass('public.document_rescan_completion_receipts') IS NOT NULL THEN
       DROP TRIGGER IF EXISTS document_rescan_completed_lease_frozen ON public.document_operation_leases;
       DROP TRIGGER IF EXISTS document_capacity_rescan_settlement_frozen ON public.document_capacity_rescan_settlements;
@@ -2094,7 +2098,7 @@ for(const ending of ['COMMIT','ROLLBACK'])test('queued summary claim observes a 
 const capacityFoundation=readFileSync('docs/production-readiness/proposals/document-capacity-ledger-foundation.sql','utf8');
 const summaryCapacitySettlement=readFileSync('docs/production-readiness/proposals/document-summary-capacity-settlement.sql','utf8');
 const registrationCapacitySettlement=readFileSync('docs/production-readiness/proposals/document-registration-capacity-settlement.sql','utf8');
-async function capacityFixture({global=4,actor=4,target=4,configured=true,settlement=false,registration=false,separateAdmissionOwner=false,rescan=false,pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false}={}){
+async function capacityFixture({global=4,actor=4,target=4,configured=true,settlement=false,registration=false,separateAdmissionOwner=false,rescan=false,pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false,automaticRelease=false}={}){
  await handoffFixture();await db.exec('RESET ROLE');await db.exec(capacityFoundation);if(settlement||registration)await db.exec(summaryCapacitySettlement);
  if(separateAdmissionOwner)await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_document_admission_owner') THEN CREATE ROLE tf_document_admission_owner NOLOGIN NOINHERIT;END IF;END $$;ALTER TABLE public.document_operation_control OWNER TO tf_document_admission_owner;ALTER TABLE public.document_operation_leases OWNER TO tf_document_admission_owner;ALTER FUNCTION public.begin_document_operation(uuid,uuid,text) OWNER TO tf_document_admission_owner;ALTER FUNCTION public.finish_document_operation(uuid,uuid,uuid,text) OWNER TO tf_document_admission_owner;");
  if(registration)await db.exec(registrationCapacitySettlement);if(rescan){await db.exec('CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at=now();RETURN NEW;END $$;CREATE TRIGGER set_updated_at_documents BEFORE UPDATE ON public.documents FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()');await db.exec(rescanSourceClaim);await db.exec(rescanReplayGuard);}
@@ -2102,6 +2106,7 @@ async function capacityFixture({global=4,actor=4,target=4,configured=true,settle
  if(outcome){await db.exec('ALTER TABLE public.documents ADD COLUMN archived_by uuid,ADD COLUMN archive_reason text');await db.exec(rescanOutcomeQueue);await db.exec(rescanOutcomeReplayGuard);}
  if(rescanSettlement){await db.exec(rescanCapacitySettlement);await db.exec(rescanSettlementReplayGuard);}
  if(automaticTransfer){await db.exec(countedSummaryHandoff);await db.exec(countedWorkerReplayGuard);}
+ if(automaticRelease){await db.exec(automaticSummarySettlement);await db.exec(automaticSummaryReplayGuard);}
  if(configured)await db.query('UPDATE public.document_capacity_policy SET global_units=$1,actor_units=$2,student_units=$3',[global,actor,target]);
  await as('','service_role');await pauseOperation(false);await db.exec('RESET ROLE');
 }
@@ -2109,8 +2114,8 @@ async function capacityReserve(operation=operationId,target=student,client=db){r
 async function capacityQueue(operation,job=handoffJob,client=db){return client.query('SELECT public.queue_internal_document_capacity($1,$2)',[operation,job]);}
 async function capacityClaim(operation,job=handoffJob,client=db){return client.query('SELECT public.claim_internal_document_capacity($1,$2)',[job,operation]);}
 async function capacityRows(){await db.exec('RESET ROLE');return (await db.query('SELECT * FROM public.document_capacity_reservations ORDER BY operation_id')).rows;}
-async function capacityQueued({settlement=false,registration=false,separateAdmissionOwner=false,rescan=false,pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false}={}){
- await capacityFixture({global:2,actor:2,target:2,settlement,registration,separateAdmissionOwner,rescan,pending,outcome,rescanSettlement,automaticTransfer});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
+async function capacityQueued({settlement=false,registration=false,separateAdmissionOwner=false,rescan=false,pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false,automaticRelease=false}={}){
+ await capacityFixture({global:2,actor:2,target:2,settlement,registration,separateAdmissionOwner,rescan,pending,outcome,rescanSettlement,automaticTransfer,automaticRelease});const x=await quotaAttempt(1);await db.exec('RESET ROLE');await capacityReserve(x.receipt.operation_id);
  const verdict={code:'clean',provider:'cloudmersive',content_sha256:x.hash,source:'registration_reviewed_copy',clean_result:true,blocked_reasons:[]};
  await db.query("UPDATE public.documents SET scan_status='clean',scan_verdict=$1,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status='pending_review' WHERE id=$2",[verdict,x.document]);
  await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[handoffJob,student,actors.family,{document_id:x.document,storage_path:x.path}]);
@@ -2207,8 +2212,8 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity reservation observes a 
 
 
 // Atomic persisted summary receipt and one-unit settlement, still owner-internal.
-async function claimedSummaryCapacity({registration=false,rescan=false,pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false,separateAdmissionOwner=false}={}){
- const x=await capacityQueued({settlement:true,registration,rescan,pending,outcome,rescanSettlement,automaticTransfer,separateAdmissionOwner});await as('','service_role');if(automaticTransfer)await finishOperation(x.receipt);const claim=await claimHandoff();await db.exec('RESET ROLE');if(!automaticTransfer)await capacityClaim(claim.operation_id);
+async function claimedSummaryCapacity({registration=false,rescan=false,pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false,automaticRelease=false,separateAdmissionOwner=false}={}){
+ const x=await capacityQueued({settlement:true,registration,rescan,pending,outcome,rescanSettlement,automaticTransfer,automaticRelease,separateAdmissionOwner});await as('','service_role');if(automaticTransfer)await finishOperation(x.receipt);const claim=await claimHandoff();await db.exec('RESET ROLE');if(!automaticTransfer)await capacityClaim(claim.operation_id);
  await as('','service_role');const source=(await db.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[handoffJob,claim.claim_at,claim.claim_attempt])).rows[0].source;
  const payload={key_findings:['Fictional confirmed outcome'],_source:{document_id:source.document_id,object_id:source.object_id,object_version:source.object_version,content_sha256:source.content_sha256}};
  return {x,claim,source,payload};
@@ -2479,12 +2484,12 @@ test('registration owner-context refuses an unprivileged session before any inst
 
 const rescanSourceClaim=readFileSync('docs/production-readiness/proposals/document-rescan-source-claim.sql','utf8');
 const rescanReplayGuard=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$rescan_proof\$[\s\S]*?END; \$rescan_proof\$;/)[0];
-async function rescanClaimFixture({pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false,separateAdmissionOwner=false}={}){
+async function rescanClaimFixture({pending=false,outcome=false,rescanSettlement=false,automaticTransfer=false,automaticRelease=false,separateAdmissionOwner=false}={}){
  // Use actual guarded registration and summary completion receipts. Never
  // manufacture a completed lease or disable an existing safeguard for admission.
- const c=await claimedSummaryCapacity({registration:true,rescan:true,pending,outcome,rescanSettlement,automaticTransfer,separateAdmissionOwner});const x=c.x;
+ const c=await claimedSummaryCapacity({registration:true,rescan:true,pending,outcome,rescanSettlement,automaticTransfer,automaticRelease,separateAdmissionOwner});const x=c.x;
  if(!automaticTransfer)await finishOperation(x.receipt);await commitSummaryCapacity(c);await finishOperation(c.claim);await db.exec('RESET ROLE');
- await settleRegistrationCapacity(x.receipt.operation_id);await settleSummaryCapacity(x.receipt.operation_id);
+ await settleRegistrationCapacity(x.receipt.operation_id);if(!automaticRelease)await settleSummaryCapacity(x.receipt.operation_id);
  await db.exec('UPDATE public.document_capacity_policy SET global_units=4,actor_units=4,student_units=4');
  // Model a later failed revision for the metadata foundation. New/legacy writer
  // and provider-quiescence proof are separate activation gates, not inferred here.
@@ -2631,8 +2636,8 @@ const rescanOutcomeQueue=readFileSync('docs/production-readiness/proposals/docum
 const rescanOutcomeReplayGuard=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$rescan_outcome_proof\$[\s\S]*?END; \$rescan_outcome_proof\$;/)[0];
 const rescanCleanScan={ok:true,code:'clean',provider:'cloudmersive',scan_id:uid(29001),clean_result:true,threats:[],blocked_reasons:[]};
 const rescanInfectedScan={...rescanCleanScan,ok:false,code:'infected',clean_result:false,threats:['Fictional confirmed threat']};
-async function outcomeRescanFixture({actor=actors.family,rescanSettlement=false,automaticTransfer=false,separateAdmissionOwner=false}={}){
- const x=await rescanClaimFixture({pending:true,outcome:true,rescanSettlement,automaticTransfer,separateAdmissionOwner});if(![actors.family,actors.student].includes(actor))await db.query("INSERT INTO public.student_relationships VALUES($1,$2,'approved','manage_documents')",[student,actor]);
+async function outcomeRescanFixture({actor=actors.family,rescanSettlement=false,automaticTransfer=false,automaticRelease=false,separateAdmissionOwner=false}={}){
+ const x=await rescanClaimFixture({pending:true,outcome:true,rescanSettlement,automaticTransfer,automaticRelease,separateAdmissionOwner});if(![actors.family,actors.student].includes(actor))await db.query("INSERT INTO public.student_relationships VALUES($1,$2,'approved','manage_documents')",[student,actor]);
  const claim=await claimRescan(x,{actor});const pending=await markRescanPending({...x,claim},{actor});return {...x,claim,pending,actor};
 }
 async function saveRescanOutcome(x,{actor=x.actor,receipt=x.claim.receipt_id,operation=x.claim.operation_id,scan=rescanCleanScan,client=db}={}){
@@ -2907,13 +2912,13 @@ for(const ending of ['COMMIT','ROLLBACK'])test('rescan settlement separate unit 
 
 
 // Fourteenth proposal: automatic already-counted transfer, no file/provider IO.
-async function countedQueued({kind='rescan',actor=actors.family,separateAdmissionOwner=false,finishRegistration=true}={}){
+async function countedQueued({kind='rescan',actor=actors.family,separateAdmissionOwner=false,finishRegistration=true,automaticRelease=false}={}){
  if(kind==='register'){
-  const x=await capacityQueued({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,separateAdmissionOwner});
+  const x=await capacityQueued({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease,separateAdmissionOwner});
   if(finishRegistration){await as('','service_role');await finishOperation(x.receipt);}
   await db.exec('RESET ROLE');return {x,job:handoffJob,actor:actors.family,producer:x.receipt};
  }
- const x=await outcomeRescanFixture({actor,rescanSettlement:true,automaticTransfer:true,separateAdmissionOwner});
+ const x=await outcomeRescanFixture({actor,rescanSettlement:true,automaticTransfer:true,automaticRelease,separateAdmissionOwner});
  const outcome=await saveRescanOutcome(x);await db.exec('RESET ROLE');return {x,job:outcome.summary_job_id,actor,producer:x.claim};
 }
 async function countedSnapshot(c){await db.exec('RESET ROLE');return {
@@ -3037,4 +3042,87 @@ test('summary settlement baseline lacks a final actual-row target check after a 
   assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[other])).rows[0].state,'active');
   assert.equal((await db.query('SELECT count(*)::integer AS n FROM public.document_capacity_summary_settlements WHERE operation_id=$1',[c.producer.operation_id])).rows[0].n,0);
  }finally{await db.exec('DROP TRIGGER zzz_test_summary_settlement_target ON public.document_capacity_summary_settlements;DROP FUNCTION public.test_summary_settlement_target()');}
+});
+
+
+async function autoSummaryQueued(options={}){return countedQueued({...options,automaticRelease:true});}
+async function autoSummaryDomain(c,claim){const source=await countedSource(c,claim);const payload={key_findings:['Fictional automatic settlement'],_source:{document_id:source.document_id,object_id:source.object_id,object_version:source.object_version,content_sha256:source.content_sha256}};return db.query('SELECT public.complete_verified_document_summary($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[c.job,claim.claim_at,claim.claim_attempt,source.actor_id,source.student_id,source.document_id,source.object_id,source.object_version,source.content_sha256,source.context,payload]);}
+async function autoSummaryReady(options={}){const c=await autoSummaryQueued(options);await as('','service_role');const claim=await countedClaim(c);await autoSummaryDomain(c,claim);return {...c,claim};}
+async function autoSummarySnapshot(c){const state=await countedSnapshot(c);state.settlements=(await db.query('SELECT * FROM public.document_capacity_summary_settlements ORDER BY operation_id')).rows;return state;}
+for(const kind of ['register','rescan'])test('summary auto finish releases exactly the '+kind+' worker unit in the same transaction',async()=>{
+ const c=await autoSummaryReady({kind});assert.equal(await effectiveSettlementUnits(),2);await as('','service_role');const result=await finishOperation(c.claim,'completed',db,c.actor);assert.equal(result.state,'completed');assert.deepEqual(Object.keys(result).sort(),['schema','operation_id','state'].sort());assert.equal(await effectiveSettlementUnits(),1);const snap=await autoSummarySnapshot(c);const row=snap.settlements.find(r=>r.operation_id===c.producer.operation_id);assert.equal(row.summary_operation_id,c.claim.operation_id);assert.equal(row.summary_job_id,c.job);
+});
+for(const role of ['family','educator','student','school','district','owner'])test('summary auto finish preserves '+role+' explicit source and independent producer unit',async()=>{
+ const c=await autoSummaryReady({actor:actors[role]});await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);assert.equal(await effectiveSettlementUnits(),1);assert.equal((await autoSummarySnapshot(c)).leases.find(r=>r.operation_id===c.producer.operation_id).state,'active');
+});
+test('summary auto finish leaves a held producer counted after the worker settles',async()=>{
+ const c=await autoSummaryReady();await as('','service_role');await finishRescanProducer(c.x,'needs_review');await finishOperation(c.claim,'completed',db,c.actor);assert.equal(await effectiveSettlementUnits(),1);await as('','service_role');await assert.rejects(finishRescanProducer(c.x),{code:'42501'});
+});
+test('summary auto needs-review outcome cannot settle or later complete through ordinary finish',async()=>{
+ const c=await autoSummaryReady();await as('','service_role');await finishOperation(c.claim,'needs_review',db,c.actor);assert.equal(await effectiveSettlementUnits(),2);await as('','service_role');await assert.rejects(finishOperation(c.claim,'completed',db,c.actor),{code:'42501'});assert.equal((await autoSummarySnapshot(c)).settlements.filter(r=>r.operation_id===c.producer.operation_id).length,0);
+});
+test('summary auto finish refuses missing domain completion without releasing capacity',async()=>{
+ const c=await autoSummaryQueued();await as('','service_role');c.claim=await countedClaim(c);const before=await autoSummarySnapshot(c);await as('','service_role');await assert.rejects(finishOperation(c.claim,'completed',db,c.actor),{code:'55000'});assert.deepEqual(await autoSummarySnapshot(c),before);
+});
+for(const field of ['actor','receipt'])test('summary auto finish refuses foreign '+field+' before any settlement',async()=>{
+ const c=await autoSummaryReady();const before=await autoSummarySnapshot(c);await as('','service_role');await assert.rejects(finishOperation(field==='receipt'?{...c.claim,receipt_id:uid(34999)}:c.claim,'completed',db,field==='actor'?actors.partner:c.actor),{code:'42501'});assert.deepEqual(await autoSummarySnapshot(c),before);
+});
+test('summary auto finish may complete admitted work while paused but cannot start more',async()=>{
+ const c=await autoSummaryReady();await as('','service_role');await pauseOperation(true,2);await finishOperation(c.claim,'completed',db,c.actor);assert.equal(await effectiveSettlementUnits(),1);await as('','service_role');await assert.rejects(beginOperation('apply',uid(34998)),{code:'55000'});
+});
+test('summary auto finish duplicate or lost-reply replay cannot free a second unit',async()=>{
+ const c=await autoSummaryReady();await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);const before=await autoSummarySnapshot(c);await as('','service_role');await assert.rejects(finishOperation(c.claim,'completed',db,c.actor),{code:'42501'});assert.deepEqual(await autoSummarySnapshot(c),before);assert.equal(await effectiveSettlementUnits(),1);
+});
+test('summary auto rollback restores the worker lease and settlement together',async()=>{
+ const c=await autoSummaryReady();const before=await autoSummarySnapshot(c);await as('','service_role');await db.exec('BEGIN');await finishOperation(c.claim,'completed',db,c.actor);await db.exec('ROLLBACK');assert.deepEqual(await autoSummarySnapshot(c),before);assert.equal(await effectiveSettlementUnits(),2);
+});
+for(const fault of ['skip-settlement','alter-settlement','skip-finish','alter-receipt','alter-outcome'])test('summary auto finish rolls back '+fault+' instead of reporting a saved release',async()=>{
+ const c=await autoSummaryReady();const other=uid(34991);await as('','service_role');await beginOperation('apply',other);await db.exec('RESET ROLE');await capacityReserve(other);const before=await autoSummarySnapshot(c);
+ const settlement=fault.endsWith('settlement');const relation=settlement?'document_capacity_summary_settlements':'document_operation_leases';let action;
+ if(fault.startsWith('skip'))action='RETURN NULL;';else if(fault==='alter-settlement')action="NEW.operation_id:='"+other+"'::uuid;RETURN NEW;";else if(fault==='alter-receipt')action="NEW.receipt_id:='"+uid(34990)+"'::uuid;RETURN NEW;";else action="NEW.state:='needs_review';RETURN NEW;";
+ const condition=settlement?'':"IF OLD.operation_id<>'"+c.claim.operation_id+"'::uuid THEN RETURN NEW;END IF;";
+ await db.exec('CREATE FUNCTION public.test_auto_summary_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN '+condition+action+' END $$;CREATE TRIGGER zzz_test_auto_summary_fault BEFORE '+(settlement?'INSERT':'UPDATE')+' ON public.'+relation+' FOR EACH ROW EXECUTE FUNCTION public.test_auto_summary_fault()');
+ try{await as('','service_role');await assert.rejects(finishOperation(c.claim,'completed',db,c.actor),{code:'55000'});assert.deepEqual(await autoSummarySnapshot(c),before);assert.equal(await effectiveSettlementUnits(),3);}finally{await db.exec('DROP TRIGGER zzz_test_auto_summary_fault ON public.'+relation+';DROP FUNCTION public.test_auto_summary_fault()');}
+});
+for(const patch of ["state='active'","receipt_id='00000000-0000-4000-8000-000000034989'","finished_at=finished_at+interval '1 second'"])test('summary auto settled worker cannot change '+patch,async()=>{
+ const c=await autoSummaryReady();await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);await db.exec('RESET ROLE');await assert.rejects(db.query('UPDATE public.document_operation_leases SET '+patch+' WHERE operation_id=$1',[c.claim.operation_id]),{code:'42501'});assert.equal(await effectiveSettlementUnits(),1);
+});
+test('summary auto bridge remains private and finish retains its distinct SQL owner',async()=>{
+ const c=await autoSummaryReady({separateAdmissionOwner:true});await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);await db.exec('RESET ROLE');assert.equal((await db.query("SELECT proowner::regrole::text AS owner FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].owner,'tf_document_admission_owner');
+ for(const role of ['anon','authenticated','service_role'])for(const signature of ['public.settle_completed_document_summary(uuid)','public.settle_internal_document_summary_capacity(uuid)','public.guard_settled_document_summary_lease()'])assert.equal((await db.query("SELECT has_function_privilege($1,$2,'EXECUTE') AS ok",[role,signature])).rows[0].ok,false);
+ assert.equal(await effectiveSettlementUnits(),1);
+});
+test('summary auto isolated generic summary finish preserves protocol without inventing a release',async()=>{
+ await autoSummaryQueued();await as('','service_role');const claim=await beginOperation('summary',uid(34988));await finishOperation(claim);assert.equal(await effectiveSettlementUnits(),2);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('summary auto native duplicate finishes serialize after '+ending,{skip:!native},async()=>{
+ const c=await autoSummaryReady();await db.exec('RESET ROLE');const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');await finishOperation(c.claim,'completed',a,c.actor);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishOperation(c.claim,'completed',b,c.actor).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.result.state,'completed');assert.equal(await effectiveSettlementUnits(),1);}finally{await a.exec('ROLLBACK');await pending;}
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('summary auto native final-unit admission waits for actual finish '+ending,{skip:!native},async()=>{
+ const c=await autoSummaryReady();await db.exec('RESET ROLE');await db.exec('UPDATE public.document_capacity_policy SET global_units=2,actor_units=2,student_units=2');const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await beginOperation('apply',uid(34987),b);await b.exec('RESET ROLE');await a.exec('BEGIN');await finishOperation(c.claim,'completed',a,c.actor);const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=capacityReserve(uid(34987),student,b).then(result=>({result}),error=>({error}));try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error,undefined);else assert.equal(result.error?.code,'42501');assert.equal(await effectiveSettlementUnits(),2);}finally{await a.exec('ROLLBACK');await pending;}
+});
+
+for(const when of ['before','after'])test('summary auto private bridge refuses a separate '+when+'-finish invocation',async()=>{
+ const c=await autoSummaryReady();if(when==='after'){await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);}const before=await autoSummarySnapshot(c);await assert.rejects(db.query('SELECT public.settle_completed_document_summary($1)',[c.claim.operation_id]),{code:'55000'});assert.deepEqual(await autoSummarySnapshot(c),before);
+});
+test('summary auto confirmed worker lease cannot be deleted after settlement',async()=>{
+ const c=await autoSummaryReady();await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);await db.exec('RESET ROLE');await assert.rejects(db.query('DELETE FROM public.document_operation_leases WHERE operation_id=$1',[c.claim.operation_id]),{code:'42501'});assert.equal(await effectiveSettlementUnits(),1);
+});
+for(const order of ['producer-first','worker-first'])test('summary auto and exact producer settlement preserve both units in '+order+' order',async()=>{
+ const c=await autoSummaryReady();
+ if(order==='producer-first'){await as('','service_role');await finishRescanProducer(c.x);await db.exec('RESET ROLE');await settleRescanCapacity(c.producer.operation_id);assert.equal(await effectiveSettlementUnits(),1);}
+ await as('','service_role');await finishOperation(c.claim,'completed',db,c.actor);await db.exec('RESET ROLE');
+ if(order==='worker-first'){assert.equal(await effectiveSettlementUnits(),1);await as('','service_role');await finishRescanProducer(c.x);await db.exec('RESET ROLE');await settleRescanCapacity(c.producer.operation_id);}
+ assert.equal(await effectiveSettlementUnits(),0);
+});
+
+for(const fault of ['helper-path','private-column','settlement-trigger','finish-owner'])test('summary auto installation refuses altered '+fault+' without partial wiring',async()=>{
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,configured:false});await as('','service_role');await pauseOperation(true,2);await db.exec('RESET ROLE');
+ const before=(await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].hash;
+ if(fault==='helper-path')await db.exec('ALTER FUNCTION public.settle_internal_document_summary_capacity(uuid) RESET ALL');
+ if(fault==='private-column')await db.exec('GRANT SELECT(operation_id) ON public.document_capacity_summary_settlements TO service_role');
+ if(fault==='settlement-trigger')await db.exec('ALTER TABLE public.document_capacity_summary_settlements DISABLE TRIGGER document_capacity_summary_settlement_frozen');
+ if(fault==='finish-owner')await db.exec('ALTER FUNCTION public.finish_document_operation(uuid,uuid,uuid,text) OWNER TO service_role');
+ await assert.rejects(db.exec(automaticSummarySettlement),{code:fault==='finish-owner'?'P0001':'55000'});await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regprocedure('public.settle_completed_document_summary(uuid)') AS name")).rows[0].name,null);assert.equal((await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].hash,before);
 });

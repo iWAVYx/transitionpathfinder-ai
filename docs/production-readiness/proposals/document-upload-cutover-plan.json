@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Automatic counted-worker transfer verified on both1340-case zero-skip native suites and full225+fourteen proposal replays. Automatic release, remaining producer/Apply/general integration and hosted acceptance remain open.",
+  "status": "Stage14 verified on both1340 native/full225+14 replays. Fifteenth exact automatic worker settlement passes complete local1380 coverage (1212 pass/168 native skips),39 focused cases and80 contracts. Native/full225+15 and remaining producer/Apply/general/hosted gates remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -742,5 +742,18 @@
     "ready_for_cutover": false,
     "automatic_summary_settlement_hook_installed": false,
     "verified_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json"
+  },
+  "automatic_summary_settlement_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-automatic-summary-settlement-review.json",
+    "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
+    "automatic_worker_settlement_prepared": true,
+    "full_local_pending": false,
+    "native_full_schema_pending": true,
+    "automatic_producer_settlement_hooks_installed": false,
+    "producer_source_endpoints_wired": false,
+    "held_release_implemented": false,
+    "hosted_authorized": false,
+    "ready_for_cutover": false
   }
 }

@@ -1,0 +1,159 @@
+{
+  "schema": "document-automatic-summary-settlement-review-v1",
+  "date": "2026-11-03",
+  "base_source": "978d4fb1",
+  "verified_parent": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+    "sha256": "8cc79b7db0d987ddd6b177e45e5c1d1516ce16e377d214c11a285e77f7537aec"
+  },
+  "scope": "Fifteenth noncanonical/unapplied private proposal: hardened actual settlement/finish rows, one narrow same-transaction automatic worker-release bridge and frozen settled worker leases. No producer release, general admission limits, IO, caller/source activation or hosted execution.",
+  "routines": [
+    {
+      "name": "guard_document_rescan_completion_receipt",
+      "signature": "public.guard_document_rescan_completion_receipt()",
+      "body_md5": "66fc62f3994165d4d1cc5d2baae32f88",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "record_internal_document_rescan_completion",
+      "signature": "public.record_internal_document_rescan_completion(uuid)",
+      "body_md5": "d33cda072581b15c7172ca9046d8b958",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_unfinished_document_rescan",
+      "signature": "public.guard_unfinished_document_rescan()",
+      "body_md5": "be1187efef8bef6e42bd2932bbc1f634",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_completed_document_rescan_lease",
+      "signature": "public.guard_completed_document_rescan_lease()",
+      "body_md5": "1217646df6772f74ae458ce269c71a49",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_capacity_rescan_settlement",
+      "signature": "public.guard_document_capacity_rescan_settlement()",
+      "body_md5": "d0847740f46ca699471dab7a2df59c00",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "settle_internal_document_rescan_capacity",
+      "signature": "public.settle_internal_document_rescan_capacity(uuid)",
+      "body_md5": "27739ecef53efbe6d20e553200bcca56",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "4c09f0f14edc20a934e14923c5d80ff6",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "claim_admitted_document_summary",
+      "signature": "public.claim_admitted_document_summary(uuid,integer)",
+      "body_md5": "c447fea2a55afefc6ad1451986ac1eea",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "read_internal_document_rescan_completion",
+      "signature": "public.read_internal_document_rescan_completion(uuid,text)",
+      "body_md5": "a8217daa37516c4f7a433a64acf8e43f",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "finish_document_operation",
+      "signature": "public.finish_document_operation(uuid,uuid,uuid,text)",
+      "body_md5": "e182bc060bdfdca5637ce8685836222d",
+      "definer": true,
+      "owner": "admission_owner"
+    },
+    {
+      "name": "settle_internal_document_summary_capacity",
+      "signature": "public.settle_internal_document_summary_capacity(uuid)",
+      "body_md5": "2f42438a87505bab82291fce38cb60a9",
+      "definer": false,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "settle_completed_document_summary",
+      "signature": "public.settle_completed_document_summary(uuid)",
+      "body_md5": "9d9fa98f0d49a6ba04dcc5cff40e056a",
+      "definer": true,
+      "owner": "migration_executor"
+    },
+    {
+      "name": "guard_settled_document_summary_lease",
+      "signature": "public.guard_settled_document_summary_lease()",
+      "body_md5": "a710ef5817995460006b1af2b6c97c72",
+      "definer": true,
+      "owner": "migration_executor"
+    }
+  ],
+  "protocol": [
+    "Keep the existing READ COMMITTED control/capacity lock order. The original actor/capability/active-state checks remain before lease mutation. Compare actual UPDATE RETURNING state, finish timestamp and unchanged identity before recording any success.",
+    "For a confirmed summary outcome, derive the sole producer reservation from the exact worker operation, not a client-selected producer. Require completed worker state, actual finish in the current transaction and the existing immutable domain/source/job/attempt completion guard.",
+    "The hardened settlement helper confirms actual INSERT RETURNING producer/job/worker identities. A late owner trigger changing the parent or a skipped row raises and rolls back finish plus release. Guarded output committed in an earlier transaction remains preserved; it is not regenerated or rewritten.",
+    "Release exactly the worker unit. Producer work stays separately counted until its own guarded settlement. needs_review and uncertain work cannot release or complete through ordinary RPCs. Lost committed finish responses are not replayed.",
+    "Keep the original finish SQL owner/grants. Grant only the narrow definer bridge to that trusted owner; do not expose raw tables or the general private settlement helper to service_role or browser roles.",
+    "Freeze a settled worker lease against changes/deletion. Preserve generic unbound summary finish as an isolated compatibility path that releases no capacity; legacy/direct/general admission fences remain a distinct rollout gate.",
+    "Already-admitted work may finish while paused through the existing completion fence. New starts remain blocked by the unchanged admission and counted-worker pause checks."
+  ],
+  "verification": {
+    "focused_cases": 39,
+    "focused_passed": 35,
+    "native_only_skips": 4,
+    "generated_exact_routines": 13,
+    "generated_owner_grant_proof": "passed in applicable local fixtures",
+    "contracts_passed": 80,
+    "workflow_yaml_and_shell": "passed",
+    "full_local_pending": false,
+    "native_full_schema_pending": true,
+    "full_local": {
+      "tests": 1380,
+      "pass": 1212,
+      "fail": 0,
+      "skipped": 168
+    },
+    "model_groups": [
+      39,
+      44,
+      847,
+      208,
+      104,
+      86,
+      52
+    ]
+  },
+  "automatic_worker_settlement_prepared": true,
+  "exact_saved_target_guard_prepared": true,
+  "settled_worker_lease_frozen": true,
+  "original_finish_owner_preserved": true,
+  "ordinary_private_execution_grants": false,
+  "held_release_implemented": false,
+  "automatic_producer_settlement_hooks_installed": false,
+  "producer_source_endpoints_wired": false,
+  "general_application_limits_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "physical_copy_attested": false,
+  "provider_quiescence_verified": false,
+  "hosted_authorized": false,
+  "ready_for_cutover": false,
+  "required_next": [
+    "Finish complete local coverage and verify native duplicate-finish/final-unit-admission COMMIT/ROLLBACK races plus full225+fifteen replay under the real distinct SQL owners.",
+    "Integrate remaining producer source/outcome/settlement and Apply/general hooks; preserve exact immutable input identity and independent held accounting.",
+    "Finish trusted reconciliation, legacy/direct/source/relationship writer fences, actual isolated Storage/provider acceptance and final canonical/ledger/package review.",
+    "Seek fresh authorization for the exact staging schema/website/separate worker rollout and bounded acceptance. Main merge and production require separate authorization."
+  ]
+}

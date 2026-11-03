@@ -1,0 +1,82 @@
+{
+  "schema": "document-automatic-summary-settlement-local-v1",
+  "date": "2026-11-03",
+  "base_source": "978d4fb1",
+  "review": "docs/production-readiness/proposals/document-automatic-summary-settlement-review.json",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+    "sha256": "8cc79b7db0d987ddd6b177e45e5c1d1516ce16e377d214c11a285e77f7537aec"
+  },
+  "final_focused": {
+    "tests": 39,
+    "passed": 35,
+    "failed": 0,
+    "native_only_skips": 4
+  },
+  "contracts_passed": 80,
+  "generated_exact_routines": 13,
+  "workflow_yaml_and_shell": "passed",
+  "full_local_pending": false,
+  "native_full_schema_pending": true,
+  "initial_attempt": {
+    "tests": 30,
+    "passed": 24,
+    "failed": 2,
+    "native_only_skipped": 4,
+    "cause": "The actual response keys were sorted, but the expected key list was not. The assertion was corrected without changing RPC fields or loosening identity checks."
+  },
+  "baseline_reproduction": "docs/production-readiness/evidence/document-summary-auto-release-audit-2026-11-02.json",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+      "sha256": "8cc79b7db0d987ddd6b177e45e5c1d1516ce16e377d214c11a285e77f7537aec"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "3678f89e17574b4b8e3e361d428814641d8da90f50d9a3ec888d566d610a8f90"
+    },
+    {
+      "path": "tests/database/run-document-path-local-model.mjs",
+      "sha256": "249435a27adff81b19ebe0148b4f1bdd7304e3ab7315d4b02703f0cb6577924b"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "ca0a17df28e94a21ab80745446bcf9dd2564ed291a7d2dc1fe94976eaeda2091"
+    }
+  ],
+  "canonical_count": 225,
+  "noncanonical_unapplied_proposals": 15,
+  "separate_canonical_batch_migrations": 15,
+  "runtime_changed": false,
+  "canonical_migrations_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "full_local": {
+    "tests": 1380,
+    "pass": 1212,
+    "fail": 0,
+    "skipped": 168
+  },
+  "model_groups": [
+    39,
+    44,
+    847,
+    208,
+    104,
+    86,
+    52
+  ],
+  "local_model_log_sha256": "dbd59bd198fe94eee3cac7055e48c4de05bb2468f387f2091c05579e3c9e79bf",
+  "incomplete_local_attempt": {
+    "result": "No complete result claimed; stopped the unusually slow buffered312-case PGlite group after the first three groups had completed.",
+    "completed_groups": [
+      39,
+      44,
+      847
+    ],
+    "change": "Split producer/summary208 and rescan-source/pending104 into fresh processes and stream bounded output. All original cases/assertions remain; native PostgreSQL still runs the entire file together.",
+    "diagnostic_sha256": "e5eddc321156fde1f768d25cbe41bbfcc90c33a3d7197cfca449490ce2f9e268"
+  }
+}
