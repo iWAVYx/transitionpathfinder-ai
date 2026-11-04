@@ -122,6 +122,8 @@ beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
     DO $$ BEGIN IF to_regclass('public.ai_jobs') IS NOT NULL THEN DROP TRIGGER IF EXISTS registration_summary_capacity ON public.ai_jobs;END IF;END $$;
+    DROP TABLE IF EXISTS public.document_apply_source_bindings;
+    DROP FUNCTION IF EXISTS public.guard_document_apply_source_binding(),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb);
     DROP FUNCTION IF EXISTS public.bind_registration_summary_capacity(),public.settle_completed_document_registration(uuid);
     DROP FUNCTION IF EXISTS public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb),public.mark_bound_document_rescan_pending(uuid,uuid,uuid,text),public.persist_bound_document_rescan_result(uuid,uuid,uuid,jsonb);
     DO $reset_auto_summary$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_settled_summary_lease_frozen ON public.document_operation_leases;END IF;END; $reset_auto_summary$;
@@ -3358,4 +3360,42 @@ test('registration auto exact ordered combined chain preserves four routine owne
  await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
  await db.exec(rescanServiceBoundary);await db.exec(registrationCapacityAdmission);await db.exec(registrationQueueTransfer);await db.exec(registrationAutoRelease);await db.exec(registrationIntegratedProof);
  await as('','service_role');await pauseOperation(false,3);const x=await quotaAttempt(1);await completeQuotaAttempt(x);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT released_units FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].released_units,1);
+});
+
+const applySourceCapacity=readFileSync('docs/production-readiness/proposals/document-apply-source-capacity.sql','utf8');
+async function boundApplyCapacityFixture(){
+ await capacityFixture();await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
+ await db.exec('CREATE TABLE public.document_extractions(id uuid PRIMARY KEY,student_id uuid,document_id uuid,status text,updated_at timestamptz,sections jsonb)');await db.exec(applySourceCapacity);await as('','service_role');await pauseOperation(false,3);
+ const x=await quotaAttempt(1);await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='clean',review_status='approved',archived_at=NULL WHERE id=$1",[x.document]);
+ const r=(await db.query("INSERT INTO public.document_extractions VALUES($1,$2,$3,'in_review',clock_timestamp(),$4) RETURNING updated_at::text AS revision",[applyId,student,x.document,applySections])).rows[0];await as('','service_role');return {...x,revision:r.revision};
+}
+
+async function beginBoundApply(x,{actor=actors.family,revision=x.revision,sections=applySections,operation=uid(51001)}={}){return (await db.query('SELECT public.begin_bound_document_apply($1,$2,$3,$4,$5,$6,$7) AS claim',[operation,actor,student,x.document,applyId,revision,sections])).rows[0].claim;}
+test('capacity bound Apply reserves one unit for exact source and retains no section text',async()=>{
+ const x=await boundApplyCapacityFixture();const r=await beginBoundApply(x);assert.equal(r.schema,'document-apply-source-claim-v1');const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].reserved_units,1);assert.equal(rows[0].student_id,student);
+ const b=(await db.query('SELECT * FROM public.document_apply_source_bindings')).rows[0];assert.match(b.sections_sha256,/^[a-f0-9]{64}$/);assert.equal(JSON.stringify(b).includes('Fictional strengths'),false);
+});
+for(const fault of ['revision','sections','actor'])test('capacity bound Apply rejects stale '+fault+' before reservation',async()=>{
+ const x=await boundApplyCapacityFixture();await assert.rejects(beginBoundApply(x,fault==='revision'?{revision:'2020-01-01T00:00:00Z'}:fault==='sections'?{sections:{}}:{actor:actors.partner}),{code:'42501'});assert.equal((await capacityRows()).length,0);
+});
+test('capacity bound Apply refuses duplicate unresolved source without extra units',async()=>{
+ const x=await boundApplyCapacityFixture();await beginBoundApply(x);await assert.rejects(beginBoundApply(x,{operation:uid(51002)}),{code:'42501'});assert.equal((await capacityRows()).length,1);
+});
+for(const role of ['anon','authenticated'])test('capacity bound Apply service admission denies '+role,async()=>{
+ const x=await boundApplyCapacityFixture();await as(actors.family,role);await assert.rejects(beginBoundApply(x),{code:'42501'});assert.equal((await capacityRows()).length,0);
+});
+for(const role of ['student','family','educator','school','district','owner','partner'])test('capacity bound Apply current explicit access for '+role,async()=>{
+ const x=await boundApplyCapacityFixture();await db.exec('RESET ROLE');if(!['family','student','educator'].includes(role))await db.query("INSERT INTO public.student_relationships VALUES($1,$2,'approved','manage_documents')",[student,actors[role]]);await as('','service_role');
+ if(role==='partner'){await assert.rejects(beginBoundApply(x,{actor:actors[role]}),{code:'42501'});assert.equal((await capacityRows()).length,0);return;}
+ const r=await beginBoundApply(x,{actor:actors[role]});assert.equal(r.student_id,student);assert.equal((await capacityRows())[0].actor_id,actors[role]);
+});
+for(const fault of ['suppressed','altered'])test('capacity bound Apply rolls back admission after '+fault+' binding write',async()=>{
+ const x=await boundApplyCapacityFixture();await db.exec('RESET ROLE');await db.exec("CREATE OR REPLACE FUNCTION public.tf_apply_binding_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "+(fault==='suppressed'?'RETURN NULL;':"NEW.sections_sha256:=repeat('f',64);RETURN NEW;")+" END $$;CREATE TRIGGER zzzz_apply_binding_fault BEFORE INSERT ON public.document_apply_source_bindings FOR EACH ROW EXECUTE FUNCTION public.tf_apply_binding_fault()");await as('','service_role');
+ await assert.rejects(beginBoundApply(x),{code:'55000'});assert.equal((await capacityRows()).length,0);assert.equal((await db.query("SELECT count(*)::int AS n FROM public.document_operation_leases WHERE operation_kind='apply'")).rows[0].n,0);
+});
+for(const mutation of ['UPDATE public.document_apply_source_bindings SET sections_sha256=repeat(\'f\',64)','DELETE FROM public.document_apply_source_bindings'])test('capacity bound Apply retains immutable source binding '+mutation,async()=>{
+ const x=await boundApplyCapacityFixture();await beginBoundApply(x);await db.exec('RESET ROLE');await assert.rejects(db.exec(mutation),{code:'42501'});assert.equal((await capacityRows()).length,1);
+});
+test('capacity bound Apply transaction rollback removes its lease binding and reservation',async()=>{
+ const x=await boundApplyCapacityFixture();await db.exec('BEGIN');await beginBoundApply(x);await db.exec('ROLLBACK;RESET ROLE');assert.equal((await capacityRows()).length,0);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_source_bindings')).rows[0].n,0);
 });
