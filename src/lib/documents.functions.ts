@@ -1362,345 +1362,51 @@ export const rescanDocument = createServerFn({ method: "POST" })
     const { authorizeDocumentRescanSource } = await import("./document-rescan-source.server");
     const sourceAdmission = await authorizeDocumentRescanSource(supabase, userId, row);
 
-    const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { MALWARE_SCAN_PROVIDER, scanUploadedDocument } = await import(
-      "./document-av-scan.server"
-    );
-
-    const { runAdmittedDocumentOperation } = await import("./document-operation-admission.server");
-    return runAdmittedDocumentOperation({ serviceClient: supabaseAdmin, actorId: userId, kind: "rescan" }, async () => {
-      const reviewed = await sourceAdmission.prepareCopy();
-      // These fields must stay attached to the exact caller-reviewed source.
-      // This response check is not a durable operation/outcome or byte proof.
-      const revisionSchema = z.string().datetime({ offset: true }).refine(value =>
-        (value.match(/\.(\d+)(?:Z|[+-]\d{2}:\d{2})$/)?.[1]?.length ?? 0) <= 6);
-      // PostgreSQL revisions can differ inside one JavaScript millisecond.
-      // Compare instants at database precision, accepting equivalent UTC offsets.
-      const revisionMicros = (value: string) => {
-        const parsed = revisionSchema.parse(value);
-        const fraction = parsed.match(/\.(\d+)(?:Z|[+-]\d{2}:\d{2})$/)?.[1] ?? "";
-        return BigInt(Math.floor(Date.parse(parsed) / 1000)) * 1_000_000n + BigInt(fraction.padEnd(6, "0"));
-      };
-      const sameTime = (expected: string) => revisionSchema.refine(value => revisionMicros(value) === revisionMicros(expected));
-      const sourceReceipt = z.object({
-        id: z.literal(row.id), student_id: z.literal(row.student_id),
-        storage_path: z.literal(row.storage_path), storage_object_id: z.literal(identity.storage_object_id),
-        storage_object_version: z.literal(identity.storage_object_version), content_hash: z.literal(reviewed.contentHash),
-        mime_type: z.literal(identity.mime_type), size_bytes: z.literal(identity.size_bytes),
-        title: z.literal(row.title), doc_type: z.literal(row.doc_type),
-        uploaded_by: z.literal(row.uploaded_by), upload_attempt_id: z.literal(identity.upload_attempt_id),
-        upload_review_context_sha256: z.literal(identity.upload_review_context_sha256), deleted_at: z.null(),
-        updated_at: revisionSchema,
-      });
-      const correlationId = newCorrelationId();
-      const startedAt = new Date().toISOString();
-
-      const unconfirmedReview = "We couldn't confirm the document's security review. Refresh the page and review its status before trying again.";
-      // Claim this exact failed revision before provider work. A missing/lost
-      // receipt is not permission to scan or to repeat a potentially committed write.
-      let pendingRevision: string;
-      try {
-        const pending = await supabaseAdmin
-          .from("documents")
-          .update({ scan_status: "pending" })
-          .eq("id", row.id)
-          .eq("student_id", row.student_id)
-          .eq("storage_path", row.storage_path)
-          .eq("scan_status", "failed")
-          .eq("updated_at", row.updated_at)
-          .is("deleted_at", null)
-          .select("*")
-          .single();
-        if (pending.error || !sourceReceipt.safeParse(pending.data).success || pending.data?.id !== row.id ||
-            pending.data.student_id !== row.student_id || pending.data.storage_path !== row.storage_path ||
-            pending.data.scan_status !== "pending" || pending.data.deleted_at !== null ||
-            revisionMicros(pending.data.updated_at) <= revisionMicros(row.updated_at)) throw new Error();
-        pendingRevision = pending.data.updated_at;
-      } catch {
-        throw new Error(unconfirmedReview);
-      }
-
-      await reviewed.confirmPending(pendingRevision);
-
-      await recordPipelineRun({
-        document_id: row.id,
-        student_id: row.student_id,
-        correlation_id: correlationId,
-        stage: "av_scan",
-        status: "running",
-        started_at: startedAt,
-        payload: {
-          provider: MALWARE_SCAN_PROVIDER,
-          mode: "advanced",
-          fail_closed: true,
-          retry: true,
-        },
-      });
-
-      const scanResult = await scanUploadedDocument({
-        storage_path: row.storage_path,
-        declared_mime: identity.mime_type ?? null,
-        declared_size: identity.size_bytes ?? null,
-      }, reviewed.copy);
-      // Detected access/object drift after the request cannot release this file.
-      await reviewed.confirmPending(pendingRevision);
-      const confirmedScan = z.discriminatedUnion("ok", [
-        z.object({ ok: z.literal(true), code: z.literal("clean"), provider: z.literal(MALWARE_SCAN_PROVIDER),
-          scan_id: z.string().trim().min(1), clean_result: z.literal(true),
-          blocked_reasons: z.array(z.string()).length(0), threats: z.array(z.string()).length(0) }),
-        z.object({ ok: z.literal(false), code: z.literal("infected"), provider: z.literal(MALWARE_SCAN_PROVIDER),
-          scan_id: z.string().trim().min(1), clean_result: z.literal(false),
-          blocked_reasons: z.array(z.string()), threats: z.array(z.string().trim().min(1).max(200)).min(1) }),
-      ]).safeParse(scanResult);
-      // A type declaration or status word cannot turn an uncertain or
-      // contradictory provider reply into a persisted terminal outcome.
-      if (!confirmedScan.success) throw new Error("This security review needs confirmation before any further work.");
-      const finishedAt = new Date().toISOString();
-      const latencyMs = Date.parse(finishedAt) - Date.parse(startedAt);
-
-      const verdictReceipt = z.object({
-        code: z.literal(scanResult.code), provider: z.literal(MALWARE_SCAN_PROVIDER),
-        content_sha256: z.literal(reviewed.contentHash), source: z.literal("registration_reviewed_copy"),
-        rescan_reviewed_copy: z.literal(true), clean_result: z.literal(scanResult.clean_result), retry: z.literal(true),
-        blocked_reasons: z.array(z.string()).refine(values => JSON.stringify(values) === JSON.stringify(scanResult.blocked_reasons)),
-        threats: z.array(z.string()).refine(values => JSON.stringify(values) === JSON.stringify(scanResult.threats)),
-      });
-      const resultReceipt = sourceReceipt.extend({
-        updated_at: revisionSchema.refine(value => revisionMicros(value) > revisionMicros(pendingRevision)),
-        scan_data_id: z.literal(scanResult.scan_id), scanned_at: sameTime(finishedAt), scan_verdict: verdictReceipt,
-      });
-      if (!scanResult.ok) {
-        // Timeout, failed and indeterminate replies do not prove provider work
-        // stopped. Leave the exact document pending and retain the admission.
-        // No queued summary, automatic rescan, storage removal or false finish.
-        if (scanResult.code !== "infected") throw new Error("This security review needs confirmation before any further work.");
-        // A failed security review never authorizes storage deletion.
-        // Confirm quarantine for this exact row before reporting its outcome.
-        try {
-          const receipt = await supabaseAdmin
-            .from("documents")
-            .update({
-              scan_status: "infected",
-              scan_verdict: {
-                code: scanResult.code,
-                content_sha256: reviewed.contentHash,
-                source: "registration_reviewed_copy",
-                rescan_reviewed_copy: true,
-                provider: scanResult.provider,
-                clean_result: scanResult.clean_result,
-                blocked_reasons: scanResult.blocked_reasons,
-                threats: scanResult.threats,
-                error_message: scanResult.error_message,
-                retry: true,
-              },
-              scan_data_id: scanResult.scan_id,
-              scanned_at: finishedAt,
-              review_status: "rejected",
-              archived_at: finishedAt,
-              archived_by: userId,
-              archive_reason: `auto-quarantined by av_scan retry: ${scanResult.code}`,
-            })
-            .eq("id", row.id)
-            .eq("student_id", row.student_id)
-            .eq("storage_path", row.storage_path)
-            .eq("storage_object_id" as never, identity.storage_object_id)
-            .eq("storage_object_version" as never, identity.storage_object_version)
-            .eq("content_hash", reviewed.contentHash)
-            .eq("mime_type", identity.mime_type)
-            .eq("size_bytes", identity.size_bytes)
-            .eq("uploaded_by", row.uploaded_by)
-            .eq("upload_attempt_id" as never, identity.upload_attempt_id)
-            .eq("upload_review_context_sha256" as never, identity.upload_review_context_sha256)
-            .eq("title", row.title)
-            .eq("doc_type", row.doc_type)
-            .eq("scan_status", "pending")
-            .eq("updated_at", pendingRevision)
-            .is("deleted_at", null)
-            .select("*")
-            .single();
-          if (receipt.error || !resultReceipt.extend({
-                scan_status: z.literal("infected"), review_status: z.literal("rejected"),
-                archived_at: sameTime(finishedAt), archived_by: z.literal(userId),
-                archive_reason: z.literal("auto-quarantined by av_scan retry: infected"),
-              }).safeParse(receipt.data).success) {
-            throw new Error("Unconfirmed quarantine receipt");
-          }
-        } catch {
-          throw new Error("We couldn't confirm the document's security review. Refresh the page and review its status before trying again.");
-        }
-
-        await recordPipelineRun({
-          document_id: row.id,
-          student_id: row.student_id,
-          correlation_id: correlationId,
-          stage: "av_scan",
-          status: "quarantined",
-          started_at: startedAt,
-          finished_at: finishedAt,
-          latency_ms: latencyMs,
-          error_code: scanResult.code,
-          error_message: scanResult.error_message,
-          payload: {
-            retry: true,
-            provider: scanResult.provider,
-            scan_id: scanResult.scan_id,
-            clean_result: scanResult.clean_result,
-            blocked_reason_count: scanResult.blocked_reasons.length,
-            threat_count: scanResult.threats.length,
-          },
-        });
-
-        const meta = {
-          title: row.title,
-          doc_type: row.doc_type,
-          scan_code: scanResult.code,
-          provider: scanResult.provider,
-          scan_id: scanResult.scan_id,
-          clean_result: scanResult.clean_result,
-          blocked_reasons: scanResult.blocked_reasons,
-          threats: scanResult.threats,
-          retry: true,
-        };
-        await supabase.from("audit_log").insert([
-          { actor_id: userId, action: "document.scan.infected", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: meta },
-          { actor_id: userId, action: "document.scan.quarantined", entity_type: "document", entity_id: row.id, student_id: row.student_id, metadata: { ...meta, removal_status: "not_attempted" } },
-        ]);
-
-        return {
-          ok: false as const,
-          code: scanResult.code,
-          error_message: scanResult.error_message,
-        };
-      }
-
-      try {
-        const clean = await supabaseAdmin
-          .from("documents")
-          .update({
-            scan_status: "clean",
-            scan_verdict: {
-              code: "clean",
-              content_sha256: reviewed.contentHash,
-              source: "registration_reviewed_copy",
-              rescan_reviewed_copy: true,
-              provider: scanResult.provider,
-              clean_result: scanResult.clean_result,
-              blocked_reasons: scanResult.blocked_reasons,
-              threats: scanResult.threats,
-              retry: true,
-            },
-            scan_data_id: scanResult.scan_id,
-            scanned_at: finishedAt,
-            review_status: "pending_review",
-            archived_at: null,
-            archived_by: null,
-            archive_reason: null,
-          })
-          .eq("id", row.id)
-          .eq("student_id", row.student_id)
-          .eq("storage_path", row.storage_path)
-          .eq("storage_object_id" as never, identity.storage_object_id)
-          .eq("storage_object_version" as never, identity.storage_object_version)
-          .eq("content_hash", reviewed.contentHash)
-          .eq("mime_type", identity.mime_type)
-          .eq("size_bytes", identity.size_bytes)
-          .eq("uploaded_by", row.uploaded_by)
-          .eq("upload_attempt_id" as never, identity.upload_attempt_id)
-          .eq("upload_review_context_sha256" as never, identity.upload_review_context_sha256)
-          .eq("title", row.title)
-          .eq("doc_type", row.doc_type)
-          .eq("scan_status", "pending")
-          .eq("updated_at", pendingRevision)
-          .is("deleted_at", null)
-          .select("*")
-          .single();
-        if (clean.error || !resultReceipt.extend({
-              scan_status: z.literal("clean"), review_status: z.literal("pending_review"),
-              archived_at: z.null(), archived_by: z.null(), archive_reason: z.null(),
-            }).safeParse(clean.data).success) throw new Error();
-      } catch {
-        throw new Error(unconfirmedReview);
-      }
-
-      await recordPipelineRun({
-        document_id: row.id,
-        student_id: row.student_id,
-        correlation_id: correlationId,
-        stage: "av_scan",
-        status: "succeeded",
-        started_at: startedAt,
-        finished_at: finishedAt,
-        latency_ms: latencyMs,
-        payload: {
-          retry: true,
-          provider: scanResult.provider,
-          scan_id: scanResult.scan_id,
-          clean_result: scanResult.clean_result,
-        },
-      });
-
-      await supabase.from("audit_log").insert({
-        actor_id: userId,
-        action: "document.scan.clean",
-        entity_type: "document",
-        entity_id: row.id,
-        student_id: row.student_id,
-        metadata: {
-          title: row.title,
-          doc_type: row.doc_type,
-          provider: scanResult.provider,
-          scan_id: scanResult.scan_id,
-          clean_result: scanResult.clean_result,
-          retry: true,
-        },
-      });
-
-      // A clean scan does not prove summary work was queued. Confirm the exact
-      // queue receipt; never retry an uncertain insert or report a false success.
-      let queued = false;
-      try {
-        const job = await supabase.from("ai_jobs").insert({
-          student_id: row.student_id,
-          triggered_by_user_id: userId,
-          job_type: "document_summary",
-          status: "queued",
-          input_source: {
-            document_id: row.id,
-            title: row.title,
-            doc_type: row.doc_type,
-            storage_path: row.storage_path,
-          },
-        }).select("id, student_id, triggered_by_user_id, job_type, status, input_source").single();
-        queued = !job.error && z.object({
-          id: z.string().uuid(),
-          student_id: z.literal(row.student_id),
-          triggered_by_user_id: z.literal(userId),
-          job_type: z.literal("document_summary"),
-          status: z.literal("queued"),
-          input_source: z.object({
-            document_id: z.literal(row.id), storage_path: z.literal(row.storage_path),
-            title: z.literal(row.title), doc_type: z.literal(row.doc_type),
-          }),
-        }).safeParse(job.data).success;
-      } catch { /* The insert may have committed; do not replay it. */ }
-
-      await recordPipelineRun({
-        document_id: row.id,
-        student_id: row.student_id,
-        correlation_id: correlationId,
-        stage: "extract",
-        status: queued ? "pending" : "failed",
-        error_code: queued ? null : "ai_jobs_enqueue_unconfirmed",
-        error_message: queued ? null : "Summary queue receipt could not be confirmed.",
-        payload: { job_type: "document_summary", retry: true },
-      });
-
-      if (!queued) throw new Error("The security scan passed, but we couldn't confirm that the summary was queued. Refresh the page and check its status before trying again.");
-      return { ok: true as const, code: "clean" as const };
+    const { scanUploadedDocument } = await import("./document-av-scan.server");
+    const { runBoundDocumentRescan } = await import("./document-rescan-operation.server");
+    let reviewed: Awaited<ReturnType<typeof sourceAdmission.prepareCopy>> | undefined;
+    const outcome = await runBoundDocumentRescan({
+      serviceClient: supabaseAdmin, actorId: userId, documentId: row.id, revision: row.updated_at,
+      source: {
+        student_id: row.student_id, storage_path: row.storage_path,
+        storage_object_id: identity.storage_object_id, storage_object_version: identity.storage_object_version,
+        content_hash: row.content_hash, size_bytes: identity.size_bytes, mime_type: identity.mime_type,
+        upload_attempt_id: identity.upload_attempt_id,
+      },
+    }, {
+      prepareCopy: async () => {
+        reviewed = await sourceAdmission.prepareCopy();
+        return reviewed;
+      },
+      scan: async () => {
+        if (!reviewed) throw new Error("The document copy needs confirmation before scanning.");
+        return scanUploadedDocument({ storage_path: row.storage_path, declared_mime: identity.mime_type,
+          declared_size: identity.size_bytes }, reviewed.copy);
+      },
     });
+    // Telemetry describes only a confirmed outcome. A telemetry failure must
+    // not turn committed document work into a request to scan again.
+    try {
+      const { recordPipelineRun, newCorrelationId } = await import("./document-pipeline.server");
+      const correlationId = newCorrelationId();
+      const quarantined = outcome.disposition === "quarantined";
+      await recordPipelineRun({ document_id: row.id, student_id: row.student_id,
+        correlation_id: correlationId, stage: "av_scan", status: quarantined ? "failed" : "succeeded",
+        payload: { provider: "cloudmersive", retry: true, disposition: outcome.disposition } });
+      if (!quarantined) await recordPipelineRun({ document_id: row.id, student_id: row.student_id,
+        correlation_id: correlationId, stage: "extract", status: "pending",
+        payload: { job_type: "document_summary", retry: true } });
+      await supabase.from("audit_log").insert({ actor_id: userId,
+        action: quarantined ? "document.scan.quarantined" : "document.scan.clean",
+        entity_type: "document", entity_id: row.id, student_id: row.student_id,
+        metadata: { retry: true, disposition: outcome.disposition, removal_status: "not_attempted" } });
+    } catch { /* The guarded result and completion are already confirmed. */ }
+    // Success is returned only after the guarded result/queue and finish replies.
+    // Scanner bodies and capabilities never enter the browser response.
+    if (outcome.disposition === "quarantined") return {
+      ok: false as const, code: "infected" as const,
+      error_message: "This file was blocked by its security review. It remains quarantined.",
+    };
+    return { ok: true as const, code: "clean" as const };
   });
-
-
-
-

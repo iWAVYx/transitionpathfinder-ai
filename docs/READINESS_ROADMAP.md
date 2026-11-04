@@ -126,7 +126,9 @@ Completed substep: source inventory of all22 workflows found the website deploym
 - [ ] **P.3 — Verify production acceptance** for health/identities, applicable role access and essential journeys; check actual live service configuration without creating unapproved charges or provider calls.
 - [ ] **P.4 — Monitor and close the release** with the named rollback/recovery owner and retained acceptance evidence.
 
-**Current next action:**1.1, then1.2. Limits/recovery and packaging reviews can proceed independently where they do not depend on unfinished integration. Fresh hosted/AI/fixture, migration, deployment, publication, main merge and production authorizations remain required for their respective scopes. Report polish and Parent Pilot/Pathway Snapshot remain deferred; the rest of the full TF01–TF26 roadmap remains tracked separately and is not silently declared complete by this checklist.
+**Current progress:**1.1 service interfaces pass23 disposable tests; native/full-schema verification is running. Action1.2 handler wiring and offline test migration pass5701 unit cases and TypeScript. [Local integration evidence](production-readiness/evidence/document-rescan-handler-local-2026-11-04.json). Neither action is accepted hosted; producer release remains open.
+
+**Current next action:**finish1.1 native verification and integrated1.2 acceptance, then1.3 registration accounting. Limits/recovery and packaging reviews can proceed independently where they do not depend on unfinished integration. Fresh hosted/AI/fixture, migration, deployment, publication, main merge and production authorizations remain required for their respective scopes. Report polish and Parent Pilot/Pathway Snapshot remain deferred; the rest of the full TF01–TF26 roadmap remains tracked separately and is not silently declared complete by this checklist.
 
 
 ## October 28 — Durable Review Hold and Reserved Storage Insert (Proposal Only)

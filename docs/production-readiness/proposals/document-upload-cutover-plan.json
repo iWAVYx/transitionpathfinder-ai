@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Proposal15 native/full-schema verification complete on both e1940751 runs:1386/1386 native cases,340/340 early cases,both full local models and225+15 replay. Producer/Apply integration, limits/recovery and final cutover package remain open.",
+  "status": "Source-bound rescan handler wired and locally verified:5701 unit cases and TypeScript pass. Service boundary native/full-schema checks remain pending; producer release and other workstream integration remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -16,7 +16,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "87a1dfea0cc671425d632a83a25a94f0e2202c19b10d9a492e81a76a2a100fd0"
+      "sha256": "d4e12fcc379eb1d6f50566eb879d18a5bbf1e4e2a88b5b839d7b6d61fd00771d"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -117,6 +117,10 @@
     {
       "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
       "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f"
+    },
+    {
+      "path": "src/lib/document-rescan-operation.server.ts",
+      "sha256": "23408729c1b48ec091d2588e5474412cec9e80ee7a342bdaea73559b5546808c"
     }
   ],
   "batch": {
@@ -720,8 +724,8 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-02",
     "checked_against_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
-    "evidence": "docs/production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json",
-    "declared_entries_checked": 28,
+    "evidence": "docs/production-readiness/evidence/document-rescan-handler-local-2026-11-04.json",
+    "declared_entries_checked": 29,
     "corrected_entries": 3,
     "complete_release_manifest": false,
     "hosted_verified": false,
