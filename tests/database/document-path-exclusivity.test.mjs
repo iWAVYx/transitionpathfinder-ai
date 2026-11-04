@@ -121,6 +121,8 @@ afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
+    DO $$ BEGIN IF to_regclass('public.ai_jobs') IS NOT NULL THEN DROP TRIGGER IF EXISTS registration_summary_capacity ON public.ai_jobs;END IF;END $$;
+    DROP FUNCTION IF EXISTS public.bind_registration_summary_capacity(),public.settle_completed_document_registration(uuid);
     DROP FUNCTION IF EXISTS public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb),public.mark_bound_document_rescan_pending(uuid,uuid,uuid,text),public.persist_bound_document_rescan_result(uuid,uuid,uuid,jsonb);
     DO $reset_auto_summary$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_settled_summary_lease_frozen ON public.document_operation_leases;END IF;END; $reset_auto_summary$;
     DROP FUNCTION IF EXISTS public.settle_completed_document_summary(uuid),public.guard_settled_document_summary_lease();
@@ -3268,4 +3270,41 @@ for(const fault of ['grant','column','rls','trigger','helper'])test('registratio
  if(fault==='helper')await db.exec('ALTER FUNCTION public.reserve_internal_document_capacity(uuid,uuid) SET search_path TO public');
  await assert.rejects(db.exec(registrationCapacityAdmission));await db.exec('ROLLBACK');
  assert.equal((await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.bind_document_upload_operation()'::regprocedure")).rows[0].hash,'3c523e43d31e411968ea0c768fd33222');
+});
+
+const registrationQueueTransfer=readFileSync('docs/production-readiness/proposals/document-registration-queue-transfer.sql','utf8');
+async function automaticRegistrationQueueFixture(){await automaticRegistrationFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(registrationQueueTransfer);await as('','service_role');await pauseOperation(false,5);return quotaAttempt(1);}
+test('registration auto queue binds the exact saved job without adding capacity',async()=>{
+ const x=await automaticRegistrationQueueFixture();await completeQuotaAttempt(x);const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].reserved_units,2);assert.ok(rows[0].summary_job_id);assert.equal((await db.query('SELECT id FROM public.ai_jobs WHERE id=$1',[rows[0].summary_job_id])).rows.length,1);
+});
+for(const fault of ['pending','foreign actor','foreign path'])test('registration auto queue refuses '+fault+' without a job or transfer',async()=>{
+ const x=await automaticRegistrationQueueFixture();await db.exec('RESET ROLE');
+ await assert.rejects(db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[uid(48001),student,fault==='foreign actor'?actors.student:actors.family,{document_id:x.document,storage_path:fault==='foreign path'?'other/path':x.path}]),{code:'42501'});
+ assert.equal((await db.query('SELECT count(*)::int AS n FROM public.ai_jobs')).rows[0].n,0);assert.equal((await capacityRows())[0].summary_job_id,null);
+});
+
+test('registration auto queue coexists with exact atomic rescan queue and preserves registration accounting',async()=>{
+ const x=await outcomeRescanFixture({rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');await db.exec(registrationQueueTransfer);
+ const before=(await db.query('SELECT * FROM public.document_capacity_reservations WHERE operation_id=$1',[x.receipt.operation_id])).rows;
+ const r=await saveRescanOutcome(x);assert.ok(r.summary_job_id);const rows=await rescanOutcomeRows(x);assert.equal(rows.capacity[0].summary_job_id,r.summary_job_id);assert.deepEqual((await db.query('SELECT * FROM public.document_capacity_reservations WHERE operation_id=$1',[x.receipt.operation_id])).rows,before);
+});
+test('registration auto queue duplicate after completed producer refuses without replacing selected job',async()=>{
+ const x=await automaticRegistrationQueueFixture();await completeQuotaAttempt(x);const before=await capacityRows();const count=(await db.query('SELECT count(*)::int AS n FROM public.ai_jobs')).rows[0].n;
+ await assert.rejects(db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[uid(48002),student,actors.family,{document_id:x.document,storage_path:x.path}]),{code:'42501'});
+ assert.deepEqual(await capacityRows(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.ai_jobs')).rows[0].n,count);
+});
+test('registration auto queue rollback restores the unbound reservation and removes inserted job',async()=>{
+ const x=await automaticRegistrationQueueFixture();await db.exec('BEGIN');await completeQuotaAttempt(x);await db.exec('ROLLBACK;RESET ROLE');assert.equal((await capacityRows())[0].summary_job_id,null);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.ai_jobs')).rows[0].n,0);
+});
+
+const registrationAutoRelease=readFileSync('docs/production-readiness/proposals/document-registration-automatic-release.sql','utf8');
+async function automaticRegistrationReleaseFixture(){const x=await automaticRegistrationQueueFixture();await as('','service_role');await pauseOperation(true,6);await db.exec('RESET ROLE');await db.exec(registrationAutoRelease);return x;}
+test('registration auto release clean completion releases exactly the producer unit',async()=>{
+ const x=await automaticRegistrationReleaseFixture();await completeQuotaAttempt(x);await db.exec('RESET ROLE');const rows=(await db.query('SELECT * FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows;assert.equal(rows.length,1);assert.equal(rows[0].released_units,1);assert.ok((await capacityRows())[0].summary_job_id);
+});
+test('registration auto release quarantine completion releases both unused obligations',async()=>{
+ const x=await automaticRegistrationReleaseFixture();await completeQuotaAttempt(x,'infected');await db.exec('RESET ROLE');assert.equal((await db.query('SELECT released_units FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].released_units,2);
+});
+test('registration auto release needs-review never frees capacity',async()=>{
+ const x=await automaticRegistrationReleaseFixture();await as('','service_role');await finishOperation(x.receipt,'needs_review');await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_capacity_registration_settlements')).rows[0].n,0);assert.equal((await capacityRows())[0].reserved_units,2);
 });
