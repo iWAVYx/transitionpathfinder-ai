@@ -13,7 +13,11 @@
     "files": 362,
     "failed": 0,
     "focused_cases": 133,
-    "typescript": "passed"
+    "typescript": "passed",
+    "isolated_local_build": "passed",
+    "service_worker_generation": "passed",
+    "readiness_hosting_document_contracts": 49,
+    "build_log_sha256": "be2bd62d3c52b9eec1f72cfa5bef9192b25da5af213bcad257c3806bcb0c6e2b"
   },
   "coverage_migration": "Obsolete direct-PATCH rescan mocks replaced with actual-handler RPC receipt/failure cases. Persisted row/verdict/queue invariants remain in real database tests; removal/download tests retained. This does not claim identical test counts or hosted access proof.",
   "manifest_paths": [
