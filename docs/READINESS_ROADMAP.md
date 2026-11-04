@@ -28,6 +28,107 @@ Manifest reconciliation: [record](production-readiness/evidence/document-cutover
 
 **November 3 source-review checkpoint:** Workstream 8’s [22-workflow source inventory](production-readiness/evidence/source-workflow-boundary-review-2026-11-03.json) is complete locally; external Lovable/main delivery controls remain unverified. Workstream 1’s [producer handoff map](production-readiness/evidence/document-producer-integration-audit-2026-11-03.json) identifies the remaining generic rescan path and private source/result boundaries. Neither is runtime integration, hosted acceptance or a closed workstream. Proposal15 full native/schema results are now verified; see the November4 gate above.
 
+## Actionable Release Checklist — November 4
+
+These are the known remaining actions for the eight current PR211 release workstreams. IDs are stable progress references; they are not estimates of equal effort. Mark an action complete only when its stated evidence exists. Reuse earlier evidence when the source and environment still match. New findings belong here only when they block correctness, security or release acceptance; optional refinements stay on the wider TF01–TF26 roadmap.
+
+### 1. Shared Document Processing
+
+Verified foundation: both stage15 runs passed 1,386/1,386 native cases, 340/340 early cases and full225+15 replay. Automatic counted-worker transfer and exact worker completion/release are verified in disposable databases.
+
+- [ ] **1.1 — Prepare the rescan service boundary.** Add narrowly scoped server-callable interfaces for exact source admission, the one-use pending transition and atomic scan-result/queue persistence. Keep owner-private helpers and raw accounting tables inaccessible to application/browser roles.
+- [ ] **1.2 — Connect the rescan handler.** Replace its generic admission and separate result/queue writes with the reviewed source-bound sequence. Confirm the same file copy and current access around scanning; uncertain replies retain work for review and never retry automatically.
+- [ ] **1.3 — Finish registration accounting.** Connect reservation, upload, confirmed registration outcome, queued summary and producer release; release only the producer obligation actually completed. Preserve interrupted-upload and held-work accounting.
+- [ ] **1.4 — Finish Apply accounting.** Bind Apply to the exact actor, student and reviewed source; reserve its one obligation and settle only a confirmed atomic save. Keep caller permissions and stale-source checks.
+- [ ] **1.5 — Join the producer and worker paths.** Verify that a producer's reserved summary slot survives queueing, claim and completion without double counting; producer and worker may finish in either order.
+- [ ] **1.6 — Verify the integrated source.** Run affected server/worker tests, native commit/rollback races and full-schema replay for the new integration, including every applicable role and denied access. Hosted verification is covered in workstreams3 and7.
+
+### 2. Limits and Recovery
+
+Prepared foundation: durable counted obligations, unresolved holds and upload-attempt limits. General numeric capacity ceilings are still unselected.
+
+- [ ] **2.1 — Select finite limits.** Prepare a concrete recommendation for global, per-account and per-student unfinished-work limits, then record the owner's chosen policy. These counts are not a provider spending cap.
+- [ ] **2.2 — Enforce those limits consistently.** Apply the selected policy atomically to register/rescan/Apply starts, counting active, queued, promised and unresolved work. Previously counted transfers/completion must not require another slot.
+- [ ] **2.3 — Implement trusted reconciliation.** Provide an authorized, auditable way to inspect and resolve an exact uncertain operation using actual saved results and external-work evidence. No timed expiry, blind release, synthetic success or automatic retry.
+- [ ] **2.4 — Finish pause/drain behavior.** Make new starts stop while already-admitted work may finish under the reviewed policy. Define how queued-but-not-started work is handled; test pause, restart and resume without dropping counts.
+- [ ] **2.5 — Fence older entry points.** Cover old handlers/workers, direct writes, scheduled jobs and service paths so they cannot bypass new admission, queue or completion rules.
+- [ ] **2.6 — Fence source and access changes.** Serialize relevant document/object edits, retirement, relationship removal and permission changes with the operations that depend on them; deny stale authority and cross-student reuse.
+- [ ] **2.7 — Verify recovery and limit races.** Test last-slot competition, multiple tabs/devices, held work, lost replies, process interruption, duplicate completion and access removal. Confirm invariants and safe user-facing recovery messages.
+
+### 3. Real Storage and Providers
+
+Existing evidence uses local/disposable databases and intercepted IO; it does not certify the accumulated candidate against real hosted Storage or providers.
+
+- [ ] **3.1 — Prepare bounded acceptance scopes.** Specify fictional files/records, existing test accounts, provider/AI invocation limits, stop conditions and exact cleanup; obtain fresh authorization before hosted execution.
+- [ ] **3.2 — Verify actual file identity.** On isolated staging, check upload/download/version behavior, immutable reviewed bytes, content/size/type checks and changes during processing. Database metadata alone cannot attest bytes.
+- [ ] **3.3 — Verify actual scanner outcomes.** Exercise supported clean, infected, policy-blocked and uncertain/failure behavior; confirm quarantine, accounting and truthful responses. Do not infer provider cessation from a timeout.
+- [ ] **3.4 — Verify the separate worker end to end.** Confirm exact source reads, redaction, source-grounded generation and guarded save using the deployed worker identity; prove a changed/removed source cannot save stale output.
+- [ ] **3.5 — Reconcile outstanding external work.** Establish how old and uncertain provider requests are observed/drained and when cessation can actually be confirmed; stop release if evidence is unavailable.
+- [ ] **3.6 — Verify real access and retention boundaries.** Check download/signing denial after quarantine/retirement/access removal, existing signed-URL behavior, retained holds and exact fixture cleanup. Record limitations explicitly.
+
+### 4. Release Packaging
+
+Completed preparation: 28 declared cutover manifest entries and the ordered15 review-proposal inventory are reconciled. The 225 canonical migrations, separate15-migration batch and15 review proposals are distinct inventories; a final combined package is still required.
+
+- [ ] **4.1 — Consolidate the final migration chain.** Turn the final reviewed control changes into an ordered canonical package with exact ledger entries; resolve prerequisites and existing installation states without blind reruns.
+- [ ] **4.2 — Prepare the metadata preflight.** Check actual target schema/ledger and legacy counts under separately authorized access. Existing paused/processing/unknown work and data collisions must produce an explicit stop or reviewed resolution.
+- [ ] **4.3 — Freeze release identities.** Record exact source commit, website fingerprint/file count, separate worker manifest/hash, migration/ledger hashes and required environment settings.
+- [ ] **4.4 — Write the ordered cutover procedure.** Specify pause, external-work drain, preflight, schema, website, worker and isolated Lovable updates; cover old tabs/workers and explicit stop conditions.
+- [ ] **4.5 — Prepare recovery and rollback.** Define compatible application/worker rollback and database forward-repair/rollback limits, backup/restore requirements and who may execute each recovery action.
+- [ ] **4.6 — Verify the complete package.** Run final clean builds, exact migration replay/preflight and affected tests; retain evidence tied to all release identities. An inventory or website build alone does not certify the separate worker/schema.
+
+### 5. Security and Product Consistency
+
+Completed substep: admission ownership/RLS/permission checks and inherited private-dependency checks passed native/full-schema verification. Earlier role/demo/navigation/document evidence remains available for applicability review.
+
+- [ ] **5.1 — Reconcile the current security findings.** Review final dependencies, SQL routine grants/RLS, privileged server/worker paths and unresolved findings; document fixes or explicit release-blocking decisions against current source.
+- [ ] **5.2 — Review role and privacy boundaries.** Check the seven roles, explicit student access, private documents/reports/history/shares and removal behavior. Owner Hub stays management-only; a broad admin role does not grant student access.
+- [ ] **5.3 — Reconcile product claims with actual behavior.** Check role audience promises, Tools menus, dashboard-card destinations, demo/live parity and public wording; fix or accurately label unavailable behavior that blocks launch.
+- [ ] **5.4 — Complete data/provider approvals.** Confirm applicable consent, external data handling, provider/privacy approval, retention and deletion policy, safe logs and user explanations for document/IEP/AI workflows.
+- [ ] **5.5 — Review environment and launch controls.** Confirm intended hosting responsibility, secret isolation, sandbox/live payment separation, email/auth/invitation configuration and feature flags for the release. Production inspection requires authorization.
+- [ ] **5.6 — Close the source launch review.** Consolidate these findings and applicable prior evidence into one current release decision; retain any unresolved blocker explicitly rather than treating a skipped test as a pass.
+
+### 6. Coordinated Staging Release
+
+The accumulated current candidate has not been rolled out to the hosted staging sites.
+
+- [ ] **6.1 — Obtain exact rollout authorization.** Present the frozen package, target backend/sites, migration list, worker identity, publication scope and bounded acceptance scopes for approval. Complete GitHub's required human reviews when prompted.
+- [ ] **6.2 — Establish the cutover boundary.** Pause new starts, reconcile/drain existing work and run the approved staging preflight; stop if legacy/provider state is unconfirmed.
+- [ ] **6.3 — Apply and verify the approved schema.** Install only authorized migrations/ledger entries on isolated backend qgrertkqbwanerqqemph; verify actual functions, grants, policies, triggers and recorded identities.
+- [ ] **6.4 — Release all approved runtime components.** Deploy the matching Cloudflare staging website and separate worker; preserve Lovable visual edits while syncing/updating the existing isolated Lovable staging publication.
+- [ ] **6.5 — Verify both stable staging sites.** Confirm exact website/worker/schema identities, staging backend, sandbox payments, expected AI runtime and isolation health, then perform approved smoke checks.
+
+### 7. Final Acceptance
+
+Historical successes remain evidence for earlier releases. These actions certify the final integrated release, reusing earlier checks only when applicability is demonstrated.
+
+- [ ] **7.1 — Verify all seven signed-in roles.** Check applicable dashboards, real Tools menus/card links, authorization and management-only Owner behavior using existing test accounts.
+- [ ] **7.2 — Verify public/demo and responsive journeys.** Check signed-out Home/Platform/guided flows and role demos at mobile/desktop sizes, centered content, overflow, readable labels and parity with applicable live features.
+- [ ] **7.3 — Verify navigation direction and context.** New forward navigation opens at the top/focused content; Back restores the actual origin and departure position. Check browser history, one contextual return control and refresh/loading behavior.
+- [ ] **7.4 — Verify documents and exports.** Check actual screen documents plus applicable print/PDF/export output: readable sections, title case, alignment, even spacing, logo/watermark at top right and correct role/live-data content. Report-length polish stays deferred.
+- [ ] **7.5 — Verify applicable generation and save flows.** Run freshly authorized bounded Pathway/PPT/Readiness/report-assistance/IEP/evidence/document cases as required by the final changes, including source grounding, stale writes, history/restore and sharing/access removal.
+- [ ] **7.6 — Reconcile acceptance and cleanup.** Independently confirm exact fixture absence, account for uncertain/provider outcomes, triage failures and retain final source-bound results. Close acceptance only when required failures, missing checks and operational blockers are resolved.
+
+### 8. Merge Review
+
+Completed substep: source inventory of all22 workflows found the website deployment path is manual and staging-only. External production delivery controls remain unverified; PR211 is still draft.
+
+- [ ] **8.1 — Review the complete final PR.** Resolve review findings/conflicts, verify intended source and required checks, and confirm the approved scope and deferred roadmap items in the PR description.
+- [ ] **8.2 — Verify external main/production delivery controls.** Check GitHub environment/branch protections and Lovable project/repository/branch/sync/publication behavior so a main merge cannot bypass production authorization. Source-only workflow inspection is insufficient.
+- [ ] **8.3 — Refresh production readiness under authorization.** Confirm actual production build identity, schema/ledger baseline, secrets/service isolation, live billing, email, AI/scanner/provider approvals, security findings, backups/restore and monitoring. Historical snapshots do not count as a fresh inventory.
+- [ ] **8.4 — Record the release decision.** Reconcile all required workstream evidence, migration/runtime compatibility, unresolved blockers, rollback owner and production stop conditions against the exact tested package.
+- [ ] **8.5 — Obtain and execute specific merge authorization.** Complete review readiness and the approved main merge only after deployment controls are confirmed. A merge approval does not authorize production deployment/publication/migration.
+
+### After the Eight Workstreams — Production Rollout
+
+- [ ] **P.1 — Obtain separate production authorization** for the exact tested website, worker, schema/ledger and publication procedure.
+- [ ] **P.2 — Execute the approved production cutover** with the reviewed preflight, pause/drain, migration and runtime order; stop on any mismatch.
+- [ ] **P.3 — Verify production acceptance** for health/identities, applicable role access and essential journeys; check actual live service configuration without creating unapproved charges or provider calls.
+- [ ] **P.4 — Monitor and close the release** with the named rollback/recovery owner and retained acceptance evidence.
+
+**Current next action:**1.1, then1.2. Limits/recovery and packaging reviews can proceed independently where they do not depend on unfinished integration. Fresh hosted/AI/fixture, migration, deployment, publication, main merge and production authorizations remain required for their respective scopes. Report polish and Parent Pilot/Pathway Snapshot remain deferred; the rest of the full TF01–TF26 roadmap remains tracked separately and is not silently declared complete by this checklist.
+
+
 ## October 28 — Durable Review Hold and Reserved Storage Insert (Proposal Only)
 
 - [x] Prepared a tenth noncanonical proposal: the original uploader, with unchanged review intent and current explicit edit access, can place an unresolved attempt on a durable review hold. Same-request repeats preserve the first reason/time. Registered, foreign, changed-reason and revoked-access requests stop without changing files or links.

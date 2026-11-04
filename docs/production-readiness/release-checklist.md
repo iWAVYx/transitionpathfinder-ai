@@ -1,5 +1,7 @@
 # Production release checklist
 
+Current actionable status is maintained in the [November4 eight-workstream checklist](../READINESS_ROADMAP.md#actionable-release-checklist--november-4). Historical entries below retain their original verification status; they are not a fresh release authorization. The stage15 native/full-schema gate is verified in [November4 evidence](evidence/document-automatic-summary-settlement-verified-2026-11-04.json).
+
 ## October 28 — Durable Review Hold and Reserved Storage Insert (Proposal Only)
 
 - [x] Prepared a tenth noncanonical proposal: the original uploader, with unchanged review intent and current explicit edit access, can place an unresolved attempt on a durable review hold. Same-request repeats preserve the first reason/time. Registered, foreign, changed-reason and revoked-access requests stop without changing files or links.

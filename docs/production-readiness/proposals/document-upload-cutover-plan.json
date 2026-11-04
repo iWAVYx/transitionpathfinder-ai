@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Proposal15 preflight security repair passes45 focused cases (41 pass/four native skips) and80 contracts. The previous1380-case full local proof is retained; current1386 local/native/full225+15 verification is pending. No runtime routine body, new proposal or hosted action changed.",
+  "status": "Proposal15 native/full-schema verification complete on both e1940751 runs:1386/1386 native cases,340/340 early cases,both full local models and225+15 replay. Producer/Apply integration, limits/recovery and final cutover package remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -758,5 +758,6 @@
     "candidate_source": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2"
   },
   "unapplied_control_proposals": 15,
-  "control_proposal_inventory": "docs/production-readiness/proposals/document-control-proposal-inventory.json"
+  "control_proposal_inventory": "docs/production-readiness/proposals/document-control-proposal-inventory.json",
+  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
 }
