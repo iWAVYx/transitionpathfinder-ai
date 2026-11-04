@@ -57,6 +57,9 @@ on:
       - "docs/production-readiness/proposals/document-counted-summary-handoff.sql"
       - "docs/production-readiness/proposals/document-automatic-summary-settlement.sql"
       - "docs/production-readiness/proposals/document-rescan-service-boundary.sql"
+      - "docs/production-readiness/proposals/document-registration-capacity-admission.sql"
+      - "docs/production-readiness/proposals/document-registration-queue-transfer.sql"
+      - "docs/production-readiness/proposals/document-registration-automatic-release.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -133,6 +136,9 @@ on:
       - "docs/production-readiness/proposals/document-counted-summary-handoff.sql"
       - "docs/production-readiness/proposals/document-automatic-summary-settlement.sql"
       - "docs/production-readiness/proposals/document-rescan-service-boundary.sql"
+      - "docs/production-readiness/proposals/document-registration-capacity-admission.sql"
+      - "docs/production-readiness/proposals/document-registration-queue-transfer.sql"
+      - "docs/production-readiness/proposals/document-registration-automatic-release.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -250,13 +256,13 @@ jobs:
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
 
-      - name: Verify registration compatibility and private rescan boundaries before full database suites
+      - name: Verify new rescan and registration boundaries before full database suites
         env:
           PGUSER: supabase_admin
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome|rescan settlement|counted worker|summary auto|rescan service boundary' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^registration auto' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -1916,6 +1922,43 @@ jobs:
             FROM pg_proc WHERE proname IN ('begin_bound_document_rescan','mark_bound_document_rescan_pending','persist_bound_document_rescan_result') AND pronamespace='public'::regnamespace));
           SQL
 
+      - name: Verify integrated registration reservation queue and release
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-capacity-admission.sql
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-queue-transfer.sql
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-automatic-release.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $registration_integrated_proof$
+          DECLARE item record; caller text; admission_owner oid;
+          BEGIN
+           SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           FOR item IN SELECT * FROM (VALUES
+           ('public.bind_document_upload_operation()','3c4a138653e5d79030b4247fd01f381e',false),
+           ('public.bind_registration_summary_capacity()','ee05945cda1adf131fe1e15eb5b415f0',false),
+           ('public.settle_completed_document_registration(uuid)','d2b4e170642cd2c01a9107c6d44da603',false),
+           ('public.finish_document_operation(uuid,uuid,uuid,text)','cc8decd3ba659f44636eddd7658e8c61',true)
+           ) expected(signature,body_md5,admission_owned) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+             AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog']
+             AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END) THEN
+             RAISE EXCEPTION 'Exact integrated registration routine required'; END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='service_role' AND item.admission_owned) THEN
+              RAISE EXCEPTION 'Unexpected integrated registration execution grant'; END IF;
+            END LOOP;
+           END LOOP;
+          END; $registration_integrated_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-registration-integrated.json
+          SELECT jsonb_build_object('schema','document-registration-integrated-proof-v1','phase','after-nineteenth-proposal',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+           'reservations',(SELECT count(*) FROM public.document_capacity_reservations),
+           'hosted_applied',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'owner',proowner::regrole::text,'definer',prosecdef,'fixed_path',proconfig) ORDER BY proname)
+            FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN ('bind_document_upload_operation','bind_registration_summary_capacity','settle_completed_document_registration','finish_document_operation')));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -2029,4 +2072,5 @@ jobs:
             /tmp/document-counted-summary-handoff.json
             /tmp/document-automatic-summary-settlement.json
             /tmp/document-rescan-service-boundary.json
+            /tmp/document-registration-integrated.json
           if-no-files-found: ignore

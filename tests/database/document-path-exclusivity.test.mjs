@@ -3352,3 +3352,10 @@ test('rescan service boundary deferred commit runs as existing owner while valid
  await serviceRescanFixture();const r=(await db.query("SELECT prosecdef,proconfig FROM pg_proc WHERE oid='public.check_document_rescan_outcome_commit()'::regprocedure")).rows[0];assert.equal(r.prosecdef,true);assert.deepEqual(r.proconfig,['search_path=pg_catalog']);
  for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.validate_internal_document_rescan_outcome(uuid)','EXECUTE') AS exposed",[role])).rows[0].exposed,false);
 });
+
+const registrationIntegratedProof=readFileSync('.github/workflows/migration-replay.yml','utf8').match(/DO \$registration_integrated_proof\$[\s\S]*?END; \$registration_integrated_proof\$;/)[0];
+test('registration auto exact ordered combined chain preserves four routine owner and grant identities',async()=>{
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
+ await db.exec(rescanServiceBoundary);await db.exec(registrationCapacityAdmission);await db.exec(registrationQueueTransfer);await db.exec(registrationAutoRelease);await db.exec(registrationIntegratedProof);
+ await as('','service_role');await pauseOperation(false,3);const x=await quotaAttempt(1);await completeQuotaAttempt(x);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT released_units FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].released_units,1);
+});

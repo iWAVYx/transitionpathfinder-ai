@@ -1,9 +1,9 @@
 {
   "schema": "document-control-proposal-inventory-v1",
-  "date": "2026-11-03",
-  "source_base": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
-  "scope": "Ordered inventory of the fifteen current noncanonical/unapplied control proposals. Order is checked against the disposable replay workflow, not authorized as a hosted installation recipe.",
-  "proposal_count": 15,
+  "date": "2026-11-04",
+  "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+  "scope": "Ordered19-proposal disposable replay inventory. First15 native verified; current16 corrected after native failure and17-19 registration drafts await native/full-schema proof. Not a hosted installation recipe.",
+  "proposal_count": 19,
   "proposals": [
     {
       "order": 1,
@@ -139,6 +139,42 @@
       "source_checked_against": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
       "native_status": "verified_through_stage15",
       "hosted_applied": false
+    },
+    {
+      "order": 16,
+      "path": "docs/production-readiness/proposals/document-rescan-service-boundary.sql",
+      "sha256": "bf3f953f69c1878ee4999dc18f97d554281969a0ca61f71d223efc35b30de8ee",
+      "disposable_replay_step": "Verify rescan service boundary after complete replay",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "pending_corrected_full_chain",
+      "hosted_applied": false
+    },
+    {
+      "order": 17,
+      "path": "docs/production-readiness/proposals/document-registration-capacity-admission.sql",
+      "sha256": "71224aff2d490d4686f67c82d009d0c53e1d08e013f34fd3bdca142523df49da",
+      "disposable_replay_step": "Verify integrated registration reservation queue and release",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "pending_corrected_full_chain",
+      "hosted_applied": false
+    },
+    {
+      "order": 18,
+      "path": "docs/production-readiness/proposals/document-registration-queue-transfer.sql",
+      "sha256": "bb237c4ac1508857bbf3e76fe8f070f2ebda36918b7e2dbda8e4a75111f38dc6",
+      "disposable_replay_step": "Verify integrated registration reservation queue and release",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "pending_corrected_full_chain",
+      "hosted_applied": false
+    },
+    {
+      "order": 19,
+      "path": "docs/production-readiness/proposals/document-registration-automatic-release.sql",
+      "sha256": "ade89b1e38cf985cc0de3b911e8a561a0b26ce4f2111d7ff616d6356f9fe64d0",
+      "disposable_replay_step": "Verify integrated registration reservation queue and release",
+      "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
+      "native_status": "pending_corrected_full_chain",
+      "hosted_applied": false
     }
   ],
   "verified_parent_evidence": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
@@ -154,6 +190,6 @@
     41678048798,
     41678056736
   ],
-  "new_native_proof_pending": false,
+  "new_native_proof_pending": true,
   "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
 }

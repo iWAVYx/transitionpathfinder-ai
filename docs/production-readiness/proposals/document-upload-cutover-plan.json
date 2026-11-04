@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 15,
+  "unapplied_admission_proposals": 19,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -761,7 +761,7 @@
     "ready_for_cutover": false,
     "candidate_source": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2"
   },
-  "unapplied_control_proposals": 15,
+  "unapplied_control_proposals": 19,
   "control_proposal_inventory": "docs/production-readiness/proposals/document-control-proposal-inventory.json",
   "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
 }
