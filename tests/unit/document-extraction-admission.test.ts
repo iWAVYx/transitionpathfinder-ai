@@ -6,7 +6,7 @@ const input={expected_viewer_id:actor,extraction_id:extraction,student_id:studen
 const applied={schema:'applied-document-extraction-v1',extraction_id:extraction,student_id:student,document_id:document,status:'complete',updated_at:'2026-10-29T12:01:00.123456+00:00',evidence_saved:false,evidence_id:null};
 function setup(){
  const events:string[]=[];
- const rows:Record<string,unknown>={document_extractions:{id:extraction,student_id:student,document_id:document,status:'in_review'},documents:{id:document,student_id:student,scan_status:'clean',review_status:'approved',archived_at:null,deleted_at:null}};
+ const rows:Record<string,unknown>={document_extractions:{id:extraction,student_id:student,document_id:document,status:'in_review',updated_at:input.expected_updated_at,sections:input.expected_sections},documents:{id:document,student_id:student,scan_status:'clean',review_status:'approved',archived_at:null,deleted_at:null}};
  const rpc=vi.fn(async(name:string)=>{events.push('private:'+name);return {data:name==='is_partner_only'?false:name==='apply_reviewed_document_extraction'?applied:true,error:null} as {data:unknown,error:unknown};});
  const from=vi.fn((table:string)=>({select:vi.fn(()=>({eq:vi.fn(()=>({maybeSingle:vi.fn(async()=>{events.push('read:'+table);return {data:rows[table],error:null};})}))}))}));
  const adminRpc=vi.fn(async(name:string,args:Record<string,unknown>)=>{events.push('service:'+name);return {data:name==='begin_document_operation'?{schema:'document-operation-admitted-v1',operation_id:args._operation_id,receipt_id:token,revision:2}:{schema:'document-operation-finished-v1',operation_id:args._operation_id,state:args._outcome},error:null} as {data:unknown,error:unknown};});
@@ -39,3 +39,18 @@ it('rejects a malformed actor before private reads or service loading',async()=>
 it('rejects a changed viewer before any private read or service operation',async()=>{const f=setup();await expect(applyReviewedExtractionWithAdmission({rpc:f.rpc,from:f.from},id(9),input,f.factory)).rejects.toThrow('Your sign-in changed');expect(f.rpc).not.toHaveBeenCalled();expect(f.factory).not.toHaveBeenCalled();});
 
 it('rejects a missing loaded-viewer identity with a plain reload message before admission',async()=>{const f=setup();const {expected_viewer_id,...oldRequest}=input;await expect(applyReviewedExtractionWithAdmission({rpc:f.rpc,from:f.from},actor,oldRequest,f.factory)).rejects.toThrow('Reload the document review');expect(f.rpc).not.toHaveBeenCalled();expect(f.factory).not.toHaveBeenCalled();});
+
+it.each([
+ ['microsecond revision',{updated_at:'2026-10-29T12:00:00.123457Z'}],
+ ['changed sections',{sections:{strengths:{state:'accepted',value:'Other strength'}}}],
+ ['missing revision',{updated_at:undefined}],
+ ['missing sections',{sections:undefined}],
+ ['overprecision',{updated_at:'2026-10-29T12:00:00.1234567Z'}],
+])('rejects stale review %s before admission or a save',async(_name,patch)=>{
+ const f=setup();f.rows.document_extractions={...(f.rows.document_extractions as object),...patch};
+ await expect(f.run()).rejects.toThrow("couldn't confirm");expect(f.factory).not.toHaveBeenCalled();expect(f.adminRpc).not.toHaveBeenCalled();expect(f.rpc.mock.calls.some(c=>c[0]==='apply_reviewed_document_extraction')).toBe(false);
+});
+it('accepts equivalent offsets and reordered JSON keys before admission',async()=>{
+ const f=setup();f.rows.document_extractions={...(f.rows.document_extractions as object),updated_at:'2026-10-29T13:00:00.123456+01:00',sections:{strengths:{value:'Fictional strength',state:'accepted'}}};
+ await expect(f.run()).resolves.toEqual({ok:true,updated_at:applied.updated_at});expect(f.adminRpc).toHaveBeenCalledTimes(2);
+});

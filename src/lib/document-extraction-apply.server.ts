@@ -60,7 +60,20 @@ type PrivateClient = {
   rpc(name: string, args: Record<string, unknown>): PromiseLike<{ data: unknown; error: unknown }>;
   from(table: string): { select(columns: string): { eq(column: string, value: string): { maybeSingle(): PromiseLike<{ data: unknown; error: unknown }> } } };
 };
-const reviewedSource = z.object({ id: z.string().uuid(), student_id: z.string().uuid(), document_id: z.string().uuid(), status: z.enum(["pending", "needs_review", "in_review"]) }).strict();
+const reviewRevision = z.string().datetime({ offset: true }).refine(value => (value.match(/\.(\d+)/)?.[1]?.length ?? 0) <= 6);
+function reviewInstant(value: string) {
+  const parsed = reviewRevision.parse(value);
+  return BigInt(Math.floor(Date.parse(parsed) / 1000)) * 1000000n + BigInt((parsed.match(/\.(\d+)/)?.[1] ?? "").padEnd(6, "0"));
+}
+// Compare the JSON representation that is actually sent to the database.
+// Object key order does not change a reviewed section's identity.
+function reviewedJson(value: unknown) {
+  return JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
+    ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+}
+const reviewedSource = z.object({ id: z.string().uuid(), student_id: z.string().uuid(), document_id: z.string().uuid(),
+  status: z.enum(["pending", "needs_review", "in_review"]), updated_at: reviewRevision,
+  sections: z.record(z.string(), z.unknown()), }).strict();
 const availableDocument = z.object({ id: z.string().uuid(), student_id: z.string().uuid(), scan_status: z.literal("clean"), review_status: z.string().refine(value => value !== "rejected"), archived_at: z.null(), deleted_at: z.null() }).strict();
 async function admissionServiceClient(): Promise<unknown> {
   // Lazy and metadata-only: never use this capability for private report writes.
@@ -87,9 +100,11 @@ export async function applyReviewedExtractionWithAdmission(
     if (partner.error || partner.data !== false) throw new Error();
     const view = await client.rpc("can_view_document", { _user_id: actor.data, _document_id: data.document_id });
     if (view.error || view.data !== true) throw new Error();
-    const extraction = await client.from("document_extractions").select("id,student_id,document_id,status").eq("id", data.extraction_id).maybeSingle();
+    const extraction = await client.from("document_extractions").select("id,student_id,document_id,status,updated_at,sections").eq("id", data.extraction_id).maybeSingle();
     const source = reviewedSource.safeParse(extraction.data);
-    if (extraction.error || !source.success || source.data.id !== data.extraction_id || source.data.student_id !== data.student_id || source.data.document_id !== data.document_id) throw new Error();
+    if (extraction.error || !source.success || source.data.id !== data.extraction_id || source.data.student_id !== data.student_id || source.data.document_id !== data.document_id
+      || reviewInstant(source.data.updated_at) !== reviewInstant(data.expected_updated_at)
+      || reviewedJson(source.data.sections) !== reviewedJson(data.expected_sections)) throw new Error();
     const document = await client.from("documents").select("id,student_id,scan_status,review_status,archived_at,deleted_at").eq("id", data.document_id).maybeSingle();
     const available = availableDocument.safeParse(document.data);
     if (document.error || !available.success || available.data.id !== data.document_id || available.data.student_id !== data.student_id) throw new Error();

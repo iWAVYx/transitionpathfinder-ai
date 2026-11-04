@@ -24,7 +24,7 @@
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
-      "sha256": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458"
+      "sha256": "ab1f70d8e63bb6cc93ee00089a84a75b3d8533002087ea7c4138bb4fdc60e1c0"
     },
     {
       "path": "src/lib/evidence-writers.functions.ts",
@@ -724,7 +724,7 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-02",
     "checked_against_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
-    "evidence": "docs/production-readiness/evidence/document-rescan-handler-local-2026-11-04.json",
+    "evidence": "docs/production-readiness/evidence/document-apply-preflight-local-2026-11-04.json",
     "declared_entries_checked": 29,
     "corrected_entries": 3,
     "complete_release_manifest": false,
