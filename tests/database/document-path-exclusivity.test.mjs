@@ -3308,3 +3308,21 @@ test('registration auto release quarantine completion releases both unused oblig
 test('registration auto release needs-review never frees capacity',async()=>{
  const x=await automaticRegistrationReleaseFixture();await as('','service_role');await finishOperation(x.receipt,'needs_review');await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_capacity_registration_settlements')).rows[0].n,0);assert.equal((await capacityRows())[0].reserved_units,2);
 });
+for(const stage of ['queue','release'])for(const fault of ['column','rls','helper-path','helper-grant'])test('registration auto hardening '+stage+' rejects '+fault,async()=>{
+ await automaticRegistrationFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true,4);await db.exec('RESET ROLE');
+ if(fault==='column')await db.exec('GRANT SELECT(operation_id) ON public.document_capacity_registration_settlements TO service_role');
+ if(fault==='rls')await db.exec('ALTER TABLE public.document_registration_completion_receipts DISABLE ROW LEVEL SECURITY');
+ if(fault==='helper-path')await db.exec('ALTER FUNCTION public.settle_internal_document_registration_capacity(uuid) SET search_path TO public');
+ if(fault==='helper-grant')await db.exec('GRANT EXECUTE ON FUNCTION public.settle_internal_document_registration_capacity(uuid) TO service_role');
+ await assert.rejects(db.exec(stage==='queue'?registrationQueueTransfer:registrationAutoRelease));await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regprocedure('public.settle_completed_document_registration(uuid)') AS routine")).rows[0].routine,null);
+});
+for(const fault of ['suppressed','altered'])test('registration auto release rolls back finish after '+fault+' actual settlement',async()=>{
+ const x=await automaticRegistrationReleaseFixture();await db.exec('RESET ROLE');
+ await db.exec("CREATE OR REPLACE FUNCTION public.tf_fault_registration_settlement() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "+(fault==='suppressed'?'RETURN NULL;':'NEW.released_units:=2;RETURN NEW;')+" END $$;CREATE TRIGGER zzzz_fault_registration_settlement BEFORE INSERT ON public.document_capacity_registration_settlements FOR EACH ROW EXECUTE FUNCTION public.tf_fault_registration_settlement()");
+ await assert.rejects(completeQuotaAttempt(x));await db.exec('RESET ROLE');
+ assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].state,'active');
+ assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_capacity_registration_settlements')).rows[0].n,0);
+ assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_registration_completion_receipts')).rows[0].n,0);
+ assert.ok((await capacityRows())[0].summary_job_id);
+});

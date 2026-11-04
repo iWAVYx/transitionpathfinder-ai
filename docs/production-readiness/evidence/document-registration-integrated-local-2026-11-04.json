@@ -1,7 +1,7 @@
 {
   "date": "2026-11-04",
   "action": "1.3",
-  "status": "Local reservation/queue/guarded producer-release draft integrated; native and installation hardening pending",
+  "status": "Reservation/queue/producer-release draft and installation metadata checks locally verified; native/full-schema pending",
   "source_manifest": [
     {
       "path": "docs/production-readiness/proposals/document-registration-capacity-admission.sql",
@@ -9,32 +9,39 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-registration-queue-transfer.sql",
-      "sha256": "7e737d4d37bf9ba61498c3b83853d2096d8f2b389e28df4377e6300cc1e213b6"
+      "sha256": "bb237c4ac1508857bbf3e76fe8f070f2ebda36918b7e2dbda8e4a75111f38dc6"
     },
     {
       "path": "docs/production-readiness/proposals/document-registration-automatic-release.sql",
-      "sha256": "a8dab8887e203121ea76c78163df9d45964683c8c6823885910a6b67302d9a3f"
+      "sha256": "ade89b1e38cf985cc0de3b911e8a561a0b26ce4f2111d7ff616d6356f9fe64d0"
     }
   ],
   "validation": {
-    "disposable_tests": 29,
-    "passed": 29,
+    "disposable_tests": 39,
+    "passed": 39,
     "failed": 0,
-    "log_sha256": "7cfc45d92560ec207258267c37163e055c40903c404129bc328c020b18e2c899"
+    "log_sha256": "17ab0e33679f6e10faa1375ac024736510a0875130dc7b2153fcac5b8a225e2c"
   },
   "outcomes": [
     "Exact registration job transfer preserves reserved capacity",
     "Exact same-transaction rescan queue uses separate reservation",
     "Duplicate job denied; job and pointer rollback together",
-    "Clean producer releases one unit; quarantine releases two; needs-review releases none"
+    "Clean producer releases one unit; quarantine releases two; needs-review releases none",
+    "Suppressed/altered actual settlement rolls back finish and completion receipt while preserving queued work"
   ],
   "remaining": [
-    "Strengthen complete dependency/owner/grant/trigger preflight for queue/release drafts",
+    "Complete combined-chain prerequisite/trigger review and distinct SQL owner tests before canonical promotion",
     "Test late write suppression, altered settlements, distinct SQL owners and native concurrency",
     "Verify full-schema chain and final source/worker integration",
     "Review canonical packaging and obtain authorization before hosted acceptance"
   ],
   "whole_action_complete": false,
   "hosted_actions": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "installation_checks": {
+    "current_routines": 15,
+    "private_tables": 7,
+    "owner_fixed_path_body_and_execution_grants": true,
+    "table_and_column_privileges_and_rls": true
+  }
 }

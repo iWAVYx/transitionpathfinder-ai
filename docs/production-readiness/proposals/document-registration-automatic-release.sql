@@ -8,6 +8,49 @@ DO $preflight$ BEGIN
   OR NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure AND md5(prosrc)='e182bc060bdfdca5637ce8685836222d') THEN
   RAISE EXCEPTION 'Exact paused completion prerequisite required'; END IF;
 END; $preflight$;
+DO $registration_dependencies$
+DECLARE item record; caller text; relation_name text; admission_owner oid;
+BEGIN
+ SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+ FOR item IN SELECT * FROM (VALUES
+ ('public.guard_document_rescan_completion_receipt()','66fc62f3994165d4d1cc5d2baae32f88',false,false),
+ ('public.record_internal_document_rescan_completion(uuid)','d33cda072581b15c7172ca9046d8b958',true,false),
+ ('public.guard_unfinished_document_rescan()','be1187efef8bef6e42bd2932bbc1f634',true,false),
+ ('public.guard_completed_document_rescan_lease()','1217646df6772f74ae458ce269c71a49',true,false),
+ ('public.guard_document_capacity_rescan_settlement()','d0847740f46ca699471dab7a2df59c00',false,false),
+ ('public.settle_internal_document_rescan_capacity(uuid)','27739ecef53efbe6d20e553200bcca56',false,false),
+ ('public.guard_document_capacity_reservation()','4c09f0f14edc20a934e14923c5d80ff6',false,false),
+ ('public.claim_admitted_document_summary(uuid,integer)','c447fea2a55afefc6ad1451986ac1eea',true,false),
+ ('public.read_internal_document_rescan_completion(uuid,text)','a8217daa37516c4f7a433a64acf8e43f',false,false),
+ ('public.finish_document_operation(uuid,uuid,uuid,text)','e182bc060bdfdca5637ce8685836222d',true,true),
+ ('public.settle_internal_document_summary_capacity(uuid)','2f42438a87505bab82291fce38cb60a9',false,false),
+ ('public.settle_completed_document_summary(uuid)','9d9fa98f0d49a6ba04dcc5cff40e056a',true,false),
+ ('public.guard_settled_document_summary_lease()','a710ef5817995460006b1af2b6c97c72',true,false),
+ ('public.settle_internal_document_registration_capacity(uuid)','174b6e74b5cd821d41f731915b546d73',false,false),
+ ('public.record_internal_document_registration_completion(uuid)','4b2881100167d594248a391149957ae8',true,false)
+ ) expected(signature,body_md5,definer,admission_owned) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+   AND prosecdef=item.definer AND proconfig=ARRAY['search_path=pg_catalog']
+   AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END) THEN
+   RAISE EXCEPTION 'Exact registration dependency required'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='service_role' AND item.signature IN
+    ('public.finish_document_operation(uuid,uuid,uuid,text)','public.claim_admitted_document_summary(uuid,integer)')) THEN
+    RAISE EXCEPTION 'Private registration dependency permissions changed'; END IF;
+  END LOOP;
+ END LOOP;
+ FOREACH relation_name IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases','public.document_capacity_reservations',
+  'public.document_registration_completion_receipts','public.document_capacity_registration_settlements','public.document_rescan_outcome_receipts','public.document_upload_operation_bindings'] LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relrowsecurity
+   AND relowner=CASE WHEN relation_name IN ('public.document_operation_control','public.document_operation_leases') THEN admission_owner ELSE current_user::regrole::oid END) THEN
+   RAISE EXCEPTION 'Private registration table ownership and RLS required'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_table_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+    OR has_any_column_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,REFERENCES') THEN
+    RAISE EXCEPTION 'Private registration table permissions changed'; END IF;
+  END LOOP;
+ END LOOP;
+END; $registration_dependencies$;
 CREATE FUNCTION public.settle_completed_document_registration(_operation_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
 AS $settle_registration$
