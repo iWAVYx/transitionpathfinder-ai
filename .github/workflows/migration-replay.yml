@@ -1904,6 +1904,10 @@ jobs:
              OR has_function_privilege('anon',item.signature,'EXECUTE') OR has_function_privilege('authenticated',item.signature,'EXECUTE') THEN
              RAISE EXCEPTION 'Unexpected rescan service boundary'; END IF;
            END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.check_document_rescan_outcome_commit()'::regprocedure
+            AND prosecdef AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']
+            AND md5(prosrc)='1af8dd3b1338f86104829e80be091c29') THEN
+            RAISE EXCEPTION 'Private deferred validator execution context required'; END IF;
           END; $service_boundary_proof$;
           SQL
           psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-service-boundary.json

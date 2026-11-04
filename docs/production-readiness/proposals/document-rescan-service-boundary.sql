@@ -39,6 +39,25 @@ BEGIN
   END LOOP;
  END LOOP;
 END; $preflight$;
+DO $deferred_owner_check$
+DECLARE caller text;
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.check_document_rescan_outcome_commit()'::regprocedure
+  AND md5(prosrc)='1af8dd3b1338f86104829e80be091c29' AND NOT prosecdef
+  AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog'])
+  OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_rescan_outcome_receipts'::regclass
+   AND tgname='document_rescan_outcome_committed' AND tgfoid='public.check_document_rescan_outcome_commit()'::regprocedure
+   AND tgdeferrable AND tginitdeferred AND tgenabled='O' AND tgtype=5 AND NOT tgisinternal) THEN
+  RAISE EXCEPTION 'Reviewed deferred rescan validator required'; END IF;
+ FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+  IF has_function_privilege(caller,'public.check_document_rescan_outcome_commit()','EXECUTE')
+   OR has_function_privilege(caller,'public.validate_internal_document_rescan_outcome(uuid)','EXECUTE') THEN
+   RAISE EXCEPTION 'Deferred validation helpers must remain private'; END IF;
+ END LOOP;
+END; $deferred_owner_check$;
+-- Deferred triggers execute after the service wrapper has returned. Execute
+-- this exact trigger body as its existing trusted owner; no service grant.
+ALTER FUNCTION public.check_document_rescan_outcome_commit() SECURITY DEFINER;
 CREATE FUNCTION public.begin_bound_document_rescan(_operation_id uuid,_actor_id uuid,_document_id uuid,_expected_revision timestamptz,_source jsonb)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
 AS $boundary$

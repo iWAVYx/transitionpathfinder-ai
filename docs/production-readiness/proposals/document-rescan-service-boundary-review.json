@@ -1,7 +1,7 @@
 {
-  "status": "prepared;23 focused disposable cases pass;native/full-schema pending",
+  "status": "Deferred commit execution-context fix locally verified; native/full-schema repeat pending",
   "workstream_action": "1.1",
-  "proposal_sha256": "ef202db27311fd18bff848b580a285bc5710b6ff1359b698ddc041e1db360c2c",
+  "proposal_sha256": "bf3f953f69c1878ee4999dc18f97d554281969a0ca61f71d223efc35b30de8ee",
   "routines": [
     {
       "name": "begin_bound_document_rescan",
@@ -21,5 +21,18 @@
   ],
   "handler_wired": false,
   "hosted_applied": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "native_failure": {
+    "run": 41870811483,
+    "cause": "Deferred commit trigger ran with service-role execution context and could not call private validator",
+    "fixed_in_prepared_source": true,
+    "validator_grants_expanded": false,
+    "native_recheck_pending": true
+  },
+  "combined_focused": {
+    "tests": 67,
+    "passed": 65,
+    "failed": 0,
+    "native_only_skips": 2
+  }
 }

@@ -17,17 +17,20 @@
     }
   ],
   "validation": {
-    "disposable_tests": 39,
-    "passed": 39,
+    "disposable_tests": 43,
+    "passed": 41,
     "failed": 0,
-    "log_sha256": "17ab0e33679f6e10faa1375ac024736510a0875130dc7b2153fcac5b8a225e2c"
+    "log_sha256": "09a2f6dffcff2db6c6dc46f3dca2da13073653a0a47b238c6b71950b50181b5c",
+    "native_only_skipped": 2
   },
   "outcomes": [
     "Exact registration job transfer preserves reserved capacity",
     "Exact same-transaction rescan queue uses separate reservation",
     "Duplicate job denied; job and pointer rollback together",
     "Clean producer releases one unit; quarantine releases two; needs-review releases none",
-    "Suppressed/altered actual settlement rolls back finish and completion receipt while preserving queued work"
+    "Suppressed/altered actual settlement rolls back finish and completion receipt while preserving queued work",
+    "Distinct admission owner preserved without service access to private settlement",
+    "Combined registration completion and rescan service installation verified locally"
   ],
   "remaining": [
     "Complete combined-chain prerequisite/trigger review and distinct SQL owner tests before canonical promotion",

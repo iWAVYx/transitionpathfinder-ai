@@ -3273,7 +3273,7 @@ for(const fault of ['grant','column','rls','trigger','helper'])test('registratio
 });
 
 const registrationQueueTransfer=readFileSync('docs/production-readiness/proposals/document-registration-queue-transfer.sql','utf8');
-async function automaticRegistrationQueueFixture(){await automaticRegistrationFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(registrationQueueTransfer);await as('','service_role');await pauseOperation(false,5);return quotaAttempt(1);}
+async function automaticRegistrationQueueFixture(options={}){await automaticRegistrationFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true,...options});await as('','service_role');await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(registrationQueueTransfer);await as('','service_role');await pauseOperation(false,5);return quotaAttempt(1);}
 test('registration auto queue binds the exact saved job without adding capacity',async()=>{
  const x=await automaticRegistrationQueueFixture();await completeQuotaAttempt(x);const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].reserved_units,2);assert.ok(rows[0].summary_job_id);assert.equal((await db.query('SELECT id FROM public.ai_jobs WHERE id=$1',[rows[0].summary_job_id])).rows.length,1);
 });
@@ -3298,7 +3298,7 @@ test('registration auto queue rollback restores the unbound reservation and remo
 });
 
 const registrationAutoRelease=readFileSync('docs/production-readiness/proposals/document-registration-automatic-release.sql','utf8');
-async function automaticRegistrationReleaseFixture(){const x=await automaticRegistrationQueueFixture();await as('','service_role');await pauseOperation(true,6);await db.exec('RESET ROLE');await db.exec(registrationAutoRelease);return x;}
+async function automaticRegistrationReleaseFixture(options={}){const x=await automaticRegistrationQueueFixture(options);await as('','service_role');await pauseOperation(true,6);await db.exec('RESET ROLE');await db.exec(registrationAutoRelease);return x;}
 test('registration auto release clean completion releases exactly the producer unit',async()=>{
  const x=await automaticRegistrationReleaseFixture();await completeQuotaAttempt(x);await db.exec('RESET ROLE');const rows=(await db.query('SELECT * FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows;assert.equal(rows.length,1);assert.equal(rows[0].released_units,1);assert.ok((await capacityRows())[0].summary_job_id);
 });
@@ -3325,4 +3325,30 @@ for(const fault of ['suppressed','altered'])test('registration auto release roll
  assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_capacity_registration_settlements')).rows[0].n,0);
  assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_registration_completion_receipts')).rows[0].n,0);
  assert.ok((await capacityRows())[0].summary_job_id);
+});
+
+test('registration auto release retains distinct admission owner without exposing private settlement',async()=>{
+ const x=await automaticRegistrationReleaseFixture({separateAdmissionOwner:true});await completeQuotaAttempt(x);await db.exec('RESET ROLE');
+ const r=(await db.query("SELECT proowner='tf_document_admission_owner'::regrole AS retained FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0];assert.equal(r.retained,true);
+ for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.settle_completed_document_registration(uuid)','EXECUTE') AS exposed",[role])).rows[0].exposed,false);
+ assert.equal((await db.query('SELECT released_units FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].released_units,1);
+});
+test('registration auto combined chain preserves rescan service interfaces and registration completion',async()=>{
+ const x=await automaticRegistrationReleaseFixture();await db.exec('RESET ROLE');await db.exec(rescanServiceBoundary);await completeQuotaAttempt(x);await db.exec('RESET ROLE');
+ assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)','EXECUTE') AS allowed")).rows[0].allowed,true);
+ assert.equal((await db.query('SELECT released_units FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].released_units,1);
+});
+async function prepareRegistrationCleanQueue(x){
+ await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='clean',scan_verdict=$1,scan_data_id='fictional-confirmed-scan',scanned_at=now(),review_status='pending_review',archived_at=NULL WHERE id=$2",[{code:'clean',provider:'cloudmersive',content_sha256:x.hash,source:'registration_reviewed_copy',clean_result:true,blocked_reasons:[]},x.document]);
+ await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'document_summary','queued',$4)",[uid(49001),student,actors.family,{document_id:x.document,storage_path:x.path}]);
+}
+for(const ending of ['COMMIT','ROLLBACK'])test('registration auto native duplicate completion serializes after '+ending,{skip:!native},async()=>{
+ const x=await automaticRegistrationReleaseFixture();await prepareRegistrationCleanQueue(x);const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');await finishOperation(x.receipt,'completed',a);
+ const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishOperation(x.receipt,'completed',b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const result=await pending;if(ending==='COMMIT')assert.equal(result.error?.code,'42501');else assert.equal(result.error,undefined);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_capacity_registration_settlements WHERE operation_id=$1',[x.receipt.operation_id])).rows[0].n,1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+test('rescan service boundary deferred commit runs as existing owner while validator remains private',async()=>{
+ await serviceRescanFixture();const r=(await db.query("SELECT prosecdef,proconfig FROM pg_proc WHERE oid='public.check_document_rescan_outcome_commit()'::regprocedure")).rows[0];assert.equal(r.prosecdef,true);assert.deepEqual(r.proconfig,['search_path=pg_catalog']);
+ for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.validate_internal_document_rescan_outcome(uuid)','EXECUTE') AS exposed",[role])).rows[0].exposed,false);
 });
