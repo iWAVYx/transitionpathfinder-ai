@@ -1,0 +1,25 @@
+{
+  "status": "prepared;23 focused disposable cases pass;native/full-schema pending",
+  "workstream_action": "1.1",
+  "proposal_sha256": "ef202db27311fd18bff848b580a285bc5710b6ff1359b698ddc041e1db360c2c",
+  "routines": [
+    {
+      "name": "begin_bound_document_rescan",
+      "signature": "uuid,uuid,uuid,timestamptz,jsonb",
+      "body_md5": "9f791ab0018a9b712576893728de1772"
+    },
+    {
+      "name": "mark_bound_document_rescan_pending",
+      "signature": "uuid,uuid,uuid,text",
+      "body_md5": "e56c403622617b28788e0d5a29478334"
+    },
+    {
+      "name": "persist_bound_document_rescan_result",
+      "signature": "uuid,uuid,uuid,jsonb",
+      "body_md5": "c5476d2011eab14412ed27520a8e498b"
+    }
+  ],
+  "handler_wired": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

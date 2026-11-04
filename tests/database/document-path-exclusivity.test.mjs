@@ -121,6 +121,7 @@ afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
+    DROP FUNCTION IF EXISTS public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb),public.mark_bound_document_rescan_pending(uuid,uuid,uuid,text),public.persist_bound_document_rescan_result(uuid,uuid,uuid,jsonb);
     DO $reset_auto_summary$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_settled_summary_lease_frozen ON public.document_operation_leases;END IF;END; $reset_auto_summary$;
     DROP FUNCTION IF EXISTS public.settle_completed_document_summary(uuid),public.guard_settled_document_summary_lease();
     DO $reset_rescan_settlement$ BEGIN IF to_regclass('public.document_rescan_completion_receipts') IS NOT NULL THEN
@@ -3156,4 +3157,76 @@ test('summary auto renews every inherited private routine path before changing r
  const signatures=["public.read_internal_document_rescan_completion(uuid,text)", "public.guard_document_rescan_completion_receipt()", "public.record_internal_document_rescan_completion(uuid)", "public.guard_unfinished_document_rescan()", "public.guard_completed_document_rescan_lease()", "public.guard_document_capacity_rescan_settlement()", "public.settle_internal_document_rescan_capacity(uuid)", "public.finish_document_operation(uuid,uuid,uuid,text)", "public.guard_document_capacity_reservation()", "public.claim_admitted_document_summary(uuid,integer)", "public.claim_internal_document_capacity(uuid,uuid)", "public.lock_internal_document_capacity()", "public.read_verified_document_summary_source(uuid,timestamptz,integer)", "public.read_internal_document_registration_completion(uuid)", "public.guard_document_registration_completion_receipt()", "public.guard_rescan_document_summary_queue()", "public.guard_document_summary_operation_binding()", "public.guard_document_rescan_source_binding()", "public.guard_document_rescan_pending_receipt()", "public.guard_document_summary_completion_receipt()", "public.guard_completed_document_summary_job()", "public.guard_registered_document_summary_queue()", "public.guard_document_rescan_outcome_receipt()", "public.validate_internal_document_rescan_outcome(uuid)", "public.check_document_rescan_outcome_commit()", "public.persist_internal_document_rescan_result(uuid,uuid,uuid,jsonb)", "public.queue_internal_document_capacity(uuid,uuid)", "public.begin_document_operation(uuid,uuid,text)", "public.reject_document_source_binding_mutation()", "public.guard_bound_document_summary_job()", "public.guard_document_summary_operation_completion()", "public.lock_internal_document_capacity_completion()"];await db.exec('BEGIN');
  try{for(const signature of signatures){await db.exec('SAVEPOINT inherited_routine');await db.exec('ALTER FUNCTION '+signature+' RESET ALL');await assert.rejects(db.exec(automaticSummarySettlement),error=>['55000','P0001'].includes(error.code),signature+' path must reject');await db.exec('ROLLBACK TO SAVEPOINT inherited_routine;RELEASE SAVEPOINT inherited_routine');}}
  finally{await db.exec('ROLLBACK');}
+});
+
+const rescanServiceBoundary=readFileSync('docs/production-readiness/proposals/document-rescan-service-boundary.sql','utf8');
+async function serviceRescanFixture(){
+ const x=await outcomeRescanFixture({rescanSettlement:true,automaticTransfer:true,automaticRelease:true});
+ await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');await db.exec(rescanServiceBoundary);return x;
+}
+for(const role of ['anon','authenticated'])test('rescan service boundary denies browser role '+role,async()=>{
+ const x=await serviceRescanFixture();await as(actors.family,role);
+ await assert.rejects(db.query('SELECT public.persist_bound_document_rescan_result($1,$2,$3,$4)',[x.claim.operation_id,x.actor,x.claim.receipt_id,rescanCleanScan]),{code:'42501'});
+ assert.equal((await rescanOutcomeRows(x)).outcomes.length,0);
+});
+for(const scan of [rescanCleanScan,rescanInfectedScan])test('rescan service boundary persists exact '+scan.code+' result while paused',async()=>{
+ const x=await serviceRescanFixture();await as('','service_role');
+ const r=(await db.query('SELECT public.persist_bound_document_rescan_result($1,$2,$3,$4) AS result',[x.claim.operation_id,x.actor,x.claim.receipt_id,scan])).rows[0].result;
+ assert.equal(r.schema,'document-rescan-outcome-v1');assert.equal((await rescanOutcomeRows(x)).outcomes.length,1);
+ await as('','service_role');await assert.rejects(db.query('SELECT public.persist_internal_document_rescan_result($1,$2,$3,$4)',[x.claim.operation_id,x.actor,x.claim.receipt_id,scan]),{code:'42501'});
+});
+test('rescan service boundary wrong capability preserves pending source and empty result',async()=>{
+ const x=await serviceRescanFixture();await as('','service_role');
+ await assert.rejects(db.query('SELECT public.persist_bound_document_rescan_result($1,$2,$3,$4)',[x.claim.operation_id,x.actor,uid(45001),rescanCleanScan]),{code:'42501'});
+ const r=await rescanOutcomeRows(x);assert.equal(r.outcomes.length,0);assert.equal(r.documents[0].scan_status,'pending');
+});
+
+async function serviceRescanStartFixture(){
+ const x=await rescanClaimFixture({pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});
+ await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');await db.exec(rescanServiceBoundary);
+ await as('','service_role');await pauseOperation(false,3);return x;
+}
+async function serviceRescanBegin(x,actor=actors.family,source=x.source){return (await db.query('SELECT public.begin_bound_document_rescan($1,$2,$3,$4,$5) AS receipt',[uid(46001),actor,x.document,x.revision,source])).rows[0].receipt;}
+async function serviceRescanPending(x,claim,actor=actors.family){return (await db.query('SELECT public.mark_bound_document_rescan_pending($1,$2,$3,$4) AS receipt',[claim.operation_id,actor,claim.receipt_id,x.hash])).rows[0].receipt;}
+for(const role of ['family','student','educator','school','district','owner','partner'])test('rescan service boundary complete sequence for '+role,async()=>{
+ const x=await serviceRescanStartFixture();const actor=actors[role];assert.ok(actor);
+ await db.exec('RESET ROLE');if(!['family','student'].includes(role))await db.query("INSERT INTO public.student_relationships VALUES($1,$2,'approved','manage_documents')",[student,actor]);
+ await as('','service_role');
+ if(role==='partner'){await assert.rejects(serviceRescanBegin(x,actor),{code:'42501'});return;}
+ const claim=await serviceRescanBegin(x,actor);assert.equal(claim.reserved_units,2);
+ const pending=await serviceRescanPending(x,claim,actor);assert.equal(pending.schema,'document-rescan-pending-v1');
+ const r=(await db.query('SELECT public.persist_bound_document_rescan_result($1,$2,$3,$4) AS result',[claim.operation_id,actor,claim.receipt_id,rescanCleanScan])).rows[0].result;
+ assert.equal(r.schema,'document-rescan-outcome-v1');assert.ok(r.summary_job_id);
+ const rows=await rescanOutcomeRows({...x,claim});assert.equal(rows.outcomes.length,1);assert.equal(rows.capacity[0].reserved_units,2);
+});
+for(const role of ['anon','authenticated'])test('rescan service boundary admission and pending deny '+role,async()=>{
+ const x=await serviceRescanStartFixture();await as(actors.family,role);await assert.rejects(serviceRescanBegin(x),{code:'42501'});
+ await as('','service_role');const claim=await serviceRescanBegin(x);await as(actors.family,role);await assert.rejects(serviceRescanPending(x,claim),{code:'42501'});
+ assert.equal((await pendingRescanRows({...x,claim})).source.scan_status,'failed');
+});
+test('rescan service boundary mismatched source leaves no reservation',async()=>{
+ const x=await serviceRescanStartFixture();await assert.rejects(serviceRescanBegin(x,actors.family,{...x.source,content_hash:'f'.repeat(64)}),{code:'42501'});
+ const rows=await rescanClaimRows();assert.equal(rows.bindings.length,0);assert.equal(rows.capacity.length,0);
+});
+test('rescan service boundary rollback removes result and queue while retaining committed pending state',async()=>{
+ const x=await serviceRescanStartFixture();const claim=await serviceRescanBegin(x);await serviceRescanPending(x,claim);await db.exec('BEGIN');
+ await db.query('SELECT public.persist_bound_document_rescan_result($1,$2,$3,$4)',[claim.operation_id,actors.family,claim.receipt_id,rescanCleanScan]);await db.exec('ROLLBACK');
+ const rows=await rescanOutcomeRows({...x,claim});assert.equal(rows.outcomes.length,0);assert.equal(rows.documents[0].scan_status,'pending');assert.equal(rows.capacity[0].summary_job_id,null);
+});
+test('rescan service boundary paused admission refuses new work',async()=>{
+ const x=await serviceRescanStartFixture();await pauseOperation(true,4);await assert.rejects(serviceRescanBegin(x),{code:'55000'});
+ const rows=await rescanClaimRows();assert.equal(rows.bindings.length,0);
+});
+
+for(const fault of ['grant','column','rls','owner','helper-grant','helper-path'])test('rescan service boundary refuses installation drift '+fault,async()=>{
+ await rescanClaimFixture({pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});
+ await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
+ if(fault==='grant')await db.exec('GRANT SELECT ON public.document_rescan_source_bindings TO service_role');
+ if(fault==='column')await db.exec('GRANT SELECT(operation_id) ON public.document_rescan_source_bindings TO service_role');
+ if(fault==='rls')await db.exec('ALTER TABLE public.document_rescan_source_bindings DISABLE ROW LEVEL SECURITY');
+ if(fault==='owner')await db.exec('ALTER TABLE public.document_rescan_source_bindings OWNER TO service_role');
+ if(fault==='helper-grant')await db.exec('GRANT EXECUTE ON FUNCTION public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb) TO service_role');
+ if(fault==='helper-path')await db.exec('ALTER FUNCTION public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb) SET search_path TO public');
+ await assert.rejects(db.exec(rescanServiceBoundary));await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regprocedure('public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)') AS routine")).rows[0].routine,null);
 });

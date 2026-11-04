@@ -56,6 +56,7 @@ on:
       - "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-counted-summary-handoff.sql"
       - "docs/production-readiness/proposals/document-automatic-summary-settlement.sql"
+      - "docs/production-readiness/proposals/document-rescan-service-boundary.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -131,6 +132,7 @@ on:
       - "docs/production-readiness/proposals/document-rescan-capacity-settlement.sql"
       - "docs/production-readiness/proposals/document-counted-summary-handoff.sql"
       - "docs/production-readiness/proposals/document-automatic-summary-settlement.sql"
+      - "docs/production-readiness/proposals/document-rescan-service-boundary.sql"
       - "docs/production-readiness/proposals/document-upload-canonical-preparation.json"
       - "supabase/functions/ai-job-processor/**"
       - "tests/unit/verified-document-summary.test.ts"
@@ -254,7 +256,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome|rescan settlement|counted worker|summary auto' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='registration read-policy|registration owner-context|rescan private|rescan pending|rescan outcome|rescan settlement|counted worker|summary auto|rescan service boundary' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -1884,6 +1886,32 @@ jobs:
             FROM pg_proc WHERE oid IN ('public.guard_document_rescan_completion_receipt()'::regprocedure,'public.record_internal_document_rescan_completion(uuid)'::regprocedure,'public.guard_unfinished_document_rescan()'::regprocedure,'public.guard_completed_document_rescan_lease()'::regprocedure,'public.guard_document_capacity_rescan_settlement()'::regprocedure,'public.settle_internal_document_rescan_capacity(uuid)'::regprocedure,'public.guard_document_capacity_reservation()'::regprocedure,'public.claim_admitted_document_summary(uuid,integer)'::regprocedure,'public.read_internal_document_rescan_completion(uuid,text)'::regprocedure,'public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.settle_internal_document_summary_capacity(uuid)'::regprocedure,'public.settle_completed_document_summary(uuid)'::regprocedure,'public.guard_settled_document_summary_lease()'::regprocedure)));
           SQL
 
+      - name: Verify rescan service boundary after complete replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-rescan-service-boundary.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $service_boundary_proof$
+          DECLARE item record;
+          BEGIN
+           FOR item IN SELECT * FROM (VALUES
+           ('public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)','9f791ab0018a9b712576893728de1772'),
+           ('public.mark_bound_document_rescan_pending(uuid,uuid,uuid,text)','e56c403622617b28788e0d5a29478334'),
+           ('public.persist_bound_document_rescan_result(uuid,uuid,uuid,jsonb)','c5476d2011eab14412ed27520a8e498b')
+           ) expected(signature,body_md5) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+             AND prosecdef AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog'])
+             OR NOT has_function_privilege('service_role',item.signature,'EXECUTE')
+             OR has_function_privilege('anon',item.signature,'EXECUTE') OR has_function_privilege('authenticated',item.signature,'EXECUTE') THEN
+             RAISE EXCEPTION 'Unexpected rescan service boundary'; END IF;
+           END LOOP;
+          END; $service_boundary_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-service-boundary.json
+          SELECT jsonb_build_object('schema','document-rescan-service-boundary-proof-v1','phase','after-sixteenth-proposal','hosted_applied',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'owner',proowner::regrole::text,'definer',prosecdef,'fixed_path',proconfig) ORDER BY proname)
+            FROM pg_proc WHERE proname IN ('begin_bound_document_rescan','mark_bound_document_rescan_pending','persist_bound_document_rescan_result') AND pronamespace='public'::regnamespace));
+          SQL
+
       - name: Inventory document reference metadata without reading user rows
         run: |
           PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 <<'SQL'
@@ -1996,4 +2024,5 @@ jobs:
             /tmp/document-rescan-capacity-settlement.json
             /tmp/document-counted-summary-handoff.json
             /tmp/document-automatic-summary-settlement.json
+            /tmp/document-rescan-service-boundary.json
           if-no-files-found: ignore
