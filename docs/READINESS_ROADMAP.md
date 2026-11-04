@@ -1,6 +1,6 @@
 # TransitionForward — Readiness Roadmap
 
-## Current Release Checklist — November 3
+## Current Release Checklist — November 4
 
 PR #211 remains a draft. These are eight work packages, not eight small fixes or a delivery estimate. The full TF01–TF26 roadmap and historical evidence below remain in scope. Report-length polish and Parent Pilot / Pathway Snapshot remain deferred.
 
@@ -8,16 +8,16 @@ Progress updates identify the existing numbered workstream, the specific substep
 
 | Workstream | Current Position | Required Before Closing |
 | --- | --- | --- |
-| 1. Shared Document Processing | Automatic counted-worker transfer verified through stage14 on both native/full-schema runs. | Verify the prepared exact automatic worker-release hook in native/full-schema CI; finish producer/Apply hooks and applicable-role checks. |
+| 1. Shared Document Processing | Automatic counted-worker transfer and exact worker settlement verified through stage15 on both native/full-schema runs. | Finish source-bound producer/Apply hooks and applicable-role checks; worker native gate is complete. |
 | 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
 | 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
 | 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 15 unapplied review proposals. All 28 declared cutover-manifest entries and the ordered15-proposal inventory are reconciled against recorded source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
-| 5. Security and Product Consistency | Role/privacy/demo evidence retained; private preflight drift repair locally verified. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
+| 5. Security and Product Consistency | Role/privacy/demo evidence retained; private preflight drift repair verified in both native/full-schema runs. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
 | 6. Coordinated Staging Release | Current hosted release remains unchanged. | Fresh authorization for the exact schema, website, separate worker and isolated Lovable rollout, followed by source/isolation checks. |
 | 7. Final Acceptance | Earlier all-role/demo checks remain historical evidence. | Run final exact-release signed-in, signed-out, mobile, demo, document and role-access acceptance. |
 | 8. Merge Review | PR remains open/draft; no main merge authorized. | Complete review and obtain specific merge authorization; verify main/Lovable auto-deployment cannot bypass production approval. |
 
-**Latest verified gate:** source `574f7220` passed both **1,340/1,340 native suites with zero skips**, both **295/295** early checks and complete **225+fourteen** replay. [Verified proofs](production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json). Next: verify the prepared actual-row-confirmed automatic worker release (proposal15) in native/full-schema CI, then continue remaining producer/Apply integration. The eight work packages remain open/partial; a verified private foundation is not a completed release package.
+**Latest verified gate:** source `e1940751` passed both **1,386/1,386 native suites with zero skips**, both **340/340** early checks, both full local models (**1,218 pass / 168 native-only skips**) and complete **225+fifteen** replay. [Verified proofs](production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json). Automatic exact worker release and metadata preflight hardening are native verified. Next: source-bound rescan/producer integration, remaining Apply/general accounting and applicable-role checks. All eight workstreams remain open/partial.
 
 **Then production:** complete the exact approved staging rollout and final acceptance first. Before any main merge that could affect hosting, review the deployment boundary and current production go/no-go controls. Confirm current source/build identity, production migration/ledger baseline, live billing, email and provider configuration, privacy approvals, security findings, secret isolation, backup/restore and rollback readiness. Preserve prior successful evidence but confirm its applicability to the exact release. The saved September production snapshot is historical; its pending-migration count is not a fresh production inventory. No production access or readiness approval is implied here.
 
@@ -26,7 +26,7 @@ After explicit production authorization: release the exact tested application/wo
 Manifest reconciliation: [record](production-readiness/evidence/document-cutover-manifest-reconciliation-2026-11-02.json). Worker handoff audit: [record](production-readiness/evidence/document-worker-capacity-handoff-audit-2026-11-02.json). No hosted action, AI/provider call, migration, deployment, publication, main merge or production access is authorized by this checklist.
 
 
-**November 3 source-review checkpoint:** Workstream 8’s [22-workflow source inventory](production-readiness/evidence/source-workflow-boundary-review-2026-11-03.json) is complete locally; external Lovable/main delivery controls remain unverified. Workstream 1’s [producer handoff map](production-readiness/evidence/document-producer-integration-audit-2026-11-03.json) identifies the remaining generic rescan path and private source/result boundaries. Neither is runtime integration, hosted acceptance or a closed workstream. Current proposal15 full native/schema results remain pending.
+**November 3 source-review checkpoint:** Workstream 8’s [22-workflow source inventory](production-readiness/evidence/source-workflow-boundary-review-2026-11-03.json) is complete locally; external Lovable/main delivery controls remain unverified. Workstream 1’s [producer handoff map](production-readiness/evidence/document-producer-integration-audit-2026-11-03.json) identifies the remaining generic rescan path and private source/result boundaries. Neither is runtime integration, hosted acceptance or a closed workstream. Proposal15 full native/schema results are now verified; see the November4 gate above.
 
 ## October 28 — Durable Review Hold and Reserved Storage Insert (Proposal Only)
 

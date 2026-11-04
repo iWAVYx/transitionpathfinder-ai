@@ -16,8 +16,8 @@
   "contracts_passed": 80,
   "generated_exact_routines": 13,
   "workflow_yaml_and_shell": "passed",
-  "full_local_pending": true,
-  "native_full_schema_pending": true,
+  "full_local_pending": false,
+  "native_full_schema_pending": false,
   "initial_attempt": {
     "tests": 30,
     "passed": 24,
@@ -80,7 +80,7 @@
     "current_focused_tests": 45,
     "passed": 41,
     "native_only_skips": 4,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "runtime_routine_bodies_changed": false,
     "hosted_actions": false
   },
@@ -103,6 +103,7 @@
   "focused_passed": 41,
   "native_only_skips": 4,
   "current_full_suite_expected_cases": 1386,
-  "coverage_note": "Prior complete1380-case local run is retained. Current45 focused cases cover all affected preflight/automatic-release paths plus six new drift cases. No current-tree1386 full run is claimed; CI will run it.",
-  "current_focused_log_sha256": "89ddc895904ac040a766eb8674aec708f1820a71de8b591eb119f21040f477ab"
+  "coverage_note": "Historical local attempts retained. Current source also passes both CI local models:1386 cases,1218 pass,168native-only skips,zero failures; both native suites pass1386/1386 with zero skips. See verified_native_evidence.",
+  "current_focused_log_sha256": "89ddc895904ac040a766eb8674aec708f1820a71de8b591eb119f21040f477ab",
+  "verified_native_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
 }

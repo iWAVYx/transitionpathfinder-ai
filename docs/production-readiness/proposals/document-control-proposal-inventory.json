@@ -11,7 +11,7 @@
       "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb",
       "disposable_replay_step": "Verify proposed durable admission against complete canonical replay",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -20,7 +20,7 @@
       "sha256": "e79a8d152da88eb6f6c85f5bffcb2b246a6f0af83b31a8cd2acf6a0b761dc0ff",
       "disposable_replay_step": "Verify atomic Apply pause fence against complete replay",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -29,7 +29,7 @@
       "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1",
       "disposable_replay_step": "Verify reviewed upload pause fence after canonical replay",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -38,7 +38,7 @@
       "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad",
       "disposable_replay_step": "Verify durable upload interval after canonical replay",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -47,7 +47,7 @@
       "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a",
       "disposable_replay_step": "Verify retained upload limits after durable interval replay",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -56,7 +56,7 @@
       "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5",
       "disposable_replay_step": "Verify atomic summary operation handoff after retained upload limits",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -65,7 +65,7 @@
       "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021",
       "disposable_replay_step": "Verify dormant private capacity foundation after atomic summary handoff",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -74,7 +74,7 @@
       "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b",
       "disposable_replay_step": "Verify atomic summary completion receipt and private capacity settlement",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -83,7 +83,7 @@
       "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f",
       "disposable_replay_step": "Verify source-bound registration completion and capacity settlement",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -92,7 +92,7 @@
       "sha256": "fad01efea48b9d10d2b6d01ae9cb92369c2001192eaa89065247a68ccf720406",
       "disposable_replay_step": "Verify private rescan source claim and dormant capacity boundary",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -101,7 +101,7 @@
       "sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9",
       "disposable_replay_step": "Verify private one-use rescan pending transition",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -110,7 +110,7 @@
       "sha256": "02d44e5eb75159b2aaa722e367e9010834713108e9c38a6aab180cbd6f0891a6",
       "disposable_replay_step": "Verify private atomic rescan result and counted queue",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -119,7 +119,7 @@
       "sha256": "b86a3065a5cd7fd0a174398e27dfd727f8ed2bf3218234ca983e904c1c5e54d6",
       "disposable_replay_step": "Verify private rescan completion and exact producer settlement",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -128,7 +128,7 @@
       "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c",
       "disposable_replay_step": "Verify atomic already-counted summary worker handoff",
       "source_checked_against": "574f72208d63d55479c3d238be48bb61ed4c4132",
-      "native_status": "verified_through_stage14",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     },
     {
@@ -137,7 +137,7 @@
       "sha256": "59979fc2c2f5c5fd42694f4f12b7dd20210aa97ed75d89006d66b7abeab0e931",
       "disposable_replay_step": "Verify automatic exact worker settlement and preserved finish owner",
       "source_checked_against": "4f7dcdd0d630bff4aba65350c50e23d59e0c3eb2",
-      "native_status": "pending_stage15",
+      "native_status": "verified_through_stage15",
       "hosted_applied": false
     }
   ],
@@ -154,5 +154,6 @@
     41678048798,
     41678056736
   ],
-  "new_native_proof_pending": true
+  "new_native_proof_pending": false,
+  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
 }

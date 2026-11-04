@@ -153,7 +153,7 @@
   "hosted_authorized": false,
   "ready_for_cutover": false,
   "required_next": [
-    "Finish complete local coverage and verify native duplicate-finish/final-unit-admission COMMIT/ROLLBACK races plus full225+fifteen replay under the real distinct SQL owners.",
+    "Native/full-schema gate complete on both current runs; retain proof and proceed to remaining producer/Apply integration.",
     "Integrate remaining producer source/outcome/settlement and Apply/general hooks; preserve exact immutable input identity and independent held accounting.",
     "Finish trusted reconciliation, legacy/direct/source/relationship writer fences, actual isolated Storage/provider acceptance and final canonical/ledger/package review.",
     "Seek fresh authorization for the exact staging schema/website/separate worker rollout and bounded acceptance. Main merge and production require separate authorization."
@@ -174,8 +174,9 @@
     "current_focused_tests": 45,
     "passed": 41,
     "native_only_skips": 4,
-    "native_full_schema_pending": true,
+    "native_full_schema_pending": false,
     "runtime_routine_bodies_changed": false,
     "hosted_actions": false
-  }
+  },
+  "verified_native_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
 }
