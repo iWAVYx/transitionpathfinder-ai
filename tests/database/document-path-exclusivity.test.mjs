@@ -3230,3 +3230,42 @@ for(const fault of ['grant','column','rls','owner','helper-grant','helper-path']
  await assert.rejects(db.exec(rescanServiceBoundary));await db.exec('ROLLBACK');
  assert.equal((await db.query("SELECT to_regprocedure('public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)') AS routine")).rows[0].routine,null);
 });
+
+const registrationCapacityAdmission=readFileSync('docs/production-readiness/proposals/document-registration-capacity-admission.sql','utf8');
+async function automaticRegistrationFixture(policy={}){
+ await capacityFixture(policy);await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');await db.exec(registrationCapacityAdmission);await as('','service_role');await pauseOperation(false,3);
+}
+test('registration auto capacity reserves both obligations in the reservation transaction',async()=>{
+ await automaticRegistrationFixture();const x=await quotaAttempt(1,{registered:false});const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].operation_id,(await db.query('SELECT operation_id FROM public.document_upload_operation_bindings WHERE attempt_id=$1',[x.attempt])).rows[0].operation_id);assert.equal(rows[0].reserved_units,2);assert.equal(rows[0].student_id,student);
+});
+for(const limit of ['global','actor','target'])test('registration auto capacity rejects '+limit+' exhaustion without leaving another attempt or operation',async()=>{
+ await automaticRegistrationFixture({[limit]:2});await quotaAttempt(1,{registered:false});await db.exec('RESET ROLE');
+ const before=await db.query('SELECT (SELECT count(*) FROM public.document_upload_attempts) AS attempts,(SELECT count(*) FROM public.document_operation_leases) AS leases');
+ await assert.rejects(quotaAttempt(2,{registered:false}),{code:'42501'});await db.exec('RESET ROLE');
+ assert.deepEqual((await db.query('SELECT (SELECT count(*) FROM public.document_upload_attempts) AS attempts,(SELECT count(*) FROM public.document_operation_leases) AS leases')).rows,before.rows);assert.equal((await capacityRows()).length,1);
+});
+test('registration auto capacity unset policy refuses reservation without durable capacity',async()=>{
+ await automaticRegistrationFixture({configured:false});await assert.rejects(quotaAttempt(1,{registered:false}),{code:'55000'});assert.equal((await capacityRows()).length,0);
+});
+
+test('registration auto capacity reservation transaction rollback removes all three tracked rows',async()=>{
+ await automaticRegistrationFixture();await db.exec('BEGIN');await quotaAttempt(1,{registered:false});await db.exec('ROLLBACK;RESET ROLE');assert.equal((await capacityRows()).length,0);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_upload_operation_bindings')).rows[0].n,0);
+});
+for(const role of ['student','family','educator','school','district','owner','partner'])test('registration auto capacity current access for '+role,async()=>{
+ await automaticRegistrationFixture();await db.exec('RESET ROLE');const actor=actors[role];if(!['family','student','educator'].includes(role))await db.query("INSERT INTO public.student_relationships VALUES($1,$2,'approved','manage_documents')",[student,actor]);
+ if(role==='partner'){await assert.rejects(quotaAttempt(1,{actor,registered:false}),{code:'42501'});assert.equal((await capacityRows()).length,0);return;}
+ await quotaAttempt(1,{actor,registered:false});const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].actor_id,actor);assert.equal(rows[0].reserved_units,2);
+});
+test('registration auto capacity exact retry preserves one operation and one two-unit reservation',async()=>{
+ await automaticRegistrationFixture();const x=await quotaAttempt(1,{registered:false});const before=await capacityRows();await as(actors.family);await reserve(db,{id:x.attempt,hash:x.hash});assert.deepEqual(await capacityRows(),before);
+});
+for(const fault of ['grant','column','rls','trigger','helper'])test('registration auto capacity install refuses '+fault+' drift',async()=>{
+ await capacityFixture();await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
+ if(fault==='grant')await db.exec('GRANT SELECT ON public.document_capacity_policy TO service_role');
+ if(fault==='column')await db.exec('GRANT SELECT(operation_id) ON public.document_capacity_reservations TO authenticated');
+ if(fault==='rls')await db.exec('ALTER TABLE public.document_capacity_policy DISABLE ROW LEVEL SECURITY');
+ if(fault==='trigger')await db.exec('ALTER TABLE public.document_upload_attempts DISABLE TRIGGER upload_attempt_bind_operation');
+ if(fault==='helper')await db.exec('ALTER FUNCTION public.reserve_internal_document_capacity(uuid,uuid) SET search_path TO public');
+ await assert.rejects(db.exec(registrationCapacityAdmission));await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT md5(prosrc) AS hash FROM pg_proc WHERE oid='public.bind_document_upload_operation()'::regprocedure")).rows[0].hash,'3c523e43d31e411968ea0c768fd33222');
+});
