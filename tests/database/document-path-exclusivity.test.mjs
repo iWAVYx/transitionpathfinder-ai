@@ -3560,3 +3560,49 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity bound Apply atomic inst
   const after=(await reader.query("SELECT to_regprocedure('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)') IS NOT NULL AND to_regclass('public.document_apply_capacity_settlements') IS NOT NULL AS visible")).rows[0];assert.equal(after.visible,ending==='COMMIT');
  }finally{await writer.exec('ROLLBACK');}
 });
+
+// Complete the real disposable registration -> counted summary chain before
+// testing Apply quota credit. No fabricated completion or pause bypass.
+async function drainedApplyQuotaFixture(policy={global:1,actor:4,target:4}){
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});
+ await as('','service_role');await pauseOperation(true,2);await db.exec('RESET ROLE');
+ await db.exec(registrationCapacityAdmission);await db.exec(registrationQueueTransfer);await db.exec(registrationAutoRelease);
+ await as('','service_role');await pauseOperation(false,3);const registered=await quotaAttempt(1);await completeQuotaAttempt(registered);
+ const job=(await capacityRows())[0].summary_job_id;await as('','service_role');
+ const worker=await claimHandoff(db,job);
+ const source=(await db.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[job,worker.claim_at,worker.claim_attempt])).rows[0].source;
+ const payload={key_findings:['Fictional completed registration summary'],_source:{document_id:source.document_id,object_id:source.object_id,object_version:source.object_version,content_sha256:source.content_sha256}};
+ await db.query('SELECT public.complete_verified_document_summary($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[job,worker.claim_at,worker.claim_attempt,source.actor_id,source.student_id,source.document_id,source.object_id,source.object_version,source.content_sha256,source.context,payload]);
+ await finishOperation(worker);await db.exec('RESET ROLE');assert.equal(await effectiveSettlementUnits(),0);
+ await as('','service_role');await pauseOperation(true,4);
+ const f=await atomicApplyFixture({existingDocument:registered.document});await db.exec('RESET ROLE');
+ await db.exec(applyAdmission.slice(applyAdmission.indexOf('CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction'),applyAdmission.lastIndexOf('COMMIT;')));
+ await db.exec(applyChainRolloutSql);
+ await db.query('UPDATE public.document_capacity_policy SET global_units=$1,actor_units=$2,student_units=$3',[policy.global??4,policy.actor??4,policy.target??4]);
+ const extra=uid(53002);const r=(await db.query("INSERT INTO public.document_extractions(id,student_id,document_id,status,updated_at,sections) VALUES($1,$2,$3,'in_review',clock_timestamp(),$4) RETURNING updated_at::text AS revision",[extra,student,registered.document,applySections])).rows[0];
+ await as('','service_role');await pauseOperation(false,5);
+ return {...f,document:registered.document,extra,extraRevision:r.revision};
+}
+async function secondQuotaApply(x,operation=uid(53003),client=db){return (await client.query('SELECT public.begin_bound_document_apply($1,$2,$3,$4,$5,$6,$7,$8) AS claim',[operation,actors.family,student,x.document,x.extra,x.extraRevision,applySections,true])).rows[0].claim;}
+async function appliedEffectiveUnits(){await db.exec('RESET ROLE');return Number((await db.query(`SELECT COALESCE(sum(r.reserved_units-COALESCE(p.released_units,0)-COALESCE(a.released_units,0)-CASE WHEN w.operation_id IS NULL THEN 0 ELSE 1 END),0) AS units FROM public.document_capacity_reservations r LEFT JOIN public.document_capacity_registration_settlements p USING(operation_id) LEFT JOIN public.document_apply_capacity_settlements a USING(operation_id) LEFT JOIN public.document_capacity_summary_settlements w USING(operation_id)`)).rows[0].units);}
+for(const ceiling of ['global','actor','target'])test('capacity bound Apply quota returns exactly one '+ceiling+' slot after actual committed save',async()=>{
+ const x=await drainedApplyQuotaFixture({global:4,actor:4,target:4,[ceiling]:1});await beginBoundApply(x);
+ await assert.rejects(secondQuotaApply(x),{code:'42501'});assert.equal(await appliedEffectiveUnits(),1);
+ await as();await applyAtomic(x);assert.equal(await appliedEffectiveUnits(),0);
+ await as('','service_role');const next=await secondQuotaApply(x);assert.equal(next.extraction_id,x.extra);assert.equal(await appliedEffectiveUnits(),1);
+});
+test('capacity bound Apply quota rollback keeps the occupied slot until a later committed save',async()=>{
+ const x=await drainedApplyQuotaFixture();await beginBoundApply(x);await as();await db.exec('BEGIN');await applyAtomic(x);await db.exec('ROLLBACK');assert.equal(await appliedEffectiveUnits(),1);
+ await as('','service_role');await assert.rejects(secondQuotaApply(x),{code:'42501'});
+ await as();await applyAtomic(x);assert.equal(await appliedEffectiveUnits(),0);await as('','service_role');await secondQuotaApply(x);assert.equal(await appliedEffectiveUnits(),1);
+});
+test('capacity bound Apply quota retains uncertain work without releasing its slot',async()=>{
+ const x=await drainedApplyQuotaFixture();const first=await beginBoundApply(x);await finishOperation(first,'needs_review');await assert.rejects(secondQuotaApply(x),{code:'42501'});assert.equal(await appliedEffectiveUnits(),1);
+ assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,0);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('capacity bound Apply quota native last-slot admission serializes after '+ending,{skip:!native},async()=>{
+ const x=await drainedApplyQuotaFixture();const first=await newSession(),second=await newSession();await as('','service_role',first);await as('','service_role',second);await first.exec('BEGIN');
+ await first.query('SELECT public.begin_bound_document_apply($1,$2,$3,$4,$5,$6,$7,$8)',[uid(51001),actors.family,student,x.document,applyId,x.revision,applySections,true]);
+ const pid=(await second.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=secondQuotaApply(x,uid(53003),second).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await first.exec(ending);const outcome=await pending;if(ending==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);assert.equal(await appliedEffectiveUnits(),1);}finally{await first.exec('ROLLBACK');await second.exec('ROLLBACK');await pending;}
+});

@@ -320,7 +320,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^registration auto' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^registration auto|^capacity bound Apply' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -2105,6 +2105,43 @@ jobs:
           assert.equal(x.routine.anon_execute,false);assert.equal(x.routine.service_execute,false);
           NODE
 
+      - name: Verify atomic Apply chain after complete schema replay
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          import {applyChainRolloutSql} from './tests/database/document-apply-rollout-sql.mjs';
+          writeFileSync('/tmp/document-apply-atomic-install.sql',applyChainRolloutSql);
+          NODE
+          psql -v ON_ERROR_STOP=1 -f /tmp/document-apply-atomic-install.sql
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-apply-integrated.json
+          SELECT jsonb_build_object('schema','document-apply-integrated-proof-v1','phase','after-nineteen-proposals-and-atomic-four-draft-Apply-chain',
+           'canonical_count',225,'apply_drafts',4,
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'policy_unset',(SELECT global_units IS NULL AND actor_units IS NULL AND student_units IS NULL FROM public.document_capacity_policy WHERE singleton),
+           'bindings',(SELECT count(*) FROM public.document_apply_source_bindings),
+           'completion_receipts',(SELECT count(*) FROM public.document_apply_completion_receipts),
+           'settlements',(SELECT count(*) FROM public.document_apply_capacity_settlements),
+           'hosted_applied',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'owner',proowner::regrole::text,'definer',prosecdef,'fixed_settings',proconfig) ORDER BY proname)
+            FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN
+             ('begin_bound_document_apply','assert_bound_document_apply','apply_reviewed_document_extraction','record_bound_document_apply_completion',
+              'guard_apply_completion_receipt','validate_bound_document_apply_completion','check_bound_apply_commit','guard_bound_apply_finish',
+              'release_completed_apply_at_commit','guard_document_capacity_reservation')));
+          SQL
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {applyChainSources} from './tests/database/document-apply-rollout-sql.mjs';
+          const proof=JSON.parse(readFileSync('/tmp/document-apply-integrated.json','utf8'));
+          assert.equal(proof.paused,true);assert.equal(proof.policy_unset,true);
+          for(const field of ['bindings','completion_receipts','settlements'])assert.equal(proof[field],0);
+          assert.equal(proof.routines.length,10);
+          assert.equal(proof.routines.find(x=>x.name==='apply_reviewed_document_extraction').definer,false);
+          proof.source_manifest=applyChainSources.map(({path,sha256})=>({path,sha256}));
+          writeFileSync('/tmp/document-apply-integrated.json',JSON.stringify(proof,null,2)+'\n');
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2133,4 +2170,5 @@ jobs:
             /tmp/document-automatic-summary-settlement.json
             /tmp/document-rescan-service-boundary.json
             /tmp/document-registration-integrated.json
+            /tmp/document-apply-integrated.json
           if-no-files-found: ignore

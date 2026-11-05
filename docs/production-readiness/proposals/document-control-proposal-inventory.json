@@ -155,7 +155,7 @@
       "sha256": "71224aff2d490d4686f67c82d009d0c53e1d08e013f34fd3bdca142523df49da",
       "disposable_replay_step": "Verify integrated registration reservation queue and release",
       "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-      "native_status": "pending_corrected_full_chain",
+      "native_status": "focused_native_and_full_schema_verified_complete_native_suite_pending",
       "hosted_applied": false
     },
     {
@@ -164,7 +164,7 @@
       "sha256": "bb237c4ac1508857bbf3e76fe8f070f2ebda36918b7e2dbda8e4a75111f38dc6",
       "disposable_replay_step": "Verify integrated registration reservation queue and release",
       "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-      "native_status": "pending_corrected_full_chain",
+      "native_status": "focused_native_and_full_schema_verified_complete_native_suite_pending",
       "hosted_applied": false
     },
     {
@@ -173,7 +173,7 @@
       "sha256": "ade89b1e38cf985cc0de3b911e8a561a0b26ce4f2111d7ff616d6356f9fe64d0",
       "disposable_replay_step": "Verify integrated registration reservation queue and release",
       "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-      "native_status": "pending_corrected_full_chain",
+      "native_status": "focused_native_and_full_schema_verified_complete_native_suite_pending",
       "hosted_applied": false
     }
   ],
@@ -226,7 +226,8 @@
     "accepted": false,
     "full_native_suite": "still running at observation",
     "correction_evidence": "docs/production-readiness/evidence/document-registration-executor-local-2026-11-05.json",
-    "corrected_source_verified": false
+    "corrected_source_verified": false,
+    "correction_schema_verified_run": 41979082941
   },
   "apply_installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json",
   "apply_atomic_installer": {
@@ -234,6 +235,9 @@
     "plan": "docs/production-readiness/proposals/document-apply-atomic-install-plan.json",
     "evidence": "docs/production-readiness/evidence/document-apply-atomic-install-local-2026-11-05.json",
     "native_full_schema_verified": false,
-    "canonical_ledger_package": false
-  }
+    "canonical_ledger_package": false,
+    "full_schema_replay_step": "Verify atomic Apply chain after complete schema replay",
+    "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json"
+  },
+  "verified_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json"
 }

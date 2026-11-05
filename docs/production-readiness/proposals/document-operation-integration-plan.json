@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Rescan stage16 native/full-schema verified. Registration17\u201319 replay failed on executor role switching and remains open. Apply source-bound admission/save/completion/release/server flow locally verified; installation hardening and native/full-schema proof pending.",
+  "status": "Rescan stage16 native verified. Registration225+19 full-schema and68 focused native cases passed on c72dd1f0; separate complete native suite still pending. Apply core, installation and quota re-admission locally verified; full-schema/native Apply proof prepared for CI, not yet accepted.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -769,6 +769,8 @@
     "completion_release_installation_checks_prepared": true,
     "atomic_installer_prepared": true,
     "atomic_installer_evidence": "docs/production-readiness/evidence/document-apply-atomic-install-local-2026-11-05.json",
-    "admission_save_installation_checks_prepared": true
-  }
+    "admission_save_installation_checks_prepared": true,
+    "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json"
+  },
+  "registration_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json"
 }

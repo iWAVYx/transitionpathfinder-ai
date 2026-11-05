@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Rescan stage16 native/full-schema verified. Registration17\u201319 replay failed on executor role switching and remains open. Apply source-bound admission/save/completion/release/server flow locally verified; installation hardening and native/full-schema proof pending.",
+  "status": "Rescan stage16 native verified. Registration225+19 full-schema and68 focused native cases passed on c72dd1f0; separate complete native suite still pending. Apply core, installation and quota re-admission locally verified; full-schema/native Apply proof prepared for CI, not yet accepted.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -769,6 +769,8 @@
     "core_local_implemented": true,
     "native_full_schema_verified": false,
     "installation_hardened": false,
-    "hosted_verified": false
-  }
+    "hosted_verified": false,
+    "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json"
+  },
+  "registration_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json"
 }

@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.4",
+  "completed_substep": "Coherent local Apply quota re-admission after genuine disposable registration and summary completion",
+  "validation": {
+    "combined_cases": 149,
+    "passed": 139,
+    "native_only_skipped": 10,
+    "failed": 0,
+    "new_quota_cases_passed": 5,
+    "new_native_last_slot_cases_pending": 2,
+    "readiness_contracts_passed": 41,
+    "database_log_sha256": "b75c541cc6d3e85d4c5883a7505bc9c31ddebb0735424d0f6e105f9093b7dec7",
+    "contracts_log_sha256": "d57e3b2111d604cd1a762eb5442b26d4cc82291d758b79ab3ca3030c7f066d50"
+  },
+  "properties": [
+    "Registration reservation/queue/producer and counted worker finish through their actual reviewed routines before Apply tests begin",
+    "All prior obligations reach zero before a normal pause/install/resume; no reconciliation bypass",
+    "Global/account/student last-slot refusal followed by exactly one released unit after actual committed Apply save",
+    "Rolled-back save and needs_review preserve the occupied slot"
+  ],
+  "verification_preparation": {
+    "workflow": ".github/workflows/migration-replay.yml",
+    "full_schema": "Add complete atomic four-draft Apply installer after existing225+19 replay, retaining exact ten-routine proof",
+    "early_native": "Include every capacity bound Apply test, including visibility and last-slot races",
+    "status": "prepared_not_yet_run_on_current_source"
+  },
+  "remaining": [
+    "Current-source native races and225+19+atomic-Apply full-schema verification",
+    "Mixed producer/worker finish-order integration",
+    "Final canonical/ledger packaging and separately authorized hosted acceptance"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false
+}
