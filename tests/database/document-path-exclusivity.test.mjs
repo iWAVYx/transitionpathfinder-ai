@@ -3371,9 +3371,9 @@ test('registration auto exact ordered combined chain preserves four routine owne
 });
 
 const applySourceCapacity=readFileSync('docs/production-readiness/proposals/document-apply-source-capacity.sql','utf8');
-async function boundApplyCapacityFixture(){
+async function boundApplyCapacityFixture({installSource=true}={}){
  await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
- await db.exec('CREATE TABLE public.document_extractions(id uuid PRIMARY KEY,student_id uuid,document_id uuid,status text,updated_at timestamptz,sections jsonb)');await db.exec(applySourceCapacity);await as('','service_role');await pauseOperation(false,3);
+ await db.exec('CREATE TABLE public.document_extractions(id uuid PRIMARY KEY,student_id uuid,document_id uuid,status text,updated_at timestamptz,sections jsonb)');if(installSource)await db.exec(applySourceCapacity);await as('','service_role');await pauseOperation(false,3);
  const x=await quotaAttempt(1);await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='clean',review_status='approved',archived_at=NULL WHERE id=$1",[x.document]);
  const r=(await db.query("INSERT INTO public.document_extractions VALUES($1,$2,$3,'in_review',clock_timestamp(),$4) RETURNING updated_at::text AS revision",[applyId,student,x.document,applySections])).rows[0];await as('','service_role');return {...x,revision:r.revision};
 }
@@ -3409,12 +3409,12 @@ test('capacity bound Apply transaction rollback removes its lease binding and re
 });
 
 const applyBoundSave=readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql','utf8');
-async function boundApplySaveFixture({admit=true,emitEvidence=true}={}){
+async function boundApplySaveFixture({admit=true,emitEvidence=true,installSave=true}={}){
  const x=await boundApplyCapacityFixture();const f=await atomicApplyFixture({existingDocument:x.document});await db.exec('RESET ROLE');
  // Load the exact reviewed gated function body; full installation is separately
  // exercised by canonical replay, not inferred from this disposable fixture.
  await db.exec(applyAdmission.slice(applyAdmission.indexOf('CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction'),applyAdmission.lastIndexOf('COMMIT;')));
- const source={...x,revision:f.revision};await as('','service_role');let claim;if(admit)claim=await beginBoundApply(source,{emitEvidence});await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(applyBoundSave);await as();return {...f,source,claim};
+ const source={...x,revision:f.revision};await as('','service_role');let claim;if(admit)claim=await beginBoundApply(source,{emitEvidence});await pauseOperation(true,4);await db.exec('RESET ROLE');if(installSave)await db.exec(applyBoundSave);await as();return {...f,source,claim};
 }
 test('capacity bound Apply save preserves caller-RLS atomic writes while admitted work drains paused',async()=>{
  const x=await boundApplySaveFixture();const result=(await applyAtomic(x)).rows[0].receipt;assert.equal(result.status,'complete');await db.exec('RESET ROLE');assert.equal((await db.query('SELECT strengths_summary FROM public.students WHERE id=$1',[student])).rows[0].strengths_summary,'Fictional strengths');assert.equal((await capacityRows())[0].reserved_units,1);
@@ -3510,4 +3510,53 @@ for(const fault of ['validator-grant','validator-body','receipt-column','receipt
  if(fault==='commit-not-deferred')await db.exec("DROP TRIGGER document_apply_outcome_committed ON public.document_apply_completion_receipts;CREATE CONSTRAINT TRIGGER document_apply_outcome_committed AFTER INSERT ON public.document_apply_completion_receipts DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.check_bound_apply_commit()");
  await assert.rejects(db.exec(applyCapacityRelease),{code:'55000'});await db.exec('ROLLBACK');
  assert.equal((await db.query("SELECT to_regclass('public.document_apply_capacity_settlements') IS NULL AS absent")).rows[0].absent,true);
+});
+
+for(const stage of ['admission','save'])for(const fault of ['body','execute','column','rls','trigger'])test('capacity bound Apply '+stage+' installation prerequisite rejects '+fault,async()=>{
+ if(stage==='admission'){await boundApplyCapacityFixture({installSource:false});await pauseOperation(true,4);}
+ else await boundApplySaveFixture({admit:false,installSave:false});
+ await db.exec('RESET ROLE');
+ if(fault==='body')await db.exec("CREATE OR REPLACE FUNCTION public."+(stage==='admission'?"lock_internal_document_capacity() RETURNS bigint":"guard_document_apply_source_binding() RETURNS trigger")+" LANGUAGE plpgsql SET search_path=pg_catalog AS $$ BEGIN RAISE EXCEPTION 'Changed fixture dependency'; END $$");
+ if(fault==='execute')await db.exec("GRANT EXECUTE ON FUNCTION public."+(stage==='admission'?'reserve_internal_document_capacity(uuid,uuid)':'guard_document_apply_source_binding()')+" TO service_role");
+ const table=stage==='admission'?'document_capacity_reservations':'document_apply_source_bindings';
+ if(fault==='column')await db.exec("GRANT SELECT(operation_id) ON public."+table+" TO authenticated");
+ if(fault==='rls')await db.exec("ALTER TABLE public."+table+" DISABLE ROW LEVEL SECURITY");
+ if(fault==='trigger')await db.exec("ALTER TABLE public."+table+" DISABLE TRIGGER "+(stage==='admission'?'document_capacity_frozen':'document_apply_binding_retained'));
+ await assert.rejects(db.exec(stage==='admission'?applySourceCapacity:applyBoundSave),{code:'55000'});await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regprocedure('public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean)') IS NULL AS absent")).rows[0].absent,true);
+});
+
+import {applyChainRolloutSql,applyChainSources} from './document-apply-rollout-sql.mjs';
+async function atomicApplyInstallFixture(){
+ const x=await boundApplyCapacityFixture({installSource:false});await atomicApplyFixture({existingDocument:x.document});await db.exec('RESET ROLE');
+ await db.exec(applyAdmission.slice(applyAdmission.indexOf('CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction'),applyAdmission.lastIndexOf('COMMIT;')));
+ await as('','service_role');await pauseOperation(true,4);await db.exec('RESET ROLE');return x;
+}
+test('capacity bound Apply atomic installer commits the complete private chain and preserves caller permissions',async()=>{
+ await atomicApplyInstallFixture();await db.exec(applyChainRolloutSql);
+ for(const table of ['document_apply_source_bindings','document_apply_completion_receipts','document_apply_capacity_settlements'])assert.equal((await db.query('SELECT to_regclass($1) IS NOT NULL AS present',['public.'+table])).rows[0].present,true);
+ assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)','EXECUTE') AS allowed")).rows[0].allowed,true);
+ assert.equal((await db.query("SELECT prosecdef FROM pg_proc WHERE oid='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)'::regprocedure")).rows[0].prosecdef,false);
+ assert.equal((await db.query('SELECT paused FROM public.document_operation_control WHERE singleton')).rows[0].paused,true);
+});
+for(const fault of ['late-install','final-guard'])test('capacity bound Apply atomic installer rolls back every stage on '+fault,async()=>{
+ await atomicApplyInstallFixture();
+ const marker=fault==='late-install'?'CREATE TABLE public.document_apply_capacity_settlements(': 'DO $apply_complete_install$';
+ assert.equal(applyChainRolloutSql.split(marker).length,2);
+ const broken=applyChainRolloutSql.replace(marker,()=>"DO $$ BEGIN RAISE EXCEPTION 'Fictional bounded install failure' USING ERRCODE='55000'; END $$;\n"+marker);
+ await assert.rejects(db.exec(broken),{code:'55000'});await db.exec('ROLLBACK');
+ for(const table of ['document_apply_source_bindings','document_apply_completion_receipts','document_apply_capacity_settlements'])assert.equal((await db.query('SELECT to_regclass($1) IS NULL AS absent',['public.'+table])).rows[0].absent,true);
+ assert.equal((await db.query("SELECT to_regprocedure('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)') IS NULL AS absent")).rows[0].absent,true);
+ assert.equal((await db.query("SELECT md5(prosrc) AS body FROM pg_proc WHERE oid='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)'::regprocedure")).rows[0].body,'931e2c8dda387bacd5829d3f5b81749d');
+});
+test('capacity bound Apply atomic installer pins all four exact draft sources',()=>{assert.equal(applyChainSources.length,4);for(const entry of applyChainSources)assert.equal(createHash('sha256').update(readFileSync(entry.path)).digest('hex'),entry.sha256);});
+
+for(const ending of ['COMMIT','ROLLBACK'])test('capacity bound Apply atomic installer native visibility after '+ending,{skip:!native},async()=>{
+ await atomicApplyInstallFixture();const writer=await newSession(),reader=await newSession();
+ try{
+  await writer.exec(applyChainRolloutSql.replace(/COMMIT;\n$/,''));
+  const before=(await reader.query("SELECT to_regprocedure('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)') IS NULL AND to_regclass('public.document_apply_capacity_settlements') IS NULL AS hidden")).rows[0];assert.equal(before.hidden,true);
+  await writer.exec(ending);
+  const after=(await reader.query("SELECT to_regprocedure('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)') IS NOT NULL AND to_regclass('public.document_apply_capacity_settlements') IS NOT NULL AS visible")).rows[0];assert.equal(after.visible,ending==='COMMIT');
+ }finally{await writer.exec('ROLLBACK');}
 });

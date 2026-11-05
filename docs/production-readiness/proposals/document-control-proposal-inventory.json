@@ -196,26 +196,26 @@
   "additional_unordered_drafts": [
     {
       "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
-      "sha256": "b05e98f499f55c1683283d41fc20810ef1171cc420a17672c37d24db1fb167d4",
-      "native_status": "pending_installation_hardening_and_full_schema",
+      "sha256": "4e8326170df60b10c9d44176c6a6e1bfdc346727e0b77aa644a1bd5f3c1ab110",
+      "native_status": "local_prerequisites_and_atomic_install_verified_native_full_schema_pending",
       "hosted_applied": false
     },
     {
       "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
-      "sha256": "1ee19ae3dc2a4c118e53e366f7cd2855779e17563301d09b44cdf9ddf772183a",
-      "native_status": "pending_installation_hardening_and_full_schema",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25",
+      "native_status": "local_prerequisites_and_atomic_install_verified_native_full_schema_pending",
       "hosted_applied": false
     },
     {
       "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
       "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2",
-      "native_status": "pending_installation_hardening_and_full_schema",
+      "native_status": "local_prerequisites_and_atomic_install_verified_native_full_schema_pending",
       "hosted_applied": false
     },
     {
       "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
       "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae",
-      "native_status": "pending_installation_hardening_and_full_schema",
+      "native_status": "local_prerequisites_and_atomic_install_verified_native_full_schema_pending",
       "hosted_applied": false
     }
   ],
@@ -228,5 +228,12 @@
     "correction_evidence": "docs/production-readiness/evidence/document-registration-executor-local-2026-11-05.json",
     "corrected_source_verified": false
   },
-  "apply_installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json"
+  "apply_installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json",
+  "apply_atomic_installer": {
+    "generator": "tests/database/document-apply-rollout-sql.mjs",
+    "plan": "docs/production-readiness/proposals/document-apply-atomic-install-plan.json",
+    "evidence": "docs/production-readiness/evidence/document-apply-atomic-install-local-2026-11-05.json",
+    "native_full_schema_verified": false,
+    "canonical_ledger_package": false
+  }
 }

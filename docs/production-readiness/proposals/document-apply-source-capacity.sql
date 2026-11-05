@@ -1,4 +1,4 @@
--- DRAFT ONLY. Source-bound Apply admission; save/settlement is not wired.
+-- DRAFT ONLY. Source-bound Apply admission; install only with the complete chain.
 -- No canonical installation, hosted action, new student access or release path.
 BEGIN;
 SET LOCAL lock_timeout='5s';
@@ -7,8 +7,44 @@ DO $preflight$ BEGIN
  IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused)
   OR to_regclass('public.document_extractions') IS NULL
   OR has_function_privilege('service_role','public.reserve_internal_document_capacity(uuid,uuid)','EXECUTE') THEN
-  RAISE EXCEPTION 'Reviewed paused Apply prerequisites required'; END IF;
+  RAISE EXCEPTION 'Reviewed paused Apply prerequisites required' USING ERRCODE='55000'; END IF;
 END; $preflight$;
+DO $apply_admission_dependencies$
+DECLARE item record; caller text; relation_name text; admission_owner oid;
+BEGIN
+ SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+ FOR item IN SELECT * FROM (VALUES
+ ('public.begin_document_operation(uuid,uuid,text)','4ff01874b39fa3e46c24a6bf3d8149fc',true,true,'service_role'),
+ ('public.reserve_internal_document_capacity(uuid,uuid)','08c62d8c20c1c5cb0eb6b1bbd14cde2d',false,false,''),
+ ('public.lock_internal_document_capacity()','2f5b3f16774b99e22e8e61bcce8d7828',false,false,''),
+ ('public.lock_internal_document_capacity_completion()','be973fc53b7930db60f9456ba1f26548',false,false,''),
+ ('public.guard_document_capacity_reservation()','4c09f0f14edc20a934e14923c5d80ff6',false,false,'')
+ ) expected(signature,body_md5,definer,admission_owned,allowed_caller) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+   AND prosecdef=item.definer AND proconfig=ARRAY['search_path=pg_catalog']
+   AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END) THEN
+   RAISE EXCEPTION 'Exact Apply admission dependencies required' USING ERRCODE='55000'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller=item.allowed_caller) THEN
+    RAISE EXCEPTION 'Reviewed Apply admission dependency permissions required' USING ERRCODE='55000'; END IF;
+  END LOOP;
+ END LOOP;
+ FOREACH relation_name IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases','public.document_capacity_policy','public.document_capacity_reservations'] LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name) AND relkind='r' AND relrowsecurity
+   AND relowner=CASE WHEN relation_name IN('public.document_operation_control','public.document_operation_leases') THEN admission_owner ELSE current_user::regrole::oid END)
+   OR EXISTS(SELECT 1 FROM pg_policy WHERE polrelid=to_regclass(relation_name)) THEN
+   RAISE EXCEPTION 'Private Apply admission relations required' USING ERRCODE='55000'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_table_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+    OR has_any_column_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,REFERENCES') THEN
+    RAISE EXCEPTION 'Private Apply admission relation permissions required' USING ERRCODE='55000'; END IF;
+  END LOOP;
+ END LOOP;
+ IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_capacity_reservations'::regclass
+  AND tgname='document_capacity_frozen' AND tgfoid='public.guard_document_capacity_reservation()'::regprocedure
+  AND tgtype=31 AND tgenabled='O' AND NOT tgisinternal AND NOT tgdeferrable AND tgqual IS NULL AND tgattr::text='') THEN
+  RAISE EXCEPTION 'Exact Apply capacity trigger required' USING ERRCODE='55000'; END IF;
+END; $apply_admission_dependencies$;
 CREATE TABLE public.document_apply_source_bindings(
  operation_id uuid PRIMARY KEY REFERENCES public.document_operation_leases(operation_id),
  actor_id uuid NOT NULL,student_id uuid NOT NULL REFERENCES public.students(id),

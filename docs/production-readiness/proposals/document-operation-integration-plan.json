@@ -766,6 +766,9 @@
     "installation_hardened": false,
     "hosted_verified": false,
     "installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json",
-    "completion_release_installation_checks_prepared": true
+    "completion_release_installation_checks_prepared": true,
+    "atomic_installer_prepared": true,
+    "atomic_installer_evidence": "docs/production-readiness/evidence/document-apply-atomic-install-local-2026-11-05.json",
+    "admission_save_installation_checks_prepared": true
   }
 }
