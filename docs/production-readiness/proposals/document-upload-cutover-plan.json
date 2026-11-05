@@ -836,14 +836,18 @@
     "owner_only": true,
     "provider_resolution": false,
     "held_lease_preserved": true,
-    "hosted_applied": false
+    "hosted_applied": false,
+    "native_component_verified": true,
+    "native_evidence": "docs/production-readiness/evidence/document-apply-no-save-native-verified-2026-11-05.json"
   },
   "pause_recovery_preparation": {
     "policy": "docs/production-readiness/proposals/document-pause-drain-policy.json",
     "evidence": "docs/production-readiness/evidence/document-pause-recovery-local-2026-11-05.json",
     "local_verified": true,
-    "native_fresh_session_verified": false,
+    "native_fresh_session_verified": true,
     "changes_runtime_behavior": false,
-    "hosted_applied": false
+    "hosted_applied": false,
+    "native_evidence": "docs/production-readiness/evidence/document-pause-recovery-native-verified-2026-11-05.json",
+    "native_full_schema_verified": false
   }
 }

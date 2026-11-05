@@ -76,7 +76,8 @@
     }
   ],
   "local_evidence": "docs/production-readiness/evidence/document-pause-recovery-local-2026-11-05.json",
-  "native_fresh_session_verified": false,
+  "native_fresh_session_verified": true,
   "hosted_actions": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "native_evidence": "docs/production-readiness/evidence/document-pause-recovery-native-verified-2026-11-05.json"
 }

@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-05",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered review proposals plus eight verification-appendix drafts. The original Workstream1 baseline and selected policy are native/full-schema verified; trusted metadata review is also verified on225+26. New private Apply no-save resolution has local proof and awaits1,590-case native/full225+27 verification. Not a hosted installation recipe.",
+  "scope": "Nineteen ordered review proposals plus eight verification-appendix drafts. The original Workstream1 baseline, selected policy and trusted metadata review are native/full-schema verified. The private Apply no-save resolver passes all1,590 native cases with zero skips; full225+27 schema replay remains pending. Not a hosted installation recipe.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -239,7 +239,7 @@
     {
       "path": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
       "sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
-      "native_status": "local_actual_domain_verified_native_full_schema_pending",
+      "native_status": "native1590_verified_full_schema_pending",
       "hosted_applied": false
     }
   ],
@@ -274,7 +274,7 @@
     "docs/production-readiness/proposals/document-operation-review.sql",
     "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
   ],
-  "verification_appendix_scope": "After ordered19: automatic rescan release, atomic four-draft Apply chain, selected32/4/2 policy and trusted retain-work metadata review are native/schema verified (seven appendix drafts). An eighth private DB-only no-save resolver has local actual-domain proof; native/schema acceptance is pending.",
+  "verification_appendix_scope": "After ordered19: seven appendix drafts are native/schema verified; eighth private DB-only Apply no-save resolver passes all1590 native cases with zero skips, while full225+27 replay remains pending.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -285,5 +285,6 @@
   "selected_policy_verified_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-verified-2026-11-05.json",
   "operation_review_preparation_evidence": "docs/production-readiness/evidence/document-operation-review-local-2026-11-05.json",
   "operation_review_verified_evidence": "docs/production-readiness/evidence/document-operation-review-verified-2026-11-05.json",
-  "apply_no_save_preparation_evidence": "docs/production-readiness/evidence/document-apply-no-save-reconciliation-local-2026-11-05.json"
+  "apply_no_save_preparation_evidence": "docs/production-readiness/evidence/document-apply-no-save-reconciliation-local-2026-11-05.json",
+  "apply_no_save_native_evidence": "docs/production-readiness/evidence/document-apply-no-save-native-verified-2026-11-05.json"
 }
