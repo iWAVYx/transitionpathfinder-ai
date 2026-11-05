@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Proposal15 native/full-schema gate verified on both e1940751 runs:1386/1386 native,340/340 early and225+15 replay. Source-bound producer/Apply integration and hosted acceptance remain open.",
+  "status": "Rescan stage16 native/full-schema verified. Registration17\u201319 replay failed on executor role switching and remains open. Apply source-bound admission/save/completion/release/server flow locally verified; installation hardening and native/full-schema proof pending.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -19,7 +19,7 @@
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
-      "sha256": "ab1f70d8e63bb6cc93ee00089a84a75b3d8533002087ea7c4138bb4fdc60e1c0"
+      "sha256": "4e35e0778e5358486ffc6e51be5f5bd87f16ac48f7c37fd0e0236cea5ee47700"
     },
     {
       "path": "src/lib/document-upload-reservation.server.ts",
@@ -758,5 +758,12 @@
         "whole_workstream_complete": false
       }
     ]
+  },
+  "apply_integrated_local": {
+    "evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
+    "core_local_implemented": true,
+    "native_full_schema_verified": false,
+    "installation_hardened": false,
+    "hosted_verified": false
   }
 }

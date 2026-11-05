@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { runAdmittedDocumentOperation } from "./document-operation-admission.server";
+import { DocumentOperationAdmissionError } from "./document-operation-admission.server";
 import { evidenceWritesEnabled } from "./evidence-writers.functions";
 
 const message = "We couldn't confirm that this review was saved. Reload it and check your access before applying changes again.";
@@ -111,7 +111,35 @@ export async function applyReviewedExtractionWithAdmission(
   } catch { throw new Error(message); }
   let serviceClient: unknown;
   try { serviceClient = await getServiceClient(); } catch { throw new Error(message); }
-  const outcome = await runAdmittedDocumentOperation({ serviceClient, actorId: actor.data, kind: "apply" }, () => requestReviewedExtraction(client, data));
-  if (outcome.state === "refused") throw new Error(message);
-  return outcome.value;
+  const metadata = serviceClient as { rpc(name: string, args: Record<string, unknown>): PromiseLike<{data: unknown; error: unknown}> };
+  let operation: string;
+  let capability: string;
+  try {
+    operation = crypto.randomUUID();
+    const result = await metadata.rpc("begin_bound_document_apply", {
+      _operation_id: operation, _actor_id: actor.data, _student_id: data.student_id,
+      _document_id: data.document_id, _extraction_id: data.extraction_id,
+      _expected_revision: data.expected_updated_at, _expected_sections: data.expected_sections, _emit_evidence: evidenceWritesEnabled(),
+    });
+    const claimed = z.object({schema: z.literal("document-apply-source-claim-v1"),
+      operation_id: z.literal(operation), receipt_id: z.string().uuid(),
+      revision: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+      student_id: z.literal(data.student_id), document_id: z.literal(data.document_id), extraction_id: z.literal(data.extraction_id),
+      source_revision: reviewRevision }).strict().parse(result.data);
+    if (result.error !== null || reviewInstant(claimed.source_revision) !== reviewInstant(data.expected_updated_at)) throw new Error();
+    capability = claimed.receipt_id;
+  } catch { throw new DocumentOperationAdmissionError("admission"); }
+  try {
+    // The caller-RLS save now validates the reservation and completes/releases
+    // it at commit. Never issue a second finish after a confirmed save reply.
+    const outcome = await requestReviewedExtraction(client, data);
+    if (outcome.state === "refused") throw new Error(message);
+    return outcome.value;
+  } catch {
+    // A lost reply may already have committed. A completed lease rejects this
+    // hold attempt; an active lease remains counted. No save or finish retry.
+    try { await metadata.rpc("finish_document_operation", {_operation_id: operation,
+      _actor_id: actor.data, _receipt_id: capability, _outcome: "needs_review"}); } catch { /* Reconciliation required. */ }
+    throw new DocumentOperationAdmissionError("work");
+  }
 }

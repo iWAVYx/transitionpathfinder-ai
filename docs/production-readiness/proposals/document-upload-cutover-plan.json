@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Source-bound rescan handler wired and locally verified:5701 unit cases and TypeScript pass. Service boundary native/full-schema checks remain pending; producer release and other workstream integration remain open.",
+  "status": "Rescan stage16 native/full-schema verified. Registration17\u201319 replay failed on executor role switching and remains open. Apply source-bound admission/save/completion/release/server flow locally verified; installation hardening and native/full-schema proof pending.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -24,7 +24,7 @@
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
-      "sha256": "ab1f70d8e63bb6cc93ee00089a84a75b3d8533002087ea7c4138bb4fdc60e1c0"
+      "sha256": "4e35e0778e5358486ffc6e51be5f5bd87f16ac48f7c37fd0e0236cea5ee47700"
     },
     {
       "path": "src/lib/evidence-writers.functions.ts",
@@ -236,7 +236,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Fifteen noncanonical/unapplied control proposals are indexed in document-control-proposal-inventory.json, with hashes and dependency order checked against the disposable replay workflow. This includes the verified counted-worker handoff and the native-pending automatic worker settlement proposal. The separate fifteen-canonical-migration batch installs none of these review proposals; final canonical/ledger packaging and exact hosted preflight remain required.",
+  "remaining_batch_preparation": "Nineteen ordered unapplied review proposals are inventoried; first16 are native/full-schema verified. Registration17\u201319 failed replay and remain pending. Four additional Apply drafts are tracked outside that replay. The separate fifteen-canonical-migration batch installs none of these control proposals; final canonical/ledger packaging and exact hosted preflight remain required.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -722,9 +722,9 @@
     "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-02",
+    "date": "2026-11-05",
     "checked_against_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
-    "evidence": "docs/production-readiness/evidence/document-apply-preflight-local-2026-11-04.json",
+    "evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
     "declared_entries_checked": 29,
     "corrected_entries": 3,
     "complete_release_manifest": false,
@@ -763,5 +763,12 @@
   },
   "unapplied_control_proposals": 19,
   "control_proposal_inventory": "docs/production-readiness/proposals/document-control-proposal-inventory.json",
-  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
+  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json",
+  "apply_integrated_local": {
+    "evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
+    "core_local_implemented": true,
+    "native_full_schema_verified": false,
+    "installation_hardened": false,
+    "hosted_verified": false
+  }
 }

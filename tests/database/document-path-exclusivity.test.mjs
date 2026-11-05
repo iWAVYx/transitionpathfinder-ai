@@ -122,9 +122,15 @@ beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
     DO $$ BEGIN IF to_regclass('public.ai_jobs') IS NOT NULL THEN DROP TRIGGER IF EXISTS registration_summary_capacity ON public.ai_jobs;END IF;END $$;
-    DROP FUNCTION IF EXISTS public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb);
+    DO $$ BEGIN IF to_regclass('public.document_extractions') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_apply_completed ON public.document_extractions;END IF;END $$;
+    DO $$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_bound_apply_finished ON public.document_operation_leases;END IF;END $$;
+    DROP TABLE IF EXISTS public.document_apply_capacity_settlements;
+    DROP TABLE IF EXISTS public.document_apply_completion_receipts;
+    DROP FUNCTION IF EXISTS public.guard_bound_apply_finish(),public.release_completed_apply_at_commit();
+    DROP FUNCTION IF EXISTS public.record_bound_document_apply_completion(),public.guard_apply_completion_receipt(),public.validate_bound_document_apply_completion(uuid),public.check_bound_apply_commit();
+    DROP FUNCTION IF EXISTS public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb),public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean);
     DROP TABLE IF EXISTS public.document_apply_source_bindings;
-    DROP FUNCTION IF EXISTS public.guard_document_apply_source_binding(),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb);
+    DROP FUNCTION IF EXISTS public.guard_document_apply_source_binding(),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean);
     DROP FUNCTION IF EXISTS public.bind_registration_summary_capacity(),public.settle_completed_document_registration(uuid);
     DROP FUNCTION IF EXISTS public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb),public.mark_bound_document_rescan_pending(uuid,uuid,uuid,text),public.persist_bound_document_rescan_result(uuid,uuid,uuid,jsonb);
     DO $reset_auto_summary$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_settled_summary_lease_frozen ON public.document_operation_leases;END IF;END; $reset_auto_summary$;
@@ -3366,13 +3372,13 @@ test('registration auto exact ordered combined chain preserves four routine owne
 
 const applySourceCapacity=readFileSync('docs/production-readiness/proposals/document-apply-source-capacity.sql','utf8');
 async function boundApplyCapacityFixture(){
- await capacityFixture({settlement:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
+ await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
  await db.exec('CREATE TABLE public.document_extractions(id uuid PRIMARY KEY,student_id uuid,document_id uuid,status text,updated_at timestamptz,sections jsonb)');await db.exec(applySourceCapacity);await as('','service_role');await pauseOperation(false,3);
  const x=await quotaAttempt(1);await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='clean',review_status='approved',archived_at=NULL WHERE id=$1",[x.document]);
  const r=(await db.query("INSERT INTO public.document_extractions VALUES($1,$2,$3,'in_review',clock_timestamp(),$4) RETURNING updated_at::text AS revision",[applyId,student,x.document,applySections])).rows[0];await as('','service_role');return {...x,revision:r.revision};
 }
 
-async function beginBoundApply(x,{actor=actors.family,revision=x.revision,sections=applySections,operation=uid(51001)}={}){return (await db.query('SELECT public.begin_bound_document_apply($1,$2,$3,$4,$5,$6,$7) AS claim',[operation,actor,student,x.document,applyId,revision,sections])).rows[0].claim;}
+async function beginBoundApply(x,{actor=actors.family,revision=x.revision,sections=applySections,operation=uid(51001),emitEvidence=true}={}){return (await db.query('SELECT public.begin_bound_document_apply($1,$2,$3,$4,$5,$6,$7,$8) AS claim',[operation,actor,student,x.document,applyId,revision,sections,emitEvidence])).rows[0].claim;}
 test('capacity bound Apply reserves one unit for exact source and retains no section text',async()=>{
  const x=await boundApplyCapacityFixture();const r=await beginBoundApply(x);assert.equal(r.schema,'document-apply-source-claim-v1');const rows=await capacityRows();assert.equal(rows.length,1);assert.equal(rows[0].reserved_units,1);assert.equal(rows[0].student_id,student);
  const b=(await db.query('SELECT * FROM public.document_apply_source_bindings')).rows[0];assert.match(b.sections_sha256,/^[a-f0-9]{64}$/);assert.equal(JSON.stringify(b).includes('Fictional strengths'),false);
@@ -3403,12 +3409,12 @@ test('capacity bound Apply transaction rollback removes its lease binding and re
 });
 
 const applyBoundSave=readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql','utf8');
-async function boundApplySaveFixture({admit=true}={}){
+async function boundApplySaveFixture({admit=true,emitEvidence=true}={}){
  const x=await boundApplyCapacityFixture();const f=await atomicApplyFixture({existingDocument:x.document});await db.exec('RESET ROLE');
  // Load the exact reviewed gated function body; full installation is separately
  // exercised by canonical replay, not inferred from this disposable fixture.
  await db.exec(applyAdmission.slice(applyAdmission.indexOf('CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction'),applyAdmission.lastIndexOf('COMMIT;')));
- const source={...x,revision:f.revision};await as('','service_role');let claim;if(admit)claim=await beginBoundApply(source);await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(applyBoundSave);await as();return {...f,source,claim};
+ const source={...x,revision:f.revision};await as('','service_role');let claim;if(admit)claim=await beginBoundApply(source,{emitEvidence});await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(applyBoundSave);await as();return {...f,source,claim};
 }
 test('capacity bound Apply save preserves caller-RLS atomic writes while admitted work drains paused',async()=>{
  const x=await boundApplySaveFixture();const result=(await applyAtomic(x)).rows[0].receipt;assert.equal(result.status,'complete');await db.exec('RESET ROLE');assert.equal((await db.query('SELECT strengths_summary FROM public.students WHERE id=$1',[student])).rows[0].strengths_summary,'Fictional strengths');assert.equal((await capacityRows())[0].reserved_units,1);
@@ -3424,5 +3430,54 @@ for(const drift of ['sections','document','access'])test('capacity bound Apply s
  const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x),{code:'42501'});assert.deepEqual(await applicationSnapshot(),before);
 });
 test('capacity bound Apply save retains invoker body with only admission gate replacement',()=>{
- const original=applyAdmission.match(/AS \$apply\$([\s\S]*?)\$apply\$;/)[1];const updated=applyBoundSave.match(/AS \$apply\$([\s\S]*?)\$apply\$;/)[1];assert.equal(updated.replace('  PERFORM public.assert_bound_document_apply(_extraction_id,_student_id,_document_id,_expected_updated_at,_expected_sections);','  PERFORM public.lock_document_apply_admission();'),original);assert.match(applyBoundSave,/RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER/);
+ const original=applyAdmission.match(/AS \$apply\$([\s\S]*?)\$apply\$;/)[1];const updated=applyBoundSave.match(/AS \$apply\$([\s\S]*?)\$apply\$;/)[1];assert.equal(updated.replace('  PERFORM public.assert_bound_document_apply(_extraction_id,_student_id,_document_id,_expected_updated_at,_expected_sections,_emit_evidence);','  PERFORM public.lock_document_apply_admission();'),original);assert.match(applyBoundSave,/RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER/);
+});
+
+const applyCompletionReceipt=readFileSync('docs/production-readiness/proposals/document-apply-completion-receipt.sql','utf8');
+async function observedApplyFixture(options={}){const x=await boundApplySaveFixture(options);await db.exec('RESET ROLE');await db.exec(applyCompletionReceipt);await as();return x;}
+test('capacity bound Apply completion records actual profile and transition writes privately',async()=>{
+ const x=await observedApplyFixture();await applyAtomic(x);await db.exec('RESET ROLE');const rows=(await db.query('SELECT * FROM public.document_apply_completion_receipts')).rows;assert.equal(rows.length,1);assert.equal(rows[0].operation_id,x.claim.operation_id);assert.equal(rows[0].actor_id,actors.family);assert.match(rows[0].student_sha256,/^[a-f0-9]{64}$/);assert.equal(JSON.stringify(rows).includes('Fictional strengths'),false);
+});
+test('capacity bound Apply completion refuses status-only fake completion without profile writes',async()=>{
+ const x=await observedApplyFixture();await assert.rejects(db.query("UPDATE public.document_extractions SET status='complete',reviewer_id=$1,reviewed_at=clock_timestamp() WHERE id=$2",[actors.family,applyId]),{code:'55000'});await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_completion_receipts')).rows[0].n,0);assert.equal((await db.query('SELECT status FROM public.document_extractions WHERE id=$1',[applyId])).rows[0].status,'in_review');
+});
+test('capacity bound Apply completion rolls back receipt and profile save if final audit fails',async()=>{
+ const x=await observedApplyFixture();await db.exec("RESET ROLE;CREATE FUNCTION public.tf_apply_audit_fail() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN RAISE EXCEPTION 'fictional audit failure';END$$;CREATE TRIGGER fail_apply_audit BEFORE INSERT ON public.audit_log FOR EACH ROW EXECUTE FUNCTION public.tf_apply_audit_fail()");const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x));assert.deepEqual(await applicationSnapshot(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_completion_receipts')).rows[0].n,0);
+});
+
+test('capacity bound Apply completion rejects later same-transaction profile drift at commit',async()=>{
+ const x=await observedApplyFixture();const before=await applicationSnapshot();await as();await db.exec('BEGIN');await applyAtomic(x);await db.query("UPDATE public.students SET strengths_summary='Changed after save' WHERE id=$1",[student]);await assert.rejects(db.exec('COMMIT'),{code:'55000'});await db.exec('ROLLBACK');assert.deepEqual(await applicationSnapshot(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_completion_receipts')).rows[0].n,0);
+});
+
+const applyCapacityRelease=readFileSync('docs/production-readiness/proposals/document-apply-capacity-release.sql','utf8');
+async function releasedApplyFixture(options={}){const x=await observedApplyFixture(options);await db.exec('RESET ROLE');await db.exec(applyCapacityRelease);await as();return x;}
+test('capacity bound Apply release completes and releases exactly one unit at commit',async()=>{
+ const x=await releasedApplyFixture();await applyAtomic(x);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[x.claim.operation_id])).rows[0].state,'completed');assert.equal((await db.query('SELECT released_units FROM public.document_apply_capacity_settlements WHERE operation_id=$1',[x.claim.operation_id])).rows[0].released_units,1);
+});
+test('capacity bound Apply release does not bypass pause reconciliation for other tracked work',async()=>{
+ const x=await releasedApplyFixture();await applyAtomic(x);await db.exec('RESET ROLE');
+ const count=(await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n;assert.equal(count,1);
+ await as('','service_role');await assert.rejects(pauseOperation(false,5),{code:'55000'});
+ assert.equal((await capacityRows()).filter(r=>r.producer_kind==='apply').length,1);
+});
+
+test('capacity bound Apply release refuses generic completion without saved domain proof',async()=>{
+ const x=await releasedApplyFixture();await as('','service_role');await assert.rejects(finishOperation(x.claim),{code:'55000'});await db.exec('RESET ROLE');assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[x.claim.operation_id])).rows[0].state,'active');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,0);
+});
+for(const fault of ['suppressed','altered'])test('capacity bound Apply release rolls back all saved changes after '+fault+' release write',async()=>{
+ const x=await releasedApplyFixture();await db.exec('RESET ROLE');await db.exec("CREATE OR REPLACE FUNCTION public.tf_apply_release_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "+(fault==='suppressed'?'RETURN NULL;':'NEW.settled_txid:=NEW.settled_txid+1;RETURN NEW;')+" END $$;CREATE TRIGGER zzzz_apply_release_fault BEFORE INSERT ON public.document_apply_capacity_settlements FOR EACH ROW EXECUTE FUNCTION public.tf_apply_release_fault()");const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x));assert.deepEqual(await applicationSnapshot(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,0);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_completion_receipts')).rows[0].n,0);assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[x.claim.operation_id])).rows[0].state,'active');
+});
+
+test('capacity bound Apply completion keeps source fingerprints stable across session timezones',async()=>{
+ const x=await releasedApplyFixture();await db.exec("SET TIME ZONE 'America/New_York'");try{await applyAtomic(x);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,1);}finally{await db.exec("SET TIME ZONE 'UTC'");}
+});
+
+test('capacity bound Apply release preserves evidence-disabled save without graph writes',async()=>{
+ const x=await releasedApplyFixture({emitEvidence:false});await applyAtomic(x,{evidence:false});await db.exec('RESET ROLE');assert.equal((await db.query('SELECT count(*)::int AS n FROM public.evidence_items')).rows[0].n,0);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,1);
+});
+test('capacity bound Apply release refuses changed evidence intent before save',async()=>{
+ const x=await releasedApplyFixture();const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x,{evidence:false}),{code:'42501'});assert.deepEqual(await applicationSnapshot(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,0);
+});
+for(const target of ['evidence','audit'])test('capacity bound Apply release rejects altered actual '+target+' write',async()=>{
+ const x=await releasedApplyFixture();await db.exec('RESET ROLE');await db.exec("CREATE OR REPLACE FUNCTION public.tf_apply_output_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "+(target==='evidence'?"NEW.payload:='{}'::jsonb;":"NEW.action:='other.action';")+" RETURN NEW;END $$;CREATE TRIGGER zzzz_apply_output_fault BEFORE INSERT ON public."+(target==='evidence'?'evidence_items':'audit_log')+" FOR EACH ROW EXECUTE FUNCTION public.tf_apply_output_fault()");const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x),{code:'55000'});assert.deepEqual(await applicationSnapshot(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,0);
 });

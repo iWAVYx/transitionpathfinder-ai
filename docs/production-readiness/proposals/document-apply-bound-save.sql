@@ -11,8 +11,8 @@ DO $preflight$ BEGIN
    AND NOT prosecdef AND md5(prosrc)='931e2c8dda387bacd5829d3f5b81749d' AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN
   RAISE EXCEPTION 'Reviewed paused Apply source/save prerequisites required'; END IF;
 END; $preflight$;
-CREATE FUNCTION public.assert_bound_document_apply(_extraction_id uuid,_student_id uuid,_document_id uuid,_expected_revision timestamptz,_expected_sections jsonb)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
+CREATE FUNCTION public.assert_bound_document_apply(_extraction_id uuid,_student_id uuid,_document_id uuid,_expected_revision timestamptz,_expected_sections jsonb,_emit_evidence boolean)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog SET TimeZone='UTC'
 AS $bound_apply_gate$
 DECLARE actor uuid:=auth.uid();binding public.document_apply_source_bindings%ROWTYPE;e public.document_extractions%ROWTYPE;d public.documents%ROWTYPE;
 BEGIN
@@ -23,7 +23,7 @@ BEGIN
  SELECT b.* INTO binding FROM public.document_apply_source_bindings b JOIN public.document_operation_leases l USING(operation_id)
   JOIN public.document_capacity_reservations c USING(operation_id)
   WHERE b.actor_id=actor AND b.extraction_id=_extraction_id AND b.student_id=_student_id AND b.document_id=_document_id
-   AND b.source_revision=_expected_revision AND b.sections_sha256=encode(sha256(convert_to(_expected_sections::text,'UTF8')),'hex')
+   AND b.emit_evidence=_emit_evidence AND b.source_revision=_expected_revision AND b.sections_sha256=encode(sha256(convert_to(_expected_sections::text,'UTF8')),'hex')
    AND l.actor_id=actor AND l.operation_kind='apply' AND l.state='active'
    AND c.actor_id=actor AND c.student_id=_student_id AND c.producer_kind='apply' AND c.reserved_units=1;
  IF NOT FOUND THEN RAISE EXCEPTION 'A current source-bound Apply reservation is required.' USING ERRCODE='42501'; END IF;
@@ -36,8 +36,8 @@ BEGIN
  IF NOT FOUND OR encode(sha256(convert_to(to_jsonb(d)::text,'UTF8')),'hex') IS DISTINCT FROM binding.document_sha256 THEN
   RAISE EXCEPTION 'This document has changed.' USING ERRCODE='42501'; END IF;
 END; $bound_apply_gate$;
-REVOKE ALL ON FUNCTION public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb) FROM PUBLIC,anon,authenticated,service_role;
-GRANT EXECUTE ON FUNCTION public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb) TO authenticated;
+REVOKE ALL ON FUNCTION public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean) FROM PUBLIC,anon,authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean) TO authenticated;
 CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction(
   _extraction_id uuid,_student_id uuid,_document_id uuid,
   _expected_updated_at timestamptz,_expected_sections jsonb,_emit_evidence boolean
@@ -49,7 +49,7 @@ DECLARE
   mapping record; section jsonb; val text; changed integer; evidence_id uuid;
   applied_at timestamptz:=clock_timestamp(); revision timestamptz; metadata jsonb;
 BEGIN
-  PERFORM public.assert_bound_document_apply(_extraction_id,_student_id,_document_id,_expected_updated_at,_expected_sections);
+  PERFORM public.assert_bound_document_apply(_extraction_id,_student_id,_document_id,_expected_updated_at,_expected_sections,_emit_evidence);
   IF actor IS NULL OR _extraction_id IS NULL OR _student_id IS NULL OR _document_id IS NULL
     OR _expected_updated_at IS NULL OR _expected_sections IS NULL
     OR jsonb_typeof(_expected_sections)<>'object' OR char_length(_expected_sections::text)>100000
