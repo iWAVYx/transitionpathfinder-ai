@@ -48,5 +48,12 @@
   "production_access": false,
   "ready_for_cutover": false,
   "whole_action_complete": true,
-  "owner_selection_scope": "User selected Conservative32/4/2 in this chat on2026-11-05. Source policy only; no environment, rollout or production authorization."
+  "owner_selection_scope": "User selected Conservative32/4/2 in this chat on2026-11-05. Source policy only; no environment, rollout or production authorization.",
+  "implementation_preparation": {
+    "installer": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+    "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
+    "local_cases_passed": 13,
+    "native_full_schema_verified": false,
+    "hosted_applied": false
+  }
 }

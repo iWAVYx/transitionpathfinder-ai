@@ -22,6 +22,8 @@ on:
       - "tests/database/run-document-path-local-model.mjs"
       - "tests/database/document-path-test-partitions.mjs"
       - "tests/database/document-native-test-plan.json"
+      - "tests/database/document-capacity-selected-policy.test.mjs"
+      - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
       - "tests/database/document-native-result-validation.mjs"
@@ -114,6 +116,8 @@ on:
       - "tests/database/run-document-path-local-model.mjs"
       - "tests/database/document-path-test-partitions.mjs"
       - "tests/database/document-native-test-plan.json"
+      - "tests/database/document-capacity-selected-policy.test.mjs"
+      - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
       - "tests/database/document-native-result-validation.mjs"
@@ -366,6 +370,18 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Test selected policy installer without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-capacity-selected-policy.test.mjs
+      - name: Test selected policy installer in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-capacity-selected-policy.test.mjs
 
       - name: Verify new rescan and registration boundaries before full database suites
         env:
@@ -2231,6 +2247,26 @@ jobs:
           writeFileSync('/tmp/document-apply-integrated.json',JSON.stringify(proof,null,2)+'\n');
           NODE
 
+      - name: Verify selected finite policy after complete schema replay
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-capacity-selected-policy.sql
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-capacity-selected-policy.json
+          SELECT jsonb_build_object('schema','document-selected-policy-proof-v1',
+           'global_units',global_units,'actor_units',actor_units,'student_units',student_units,
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'hosted_applied',false,'ready_for_cutover',false)
+          FROM public.document_capacity_policy WHERE singleton;
+          SQL
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const proof=JSON.parse(readFileSync('/tmp/document-capacity-selected-policy.json','utf8'));
+          const review=JSON.parse(readFileSync('docs/production-readiness/proposals/document-capacity-policy-review.json','utf8'));
+          assert.equal(review.owner_selection_recorded,true);
+          for(const key of ['global_units','actor_units','student_units'])assert.equal(proof[key],review.selected_profile[key]);
+          assert.equal(proof.paused,true);assert.equal(proof.hosted_applied,false);assert.equal(proof.ready_for_cutover,false);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2261,4 +2297,5 @@ jobs:
             /tmp/document-registration-integrated.json
             /tmp/document-apply-integrated.json
             /tmp/document-rescan-automatic-release.json
+            /tmp/document-capacity-selected-policy.json
           if-no-files-found: ignore

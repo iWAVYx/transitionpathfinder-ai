@@ -223,6 +223,12 @@
       "sha256": "98050642564389e3bc2cea07999ff23464c9008e08e2f580194f00ee301f7a2d",
       "native_status": "focused_native_and_full_schema_verified_cumulative_native_pending",
       "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+      "sha256": "163e0e01f98a4dadfce64f1a09addd6b623aa0f15b5703723374cb9831cd3f21",
+      "native_status": "local_metadata_transaction_verified_native_full_schema_pending",
+      "hosted_applied": false
     }
   ],
   "registration_replay_failure": {
@@ -251,11 +257,13 @@
     "docs/production-readiness/proposals/document-apply-source-capacity.sql",
     "docs/production-readiness/proposals/document-apply-bound-save.sql",
     "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
-    "docs/production-readiness/proposals/document-apply-capacity-release.sql"
+    "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+    "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
   ],
-  "verification_appendix_scope": "One rescan release draft followed by the atomic four-draft Apply package after ordered19; both focused native/full-schema replays verified. Final canonical/ledger and cumulative native acceptance remain open.",
+  "verification_appendix_scope": "Automatic rescan release plus the atomic four-draft Apply package are component/native/schema verified after ordered19. A sixth appendix draft prepares the selected32/4/2 policy; its native/full-schema proof is pending.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": true,
-  "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json"
+  "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
+  "selected_policy_preparation_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json"
 }

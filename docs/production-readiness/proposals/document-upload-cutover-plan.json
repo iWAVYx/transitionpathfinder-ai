@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 24,
+  "unapplied_admission_proposals": 25,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -794,12 +794,25 @@
       "1.5"
     ],
     "focused_native_full_schema_verified": true,
-    "cumulative_native_suite_verified": false,
+    "cumulative_native_suite_verified": true,
     "hosted_verified": false,
     "historical_preparation_fields_retained": true,
     "cumulative_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
-    "cumulative_native_strategy": "Seven exhaustive fresh-database native batches with exact1560-case aggregate; acceptance pending"
+    "cumulative_native_strategy": "Seven exhaustive fresh-database native batches with exact1560-case aggregate; acceptance pending",
+    "cumulative_native_evidence": "docs/production-readiness/evidence/document-native-cumulative-verified-2026-11-05.json",
+    "final_replay_gate": "PR42044357319 pending; push42044348317 passed"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 5
+  "verification_appendix_drafts": 6,
+  "selected_policy_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
+    "source_policy": [
+      32,
+      4,
+      2
+    ],
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "hosted_applied": false
+  }
 }
