@@ -30,6 +30,7 @@ on:
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-private-operation-admission.sql"
       - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
+      - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -131,6 +132,7 @@ on:
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-private-operation-admission.sql"
       - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
+      - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -428,7 +430,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save|^capacity private admission|^capacity legacy summary claim' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save|^capacity private admission|^capacity legacy summary claim|^capacity queue entry' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -2528,6 +2530,46 @@ jobs:
           assert.equal(p.paused,true);assert.equal(p.processing_summaries,0);assert.equal(p.helpers.length,2);assert.equal(p.source_claim_body_md5,'c447fea2a55afefc6ad1451986ac1eea');assert.equal(p.hosted_applied,false);assert.equal(p.ready_for_cutover,false);
           NODE
 
+      - name: Verify counted summary queue entry after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-summary-queue-entry-fence.sql -f - <<'SQL'
+          DO $queue_entry_schema_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted queue installer was not restored';END IF;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN RAISE EXCEPTION 'Queue fence must keep processing paused';END IF;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.bind_registration_summary_capacity()','96abd9342d6d508d1fe8157f6e24827f',true),
+            ('public.guard_document_summary_job_type()','c4b98274623c0102d707c806781c85aa',false)
+           ) expected(signature,body_md5,definer) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN RAISE EXCEPTION 'Exact private queue routine required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') THEN RAISE EXCEPTION 'Queue trigger helpers must remain private';END IF;
+            END LOOP;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+            ('registration_summary_capacity','public.bind_registration_summary_capacity()',5),
+            ('ai_jobs_guard_document_summary_type','public.guard_document_summary_job_type()',19)
+           ) expected(trigger_name,signature,trigger_type) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.ai_jobs'::regclass AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.trigger_type AND tgenabled='O' AND NOT tgisinternal AND NOT tgdeferrable AND NOT tginitdeferred AND tgqual IS NULL AND tgattr::text='') THEN RAISE EXCEPTION 'Exact unconditional queue/type triggers required';END IF;
+           END LOOP;
+           IF has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') OR (SELECT md5(prosrc) FROM pg_proc WHERE oid='public.claim_admitted_document_summary(uuid,integer)'::regprocedure)<>'c447fea2a55afefc6ad1451986ac1eea' THEN RAISE EXCEPTION 'Existing private admission and counted claim must remain unchanged';END IF;
+          END; $queue_entry_schema_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-summary-queue-entry-fence.json
+          SELECT jsonb_build_object('schema','document-summary-queue-entry-proof-v1',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'binder_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.bind_registration_summary_capacity()'::regprocedure),
+           'type_guard_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.guard_document_summary_job_type()'::regprocedure),
+           'legacy_rows_adopted',false,'records_removed',false,'hosted_applied',false,'ready_for_cutover',false);
+          SQL
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-summary-queue-entry-fence.json','utf8'));
+          assert.equal(p.paused,true);assert.equal(p.binder_body_md5,'96abd9342d6d508d1fe8157f6e24827f');assert.equal(p.type_guard_body_md5,'c4b98274623c0102d707c806781c85aa');for(const key of ['legacy_rows_adopted','records_removed','hosted_applied','ready_for_cutover'])assert.equal(p[key],false);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2564,4 +2606,5 @@ jobs:
             /tmp/document-pause-drain-inventory.json
             /tmp/document-private-operation-admission.json
             /tmp/document-summary-claim-write-fence.json
+            /tmp/document-summary-queue-entry-fence.json
           if-no-files-found: ignore

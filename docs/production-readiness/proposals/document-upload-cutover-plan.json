@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Private generic admission and raw summary-writer fences pass1640 native cases and225+29 replay. Explicit legacy queue fallback, remaining reconciliation/source/access/hosted and release gates stay open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Private admission and raw summary-writer fences pass1640 native cases and225+29 replay. Legacy queue entry/type fence draft30 is locally verified; remaining native/schema, reconciliation/source/access/hosted and release gates stay open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 29,
+  "unapplied_admission_proposals": 30,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -805,7 +805,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 10,
+  "verification_appendix_drafts": 11,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -887,5 +887,14 @@
     "hosted_applied": false,
     "verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
   },
-  "legacy_queue_fallback_source_review": "docs/production-readiness/evidence/document-legacy-queue-fallback-source-review-2026-11-05.json"
+  "legacy_queue_fallback_source_review": "docs/production-readiness/evidence/document-legacy-queue-fallback-source-review-2026-11-05.json",
+  "summary_queue_entry_fence_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
+    "evidence": "docs/production-readiness/evidence/document-summary-queue-entry-local-2026-11-05.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "requires_drained_tracked_work_for_installation": true,
+    "preserves_legacy_rows": true,
+    "hosted_applied": false
+  }
 }
