@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.4",
+  "failed_runs": [
+    42091870824,
+    42091862243
+  ],
+  "failed_source": "6041eae4c531744bb41d96af17a7537520425771",
+  "failure": "Read-only drain PGlite test could not import a module from pathway-history-tests; that location contains pg, while PGlite is installed under channel-history-tests. Inventory tests did not execute their assertions.",
+  "failure_log_sha256": "11795aa4ae336399c694a50aa298be962b17ca6d088d60bf1f397eadca7db052",
+  "accepted_as_reader_verification": false,
+  "corrections": [
+    "Use the already-installed channel-history-tests PGlite module",
+    "Set PGUSER=supabase_admin on the new disposable native step, matching neighboring database-creation fixtures; missing setting corrected before that step was reached"
+  ],
+  "changed_application_or_sql": false,
+  "changed_test_assertions": false,
+  "existing_local_reader_cases": 21,
+  "existing_local_reader_failed": 0,
+  "setup_validation": [
+    "YAML parses",
+    "Install precedes use of existing module path",
+    "Native fixture uses existing disposable owner",
+    "All63 workflow shell blocks pass bash -n"
+  ],
+  "corrected_native_full_schema_verified": false,
+  "previous_recovery_native1594_and_schema225_plus27_proof_unchanged": true,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

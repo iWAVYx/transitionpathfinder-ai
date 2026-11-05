@@ -383,10 +383,12 @@ jobs:
 
       - name: Test read-only drain inventory without hosted credentials
         run: |
-          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/document-pause-drain-inventory.test.mjs
 
       - name: Test read-only drain inventory in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
