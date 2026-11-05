@@ -122,6 +122,7 @@ beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
     DO $$ BEGIN IF to_regclass('public.ai_jobs') IS NOT NULL THEN DROP TRIGGER IF EXISTS registration_summary_capacity ON public.ai_jobs;END IF;END $$;
+    DROP FUNCTION IF EXISTS public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb);
     DROP TABLE IF EXISTS public.document_apply_source_bindings;
     DROP FUNCTION IF EXISTS public.guard_document_apply_source_binding(),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb);
     DROP FUNCTION IF EXISTS public.bind_registration_summary_capacity(),public.settle_completed_document_registration(uuid);
@@ -1504,12 +1505,13 @@ for(const finish of ['COMMIT','ROLLBACK'])test('read-only source inventory holds
 // Independent atomic application proposal; no provider calls or hosted data.
 const applyId=uid(701);
 const applySections={strengths:{state:'accepted',value:'Fictional strengths'},supports:{state:'edited',value:'Fictional written supports'},needs:{state:'rejected',value:'Must not apply'}};
-async function atomicApplyFixture({baseOnly=false}={}){
+async function atomicApplyFixture({baseOnly=false,existingDocument=null}={}){
   let doc;
-  if(baseOnly){await as();doc=(await insert()).rows[0].id;await db.exec("RESET ROLE;UPDATE public.documents SET scan_status='clean'");}
+  if(existingDocument){doc=existingDocument;}else if(baseOnly){await as();doc=(await insert()).rows[0].id;await db.exec("RESET ROLE;UPDATE public.documents SET scan_status='clean'");}
   else ({doc}=await sourceBindingFixture(false));await db.exec('RESET ROLE');
   await db.exec(`ALTER TABLE public.students ADD COLUMN IF NOT EXISTS grade_band text,ADD COLUMN IF NOT EXISTS strengths_summary text,ADD COLUMN IF NOT EXISTS interests_summary text,ADD COLUMN IF NOT EXISTS support_needs_summary text,ADD COLUMN IF NOT EXISTS student_voice_statement text,ADD COLUMN IF NOT EXISTS family_priorities text;
-    CREATE TABLE public.document_extractions(id uuid PRIMARY KEY,document_id uuid NOT NULL REFERENCES public.documents(id),student_id uuid NOT NULL REFERENCES public.students(id),status text NOT NULL,sections jsonb NOT NULL,updated_at timestamptz NOT NULL DEFAULT now(),reviewer_id uuid,reviewed_at timestamptz);
+    CREATE TABLE IF NOT EXISTS public.document_extractions(id uuid PRIMARY KEY,document_id uuid NOT NULL REFERENCES public.documents(id),student_id uuid NOT NULL REFERENCES public.students(id),status text NOT NULL,sections jsonb NOT NULL,updated_at timestamptz NOT NULL DEFAULT now(),reviewer_id uuid,reviewed_at timestamptz);
+    ALTER TABLE public.document_extractions ADD COLUMN IF NOT EXISTS reviewer_id uuid,ADD COLUMN IF NOT EXISTS reviewed_at timestamptz;
     CREATE FUNCTION public.fixture_extraction_revision() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN NEW.updated_at:=clock_timestamp();RETURN NEW;END$$;
     CREATE TRIGGER document_extractions_set_updated_at BEFORE UPDATE ON public.document_extractions FOR EACH ROW EXECUTE FUNCTION public.fixture_extraction_revision();
     CREATE TABLE public.transition_profiles(id uuid DEFAULT gen_random_uuid(),student_id uuid PRIMARY KEY REFERENCES public.students(id),transportation_goal text,current_services_summary text,education_training_goal text);
@@ -1526,7 +1528,7 @@ async function atomicApplyFixture({baseOnly=false}={}){
     CREATE POLICY fixture_transition ON public.transition_profiles FOR ALL TO authenticated USING(public.can_edit_student(auth.uid(),student_id)) WITH CHECK(public.can_edit_student(auth.uid(),student_id));
     CREATE POLICY fixture_evidence ON public.evidence_items FOR ALL TO authenticated USING(public.can_edit_student(auth.uid(),student_id)) WITH CHECK(public.can_edit_student(auth.uid(),student_id));`);
   await db.query("UPDATE public.students SET strengths_summary='Original strength',family_priorities='Keep this priority' WHERE id=$1",[student]);
-  const row=(await db.query("INSERT INTO public.document_extractions(id,document_id,student_id,status,sections) VALUES($1,$2,$3,'in_review',$4) RETURNING updated_at::text AS revision",[applyId,doc,student,applySections])).rows[0];await db.exec(atomicExtractionProposal);await as();return {doc,revision:row.revision};
+  const row=(await db.query("INSERT INTO public.document_extractions(id,document_id,student_id,status,sections) VALUES($1,$2,$3,'in_review',$4) ON CONFLICT(id) DO UPDATE SET sections=EXCLUDED.sections,status=EXCLUDED.status RETURNING updated_at::text AS revision",[applyId,doc,student,applySections])).rows[0];await db.exec(atomicExtractionProposal);await as();return {doc,revision:row.revision};
 }
 function applyAtomic(f,{client=db,studentId=student,documentId=f.doc,sections=applySections,revision=f.revision,evidence=true}={}){return client.query('SELECT public.apply_reviewed_document_extraction($1,$2,$3,$4,$5,$6) AS receipt',[applyId,studentId,documentId,revision,sections,evidence]);}
 async function applicationSnapshot(){await db.exec('RESET ROLE');return {student:(await db.query('SELECT * FROM public.students WHERE id=$1',[student])).rows,profiles:(await db.query('SELECT * FROM public.transition_profiles')).rows,extraction:(await db.query('SELECT * FROM public.document_extractions')).rows,evidence:(await db.query('SELECT * FROM public.evidence_items')).rows,audit:(await db.query('SELECT * FROM public.audit_log')).rows};}
@@ -3364,7 +3366,7 @@ test('registration auto exact ordered combined chain preserves four routine owne
 
 const applySourceCapacity=readFileSync('docs/production-readiness/proposals/document-apply-source-capacity.sql','utf8');
 async function boundApplyCapacityFixture(){
- await capacityFixture();await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
+ await capacityFixture({settlement:true});await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');
  await db.exec('CREATE TABLE public.document_extractions(id uuid PRIMARY KEY,student_id uuid,document_id uuid,status text,updated_at timestamptz,sections jsonb)');await db.exec(applySourceCapacity);await as('','service_role');await pauseOperation(false,3);
  const x=await quotaAttempt(1);await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='clean',review_status='approved',archived_at=NULL WHERE id=$1",[x.document]);
  const r=(await db.query("INSERT INTO public.document_extractions VALUES($1,$2,$3,'in_review',clock_timestamp(),$4) RETURNING updated_at::text AS revision",[applyId,student,x.document,applySections])).rows[0];await as('','service_role');return {...x,revision:r.revision};
@@ -3398,4 +3400,29 @@ for(const mutation of ['UPDATE public.document_apply_source_bindings SET section
 });
 test('capacity bound Apply transaction rollback removes its lease binding and reservation',async()=>{
  const x=await boundApplyCapacityFixture();await db.exec('BEGIN');await beginBoundApply(x);await db.exec('ROLLBACK;RESET ROLE');assert.equal((await capacityRows()).length,0);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_source_bindings')).rows[0].n,0);
+});
+
+const applyBoundSave=readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql','utf8');
+async function boundApplySaveFixture({admit=true}={}){
+ const x=await boundApplyCapacityFixture();const f=await atomicApplyFixture({existingDocument:x.document});await db.exec('RESET ROLE');
+ // Load the exact reviewed gated function body; full installation is separately
+ // exercised by canonical replay, not inferred from this disposable fixture.
+ await db.exec(applyAdmission.slice(applyAdmission.indexOf('CREATE OR REPLACE FUNCTION public.apply_reviewed_document_extraction'),applyAdmission.lastIndexOf('COMMIT;')));
+ const source={...x,revision:f.revision};await as('','service_role');let claim;if(admit)claim=await beginBoundApply(source);await pauseOperation(true,4);await db.exec('RESET ROLE');await db.exec(applyBoundSave);await as();return {...f,source,claim};
+}
+test('capacity bound Apply save preserves caller-RLS atomic writes while admitted work drains paused',async()=>{
+ const x=await boundApplySaveFixture();const result=(await applyAtomic(x)).rows[0].receipt;assert.equal(result.status,'complete');await db.exec('RESET ROLE');assert.equal((await db.query('SELECT strengths_summary FROM public.students WHERE id=$1',[student])).rows[0].strengths_summary,'Fictional strengths');assert.equal((await capacityRows())[0].reserved_units,1);
+});
+test('capacity bound Apply save refuses direct unreserved invocation before changes',async()=>{
+ const x=await boundApplySaveFixture({admit:false});const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x),{code:'42501'});assert.deepEqual(await applicationSnapshot(),before);
+});
+for(const drift of ['sections','document','access'])test('capacity bound Apply save rejects '+drift+' drift without profile writes',async()=>{
+ const x=await boundApplySaveFixture();await db.exec('RESET ROLE');
+ if(drift==='sections')await db.query('UPDATE public.document_extractions SET sections=$1 WHERE id=$2',[{},applyId]);
+ if(drift==='document')await db.query("UPDATE public.documents SET title='Changed review source' WHERE id=$1",[x.doc]);
+ if(drift==='access')await db.query("UPDATE public.students SET owner_id=$1 WHERE id=$2",[actors.partner,student]);
+ const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x),{code:'42501'});assert.deepEqual(await applicationSnapshot(),before);
+});
+test('capacity bound Apply save retains invoker body with only admission gate replacement',()=>{
+ const original=applyAdmission.match(/AS \$apply\$([\s\S]*?)\$apply\$;/)[1];const updated=applyBoundSave.match(/AS \$apply\$([\s\S]*?)\$apply\$;/)[1];assert.equal(updated.replace('  PERFORM public.assert_bound_document_apply(_extraction_id,_student_id,_document_id,_expected_updated_at,_expected_sections);','  PERFORM public.lock_document_apply_admission();'),original);assert.match(applyBoundSave,/RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER/);
 });
