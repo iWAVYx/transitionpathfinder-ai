@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-05",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered review proposals plus eight verification-appendix schema drafts are verified on293e5268 with1594 native cases and complete225+27 schema replay. A new read-only drain inventory has local proof and separate pending native/schema acceptance. Not a hosted installation recipe.",
+  "scope": "Nineteen ordered review proposals plus nine verification-appendix drafts. First27 are verified on293e5268; private generic admission is prepared as draft28. Not a hosted installation recipe.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -241,6 +241,12 @@
       "sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
       "native_status": "verified_native1594_and_full225_plus27_schema",
       "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-private-operation-admission.sql",
+      "sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88",
+      "native_status": "local_private_admission_verified_native_full_schema_pending",
+      "hosted_applied": false
     }
   ],
   "registration_replay_failure": {
@@ -272,9 +278,10 @@
     "docs/production-readiness/proposals/document-apply-capacity-release.sql",
     "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
     "docs/production-readiness/proposals/document-operation-review.sql",
-    "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
+    "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+    "docs/production-readiness/proposals/document-private-operation-admission.sql"
   ],
-  "verification_appendix_scope": "All eight appendix schema drafts after ordered19 are native/full-schema verified on293e5268 (1594 cases, zero skips;225+27 replay). The new read-only drain inventory creates no schema object and has local proof; its native/schema reader verification remains pending.",
+  "verification_appendix_scope": "Eight appendix drafts after ordered19 are verified on293e5268 (1594 cases and225+27 replay). Ninth appendix retires generic service admission with25 local passes and two required native races; native1621/full225+28 verification pending. Separate read-only drain reader creates no schema objects and is verified on22722cb7:21 native reader cases,1594 complete native cases and225+27 replay.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -293,6 +300,8 @@
     "sha256": "dde428e3aa44f07a323c0014f62747e3887a525fce60145609d90b54f23cdc83",
     "local_evidence": "docs/production-readiness/evidence/document-pause-drain-inventory-local-2026-11-05.json",
     "not_a_schema_installation": true,
-    "native_full_schema_verified": false
-  }
+    "native_full_schema_verified": true,
+    "verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json"
+  },
+  "private_generic_admission_preparation_evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json"
 }

@@ -41,7 +41,7 @@
     "does_not_prove_legacy_coverage": true,
     "does_not_prove_provider_quiescence": true,
     "existing_inspector_ready_for_cutover": false,
-    "required_followup": "Read-only inventory now exposes queued/promised and remaining units separately; native/full-schema acceptance is pending before final drain review."
+    "required_followup": "Source/disposable drain inventory verified; use with separately authorized hosted pause/restart/resume and external-work evidence before rollout."
   },
   "resume_requires": {
     "explicit_current_revision": true,
@@ -80,11 +80,12 @@
   "hosted_actions": false,
   "ready_for_cutover": false,
   "native_evidence": "docs/production-readiness/evidence/document-pause-recovery-native-verified-2026-11-05.json",
-  "native_full_schema_evidence": "docs/production-readiness/evidence/document-recovery-native-schema-verified-2026-11-05.json",
+  "native_full_schema_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json",
   "drain_inventory": {
     "path": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
     "evidence": "docs/production-readiness/evidence/document-pause-drain-inventory-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": false
+    "native_full_schema_verified": true,
+    "verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json"
   }
 }

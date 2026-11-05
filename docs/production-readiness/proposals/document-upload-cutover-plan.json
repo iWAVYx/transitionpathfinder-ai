@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 27,
+  "unapplied_admission_proposals": 28,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -805,7 +805,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 8,
+  "verification_appendix_drafts": 9,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -850,15 +850,27 @@
     "hosted_applied": false,
     "native_evidence": "docs/production-readiness/evidence/document-pause-recovery-native-verified-2026-11-05.json",
     "native_full_schema_verified": true,
-    "verified_evidence": "docs/production-readiness/evidence/document-recovery-native-schema-verified-2026-11-05.json"
+    "verified_evidence": "docs/production-readiness/evidence/document-recovery-native-schema-verified-2026-11-05.json",
+    "action_source_disposable_complete": true,
+    "completion_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json"
   },
   "pause_drain_inventory_preparation": {
     "inventory": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
     "evidence": "docs/production-readiness/evidence/document-pause-drain-inventory-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "read_only": true,
     "creates_schema_objects": false,
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json"
+  },
+  "private_generic_admission_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-private-operation-admission.sql",
+    "evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "preserves_bound_callers": true,
+    "preserves_existing_completion": true,
     "hosted_applied": false
   }
 }

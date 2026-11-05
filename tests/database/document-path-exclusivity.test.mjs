@@ -3762,3 +3762,59 @@ for(const kind of ['register','rescan'])test('counted worker pause recovery nati
  assert.deepEqual(await countedSnapshot(c),claimed);assert.equal(await effectiveSettlementUnits(),1);
  await completeCounted(c,claim);assert.equal(await effectiveSettlementUnits(),0);
 });
+
+const privateAdmissionProposal=readFileSync('docs/production-readiness/proposals/document-private-operation-admission.sql','utf8');
+async function privateAdmissionFixture({separateAdmissionOwner=false,install=true,resume=true}={}){
+ const x=await heldApplyReconciliationFixture({policy:{global:8,actor:8,target:8},separateAdmissionOwner});await db.exec('RESET ROLE');
+ const reply=await reconcileApplyNoSave(x);await db.exec(rescanServiceBoundary);
+ if(install)await db.exec(privateAdmissionProposal);
+ if(resume){await as('','service_role');await pauseOperation(false,7);}
+ return {...x,revision:reply.replacement_revision};
+}
+for(const role of ['anon','authenticated','service_role'])for(const kind of ['register','rescan','apply','summary'])test('capacity private admission denies direct '+role+' '+kind+' without new work',async()=>{
+ await privateAdmissionFixture();await db.exec('RESET ROLE');const before=(await db.query('SELECT * FROM public.document_operation_leases ORDER BY operation_id')).rows;
+ await as(actors.family,role);await assert.rejects(beginOperation(kind,uid(58001)),{code:'42501'});await db.exec('RESET ROLE');assert.deepEqual((await db.query('SELECT * FROM public.document_operation_leases ORDER BY operation_id')).rows,before);
+});
+for(const separateAdmissionOwner of [false,true])test('capacity private admission preserves registration and counted summary with '+(separateAdmissionOwner?'distinct':'same')+' owner',async()=>{
+ await privateAdmissionFixture({separateAdmissionOwner});const x=await quotaAttempt(2);await completeQuotaAttempt(x);await db.exec('RESET ROLE');
+ const cap=(await db.query('SELECT * FROM public.document_capacity_reservations WHERE operation_id=$1',[x.receipt.operation_id])).rows[0];assert.equal(cap.reserved_units,2);
+ await as('','service_role');const claim=await claimHandoff(db,cap.summary_job_id);await completeCounted({job:cap.summary_job_id,actor:actors.family},claim);await db.exec('RESET ROLE');
+ const clear=await fullDrainInventory();assert.equal(clear.remaining_capacity_units,0);assert.equal(clear.database_work_clear,true);
+});
+test('capacity private admission preserves bound Apply and caller-RLS completion',async()=>{
+ const x=await privateAdmissionFixture();await as('','service_role');await beginBoundApply(x,{operation:uid(58002)});await as();assert.equal((await applyAtomic(x)).rows[0].receipt.status,'complete');await db.exec('RESET ROLE');assert.equal((await fullDrainInventory()).remaining_capacity_units,0);
+});
+test('capacity private admission preserves bound rescan while generic service admission stays closed',async()=>{
+ const x=await privateAdmissionFixture();await db.exec('RESET ROLE');await db.query("UPDATE public.documents SET scan_status='failed',size_bytes=24 WHERE id=$1",[x.document]);await db.query("UPDATE storage.objects SET metadata=$1 WHERE name=(SELECT storage_path FROM public.documents WHERE id=$2)",[{size:24,mimetype:'text/plain'},x.document]);
+ const d=(await db.query('SELECT *,updated_at::text AS revision FROM public.documents WHERE id=$1',[x.document])).rows[0];
+ const source=Object.fromEntries(['student_id','storage_path','storage_object_id','storage_object_version','content_hash','size_bytes','mime_type','upload_attempt_id'].map(k=>[k,d[k]]));
+ await as('','service_role');const claim=await serviceRescanBegin({document:x.document,revision:d.revision,source});assert.equal(claim.schema,'document-rescan-source-claim-v1');
+ await finishOperation(claim,'needs_review');await db.exec('RESET ROLE');const held=await fullDrainInventory();assert.equal(held.remaining_capacity_units,2);assert.equal(held.unresolved_held_operations,1);
+});
+test('capacity private admission lets previously admitted Apply finish while paused',async()=>{
+ const x=await privateAdmissionFixture({install:false});await as('','service_role');await beginBoundApply(x,{operation:uid(58003)});await pauseOperation(true,8);await db.exec('RESET ROLE');await db.exec(privateAdmissionProposal);
+ await as();assert.equal((await applyAtomic(x)).rows[0].receipt.status,'complete');await db.exec('RESET ROLE');const clear=await fullDrainInventory();assert.equal(clear.paused,true);assert.equal(clear.remaining_capacity_units,0);assert.equal(clear.database_work_clear,true);
+});
+for(const fault of ['unpaused','caller-owner','caller-path','public-grant','unknown-grantee'])test('capacity private admission refuses '+fault+' before repairing permissions',async()=>{
+ await privateAdmissionFixture({install:false,resume:false});await db.exec('RESET ROLE');
+ if(fault==='unpaused'){await as('','service_role');await pauseOperation(false,7);await db.exec('RESET ROLE');}
+ if(fault==='caller-owner')await db.exec('ALTER FUNCTION public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean) OWNER TO service_role');
+ if(fault==='caller-path')await db.exec('ALTER FUNCTION public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean) SET search_path=public');
+ if(fault==='public-grant')await db.exec('GRANT EXECUTE ON FUNCTION public.begin_document_operation(uuid,uuid,text) TO PUBLIC');
+ if(fault==='unknown-grantee')await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_unknown_admission_caller') THEN CREATE ROLE tf_unknown_admission_caller NOLOGIN;END IF;END $$;GRANT EXECUTE ON FUNCTION public.begin_document_operation(uuid,uuid,text) TO tf_unknown_admission_caller");
+ await assert.rejects(db.exec(privateAdmissionProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') AS allowed")).rows[0].allowed,true);
+});
+test('capacity private admission changes only execution grants and keeps pause and work intact',async()=>{
+ await privateAdmissionFixture({install:false,resume:false});await db.exec('RESET ROLE');const before={control:(await db.query('SELECT * FROM public.document_operation_control')).rows,leases:(await db.query('SELECT * FROM public.document_operation_leases ORDER BY operation_id')).rows,inventory:await fullDrainInventory()};
+ await db.exec(privateAdmissionProposal);assert.deepEqual((await db.query('SELECT * FROM public.document_operation_control')).rows,before.control);assert.deepEqual((await db.query('SELECT * FROM public.document_operation_leases ORDER BY operation_id')).rows,before.leases);assert.deepEqual(await fullDrainInventory(),before.inventory);
+});
+test('capacity private admission rollback restores original grants atomically',async()=>{
+ await privateAdmissionFixture({install:false,resume:false});await db.exec('RESET ROLE;BEGIN');const body=privateAdmissionProposal.replace('BEGIN;\nSET LOCAL','SET LOCAL').replace(/\nCOMMIT;\n$/,'\n');await db.exec(body);assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') AS allowed")).rows[0].allowed,false);await db.exec('ROLLBACK');assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') AS allowed")).rows[0].allowed,true);
+});
+test('capacity private admission refuses inherited admission-owner permissions without repairing them',async()=>{
+ await privateAdmissionFixture({install:false,resume:false,separateAdmissionOwner:true});await db.exec('RESET ROLE;GRANT tf_document_admission_owner TO service_role');try{await assert.rejects(db.exec(privateAdmissionProposal),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') AS allowed")).rows[0].allowed,true);}finally{await db.exec('ROLLBACK;RESET ROLE;REVOKE tf_document_admission_owner FROM service_role');}
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('capacity private admission native rechecks competing resume after '+ending,{skip:!native},async()=>{
+ await privateAdmissionFixture({install:false,resume:false});const a=await newSession(),b=await newSession();await as('','service_role',a);await a.exec('BEGIN');await pauseOperation(false,7,a);await db.exec('RESET ROLE');const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=b.exec(privateAdmissionProposal).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const out=await pending;if(ending==='COMMIT')assert.equal(out.error?.code,'55000');else assert.equal(out.error,undefined);assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') AS allowed")).rows[0].allowed,ending==='COMMIT');}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});

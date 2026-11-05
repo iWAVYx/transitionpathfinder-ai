@@ -28,6 +28,7 @@ on:
       - "docs/production-readiness/proposals/document-pause-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
+      - "docs/production-readiness/proposals/document-private-operation-admission.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -127,6 +128,7 @@ on:
       - "docs/production-readiness/proposals/document-pause-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
+      - "docs/production-readiness/proposals/document-private-operation-admission.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -424,7 +426,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save|^capacity private admission' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -2438,6 +2440,52 @@ jobs:
           for(const key of ['active_operations','unresolved_held_operations','remaining_capacity_units','promised_unqueued_summary_units','queued_summaries','processing_summaries','capacity_conflicts','uncovered_unfinished_summaries'])assert.equal(p[key],0);
           NODE
 
+      - name: Verify private generic admission after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-private-operation-admission.sql -f - <<'SQL'
+          DO $private_admission_schema_proof$
+          DECLARE caller text;item record;admission_owner oid;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted fence installer was not restored';END IF;
+           SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN RAISE EXCEPTION 'Fence must keep processing paused';END IF;
+           IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.begin_document_operation(uuid,uuid,text)'::regprocedure AND proowner=admission_owner AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog'] AND md5(prosrc)='4ff01874b39fa3e46c24a6bf3d8149fc') THEN RAISE EXCEPTION 'Generic admission body and owner changed';END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(caller,'public.begin_document_operation(uuid,uuid,text)','EXECUTE') OR has_function_privilege(caller,'public.finish_document_operation(uuid,uuid,uuid,text)','EXECUTE') IS DISTINCT FROM (caller='service_role') THEN RAISE EXCEPTION 'Private admission and preserved completion grants required';END IF;
+            IF has_table_privilege(caller,'public.document_operation_leases','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') OR has_any_column_privilege(caller,'public.document_operation_leases','SELECT,INSERT,UPDATE,REFERENCES') THEN RAISE EXCEPTION 'Lease tables must remain private';END IF;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+           ('public.bind_document_upload_operation()','3c4a138653e5d79030b4247fd01f381e',true,false,false),
+           ('public.begin_internal_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)','5813809f271e1b2b94af7ffa0b11ffd4',false,false,false),
+           ('public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb)','9f791ab0018a9b712576893728de1772',true,false,true),
+           ('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)','3e91e42a0bbed4937e1f971240d18910',true,true,true),
+           ('public.claim_admitted_document_summary(uuid,integer)','c447fea2a55afefc6ad1451986ac1eea',true,false,true)
+           ) expected(signature,body_md5,definer,utc,service_callable) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND proowner=current_user::regrole::oid AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN RAISE EXCEPTION 'Reviewed source-bound caller changed';END IF;
+            IF NOT has_function_privilege(current_user,'public.begin_document_operation(uuid,uuid,text)','EXECUTE') THEN RAISE EXCEPTION 'Trusted nested bridge required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='service_role' AND item.service_callable) THEN RAISE EXCEPTION 'Existing source-bound caller permissions changed';END IF;
+            END LOOP;
+           END LOOP;
+          END; $private_admission_schema_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-private-operation-admission.json
+          SELECT jsonb_build_object('schema','document-private-admission-proof-v1',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'service_generic_admission',has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE'),
+           'service_completion',has_function_privilege('service_role','public.finish_document_operation(uuid,uuid,uuid,text)','EXECUTE'),
+           'begin_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.begin_document_operation(uuid,uuid,text)'::regprocedure),
+           'finish_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure),
+           'hosted_applied',false,'ready_for_cutover',false);
+          SQL
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-private-operation-admission.json','utf8'));
+          assert.equal(p.paused,true);assert.equal(p.service_generic_admission,false);assert.equal(p.service_completion,true);
+          assert.equal(p.begin_body_md5,'4ff01874b39fa3e46c24a6bf3d8149fc');assert.equal(p.finish_body_md5,'b96db30c250af2e17a60159843b5392d');assert.equal(p.hosted_applied,false);assert.equal(p.ready_for_cutover,false);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2472,4 +2520,5 @@ jobs:
             /tmp/document-operation-review.json
             /tmp/document-apply-no-save-reconciliation.json
             /tmp/document-pause-drain-inventory.json
+            /tmp/document-private-operation-admission.json
           if-no-files-found: ignore

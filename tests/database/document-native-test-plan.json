@@ -1,11 +1,11 @@
 {
   "schema": "document-native-test-plan-v1",
   "test_file": "tests/database/document-path-exclusivity.test.mjs",
-  "test_sha256": "0c7fdcb4943683d91b9f491c1e59ad28fc1f06f220f46a81c4914f1a94c1d37d",
-  "tests": 1594,
-  "distinct_labels": 1591,
-  "names_sha256": "f67c265576c39222f2405f3ce8e9482f09b250d57a28943a930d12b88c9a3253",
-  "inventory_source": "All1,594 existing cases retained, with actual-domain read-only inventory assertions added to the existing Apply no-save case. No case labels, partition membership, race checks or multiplicities removed.",
+  "test_sha256": "851b8ce808d2cf3f63f80015aa3aaa36b83ad79782a852d2ca5a3b44c08a3d5d",
+  "tests": 1621,
+  "distinct_labels": 1618,
+  "names_sha256": "48b9cc2f7c8be98a5d0b1c19f7da5bfc0218d435ba4c80b469856f8fb4f64649",
+  "inventory_source": "All1,594 prior cases retained with the same labels and multiplicities; add27 private admission cases including two native pause/resume races. No skip or retry weakens the required native gate.",
   "partitions": [
     {
       "id": "summary-automatic-settlement",
@@ -24,8 +24,8 @@
     },
     {
       "id": "producer-and-summary-boundaries",
-      "tests": 369,
-      "names_sha256": "422b59f3b906a6fdfc3612ffaefbc2161b149768c2344aaa0df7f92186ace7e8"
+      "tests": 396,
+      "names_sha256": "e7e47d62bf02e6d78bd48a761263889cd9979a642aa7b916327093577a418e21"
     },
     {
       "id": "rescan-source-and-pending",
