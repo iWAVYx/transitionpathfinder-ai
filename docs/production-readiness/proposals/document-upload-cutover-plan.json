@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Rescan stage16 native verified. Registration225+19 full-schema and68 focused native cases passed on c72dd1f0; separate complete native suite still pending. Apply core, installation and quota re-admission locally verified; full-schema/native Apply proof prepared for CI, not yet accepted.",
+  "status": "Component implementation/focused verification complete through the24 control drafts on e05e666d: both174/174 focused native suites,225+19+five-draft schema replay and complete1560-case local models pass. Separate cumulative native suites and final release packaging/hosted acceptance remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 19,
+  "unapplied_admission_proposals": 24,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -236,7 +236,7 @@
     "apply_integration": "Verified prepared shared endpoint and SQL transaction fence at c8538a30; both native716/716 and full225-schema plus two proposals pass. Invoker/RLS/private grants retained. Other targets and legacy/provider work remain unintegrated."
   },
   "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
-  "remaining_batch_preparation": "Nineteen ordered unapplied review proposals are inventoried; first16 are native/full-schema verified. Registration17\u201319 failed replay and remain pending. Four additional Apply drafts are tracked outside that replay. The separate fifteen-canonical-migration batch installs none of these control proposals; final canonical/ledger packaging and exact hosted preflight remain required.",
+  "remaining_batch_preparation": "All19 ordered review proposals and five appendix drafts are component-verified by focused native and full-schema replay on e05e666d. The separate fifteen-canonical-migration batch installs none of these24 control drafts. Final canonical/ledger packaging, cumulative native acceptance and exact authorized hosted preflight remain required.",
   "reviewed_apply_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
   "rescan_completion_preparation": {
     "date": "2026-10-30",
@@ -767,18 +767,37 @@
   "apply_integrated_local": {
     "evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
     "core_local_implemented": true,
-    "native_full_schema_verified": false,
-    "installation_hardened": false,
+    "native_full_schema_verified": true,
+    "installation_hardened": true,
     "hosted_verified": false,
     "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json",
-    "native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json"
+    "native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+    "complete_native_suite_verified": false
   },
   "registration_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json",
   "automatic_rescan_producer_release_preparation": {
     "proposal": "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
     "evidence": "docs/production-readiness/evidence/document-rescan-auto-release-local-2026-11-05.json",
     "local_integrated_verified": true,
-    "native_full_schema_verified": false,
-    "hosted_verified": false
-  }
+    "native_full_schema_verified": true,
+    "hosted_verified": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+    "complete_native_suite_verified": false
+  },
+  "current_component_integration": {
+    "evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+    "component_actions_completed": [
+      "1.2",
+      "1.3",
+      "1.4",
+      "1.5"
+    ],
+    "focused_native_full_schema_verified": true,
+    "cumulative_native_suite_verified": false,
+    "hosted_verified": false,
+    "historical_preparation_fields_retained": true
+  },
+  "ordered_review_proposals": 19,
+  "verification_appendix_drafts": 5
 }

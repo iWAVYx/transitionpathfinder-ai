@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Rescan stage16 native verified. Registration225+19 full-schema and68 focused native cases passed on c72dd1f0; separate complete native suite still pending. Apply core, installation and quota re-admission locally verified; full-schema/native Apply proof prepared for CI, not yet accepted.",
+  "status": "Component implementation/focused verification complete through the24 control drafts on e05e666d: both174/174 focused native suites,225+19+five-draft schema replay and complete1560-case local models pass. Separate cumulative native suites and final release packaging/hosted acceptance remain open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -762,8 +762,8 @@
   "apply_integrated_local": {
     "evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
     "core_local_implemented": true,
-    "native_full_schema_verified": false,
-    "installation_hardened": false,
+    "native_full_schema_verified": true,
+    "installation_hardened": true,
     "hosted_verified": false,
     "installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json",
     "completion_release_installation_checks_prepared": true,
@@ -771,14 +771,31 @@
     "atomic_installer_evidence": "docs/production-readiness/evidence/document-apply-atomic-install-local-2026-11-05.json",
     "admission_save_installation_checks_prepared": true,
     "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json",
-    "native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json"
+    "native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+    "complete_native_suite_verified": false
   },
   "registration_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json",
   "automatic_rescan_producer_release_preparation": {
     "proposal": "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
     "evidence": "docs/production-readiness/evidence/document-rescan-auto-release-local-2026-11-05.json",
     "local_integrated_verified": true,
-    "native_full_schema_verified": false,
-    "hosted_verified": false
+    "native_full_schema_verified": true,
+    "hosted_verified": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+    "complete_native_suite_verified": false
+  },
+  "current_component_integration": {
+    "evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+    "component_actions_completed": [
+      "1.2",
+      "1.3",
+      "1.4",
+      "1.5"
+    ],
+    "focused_native_full_schema_verified": true,
+    "cumulative_native_suite_verified": false,
+    "hosted_verified": false,
+    "historical_preparation_fields_retained": true
   }
 }
