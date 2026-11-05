@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are complete for source/disposable scope. Other reconciliation, legacy/source/access, hosted and release gates remain open. Private generic admission draft28 and raw summary-start fence draft29 await native/full-schema acceptance.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Private generic admission and raw summary-writer fences pass1640 native cases and225+29 replay. Explicit legacy queue fallback, remaining reconciliation/source/access/hosted and release gates stay open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -868,21 +868,24 @@
     "proposal": "docs/production-readiness/proposals/document-private-operation-admission.sql",
     "evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "preserves_bound_callers": true,
     "preserves_existing_completion": true,
     "hosted_applied": false,
     "native_component_verified": true,
-    "native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json"
+    "native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
   },
   "last_updated": "2026-11-05",
   "summary_claim_write_fence_preparation": {
     "proposal": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
     "evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "requires_private_generic_admission": true,
     "preserves_admitted_completion": true,
-    "hosted_applied": false
-  }
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
+  },
+  "legacy_queue_fallback_source_review": "docs/production-readiness/evidence/document-legacy-queue-fallback-source-review-2026-11-05.json"
 }

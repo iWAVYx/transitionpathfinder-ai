@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-05",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered review proposals plus ten appendix drafts. First27 and separate read-only drain reader are native/full-schema verified; draft28 private generic admission and draft29 raw summary-start fence have local proof with native/schema acceptance pending. Not a hosted installation recipe.",
+  "scope": "Nineteen ordered review proposals plus ten appendix drafts are native/full-schema verified on e7503516:1640 cases and225+29 replay. This does not close the explicit legacy queue fallback or wider writer/hosted gates. Not a hosted installation recipe.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -245,13 +245,13 @@
     {
       "path": "docs/production-readiness/proposals/document-private-operation-admission.sql",
       "sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88",
-      "native_status": "native1621_verified_full_schema_pending",
+      "native_status": "verified_native1640_and_full225_plus29_schema",
       "hosted_applied": false
     },
     {
       "path": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
       "sha256": "f14500b6706e63921703b4957c9b257883c664770f0ea4153e9ec11ef7105fe0",
-      "native_status": "local_raw_summary_claim_fence_verified_native_full_schema_pending",
+      "native_status": "verified_native1640_and_full225_plus29_schema",
       "hosted_applied": false
     }
   ],
@@ -288,7 +288,7 @@
     "docs/production-readiness/proposals/document-private-operation-admission.sql",
     "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
   ],
-  "verification_appendix_scope": "After ordered19: first eight appendix drafts and separate read-only drain reader are verified. Ninth draft retires generic service admission; tenth fences raw summary starts/refreshes and requires real committed claim records. Required cumulative gate is1640 cases and225+29 replay, still pending.",
+  "verification_appendix_scope": "All ten schema appendix drafts after ordered19 are verified, together with the separate read-only drain inventory. Wider2.5 legacy queue/writer coverage and release gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -312,5 +312,6 @@
   },
   "private_generic_admission_preparation_evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json",
   "summary_claim_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
-  "private_generic_admission_native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json"
+  "private_generic_admission_native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json",
+  "legacy_writer_verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
 }
