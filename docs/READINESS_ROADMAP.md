@@ -9,7 +9,7 @@ Progress updates identify the existing numbered workstream, the specific substep
 | Workstream | Current Position | Required Before Closing |
 | --- | --- | --- |
 | 1. Shared Document Processing | Actions1.1–1.5 component-verified. Both focused native174/174 and full225+19+five-draft schema replays pass. | Finish1.6: cumulative native suites and final integrated-source verification. Hosted acceptance remains separate. |
-| 2. Limits and Recovery | Accounting and durable holds prepared; numeric ceilings unselected. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
+| 2. Limits and Recovery | Source policy selected:32 global /4 per account /2 per student units. Accounting and holds prepared. | Complete trusted reconciliation, explicit pause/drain policy, legacy/direct writer and relationship/source fences. |
 | 3. Real Storage and Providers | Local/disposable proof only for the accumulated changes. | Authorized isolated Storage/scanner/provider acceptance, including unknown outcomes and cessation evidence. |
 | 4. Release Packaging | 225 canonical migrations; separate 15-migration batch; 19 ordered unapplied review proposals plus five appendix drafts, all component-verified by focused native and full-schema replay. All 29 declared cutover-manifest entries and the ordered19-proposal inventory are reconciled against recorded source. | Assemble the final complete website, separate worker and schema/ledger package after implementation settles; run exact preflight. Manifest reconciliation is not release approval. |
 | 5. Security and Product Consistency | Role/privacy/demo evidence retained; private preflight drift repair verified in both native/full-schema runs. | Consolidate current-source security/privacy and feature-claim review; Owner Hub stays management-only. Confirm launch controls before approval. |
@@ -45,9 +45,9 @@ Verified foundation: both stage15 runs passed 1,386/1,386 native cases, 340/340 
 
 ### 2. Limits and Recovery
 
-Prepared foundation: durable counted obligations, unresolved holds and upload-attempt limits. General numeric capacity ceilings are still unselected.
+Prepared foundation: durable counted obligations, unresolved holds and upload-attempt limits. Owner-selected source ceilings are32 global /4 per account /2 per student units; no environment activation.
 
-- [ ] **2.1 — Select finite limits.** Prepare a concrete recommendation for global, per-account and per-student unfinished-work limits, then record the owner's chosen policy. These counts are not a provider spending cap.
+- [x] **2.1 — Select finite limits.** Owner selected the conservative source policy on November5:32 global /4 per account /2 per student unfinished-work units. Upload/rescan reserves two, Apply one; unresolved work remains counted. [Recorded policy](production-readiness/proposals/document-capacity-policy-review.json). No environment values changed. These counters are not provider spending caps; enforcement and authorized activation remain under2.2/6.
 - [ ] **2.2 — Enforce those limits consistently.** Apply the selected policy atomically to register/rescan/Apply starts, counting active, queued, promised and unresolved work. Previously counted transfers/completion must not require another slot.
 - [ ] **2.3 — Implement trusted reconciliation.** Provide an authorized, auditable way to inspect and resolve an exact uncertain operation using actual saved results and external-work evidence. No timed expiry, blind release, synthetic success or automatic retry.
 - [ ] **2.4 — Finish pause/drain behavior.** Make new starts stop while already-admitted work may finish under the reviewed policy. Define how queued-but-not-started work is handled; test pause, restart and resume without dropping counts.
