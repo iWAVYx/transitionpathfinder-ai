@@ -20,6 +20,12 @@ on:
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
       - "tests/database/run-document-path-local-model.mjs"
+      - "tests/database/document-path-test-partitions.mjs"
+      - "tests/database/document-native-test-plan.json"
+      - "tests/database/run-document-path-native-partition.mjs"
+      - "tests/database/verify-document-native-results.mjs"
+      - "tests/database/document-native-result-validation.mjs"
+      - "tests/document-native-result-validation.test.mjs"
       - "tests/database/document-apply-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-apply-atomic-install-plan.json"
       - "docs/production-readiness/proposals/document-rescan-automatic-release.sql"
@@ -106,6 +112,12 @@ on:
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
       - "tests/database/run-document-path-local-model.mjs"
+      - "tests/database/document-path-test-partitions.mjs"
+      - "tests/database/document-native-test-plan.json"
+      - "tests/database/run-document-path-native-partition.mjs"
+      - "tests/database/verify-document-native-results.mjs"
+      - "tests/database/document-native-result-validation.mjs"
+      - "tests/document-native-result-validation.test.mjs"
       - "tests/database/document-apply-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-apply-atomic-install-plan.json"
       - "docs/production-readiness/proposals/document-rescan-automatic-release.sql"
@@ -181,10 +193,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  native-document-boundaries:
-    name: Complete native document boundaries
+  native-document-boundary-partition:
+    name: Native document boundaries (${{ matrix.partition }})
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        partition: ["summary-automatic-settlement", "counted-worker", "other-boundaries", "producer-and-summary-boundaries", "rescan-source-and-pending", "rescan-outcome", "rescan-settlement"]
     services:
       postgres:
         image: supabase/postgres:15.8.1.020
@@ -210,22 +227,56 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Run every native document boundary case in one disposable database
+      - name: Run native partition in a fresh disposable database
         env:
           PGUSER: supabase_admin
+          DOCUMENT_NATIVE_PARTITION: ${{ matrix.partition }}
         run: |
           npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
           set -o pipefail
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test tests/database/document-path-exclusivity.test.mjs 2>&1 | tee /tmp/native-document-boundaries.log
+            node tests/database/run-document-path-native-partition.mjs
       - name: Retain complete native document results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: native-document-boundaries-log
-          path: /tmp/native-document-boundaries.log
+          name: native-document-boundaries-${{ matrix.partition }}
+          path: |
+            /tmp/native-document-boundaries-${{ matrix.partition }}.log
+            /tmp/native-document-boundaries-${{ matrix.partition }}.json
           if-no-files-found: warn
+
+
+  native-document-boundaries:
+    name: Complete native document boundaries
+    if: always()
+    needs: native-document-boundary-partition
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-document-boundaries-*
+          path: /tmp/native-document-results
+      - name: Verify native result gate rejection cases
+        run: node --test tests/document-native-result-validation.test.mjs
+      - name: Require every source-matched native case with zero skips
+        run: node tests/database/verify-document-native-results.mjs /tmp/native-document-results
+      - name: Require all native partition jobs to succeed
+        env:
+          PARTITION_STATUS: ${{ needs.native-document-boundary-partition.result }}
+        run: test "$PARTITION_STATUS" = success
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-document-boundaries-log
+          path: /tmp/document-native-complete.json
+          if-no-files-found: error
 
   replay:
     runs-on: ubuntu-latest

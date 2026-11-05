@@ -796,6 +796,8 @@
     "focused_native_full_schema_verified": true,
     "cumulative_native_suite_verified": false,
     "hosted_verified": false,
-    "historical_preparation_fields_retained": true
+    "historical_preparation_fields_retained": true,
+    "cumulative_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
+    "cumulative_native_strategy": "Seven exhaustive fresh-database native batches with exact1560-case aggregate; acceptance pending"
   }
 }

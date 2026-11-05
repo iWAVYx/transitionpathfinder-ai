@@ -256,5 +256,6 @@
   "verification_appendix_scope": "One rescan release draft followed by the atomic four-draft Apply package after ordered19; both focused native/full-schema replays verified. Final canonical/ledger and cumulative native acceptance remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
-  "complete_native_suite_pending": true
+  "complete_native_suite_pending": true,
+  "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json"
 }

@@ -1,20 +1,13 @@
 // A single long-lived PGlite/WASM allocator exhausts memory after repeated
 // catalog rebuilds. Use complementary fresh processes; keep every assertion.
-// Native PostgreSQL continues to run the entire file in one disposable database.
+// Native PostgreSQL uses the same exhaustive groups in fresh disposable databases;
+// each original concurrency test retains its competing sessions and assertions.
 import { spawn } from 'node:child_process';
 if (process.env.PATHWAY_HISTORY_POSTGRES === '1' || !process.env.PATHWAY_HISTORY_PGLITE_MODULE) {
   throw new Error('This runner requires the credential-free local PGlite model only.');
 }
-const prefix = '^(?:rescan|registration|capacity|summary)';
-const partitions = [
-  ['summary automatic settlement', ['--test-name-pattern=^summary auto'], name => /^summary auto/.test(name)],
-  ['counted worker', ['--test-name-pattern=^counted worker'], name => /^counted worker/.test(name)],
-  ['other boundaries', [`--test-skip-pattern=${prefix}|^counted worker`], name => !/^(?:rescan|registration|capacity|summary|counted worker)/.test(name)],
-  ['producer and summary boundaries', ['--test-name-pattern=^(?:registration|capacity|summary)', '--test-skip-pattern=^summary auto'], name => /^(?:registration|capacity|summary)/.test(name) && !/^summary auto/.test(name)],
-  ['rescan source and pending', ['--test-name-pattern=^rescan', '--test-skip-pattern=^rescan (?:outcome|settlement)'], name => /^rescan/.test(name) && !/^rescan (?:outcome|settlement)/.test(name)],
-  ['rescan outcome', ['--test-name-pattern=^rescan outcome'], name => /^rescan outcome/.test(name)],
-  ['rescan settlement', ['--test-name-pattern=^rescan settlement'], name => /^rescan settlement/.test(name)],
-];
+import {documentPathPartitions as partitions} from './document-path-test-partitions.mjs';
+
 const totals = { tests: 0, pass: 0, fail: 0, skipped: 0 };
 let failed = false;
 for (const [name, filters, belongs] of partitions) {
