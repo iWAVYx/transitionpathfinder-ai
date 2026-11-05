@@ -131,7 +131,7 @@ beforeEach(async()=>{
     DROP FUNCTION IF EXISTS public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb),public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean);
     DROP TABLE IF EXISTS public.document_apply_source_bindings;
     DROP FUNCTION IF EXISTS public.guard_document_apply_source_binding(),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb),public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean);
-    DROP FUNCTION IF EXISTS public.bind_registration_summary_capacity(),public.settle_completed_document_registration(uuid);
+    DROP FUNCTION IF EXISTS public.bind_registration_summary_capacity(),public.settle_completed_document_registration(uuid),public.settle_completed_document_rescan(uuid);
     DROP FUNCTION IF EXISTS public.begin_bound_document_rescan(uuid,uuid,uuid,timestamptz,jsonb),public.mark_bound_document_rescan_pending(uuid,uuid,uuid,text),public.persist_bound_document_rescan_result(uuid,uuid,uuid,jsonb);
     DO $reset_auto_summary$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_settled_summary_lease_frozen ON public.document_operation_leases;END IF;END; $reset_auto_summary$;
     DROP FUNCTION IF EXISTS public.settle_completed_document_summary(uuid),public.guard_settled_document_summary_lease();
@@ -3193,8 +3193,8 @@ test('rescan service boundary wrong capability preserves pending source and empt
  const r=await rescanOutcomeRows(x);assert.equal(r.outcomes.length,0);assert.equal(r.documents[0].scan_status,'pending');
 });
 
-async function serviceRescanStartFixture(){
- const x=await rescanClaimFixture({pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});
+async function serviceRescanStartFixture({separateAdmissionOwner=false}={}){
+ const x=await rescanClaimFixture({pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true,separateAdmissionOwner});
  await as('','service_role');await pauseOperation(true);await db.exec('RESET ROLE');await db.exec(rescanServiceBoundary);
  await as('','service_role');await pauseOperation(false,3);return x;
 }
@@ -3566,7 +3566,7 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity bound Apply atomic inst
 async function drainedApplyQuotaFixture(policy={global:1,actor:4,target:4}){
  await capacityFixture({registration:true,rescan:true,pending:true,outcome:true,rescanSettlement:true,automaticTransfer:true,automaticRelease:true});
  await as('','service_role');await pauseOperation(true,2);await db.exec('RESET ROLE');
- await db.exec(registrationCapacityAdmission);await db.exec(registrationQueueTransfer);await db.exec(registrationAutoRelease);
+ await db.exec(registrationCapacityAdmission);await db.exec(registrationQueueTransfer);await db.exec(registrationAutoRelease);await db.exec(automaticRescanRelease);
  await as('','service_role');await pauseOperation(false,3);const registered=await quotaAttempt(1);await completeQuotaAttempt(registered);
  const job=(await capacityRows())[0].summary_job_id;await as('','service_role');
  const worker=await claimHandoff(db,job);
@@ -3603,6 +3603,77 @@ test('capacity bound Apply quota retains uncertain work without releasing its sl
 for(const ending of ['COMMIT','ROLLBACK'])test('capacity bound Apply quota native last-slot admission serializes after '+ending,{skip:!native},async()=>{
  const x=await drainedApplyQuotaFixture();const first=await newSession(),second=await newSession();await as('','service_role',first);await as('','service_role',second);await first.exec('BEGIN');
  await first.query('SELECT public.begin_bound_document_apply($1,$2,$3,$4,$5,$6,$7,$8)',[uid(51001),actors.family,student,x.document,applyId,x.revision,applySections,true]);
+ await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);
  const pid=(await second.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=secondQuotaApply(x,uid(53003),second).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await first.exec(ending);const outcome=await pending;if(ending==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);assert.equal(await appliedEffectiveUnits(),1);}finally{await first.exec('ROLLBACK');await second.exec('ROLLBACK');await pending;}
+});
+
+const automaticRescanRelease=readFileSync('docs/production-readiness/proposals/document-rescan-automatic-release.sql','utf8');
+async function autoRescanStart(options={}){
+ const x=await serviceRescanStartFixture(options);await pauseOperation(true,4);await db.exec('RESET ROLE');
+ await db.exec(registrationCapacityAdmission);await db.exec(registrationQueueTransfer);await db.exec(registrationAutoRelease);if(options.installRelease!==false)await db.exec(automaticRescanRelease);
+ await as('','service_role');await pauseOperation(false,5);const claim=await serviceRescanBegin(x);await serviceRescanPending(x,claim);return {...x,claim};
+}
+async function autoRescanSaved(scan=rescanCleanScan,options={}){
+ const x=await autoRescanStart(options);const result=(await db.query('SELECT public.persist_bound_document_rescan_result($1,$2,$3,$4) AS result',[x.claim.operation_id,x.actor,x.claim.receipt_id,scan])).rows[0].result;return {x,result};
+}
+async function autoRescanWorker(c){
+ await as('','service_role');const claim=await claimHandoff(db,c.result.summary_job_id);const source=(await db.query('SELECT public.read_verified_document_summary_source($1,$2,$3) AS source',[c.result.summary_job_id,claim.claim_at,claim.claim_attempt])).rows[0].source;
+ const payload={key_findings:['Fictional rescan completion'],_source:{document_id:source.document_id,object_id:source.object_id,object_version:source.object_version,content_sha256:source.content_sha256}};
+ await commitRescanOutcomeConsumer({job:c.result.summary_job_id,claim,source,payload});await finishOperation(claim,'completed',db,c.x.actor);return claim;
+}
+for(const order of ['producer-first','worker-first'])test('rescan auto release settles both obligations exactly once in '+order+' order',async()=>{
+ const c=await autoRescanSaved();if(order==='producer-first'){await finishOperation(c.x.claim);assert.equal(await effectiveSettlementUnits(),1);}
+ await autoRescanWorker(c);if(order==='worker-first'){assert.equal(await effectiveSettlementUnits(),1);await as('','service_role');await finishOperation(c.x.claim);}
+ assert.equal(await effectiveSettlementUnits(),0);await as('','service_role');await assert.rejects(finishOperation(c.x.claim),{code:'42501'});
+});
+test('rescan auto release quarantined producer releases both obligations without a worker',async()=>{
+ const c=await autoRescanSaved(rescanInfectedScan);await finishOperation(c.x.claim);assert.equal(await effectiveSettlementUnits(),0);
+ assert.equal((await db.query('SELECT released_units FROM public.document_capacity_rescan_settlements WHERE operation_id=$1',[c.x.claim.operation_id])).rows[0].released_units,2);
+});
+test('rescan auto release keeps producer and worker units for uncertain completion',async()=>{
+ const c=await autoRescanSaved();await finishOperation(c.x.claim,'needs_review');assert.equal(await effectiveSettlementUnits(),2);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_capacity_rescan_settlements')).rows[0].n,0);
+});
+for(const fault of ['suppressed','altered'])test('rescan auto release rolls back finish on '+fault+' settlement',async()=>{
+ const c=await autoRescanSaved();await db.exec('RESET ROLE');await db.exec("CREATE OR REPLACE FUNCTION public.tf_rescan_auto_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "+(fault==='suppressed'?'RETURN NULL;':"NEW.released_units:=2;RETURN NEW;")+" END $$;CREATE TRIGGER zzzz_rescan_auto_fault BEFORE INSERT ON public.document_capacity_rescan_settlements FOR EACH ROW EXECUTE FUNCTION public.tf_rescan_auto_fault()");
+ await as('','service_role');await assert.rejects(finishOperation(c.x.claim),error=>['42501','55000'].includes(error.code));await db.exec('RESET ROLE');assert.equal((await db.query('SELECT state FROM public.document_operation_leases WHERE operation_id=$1',[c.x.claim.operation_id])).rows[0].state,'active');assert.equal(await effectiveSettlementUnits(),2);
+});
+test('rescan auto release retains distinct admission owner and keeps helper private',async()=>{
+ const c=await autoRescanSaved(rescanInfectedScan,{separateAdmissionOwner:true});await finishOperation(c.x.claim);assert.equal(await effectiveSettlementUnits(),0);
+ assert.equal((await db.query("SELECT proowner::regrole::text AS owner FROM pg_proc WHERE oid='public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure")).rows[0].owner,'tf_document_admission_owner');
+ for(const role of ['anon','authenticated','service_role'])assert.equal((await db.query("SELECT has_function_privilege($1,'public.settle_completed_document_rescan(uuid)','EXECUTE') AS exposed",[role])).rows[0].exposed,false);
+});
+
+for(const hold of ['producer','worker'])test('rescan auto release retains the '+hold+' hold after the other completes',async()=>{
+ const c=await autoRescanSaved();
+ if(hold==='producer'){await finishOperation(c.x.claim,'needs_review');await autoRescanWorker(c);}
+ else {await as('','service_role');const claim=await claimHandoff(db,c.result.summary_job_id);await finishOperation(claim,'needs_review');await finishOperation(c.x.claim);}
+ assert.equal(await effectiveSettlementUnits(),1);
+});
+for(const fault of ['helper-grant','helper-path','column','rls','trigger'])test('rescan auto release installation rejects '+fault+' drift',async()=>{
+ await autoRescanStart({installRelease:false});await pauseOperation(true,6);await db.exec('RESET ROLE');
+ if(fault==='helper-grant')await db.exec('GRANT EXECUTE ON FUNCTION public.settle_internal_document_rescan_capacity(uuid) TO service_role');
+ if(fault==='helper-path')await db.exec('ALTER FUNCTION public.settle_internal_document_rescan_capacity(uuid) SET search_path=public');
+ if(fault==='column')await db.exec('GRANT SELECT(operation_id) ON public.document_rescan_completion_receipts TO authenticated');
+ if(fault==='rls')await db.exec('ALTER TABLE public.document_capacity_rescan_settlements DISABLE ROW LEVEL SECURITY');
+ if(fault==='trigger')await db.exec('ALTER TABLE public.document_capacity_rescan_settlements DISABLE TRIGGER document_capacity_rescan_settlement_frozen');
+ await assert.rejects(db.exec(automaticRescanRelease),{code:'55000'});await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regprocedure('public.settle_completed_document_rescan(uuid)') IS NULL AS absent")).rows[0].absent,true);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('rescan auto release native duplicate finish serializes after '+ending,{skip:!native},async()=>{
+ const c=await autoRescanSaved();const a=await newSession(),b=await newSession();await as('','service_role',a);await as('','service_role',b);await a.exec('BEGIN');await finishOperation(c.x.claim,'completed',a);
+ await db.exec('RESET ROLE');assert.equal((await db.query('SELECT current_user=session_user AS owner_observer')).rows[0].owner_observer,true);
+ const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=finishOperation(c.x.claim,'completed',b).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const outcome=await pending;if(ending==='COMMIT')assert.equal(outcome.error?.code,'42501');else assert.equal(outcome.error,undefined);assert.equal(await effectiveSettlementUnits(),1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+test('rescan auto release preserves the existing finish body except its rescan settlement hook',()=>{
+ const original=registrationAutoRelease.match(/AS \$finish_operation\$([\s\S]*?)\$finish_operation\$;/)[1];
+ const updated=automaticRescanRelease.match(/AS \$finish_operation\$([\s\S]*?)\$finish_operation\$;/)[1];
+ assert.equal(updated.replace("  IF lease.operation_kind='rescan' THEN PERFORM public.settle_completed_document_rescan(_operation_id); END IF;\n",''),original);
+});
+for(const when of ['before','after'])test('rescan auto release private bridge refuses separate '+when+' finish invocation',async()=>{
+ const c=await autoRescanSaved();if(when==='after')await finishOperation(c.x.claim);await db.exec('RESET ROLE');
+ await assert.rejects(db.query('SELECT public.settle_completed_document_rescan($1)',[c.x.claim.operation_id]),{code:'55000'});
+ assert.equal(await effectiveSettlementUnits(),when==='after'?1:2);
 });

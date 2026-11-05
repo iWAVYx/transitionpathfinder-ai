@@ -217,6 +217,12 @@
       "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae",
       "native_status": "local_prerequisites_and_atomic_install_verified_native_full_schema_pending",
       "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
+      "sha256": "98050642564389e3bc2cea07999ff23464c9008e08e2f580194f00ee301f7a2d",
+      "native_status": "local_integrated_verified_native_full_schema_pending",
+      "hosted_applied": false
     }
   ],
   "registration_replay_failure": {
@@ -239,5 +245,14 @@
     "full_schema_replay_step": "Verify atomic Apply chain after complete schema replay",
     "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json"
   },
-  "verified_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json"
+  "verified_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json",
+  "verification_appendix_order": [
+    "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
+    "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+    "docs/production-readiness/proposals/document-apply-bound-save.sql",
+    "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+    "docs/production-readiness/proposals/document-apply-capacity-release.sql"
+  ],
+  "verification_appendix_scope": "One rescan draft followed by the atomic four-draft Apply package, after the ordered19. Prepared only; exact current-source proof pending.",
+  "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json"
 }

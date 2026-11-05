@@ -22,6 +22,7 @@ on:
       - "tests/database/run-document-path-local-model.mjs"
       - "tests/database/document-apply-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-apply-atomic-install-plan.json"
+      - "docs/production-readiness/proposals/document-rescan-automatic-release.sql"
       - "docs/production-readiness/proposals/document-apply-source-capacity.sql"
       - "docs/production-readiness/proposals/document-apply-bound-save.sql"
       - "docs/production-readiness/proposals/document-apply-completion-receipt.sql"
@@ -107,6 +108,7 @@ on:
       - "tests/database/run-document-path-local-model.mjs"
       - "tests/database/document-apply-rollout-sql.mjs"
       - "docs/production-readiness/proposals/document-apply-atomic-install-plan.json"
+      - "docs/production-readiness/proposals/document-rescan-automatic-release.sql"
       - "docs/production-readiness/proposals/document-apply-source-capacity.sql"
       - "docs/production-readiness/proposals/document-apply-bound-save.sql"
       - "docs/production-readiness/proposals/document-apply-completion-receipt.sql"
@@ -320,7 +322,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^registration auto|^capacity bound Apply' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -2105,6 +2107,42 @@ jobs:
           assert.equal(x.routine.anon_execute,false);assert.equal(x.routine.service_execute,false);
           NODE
 
+      - name: Verify automatic rescan producer release before Apply
+        run: |
+          set -euo pipefail
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-rescan-automatic-release.sql -f - <<'SQL'
+          DO $rescan_auto_proof$
+          DECLARE item record; caller text; admission_owner oid;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN
+            RAISE EXCEPTION 'Restricted rescan installer was not restored'; END IF;
+           SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.finish_document_operation(uuid,uuid,uuid,text)','b96db30c250af2e17a60159843b5392d',true),
+            ('public.settle_completed_document_rescan(uuid)','d6609008312449b149bcfe3be512d71b',false)
+           ) expected(signature,body_md5,admission_owned) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+             AND prosecdef AND proconfig=ARRAY['search_path=pg_catalog']
+             AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END) THEN
+             RAISE EXCEPTION 'Exact automatic rescan release required'; END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='service_role' AND item.admission_owned) THEN
+              RAISE EXCEPTION 'Private rescan release execution required'; END IF;
+            END LOOP;
+           END LOOP;
+           IF NOT has_function_privilege(admission_owner,'public.settle_completed_document_rescan(uuid)','EXECUTE') THEN
+            RAISE EXCEPTION 'Exact admission owner bridge required'; END IF;
+          END; $rescan_auto_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-rescan-automatic-release.json
+          SELECT jsonb_build_object('schema','document-rescan-auto-release-proof-v1','phase','after-registration-before-atomic-Apply',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'hosted_applied',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'owner',proowner::regrole::text,'definer',prosecdef,'fixed_path',proconfig) ORDER BY proname)
+            FROM pg_proc WHERE oid IN ('public.finish_document_operation(uuid,uuid,uuid,text)'::regprocedure,'public.settle_completed_document_rescan(uuid)'::regprocedure)));
+          SQL
+
       - name: Verify atomic Apply chain after complete schema replay
         run: |
           set -euo pipefail
@@ -2171,4 +2209,5 @@ jobs:
             /tmp/document-rescan-service-boundary.json
             /tmp/document-registration-integrated.json
             /tmp/document-apply-integrated.json
+            /tmp/document-rescan-automatic-release.json
           if-no-files-found: ignore

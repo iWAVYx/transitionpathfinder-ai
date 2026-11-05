@@ -770,7 +770,15 @@
     "native_full_schema_verified": false,
     "installation_hardened": false,
     "hosted_verified": false,
-    "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json"
+    "quota_evidence": "docs/production-readiness/evidence/document-apply-quota-local-2026-11-05.json",
+    "native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json"
   },
-  "registration_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json"
+  "registration_stage19_schema_evidence": "docs/production-readiness/evidence/document-registration-schema-verified-2026-11-05.json",
+  "automatic_rescan_producer_release_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
+    "evidence": "docs/production-readiness/evidence/document-rescan-auto-release-local-2026-11-05.json",
+    "local_integrated_verified": true,
+    "native_full_schema_verified": false,
+    "hosted_verified": false
+  }
 }
