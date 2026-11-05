@@ -835,5 +835,13 @@
     "provider_resolution": false,
     "held_lease_preserved": true,
     "hosted_applied": false
+  },
+  "pause_recovery_preparation": {
+    "policy": "docs/production-readiness/proposals/document-pause-drain-policy.json",
+    "evidence": "docs/production-readiness/evidence/document-pause-recovery-local-2026-11-05.json",
+    "local_verified": true,
+    "native_fresh_session_verified": false,
+    "changes_runtime_behavior": false,
+    "hosted_applied": false
   }
 }

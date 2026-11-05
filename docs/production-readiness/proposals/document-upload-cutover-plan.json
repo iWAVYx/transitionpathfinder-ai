@@ -213,7 +213,7 @@
     "Physical provider-byte/conditional mutation/absence proof",
     "Complete semantic reference and direct/service-writer fencing",
     "Retention/privacy/security review and full hosted acceptance",
-    "Full TF-01\u2013TF-26 and six milestones; deferred report polish and Parent Pilot/Pathway Snapshot"
+    "Full TF-01–TF-26 and six milestones; deferred report polish and Parent Pilot/Pathway Snapshot"
   ],
   "hosted_actions": false,
   "production_access": false,
@@ -836,6 +836,14 @@
     "owner_only": true,
     "provider_resolution": false,
     "held_lease_preserved": true,
+    "hosted_applied": false
+  },
+  "pause_recovery_preparation": {
+    "policy": "docs/production-readiness/proposals/document-pause-drain-policy.json",
+    "evidence": "docs/production-readiness/evidence/document-pause-recovery-local-2026-11-05.json",
+    "local_verified": true,
+    "native_fresh_session_verified": false,
+    "changes_runtime_behavior": false,
     "hosted_applied": false
   }
 }

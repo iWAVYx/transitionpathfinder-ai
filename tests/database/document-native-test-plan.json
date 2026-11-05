@@ -1,11 +1,11 @@
 {
   "schema": "document-native-test-plan-v1",
   "test_file": "tests/database/document-path-exclusivity.test.mjs",
-  "test_sha256": "5fcc3d7e5e949f9bdfa65202f4d9bea733cad80815d0d73d49e99e0cd938d499",
-  "tests": 1590,
-  "distinct_labels": 1587,
-  "names_sha256": "d75bdccfa04adef224ee58c91d80afe656319eaf35ce44992f940451a32adf40",
-  "inventory_source": "Original 1,560 cases retained from verified e05e666d replay41987653301, plus 30 private Apply no-save cases from the final focused local run (two native concurrency cases remain required in CI). Three original duplicate labels retain their multiplicity.",
+  "test_sha256": "8342a01dcb7cdcdea92094367d9d2f91c05500b650fe107bab315c076c8d7d1d",
+  "tests": 1594,
+  "distinct_labels": 1591,
+  "names_sha256": "f67c265576c39222f2405f3ce8e9482f09b250d57a28943a930d12b88c9a3253",
+  "inventory_source": "Retain all1,590 candidate26ff8a5f cases; add four queued pause/resume and fresh-worker-session cases. Three original duplicate labels retain multiplicity; all native-only races and worker-session checks remain required with zero skips.",
   "partitions": [
     {
       "id": "summary-automatic-settlement",
@@ -14,8 +14,8 @@
     },
     {
       "id": "counted-worker",
-      "tests": 44,
-      "names_sha256": "fdf1e79e9d767c95da07f47dbba7bfb99595eb0d0d43b1bc21425e51c032831d"
+      "tests": 48,
+      "names_sha256": "2101f3f8bb754690a5966d718b2eb7d2ff36e2190fc5086566938bad185c7f20"
     },
     {
       "id": "other-boundaries",

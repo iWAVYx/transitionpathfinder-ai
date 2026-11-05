@@ -3733,3 +3733,31 @@ for(const ceiling of ['actor','target'])test('capacity Apply no-save reconciliat
 test('capacity Apply no-save reconciliation preserves distinct control owners without raw ledger access',async()=>{const x=await heldApplyReconciliationFixture({separateAdmissionOwner:true});await db.exec('RESET ROLE');await reconcileApplyNoSave(x);assert.equal((await db.query("SELECT proowner::regrole::text AS owner FROM pg_proc WHERE oid='public.set_document_operation_pause(uuid,bigint,boolean,text)'::regprocedure")).rows[0].owner,'tf_document_admission_owner');assert.equal((await db.query("SELECT has_table_privilege('tf_document_admission_owner','public.document_apply_no_save_reconciliations','SELECT') AS exposed")).rows[0].exposed,false);await as('','service_role');const drain=(await db.query('SELECT public.inspect_document_operation_drain() AS receipt')).rows[0].receipt;assert.equal(drain.tracked_operations_clear,true);assert.equal(drain.reconciled_no_save,1);await pauseOperation(false,7);});
 
 test('capacity Apply no-save reconciliation rejects changed review content during revision invalidation',async()=>{const x=await heldApplyReconciliationFixture();await db.exec('RESET ROLE');await db.exec("CREATE OR REPLACE FUNCTION public.tf_no_save_content_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.sections:='{}'::jsonb;RETURN NEW;END $$;CREATE TRIGGER zzzz_no_save_content_fault BEFORE UPDATE ON public.document_extractions FOR EACH ROW EXECUTE FUNCTION public.tf_no_save_content_fault()");await assert.rejects(reconcileApplyNoSave(x),{code:'55000'});assert.equal(await noSaveRemaining(),1);assert.deepEqual((await db.query('SELECT sections FROM public.document_extractions WHERE id=$1',[applyId])).rows[0].sections,applySections);});
+
+// Workstream2.4: queued-only work is retained during maintenance, not cancelled.
+async function pauseRecoveryQueue(kind){
+ const c=await autoSummaryQueued({kind});
+ if(kind==='rescan'){await as('','service_role');await finishRescanProducer(c.x);}
+ await db.exec('RESET ROLE');
+ if(kind==='register')await settleRegistrationCapacity(c.producer.operation_id);else await settleRescanCapacity(c.producer.operation_id);
+ assert.equal(await effectiveSettlementUnits(),1);await as('','service_role');await pauseOperation(true,2);return c;
+}
+for(const kind of ['register','rescan'])test('counted worker pause recovery retains queued '+kind+' capacity through explicit resume',async()=>{
+ const c=await pauseRecoveryQueue(kind);const before=await countedSnapshot(c);
+ await as('','service_role');const drain=(await db.query('SELECT public.inspect_document_operation_drain() AS receipt')).rows[0].receipt;
+ assert.equal(drain.paused,true);assert.equal(drain.tracked_operations_clear,true);assert.equal(drain.ready_for_cutover,false);
+ await assert.rejects(countedClaim(c),{code:'55000'});assert.deepEqual(await countedSnapshot(c),before);assert.equal(await effectiveSettlementUnits(),1);
+ await as('','service_role');await pauseOperation(false,3);assert.equal(await effectiveSettlementUnits(),1);
+ const resumed=await countedSnapshot(c);assert.deepEqual(resumed,before);await as('','service_role');const claim=await countedClaim(c);
+ assert.equal(claim.revision,4);assert.equal(claim.job_id,c.job);assert.equal(claim.actor_id,c.actor);assert.equal(await effectiveSettlementUnits(),1);
+ await completeCounted(c,claim);assert.equal(await effectiveSettlementUnits(),0);
+});
+for(const kind of ['register','rescan'])test('counted worker pause recovery native fresh '+kind+' session cannot restart claimed work',{skip:!native},async()=>{
+ const c=await pauseRecoveryQueue(kind);const before=await countedSnapshot(c);const restarted=await newSession();await as('','service_role',restarted);
+ await assert.rejects(countedClaim(c,restarted),{code:'55000'});assert.deepEqual(await countedSnapshot(c),before);assert.equal(await effectiveSettlementUnits(),1);
+ await as('','service_role');await pauseOperation(false,3);await as('','service_role',restarted);const claim=await countedClaim(c,restarted);
+ assert.equal(claim.revision,4);assert.equal(await effectiveSettlementUnits(),1);const claimed=await countedSnapshot(c);
+ const another=await newSession();await as('','service_role',another);await assert.rejects(countedClaim(c,another,1),{code:'42501'});
+ assert.deepEqual(await countedSnapshot(c),claimed);assert.equal(await effectiveSettlementUnits(),1);
+ await completeCounted(c,claim);assert.equal(await effectiveSettlementUnits(),0);
+});

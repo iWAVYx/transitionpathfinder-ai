@@ -1,0 +1,82 @@
+{
+  "schema": "document-pause-drain-policy-v1",
+  "date": "2026-11-05",
+  "workstream_action": "2.4",
+  "scope": "Observed reviewed source behavior; not a hosted runbook or authorization to pause/resume",
+  "changes_runtime_behavior": false,
+  "states": [
+    {
+      "state": "fresh start",
+      "paused": "Refuse new producer operations, uploads and summary claims; create no partial operation or reservation"
+    },
+    {
+      "state": "admitted producer",
+      "paused": "Permit only exact already-admitted work under current source/access and completion guards; keep obligations until proven completion"
+    },
+    {
+      "state": "queued summary, not claimed",
+      "paused": "Keep queued and counted; do not attach a new operation, dispatch providers, cancel, expire or release it"
+    },
+    {
+      "state": "admitted summary",
+      "paused": "Permit exact domain completion and one receipt finish; uncertainty stays counted, without automatic repeat or reattachment"
+    },
+    {
+      "state": "needs_review",
+      "paused": "Keep counted and block resume until reviewed resolution; private DB-only Apply no-save path is separately bounded"
+    },
+    {
+      "state": "queued-only resume",
+      "paused": "Explicit current-revision resume may reopen admission once active/unreconciled leases are clear; queued obligations remain counted and must pass fresh source/access checks before claim"
+    },
+    {
+      "state": "fresh worker connection",
+      "paused": "Cannot claim queued work until explicit resume or reattach already-claimed work after a lost reply; reconnecting is not cancellation or completion evidence"
+    }
+  ],
+  "drain_semantics": {
+    "tracked_operations_clear": "Only active and unresolved held leases, excluding the reviewed immutable Apply no-save credit",
+    "does_not_mean_queue_empty": true,
+    "does_not_mean_capacity_released": true,
+    "does_not_prove_legacy_coverage": true,
+    "does_not_prove_provider_quiescence": true,
+    "existing_inspector_ready_for_cutover": false,
+    "required_followup": "Expose/review retained queued and promised obligations separately from active leases before final drain acceptance"
+  },
+  "resume_requires": {
+    "explicit_current_revision": true,
+    "no_unresolved_active_or_held_leases": true,
+    "queued_capacity_preserved": true,
+    "does_not_authorize_staging_or_cutover": true
+  },
+  "references": [
+    {
+      "path": "docs/production-readiness/proposals/document-operation-admission.sql",
+      "sha256": "f92db0acab30c4e56ddc56a9fb6d479d0061e9f053d39e22a0b05a29fd4163eb"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-interval.sql",
+      "sha256": "9b7d66415058e341dcc1a06cfed64113cea64bbe18d6908f67597298687824ad"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
+      "sha256": "e8cfaf76d29a293cfb592bce8e02c4c5994d11ffbd0867a9e90d6e3eae211a1c"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+      "sha256": "59979fc2c2f5c5fd42694f4f12b7dd20210aa97ed75d89006d66b7abeab0e931"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+      "sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+    }
+  ],
+  "local_evidence": "docs/production-readiness/evidence/document-pause-recovery-local-2026-11-05.json",
+  "native_fresh_session_verified": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}
