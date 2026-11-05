@@ -2,7 +2,7 @@
   "schema": "document-capacity-policy-review-v1",
   "date": "2026-11-05",
   "workstream_action": "2.1",
-  "status": "Owner-selected source policy; implementation and activation pending",
+  "status": "Owner-selected policy implementation and disposable native/schema verification complete; hosted activation pending",
   "unit_definition": {
     "register": 2,
     "rescan": 2,
@@ -53,7 +53,8 @@
     "installer": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "local_cases_passed": 13,
-    "native_full_schema_verified": false,
-    "hosted_applied": false
+    "native_full_schema_verified": true,
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-verified-2026-11-05.json"
   }
 }

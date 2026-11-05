@@ -227,7 +227,13 @@
     {
       "path": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
       "sha256": "163e0e01f98a4dadfce64f1a09addd6b623aa0f15b5703723374cb9831cd3f21",
-      "native_status": "local_metadata_transaction_verified_native_full_schema_pending",
+      "native_status": "verified_native_and_full_schema_no_hosted_activation",
+      "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-operation-review.sql",
+      "sha256": "7d4b5ee80ac137aeeb9f8114f9a2d8ca0ceb40cd20e575555ef722f2c16b4c16",
+      "native_status": "local_review_metadata_verified_native_full_schema_pending",
       "hosted_applied": false
     }
   ],
@@ -258,14 +264,17 @@
     "docs/production-readiness/proposals/document-apply-bound-save.sql",
     "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
     "docs/production-readiness/proposals/document-apply-capacity-release.sql",
-    "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
+    "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+    "docs/production-readiness/proposals/document-operation-review.sql"
   ],
-  "verification_appendix_scope": "Automatic rescan release plus the atomic four-draft Apply package are component/native/schema verified after ordered19. A sixth appendix draft prepares the selected32/4/2 policy; its native/full-schema proof is pending.",
+  "verification_appendix_scope": "After ordered19: automatic rescan release, atomic four-draft Apply chain and selected32/4/2 policy are native/schema verified (six appendix drafts). A seventh trusted metadata-review draft has local proof; its native/schema acceptance is pending.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
   "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
   "selected_policy_preparation_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
   "workstream1_complete_evidence": "docs/production-readiness/evidence/workstream-1-source-verification-complete-2026-11-05.json",
-  "selected_policy_native_full_schema_pending": true
+  "selected_policy_native_full_schema_pending": false,
+  "selected_policy_verified_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-verified-2026-11-05.json",
+  "operation_review_preparation_evidence": "docs/production-readiness/evidence/document-operation-review-local-2026-11-05.json"
 }

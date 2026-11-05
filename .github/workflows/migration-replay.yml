@@ -23,6 +23,8 @@ on:
       - "tests/database/document-path-test-partitions.mjs"
       - "tests/database/document-native-test-plan.json"
       - "tests/database/document-capacity-selected-policy.test.mjs"
+      - "tests/database/document-operation-review.test.mjs"
+      - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -117,6 +119,8 @@ on:
       - "tests/database/document-path-test-partitions.mjs"
       - "tests/database/document-native-test-plan.json"
       - "tests/database/document-capacity-selected-policy.test.mjs"
+      - "tests/database/document-operation-review.test.mjs"
+      - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -370,6 +374,18 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Test trusted operation review without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-operation-review.test.mjs
+      - name: Test trusted operation review in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-operation-review.test.mjs
 
       - name: Test selected policy installer without hosted credentials
         run: |
@@ -2267,6 +2283,55 @@ jobs:
           assert.equal(proof.paused,true);assert.equal(proof.hosted_applied,false);assert.equal(proof.ready_for_cutover,false);
           NODE
 
+      - name: Verify trusted operation review after complete replay
+        run: |
+          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-operation-review.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          DO $review_proof$
+          DECLARE item record; caller text;
+          BEGIN
+           FOR item IN SELECT * FROM (VALUES
+            ('public.guard_document_operation_review()','a55a11bab426be4b3c1e2377aef05a89',false,false,false),
+            ('public.inspect_internal_document_operation_review(uuid)','66c3b886188974a67ccc94ba8be12f49',false,true,false),
+            ('public.inspect_document_operation_review(uuid)','e41c4b570e6e091691b4b893bc53e9ab',true,true,true),
+            ('public.record_document_operation_review(uuid,uuid,uuid,text,text,text)','cce2d4ee9b50843c7ccba5576c661c15',true,true,true)
+           ) expected(signature,body_md5,definer,utc,service_callable) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer
+             AND proowner=current_user::regrole::oid AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN
+             RAISE EXCEPTION 'Exact trusted operation review routine required'; END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='service_role' AND item.service_callable) THEN
+              RAISE EXCEPTION 'Narrow operation review execution grants required'; END IF;
+            END LOOP;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_operation_reconciliation_reviews'::regclass AND relrowsecurity AND relowner=current_user::regrole::oid)
+            OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_operation_reconciliation_reviews'::regclass AND tgname='document_operation_review_retained'
+             AND tgfoid='public.guard_document_operation_review()'::regprocedure AND tgtype=27 AND tgenabled='O' AND NOT tgisinternal) THEN
+            RAISE EXCEPTION 'Private retained operation review table required'; END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_table_privilege(caller,'public.document_operation_reconciliation_reviews','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+             OR has_any_column_privilege(caller,'public.document_operation_reconciliation_reviews','SELECT,INSERT,UPDATE,REFERENCES') THEN
+             RAISE EXCEPTION 'Operation review raw data must remain private'; END IF;
+           END LOOP;
+          END; $review_proof$;
+          SET ROLE service_role;
+          DO $unknown_review$ BEGIN
+           BEGIN
+            PERFORM public.inspect_document_operation_review('00000000-0000-4000-8000-000000009999');
+            RAISE EXCEPTION 'Unknown operation must refuse';
+           EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+          END; $unknown_review$;
+          RESET ROLE;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-operation-review.json
+          SELECT jsonb_build_object('schema','document-operation-review-proof-v1',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'review_rows',(SELECT count(*) FROM public.document_operation_reconciliation_reviews),
+           'release_permitted',false,'provider_quiescence_verified',false,'hosted_applied',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'owner',proowner::regrole::text,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_settings',proconfig) ORDER BY proname)
+            FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN('guard_document_operation_review','inspect_internal_document_operation_review','inspect_document_operation_review','record_document_operation_review')));
+          SQL
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2298,4 +2363,5 @@ jobs:
             /tmp/document-apply-integrated.json
             /tmp/document-rescan-automatic-release.json
             /tmp/document-capacity-selected-policy.json
+            /tmp/document-operation-review.json
           if-no-files-found: ignore
