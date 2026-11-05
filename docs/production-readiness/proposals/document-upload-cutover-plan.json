@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 26,
+  "unapplied_admission_proposals": 27,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -798,14 +798,14 @@
     "hosted_verified": false,
     "historical_preparation_fields_retained": true,
     "cumulative_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
-    "cumulative_native_strategy": "Seven exhaustive fresh-database native batches with exact1560-case aggregate; acceptance pending",
+    "cumulative_native_strategy": "Historical Workstream1 baseline: seven exhaustive batches verified all1,560 cases; next2.3 candidate requires1,590 cases with zero skips.",
     "cumulative_native_evidence": "docs/production-readiness/evidence/document-native-cumulative-verified-2026-11-05.json",
     "final_replay_gate": "Both42044357319 and42044348317 complete successfully",
     "workstream1_complete_evidence": "docs/production-readiness/evidence/workstream-1-source-verification-complete-2026-11-05.json",
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 7,
+  "verification_appendix_drafts": 8,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -822,9 +822,20 @@
     "proposal": "docs/production-readiness/proposals/document-operation-review.sql",
     "evidence": "docs/production-readiness/evidence/document-operation-review-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "can_release_capacity": false,
     "can_complete_operation": false,
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-operation-review-verified-2026-11-05.json"
+  },
+  "apply_no_save_reconciliation_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+    "evidence": "docs/production-readiness/evidence/document-apply-no-save-reconciliation-local-2026-11-05.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "owner_only": true,
+    "provider_resolution": false,
+    "held_lease_preserved": true,
     "hosted_applied": false
   }
 }

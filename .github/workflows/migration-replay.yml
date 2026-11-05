@@ -25,6 +25,7 @@ on:
       - "tests/database/document-capacity-selected-policy.test.mjs"
       - "tests/database/document-operation-review.test.mjs"
       - "docs/production-readiness/proposals/document-operation-review.sql"
+      - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -121,6 +122,7 @@ on:
       - "tests/database/document-capacity-selected-policy.test.mjs"
       - "tests/database/document-operation-review.test.mjs"
       - "docs/production-readiness/proposals/document-operation-review.sql"
+      - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -405,7 +407,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -2332,6 +2334,79 @@ jobs:
             FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN('guard_document_operation_review','inspect_internal_document_operation_review','inspect_document_operation_review','record_document_operation_review')));
           SQL
 
+      - name: Verify private Apply no-save reconciliation after complete replay
+        run: |
+          set -euo pipefail
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql -f - <<'SQL'
+          DO $no_save_installer$ BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted reconciliation installer was not restored';END IF;
+          END; $no_save_installer$;
+          DO $apply_no_save_proof$
+          DECLARE item record;caller text;admission_owner oid;
+          BEGIN
+           SELECT relowner INTO admission_owner FROM pg_class WHERE oid='public.document_operation_control'::regclass;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN RAISE EXCEPTION 'Paused reconciliation verification required';END IF;
+           FOR item IN SELECT * FROM (VALUES
+           ('public.is_document_apply_no_save_reconciled(uuid)','239917de14a68e098877245e85e6d215',true,false,false,''),
+           ('public.count_document_apply_no_save_reconciliations()','9926d52402da3785ff462967c598fcbe',true,false,false,''),
+           ('public.guard_reconciled_document_apply_lease()','4b2809595e26810b86c126485da3f741',true,false,false,''),
+           ('public.assert_document_apply_no_save(uuid,uuid,text,boolean)','cb4c8db5d2997490b63e69e1927331ae',false,true,false,''),
+           ('public.guard_document_apply_no_save_reconciliation()','828aa40c5a75631fa140374b054de851',false,true,false,''),
+           ('public.check_document_apply_no_save_commit()','aa790e0ede26281f279f08979bf59448',true,true,false,''),
+           ('public.reconcile_internal_document_apply_no_save(uuid,uuid,text)','6a8e1cd3465ea94f1c3957a459356695',false,true,false,''),
+           ('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)','3e91e42a0bbed4937e1f971240d18910',true,true,false,'service_role'),
+           ('public.guard_document_capacity_reservation()','f16664ce92d6398ccfea11b43fb5fc74',false,false,false,''),
+           ('public.inspect_internal_document_operation_review(uuid)','370dccff660186cd520e5a17ad86e6ac',false,true,false,''),
+           ('public.record_document_operation_review(uuid,uuid,uuid,text,text,text)','ef113c17bd354bf251bb638c42f337ad',true,true,false,'service_role'),
+           ('public.set_document_operation_pause(uuid,bigint,boolean,text)','cf8584352cf80b6b51ee2190b7c73f3c',true,false,true,'service_role'),
+           ('public.inspect_document_operation_drain()','7b00cc3117fe90d6acfe882eb0903c33',true,false,true,'service_role')
+           ) expected(signature,body_md5,definer,utc,admission_owned,allowed_caller) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer
+             AND proowner=CASE WHEN item.admission_owned THEN admission_owner ELSE current_user::regrole::oid END
+             AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN
+             RAISE EXCEPTION 'Exact reviewed Apply reconciliation routine required: %',item.signature;END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller=item.allowed_caller) THEN RAISE EXCEPTION 'Private reconciliation execution required';END IF;
+            END LOOP;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid='public.document_apply_no_save_reconciliations'::regclass AND relrowsecurity AND relowner=current_user::regrole::oid)
+            OR EXISTS(SELECT 1 FROM pg_policy WHERE polrelid='public.document_apply_no_save_reconciliations'::regclass) THEN RAISE EXCEPTION 'Private reconciliation ledger required';END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_table_privilege(caller,'public.document_apply_no_save_reconciliations','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+             OR has_any_column_privilege(caller,'public.document_apply_no_save_reconciliations','SELECT,INSERT,UPDATE,REFERENCES') THEN RAISE EXCEPTION 'No raw reconciliation grants permitted';END IF;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.document_apply_no_save_reconciliations','document_apply_no_save_guard','public.guard_document_apply_no_save_reconciliation()',31,false),
+            ('public.document_apply_no_save_reconciliations','document_apply_no_save_committed','public.check_document_apply_no_save_commit()',5,true),
+            ('public.document_operation_leases','document_apply_no_save_lease_retained','public.guard_reconciled_document_apply_lease()',27,false)
+           ) expected(relation_name,trigger_name,signature,trigger_type,deferred) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name) AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature)
+             AND tgtype=item.trigger_type AND tgenabled='O' AND NOT tgisinternal AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred
+             AND (tgconstraint<>0)=item.deferred AND tgqual IS NULL AND tgattr::text='') THEN RAISE EXCEPTION 'Exact retained reconciliation triggers required';END IF;
+           END LOOP;
+           IF (SELECT md5(prosrc) FROM pg_proc WHERE oid='public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)'::regprocedure)<>'169bbd1099b39afe9411d5e5497ac645' THEN RAISE EXCEPTION 'Reviewed Apply save body changed';END IF;
+          END; $apply_no_save_proof$;
+          SET ROLE service_role;
+          SELECT public.inspect_document_operation_drain();
+          RESET ROLE;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-apply-no-save-reconciliation.json
+          SELECT jsonb_build_object('schema','document-apply-no-save-proof-v1',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'ledger_rows',(SELECT count(*) FROM public.document_apply_no_save_reconciliations),
+           'service_resolver_callable',has_function_privilege('service_role','public.reconcile_internal_document_apply_no_save(uuid,uuid,text)','EXECUTE'),
+           'provider_resolution',false,'hosted_applied',false,'ready_for_cutover',false,
+           'routines',(SELECT jsonb_agg(jsonb_build_object('name',proname,'owner',proowner::regrole::text,'body_md5',md5(prosrc),'definer',prosecdef,'fixed_settings',proconfig) ORDER BY proname)
+            FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN('is_document_apply_no_save_reconciled','count_document_apply_no_save_reconciliations','guard_reconciled_document_apply_lease','assert_document_apply_no_save','guard_document_apply_no_save_reconciliation','check_document_apply_no_save_commit','reconcile_internal_document_apply_no_save','begin_bound_document_apply','guard_document_capacity_reservation','inspect_internal_document_operation_review','record_document_operation_review','set_document_operation_pause','inspect_document_operation_drain')));
+          SQL
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-apply-no-save-reconciliation.json','utf8'));
+          assert.equal(p.paused,true);assert.equal(p.ledger_rows,0);assert.equal(p.service_resolver_callable,false);
+          assert.equal(p.provider_resolution,false);assert.equal(p.hosted_applied,false);assert.equal(p.ready_for_cutover,false);assert.equal(p.routines.length,13);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2364,4 +2439,5 @@ jobs:
             /tmp/document-rescan-automatic-release.json
             /tmp/document-capacity-selected-policy.json
             /tmp/document-operation-review.json
+            /tmp/document-apply-no-save-reconciliation.json
           if-no-files-found: ignore

@@ -1,11 +1,11 @@
 {
   "schema": "document-native-test-plan-v1",
   "test_file": "tests/database/document-path-exclusivity.test.mjs",
-  "test_sha256": "ecfdbfd88864bfac0eb70a0db1c7d8dce6a854e46d0e535f568c388ad3ddfab9",
-  "tests": 1560,
-  "distinct_labels": 1557,
-  "names_sha256": "8f702c70a451ac0ef64583788d4f519cc1d024345bd8122b32abbc9b189090f9",
-  "inventory_source": "Complete1560-case model from verified e05e666d replay41987653301; test file unchanged. Three pre-existing duplicate labels retain their original case multiplicity.",
+  "test_sha256": "5fcc3d7e5e949f9bdfa65202f4d9bea733cad80815d0d73d49e99e0cd938d499",
+  "tests": 1590,
+  "distinct_labels": 1587,
+  "names_sha256": "d75bdccfa04adef224ee58c91d80afe656319eaf35ce44992f940451a32adf40",
+  "inventory_source": "Original 1,560 cases retained from verified e05e666d replay41987653301, plus 30 private Apply no-save cases from the final focused local run (two native concurrency cases remain required in CI). Three original duplicate labels retain their multiplicity.",
   "partitions": [
     {
       "id": "summary-automatic-settlement",
@@ -24,8 +24,8 @@
     },
     {
       "id": "producer-and-summary-boundaries",
-      "tests": 339,
-      "names_sha256": "ae98a8873096e0a24429219a81aeab5d424f63417bf702c8adafc2dc2a1ae85e"
+      "tests": 369,
+      "names_sha256": "422b59f3b906a6fdfc3612ffaefbc2161b149768c2344aaa0df7f92186ace7e8"
     },
     {
       "id": "rescan-source-and-pending",
