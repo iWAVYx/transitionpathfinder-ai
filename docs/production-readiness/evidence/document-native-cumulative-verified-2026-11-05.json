@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.6",
+  "status": "First complete native aggregate verified; second run and current replay still pending",
+  "run": 42044348317,
+  "source_commit": "0b96ee75c5334860552cf269c48ac8f530973805",
+  "test_sha256": "ecfdbfd88864bfac0eb70a0db1c7d8dce6a854e46d0e535f568c388ad3ddfab9",
+  "tests": 1560,
+  "passed": 1560,
+  "failed": 0,
+  "skipped": 0,
+  "partitions": 7,
+  "proof": "docs/production-readiness/evidence/document-native-complete-proof-42044348317-2026-11-05.json",
+  "proof_sha256": "08c9e4d98e91c2bf8054fb3dfbbf02b29773eb8f7b0d6d0177a21c5b3f4d6836",
+  "independently_downloaded_and_verified_all_partition_logs": true,
+  "independent_verification_log_sha256": "08c9e4d98e91c2bf8054fb3dfbbf02b29773eb8f7b0d6d0177a21c5b3f4d6836",
+  "prior_component_schema_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
+  "remaining": [
+    "PR run42044357319 final native batch and aggregate",
+    "Current-source replay jobs and final applicable-source checks"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "whole_workstream_complete": false
+}
