@@ -1,0 +1,27 @@
+{
+  "phase": "after-registration-before-atomic-Apply",
+  "paused": true,
+  "schema": "document-rescan-auto-release-proof-v1",
+  "routines": [
+    {
+      "name": "finish_document_operation",
+      "owner": "supabase_admin",
+      "definer": true,
+      "body_md5": "b96db30c250af2e17a60159843b5392d",
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "settle_completed_document_rescan",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "d6609008312449b149bcfe3be512d71b",
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ]
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

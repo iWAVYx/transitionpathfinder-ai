@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Component implementation/focused verification complete through the24 control drafts on e05e666d: both174/174 focused native suites,225+19+five-draft schema replay and complete1560-case local models pass. Separate cumulative native suites and final release packaging/hosted acceptance remain open.",
+  "status": "Workstream1 implementation/disposable verification complete: both1560-case native aggregates and225+24 schema replays pass. Selected-policy Workstream2 draft remains native/schema-pending. Packaging, hosted acceptance and release authorization remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -800,7 +800,9 @@
     "cumulative_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
     "cumulative_native_strategy": "Seven exhaustive fresh-database native batches with exact1560-case aggregate; acceptance pending",
     "cumulative_native_evidence": "docs/production-readiness/evidence/document-native-cumulative-verified-2026-11-05.json",
-    "final_replay_gate": "PR42044357319 pending; push42044348317 passed"
+    "final_replay_gate": "Both42044357319 and42044348317 complete successfully",
+    "workstream1_complete_evidence": "docs/production-readiness/evidence/workstream-1-source-verification-complete-2026-11-05.json",
+    "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
   "verification_appendix_drafts": 6,
