@@ -892,9 +892,10 @@
     "proposal": "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
     "evidence": "docs/production-readiness/evidence/document-summary-queue-entry-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "requires_drained_tracked_work_for_installation": true,
     "preserves_legacy_rows": true,
-    "hosted_applied": false
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-summary-queue-entry-verified-2026-11-05.json"
   }
 }
