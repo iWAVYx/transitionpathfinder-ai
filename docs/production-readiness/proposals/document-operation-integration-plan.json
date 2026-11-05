@@ -869,7 +869,9 @@
     "native_full_schema_verified": false,
     "preserves_bound_callers": true,
     "preserves_existing_completion": true,
-    "hosted_applied": false
+    "hosted_applied": false,
+    "native_component_verified": true,
+    "native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json"
   },
   "last_updated": "2026-11-05",
   "summary_claim_write_fence_preparation": {

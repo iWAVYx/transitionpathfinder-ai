@@ -245,7 +245,7 @@
     {
       "path": "docs/production-readiness/proposals/document-private-operation-admission.sql",
       "sha256": "5e7861721abaa2022ded87715d3c1f4fc9929ab4e7bb9d8aff5526133ba7af88",
-      "native_status": "local_private_admission_verified_native_full_schema_pending",
+      "native_status": "native1621_verified_full_schema_pending",
       "hosted_applied": false
     },
     {
@@ -311,5 +311,6 @@
     "verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json"
   },
   "private_generic_admission_preparation_evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json",
-  "summary_claim_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json"
+  "summary_claim_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
+  "private_generic_admission_native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json"
 }
