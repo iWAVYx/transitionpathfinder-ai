@@ -121,6 +121,8 @@ afterEach(async()=>{if(native)await closeCaseSessions();});
 beforeEach(async()=>{
   await db.exec('ROLLBACK');
   await db.exec(`RESET ROLE;
+    DO $$ BEGIN IF to_regclass('public.ai_jobs') IS NOT NULL THEN DROP TRIGGER IF EXISTS ai_jobs_guard_document_summary_claim ON public.ai_jobs;DROP TRIGGER IF EXISTS ai_jobs_document_summary_claim_committed ON public.ai_jobs;END IF;END $$;
+    DROP FUNCTION IF EXISTS public.guard_document_summary_claim_writer(),public.check_document_summary_claim_committed();
     DO $$ BEGIN IF to_regclass('public.ai_jobs') IS NOT NULL THEN DROP TRIGGER IF EXISTS registration_summary_capacity ON public.ai_jobs;END IF;END $$;
     DO $$ BEGIN IF to_regclass('public.document_extractions') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_apply_completed ON public.document_extractions;END IF;END $$;
     DO $$ BEGIN IF to_regclass('public.document_operation_leases') IS NOT NULL THEN DROP TRIGGER IF EXISTS document_bound_apply_finished ON public.document_operation_leases;END IF;END $$;
@@ -3817,4 +3819,54 @@ test('capacity private admission refuses inherited admission-owner permissions w
 for(const ending of ['COMMIT','ROLLBACK'])test('capacity private admission native rechecks competing resume after '+ending,{skip:!native},async()=>{
  await privateAdmissionFixture({install:false,resume:false});const a=await newSession(),b=await newSession();await as('','service_role',a);await a.exec('BEGIN');await pauseOperation(false,7,a);await db.exec('RESET ROLE');const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=b.exec(privateAdmissionProposal).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await a.exec(ending);const out=await pending;if(ending==='COMMIT')assert.equal(out.error?.code,'55000');else assert.equal(out.error,undefined);assert.equal((await db.query("SELECT has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') AS allowed")).rows[0].allowed,ending==='COMMIT');}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+
+const summaryClaimWriteFence=readFileSync('docs/production-readiness/proposals/document-summary-claim-write-fence.sql','utf8');
+async function fencedSummaryQueue({install=true}={}){
+ await privateAdmissionFixture();const x=await quotaAttempt(2);await completeQuotaAttempt(x);await db.exec('RESET ROLE');const cap=(await db.query('SELECT * FROM public.document_capacity_reservations WHERE operation_id=$1',[x.receipt.operation_id])).rows[0];
+ await as('','service_role');await pauseOperation(true,8);await db.exec('RESET ROLE');if(install)await db.exec(summaryClaimWriteFence);return {x,job:cap.summary_job_id,actor:actors.family};
+}
+for(const role of ['authenticated','service_role'])for(const paused of [true,false])test('capacity legacy summary claim denies raw '+role+' start while '+(paused?'paused':'open'),async()=>{
+ const c=await fencedSummaryQueue();if(!paused){await as('','service_role');await pauseOperation(false,9);}await as(actors.family,role);
+ if(role==='service_role')await assert.rejects(db.query("UPDATE public.ai_jobs SET status='processing',locked_at=clock_timestamp(),attempts=1 WHERE id=$1",[c.job]),{code:'42501'});else{const result=await db.query("UPDATE public.ai_jobs SET status='processing',locked_at=clock_timestamp(),attempts=1 WHERE id=$1 RETURNING id",[c.job]).then(value=>({value}),error=>({error}));if(result.error)assert.equal(result.error.code,'42501');else assert.equal(result.value.rows.length,0);}await db.exec('RESET ROLE');assert.equal((await db.query('SELECT status FROM public.ai_jobs WHERE id=$1',[c.job])).rows[0].status,'queued');assert.equal((await fullDrainInventory()).remaining_capacity_units,1);
+});
+test('capacity legacy summary claim rejects owner-context raw start without actual binding at commit',async()=>{
+ const c=await fencedSummaryQueue();await as('','service_role');await pauseOperation(false,9);await db.exec('RESET ROLE;BEGIN');await db.query("UPDATE public.ai_jobs SET status='processing',locked_at=clock_timestamp(),attempts=1 WHERE id=$1",[c.job]);await assert.rejects(db.exec('COMMIT'),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query('SELECT status FROM public.ai_jobs WHERE id=$1',[c.job])).rows[0].status,'queued');
+});
+test('capacity legacy summary claim preserves atomic counted claim and completion',async()=>{
+ const c=await fencedSummaryQueue();await as('','service_role');await pauseOperation(false,9);const claim=await countedClaim(c);await completeCounted(c,claim);await db.exec('RESET ROLE');assert.equal((await fullDrainInventory()).remaining_capacity_units,0);
+});
+test('capacity legacy summary claim allows exact admitted completion while paused',async()=>{
+ const c=await fencedSummaryQueue();await as('','service_role');await pauseOperation(false,9);const claim=await countedClaim(c);await pauseOperation(true,10);await completeCounted(c,claim);await db.exec('RESET ROLE');const state=await fullDrainInventory();assert.equal(state.paused,true);assert.equal(state.remaining_capacity_units,0);
+});
+test('capacity legacy summary claim leaves other job types available',async()=>{
+ const c=await fencedSummaryQueue();await db.exec('RESET ROLE');const other=uid(59001);await db.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'pathway_report','queued','{}')",[other,student,actors.family]);await as('','service_role');await db.query("UPDATE public.ai_jobs SET status='processing',locked_at=clock_timestamp(),attempts=1 WHERE id=$1",[other]);await db.exec('RESET ROLE');assert.equal((await db.query('SELECT status FROM public.ai_jobs WHERE id=$1',[other])).rows[0].status,'processing');
+});
+test('capacity legacy summary claim preserves already admitted work at installation',async()=>{
+ const c=await fencedSummaryQueue({install:false});await as('','service_role');await pauseOperation(false,9);const claim=await countedClaim(c);await pauseOperation(true,10);await db.exec('RESET ROLE');await db.exec(summaryClaimWriteFence);await completeCounted(c,claim);await db.exec('RESET ROLE');assert.equal((await fullDrainInventory()).remaining_capacity_units,0);
+});
+test('capacity legacy summary claim refuses preexisting untracked processing without adoption',async()=>{
+ const c=await fencedSummaryQueue({install:false});await as('','service_role');await db.query("UPDATE public.ai_jobs SET status='processing',locked_at=clock_timestamp(),attempts=1 WHERE id=$1",[c.job]);await db.exec('RESET ROLE');await assert.rejects(db.exec(summaryClaimWriteFence),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regprocedure('public.guard_document_summary_claim_writer()') IS NULL AS absent")).rows[0].absent,true);assert.equal((await db.query('SELECT status FROM public.ai_jobs WHERE id=$1',[c.job])).rows[0].status,'processing');assert.equal((await fullDrainInventory()).remaining_capacity_units,1);
+});
+test('capacity legacy summary claim denies raw refresh of an admitted claim',async()=>{
+ const c=await fencedSummaryQueue();await as('','service_role');await pauseOperation(false,9);const claim=await countedClaim(c);await assert.rejects(db.query('UPDATE public.ai_jobs SET locked_at=clock_timestamp(),attempts=2 WHERE id=$1',[c.job]),{code:'42501'});await db.exec('RESET ROLE');assert.equal((await db.query('SELECT attempts FROM public.ai_jobs WHERE id=$1',[c.job])).rows[0].attempts,claim.claim_attempt);
+});
+test('capacity legacy summary claim transaction rollback restores queue and exact capacity',async()=>{
+ const c=await fencedSummaryQueue();await as('','service_role');await pauseOperation(false,9);await db.exec('BEGIN');await countedClaim(c);await db.exec('ROLLBACK;RESET ROLE');const queued=(await db.query('SELECT status,attempts FROM public.ai_jobs WHERE id=$1',[c.job])).rows[0];assert.deepEqual(queued,{status:'queued',attempts:0});assert.equal((await fullDrainInventory()).remaining_capacity_units,1);await as('','service_role');const claim=await countedClaim(c);await completeCounted(c,claim);await db.exec('RESET ROLE');assert.equal((await fullDrainInventory()).remaining_capacity_units,0);
+});
+test('capacity legacy summary claim helper functions remain private from every app role',async()=>{
+ await fencedSummaryQueue();await db.exec('RESET ROLE');for(const role of ['anon','authenticated','service_role'])for(const fn of ['guard_document_summary_claim_writer()','check_document_summary_claim_committed()'])assert.equal((await db.query('SELECT has_function_privilege($1,$2,\'EXECUTE\') AS allowed',[role,'public.'+fn])).rows[0].allowed,false);
+});
+for(const ending of ['COMMIT','ROLLBACK'])test('capacity legacy summary claim native raw writer observes installer '+ending,{skip:!native},async()=>{
+ const c=await fencedSummaryQueue({install:false});const a=await newSession(),b=await newSession();await a.exec('BEGIN');await a.exec(summaryClaimWriteFence.replace('BEGIN;\nSET LOCAL','SET LOCAL').replace(/\nCOMMIT;\n$/,'\n'));await as('','service_role',b);await db.exec('RESET ROLE');const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=b.query("UPDATE public.ai_jobs SET status='processing',locked_at=clock_timestamp(),attempts=1 WHERE id=$1",[c.job]).then(result=>({result}),error=>({error}));
+ try{await waitForLock(pid);await a.exec(ending);const out=await pending;if(ending==='COMMIT')assert.equal(out.error?.code,'42501');else assert.equal(out.error,undefined);assert.equal((await db.query('SELECT status FROM public.ai_jobs WHERE id=$1',[c.job])).rows[0].status,ending==='COMMIT'?'queued':'processing');}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
+});
+for(const fault of ['generic-execute','claim-path','unpaused','private-table-grant'])test('capacity legacy summary claim installation refuses '+fault+' without repair',async()=>{
+ await fencedSummaryQueue({install:false});await db.exec('RESET ROLE');
+ if(fault==='generic-execute')await db.exec('GRANT EXECUTE ON FUNCTION public.begin_document_operation(uuid,uuid,text) TO service_role');
+ if(fault==='claim-path')await db.exec('ALTER FUNCTION public.claim_admitted_document_summary(uuid,integer) SET search_path=public');
+ if(fault==='unpaused'){await as('','service_role');await pauseOperation(false,9);await db.exec('RESET ROLE');}
+ if(fault==='private-table-grant')await db.exec('GRANT SELECT ON public.document_summary_operation_bindings TO anon');
+ await assert.rejects(db.exec(summaryClaimWriteFence),{code:'55000'});await db.exec('ROLLBACK');assert.equal((await db.query("SELECT to_regprocedure('public.guard_document_summary_claim_writer()') IS NULL AS absent")).rows[0].absent,true);
+ if(fault==='private-table-grant')assert.equal((await db.query("SELECT has_table_privilege('anon','public.document_summary_operation_bindings','SELECT') AS unchanged")).rows[0].unchanged,true);
 });

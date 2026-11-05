@@ -29,6 +29,7 @@ on:
       - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-private-operation-admission.sql"
+      - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -129,6 +130,7 @@ on:
       - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-private-operation-admission.sql"
+      - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -426,7 +428,7 @@ jobs:
         run: |
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save|^capacity private admission' tests/database/document-path-exclusivity.test.mjs
+            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save|^capacity private admission|^capacity legacy summary claim' tests/database/document-path-exclusivity.test.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |
@@ -2486,6 +2488,46 @@ jobs:
           assert.equal(p.begin_body_md5,'4ff01874b39fa3e46c24a6bf3d8149fc');assert.equal(p.finish_body_md5,'b96db30c250af2e17a60159843b5392d');assert.equal(p.hosted_applied,false);assert.equal(p.ready_for_cutover,false);
           NODE
 
+      - name: Verify raw summary claim writer fence after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-summary-claim-write-fence.sql -f - <<'SQL'
+          DO $summary_claim_writer_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted writer-fence installer required';END IF;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.guard_document_summary_claim_writer()','f55a7b4a3e798b9ada2d90dee1dd630c',false),
+            ('public.check_document_summary_claim_committed()','d10258785f01c5cc825b43621e57f7dc',true)
+           ) expected(signature,body_md5,definer) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN RAISE EXCEPTION 'Exact private claim trigger required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') THEN RAISE EXCEPTION 'Claim writer helpers must remain private';END IF;
+            END LOOP;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+            ('ai_jobs_guard_document_summary_claim','public.guard_document_summary_claim_writer()',23,false),
+            ('ai_jobs_document_summary_claim_committed','public.check_document_summary_claim_committed()',21,true)
+           ) expected(trigger_name,signature,trigger_type,deferred) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.ai_jobs'::regclass AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.trigger_type AND tgenabled='O' AND NOT tgisinternal AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred AND (tgconstraint<>0)=item.deferred AND tgqual IS NULL AND tgattr::text='') THEN RAISE EXCEPTION 'Exact enabled claim triggers required';END IF;
+           END LOOP;
+           IF (SELECT md5(prosrc) FROM pg_proc WHERE oid='public.claim_admitted_document_summary(uuid,integer)'::regprocedure)<>'c447fea2a55afefc6ad1451986ac1eea' OR has_function_privilege('service_role','public.begin_document_operation(uuid,uuid,text)','EXECUTE') THEN RAISE EXCEPTION 'Existing admission fence or counted claim changed';END IF;
+          END; $summary_claim_writer_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-summary-claim-write-fence.json
+          SELECT jsonb_build_object('schema','document-summary-claim-write-fence-proof-v1',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'processing_summaries',(SELECT count(*) FROM public.ai_jobs WHERE job_type='document_summary' AND status='processing'),
+           'source_claim_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.claim_admitted_document_summary(uuid,integer)'::regprocedure),
+           'helpers',(SELECT jsonb_agg(jsonb_build_object('name',proname,'body_md5',md5(prosrc),'owner',proowner::regrole::text,'definer',prosecdef) ORDER BY proname) FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN('guard_document_summary_claim_writer','check_document_summary_claim_committed')),
+           'hosted_applied',false,'ready_for_cutover',false);
+          SQL
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-summary-claim-write-fence.json','utf8'));
+          assert.equal(p.paused,true);assert.equal(p.processing_summaries,0);assert.equal(p.helpers.length,2);assert.equal(p.source_claim_body_md5,'c447fea2a55afefc6ad1451986ac1eea');assert.equal(p.hosted_applied,false);assert.equal(p.ready_for_cutover,false);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2521,4 +2563,5 @@ jobs:
             /tmp/document-apply-no-save-reconciliation.json
             /tmp/document-pause-drain-inventory.json
             /tmp/document-private-operation-admission.json
+            /tmp/document-summary-claim-write-fence.json
           if-no-files-found: ignore

@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Workstream1 source/disposable verification complete. Workstream2 selected32/4/2 policy is native/schema verified; trusted metadata review/retain-work audit is locally verified with native/schema tests pending. Actual reconciliation resolution, hosted activation and release readiness remain open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are complete for source/disposable scope. Other reconciliation, legacy/source/access, hosted and release gates remain open. Private generic admission draft28 and raw summary-start fence draft29 await native/full-schema acceptance.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -218,7 +218,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 28,
+  "unapplied_admission_proposals": 29,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -805,7 +805,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 9,
+  "verification_appendix_drafts": 10,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -871,6 +871,16 @@
     "native_full_schema_verified": false,
     "preserves_bound_callers": true,
     "preserves_existing_completion": true,
+    "hosted_applied": false
+  },
+  "last_updated": "2026-11-05",
+  "summary_claim_write_fence_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
+    "evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "requires_private_generic_admission": true,
+    "preserves_admitted_completion": true,
     "hosted_applied": false
   }
 }
