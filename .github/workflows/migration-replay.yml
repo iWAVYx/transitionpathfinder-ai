@@ -24,6 +24,8 @@ on:
       - "tests/database/document-native-test-plan.json"
       - "tests/database/document-capacity-selected-policy.test.mjs"
       - "tests/database/document-operation-review.test.mjs"
+      - "tests/database/document-pause-drain-inventory.test.mjs"
+      - "docs/production-readiness/proposals/document-pause-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
@@ -121,6 +123,8 @@ on:
       - "tests/database/document-native-test-plan.json"
       - "tests/database/document-capacity-selected-policy.test.mjs"
       - "tests/database/document-operation-review.test.mjs"
+      - "tests/database/document-pause-drain-inventory.test.mjs"
+      - "docs/production-readiness/proposals/document-pause-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-operation-review.sql"
       - "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
@@ -376,6 +380,17 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/report-evidence-save.test.mjs
+
+      - name: Test read-only drain inventory without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-pause-drain-inventory.test.mjs
+
+      - name: Test read-only drain inventory in disposable PostgreSQL
+        run: |
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-pause-drain-inventory.test.mjs
 
       - name: Test trusted operation review without hosted credentials
         run: |
@@ -2407,6 +2422,20 @@ jobs:
           assert.equal(p.provider_resolution,false);assert.equal(p.hosted_applied,false);assert.equal(p.ready_for_cutover,false);assert.equal(p.routines.length,13);
           NODE
 
+      - name: Verify read-only drain inventory after complete replay
+        run: |
+          PGUSER=supabase_admin psql -qAt -v ON_ERROR_STOP=1 \
+            -f docs/production-readiness/proposals/document-pause-drain-inventory.sql \
+            > /tmp/document-pause-drain-inventory.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-pause-drain-inventory.json','utf8'));
+          assert.equal(p.schema,'document-pause-drain-inventory-v1');
+          for(const key of ['read_only_transaction','consistent_snapshot','complete_relation_visibility','paused','tracked_operations_clear','database_work_clear'])assert.equal(p[key],true);
+          for(const key of ['private_values_emitted','provider_quiescence_verified','legacy_writer_coverage_verified','ready_for_cutover','cleanup_authorized'])assert.equal(p[key],false);
+          for(const key of ['active_operations','unresolved_held_operations','remaining_capacity_units','promised_unqueued_summary_units','queued_summaries','processing_summaries','capacity_conflicts','uncovered_unfinished_summaries'])assert.equal(p[key],0);
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2440,4 +2469,5 @@ jobs:
             /tmp/document-capacity-selected-policy.json
             /tmp/document-operation-review.json
             /tmp/document-apply-no-save-reconciliation.json
+            /tmp/document-pause-drain-inventory.json
           if-no-files-found: ignore
