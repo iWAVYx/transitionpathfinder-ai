@@ -224,6 +224,8 @@
     "step": "Verify integrated registration reservation queue and release",
     "error": "permission denied to set role supabase_admin",
     "accepted": false,
-    "full_native_suite": "still running at observation"
+    "full_native_suite": "still running at observation",
+    "correction_evidence": "docs/production-readiness/evidence/document-registration-executor-local-2026-11-05.json",
+    "corrected_source_verified": false
   }
 }

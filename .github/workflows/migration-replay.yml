@@ -1962,9 +1962,19 @@ jobs:
 
       - name: Verify integrated registration reservation queue and release
         run: |
-          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-capacity-admission.sql
-          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-queue-transfer.sql
-          psql -v ON_ERROR_STOP=1 -f docs/production-readiness/proposals/document-registration-automatic-release.sql
+          set -euo pipefail
+          # Keep installation objects owned by the restricted migration role.
+          # The trusted disposable session may edit the existing admission-owned
+          # finish routine, exactly as earlier settlement installation steps do.
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-registration-capacity-admission.sql \
+            -f docs/production-readiness/proposals/document-registration-queue-transfer.sql \
+            -f docs/production-readiness/proposals/document-registration-automatic-release.sql -f - <<'SQL'
+          DO $registration_executor$ BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN
+            RAISE EXCEPTION 'Restricted registration executor was not restored'; END IF;
+          END; $registration_executor$;
+          SQL
           psql -v ON_ERROR_STOP=1 <<'SQL'
           DO $registration_integrated_proof$
           DECLARE item record; caller text; admission_owner oid;
