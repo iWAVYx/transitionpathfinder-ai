@@ -2,6 +2,47 @@
 BEGIN;
 SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='30s';
+DO $apply_install_boundary$
+DECLARE item record; caller text; relation_name text;
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN
+  RAISE EXCEPTION 'Paused reviewed Apply installation required' USING ERRCODE='55000'; END IF;
+ FOR item IN SELECT * FROM (VALUES
+ ('public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)','6f601210e16ce169478e8277e9263228',true,true,'service_role'),
+ ('public.assert_bound_document_apply(uuid,uuid,uuid,timestamptz,jsonb,boolean)','105e3e1c77801ad75384526521e336c3',true,true,'authenticated'),
+ ('public.apply_reviewed_document_extraction(uuid,uuid,uuid,timestamptz,jsonb,boolean)','169bbd1099b39afe9411d5e5497ac645',false,false,'authenticated'),
+ ('public.guard_document_apply_source_binding()','5c64a025bbdff1fe50a44c3bd40cd0d8',false,false,'')
+ ) expected(signature,body_md5,definer,utc,allowed_caller) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature)
+   AND proowner=current_user::regrole::oid AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer
+   AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN
+   RAISE EXCEPTION 'Exact Apply routine owner/body/settings required' USING ERRCODE='55000'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller=item.allowed_caller) THEN
+    RAISE EXCEPTION 'Reviewed Apply routine permissions required' USING ERRCODE='55000'; END IF;
+  END LOOP;
+ END LOOP;
+ FOREACH relation_name IN ARRAY ARRAY['public.document_apply_source_bindings'] LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_class WHERE oid=to_regclass(relation_name)
+   AND relkind='r' AND relowner=current_user::regrole::oid AND relrowsecurity)
+   OR EXISTS(SELECT 1 FROM pg_policy WHERE polrelid=to_regclass(relation_name)) THEN
+   RAISE EXCEPTION 'Private Apply relation ownership/RLS required' USING ERRCODE='55000'; END IF;
+  FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+   IF has_table_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+    OR has_any_column_privilege(caller,relation_name,'SELECT,INSERT,UPDATE,REFERENCES') THEN
+    RAISE EXCEPTION 'Private Apply relation permissions required' USING ERRCODE='55000'; END IF;
+  END LOOP;
+ END LOOP;
+ FOR item IN SELECT * FROM (VALUES
+ ('public.document_apply_source_bindings','document_apply_binding_retained','public.guard_document_apply_source_binding()',27,false)
+ ) expected(relation_name,trigger_name,signature,trigger_type,deferred) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name)
+   AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.trigger_type
+   AND tgenabled='O' AND NOT tgisinternal AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred
+   AND (tgconstraint<>0)=item.deferred AND tgqual IS NULL AND tgattr::text='') THEN
+   RAISE EXCEPTION 'Exact enabled Apply trigger required' USING ERRCODE='55000'; END IF;
+ END LOOP;
+END; $apply_install_boundary$;
 CREATE TABLE public.document_apply_completion_receipts(
  operation_id uuid PRIMARY KEY REFERENCES public.document_apply_source_bindings(operation_id),
  actor_id uuid NOT NULL,student_id uuid NOT NULL,extraction_id uuid NOT NULL,

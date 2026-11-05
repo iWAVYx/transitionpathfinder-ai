@@ -764,6 +764,8 @@
     "core_local_implemented": true,
     "native_full_schema_verified": false,
     "installation_hardened": false,
-    "hosted_verified": false
+    "hosted_verified": false,
+    "installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json",
+    "completion_release_installation_checks_prepared": true
   }
 }

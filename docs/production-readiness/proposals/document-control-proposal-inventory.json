@@ -208,13 +208,13 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
-      "sha256": "173717c5ef1805479b2bd985367ed1f792189322295ae71c0e5de0f33a43cfe8",
+      "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2",
       "native_status": "pending_installation_hardening_and_full_schema",
       "hosted_applied": false
     },
     {
       "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
-      "sha256": "4a3dc28421e16e9b700572420bebd468aa3613042d4809f648ea14fa52bc8d20",
+      "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae",
       "native_status": "pending_installation_hardening_and_full_schema",
       "hosted_applied": false
     }
@@ -227,5 +227,6 @@
     "full_native_suite": "still running at observation",
     "correction_evidence": "docs/production-readiness/evidence/document-registration-executor-local-2026-11-05.json",
     "corrected_source_verified": false
-  }
+  },
+  "apply_installation_hardening_evidence": "docs/production-readiness/evidence/document-apply-install-hardening-local-2026-11-05.json"
 }

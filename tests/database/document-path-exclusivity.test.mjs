@@ -3481,3 +3481,33 @@ test('capacity bound Apply release refuses changed evidence intent before save',
 for(const target of ['evidence','audit'])test('capacity bound Apply release rejects altered actual '+target+' write',async()=>{
  const x=await releasedApplyFixture();await db.exec('RESET ROLE');await db.exec("CREATE OR REPLACE FUNCTION public.tf_apply_output_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN "+(target==='evidence'?"NEW.payload:='{}'::jsonb;":"NEW.action:='other.action';")+" RETURN NEW;END $$;CREATE TRIGGER zzzz_apply_output_fault BEFORE INSERT ON public."+(target==='evidence'?'evidence_items':'audit_log')+" FOR EACH ROW EXECUTE FUNCTION public.tf_apply_output_fault()");const before=await applicationSnapshot();await as();await assert.rejects(applyAtomic(x),{code:'55000'});assert.deepEqual(await applicationSnapshot(),before);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.document_apply_capacity_settlements')).rows[0].n,0);
 });
+
+// Install drift must stop before creating completion/release objects, even when
+// the source binding was already admitted and admissions remain paused.
+for(const stage of ['completion','release'])for(const fault of ['unpaused','body','owner','path','execute','table','column','rls','trigger'])test('capacity bound Apply '+stage+' install refuses '+fault+' drift',async()=>{
+ if(stage==='completion')await boundApplySaveFixture();else await observedApplyFixture();await db.exec('RESET ROLE');
+ if(fault==='unpaused')await db.exec("UPDATE public.document_operation_control SET paused=false WHERE singleton");
+ if(fault==='body')await db.exec("CREATE OR REPLACE FUNCTION public.guard_document_apply_source_binding() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $$ BEGIN RETURN NEW; END $$");
+ if(fault==='owner'){await db.exec("DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='tf_apply_drift_owner') THEN CREATE ROLE tf_apply_drift_owner NOLOGIN;END IF;END $$");await db.exec("ALTER FUNCTION public.guard_document_apply_source_binding() OWNER TO tf_apply_drift_owner");}
+ if(fault==='path')await db.exec("ALTER FUNCTION public.guard_document_apply_source_binding() SET search_path=public");
+ if(fault==='execute')await db.exec("GRANT EXECUTE ON FUNCTION public.guard_document_apply_source_binding() TO service_role");
+ if(fault==='table')await db.exec("GRANT SELECT ON public.document_apply_source_bindings TO service_role");
+ if(fault==='column')await db.exec("GRANT SELECT(sections_sha256) ON public.document_apply_source_bindings TO authenticated");
+ if(fault==='rls')await db.exec("ALTER TABLE public.document_apply_source_bindings DISABLE ROW LEVEL SECURITY");
+ if(fault==='trigger')await db.exec("ALTER TABLE public.document_apply_source_bindings DISABLE TRIGGER document_apply_binding_retained");
+ await assert.rejects(db.exec(stage==='completion'?applyCompletionReceipt:applyCapacityRelease),{code:'55000'});await db.exec('ROLLBACK');
+ const absent=(await db.query("SELECT to_regclass($1) IS NULL AS absent",['public.'+(stage==='completion'?'document_apply_completion_receipts':'document_apply_capacity_settlements')])).rows[0].absent;assert.equal(absent,true);
+});
+
+for(const fault of ['validator-grant','validator-body','receipt-column','receipt-rls','receipt-policy','completion-disabled','commit-not-deferred'])test('capacity bound Apply release install refuses completion '+fault+' drift',async()=>{
+ await observedApplyFixture();await db.exec('RESET ROLE');
+ if(fault==='validator-grant')await db.exec("GRANT EXECUTE ON FUNCTION public.validate_bound_document_apply_completion(uuid) TO authenticated");
+ if(fault==='validator-body')await db.exec("CREATE OR REPLACE FUNCTION public.validate_bound_document_apply_completion(_operation_id uuid) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog SET TimeZone='UTC' AS $$ BEGIN RETURN; END $$");
+ if(fault==='receipt-column')await db.exec("GRANT SELECT(student_sha256) ON public.document_apply_completion_receipts TO service_role");
+ if(fault==='receipt-rls')await db.exec("ALTER TABLE public.document_apply_completion_receipts DISABLE ROW LEVEL SECURITY");
+ if(fault==='receipt-policy')await db.exec("CREATE POLICY unexpected_receipt_access ON public.document_apply_completion_receipts USING(true)");
+ if(fault==='completion-disabled')await db.exec("ALTER TABLE public.document_extractions DISABLE TRIGGER document_apply_completed");
+ if(fault==='commit-not-deferred')await db.exec("DROP TRIGGER document_apply_outcome_committed ON public.document_apply_completion_receipts;CREATE CONSTRAINT TRIGGER document_apply_outcome_committed AFTER INSERT ON public.document_apply_completion_receipts DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.check_bound_apply_commit()");
+ await assert.rejects(db.exec(applyCapacityRelease),{code:'55000'});await db.exec('ROLLBACK');
+ assert.equal((await db.query("SELECT to_regclass('public.document_apply_capacity_settlements') IS NULL AS absent")).rows[0].absent,true);
+});
