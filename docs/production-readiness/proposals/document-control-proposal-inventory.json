@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-04",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Ordered19-proposal disposable replay inventory. First15 native verified; current16 corrected after native failure and17-19 registration drafts await native/full-schema proof. Not a hosted installation recipe.",
+  "scope": "Ordered19-proposal disposable replay inventory. First16 native/full-schema verified;17-19 registration installation awaits native/full-schema proof. Not a hosted installation recipe.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -146,7 +146,7 @@
       "sha256": "bf3f953f69c1878ee4999dc18f97d554281969a0ca61f71d223efc35b30de8ee",
       "disposable_replay_step": "Verify rescan service boundary after complete replay",
       "source_checked_against": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-      "native_status": "pending_corrected_full_chain",
+      "native_status": "verified_stage16_on_e921e422",
       "hosted_applied": false
     },
     {
@@ -191,5 +191,6 @@
     41678056736
   ],
   "new_native_proof_pending": true,
-  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json"
+  "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json",
+  "verified_stage16_evidence": "docs/production-readiness/evidence/document-rescan-service-boundary-verified-2026-11-05.json"
 }

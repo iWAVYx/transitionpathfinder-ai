@@ -1,5 +1,5 @@
 {
-  "status": "Deferred commit execution-context fix locally verified; native/full-schema repeat pending",
+  "status": "Native service boundary and complete225+16 replay verified on e921e422",
   "workstream_action": "1.1",
   "proposal_sha256": "bf3f953f69c1878ee4999dc18f97d554281969a0ca61f71d223efc35b30de8ee",
   "routines": [
@@ -19,7 +19,7 @@
       "body_md5": "c5476d2011eab14412ed27520a8e498b"
     }
   ],
-  "handler_wired": false,
+  "handler_wired": true,
   "hosted_applied": false,
   "ready_for_cutover": false,
   "native_failure": {
@@ -27,12 +27,13 @@
     "cause": "Deferred commit trigger ran with service-role execution context and could not call private validator",
     "fixed_in_prepared_source": true,
     "validator_grants_expanded": false,
-    "native_recheck_pending": true
+    "native_recheck_pending": false
   },
   "combined_focused": {
     "tests": 67,
     "passed": 65,
     "failed": 0,
     "native_only_skips": 2
-  }
+  },
+  "native_evidence": "docs/production-readiness/evidence/document-rescan-service-boundary-verified-2026-11-05.json"
 }
