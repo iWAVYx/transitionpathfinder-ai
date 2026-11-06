@@ -31,6 +31,9 @@ on:
       - "docs/production-readiness/proposals/document-private-operation-admission.sql"
       - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
       - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
+      - "docs/production-readiness/proposals/document-text-review-save.sql"
+      - "tests/database/document-text-review-save.test.mjs"
+      - "src/lib/document-text-extraction.server.ts"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -133,6 +136,9 @@ on:
       - "docs/production-readiness/proposals/document-private-operation-admission.sql"
       - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
       - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
+      - "docs/production-readiness/proposals/document-text-review-save.sql"
+      - "tests/database/document-text-review-save.test.mjs"
+      - "src/lib/document-text-extraction.server.ts"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
       - "tests/database/run-document-path-native-partition.mjs"
       - "tests/database/verify-document-native-results.mjs"
@@ -399,6 +405,28 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/document-pause-drain-inventory.test.mjs
+
+      - name: Test atomic text review saves without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-text-review-save.test.mjs
+
+      - name: Test atomic text review saves in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-text-review-save.test.mjs | tee /tmp/document-text-review-save-native.log
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync,writeFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+          const log=readFileSync('/tmp/document-text-review-save-native.log');const text=log.toString();
+          const count=k=>Number([...text.matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);
+          assert.equal(count('tests'),31);assert.equal(count('pass'),31);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
+          const sha=b=>createHash('sha256').update(b).digest('hex');
+          writeFileSync('/tmp/document-text-review-save-native.json',JSON.stringify({schema:'document-text-review-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:31,passed:31,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-review-save.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-review-save.sql')),log_sha256:sha(log),hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
 
       - name: Test trusted operation review without hosted credentials
         run: |
@@ -2570,6 +2598,28 @@ jobs:
           assert.equal(p.paused,true);assert.equal(p.binder_body_md5,'96abd9342d6d508d1fe8157f6e24827f');assert.equal(p.type_guard_body_md5,'c4b98274623c0102d707c806781c85aa');for(const key of ['legacy_rows_adopted','records_removed','hosted_applied','ready_for_cutover'])assert.equal(p[key],false);
           NODE
 
+      - name: Verify atomic text review save after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-review-save.sql -f - <<'SQL'
+          DO $text_save_schema_proof$
+          DECLARE signature text:='public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)';caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted text save installer required';END IF;
+           IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(signature) AND md5(prosrc)='9848c61fddafcd67189f2e221b022abf' AND NOT prosecdef AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN RAISE EXCEPTION 'Exact invoker text save routine required';END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(caller,signature,'EXECUTE') IS DISTINCT FROM (caller='authenticated') THEN RAISE EXCEPTION 'Only authenticated text save execution required';END IF;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN RAISE EXCEPTION 'Text save installation must leave processing paused';END IF;
+          END; $text_save_schema_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-text-review-save-schema.json
+          SELECT jsonb_build_object('schema','document-text-review-save-schema-proof-v1',
+           'body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)'::regprocedure),
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'provider_admission_verified',false,'access_revocation_serialized',false,'hosted_applied',false,'ready_for_cutover',false);
+          SQL
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2607,4 +2657,7 @@ jobs:
             /tmp/document-private-operation-admission.json
             /tmp/document-summary-claim-write-fence.json
             /tmp/document-summary-queue-entry-fence.json
+            /tmp/document-text-review-save-native.log
+            /tmp/document-text-review-save-native.json
+            /tmp/document-text-review-save-schema.json
           if-no-files-found: ignore

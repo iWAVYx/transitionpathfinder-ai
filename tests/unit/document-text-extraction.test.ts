@@ -11,19 +11,21 @@ function fixture() {
     permission: true, partner: false, saveError: null as unknown, afterSave: false, beforeUpdate: () => {},
   };
   const updates = vi.fn();
-  const client = { rpc: vi.fn(async (name: string) => ({ data: name === "is_partner_only" ? state.partner : state.permission, error: null })),
+  const client = { rpc: vi.fn(async (name: string, args?: any) => {
+    if(name !== "save_document_text_review") return {data:name === "is_partner_only" ? state.partner : state.permission,error:null};
+    state.beforeUpdate();
+    updates(args);
+    if(!state.review || state.review.id!==args._extraction_id || state.review.document_id!==args._document_id
+      || state.review.student_id!==args._student_id || state.review.updated_at!==args._expected_review_revision
+      || state.review.status!==args._expected_review_status || !state.document || state.document.updated_at!==args._expected_document_revision)
+      return {data:null,error:{code:"42501"}};
+    state.review={...state.review,raw_extract:args._raw_extract,sections:args._sections,status:"needs_review",updated_at:"2026-11-05T12:00:00.000002+00:00"};
+    if(state.afterSave)throw Error("PRIVATE lost response");
+    return {data:{schema:"document-text-review-saved-v1",extraction:structuredClone(state.review)},error:state.saveError};
+  }),
     from: vi.fn((table: string) => {
-      let patch: any;const filters: [string,string][] = [];
-      const query = { select: (_: string) => query, eq: (k: string, v: string) => { filters.push([k,v]);return query; },
-        maybeSingle: async () => {
-          if (patch) {
-            state.beforeUpdate(); updates(patch,filters);
-            if (!state.review || filters.some(([k,v])=>state.review[k]!==v)) return {data:null,error:null};
-            state.review={...state.review,...patch,updated_at:"2026-11-05T12:00:00.000002+00:00"};
-            if (state.afterSave) throw Error("PRIVATE lost response");
-          }
-          return {data:structuredClone(table === "documents" ? state.document : state.review),error:patch?state.saveError:null};
-        }, update: (value: any) => {patch=value;return query;},
+      const query = { select: (_: string) => query, eq: (_key: string, _value: string) => query,
+        maybeSingle: async () => ({ data: structuredClone(table === "documents" ? state.document : state.review), error: null }),
       };return query;
     }),
   };
@@ -35,7 +37,7 @@ function fixture() {
 it("replaces only the current review and preserves its original creator",async()=>{
  const f=fixture();const result=await f.run();expect((result.extraction as any).sections).toEqual({strengths:"Generated draft"});
  expect((result.extraction as any).created_by).toBe(id(9));expect(f.generate).toHaveBeenCalledExactlyOnceWith(f.input.text,id(1));
- expect(f.updates.mock.calls[0][1]).toEqual([["id",id(4)],["document_id",id(2)],["student_id",id(3)],["updated_at",revision],["status","in_review"]]);
+ expect(f.updates.mock.calls[0][0]).toMatchObject({_extraction_id:id(4),_document_id:id(2),_student_id:id(3),_expected_review_revision:revision,_expected_document_revision:revision,_expected_review_status:"in_review"});
 });
 for(const [name,alter] of [
  ["changed viewer",(f:any)=>{f.input.expected_viewer_id=id(9);} ],
@@ -58,8 +60,8 @@ for(const [name,alter] of [
  ["completed review",(f:any)=>{f.state.review.status="complete";} ],
  ["missing document",(f:any)=>{f.state.document=null;} ],
 ] as const)it(`refuses ${name} observed after generation without saving`,async()=>{const f=fixture();f.generate.mockImplementation(async()=>{alter(f);return {strengths:"Unconfirmed draft"};});await expect(f.run()).rejects.toThrow(message);expect(f.updates).not.toHaveBeenCalled();});
-it("does not overwrite an edit between preflight and UPDATE",async()=>{const f=fixture();f.state.beforeUpdate=()=>{f.state.review.updated_at="2026-11-05T12:01:00Z";};await expect(f.run()).rejects.toThrow(message);expect(f.state.review.sections).toEqual({strengths:"Keep my edits"});expect(f.generate).toHaveBeenCalledTimes(1);});
-it("never recreates a review deleted before UPDATE",async()=>{const f=fixture();f.state.beforeUpdate=()=>{f.state.review=null;};await expect(f.run()).rejects.toThrow(message);expect(f.state.review).toBeNull();});
+it("does not overwrite an edit between preflight and atomic save",async()=>{const f=fixture();f.state.beforeUpdate=()=>{f.state.review.updated_at="2026-11-05T12:01:00Z";};await expect(f.run()).rejects.toThrow(message);expect(f.state.review.sections).toEqual({strengths:"Keep my edits"});expect(f.generate).toHaveBeenCalledTimes(1);});
+it("never recreates a review deleted before atomic save",async()=>{const f=fixture();f.state.beforeUpdate=()=>{f.state.review=null;};await expect(f.run()).rejects.toThrow(message);expect(f.state.review).toBeNull();});
 it("stops without retrying after a lost save response",async()=>{const f=fixture();f.state.afterSave=true;await expect(f.run()).rejects.toThrow(message);expect(f.generate).toHaveBeenCalledTimes(1);expect(f.updates).toHaveBeenCalledTimes(1);expect(f.state.review.status).toBe("needs_review");});
 it("hides private provider errors and does not save",async()=>{const f=fixture();f.generate.mockRejectedValue(Error("PRIVATE IEP contents"));await expect(f.run()).rejects.toThrow(message);expect(f.updates).not.toHaveBeenCalled();});
 it("denies unavailable authority rather than generating",async()=>{const f=fixture();f.client.rpc.mockRejectedValue(Error("PRIVATE database details"));await expect(f.run()).rejects.toThrow(message);expect(f.generate).not.toHaveBeenCalled();});

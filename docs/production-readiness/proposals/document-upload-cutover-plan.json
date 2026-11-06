@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. All1,660 native cases and225+30 replay pass for the current queue/admission fences. Document-attached text review preflight/optimistic replacement is locally verified; durable extraction admission, reconciliation, source/access serialization, hosted and release gates stay open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Prior1660 native cases and225+30 replay pass. Draft31 prepares atomic text-review saving with25 local database passes and six required native races; native31/full225+31 acceptance and durable extraction admission/reconciliation/source-access/hosted gates remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -124,7 +124,11 @@
     },
     {
       "path": "src/lib/document-text-extraction.server.ts",
-      "sha256": "ae196be66e74b031be4908baffa4b17c56083acadef3634893c9eb6c34958bdb"
+      "sha256": "a09c7882667b1603c069c0af37b469fae29e881bd3c60faface3e548d5c6b118"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-save.sql",
+      "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837"
     }
   ],
   "batch": {
@@ -222,7 +226,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 30,
+  "unapplied_admission_proposals": 31,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -726,11 +730,11 @@
     "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-05",
-    "checked_against_source": "c08b92e0",
-    "evidence": "docs/production-readiness/evidence/document-text-review-manifest-reconciled-2026-11-05.json",
-    "declared_entries_checked": 30,
-    "corrected_entries": 2,
+    "date": "2026-11-06",
+    "checked_against_source": "c1ec21d3 plus prepared atomic-save change",
+    "evidence": "docs/production-readiness/evidence/document-text-review-save-manifest-2026-11-06.json",
+    "declared_entries_checked": 31,
+    "corrected_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -810,7 +814,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 11,
+  "verification_appendix_drafts": 12,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -908,6 +912,15 @@
     "local_verified": true,
     "durable_admission_verified": false,
     "source_access_serialized": false,
+    "hosted_applied": false
+  },
+  "document_text_review_atomic_save_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-text-review-save.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-review-save-local-2026-11-06.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "provider_admission_verified": false,
+    "access_revocation_serialized": false,
     "hosted_applied": false
   }
 }

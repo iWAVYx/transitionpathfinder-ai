@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-06",
+  "workstream_actions": [
+    "2.5",
+    "2.6"
+  ],
+  "scope": "Atomic saved-review/document row locking only; source preparation, not hosted activation",
+  "proposal": "docs/production-readiness/proposals/document-text-review-save.sql",
+  "body_md5": "9848c61fddafcd67189f2e221b022abf",
+  "source_base": "c1ec21d356d77341aff0e7537d220eaea70e3a85",
+  "completed": [
+    "Save RPC uses caller privileges and RLS, fixed pg_catalog search path, authenticated-only execution; no raw grants added",
+    "Review row locked first, document row shared-locked second, matching Apply order; both locks held through transaction commit",
+    "Exact review/student/document/status and microsecond revisions checked; document lifecycle/access checked again inside the save",
+    "Only raw_extract, sections and needs_review status change; original creator retained; stale/deleted/completed review not recreated",
+    "Application uses the checked receipt without raw update/upsert fallback or save retry"
+  ],
+  "local_verification": {
+    "database_cases": 31,
+    "passed": 25,
+    "failed": 0,
+    "native_only_skipped": 6,
+    "focused_unit_cases": 69,
+    "typescript": "passed",
+    "native_full_schema_verified": false,
+    "full_unit_cases": 5734,
+    "readiness_native_contracts": 44,
+    "shell_blocks_parsed": 69,
+    "final_unit_fixture_refinement": "Removed obsolete raw-update fallback from the test client; all25 extraction adapter cases pass."
+  },
+  "pending": [
+    "All31 native cases including six cross-session commit/rollback races",
+    "Full225+31 replay and exact invoker/privacy/body checks",
+    "Source-bound durable admission/capacity for attached pasted-text generation",
+    "Relationship/access-revocation serialization and remaining raw/service writer coverage",
+    "Fresh authorized hosted/provider acceptance"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-save.sql",
+      "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "a09c7882667b1603c069c0af37b469fae29e881bd3c60faface3e548d5c6b118"
+    },
+    {
+      "path": "tests/database/document-text-review-save.test.mjs",
+      "sha256": "c5e18e6a6e407058ee864d094362fc13fbd7e64275d2f03e2ef4055dda7f3b0b"
+    },
+    {
+      "path": "tests/unit/document-text-extraction.test.ts",
+      "sha256": "8b6846b35f3598e902624ab1b36c9d82b382cc20c575d6044014674726200487"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "28bab0d03a08aec4133cf49c0182e2865e4c9069f5012142aca156fcce6471ee"
+    }
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

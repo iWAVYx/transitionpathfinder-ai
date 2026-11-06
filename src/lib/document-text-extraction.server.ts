@@ -15,13 +15,13 @@ const document = z.object({ id: z.string().uuid(), student_id: z.string().uuid()
   review_status: z.string().refine(value => value !== "rejected"), archived_at: z.null(), deleted_at: z.null(),
 });
 type Result = { data: unknown; error: unknown };
-type Query = { eq(column: string, value: string): Query; select(columns: string): Query; maybeSingle(): PromiseLike<Result> };
+type Query = { eq(column: string, value: string): Query; maybeSingle(): PromiseLike<Result> };
 type Client = { rpc(name: string, args: Record<string, unknown>): PromiseLike<Result>;
-  from(table: string): { select(columns: string): Query; update(patch: Record<string, unknown>): Query } };
+  from(table: string): { select(columns: string): Query } };
 
 /** Caller-scoped preflight and optimistic review replacement only. These checks
- * are not durable admission, provider cancellation, byte provenance, or a lock
- * against concurrent document/access changes. Those remain activation gates.
+ * are not durable admission, provider cancellation, byte provenance, or an
+ * access-revocation lock. The save RPC locks document/review rows through commit.
  * Never upsert: a deleted, completed or concurrently edited review stays intact.
  */
 export async function replaceDocumentTextExtraction<T>(privateClient: unknown, actorId: string, input: unknown,
@@ -55,13 +55,17 @@ export async function replaceDocumentTextExtraction<T>(privateClient: unknown, a
     const extracted = await generate(data.text, actorId);
     const after = await confirm();
     if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error();
-    const result = await client.from("document_extractions").update(patchFor(extracted))
-      .eq("id", data.extraction_id).eq("document_id", data.document_id).eq("student_id", data.student_id)
-      .eq("updated_at", data.expected_updated_at).eq("status", before.current.status).select("*").maybeSingle();
-    const saved = review.parse(result.data);
+    const patch = patchFor(extracted);
+    const result = await client.rpc("save_document_text_review", {
+      _extraction_id: data.extraction_id, _student_id: data.student_id, _document_id: data.document_id,
+      _expected_review_revision: data.expected_updated_at, _expected_document_revision: before.available.updated_at,
+      _expected_review_status: before.current.status, _raw_extract: patch.raw_extract, _sections: patch.sections,
+    });
+    const receipt = z.object({ schema: z.literal("document-text-review-saved-v1"), extraction: z.unknown() }).strict().parse(result.data);
+    const saved = review.parse(receipt.extraction);
     if (result.error || saved.id !== data.extraction_id || saved.document_id !== data.document_id
       || saved.student_id !== data.student_id || saved.status !== "needs_review" || saved.updated_at === data.expected_updated_at) throw new Error();
-    return { extraction: result.data };
+    return { extraction: receipt.extraction };
   } catch {
     // A lost write reply can already have committed; do not replay or expose
     // provider/database text. Reload is required to inspect the saved review.
