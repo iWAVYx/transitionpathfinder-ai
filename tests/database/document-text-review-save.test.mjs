@@ -29,7 +29,12 @@ beforeEach(async()=>{await db.exec(`ROLLBACK;RESET ROLE;DROP SCHEMA public CASCA
  INSERT INTO public.fixture_access VALUES('${id(1)}',true,true,false),('${id(7)}',false,true,false);`);await db.exec(sql);});
 async function as(actor=id(1),role='authenticated',c=db){assert.ok(['authenticated','anon','service_role'].includes(role));await c.exec('RESET ROLE');await c.query("SELECT set_config('request.jwt.claim.sub',$1,false)",[actor]);await c.exec('SET ROLE '+role);}
 function args(){return[id(4),id(3),id(2),'2026-11-06T12:00:00.000001Z','2026-11-06T12:00:00.000001Z','in_review',{strengths:'Fictional draft'},{strengths:{state:'pending',value:'Fictional draft'}}];}
-async function save(a=args(),c=db){return(await c.query('SELECT public.save_document_text_review($1,$2,$3,$4,$5,$6,$7,$8) AS result',a)).rows[0].result;}
+async function save(a=args(),c=db){
+ // pg encodes JavaScript arrays as PostgreSQL arrays, unlike object parameters.
+ // Send JSON bytes explicitly so [] remains a JSON array in both runners.
+ const values=a.map((value,index)=>index>=6&&value!==null?JSON.stringify(value):value);
+ return(await c.query('SELECT public.save_document_text_review($1,$2,$3,$4,$5,$6,$7,$8) AS result',values)).rows[0].result;
+}
 async function rows(){await db.exec('RESET ROLE');return(await db.query('SELECT * FROM public.document_extractions ORDER BY id')).rows;}
 test('text save updates exact review atomically and preserves creator',async()=>{await as();const r=await save();assert.equal(r.schema,'document-text-review-saved-v1');assert.equal(r.extraction.created_by,id(8));assert.equal(r.extraction.status,'needs_review');assert.equal(r.extraction.sections.strengths.value,'Fictional draft');});
 for(const[role,actor]of[['anon',id(1)],['service_role',id(1)],['authenticated',id(7)]])test('text save refuses unauthorized '+role+' '+actor,async()=>{const before=await rows();await as(actor,role);await assert.rejects(save(),{code:'42501'});assert.deepEqual(await rows(),before);});

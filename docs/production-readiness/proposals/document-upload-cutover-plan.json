@@ -921,6 +921,7 @@
     "native_full_schema_verified": false,
     "provider_admission_verified": false,
     "access_revocation_serialized": false,
-    "hosted_applied": false
+    "hosted_applied": false,
+    "fixture_correction_evidence": "docs/production-readiness/evidence/document-text-review-fixture-json-correction-2026-11-06.json"
   }
 }
