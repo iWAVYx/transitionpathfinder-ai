@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Prior1660 native cases and225+30 replay pass. Draft31 atomic text-review saving now passes25 local and31 native cases, including six cross-session races; final raw-artifact retention/full225+31 schema acceptance and durable extraction admission/reconciliation/source-access/hosted gates remain open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Atomic text-review saving is verified through31 new native cases, all1660 existing native cases and full225+31 replay. Durable attached-text generation admission, remaining reconciliation/source-access/writer fences and hosted/release gates remain open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -915,11 +915,12 @@
     "proposal": "docs/production-readiness/proposals/document-text-review-save.sql",
     "local_evidence": "docs/production-readiness/evidence/document-text-review-save-local-2026-11-06.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "provider_admission_verified": false,
     "access_revocation_serialized": false,
     "hosted_applied": false,
     "fixture_correction_evidence": "docs/production-readiness/evidence/document-text-review-fixture-json-correction-2026-11-06.json",
-    "native_step_observed_evidence": "docs/production-readiness/evidence/document-text-review-native-step-2026-11-06.json"
+    "native_step_observed_evidence": "docs/production-readiness/evidence/document-text-review-native-step-2026-11-06.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-text-review-save-verified-2026-11-06.json"
   }
 }

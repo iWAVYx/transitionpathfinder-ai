@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-06",
+  "workstream_action": "2.6",
+  "scope": "Atomic document/review save component only; durable generation admission and broader source/access fences remain open",
+  "run": 42280742047,
+  "head_source": "191c6f47123cd103acd74a2feda39bf7a5ebee8c",
+  "checkout_commit": "477cb0f72c420392836194d41f6bfe485f001295",
+  "workflow": "success",
+  "native_save_cases": 31,
+  "native_save_passed": 31,
+  "native_save_failed": 0,
+  "native_save_skipped": 0,
+  "native_cross_session_cases": 6,
+  "complete_native_cases": 1660,
+  "complete_native_failed": 0,
+  "complete_native_skipped": 0,
+  "canonical_migrations": 225,
+  "control_drafts": 31,
+  "raw_native_save_log_and_all7_partitions_independently_validated": true,
+  "save_labels_sha256": "2612d37fef9f03a91ebba935966ab31551c118ad57aa10ae400b91207ef07914",
+  "native_proof": "docs/production-readiness/evidence/document-text-review-native-proof-42280742047-2026-11-06.json",
+  "schema_proof": "docs/production-readiness/evidence/document-text-review-schema-proof-42280742047-2026-11-06.json",
+  "complete_native_proof": "docs/production-readiness/evidence/document-text-review-complete-native-proof-42280742047-2026-11-06.json",
+  "proof_sha256": [
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-native-proof-42280742047-2026-11-06.json",
+      "sha256": "9a6cf357554458c235aa54a2661609ece3cba1aab715ab63e7c48e252b1e4712"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-schema-proof-42280742047-2026-11-06.json",
+      "sha256": "60b26a000607306740ee19f9ed613d672b2d6f22ca1e0d31cc75001c5569d2fa"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-complete-native-proof-42280742047-2026-11-06.json",
+      "sha256": "e693ce06f3a6b52bd42c15b0353f3069009a89736da1fb965abd044745f69826"
+    }
+  ],
+  "replay_log_sha256": "ccd3d4cbc6807c0014ec2ef96faaa3c53ceae8a968a5c987cf4d0a8e028a70ca",
+  "workflow_snapshot_sha256": "3ac38d57f614041e356a64faebe47c967801684a903ce0fec31a18553e8eb31e",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-save.sql",
+      "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837"
+    },
+    {
+      "path": "tests/database/document-text-review-save.test.mjs",
+      "sha256": "edd4597e56f75c9fa102e9a303fe6f99613e7dd02644258e4acb0b1be4d5d8ed"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "a09c7882667b1603c069c0af37b469fae29e881bd3c60faface3e548d5c6b118"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "28bab0d03a08aec4133cf49c0182e2865e4c9069f5012142aca156fcce6471ee"
+    }
+  ],
+  "verified": [
+    "All31 save cases including six row-lock commit/rollback races pass without retries/skips",
+    "All1660 existing native cases retained and pass with exact source/multiplicity/log hashes",
+    "225 canonical migrations and all31 proposals replay successfully; exact invoker body/owner/fixed search path and authenticated-only execution verified",
+    "Installation leaves processing paused; no hosted writes or grants broadened"
+  ],
+  "remaining": [
+    "Source-bound durable admission/capacity for document-attached generation",
+    "Relationship/access-revocation serialization and remaining raw/service/Storage writer boundaries",
+    "Final canonical/ledger packaging and separately authorized hosted/provider/release acceptance"
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}
