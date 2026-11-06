@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractFromIep, type IepExtract } from "./iep-extract.functions";
+import { documentTextExtractionRequest, replaceDocumentTextExtraction } from "./document-text-extraction.server";
 import { applyReviewedExtractionWithAdmission, parseExtractionApplyRequest } from "./document-extraction-apply.server";
 
 /** Section keys we surface in the review UI, mapped to IepExtract fields. */
@@ -82,46 +84,14 @@ export const getOrCreateExtraction = createServerFn({ method: "POST" })
 
 export const runExtractionFromText = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      document_id: z.string().uuid(),
-      text: z.string().trim().min(40).max(120_000),
-    }).parse(i),
-  )
+  .validator((i: unknown) => documentTextExtractionRequest.parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    const { data: doc } = await supabase
-      .from("documents")
-      .select("id, student_id")
-      .eq("id", data.document_id)
-      .maybeSingle();
-    if (!doc) throw new Error("Document not found or not accessible.");
-
-    const { extract } = await extractFromIep({ data: { text: data.text } });
-
-    const sections = emptySections(extract);
-
-    const { data: row, error } = await supabase
-      .from("document_extractions")
-      .upsert(
-        {
-          document_id: doc.id,
-          student_id: doc.student_id,
-          raw_extract: extract as any,
-          sections: sections as any,
-          status: "needs_review",
-          created_by: userId,
-        },
-        { onConflict: "document_id" },
-      )
-      .select("*")
-      .single();
-    if (error || !row) {
-      console.error("runExtractionFromText upsert failed", error);
-      throw new Error("Could not save the extraction.");
-    }
-    return { extraction: row };
+    const result = await replaceDocumentTextExtraction(
+      context.supabase, context.userId, data,
+      async (text, actorId) => (await extractFromIep({ data: { text, expected_viewer_id: actorId } })).extract,
+      extract => ({ raw_extract: extract as any, sections: emptySections(extract) as any, status: "needs_review" }),
+    );
+    return { extraction: result.extraction as Database["public"]["Tables"]["document_extractions"]["Row"] };
   });
 
 export const updateExtractionSection = createServerFn({ method: "POST" })

@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Private admission and raw summary-writer fences pass1640 native cases and225+29 replay. Legacy queue entry/type fence draft30 is locally verified; remaining native/schema, reconciliation/source/access/hosted and release gates stay open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. All1,660 native cases and225+30 replay pass for the current queue/admission fences. Document-attached text review preflight/optimistic replacement is locally verified; durable extraction admission, reconciliation, source/access serialization, hosted and release gates stay open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -895,5 +895,12 @@
     "preserves_legacy_rows": true,
     "hosted_applied": false,
     "verified_evidence": "docs/production-readiness/evidence/document-summary-queue-entry-verified-2026-11-05.json"
+  },
+  "document_text_review_replacement": {
+    "evidence": "docs/production-readiness/evidence/document-text-review-replacement-local-2026-11-05.json",
+    "local_verified": true,
+    "durable_admission_verified": false,
+    "source_access_serialized": false,
+    "hosted_applied": false
   }
 }

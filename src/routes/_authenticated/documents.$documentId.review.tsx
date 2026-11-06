@@ -127,14 +127,15 @@ function ReviewPage() {
 
   async function handleRun() {
     const request = scope.current;
-    if (!extraction || !current(loadedScope)) return;
+    if (!extraction || running || applying || pendingSaves > 0 || saveFailed || !current(loadedScope)) return;
     if (pastedText.trim().length < 40) {
       toast.error("Paste at least a paragraph of the IEP to extract from.");
       return;
     }
     setRunning(true);
     try {
-      const res = await fnRun({ data: { document_id: documentId, text: pastedText } });
+      const res = await fnRun({ data: { expected_viewer_id: request.viewerId!, document_id: documentId,
+        student_id: extraction.student_id, extraction_id: extraction.id, expected_updated_at: extraction.updated_at, text: pastedText } });
       if (!current(request)) return;
       setExtraction(res.extraction as unknown as Extraction);
       toast.success("Draft extracted — review each section below.");
@@ -297,7 +298,7 @@ function ReviewPage() {
                   placeholder="Paste IEP text here…"
                 />
                 <div className="flex items-center gap-2">
-                  <Button onClick={handleRun} disabled={running}>
+                  <Button onClick={handleRun} disabled={running || applying || pendingSaves > 0 || saveFailed}>
                     {running ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     {totalWithValue > 0 ? "Re-run extraction" : "Extract draft"}
                   </Button>

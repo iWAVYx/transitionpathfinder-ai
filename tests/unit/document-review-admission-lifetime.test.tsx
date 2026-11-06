@@ -27,3 +27,21 @@ it('sends the loaded viewer identity with the existing source/revision when appl
 it('hides prior account data while loading the next account review',async()=>{const view=render(<Page/>);await screen.findByText('PRIVATE first account');api.get.mockReturnValueOnce(new Promise(()=>{}));api.user={id:id(9)};view.rerender(<Page/>);expect(screen.queryByText('PRIVATE first account')).toBeNull();expect(screen.getByRole('status').textContent).toContain('Loading your document review');expect(screen.queryByRole('button',{name:/save to student profile/i})).toBeNull();});
 it('ignores an old Apply completion after changing accounts',async()=>{let finish!:()=>void;api.apply.mockReturnValueOnce(new Promise(resolve=>{finish=()=>resolve({ok:true});}));const view=render(<Page/>);await screen.findByText('PRIVATE first account');fireEvent.click(screen.getAllByRole('button',{name:/save to student profile/i})[0]);await waitFor(()=>expect(api.apply).toHaveBeenCalledTimes(1));api.get.mockResolvedValueOnce({extraction:record('Current second account')});api.user={id:id(9)};view.rerender(<Page/>);await screen.findByText('Current second account');await act(async()=>{finish();});expect(api.success).not.toHaveBeenCalled();expect(api.navigate).not.toHaveBeenCalled();expect(screen.queryByText('PRIVATE first account')).toBeNull();});
 it('ignores a departed document load even after returning to the original document',async()=>{let finishOld!:(x:any)=>void;api.get.mockReturnValueOnce(new Promise(resolve=>{finishOld=resolve;}));const view=render(<Page/>);api.documentId=id(8);api.get.mockResolvedValueOnce({extraction:record('Intermediate document',id(8))});view.rerender(<Page/>);await screen.findByText('Intermediate document');api.documentId=id(4);api.get.mockResolvedValueOnce({extraction:record('Fresh original document')});view.rerender(<Page/>);await screen.findByText('Fresh original document');await act(async()=>{finishOld({extraction:record('PRIVATE stale original')});});expect(screen.queryByText('PRIVATE stale original')).toBeNull();expect(screen.getByText('Fresh original document')).toBeTruthy();});
+it('sends the loaded viewer, student and exact review revision for text extraction',async()=>{
+ api.run.mockResolvedValueOnce({extraction:record('Generated current draft')});render(<Page/>);await screen.findByText('PRIVATE first account');
+ const text='Fictional IEP transition pages with recorded strengths and supports.';
+ fireEvent.change(screen.getByPlaceholderText('Paste IEP text here…'),{target:{value:text}});
+ fireEvent.click(screen.getByRole('button',{name:'Re-run extraction'}));
+ await waitFor(()=>expect(api.run).toHaveBeenCalledTimes(1));
+ expect(api.run).toHaveBeenCalledWith({data:{expected_viewer_id:id(1),document_id:id(4),student_id:id(3),extraction_id:id(2),expected_updated_at:record().updated_at,text}});
+ await screen.findByText('Generated current draft');
+});
+it('ignores generated text from a departed account and disables a second generation while waiting',async()=>{
+ let finish!:(x:any)=>void;api.run.mockReturnValueOnce(new Promise(resolve=>{finish=resolve;}));const view=render(<Page/>);await screen.findByText('PRIVATE first account');
+ fireEvent.change(screen.getByPlaceholderText('Paste IEP text here…'),{target:{value:'Fictional IEP transition pages with recorded strengths and supports.'}});
+ fireEvent.click(screen.getByRole('button',{name:'Re-run extraction'}));await waitFor(()=>expect(api.run).toHaveBeenCalledTimes(1));
+ expect((screen.getByRole('button',{name:'Re-run extraction'}) as HTMLButtonElement).disabled).toBe(true);
+ api.get.mockResolvedValueOnce({extraction:record('Current second account')});api.user={id:id(9)};view.rerender(<Page/>);await screen.findByText('Current second account');
+ await act(async()=>{finish({extraction:record('PRIVATE stale generated draft')});});
+ expect(screen.queryByText('PRIVATE stale generated draft')).toBeNull();expect(api.success).not.toHaveBeenCalled();
+});
