@@ -32,6 +32,8 @@ on:
       - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
       - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
       - "docs/production-readiness/proposals/document-text-review-save.sql"
+      - "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
+      - "tests/database/document-text-review-authority.test.mjs"
       - "tests/database/document-text-review-save.test.mjs"
       - "src/lib/document-text-extraction.server.ts"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
@@ -137,6 +139,8 @@ on:
       - "docs/production-readiness/proposals/document-summary-claim-write-fence.sql"
       - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
       - "docs/production-readiness/proposals/document-text-review-save.sql"
+      - "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
+      - "tests/database/document-text-review-authority.test.mjs"
       - "tests/database/document-text-review-save.test.mjs"
       - "src/lib/document-text-extraction.server.ts"
       - "docs/production-readiness/proposals/document-capacity-selected-policy.sql"
@@ -426,6 +430,27 @@ jobs:
           assert.equal(count('tests'),31);assert.equal(count('pass'),31);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
           const sha=b=>createHash('sha256').update(b).digest('hex');
           writeFileSync('/tmp/document-text-review-save-native.json',JSON.stringify({schema:'document-text-review-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:31,passed:31,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-review-save.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-review-save.sql')),log_sha256:sha(log),hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test text review editing-proof locks without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-text-review-authority.test.mjs
+
+      - name: Test text review editing-proof locks in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-text-review-authority.test.mjs | tee /tmp/document-text-review-authority-native.log
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync,writeFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+          const log=readFileSync('/tmp/document-text-review-authority-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);
+          assert.equal(count('tests'),39);assert.equal(count('pass'),39);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
+          const sha=b=>createHash('sha256').update(b).digest('hex');
+          writeFileSync('/tmp/document-text-review-authority-native.json',JSON.stringify({schema:'document-text-review-authority-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:39,passed:39,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-review-authority.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-review-authority-lock.sql')),log_sha256:sha(log),hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -2620,6 +2645,37 @@ jobs:
            'provider_admission_verified',false,'access_revocation_serialized',false,'hosted_applied',false,'ready_for_cutover',false);
           SQL
 
+      - name: Verify text review editing-proof locks after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-review-authority-lock.sql -f - <<'SQL'
+          DO $text_authority_schema_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted editing-proof installer required';END IF;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)','e44e6dc8a4d7b27c89a72519f6473478',false,true),
+            ('public.lock_document_text_review_authority(uuid)','f437d1d92e80319c437aaba69590685e',true,true),
+            ('public.lock_document_text_role_change()','15b2fa145f63b5612ba71394d5b503dc',false,false)
+           ) expected(signature,body_md5,definer,authenticated) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog']) THEN RAISE EXCEPTION 'Exact editing-proof routine required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='authenticated' AND item.authenticated) THEN RAISE EXCEPTION 'Narrow editing-proof execution required';END IF;
+            END LOOP;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.user_roles'::regclass AND tgname='user_roles_document_text_authority' AND tgfoid='public.lock_document_text_role_change()'::regprocedure AND tgtype=31 AND tgenabled='O' AND NOT tgisinternal AND NOT tgdeferrable AND tgqual IS NULL AND tgattr::text='') THEN RAISE EXCEPTION 'Unconditional role writer interlock required';END IF;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN RAISE EXCEPTION 'Editing-proof installation must preserve pause';END IF;
+          END; $text_authority_schema_proof$;
+          SQL
+          psql -v ON_ERROR_STOP=1 -At <<'SQL' > /tmp/document-text-review-authority-schema.json
+          SELECT jsonb_build_object('schema','document-text-review-authority-schema-proof-v1',
+           'paused',(SELECT paused FROM public.document_operation_control WHERE singleton),
+           'save_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)'::regprocedure),
+           'authority_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.lock_document_text_review_authority(uuid)'::regprocedure),
+           'role_body_md5',(SELECT md5(prosrc) FROM pg_proc WHERE oid='public.lock_document_text_role_change()'::regprocedure),
+           'scope','reviewed atomic text-save RPC only','provider_admission_verified',false,'raw_or_cached_old_writers_verified',false,'hosted_applied',false,'ready_for_cutover',false);
+          SQL
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2660,4 +2716,7 @@ jobs:
             /tmp/document-text-review-save-native.log
             /tmp/document-text-review-save-native.json
             /tmp/document-text-review-save-schema.json
+            /tmp/document-text-review-authority-native.log
+            /tmp/document-text-review-authority-native.json
+            /tmp/document-text-review-authority-schema.json
           if-no-files-found: ignore

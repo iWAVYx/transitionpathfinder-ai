@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Atomic text-review saving is verified through31 new native cases, all1660 existing native cases and full225+31 replay. Durable attached-text generation admission, remaining reconciliation/source-access/writer fences and hosted/release gates remain open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Atomic text-review saving passes31 native cases, all1660 existing native cases and full225+31 replay. Draft32 adds scoped editing-proof/role-writer locks with17 local passes and22 required native races; native39/full225+32 acceptance and remaining admission/recovery/source/hosted gates remain open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -104,6 +104,10 @@
     {
       "path": "docs/production-readiness/proposals/document-text-review-save.sql",
       "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+      "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5"
     }
   ],
   "adapter_contract": {
@@ -922,5 +926,15 @@
     "fixture_correction_evidence": "docs/production-readiness/evidence/document-text-review-fixture-json-correction-2026-11-06.json",
     "native_step_observed_evidence": "docs/production-readiness/evidence/document-text-review-native-step-2026-11-06.json",
     "verified_evidence": "docs/production-readiness/evidence/document-text-review-save-verified-2026-11-06.json"
+  },
+  "document_text_review_authority_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-review-authority-local-2026-11-06.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "scope": "reviewed atomic text-save RPC only",
+    "provider_admission_verified": false,
+    "other_or_cached_old_writers_verified": false,
+    "hosted_applied": false
   }
 }

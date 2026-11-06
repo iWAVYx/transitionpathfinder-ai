@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Atomic text-review saving is verified through31 new native cases, all1660 existing native cases and full225+31 replay. Durable attached-text generation admission, remaining reconciliation/source-access/writer fences and hosted/release gates remain open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Atomic text-review saving passes31 native cases, all1660 existing native cases and full225+31 replay. Draft32 adds scoped editing-proof/role-writer locks with17 local passes and22 required native races; native39/full225+32 acceptance and remaining admission/recovery/source/hosted gates remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -129,6 +129,10 @@
     {
       "path": "docs/production-readiness/proposals/document-text-review-save.sql",
       "sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+      "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5"
     }
   ],
   "batch": {
@@ -226,7 +230,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 31,
+  "unapplied_admission_proposals": 32,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -731,10 +735,10 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-06",
-    "checked_against_source": "c1ec21d3 plus prepared atomic-save change",
-    "evidence": "docs/production-readiness/evidence/document-text-review-save-manifest-2026-11-06.json",
-    "declared_entries_checked": 31,
-    "corrected_entries": 1,
+    "checked_against_source": "ef2770da plus prepared editing-proof lock",
+    "evidence": "docs/production-readiness/evidence/document-text-review-authority-manifest-2026-11-06.json",
+    "declared_entries_checked": 32,
+    "corrected_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -814,7 +818,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 12,
+  "verification_appendix_drafts": 13,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -925,5 +929,15 @@
     "fixture_correction_evidence": "docs/production-readiness/evidence/document-text-review-fixture-json-correction-2026-11-06.json",
     "native_step_observed_evidence": "docs/production-readiness/evidence/document-text-review-native-step-2026-11-06.json",
     "verified_evidence": "docs/production-readiness/evidence/document-text-review-save-verified-2026-11-06.json"
+  },
+  "document_text_review_authority_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-review-authority-local-2026-11-06.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "scope": "reviewed atomic text-save RPC only",
+    "provider_admission_verified": false,
+    "other_or_cached_old_writers_verified": false,
+    "hosted_applied": false
   }
 }
