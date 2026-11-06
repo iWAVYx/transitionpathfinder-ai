@@ -12,7 +12,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898"
+      "sha256": "ffcbadd40b37466f5bcf9e6b59baf7c60d81465f1a7f89e36cef1fc3368d5946"
     },
     {
       "path": "src/lib/documents.functions.ts",
@@ -20,7 +20,7 @@
     },
     {
       "path": "src/lib/extractions.functions.ts",
-      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
+      "sha256": "8aa68746cc4ad18dc62624c71a6f5a3b8fda502aa98f4cc239ca7400aca68dc5"
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
@@ -121,6 +121,10 @@
     {
       "path": "src/lib/document-rescan-operation.server.ts",
       "sha256": "23408729c1b48ec091d2588e5474412cec9e80ee7a342bdaea73559b5546808c"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "ae196be66e74b031be4908baffa4b17c56083acadef3634893c9eb6c34958bdb"
     }
   ],
   "batch": {
@@ -723,13 +727,14 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-05",
-    "checked_against_source": "1d9fc55399094ab23429ae51df1318f8122e2da4",
-    "evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
-    "declared_entries_checked": 29,
-    "corrected_entries": 3,
+    "checked_against_source": "c08b92e0",
+    "evidence": "docs/production-readiness/evidence/document-text-review-manifest-reconciled-2026-11-05.json",
+    "declared_entries_checked": 30,
+    "corrected_entries": 2,
     "complete_release_manifest": false,
     "hosted_verified": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "added_entries": 1
   },
   "automatic_counted_worker_handoff_preparation": {
     "proposal": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",

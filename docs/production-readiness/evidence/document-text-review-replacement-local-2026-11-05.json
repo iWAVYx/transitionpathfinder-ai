@@ -29,7 +29,12 @@
     },
     "typescript": "passed",
     "diff_check": "passed",
-    "mocked_generation_only": true
+    "mocked_generation_only": true,
+    "readiness_native_contracts": {
+      "passed": 44,
+      "failed": 0,
+      "note": "After reconciling both changed source fingerprints and adding the new helper to the declared cutover manifest"
+    }
   },
   "source_manifest": [
     {
@@ -62,5 +67,6 @@
   "whole_action_complete": false,
   "hosted_actions": false,
   "provider_calls": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "manifest_reconciliation": "docs/production-readiness/evidence/document-text-review-manifest-reconciled-2026-11-05.json"
 }

@@ -15,7 +15,7 @@
     },
     {
       "path": "src/lib/extractions.functions.ts",
-      "sha256": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806"
+      "sha256": "8aa68746cc4ad18dc62624c71a6f5a3b8fda502aa98f4cc239ca7400aca68dc5"
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
@@ -31,7 +31,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898"
+      "sha256": "ffcbadd40b37466f5bcf9e6b59baf7c60d81465f1a7f89e36cef1fc3368d5946"
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
@@ -96,6 +96,10 @@
     {
       "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
       "sha256": "7b2bb5d87302ee39189ebd87ee3bf21727fe91069adc9d0c9dc32e2f78d3742b"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "ae196be66e74b031be4908baffa4b17c56083acadef3634893c9eb6c34958bdb"
     }
   ],
   "adapter_contract": {
