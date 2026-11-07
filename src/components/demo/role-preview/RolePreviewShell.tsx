@@ -17,6 +17,7 @@ import { DEMO_NEXT_ACTIONS } from "@/lib/next-actions/demo-fixtures";
 import type { NextActionRole } from "@/lib/next-actions/types";
 import type { DemoRoleId } from "@/lib/demo/role-previews";
 import { useDemoStudent } from "@/lib/demo/use-demo-student";
+import { useDemoDashboardStudent } from "@/lib/demo/use-demo-dashboard-student";
 import { WORKSPACE_STAGES, type StageId } from "@/lib/workspace/stages";
 
 function asStageId(raw: string | undefined): StageId | undefined {
@@ -185,7 +186,8 @@ export function RolePreviewShell({
       } as React.CSSProperties)
     : undefined;
 
-  const { profile } = useDemoStudent();
+  const { profile, hydrated } = useDemoStudent();
+  useDemoDashboardStudent(role.id, profile.id, hydrated);
   const { school } = useDemoSchool();
   const { district } = useDemoDistrict();
   const { plan } = useDemoPartnerPlan();

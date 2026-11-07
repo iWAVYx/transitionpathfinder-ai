@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-06",
+  "workstream_action": "2.6",
+  "failed_run": 42274164714,
+  "failed_source": "c45f4d212f4fd9822d0a46980f8295304fbe2184",
+  "native_observed": {
+    "tests": 31,
+    "passed": 30,
+    "failed": 1,
+    "skipped": 0,
+    "concurrent_cases_passed": 6,
+    "accepted": false,
+    "raw_log_sha256": "a5bb73157a8317b9d3284b7c235aa9bce77d6c63e4771349dd4fe02de888d632",
+    "labels_sha256": "2612d37fef9f03a91ebba935966ab31551c118ad57aa10ae400b91207ef07914"
+  },
+  "cause": "pg serializes a direct empty JavaScript array as PostgreSQL array literal {}, which is a JSON object when bound to jsonb. PGlite receives the intended [] array. The fixture therefore tested different input types.",
+  "driver_reproduction": {
+    "driver": "pg@8.16.3",
+    "source_sha256": "a109ef3b3a7572e8523b937ae0c100be72d4f36d1d3d4c7032e1ef0abaf92e38",
+    "direct_empty_array_parameter": "{}",
+    "explicit_json_empty_array_parameter": "[]",
+    "ordinary_object_unchanged": true,
+    "scope": "Actual pg utils evaluated with unused defaults stubbed; no connections or hosted access"
+  },
+  "correction": "Explicit JSON.stringify for non-null raw_extract and sections parameters in both database runners; preserve nulls, all31 tests, all rejection assertions and six required native races.",
+  "previous_test_sha256": "c5e18e6a6e407058ee864d094362fc13fbd7e64275d2f03e2ef4055dda7f3b0b",
+  "corrected_test_sha256": "edd4597e56f75c9fa102e9a303fe6f99613e7dd02644258e4acb0b1be4d5d8ed",
+  "unchanged_proposal_sha256": "1e5721be2ed060549acb1dcdea983a76c20d35929645f9f2e7b6e32f300a5837",
+  "runtime_changed": false,
+  "local_corrected_result": {
+    "tests": 31,
+    "passed": 25,
+    "failed": 0,
+    "native_only_skipped": 6
+  },
+  "native_full_schema_acceptance_pending": true,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

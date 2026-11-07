@@ -14,6 +14,8 @@ on:
       - "src/routes/api/public/env-health.ts"
       - "supabase/migrations/**"
       - "tests/production-readiness-contract.test.mjs"
+      - "tests/document-storage-transport.test.mjs"
+      - "bun.lock"
       - "tests/security-finding-alignment.test.mjs"
       - "tests/unit/env-identity-production.test.ts"
       - "tests/unit/testing-scripts-initialization.test.ts"
@@ -32,10 +34,15 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
+      - name: Verify installed Storage SDK uncertainty contracts without network
+        run: node --test tests/document-storage-transport.test.mjs
       - name: Run release-control contract
         run: bun run test:production-readiness
       - name: Run security-finding alignment contract

@@ -148,3 +148,26 @@ describe("resolveDemoRoleDestination — shared feature exception", () => {
     expect(dest.to).not.toMatch(/\/workspace\//);
   });
 });
+
+
+describe("explicit demo planning context", () => {
+  it.each(["student", "family", "educator"] as const)("pins %s report and workspace perspectives in the destination URL", targetRole => {
+    for (const currentPath of ["/demo/report", "/demo/workspace/roadmap"]) {
+      const dest = resolveDemoRoleDestination({ currentPath, targetRole, studentId: "sam" });
+      expect(dest.to).toBe(currentPath);
+      expect(dest.search).toEqual({ role: targetRole, student: "sam" });
+    }
+  });
+  it.each(["student", "family", "educator"] as const)("retains the selected sample when switching to %s's shared tool", targetRole => {
+    const dest = resolveDemoRoleDestination({ currentPath: "/demo/feature/family/partner-network", targetRole, studentId: "riley" });
+    expect(dest.to).toBe(`/demo/feature/${targetRole}/partner-network`);
+    expect(dest.search).toEqual({ student: "riley" });
+  });
+  it.each(["partner", "school-admin", "district-admin"] as const)("keeps %s outside planning report and workspace routes", targetRole => {
+    for (const currentPath of ["/demo/report", "/demo/workspace/roadmap"]) {
+      const dest = resolveDemoRoleDestination({ currentPath, targetRole, studentId: "sam" });
+      expect(dest.to).toBe(`/demo/${targetRole}`);
+      expect(dest.search).not.toHaveProperty("role");
+    }
+  });
+});

@@ -1,0 +1,193 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.3",
+  "status": "DB-only no-save resolver implemented and locally verified; native concurrency and full-schema acceptance pending",
+  "proposal": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+  "proposal_sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
+  "test_file": "tests/database/document-path-exclusivity.test.mjs",
+  "test_sha256": "5fcc3d7e5e949f9bdfa65202f4d9bea733cad80815d0d73d49e99e0cd938d499",
+  "tests": {
+    "tf-apply-no-save-guarded.log": {
+      "tests": 30,
+      "pass": 28,
+      "fail": 0,
+      "skipped": 2,
+      "sha256": "ba12bb4e3aced656efb138ec492918c0bc20bca6b21afa3670c6359ea0765baa"
+    },
+    "tf-apply-no-save-integrated.log": {
+      "tests": 180,
+      "pass": 170,
+      "fail": 0,
+      "skipped": 10,
+      "sha256": "dd6d14ad26a4f1c7b7c32d1e98ffb2dc67fc708af420f4c51d2518a9b26529be"
+    },
+    "tf-no-save-supporting-tests.log": {
+      "tests": 46,
+      "pass": 46,
+      "fail": 0,
+      "skipped": 0,
+      "sha256": "6f8cae1108149b7320c95524f0b7c1a89adfcf108a7f41aa500200bc6990b463"
+    },
+    "tf-no-save-readiness-contract.log": {
+      "tests": 35,
+      "pass": 35,
+      "fail": 0,
+      "skipped": 0,
+      "sha256": "22a0e7a4c84b5f6689f6eea87bcbdcfa7e28f37dbd0c406dd5e35c4490c1dacf"
+    }
+  },
+  "routine_metadata": [
+    {
+      "name": "is_document_apply_no_save_reconciled",
+      "signature": "public.is_document_apply_no_save_reconciled(uuid)",
+      "body_md5": "239917de14a68e098877245e85e6d215",
+      "definer": true,
+      "utc": false,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "count_document_apply_no_save_reconciliations",
+      "signature": "public.count_document_apply_no_save_reconciliations()",
+      "body_md5": "9926d52402da3785ff462967c598fcbe",
+      "definer": true,
+      "utc": false,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "guard_reconciled_document_apply_lease",
+      "signature": "public.guard_reconciled_document_apply_lease()",
+      "body_md5": "4b2809595e26810b86c126485da3f741",
+      "definer": true,
+      "utc": false,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "assert_document_apply_no_save",
+      "signature": "public.assert_document_apply_no_save(uuid,uuid,text,boolean)",
+      "body_md5": "cb4c8db5d2997490b63e69e1927331ae",
+      "definer": false,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "guard_document_apply_no_save_reconciliation",
+      "signature": "public.guard_document_apply_no_save_reconciliation()",
+      "body_md5": "828aa40c5a75631fa140374b054de851",
+      "definer": false,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "check_document_apply_no_save_commit",
+      "signature": "public.check_document_apply_no_save_commit()",
+      "body_md5": "aa790e0ede26281f279f08979bf59448",
+      "definer": true,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "reconcile_internal_document_apply_no_save",
+      "signature": "public.reconcile_internal_document_apply_no_save(uuid,uuid,text)",
+      "body_md5": "6a8e1cd3465ea94f1c3957a459356695",
+      "definer": false,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "begin_bound_document_apply",
+      "signature": "public.begin_bound_document_apply(uuid,uuid,uuid,uuid,uuid,timestamptz,jsonb,boolean)",
+      "body_md5": "3e91e42a0bbed4937e1f971240d18910",
+      "definer": true,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": "service_role"
+    },
+    {
+      "name": "guard_document_capacity_reservation",
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "f16664ce92d6398ccfea11b43fb5fc74",
+      "definer": false,
+      "utc": false,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "inspect_internal_document_operation_review",
+      "signature": "public.inspect_internal_document_operation_review(uuid)",
+      "body_md5": "370dccff660186cd520e5a17ad86e6ac",
+      "definer": false,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": ""
+    },
+    {
+      "name": "record_document_operation_review",
+      "signature": "public.record_document_operation_review(uuid,uuid,uuid,text,text,text)",
+      "body_md5": "ef113c17bd354bf251bb638c42f337ad",
+      "definer": true,
+      "utc": true,
+      "admission_owned": false,
+      "allowed_caller": "service_role"
+    },
+    {
+      "name": "set_document_operation_pause",
+      "signature": "public.set_document_operation_pause(uuid,bigint,boolean,text)",
+      "body_md5": "cf8584352cf80b6b51ee2190b7c73f3c",
+      "definer": true,
+      "utc": false,
+      "admission_owned": true,
+      "allowed_caller": "service_role"
+    },
+    {
+      "name": "inspect_document_operation_drain",
+      "signature": "public.inspect_document_operation_drain()",
+      "body_md5": "7b00cc3117fe90d6acfe882eb0903c33",
+      "definer": true,
+      "utc": false,
+      "admission_owned": true,
+      "allowed_caller": "service_role"
+    }
+  ],
+  "workflow_shell_blocks": 60,
+  "required_native_cases": 1590,
+  "original_native_cases_retained": 1560,
+  "added_cases": 30,
+  "new_native_concurrency_cases_pending": 2,
+  "native_full_schema_verified": false,
+  "checks": [
+    "Actual held Apply binding and one reserved unit; no completion receipts, success settlements, evidence or applied audit",
+    "Fresh immutable review and full unfiltered trusted visibility; provider-unknown refusal",
+    "Paused shared completion lock and current database-owner-only resolver; no application/service execution grant",
+    "Revision-only invalidation compared against actual before/after extraction row; content remains unchanged",
+    "Actual revision write and transaction provenance, deferred commit validation, suppressed/altered writes roll back",
+    "Delayed old saves stay fenced before and after fresh admission; newly reviewed revision can save normally",
+    "Immutable original held lease and separate no-save credit; no fake successful completion",
+    "Exact capacity accounting and account/student boundaries, explicit access removal still denied",
+    "Distinct control owner retains function ownership and private helper bridge without raw ledger access",
+    "Existing admission/counter definitions retain exact bodies except reconciliation exclusions/debit"
+  ],
+  "provider_operations_resolved": false,
+  "lease_completed_or_rewritten": false,
+  "processing_unpaused": false,
+  "operator_uuid_is_independent_human_approval": false,
+  "service_resolver_exposed": false,
+  "customer_interface_added": false,
+  "remaining": [
+    "Native two-session resolver commit/rollback races and full 225+27 schema replay",
+    "Provider-backed or ambiguous/saved outcomes require separate evidence and resolution design",
+    "Trusted operator route authorization and remaining reconciliation kinds",
+    "Workstream2.4-2.7, canonical packaging and separately authorized hosted acceptance"
+  ],
+  "whole_action_complete": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

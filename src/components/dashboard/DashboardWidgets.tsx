@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -345,7 +346,7 @@ export function DashboardWidgets() {
                         {r.student_first_name}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {r.grade_band ? `${r.grade_band} · ` : ""}
+                        {r.grade_band ? `${formatGradeBand(r.grade_band)} · ` : ""}
                         {formatWhen(r.created_at)}
                       </p>
                     </div>

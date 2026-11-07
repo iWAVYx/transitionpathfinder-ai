@@ -1,0 +1,62 @@
+{
+  "schema": "document-upload-retained-limits-owner-correction-v1",
+  "date": "2026-10-30",
+  "source_base": "e77d7775163b5555c0af3863f3e533116b7b82e5",
+  "observed_native_runs": [
+    41107863133,
+    41107871873
+  ],
+  "observed_native_each": {
+    "tests": 865,
+    "passed": 865,
+    "failed": 0,
+    "skipped": 0
+  },
+  "correction": [
+    "Fifth replay stage inherits the same migration identity as the preceding upload interval stage.",
+    "Twelve upload routines and binding table retain the migration executor owner.",
+    "Begin/finish retain the existing control/lease owner, which must remain coherent across those objects.",
+    "Fixed body hashes, paths, exact grants, private table/column privileges, pause and empty-state checks are retained. No ownership transfer/repair or privilege expansion."
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
+      "sha256": "d051f8bb35649d85d6512fb8f2352730583e3d9cdf89c6c9552b89b99501251a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-upload-retained-limits-review.json",
+      "sha256": "cadf2775cd701f750d5c9822d55054cdab63a66da4d5f499388f1a8ea2911dde"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "7debf4abdc0c2b419a6299925f81c18c933ddc8e0784a182c435dce94032e533"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "330946af24e3bc0481d3c8a4291e01f18d2273d0e70acfe28019ab7c0c020dae"
+    }
+  ],
+  "validation": {
+    "local_sql_cases": 867,
+    "local_pass": 761,
+    "native_only_skipped": 106,
+    "focused_owner_installation_cases": 9,
+    "safety_contracts": 92,
+    "yaml": "parsed with existing js-yaml",
+    "corrected_native_and_full_schema": "Verified: both867/867 native suites and both complete225+five-proposal replays passed; all nine applicable automatic checks passed.",
+    "application_and_worker": "Unchanged; no redundant local unit/types/build/provider runs."
+  },
+  "quota_runtime_body_changed": false,
+  "reservation_body_md5": "dc8972ceac29738817b32b74ad411e1b",
+  "application_runtime": {
+    "fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "files": 1205,
+    "changed": false
+  },
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "observed_full_schema_failure": "Fifth-proposal prerequisite assumed one routine owner and replay step used supabase_admin although preceding upload stages use postgres. Admission begin/finish and control/lease tables are separately owned by supabase_admin; twelve upload routines/bindings by postgres. Existing body/path/grant checks were correct; owner context was not.",
+  "verified_source": "f40a9ba47a1c598d7af605aae2660d5b24944d92",
+  "verification_evidence": "docs/production-readiness/evidence/document-upload-retained-limits-verified-2026-10-30.json"
+}

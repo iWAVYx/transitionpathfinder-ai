@@ -1,0 +1,294 @@
+{
+  "date": "2026-10-24",
+  "status": "migration-and-both-stable-sites-verified-bounded-test-human-review-pending",
+  "executionAuthorized": true,
+  "applicationCandidateSha": "93f03b414915681949be8e2946a3bfb1a894e233",
+  "runtimeFingerprint": "52d3487442f90d006831bfb2ae2dd7e7508481e95109721a5d483af1bb4fdfef",
+  "runtimeFiles": 1185,
+  "migration": {
+    "file": "20261024020000_require_linked_student_report_save.sql",
+    "version": "20261024020000",
+    "sha256": "8b5b402dd8029f250f94e717ec6e3b816813724cb89e003e965f8189917d14da",
+    "canonicalStatementMd5": "51fb7a98b0e8a761729c00156ff2022f",
+    "newFunctionBodyMd5": "3ff1d9170e7ea31e368dd738a696ebd8",
+    "oldRequiredBodyMd5": "1da92cf69d03dc9ece6597b503a9383a",
+    "proposalTransactionUnchanged": true,
+    "oldAppliedMigrationsEdited": false
+  },
+  "ledger": {
+    "generator": "tests/database/report-linked-student-rollout-sql.mjs",
+    "preparedBatch": "/private/tmp/tf-linked-save-canonical/staging-migration-and-ledger.sql",
+    "preparedBatchSha256": "af518278b244c161880efed33b0e183c9dfcf6188ce37ef7150e43d2e384ca3d",
+    "atomic": "One transaction executes only the canonical wrapper-free body and inserts the full canonical file as ledger DATA. Prior ledger exact-text prerequisite and duplicate guards run before changes. No existing entry updated or deleted.",
+    "tested": [
+      "Exact new ledger/source parity and preservation of prior metadata",
+      "Ledger insertion failure rolls back function installation and old grant retirement",
+      "Unexpected prerequisite or repeated rollout aborts without changing installed boundary"
+    ]
+  },
+  "preflight": {
+    "file": "proposals/report-linked-student-preflight.sql",
+    "method": "BEGIN READ ONLY; catalog/grant/policy/selected-ledger hashes only; no application rows or secrets",
+    "sourceValidatedLocally": true,
+    "hostedPerformed": false,
+    "targetProof": "Expected-project label in SQL is not proof. Independently confirm project qgrertkqbwanerqqemph in signed-in control plane and stable site health before executing anything."
+  },
+  "localValidation": {
+    "sqlPass": 25,
+    "sqlFail": 0,
+    "sqlSkip": 4,
+    "skipReason": "Real multi-session cases await final native run; prior proposal native23/23 remains historical, not final canonical acceptance.",
+    "sourceSecurityReadinessContractsPass": 45,
+    "fullUnits": "Unchanged runtime already passed 4,484 units and TypeScript on 93f03b41. Automatic exact-canonical review pending.",
+    "logs": [
+      "/private/tmp/tf-linked-save-canonical-pglite.log",
+      "/private/tmp/tf-linked-save-canonical-contracts.log"
+    ]
+  },
+  "inventory": {
+    "canonicalCount": 208,
+    "pendingAgainstSavedSeptember17Baseline": 14,
+    "productionReadAtPreserved": "2026-09-17T23:54:44.631906Z",
+    "comparisonFile": "/private/tmp/tf-linked-save-canonical/saved-production-comparison.json",
+    "comparisonStatus": "blocked: pending-production-migration",
+    "productionQueried": false,
+    "stagingMigrationApplied": false
+  },
+  "coordinatedReleasePlan": [
+    "Final canonical candidate passed native29-case acceptance and all208 migrations plus effective grants; all nine automatic checks green on f2cce928. Final harness-only follow-up must complete exact-source review before any hosted authorization request.",
+    "Prepared existing two-case unlinked no-AI report acceptance with retired-RPC denial and explicit context. Request fresh authorization for at most two intake/report pairs, six versions and two PDFs using seven existing accounts, no new students/accounts/relationships/shares. Existing one-case linked-access suite is compatible but excluded from the requested run.",
+    "Obtain specific authorization for this one migration+exact ledger record, Cloudflare staging, existing isolated Lovable sync/publication, and clearly bounded acceptance. GitHub protected jobs require human review.",
+    "Immediately before mutation confirm isolated backend qgrertkqbwanerqqemph (reject lrqcntqyekucamifpffs/unknown), both stable identities, table owner/RLS, current old-body/grants/trigger and prerequisite ledger. Compare catalog output and stop on drift. Review Lovable remote builder edits before any sync.",
+    "Agree a short staging write pause across both sites and stop if other report writers/generation are active. Under explicit authorization execute only the generated one-transaction migration+ledger batch as the verified table owner. No bulk runner or backfill.",
+    "After commit verify new RPC body/grants and exact new ledger; old RPC denies client/service execution. Deploy exact candidate to Cloudflare and sync only reviewed runtime changes into existing isolated Lovable, preserving builder edits, environments, generated types, dependencies and settings. Update only the existing staging publication.",
+    "Verify both stable sites serve the reviewed fingerprint/count, staging backend and sandbox isolation before any acceptance writes. Use fresh clients to avoid old cached server functions. Execute only newly authorized bounded test; independently verify exact cleanup before acceptance signoff."
+  ],
+  "abortRecovery": {
+    "beforeCommit": "Any source/catalog/ledger/DDL/verification failure aborts the transaction, preserving old caller/grants. Do not proceed to publication.",
+    "afterCommit": "Old clients intentionally cannot write through the context-free RPC. New source also cannot work against the old database. Never silently regrant the bypass or deploy either side alone. Stop and keep writes closed if cutover cannot be verified; obtain reviewed authorization for forward repair. Prior runtime rollback alone is not a compatible report-write recovery.",
+    "production": "No merge, production migration/deploy/publication or settings change authorized."
+  },
+  "remainingLimits": [
+    "Other mutable inputs such as intake association and permitted direct client writes remain separate review. This closes linked-student comparisons only.",
+    "Bearer-link issuer access/removal/relink/lifetime policy remains open. No chat-history retention choice changed.",
+    "Hosted AI regeneration and broader role/provider/privacy/security/operations gates remain unperformed by this no-AI preparation."
+  ],
+  "hostedActions": {
+    "migrations": 1,
+    "deployments": 1,
+    "publications": 1,
+    "testRecords": 0,
+    "aiCalls": 0,
+    "accountOrAccessChanges": 0,
+    "productionTouched": false
+  },
+  "roadmap": "Full TF-01\u2013TF-26 retained; report polish and Parent Pilot/Pathway Snapshot deferred.",
+  "canonicalCandidateSha": "f2cce9289cdde594eb29055d644c5209cb842c31",
+  "nativeValidation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915306",
+    "casesPassed": 29,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0,
+    "canonicalMigrationsReplayed": 208,
+    "privilegedRoutineInventoryCount": 93,
+    "oldRpcClientExecution": "denied",
+    "activeRpc": "security invoker; authenticated-only; required explicit nullable student; no argument defaults",
+    "log": "/private/tmp/tf-linked-save-canonical/native-replay-40142915306.log",
+    "logSha256": "9605f320019b3f6412409c23b6bfcb878f0ab8010f8ef7633e6f9165b3a746d4"
+  },
+  "automaticChecks": [
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915290/job/121018679138",
+      "name": "e2e",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915247/job/121018255430",
+      "name": "role-leak-signedin",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915290/job/121018210655",
+      "name": "unit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915301/job/121018210794",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915401/job/121018210817",
+      "name": "CT Seed v2 Static Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915306/job/121018210887",
+      "name": "replay",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915258/job/121018210592",
+      "name": "Credential-free Production Readiness Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915261/job/121018210650",
+      "name": "report-a11y",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915247/job/121018210570",
+      "name": "role-guard-matrix",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915252/job/121018211883",
+      "name": "cross-district-rls",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915357/job/121018211662",
+      "name": "rls-regression",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915282/job/121018212222",
+      "name": "permission-regression",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142915401/job/121018211937",
+      "name": "CT Seed v2 Live Staging Audit",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142912184/job/121018201150",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40142912214/job/121018200826",
+      "name": "replay",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+      "name": "Supabase Preview",
+      "state": "SKIPPED"
+    }
+  ],
+  "acceptanceHarness": {
+    "scope": "report-history-no-ai",
+    "status": "prepared-not-executed",
+    "sameUnlinkedFixtures": true,
+    "existingAccounts": 7,
+    "maxIntakes": 2,
+    "maxReports": 2,
+    "maxHistoryVersions": 6,
+    "pdfExports": 2,
+    "newAccounts": 0,
+    "newStudents": 0,
+    "newRelationships": 0,
+    "newShares": 0,
+    "aiCalls": 0,
+    "retries": 0,
+    "checks": [
+      "Both stable sites match source/count and sandbox isolation before fixtures",
+      "Retired context-free RPC denied; explicit null-student new RPC saves successfully",
+      "Truthful direct-edit/history actors; stale browser Restore denial without extra version; fresh reload/Restore succeeds",
+      "All unrelated roles including Owner/admin denied; two fictional PDFs exported",
+      "Exact caller cleanup plus independent privileged exact-ID absence proof"
+    ],
+    "scopeLimits": "Unlinked hosted fixtures validate cutover and retained access/history/UI/export behavior, not a live relink race or provider generation. Actual competing-session relink is certified by the native SQL cases. Existing linked-access fixture scope is kept compatible but is not authorized or selected for this bounded run.",
+    "discovery": "Exactly two report cases and one separate retained linked-access case discovered only; no fixtures executed. First discovery used a nonmatching text filter and found zero; corrected by listing exact files, not by executing anything.",
+    "localHarnessTests": "43 cases in five files passed; new AST contract requires explicit context in all seven known product/hosted-test calls.",
+    "cleanup": "Existing exact report/intake IDs, owner/model/marker guard and version cascade; independent read-only table-owner counts required.",
+    "authorizationConsumedRuns": 0
+  },
+  "finalReviewedCandidateSha": "99cb4cbd0977f551f4482568268c00390bac7a85",
+  "finalAutomaticChecks": [
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214952/job/121019711644",
+      "name": "e2e",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214890/job/121019139264",
+      "name": "role-leak-signedin",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214877/job/121019118447",
+      "name": "rls-regression",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214952/job/121019091068",
+      "name": "unit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214931/job/121019090738",
+      "name": "CT Seed v2 Static Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214865/job/121019090650",
+      "name": "replay",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214859/job/121019090774",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214876/job/121019090626",
+      "name": "Credential-free Production Readiness Audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214851/job/121019090489",
+      "name": "report-a11y",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214890/job/121019090577",
+      "name": "role-guard-matrix",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143211169/job/121019080612",
+      "name": "Clean Production Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214879/job/121019092054",
+      "name": "cross-district-rls",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214931/job/121019091556",
+      "name": "CT Seed v2 Live Staging Audit",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40143214852/job/121019091690",
+      "name": "permission-regression",
+      "state": "SKIPPED"
+    },
+    {
+      "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+      "name": "Supabase Preview",
+      "state": "SKIPPED"
+    }
+  ],
+  "finalReviewedUnits": {
+    "files": 315,
+    "passed": 4485,
+    "failed": 0
+  },
+  "stagingRolloutEvidence": "report-linked-student-staging-rollout-2026-10-24.json"
+}

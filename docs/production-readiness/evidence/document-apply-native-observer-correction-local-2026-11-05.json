@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.6",
+  "failed_run": 41986277572,
+  "failed_job": 127107633803,
+  "early_native_result": {
+    "tests": 155,
+    "passed": 153,
+    "failed": 2,
+    "skipped": 0
+  },
+  "failures": [
+    "Apply native last-slot COMMIT observer did not see expected lock",
+    "Apply native last-slot ROLLBACK observer did not see expected lock"
+  ],
+  "source_observation": "The main observer still had service_role, unlike existing native concurrency tests which RESET ROLE before reading pg_stat_activity.",
+  "prepared_correction": "Restore the owner observer and assert current_user=session_user before checking lock state; competing writers remain service_role. Same races/assertions, no retry or application change.",
+  "log_sha256": "ff88112f1b66b7cc32e34a2142857471846677ac7d8febcbe267267159740728",
+  "corrected_native_result": "pending",
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

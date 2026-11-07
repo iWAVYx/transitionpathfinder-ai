@@ -47,26 +47,26 @@ export const DEMO_FEATURE_MAP = {
     status: "live",
   },
 
-  /* ---------- Intake ---------- */
+  /* ---------- Pathway Builder ---------- */
   "intake.categories": {
-    element: "Intake category list",
-    product: "Student onboarding / intake profile",
-    livesAt: "/pathway (signed-in)",
-    roles: ["student", "parent", "educator"],
-    dataSource: "intake_responses + student_profiles",
-    nextAction: "Sign in and complete real intake fields for the student",
+    element: "Pathway Builder Questions",
+    product: "Pathway Builder",
+    livesAt: "/pathway",
+    roles: ["parent", "educator"],
+    dataSource: "Pathway Builder answers",
+    nextAction: "Sign in as a family member or educator to build a student's pathway",
     status: "live",
   },
   "intake.roleLens": {
-    element: "Role lens on intake",
-    product: "Role-targeted intake prompts",
-    livesAt: "/pathway (signed-in, role-aware)",
-    roles: ["student", "parent", "educator"],
-    dataSource: "Static role copy",
-    nextAction: "Pick a role to preview how prompts adapt",
+    element: "Pathway Builder Perspective",
+    product: "Family and educator planning questions",
+    livesAt: "/pathway",
+    roles: ["parent", "educator"],
+    dataSource: "Selected family or educator perspective",
+    nextAction: "Choose a family or educator perspective to preview the questions",
     status: "partial",
     notes:
-      "The live intake adjusts voice emphasis by submitter role and uses grade band in the report.",
+      "Family and educator perspectives are available in the builder. Students use their separate Student Voice tool; a student report view is not a builder submitter role.",
   },
 
   /* ---------- Student Voice ---------- */

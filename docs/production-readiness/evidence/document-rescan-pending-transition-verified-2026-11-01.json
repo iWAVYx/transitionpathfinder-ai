@@ -1,0 +1,35 @@
+{
+  "schema": "document-rescan-pending-transition-verified-v1",
+  "date": "2026-11-01",
+  "verified_source": "ad94ac7202b46112b896cc1a63c5fce12c9de004",
+  "proposal_sha256": "4b0e72d6efab8470cbd2952eb03292320827ce8418cc4235d17f776fe3c4d0d9",
+  "runs": [
+    {
+      "run": 41262897640,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41262897640",
+      "native_tests": 1158,
+      "passed": 1158,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 11,
+      "artifact": "docs/production-readiness/evidence/document-rescan-pending-transition-proof-41262897640-2026-11-01.json",
+      "artifact_sha256": "86998533efa2f77b57aa1d9f9dfe6ee7190d97156e218a2d7d0e9d009efe231f",
+      "log_sha256": "84d8f18d345480fe9a665d429497d3b894e04fd839e70a9cfc12afef8dc8f60d"
+    },
+    {
+      "run": 41262893002,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41262893002",
+      "native_tests": 1158,
+      "passed": 1158,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 11,
+      "artifact": "docs/production-readiness/evidence/document-rescan-pending-transition-proof-41262893002-2026-11-01.json",
+      "artifact_sha256": "86998533efa2f77b57aa1d9f9dfe6ee7190d97156e218a2d7d0e9d009efe231f",
+      "log_sha256": "36dbd7c7417b046ec10d34f7c307e36e6c77492c86c0541e8fe20a02e27ca226"
+    }
+  ],
+  "ready_for_cutover": false,
+  "hosted_actions": false,
+  "scope": "Exact private pending-transition native and full-schema verification only. No endpoint wiring, scanner dispatch, result/queue/completion/settlement or physical/provider proof."
+}

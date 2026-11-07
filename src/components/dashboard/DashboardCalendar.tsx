@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays,
@@ -43,10 +43,12 @@ import {
 } from "@/lib/calendar.functions";
 import {
   buildGoogleCalendarUrl,
+  calendarRecordForExport as toIcsEvent,
+  calendarRecordForDisplay,
   downloadDashboardIcs,
-  type CalendarEvent as IcsEvent,
 } from "@/lib/calendar-events";
 
+import { browserCalendarTimeZone } from "@/lib/calendar-day";
 import { TransitionCalendar } from "@/components/calendar/TransitionCalendar";
 
 const TIMEZONES = [
@@ -146,27 +148,13 @@ function kindStyles(kind: TeamCalendarEvent["kind"]) {
   }
 }
 
-function toIcsEvent(ev: TeamCalendarEvent): IcsEvent {
-  return {
-    id: ev.id,
-    date: parseDate(ev.event_date),
-    title: ev.title,
-    detail: ev.detail,
-    kind: ev.kind === "meeting"
-      ? "meeting"
-      : ev.kind === "prep"
-        ? "prep"
-        : ev.kind === "action"
-          ? "action"
-          : "goal",
-  };
-}
-
 type OrgOption = { id: string; name: string };
 
 type Props = {
   /** Scope the calendar to a single student. Omit for "all my collaborations." */
   studentId?: string | null;
+  /** Narrow the permitted view to one active organization membership. */
+  organizationId?: string | null;
   /** Compact mode shrinks day cells. */
   compact?: boolean;
   /** Override displayed title. */
@@ -195,8 +183,13 @@ const ALL_VISIBILITIES: CalendarVisibility[] = [
   "public_event",
 ];
 
-export function DashboardCalendar({
+export function DashboardCalendar(props: Props) {
+  return <DashboardCalendarSession key={JSON.stringify([props.studentId ?? null, props.organizationId ?? null])} {...props} />;
+}
+
+function DashboardCalendarSession({
   studentId = null,
+  organizationId = null,
   compact = false,
   title = "Calendar",
   subtitle = "Meetings, action items, prep deadlines, and team events.",
@@ -205,6 +198,12 @@ export function DashboardCalendar({
   defaultVisibility,
   allowedVisibilities,
 }: Props) {
+  const alive = useRef(false);
+  const loadRequest = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; loadRequest.current += 1; };
+  }, []);
   const fetchEvents = useServerFn(listCalendarEvents);
   const createEvent = useServerFn(createCalendarEvent);
   const removeEvent = useServerFn(deleteCalendarEvent);
@@ -213,6 +212,9 @@ export function DashboardCalendar({
 
   const [events, setEvents] = useState<TeamCalendarEvent[]>([]);
   const [orgs, setOrgs] = useState<OrgOption[]>(organizationOptions ?? []);
+  const [organizationError, setOrganizationError] = useState(false);
+  const [organizationsLoading, setOrganizationsLoading] = useState(organizationOptions === undefined);
+  const [organizationAttempt, setOrganizationAttempt] = useState(0);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<Date>(() => startOfMonth(new Date()));
   const [tz, setTz] = useState<string>(getBrowserTz);
@@ -220,20 +222,25 @@ export function DashboardCalendar({
   const [filterKind, setFilterKind] = useState<string>("all");
 
   const reload = useCallback(async () => {
+    if (!alive.current) return;
+    const request = ++loadRequest.current;
+    const current = () => alive.current && request === loadRequest.current;
     setLoading(true);
     try {
       const res = await fetchEvents({
-        data: studentId ? { student_id: studentId } : {},
+        data: { timezone: browserCalendarTimeZone(), ...(studentId ? { student_id: studentId } : {}), ...(organizationId ? { organization_id: organizationId } : {}) },
       });
-      setEvents(res.events);
-      const upcoming = res.events.find((e) => !isPastIso(e.event_date));
+      if (!current()) return;
+      const rows = res.events.map(calendarRecordForDisplay);
+      setEvents(rows);
+      const upcoming = rows.find((e) => !isPastIso(e.event_date));
       if (upcoming) setCursor(startOfMonth(parseDate(upcoming.event_date)));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load calendar.");
+      if (current()) toast.error(err instanceof Error ? err.message : "Could not load calendar.");
     } finally {
-      setLoading(false);
+      if (current()) setLoading(false);
     }
-  }, [fetchEvents, studentId]);
+  }, [fetchEvents, studentId, organizationId]);
 
   useEffect(() => {
     reload();
@@ -242,18 +249,23 @@ export function DashboardCalendar({
   useEffect(() => {
     if (organizationOptions !== undefined) {
       setOrgs(organizationOptions);
+      setOrganizationError(false);
+      setOrganizationsLoading(false);
       return;
     }
     let cancelled = false;
+    setOrganizationError(false);
+    setOrganizationsLoading(true);
     fetchOrgs()
       .then((r) => {
         if (!cancelled) setOrgs(r.organizations);
       })
-      .catch(() => {});
+      .catch(() => { if (!cancelled) { setOrgs([]); setOrganizationError(true); } })
+      .finally(() => { if (!cancelled) setOrganizationsLoading(false); });
     return () => {
       cancelled = true;
     };
-  }, [fetchOrgs, organizationOptions]);
+  }, [fetchOrgs, organizationOptions, organizationAttempt]);
 
   const filteredEvents = useMemo(() => {
     if (filterKind === "all") return events;
@@ -298,10 +310,11 @@ export function DashboardCalendar({
     const id = ev.id.slice("cal-".length);
     try {
       await removeEvent({ data: { id } });
+      if (!alive.current) return;
       setEvents((prev) => prev.filter((e) => e.id !== ev.id));
       toast.success("Event removed.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not delete.");
+      if (alive.current) toast.error(err instanceof Error ? err.message : "Could not delete.");
     }
   }
 
@@ -311,12 +324,13 @@ export function DashboardCalendar({
     const next = ev.event_status === "completed" ? "scheduled" : "completed";
     try {
       await updateEvent({ data: { id, status: next } });
+      if (!alive.current) return;
       setEvents((prev) =>
         prev.map((e) => (e.id === ev.id ? { ...e, event_status: next } : e)),
       );
       toast.success(next === "completed" ? "Marked complete." : "Reopened.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update event.");
+      if (alive.current) toast.error(err instanceof Error ? err.message : "Could not update event.");
     }
   }
 
@@ -360,6 +374,11 @@ export function DashboardCalendar({
               ))}
             </SelectContent>
           </Select>
+          {organizationsLoading && <span role="status" className="text-xs text-foreground/75">Loading organization choices…</span>}
+          {organizationError && <div role="alert" className="text-xs text-foreground/75">
+            Organization choices could not be loaded. Try again before adding an organization event.
+            <button type="button" className="ml-2 font-medium text-primary underline" onClick={() => setOrganizationAttempt(value => value + 1)}>Retry Organization Choices</button>
+          </div>}
           <AddEventPopover
             open={addOpen}
             onOpenChange={setAddOpen}
@@ -369,7 +388,13 @@ export function DashboardCalendar({
             visibilityChoices={visibilityChoices}
             defaultVisibility={defaultVisibility ?? "private"}
             onCreate={async (input) => {
-              await createEvent({ data: input });
+              try {
+                await createEvent({ data: { ...input, related_organization_id: organizationId ?? input.related_organization_id } });
+              } catch (error) {
+                if (!alive.current) return;
+                throw error;
+              }
+              if (!alive.current) return;
               setAddOpen(false);
               toast.success(
                 input.visibility === "private"
@@ -489,7 +514,7 @@ export function DashboardCalendar({
             events={filteredEvents.map((event) => ({
               id: event.id,
               title: event.title,
-              start: `${event.event_date}T${event.all_day ? "00:00:00" : event.start_time || "00:00:00"}`,
+              start: event.start_at ?? `${event.event_date}T${event.all_day ? "00:00:00" : event.start_time || "00:00:00"}`,
               location: event.location ?? undefined,
               allDay: event.all_day,
               type: event.kind === "action" ? "action-item" : event.kind,

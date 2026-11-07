@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -15,50 +15,93 @@ import {
 export function ReportVersionsPanel({
   reportId,
   currentContent,
+  expectedRevision,
+  canRestore = false,
   onRestored,
 }: {
   reportId: string;
   currentContent: PathwayReport;
+  expectedRevision?: string | null;
+  canRestore?: boolean;
   onRestored?: () => void;
 }) {
+  return <ReportVersionsReader key={reportId} reportId={reportId} currentContent={currentContent} expectedRevision={expectedRevision} canRestore={canRestore} onRestored={onRestored} />;
+}
+
+function ReportVersionsReader({ reportId, currentContent, expectedRevision, canRestore, onRestored }: {
+  reportId: string;
+  currentContent: PathwayReport;
+  expectedRevision?: string | null;
+  canRestore: boolean;
+  onRestored?: () => void;
+}) {
+  const revision = useRef(expectedRevision);
+  revision.current = expectedRevision;
+  const active = useRef(false);
+  const restoring = useRef(false);
+  const restoreAllowed = useRef(canRestore);
+  restoreAllowed.current = canRestore;
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; };
+  }, []);
   const list = useServerFn(listReportVersions);
   const fetchVersion = useServerFn(getReportVersion);
   const update = useServerFn(updateReportContent);
   const [versions, setVersions] = useState<ReportVersionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+    setLoadError(false);
+    setVersions([]);
     list({ data: { report_id: reportId } })
-      .then((r) => alive && setVersions(r.versions))
-      .catch(() => alive && setVersions([]))
+      .then((r) => {
+        if (!alive) return;
+        if (r.loadFailed) throw new Error("History unavailable");
+        setVersions(r.versions);
+      })
+      .catch(() => { if (alive) { setVersions([]); setLoadError(true); } })
       .finally(() => alive && setLoading(false));
     return () => {
       alive = false;
     };
-  }, [list, reportId]);
+  }, [list, reportId, loadAttempt]);
 
   async function restore(versionId: string) {
+    if (!active.current || !restoreAllowed.current || restoring.current || loading || loadError) return;
+    const observedRevision = revision.current;
+    if (!observedRevision) { toast.error("Reload this report before restoring a version."); return; }
+    restoring.current = true;
     setBusyId(versionId);
     try {
       const v = await fetchVersion({ data: { version_id: versionId } });
+      if (!active.current || !restoreAllowed.current) return;
+      if (revision.current !== observedRevision) throw new Error("This report has changed. Reload it before trying again.");
+      if (v.id !== versionId || v.report_id !== reportId) throw new Error("That version does not belong to this report.");
       await update({
         data: {
           report_id: reportId,
+          expected_revision: observedRevision,
           content: v.content,
           change_summary: `Restored version ${v.version_number}`,
         },
       });
+      if (!active.current) return;
       toast.success(`Restored version ${v.version_number}.`);
-      const r = await list({ data: { report_id: reportId } });
-      setVersions(r.versions);
+      setLoading(true);
+      setVersions([]);
+      setLoadAttempt(attempt => attempt + 1);
       onRestored?.();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not restore.");
+      if (active.current) toast.error(err instanceof Error ? err.message : "Could not restore.");
     } finally {
-      setBusyId(null);
+      restoring.current = false;
+      if (active.current) setBusyId(null);
     }
   }
 
@@ -78,8 +121,9 @@ export function ReportVersionsPanel({
           </p>
           <h2 className="mt-2 font-display text-2xl">Past Versions</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every time the report is saved, the previous version is kept here so you can
-            look back or restore it.
+            {canRestore
+              ? "When you save this report, its previous version is kept here so you can look back or restore it."
+              : "You can review earlier versions here. Only the person who created this report can restore a version."}
           </p>
         </div>
       </div>
@@ -87,9 +131,14 @@ export function ReportVersionsPanel({
       <div className="mt-5">
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading versions…</p>
+        ) : loadError ? (
+          <div role="alert" className="rounded-2xl border bg-background p-4">
+            <p className="text-sm">We couldn't load this report's earlier versions. Please try again.</p>
+            <Button variant="outline" className="mt-3" onClick={() => { setLoading(true); setLoadAttempt(attempt => attempt + 1); }}>Reload Version History</Button>
+          </div>
         ) : versions.length === 0 ? (
           <p className="rounded-2xl border border-dashed bg-background/60 px-4 py-6 text-center text-sm text-muted-foreground">
-            No earlier versions yet. The first edit you save will start the history.
+            {canRestore ? "No earlier versions yet. The first edit you save will start the history." : "No earlier versions are available."}
           </p>
         ) : (
           <ul className="divide-y divide-border/60 rounded-2xl border bg-background">
@@ -105,15 +154,15 @@ export function ReportVersionsPanel({
                     {v.change_summary ? ` · ${v.change_summary}` : ""}
                   </p>
                 </div>
-                <Button
+                {canRestore && <Button
                   variant="outline"
                   size="sm"
-                  disabled={busyId === v.id}
+                  disabled={busyId !== null}
                   onClick={() => restore(v.id)}
                 >
                   <RotateCcw className="h-4 w-4" />
                   {busyId === v.id ? "Restoring…" : "Restore"}
-                </Button>
+                </Button>}
               </li>
             ))}
           </ul>

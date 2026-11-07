@@ -1,0 +1,47 @@
+{
+  "phase": "after-nineteenth-proposal",
+  "paused": true,
+  "schema": "document-registration-integrated-proof-v1",
+  "routines": [
+    {
+      "name": "bind_document_upload_operation",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "3c4a138653e5d79030b4247fd01f381e",
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "bind_registration_summary_capacity",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "ee05945cda1adf131fe1e15eb5b415f0",
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "finish_document_operation",
+      "owner": "supabase_admin",
+      "definer": true,
+      "body_md5": "cc8decd3ba659f44636eddd7658e8c61",
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "settle_completed_document_registration",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "d2b4e170642cd2c01a9107c6d44da603",
+      "fixed_path": [
+        "search_path=pg_catalog"
+      ]
+    }
+  ],
+  "policy_unset": true,
+  "reservations": 0,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

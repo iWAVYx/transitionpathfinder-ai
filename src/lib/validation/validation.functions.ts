@@ -1,3 +1,10 @@
+import {
+  assertExpectedViewer,
+  optionalViewerIntent,
+  viewerIntentSchema,
+} from "@/lib/viewer-intent";
+import { readReportPages } from "@/lib/report-query-pages";
+import { outreachInputSchema, outreachRowSchema } from "./outreach-contract";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -153,9 +160,7 @@ export const updateFeedback = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        status: z
-          .enum(["new", "reviewed", "in_progress", "resolved", "archived"])
-          .optional(),
+        status: z.enum(["new", "reviewed", "in_progress", "resolved", "archived"]).optional(),
         admin_notes: z.string().max(5000).optional().nullable(),
       })
       .parse(i),
@@ -163,10 +168,7 @@ export const updateFeedback = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await ensureAdmin(context.supabase, context.userId);
     const { id, ...rest } = data;
-    const { error } = await context.supabase
-      .from("feedback_submissions")
-      .update(rest)
-      .eq("id", id);
+    const { error } = await context.supabase.from("feedback_submissions").update(rest).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -244,12 +246,7 @@ export const upsertIssue = createServerFn({ method: "POST" })
     await ensureAdmin(context.supabase, context.userId);
     const { id, ...rest } = data;
     const { data: row, error } = id
-      ? await context.supabase
-          .from("product_issues")
-          .update(rest)
-          .eq("id", id)
-          .select()
-          .single()
+      ? await context.supabase.from("product_issues").update(rest).eq("id", id).select().single()
       : await context.supabase.from("product_issues").insert(rest).select().single();
     if (error) throw new Error(error.message);
     return { row };
@@ -303,77 +300,95 @@ export const updateChecklistItem = createServerFn({ method: "POST" })
   });
 
 // =============== PILOT OUTREACH ===============
+// Outreach is an Owner Hub surface; the broader legacy validation guard above
+// is not sufficient evidence of platform-owner/admin authority for this slice.
+async function ensureOutreachOwner(supabase: any, userId: string) {
+  const roles = await readReportPages<any>((from, to) =>
+    supabase
+      .from("admin_roles")
+      .select("id,user_id,role", { count: "exact" })
+      .eq("user_id", userId)
+      .in("role", ["platform_owner", "platform_admin"])
+      .order("id")
+      .range(from, to),
+  );
+  if (
+    !roles.length ||
+    roles.some(
+      (r) => r.user_id !== userId || !["platform_owner", "platform_admin"].includes(r.role),
+    )
+  )
+    throw new Error("Owner Hub access could not be confirmed.");
+}
 export const listOutreach = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await ensureAdmin(context.supabase, context.userId);
-    const { data, error } = await context.supabase
-      .from("pilot_outreach_contacts")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return { rows: data ?? [] };
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data ?? {}, context.userId);
+    await ensureOutreachOwner(context.supabase, context.userId);
+    const rows = await readReportPages((from, to) =>
+      context.supabase
+        .from("pilot_outreach_contacts")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    );
+    const parsed = z.array(outreachRowSchema).parse(rows);
+    if (new Set(parsed.map((r) => r.id)).size !== parsed.length)
+      throw new Error("Contacts changed while loading. Reload contacts.");
+    return { rows: parsed };
   });
-
 export const upsertOutreach = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z
-      .object({
-        id: z.string().uuid().optional(),
-        contact_name: z.string().min(1).max(200),
-        organization: z.string().max(200).optional().nullable(),
-        role_type: z.string().max(120).optional().nullable(),
-        email: z.string().email().max(255).optional().nullable(),
-        phone: z.string().max(50).optional().nullable(),
-        relationship_notes: z.string().max(2000).optional().nullable(),
-        outreach_status: z
-          .enum([
-            "not_contacted",
-            "contacted",
-            "meeting_scheduled",
-            "demo_completed",
-            "interested",
-            "not_interested",
-            "follow_up_needed",
-          ])
-          .optional(),
-        last_contacted_at: z.string().datetime().optional().nullable(),
-        next_follow_up_at: z.string().datetime().optional().nullable(),
-        notes: z.string().max(5000).optional().nullable(),
-      })
-      .parse(i),
-  )
+  .validator((input: unknown) => outreachInputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
-    const { id, ...rest } = data;
-    const { data: row, error } = id
-      ? await context.supabase
-          .from("pilot_outreach_contacts")
-          .update(rest)
-          .eq("id", id)
-          .select()
-          .single()
-      : await context.supabase
-          .from("pilot_outreach_contacts")
-          .insert(rest)
-          .select()
-          .single();
-    if (error) throw new Error(error.message);
+    assertExpectedViewer(data, context.userId);
+    await ensureOutreachOwner(context.supabase, context.userId);
+    const { id, expected_viewer_id, expected_updated_at, ...payload } = data;
+    let query = id
+      ? context.supabase.from("pilot_outreach_contacts").update(payload).eq("id", id)
+      : context.supabase.from("pilot_outreach_contacts").insert(payload);
+    if (id && expected_updated_at) query = query.eq("updated_at", expected_updated_at);
+    const result = await query.select("*").single();
+    const parsed = outreachRowSchema.safeParse(result.data);
+    if (result.error || !parsed.success || (id && parsed.data.id !== id))
+      throw new Error(
+        "We couldn't confirm this contact was saved. Reload contacts before trying again.",
+      );
+    const row = parsed.data;
+    for (const [field, value] of Object.entries(payload)) {
+      if (value === undefined) continue;
+      const recorded = row[field as keyof typeof row];
+      if (field.endsWith("_at") && value !== null && recorded !== null) {
+        if (Date.parse(String(recorded)) === Date.parse(String(value))) continue;
+      } else if (recorded === value) continue;
+      throw new Error(
+        "We couldn't confirm this contact was saved. Reload contacts before trying again.",
+      );
+    }
     return { row };
   });
-
 export const deleteOutreach = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        expected_updated_at: z.string().datetime({ offset: true }).optional(),
+        ...viewerIntentSchema.shape,
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
-    await ensureAdmin(context.supabase, context.userId);
-    const { error } = await context.supabase
-      .from("pilot_outreach_contacts")
-      .delete()
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    assertExpectedViewer(data, context.userId);
+    await ensureOutreachOwner(context.supabase, context.userId);
+    let query = context.supabase.from("pilot_outreach_contacts").delete().eq("id", data.id);
+    if (data.expected_updated_at) query = query.eq("updated_at", data.expected_updated_at);
+    const result = await query.select("id").single();
+    if (result.error || result.data?.id !== data.id)
+      throw new Error("We couldn't confirm this contact was deleted. Reload contacts.");
+    return { ok: true, id: data.id };
   });
 
 // =============== PILOT PACKAGES ===============
@@ -409,12 +424,7 @@ export const upsertPilotPackage = createServerFn({ method: "POST" })
     await ensureAdmin(context.supabase, context.userId);
     const { id, ...rest } = data;
     const { data: row, error } = id
-      ? await context.supabase
-          .from("pilot_packages")
-          .update(rest)
-          .eq("id", id)
-          .select()
-          .single()
+      ? await context.supabase.from("pilot_packages").update(rest).eq("id", id).select().single()
       : await context.supabase.from("pilot_packages").insert(rest).select().single();
     if (error) throw new Error(error.message);
     return { row };
@@ -436,7 +446,11 @@ export const recordUsageEvent = createServerFn({ method: "POST" })
   .validator((i: unknown) =>
     z
       .object({
-        event_type: z.string().min(1).max(80).regex(/^[a-z0-9_.-]+$/i),
+        event_type: z
+          .string()
+          .min(1)
+          .max(80)
+          .regex(/^[a-z0-9_.-]+$/i),
         page: z.string().max(300).optional().nullable(),
         related_record_type: z.string().max(80).optional().nullable(),
         related_record_id: z.string().uuid().optional().nullable(),

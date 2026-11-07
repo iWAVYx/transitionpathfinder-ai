@@ -1,3 +1,4 @@
+import { revokeOwnedShareToken } from "./revoke-share-token.server";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -115,12 +116,7 @@ export const revokeShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("share_tokens")
-      .update({ revoked: true })
-      .eq("id", data.id);
-    if (error) throw new Error("Could not revoke share link.");
+    await revokeOwnedShareToken(context.supabase, context.userId, data.id);
     return { ok: true };
   });
 

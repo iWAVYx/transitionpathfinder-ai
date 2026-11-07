@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-06",
+  "workstream_action": "2.6",
+  "scope": "Editing-proof and role-change serialization for the reviewed atomic text-save RPC only",
+  "run": 42302081408,
+  "head_source": "b5400f190d4ef64e7b0f410b546c9b1733ec8e0e",
+  "checkout_commit": "da65ffb7a21ba50d9fb2915d5f465b329ef75ebb",
+  "workflow": "success",
+  "native_authority_cases": 39,
+  "native_authority_passed": 39,
+  "native_authority_failed": 0,
+  "native_authority_skipped": 0,
+  "native_authority_cross_session_cases": 22,
+  "native_save_regression_cases": 31,
+  "native_save_regression_failed": 0,
+  "native_save_regression_skipped": 0,
+  "existing_native_cases": 1660,
+  "existing_native_failed": 0,
+  "existing_native_skipped": 0,
+  "canonical_migrations": 225,
+  "control_drafts": 32,
+  "all7_native_partitions_and_both_extra_native_logs_labels_counts_source_and_log_hashes_independently_validated": true,
+  "authority_names_sha256": "576146d0a092c5a48285c2ab0aea2027fe88ac7ac99755edb639d358994e11d3",
+  "save_names_sha256": "2612d37fef9f03a91ebba935966ab31551c118ad57aa10ae400b91207ef07914",
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/document-text-authority-native-proof-42302081408-2026-11-06.json",
+      "sha256": "79f24ff92601b9aff36edabc61e7d90b76b5b47c78effb48f565d10eb151a105"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-authority-schema-proof-42302081408-2026-11-06.json",
+      "sha256": "e342147777cfb002ead5ccfec3366a9dcf4cfbbb3021aeaa355ba486639b2e3c"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-authority-complete-native-proof-42302081408-2026-11-06.json",
+      "sha256": "6653e7d66138974b729f83b6ae4242b89ccb61489a872a4a21685688af0ee155"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-authority-save-regression-proof-42302081408-2026-11-06.json",
+      "sha256": "df1e28946599709ee9092848f35a27ea68634c8ed77ca4918bab775d362cb503"
+    }
+  ],
+  "replay_log_sha256": "bd03fef378c991e9251df8b30391f937490ab89d2005a5757dff1771ca9eea25",
+  "workflow_snapshot_sha256": "f4a2cf04d77b1a2221468d3e5f7d81347597d94e96a74921430efd8e8bcce4ae",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+      "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5"
+    },
+    {
+      "path": "tests/database/document-text-review-authority.test.mjs",
+      "sha256": "b2e786cadc1beca3d8e48b3225cc78ffbacdd6367f5e54b62802512e861217a1"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "7042e6208b04dbd18ee79a39f6cdfda4973585c1cd90a385cae726719cad2167"
+    }
+  ],
+  "verified": [
+    "Actual ownership/self/editor/approved-relationship proof rows are retained through save commit",
+    "Role-writer trigger covers same-actor INSERT/UPDATE/DELETE; native role removal and role-table TRUNCATE waiting cases pass",
+    "Save-first/removal-first and commit/rollback cases pass without retries or skipped assertions",
+    "Exact invoker save, guarded void definer helper, private role trigger, owner, fixed paths, unchanged execution and enabled unconditional role-trigger metadata pass the complete replay",
+    "No implicit Owner/admin editing grant or raw table permission was added; installation preserves pause"
+  ],
+  "remaining": [
+    "Source-bound durable admission/capacity for document-attached generation",
+    "Apply/summary/register/rescan and raw/service/cached-old writer coverage",
+    "Remaining reconciliation kinds/operator authorization, packaging and separately authorized hosted/provider acceptance"
+  ],
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

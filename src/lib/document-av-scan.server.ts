@@ -218,7 +218,7 @@ function failedResult(
   };
 }
 
-export async function scanUploadedDocument(input: ScanInput): Promise<ScanResult> {
+export async function scanUploadedDocument(input: ScanInput, storedCopy?: Blob): Promise<ScanResult> {
   const apiKey = process.env.CLOUDMERSIVE_API_KEY?.trim();
   if (!apiKey) {
     return failedResult("CLOUDMERSIVE_API_KEY not configured — failing closed.");
@@ -227,16 +227,22 @@ export async function scanUploadedDocument(input: ScanInput): Promise<ScanResult
   let bytes: Uint8Array;
   let filename: string;
   try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const bucket = input.bucket ?? "student-documents";
-    const { data: blob, error } = await supabaseAdmin.storage
-      .from(bucket)
-      .download(input.storage_path);
-    if (error || !blob) {
-      return failedResult(error?.message ?? "Could not read uploaded object for AV scan.");
+    let blob: Blob;
+    if (storedCopy !== undefined) {
+      // The registration handler supplies the same immutable Blob it hashed
+      // and sniffed. Never fall back to a different storage read on bad input.
+      if (!(storedCopy instanceof Blob)) throw new Error("The reviewed file copy is unavailable.");
+      blob = storedCopy;
+    } else {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const bucket = input.bucket ?? "student-documents";
+      const stored = await supabaseAdmin.storage.from(bucket).download(input.storage_path);
+      if (stored.error || !(stored.data instanceof Blob)) throw new Error("Could not read uploaded object for AV scan.");
+      blob = stored.data;
     }
-    bytes = new Uint8Array(await blob.arrayBuffer());
     const maxScanBytes = maxScanBytesFromEnvironment();
+    if (blob.size < 1 || blob.size > maxScanBytes) return failedResult("File is empty or exceeds the configured malware scan limit.");
+    bytes = new Uint8Array(await blob.arrayBuffer());
     if (bytes.byteLength > maxScanBytes) {
       return failedResult(`File exceeds the configured ${maxScanBytes}-byte malware scan limit.`);
     }

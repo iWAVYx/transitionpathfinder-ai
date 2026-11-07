@@ -1,17 +1,27 @@
+import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const listMyChatHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("channel_history_grants")
-      .select("channel_id, title, removed_at")
-      .eq("user_id", context.userId)
-      .order("removed_at", { ascending: false });
-    if (error) throw new Error("Could not load retained chat history.");
-    return data ?? [];
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data ?? {}, context.userId);
+    try {
+      return await readReportPages((from, to) =>
+        context.supabase
+          .from("channel_history_grants")
+          .select("channel_id, title, removed_at", { count: "exact" })
+          .eq("user_id", context.userId)
+          .order("removed_at", { ascending: false })
+          .order("channel_id")
+          .range(from, to),
+      );
+    } catch {
+      throw new Error("Could not load retained chat history.");
+    }
   });
 
 export const readChatHistory = createServerFn({ method: "GET" })
@@ -20,11 +30,13 @@ export const readChatHistory = createServerFn({ method: "GET" })
     z
       .object({
         channel_id: z.string().uuid(),
+        ...viewerIntentSchema.shape,
         offset: z.number().int().min(0).default(0),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { data: rows, error } = await context.supabase
       .from("channel_history_messages")
       .select("message_id, body, author_name, sent_at, parent_id")
@@ -35,25 +47,43 @@ export const readChatHistory = createServerFn({ method: "GET" })
       .range(data.offset, data.offset + 50);
     if (error) throw new Error("Could not load chat history.");
     const messages = (rows ?? []).slice(0, 50);
-    const { data: attachments, error: attachmentError } = messages.length
-      ? await context.supabase
-          .from("channel_history_attachments")
-          .select("attachment_id, message_id, file_name")
-          .eq("channel_id", data.channel_id)
-          .eq("user_id", context.userId)
-          .in(
-            "message_id",
-            messages.map((m) => m.message_id),
-          )
-      : { data: [], error: null };
-    if (attachmentError) throw new Error("Could not load history attachments.");
-    return { messages, attachments: attachments ?? [], hasMore: (rows?.length ?? 0) > 50 };
+    let attachments;
+    try {
+      attachments = await readReportBatches<{
+        attachment_id: string;
+        message_id: string;
+        file_name: string;
+      }>(
+        messages.map((message) => message.message_id),
+        (ids, from, to) =>
+          context.supabase
+            .from("channel_history_attachments")
+            .select("attachment_id, message_id, file_name", { count: "exact" })
+            .eq("channel_id", data.channel_id)
+            .eq("user_id", context.userId)
+            .in("message_id", ids)
+            .order("attachment_id")
+            .range(from, to),
+      );
+    } catch {
+      throw new Error("Could not load history attachments.");
+    }
+    return {
+      channel_id: data.channel_id,
+      offset: data.offset,
+      messages,
+      attachments,
+      hasMore: (rows?.length ?? 0) > 50,
+    };
   });
 
 export const downloadChatHistoryAttachment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ attachment_id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) =>
+    z.object({ attachment_id: z.string().uuid(), ...viewerIntentSchema.shape }).parse(input),
+  )
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { data: attachment, error } = await context.supabase
       .from("channel_history_attachments")
       .select("storage_path, file_name")

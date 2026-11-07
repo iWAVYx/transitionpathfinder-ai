@@ -1,0 +1,67 @@
+{
+  "schema": "document-capacity-ledger-foundation-local-v1",
+  "date": "2026-10-31",
+  "source_base": "43e17a05f6b71b6af41f100205a8389b7f6f5f21",
+  "status": "Dormant private SQL foundation prepared; no application enforcement or safe settlement yet",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+      "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation-review.json",
+      "sha256": "977443e464d7b930ccb4dff1ed20640d3666a0d5ea9423c733f24c6eef89f018"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "489f9da97a7050cba35602b8da9424b4adb7061cade9915e0819ed336a164f8a"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "ac45762fbee5872edcb4af35a17d15076f5c180eb9525117c30cae3ec143bc9c"
+    }
+  ],
+  "validation": {
+    "full_local_sql": {
+      "tests": 954,
+      "passed": 838,
+      "failed": 0,
+      "skipped": 116,
+      "skip_scope": "Native PostgreSQL concurrency-only cases"
+    },
+    "new_foundation_cases": 46,
+    "new_native_only_cases": 4,
+    "offline_safety_and_accounting_contracts": 110,
+    "workflow_yaml": "parsed",
+    "native_full_schema_ci": "Prepared and pending: full225 canonical plus seven noncanonical proposals; exact hashes/owners/invoker paths/private table-column-execute privileges, default unset policy and empty ledger artifact.",
+    "initial_fixture_correction": "The focused wrong-kind case initially used unsupported other job type and failed its fixture CHECK before transfer. Changed only that input to existing pathway_report; the final full954-case run passes unchanged SQL. No runtime guard or assertion weakened.",
+    "final_documentation_contracts": 44
+  },
+  "proof_boundary": "Local fixture SQL verifies owner-internal bookkeeping, not native races/full canonical compatibility, source-bound producer authorization, safe settlement, caller-role adapters, real Storage/scanner/AI behavior or hosted enforcement.",
+  "runtime_source_unchanged": {
+    "website_fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "website_files": 1205,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "canonical_migrations": 225,
+  "existing_unapplied_batch": 15,
+  "noncanonical_unapplied_proposals": 7,
+  "runtime_hooks_installed": false,
+  "settlement_implemented": false,
+  "general_application_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "numeric_policy_selected": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "next": [
+    "Derive exact registration/rescan/Apply source identity and reserve both units in their admission transaction before IO; exact existing reservation retry must not reserve again.",
+    "Replace raw queue writes with exact source-bound queue insertion and ledger transfer in one transaction. The internal counter alone verifies metadata identity, not producer document/source authority.",
+    "Acquire the common capacity fence before the atomic worker claim, then transfer its exact existing obligation in the same transaction; no second capacity slot or capability recovery.",
+    "Add exact source/domain/operation-bound producer and summary settlement. Never free an unknown/held result through status, clock, deletion, a caller flag or ordinary finish.",
+    "Fence legacy/direct starts, choose reviewed finite ceilings, prove native races and full225+seven replay, then review final canonical/ledger packaging and freshly authorized hosted acceptance."
+  ]
+}

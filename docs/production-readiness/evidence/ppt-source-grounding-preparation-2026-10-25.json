@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-25",
+  "status": "local candidate; not released or tested with live AI",
+  "trigger": "Family packet in authorized run 40217917300 implied classroom observations and assigned staff roles not supplied by the source. That completed run failed at a stale heading and all exact fixtures were independently confirmed absent.",
+  "changes": {
+    "src/lib/ppt.functions.ts": [
+      "Add higher-priority source-grounding instructions across every generated section and both speaker perspectives",
+      "Separate supplied/report-based information, information not provided and suggestions",
+      "Do not infer observations, program enrollment or confirmed placements from an interest/goal/support",
+      "Attribute supplied observations rather than invent firsthand knowledge",
+      "Ask the team to agree on an owner/date unless an assignment is recorded",
+      "Preserve reported measurements and distinguish requested outcomes from team decisions",
+      "Not supplied does not mean nonexistent",
+      "Keep difficult-conversation scripts conditional unless a disagreement is recorded"
+    ],
+    "src/lib/demo/meeting-guide.ts": [
+      "Educator fictional sample script now requests comparison of dated observations rather than saying the speaker already observed them"
+    ]
+  },
+  "role_applicability": "Shared generation handler applies to every authorized caller, with Family and Educator mocked-provider cases. Does not grant generation/private-planning access to Student, School, District, Partner or Owner. Owner remains management-only. Demo uses the same document renderer and remains prepared fictional content with no AI/save actions.",
+  "runtime_fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+  "runtime_file_count": 1185,
+  "runtime_files_changed": 2,
+  "validation": {
+    "focused_tests_before_demo_copy_alignment": 37,
+    "full_unit_tests": 4564,
+    "full_unit_files": 319,
+    "typescript": "passed; subsequent edits are string-only wording changes",
+    "isolated_staging_build": "passed on final two-file candidate",
+    "automatic_checks": "pending commit"
+  },
+  "limits": [
+    "Prompt improvements are not deterministic factual-output validation. Mocked tests certify rules/source delivery and persistence, not live prose quality.",
+    "Previously saved packets are not rewritten.",
+    "Family/Educator generation, cross-role denial, PDFs and manual grounding review remain open on this candidate.",
+    "No legal/compliance outcome is asserted. Provider/privacy and wider all-role generation gates remain open.",
+    "Report length/cosmetic refinement, Parent Pilot/Pathway Snapshot remain deferred; full TF-01\u2013TF-26 and six milestones retained."
+  ],
+  "release_gate": "Fresh explicit staging authorization and GitHub human review required before deployment, isolated Lovable sync/publication and a new fixture/provider run. No such actions were performed for this candidate.",
+  "proposed_bounded_acceptance": {
+    "one_run_only": true,
+    "generation_invocations_max": 2,
+    "sdk_attempts_max": 6,
+    "gateway_billing_or_retries_independently_observed": false,
+    "intake_report_pairs_max": 2,
+    "ppt_packets_max": 2,
+    "pdf_exports_max": 2,
+    "screenshots_max": 2,
+    "test_retries": 0,
+    "independent_cleanup_required": true,
+    "uncertain_completion": "Stop; retain exact scope for reconciliation before cleanup. No repeat without fresh authorization.",
+    "production_migrations_new_accounts_relationships_shares_payments_secret_changes": false
+  }
+}

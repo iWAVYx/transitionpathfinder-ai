@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-04",
+  "workstream_actions": [
+    "1.3",
+    "1.6"
+  ],
+  "scope": "Prepared exact ordered19-proposal disposable replay including four-routine registration owner/grant proof. Not a complete hosted release package.",
+  "validation": {
+    "combined_tests": 68,
+    "passed": 66,
+    "failed": 0,
+    "native_only_skipped": 2,
+    "contracts_passed": 41,
+    "workflow_shell_blocks_parsed": 48,
+    "ordered_proposal_hashes_checked": 19,
+    "log_sha256": "67f7d14d9165a728078af9c08fef9c3373de035740ae8b8191f803488f972460"
+  },
+  "expected_registration_routines": [
+    {
+      "name": "bind_document_upload_operation",
+      "arguments": "",
+      "body_md5": "3c4a138653e5d79030b4247fd01f381e"
+    },
+    {
+      "name": "bind_registration_summary_capacity",
+      "arguments": "",
+      "body_md5": "ee05945cda1adf131fe1e15eb5b415f0"
+    },
+    {
+      "name": "settle_completed_document_registration",
+      "arguments": "uuid",
+      "body_md5": "d2b4e170642cd2c01a9107c6d44da603"
+    },
+    {
+      "name": "finish_document_operation",
+      "arguments": "uuid,uuid,uuid,text",
+      "body_md5": "cc8decd3ba659f44636eddd7658e8c61"
+    }
+  ],
+  "native_full_schema_pending": true,
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "whole_workstream_complete": false,
+  "next": "Retain corrected rescan native result, then run prepared registration chain through native concurrency and full canonical replay."
+}

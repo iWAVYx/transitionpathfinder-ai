@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,29 +17,43 @@ import {
 
 type Props = {
   onExtracted: (extract: IepExtract) => void;
+  viewerId?: string;
 };
 
-export function IepUpload({ onExtracted }: Props) {
+export function IepUpload({ onExtracted, viewerId }: Props) {
   const extract = useServerFn(extractFromIep);
   const [busy, setBusy] = useState<null | "reading" | "thinking">(null);
   const [pasted, setPasted] = useState("");
   const [showPaste, setShowPaste] = useState(false);
   const [privacySource, setPrivacySource] = useState<SensitiveFileReviewSource | null>(null);
 
+  const active = useRef(true);
+  const requestVersion = useRef(0);
+  const inFlight = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => { active.current = false; requestVersion.current += 1; };
+  }, []);
+
   async function handleText(text: string) {
+    if (!active.current || inFlight.current) return;
+    const request = ++requestVersion.current;
+    const current = () => active.current && requestVersion.current === request;
     if (text.trim().length < 40) {
       toast.error("That's not quite enough text to read from.");
       return;
     }
+    inFlight.current = true;
     setBusy("thinking");
     try {
-      const res = await extract({ data: { text } });
+      const res = await extract({ data: { text, expected_viewer_id: viewerId } });
+      if (!current()) return;
       onExtracted(res.extract);
       toast.success("We filled in what we could find. Please review every field before generating.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't read that document.");
+      if (current()) toast.error("We couldn't read that document. Please try again.");
     } finally {
-      setBusy(null);
+      if (current()) { inFlight.current = false; setBusy(null); }
     }
   }
 

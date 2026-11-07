@@ -1,0 +1,213 @@
+{
+  "date": "2026-10-25",
+  "status": "functional acceptance passed; independent cleanup verified; factual-consistency follow-ups remain",
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40238295505",
+  "tested_revision": "b9e9b50ad25f0f7feaa1fc3991a3afc2eadbb038",
+  "application_revision": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+  "authorization": "One bounded repeat explicitly authorized, then GitHub human staging review submitted; zero test retries; no further run authorized.",
+  "runtime": {
+    "fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+    "file_count": 1185,
+    "backend": "qgrertkqbwanerqqemph",
+    "control": "https://transitionforward-staging.caysi101.workers.dev",
+    "ai_site": "https://gentle-forward-reach.lovable.app",
+    "preflight": "both stable fingerprints/counts, staging labels/backend, sandbox mode and isolation passed; CF exact app SHA and Lovable managed AI configured"
+  },
+  "automated_results": {
+    "existing_role_sign_ins_passed": 7,
+    "creator_cases_passed": 2,
+    "duration": "4.2 minutes for two creator cases",
+    "roles": [
+      "Family/Guardian",
+      "Educator"
+    ],
+    "checks": [
+      "Own linked fictional student selected in eight-step Pathway Builder",
+      "Initial generation saved correct owner/student/intake/model and role data, schema-valid and survives reload",
+      "Only exact disposable profile grade updated to post-secondary; one refresh uses current profile with v2 schema, profile/intake manifest and low overall confidence",
+      "Exactly one genuine history snapshot preserves complete initial content per role",
+      "Correct Family/Educator reader audience survives reload",
+      "Other creator role denied private report using loaded not-found result",
+      "Two PDFs exported, refresh control hidden and logo watermark loaded",
+      "Exact cleanup completed for both fixtures"
+    ],
+    "sanitizer": "0 unsafe files removed; upload safe; log inspected before artifact download"
+  },
+  "actual_application_actions": {
+    "synthetic_students_created": 2,
+    "intakes_created": 2,
+    "reports_created": 2,
+    "disposable_grade_updates": 2,
+    "history_versions_created": 2,
+    "initial_generation_actions": 2,
+    "regeneration_actions": 2,
+    "pdf_exports": 2,
+    "explicit_synthetic_screenshots": 2,
+    "test_retries": 0
+  },
+  "provider_budget": {
+    "model_invocations_max": 6,
+    "sdk_request_attempts_max": 18,
+    "actual_attempts": "not independently observable",
+    "gateway_retries_billing": "not independently observable; approval was not a monetary cap"
+  },
+  "exact_fixture_receipts": {
+    "educator": {
+      "ownerId": "d606bc69-8605-4e84-904d-dcc7632fa595",
+      "studentId": "464c9c2e-e616-462a-9d61-8c23a9eaeb09",
+      "intakeId": "d6df5fcc-cd3c-4111-a85a-8f4d35fe5ed7",
+      "reportId": "c220d2fc-3eff-49eb-aefa-40c83b99c263",
+      "marker": "QA Pathway Creator 40238295505-1 educator",
+      "role": "educator",
+      "versionIds": [
+        "3d043657-6b74-419f-ba92-eb8713d731a1"
+      ],
+      "callerVisibleCountsZero": true,
+      "independentPrivilegedAbsenceRequired": true
+    },
+    "parent": {
+      "ownerId": "fee1b881-8d46-4375-949a-db15487af9dc",
+      "studentId": "c496767f-56af-48b9-a3ba-d4163a83d36f",
+      "intakeId": "4ab6d18a-d58e-4bf6-8334-e0f69d942f6d",
+      "reportId": "fef1fa05-2da4-448d-babc-b25f1efb64b7",
+      "marker": "QA Pathway Creator 40238295505-1 parent",
+      "role": "parent",
+      "versionIds": [
+        "4102f6fd-e7d9-4dc6-8d8d-2e234fa4fced"
+      ],
+      "callerVisibleCountsZero": true,
+      "independentPrivilegedAbsenceRequired": true
+    }
+  },
+  "independent_cleanup": {
+    "parent": {
+      "operator": "postgres",
+      "read_only": "on",
+      "edge_count": 0,
+      "run_marker": "QA Pathway Creator 40238295505-1 parent",
+      "goals_count": 0,
+      "observed_at": "2026-10-25T22:13:32.7093+00:00",
+      "share_count": 0,
+      "intake_count": 0,
+      "report_count": 0,
+      "student_count": 0,
+      "version_count": 0,
+      "documents_count": 0,
+      "action_items_count": 0,
+      "evidence_items_count": 0,
+      "readiness_scores_count": 0,
+      "ppt_meeting_preps_count": 0,
+      "student_guardians_count": 0,
+      "document_extractions_count": 0,
+      "student_team_members_count": 0,
+      "report_evidence_links_count": 0,
+      "student_collaborators_count": 0,
+      "student_relationships_count": 0,
+      "student_saved_partners_count": 0,
+      "student_voice_responses_count": 0,
+      "student_opportunity_matches_count": 0,
+      "student_resource_recommendations_count": 0
+    },
+    "educator": {
+      "operator": "postgres",
+      "read_only": "on",
+      "edge_count": 0,
+      "run_marker": "QA Pathway Creator 40238295505-1 educator",
+      "goals_count": 0,
+      "observed_at": "2026-10-25T22:13:50.435898+00:00",
+      "share_count": 0,
+      "intake_count": 0,
+      "report_count": 0,
+      "student_count": 0,
+      "version_count": 0,
+      "documents_count": 0,
+      "action_items_count": 0,
+      "evidence_items_count": 0,
+      "readiness_scores_count": 0,
+      "ppt_meeting_preps_count": 0,
+      "student_guardians_count": 0,
+      "document_extractions_count": 0,
+      "student_team_members_count": 0,
+      "report_evidence_links_count": 0,
+      "student_collaborators_count": 0,
+      "student_relationships_count": 0,
+      "student_saved_partners_count": 0,
+      "student_voice_responses_count": 0,
+      "student_opportunity_matches_count": 0,
+      "student_resource_recommendations_count": 0
+    }
+  },
+  "pdf_review": [
+    {
+      "role": "educator",
+      "pages": 40,
+      "characters": 46706,
+      "required_content_checks": {
+        "professional_summary": true,
+        "snapshot_name": true,
+        "question_0": true,
+        "question_1": true,
+        "question_2": true,
+        "question_3": true,
+        "question_4": true
+      },
+      "nonempty_pages": true,
+      "all_pages_a4": true,
+      "manual_visual_review": "All 40 pages reviewed via eight-page contact sheets; covers and selected dense/evidence/recommendation pages inspected at full resolution. No blank pages, obvious overlap or clipped body text observed; long/padded continuations remain deferred, not certified as flawless pagination."
+    },
+    {
+      "role": "parent",
+      "pages": 40,
+      "characters": 45594,
+      "required_content_checks": {
+        "plain_language_summary": true,
+        "snapshot_name": true,
+        "question_0": true,
+        "question_1": true,
+        "question_2": true,
+        "question_3": true
+      },
+      "nonempty_pages": true,
+      "all_pages_a4": true,
+      "manual_visual_review": "All 40 pages reviewed via eight-page contact sheets; covers and selected dense/evidence/recommendation pages inspected at full resolution. No blank pages, obvious overlap or clipped body text observed; long/padded continuations remain deferred, not certified as flawless pagination."
+    }
+  ],
+  "manual_content_findings": [
+    {
+      "issue": "Intake voice incorrectly described as absent",
+      "observed": "Both initial reports contain the supplied student voice quote. Regenerated recommendations use the quote, but deterministic gaps/confidence and the rendered Student Voice note say no student voice responses are on file.",
+      "required": "Distinguish voice supplied in Pathway Builder from separately saved structured Student Voice records; absence of the latter is not absence of the student perspective."
+    },
+    {
+      "issue": "Regeneration preserves stale legacy facts and inferred classifications",
+      "observed": "Both regenerated payloads retain the initial summary referring to grades 11-12 and the complete initial readiness scorecard, while the current snapshot correctly changes to post-secondary. The v2 overall confidence is low, but legacy confidence_level remains moderate.",
+      "required": "Reconcile or clearly label historical legacy sections and current v2 content so the complete reader/export does not blend conflicting current facts or confidence."
+    },
+    {
+      "issue": "Unsupported certainty and unprovided timeline details",
+      "observed": "Family initial snapshot states a 1-to-2-school-year graduation timeline; the Family timeline names Fall 2026 and Spring 2028 completion points without supplied graduation or agreed meeting dates. Speech-to-text is described as successfully/effectively used although only the support was supplied. Family regenerated professional summary calls the reported fictional baseline verified.",
+      "required": "Keep reported data distinct from verification; mark proposed dates, suggested supports and inferred readiness as suggestions rather than established facts."
+    },
+    {
+      "issue": "Source labels can conflate profile and intake",
+      "observed": "Some regenerated source labels call intake goals/accommodations profile information, although no formal goal or document rows were present.",
+      "required": "Retain correct input origin and distinguish suggested goals from official recorded goals."
+    }
+  ],
+  "acceptance_limits": [
+    "Passing functional cases is not a claim of perfect factual generation or all-role generation readiness.",
+    "All 80 PDF pages inspected in contact sheets, selected full-size pages checked; no obvious clipping/overlap or empty pages observed. Long sections and continuation padding remain deferred rather than certified as flawless pagination.",
+    "Native OS print, every device, document-upload/IEP extraction and other generators are not certified by this run.",
+    "The existing PPT factual-wording caveat remains open."
+  ],
+  "next": "Prepare shared source/legacy reconciliation and input-coverage corrections locally with deterministic regression tests; do not deploy or rerun AI without separate authorization. Continue remaining inventoried generators/applicable roles afterward.",
+  "unchanged": [
+    "original main and production",
+    "application source and both staging deployments",
+    "migrations",
+    "standing accounts/students/relationships",
+    "shares",
+    "payments and secrets"
+  ],
+  "roadmap_retained": "Full TF-01\u2013TF-26 and six milestones; report polish and Parent Pilot/Pathway Snapshot deferred."
+}

@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.3",
+  "completed_substep": "Corrected disposable full-schema replay executor for registration proposals17\u201319",
+  "failed_run": 41973652684,
+  "failed_job": 127067400624,
+  "observed_error": "permission denied to set role supabase_admin",
+  "cause": "The replay connected directly as restricted postgres, while the preserved finish function belongs to the admission owner. The reviewed installer requires a trusted session able to edit that existing owner routine.",
+  "correction": "Use the existing disposable supabase_admin session, SET ROLE postgres before all three proposals, retain installer owner preservation, and assert restricted non-superuser postgres restoration afterward. No role memberships, grants or SQL bodies changed.",
+  "workflow_sha256": "59a6681d99d3616722c00bef842a0dd1d66418f4bb7695e02e3eb57b649eedcd",
+  "validation": {
+    "focused_cases": 68,
+    "passed": 66,
+    "native_only_skipped": 2,
+    "failed": 0,
+    "readiness_contracts_passed": 41,
+    "workflow_yaml": "parsed with installed js-yaml",
+    "shell_blocks_checked": 48,
+    "focused_log_sha256": "36e1caa202b13c64aff26b42f04332802113a61c8250148dbb7b77f2a01a916a",
+    "contracts_log_sha256": "271fc37848892e030726b45f9ee686f4115fc6187567c49e49af66fc6cd082ca"
+  },
+  "native_full_schema_verified": false,
+  "new_disposable_verification": "pending source push",
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

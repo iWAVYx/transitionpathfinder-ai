@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "observedDate": "2026-10-23",
+  "sourceCommit": "f821aa753bd52281f4ffe897ff99e0f301e281e6",
+  "status": "canonical-candidate-validated-not-applied",
+  "migration": {
+    "path": "supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql",
+    "sha256": "812c26b901a712bab6ebd46f2cd6443e52ccc014e0b9eaf893d911b26f98fe4a",
+    "canonicalCount": 205,
+    "pendingAgainstSavedSeptember17ProductionObservation": 11
+  },
+  "runtime": {
+    "fingerprint": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+    "fileCount": 1184,
+    "hosted": false
+  },
+  "validation": {
+    "localDatabase": {
+      "pass": 37,
+      "skip": 2,
+      "skipReason": "Native multi-session cases require PostgreSQL"
+    },
+    "localContracts": 41,
+    "nativeDatabase": {
+      "pass": 39,
+      "skip": 0,
+      "concurrencyJourneys": 2,
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809822"
+    },
+    "combinedCanonicalReplay": {
+      "migrations": 205,
+      "exactPrivilegedRoutines": 92,
+      "serviceExecuteExceptions": [
+        "public.snapshot_report_content_update()"
+      ],
+      "triggerAndTableColumnAndRpcPermissions": "passed",
+      "independentPushRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970798179"
+    },
+    "fullUnit": {
+      "files": 311,
+      "tests": 4399
+    },
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809812/job/120474269759",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809845/job/120472771945",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809794/job/120472715232",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809848/job/120472707291",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809812/job/120472662249",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809787/job/120472661934",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809938/job/120472662844",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809822/job/120472661975",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809827/job/120472661849",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809934/job/120472661738",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809845/job/120472661422",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809816/job/120472664426",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970809787/job/120472664767",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970797724/job/120472620998",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39970798179/job/120472622405",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
+    "skippedChecksAreAcceptance": false
+  },
+  "hostedChangesThisCandidate": [],
+  "stagingCurrentRuntime": "c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d",
+  "productionStatus": "NO-GO; unchanged; no new inspection",
+  "limits": [
+    "Existing Owner/admin report read/update exceptions preserved and unresolved",
+    "Does not repair stale browser intent",
+    "Privileged maintenance/report deletion remains possible; not immutable audit storage",
+    "No new hosted role/editor/save/export or provider acceptance",
+    "Retention, report density/native printing and removed-member bearer lifecycle remain open"
+  ],
+  "authorizationRequired": [
+    "Exact isolated staging migration and ledger write",
+    "New deployment/synchronization/publication",
+    "Any new hosted fictional acceptance fixtures",
+    "All production actions"
+  ]
+}

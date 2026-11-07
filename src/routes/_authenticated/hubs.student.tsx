@@ -3,7 +3,6 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { HubShell } from "@/components/hub/HubShell";
 import { WorkspaceZone } from "@/components/dashboard/CommandCenter";
 import { LiveStudentWorkspaceLoader } from "@/components/dashboard/LiveStudentWorkspaceOverview";
-import { DashboardWidgetBoard } from "@/components/dashboard/DashboardWidgetBoard";
 import { getHub } from "@/lib/hubs/registry";
 import { ensureRoleAccess } from "@/lib/route-role-guard";
 
@@ -29,7 +28,6 @@ function HubPage() {
       <HubShell hub={getHub("student-planning")!} hideSpokes hideRelatedLinks>
         <WorkspaceZone>
           <LiveStudentWorkspaceLoader />
-          <DashboardWidgetBoard role="student" />
         </WorkspaceZone>
       </HubShell>
     </SiteShell>

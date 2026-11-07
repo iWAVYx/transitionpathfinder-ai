@@ -1,0 +1,55 @@
+{
+  "schema": "document-summary-auto-release-audit-v1",
+  "date": "2026-11-02",
+  "base_source": "b9033b95",
+  "prepared_parent": "574f7220",
+  "parent_native_runs": [
+    41535981879,
+    41535988082
+  ],
+  "status": "Audit and local baseline reproduction only; no fifteenth SQL proposal or automatic release hook added.",
+  "source": {
+    "path": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
+    "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b",
+    "routine": "public.settle_internal_document_summary_capacity(uuid)",
+    "body_md5": "2a8cd633152ab18e7343edff5c70e2e2"
+  },
+  "finding": {
+    "existing_protection": "The private settlement INSERT has a source/job/operation completion guard, immutable records, foreign keys and unique identities. Ordinary/service roles cannot execute the helper or write its private table. Suppressed INSERT already fails through FOUND.",
+    "reproduced_limit": "A disposable owner-only late BEFORE INSERT trigger can change operation_id after that guard; the helper checks FOUND but not actual RETURNING identity. It returns normally while the saved settlement names another existing active Apply reservation.",
+    "security_scope": "Owner fault injection only. No unprivileged exploit, hosted behavior, tenant compromise or provider failure is asserted. The automatic hook remains unimplemented and undeployed."
+  },
+  "baseline": {
+    "test": "summary settlement baseline lacks a final actual-row target check after a late owner trigger",
+    "file": "tests/database/document-path-exclusivity.test.mjs",
+    "passed": 1,
+    "failed": 0,
+    "log_sha256": "9f4aebfa2de2882c0e638306b754c936eeccc38f7950e9f6cdda1f0a4877c7b9",
+    "records": "Disposable PGlite fixtures only; no hosted records or provider IO."
+  },
+  "next_hook_requirements": [
+    "Both parent1340-case native/full225+14 replays are now verified; retain those exact proofs while preparing the narrowly scoped actual-row settlement fix and automatic finish hook.",
+    "Harden summary settlement with actual INSERT RETURNING identity confirmation, matching the requested producer, exact selected job and worker operation. Suppressed/altered writes must roll back finish and settlement together.",
+    "The finish hook must derive the producer from the exact completed worker operation already validated by the capability-checking finish; accept no browser-selected release target or independent release RPC.",
+    "Preserve the original finish owner/grants. Use one narrow owner-private bridge to the migration-owner helper, retaining private table permissions; do not grant the broad internal settlement helper to service_role.",
+    "Require actual guarded domain completion and same-transaction confirmed worker finish. Release only the worker unit; held/unknown work and the producer obligation stay counted. Leave uncertain replies unreplayed.",
+    "Review completed worker immutability and test changed/foreign/duplicate targets, skipped/altered receipts, provider/source/access uncertainty, lost finish replies, paused completion, distinct owners and both settlement orders.",
+    "Run native competing finish/release/admission COMMIT/ROLLBACK checks and actual canonical replay before seeking any hosted authorization."
+  ],
+  "new_sql_proposal_added": false,
+  "automatic_summary_settlement_hook_installed": false,
+  "runtime_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "parent_native_gate_verified": "docs/production-readiness/evidence/document-counted-summary-handoff-verified-2026-11-03.json",
+  "prepared_followup": {
+    "proposal": "docs/production-readiness/proposals/document-automatic-summary-settlement.sql",
+    "review": "docs/production-readiness/proposals/document-automatic-summary-settlement-review.json",
+    "evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-local-2026-11-03.json",
+    "actual_saved_target_fix_prepared": true,
+    "native_full_schema_pending": true,
+    "hosted_actions": false
+  }
+}

@@ -88,7 +88,7 @@ function FamilyPrioritiesPage() {
 
   return (
     <SiteShell>
-      <main
+      <section
         data-testid="family-priorities-page"
         className="mx-auto max-w-3xl px-4 py-8"
       >
@@ -168,7 +168,7 @@ function FamilyPrioritiesPage() {
         <div className="mt-8">
           <BackToDashboard />
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

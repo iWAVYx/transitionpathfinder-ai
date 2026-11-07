@@ -1,3 +1,6 @@
+import { useNavigationOrigin } from "@/components/navigation/NavigationOriginProvider";
+import { BackToDashboard } from "@/components/dashboard/BackToDashboard";
+import { isDashboardHomeDestination } from "@/components/dashboard/dashboard-return-context";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
@@ -57,13 +60,16 @@ export function FeatureShell({
   className,
   testId,
 }: FeatureShellProps) {
+  const origin = useNavigationOrigin();
   return (
     <SiteShell>
       <div
         className={cn("mx-auto w-full px-4 py-6 md:py-10", MAX_WIDTH[maxWidth], className)}
         data-testid={testId}
       >
-        {backTo ? (
+        {!origin && backTo && isDashboardHomeDestination(backTo.to) ? (
+          <BackToDashboard to={backTo.to} label={backTo.label} />
+        ) : !origin && backTo ? (
           <Link
             to={backTo.to as never}
             className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -75,7 +81,7 @@ export function FeatureShell({
         ) : null}
 
         {breadcrumbs.length > 0 ? (
-          <div className={cn(backTo ? "mt-2" : "")}>
+          <div className={cn(backTo && !isDashboardHomeDestination(backTo.to) ? "mt-2" : "")}>
             <Breadcrumbs trail={breadcrumbs} />
           </div>
         ) : null}

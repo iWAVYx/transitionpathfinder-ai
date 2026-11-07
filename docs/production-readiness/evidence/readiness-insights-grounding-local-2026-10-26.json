@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "local source/rating correction validated; automatic review pending; not deployed",
+  "changes": [
+    "Stop before provider credential lookup/call on any returned source-query error, rejected source read or null collection that cannot establish a successful empty read",
+    "Allow genuinely empty optional results; inaccessible student still denies generation under existing RLS",
+    "Discard missing/nonfinite/out-of-range scores and ambiguous repeated categories from readiness prompt/source coverage",
+    "Match model callout categories conservatively to recorded categories; set exact recorded score and threshold-based badge; unmatched categories return null/not_assessed regardless of model rating",
+    "Support fractional recorded scores without rounding; discard potentially conflicting stored level labels; keep unknown ratings neutral in shared UI",
+    "Add shared planning-source rules for reported versus verified facts, unsupplied versus nonexistent records and proposed actions; remove instructions to infer assessed levels from goals/interests",
+    "Accurately label Builder inputs and document summaries; titles/status are document metadata, not reviewed contents",
+    "Disclose retained earlier suggestions after a failed refresh; do not expose raw source/provider errors"
+  ],
+  "validation": {
+    "focused_tests": 42,
+    "full_unit_tests": 4719,
+    "unit_files": 328,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "provider_calls": 0,
+    "hosted_records": 0
+  },
+  "candidate_runtime": {
+    "fingerprint": "eebb4f81f22e87e90e6a9184f31086b8050e366465ef124c9dff51b97a2f0159",
+    "file_count": 1189
+  },
+  "limitations": [
+    "Existing RLS defines visible sources; successful empty results establish only caller-visible absence, not global nonexistence",
+    "Recorded scores are not independently verified assessments; deterministic reconciliation covers returned badge/number, not the truth of generated prose",
+    "Duplicate categories remain unassessed rather than choosing an arbitrary row; no source-record rewrite or data repair",
+    "Sources are separate reads, not an atomic snapshot; access loss during an issued generation and live all-role acceptance remain unverified",
+    "No inference that the historical Pathway failure cause is resolved; prior two-role Pathway functional acceptance remains recorded"
+  ],
+  "role_and_demo_scope": "Shared Student Planning Tools card and handler under unchanged RLS; no new generation privileges or Owner dashboard. No demo provider calls, mock assessment data, document-format edits or protected Lovable changes.",
+  "next": [
+    "Complete candidate automatic checks and review",
+    "Prepare one concrete separately authorized staging packet covering lifecycle/source changes and bounded applicable-role readiness acceptance",
+    "Continue report translation/next steps and IEP/document/evidence extraction coverage; keep broader production/provider/privacy/security/billing/email/operations gates"
+  ],
+  "authorization": "No release, publication, migration, hosted fixture, AI/provider call, production/main merge, accounts/access, payment or secret changes",
+  "preserved": "TF-01\u2013TF-26/six milestones; report polish and Parent Pilot/Pathway Snapshot deferred; Your Dashboard Widgets edit"
+}

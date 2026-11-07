@@ -269,7 +269,7 @@ function WaitlistPage() {
     };
   }, [selected, done]);
 
-  const form = useForm<FormValues>({
+  const form = useForm<z.input<typeof Schema>, unknown, FormValues>({
     resolver: zodResolver(Schema),
     defaultValues: {
       full_name: "",

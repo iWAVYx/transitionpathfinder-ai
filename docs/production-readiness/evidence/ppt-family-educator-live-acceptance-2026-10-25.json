@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-25",
+  "run_id": 40231246197,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40231246197",
+  "application_commit": "89aa95afd3b2224ee077ca89e5d0cdeb0f78098f",
+  "runtime_fingerprint": "dd512c1cd543fb218ddc7b9203684454b1893149fdf51a755660f3058971b3f7",
+  "runtime_files": 1185,
+  "status": "functional live acceptance passed; manual source-fidelity caveat retained",
+  "authorization": "One explicitly authorized staging release and one bounded Family/Educator PPT test; separate GitHub human review registered. No repeat.",
+  "passed": [
+    "Both stable staging runtime/backend/sandbox/isolation preflights",
+    "Seven existing role sign-ins",
+    "Family and Educator direct Lovable sign-in",
+    "Two PPT cases passed with no retries",
+    "Generate once per role, validate structure, save and reopen exact packet",
+    "Each other role denied access to private packet",
+    "Two PDF exports with print control hidden",
+    "Caller cleanup receipts plus independent read-only postgres zero-count proof for both exact scopes",
+    "Manual visual inspection of all six rendered PDF pages"
+  ],
+  "consumed_scope": {
+    "application_generation_invocations": 2,
+    "sdk_request_attempts": "Not independently observed; authorization allowed up to six attempts across two invocations. Gateway retries/billing not independently observed.",
+    "intakes": 2,
+    "reports": 2,
+    "ppt_packets": 2,
+    "pdfs": 2,
+    "explicit_fictional_screenshots": 2,
+    "test_retries": 0,
+    "new_accounts_students_relationships_shares": 0
+  },
+  "sanitization": {
+    "success": true,
+    "unsafe_files_removed": 0,
+    "verified_before_download": true
+  },
+  "pdf_checks": [
+    {
+      "role": "parent",
+      "pages": 3,
+      "source_text_items_checked": 25,
+      "all_source_text_present": true,
+      "pdf_sha256": "0464a1fda6d90ed3a17f5a16f3a2baa828a3601aa962cb36dd6d674356b39e4d",
+      "pdf_bytes": 238290,
+      "cleanup": {
+        "operator": "postgres",
+        "read_only": "on",
+        "prep_count": 0,
+        "run_marker": "QA PPT 40231246197-1 parent",
+        "observed_at": "2026-10-25T20:41:40.834572+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "version_count": 0
+      }
+    },
+    {
+      "role": "educator",
+      "pages": 3,
+      "source_text_items_checked": 25,
+      "all_source_text_present": true,
+      "pdf_sha256": "abde80f6d59e0d6c96006e18dbce2b817c0a29c9c7a3cf3d13fea3f5d5a15cb8",
+      "pdf_bytes": 233472,
+      "cleanup": {
+        "operator": "postgres",
+        "read_only": "on",
+        "prep_count": 0,
+        "run_marker": "QA PPT 40231246197-1 educator",
+        "observed_at": "2026-10-25T20:41:54.931785+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "version_count": 0
+      }
+    }
+  ],
+  "visual_review": {
+    "pages_inspected": 6,
+    "pass": [
+      "Readable body text and distinct section hierarchy",
+      "Headings/columns aligned with consistent document margins",
+      "Brand logo and faint top-right watermark visible on cover pages",
+      "Page numbers present; no visible clipping, overlap or blank PDF page",
+      "All 25 generated text items per role found in PDF text after normalization"
+    ],
+    "limits": [
+      "Native OS print dialog not exercised",
+      "No claim about every font, device, paper setting or every possible generated packet",
+      "Report length/cosmetic refinement remains deferred"
+    ]
+  },
+  "manual_content_review": {
+    "improvements": [
+      "Reported two-step baseline and proposed four-step target preserved",
+      "Unprovided progress/service information generally identified as unsupplied",
+      "Student culinary interest and visual supports carried through",
+      "Both speaker perspectives present and in the correct direction",
+      "Responsibilities mostly phrased as choices/agreement rather than invented named staff assignments",
+      "Conditional disagreement/follow-up scripts; no invented diagnosis, score, numerical service allocation or legal citation observed"
+    ],
+    "remaining_caveats": [
+      {
+        "role": "parent",
+        "section": "language_that_works[0]",
+        "observation": "The planning summary notes progress toward four culinary steps, but we have not seen the dated logs implies a trend and a first-person viewing history not established by the supplied goal/baseline and missing-input flags. Prefer attributed baseline/goal wording and records not supplied here.",
+        "status": "Open source-fidelity follow-up; functional test success does not close this finding."
+      },
+      {
+        "role": "parent",
+        "section": "if_things_get_stuck",
+        "observation": "Missing progress logs and service records is less precise than not supplied in this planning context. It must not be read as proof that school records do not exist.",
+        "status": "Retain on manual review checklist."
+      }
+    ],
+    "acceptance_limit": "Two fictional packets do not certify every output or all-role/provider readiness. No automatic prompt revision or further live generation performed after this run."
+  },
+  "artifact_sha256": {
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/ppt-exact-cleanup-check.sql": "4efc3b8a301f4bca4437f9ca977b0494914d3215596514ca20b28ecab4760069",
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/ppt-generated-packet.json": "e23c4dd7a9a1c74c888242eaf8be495d45fc0c876b94beabcbedfb53f39f3365",
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/ppt-planned-fixture-scope.json": "0976210dd1dee11e831d125c40353977427eb235094fa2794d88a6829e4f24cd",
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/ppt-exact-cleanup-scope.json": "7c8b318c3bcbb3be9c55a5780895d22e5e4a77f95c35843b98862c6c54178b7a",
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/parent-synthetic-ppt.pdf": "0464a1fda6d90ed3a17f5a16f3a2baa828a3601aa962cb36dd6d674356b39e4d",
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/ppt-exact-cleanup-result.json": "2ac3b0bb36a53d28217a08c36ef01e2770bf896326c156766a839add893974e8",
+    "test-results/release-readiness-ppt-live-93500-ts-one-synthetic-PPT-packet-release-signedin/parent-synthetic-ppt-print.png": "9e1b5e8aa4bd5a4493c3c7a7d05c2ee513009ffff8d47e560667221e88df4f5c",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/ppt-exact-cleanup-check.sql": "d8a10ac36c9f53a72d2dcc6be13a6bd06c1a51942fb20d70e3ae9961d05b29f5",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/ppt-generated-packet.json": "94042e030f58a2c801f83da452e443a9645ea775fd69c3a17c1128f1276e592a",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/ppt-planned-fixture-scope.json": "34498523dc796d281803e3a937768f504139f548a17571ca5ae4eb557ea96465",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/educator-synthetic-ppt-print.png": "93c611d5225f4c48ba4ca5e06f7340942fcf5f623cc66424aa3803c8edabf893",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/ppt-exact-cleanup-scope.json": "9b848cc95fef263389797fc0cb02f079714a470fcb6dc38f943624f264062316",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/educator-synthetic-ppt.pdf": "abde80f6d59e0d6c96006e18dbce2b817c0a29c9c7a3cf3d13fea3f5d5a15cb8",
+    "test-results/release-readiness-ppt-live-9777c-ts-one-synthetic-PPT-packet-release-signedin/ppt-exact-cleanup-result.json": "496c4c1e629fe737cc4c1f7fcb5e8d363a0ac522168416f96eac28a6e496a156"
+  },
+  "not_performed": [
+    "production/main merge",
+    "additional application deployment or publication in this test",
+    "migration",
+    "new accounts/students/relationships/shares",
+    "manual payment/secret/access changes",
+    "unapproved repeat"
+  ],
+  "next": [
+    "Prepare Family and Educator Pathway creator/regeneration acceptance; old harness generates only as Family",
+    "Continue applicable Student assist/reader, School/District oversight/export, Partner directory/opportunity and private-planning denial checks; Owner remains management-only",
+    "Retain targeted source-fidelity concern without reopening tabled document-length polish",
+    "Continue remaining TF-01\u2013TF-26, provider/privacy/security/operations and production-release gates; Parent Pilot/Pathway Snapshot deferred"
+  ]
+}

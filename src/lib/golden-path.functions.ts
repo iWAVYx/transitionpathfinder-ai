@@ -1,3 +1,5 @@
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
+import { readOrganizationPages, organizationReadError } from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -98,21 +100,22 @@ export type DashboardSnapshot = {
 
 export const getDashboardSnapshot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ student_id: z.string().uuid().optional() }).parse(i),
-  )
+  .validator((i: unknown) => z.object({ student_id: z.string().uuid().optional(), expected_viewer_id: z.string().min(1).max(100).optional() }).parse(i))
   .handler(async ({ data, context }): Promise<DashboardSnapshot> => {
     const { supabase, userId } = context;
+    assertExpectedViewer(data, userId);
 
     let studentId = data.student_id ?? null;
     if (!studentId) {
-      const { data: first } = await supabase
+      const { data: first, error: firstError } = await supabase
         .from("students")
         .select("id")
         .eq("owner_id", userId)
         .order("created_at", { ascending: true })
+        .order("id")
         .limit(1)
         .maybeSingle();
+      if (firstError) throw organizationReadError();
       studentId = (first as { id?: string } | null)?.id ?? null;
     }
 
@@ -130,68 +133,98 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
       };
     }
 
-    const [
-      studentRes,
-      reportRes,
-      goalsRes,
-      docsRes,
-      actionsRes,
-      meetingRes,
-      consentsRes,
-    ] = await Promise.all([
-      supabase.from("students").select("*").eq("id", studentId).maybeSingle(),
+    // Confirm this exact caller-visible student before reading any child data.
+    const { data: studentRow, error: studentError } = await supabase
+      .from("students")
+      .select(
+        "id,first_name,last_name,preferred_name,grade_band,school,expected_graduation_year,strengths_summary,interests_summary,support_needs_summary,family_priorities,current_transition_status,readiness_level,student_voice_statement",
+      )
+      .eq("id", studentId)
+      .maybeSingle();
+    if (studentError) throw organizationReadError();
+    if (!studentRow || studentRow.id !== studentId)
+      throw new Error("This student is unavailable. Choose an accessible student and try again.");
+    const observedAt = new Date(Date.now()).toISOString();
+    const [reportRes, goals, documents, actionItems, meetingRes, consents] = await Promise.all([
       supabase
         .from("pathway_reports")
-        .select("id, created_at, content")
+        .select("id,created_at,content")
         .eq("student_id", studentId)
         .order("created_at", { ascending: false })
+        .order("id")
         .limit(1)
         .maybeSingle(),
-      supabase
-        .from("goals")
-        .select("id, title, category, status")
-        .eq("student_id", studentId)
-        .order("created_at", { ascending: true }),
-      supabase
-        .from("documents")
-        .select("id, title, doc_type, status, created_at")
-        .eq("student_id", studentId)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("action_items")
-        .select("*")
-        .eq("student_id", studentId)
-        .order("priority", { ascending: false })
-        .order("due_date", { ascending: true, nullsFirst: false }),
+      readOrganizationPages<DashboardSnapshot["goals"][number]>((from, to) =>
+        supabase
+          .from("goals")
+          .select("id,title,category,status", { count: "exact" })
+          .eq("student_id", studentId)
+          .order("created_at", { ascending: true })
+          .order("id")
+          .range(from, to),
+      ),
+      readOrganizationPages<DashboardSnapshot["documents"][number]>((from, to) =>
+        supabase
+          .from("documents")
+          .select("id,title,doc_type,status,created_at", { count: "exact" })
+          .eq("student_id", studentId)
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ),
+      readOrganizationPages((from, to) =>
+        supabase
+          .from("action_items")
+          .select(
+            "id,student_id,title,description,category,priority,status,due_date,related_goal_area,pathway_report_id,created_at",
+            { count: "exact" },
+          )
+          .eq("student_id", studentId)
+          .order("priority", { ascending: false })
+          .order("due_date", { ascending: true, nullsFirst: false })
+          .order("id")
+          .range(from, to),
+      ),
       supabase
         .from("meetings")
-        .select("id, title, kind, scheduled_at, location, status")
+        .select("id,title,kind,scheduled_at,location,status")
         .eq("student_id", studentId)
         .in("status", ["upcoming"])
+        .gte("scheduled_at", observedAt)
         .order("scheduled_at", { ascending: true, nullsFirst: false })
+        .order("id")
         .limit(1)
         .maybeSingle(),
-      supabase
-        .from("consent_records")
-        .select("*")
-        .eq("student_id", studentId)
-        .order("granted_at", { ascending: false }),
+      readOrganizationPages<ConsentRow>((from, to) =>
+        supabase
+          .from("consent_records")
+          .select(
+            "id,student_id,consent_type,consent_status,granted_at,revoked_at,expires_at,consent_text_snapshot",
+            { count: "exact" },
+          )
+          .eq("student_id", studentId)
+          .order("granted_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ),
     ]);
-
+    if (reportRes.error || meetingRes.error) throw organizationReadError();
     const upcomingMeeting = (meetingRes.data ?? null) as DashboardSnapshot["upcomingMeeting"];
-
     let meetingPrep: MeetingPrepRow[] = [];
-    if (upcomingMeeting) {
-      const { data: prep } = await supabase
-        .from("meeting_prep_items")
-        .select("id, meeting_id, student_id, category, content, completed")
-        .eq("meeting_id", upcomingMeeting.id)
-        .order("category", { ascending: true });
-      meetingPrep = (prep ?? []) as MeetingPrepRow[];
-    }
+    if (upcomingMeeting)
+      meetingPrep = await readOrganizationPages<MeetingPrepRow>((from, to) =>
+        supabase
+          .from("meeting_prep_items")
+          .select("id,meeting_id,student_id,category,content,completed", { count: "exact" })
+          .eq("meeting_id", upcomingMeeting.id)
+          .eq("student_id", studentId)
+          .order("category", { ascending: true })
+          .order("id")
+          .range(from, to),
+      );
 
     // Recommended resources — match by topic against student interests/needs
-    const student = studentRes.data as DashboardSnapshot["student"];
+    const student = studentRow as DashboardSnapshot["student"];
     const haystack = [
       student?.strengths_summary,
       student?.interests_summary,
@@ -202,20 +235,27 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
       .join(" ")
       .toLowerCase();
 
-    const [{ data: allResources }, { data: savedRows }] = await Promise.all([
-      supabase
-        .from("resources")
-        .select("id, title, description, resource_type, topic, url")
-        .order("created_at", { ascending: true })
-        .limit(50),
-      supabase
-        .from("saved_resources")
-        .select("resource_id")
-        .eq("user_id", userId),
+    const [allResources, savedRows] = await Promise.all([
+      readOrganizationPages<
+        Omit<DashboardSnapshot["recommendedResources"][number], "matched_reason" | "saved">
+      >((from, to) =>
+        supabase
+          .from("resources")
+          .select("id,title,description,resource_type,topic,url", { count: "exact" })
+          .order("created_at", { ascending: true })
+          .order("id")
+          .range(from, to),
+      ),
+      readOrganizationPages<{ resource_id: string }>((from, to) =>
+        supabase
+          .from("saved_resources")
+          .select("id,resource_id", { count: "exact" })
+          .eq("user_id", userId)
+          .order("id")
+          .range(from, to),
+      ),
     ]);
-    const savedIds = new Set(
-      ((savedRows ?? []) as Array<{ resource_id: string }>).map((r) => r.resource_id),
-    );
+    const savedIds = new Set(savedRows.map((row) => row.resource_id));
 
     const TOPIC_HINTS: Array<[string, string[]]> = [
       ["self-advocacy", ["advocate", "voice", "speak", "iep meeting"]],
@@ -228,14 +268,16 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
       ["goals", ["goal"]],
     ];
 
-    const recommendedResources = ((allResources ?? []) as Array<{
-      id: string;
-      title: string;
-      description: string | null;
-      resource_type: string;
-      topic: string | null;
-      url: string | null;
-    }>)
+    const recommendedResources = (
+      (allResources ?? []) as Array<{
+        id: string;
+        title: string;
+        description: string | null;
+        resource_type: string;
+        topic: string | null;
+        url: string | null;
+      }>
+    )
       .map((r) => {
         const topic = (r.topic ?? "").toLowerCase();
         const hints = TOPIC_HINTS.find(([t]) => t === topic)?.[1] ?? [];
@@ -243,10 +285,10 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
         return {
           ...r,
           matched_reason: matched
-            ? `Matches ${student?.first_name ?? "this student"}'s ${topic}`
+            ? `Topic keywords overlap with your saved planning notes: ${topic}.`
             : topic
-              ? `Recommended for ${topic}`
-              : "Suggested for transition planning",
+              ? `Browse this ${topic} resource; no topic keyword overlap was found.`
+              : "General transition planning resource; no topic keyword overlap was found.",
           saved: savedIds.has(r.id),
           _score: matched ? 2 : 1,
         };
@@ -258,16 +300,15 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
     return {
       student,
       latestReport: (reportRes.data as DashboardSnapshot["latestReport"]) ?? null,
-      goals: (goalsRes.data ?? []) as DashboardSnapshot["goals"],
-      documents: (docsRes.data ?? []) as DashboardSnapshot["documents"],
-      actionItems: (actionsRes.data ?? []) as ActionItemRow[],
+      goals,
+      documents,
+      actionItems: actionItems as ActionItemRow[],
       upcomingMeeting,
       meetingPrep,
       recommendedResources,
-      consents: (consentsRes.data ?? []) as ConsentRow[],
+      consents,
     };
   });
-
 /* ---------- Action item CRUD ---------- */
 
 
@@ -509,8 +550,10 @@ const DEMO_REPORT_CONTENT = {
 
 export const seedDemoStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
+    assertExpectedViewer(intent, userId);
 
     // 1. Student
     const { data: student, error: sErr } = await supabase

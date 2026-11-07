@@ -1,0 +1,48 @@
+{
+  "schema": "document-registration-owner-context-local-v1",
+  "date": "2026-10-31",
+  "previous_source": "60dfc08b70d8e55e08f40831a69f5120e040e77e",
+  "prior_native_runs": [
+    {
+      "run": 41225935830,
+      "native_tests": 1052,
+      "passed": 1052,
+      "skipped": 0,
+      "canonical_replay": 225,
+      "ninth_proposal_failure": "must be owner of function finish_document_operation"
+    },
+    {
+      "run": 41225933286,
+      "native_tests": 1052,
+      "passed": 1052,
+      "skipped": 0,
+      "canonical_replay": 225,
+      "ninth_proposal_failure": "must be owner of function finish_document_operation"
+    }
+  ],
+  "correction": "Explicit admin session; postgres remains restricted migration executor. Only existing finish replacement uses existing owner/admin context, verifies unchanged owner and restores executor. No owner transfer, memberships or app grants added.",
+  "local": {
+    "tests": 1054,
+    "passed": 927,
+    "skipped_native_only": 127,
+    "failed": 0,
+    "safety_contracts": 110,
+    "yaml_and_workflow_shell_parsed": true,
+    "all_eight_runtime_function_hashes_unchanged": true,
+    "full_sql_log_sha256": "9a06cfa10152e1aa30f743678ee36ac78405162f36f7caa104cd98a44db3779a"
+  },
+  "fresh_native_full225_plus_nine_replay": "pending",
+  "hosted_actions": false,
+  "rescan_work_resumed": false,
+  "merge_packages_closed": 0,
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+      "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-registration-capacity-settlement-review.json",
+      "sha256": "9cb00889c23654864a906d03830011ad685d148b3e0434f6e2607a57f37eda28"
+    }
+  ]
+}

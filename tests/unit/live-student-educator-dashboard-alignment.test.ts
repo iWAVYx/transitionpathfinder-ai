@@ -23,7 +23,9 @@ describe("live Student dashboard alignment", () => {
     expect(STUDENT_DASHBOARD).toContain("<LiveStudentWorkspaceOverview snapshot={snap} />");
     expect(STUDENT_HUB).toContain("<LiveStudentWorkspaceLoader />");
     expect(LIVE_STUDENT).toContain("getDashboardSnapshot");
-    expect(LIVE_STUDENT).toContain("listStudents");
+    expect(LIVE_STUDENT).toContain("getStudentHubContext");
+    expect(LIVE_STUDENT).not.toContain("listStudents");
+    expect(LIVE_STUDENT).toContain("studentId={context.student_id!}");
     expect(LIVE_STUDENT).toContain('data-testid="live-student-workspace-grid"');
     expect(LIVE_STUDENT).toContain("Preview What Matters, Then Open The Full Tool");
     expect(LIVE_STUDENT).toContain("Your student workspace could not be loaded right now.");

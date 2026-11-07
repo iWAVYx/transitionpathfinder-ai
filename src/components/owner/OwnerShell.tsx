@@ -1,6 +1,8 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/hooks/use-auth";
 import { DashboardErrorFallback } from "@/components/dashboard/DashboardErrorFallback";
 import {
   LayoutDashboard,
@@ -206,53 +208,68 @@ export const OWNER_NAV: NavItem[] = [
   { to: "/owner/settings", label: "Site settings", icon: Settings, group: "Settings" },
 ];
 
-export function OwnerShell({
-  title,
-  description,
-  children,
-  actions,
-}: {
+type OwnerShellProps = {
   title: string;
   description?: string;
   children: ReactNode;
   actions?: ReactNode;
-}) {
+};
+
+export function OwnerShell(props: OwnerShellProps) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const scopeKey = JSON.stringify([user?.id ?? null, Boolean(loading), location.pathname]);
+  const currentScope = useRef(scopeKey);
+  currentScope.current = scopeKey;
+  if (loading || !user) return <OwnerAccessPending />;
+  return <OwnerShellSession key={scopeKey} {...props} viewerId={user.id}
+    scopeKey={scopeKey} currentScope={currentScope} />;
+}
+
+function OwnerAccessPending() {
+  return <div className="flex min-h-dvh flex-col bg-background text-foreground">
+    <main data-dashboard-testid-contract={DASHBOARD_TESTID_CONTRACT_VERSION}
+      data-auth-state="checking" className="flex-1 px-4 py-10 sm:px-6">
+      <p data-dashboard-landmark="admin" className="text-sm font-semibold">Owner Hub</p>
+      <p className="mt-3 text-sm text-muted-foreground" role="status">Checking your sign-in before opening website management…</p>
+    </main>
+  </div>;
+}
+
+function OwnerShellSession({ title, description, children, actions, viewerId, scopeKey, currentScope }:
+  OwnerShellProps & { viewerId: string; scopeKey: string; currentScope: { current: string } }) {
   const navigate = useNavigate();
   const location = useLocation();
   const isOwnerHubHome = isOwnerHubHomePath(location.pathname);
   const fetchRoles = useServerFn(getMyAdminRoles);
   const [status, setStatus] = useState<"checking" | "allowed" | "denied" | "error">("checking");
 
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
-    fetchRoles()
-      .then((res) => {
-        if (cancelled) return;
+    const current = () => !cancelled && currentScope.current === scopeKey;
+    fetchRoles({ data: { expected_viewer_id: viewerId } })
+      .then(async (res) => {
+        if (!current()) return;
+        if (typeof res?.isPlatformAdmin !== "boolean") throw new Error("Invalid access response");
         if (res.isPlatformAdmin) {
           setStatus("allowed");
         } else {
           setStatus("denied");
-          navigate({ to: "/dashboard", replace: true });
+          await navigate({ to: "/dashboard", replace: true });
         }
       })
-      .catch(() => {
-        if (!cancelled) {
-          // Do NOT navigate away on transient server-fn errors — the
-          // dashboard regression suite asserts each dashboard renders a
-          // meaningful <main> even when loaders fail. Stay on this route
-          // and render the role-scoped fallback so <main> stays populated.
-          setStatus("error");
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchRoles, navigate]);
+      .catch(() => { if (current()) setStatus("error"); });
+    return () => { cancelled = true; };
+  }, [fetchRoles, navigate, viewerId, scopeKey, currentScope, attempt]);
 
   if (status === "error") {
     return (
       <div className="flex min-h-dvh flex-col bg-background text-foreground">
-        <DashboardErrorFallback role="owner" />
+        <DashboardErrorFallback role="owner" onRetry={() => {
+          setStatus("checking");
+          setAttempt(value => value + 1);
+        }} />
       </div>
     );
   }
@@ -356,7 +373,7 @@ export function OwnerShell({
               className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
-              Back to main app
+              Visit Website
             </Link>
           </div>
         </aside>
@@ -365,13 +382,8 @@ export function OwnerShell({
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="border-b border-border bg-background px-4 py-4 sm:px-6 sm:py-5">
             {!isOwnerHubHome && (
-              <Link
-                to="/owner"
-                className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                <ChevronLeft className="h-4 w-4" aria-hidden />
-                Back to Owner Hub
-              </Link>
+              <ContextualBackLink to="/owner" label="Back to Owner Hub"
+                className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground" />
             )}
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>

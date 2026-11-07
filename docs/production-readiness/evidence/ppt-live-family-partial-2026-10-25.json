@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-25",
+  "run_id": 40217917300,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40217917300",
+  "candidate": "f22e72d617dc11f5a9250b8f71953d0062dcdfef",
+  "authorization": "User explicitly authorized one bounded PPT test; GitHub human approval registered. One completed run; no repeat authorized or started.",
+  "runtime_fingerprint": "3534a127fb13ab0b69e8d8ebaaccc033de0f79156abfb76ba9c940d64a8bb9f5",
+  "runtime_files": 1185,
+  "staging_backend": "qgrertkqbwanerqqemph",
+  "result": "failed after Family generation/save/reopen at stale test heading; Educator did not run",
+  "passed": [
+    "Both stable staging identity preflights",
+    "Seven existing Cloudflare role sign-ins",
+    "Family direct Lovable sign-in",
+    "One fictional intake/report pair",
+    "One generation invocation, saved PPT packet and successful reopen",
+    "Agenda structure/content checks before the heading assertion",
+    "Exact cleanup receipt and independent privileged zero-count verification"
+  ],
+  "not_reached": [
+    "Educator generation",
+    "Cross-role private-packet denial",
+    "PDF exports",
+    "Visual PDF acceptance"
+  ],
+  "failure": {
+    "expected_stale_heading": "Suggested Agenda",
+    "actual_heading": "Your Meeting Plan",
+    "cause": "Test selector predates the shared PPT document component. Actual heading/content visibly present in error snapshot; product page did not crash.",
+    "local_correction": "Require exact current heading, plus component-level role/heading assertion; no app/runtime change."
+  },
+  "consumed_scope": {
+    "generation_invocations_observed": 1,
+    "sdk_attempts": "Not independently observable; prior authorization allowed up to six across two invocations. Only one invocation was reached.",
+    "fictional_intakes": 1,
+    "fictional_reports": 1,
+    "saved_ppt_packets": 1,
+    "pdfs": 0,
+    "automatic_test_retries": 0,
+    "new_accounts_students_relationships_shares": 0
+  },
+  "manual_family_content_review": {
+    "status": "partial; grounding concern remains open",
+    "strengths": [
+      "Six agenda topics totaling 50 minutes",
+      "Recorded culinary interest, visual checklist and baseline two independent steps toward four retained",
+      "Evidence requests acknowledge absent progress logs and service-minute verification",
+      "Family/educator script direction and progress/prompt-level questions are useful",
+      "No invented numerical service minutes, diagnosis, assessment score or legal citation observed"
+    ],
+    "concerns": [
+      "An Educator script says In class, we see despite no recorded classroom observation.",
+      "Agenda language names transition/vocational staff and a chair as confirmed follow-up owners; these are proposed roles, not verified participants.",
+      "Community culinary training/classroom framing goes beyond the supplied culinary job-site interest; distinguish proposals from established context."
+    ],
+    "acceptance_limit": "One synthetic output only; not educator generation, PDF quality, universal grounding or all-role generation acceptance."
+  },
+  "sanitization": {
+    "step": "success",
+    "unsafe_files_removed": 0,
+    "download_after_log_verification": true,
+    "artifact_sha256": {
+      "ppt-exact-cleanup-check.sql": "ef0f34747e61d0e1b6f8fb6201695a8493a033d3ea03fa81e7ecfe77dc160dae",
+      "ppt-generated-packet.json": "737ef208da7b1d8b49b55389520718a66a59c508592527ae20170211a52ba22f",
+      "ppt-planned-fixture-scope.json": "7e3c70acec38650f2280b754f051a4dff7a32eaf0117b242ceffaffa50827338",
+      "ppt-exact-cleanup-scope.json": "1dbdd356d3569930e4f1787f3e8e6480d297b19b6de1a84e90505ccdb9c6824c",
+      "ppt-exact-cleanup-result.json": "01cf7bddc42d56027995e206c8913b379056f2b8abaa2ed2ea1723c1c857fe48",
+      "error-context.md": "ecfe68f550a1550e87d9c94ee3055037c95e91693fed6c3cdf9b335547617d4d"
+    }
+  },
+  "independent_cleanup": {
+    "operator": "postgres",
+    "read_only": "on",
+    "prep_count": 0,
+    "run_marker": "QA PPT 40217917300-1 parent",
+    "observed_at": "2026-10-25T19:39:34.434757+00:00",
+    "share_count": 0,
+    "intake_count": 0,
+    "report_count": 0,
+    "version_count": 0
+  },
+  "cleanup_scope": "Exact preallocated IDs, known packet ID/report binding and exact synthetic name marker including detached packets; no prefix sweep or standing student removal.",
+  "application_changes": false,
+  "production_main_deployment_publication_migration_changes": false,
+  "next": [
+    "Complete local/automatic checks for the test-only heading correction",
+    "Prepare a separately authorized bounded repeat before more AI/fixture activity",
+    "Keep source-grounding concern open for a focused product review; no silent success claim",
+    "Continue TF-01\u2013TF-26 and six milestones; report polish and Parent Pilot/Pathway Snapshot stay deferred"
+  ],
+  "local_correction_validation": {
+    "focused_tests": 59,
+    "unit_tests": 4562,
+    "unit_files": 319,
+    "runtime_unchanged": true,
+    "typescript": "final check running",
+    "automatic_checks": "pending push; no live repeat"
+  }
+}

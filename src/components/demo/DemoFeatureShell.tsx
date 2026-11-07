@@ -1,6 +1,7 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
+import { DemoHistoryExport } from "./DemoHistoryExport";
 import { Link } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   AlertCircle,
@@ -50,7 +51,7 @@ export function DemoFeatureShell({
   detail: DemoFeatureDetail;
   richModule?: React.ReactNode;
 }) {
-  const { profileId } = useDemoStudent();
+  const { profileId, profile } = useDemoStudent();
   const { schoolId } = useDemoSchool();
   const { districtId } = useDemoDistrict();
   const { planId } = useDemoPartnerPlan();
@@ -78,14 +79,8 @@ export function DemoFeatureShell({
               { label: detail.title },
             ]}
           />
-          <Link
-            to={backTo as never}
-            className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground"
-            data-testid="back-to-role-dashboard"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-            Back to {backLabel}
-          </Link>
+          <ContextualBackLink to={backTo} label={`← Back to ${backLabel}`} testId="back-to-role-dashboard"
+            className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-sm font-medium text-foreground/80 transition hover:bg-background hover:text-foreground" />
         </div>
 
         <header className="mt-6 rounded-3xl border bg-gradient-hero p-6 shadow-soft sm:p-8">
@@ -115,7 +110,7 @@ export function DemoFeatureShell({
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
-              <Button
+              {!/^back to /i.test(augmented.secondaryAction.label) && <Button
                 asChild
                 size="lg"
                 variant="outline"
@@ -124,7 +119,7 @@ export function DemoFeatureShell({
                 <Link to={augmented.secondaryAction.to as never}>
                   {toTitleCase(augmented.secondaryAction.label)}
                 </Link>
-              </Button>
+              </Button>}
               <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary/70" aria-hidden />
                 Opens the real tool once you sign in.
@@ -132,6 +127,8 @@ export function DemoFeatureShell({
             </div>
           )}
         </header>
+
+        {role === "family" && detail.id === "history" && <div className="mt-6"><DemoHistoryExport key={profileId} displayName={profile.displayName}/></div>}
 
         {richModule && <div className="mt-8">{richModule}</div>}
 
@@ -265,12 +262,6 @@ export function DemoFeatureShell({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm" data-testid="demo-feature-secondary-action">
-              <Link to={backTo as never}>
-                <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
-                Back to {backLabel}
-              </Link>
-            </Button>
             {detail.primaryAction && (
               <Button
                 asChild

@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.3",
+  "scope": "Native recovery implementation and concurrency only; full-schema replay still pending",
+  "head_source": "26ff8a5fa3d582e070bcf446540c5da6870930c2",
+  "checkout_commit": "68c1818b7f136813d68d12f850d85fe25384ac54",
+  "run": 42080986424,
+  "native_aggregate": "success",
+  "complete_native_cases": 1590,
+  "failed": 0,
+  "skipped": 0,
+  "added_reconciliation_cases": 30,
+  "native_duplicate_resolution_commit_and_rollback_verified": true,
+  "raw_artifacts_independently_validated": true,
+  "proof": "docs/production-readiness/evidence/document-apply-no-save-native-proof-42080986424-2026-11-05.json",
+  "proof_sha256": "4982165f944826d6d801e8935db697e3d332b8088fbf88f1e0cb0c2164dd5408",
+  "all1590_test_source_retained_byte_for_byte_in": "293e5268f80a886ef65323615b9e78a6f35a28b5",
+  "resolver_sql_sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
+  "native_full_schema_verified": false,
+  "whole_action_complete": false,
+  "remaining": [
+    "Full225+27 schema replay",
+    "Trusted operator route authorization and other reconciliation kinds",
+    "Provider/external cessation evidence; ambiguous work stays held"
+  ],
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

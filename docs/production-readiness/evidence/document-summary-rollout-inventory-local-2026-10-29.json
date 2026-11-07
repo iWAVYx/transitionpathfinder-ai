@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-29",
+  "status": "Exact candidate 45469879 passes all nine applicable checks; both native suites 583 passed/zero skips; complete 210-migration/fourteen-proposal replay and read-only inventory pass. No hosted acceptance.",
+  "source_base": "44731ffe",
+  "query": "docs/production-readiness/proposals/document-summary-rollout-inventory.sql",
+  "query_sha256": "108efc8f07b473f6b129780e011b2c800c29c44b1691dfa540a2603af42bde46",
+  "application_changed": false,
+  "application_fingerprint": "9e3d77f10b30dc4f0043a241cbffd048571c9ee87d8c0eaf16741871299ea5d6",
+  "application_file_count": 1199,
+  "canonical_migrations": 210,
+  "unapplied_mutation_proposals": 14,
+  "hosted_actions": false,
+  "boundaries": [
+    "Explicit read-only transaction, bounded timeouts and access-share relation locks before full-visibility checks. No rows, schema, grants or worker state are changed.",
+    "Requires broad relation SELECT and inactive RLS for all source relations. Limited roles fail rather than returning hidden-row zeros. This is a trusted operator review script, not an endpoint or role grant.",
+    "Only fixed state labels, counts and fixed booleans are emitted. No IDs, paths, names, hashes, private text, source/result payloads or raw error messages are output.",
+    "Counts distinguish bound/unbound queued/processing/needs_review/completed/failed jobs, unknown states, invalid claim/lock shapes and retained identity conflicts. Historical unbound jobs still need review; no backfill is created.",
+    "Read-only row snapshots do not stop workers or prove absence. Quiescence, provider reconciliation, retention completion, rollout and cleanup authority stay false even for an empty database."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 583,
+      "pass": 521,
+      "fail": 0,
+      "skip": 62,
+      "skips": "Real PostgreSQL concurrency cases only; no local concurrency proof."
+    },
+    "native_full_schema": {
+      "tests": 583,
+      "pass": 583,
+      "fail": 0,
+      "skip": 0,
+      "runs": [
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40838067711",
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40838060605"
+      ],
+      "schema": "Both full 210 canonical migration replays and fourteen unapplied proposals pass, followed by strict full-visibility read-only inventory. No canonical migration or snapshot changed.",
+      "count_artifacts_identical": true,
+      "count_artifact_bytes_sha256": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92",
+      "stored_disposable_snapshot": "docs/production-readiness/evidence/document-summary-rollout-disposable-2026-10-29.json",
+      "stored_disposable_snapshot_sha256": "3620c9867b7b2a2024d51b889f3c1a8b8f037a77c55f16fc91fa4b5423e28cd0",
+      "reference_catalog_artifacts_identical": true,
+      "reference_catalog_artifact_sha256": "47bbfcf70148703553507f9b8f5866459e9ca8aa01144afb0110eec0d2a8bc4f",
+      "scope": "Empty counts belong only to newly replayed disposable databases; they say nothing about staging or production job counts."
+    },
+    "local_safety_transport_contracts": {
+      "pass": 88,
+      "fail": 0,
+      "skip": 0
+    },
+    "automatic_checks": {
+      "applicable_pass": 9,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40838067613,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40838067896,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40838067650,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067738,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067755,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067855,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067654,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067696,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067651,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838067711,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838060526,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40838060605,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt; application fingerprint unchanged. No reruns.",
+      "protected_skipped": "Unperformed; not hosted acceptance."
+    }
+  },
+  "retention_review": "docs/production-readiness/proposals/document-retention-review.json",
+  "limitations": [
+    "This script requires the retained-source proposal, so it is not a pre-install scan for the unchanged hosted schema. A separate authorized pre-install plan and worker drain/reconciliation are still required.",
+    "Counts are one snapshot and cannot enumerate which exact private jobs need action. Any per-record review needs specifically authorized access and must not expose private payloads in CI artifacts.",
+    "No actual provider/Storage behavior, hosted worker pause/drain, migration, deployment/publication, AI/provider request, account/access/payment/secret or production action has occurred."
+  ],
+  "verified_source": "45469879748ac26db3da04cda96d21dccb84ad28",
+  "provider_review": "docs/production-readiness/evidence/document-storage-provider-review-2026-10-29.json"
+}

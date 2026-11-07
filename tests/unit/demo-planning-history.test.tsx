@@ -7,6 +7,7 @@ import {
   createRoute,
   createRouter,
   RouterProvider,
+  Link,
 } from "@tanstack/react-router";
 import { useDemoPlanningRole } from "../../src/lib/demo/use-demo-planning-role";
 import { useDemoStudent } from "../../src/lib/demo/use-demo-student";
@@ -21,6 +22,7 @@ function PlanningPage() {
       </output>
       <button onClick={() => setRole("educator")}>Educator</button>
       <button onClick={() => setProfile("riley")}>Riley</button>
+      <Link to={`/demo/${role}`} search={{ student: profile.id }}>Back to Role Dashboard</Link>
     </>
   );
 }
@@ -32,8 +34,9 @@ function open(entry: string) {
     path: "/demo/report",
     component: PlanningPage,
   });
+  const dashboard = createRoute({ getParentRoute: () => root, path: "/demo/$role", component: () => <h1>Role Dashboard</h1> });
   const router = createRouter({
-    routeTree: root.addChildren([route]),
+    routeTree: root.addChildren([route, dashboard]),
     history: createMemoryHistory({ initialEntries: [entry] }),
   });
   render(<RouterProvider router={router} />);
@@ -71,6 +74,38 @@ describe("demo planning history", () => {
       role: "educator",
     });
     expect(router.state.location.hash).toBe("report");
+  });
+
+  it.each(["student", "family", "educator"])("%s sample changes preserve the current page area and URL context", async role => {
+    const router = open(`/demo/report?role=${role}&student=sam&expand=true#report-goals`);
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:sam`));
+    const navigate = vi.spyOn(router, "navigate");
+    fireEvent.click(screen.getByRole("button", { name: "Riley" }));
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:riley`));
+    expect(navigate).toHaveBeenCalledWith(expect.objectContaining({
+      to: "/demo/report", hash: "report-goals", replace: false, resetScroll: false,
+    }));
+    expect(router.state.location.search).toMatchObject({ role, student: "riley", expand: true });
+    expect(router.state.location.hash).toBe("report-goals");
+    router.history.back();
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:sam`));
+    router.history.forward();
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:riley`));
+  });
+
+  it.each(["student", "family", "educator"])("a departing %s report does not canonicalize the dashboard destination", async role => {
+    sessionStorage.setItem("demo-role-view", "educator");
+    const router = open(`/demo/report?role=${role}&student=sam`);
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:sam`));
+    fireEvent.click(screen.getByRole("link", { name: "Back to Role Dashboard" }));
+    await screen.findByRole("heading", { name: "Role Dashboard" });
+    await waitFor(() => expect(router.state.location.pathname).toBe(`/demo/${role}`));
+    expect(router.state.location.search).toEqual({ student: "sam" });
+    router.history.back();
+    await waitFor(() => expect(screen.getByTestId("context").textContent).toBe(`${role}:sam`));
+    router.history.forward();
+    await screen.findByRole("heading", { name: "Role Dashboard" });
+    expect(router.state.location.search).toEqual({ student: "sam" });
   });
 
   it("pins old bookmarks to a supported perspective and sample so later choices cannot change their history", async () => {

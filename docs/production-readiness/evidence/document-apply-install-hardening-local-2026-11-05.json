@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.4",
+  "completed_substep": "Exact installation metadata checks for Apply completion and release drafts",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+      "sha256": "b05e98f499f55c1683283d41fc20810ef1171cc420a17672c37d24db1fb167d4"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "1ee19ae3dc2a4c118e53e366f7cd2855779e17563301d09b44cdf9ddf772183a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+      "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+      "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae"
+    }
+  ],
+  "checks": [
+    "Admissions paused before installation",
+    "Exact dependency SQL body, owner, security mode and fixed search path/UTC settings",
+    "Exact permitted caller execution grants",
+    "Private binding/receipt table ownership, RLS, absence of policies and table/column grants",
+    "Exact enabled row trigger event/function/deferral metadata"
+  ],
+  "validation": {
+    "combined_database_cases": 126,
+    "passed": 120,
+    "native_only_skipped": 6,
+    "failed": 0,
+    "new_installation_drift_cases": 25,
+    "readiness_portability_contracts_passed": 41,
+    "database_log_sha256": "8ec1a6e3b5451e5d6ae09ee77e5ce708a81e0bc9f1f3f43bfafac9cc99521f53",
+    "contracts_log_sha256": "7f66c15f92a91685a671040cbd407018e9e2552e3b9c68abd93b00bf02795332"
+  },
+  "prior_integrated_evidence": "docs/production-readiness/evidence/document-apply-integrated-local-2026-11-05.json",
+  "remaining": [
+    "Complete source-admission/save installation dependency checks and complete-chain activation guard before enabling any Apply entry point",
+    "Native concurrency/commit/rollback and complete schema replay including all four Apply drafts",
+    "Coherent quota re-admission and mixed producer/worker accounting acceptance",
+    "Final coordinated package and separately authorized hosted acceptance"
+  ],
+  "native_verified": false,
+  "full_schema_verified": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "whole_workstream_complete": false
+}

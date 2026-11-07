@@ -15,6 +15,7 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { existsSync } from "node:fs";
 import { ROLES, VIEWPORTS, forbiddenDashboardText } from "./helpers/roles";
+import { duplicateDashboardLinks } from "./helpers/dashboard-links";
 
 async function attachMainDiagnostic(
   page: Page,
@@ -149,15 +150,9 @@ for (const role of ROLES) {
             await expect(page.getByTestId("dashboard-widget-board").locator('a[href="/calendar"]'))
               .toHaveCount(0);
           }
-          const items = await collectInteractiveTargets(page);
-          const hrefs = items
-            .filter((i) => i.tag === "a" && i.href && i.href.startsWith("/"))
-            .map((i) => i.href!);
-          const counts = new Map<string, number>();
-          for (const h of hrefs) counts.set(h, (counts.get(h) ?? 0) + 1);
-          // Allow href="/" once (logo) and known repeating utility links
-          // like /messages once per region.
-          const dupes = [...counts.entries()].filter(([, n]) => n > 1);
+          // A role navigation shortcut may repeat a feature-card destination.
+          // Still reject repeated destinations within content or any one nav.
+          const dupes = await page.locator("main").evaluate(duplicateDashboardLinks);
           expect(
             dupes,
             `duplicate hrefs inside <main> for ${role.key}: ${JSON.stringify(dupes)}`,

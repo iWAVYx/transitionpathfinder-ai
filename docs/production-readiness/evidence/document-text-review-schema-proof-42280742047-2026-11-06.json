@@ -1,0 +1,9 @@
+{
+  "paused": true,
+  "schema": "document-text-review-save-schema-proof-v1",
+  "body_md5": "9848c61fddafcd67189f2e221b022abf",
+  "hosted_applied": false,
+  "ready_for_cutover": false,
+  "provider_admission_verified": false,
+  "access_revocation_serialized": false
+}

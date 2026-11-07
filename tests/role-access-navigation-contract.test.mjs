@@ -18,3 +18,24 @@ test("forbidden-route checks assert authorization without waiting for network id
   assert.match(forbiddenLoop, /timeout:\s*15_000/);
   assert.doesNotMatch(forbiddenLoop, /waitUntil:\s*"networkidle"/);
 });
+
+test("Partner management visibility uses settled caller pages without swallowing navigation failures", () => {
+  const start = source.indexOf("// PartnerForward management tools: only Partner + Owner.");
+  const end = source.indexOf("// The existing QA student", start);
+  const checks = source.slice(start, end);
+  assert.match(checks, /test\.use\(\{ storageState: role\.storageState \}\)/);
+  assert.match(checks, /async \(\{ page \}\)/);
+  assert.match(checks, /waitUntil:\s*"domcontentloaded"/);
+  assert.match(checks, /expect\.poll/);
+  assert.match(checks, /toBe\(shouldSee\)/);
+  assert.match(checks, /role\.dashboard/);
+  assert.doesNotMatch(checks, /waitUntil:\s*"networkidle"|\.catch\(|ctx\.close|browser\.newContext/);
+});
+
+test("high-school fixture checks readable grade and real planning links without a silent grade skip", () => {
+  const grade = source.slice(source.indexOf("// The existing QA student"));
+  assert.match(grade, /High School ·/);
+  assert.match(grade, /student-voice/);
+  assert.match(grade, /bridgeforward\/intake/);
+  assert.doesNotMatch(grade, /test\.skip\(!grade|waitUntil:\s*"networkidle"|hasTransition/);
+});

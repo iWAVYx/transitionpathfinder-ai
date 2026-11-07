@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/39977066359",
+  "runAttempt": 1,
+  "testSource": "48f8bc5790278d2cbb7f85ab787aab7f21857709",
+  "status": "acceptance-incomplete-failed-before-report-restoration-and-exports",
+  "roleSetup": "All seven existing role sessions passed",
+  "stagingParity": "Both approved stable hosts passed health/source/isolation before fixtures",
+  "fixturesCreated": {
+    "familyIntakes": 1,
+    "familyReports": 1,
+    "historyVersions": 2,
+    "educatorIntakes": 0,
+    "educatorReports": 0,
+    "shareLinks": 0
+  },
+  "passedBeforeFailure": [
+    "Family owner RPC save snapshots exact earlier content and actor",
+    "Direct Family owner content edit snapshots exact prior content and actor",
+    "Owner direct fabricated history INSERT, UPDATE, DELETE denied",
+    "Five unrelated roles cannot read or directly update the unlinked report",
+    "All six nonowning roles, including Owner/admin, denied owner-only save RPC and fabricated version INSERT",
+    "Existing Owner/admin report SELECT exception observed, unchanged"
+  ],
+  "failure": {
+    "stage": "nonowner-admin-reader",
+    "assertion": "Exact fictional current summary visible",
+    "timeoutMs": 5000,
+    "snapshot": "Only skip link, notifications and accessibility control; no rendered report, denial, or error message",
+    "causeConfirmed": false,
+    "hypothesis": "Initial assertion ran against a still-empty route shell; product loading/access issue not ruled out"
+  },
+  "unperformed": [
+    "Actual report-owner reader Restore and reload",
+    "Owner/admin hidden action controls",
+    "Educator fixture and report journey",
+    "Both PDF exports and visual PDF acceptance",
+    "Linked-editor hosted acceptance; no relationship created"
+  ],
+  "fixtureEvidence": {
+    "role": "parent",
+    "reportAudience": "family",
+    "runId": "39977066359-1",
+    "reportId": "05686885-2912-453f-9785-1a77e8acc372",
+    "intakeId": "3a19a09e-d6df-4440-b5cc-d12300969d99",
+    "aiCalls": 0,
+    "rpcAndDirectEditHistory": true,
+    "clientHistoryFabricationDenied": true,
+    "linkedEditorAcceptance": "Unperformed: unlinked fixtures; no new relationship authorized",
+    "existingOwnerAdminFixtureIdVisible": true,
+    "cleanup": {
+      "errors": [],
+      "scope": "Exact IDs; caller-RLS readback, not privileged global row-count proof"
+    }
+  },
+  "cleanup": {
+    "callerRlsErrors": [],
+    "independentPrivilegedReadOnly": {
+      "run_id": "39977066359-1",
+      "operator": "postgres",
+      "read_only": "on",
+      "observed_at": "2026-10-23T15:25:36.186968+00:00",
+      "intake_count": 0,
+      "report_count": 0,
+      "version_count": 0,
+      "share_token_count": 0
+    },
+    "querySha256": "5f456adef1fb268f774453dfffafc8af239a23ca04c382e0b036f3a3c95bd6a2"
+  },
+  "artifacts": {
+    "id": 12511837163,
+    "name": "staging-role-verification-39977066359",
+    "sizeBytes": 6716,
+    "sanitizer": "passed before download",
+    "pdfCount": 0,
+    "authStateOrTracesDownloaded": false
+  },
+  "preparedFollowup": {
+    "scope": "Test readiness condition and safe failure diagnostics only; no application changes",
+    "readinessContract": "Existing report-reader-lenses.spec.ts uses report-root visibility up to 30 seconds",
+    "localValidation": {
+      "focusedTests": 49,
+      "typescript": "passed",
+      "discoveredFixtureTests": 2
+    },
+    "retries": 0,
+    "hostedRepeatStarted": false,
+    "newFixtureAuthorizationRequired": true
+  },
+  "aiCalls": 0,
+  "productionTouched": false
+}

@@ -1,5 +1,9 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ClipboardList, Loader2 } from "lucide-react";
 
@@ -16,6 +20,8 @@ import {
 } from "@/lib/school-insights.functions";
 
 export const Route = createFileRoute("/_authenticated/school/planning-status")({
+  ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/school/planning-status"),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   head: () => ({
     meta: [
@@ -36,23 +42,12 @@ export const Route = createFileRoute("/_authenticated/school/planning-status")({
 
 function SchoolPlanningStatusPage() {
   const fetchStatus = useServerFn(getSchoolPlanningStatus);
-  const [data, setData] = useState<SchoolPlanningStatus | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const d = await fetchStatus({ data: {} });
-        if (alive) setData(d);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [fetchStatus]);
+  const { data, loading, reload, recoverSelection } = useOrganizationDashboardSelection<SchoolPlanningStatus>(
+    "school",
+    (id) => fetchStatus({ data: { org_id: id } }),
+    (result) => result.org_id,
+    "Could not load school information.",
+  );
 
   const totalPct =
     data && data.total_students > 0
@@ -64,8 +59,8 @@ function SchoolPlanningStatusPage() {
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs
           trail={[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "School Administration", to: "/school/overview" },
+            { label: "School Dashboard", to: "/school/overview" },
+            { label: "School Administration" },
             { label: "Planning Status by Grade" },
           ]}
         />
@@ -89,7 +84,9 @@ function SchoolPlanningStatusPage() {
             <div className="flex justify-center py-16">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : !data || !data.is_school_admin ? (
+          ) : !data ? (
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
+          ) : !data.is_school_admin ? (
             <Empty
               title="No school linked yet"
               body="Set up your school in the Overview to see planning status here."
@@ -132,7 +129,7 @@ function SchoolPlanningStatusPage() {
                       key={g.grade_band}
                       className="grid gap-2 px-5 py-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center"
                     >
-                      <div className="font-medium">{g.grade_band}</div>
+                      <div className="font-medium">{formatGradeBand(g.grade_band)}</div>
                       <div className="text-xs text-muted-foreground sm:text-right">
                         {g.with_report} of {g.total} students
                       </div>

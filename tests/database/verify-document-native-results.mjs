@@ -1,0 +1,13 @@
+import {validateNativeResults} from './document-native-result-validation.mjs';
+import {readFileSync,readdirSync,writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {createHash} from 'node:crypto';
+const sha=value=>createHash('sha256').update(value).digest('hex');
+const plan=JSON.parse(readFileSync('tests/database/document-native-test-plan.json','utf8'));
+if(sha(readFileSync(plan.test_file))!==plan.test_sha256)throw Error('Native plan source mismatch');
+const root=process.argv[2];if(!root)throw Error('Downloaded native results directory required');
+const files=[];function visit(path){for(const item of readdirSync(path,{withFileTypes:true})){const p=join(path,item.name);if(item.isDirectory())visit(p);else if(/^native-document-boundaries-.*\.json$/.test(item.name))files.push(p);}}visit(root);
+if(files.length!==plan.partitions.length)throw Error('Every native partition result is required');
+const inputs=files.map(file=>({record:JSON.parse(readFileSync(file,'utf8')),log:readFileSync(file.replace(/\.json$/,'.log'))}));
+const proof=validateNativeResults(plan,inputs,process.env.GITHUB_SHA);
+writeFileSync('/tmp/document-native-complete.json',JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof,null,2));

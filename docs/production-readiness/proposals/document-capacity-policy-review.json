@@ -1,0 +1,60 @@
+{
+  "schema": "document-capacity-policy-review-v1",
+  "date": "2026-11-05",
+  "workstream_action": "2.1",
+  "status": "Owner-selected policy implementation and disposable native/schema verification complete; hosted activation pending",
+  "unit_definition": {
+    "register": 2,
+    "rescan": 2,
+    "apply": 1,
+    "summary": "Uses its producer-reserved unit; transfer must not add another slot",
+    "uncertain": "Unresolved obligations remain counted; no automatic expiry or release"
+  },
+  "recommended_profile": {
+    "id": "conservative",
+    "global_units": 32,
+    "actor_units": 4,
+    "student_units": 2,
+    "reason": "Provisional initial-release concurrency bound. A new upload/rescan can fit per student; the account can start two such workflows at once. Completed producer/worker obligations free their exact slots."
+  },
+  "alternative_profile": {
+    "id": "more_concurrent_work",
+    "global_units": 64,
+    "actor_units": 8,
+    "student_units": 4,
+    "tradeoff": "Allows more simultaneous document work and more retained uncertain obligations before admission stops."
+  },
+  "basis_and_limits": [
+    "Engineering starting points, not measured load/cost capacity or a service-level promise",
+    "These unfinished-work counters do not cap provider retries, billing or elapsed work",
+    "Existing upload attempt limits are separate and remain unchanged",
+    "A selected source policy still requires consistent enforcement, trusted reconciliation and pause/drain acceptance before activation"
+  ],
+  "selected_profile": {
+    "id": "conservative",
+    "global_units": 32,
+    "actor_units": 4,
+    "student_units": 2
+  },
+  "owner_selection_recorded": true,
+  "required_before_activation": [
+    "Review atomic global/account/student policy update and native limit/held-work tests",
+    "Finish trusted reconciliation and pause/drain handling",
+    "Include exact policy in separately authorized staging cutover and acceptance"
+  ],
+  "environment_settings_changed": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": true,
+  "owner_selection_scope": "User selected Conservative32/4/2 in this chat on2026-11-05. Source policy only; no environment, rollout or production authorization.",
+  "implementation_preparation": {
+    "installer": "docs/production-readiness/proposals/document-capacity-selected-policy.sql",
+    "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
+    "local_cases_passed": 13,
+    "native_full_schema_verified": true,
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-verified-2026-11-05.json"
+  }
+}

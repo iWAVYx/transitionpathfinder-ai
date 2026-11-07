@@ -1,0 +1,49 @@
+{
+  "schema": "document-registration-continuation-local-v1",
+  "date": "2026-10-30",
+  "database_candidate": "74136d4d7830980f6bcce579cb367136979f7976",
+  "status": "Prepared private adapter only; actual registration handler remains unwired",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-upload-registration-operation.server.ts",
+      "sha256": "5729e6b88578e81133203ca130038eeaeca64cb267a7035c43ef3f357db0b984"
+    },
+    {
+      "path": "tests/unit/document-upload-registration-operation.test.ts",
+      "sha256": "14de23536f85391aaf22e0c7c3d89b64152227f0190eebea7314973ee33baf49"
+    }
+  ],
+  "validation": {
+    "focused_tests": 82,
+    "new_tests": 42,
+    "full_unit_tests": 5546,
+    "test_files": 356,
+    "typescript": "passed"
+  },
+  "application_runtime": {
+    "fingerprint": "076ac341a6cf5d76d2e14fe6bacbc64c1b93afd7389f9bf57b77ced7b1c0530e",
+    "files": 1203
+  },
+  "private_protocol": {
+    "one_claim_only": true,
+    "fresh_begin": false,
+    "capabilities_exposed_to_work_or_browser": false,
+    "matching_actor_student_attempt_review_hash_path_required": true,
+    "matching_managed_object_receipt_required": true,
+    "ambiguous_claim_allows_work": false,
+    "work_failure_finish_attempts": 1,
+    "completion_retry": false
+  },
+  "limitations": [
+    "Current viewer/authority and actual same-copy bytes remain handler obligations.",
+    "The callback must validate domain insert/scan/queue outcomes before resolving.",
+    "No actual registration handler or browser lifecycle is wired to the adapter yet.",
+    "Four database control proposals remain noncanonical and unapplied.",
+    "Held-work limits, manual reconciliation and provider drain proof remain open."
+  ],
+  "registration_handler_wired": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

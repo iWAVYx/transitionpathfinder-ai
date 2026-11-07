@@ -1,3 +1,4 @@
+import { createCurrentReportClient } from "./pathway-current-report.server";
 /**
  * Slice D11 — previewPathwayReportDiffShadow server function (DORMANT).
  *
@@ -23,7 +24,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   previewPathwayReportDiff,
-  type CurrentReportClient,
   type PreviewPathwayReportDiffResult,
 } from "./pathway-report-diff.server";
 import type {
@@ -102,7 +102,7 @@ export const previewPathwayReportDiffShadow = createServerFn({ method: "POST" })
       );
 
       const registryClient = buildRegistryClient(supabaseAdmin);
-      const currentClient = buildCurrentReportClient(supabaseAdmin);
+      const currentClient = createCurrentReportClient(supabaseAdmin);
       const generate = createShadowLovableRecommendationGenerator({
         model: data.modelVersion,
       });
@@ -144,19 +144,4 @@ function buildRegistryClient(admin: AdminLike): RegistryClient {
       }),
     }),
   } as unknown as RegistryClient;
-}
-
-function buildCurrentReportClient(admin: AdminLike): CurrentReportClient {
-  return {
-    fetchReport: async (reportId) => {
-      const { data, error } = await admin
-        .from("pathway_reports")
-        .select(
-          "rules_version, prompt_version, model_version, engine_channel, knowledge_snapshot, recommendations",
-        )
-        .eq("id", reportId)
-        .maybeSingle();
-      return { data, error };
-    },
-  };
 }

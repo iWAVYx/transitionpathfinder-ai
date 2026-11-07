@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.4",
+  "scope": "Corrected local/native CI steps only; complete replay remains pending",
+  "run": 42093516830,
+  "head_source": "22722cb76d485b832652c99dfd476dfae83f7c1d",
+  "workflow_status_at_observation": "queued",
+  "successful_steps": [
+    {
+      "completedAt": "2026-11-05T19:25:38Z",
+      "conclusion": "success",
+      "name": "Test read-only drain inventory without hosted credentials",
+      "startedAt": "2026-11-05T19:25:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-11-05T19:25:39Z",
+      "conclusion": "success",
+      "name": "Test read-only drain inventory in disposable PostgreSQL",
+      "startedAt": "2026-11-05T19:25:38Z",
+      "status": "completed"
+    }
+  ],
+  "observed_status_sha256": "d952b31ef9b4c6fd85c272effba458d4afb3cd495809b89b159c3a4e75c05bf0",
+  "raw_test_logs_retained": false,
+  "full_schema_reader_verified": false,
+  "test_assertions_unchanged": true,
+  "reader_sql_sha256": "dde428e3aa44f07a323c0014f62747e3887a525fce60145609d90b54f23cdc83",
+  "setup_correction": "docs/production-readiness/evidence/document-pause-drain-ci-setup-correction-2026-11-05.json",
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,120 @@
+{
+  "schema": "document-capacity-transfer-design-v1",
+  "date": "2026-10-30",
+  "source_base": "a3a4e2c1bc4c13be7e2e0070d220a6f48df34705",
+  "status": "Protocol design and offline state model only; no new admission enforcement or SQL proposal installed",
+  "scope": "Merge work packages 1 and 2; preserve existing six controls, immutable source claims and non-expiring holds.",
+  "finding": {
+    "registration_queue": "src/lib/documents.functions.ts:560",
+    "rescan_queue": "src/lib/documents.functions.ts:1581",
+    "current_issue": "Both producers insert through the caller client after scanning. Neither reserves future summary capacity. Generic admission has no student/source argument; the atomic worker claim currently creates a fresh summary operation.",
+    "unsafe_shortcut": "Do not cap only begin_document_operation, insert a second counted summary at claim, or let queue insertion alone release the producer obligation."
+  },
+  "accounting": {
+    "unit": "One unfinished work obligation, independent of status labels and elapsed time.",
+    "dimensions": [
+      "global",
+      "actor",
+      "student"
+    ],
+    "numeric_policy": "Not selected or authorized by this design. Existing upload limits remain five unresolved attempts per actor and ten per student; these are a separate count, not a new global/provider budget.",
+    "admit": {
+      "register": {
+        "producer": 1,
+        "promised_summary": 1
+      },
+      "rescan": {
+        "producer": 1,
+        "promised_summary": 1
+      },
+      "apply": {
+        "work": 1
+      },
+      "summary": "No independent fresh admission. Transfer the already-counted exact queue obligation."
+    },
+    "counted_states": [
+      "producer active",
+      "producer needs_review",
+      "untransferred promised summary",
+      "queued summary",
+      "claimed active summary",
+      "claimed needs_review summary",
+      "uncertain committed outcomes"
+    ],
+    "transfer": "One immutable obligation ID survives promised -> queued -> claimed -> completed. Queuing and claiming neither add nor remove a unit.",
+    "release": "Only a validated guarded domain completion releases its own unit. A source-bound confirmed quarantine may settle the unused promised-summary unit; unknown scan/queue/finish outcomes retain it. No ordinary held->completed, expiry, deletion or reset.",
+    "held": "A producer hold does not block a separately committed queued obligation from draining. Its own unresolved unit stays counted.",
+    "limits": "All three dimensions checked and reserved in one READ COMMITTED transaction under one common capacity lock. Pre-reserve both producer units before Storage/provider work. At cap, permit exact counted transfers and guarded completion; reject new reservations.",
+    "not_a_spending_cap": true
+  },
+  "required_interfaces": [
+    {
+      "stage": "registration reservation",
+      "change": "Extend the existing attempt-bound register transaction to reserve producer and promised-summary obligations together before returning an upload reservation. Exact retry adds neither unit nor new capability."
+    },
+    {
+      "stage": "rescan admission",
+      "change": "Replace generic actor/kind-only admission with current-viewer/student/document/revision/object/hash-bound admission; reserve both obligations before download/scanner IO."
+    },
+    {
+      "stage": "Apply admission",
+      "change": "Bind the one work obligation to the exact viewer/student/source operation before save. An actor-only lease cannot establish student quota accounting."
+    },
+    {
+      "stage": "enqueue",
+      "change": "Replace both direct document-summary inserts with one source-bound atomic queue-transfer RPC. Verify current caller authority, exact producer operation/source and clean scan; create one queued job plus immutable obligation binding in the same transaction. No replay after an uncertain reply."
+    },
+    {
+      "stage": "worker claim",
+      "change": "Extend the reviewed claim_admitted_document_summary transaction to transfer the exact queued obligation to its existing atomic operation. Never check for an additional free slot at claim; reject missing, mismatched or previously transferred bindings. Preserve strict one-use claim receipts."
+    },
+    {
+      "stage": "settlement",
+      "change": "Retain existing source/actor/domain completion guards and bind capacity settlement to their exact successful outcome in the same transaction. needs_review never frees capacity through ordinary finish."
+    },
+    {
+      "stage": "legacy/direct writers",
+      "change": "Fence document-summary inserts and generic fresh summary admissions that lack an exact producer/capacity binding, including service paths. Raw privileged bypasses remain an operational boundary requiring separate drain proof."
+    }
+  ],
+  "transactions": {
+    "lock_order": "Control fence -> common capacity serialization -> operation/source/domain locks in one reviewed order. Audit all existing finish/attempt/job triggers before selecting the final SQL lock order; no nested independent producer/worker ordering.",
+    "snapshot": "READ COMMITTED only; after a waited lock, counts and source authority must use a fresh command snapshot.",
+    "rollback": "Producer reservation, queue transfer and worker claim each commit all bindings/state changes together or none.",
+    "pause": "New reservations and queued worker starts remain blocked while paused under current policy. Already-active operations can settle guarded outcomes. At-cap draining means transfers when unpaused, not bypassing pause. Resume and trusted reconciliation rules require separate review.",
+    "unknown_reply": "Keep committed obligations counted; do not reconstruct a capability, requeue, repeat provider IO or silently release capacity.",
+    "installation": "Paused/drained preflight with exact routine hashes, owners, fixed paths, RLS and private table/column grants. Existing queues and legacy unbound work require explicit review; no automatic adoption or backfill."
+  },
+  "acceptance_required": [
+    "Two-unit producer reservation refuses atomically when only one unit is free.",
+    "Actor, student and global ceilings independently reject new obligations.",
+    "Concurrent final-slot producer admissions serialize; rollback leaves all slots free.",
+    "Exact reserved upload retry does not create capacity or new capabilities.",
+    "Queue transfer at capacity preserves total and actor/student counts.",
+    "Worker claim at capacity preserves counts and can drain the accepted queue.",
+    "Producer completion cannot free a still-queued summary unit.",
+    "Producer needs_review retains its own unit while its committed summary can drain.",
+    "Malformed or foreign actor/student/source/operation/receipt transfer refuses without mutation.",
+    "Duplicate queue transfer and duplicate worker claim refuse; no second job or obligation.",
+    "Unknown queue/claim/finish replies retain exact obligations and never replay external IO.",
+    "Confirmed quarantine settles only its exact producer/promise; scanner uncertainty releases nothing.",
+    "Held work does not expire, reopen or clear via ordinary finish, job status edits or deletion.",
+    "Current access loss blocks new actions but never removes existing counted obligations.",
+    "Direct authenticated/service document-summary inserts and generic unbound starts refuse.",
+    "Pause-vs-admit/queue/claim races preserve fence semantics; active guarded completion still works.",
+    "Separate admission/upload owners and fixed-path/private-grant preflight remain enforced.",
+    "Four-kind/all-applicable-role adapters preserve caller RLS and keep private receipts out of browser/provider/output/logging.",
+    "Independent actual PostgreSQL race tests, full-schema replay and intercepted worker/handler tests precede any hosted request."
+  ],
+  "offline_model": "tests/document-capacity-transfer-model.test.mjs",
+  "proof_boundary": "The offline model checks accounting of the proposed protocol, not SQL enforcement, real transaction races, access policy, provider cessation or hosted behavior.",
+  "general_operation_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "sql_proposal_added": false,
+  "canonical_migrations_changed": false,
+  "hosted_execution_authorized": false,
+  "production_access_authorized": false,
+  "ready_for_cutover": false,
+  "next": "Implement the private obligation ledger and exact producer/queue/worker transfer SQL together; then wire all affected adapters. Do not ship a partial generic cap."
+}

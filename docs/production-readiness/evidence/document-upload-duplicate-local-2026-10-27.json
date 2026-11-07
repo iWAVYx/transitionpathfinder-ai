@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-27",
+  "status": "local candidate; not deployed; automatic review pending",
+  "base_commit": "09520788",
+  "correction": [
+    "Verify accessible duplicate file bytes before browser storage upload and require existing document-specific view permission.",
+    "Fingerprint actual caller-readable stored bytes during registration and reject inconsistent client fingerprints.",
+    "Probe exact storage_path across row visibility before reading/scanning/registering; reject referenced or uncertain paths without exposing row identity.",
+    "Use random object IDs with upsert:false; do not remove or revive files, alter existing metadata/sharing/status, or claim concurrency idempotency.",
+    "Duplicate preflight preserves new form details and explains that they were not saved; refresh failure is distinct. Local hashing honors departed student/viewer sessions.",
+    "Removed unsafe post-upload reuse of a different document based only on caller hash. Content fingerprints are now derived from stored bytes, not asserted client/legacy hashes.",
+    "Use existing authorization denial auditing; no new role access, scanner bypass, automatic deletion or implicit file reuse."
+  ],
+  "validation": {
+    "focused_cases": 141,
+    "new_cases": 44,
+    "full_unit_tests": 5117,
+    "full_unit_files": 344,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "static_upload_gate_contracts": 5,
+    "diff_check": "passed",
+    "service_worker": "passed"
+  },
+  "prior_candidate_ci": {
+    "candidate": "09520788",
+    "applicable_checks_passed": 8,
+    "failed_build_run": "40513473650",
+    "initial_failure": "Node heap exhaustion",
+    "same_source_retry_attempt": 2,
+    "retry_result": "success",
+    "separate_build_run": "40513460799 passed",
+    "hosted_acceptance": "skipped, not passed"
+  },
+  "runtime_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "d04edc7305193a9b3cb0f0247015c0b9cfd11955bb27e5e46d3f44f5a73f74b1",
+    "file_count": 1194
+  },
+  "limits": [
+    "Sequential accessible duplicates only. A stale/missing/legacy fingerprint can miss a duplicate; the stored bytes are verified before any match is accepted.",
+    "The existing hash index and the new path probe are not atomic reservations. Concurrent duplicate/path claims remain open for a reviewed database design.",
+    "No automatic orphan cleanup was added. New random paths avoid clock collisions; unknown/failed registrations may still leave exact objects requiring reconciliation.",
+    "Mocked local tests only; no real uploads, malware submissions, provider calls, hosted fixtures, migration, deployment, publication or production/original-main changes.",
+    "No account/access, payment, environment/secret, dependency, generated-type or widget changes. Public demo remains sample-only; shared role controls retain existing entitlements.",
+    "Fingerprints describe bytes read at that moment, not proof of redaction or malware safety. Separate hash/sniff/scan downloads do not create an immutable storage snapshot."
+  ],
+  "next": [
+    "Complete fresh automatic review.",
+    "Implement/review reservation, path ownership and exact reconciliation requirements in document-upload-reconciliation-plan.json; no destructive action based only on a query snapshot.",
+    "Prepare separately bounded goal-save/duplicate/storage acceptance with exact cleanup before requesting fresh authorization."
+  ],
+  "preserved": [
+    "Full TF-01\u2013TF-26/six milestones and production gates",
+    "Lovable heading edit and protected files",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot"
+  ]
+}

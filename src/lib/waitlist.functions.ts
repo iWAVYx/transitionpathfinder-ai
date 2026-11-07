@@ -102,7 +102,7 @@ const WaitlistSchema = z.object({
 
   // Consent — REQUIRED to submit (matches RLS INSERT policy).
   consent_to_contact: z.literal(true, {
-    errorMap: () => ({ message: "Consent is required to join the waitlist." }),
+    error: "Consent is required to join the waitlist.",
   }),
 });
 

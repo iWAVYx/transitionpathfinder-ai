@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-06",
+  "declared_entries_checked": 31,
+  "corrected_paths": [
+    "src/lib/document-text-extraction.server.ts"
+  ],
+  "added_paths": [
+    "docs/production-readiness/proposals/document-text-review-save.sql"
+  ],
+  "all_declared_entries_hash_checked": true,
+  "complete_release_manifest": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

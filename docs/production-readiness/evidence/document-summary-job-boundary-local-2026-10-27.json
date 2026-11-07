@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-27",
+  "status": "proposal verified locally and in disposable native/full-schema CI; all eight applicable automatic checks passed; not canonical or hosted",
+  "base_commit": "8e7804eb",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-summary-job-boundary.sql",
+    "sha256": "1ec8e84a820b1d862ccd31f46b467156d88f8b3a473251f3c6ba0f2c761c6dc4",
+    "canonical_migration_count_unchanged": 210
+  },
+  "finding": {
+    "source": "20260528231645_00134e64-b642-4fba-b713-8f13ac348250.sql ai_jobs policies",
+    "problem": "Creator/admin read paths can be broader than current document/student access; document-summary results cannot safely inherit those exceptions when real private text is introduced.",
+    "control": "Disposable test proves Owner/creator can read before this restriction and cannot read afterward without explicit student access."
+  },
+  "behavior": [
+    "Restrict document_summary result reads to the authenticated reader with current explicit student access, document-view permission, matching live clean source and no partner-only role.",
+    "Preserve legitimate student viewer reads; existing insert policy still requires student editing access. Owner management status and former creator status are not document access.",
+    "Require queued requests with no result/error/attempt/lock fabrication and the actual authenticated requester. Prevent direct authenticated updates/deletes and cross-type moves even with a broad permissive policy.",
+    "Preserve other job types, existing baseline RLS expressions/table grants and trusted BYPASSRLS service maintenance. Existing results are not modified or certified.",
+    "Fail migration atomically for disabled job RLS or missing expected baseline read policy. New helper is fixed-path definer, executable only by authenticated readers and refuses other-actor probes."
+  ],
+  "validation": {
+    "combined_local_database_cases_passed": 164,
+    "native_only_cases_skipped": 4,
+    "workflow_yaml": "parsed; no hosted environment on replay job",
+    "diff_check": "passed"
+  },
+  "limits": [
+    "No actual file text enters worker prompts; worker/source loading/redaction/version/hash/scan checks still require implementation.",
+    "No hosted Storage API, actual role account, provider, job processing or fixture acceptance.",
+    "New definer helper is proposal-only outside the canonical routine inventory and needs ownership/grant review before promotion.",
+    "Other AI job types retain prior broader access; this does not certify their privacy or client request integrity.",
+    "Current document permission helpers/policies remain authoritative; this is not a universal document visibility/quarantine/owner policy fix.",
+    "Legacy results, scanner provenance and immutable remote bytes are not attested by result visibility checks.",
+    "The minimal fixture uses canonical helpers/policies with role/audience stubs; full native schema and hosted all-role acceptance are separate evidence."
+  ],
+  "authorization": {
+    "canonical_migration_added": false,
+    "hosted_database_changed": false,
+    "deployed": false,
+    "published": false,
+    "provider_calls": 0,
+    "production_touched": false
+  },
+  "ci_validation": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40535846950",
+    "source_commit": "77dbb3003271ad6a2607ade9d2d5e4ecf21bf9fb",
+    "attempt": 1,
+    "result": "success",
+    "native_database_cases_passed": 168,
+    "native_database_cases_skipped": 0,
+    "concurrency": "Four existing path-insert/object-metadata COMMIT/ROLLBACK lock cases retained and passed alongside summary privacy cases.",
+    "full_schema": "All 210 canonical migrations replayed; existing grant/RLS/security checks passed before all five proposals were applied and catalog boundaries verified. New proposed routine is outside the canonical inventory and requires review before promotion.",
+    "not_hosted_acceptance": true
+  },
+  "automatic_checks": {
+    "source_commit": "77dbb3003271ad6a2607ade9d2d5e4ecf21bf9fb",
+    "all_eight_applicable_passed": true,
+    "unit_tests_passed": 5135,
+    "unit_files_passed": 345,
+    "unit_run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40535853344",
+    "builds": "Parallel PR build passed first attempt; push build passed one unchanged-source retry after confirmed Node heap exhaustion. No source/credential/heap-setting change in retry.",
+    "protected_skipped_jobs": "unperformed; not hosted acceptance"
+  }
+}

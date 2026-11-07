@@ -137,6 +137,7 @@ test("server entry points repeat the privacy boundary before trusted work", () =
   assert.ok(channelGate >= 0 && channelData > channelGate);
 
   assert.match(iep, /const privacySafeText = redactSensitiveText\(data\.text\)\.text/);
-  assert.match(iep, /\$\{privacySafeText\.slice\(0, 100_000\)\}/);
-  assert.doesNotMatch(iep, /\$\{data\.text\.slice\(0, 100_000\)\}/);
+  assert.match(iep, /\$\{privacySafeText\}/);
+  assert.match(iep, /max\(120_000\)/);
+  assert.doesNotMatch(iep, /\$\{data\.text(?:\.slice\([^}]*\))?\}/);
 });

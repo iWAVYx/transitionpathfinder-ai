@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 
 const migrationPath =
@@ -12,7 +12,11 @@ const migration = readFileSync(migrationPath, "utf8");
 const alignmentMigration = readFileSync(alignmentMigrationPath, "utf8");
 const startMigration = readFileSync("supabase/migrations/20260928040000_atomic_student_channel_start.sql", "utf8");
 const historyMigration = readFileSync("supabase/migrations/20260929010000_student_channel_removal_history.sql", "utf8");
+const shareMigration = readFileSync("supabase/migrations/20261006180000_server_only_report_share_rpcs.sql", "utf8");
+const planningAccessMigration = readFileSync("supabase/migrations/20261023030000_require_explicit_planning_report_access.sql", "utf8");
+const studentBoundaryMigration = readFileSync("supabase/migrations/20261024010000_remove_implicit_admin_student_access.sql", "utf8");
 const allowlist = JSON.parse(readFileSync(allowlistPath, "utf8"));
+const uploadMigrations = readdirSync("supabase/migrations").filter(name => name.startsWith("2026102902")).sort().map(name => readFileSync("supabase/migrations/"+name,"utf8")).join("\n");
 
 function sortedUnique(values) {
   return [...new Set(values)].sort();
@@ -21,7 +25,7 @@ function sortedUnique(values) {
 function cumulativeMigrationGrantsFor(role) {
   const grants = new Set();
   const statements =
-    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}`.match(
+    `${migration}\n${alignmentMigration}\n${startMigration}\n${historyMigration}\n${shareMigration}\n${planningAccessMigration}\n${studentBoundaryMigration}\n${uploadMigrations}`.match(
       /(?:GRANT EXECUTE|REVOKE (?:ALL|EXECUTE)) ON FUNCTION public\.[^;]+;/g,
     ) ?? [];
 
@@ -57,9 +61,9 @@ test("privileged-routine allowlist is exact, unique, and fail closed", () => {
     );
   }
 
-  assert.equal(allowlist.anonymousExecute.length, 8);
-  assert.equal(allowlist.authenticatedExecute.length, 65);
-  assert.equal(allowlist.clientExecuteForbidden.length, 26);
+  assert.equal(allowlist.anonymousExecute.length, 7);
+  assert.equal(allowlist.authenticatedExecute.length, 72);
+  assert.equal(allowlist.clientExecuteForbidden.length, 43);
 
   for (const signature of allowlist.anonymousExecute) {
     assert.ok(
@@ -103,4 +107,18 @@ test("migration verifies live effective privileges and aborts on drift", () => {
     migration,
     /Production application requires a separately approved maintenance window/,
   );
+});
+
+test("history and sharing internals have exact owner-only execution exceptions", () => {
+  assert.equal(allowlist.serviceRoleExecute, "all routines in scope except serviceRoleExecuteForbidden");
+  assert.deepEqual(allowlist.serviceRoleExecuteForbidden, ["public.bind_report_share_context()", "public.can_insert_reserved_student_document(text, text)", "public.can_read_document_summary_job(uuid, uuid, text)", "public.claim_document_upload_resolution(uuid, text, uuid)", "public.close_report_links_after_access_loss(uuid, uuid)", "public.close_report_links_on_student_access_change()", "public.guard_bound_document_summary_job()", "public.guard_claimed_upload_attempt()", "public.guard_document_storage_binding()", "public.guard_document_upload_registration()", "public.hold_document_upload_for_review(uuid, text, text)", "public.link_document_upload_registration()", "public.read_document_upload_recovery(uuid, text)", "public.read_document_upload_registration(uuid, text)", "public.reject_document_source_binding_mutation()", "public.reject_upload_resolution_claim_mutation()", "public.report_share_is_eligible(uuid)", "public.reserve_document_upload(uuid, uuid, text, text)", "public.revoke_shares_on_report_context_change()", "public.snapshot_report_content_update()", "public.student_document_not_blocked(text)"]);
+  assert.ok(allowlist.clientExecuteForbidden.includes(allowlist.serviceRoleExecuteForbidden[0]));
+  const boundary = readFileSync("supabase/migrations/20261023020000_enforce_pathway_report_content_history.sql", "utf8");
+  assert.match(boundary, /REVOKE ALL ON FUNCTION public\.snapshot_report_content_update\(\) FROM PUBLIC,anon,authenticated,service_role;/);
+  assert.doesNotMatch(boundary, /GRANT EXECUTE ON FUNCTION public\.snapshot_report_content_update/);
+  assert.match(boundary, /RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog/);
+  assert.match(boundary, /CREATE TRIGGER snapshot_report_content_update AFTER UPDATE OF content ON public\.pathway_reports/);
+  // The replaced atomic RPC remains INVOKER and is deliberately outside the SD allowlist.
+  assert.match(boundary, /RETURNS integer LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog/);
+  assert.ok(![...allowlist.authenticatedExecute,...allowlist.clientExecuteForbidden].some(s => s.includes("save_pathway_report_content_atomic")));
 });

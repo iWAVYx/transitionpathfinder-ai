@@ -1,0 +1,35 @@
+{
+  "schema": "document-rescan-source-claim-verified-v1",
+  "date": "2026-10-31",
+  "verified_source": "315d629efd209a69ae7dd5ddad961a58b401a73d",
+  "runs": [
+    {
+      "run": 41245816311,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41245816311",
+      "native_tests": 1106,
+      "passed": 1106,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 10,
+      "artifact": "docs/production-readiness/evidence/document-rescan-source-claim-proof-41245816311-2026-10-31.json",
+      "artifact_sha256": "7a3c7c89cd0c77869adad2bd5af9e602afaf3d4f6aff5d4c630d2a5b55f1d055",
+      "log_sha256": "05b4657493c0f2a81d35f85918848b3d94f7687d671cf43a6316408a37999e01"
+    },
+    {
+      "run": 41245812068,
+      "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/41245812068",
+      "native_tests": 1106,
+      "passed": 1106,
+      "skipped": 0,
+      "canonical_migrations": 225,
+      "noncanonical_proposals": 10,
+      "artifact": "docs/production-readiness/evidence/document-rescan-source-claim-proof-41245812068-2026-10-31.json",
+      "artifact_sha256": "7a3c7c89cd0c77869adad2bd5af9e602afaf3d4f6aff5d4c630d2a5b55f1d055",
+      "log_sha256": "51e8d2eabdcfbb8cbaa3ab57d3c1a20eb2f339e2383d98a4bc3309efa38aa235"
+    }
+  ],
+  "ready_for_cutover": false,
+  "provider_quiescence_verified": false,
+  "hosted_actions": false,
+  "scope": "Exact native/full-schema private source/capacity foundation only; no pending transition, completion/settlement, ordinary execution or endpoint wiring."
+}

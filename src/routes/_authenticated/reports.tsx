@@ -1,3 +1,4 @@
+import { formatGradeBand } from "@/lib/grade-band-label";
 import { Link, Outlet, createFileRoute, useChildMatches, useRouter } from "@tanstack/react-router";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
@@ -29,6 +30,8 @@ function ReportsPage() {
   const list = useServerFn(listMyReports);
   const del = useServerFn(deleteReport);
   const [rows, setRows] = useState<ReportListRow[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortKey>("newest");
@@ -45,10 +48,18 @@ function ReportsPage() {
   const compact = density === "compact";
 
   useEffect(() => {
-    list()
-      .then((r) => setRows(r.reports))
-      .catch(() => setRows([]));
-  }, [list]);
+    let cancelled = false;
+    setRows(null);
+    setLoadError(false);
+    list().then((result) => {
+      if (cancelled) return;
+      if (result.loadFailed) throw new Error("Reports unavailable");
+      setRows(result.reports);
+    }).catch(() => {
+      if (!cancelled) { setRows([]); setLoadError(true); }
+    });
+    return () => { cancelled = true; };
+  }, [list, loadAttempt]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this Pathway Report? This cannot be undone.")) return;
@@ -167,7 +178,13 @@ function ReportsPage() {
 
         <div className="mt-6">
           {rows === null && <p className="text-sm text-muted-foreground">Loading your reports…</p>}
-          {rows !== null && rows.length === 0 && (
+          {loadError && (
+            <div role="alert" className="rounded-2xl border bg-card p-4">
+              <p className="text-sm">We couldn't load your Pathway Reports. Please try again.</p>
+              <Button variant="outline" className="mt-3" onClick={() => setLoadAttempt((attempt) => attempt + 1)}>Reload Reports</Button>
+            </div>
+          )}
+          {!loadError && rows !== null && rows.length === 0 && (
             <div className="rounded-3xl border border-dashed border-border/60 bg-gradient-hero/40 p-10 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft">
                 <FolderOpen className="h-7 w-7" aria-hidden />
@@ -207,7 +224,7 @@ function ReportsPage() {
                         </p>
                         {r.grade_band && (
                           <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                            {r.grade_band}
+                            {formatGradeBand(r.grade_band)}
                           </span>
                         )}
                         {r.linked_student_name && (
