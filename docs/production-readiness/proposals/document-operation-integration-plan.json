@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Atomic text-review saving passes31 native cases, all1660 existing native cases and full225+31 replay. Draft32 adds scoped editing-proof/role-writer locks with17 local passes and22 required native races; native39/full225+32 acceptance and remaining admission/recovery/source/hosted gates remain open.",
+  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Reviewed text-save editing-proof locks are verified:39 authority cases (22 concurrency cases),31 save regression cases, all1660 existing native cases and full225+32 replay pass. Durable generation admission and remaining reconciliation/other-workflow/source/raw/cached-old/hosted gates stay open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -931,10 +931,11 @@
     "proposal": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
     "local_evidence": "docs/production-readiness/evidence/document-text-review-authority-local-2026-11-06.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "scope": "reviewed atomic text-save RPC only",
     "provider_admission_verified": false,
     "other_or_cached_old_writers_verified": false,
-    "hosted_applied": false
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-review-authority-verified-2026-11-06.json"
   }
 }

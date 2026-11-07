@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-06",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered proposals and thirteen appendix drafts. First31 are native/full-schema verified; draft32 scoped atomic-save editing-proof locks pass17 local cases and require22 native races/full225+32 replay. Not a hosted installation recipe.",
+  "scope": "Nineteen ordered proposals and thirteen appendix drafts; all32 have disposable native/full-schema proof. Full225+32 replay,39 scoped authority cases,31 save regression cases and all1660 existing native cases pass. Not a hosted installation recipe.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -269,7 +269,7 @@
     {
       "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
       "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5",
-      "native_status": "local17_native39_full225_plus32_pending",
+      "native_status": "verified_native39_plus31_save_plus1660_existing_full225_plus32",
       "hosted_applied": false
     }
   ],
@@ -309,7 +309,7 @@
     "docs/production-readiness/proposals/document-text-review-save.sql",
     "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
   ],
-  "verification_appendix_scope": "First twelve appendix drafts after ordered19 are verified through full225+31 replay,31 save cases and1660 existing native cases. Thirteenth draft adds save-specific editing-proof/role-writer locks;17 local passes,22 native races/full225+32 acceptance pending. Broader admission/source/legacy/hosted gates remain open.",
+  "verification_appendix_scope": "All thirteen appendix drafts after ordered19 have disposable native/full-schema proof through225+32 replay. Reviewed atomic text-save authority locks pass39 native cases (22 concurrency cases);31 save regression and all1660 existing native cases also pass. Broader admission/source/raw/legacy/hosted gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -339,5 +339,6 @@
   "summary_queue_entry_verified_evidence": "docs/production-readiness/evidence/document-summary-queue-entry-verified-2026-11-05.json",
   "text_review_save_preparation_evidence": "docs/production-readiness/evidence/document-text-review-save-local-2026-11-06.json",
   "text_review_save_verified_evidence": "docs/production-readiness/evidence/document-text-review-save-verified-2026-11-06.json",
-  "text_review_authority_preparation_evidence": "docs/production-readiness/evidence/document-text-review-authority-local-2026-11-06.json"
+  "text_review_authority_preparation_evidence": "docs/production-readiness/evidence/document-text-review-authority-local-2026-11-06.json",
+  "text_review_authority_verified_evidence": "docs/production-readiness/evidence/document-text-review-authority-verified-2026-11-06.json"
 }
