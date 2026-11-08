@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Existing32 SQL drafts remain disposable-verified through225+32 replay. Attached-text source consumer now refuses AI before exact source-bound counted admission and refuses unbound save fallback. Matching shared-pool SQL admission/settlement/hold/drain/reconciliation and combined workflow acceptance remain unimplemented and block activation. Workstream2 remains open.",
+  "status": "First32 SQL drafts retain native/full225+32 proof. Draft33 prepares private source-bound text reservations/holds in the same32/4/2 pool, pause/drain visibility and no-release guards:30 local cases plus21 legacy-reader cases pass;8 native races/full225+33 acceptance remain pending. Public begin/hold/bound-save and completion/reconciliation integration still block generation admission and rollout.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -137,6 +137,14 @@
     {
       "path": "src/lib/document-text-admission.server.ts",
       "sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+      "sha256": "d7ea4c4b5b80e63a1c8e83a474d6b429ab7a1536e70721af0efea2a41bb60974"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
+      "sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3"
     }
   ],
   "batch": {
@@ -234,7 +242,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 32,
+  "unapplied_admission_proposals": 33,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -739,14 +747,14 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-08",
-    "checked_against_source": "7ecf18f4 plus prepared text-admission consumer",
-    "evidence": "docs/production-readiness/evidence/document-text-admission-consumer-manifest-2026-11-08.json",
-    "declared_entries_checked": 33,
-    "corrected_entries": 1,
+    "checked_against_source": "de236ca7 plus private text-capacity foundation",
+    "evidence": "docs/production-readiness/evidence/document-text-capacity-manifest-2026-11-08.json",
+    "declared_entries_checked": 35,
+    "corrected_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
-    "added_entries": 1
+    "added_entries": 2
   },
   "automatic_counted_worker_handoff_preparation": {
     "proposal": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
@@ -822,7 +830,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 13,
+  "verification_appendix_drafts": 14,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -875,11 +883,13 @@
     "inventory": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
     "evidence": "docs/production-readiness/evidence/document-pause-drain-inventory-local-2026-11-05.json",
     "local_verified": true,
-    "native_full_schema_verified": true,
+    "native_full_schema_verified": false,
     "read_only": true,
     "creates_schema_objects": false,
     "hosted_applied": false,
-    "verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json"
+    "previous_verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json",
+    "legacy_guard_extension_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
+    "unified_inventory": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
   },
   "private_generic_admission_preparation": {
     "proposal": "docs/production-readiness/proposals/document-private-operation-admission.sql",
@@ -951,6 +961,15 @@
     "source_gate_prepared": true,
     "backend_protocol_implemented": false,
     "shared_pool_enforcement_verified": false,
+    "hosted_applied": false
+  },
+  "document_text_capacity_foundation_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "consumer_protocol_implemented": false,
+    "completion_release_implemented": false,
     "hosted_applied": false
   }
 }

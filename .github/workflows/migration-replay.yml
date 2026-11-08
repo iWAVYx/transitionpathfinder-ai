@@ -33,6 +33,9 @@ on:
       - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
       - "docs/production-readiness/proposals/document-text-review-save.sql"
       - "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
+      - "docs/production-readiness/proposals/document-text-capacity-foundation.sql"
+      - "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
+      - "tests/database/document-text-capacity.test.mjs"
       - "tests/database/document-text-review-authority.test.mjs"
       - "tests/database/document-text-review-save.test.mjs"
       - "src/lib/document-text-extraction.server.ts"
@@ -141,6 +144,9 @@ on:
       - "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql"
       - "docs/production-readiness/proposals/document-text-review-save.sql"
       - "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
+      - "docs/production-readiness/proposals/document-text-capacity-foundation.sql"
+      - "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
+      - "tests/database/document-text-capacity.test.mjs"
       - "tests/database/document-text-review-authority.test.mjs"
       - "tests/database/document-text-review-save.test.mjs"
       - "src/lib/document-text-extraction.server.ts"
@@ -453,6 +459,27 @@ jobs:
           assert.equal(count('tests'),39);assert.equal(count('pass'),39);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
           const sha=b=>createHash('sha256').update(b).digest('hex');
           writeFileSync('/tmp/document-text-review-authority-native.json',JSON.stringify({schema:'document-text-review-authority-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:39,passed:39,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-review-authority.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-review-authority-lock.sql')),log_sha256:sha(log),hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test private text capacity without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-text-capacity.test.mjs
+
+      - name: Test private text capacity in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-text-capacity.test.mjs | tee /tmp/document-text-capacity-native.log
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync,writeFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+          const log=readFileSync('/tmp/document-text-capacity-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);
+          assert.equal(count('tests'),38);assert.equal(count('pass'),38);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
+          const sha=b=>createHash('sha256').update(b).digest('hex');
+          writeFileSync('/tmp/document-text-capacity-native.json',JSON.stringify({schema:'document-text-capacity-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:38,passed:38,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-capacity.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-capacity-foundation.sql')),log_sha256:sha(log),provider_admission_verified:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -2678,6 +2705,53 @@ jobs:
            'scope','reviewed atomic text-save RPC only','provider_admission_verified',false,'raw_or_cached_old_writers_verified',false,'hosted_applied',false,'ready_for_cutover',false);
           SQL
 
+      - name: Verify private text capacity after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-capacity-foundation.sql -f - <<'SQL'
+          DO $text_capacity_schema_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted text-capacity installer required';END IF;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.lock_internal_document_text_authority(uuid,uuid)','d0ef5f64f342009b92432b279ce9c5f1',false),
+            ('public.count_internal_document_text_capacity(uuid,uuid,text)','19de7a94af2ebf4fce3e25e7d4b84f37',true),
+            ('public.count_internal_combined_document_capacity(uuid,uuid)','8966615b2ad7eade70f42a05530872ff',false),
+            ('public.assert_internal_combined_document_capacity(uuid,uuid,integer)','223b615acaa1425b47ba71bf7c6ef182',false),
+            ('public.guard_existing_capacity_text_pool()','3b6c8f5d007177362440ea64a923db74',false),
+            ('public.guard_document_text_capacity()','7d356b9b7f61a553e8a122aedd055fa3',false),
+            ('public.reserve_internal_document_text_capacity(uuid,uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,text)','fe15e374b37a5df835d413cd47f2211f',false),
+            ('public.hold_internal_document_text_capacity(uuid,uuid,uuid,text)','00272928f11fe32d05fd27faf2ca952b',false)
+           ) expected(signature,body_md5,definer) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=CASE WHEN item.signature LIKE 'public.guard_document_text_capacity(%' OR item.signature LIKE 'public.reserve_internal_document_text_capacity(%' THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN RAISE EXCEPTION 'Exact private text-capacity routine required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') THEN RAISE EXCEPTION 'Text capacity is not a public admission protocol';END IF;
+            END LOOP;
+           END LOOP;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_table_privilege(caller,'public.document_text_extraction_capacity','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') OR has_any_column_privilege(caller,'public.document_text_extraction_capacity','SELECT,INSERT,UPDATE,REFERENCES') THEN RAISE EXCEPTION 'Text reservations must remain private';END IF;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.document_capacity_reservations','document_capacity_text_pool','public.guard_existing_capacity_text_pool()',7),
+            ('public.document_text_extraction_capacity','document_text_capacity_frozen','public.guard_document_text_capacity()',31),
+            ('public.document_text_extraction_capacity','document_text_capacity_no_truncate','public.guard_document_text_capacity()',34)
+           ) expected(relation_name,trigger_name,signature,event_type) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name) AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.event_type AND tgenabled='O' AND NOT tgisinternal AND NOT tgdeferrable AND tgqual IS NULL AND tgattr::text='') THEN RAISE EXCEPTION 'Unconditional shared-pool guard required';END IF;
+           END LOOP;
+           IF (SELECT md5(prosrc) FROM pg_proc WHERE oid='public.guard_document_capacity_reservation()'::regprocedure)<>'f16664ce92d6398ccfea11b43fb5fc74' THEN RAISE EXCEPTION 'Existing capacity guard must remain unchanged';END IF;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR NOT EXISTS(SELECT 1 FROM public.document_capacity_policy WHERE singleton AND global_units=32 AND actor_units=4 AND student_units=2) THEN RAISE EXCEPTION 'Pause and selected policy must be preserved';END IF;
+           IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.inspect_document_operation_drain()'::regprocedure AND proowner=(SELECT relowner FROM pg_class WHERE oid='public.document_operation_control'::regclass)) THEN RAISE EXCEPTION 'Metadata ownership must remain unchanged';END IF;
+          END; $text_capacity_schema_proof$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql > /tmp/document-text-capacity-drain.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync,writeFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-text-capacity-drain.json','utf8'));
+          assert.equal(p.schema,'document-text-capacity-drain-inventory-v1');assert.equal(p.paused,true);assert.equal(p.text_extraction_reserved_units,0);assert.equal(p.remaining_capacity_units,0);assert.equal(p.ready_for_cutover,false);assert.equal(p.provider_quiescence_verified,false);assert.equal(p.private_values_emitted,false);
+          writeFileSync('/tmp/document-text-capacity-schema.json',JSON.stringify({schema:'document-text-capacity-schema-proof-v1',paused:p.paused,text_reserved_units:p.text_extraction_reserved_units,remaining_capacity_units:p.remaining_capacity_units,selected_policy:[32,4,2],private_accounting_only:true,provider_admission_verified:false,completion_release_implemented:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2721,4 +2795,8 @@ jobs:
             /tmp/document-text-review-authority-native.log
             /tmp/document-text-review-authority-native.json
             /tmp/document-text-review-authority-schema.json
+            /tmp/document-text-capacity-native.log
+            /tmp/document-text-capacity-native.json
+            /tmp/document-text-capacity-drain.json
+            /tmp/document-text-capacity-schema.json
           if-no-files-found: ignore

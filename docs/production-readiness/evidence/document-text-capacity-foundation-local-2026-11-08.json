@@ -1,0 +1,110 @@
+{
+  "date": "2026-11-08",
+  "workstream_actions": [
+    "2.5",
+    "2.4"
+  ],
+  "scope": "Private capacity reservation/hold foundation only, not consumer RPC admission, provider dispatch or completion/release",
+  "source_base": "de236ca7",
+  "proposal": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+  "unified_read_only_inventory": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
+  "local_verified": {
+    "cases": 38,
+    "passed": 30,
+    "failed": 0,
+    "native_only_skipped": 8,
+    "legacy_inventory_cases": 21,
+    "legacy_inventory_passed": 21,
+    "total_local_passed": 51,
+    "workflow_shell_blocks": 75,
+    "regression_log_sha256": "0d5ffb325c99776e509bb6766f5f146d89f618217fbd1060f86ae3ba1b4b4768"
+  },
+  "completed": [
+    "Text extraction is a distinct private one-unit reservation, sharing the existing32/4/2 pool and common lock rather than masquerading as Apply or a summary",
+    "An extra unconditional guard covers existing reservation INSERTs, so old and text reservations count each other; the existing capacity-guard body is unchanged",
+    "Immutable actual actor/student/document/extraction/revision/status/text-digest/UTC source fingerprints bind each private reservation; the actual canonical authority proof is locked during reservation",
+    "Active and needs_review records both remain counted; holding admitted work is allowed while paused; deletion/reset/truncation/fake completion is refused",
+    "Pause resume refuses unfinished text reservations; metadata reader owners/grants are preserved and receive only a private count bridge",
+    "Old read-only inventory refuses the new table; unified read-only inventory adds text counts and never certifies provider quiescence or release readiness",
+    "No browser or service-role execution/table grants, public source consumer RPCs, provider authority, generic admission reopening, expiry, completion or release are added"
+  ],
+  "native_required": [
+    "Existing versus text last-slot competition, both orderings, COMMIT and ROLLBACK (four cases)",
+    "Text versus text last-slot competition, COMMIT and ROLLBACK (two cases)",
+    "Admission versus committed/rolled-back pause change (two cases)"
+  ],
+  "private_routine_hashes": [
+    {
+      "signature": "public.lock_internal_document_text_authority(uuid,uuid)",
+      "body_md5": "d0ef5f64f342009b92432b279ce9c5f1",
+      "definer": false
+    },
+    {
+      "signature": "public.count_internal_document_text_capacity(uuid,uuid,text)",
+      "body_md5": "19de7a94af2ebf4fce3e25e7d4b84f37",
+      "definer": true
+    },
+    {
+      "signature": "public.count_internal_combined_document_capacity(uuid,uuid)",
+      "body_md5": "8966615b2ad7eade70f42a05530872ff",
+      "definer": false
+    },
+    {
+      "signature": "public.assert_internal_combined_document_capacity(uuid,uuid,integer)",
+      "body_md5": "223b615acaa1425b47ba71bf7c6ef182",
+      "definer": false
+    },
+    {
+      "signature": "public.guard_existing_capacity_text_pool()",
+      "body_md5": "3b6c8f5d007177362440ea64a923db74",
+      "definer": false
+    },
+    {
+      "signature": "public.guard_document_text_capacity()",
+      "body_md5": "7d356b9b7f61a553e8a122aedd055fa3",
+      "definer": false
+    },
+    {
+      "signature": "public.reserve_internal_document_text_capacity(uuid,uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,text)",
+      "body_md5": "fe15e374b37a5df835d413cd47f2211f",
+      "definer": false
+    },
+    {
+      "signature": "public.hold_internal_document_text_capacity(uuid,uuid,uuid,text)",
+      "body_md5": "00272928f11fe32d05fd27faf2ca952b",
+      "definer": false
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+      "sha256": "d7ea4c4b5b80e63a1c8e83a474d6b429ab7a1536e70721af0efea2a41bb60974"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
+      "sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
+      "sha256": "72f10bbbd1760fc55165e1195ca305131fb77281df2865f59b16d4271dcc8a2a"
+    },
+    {
+      "path": "tests/database/document-text-capacity.test.mjs",
+      "sha256": "e5b58f9d813dc4fc7135039227f268417419b640dafd9ce94980006a42732a95"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "11f4d8cc19b869c711bc0f144f50bcc5b6c31683f65e7e2ba12f22f70f57c357"
+    }
+  ],
+  "fixtures": "Synthetic disposable metadata only. Actual reviewed capacity/authority guards are used; settlement/credit tables stay empty. This is not domain/provider acceptance.",
+  "native_full_schema_verified": false,
+  "backend_consumer_protocol_implemented": false,
+  "provider_admission_verified": false,
+  "completion_release_implemented": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

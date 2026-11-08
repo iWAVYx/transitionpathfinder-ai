@@ -7,6 +7,8 @@ SET LOCAL statement_timeout='30s';
 DO $drain_visibility$
 DECLARE relation_name text;
 BEGIN
+ IF to_regclass('public.document_text_extraction_capacity') IS NOT NULL THEN
+  RAISE EXCEPTION 'Use the unified text-capacity drain inventory.' USING ERRCODE='55000';END IF;
  IF current_setting('transaction_read_only')<>'on' OR current_setting('transaction_isolation')<>'repeatable read' THEN
   RAISE EXCEPTION 'A consistent read-only drain snapshot is required' USING ERRCODE='55000';END IF;
  FOREACH relation_name IN ARRAY ARRAY['public.document_operation_control','public.document_operation_leases','public.document_capacity_reservations',
