@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Workstream1 and actions2.1/2.2/2.4 are source/disposable complete. Reviewed text-save editing-proof locks are verified:39 authority cases (22 concurrency cases),31 save regression cases, all1660 existing native cases and full225+32 replay pass. Durable generation admission and remaining reconciliation/other-workflow/source/raw/cached-old/hosted gates stay open.",
+  "status": "Existing32 SQL drafts remain disposable-verified through225+32 replay. Attached-text source consumer now refuses AI before exact source-bound counted admission and refuses unbound save fallback. Matching shared-pool SQL admission/settlement/hold/drain/reconciliation and combined workflow acceptance remain unimplemented and block activation. Workstream2 remains open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -124,7 +124,7 @@
     },
     {
       "path": "src/lib/document-text-extraction.server.ts",
-      "sha256": "a09c7882667b1603c069c0af37b469fae29e881bd3c60faface3e548d5c6b118"
+      "sha256": "e1630ac709c0bb2da2150311d6b4f1358b2bc1867176899d7cac96f8bdc1bde8"
     },
     {
       "path": "docs/production-readiness/proposals/document-text-review-save.sql",
@@ -133,6 +133,10 @@
     {
       "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
       "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5"
+    },
+    {
+      "path": "src/lib/document-text-admission.server.ts",
+      "sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d"
     }
   ],
   "batch": {
@@ -734,11 +738,11 @@
     "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-06",
-    "checked_against_source": "ef2770da plus prepared editing-proof lock",
-    "evidence": "docs/production-readiness/evidence/document-text-review-authority-manifest-2026-11-06.json",
-    "declared_entries_checked": 32,
-    "corrected_entries": 0,
+    "date": "2026-11-08",
+    "checked_against_source": "7ecf18f4 plus prepared text-admission consumer",
+    "evidence": "docs/production-readiness/evidence/document-text-admission-consumer-manifest-2026-11-08.json",
+    "declared_entries_checked": 33,
+    "corrected_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -940,5 +944,13 @@
     "other_or_cached_old_writers_verified": false,
     "hosted_applied": false,
     "verified_evidence": "docs/production-readiness/evidence/document-text-review-authority-verified-2026-11-06.json"
+  },
+  "document_text_admission_consumer_preparation": {
+    "plan": "docs/production-readiness/proposals/document-text-admission-consumer-plan.json",
+    "local_evidence": "docs/production-readiness/evidence/document-text-admission-consumer-local-2026-11-08.json",
+    "source_gate_prepared": true,
+    "backend_protocol_implemented": false,
+    "shared_pool_enforcement_verified": false,
+    "hosted_applied": false
   }
 }

@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-08",
+  "workstream_actions": [
+    "2.5",
+    "2.6"
+  ],
+  "scope": "Server-side fail-closed admission/uncertainty consumer only; no real database admission/settlement or provider acceptance claim",
+  "source_base": "7ecf18f4",
+  "plan": "docs/production-readiness/proposals/document-text-admission-consumer-plan.json",
+  "completed": [
+    "Caller-RLS source/access preflight occurs before loading the privileged metadata client",
+    "No AI until an exact source/actor/review/document/digest/operation/capability/one-unit claim is confirmed",
+    "Microsecond revisions compare by exact instant, including equivalent offsets",
+    "Missing/malformed/mixed/foreign/lost admission replies stop before AI, with no retry, reattachment or generic fallback",
+    "Access/source are checked again after admission and after generation",
+    "Only the bound save protocol can produce success; operation must be completed and the same-source review revision must advance",
+    "Uncertain provider/save outcomes make at most one best-effort hold attempt, never release/repeat AI or fall back to unbound save",
+    "Private metadata receives only the text digest; receipts remain server-side; independent no-save IEP extraction unchanged",
+    "Strictly validate the public saved extraction-row shape; reject internal metadata nested in a saved review"
+  ],
+  "verification": {
+    "focused_before_final_four_save_refusal_cases": {
+      "files": 4,
+      "passed": 73,
+      "failed": 0
+    },
+    "typescript": "passed",
+    "full_unit_result_pending": false,
+    "mocked_provider_and_metadata_only": true,
+    "final_focused": {
+      "files": 4,
+      "passed": 78,
+      "failed": 0
+    },
+    "prior_full_default_workers": {
+      "passed": 5583,
+      "failed_timeouts": 22,
+      "worker_errors": 8,
+      "accepted": false
+    },
+    "bounded_full_before_final_public_row_check": {
+      "files": 363,
+      "passed": 5759,
+      "failed": 0,
+      "max_workers": 2
+    },
+    "assertions_and_timeouts_unchanged": true,
+    "final_full_unit": {
+      "files": 363,
+      "passed": 5760,
+      "failed": 0,
+      "max_workers": 2,
+      "assertions_and_timeouts_unchanged": true
+    },
+    "affected_test_file_cases": 51,
+    "new_admission_cases": 26,
+    "release_contract_cases": 44,
+    "workflow_yaml": "parsed",
+    "final_unit_log_sha256": "e0b180117e848dbb79c5d864f98b9a6d89b59ee1dc646e71413290d62b75732e",
+    "typescript_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "backend_protocol_implemented": false,
+  "shared_pool_enforcement_verified": false,
+  "combined_database_workflow_acceptance": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false,
+  "source_manifest": [
+    {
+      "path": "src/lib/document-text-admission.server.ts",
+      "sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "e1630ac709c0bb2da2150311d6b4f1358b2bc1867176899d7cac96f8bdc1bde8"
+    },
+    {
+      "path": "tests/unit/document-text-extraction.test.ts",
+      "sha256": "e7511db8f095d3cc6900ec10fc069630d03d5eb357c6675a0c711f4d69c7b8f5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-admission-consumer-plan.json",
+      "sha256": "9d2e3daf07d83a7cfd90c152352e3dbe2022e8aacfc0988c499c9d33da8c929d"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "d9b99e91889eef103bae9f80781e3bea9f2a00888e4fdd5b48ddd4cbf8b12a06"
+    }
+  ]
+}

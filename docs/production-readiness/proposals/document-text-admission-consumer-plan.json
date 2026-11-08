@@ -1,0 +1,105 @@
+{
+  "schema": "document-text-admission-consumer-plan-v1",
+  "date": "2026-11-08",
+  "scope": "Source-only server consumer for attached pasted-text generation. No new SQL implementation/installation or activation is included.",
+  "source_base": "7ecf18f4",
+  "new_sql_drafts": 0,
+  "existing_verified_sql_drafts": 32,
+  "proposed_unit": "One unfinished attached-text extraction reserves one unit in the existing shared pool; source contract only until SQL enforcement is verified. Not a model-request or spending cap.",
+  "selected_policy": {
+    "global_units": 32,
+    "actor_units": 4,
+    "student_units": 2,
+    "changed": false
+  },
+  "rpc_contracts": [
+    {
+      "name": "begin_bound_document_text_extraction",
+      "caller": "service-role metadata client, after caller-RLS preflight",
+      "requirements": [
+        "Atomically validate actual actor/student/document/extraction/access and both exact revisions/status",
+        "Accept only a 64-hex text digest; do not persist pasted text or generated output in metadata",
+        "Reserve one unit against the SAME global/account/student pool and serialization fence as existing document work",
+        "Keep active/held/uncertain work counted; reject duplicate or competing source starts without reattachment",
+        "Refuse when paused, policy is absent/inconsistent, shared capacity is exhausted, or required atomic-save protocol is unavailable",
+        "Return one private, exact-source claim only after committed admission; no capability lookup/replay endpoint"
+      ],
+      "receipt": {
+        "schema": "document-text-extraction-admitted-v1",
+        "save_protocol": "bound-document-text-review-save-v1",
+        "identities": [
+          "operation_id",
+          "receipt_id",
+          "actor_id",
+          "student_id",
+          "document_id",
+          "extraction_id"
+        ],
+        "reserved_units": 1,
+        "revision": "positive safe integer",
+        "source_text_sha256": "exact digest supplied by the trusted caller",
+        "source_revision": "exact expected instant, at most six fractional digits",
+        "document_revision": "exact expected instant, at most six fractional digits"
+      }
+    },
+    {
+      "name": "save_bound_document_text_review",
+      "caller": "authenticated private caller client; preserve RLS for generated-content writes",
+      "requirements": [
+        "Validate the committed source claim, receipt, actor, text digest and exact source/review",
+        "Use the reviewed atomic document/review save and editing-proof locks",
+        "Save and settle exactly this operation in one transaction; require actual saved-row/commit proof before releasing capacity",
+        "Reject stale/revoked/foreign/held/malformed claims and capability replay; never fall back to unbound save",
+        "A lost successful reply must remain completed and must not be regenerated or marked active again",
+        "Return only the exact public extraction-row fields; reject internal admission metadata inside the saved result"
+      ],
+      "receipt": {
+        "schema": "bound-document-text-review-saved-v1",
+        "operation_id": "exact admitted operation",
+        "operation_state": "completed",
+        "extraction": "validated same-source needs_review row with a fresh revision",
+        "public_row_fields": [
+          "id",
+          "document_id",
+          "student_id",
+          "status",
+          "updated_at",
+          "created_at",
+          "created_by",
+          "doc_type",
+          "source_label",
+          "missing_information",
+          "suggested_questions",
+          "review_notes",
+          "reviewed_at",
+          "reviewer_id",
+          "raw_extract",
+          "sections"
+        ]
+      }
+    },
+    {
+      "name": "hold_bound_document_text_extraction",
+      "caller": "service-role metadata client only",
+      "requirements": [
+        "Match exact operation/actor/receipt",
+        "Mark uncertain active work held without releasing capacity or changing private content",
+        "Preserve an already-completed save; no expiry, blind release, synthetic success or retry",
+        "If the hold reply is lost/invalid, unfinished work must remain counted"
+      ]
+    }
+  ],
+  "integration_requirements": [
+    "Use a private actor-scoped authority helper for service admission; never change auth.uid/request JWT session settings to impersonate the actor",
+    "No generic begin_document_operation execution grant is reopened",
+    "Do not classify provider-backed text generation as DB-only Apply or as an unrelated summary job",
+    "Shared capacity totals, pause/drain visibility and trusted reconciliation must include this work",
+    "Review all bound source/capability and cross-session races, complete schema replay and source consumer together before deployment",
+    "Verify actual provider/Storage behavior only under fresh bounded authorization"
+  ],
+  "source_consumer_ready_for_backend_integration": true,
+  "backend_protocol_implemented": false,
+  "shared_pool_enforcement_verified": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}
