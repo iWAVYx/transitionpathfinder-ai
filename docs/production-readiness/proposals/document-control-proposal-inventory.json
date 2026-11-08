@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-06",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered SQL proposals and fourteen appendix drafts. First32 have native/full225+32 proof; draft33 private text capacity has30 local passes plus21 legacy-reader passes and pending8 native races/full225+33 acceptance. Neither read-only inventory is a schema installation or hosted recipe.",
+  "scope": "Nineteen ordered SQL proposals and fourteen appendix drafts: all33 have disposable native/full-schema proof. Private text accounting passes38 native cases (eight races),39 authority/31 save regressions, all1660 existing native cases and full225+33 replay. No public consumer protocol, completion/release or provider/hosted authority is implied.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -275,7 +275,7 @@
     {
       "path": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
       "sha256": "d7ea4c4b5b80e63a1c8e83a474d6b429ab7a1536e70721af0efea2a41bb60974",
-      "native_status": "local30_native38_full225_plus33_pending",
+      "native_status": "verified_native38_plus39_authority_plus31_save_plus1660_existing_full225_plus33",
       "hosted_applied": false
     }
   ],
@@ -316,7 +316,7 @@
     "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
     "docs/production-readiness/proposals/document-text-capacity-foundation.sql"
   ],
-  "verification_appendix_scope": "First thirteen appendix drafts after ordered19 are native/full-schema verified. Fourteenth draft is private text reservation/hold accounting only, with30 local cases and8 required native races; full225+33 acceptance pending. No source-consumer/provider/completion/release/hosted authority.",
+  "verification_appendix_scope": "All fourteen appendix drafts after ordered19 have disposable native/full225+33 schema proof. The private capacity foundation adds38 native cases (eight concurrency cases) without adding provider authority or completion/release. Public consumer protocol, broader source/recovery and hosted gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -335,10 +335,11 @@
     "sha256": "72f10bbbd1760fc55165e1195ca305131fb77281df2865f59b16d4271dcc8a2a",
     "local_evidence": "docs/production-readiness/evidence/document-pause-drain-inventory-local-2026-11-05.json",
     "not_a_schema_installation": true,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "previous_verified_sha256": "dde428e3aa44f07a323c0014f62747e3887a525fce60145609d90b54f23cdc83",
     "previous_verified_evidence": "docs/production-readiness/evidence/document-pause-drain-verified-2026-11-05.json",
-    "legacy_guard_extension_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json"
+    "legacy_guard_extension_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
+    "verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
   },
   "private_generic_admission_preparation_evidence": "docs/production-readiness/evidence/document-private-admission-local-2026-11-05.json",
   "summary_claim_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
@@ -355,7 +356,9 @@
     "sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3",
     "not_a_schema_installation": true,
     "local_verified": true,
-    "native_full_schema_verified": false
+    "native_full_schema_verified": true,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
   },
-  "text_capacity_foundation_preparation_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json"
+  "text_capacity_foundation_preparation_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
+  "text_capacity_foundation_verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
 }

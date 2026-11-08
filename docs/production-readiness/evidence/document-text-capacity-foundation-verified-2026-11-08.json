@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-08",
+  "workstream_actions": [
+    "2.5",
+    "2.4"
+  ],
+  "scope": "Private shared capacity reservation/hold accounting and unified inventory only; no public admission, bound save, completion/release or provider authority",
+  "run": 42494899995,
+  "head_source": "5e2324227463b272ed066efbf4e47f134505a0e1",
+  "checkout_commit": "ebbe7eac0801dd3deac9fb07409837f9b8295b53",
+  "workflow": "success",
+  "native_capacity_cases": 38,
+  "native_capacity_failed": 0,
+  "native_capacity_skipped": 0,
+  "native_capacity_cross_session_cases": 8,
+  "authority_regression_cases": 39,
+  "save_regression_cases": 31,
+  "existing_native_cases": 1660,
+  "legacy_inventory_native_step": "success",
+  "canonical_migrations": 225,
+  "control_drafts": 33,
+  "all7_partitions_and_three_extra_native_logs_source_hashes_counts_and_labels_independently_validated": true,
+  "case_names_sha256": {
+    "capacity": "5f7965011347e1a5f1e2bbafaf9d4600e608ce80f566f33d5449ca70e60c88c1",
+    "authority": "576146d0a092c5a48285c2ab0aea2027fe88ac7ac99755edb639d358994e11d3",
+    "save": "2612d37fef9f03a91ebba935966ab31551c118ad57aa10ae400b91207ef07914"
+  },
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-native-proof-42494899995-2026-11-08.json",
+      "sha256": "a2714495cd4adcc7553e6275b42c7fd226537171b28c96d1769b7138a845e0d9"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-schema-proof-42494899995-2026-11-08.json",
+      "sha256": "8f40eb60f1b0e136e77a4d1ae446e02fd00760dc5c19ee4479c03a1bbf90da30"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-drain-proof-42494899995-2026-11-08.json",
+      "sha256": "f551a198aa7148ead389ea2f30632ef76e8620c1560ee190abb170a4249716e0"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-authority-regression-proof-42494899995-2026-11-08.json",
+      "sha256": "5f5784f7bd243755e99c93bba995bc597f8a3e5564b9966b45c47d7bcfd476e8"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-save-regression-proof-42494899995-2026-11-08.json",
+      "sha256": "3c20a24d3c4ace2365c3812cc8df46990c4d05897d9af24ab175b62115af42ca"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-complete-native-proof-42494899995-2026-11-08.json",
+      "sha256": "bc25608a20c93c097a518a04135b7b2f0c1017d6080f132a178c013b3ff7ecd2"
+    }
+  ],
+  "replay_log_sha256": "b7e1a54f342fe59bab74672999646ba115cfb83fc21397803eb9d8c9c27f9f84",
+  "workflow_snapshot_sha256": "c40abf05fe780dde320ab6ff600bd244bcb829ede2a9ad26bc97396093704ffb",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+      "sha256": "d7ea4c4b5b80e63a1c8e83a474d6b429ab7a1536e70721af0efea2a41bb60974"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
+      "sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-pause-drain-inventory.sql",
+      "sha256": "72f10bbbd1760fc55165e1195ca305131fb77281df2865f59b16d4271dcc8a2a"
+    },
+    {
+      "path": "tests/database/document-text-capacity.test.mjs",
+      "sha256": "e5b58f9d813dc4fc7135039227f268417419b640dafd9ce94980006a42732a95"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "11f4d8cc19b869c711bc0f144f50bcc5b6c31683f65e7e2ba12f22f70f57c357"
+    }
+  ],
+  "verified": [
+    "Selected32/4/2 pool counts old and text reservations together; mixed/text last-slot and pause commit/rollback races pass",
+    "Uncertain text work stays counted while paused; reset, deletion, truncation and manufactured completion are refused",
+    "Actual actor/source/revision/fingerprint checks and private actor-authority parity are verified without authorizing provider IO",
+    "Original capacity guard body and metadata ownership/grants are preserved; distinct metadata-owner bridge passes",
+    "Eight exact private function bodies/modes/settings/owners and unconditional reservation/no-truncate triggers pass complete replay",
+    "Legacy reader fails closed for the new table; unified read-only count stays free of private values and does not certify provider quiescence"
+  ],
+  "remaining": [
+    "Public source-bound begin/hold and RLS-preserving bound-save protocol",
+    "Atomic completion/settlement and trusted reconciliation of provider-backed uncertainty",
+    "Combined consumer/backend native and freshly authorized hosted/provider acceptance",
+    "Other source/raw/cached-old writer coverage, final canonical/ledger packaging and release authorization"
+  ],
+  "backend_consumer_protocol_implemented": false,
+  "provider_admission_verified": false,
+  "completion_release_implemented": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}
