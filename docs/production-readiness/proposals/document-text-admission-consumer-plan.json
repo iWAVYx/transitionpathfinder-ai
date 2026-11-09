@@ -1,9 +1,9 @@
 {
   "schema": "document-text-admission-consumer-plan-v1",
   "date": "2026-11-08",
-  "scope": "Server consumer contract. Bound-save/completion is source prepared and locally verified, but public begin/hold remain unimplemented; the full protocol cannot authorize AI yet.",
+  "scope": "All three matching source RPCs are prepared: service-only begin/hold and authenticated caller-RLS bound save with commit-proof credit. Actual TypeScript consumer/local SQL integration passes with fictional callbacks. Native/full-schema acceptance and hosted installation/provider behavior remain open; this does not activate AI.",
   "source_base": "7ecf18f4",
-  "new_sql_drafts": 1,
+  "new_sql_drafts": 2,
   "existing_verified_sql_drafts": 33,
   "proposed_unit": "One unfinished attached-text extraction reserves one unit in the existing shared pool; source contract only until SQL enforcement is verified. Not a model-request or spending cap.",
   "selected_policy": {
@@ -117,5 +117,16 @@
     "local_verified": true,
     "native_full_schema_verified": false,
     "public_begin_hold_implemented": false
-  }
+  },
+  "source_protocol_prepared": true,
+  "source_admission_hold_prepared": {
+    "proposal": "docs/production-readiness/proposals/document-text-source-admission.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
+    "local_verified": true,
+    "actual_consumer_sql_cases": 5,
+    "native_full_schema_verified": false,
+    "hosted_applied": false
+  },
+  "backend_protocol_source_implemented": true,
+  "backend_protocol_installed": false
 }

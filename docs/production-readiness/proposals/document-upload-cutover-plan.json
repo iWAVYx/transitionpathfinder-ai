@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "First33 SQL drafts retain native/full225+33 proof. Draft34 prepares actual caller-RLS bound save with private commit-bound completion, shared-pool credit and completion-aware drain counts:38 new local cases pass; ten native races/all48 native cases and full225+34 replay remain pending. Public begin/hold, combined consumer/backend acceptance, reconciliation and broader writer/provider gates remain open. No rollout is authorized.",
+  "status": "First33 SQL drafts retain native/full225+33 proof. Draft34 bound-save native stage passes48/48 after its test-only driver correction; full replay and independent artifacts remain pending. Draft35 completes prepared public source-bound begin/hold and actual consumer/local SQL integration:58 local cases pass, ten native races/all68 native cases and full225+35 replay remain pending. No hosted/provider acceptance or rollout authorization.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -153,6 +153,10 @@
     {
       "path": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
       "sha256": "4cca38a575a9a8ee3f133f4c89bb487d97c367cec66e89bba9dd5034580c39ce"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
+      "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba"
     }
   ],
   "batch": {
@@ -250,7 +254,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 34,
+  "unapplied_admission_proposals": 35,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -755,14 +759,14 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-08",
-    "checked_against_source": "0d057bcd plus prepared bound-save completion draft",
-    "evidence": "docs/production-readiness/evidence/document-text-bound-save-manifest-2026-11-08.json",
-    "declared_entries_checked": 37,
-    "corrected_entries": 1,
+    "checked_against_source": "87d564bc plus prepared source-bound public admission/hold draft",
+    "evidence": "docs/production-readiness/evidence/document-text-source-admission-manifest-2026-11-08.json",
+    "declared_entries_checked": 38,
+    "corrected_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
-    "added_entries": 2
+    "added_entries": 1
   },
   "automatic_counted_worker_handoff_preparation": {
     "proposal": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
@@ -838,7 +842,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 15,
+  "verification_appendix_drafts": 16,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -993,6 +997,19 @@
     "public_begin_hold_implemented": false,
     "provider_admission_verified": false,
     "hosted_applied": false,
+    "ready_for_cutover": false
+  },
+  "document_text_source_admission_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-text-source-admission.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
+    "source_protocol_prepared": true,
+    "local_verified": true,
+    "local_passed": 58,
+    "native_cases_pending": 68,
+    "actual_consumer_sql_cases": 5,
+    "native_full_schema_verified": false,
+    "hosted_applied": false,
+    "actual_provider_behavior_verified": false,
     "ready_for_cutover": false
   }
 }

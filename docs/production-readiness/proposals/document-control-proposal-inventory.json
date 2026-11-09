@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-06",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered SQL proposals and fifteen appendix drafts. First33 retain disposable native/full-schema proof; draft34 bound-save/commit completion has38 local passes and pending48 native/full225+34 acceptance. Three read-only inventories are not schema installations or hosted recipes.",
+  "scope": "Nineteen ordered SQL proposals and sixteen appendix drafts. First33 retain disposable native/full-schema proof; draft34 has a passing48-case native stage with artifacts/full replay pending. Draft35 source-bound public begin/hold and actual consumer/local SQL integration has58 local passes and pending68 native/full225+35 acceptance. Read-only inventories are not schema installations or hosted recipes.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -283,6 +283,12 @@
       "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5",
       "native_status": "local38_native48_full225_plus34_pending",
       "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
+      "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba",
+      "native_status": "local58_native68_full225_plus35_pending",
+      "hosted_applied": false
     }
   ],
   "registration_replay_failure": {
@@ -321,12 +327,13 @@
     "docs/production-readiness/proposals/document-text-review-save.sql",
     "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
     "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
-    "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
+    "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+    "docs/production-readiness/proposals/document-text-source-admission.sql"
   ],
-  "verification_appendix_scope": "First14 appendix drafts after ordered19 are native/full-schema verified. Fifteenth prepares atomic bound-save completion and capacity credit, with38 local passes and ten pending native races/full225+34 replay. Public provider begin/hold and hosted gates remain open.",
+  "verification_appendix_scope": "First14 appendix drafts after ordered19 are native/full-schema verified. Draft34 bound-save/completion has48 passing native cases with full replay pending. Draft35 prepares public source-bound begin/hold and real consumer/local SQL integration:58 local cases pass and ten native races/full225+35 remain pending. No provider or hosted activation authority.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
-  "complete_native_suite_pending": false,
+  "complete_native_suite_pending": true,
   "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
   "selected_policy_preparation_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
   "workstream1_complete_evidence": "docs/production-readiness/evidence/workstream-1-source-verification-complete-2026-11-05.json",
@@ -377,5 +384,7 @@
     "local_verified": true,
     "native_full_schema_verified": false
   },
-  "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json"
+  "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
+  "text_source_admission_preparation_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
+  "candidate_full_replay_pending": true
 }

@@ -37,6 +37,8 @@ on:
       - "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
+      - "docs/production-readiness/proposals/document-text-source-admission.sql"
+      - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
       - "tests/database/document-text-capacity.test.mjs"
       - "tests/database/document-text-review-authority.test.mjs"
@@ -151,6 +153,8 @@ on:
       - "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
+      - "docs/production-readiness/proposals/document-text-source-admission.sql"
+      - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
       - "tests/database/document-text-capacity.test.mjs"
       - "tests/database/document-text-review-authority.test.mjs"
@@ -507,6 +511,30 @@ jobs:
           assert.equal(count('tests'),48);assert.equal(count('pass'),48);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
           const sha=b=>createHash('sha256').update(b).digest('hex');
           writeFileSync('/tmp/document-text-bound-save-native.json',JSON.stringify({schema:'document-text-bound-save-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:48,passed:48,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-bound-save.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-bound-save-completion.sql')),log_sha256:sha(log),provider_admission_verified:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test attached-text source admission with actual consumer and fictional callbacks
+        run: |
+          npm install --prefix "$RUNNER_TEMP/document-text-consumer-tests" --ignore-scripts --no-save --package-lock=false zod@4.6.7
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --experimental-strip-types --test tests/database/document-text-source-admission.test.mjs
+
+      - name: Test attached-text source admission in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --experimental-strip-types --test tests/database/document-text-source-admission.test.mjs | tee /tmp/document-text-source-admission-native.log
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';
+          const log=readFileSync('/tmp/document-text-source-admission-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);
+          assert.equal(count('tests'),68);assert.equal(count('pass'),68);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
+          const sha=b=>createHash('sha256').update(b).digest('hex');
+          writeFileSync('/tmp/document-text-source-admission-native.json',JSON.stringify({schema:'document-text-source-admission-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:68,passed:68,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-source-admission.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-source-admission.sql')),consumer_sha256:sha(readFileSync('src/lib/document-text-extraction.server.ts')),admission_consumer_sha256:sha(readFileSync('src/lib/document-text-admission.server.ts')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -2831,6 +2859,39 @@ jobs:
           writeFileSync('/tmp/document-text-bound-save-schema.json',JSON.stringify({schema:'document-text-bound-save-schema-proof-v1',paused:true,remaining_capacity_units:0,atomic_caller_rls_save_prepared:true,private_commit_bound_completion_prepared:true,provider_admission_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify attached-text source admission after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-source-admission.sql -f - <<'SQL'
+          DO $text_public_schema_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted source-admission installer required';END IF;
+           PERFORM public.assert_internal_document_text_protocol();
+           FOR item IN SELECT * FROM (VALUES
+            ('public.assert_internal_document_text_protocol()','20d204d51819ff0c89840ec8dda3fc29',false,false,false),
+            ('public.begin_bound_document_text_extraction(uuid,uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,text)','74f01fc49f67aa1bbcd2533f50a794cc',true,true,true),
+            ('public.hold_bound_document_text_extraction(uuid,uuid,uuid)','b32e726cb005106e9af8d0ef12a85c48',true,true,true)
+           ) expected(signature,body_md5,definer,utc,service_exec) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN RAISE EXCEPTION 'Exact source-admission routine required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='service_role' AND item.service_exec) THEN RAISE EXCEPTION 'Only exact service metadata entry points may be opened';END IF;
+            END LOOP;
+           END LOOP;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(caller,'public.begin_document_operation(uuid,uuid,text)','EXECUTE') THEN RAISE EXCEPTION 'Generic admission must remain private';END IF;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR EXISTS(SELECT 1 FROM public.document_text_extraction_capacity) OR EXISTS(SELECT 1 FROM public.document_text_save_completions) THEN RAISE EXCEPTION 'Pause and empty private protocol state must be preserved';END IF;
+          END;$text_public_schema_proof$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-completion-drain-inventory.sql > /tmp/document-text-source-admission-drain.json
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-text-source-admission-drain.json','utf8'));assert.equal(p.paused,true);assert.equal(p.database_work_clear,true);assert.equal(p.remaining_capacity_units,0);assert.equal(p.ready_for_cutover,false);assert.equal(p.provider_quiescence_verified,false);
+          writeFileSync('/tmp/document-text-source-admission-schema.json',JSON.stringify({schema:'document-text-source-admission-schema-proof-v1',paused:true,remaining_capacity_units:0,service_only_source_admission:true,authenticated_caller_rls_save:true,generic_admission_private:true,actual_provider_behavior_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2882,4 +2943,8 @@ jobs:
             /tmp/document-text-bound-save-native.json
             /tmp/document-text-bound-save-drain.json
             /tmp/document-text-bound-save-schema.json
+            /tmp/document-text-source-admission-native.log
+            /tmp/document-text-source-admission-native.json
+            /tmp/document-text-source-admission-drain.json
+            /tmp/document-text-source-admission-schema.json
           if-no-files-found: ignore
