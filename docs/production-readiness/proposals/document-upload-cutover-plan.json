@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "Private text capacity is source/disposable verified through38 new native cases (eight races),39 authority/31 save regressions, all1660 existing native cases and full225+33 replay. The selected32/4/2 policy and pause remain unchanged. Public begin/hold/bound-save, completion/settlement, reconciliation and combined consumer/backend acceptance remain unfinished; no rollout is authorized.",
+  "status": "First33 SQL drafts retain native/full225+33 proof. Draft34 prepares actual caller-RLS bound save with private commit-bound completion, shared-pool credit and completion-aware drain counts:38 new local cases pass; ten native races/all48 native cases and full225+34 replay remain pending. Public begin/hold, combined consumer/backend acceptance, reconciliation and broader writer/provider gates remain open. No rollout is authorized.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -144,7 +144,15 @@
     },
     {
       "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
-      "sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3"
+      "sha256": "19bf4f2f3079dbec60997faaaefbdb26b4e0d87aec3aab80859b06fd3e633437"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+      "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
+      "sha256": "4cca38a575a9a8ee3f133f4c89bb487d97c367cec66e89bba9dd5034580c39ce"
     }
   ],
   "batch": {
@@ -242,7 +250,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 33,
+  "unapplied_admission_proposals": 34,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -747,10 +755,10 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-08",
-    "checked_against_source": "de236ca7 plus private text-capacity foundation",
-    "evidence": "docs/production-readiness/evidence/document-text-capacity-manifest-2026-11-08.json",
-    "declared_entries_checked": 35,
-    "corrected_entries": 0,
+    "checked_against_source": "0d057bcd plus prepared bound-save completion draft",
+    "evidence": "docs/production-readiness/evidence/document-text-bound-save-manifest-2026-11-08.json",
+    "declared_entries_checked": 37,
+    "corrected_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -830,7 +838,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 14,
+  "verification_appendix_drafts": 15,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -973,5 +981,18 @@
     "completion_release_implemented": false,
     "hosted_applied": false,
     "verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
+  },
+  "document_text_bound_save_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+    "completion_aware_inventory": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
+    "local_verified": true,
+    "new_local_passed": 38,
+    "native_cases_pending": 48,
+    "native_full_schema_verified": false,
+    "public_begin_hold_implemented": false,
+    "provider_admission_verified": false,
+    "hosted_applied": false,
+    "ready_for_cutover": false
   }
 }

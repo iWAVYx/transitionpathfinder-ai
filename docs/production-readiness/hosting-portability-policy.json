@@ -57,8 +57,8 @@
         "sha256": "498c642ac88d377a624a0b8deb517691c8c46e9c22383dbbd3bb63d3311df71e"
       },
       "privilegedRuntimeFiles": {
-        "count": 64,
-        "sha256": "b8e7def5c973bfcc4ef13b5570049df5327cdea120e822913420e2553de63b4e"
+        "count": 65,
+        "sha256": "e543dabf524594c9e92151dc9c7337c0c85b7a63cd7f31229564ac0180a99e44"
       },
       "explicitEndpointFiles": {
         "count": 12,
@@ -66,9 +66,9 @@
       }
     },
     "draftReview": {
-      "observedAt": "2026-10-29",
-      "baseDraftSha": "e08e13659f75b3d3df89b631f4cc8ecdae93397f",
-      "change": "Reviewed one added privileged source file: document-extraction-apply.server.ts lazily loads the existing server-only client after caller-RLS authority/source checks, using it only for admission begin/finish metadata. Student/evidence/completion writes remain on the caller client through the retained invoker atomic save, with a separately proposed control-row pause fence. No host, credentials, public/authenticated route, server-function file or explicit endpoint inventory change. No production authorization. See document-apply-admission-review.json; SQL gate and hosted acceptance remain unapplied."
+      "observedAt": "2026-11-08",
+      "baseDraftSha": "0d057bcd",
+      "change": "Reviewed the added server-only document-text-admission.server.ts consumer (introduced in de236ca7). It lazily loads the existing privileged client only after caller-RLS source/access preflight and uses it only for begin/hold metadata with an SHA-256 text digest. Generated-content saves stay on the authenticated caller client. No raw text is sent to metadata, no secret/host/route/endpoint is added, and missing/unconfirmed public RPCs fail closed before provider dispatch. The corresponding shared-pool bound-save/completion draft is locally prepared but public begin/hold, native/full-schema and hosted acceptance remain open. No production authorization."
     },
     "draftReviewHistory": [
       {
@@ -80,6 +80,11 @@
         "observedAt": "2026-10-15",
         "baseDraftSha": "9281abdfe198a20ae68ed9d926bda487bd37392b",
         "change": "Reviewed three added authenticated caller-RLS read function files: organization-widget-actions, student-hub-context and organization-history. No privileged runtime, public/authenticated route or explicit endpoint inventory change. No host, credential, database binding or production authorization change. See hosting-boundary-release-review-2026-10-15.md; live permission acceptance remains open."
+      },
+      {
+        "observedAt": "2026-10-29",
+        "baseDraftSha": "e08e13659f75b3d3df89b631f4cc8ecdae93397f",
+        "change": "Reviewed one added privileged source file: document-extraction-apply.server.ts lazily loads the existing server-only client after caller-RLS authority/source checks, using it only for admission begin/finish metadata. Student/evidence/completion writes remain on the caller client through the retained invoker atomic save, with a separately proposed control-row pause fence. No host, credentials, public/authenticated route, server-function file or explicit endpoint inventory change. No production authorization. See document-apply-admission-review.json; SQL gate and hosted acceptance remain unapplied."
       }
     ]
   },

@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-06",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Nineteen ordered SQL proposals and fourteen appendix drafts: all33 have disposable native/full-schema proof. Private text accounting passes38 native cases (eight races),39 authority/31 save regressions, all1660 existing native cases and full225+33 replay. No public consumer protocol, completion/release or provider/hosted authority is implied.",
+  "scope": "Nineteen ordered SQL proposals and fifteen appendix drafts. First33 retain disposable native/full-schema proof; draft34 bound-save/commit completion has38 local passes and pending48 native/full225+34 acceptance. Three read-only inventories are not schema installations or hosted recipes.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -277,6 +277,12 @@
       "sha256": "d7ea4c4b5b80e63a1c8e83a474d6b429ab7a1536e70721af0efea2a41bb60974",
       "native_status": "verified_native38_plus39_authority_plus31_save_plus1660_existing_full225_plus33",
       "hosted_applied": false
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+      "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5",
+      "native_status": "local38_native48_full225_plus34_pending",
+      "hosted_applied": false
     }
   ],
   "registration_replay_failure": {
@@ -314,9 +320,10 @@
     "docs/production-readiness/proposals/document-summary-queue-entry-fence.sql",
     "docs/production-readiness/proposals/document-text-review-save.sql",
     "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
-    "docs/production-readiness/proposals/document-text-capacity-foundation.sql"
+    "docs/production-readiness/proposals/document-text-capacity-foundation.sql",
+    "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
   ],
-  "verification_appendix_scope": "All fourteen appendix drafts after ordered19 have disposable native/full225+33 schema proof. The private capacity foundation adds38 native cases (eight concurrency cases) without adding provider authority or completion/release. Public consumer protocol, broader source/recovery and hosted gates remain open.",
+  "verification_appendix_scope": "First14 appendix drafts after ordered19 are native/full-schema verified. Fifteenth prepares atomic bound-save completion and capacity credit, with38 local passes and ten pending native races/full225+34 replay. Public provider begin/hold and hosted gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -353,12 +360,22 @@
   "text_review_authority_verified_evidence": "docs/production-readiness/evidence/document-text-review-authority-verified-2026-11-06.json",
   "unified_text_capacity_drain_inventory": {
     "path": "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql",
-    "sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3",
+    "sha256": "19bf4f2f3079dbec60997faaaefbdb26b4e0d87aec3aab80859b06fd3e633437",
     "not_a_schema_installation": true,
     "local_verified": true,
-    "native_full_schema_verified": true,
-    "verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
+    "native_full_schema_verified": false,
+    "previous_verified_sha256": "0b78de5e7914294a21cf17987877acc27d45169f8aebe4531f881a9b5a6292e3",
+    "previous_verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json",
+    "completion_guard_extension_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json"
   },
   "text_capacity_foundation_preparation_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-local-2026-11-08.json",
-  "text_capacity_foundation_verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
+  "text_capacity_foundation_verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json",
+  "completion_aware_text_drain_inventory": {
+    "path": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
+    "sha256": "4cca38a575a9a8ee3f133f4c89bb487d97c367cec66e89bba9dd5034580c39ce",
+    "not_a_schema_installation": true,
+    "local_verified": true,
+    "native_full_schema_verified": false
+  },
+  "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json"
 }

@@ -1,7 +1,7 @@
 {
   "schema": "document-text-admission-consumer-plan-v1",
   "date": "2026-11-08",
-  "scope": "Server consumer contract; public matching admission/save/hold RPCs remain unimplemented. A private capacity-only foundation is separately prepared and cannot authorize AI.",
+  "scope": "Server consumer contract. Bound-save/completion is source prepared and locally verified, but public begin/hold remain unimplemented; the full protocol cannot authorize AI yet.",
   "source_base": "7ecf18f4",
   "new_sql_drafts": 1,
   "existing_verified_sql_drafts": 33,
@@ -110,5 +110,12 @@
     "local_verified": true,
     "native_full_schema_verified": true,
     "verified_evidence": "docs/production-readiness/evidence/document-text-capacity-foundation-verified-2026-11-08.json"
+  },
+  "bound_save_completion_prepared": {
+    "proposal": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
+    "local_verified": true,
+    "native_full_schema_verified": false,
+    "public_begin_hold_implemented": false
   }
 }

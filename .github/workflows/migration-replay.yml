@@ -35,6 +35,9 @@ on:
       - "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
       - "docs/production-readiness/proposals/document-text-capacity-foundation.sql"
       - "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
+      - "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
+      - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
+      - "tests/database/document-text-bound-save.test.mjs"
       - "tests/database/document-text-capacity.test.mjs"
       - "tests/database/document-text-review-authority.test.mjs"
       - "tests/database/document-text-review-save.test.mjs"
@@ -146,6 +149,9 @@ on:
       - "docs/production-readiness/proposals/document-text-review-authority-lock.sql"
       - "docs/production-readiness/proposals/document-text-capacity-foundation.sql"
       - "docs/production-readiness/proposals/document-text-capacity-drain-inventory.sql"
+      - "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
+      - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
+      - "tests/database/document-text-bound-save.test.mjs"
       - "tests/database/document-text-capacity.test.mjs"
       - "tests/database/document-text-review-authority.test.mjs"
       - "tests/database/document-text-review-save.test.mjs"
@@ -480,6 +486,27 @@ jobs:
           assert.equal(count('tests'),38);assert.equal(count('pass'),38);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
           const sha=b=>createHash('sha256').update(b).digest('hex');
           writeFileSync('/tmp/document-text-capacity-native.json',JSON.stringify({schema:'document-text-capacity-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:38,passed:38,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-capacity.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-capacity-foundation.sql')),log_sha256:sha(log),provider_admission_verified:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test bound text save completion without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-text-bound-save.test.mjs
+
+      - name: Test bound text save completion in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-text-bound-save.test.mjs | tee /tmp/document-text-bound-save-native.log
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync,writeFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+          const log=readFileSync('/tmp/document-text-bound-save-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);
+          assert.equal(count('tests'),48);assert.equal(count('pass'),48);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
+          const sha=b=>createHash('sha256').update(b).digest('hex');
+          writeFileSync('/tmp/document-text-bound-save-native.json',JSON.stringify({schema:'document-text-bound-save-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:48,passed:48,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-bound-save.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-bound-save-completion.sql')),log_sha256:sha(log),provider_admission_verified:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -2752,6 +2779,58 @@ jobs:
           writeFileSync('/tmp/document-text-capacity-schema.json',JSON.stringify({schema:'document-text-capacity-schema-proof-v1',paused:p.paused,text_reserved_units:p.text_extraction_reserved_units,remaining_capacity_units:p.remaining_capacity_units,selected_policy:[32,4,2],private_accounting_only:true,provider_admission_verified:false,completion_release_implemented:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify bound text save completion after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-bound-save-completion.sql -f - <<'SQL'
+          DO $bound_text_schema_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted bound-save installer required';END IF;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.guard_document_text_save_completion()','c1f9e966a86753b9ddcda5ecfde443ac',true,true,false),
+            ('public.verify_document_text_save_commit()','d0ae2d6b7bea8cf6c8aa20829fc7c1da',true,true,false),
+            ('public.guard_bound_document_text_source()','2312833f0a9da3b241bbd659e4f35bf8',true,false,false),
+            ('public.prepare_bound_document_text_save(uuid,uuid,text,uuid,uuid,uuid,timestamptz,timestamptz,text)','7f02219669c91b7f6ecc6ad3651dbbef',true,false,true),
+            ('public.complete_bound_document_text_save(uuid,uuid,jsonb)','75bd94fa3174894a6c12d6741504ef92',true,true,true),
+            ('public.save_bound_document_text_review(uuid,uuid,text,uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)','eb49131e983ff85cc7323064c086b625',false,true,true),
+            ('public.count_internal_document_text_capacity(uuid,uuid,text)','522274f8d24db0b5651b7e5ceadd49d8',true,false,false),
+            ('public.guard_document_text_capacity()','913806fa4f0331c653abe6259d959074',false,true,false)
+           ) expected(signature,body_md5,definer,utc,actor_exec) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=CASE WHEN item.utc THEN ARRAY['search_path=pg_catalog','TimeZone=UTC'] ELSE ARRAY['search_path=pg_catalog'] END) THEN RAISE EXCEPTION 'Exact reviewed bound-save routine required: %',item.signature;END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='authenticated' AND item.actor_exec) AND item.signature<>'public.count_internal_document_text_capacity(uuid,uuid,text)' THEN RAISE EXCEPTION 'Unexpected bound-save caller privilege';END IF;
+             IF item.signature='public.count_internal_document_text_capacity(uuid,uuid,text)' AND has_function_privilege(caller,item.signature,'EXECUTE') THEN RAISE EXCEPTION 'Private count execution must remain private';END IF;
+            END LOOP;
+           END LOOP;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_table_privilege(caller,'public.document_text_save_completions','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') OR has_any_column_privilege(caller,'public.document_text_save_completions','SELECT,INSERT,UPDATE,REFERENCES') THEN RAISE EXCEPTION 'Completion audit must remain private';END IF;
+           END LOOP;
+           FOR item IN SELECT * FROM (VALUES
+            ('public.document_text_save_completions','document_text_completion_frozen','public.guard_document_text_save_completion()',31,false),
+            ('public.document_text_save_completions','document_text_completion_no_truncate','public.guard_document_text_save_completion()',34,false),
+            ('public.document_text_save_completions','document_text_completion_commit','public.verify_document_text_save_commit()',21,true),
+            ('public.document_extractions','document_text_bound_review_source','public.guard_bound_document_text_source()',27,false),
+            ('public.documents','document_text_bound_document_source','public.guard_bound_document_text_source()',27,false),
+            ('public.document_extractions','document_text_bound_review_truncate','public.guard_bound_document_text_source()',34,false),
+            ('public.documents','document_text_bound_document_truncate','public.guard_bound_document_text_source()',34,false)
+           ) expected(relation_name,trigger_name,signature,event_type,deferred) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid=to_regclass(item.relation_name) AND tgname=item.trigger_name AND tgfoid=to_regprocedure(item.signature) AND tgtype=item.event_type AND tgenabled='O' AND NOT tgisinternal AND tgdeferrable=item.deferred AND tginitdeferred=item.deferred AND tgqual IS NULL AND tgattr::text='') THEN RAISE EXCEPTION 'Exact bound-save commit/source guard required: %',item.trigger_name;END IF;
+           END LOOP;
+           IF (SELECT md5(prosrc) FROM pg_proc WHERE oid='public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)'::regprocedure)<>'e44e6dc8a4d7b27c89a72519f6473478' THEN RAISE EXCEPTION 'Caller-RLS save must stay unchanged';END IF;
+           IF EXISTS(SELECT 1 FROM public.document_text_save_completions) OR NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) THEN RAISE EXCEPTION 'Empty proof audit and pause required';END IF;
+           IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.inspect_document_operation_drain()'::regprocedure AND proowner=(SELECT relowner FROM pg_class WHERE oid='public.document_operation_control'::regclass)) THEN RAISE EXCEPTION 'Metadata ownership must remain unchanged';END IF;
+          END;$bound_text_schema_proof$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-completion-drain-inventory.sql > /tmp/document-text-bound-save-drain.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';
+          const p=JSON.parse(readFileSync('/tmp/document-text-bound-save-drain.json','utf8'));
+          assert.equal(p.schema,'document-text-completion-drain-inventory-v1');assert.equal(p.paused,true);assert.equal(p.text_extraction_reserved_units,0);assert.equal(p.remaining_capacity_units,0);assert.equal(p.database_work_clear,true);assert.equal(p.ready_for_cutover,false);assert.equal(p.provider_quiescence_verified,false);
+          writeFileSync('/tmp/document-text-bound-save-schema.json',JSON.stringify({schema:'document-text-bound-save-schema-proof-v1',paused:true,remaining_capacity_units:0,atomic_caller_rls_save_prepared:true,private_commit_bound_completion_prepared:true,provider_admission_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2799,4 +2878,8 @@ jobs:
             /tmp/document-text-capacity-native.json
             /tmp/document-text-capacity-drain.json
             /tmp/document-text-capacity-schema.json
+            /tmp/document-text-bound-save-native.log
+            /tmp/document-text-bound-save-native.json
+            /tmp/document-text-bound-save-drain.json
+            /tmp/document-text-bound-save-schema.json
           if-no-files-found: ignore
