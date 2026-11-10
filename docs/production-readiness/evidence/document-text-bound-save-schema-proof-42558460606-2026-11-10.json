@@ -1,0 +1,10 @@
+{
+  "schema": "document-text-bound-save-schema-proof-v1",
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "atomic_caller_rls_save_prepared": true,
+  "private_commit_bound_completion_prepared": true,
+  "provider_admission_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

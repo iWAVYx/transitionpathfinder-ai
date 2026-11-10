@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "First33 SQL drafts retain native/full225+33 proof. Draft34 bound-save native stage passes48/48 after its test-only driver correction; full replay and independent artifacts remain pending. Draft35 completes prepared public source-bound begin/hold and actual consumer/local SQL integration:58 local cases pass, ten native races/all68 native cases and full225+35 replay remain pending. No hosted/provider acceptance or rollout authorization.",
+  "status": "All35 SQL proposals are source/disposable verified:1884 native cases (1660 existing,31 atomic-save,39 authority,38 private-capacity,48 bound-save and68 source-admission) pass with zero failures/skips; full225+35 replay passes. Twenty new races and five actual TypeScript-consumer/SQL journeys use fictional callbacks only. Exact raw artifacts, case inventories and source hashes are independently validated. Current hosted backends remain unchanged; other reconciliation/raw/legacy/provider/packaging/release gates remain open.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -758,15 +758,15 @@
     "verified_evidence": "docs/production-readiness/evidence/document-rescan-capacity-settlement-verified-2026-11-02.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-08",
-    "checked_against_source": "87d564bc plus prepared source-bound public admission/hold draft",
+    "date": "2026-11-10",
+    "checked_against_source": "2f475de4e1e8e74bd47930c3141d790b6c86f437",
     "evidence": "docs/production-readiness/evidence/document-text-source-admission-manifest-2026-11-08.json",
     "declared_entries_checked": 38,
     "corrected_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
-    "added_entries": 1
+    "added_entries": 0
   },
   "automatic_counted_worker_handoff_preparation": {
     "proposal": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
@@ -916,7 +916,7 @@
     "native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json",
     "verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
   },
-  "last_updated": "2026-11-05",
+  "last_updated": "2026-11-10",
   "summary_claim_write_fence_preparation": {
     "proposal": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
     "evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
@@ -992,12 +992,13 @@
     "local_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
     "local_verified": true,
     "new_local_passed": 38,
-    "native_cases_pending": 48,
-    "native_full_schema_verified": false,
-    "public_begin_hold_implemented": false,
+    "native_full_schema_verified": true,
+    "public_begin_hold_implemented": true,
     "provider_admission_verified": false,
     "hosted_applied": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
+    "native_cases_verified": 48
   },
   "document_text_source_admission_preparation": {
     "proposal": "docs/production-readiness/proposals/document-text-source-admission.sql",
@@ -1005,11 +1006,14 @@
     "source_protocol_prepared": true,
     "local_verified": true,
     "local_passed": 58,
-    "native_cases_pending": 68,
     "actual_consumer_sql_cases": 5,
-    "native_full_schema_verified": false,
+    "native_full_schema_verified": true,
     "hosted_applied": false,
     "actual_provider_behavior_verified": false,
-    "ready_for_cutover": false
-  }
+    "ready_for_cutover": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
+    "native_cases_verified": 68
+  },
+  "document_text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
+  "document_extraction_writer_boundary_review": "docs/production-readiness/evidence/document-extraction-writer-boundary-review-2026-11-10.json"
 }

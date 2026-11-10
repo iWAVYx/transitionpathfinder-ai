@@ -1,0 +1,155 @@
+{
+  "schema": "document-text-source-protocol-verified-v1",
+  "date": "2026-11-10",
+  "workstream_actions": [
+    "2.5",
+    "2.4",
+    "2.6",
+    "2.7",
+    "4"
+  ],
+  "scope": "Attached-text source admission, caller-RLS bound save, immutable commit-proven shared capacity credit, uncertainty holds and actual server-consumer integration. Source/disposable verification only; no actual providers or hosted acceptance.",
+  "run": 42558460606,
+  "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/42558460606",
+  "head_source": "2f475de4e1e8e74bd47930c3141d790b6c86f437",
+  "checkout_commit": "f7d84b437f9cb79ec6d5943ac104ce84d7124813",
+  "workflow": "success",
+  "canonical_migrations": 225,
+  "review_drafts": 35,
+  "native_source_admission_cases": 68,
+  "native_bound_save_cases": 48,
+  "new_cross_session_cases": 20,
+  "private_capacity_regression_cases": 38,
+  "authority_regression_cases": 39,
+  "atomic_save_regression_cases": 31,
+  "existing_native_cases": 1660,
+  "total_native_cases": 1884,
+  "all_native_failed": 0,
+  "all_native_skipped": 0,
+  "actual_consumer_sql_cases": 5,
+  "case_names_sha256": [
+    {
+      "suite": "document-text-source-admission",
+      "sha256": "9c842d415e0c7544a92e1d90a3a9d8a24b47004a426c8f92c1346fb5f30e19d6"
+    },
+    {
+      "suite": "document-text-bound-save",
+      "sha256": "344ea353881aa88374686f24cf7745e3dbd770f79afe477537a3f52e9578173b"
+    },
+    {
+      "suite": "document-text-capacity",
+      "sha256": "5f7965011347e1a5f1e2bbafaf9d4600e608ce80f566f33d5449ca70e60c88c1"
+    },
+    {
+      "suite": "document-text-review-authority",
+      "sha256": "576146d0a092c5a48285c2ab0aea2027fe88ac7ac99755edb639d358994e11d3"
+    },
+    {
+      "suite": "document-text-review-save",
+      "sha256": "2612d37fef9f03a91ebba935966ab31551c118ad57aa10ae400b91207ef07914"
+    }
+  ],
+  "all_source_hashes_counts_raw_logs_and_case_names_independently_validated": true,
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-admission-native-proof-42558460606-2026-11-10.json",
+      "sha256": "bab445f3a96511124b69c61ccb4e3bfea15fd05c71ca60bcd9772e56350a8f84"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-bound-save-native-proof-42558460606-2026-11-10.json",
+      "sha256": "5fbc845e2743fe55c56edc6abd5bc92a6a7ea2f37213b397c47ca4f0d805b876"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-native-proof-42558460606-2026-11-10.json",
+      "sha256": "bb719718997040a1122215bfc04d0fabce2d775bd538b27ffa1eed8c612cd615"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-authority-native-proof-42558460606-2026-11-10.json",
+      "sha256": "ce0e4cf7e26c964bb44cbf79bbcf29a8806aa1ca63cf22ef75c2a03b3dd3161f"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-save-native-proof-42558460606-2026-11-10.json",
+      "sha256": "2cd9af139c0e7ca2e69a1928b52e9483bc8ad2da9d9795bf36b390500d3d78b3"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-bound-save-schema-proof-42558460606-2026-11-10.json",
+      "sha256": "1954b96d61f5ab639495caadc32c19bfe4855446b11a6e9f24b2a023fb0fd085"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-admission-schema-proof-42558460606-2026-11-10.json",
+      "sha256": "86666c51f203a2aac79941187c2276825702f5067c9ef33af13655791c474aa0"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-bound-save-drain-proof-42558460606-2026-11-10.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-admission-drain-proof-42558460606-2026-11-10.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-complete-native-proof-42558460606-2026-11-10.json",
+      "sha256": "3adbfbf8b4489278ba029a31a573d8fe1f49b7ad239784d3f500049559ca0096"
+    }
+  ],
+  "replay_log_sha256": "46340bc189d06500b1d686852e4b58466e55aa6fad5e786bbe519f51b99a11ac",
+  "workflow_snapshot_sha256": "8796a23a6eae85c525f5d94b7a87d19eb5cc3a0355077f30ed905a535867c1a0",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
+      "sha256": "f0a019d92cc8c2058bac12f1cbc4cebe12842dbc75dead528c8e95875cf6b3c5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
+      "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql",
+      "sha256": "4cca38a575a9a8ee3f133f4c89bb487d97c367cec66e89bba9dd5034580c39ce"
+    },
+    {
+      "path": "tests/database/document-text-bound-save.test.mjs",
+      "sha256": "35afb219b60d02ab7e7f5f19114f86220f55e2d93516b016a1eba63d955872c6"
+    },
+    {
+      "path": "tests/database/document-text-source-admission.test.mjs",
+      "sha256": "0dc11aae615c68492a4bc1de3876b0125b74246d9a5262a4cb99bd075ca0b604"
+    },
+    {
+      "path": "src/lib/document-text-admission.server.ts",
+      "sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d"
+    },
+    {
+      "path": "src/lib/document-text-extraction.server.ts",
+      "sha256": "e1630ac709c0bb2da2150311d6b4f1358b2bc1867176899d7cac96f8bdc1bde8"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "22f40a961326f26b87f6d79b813ec7c6a586cc146a82ed09d0f63b49a4e83b1a"
+    }
+  ],
+  "verified": [
+    "Service-only source-bound admission and exact private claims; authenticated caller-RLS content save; no generic admission reopening or raw metadata grant",
+    "One unit in the unchanged32/4/2 pool; duplicate/replay/stale source refusal, protocol integrity checks, pause and shared final-slot serialization",
+    "Real saved-row xmin/revision/hash and immutable deferred commit proof settle only matching saves; rollback/uncertainty remains counted",
+    "Completed audit persists, later source versions are allowed, and lost successful replies cannot reopen/hold completed work",
+    "Five actual TypeScript-consumer/native-SQL journeys use fictional callbacks: success, lost begin reply, callback failure, lost save reply and post-generation access removal",
+    "All seven role categories use canonical authority helpers; existing admin/Owner explicit-access policy remains intact",
+    "Full225+35 installation verifies exact routine bodies/modes/paths/owners/grants and enabled commit/source/authority/capacity triggers; count-only metadata owner bridge and completion-aware drain remain private"
+  ],
+  "remaining": [
+    "Other reconciliation kinds and operator authorization",
+    "Source/access/raw/cached-old/Storage/scheduled/deployed-writer coverage outside this attached-text protocol",
+    "Actual authorized Storage/provider/process-interruption acceptance and exact cleanup",
+    "Final canonical/ledger packaging, coordinated authorized staging rollout and all-role hosted acceptance",
+    "PR review and separately authorized production release"
+  ],
+  "source_protocol_verified": true,
+  "backend_protocol_installed": false,
+  "actual_provider_behavior_verified": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

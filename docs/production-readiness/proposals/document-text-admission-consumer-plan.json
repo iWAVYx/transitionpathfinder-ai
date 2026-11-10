@@ -1,10 +1,10 @@
 {
   "schema": "document-text-admission-consumer-plan-v1",
-  "date": "2026-11-08",
-  "scope": "All three matching source RPCs are prepared: service-only begin/hold and authenticated caller-RLS bound save with commit-proof credit. Actual TypeScript consumer/local SQL integration passes with fictional callbacks. Native/full-schema acceptance and hosted installation/provider behavior remain open; this does not activate AI.",
+  "date": "2026-11-10",
+  "scope": "All three matching source RPCs and the actual server consumer are source/disposable verified: service-only begin/hold, authenticated caller-RLS bound save and immutable commit-proven shared capacity credit. Full225+35 replay and1884 native cases pass with zero failures/skips. Five actual consumer/native-SQL cases use fictional callbacks only. This is not hosted installation, actual provider acceptance or activation.",
   "source_base": "7ecf18f4",
-  "new_sql_drafts": 2,
-  "existing_verified_sql_drafts": 33,
+  "new_sql_drafts": 0,
+  "existing_verified_sql_drafts": 35,
   "proposed_unit": "One unfinished attached-text extraction reserves one unit in the existing shared pool; source contract only until SQL enforcement is verified. Not a model-request or spending cap.",
   "selected_policy": {
     "global_units": 32,
@@ -100,8 +100,8 @@
     "Verify actual provider/Storage behavior only under fresh bounded authorization"
   ],
   "source_consumer_ready_for_backend_integration": true,
-  "backend_protocol_implemented": false,
-  "shared_pool_enforcement_verified": false,
+  "backend_protocol_implemented": true,
+  "shared_pool_enforcement_verified": true,
   "hosted_actions": false,
   "ready_for_cutover": false,
   "private_capacity_foundation_prepared": {
@@ -115,8 +115,9 @@
     "proposal": "docs/production-readiness/proposals/document-text-bound-save-completion.sql",
     "local_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
-    "public_begin_hold_implemented": false
+    "native_full_schema_verified": true,
+    "public_begin_hold_implemented": true,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
   },
   "source_protocol_prepared": true,
   "source_admission_hold_prepared": {
@@ -124,9 +125,13 @@
     "local_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
     "local_verified": true,
     "actual_consumer_sql_cases": 5,
-    "native_full_schema_verified": false,
-    "hosted_applied": false
+    "native_full_schema_verified": true,
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
   },
   "backend_protocol_source_implemented": true,
-  "backend_protocol_installed": false
+  "backend_protocol_installed": false,
+  "source_protocol_verified": true,
+  "verification_scope": "Checked-in source plus disposable native PostgreSQL/full schema only; current hosted protocol is not installed.",
+  "verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json"
 }
