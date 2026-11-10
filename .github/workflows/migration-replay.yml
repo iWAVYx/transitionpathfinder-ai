@@ -38,6 +38,8 @@ on:
       - "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-source-admission.sql"
+      - "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
+      - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
       - "tests/database/document-text-capacity.test.mjs"
@@ -154,6 +156,8 @@ on:
       - "docs/production-readiness/proposals/document-text-bound-save-completion.sql"
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-source-admission.sql"
+      - "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
+      - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
       - "tests/database/document-text-capacity.test.mjs"
@@ -535,6 +539,25 @@ jobs:
           assert.equal(count('tests'),68);assert.equal(count('pass'),68);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);
           const sha=b=>createHash('sha256').update(b).digest('hex');
           writeFileSync('/tmp/document-text-source-admission-native.json',JSON.stringify({schema:'document-text-source-admission-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:68,passed:68,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-text-source-admission.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-text-source-admission.sql')),consumer_sha256:sha(readFileSync('src/lib/document-text-extraction.server.ts')),admission_consumer_sha256:sha(readFileSync('src/lib/document-text-admission.server.ts')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test original extraction writer fencing without provider IO
+        run: |
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --experimental-strip-types --test tests/database/document-extraction-source-write-fence.test.mjs
+
+      - name: Test original extraction writer fencing in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --experimental-strip-types --test tests/database/document-extraction-source-write-fence.test.mjs | tee /tmp/document-extraction-writer-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-extraction-writer-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),56);assert.equal(count('pass'),56);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-extraction-writer-native.json',JSON.stringify({schema:'document-extraction-writer-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:56,passed:56,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-extraction-source-write-fence.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -2892,6 +2915,37 @@ jobs:
           writeFileSync('/tmp/document-text-source-admission-schema.json',JSON.stringify({schema:'document-text-source-admission-schema-proof-v1',paused:true,remaining_capacity_units:0,service_only_source_admission:true,authenticated_caller_rls_save:true,generic_admission_private:true,actual_provider_behavior_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify original extraction writer fence after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-extraction-source-write-fence.sql -f - <<'SQL'
+          DO $extraction_writer_schema_proof$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted writer-fence installer required';END IF;
+           PERFORM public.assert_internal_document_text_protocol();
+           FOR item IN SELECT * FROM (VALUES
+            ('public.has_internal_document_text_save_preparation(uuid,uuid,uuid,timestamptz,timestamptz,text)','3fbfa01e984cf04737aa6dc2dabc1394',true,false,true),
+            ('public.require_document_text_save_preparation(uuid,uuid,uuid,timestamptz,timestamptz,text)','5a707ebeaa02dde7f1cee4f1dfd86ff3',true,true,false),
+            ('public.guard_document_extraction_source_write()','5c4426d98589aeba2c091c1f674d5bf6',true,false,false),
+            ('public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)','78fff850095cb3fe350abf7224b3a789',false,true,false),
+            ('public.assert_internal_document_text_protocol()','c2b9bea3f70690c1a3551eb7eefe0bf7',false,false,false)
+           ) expected(signature,body_md5,definer,authenticated,stable) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND prosecdef=item.definer AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog'] AND provolatile::text=CASE WHEN item.stable THEN 's' ELSE 'v' END) THEN RAISE EXCEPTION 'Exact scoped writer-fence routine required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='authenticated' AND item.authenticated) THEN RAISE EXCEPTION 'Writer gate and metadata execution must remain narrow';END IF;
+            END LOOP;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.document_extractions'::regclass AND tgname='document_extractions_source_write_guard' AND tgfoid='public.guard_document_extraction_source_write()'::regprocedure AND tgtype=23 AND tgenabled='O' AND NOT tgisinternal AND NOT tgdeferrable AND tgqual IS NULL AND tgattr::text='' AND tgnargs=0) THEN RAISE EXCEPTION 'Unconditional original writer guard required';END IF;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR public.count_internal_document_text_capacity(NULL,NULL,NULL)<>0 THEN RAISE EXCEPTION 'Pause and empty unfinished accounting must be preserved';END IF;
+          END;$extraction_writer_schema_proof$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-completion-drain-inventory.sql > /tmp/document-extraction-writer-drain.json
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';const p=JSON.parse(readFileSync('/tmp/document-extraction-writer-drain.json','utf8'));assert.equal(p.paused,true);assert.equal(p.database_work_clear,true);assert.equal(p.remaining_capacity_units,0);assert.equal(p.provider_quiescence_verified,false);assert.equal(p.ready_for_cutover,false);writeFileSync('/tmp/document-extraction-writer-schema.json',JSON.stringify({schema:'document-extraction-writer-schema-proof-v1',paused:true,remaining_capacity_units:0,scoped_original_writer_fence_prepared:true,manual_section_meta_edits_preserved:true,other_completion_marker_writers_verified:false,actual_provider_behavior_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -2947,4 +3001,8 @@ jobs:
             /tmp/document-text-source-admission-native.json
             /tmp/document-text-source-admission-drain.json
             /tmp/document-text-source-admission-schema.json
+            /tmp/document-extraction-writer-native.log
+            /tmp/document-extraction-writer-native.json
+            /tmp/document-extraction-writer-drain.json
+            /tmp/document-extraction-writer-schema.json
           if-no-files-found: ignore

@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "All35 SQL proposals are source/disposable verified:1884 native cases (1660 existing,31 atomic-save,39 authority,38 private-capacity,48 bound-save and68 source-admission) pass with zero failures/skips; full225+35 replay passes. Twenty new races and five actual TypeScript-consumer/SQL journeys use fictional callbacks only. Exact raw artifacts, case inventories and source hashes are independently validated. Current hosted backends remain unchanged; other reconciliation/raw/legacy/provider/packaging/release gates remain open.",
+  "status": "First35 SQL proposals retain independently validated1884 native/full225+35 proof. Draft36 prepares the original/generated extraction writer boundary, safe empty initialization and manual-review preservation:46 new local cases pass;56 native cases/ten races and full225+36 replay are pending. No hosted permission change or rollout authorization.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -157,6 +157,10 @@
     {
       "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
       "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
     }
   ],
   "batch": {
@@ -254,7 +258,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 35,
+  "unapplied_admission_proposals": 36,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -759,14 +763,14 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-10",
-    "checked_against_source": "2f475de4e1e8e74bd47930c3141d790b6c86f437",
-    "evidence": "docs/production-readiness/evidence/document-text-source-admission-manifest-2026-11-08.json",
-    "declared_entries_checked": 38,
+    "checked_against_source": "86c85519 plus original-content writer fence draft",
+    "evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-manifest-2026-11-10.json",
+    "declared_entries_checked": 39,
     "corrected_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
-    "added_entries": 0
+    "added_entries": 1
   },
   "automatic_counted_worker_handoff_preparation": {
     "proposal": "docs/production-readiness/proposals/document-counted-summary-handoff.sql",
@@ -842,7 +846,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 16,
+  "verification_appendix_drafts": 17,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -1015,5 +1019,14 @@
     "native_cases_verified": 68
   },
   "document_text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
-  "document_extraction_writer_boundary_review": "docs/production-readiness/evidence/document-extraction-writer-boundary-review-2026-11-10.json"
+  "document_extraction_writer_boundary_review": "docs/production-readiness/evidence/document-extraction-writer-boundary-review-2026-11-10.json",
+  "document_extraction_source_write_fence_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
+    "local_verified": true,
+    "local_passed": 46,
+    "native_cases_pending": 56,
+    "native_full_schema_verified": false,
+    "hosted_applied": false
+  }
 }

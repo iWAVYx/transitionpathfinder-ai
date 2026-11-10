@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "All35 SQL proposals are source/disposable verified:1884 native cases (1660 existing,31 atomic-save,39 authority,38 private-capacity,48 bound-save and68 source-admission) pass with zero failures/skips; full225+35 replay passes. Twenty new races and five actual TypeScript-consumer/SQL journeys use fictional callbacks only. Exact raw artifacts, case inventories and source hashes are independently validated. Current hosted backends remain unchanged; other reconciliation/raw/legacy/provider/packaging/release gates remain open.",
+  "status": "First35 SQL proposals retain independently validated1884 native/full225+35 proof. Draft36 prepares the original/generated extraction writer boundary, safe empty initialization and manual-review preservation:46 new local cases pass;56 native cases/ten races and full225+36 replay are pending. No hosted permission change or rollout authorization.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -132,6 +132,10 @@
     {
       "path": "docs/production-readiness/proposals/document-text-source-admission.sql",
       "sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
     }
   ],
   "adapter_contract": {
@@ -1012,5 +1016,14 @@
     "native_cases_verified": 68
   },
   "document_text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
-  "document_extraction_writer_boundary_review": "docs/production-readiness/evidence/document-extraction-writer-boundary-review-2026-11-10.json"
+  "document_extraction_writer_boundary_review": "docs/production-readiness/evidence/document-extraction-writer-boundary-review-2026-11-10.json",
+  "document_extraction_source_write_fence_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+    "local_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
+    "local_verified": true,
+    "local_passed": 46,
+    "native_cases_pending": 56,
+    "native_full_schema_verified": false,
+    "hosted_applied": false
+  }
 }
