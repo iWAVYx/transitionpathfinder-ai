@@ -3,8 +3,8 @@
   "date": "2026-11-10",
   "scope": "All three matching source RPCs and the actual server consumer are source/disposable verified: service-only begin/hold, authenticated caller-RLS bound save and immutable commit-proven shared capacity credit. Full225+35 replay and1884 native cases pass with zero failures/skips. Five actual consumer/native-SQL cases use fictional callbacks only. This is not hosted installation, actual provider acceptance or activation.",
   "source_base": "7ecf18f4",
-  "new_sql_drafts": 1,
-  "existing_verified_sql_drafts": 35,
+  "new_sql_drafts": 0,
+  "existing_verified_sql_drafts": 36,
   "proposed_unit": "One unfinished attached-text extraction reserves one unit in the existing shared pool; source contract only until SQL enforcement is verified. Not a model-request or spending cap.",
   "selected_policy": {
     "global_units": 32,
@@ -138,7 +138,9 @@
     "proposal": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
     "local_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
     "local_verified": true,
-    "native_full_schema_verified": false,
-    "hosted_applied": false
-  }
+    "native_full_schema_verified": true,
+    "hosted_applied": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
+  },
+  "current_original_writer_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
 }

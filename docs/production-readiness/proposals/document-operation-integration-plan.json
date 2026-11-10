@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "First35 SQL proposals retain independently validated1884 native/full225+35 proof. Draft36 prepares the original/generated extraction writer boundary, safe empty initialization and manual-review preservation:46 new local cases pass;56 native cases/ten races and full225+36 replay are pending. No hosted permission change or rollout authorization.",
+  "status": "All36 SQL proposals are source/disposable verified:1940 native cases pass with zero failures/skips and full225+36 replay succeeds. The56 new original-writer cases include ten races, all seven manual role categories and five actual server-consumer/SQL fictional callback journeys. Exact case inventories, raw logs and source hashes are independently validated. Composite Apply/private recovery acceptance, other completion-marker/manual stale-write/writer/access/reconciliation/provider and release gates remain open; current hosted backends are unchanged.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -1022,8 +1022,10 @@
     "local_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
     "local_verified": true,
     "local_passed": 46,
-    "native_cases_pending": 56,
-    "native_full_schema_verified": false,
-    "hosted_applied": false
-  }
+    "native_full_schema_verified": true,
+    "hosted_applied": false,
+    "native_cases_verified": 56,
+    "verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
+  },
+  "document_extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
 }
