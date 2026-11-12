@@ -3922,3 +3922,7 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity queue entry native cach
  const x=await queueEntryFixture({install:false,legacy:true});const a=await newSession(),b=await newSession();await as(actors.family,'service_role',b);await b.query("INSERT INTO public.ai_jobs(id,student_id,triggered_by_user_id,job_type,status,input_source) VALUES($1,$2,$3,'pathway_report','queued','{}')",[uid(62004),student,actors.family]);await a.exec('BEGIN');await a.exec(summaryQueueEntryFence.replace('BEGIN;\nSET LOCAL','SET LOCAL').replace(/\nCOMMIT;\n$/,'\n'));await db.exec('RESET ROLE');const pid=(await b.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;const pending=insertLegacySummary(x,uid(61001),b).then(result=>({result}),error=>({error}));
  try{await waitForLock(pid);await a.exec(ending);const out=await pending;if(ending==='COMMIT')assert.equal(out.error?.code,'42501');else assert.equal(out.error,undefined);assert.equal((await db.query('SELECT count(*)::int AS n FROM public.ai_jobs WHERE id=$1',[uid(61001)])).rows[0].n,ending==='COMMIT'?0:1);}finally{await a.exec('ROLLBACK');await b.exec('ROLLBACK');await pending;}
 });
+
+// Read-only live fixture bindings for one-case composite child runners. Their
+// normal Node name filter leaves every original registration/assertion intact.
+export{db,as,actors,student,applyId,applySections,drainedApplyQuotaFixture,beginBoundApply,finishOperation,pauseOperation,applyAtomic,applicationSnapshot,reconcileApplyNoSave,noSaveRemaining,operationReviewProposal,applyNoSaveProposal};

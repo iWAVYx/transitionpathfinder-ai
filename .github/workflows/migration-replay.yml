@@ -39,6 +39,7 @@ on:
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-source-admission.sql"
       - "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
+      - "tests/database/document-guarded-apply-recovery.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
@@ -157,6 +158,7 @@ on:
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-source-admission.sql"
       - "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
+      - "tests/database/document-guarded-apply-recovery.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
@@ -558,6 +560,23 @@ jobs:
             node --experimental-strip-types --test tests/database/document-extraction-source-write-fence.test.mjs | tee /tmp/document-extraction-writer-native.log
           node --input-type=module <<'NODE'
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-extraction-writer-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),56);assert.equal(count('pass'),56);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-extraction-writer-native.json',JSON.stringify({schema:'document-extraction-writer-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:56,passed:56,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-extraction-source-write-fence.test.mjs')),sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test guarded composite Apply and recovery without providers
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-guarded-apply-recovery.test.mjs
+
+      - name: Test guarded composite Apply and recovery in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          set -o pipefail
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-guarded-apply-recovery.test.mjs | tee /tmp/document-guarded-composite-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-guarded-composite-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),19);assert.equal(count('pass'),19);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-guarded-composite-native.json',JSON.stringify({schema:'document-guarded-composite-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:19,passed:19,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-guarded-apply-recovery.test.mjs')),fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),writer_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),apply_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql')),recovery_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -3005,4 +3024,6 @@ jobs:
             /tmp/document-extraction-writer-native.json
             /tmp/document-extraction-writer-drain.json
             /tmp/document-extraction-writer-schema.json
+            /tmp/document-guarded-composite-native.log
+            /tmp/document-guarded-composite-native.json
           if-no-files-found: ignore

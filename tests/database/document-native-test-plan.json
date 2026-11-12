@@ -1,11 +1,11 @@
 {
   "schema": "document-native-test-plan-v1",
   "test_file": "tests/database/document-path-exclusivity.test.mjs",
-  "test_sha256": "9589cb12be82b1ba388c3ced59487079e95b84c02482680703a69531add29c0f",
+  "test_sha256": "5c9d514f90a5a5b20c437354f701a773a1e6e272734bc739ef56556b5c960a6a",
   "tests": 1660,
   "distinct_labels": 1657,
   "names_sha256": "242e2bad5a0a5a60c4650c506ec275b472cd1ba09e6e63b41dc78ed24d0ee24e",
-  "inventory_source": "Retain all1640 verified cases and their multiplicities; add20 queue-entry cases with two native cached-writer/installer races. Legacy data is seeded before protocol installation; default prior fixture behavior and all prior assertions remain unchanged.",
+  "inventory_source": "Retain all1640 verified cases and their multiplicities; add20 queue-entry cases with two native cached-writer/installer races. Legacy data is seeded before protocol installation; default prior fixture behavior and all prior assertions remain unchanged. Read-only fixture exports support one-case composite child runners via the normal Node name filter; all1660 registrations/labels/multiplicities/assertions/timeouts and seven ordinary partitions remain unchanged.",
   "partitions": [
     {
       "id": "summary-automatic-settlement",

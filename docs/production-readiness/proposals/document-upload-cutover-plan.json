@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-upload-cutover-plan-v1",
-  "status": "All36 SQL proposals are source/disposable verified:1940 native cases pass with zero failures/skips and full225+36 replay succeeds. The56 new original-writer cases include ten races, all seven manual role categories and five actual server-consumer/SQL fictional callback journeys. Exact case inventories, raw logs and source hashes are independently validated. Composite Apply/private recovery acceptance, other completion-marker/manual stale-write/writer/access/reconciliation/provider and release gates remain open; current hosted backends are unchanged.",
+  "status": "The36 runtime SQL proposals retain verified1940-native/full225+36 proof and are unchanged. Nineteen new actual guarded Apply/private recovery composite cases pass locally. Read-only fixture exports preserve all1660 original cases and assertions; updated fixture-source identity, all1959 native cases and cumulative replay verification remain pending. No hosted/provider or release authorization.",
   "source_base": "d384e434",
   "canonical_count": 225,
   "unapplied_new_migrations": 15,
@@ -920,7 +920,7 @@
     "native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json",
     "verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
   },
-  "last_updated": "2026-11-10",
+  "last_updated": "2026-11-12",
   "summary_claim_write_fence_preparation": {
     "proposal": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
     "evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
@@ -1030,5 +1030,14 @@
     "native_cases_verified": 56,
     "verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
   },
-  "document_extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json"
+  "document_extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
+  "guarded_apply_recovery_composite_preparation": {
+    "test": "tests/database/document-guarded-apply-recovery.test.mjs",
+    "local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json",
+    "local_passed": 19,
+    "native_cases_pending": 19,
+    "native_verified": false,
+    "runtime_sql_changed": false,
+    "hosted_actions": false
+  }
 }
