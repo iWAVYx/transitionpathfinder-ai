@@ -1,0 +1,150 @@
+{
+  "schema": "document-apply-access-race-bundle-plan-v1",
+  "date": "2026-11-13",
+  "workstream_actions": [
+    "2.6",
+    "2.7"
+  ],
+  "status": "Prepared source-review/test bundle only; no new defect is claimed and no runtime fix is preselected.",
+  "source_review": [
+    "Actual Apply locks the review and document, then locks the student before profile writes and rechecks edit/view/non-partner authority.",
+    "The shared extraction writer guard also holds the exact ownership/self/editor/approved-relationship proof and actor-role lock through the extraction update.",
+    "The actual server wrapper attempts one needs_review hold after an unconfirmed Apply and does not replay save or finish. Existing completed work cannot be reopened by that hold."
+  ],
+  "next_combined_test_matrix": [
+    {
+      "role": "Family",
+      "proof": "student ownership transfer",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    },
+    {
+      "role": "Student",
+      "proof": "student self-link removal",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    },
+    {
+      "role": "Educator",
+      "proof": "accepted editor collaboration removal",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    },
+    {
+      "role": "Owner",
+      "proof": "explicit accepted editor collaboration removal",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    },
+    {
+      "role": "School",
+      "proof": "approved manage-plan relationship removal",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    },
+    {
+      "role": "District",
+      "proof": "approved manage-plan relationship removal",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    },
+    {
+      "role": "Educator becoming partner-only",
+      "proof": "actor role change under the existing role-writer trigger",
+      "directions": [
+        "removal before Apply",
+        "Apply before removal"
+      ],
+      "outcomes": [
+        "commit",
+        "rollback"
+      ]
+    }
+  ],
+  "planned_native_race_cases": 28,
+  "required_assertions": [
+    "Use actual guarded Apply and canonical role/access helpers, not a field-shaped mock.",
+    "Observe the real competing session lock before committing or rolling back. Keep every session inside its original test.",
+    "If removal commits first, refuse Apply and prove no partial profile/evidence/audit/completion writes. Keep unresolved work counted and check the existing wrapper hold behavior.",
+    "If removal rolls back, prove authorized Apply can commit and settle only its own one-unit claim.",
+    "If Apply commits first, prove removal waits for its access proof; afterward removal may commit without reopening or rewriting the completed review.",
+    "If Apply rolls back, prove no false completed state or released capacity; the competing removal proceeds without attributing a successful save.",
+    "Preserve partner-only denial and require explicit Owner student access."
+  ],
+  "fixture_strategy": "Reuse or extract the already verified guarded composite fixture; add explicit loopback-only native sessions. Keep the original1660-case source and all product behavior unchanged unless a concrete failing test demonstrates a gap.",
+  "out_of_scope": [
+    "Actual hosted accounts/records/providers",
+    "Storage/provider cessation and unrelated reconciliation kinds",
+    "Chat-history retention choice, which remains a separate removal policy",
+    "Main merge, release, publication, migration, payment or secret changes"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+      "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-text-review-authority-lock.sql",
+      "sha256": "10e495557d29e4729ee5741caa3c8a694fe4d73ffcffb8d46acd24fbcf0967d5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
+      "sha256": "58877488d0cb42e35c3ae6a897fc89de915af700f53df0f1bacd5bc761b3c7b0"
+    },
+    {
+      "path": "src/lib/document-extraction-apply.server.ts",
+      "sha256": "4e35e0778e5358486ffc6e51be5f5bd87f16ac48f7c37fd0e0236cea5ee47700"
+    }
+  ],
+  "new_runtime_defect_confirmed": false,
+  "new_runtime_change_selected": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}
