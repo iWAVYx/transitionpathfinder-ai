@@ -1,0 +1,55 @@
+{
+  "schema": "document-summary-authority-local-v1",
+  "date": "2026-11-13",
+  "source_base": "a6293a1122a008b016a1b5ee29543d200b6dd763",
+  "workstream_actions": [
+    "2.6",
+    "2.7"
+  ],
+  "scope": "Summary source-admission editing-proof serialization only. Registration/rescan and provider cessation are separate remaining gates.",
+  "local_functional_installation_cases_passed": 17,
+  "local_failed": 0,
+  "local_skipped": 0,
+  "prepared_native_baseline_reproductions": 1,
+  "prepared_native_fixed_races": 28,
+  "prepared_native_functional_cases": 17,
+  "native_verified": false,
+  "full225_plus38_verified": false,
+  "source_review_finding": "The summary reader checks current editing authority and holds the student row, but does not hold accepted collaboration/relationship proofs or the actor-role advisory lock. A native unpatched editor-removal reproduction is included and remains unverified at this checkpoint.",
+  "proposal": "Private invoker helper holds the canonical role/student/editing proof, then rechecks canonical edit/access/non-partner/document visibility after any lock wait. The service-only reader obtains this lock using its real job actor; no new caller grant.",
+  "original1660_source_change": "Only three live fixture-helper exports appended; every original registration, label, assertion, timeout, function body and partition remains unchanged. Inventory source hashes reconciled; case identities/multiplicities unchanged.",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-summary-authority-lock.sql",
+      "sha256": "42936e91ad6e9d721c839360e589011cbeebf97ad7557a09ad99ae8174265d97"
+    },
+    {
+      "path": "tests/database/document-summary-access-race-cases.mjs",
+      "sha256": "8dcdc19275a60fa801a9564d7d66a9d10d685119765166e320e2494873e722b9"
+    },
+    {
+      "path": "tests/database/document-summary-access-races.test.mjs",
+      "sha256": "d7e6ca6477a1706f1aec95c906b862f1e2b824e8bf1afa082718ef3861203615"
+    },
+    {
+      "path": "tests/database/document-summary-authority.test.mjs",
+      "sha256": "c94ea94d65deac30887988ae7dab8695e890373c81e51d11a50bf9e60b7d7876"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a"
+    }
+  ],
+  "sql_review_drafts": 38,
+  "canonical_migrations": 225,
+  "product_app_code_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false,
+  "local_contracts_passed": 81,
+  "workflow_shell_blocks_parsed": 91,
+  "local_functional_log_sha256": "659c6ccc3118883a86732a0e515d370ddd48401a9cd9a2fd53984f5ef1a9ceab",
+  "local_contract_log_sha256": "85a54756da441dffe85474e79df926dc90fef71c2be5fa457ec2f88183430039"
+}

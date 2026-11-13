@@ -3925,4 +3925,4 @@ for(const ending of ['COMMIT','ROLLBACK'])test('capacity queue entry native cach
 
 // Read-only live fixture bindings for one-case composite child runners. Their
 // normal Node name filter leaves every original registration/assertion intact.
-export{db,as,actors,student,applyId,applySections,drainedApplyQuotaFixture,beginBoundApply,finishOperation,pauseOperation,applyAtomic,applicationSnapshot,reconcileApplyNoSave,noSaveRemaining,operationReviewProposal,applyNoSaveProposal};
+export{db,as,actors,student,applyId,applySections,drainedApplyQuotaFixture,beginBoundApply,finishOperation,pauseOperation,applyAtomic,applicationSnapshot,reconcileApplyNoSave,noSaveRemaining,operationReviewProposal,applyNoSaveProposal,quotaAttempt,completeQuotaAttempt,claimHandoff};

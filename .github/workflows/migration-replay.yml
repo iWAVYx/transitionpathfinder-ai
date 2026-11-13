@@ -48,6 +48,11 @@ on:
       - "tests/database/document-guarded-apply-recovery.test.mjs"
       - "tests/database/document-guarded-composite-fixture.mjs"
       - "tests/database/document-apply-access-races.test.mjs"
+      - "tests/database/document-summary-access-race-cases.mjs"
+      - "tests/database/document-summary-access-races.test.mjs"
+      - "tests/database/document-summary-authority.test.mjs"
+      - "docs/production-readiness/proposals/document-summary-authority-lock.sql"
+      - "tests/document-summary-authority-plan.test.mjs"
       - "tests/database/document-apply-access-race-cases.mjs"
       - "tests/document-apply-access-bundle-plan.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
@@ -177,6 +182,11 @@ on:
       - "tests/database/document-guarded-apply-recovery.test.mjs"
       - "tests/database/document-guarded-composite-fixture.mjs"
       - "tests/database/document-apply-access-races.test.mjs"
+      - "tests/database/document-summary-access-race-cases.mjs"
+      - "tests/database/document-summary-access-races.test.mjs"
+      - "tests/database/document-summary-authority.test.mjs"
+      - "docs/production-readiness/proposals/document-summary-authority-lock.sql"
+      - "tests/document-summary-authority-plan.test.mjs"
       - "tests/database/document-apply-access-race-cases.mjs"
       - "tests/document-apply-access-bundle-plan.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
@@ -338,7 +348,7 @@ jobs:
           pattern: native-document-boundaries-*
           path: /tmp/native-document-results
       - name: Verify native result gate rejection cases
-        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs
+        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs tests/document-summary-authority-plan.test.mjs
       - name: Require every source-matched native case with zero skips
         run: node tests/database/verify-document-native-results.mjs /tmp/native-document-results
       - name: Require all native partition jobs to succeed
@@ -424,6 +434,24 @@ jobs:
             node --test tests/database/document-apply-access-races.test.mjs | tee /tmp/document-apply-access-native.log
           node --input-type=module <<'NODE'
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-apply-access-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),28);assert.equal(count('pass'),28);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-apply-access-native.json',JSON.stringify({schema:'document-apply-access-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:28,passed:28,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-apply-access-races.test.mjs')),cases_sha256:sha(readFileSync('tests/database/document-apply-access-race-cases.mjs')),shared_fixture_sha256:sha(readFileSync('tests/database/document-guarded-composite-fixture.mjs')),core_fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),handler_sha256:sha(readFileSync('src/lib/document-extraction-apply.server.ts')),provider_calls:false,hosted_actions:false,ready_for_cutover:false,log_sha256:sha(log)},null,2));
+          NODE
+
+      - name: Test summary authority component without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-summary-authority.test.mjs
+
+      - name: Test summary source authority in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+          PATHWAY_HISTORY_POSTGRES: "1"
+        run: |
+          set -o pipefail
+          export PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js"
+          node --test tests/database/document-summary-authority.test.mjs | tee /tmp/document-summary-authority-native.log
+          node --test tests/database/document-summary-access-races.test.mjs | tee /tmp/document-summary-access-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';import{summaryAccessCases,summaryAuthorityComponentKeys}from'./tests/database/document-summary-access-race-cases.mjs';const sha=b=>createHash('sha256').update(b).digest('hex');const suites=[['document-summary-authority',summaryAuthorityComponentKeys.map(k=>'Summary authority component '+k)],['document-summary-access',summaryAccessCases.map(c=>c.label)]];const records=suites.map(([stem,expected])=>{const log=readFileSync('/tmp/'+stem+'-native.log');const names=[...log.toString().matchAll(/^# Subtest: (.*)$/gm)].map(m=>m[1]);assert.deepEqual([...names].sort(),[...expected].sort());for(const[k,n]of Object.entries({tests:expected.length,pass:expected.length,fail:0,skipped:0}))assert.equal(Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1),n);return{stem,tests:expected.length,passed:expected.length,failed:0,skipped:0,names,log_sha256:sha(log)};});writeFileSync('/tmp/document-summary-authority-native.json',JSON.stringify({schema:'document-summary-authority-native-proof-v1',source_commit:process.env.GITHUB_SHA,native:true,tests:46,passed:46,failed:0,skipped:0,baseline_reproductions:1,fixed_access_races:28,functional_installation_cases:17,suites:records,source_manifest:['tests/database/document-summary-authority.test.mjs','tests/database/document-summary-access-races.test.mjs','tests/database/document-summary-access-race-cases.mjs','tests/database/document-guarded-composite-fixture.mjs','tests/database/document-path-exclusivity.test.mjs','docs/production-readiness/proposals/document-summary-authority-lock.sql'].map(path=>({path,sha256:sha(readFileSync(path))})),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test proposed share lifecycle in disposable concurrent sessions
@@ -3025,6 +3053,40 @@ jobs:
           import{writeFileSync}from'node:fs';writeFileSync('/tmp/document-completion-marker-schema.json',JSON.stringify({schema:'document-completion-marker-schema-proof-v1',canonical_count:225,review_drafts:37,exact_marker_guard:true,exact_protocol_inventory_patch:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify summary authority after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -c "SET ROLE postgres; CREATE TEMP TABLE summary_authority_before AS SELECT prosrc,proconfig,prosecdef,proowner,proacl,provolatile FROM pg_proc WHERE oid='public.read_verified_document_summary_source(uuid,timestamptz,integer)'::regprocedure; CREATE TEMP TABLE summary_protocol_before AS SELECT prosrc FROM pg_proc WHERE oid='public.assert_internal_document_text_protocol()'::regprocedure" \
+            -f docs/production-readiness/proposals/document-summary-authority-lock.sql -f - <<'SQL'
+          DO $summary_authority_schema$
+          DECLARE before_row record;after_row record;helper record;caller text;anchor text;replacement text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted summary-authority installer required';END IF;
+           PERFORM public.assert_internal_document_text_protocol();
+           SELECT * INTO STRICT before_row FROM summary_authority_before;
+           SELECT prosrc,proconfig,prosecdef,proowner,proacl,provolatile INTO STRICT after_row FROM pg_proc WHERE oid='public.read_verified_document_summary_source(uuid,timestamptz,integer)'::regprocedure;
+           anchor:='  IF NOT FOUND OR public.is_partner_only(j.triggered_by_user_id) IS DISTINCT FROM false';
+           replacement:=$patch$  IF NOT FOUND THEN
+              RAISE EXCEPTION 'The document summary source could not be verified.' USING ERRCODE='42501';
+            END IF;
+            PERFORM public.lock_internal_document_summary_authority(j.triggered_by_user_id,d.student_id,d.id);
+            IF public.is_partner_only(j.triggered_by_user_id) IS DISTINCT FROM false$patch$;
+           IF md5(before_row.prosrc)<>'6beb7e73b75e358ff530c8316650c1e5' OR after_row.prosrc IS DISTINCT FROM replace(before_row.prosrc,anchor,replacement)
+            OR (after_row.proconfig,after_row.prosecdef,after_row.proowner,after_row.proacl,after_row.provolatile) IS DISTINCT FROM (before_row.proconfig,before_row.prosecdef,before_row.proowner,before_row.proacl,before_row.provolatile)
+            OR (SELECT prosrc FROM pg_proc WHERE oid='public.assert_internal_document_text_protocol()'::regprocedure) IS DISTINCT FROM (SELECT prosrc FROM summary_protocol_before) THEN
+            RAISE EXCEPTION 'Only exact summary proof locking may change';END IF;
+           SELECT proconfig,proowner,prosecdef,provolatile INTO STRICT helper FROM pg_proc WHERE oid='public.lock_internal_document_summary_authority(uuid,uuid,uuid)'::regprocedure;
+           IF helper.proowner<>current_user::regrole::oid OR helper.prosecdef OR helper.provolatile<>'v' OR helper.proconfig<>ARRAY['search_path=pg_catalog'] THEN RAISE EXCEPTION 'Private invoker summary authority helper required';END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(caller,'public.lock_internal_document_summary_authority(uuid,uuid,uuid)','EXECUTE') OR has_function_privilege(caller,'public.read_verified_document_summary_source(uuid,timestamptz,integer)','EXECUTE') IS DISTINCT FROM (caller='service_role') THEN RAISE EXCEPTION 'Summary permissions must remain narrow';END IF;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR public.count_internal_combined_document_capacity(NULL,NULL)<>0 THEN RAISE EXCEPTION 'Paused empty accounting must be preserved';END IF;
+          END;$summary_authority_schema$;
+          SQL
+          node --input-type=module <<'NODE'
+          import{writeFileSync}from'node:fs';writeFileSync('/tmp/document-summary-authority-schema.json',JSON.stringify({schema:'document-summary-authority-schema-proof-v1',canonical_count:225,review_drafts:38,exact_reader_patch:true,reader_owner_mode_path_grants_preserved:true,existing_text_protocol_unchanged:true,private_invoker_helper:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -3085,6 +3147,10 @@ jobs:
             /tmp/document-extraction-writer-drain.json
             /tmp/document-extraction-writer-schema.json
             /tmp/document-completion-marker-schema.json
+            /tmp/document-summary-authority-schema.json
+            /tmp/document-summary-authority-native.json
+            /tmp/document-summary-authority-native.log
+            /tmp/document-summary-access-native.log
             /tmp/document-apply-access-native.log
             /tmp/document-apply-access-native.json
             /tmp/document-guarded-composite-native.log

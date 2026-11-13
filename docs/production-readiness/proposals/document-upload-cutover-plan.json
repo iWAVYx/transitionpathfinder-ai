@@ -173,6 +173,10 @@
     {
       "path": "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
       "sha256": "58877488d0cb42e35c3ae6a897fc89de915af700f53df0f1bacd5bc761b3c7b0"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-authority-lock.sql",
+      "sha256": "42936e91ad6e9d721c839360e589011cbeebf97ad7557a09ad99ae8174265d97"
     }
   ],
   "batch": {
@@ -270,7 +274,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 37,
+  "unapplied_admission_proposals": 38,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -775,11 +779,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "a69459a9f27a3fd2ea78171337002af233774c18",
-    "evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json",
-    "declared_entries_checked": 42,
+    "checked_against_source": "a6293a1122a008b016a1b5ee29543d200b6dd763",
+    "evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
+    "declared_entries_checked": 43,
     "corrected_entries": 0,
-    "added_entries": 0,
+    "added_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -858,7 +862,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 18,
+  "verification_appendix_drafts": 19,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -1106,5 +1110,13 @@
     "canonical_migrations": 225,
     "review_drafts": 37,
     "whole_workstream_complete": false
+  },
+  "summary_authority_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
+    "native_verified": false,
+    "baseline_reproductions": 1,
+    "fixed_access_races": 28,
+    "functional_installation_cases": 17,
+    "hosted_actions": false
   }
 }
