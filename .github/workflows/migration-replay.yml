@@ -46,6 +46,10 @@ on:
       - "src/lib/document-review-edit.server.ts"
       - "src/lib/extractions.functions.ts"
       - "tests/database/document-guarded-apply-recovery.test.mjs"
+      - "tests/database/document-guarded-composite-fixture.mjs"
+      - "tests/database/document-apply-access-races.test.mjs"
+      - "tests/database/document-apply-access-race-cases.mjs"
+      - "tests/document-apply-access-bundle-plan.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
@@ -171,6 +175,10 @@ on:
       - "src/lib/document-review-edit.server.ts"
       - "src/lib/extractions.functions.ts"
       - "tests/database/document-guarded-apply-recovery.test.mjs"
+      - "tests/database/document-guarded-composite-fixture.mjs"
+      - "tests/database/document-apply-access-races.test.mjs"
+      - "tests/database/document-apply-access-race-cases.mjs"
+      - "tests/document-apply-access-bundle-plan.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
       - "tests/database/document-text-bound-save.test.mjs"
@@ -330,7 +338,7 @@ jobs:
           pattern: native-document-boundaries-*
           path: /tmp/native-document-results
       - name: Verify native result gate rejection cases
-        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs
+        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs
       - name: Require every source-matched native case with zero skips
         run: node tests/database/verify-document-native-results.mjs /tmp/native-document-results
       - name: Require all native partition jobs to succeed
@@ -403,6 +411,20 @@ jobs:
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/atomic-pathway-history.test.mjs
+
+      - name: Test cross-role Apply access removal in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+        run: |
+          npm install --prefix "$RUNNER_TEMP/document-text-consumer-tests" --ignore-scripts --no-save --package-lock=false zod@4.6.7
+          set -o pipefail
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
+          PATHWAY_HISTORY_POSTGRES=1 \
+          PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
+            node --test tests/database/document-apply-access-races.test.mjs | tee /tmp/document-apply-access-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-apply-access-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),28);assert.equal(count('pass'),28);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-apply-access-native.json',JSON.stringify({schema:'document-apply-access-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:28,passed:28,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-apply-access-races.test.mjs')),cases_sha256:sha(readFileSync('tests/database/document-apply-access-race-cases.mjs')),shared_fixture_sha256:sha(readFileSync('tests/database/document-guarded-composite-fixture.mjs')),core_fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),handler_sha256:sha(readFileSync('src/lib/document-extraction-apply.server.ts')),provider_calls:false,hosted_actions:false,ready_for_cutover:false,log_sha256:sha(log)},null,2));
+          NODE
 
       - name: Test proposed share lifecycle in disposable concurrent sessions
         env:
@@ -533,7 +555,6 @@ jobs:
 
       - name: Test attached-text source admission with actual consumer and fictional callbacks
         run: |
-          npm install --prefix "$RUNNER_TEMP/document-text-consumer-tests" --ignore-scripts --no-save --package-lock=false zod@4.6.7
           PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
           PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --experimental-strip-types --test tests/database/document-text-source-admission.test.mjs
@@ -590,7 +611,7 @@ jobs:
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/document-guarded-apply-recovery.test.mjs | tee /tmp/document-guarded-composite-native.log
           node --input-type=module <<'NODE'
-          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-guarded-composite-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),42);assert.equal(count('pass'),42);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-guarded-composite-native.json',JSON.stringify({schema:'document-guarded-composite-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:42,passed:42,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-guarded-apply-recovery.test.mjs')),fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),manual_handler_sha256:sha(readFileSync('src/lib/document-review-edit.server.ts')),writer_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),marker_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql')),apply_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql')),recovery_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-guarded-composite-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),42);assert.equal(count('pass'),42);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-guarded-composite-native.json',JSON.stringify({schema:'document-guarded-composite-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:42,passed:42,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-guarded-apply-recovery.test.mjs')),fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),shared_fixture_sha256:sha(readFileSync('tests/database/document-guarded-composite-fixture.mjs')),manual_handler_sha256:sha(readFileSync('src/lib/document-review-edit.server.ts')),writer_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),marker_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql')),apply_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql')),recovery_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -3064,6 +3085,8 @@ jobs:
             /tmp/document-extraction-writer-drain.json
             /tmp/document-extraction-writer-schema.json
             /tmp/document-completion-marker-schema.json
+            /tmp/document-apply-access-native.log
+            /tmp/document-apply-access-native.json
             /tmp/document-guarded-composite-native.log
             /tmp/document-guarded-composite-native.json
           if-no-files-found: ignore

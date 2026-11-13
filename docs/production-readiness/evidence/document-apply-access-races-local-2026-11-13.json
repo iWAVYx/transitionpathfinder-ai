@@ -1,0 +1,103 @@
+{
+  "schema": "document-apply-access-races-local-v1",
+  "date": "2026-11-13",
+  "source_base": "4d73b06d",
+  "workstream_actions": [
+    "2.6",
+    "2.7"
+  ],
+  "scope": "All28 native-only race cases prepared, not yet accepted. Reuse of the actual guarded fixture, canonical access helpers, actual TypeScript Apply/admission wrapper and real SQL; no hosted actions or providers.",
+  "prepared_cases": 28,
+  "roles": [
+    "Family ownership",
+    "Student self link",
+    "Educator editor collaboration",
+    "Owner explicit editor collaboration",
+    "School approved manage-plan relationship",
+    "District approved manage-plan relationship",
+    "Educator role transition to partner-only"
+  ],
+  "case_dimensions": {
+    "orderings": [
+      "removal-first",
+      "apply-first"
+    ],
+    "first_operation_outcomes": [
+      "COMMIT",
+      "ROLLBACK"
+    ]
+  },
+  "assertions": [
+    "Observe actual pg_blocking_pids relationship before ending the first transaction.",
+    "Use exact real begin/Apply/hold RPCs through the actual server wrapper; no retries or bypassed authority helpers.",
+    "Check profile/evidence/audit/extraction and exact revision atomicity, completed/held lease state and exact combined capacity.",
+    "Check removal is effective after commit and access retained after rollback.",
+    "Keep explicit Owner access and partner-only restrictions; use one source-bound claim and no redundant finish after successful commit.",
+    "Discard the uncommitted SQL receipt when explicitly rolling back Apply; the wrapper must attempt its existing single hold rather than report a save."
+  ],
+  "local_verification": {
+    "shared_fixture_regression_passed": 42,
+    "shared_fixture_regression_failed": 0,
+    "shared_fixture_regression_skipped": 0,
+    "local_contracts_passed": 78,
+    "local_contracts_failed": 0,
+    "workflow_shell_blocks_parsed": 88,
+    "all_extracted_setup_function_bodies_preserved": true,
+    "original1660_test_source_unchanged": true,
+    "native_race_acceptance": false
+  },
+  "fixture_loading_correction": "An initial async factory added about10s of Node test-hook delay per local case. Keeping hook registration in the original caller and sharing only pure setup functions restored the final42-case regression to45.7s; no DB function/assertion changed.",
+  "source_manifest": [
+    {
+      "path": "tests/database/document-apply-access-races.test.mjs",
+      "sha256": "9e04ee12ef85b7e43d59dc6ab0dca29ac970c203a1f93f0598f11fa1e6c076cd"
+    },
+    {
+      "path": "tests/database/document-apply-access-race-cases.mjs",
+      "sha256": "d790777bb303ead976acf56110321e5d48f2c2f9f6aaa5b4ae72cff78aec69d2"
+    },
+    {
+      "path": "tests/database/document-guarded-composite-fixture.mjs",
+      "sha256": "85947aaad7a32c4f120299cfdb0ab2e834605083745f14922a54c82606ef9e62"
+    },
+    {
+      "path": "tests/database/document-guarded-apply-recovery.test.mjs",
+      "sha256": "5cfe821b16863e415e71891d645d5a5678f1abb93c8074a683dcc263207bbbcd"
+    },
+    {
+      "path": "tests/document-apply-access-bundle-plan.test.mjs",
+      "sha256": "1edc949f4893f2ae006915d0a1c2b6e5b8cfc5feff9fceee8748317a0538efd2"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "3051620ee5935887a5558c7ce9190e8a1226db7a06c8367bbbe77464358cdbaf"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/private/tmp/tf-access-shared-fixture-final.log",
+      "sha256": "fd01a41217af49299111746e13229024157a283b1e14c09d83b638cb5788e054"
+    },
+    {
+      "path": "/private/tmp/tf-apply-access-local-contracts-final.log",
+      "sha256": "5f2173efef02ec7b01c5f6efab3e67bafe2c07115d50a9ca59e1e895c55b6e11"
+    },
+    {
+      "path": "/private/tmp/tf-access-fixture-final-performance.log",
+      "sha256": "b321486d209bdfd13a790a0ccc3de3fc47bf23c93966cdcb0d889beecf56a966"
+    }
+  ],
+  "next_gates": [
+    "Run all28 actual two-session cases in explicit loopback PostgreSQL with zero skips.",
+    "Investigate any concrete failures without loosening assertions, substituting permissive access helpers or increasing timeouts.",
+    "Retain all1982 existing native cases and full225+37 replay; expected complete count after this addition is2010, not yet accepted."
+  ],
+  "new_runtime_defect_confirmed": false,
+  "product_code_changed": false,
+  "sql_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

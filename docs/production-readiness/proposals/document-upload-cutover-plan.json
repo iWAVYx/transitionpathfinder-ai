@@ -1092,5 +1092,13 @@
       "after_seconds": 1313
     },
     "whole_workstream_complete": false
+  },
+  "apply_access_race_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-apply-access-races-local-2026-11-13.json",
+    "cases": 28,
+    "local_shared_fixture_regressions_passed": 42,
+    "local_contracts_passed": 78,
+    "native_verified": false,
+    "hosted_actions": false
   }
 }

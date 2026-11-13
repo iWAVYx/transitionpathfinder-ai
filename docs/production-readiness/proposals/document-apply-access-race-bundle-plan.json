@@ -5,7 +5,7 @@
     "2.6",
     "2.7"
   ],
-  "status": "Prepared source-review/test bundle only; no new defect is claimed and no runtime fix is preselected.",
+  "status": "All28 native-only cases are implemented and ready for disposable PostgreSQL verification. All42 existing composite cases and78 local contracts pass; native acceptance and cumulative2010-case/full225+37 proof remain pending. No runtime fix is preselected.",
   "source_review": [
     "Actual Apply locks the review and document, then locks the student before profile writes and rechecks edit/view/non-partner authority.",
     "The shared extraction writer guard also holds the exact ownership/self/editor/approved-relationship proof and actor-role lock through the extraction update.",
@@ -146,5 +146,7 @@
   "provider_calls": false,
   "production_access": false,
   "release_authorization_granted": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "implementation_evidence": "docs/production-readiness/evidence/document-apply-access-races-local-2026-11-13.json",
+  "native_verified": false
 }
