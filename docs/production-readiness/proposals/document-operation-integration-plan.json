@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "The36 runtime SQL proposals retain verified1940-native/full225+36 proof and are unchanged. Nineteen new actual guarded Apply/private recovery composite cases pass locally. Read-only fixture exports preserve all1660 original cases and assertions; updated fixture-source identity, all1959 native cases and cumulative replay verification remain pending. No hosted/provider or release authorization.",
+  "status": "All 36 runtime SQL proposals are unchanged. Nineteen actual guarded Apply/private recovery composite cases are now native verified. All 1,959 native cases pass with zero failures/skips, including the unchanged 1,660 original cases and seven partitions; full 225 canonical +36 proposal replay passes. Raw logs, case inventories and source hashes were independently validated. Remaining completion-marker/manual stale-write and other writer/access/recovery gates remain open. No hosted/provider or release authorization.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -1032,9 +1032,12 @@
     "test": "tests/database/document-guarded-apply-recovery.test.mjs",
     "local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json",
     "local_passed": 19,
-    "native_cases_pending": 19,
-    "native_verified": false,
+    "native_verified": true,
     "runtime_sql_changed": false,
-    "hosted_actions": false
+    "hosted_actions": false,
+    "native_cases_verified": 19,
+    "native_full_schema_verified": true,
+    "total_native_cases_verified": 1959,
+    "verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json"
   }
 }

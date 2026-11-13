@@ -1,0 +1,124 @@
+{
+  "schema": "document-guarded-apply-recovery-verified-v1",
+  "date": "2026-11-12",
+  "workstream_actions": [
+    "2.6",
+    "2.7",
+    "4"
+  ],
+  "scope": "Actual guarded Apply/automatic commit finish/settlement and private no-save recovery behavior in synthetic disposable PostgreSQL fixtures. No application/runtime SQL changes or actual provider/hosted acceptance.",
+  "run": 43308845581,
+  "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43308845581",
+  "head_source": "55af26cbada1afde11f8cd69f6071331f63e27e9",
+  "checkout_commit": "55af26cbada1afde11f8cd69f6071331f63e27e9",
+  "workflow": "success",
+  "canonical_migrations": 225,
+  "review_drafts": 36,
+  "new_native_composite_cases": 19,
+  "existing_core_native_cases": 1660,
+  "retained_extra_native_cases": 280,
+  "total_native_cases": 1959,
+  "native_failed": 0,
+  "native_skipped": 0,
+  "all_case_inventories_raw_logs_and_source_hashes_independently_validated": true,
+  "composite_case_names_sha256": "826496537ddeed1651f90405d8113c6e72bd843b63ee3e565dec49aa49c8b813",
+  "all1660_original_registrations_assertions_timeouts_multiplicities_and_seven_partitions_preserved": true,
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/document-extraction-writer-native-proof-43308845581-2026-11-12.json",
+      "sha256": "18b9cd9324443e4a3a27ed4b25f92e8eceb62dd34158acaaa40170a5a82849a8"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-admission-native-proof-43308845581-2026-11-12.json",
+      "sha256": "6c495691e1655ff841301907deaf661ec3e1a2fa47dba2c40b7dce636a029b74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-bound-save-native-proof-43308845581-2026-11-12.json",
+      "sha256": "4c97d271018b0e32b0ea3067cf4d276e418e2ee588b78edfc826c0f3c8a57b4f"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-native-proof-43308845581-2026-11-12.json",
+      "sha256": "2efe983a05526322a61f5d72e724d4bf4e84454c77eb80516cc3a9cbe1fab6f0"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-authority-native-proof-43308845581-2026-11-12.json",
+      "sha256": "49f794208593ca111b7051e208918ea630db8873c99a5447987e46d7e0819f48"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-save-native-proof-43308845581-2026-11-12.json",
+      "sha256": "f1ec5b787897e18f6c6d55db7f9549a3a8fea1808143a3cba752ce525cf912d0"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-guarded-composite-native-proof-43308845581-2026-11-12.json",
+      "sha256": "985485d1d156f3606aa0c69ef1cb31d679dd9b797997b9b5413c6b67b60b02cf"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-guarded-composite-complete-native-proof-43308845581-2026-11-12.json",
+      "sha256": "87d27265867ce3b85446d7150c17eed7902dc94856dac3f05f1222083fa2dfb7"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-guarded-composite-schema-regression-proof-43308845581-2026-11-12.json",
+      "sha256": "60f1c09c91212e0581383401e6f23aa0c3a3b1f8ff50dc752c60e978ee706364"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-guarded-composite-drain-regression-proof-43308845581-2026-11-12.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "tests/database/document-guarded-apply-recovery.test.mjs",
+      "sha256": "8d84b3cefa364ce3250ed39e2c34107316781e852d1231fa61c20a3b1cc88e5e"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "5c9d514f90a5a5b20c437354f701a773a1e6e272734bc739ef56556b5c960a6a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+      "sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07"
+    },
+    {
+      "path": "tests/database/document-native-test-plan.json",
+      "sha256": "a1bf861b2bfc7c79095a8a54260cd24e7782760f3ed0aae61235c812bb3b5656"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "84fb17af71044972233024327f15175a4b45bfe73f820cdf7c8306751247abbd"
+    }
+  ],
+  "replay_log_sha256": "0b08493bdead2fa715920371e9d4e189004215aef0b4a871e911a0190191583f",
+  "workflow_snapshot_sha256": "8924589f11a1b4e5d27717b7df0e5b69958e21101fa19931894fe8f8ae13ce90",
+  "verified": [
+    "Actual guarded Apply profile/evidence/audit/commit/finish/one-unit settlement works for Family/Educator/Student/School/District and explicitly authorized Owner, while partner-only and unrelated Owner remain refused",
+    "No-evidence Apply retains atomic save/settlement; rollback restores the entire profile/review/evidence/audit/lease/capacity state",
+    "Manual review and refusal of raw/unbound original-content writes coexist with successful actual Apply",
+    "Private DB-only no-save recovery using an empty JWT changes only the exact database revision and reconciles one held Apply unit without successful-save/profile/evidence writes",
+    "Recovery rollback preserves held work; stale claim/save stay blocked while a fresh revision/claim can Apply",
+    "Provider-unknown outcomes remain held; anon/authenticated/service_role cannot call the private resolver",
+    "The inherited policy expressions remain identical after child-only role normalization and canonical access helper installation",
+    "All prior native inventories and full225+36 schema checks pass against the updated read-only fixture exports"
+  ],
+  "remaining": [
+    "Review remaining completion-marker and manual stale-write/compare-and-swap behavior",
+    "Other source/access/Storage/service/scheduled/deployed writers and operator authorization/reconciliation kinds",
+    "Authorized actual hosted/provider/process-interruption acceptance and exact cleanup",
+    "Final canonical/ledger packaging and separately authorized release/merge/production gates"
+  ],
+  "runtime_sql_changed": false,
+  "application_source_changed": false,
+  "native_full_schema_verified": true,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "document-guarded-composite-native-proof-v1",
+  "source_commit": "55af26cbada1afde11f8cd69f6071331f63e27e9",
+  "tests": 19,
+  "passed": 19,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "8d84b3cefa364ce3250ed39e2c34107316781e852d1231fa61c20a3b1cc88e5e",
+  "fixture_sha256": "5c9d514f90a5a5b20c437354f701a773a1e6e272734bc739ef56556b5c960a6a",
+  "writer_sql_sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069",
+  "apply_sql_sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25",
+  "recovery_sql_sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07",
+  "log_sha256": "0f386d45ce8c8707b521eac9c3c43646932031b5faa5d6b3f6b3c8c1c0bc7622",
+  "provider_calls": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

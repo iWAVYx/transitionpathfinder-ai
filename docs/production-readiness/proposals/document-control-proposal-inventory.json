@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-12",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "The19 ordered and17 appendix runtime SQL proposals (36 total) are unchanged and retain source/disposable proof through1940 native cases/full225+36 replay. Nineteen actual guarded Apply/private recovery composite cases now pass locally; new native/cumulative verification is pending for the updated test fixture identity. No new schema draft, hosted permission change or activation authority.",
+  "scope": "All 36 runtime SQL proposals are unchanged. Nineteen actual guarded Apply/private recovery composite cases are now native verified. All 1,959 native cases pass with zero failures/skips, including the unchanged 1,660 original cases and seven partitions; full 225 canonical +36 proposal replay passes. Raw logs, case inventories and source hashes were independently validated. Remaining completion-marker/manual stale-write and other writer/access/recovery gates remain open. No hosted/provider or release authorization.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -190,7 +190,7 @@
     41678048798,
     41678056736
   ],
-  "new_native_proof_pending": true,
+  "new_native_proof_pending": false,
   "verified_current_evidence": "docs/production-readiness/evidence/document-automatic-summary-settlement-verified-2026-11-04.json",
   "verified_stage16_evidence": "docs/production-readiness/evidence/document-rescan-service-boundary-verified-2026-11-05.json",
   "additional_unordered_drafts": [
@@ -340,10 +340,10 @@
     "docs/production-readiness/proposals/document-text-source-admission.sql",
     "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
   ],
-  "verification_appendix_scope": "All17 appendix drafts after ordered19 are native/full-schema verified through225+36. The original-content writer boundary preserves safe initialization, manual source-original values/notes and timestamp-only recovery, with56 native cases (ten races), seven manual role categories and five actual consumer/native-SQL fictional callback journeys. Composite Apply/recovery, other completion/stale-write/writer/access and hosted/provider gates remain open.",
+  "verification_appendix_scope": "All17 appendix drafts after ordered19 are native/full-schema verified through225+36. The original-content writer boundary preserves safe initialization, manual source-original values/notes and timestamp-only recovery, with56 native cases (ten races), seven manual role categories and five actual consumer/native-SQL fictional callback journeys. Actual composite Apply/private recovery is also verified through19 native cases and1,959 cumulative cases with zero failures/skips. Other completion/stale-write/writer/access and hosted/provider gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
-  "complete_native_suite_pending": true,
+  "complete_native_suite_pending": false,
   "complete_native_verification_followup": "docs/production-readiness/evidence/document-native-exhaustive-batches-local-2026-11-05.json",
   "selected_policy_preparation_evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
   "workstream1_complete_evidence": "docs/production-readiness/evidence/workstream-1-source-verification-complete-2026-11-05.json",
@@ -398,9 +398,10 @@
   },
   "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
   "text_source_admission_preparation_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
-  "candidate_full_replay_pending": true,
+  "candidate_full_replay_pending": false,
   "text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
   "extraction_source_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
   "extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
-  "guarded_apply_recovery_composite_local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json"
+  "guarded_apply_recovery_composite_local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json",
+  "guarded_apply_recovery_composite_verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json"
 }
