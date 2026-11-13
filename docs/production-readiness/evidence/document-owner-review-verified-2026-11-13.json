@@ -1,0 +1,251 @@
+{
+  "schema": "document-owner-review-verified-v1",
+  "date": "2026-11-13",
+  "workstream_actions": [
+    "2.3"
+  ],
+  "scope": "Trusted Owner metadata-only management queue, inspection and immutable keep-reserved audit, using current transaction-held platform Owner role and verified MFA for writes. No content/release/resume/retry/private resolver authority. Source/disposable scope only.",
+  "run": 43517251572,
+  "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43517251572",
+  "head_source": "812c9e3dca346f4f68e6254452838998e8697967",
+  "checkout_commit": "812c9e3dca346f4f68e6254452838998e8697967",
+  "workflow": "success",
+  "canonical_migrations": 225,
+  "review_drafts": 40,
+  "total_native_cases": 2341,
+  "native_failed": 0,
+  "native_skipped": 0,
+  "new_native_cases": 88,
+  "owner_component_cases": 64,
+  "owner_role_removal_races": 24,
+  "retained_prior_native_cases": 2253,
+  "existing_core_native_cases": 1660,
+  "native_batches": 55,
+  "execution_inventory_sha256": "8fffea5e576c5a81e11938c19a7dbc0a6b507f28575ac9c024f472747c12f613",
+  "original_core_test_source_unchanged": true,
+  "all1660_original_registrations_assertions_timeouts_multiplicities_and_seven_partitions_preserved": true,
+  "raw_logs_case_inventories_and_source_hashes_independently_validated": true,
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/document-extraction-writer-native-proof-43517251572-2026-11-13.json",
+      "sha256": "76caf3b34c738496e10b5ab1c84c236c01065ead8bf3632f7ebca1556eecd766"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-admission-native-proof-43517251572-2026-11-13.json",
+      "sha256": "9e90f9b5893375f65c0b514292f06a0535b65e719245efd7b0e78dddced92009"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-bound-save-native-proof-43517251572-2026-11-13.json",
+      "sha256": "4954ba90e5a855c3e094d34b57b859e8879eb98888fa450b401fe02ac449c162"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-native-proof-43517251572-2026-11-13.json",
+      "sha256": "f4903a9e25d31775ac898cd23a012f8c91e1a26815e098e929bb241380b28227"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-authority-native-proof-43517251572-2026-11-13.json",
+      "sha256": "de43602e5f1b2b9078d291bfd7dd49b8c36441d60ba18c8af4faf2763953fa60"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-save-native-proof-43517251572-2026-11-13.json",
+      "sha256": "2b7ebb2e2d188e91b3f6344712f4a233603330732cee616a6ff0997867fe54b2"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-composite-native-proof-43517251572-2026-11-13.json",
+      "sha256": "5fee264da2c7f9cbfb6dea63a0149fd14b6231648fbf801b0c3294b7eac3efae"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-complete-native-proof-43517251572-2026-11-13.json",
+      "sha256": "1bf7165dadfc7b3893c1681cbb8d147e8b8944ecffb7f7416c8e8d840d0cd807"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-schema-proof-43517251572-2026-11-13.json",
+      "sha256": "2eea4815021f1ddde104fa984cc3c426d126c308892bc4544b80084fb7babf54"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-writer-schema-regression-proof-43517251572-2026-11-13.json",
+      "sha256": "60f1c09c91212e0581383401e6f23aa0c3a3b1f8ff50dc752c60e978ee706364"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-drain-regression-proof-43517251572-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-apply-access-native-proof-43517251572-2026-11-13.json",
+      "sha256": "73561afe6c9262c1476a1d00114fbb2233a76afd86e8abee91b015a94d0f4227"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-summary-authority-native-proof-43517251572-2026-11-13.json",
+      "sha256": "9434a7289c53240375079f3102c8c21a27c0af2ca782929d604e857e4f0f55ea"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-summary-authority-schema-proof-43517251572-2026-11-13.json",
+      "sha256": "372779271988e31d11ccbe780e95fa72a48cf146e214f94a463b9e4981a96d32"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-producer-authority-native-proof-43517251572-2026-11-13.json",
+      "sha256": "03d1e8ccdd2242a5a01deba053211ac8b6f49321ee63d02c92c36a849a8a6cca"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-producer-authority-schema-proof-43517251572-2026-11-13.json",
+      "sha256": "8cb59c51f7b00b7cf3dcd552b9017b5dbeebf91933b2e50eda88d6233d33d032"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-producer-authority-drain-proof-43517251572-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-review-native-proof-43517251572-2026-11-13.json",
+      "sha256": "83a579278ca9367c84699d4479a79cf005ada45329275f95ad89a1bf3f42f1a1"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-review-schema-proof-43517251572-2026-11-13.json",
+      "sha256": "a60a0674854ec6699f66da8dd5f7f2d63b7158fbf01465a61b28c009a1754b13"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-review-drain-proof-43517251572-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-owner-review-boundary.sql",
+      "sha256": "70cdc3b80c1b5dbf7b92f06a4595ba910aae96be9bcc8821c8942d3b1305c160"
+    },
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.server.ts",
+      "sha256": "e5b1b71668e2fa14ba8ac77def2e6f44f72f1d2689490f711d7e58cfc65f9df5"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.functions.ts",
+      "sha256": "42408d86e1f71faf7d620cf83a2fad5b7fa5fb634bfeeb7384c6e92d7340eeb5"
+    },
+    {
+      "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+      "sha256": "6f638e4fa6229bd37a72b694b67378a2b971da7530fb2aafd0b390e2dc94a691"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.health.tsx",
+      "sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e"
+    },
+    {
+      "path": "tests/database/document-owner-review-cases.mjs",
+      "sha256": "55a6aa800d081901c42434deb5193b4680b92d6d4cdadaf446a921ee8eb95f50"
+    },
+    {
+      "path": "tests/database/document-owner-review-fixture.mjs",
+      "sha256": "aa23640b35d87bad38c0dccad5a05b51e59d7ac969b62c20556d60eac40e302a"
+    },
+    {
+      "path": "tests/database/document-owner-review.test.mjs",
+      "sha256": "8719f15601c551195bd94bf222bc54b4b2fb5ed16b3ea6d2990c4d5cdc9c7463"
+    },
+    {
+      "path": "tests/database/document-owner-review-races.test.mjs",
+      "sha256": "c473b2b16d90d2f647dd14b433e18428bf69e8a558cf18790aad77da822a05b4"
+    },
+    {
+      "path": "tests/unit/owner-document-work-review.test.ts",
+      "sha256": "f4d46ac3d6f0b3f1c3a8046aad8b7c535095b690a650f082e95fb7c1999c44b0"
+    },
+    {
+      "path": "tests/unit/owner-document-work-panel.test.tsx",
+      "sha256": "cffa6de58c735c45219a0fe61e9ab05a1db8d1612b48781da9a9422ef9ae414c"
+    },
+    {
+      "path": "docs/production-readiness/hosting-portability-policy.json",
+      "sha256": "aa1d9037af677984dd04971fb7c6505fae0a6f94954f022e35c8290bc6e7572a"
+    }
+  ],
+  "local_log_hashes": [
+    {
+      "path": "/private/tmp/tf-owner-review-local-final.log",
+      "sha256": "111c68bba14cf0becc3ae13a9966563cc55a7f8e0b943e3f16aebeda0d41c143"
+    },
+    {
+      "path": "/private/tmp/tf-owner-review-unit-final.log",
+      "sha256": "7e41069bfe37320032f64a2e7cd78b7b31364f2f559d34a4a6c9e193f5791104"
+    },
+    {
+      "path": "/private/tmp/tf-owner-review-all-units.log",
+      "sha256": "b274a4050ba9e0eb911142e9de2e3eab8c6708b7b4d19db7028831f983ad8b1c"
+    },
+    {
+      "path": "/private/tmp/tf-owner-review-contracts.log",
+      "sha256": "95c929b45424f87f9eec966805c24d308af3f649ba976a907e83aa616b1992db"
+    },
+    {
+      "path": "/private/tmp/tf-owner-review-release-contracts-final.log",
+      "sha256": "f1b1287ac4b90677de353e5642f0f35c097980eed5600e7b9a1df802fff1a05b"
+    },
+    {
+      "path": "/private/tmp/tf-owner-review-ts-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/tf-owner-review-isolated-build.log",
+      "sha256": "811cb3f5d68e871148d62ac3f15bce6f10a0929bc45135f5420666b59d0ee83d"
+    }
+  ],
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "e70fca6681d54b744c387d7a4124d41cb4b7f016fbfc821020848cfd7029774b",
+    "fileCount": 1214
+  },
+  "local_visual_checks": [
+    {
+      "width": 320,
+      "viewport": 320,
+      "documentWidth": 320,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-review-local-320.png"
+    },
+    {
+      "width": 390,
+      "viewport": 390,
+      "documentWidth": 390,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-review-local-390.png"
+    },
+    {
+      "width": 1280,
+      "viewport": 1280,
+      "documentWidth": 1280,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-review-local-1280.png"
+    }
+  ],
+  "prior_evidence": "docs/production-readiness/evidence/document-producer-authority-verified-2026-11-13.json",
+  "replay_log_sha256": "13e5201e00fc9567e6e4edc82349168ce60938b05f53f3292f0d164927d70af9",
+  "workflow_snapshot_sha256": "7fea51bf8bc208aeb1b2430b9a4e95d4ef20685af76762b61acd4a6aa361fb87",
+  "verified": [
+    "All64 component cases pass in native PostgreSQL, including four actual TypeScript server-core/SQL cases, exact replay, lost-success/manual lookup, metadata privacy, bounded pagination, MFA/current caller claims, ten refused role categories, isolation and installer rollback.",
+    "All24 true two-session races observe the exact blocking role row for queue/inspection/retain, deletion/demotion, both orderings and commit/rollback; refused or rolled-back requests leave work/counts unchanged.",
+    "Full225+40 restricted postgres replay adds exactly the four expected functions with exact body/owner/mode/config/grants; every preexisting public routine and admin-role ACL/RLS remains unchanged. Private audit/recovery access is not granted.",
+    "Owner System Health panel loads work only deliberately; stale viewer results are ignored, unknown writes stay pending, exact lookup cannot trigger a repost, and all displayed errors/reasons use safe readable language.",
+    "All5822 unit tests,47 focused panel/API tests,87 inventory/navigation contracts,72 release/security contracts,TypeScript and the environment-file-free staging build pass locally. Mobile320/390 anddesktop1280 fictional panel views have no horizontal overflow.",
+    "All2253 prior native cases remain passing with exact original1660 label/multiplicity/timeouts and55 fresh batches preserved."
+  ],
+  "component_complete": true,
+  "whole_workstream_complete": false,
+  "remaining": [
+    "Other reconciliation kinds and separately reviewed verified recovery actions; uncertain/provider-backed work must remain counted.",
+    "Remaining older/raw/cached/service/Storage/scheduled/deployed writer and process/provider interruption coverage.",
+    "Exact final canonical/ledger/website/worker package, authorized hosted acceptance and separately approved merge/production rollout."
+  ],
+  "product_code_changed": true,
+  "new_sql_review_only": true,
+  "native_full_schema_verified": true,
+  "provider_quiescence_verified": false,
+  "release_authority_added": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}
