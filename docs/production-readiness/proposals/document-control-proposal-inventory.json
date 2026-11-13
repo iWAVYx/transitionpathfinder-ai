@@ -1,8 +1,8 @@
 {
   "schema": "document-control-proposal-inventory-v1",
-  "date": "2026-11-12",
+  "date": "2026-11-13",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Prior 37 SQL drafts and 2,010 native cases remain verified. Proposal38 summary editing-proof locks passes17 local cases; native baseline/races and full225+38 replay are pending. No hosted or release authority.",
+  "scope": "All38 review-only SQL drafts and 2,056 native cases are verified through full225+38 replay. The summary-access bundle includes one unpatched serialization reproduction,28 corrected cross-role races and17 component/install/rollback checks. Registration/rescan, other writer/reconciliation and hosted/provider gates remain open. No hosted or release authority.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -311,9 +311,11 @@
       "path": "docs/production-readiness/proposals/document-summary-authority-lock.sql",
       "sha256": "42936e91ad6e9d721c839360e589011cbeebf97ad7557a09ad99ae8174265d97",
       "local_verified": true,
-      "native_full_schema_verified": false,
+      "native_full_schema_verified": true,
       "hosted_applied": false,
-      "evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json"
+      "evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
+      "native_status": "verified_complete_native_and_full_schema",
+      "verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json"
     }
   ],
   "registration_replay_failure": {
@@ -416,7 +418,7 @@
   },
   "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
   "text_source_admission_preparation_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
-  "candidate_full_replay_pending": true,
+  "candidate_full_replay_pending": false,
   "text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
   "extraction_source_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
   "extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
@@ -425,5 +427,6 @@
   "manual_review_save_local_evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
   "completion_marker_fence_local_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
   "completion_marker_fence_verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json",
-  "summary_authority_preparation_evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json"
+  "summary_authority_preparation_evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
+  "summary_authority_verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json"
 }

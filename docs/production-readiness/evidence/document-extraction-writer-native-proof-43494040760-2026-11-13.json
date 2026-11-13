@@ -1,0 +1,15 @@
+{
+  "schema": "document-extraction-writer-native-proof-v1",
+  "source_commit": "63c5cfc4c1de5d9a0a2cd0d283cf48c723fea58c",
+  "tests": 56,
+  "passed": 56,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "c8be643c84e2a9a0d3766a827e83de1c32522c7b385c03f53208712aec339e37",
+  "sql_sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069",
+  "log_sha256": "3b844b1e75720f1dc942a397bc2d85e7b3c3dbb609a4f9600b00b0d44e66824a",
+  "provider_calls": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}
