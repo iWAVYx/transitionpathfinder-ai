@@ -64,7 +64,11 @@ if(!selected){
    const after=await state(),lease=after.leases.find(l=>l.operation_id===claim.operation_id);assert.ok(lease);assert.equal(after.units,success?0:1);
    if(success){assert.equal(lease.state,'completed');assert.equal(after.student[0].strengths_summary,'Fictional strengths');assert.equal(after.profiles[0].current_services_summary,'Fictional written supports');assert.equal(after.evidence.length,before.evidence.length+1);assert.equal(after.audit.length,before.audit.length+1);assert.equal(after.extraction.find(e=>e.id===f.applyId).status,'complete');}
    else{assert.ok(['active','needs_review'].includes(lease.state));const profileOnly=rows=>rows.map(({owner_id,student_user_id,...rest})=>rest);assert.deepEqual(profileOnly(after.student),profileOnly(before.student));for(const key of['profiles','evidence','audit','extraction','extractionRevisions'])assert.deepEqual(after[key],before[key]);}
-   const actualEdit=(await f.db.query('SELECT public.can_edit_student($1,$2) AS allowed',[actor,f.student])).rows[0].allowed;assert.equal(actualEdit,entry.direction==='removal-first'&&entry.ending==='ROLLBACK');
+   const authority=(await f.db.query('SELECT public.can_edit_student($1,$2) AS edit,public.can_access_student($1,$2) AS access,public.is_partner_only($1) AS partner,public.can_view_document($1,$3) AS view',[actor,f.student,x.document])).rows[0],retained=entry.direction==='removal-first'&&entry.ending==='ROLLBACK';
+   // Canonical edit/access describe the retained student grant; Apply also
+   // requires the separate non-partner-only role gate. Assert both, not a
+   // fictional change to a shared helper used by other authorized features.
+   assert.equal(authority.edit,entry.role==='partner-transition'?true:retained);assert.equal(authority.partner,entry.role==='partner-transition'&&!retained);assert.equal(authority.edit&&authority.access&&!authority.partner&&authority.view,retained);
   }finally{
    // Unblock every pending statement before closing connections/drop database.
    for(const client of(entry.direction==='removal-first'?[B,A]:[A,B]))if(client)await client.exec('ROLLBACK').catch(()=>{});releaseReply.resolve();if(mutation)await mutation;if(work)await work;await Promise.all(clients.map(c=>c.end()));
