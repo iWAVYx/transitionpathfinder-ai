@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "All 36 runtime SQL proposals are unchanged. Nineteen actual guarded Apply/private recovery composite cases are now native verified. All 1,959 native cases pass with zero failures/skips, including the unchanged 1,660 original cases and seven partitions; full 225 canonical +36 proposal replay passes. Raw logs, case inventories and source hashes were independently validated. Remaining completion-marker/manual stale-write and other writer/access/recovery gates remain open. No hosted/provider or release authorization. Manual review version checks, partial patches and ordered UI saves are now locally verified through 5,784 unit tests, TypeScript and the isolated build; native/hosted manual-edit acceptance and remaining completion-marker review stay open.",
+  "status": "Proposal37 completion-marker fence is locally prepared. All42 actual Apply/private recovery/marker/manual-handler cases pass in disposable PGlite with zero failures/skips. The earlier36-proposal/1959-native proof remains historical; current42-case native acceptance, corrected56-writer regression and cumulative1982-native/full225+37 replay verification are pending. Manual source/unit/build proof is retained. No hosted/provider or release authority.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -144,6 +144,10 @@
     {
       "path": "src/lib/document-review-save-queue.ts",
       "sha256": "70bed86f39eae22b087966e00438c89e3741afe57b2755f2cb66bc9749a1b6a2"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
+      "sha256": "58877488d0cb42e35c3ae6a897fc89de915af700f53df0f1bacd5bc761b3c7b0"
     }
   ],
   "adapter_contract": {
@@ -1049,12 +1053,12 @@
     "verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-12",
-    "checked_against_source": "Working-tree hashes based on 578c8b0e; exact prepared file identities retained in evidence.",
-    "evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
-    "declared_entries_checked": 35,
-    "corrected_entries": 2,
-    "added_entries": 2,
+    "date": "2026-11-13",
+    "checked_against_source": "Prepared working-tree hashes based on 4b3d36ef; exact identities retained in local evidence.",
+    "evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
+    "declared_entries_checked": 36,
+    "corrected_entries": 0,
+    "added_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1063,6 +1067,16 @@
     "evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
     "local_verified": true,
     "native_manual_edit_acceptance": false,
+    "hosted_applied": false,
+    "whole_action_complete": false
+  },
+  "completion_marker_fence_preparation": {
+    "proposal": "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
+    "evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
+    "local_verified": true,
+    "local_composite_cases": 42,
+    "native_verified": false,
+    "full_schema_verified": false,
     "hosted_applied": false,
     "whole_action_complete": false
   }

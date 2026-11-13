@@ -39,6 +39,9 @@ on:
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-source-admission.sql"
       - "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
+      - "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql"
+      - "src/lib/document-review-edit.server.ts"
+      - "src/lib/extractions.functions.ts"
       - "tests/database/document-guarded-apply-recovery.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
@@ -158,6 +161,9 @@ on:
       - "docs/production-readiness/proposals/document-text-completion-drain-inventory.sql"
       - "docs/production-readiness/proposals/document-text-source-admission.sql"
       - "docs/production-readiness/proposals/document-extraction-source-write-fence.sql"
+      - "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql"
+      - "src/lib/document-review-edit.server.ts"
+      - "src/lib/extractions.functions.ts"
       - "tests/database/document-guarded-apply-recovery.test.mjs"
       - "tests/database/document-extraction-source-write-fence.test.mjs"
       - "tests/database/document-text-source-admission.test.mjs"
@@ -564,6 +570,7 @@ jobs:
 
       - name: Test guarded composite Apply and recovery without providers
         run: |
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
           PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
             node --test tests/database/document-guarded-apply-recovery.test.mjs
 
@@ -572,11 +579,12 @@ jobs:
           PGUSER: supabase_admin
         run: |
           set -o pipefail
+          PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js" \
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
             node --test tests/database/document-guarded-apply-recovery.test.mjs | tee /tmp/document-guarded-composite-native.log
           node --input-type=module <<'NODE'
-          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-guarded-composite-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),19);assert.equal(count('pass'),19);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-guarded-composite-native.json',JSON.stringify({schema:'document-guarded-composite-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:19,passed:19,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-guarded-apply-recovery.test.mjs')),fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),writer_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),apply_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql')),recovery_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-guarded-composite-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),42);assert.equal(count('pass'),42);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-guarded-composite-native.json',JSON.stringify({schema:'document-guarded-composite-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:42,passed:42,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-guarded-apply-recovery.test.mjs')),fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),manual_handler_sha256:sha(readFileSync('src/lib/document-review-edit.server.ts')),writer_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-source-write-fence.sql')),marker_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql')),apply_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-bound-save.sql')),recovery_sql_sha256:sha(readFileSync('docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql')),log_sha256:sha(log),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test trusted operation review without hosted credentials
@@ -2965,6 +2973,30 @@ jobs:
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';const p=JSON.parse(readFileSync('/tmp/document-extraction-writer-drain.json','utf8'));assert.equal(p.paused,true);assert.equal(p.database_work_clear,true);assert.equal(p.remaining_capacity_units,0);assert.equal(p.provider_quiescence_verified,false);assert.equal(p.ready_for_cutover,false);writeFileSync('/tmp/document-extraction-writer-schema.json',JSON.stringify({schema:'document-extraction-writer-schema-proof-v1',paused:true,remaining_capacity_units:0,scoped_original_writer_fence_prepared:true,manual_section_meta_edits_preserved:true,other_completion_marker_writers_verified:false,actual_provider_behavior_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify completion marker fence after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -c "SET ROLE postgres; CREATE TEMP TABLE marker_protocol_before AS SELECT prosrc,proconfig,prosecdef,proowner,proacl,provolatile FROM pg_proc WHERE oid='public.assert_internal_document_text_protocol()'::regprocedure" \
+            -f docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql -f - <<'SQL'
+          DO $completion_marker_schema_proof$
+          DECLARE before_row record;after_row record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted marker-fence installer required';END IF;
+           PERFORM public.assert_internal_document_text_protocol();
+           IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid='public.guard_document_extraction_source_write()'::regprocedure AND md5(prosrc)='d6f2c6ab159f1a31d4ba48bbe468551f' AND prosecdef AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=pg_catalog'] AND provolatile='v') THEN RAISE EXCEPTION 'Exact completion marker fence required';END IF;
+           SELECT * INTO STRICT before_row FROM marker_protocol_before;
+           SELECT prosrc,proconfig,prosecdef,proowner,proacl,provolatile INTO STRICT after_row FROM pg_proc WHERE oid='public.assert_internal_document_text_protocol()'::regprocedure;
+           IF md5(before_row.prosrc)<>'c2b9bea3f70690c1a3551eb7eefe0bf7' OR after_row.prosrc IS DISTINCT FROM replace(before_row.prosrc,'5c4426d98589aeba2c091c1f674d5bf6','d6f2c6ab159f1a31d4ba48bbe468551f') OR (after_row.proconfig,after_row.prosecdef,after_row.proowner,after_row.proacl,after_row.provolatile) IS DISTINCT FROM (before_row.proconfig,before_row.prosecdef,before_row.proowner,before_row.proacl,before_row.provolatile) THEN RAISE EXCEPTION 'Only the exact guard fingerprint may change in protocol verification';END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(caller,'public.guard_document_extraction_source_write()','EXECUTE') THEN RAISE EXCEPTION 'Marker guard must remain private';END IF;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR public.count_internal_combined_document_capacity(NULL,NULL)<>0 THEN RAISE EXCEPTION 'Paused empty shared work must be preserved';END IF;
+          END;$completion_marker_schema_proof$;
+          SQL
+          node --input-type=module <<'NODE'
+          import{writeFileSync}from'node:fs';writeFileSync('/tmp/document-completion-marker-schema.json',JSON.stringify({schema:'document-completion-marker-schema-proof-v1',canonical_count:225,review_drafts:37,exact_marker_guard:true,exact_protocol_inventory_patch:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -3024,6 +3056,7 @@ jobs:
             /tmp/document-extraction-writer-native.json
             /tmp/document-extraction-writer-drain.json
             /tmp/document-extraction-writer-schema.json
+            /tmp/document-completion-marker-schema.json
             /tmp/document-guarded-composite-native.log
             /tmp/document-guarded-composite-native.json
           if-no-files-found: ignore
