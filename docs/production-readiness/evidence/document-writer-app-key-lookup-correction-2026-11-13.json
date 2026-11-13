@@ -12,7 +12,7 @@
     "skipped": 10,
     "skipped_scope": "native-only concurrency cases, not accepted locally"
   },
-  "native_recheck_pending": true,
+  "native_recheck_pending": false,
   "logs": [
     {
       "path": "/private/tmp/tf-manual-save-ci-failure.log",
@@ -26,5 +26,9 @@
   "test_sha256": "c8be643c84e2a9a0d3766a827e83de1c32522c7b385c03f53208712aec339e37",
   "hosted_actions": false,
   "production_access": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "native_verified": true,
+  "native_cases_verified": 56,
+  "verified_run": 43404861945,
+  "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
 }

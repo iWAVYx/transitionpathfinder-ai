@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "Proposal37 completion-marker fence is locally prepared. All42 actual Apply/private recovery/marker/manual-handler cases pass in disposable PGlite with zero failures/skips. The earlier36-proposal/1959-native proof remains historical; current42-case native acceptance, corrected56-writer regression and cumulative1982-native/full225+37 replay verification are pending. Manual source/unit/build proof is retained. No hosted/provider or release authority.",
+  "status": "All37 runtime SQL proposals are source/disposable verified through full225+37 replay. All1982 native cases pass with zero failures/skips, including42 actual guarded Apply/private recovery/marker/manual-handler cases. The56-case writer regression includes the corrected actual-app key lookup. Exact raw logs, case inventories and source hashes were independently validated. Other source/access/writer/reconciliation/provider gates remain open. No hosted or release authority.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -1042,23 +1042,23 @@
   "document_extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
   "guarded_apply_recovery_composite_preparation": {
     "test": "tests/database/document-guarded-apply-recovery.test.mjs",
-    "local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json",
-    "local_passed": 19,
+    "local_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
+    "local_passed": 42,
     "native_verified": true,
-    "runtime_sql_changed": false,
+    "runtime_sql_changed": true,
     "hosted_actions": false,
-    "native_cases_verified": 19,
+    "native_cases_verified": 42,
     "native_full_schema_verified": true,
-    "total_native_cases_verified": 1959,
-    "verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json"
+    "total_native_cases_verified": 1982,
+    "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "Prepared working-tree hashes based on 4b3d36ef; exact identities retained in local evidence.",
-    "evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
+    "checked_against_source": "a69459a9f27a3fd2ea78171337002af233774c18",
+    "evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json",
     "declared_entries_checked": 36,
     "corrected_entries": 0,
-    "added_entries": 1,
+    "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1066,18 +1066,21 @@
   "manual_review_save_preparation": {
     "evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
     "local_verified": true,
-    "native_manual_edit_acceptance": false,
+    "native_manual_edit_acceptance": true,
     "hosted_applied": false,
-    "whole_action_complete": false
+    "whole_action_complete": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
   },
   "completion_marker_fence_preparation": {
     "proposal": "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
     "evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
     "local_verified": true,
     "local_composite_cases": 42,
-    "native_verified": false,
-    "full_schema_verified": false,
+    "native_verified": true,
+    "full_schema_verified": true,
     "hosted_applied": false,
-    "whole_action_complete": false
+    "whole_action_complete": false,
+    "native_composite_cases": 42,
+    "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
   }
 }
