@@ -28,6 +28,7 @@ import {
   type ExtractionSection,
   type SectionReviewState,
 } from "@/lib/extractions.functions";
+import { createReviewSaveQueue } from "@/lib/document-review-save-queue";
 import { logDocumentView } from "@/lib/documents.functions";
 import { DocumentClassificationCard } from "@/components/documents/DocumentClassificationCard";
 import { ExtractEvidenceButton } from "@/components/pathway/ExtractEvidenceButton";
@@ -71,9 +72,10 @@ function ReviewPage() {
   type ReviewScope = { key: string | null; viewerId: string | null };
   const scope = useRef<ReviewScope>({ key: scopeKey, viewerId: user?.id ?? null });
   if (scope.current.key !== scopeKey) scope.current = { key: scopeKey, viewerId: user?.id ?? null };
+  const saveQueue = useRef<ReturnType<typeof createReviewSaveQueue> | null>(null);
   const [loadedScope, setLoadedScope] = useState<ReviewScope | null>(null);
   const current = (request: ReviewScope | null) => request !== null && request.key !== null && scope.current === request;
-  useEffect(() => () => { scope.current = { ...scope.current }; }, []);
+  useEffect(() => () => { scope.current = { ...scope.current }; saveQueue.current?.cancel(); }, []);
 
   const fnGet = useServerFn(getOrCreateExtraction);
   const fnRun = useServerFn(runExtractionFromText);
@@ -94,6 +96,7 @@ function ReviewPage() {
   useEffect(() => {
     const request = scope.current;
     let active = true;
+    saveQueue.current?.cancel(); saveQueue.current = null;
     setExtraction(null); setLoadedScope(null); setPastedText("");
     setRunning(false); setApplying(false); setPendingSaves(0); setSaveFailed(false); setLoading(true);
     if (!request.key || !request.viewerId) return;
@@ -101,6 +104,7 @@ function ReviewPage() {
       try {
         const res = await fnGet({ data: { document_id: documentId } });
         if (!active || !current(request)) return;
+        saveQueue.current?.cancel(); saveQueue.current = createReviewSaveQueue(res.extraction.updated_at);
         setExtraction(res.extraction as unknown as Extraction);
         fnLogView({ data: { document_id: documentId, context: "extraction_review" } }).catch(() => {});
       } catch (e) {
@@ -127,7 +131,7 @@ function ReviewPage() {
 
   async function handleRun() {
     const request = scope.current;
-    if (!extraction || running || applying || pendingSaves > 0 || saveFailed || !current(loadedScope)) return;
+    if (!extraction || extraction.status === "complete" || running || applying || saveQueue.current?.pending || saveQueue.current?.failed || pendingSaves > 0 || saveFailed || !current(loadedScope)) return;
     if (pastedText.trim().length < 40) {
       toast.error("Paste at least a paragraph of the IEP to extract from.");
       return;
@@ -137,6 +141,7 @@ function ReviewPage() {
       const res = await fnRun({ data: { expected_viewer_id: request.viewerId!, document_id: documentId,
         student_id: extraction.student_id, extraction_id: extraction.id, expected_updated_at: extraction.updated_at, text: pastedText } });
       if (!current(request)) return;
+      saveQueue.current?.cancel(); saveQueue.current = createReviewSaveQueue(res.extraction.updated_at);
       setExtraction(res.extraction as unknown as Extraction);
       toast.success("Draft extracted — review each section below.");
     } catch (e) {
@@ -151,29 +156,25 @@ function ReviewPage() {
     patch: Partial<ExtractionSection>,
   ) {
     const request = scope.current;
-    if (!extraction || applying || !current(loadedScope)) return;
-    const prev = extraction.sections[key] ?? {
-      state: "pending" as SectionReviewState,
-      value: "",
-      original_value: "",
-      notes: "",
-    };
-    const next: ExtractionSection = { ...prev, ...patch };
-    setExtraction({
-      ...extraction,
-      sections: { ...extraction.sections, [key]: next },
-    });
+    if (!extraction || running || applying || saveFailed || saveQueue.current?.failed || !current(loadedScope) || !request.viewerId || !saveQueue.current || extraction.status === "complete") return;
+    const queue = saveQueue.current;
+    // Merge on the latest optimistic state so rapid edits to different fields
+    // cannot discard each other before React renders the next frame.
+    setExtraction(current => current ? { ...current, sections: { ...current.sections, [key]: { ...(current.sections[key] ?? { state: "pending", value: "", original_value: "", notes: "" }), ...patch } } } : current);
     setPendingSaves(count => count + 1);
     try {
-      const saved = await fnSection({
+      const saved = await queue.enqueue(expected_updated_at => {
+        if (!current(request)) throw new Error("This review is no longer open.");
+        return fnSection({
         data: {
+          expected_viewer_id: request.viewerId!, document_id: extraction.document_id, student_id: extraction.student_id, expected_updated_at,
           extraction_id: extraction.id,
           key,
-          state: next.state,
-          value: next.value,
-          notes: next.notes,
+          ...(patch.state !== undefined ? { state: patch.state } : {}),
+          ...(patch.value !== undefined ? { value: patch.value } : {}),
+          ...(patch.notes !== undefined ? { notes: patch.notes } : {}),
         },
-      });
+      }); });
       if (!current(request)) return;
       setExtraction(current => current?.id === extraction.id ? { ...current, status: "in_review", updated_at: saved.updated_at } : current);
     } catch (e) {
@@ -187,19 +188,19 @@ function ReviewPage() {
 
   async function saveMeta(patch: Partial<Pick<Extraction, "missing_information" | "suggested_questions" | "review_notes">>) {
     const request = scope.current;
-    if (!extraction || applying || !current(loadedScope)) return;
-    const next = { ...extraction, ...patch };
-    setExtraction(next);
+    if (!extraction || running || applying || saveFailed || saveQueue.current?.failed || !current(loadedScope) || !request.viewerId || !saveQueue.current || extraction.status === "complete") return;
+    const queue = saveQueue.current;
+    setExtraction(current => current ? { ...current, ...patch } : current);
     setPendingSaves(count => count + 1);
     try {
-      const saved = await fnMeta({
+      const saved = await queue.enqueue(expected_updated_at => {
+        if (!current(request)) throw new Error("This review is no longer open.");
+        return fnMeta({
         data: {
-          extraction_id: extraction.id,
-          missing_information: next.missing_information,
-          suggested_questions: next.suggested_questions,
-          review_notes: next.review_notes ?? "",
+          extraction_id: extraction.id, expected_viewer_id: request.viewerId!, document_id: extraction.document_id, student_id: extraction.student_id, expected_updated_at,
+          ...patch,
         },
-      });
+      }); });
       if (!current(request)) return;
       setExtraction(current => current?.id === extraction.id ? { ...current, updated_at: saved.updated_at } : current);
     } catch (e) {
@@ -213,7 +214,7 @@ function ReviewPage() {
 
   async function handleApply() {
     const request = scope.current;
-    if (!extraction || applying || pendingSaves > 0 || saveFailed || !current(loadedScope) || !request.viewerId) return;
+    if (!extraction || applying || running || saveQueue.current?.pending || saveQueue.current?.failed || pendingSaves > 0 || saveFailed || !current(loadedScope) || !request.viewerId) return;
     setApplying(true);
     try {
       await fnApply({ data: { expected_viewer_id: request.viewerId, extraction_id: extraction.id, student_id: extraction.student_id, document_id: extraction.document_id, expected_updated_at: extraction.updated_at, expected_sections: extraction.sections } });
@@ -298,7 +299,7 @@ function ReviewPage() {
                   placeholder="Paste IEP text here…"
                 />
                 <div className="flex items-center gap-2">
-                  <Button onClick={handleRun} disabled={running || applying || pendingSaves > 0 || saveFailed}>
+                  <Button onClick={handleRun} disabled={running || applying || pendingSaves > 0 || saveFailed || extraction.status === "complete"}>
                     {running ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     {totalWithValue > 0 ? "Re-run extraction" : "Extract draft"}
                   </Button>
@@ -311,6 +312,7 @@ function ReviewPage() {
               </CardContent>
             </Card>
 
+            <fieldset disabled={running || applying || saveFailed || extraction.status === "complete"} className="min-w-0 space-y-6">
             <div className="grid grid-cols-1 gap-4">
               {sections.map(({ key, data }) => (
                 <SectionCard
@@ -366,6 +368,8 @@ function ReviewPage() {
               </CardContent>
             </Card>
 
+            </fieldset>
+            {extraction.status === "complete" && <p className="text-sm text-muted-foreground">This review has already been applied. Its saved details are read-only.</p>}
             {saveFailed && <div role="alert" className="text-sm text-destructive">
               Some review edits could not be saved. <button type="button" className="underline" onClick={() => window.location.reload()}>Reload the review</button> before applying changes.
             </div>}

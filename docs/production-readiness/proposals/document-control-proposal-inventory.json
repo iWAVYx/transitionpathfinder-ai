@@ -403,5 +403,6 @@
   "extraction_source_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
   "extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
   "guarded_apply_recovery_composite_local_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-local-2026-11-12.json",
-  "guarded_apply_recovery_composite_verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json"
+  "guarded_apply_recovery_composite_verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json",
+  "manual_review_save_local_evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json"
 }

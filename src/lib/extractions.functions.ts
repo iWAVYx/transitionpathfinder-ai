@@ -6,21 +6,8 @@ import { extractFromIep, type IepExtract } from "./iep-extract.functions";
 import { documentTextExtractionRequest, replaceDocumentTextExtraction } from "./document-text-extraction.server";
 import { applyReviewedExtractionWithAdmission, parseExtractionApplyRequest } from "./document-extraction-apply.server";
 
-/** Section keys we surface in the review UI, mapped to IepExtract fields. */
-export const EXTRACTION_SECTION_KEYS = [
-  "student_first_name",
-  "grade_band",
-  "strengths",
-  "interests",
-  "needs",
-  "supports",
-  "transportation",
-  "communication",
-  "current_goals",
-  "family_concerns",
-  "student_voice",
-  "educator_input",
-] as const;
+import { EXTRACTION_SECTION_KEYS, sectionEditRequest, metaEditRequest, saveManualReviewEdit } from "./document-review-edit.server";
+export { EXTRACTION_SECTION_KEYS };
 
 export type ExtractionSectionKey = (typeof EXTRACTION_SECTION_KEYS)[number];
 export type SectionReviewState = "pending" | "accepted" | "edited" | "rejected" | "uncertain";
@@ -96,69 +83,13 @@ export const runExtractionFromText = createServerFn({ method: "POST" })
 
 export const updateExtractionSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      extraction_id: z.string().uuid(),
-      key: z.enum(EXTRACTION_SECTION_KEYS),
-      state: z.enum(["pending", "accepted", "edited", "rejected", "uncertain"]),
-      value: z.string().max(4000).default(""),
-      notes: z.string().max(1000).default(""),
-    }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: row, error } = await supabase
-      .from("document_extractions")
-      .select("sections")
-      .eq("id", data.extraction_id)
-      .maybeSingle();
-    if (error || !row) throw new Error("Extraction not found.");
-
-    const sections = (row.sections ?? {}) as Record<string, ExtractionSection>;
-    const prev = sections[data.key] ?? {
-      state: "pending",
-      value: "",
-      original_value: "",
-      notes: "",
-    };
-    sections[data.key] = {
-      state: data.state,
-      value: data.value || prev.value,
-      original_value: prev.original_value,
-      notes: data.notes,
-    };
-
-    const { data: saved, error: upErr } = await supabase
-      .from("document_extractions")
-      .update({ sections: sections as any, status: "in_review" })
-      .eq("id", data.extraction_id).select("updated_at").maybeSingle();
-    if (upErr || !saved) throw new Error("Could not update section.");
-    return { ok: true, updated_at: saved.updated_at };
-  });
+  .validator((input: unknown) => sectionEditRequest.parse(input))
+  .handler(async ({ data, context }) => saveManualReviewEdit(context.supabase, context.userId, data, "section"));
 
 export const updateExtractionMeta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      extraction_id: z.string().uuid(),
-      missing_information: z.array(z.string().max(400)).max(40).optional(),
-      suggested_questions: z.array(z.string().max(400)).max(40).optional(),
-      review_notes: z.string().max(4000).optional(),
-    }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const patch: any = {};
-    if (data.missing_information) patch.missing_information = data.missing_information;
-    if (data.suggested_questions) patch.suggested_questions = data.suggested_questions;
-    if (data.review_notes !== undefined) patch.review_notes = data.review_notes;
-    const { data: saved, error } = await supabase
-      .from("document_extractions")
-      .update(patch)
-      .eq("id", data.extraction_id).select("updated_at").maybeSingle();
-    if (error || !saved) throw new Error("Could not save review notes.");
-    return { ok: true, updated_at: saved.updated_at };
-  });
+  .validator((input: unknown) => metaEditRequest.parse(input))
+  .handler(async ({ data, context }) => saveManualReviewEdit(context.supabase, context.userId, data, "meta"));
 
 export const applyAcceptedExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

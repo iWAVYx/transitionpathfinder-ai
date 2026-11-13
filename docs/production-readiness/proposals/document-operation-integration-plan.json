@@ -1,7 +1,7 @@
 {
   "date": "2026-10-29",
   "schema": "document-operation-integration-plan-v1",
-  "status": "All 36 runtime SQL proposals are unchanged. Nineteen actual guarded Apply/private recovery composite cases are now native verified. All 1,959 native cases pass with zero failures/skips, including the unchanged 1,660 original cases and seven partitions; full 225 canonical +36 proposal replay passes. Raw logs, case inventories and source hashes were independently validated. Remaining completion-marker/manual stale-write and other writer/access/recovery gates remain open. No hosted/provider or release authorization.",
+  "status": "All 36 runtime SQL proposals are unchanged. Nineteen actual guarded Apply/private recovery composite cases are now native verified. All 1,959 native cases pass with zero failures/skips, including the unchanged 1,660 original cases and seven partitions; full 225 canonical +36 proposal replay passes. Raw logs, case inventories and source hashes were independently validated. Remaining completion-marker/manual stale-write and other writer/access/recovery gates remain open. No hosted/provider or release authorization. Manual review version checks, partial patches and ordered UI saves are now locally verified through 5,784 unit tests, TypeScript and the isolated build; native/hosted manual-edit acceptance and remaining completion-marker review stay open.",
   "source_base": "35b2d4de",
   "adapter": "src/lib/document-operation-admission.server.ts",
   "source_manifest": [
@@ -15,7 +15,7 @@
     },
     {
       "path": "src/lib/extractions.functions.ts",
-      "sha256": "8aa68746cc4ad18dc62624c71a6f5a3b8fda502aa98f4cc239ca7400aca68dc5"
+      "sha256": "7c2c2b87455ce482a3e996d80f7740a1b049c4042857896eb1f05499c4ea4559"
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
@@ -31,7 +31,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "ffcbadd40b37466f5bcf9e6b59baf7c60d81465f1a7f89e36cef1fc3368d5946"
+      "sha256": "68997bceea64a5c87bc65fb74fb28f0655baab5f868d7e160f96333f1cc6ddb3"
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
@@ -136,6 +136,14 @@
     {
       "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
       "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
+    },
+    {
+      "path": "src/lib/document-review-edit.server.ts",
+      "sha256": "7e2333fe0d2b27146a4a74e3d537c6d58c0c1e3ef85149bfb1e2ac076e0acc3a"
+    },
+    {
+      "path": "src/lib/document-review-save-queue.ts",
+      "sha256": "70bed86f39eae22b087966e00438c89e3741afe57b2755f2cb66bc9749a1b6a2"
     }
   ],
   "adapter_contract": {
@@ -1039,5 +1047,23 @@
     "native_full_schema_verified": true,
     "total_native_cases_verified": 1959,
     "verified_evidence": "docs/production-readiness/evidence/document-guarded-apply-recovery-verified-2026-11-12.json"
+  },
+  "source_manifest_reconciliation": {
+    "date": "2026-11-12",
+    "checked_against_source": "Working-tree hashes based on 578c8b0e; exact prepared file identities retained in evidence.",
+    "evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
+    "declared_entries_checked": 35,
+    "corrected_entries": 2,
+    "added_entries": 2,
+    "complete_release_manifest": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "manual_review_save_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",
+    "local_verified": true,
+    "native_manual_edit_acceptance": false,
+    "hosted_applied": false,
+    "whole_action_complete": false
   }
 }
