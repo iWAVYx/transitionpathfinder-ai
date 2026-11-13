@@ -3,13 +3,12 @@ import { OwnerWorkspaceGate } from "@/components/dashboard/OwnerWorkspaceGate";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Component, useCallback, useEffect, useState, useRef, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import { Sparkles, AlertCircle, Plus, Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/site/SiteShell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { toTitleCase } from "@/lib/title-case";
-import { getDashboardSnapshot, seedDemoStudent, type DashboardSnapshot } from "@/lib/golden-path.functions";
+import { getDashboardSnapshot, type DashboardSnapshot } from "@/lib/golden-path.functions";
 import { listStudents, ensureOwnStudentProfile } from "@/lib/students.functions";
 import { getProfile, getMyRoles } from "@/lib/profile.functions";
 import { audiencesForRoles, fallbackPathFor } from "@/lib/role-policy";
@@ -188,7 +187,6 @@ function DashboardPageForViewer({
   const fetchProfile = useServerFn(getProfile);
   const fetchRoles = useServerFn(getMyRoles);
   const fetchStudentContext = useServerFn(getStudentHubContext);
-  const seed = useServerFn(seedDemoStudent);
   const dashboardHint =
     typeof window === "undefined"
       ? null
@@ -267,7 +265,6 @@ function DashboardPageForViewer({
   const [snap, setSnap] = useState<DashboardSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [seeding, setSeeding] = useState(false);
 
   const reload = useCallback(
     async (sid?: string | null) => {
@@ -375,21 +372,6 @@ function DashboardPageForViewer({
 
   // Onboarding gate is owned by `_authenticated.tsx`; no redundant check here.
 
-  async function handleSeed() {
-    if (!alive.current || seeding || roleDecision !== "family") return;
-    setSeeding(true);
-    try {
-      const { studentId } = await seed({ data: { expected_viewer_id: user.id } });
-      if (!alive.current) return;
-      toast.success("Demo student Marcus is ready — explore TransitionForward.");
-      await reload(studentId);
-    } catch (err) {
-      if (alive.current) toast.error(err instanceof Error ? err.message : "Could not create demo.");
-    } finally {
-      if (alive.current) setSeeding(false);
-    }
-  }
-
   const studentSelector =
     students.length > 1 || (loadError && students.length > 0) ? (
       <div className="mb-6 flex justify-end">
@@ -463,29 +445,23 @@ function DashboardPageForViewer({
           <p className="mt-3 text-base leading-relaxed text-foreground/75">
             TransitionForward helps you understand the student, organize important documents,
             prepare for PPT meetings, and connect goals to real-life pathways. Start by adding your
-            student — or try the full experience with a demo student.
+            student — or explore a sample Family Dashboard.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={handleSeed}
-              disabled={seeding}
-              className="group border-y border-primary/40 bg-primary/[0.035] py-6 text-left transition hover:bg-primary/[0.055] disabled:opacity-60 sm:px-4"
+            <Link
+              to="/demo/family"
+              className="group border-y border-primary/40 bg-primary/[0.035] py-6 text-left transition hover:bg-primary/[0.055] sm:px-4"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-background/80 text-primary shadow-soft">
-                {seeding ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                ) : (
-                  <Sparkles className="h-6 w-6" />
-                )}
+                <Sparkles className="h-6 w-6" />
               </div>
-              <h3 className="mt-5 font-display text-xl">Try with demo student</h3>
+              <h3 className="mt-5 font-display text-xl">Explore a Sample Dashboard</h3>
               <p className="mt-2 text-sm text-foreground/75">
-                Creates Marcus — a sample 11th grader with goals, IEP docs, a Pathway Report, action
-                items, an upcoming PPT meeting, and recommended resources.
+                Preview a fictional student's goals, Pathway Report, planning tools, and resources.
+                Nothing is added to your account.
               </p>
-            </button>
+            </Link>
 
             <Link
               to="/students"
@@ -504,8 +480,8 @@ function DashboardPageForViewer({
 
           <div className="mt-4 text-center text-sm text-foreground/75">
             Just want to look around first?{" "}
-            <Link to="/demo-mode" className="font-medium text-primary hover:underline">
-              Explore Demo Mode (read-only)
+            <Link to="/demo" className="font-medium text-primary hover:underline">
+              Explore Other Role Previews
             </Link>
           </div>
         </div>

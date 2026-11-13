@@ -332,7 +332,7 @@ it.each([false, true])(
     defaults();
     api.students.mockResolvedValue(students([]));
     setup(family);
-    await screen.findByText(family ? "No connected student yet." : "Try with demo student");
+    await screen.findByText(family ? "No connected student yet." : "Explore a Sample Dashboard");
     expect(api.snapshot).not.toHaveBeenCalled();
     expect(api.ensure).not.toHaveBeenCalled();
   },
@@ -581,3 +581,15 @@ it.each([false, true])(
     expect(screen.queryByRole("alert")).toBeNull();
   },
 );
+
+it("opens the shared Family preview without creating or selecting a sample student", async () => {
+  defaults(); api.students.mockResolvedValue(students([])); setup();
+  const link = await screen.findByRole("link", { name: /Explore a Sample Dashboard/ });
+  expect(link.getAttribute("href")).toBe("/demo/family");
+  expect(screen.getByText(/Nothing is added to your account/)).toBeTruthy();
+  expect(screen.getByRole("link", { name: "Explore Other Role Previews" }).getAttribute("href")).toBe("/demo");
+  expect(screen.getByRole("link", { name: /Add your student/ }).getAttribute("href")).toBe("/students");
+  expect(api.seed).not.toHaveBeenCalled(); expect(api.ensure).not.toHaveBeenCalled();
+  expect(api.snapshot).not.toHaveBeenCalled(); expect(api.navigate).not.toHaveBeenCalled();
+  expect(screen.queryByRole("button", { name: /demo student/i })).toBeNull();
+});

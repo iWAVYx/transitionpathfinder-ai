@@ -184,6 +184,18 @@
     {
       "path": "src/routes/_authenticated/owner.health.tsx",
       "sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e"
+    },
+    {
+      "path": "src/lib/golden-path.functions.ts",
+      "sha256": "d2e04ad9029d5efd1347021aa75a63886e6eacc16cd83f25de6c7a78416c85a4"
+    },
+    {
+      "path": "src/routes/_authenticated/dashboard.tsx",
+      "sha256": "d01f292e223880d35c9d94c80624dfe39053fb34ee3e8f23bfcbc6f91ae3cb83"
+    },
+    {
+      "path": "src/routes/_authenticated/demo-mode.tsx",
+      "sha256": "ee59de7b863825dec6b2834bb422b5a5d477053bb68d30e5a8345f0b20a03260"
     }
   ],
   "adapter_contract": {
@@ -1090,11 +1102,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "ecc65daa9685c37744ef10fd6525a34fa1812f76",
-    "evidence": "docs/production-readiness/evidence/document-owner-review-verified-2026-11-13.json",
-    "declared_entries_checked": 45,
+    "checked_against_source": "b32a8c31a141c9ca90896bb53b4577b432d7d01d",
+    "evidence": "docs/production-readiness/evidence/document-personal-sample-writer-retired-2026-11-13.json",
+    "declared_entries_checked": 48,
     "corrected_entries": 0,
-    "added_entries": 6,
+    "added_entries": 3,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1195,5 +1207,13 @@
     "canonical_migrations": 225,
     "review_drafts": 40,
     "component_complete": true
+  },
+  "personal_sample_writer_retirement": {
+    "evidence": "docs/production-readiness/evidence/document-personal-sample-writer-retired-2026-11-13.json",
+    "component_complete": true,
+    "whole_workstream_complete": false,
+    "local_verified": true,
+    "hosted_actions": false,
+    "ready_for_cutover": false
   }
 }
