@@ -45,7 +45,7 @@
     },
     {
       "path": "src/routes/_authenticated/owner.health.tsx",
-      "sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e"
+      "sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
     },
     {
       "path": "tests/database/document-owner-review-cases.mjs",
@@ -73,7 +73,7 @@
     },
     {
       "path": "docs/production-readiness/hosting-portability-policy.json",
-      "sha256": "aa1d9037af677984dd04971fb7c6505fae0a6f94954f022e35c8290bc6e7572a"
+      "sha256": "209c4d4b1f9d0358e743cd7c312bb57947976ac857ddcc6eeb408b29f52cd744"
     }
   ],
   "cross_role_assessment": "Only platform_owner receives management metadata. Other ten role categories are refused; Owner gains no student/private content access. Public demo and other role dashboards do not receive operational controls.",
@@ -139,5 +139,23 @@
       "overflow": [],
       "path": "/private/tmp/tf-owner-review-local-1280.png"
     }
-  ]
+  ],
+  "compatible_source_followup": {
+    "source_base": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
+    "scope": "Add a separate read-only pasted-text task panel to Owner health and review its caller-authenticated module. Existing uploaded-file review panel/core/contracts and all proposal40 SQL remain byte-identical. Current preparation hashes follow this compatible composition; historical native evidence retains the original exact source hashes. New source/native verification is recorded independently.",
+    "changes": [
+      {
+        "path": "src/routes/_authenticated/owner.health.tsx",
+        "prior_sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e",
+        "current_sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
+      },
+      {
+        "path": "docs/production-readiness/hosting-portability-policy.json",
+        "prior_sha256": "aa1d9037af677984dd04971fb7c6505fae0a6f94954f022e35c8290bc6e7572a",
+        "current_sha256": "209c4d4b1f9d0358e743cd7c312bb57947976ac857ddcc6eeb408b29f52cd744"
+      }
+    ],
+    "separate_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+    "does_not_rewrite_historical_native_proof": true
+  }
 }

@@ -56,6 +56,15 @@ on:
       - "tests/database/document-owner-review-fixture.mjs"
       - "tests/database/document-owner-review.test.mjs"
       - "tests/database/document-owner-review-races.test.mjs"
+      - "docs/production-readiness/proposals/document-owner-text-work-review.sql"
+      - "tests/database/document-owner-text-work-cases.mjs"
+      - "tests/database/document-owner-text-work-fixture.mjs"
+      - "tests/database/document-owner-text-work.test.mjs"
+      - "tests/database/document-owner-text-work-races.test.mjs"
+      - "tests/document-owner-text-work-plan.test.mjs"
+      - "src/lib/owner/text-work-review-contract.ts"
+      - "src/lib/owner/text-work-review.server.ts"
+      - "src/lib/owner/text-work-review.functions.ts"
       - "tests/document-owner-review-plan.test.mjs"
       - "src/lib/owner/document-work-review-contract.ts"
       - "src/lib/owner/document-work-review.server.ts"
@@ -206,6 +215,15 @@ on:
       - "tests/database/document-owner-review-fixture.mjs"
       - "tests/database/document-owner-review.test.mjs"
       - "tests/database/document-owner-review-races.test.mjs"
+      - "docs/production-readiness/proposals/document-owner-text-work-review.sql"
+      - "tests/database/document-owner-text-work-cases.mjs"
+      - "tests/database/document-owner-text-work-fixture.mjs"
+      - "tests/database/document-owner-text-work.test.mjs"
+      - "tests/database/document-owner-text-work-races.test.mjs"
+      - "tests/document-owner-text-work-plan.test.mjs"
+      - "src/lib/owner/text-work-review-contract.ts"
+      - "src/lib/owner/text-work-review.server.ts"
+      - "src/lib/owner/text-work-review.functions.ts"
       - "tests/document-owner-review-plan.test.mjs"
       - "src/lib/owner/document-work-review-contract.ts"
       - "src/lib/owner/document-work-review.server.ts"
@@ -380,7 +398,7 @@ jobs:
           pattern: native-document-boundaries-*
           path: /tmp/native-document-results
       - name: Verify native result gate rejection cases
-        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs tests/document-summary-authority-plan.test.mjs tests/document-producer-authority-plan.test.mjs tests/document-owner-review-plan.test.mjs
+        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs tests/document-summary-authority-plan.test.mjs tests/document-producer-authority-plan.test.mjs tests/document-owner-review-plan.test.mjs tests/document-owner-text-work-plan.test.mjs
       - name: Require every source-matched native case with zero skips
         run: node tests/database/verify-document-native-results.mjs /tmp/native-document-results
       - name: Require all native partition jobs to succeed
@@ -466,6 +484,20 @@ jobs:
             node --test tests/database/document-apply-access-races.test.mjs | tee /tmp/document-apply-access-native.log
           node --input-type=module <<'NODE'
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-apply-access-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),28);assert.equal(count('pass'),28);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-apply-access-native.json',JSON.stringify({schema:'document-apply-access-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:28,passed:28,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-apply-access-races.test.mjs')),cases_sha256:sha(readFileSync('tests/database/document-apply-access-race-cases.mjs')),shared_fixture_sha256:sha(readFileSync('tests/database/document-guarded-composite-fixture.mjs')),core_fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),handler_sha256:sha(readFileSync('src/lib/document-extraction-apply.server.ts')),provider_calls:false,hosted_actions:false,ready_for_cutover:false,log_sha256:sha(log)},null,2));
+          NODE
+
+      - name: Test Owner pasted-text work in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+          PATHWAY_HISTORY_POSTGRES: "1"
+        run: |
+          set -o pipefail
+          export PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js"
+          export PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/document-text-consumer-tests/node_modules/zod/index.js"
+          node --test tests/database/document-owner-text-work.test.mjs | tee /tmp/document-owner-text-work-native.log
+          node --test tests/database/document-owner-text-work-races.test.mjs | tee /tmp/document-owner-text-work-races-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';import{textWorkCases,textWorkRaceCases}from'./tests/database/document-owner-text-work-cases.mjs';const sha=b=>createHash('sha256').update(b).digest('hex');const suites=[['document-owner-text-work',textWorkCases.map(k=>'Owner text work '+k)],['document-owner-text-work-races',textWorkRaceCases.map(c=>c.label)]];const records=suites.map(([stem,expected])=>{const log=readFileSync('/tmp/'+stem+'-native.log');const names=[...log.toString().matchAll(/^# Subtest: (.*)$/gm)].map(m=>m[1]);assert.deepEqual([...names].sort(),[...expected].sort());for(const[k,n]of Object.entries({tests:expected.length,pass:expected.length,fail:0,skipped:0}))assert.equal(Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1),n);return{stem,tests:expected.length,passed:expected.length,failed:0,skipped:0,names,log_sha256:sha(log)};});writeFileSync('/tmp/document-owner-text-work-native.json',JSON.stringify({schema:'document-owner-text-work-native-proof-v1',source_commit:process.env.GITHUB_SHA,native:true,tests:64,passed:64,failed:0,skipped:0,component_cases:48,role_races:16,suites:records,source_manifest:["docs/production-readiness/proposals/document-owner-text-work-review.sql", "tests/database/document-owner-text-work-cases.mjs", "tests/database/document-owner-text-work-fixture.mjs", "tests/database/document-owner-text-work.test.mjs", "tests/database/document-owner-text-work-races.test.mjs", "tests/document-owner-text-work-plan.test.mjs", "src/lib/owner/text-work-review-contract.ts", "src/lib/owner/text-work-review.server.ts", "src/lib/owner/text-work-review.functions.ts"].map(path=>({path,sha256:sha(readFileSync(path))})),provider_calls:false,hosted_actions:false,read_only:true,release_authority_added:false,ready_for_cutover:false},null,2));
           NODE
 
       - name: Test Owner review authorization in disposable PostgreSQL
@@ -3240,6 +3272,33 @@ jobs:
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';const d=JSON.parse(readFileSync('/tmp/document-owner-review-drain.json'));for(const[k,v]of Object.entries({paused:true,database_work_clear:true,remaining_capacity_units:0,provider_quiescence_verified:false,ready_for_cutover:false}))assert.equal(d[k],v,k);writeFileSync('/tmp/document-owner-review-schema.json',JSON.stringify({schema:'document-owner-review-schema-proof-v1',canonical_count:225,review_drafts:40,exact_new_boundaries:4,preexisting_public_routines_unchanged:true,admin_role_acl_rls_unchanged:true,private_recovery_grants_unchanged:true,metadata_only:true,release_authority_added:false,read_only_drain_clear:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify Owner pasted-text work after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -c "SET ROLE postgres; CREATE TEMP TABLE owner_text_routines_before AS SELECT oid,prosrc,proconfig,prosecdef,proowner,proacl,provolatile FROM pg_proc WHERE pronamespace='public'::regnamespace; CREATE TEMP TABLE owner_text_grants_before AS SELECT oid,relacl,relrowsecurity,relforcerowsecurity FROM pg_class WHERE oid IN('public.admin_roles'::regclass,'public.document_text_extraction_capacity'::regclass,'public.document_text_save_completions'::regclass); CREATE TEMP TABLE owner_text_control_before AS SELECT to_jsonb(c) AS value FROM public.document_operation_control c" \
+            -f docs/production-readiness/proposals/document-owner-text-work-review.sql -f - <<'SQL'
+          DO $owner_text_schema$
+          DECLARE item record;caller text;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted installer required';END IF;
+           PERFORM public.assert_internal_document_text_protocol();
+           FOR item IN SELECT * FROM(VALUES ('public.inspect_internal_owner_text_work(uuid)','8d40e8d97de881f93ef927de8bff2da3',false),('public.list_owner_text_work(uuid)','87d92d67ffe076d9ca76f7d4dea3913c',true),('public.inspect_owner_text_work(uuid)','da502be0a900481f51784d49f05eee1f',true)) expected(signature,body_md5,definer) LOOP
+            IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5 AND proowner=current_user::regrole::oid AND prosecdef=item.definer AND provolatile='v' AND proconfig=ARRAY['search_path=pg_catalog','TimeZone=UTC']) THEN RAISE EXCEPTION 'Exact read-only Owner text metadata boundary required';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM(caller='authenticated' AND item.definer) THEN RAISE EXCEPTION 'Narrow caller-only read grants required';END IF;
+            END LOOP;
+           END LOOP;
+           IF EXISTS(SELECT 1 FROM owner_text_routines_before old LEFT JOIN pg_proc now ON now.oid=old.oid WHERE now.oid IS NULL OR(now.prosrc,now.proconfig,now.prosecdef,now.proowner,now.proacl,now.provolatile) IS DISTINCT FROM(old.prosrc,old.proconfig,old.prosecdef,old.proowner,old.proacl,old.provolatile)) THEN RAISE EXCEPTION 'Preexisting public routines must remain unchanged';END IF;
+           IF EXISTS(SELECT 1 FROM owner_text_grants_before old JOIN pg_class now USING(oid) WHERE(now.relacl,now.relrowsecurity,now.relforcerowsecurity) IS DISTINCT FROM(old.relacl,old.relrowsecurity,old.relforcerowsecurity)) THEN RAISE EXCEPTION 'Role and raw ledger permissions must remain unchanged';END IF;
+           IF(SELECT value FROM owner_text_control_before) IS DISTINCT FROM(SELECT to_jsonb(c) FROM public.document_operation_control c) OR NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR public.count_internal_combined_document_capacity(NULL,NULL)<>0 THEN RAISE EXCEPTION 'Read-only installation must preserve paused empty control';END IF;
+          END;$owner_text_schema$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-completion-drain-inventory.sql > /tmp/document-owner-text-work-drain.json
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';const d=JSON.parse(readFileSync('/tmp/document-owner-text-work-drain.json'));for(const[k,v]of Object.entries({paused:true,database_work_clear:true,remaining_capacity_units:0,provider_quiescence_verified:false,ready_for_cutover:false}))assert.equal(d[k],v,k);writeFileSync('/tmp/document-owner-text-work-schema.json',JSON.stringify({schema:'document-owner-text-work-schema-proof-v1',canonical_count:225,review_drafts:41,exact_new_boundaries:3,preexisting_public_routines_unchanged:true,admin_role_and_private_ledger_acl_rls_unchanged:true,control_unchanged:true,metadata_only:true,read_only:true,release_authority_added:false,read_only_drain_clear:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -3303,6 +3362,11 @@ jobs:
             /tmp/document-summary-authority-schema.json
             /tmp/document-producer-authority-schema.json
             /tmp/document-owner-review-schema.json
+            /tmp/document-owner-text-work-schema.json
+            /tmp/document-owner-text-work-drain.json
+            /tmp/document-owner-text-work-native.json
+            /tmp/document-owner-text-work-native.log
+            /tmp/document-owner-text-work-races-native.log
             /tmp/document-owner-review-drain.json
             /tmp/document-owner-review-native.json
             /tmp/document-owner-review-native.log

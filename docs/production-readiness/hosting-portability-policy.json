@@ -53,8 +53,8 @@
         "sha256": "40f2de5928515e23002fe1833f0f01cf26652579e7b1938c462286cac250bf7f"
       },
       "serverFunctionFiles": {
-        "count": 123,
-        "sha256": "273cfdeec8273fc03416b0a6cc3050fa26cdcd643efb52caec65391a4888998a"
+        "count": 124,
+        "sha256": "83c904b166b8fe989b684a431fac8358875c7a98a03100fb68acf400f139556b"
       },
       "privilegedRuntimeFiles": {
         "count": 65,
@@ -67,8 +67,8 @@
     },
     "draftReview": {
       "observedAt": "2026-11-13",
-      "baseDraftSha": "ecc65daa9685c37744ef10fd6525a34fa1812f76",
-      "change": "Reviewed one added caller-authenticated server-function module for Owner management metadata queue/inspection and retained-work audit. New functions use requireSupabaseAuth, exact viewer/verified-claim checks and caller RPCs only; no privileged client, provider call, public route, explicit endpoint file, secret, new host or database binding. The review-only SQL requires current platform_owner membership and transaction-held role proof; audit writes require verified aal2. It adds no student content access, release/retry action or private resolver grant. Lost responses require exact review-status verification. Existing production/hosting no-go decisions and separate rollout authorizations remain unchanged."
+      "baseDraftSha": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
+      "change": "Reviewed one additional caller-authenticated read-only server-function module for Owner pasted-text task metadata. It uses verified claims/expected viewer and two exact caller RPCs, strict private-field rejection, no service client, provider, content read, mutation, retry or release. Review-only SQL reuses transaction-held platform_owner authorization, preserves private ledger grants, and returns completed-save accounting without asserting provider cessation. Existing production/hosting no-go controls remain unchanged."
     },
     "draftReviewHistory": [
       {
@@ -90,6 +90,11 @@
         "observedAt": "2026-11-08",
         "baseDraftSha": "0d057bcd",
         "change": "Reviewed the added server-only document-text-admission.server.ts consumer (introduced in de236ca7). It lazily loads the existing privileged client only after caller-RLS source/access preflight and uses it only for begin/hold metadata with an SHA-256 text digest. Generated-content saves stay on the authenticated caller client. No raw text is sent to metadata, no secret/host/route/endpoint is added, and missing/unconfirmed public RPCs fail closed before provider dispatch. The corresponding shared-pool bound-save/completion draft is locally prepared but public begin/hold, native/full-schema and hosted acceptance remain open. No production authorization."
+      },
+      {
+        "observedAt": "2026-11-13",
+        "baseDraftSha": "ecc65daa9685c37744ef10fd6525a34fa1812f76",
+        "change": "Reviewed one added caller-authenticated server-function module for Owner management metadata queue/inspection and retained-work audit. New functions use requireSupabaseAuth, exact viewer/verified-claim checks and caller RPCs only; no privileged client, provider call, public route, explicit endpoint file, secret, new host or database binding. The review-only SQL requires current platform_owner membership and transaction-held role proof; audit writes require verified aal2. It adds no student content access, release/retry action or private resolver grant. Lost responses require exact review-status verification. Existing production/hosting no-go decisions and separate rollout authorizations remain unchanged."
       }
     ]
   },

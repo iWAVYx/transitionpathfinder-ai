@@ -183,7 +183,7 @@
     },
     {
       "path": "src/routes/_authenticated/owner.health.tsx",
-      "sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e"
+      "sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
     },
     {
       "path": "src/lib/golden-path.functions.ts",
@@ -196,6 +196,26 @@
     {
       "path": "src/routes/_authenticated/demo-mode.tsx",
       "sha256": "ee59de7b863825dec6b2834bb422b5a5d477053bb68d30e5a8345f0b20a03260"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-owner-text-work-review.sql",
+      "sha256": "20b0529fac9b96fb6769173e9201288123304993288d8c02cb57f5ccc231f327"
+    },
+    {
+      "path": "src/lib/owner/text-work-review-contract.ts",
+      "sha256": "65e4fe48ec193c2d1620709ed633026ca134345dffd056e7ec1a3c467151d74d"
+    },
+    {
+      "path": "src/lib/owner/text-work-review.server.ts",
+      "sha256": "ff5358392de95a8725c4797300f3fdc39cf38d7fdb177586bd317b013c016da0"
+    },
+    {
+      "path": "src/lib/owner/text-work-review.functions.ts",
+      "sha256": "d3eea5b334837add165be55893a85442093a9733fd9f5fdaa03766123ec2f557"
+    },
+    {
+      "path": "src/components/owner/TextWorkReviewPanel.tsx",
+      "sha256": "e3baafc551a9843f91b8689673531843a2da3a29c31b44d2135af99b8ea1c449"
     }
   ],
   "adapter_contract": {
@@ -1102,11 +1122,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "b32a8c31a141c9ca90896bb53b4577b432d7d01d",
-    "evidence": "docs/production-readiness/evidence/document-personal-sample-writer-retired-2026-11-13.json",
-    "declared_entries_checked": 48,
-    "corrected_entries": 0,
-    "added_entries": 3,
+    "checked_against_source": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
+    "evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+    "declared_entries_checked": 53,
+    "corrected_entries": 1,
+    "added_entries": 5,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1213,6 +1233,17 @@
     "component_complete": true,
     "whole_workstream_complete": false,
     "local_verified": true,
+    "hosted_actions": false,
+    "ready_for_cutover": false
+  },
+  "owner_text_work_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+    "local_verified": true,
+    "native_verified": false,
+    "component_cases": 48,
+    "native_role_races_prepared": 16,
+    "read_only": true,
+    "whole_workstream_complete": false,
     "hosted_actions": false,
     "ready_for_cutover": false
   }

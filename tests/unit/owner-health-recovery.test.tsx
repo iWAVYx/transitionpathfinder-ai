@@ -1,3 +1,4 @@
+vi.mock("@/components/owner/TextWorkReviewPanel", () => ({ TextWorkReviewPanel: () => null }));
 vi.mock("@/components/owner/DocumentWorkReviewPanel", () => ({ DocumentWorkReviewPanel: () => null }));
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";

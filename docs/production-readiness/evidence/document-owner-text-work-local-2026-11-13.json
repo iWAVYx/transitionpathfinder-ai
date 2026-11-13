@@ -1,0 +1,112 @@
+{
+  "schema": "document-owner-text-work-local-v1",
+  "date": "2026-11-13",
+  "source_base": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
+  "workstream_actions": [
+    "2.3"
+  ],
+  "scope": "Read-only current Owner metadata visibility for the separate pasted-text capacity/completion ledger, including held work and a completed save whose reply was lost. No student text or other private identity is returned; no mutation/retry/release is added.",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-owner-text-work-review.sql",
+      "sha256": "20b0529fac9b96fb6769173e9201288123304993288d8c02cb57f5ccc231f327"
+    },
+    {
+      "path": "src/lib/owner/text-work-review-contract.ts",
+      "sha256": "65e4fe48ec193c2d1620709ed633026ca134345dffd056e7ec1a3c467151d74d"
+    },
+    {
+      "path": "src/lib/owner/text-work-review.server.ts",
+      "sha256": "ff5358392de95a8725c4797300f3fdc39cf38d7fdb177586bd317b013c016da0"
+    },
+    {
+      "path": "src/lib/owner/text-work-review.functions.ts",
+      "sha256": "d3eea5b334837add165be55893a85442093a9733fd9f5fdaa03766123ec2f557"
+    },
+    {
+      "path": "src/components/owner/TextWorkReviewPanel.tsx",
+      "sha256": "e3baafc551a9843f91b8689673531843a2da3a29c31b44d2135af99b8ea1c449"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.health.tsx",
+      "sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
+    },
+    {
+      "path": "docs/production-readiness/hosting-portability-policy.json",
+      "sha256": "209c4d4b1f9d0358e743cd7c312bb57947976ac857ddcc6eeb408b29f52cd744"
+    },
+    {
+      "path": "tests/database/document-owner-text-work-cases.mjs",
+      "sha256": "c23d88a16e9a62cfcf986c9048bf9a22fb74f9f8150a0f45cc66c2c0e42c7e24"
+    },
+    {
+      "path": "tests/database/document-owner-text-work-fixture.mjs",
+      "sha256": "612718735d8d7c89f9138a1bd880e120c0db3938e62c75711f8aa9012bc9ac1d"
+    },
+    {
+      "path": "tests/database/document-owner-text-work.test.mjs",
+      "sha256": "cbfcac9e26dee49151e92d170f22fcad9d024eac5693f53fe405dac55e158af8"
+    },
+    {
+      "path": "tests/database/document-owner-text-work-races.test.mjs",
+      "sha256": "8c5fd2fc083788b87d312a17438e1a297458c9456d5022a257d543a927e480fe"
+    },
+    {
+      "path": "tests/unit/owner-text-work-review.test.ts",
+      "sha256": "5290d50c586ca11c58839768a155755c8d3f6e1d32289630f6e8876cbbb3cd95"
+    },
+    {
+      "path": "tests/unit/owner-text-work-panel.test.tsx",
+      "sha256": "a8c7ba36501d2c4f4062ae0b5736688acb2e8eaf92943d79f0602b0432fe6f6f"
+    },
+    {
+      "path": "tests/document-owner-text-work-plan.test.mjs",
+      "sha256": "ed027b5bf81d58c655fa69e3c4260f80ebb165e841d78820f1fff526e44c25af"
+    }
+  ],
+  "local_component_cases_passed": 48,
+  "local_failed": 0,
+  "local_skipped": 0,
+  "focused_unit_tests_passed": 56,
+  "unit_tests_passed": 5884,
+  "unit_files_passed": 369,
+  "inventory_navigation_contracts_passed": 90,
+  "release_security_contracts_passed": 72,
+  "typescript_passed": true,
+  "isolated_environment_file_free_staging_build_passed": true,
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "da23d2518969d7d059d2d9a9d8a33f3c2baaa5a2e257f1bf426e6cbd41f87736",
+    "fileCount": 1218
+  },
+  "prepared_native_component_cases": 48,
+  "prepared_native_role_races": 16,
+  "native_verified": false,
+  "full225_plus41_verified": false,
+  "canonical_migrations": 225,
+  "review_drafts": 41,
+  "workflow_shell_blocks_parsed": 99,
+  "historical_fixture_run": {
+    "passed": 46,
+    "failed": 2,
+    "accepted": false,
+    "cause": "Unpaused fixture tried to resume held work; foreign-namespace fixture tried to inspect private leases as the authenticated Owner. Corrected setup order/private fixture role without weakening runtime protections."
+  },
+  "cross_role_assessment": "Only current platform_owner can read bounded opaque task metadata. Ten other role categories are denied in SQL cases; ordinary management roles remain hidden in the panel. No student-access override, public demo control or per-role dashboard tool is introduced.",
+  "verified": [
+    "Actual source-bound text admission/hold/completion functions seed the synthetic tests. Active and held tasks reserve one unit; a completed-save receipt is visible by exact operation and reserves zero.",
+    "Foreign file-work IDs cannot inspect a different ledger; responses carry an explicit attached_text namespace and strict schemas reject private identifiers/content and provider/release claims.",
+    "Owner authorization reuses the transaction-held current-role proof. Unknown responses use safe messages and one read only, with no generation/retry/release path.",
+    "The panel fetches task metadata only deliberately, hides other roles, clears data on errors, ignores departed-viewer responses and does not interpret an empty list as provider cessation.",
+    "Review-only proposal41 adds three read functions without changing prior public routines, ledger/control data, raw ledger grants or private recovery authority. Native concurrency/full-schema verification is still pending."
+  ],
+  "read_only": true,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authority_added": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false
+}
