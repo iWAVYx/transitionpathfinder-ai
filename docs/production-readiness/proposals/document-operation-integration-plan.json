@@ -160,6 +160,30 @@
     {
       "path": "docs/production-readiness/proposals/document-producer-authority-patches.json",
       "sha256": "ccd03c17b6a788f07dc773263ff86e2c26d54c4a4e9d9c29db4f2c6ecda2e7c8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-owner-review-boundary.sql",
+      "sha256": "70cdc3b80c1b5dbf7b92f06a4595ba910aae96be9bcc8821c8942d3b1305c160"
+    },
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.server.ts",
+      "sha256": "e5b1b71668e2fa14ba8ac77def2e6f44f72f1d2689490f711d7e58cfc65f9df5"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.functions.ts",
+      "sha256": "42408d86e1f71faf7d620cf83a2fad5b7fa5fb634bfeeb7384c6e92d7340eeb5"
+    },
+    {
+      "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+      "sha256": "6f638e4fa6229bd37a72b694b67378a2b971da7530fb2aafd0b390e2dc94a691"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.health.tsx",
+      "sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e"
     }
   ],
   "adapter_contract": {
@@ -1066,11 +1090,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "e2ca042cc5e986ff5fca42eff87bc616219907a1",
-    "evidence": "docs/production-readiness/evidence/document-producer-authority-verified-2026-11-13.json",
-    "declared_entries_checked": 39,
+    "checked_against_source": "ecc65daa9685c37744ef10fd6525a34fa1812f76",
+    "evidence": "docs/production-readiness/evidence/document-owner-review-local-2026-11-13.json",
+    "declared_entries_checked": 45,
     "corrected_entries": 0,
-    "added_entries": 2,
+    "added_entries": 6,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1154,5 +1178,16 @@
     "canonical_migrations": 225,
     "review_drafts": 39,
     "whole_workstream_complete": false
+  },
+  "owner_review_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-owner-review-local-2026-11-13.json",
+    "scope": "Current platform Owner metadata-only queue, inspection and immutable keep-reserved review. No content access, no-save resolver execution, release, resume or retry authority.",
+    "native_verified": false,
+    "local_component_cases": 64,
+    "prepared_native_role_races": 24,
+    "whole_workstream_complete": false,
+    "hosted_actions": false,
+    "release_authority_added": false,
+    "ready_for_cutover": false
   }
 }

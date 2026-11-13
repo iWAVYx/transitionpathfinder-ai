@@ -1,3 +1,4 @@
+import { DocumentWorkReviewPanel } from "@/components/owner/DocumentWorkReviewPanel";
 import { readDashboardWidget } from "@/lib/dashboard/dashboard-widget-read";
 import { parseSystemHealthResult } from "@/lib/owner/system-health-result";
 import { createFileRoute } from "@tanstack/react-router";
@@ -365,6 +366,7 @@ function SystemHealthWorkspace() {
           <ManualChecklistSection />
         </div>
       )}
+      <DocumentWorkReviewPanel />
       <div className="mt-6">
         <section
           aria-labelledby="owner-ai-smoke-heading"

@@ -1,0 +1,112 @@
+{
+  "schema": "document-owner-review-local-v1",
+  "date": "2026-11-13",
+  "source_base": "ecc65daa9685c37744ef10fd6525a34fa1812f76",
+  "workstream_actions": [
+    "2.3"
+  ],
+  "scope": "Current platform Owner metadata-only queue, inspection and immutable keep-reserved review. No content access, no-save resolver execution, release, resume or retry authority.",
+  "local_component_cases_passed": 64,
+  "local_failed": 0,
+  "local_skipped": 0,
+  "focused_unit_tests_passed": 47,
+  "full_unit_tests_passed": 5822,
+  "full_unit_files_passed": 366,
+  "release_contracts_passed": 72,
+  "typescript_passed": true,
+  "isolated_staging_build_passed": true,
+  "prepared_native_component_cases": 64,
+  "prepared_native_role_races": 24,
+  "native_verified": false,
+  "full225_plus40_verified": false,
+  "canonical_migrations": 225,
+  "review_drafts": 40,
+  "workflow_shell_blocks_parsed": 97,
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-owner-review-boundary.sql",
+      "sha256": "70cdc3b80c1b5dbf7b92f06a4595ba910aae96be9bcc8821c8942d3b1305c160"
+    },
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.server.ts",
+      "sha256": "e5b1b71668e2fa14ba8ac77def2e6f44f72f1d2689490f711d7e58cfc65f9df5"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.functions.ts",
+      "sha256": "42408d86e1f71faf7d620cf83a2fad5b7fa5fb634bfeeb7384c6e92d7340eeb5"
+    },
+    {
+      "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+      "sha256": "6f638e4fa6229bd37a72b694b67378a2b971da7530fb2aafd0b390e2dc94a691"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.health.tsx",
+      "sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e"
+    },
+    {
+      "path": "tests/database/document-owner-review-cases.mjs",
+      "sha256": "55a6aa800d081901c42434deb5193b4680b92d6d4cdadaf446a921ee8eb95f50"
+    },
+    {
+      "path": "tests/database/document-owner-review-fixture.mjs",
+      "sha256": "aa23640b35d87bad38c0dccad5a05b51e59d7ac969b62c20556d60eac40e302a"
+    },
+    {
+      "path": "tests/database/document-owner-review.test.mjs",
+      "sha256": "ec105bb24ad52523085d1e11e5242ac49b74a618d3148a91808de358a7fec610"
+    },
+    {
+      "path": "tests/database/document-owner-review-races.test.mjs",
+      "sha256": "c473b2b16d90d2f647dd14b433e18428bf69e8a558cf18790aad77da822a05b4"
+    },
+    {
+      "path": "tests/unit/owner-document-work-review.test.ts",
+      "sha256": "f4d46ac3d6f0b3f1c3a8046aad8b7c535095b690a650f082e95fb7c1999c44b0"
+    },
+    {
+      "path": "tests/unit/owner-document-work-panel.test.tsx",
+      "sha256": "cffa6de58c735c45219a0fe61e9ab05a1db8d1612b48781da9a9422ef9ae414c"
+    },
+    {
+      "path": "docs/production-readiness/hosting-portability-policy.json",
+      "sha256": "aa1d9037af677984dd04971fb7c6505fae0a6f94954f022e35c8290bc6e7572a"
+    }
+  ],
+  "cross_role_assessment": "Only platform_owner receives management metadata. Other ten role categories are refused; Owner gains no student/private content access. Public demo and other role dashboards do not receive operational controls.",
+  "security_properties": [
+    "Verified authenticated caller and expected viewer identity; no service client or caller-supplied operator identity.",
+    "Current platform_owner database role is held through each transaction; retained-review writes require verified aal2.",
+    "All unknown responses retain work and permit exact request lookup only; no automatic repost or release.",
+    "Existing public routines, admin-role grants/RLS and private recovery grants remain unchanged.",
+    "Bounded opaque metadata pages; strict output contracts reject private content fields and provider/release claims."
+  ],
+  "historical_fixture_failure": {
+    "passed": 61,
+    "failed": 3,
+    "accepted": false,
+    "cause": "Unpaused/pagination/unbound fixtures tried resuming held work; corrected setup order creates work before pausing without bypassing capacity controls."
+  },
+  "official_references": [
+    "https://supabase.com/docs/guides/auth/auth-mfa",
+    "https://supabase.com/docs/guides/database/postgres/row-level-security"
+  ],
+  "product_app_code_changed": true,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "release_authority_added": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "e70fca6681d54b744c387d7a4124d41cb4b7f016fbfc821020848cfd7029774b",
+    "fileCount": 1214
+  },
+  "local_contracts_passed": 87
+}
