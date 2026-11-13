@@ -1102,11 +1102,17 @@
     "whole_workstream_complete": false
   },
   "apply_access_race_preparation": {
-    "evidence": "docs/production-readiness/evidence/document-apply-access-races-local-2026-11-13.json",
+    "evidence": "docs/production-readiness/evidence/document-apply-access-races-verified-2026-11-13.json",
     "cases": 28,
     "local_shared_fixture_regressions_passed": 42,
     "local_contracts_passed": 78,
-    "native_verified": false,
-    "hosted_actions": false
+    "native_verified": true,
+    "hosted_actions": false,
+    "total_native_cases": 2010,
+    "native_failed": 0,
+    "native_skipped": 0,
+    "canonical_migrations": 225,
+    "review_drafts": 37,
+    "whole_workstream_complete": false
   }
 }

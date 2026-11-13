@@ -5,7 +5,7 @@
     "2.6",
     "2.7"
   ],
-  "status": "All28 native-only cases are implemented and ready for disposable PostgreSQL verification. All42 existing composite cases and78 local contracts pass; native acceptance and cumulative2010-case/full225+37 proof remain pending. No runtime fix is preselected.",
+  "status": "All 28 actual Apply/access-removal races are native verified with zero failures/skips. All 1,982 retained native cases and full 225 canonical + 37 draft schema replay also pass. No product or SQL defect was demonstrated; broader Workstream 2 and hosted acceptance remain open.",
   "source_review": [
     "Actual Apply locks the review and document, then locks the student before profile writes and rechecks edit/view/non-partner authority.",
     "The shared extraction writer guard also holds the exact ownership/self/editor/approved-relationship proof and actor-role lock through the extraction update.",
@@ -148,5 +148,7 @@
   "release_authorization_granted": false,
   "ready_for_cutover": false,
   "implementation_evidence": "docs/production-readiness/evidence/document-apply-access-races-local-2026-11-13.json",
-  "native_verified": false
+  "native_verified": true,
+  "verification_evidence": "docs/production-readiness/evidence/document-apply-access-races-verified-2026-11-13.json",
+  "correction_evidence": "docs/production-readiness/evidence/document-apply-access-races-correction-2026-11-13.json"
 }
