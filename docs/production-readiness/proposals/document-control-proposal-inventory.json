@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-13",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "All38 review-only SQL drafts and 2,056 native cases are verified through full225+38 replay. The summary-access bundle includes one unpatched serialization reproduction,28 corrected cross-role races and17 component/install/rollback checks. Registration/rescan, other writer/reconciliation and hosted/provider gates remain open. No hosted or release authority.",
+  "scope": "Prior38 review-only drafts and2,056 native cases remain verified. Proposal39 prepares transaction-held proof across registration/recovery and rescan, with23 local component passes. Six native baseline reproductions,168 corrected races,23 native component cases and full225+39 replay remain pending. No hosted/release authority.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -316,6 +316,14 @@
       "evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
       "native_status": "verified_complete_native_and_full_schema",
       "verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-producer-authority-lock.sql",
+      "sha256": "3974bb53390e88a5b0ab43451a9fab97715d58c6a6ee594952f35145c5ad6fb8",
+      "local_verified": true,
+      "native_full_schema_verified": false,
+      "hosted_applied": false,
+      "local_evidence": "docs/production-readiness/evidence/document-producer-authority-local-2026-11-13.json"
     }
   ],
   "registration_replay_failure": {
@@ -358,7 +366,8 @@
     "docs/production-readiness/proposals/document-text-source-admission.sql",
     "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
     "docs/production-readiness/proposals/document-extraction-completion-marker-fence.sql",
-    "docs/production-readiness/proposals/document-summary-authority-lock.sql"
+    "docs/production-readiness/proposals/document-summary-authority-lock.sql",
+    "docs/production-readiness/proposals/document-producer-authority-lock.sql"
   ],
   "verification_appendix_scope": "All18 appendix drafts after ordered19 are native/full-schema verified through225+37. All1982 native cases pass without failures/skips, including42 actual marker/manual-handler/Apply/private recovery cases. Other writer/access/reconciliation/provider and hosted gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
@@ -418,7 +427,7 @@
   },
   "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
   "text_source_admission_preparation_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
-  "candidate_full_replay_pending": false,
+  "candidate_full_replay_pending": true,
   "text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
   "extraction_source_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
   "extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
@@ -428,5 +437,6 @@
   "completion_marker_fence_local_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-local-2026-11-13.json",
   "completion_marker_fence_verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json",
   "summary_authority_preparation_evidence": "docs/production-readiness/evidence/document-summary-authority-local-2026-11-13.json",
-  "summary_authority_verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json"
+  "summary_authority_verified_evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json",
+  "producer_authority_preparation_evidence": "docs/production-readiness/evidence/document-producer-authority-local-2026-11-13.json"
 }

@@ -177,6 +177,14 @@
     {
       "path": "docs/production-readiness/proposals/document-summary-authority-lock.sql",
       "sha256": "42936e91ad6e9d721c839360e589011cbeebf97ad7557a09ad99ae8174265d97"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-producer-authority-lock.sql",
+      "sha256": "3974bb53390e88a5b0ab43451a9fab97715d58c6a6ee594952f35145c5ad6fb8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-producer-authority-patches.json",
+      "sha256": "ccd03c17b6a788f07dc773263ff86e2c26d54c4a4e9d9c29db4f2c6ecda2e7c8"
     }
   ],
   "batch": {
@@ -274,7 +282,7 @@
   "hosted_actions": false,
   "production_access": false,
   "authorization_recorded": false,
-  "unapplied_admission_proposals": 38,
+  "unapplied_admission_proposals": 39,
   "admission_foundation": {
     "proposal": "docs/production-readiness/proposals/document-operation-admission.sql",
     "default": "paused",
@@ -779,11 +787,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "a6293a1122a008b016a1b5ee29543d200b6dd763",
-    "evidence": "docs/production-readiness/evidence/document-summary-authority-verified-2026-11-13.json",
-    "declared_entries_checked": 43,
+    "checked_against_source": "e2ca042cc5e986ff5fca42eff87bc616219907a1",
+    "evidence": "docs/production-readiness/evidence/document-producer-authority-local-2026-11-13.json",
+    "declared_entries_checked": 45,
     "corrected_entries": 0,
-    "added_entries": 1,
+    "added_entries": 2,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -862,7 +870,7 @@
     "workstream1_complete_scope": "Implementation and disposable verification only"
   },
   "ordered_review_proposals": 19,
-  "verification_appendix_drafts": 19,
+  "verification_appendix_drafts": 20,
   "selected_policy_preparation": {
     "evidence": "docs/production-readiness/evidence/document-capacity-selected-policy-local-2026-11-05.json",
     "source_policy": [
@@ -1124,5 +1132,13 @@
     "canonical_migrations": 225,
     "review_drafts": 38,
     "whole_workstream_complete": false
+  },
+  "producer_authority_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-producer-authority-local-2026-11-13.json",
+    "native_verified": false,
+    "baseline_reproductions": 6,
+    "fixed_access_races": 168,
+    "component_cases": 23,
+    "hosted_actions": false
   }
 }

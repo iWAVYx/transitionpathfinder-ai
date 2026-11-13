@@ -50,6 +50,13 @@ on:
       - "tests/database/document-apply-access-races.test.mjs"
       - "tests/database/document-summary-access-race-cases.mjs"
       - "tests/database/document-summary-access-races.test.mjs"
+      - "tests/database/document-producer-access-races.test.mjs"
+      - "tests/database/document-producer-authority.test.mjs"
+      - "tests/database/document-producer-authority-fixture.mjs"
+      - "tests/database/document-producer-authority-cases.mjs"
+      - "tests/document-producer-authority-plan.test.mjs"
+      - "docs/production-readiness/proposals/document-producer-authority-lock.sql"
+      - "docs/production-readiness/proposals/document-producer-authority-patches.json"
       - "tests/database/document-summary-authority.test.mjs"
       - "docs/production-readiness/proposals/document-summary-authority-lock.sql"
       - "tests/document-summary-authority-plan.test.mjs"
@@ -184,6 +191,13 @@ on:
       - "tests/database/document-apply-access-races.test.mjs"
       - "tests/database/document-summary-access-race-cases.mjs"
       - "tests/database/document-summary-access-races.test.mjs"
+      - "tests/database/document-producer-access-races.test.mjs"
+      - "tests/database/document-producer-authority.test.mjs"
+      - "tests/database/document-producer-authority-fixture.mjs"
+      - "tests/database/document-producer-authority-cases.mjs"
+      - "tests/document-producer-authority-plan.test.mjs"
+      - "docs/production-readiness/proposals/document-producer-authority-lock.sql"
+      - "docs/production-readiness/proposals/document-producer-authority-patches.json"
       - "tests/database/document-summary-authority.test.mjs"
       - "docs/production-readiness/proposals/document-summary-authority-lock.sql"
       - "tests/document-summary-authority-plan.test.mjs"
@@ -348,7 +362,7 @@ jobs:
           pattern: native-document-boundaries-*
           path: /tmp/native-document-results
       - name: Verify native result gate rejection cases
-        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs tests/document-summary-authority-plan.test.mjs
+        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs tests/document-apply-access-bundle-plan.test.mjs tests/document-summary-authority-plan.test.mjs tests/document-producer-authority-plan.test.mjs
       - name: Require every source-matched native case with zero skips
         run: node tests/database/verify-document-native-results.mjs /tmp/native-document-results
       - name: Require all native partition jobs to succeed
@@ -435,6 +449,24 @@ jobs:
           node --input-type=module <<'NODE'
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';const log=readFileSync('/tmp/document-apply-access-native.log');const count=k=>Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1);assert.equal(count('tests'),28);assert.equal(count('pass'),28);assert.equal(count('fail'),0);assert.equal(count('skipped'),0);const sha=b=>createHash('sha256').update(b).digest('hex');writeFileSync('/tmp/document-apply-access-native.json',JSON.stringify({schema:'document-apply-access-native-proof-v1',source_commit:process.env.GITHUB_SHA,tests:28,passed:28,failed:0,skipped:0,native:true,test_sha256:sha(readFileSync('tests/database/document-apply-access-races.test.mjs')),cases_sha256:sha(readFileSync('tests/database/document-apply-access-race-cases.mjs')),shared_fixture_sha256:sha(readFileSync('tests/database/document-guarded-composite-fixture.mjs')),core_fixture_sha256:sha(readFileSync('tests/database/document-path-exclusivity.test.mjs')),handler_sha256:sha(readFileSync('src/lib/document-extraction-apply.server.ts')),provider_calls:false,hosted_actions:false,ready_for_cutover:false,log_sha256:sha(log)},null,2));
           NODE
+
+      - name: Test registration and rescan authority in disposable PostgreSQL
+        env:
+          PGUSER: supabase_admin
+          PATHWAY_HISTORY_POSTGRES: "1"
+        run: |
+          set -o pipefail
+          export PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js"
+          node --test tests/database/document-producer-authority.test.mjs | tee /tmp/document-producer-authority-native.log
+          node --test tests/database/document-producer-access-races.test.mjs | tee /tmp/document-producer-access-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';import{producerAccessCases,producerComponentKeys}from'./tests/database/document-producer-authority-cases.mjs';const sha=b=>createHash('sha256').update(b).digest('hex');const suites=[['document-producer-authority',producerComponentKeys.map(k=>'Producer authority component '+k)],['document-producer-access',producerAccessCases.map(c=>c.label)]];const records=suites.map(([stem,expected])=>{const log=readFileSync('/tmp/'+stem+'-native.log');const names=[...log.toString().matchAll(/^# Subtest: (.*)$/gm)].map(m=>m[1]);assert.deepEqual([...names].sort(),[...expected].sort());for(const[k,n]of Object.entries({tests:expected.length,pass:expected.length,fail:0,skipped:0}))assert.equal(Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1),n);return{stem,tests:expected.length,passed:expected.length,failed:0,skipped:0,names,log_sha256:sha(log)};});writeFileSync('/tmp/document-producer-authority-native.json',JSON.stringify({schema:'document-producer-authority-native-proof-v1',source_commit:process.env.GITHUB_SHA,native:true,tests:197,passed:197,failed:0,skipped:0,baseline_reproductions:6,fixed_access_races:168,component_cases:23,suites:records,source_manifest:['docs/production-readiness/proposals/document-producer-authority-lock.sql','docs/production-readiness/proposals/document-producer-authority-patches.json','tests/database/document-producer-authority-fixture.mjs','tests/database/document-producer-authority-cases.mjs','tests/database/document-producer-authority.test.mjs','tests/database/document-producer-access-races.test.mjs','tests/database/document-path-exclusivity.test.mjs'].map(path=>({path,sha256:sha(readFileSync(path))})),provider_calls:false,hosted_actions:false,ready_for_cutover:false},null,2));
+          NODE
+
+      - name: Test registration and rescan authority without hosted credentials
+        run: |
+          PATHWAY_HISTORY_PGLITE_MODULE="$RUNNER_TEMP/channel-history-tests/node_modules/@electric-sql/pglite/dist/index.js" \
+            node --test tests/database/document-producer-authority.test.mjs
 
       - name: Test summary authority component without hosted credentials
         run: |
@@ -3087,6 +3119,56 @@ jobs:
           import{writeFileSync}from'node:fs';writeFileSync('/tmp/document-summary-authority-schema.json',JSON.stringify({schema:'document-summary-authority-schema-proof-v1',canonical_count:225,review_drafts:38,exact_reader_patch:true,reader_owner_mode_path_grants_preserved:true,existing_text_protocol_unchanged:true,private_invoker_helper:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify producer authority after complete replay
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 \
+            -c "SET ROLE postgres; CREATE TEMP TABLE producer_authority_before AS SELECT oid::regprocedure::text AS signature,oid,prosrc,proconfig,prosecdef,proowner,proacl,provolatile FROM pg_proc WHERE pronamespace='public'::regnamespace" \
+            -f docs/production-readiness/proposals/document-producer-authority-lock.sql -f - <<'SQL'
+          DO $producer_authority_schema$
+          DECLARE item record;before_row record;after_row record;caller text;helper record;
+          BEGIN
+           IF current_user<>'postgres' OR (SELECT rolsuper FROM pg_roles WHERE rolname=current_user) THEN RAISE EXCEPTION 'Restricted producer-authority installer required';END IF;
+           PERFORM public.assert_internal_document_text_protocol();
+           FOR item IN SELECT * FROM (VALUES
+            ('public.assert_internal_document_rescan_source(uuid,uuid,text,timestamptz)','535eec88a7abb5695252922280c3d01b',false,false,' SELECT * INTO d FROM public.documents WHERE id=b.document_id;',' PERFORM public.lock_internal_document_producer_authority(b.actor_id,b.student_id);
+          '),
+            ('public.guard_document_rescan_source_binding()','9cde41dda57eaaac0ac7aacb666e27a2',false,false,' -- Match the established attempt -> document -> object order.',' PERFORM public.lock_internal_document_producer_authority(NEW.actor_id,d.student_id);
+          '),
+            ('public.guard_document_upload_registration()','ec1020d6a943332c2fb1716e4512adbc',true,false,'  -- Lock the attempt before any object-metadata lock taken by later triggers.','  PERFORM public.lock_internal_document_producer_authority(NEW.uploaded_by,NEW.student_id);
+          '),
+            ('public.read_document_upload_registration(uuid,text)','8bed2c13998cb9749d5a793d14cec62a',true,true,'  SELECT * INTO doc FROM public.documents WHERE id=attempt.registered_document_id','  PERFORM public.lock_internal_document_producer_authority(actor,attempt.student_id);
+          '),
+            ('public.reserve_document_upload(uuid,uuid,text,text)','dc8972ceac29738817b32b74ad411e1b',true,true,'  SELECT * INTO attempt FROM public.document_upload_attempts WHERE id=_attempt_id FOR UPDATE;','  PERFORM public.lock_internal_document_producer_authority(actor,_student_id);
+          ')
+           ) expected(signature,body_md5,definer,actor_exec,anchor,prefix) LOOP
+            SELECT * INTO STRICT before_row FROM producer_authority_before WHERE oid=to_regprocedure(item.signature);
+            SELECT oid,prosrc,proconfig,prosecdef,proowner,proacl,provolatile INTO STRICT after_row FROM pg_proc WHERE oid=to_regprocedure(item.signature);
+            IF md5(before_row.prosrc)<>item.body_md5 OR after_row.prosrc IS DISTINCT FROM replace(before_row.prosrc,item.anchor,item.prefix||item.anchor)
+             OR (after_row.oid,after_row.proconfig,after_row.prosecdef,after_row.proowner,after_row.proacl,after_row.provolatile) IS DISTINCT FROM (before_row.oid,before_row.proconfig,before_row.prosecdef,before_row.proowner,before_row.proacl,before_row.provolatile) THEN
+             RAISE EXCEPTION 'Only the exact producer proof lock may change';END IF;
+            FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+             IF has_function_privilege(caller,item.signature,'EXECUTE') IS DISTINCT FROM (caller='authenticated' AND item.actor_exec) THEN RAISE EXCEPTION 'Producer grants must stay narrow';END IF;
+            END LOOP;
+           END LOOP;
+           -- Every other preexisting public routine keeps its exact body and metadata.
+           IF EXISTS(SELECT 1 FROM producer_authority_before old LEFT JOIN pg_proc now ON now.oid=old.oid
+             WHERE old.oid NOT IN (SELECT to_regprocedure(signature) FROM (VALUES ('public.assert_internal_document_rescan_source(uuid,uuid,text,timestamptz)'),('public.guard_document_rescan_source_binding()'),('public.guard_document_upload_registration()'),('public.read_document_upload_registration(uuid,text)'),('public.reserve_document_upload(uuid,uuid,text,text)')) changed(signature))
+              AND (now.oid IS NULL OR (now.prosrc,now.proconfig,now.prosecdef,now.proowner,now.proacl,now.provolatile) IS DISTINCT FROM (old.prosrc,old.proconfig,old.prosecdef,old.proowner,old.proacl,old.provolatile))) THEN
+            RAISE EXCEPTION 'Unrelated public routines must remain unchanged';END IF;
+           SELECT md5(prosrc) AS body_md5,proconfig,prosecdef,proowner,provolatile INTO STRICT helper FROM pg_proc WHERE oid='public.lock_internal_document_producer_authority(uuid,uuid)'::regprocedure;
+           IF helper.body_md5<>'e690e7381ac2fc648aad398aac81d8c6' OR helper.proowner<>current_user::regrole::oid OR helper.prosecdef OR helper.provolatile<>'v' OR helper.proconfig<>ARRAY['search_path=pg_catalog'] THEN RAISE EXCEPTION 'Exact private invoker producer helper required';END IF;
+           FOREACH caller IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+            IF has_function_privilege(caller,'public.lock_internal_document_producer_authority(uuid,uuid)','EXECUTE') THEN RAISE EXCEPTION 'Producer helper must remain private';END IF;
+           END LOOP;
+           IF NOT EXISTS(SELECT 1 FROM public.document_operation_control WHERE singleton AND paused) OR public.count_internal_combined_document_capacity(NULL,NULL)<>0 THEN RAISE EXCEPTION 'Paused empty accounting must remain unchanged';END IF;
+          END;$producer_authority_schema$;
+          SQL
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f docs/production-readiness/proposals/document-text-completion-drain-inventory.sql > /tmp/document-producer-authority-drain.json
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';const d=JSON.parse(readFileSync('/tmp/document-producer-authority-drain.json'));for(const[k,v]of Object.entries({paused:true,database_work_clear:true,remaining_capacity_units:0,provider_quiescence_verified:false,ready_for_cutover:false}))assert.equal(d[k],v,k);writeFileSync('/tmp/document-producer-authority-schema.json',JSON.stringify({schema:'document-producer-authority-schema-proof-v1',canonical_count:225,review_drafts:39,exact_target_patches:5,target_oids_owner_mode_path_grants_preserved:true,unrelated_public_routines_unchanged:true,exact_private_invoker_helper:true,read_only_drain_clear:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
@@ -3148,6 +3230,11 @@ jobs:
             /tmp/document-extraction-writer-schema.json
             /tmp/document-completion-marker-schema.json
             /tmp/document-summary-authority-schema.json
+            /tmp/document-producer-authority-schema.json
+            /tmp/document-producer-authority-drain.json
+            /tmp/document-producer-authority-native.json
+            /tmp/document-producer-authority-native.log
+            /tmp/document-producer-access-native.log
             /tmp/document-summary-authority-native.json
             /tmp/document-summary-authority-native.log
             /tmp/document-summary-access-native.log
