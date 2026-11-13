@@ -20,6 +20,9 @@ on:
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
       - "tests/database/run-document-path-local-model.mjs"
+      - "tests/database/document-case-batches.mjs"
+      - "tests/database/document-case-execution-inventory.json"
+      - "tests/document-case-batches.test.mjs"
       - "tests/database/document-path-test-partitions.mjs"
       - "tests/database/document-native-test-plan.json"
       - "tests/database/document-capacity-selected-policy.test.mjs"
@@ -142,6 +145,9 @@ on:
       - "tests/database/report-evidence-save.test.mjs"
       - "tests/database/document-path-exclusivity.test.mjs"
       - "tests/database/run-document-path-local-model.mjs"
+      - "tests/database/document-case-batches.mjs"
+      - "tests/database/document-case-execution-inventory.json"
+      - "tests/document-case-batches.test.mjs"
       - "tests/database/document-path-test-partitions.mjs"
       - "tests/database/document-native-test-plan.json"
       - "tests/database/document-capacity-selected-policy.test.mjs"
@@ -324,7 +330,7 @@ jobs:
           pattern: native-document-boundaries-*
           path: /tmp/native-document-results
       - name: Verify native result gate rejection cases
-        run: node --test tests/document-native-result-validation.test.mjs
+        run: node --test tests/document-case-batches.test.mjs tests/document-native-result-validation.test.mjs
       - name: Require every source-matched native case with zero skips
         run: node tests/database/verify-document-native-results.mjs /tmp/native-document-results
       - name: Require all native partition jobs to succeed
@@ -615,9 +621,10 @@ jobs:
         env:
           PGUSER: supabase_admin
         run: |
+          DOCUMENT_NATIVE_PARTITION=preflight-boundaries \
           PATHWAY_HISTORY_POSTGRES=1 \
           PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/pathway-history-tests/node_modules/pg/lib/index.js" \
-            node --test --test-name-pattern='^rescan service boundary|^rescan auto release|^registration auto|^capacity bound Apply|^capacity Apply no-save|^capacity private admission|^capacity legacy summary claim|^capacity queue entry' tests/database/document-path-exclusivity.test.mjs
+            node tests/database/run-document-path-native-partition.mjs
 
       - name: Test proposed document upload boundaries without hosted credentials
         run: |

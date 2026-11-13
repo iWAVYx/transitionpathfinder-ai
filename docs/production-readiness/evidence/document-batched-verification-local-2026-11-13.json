@@ -1,0 +1,134 @@
+{
+  "schema": "document-batched-verification-local-v1",
+  "date": "2026-11-13",
+  "source_base": "4e117eb9",
+  "workstream_actions": [
+    "4"
+  ],
+  "scope": "Test execution and proof validation only. Original1660 test registrations/assertions/timeouts, seven partition identities and all product SQL/TypeScript remain unchanged.",
+  "changes": [
+    "Use the exact independently verified1660 labels, original multiplicities and source digest as the execution inventory.",
+    "Run at most32 cases in a fresh process/database per batch; keep duplicate labels together and keep competing sessions inside their original test.",
+    "Preserve the earlier preflight selection as batched native execution; do not remove its cases or the complete seven native partitions.",
+    "Require exact per-child raw labels/counts, no native skips, raw byte boundaries/hashes and final complete coverage. Failed children stop later dispatch and retain incomplete diagnostics.",
+    "Append native progress logs instead of rewriting the full growing log for each output chunk.",
+    "Preserve the original hash-containing filename test by decoding only its TAP display escape for selection; the retained original case label and assertion are unchanged."
+  ],
+  "local_model": {
+    "tests": 1660,
+    "pass": 1474,
+    "fail": 0,
+    "skipped": 186,
+    "status": 0,
+    "signal": null,
+    "elapsed_ms": 214768,
+    "note": "All186 existing native-only cases remain explicitly skipped in local WASM; only PostgreSQL can accept them. This is not native acceptance."
+  },
+  "local_contracts": {
+    "passed": 75,
+    "failed": 0,
+    "skipped": 0,
+    "batch_and_native_gate_cases": 33,
+    "workflow_shell_blocks_parsed": 87
+  },
+  "previous_verified_native_cases_still_accepted_by_stricter_raw_validator": 1660,
+  "prior_ci_stage_timing": {
+    "run": 43404861945,
+    "stages": [
+      {
+        "name": "Verify new rescan and registration boundaries before full database suites",
+        "startedAt": "2026-11-13T09:59:02Z",
+        "completedAt": "2026-11-13T10:29:59Z"
+      },
+      {
+        "name": "Test proposed document upload boundaries without hosted credentials",
+        "startedAt": "2026-11-13T10:29:59Z",
+        "completedAt": "2026-11-13T11:09:42Z"
+      }
+    ],
+    "comparison_note": "Previous timings were on GitHub; the214768ms local measurement is on the Mac. End-to-end GitHub improvement remains to be measured."
+  },
+  "inventory_source_run": 43404861945,
+  "original_test_sha256": "5c9d514f90a5a5b20c437354f701a773a1e6e272734bc739ef56556b5c960a6a",
+  "original_distinct_labels": 1657,
+  "original_total_multiplicity": 1660,
+  "source_manifest": [
+    {
+      "path": "tests/database/document-case-batches.mjs",
+      "sha256": "d402b6683d92eafb20cbd3d4320a2cae490843a8687449def1b617b8d77dd2ea"
+    },
+    {
+      "path": "tests/database/document-case-execution-inventory.json",
+      "sha256": "5acca9387d84cd0a3bbd0204c9d5dc5070d63746e7a66da097b96e5a34d61c97"
+    },
+    {
+      "path": "tests/database/run-document-path-native-partition.mjs",
+      "sha256": "cee696014066f4ad199567d5916ed79cbbd76a66065186e510dd94ae45524fc0"
+    },
+    {
+      "path": "tests/database/run-document-path-local-model.mjs",
+      "sha256": "1ef089157e2edb22263b9d48bfa1725184345a2742bb8fe5fc98e63588a07044"
+    },
+    {
+      "path": "tests/database/document-native-result-validation.mjs",
+      "sha256": "a8bbf71abc5f8c4ed10acc06c0b420c21dd5f3627ceaa25b15d1c8a7fa8b3d5d"
+    },
+    {
+      "path": "tests/document-case-batches.test.mjs",
+      "sha256": "7fffdd865ac58331ff6700e417a00e5cec36038e2a57ad4adcceae08e9f67c09"
+    },
+    {
+      "path": "tests/document-native-result-validation.test.mjs",
+      "sha256": "09d09807850be70cad9b76f0a31c4cb26345b3892b959d1a8f0cd722d28c230f"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "c06cae77a253437923b08f1c79c97198316e1efad272f127f12018578ef1fa81"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/private/tmp/tf-batched-local-model-final.log",
+      "sha256": "c7c6542566636501a56b674fafd5470ae92e4e7d3dd967c13fa6105c3a03f8e6"
+    },
+    {
+      "path": "/private/tmp/tf-batched-local-model-final-timing.json",
+      "sha256": "21dcd7c0730bec2005eeaee4b8546f37b13922a078d476e85f99f5a7c127a1f8"
+    },
+    {
+      "path": "/private/tmp/tf-batch-contracts-final.log",
+      "sha256": "551d90627d3aec2736e88655fd506baf38534fd436e711729cc75eaf9db2ce77"
+    },
+    {
+      "path": "/private/tmp/tf-batched-preflight-inventory-proof.json",
+      "sha256": "141716e7da5a8271e7813e85b28eb112b4db0f4c0976532a553ab7e7af8c132b"
+    },
+    {
+      "path": "/private/tmp/tf-batched-local-model.log",
+      "sha256": "b3a6ca2d07b9f0e4699eb017d83a8bf5c29e1e246e14a283642d7c43d62bd600"
+    },
+    {
+      "path": "/private/tmp/tf-batched-local-model-timing.json",
+      "sha256": "034769eaae908f6ca4c6b99fa4c1a7b03a1a0dae9082c976fd05e82e0cedd9eb"
+    }
+  ],
+  "native_batched_ci_verified": false,
+  "end_to_end_speedup_verified": false,
+  "product_code_changed": false,
+  "sql_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false,
+  "unchanged_preflight_inventory": {
+    "cases": 270,
+    "names_sha256": "0218e01549700ee922cbde12e109d3de7dcdf189c6e6bdfd1682869ebfa9a339",
+    "baseline_run": 43404861945
+  },
+  "initial_benchmark_correction": {
+    "failure": "Exact coverage gate stopped when a TAP-escaped hash label selected31 instead of32 cases.",
+    "resolution": "Decode the TAP hash display escape for selection; retain the original raw label, assertion and expected count. All1660 cases then completed with unchanged1474/186 local outcomes.",
+    "acceptance_claimed_for_failed_run": false
+  }
+}

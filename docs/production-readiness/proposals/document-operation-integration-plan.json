@@ -1082,5 +1082,15 @@
     "whole_action_complete": false,
     "native_composite_cases": 42,
     "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
+  },
+  "verification_execution_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-batched-verification-local-2026-11-13.json",
+    "max_cases_per_fresh_batch": 32,
+    "original_cases_unchanged": 1660,
+    "local_model_elapsed_ms": 214768,
+    "local_contracts_passed": 75,
+    "native_batched_ci_verified": false,
+    "end_to_end_speedup_verified": false,
+    "hosted_actions": false
   }
 }

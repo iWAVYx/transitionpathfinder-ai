@@ -1,24 +1,18 @@
-// Disposable loopback PostgreSQL only. One fresh test database per partition.
-import {spawn} from 'node:child_process';
-import {readFileSync,writeFileSync} from 'node:fs';
-import {createHash} from 'node:crypto';
-import {documentPathPartitions,partitionId} from './document-path-test-partitions.mjs';
-const sha=value=>createHash('sha256').update(value).digest('hex');
-const plan=JSON.parse(readFileSync('tests/database/document-native-test-plan.json','utf8'));
-const id=process.env.DOCUMENT_NATIVE_PARTITION;
-const group=documentPathPartitions.find(([name])=>partitionId(name)===id);
-const expected=plan.partitions.find(item=>item.id===id);
-if(process.env.PATHWAY_HISTORY_POSTGRES!=='1'||!process.env.PATHWAY_HISTORY_PG_MODULE||!['localhost','127.0.0.1'].includes(process.env.PGHOST)||!group||!expected)throw Error('Explicit disposable native partition required');
-if(sha(readFileSync(plan.test_file))!==plan.test_sha256)throw Error('Test source changed; reconcile complete-case inventory');
-const logPath=`/tmp/native-document-boundaries-${id}.log`;
-const run=await new Promise((resolve,reject)=>{
- const child=spawn(process.execPath,['--test',...group[1],plan.test_file],{env:process.env,stdio:['ignore','pipe','pipe']});let log='';
- const append=chunk=>{log+=chunk;if(Buffer.byteLength(log)>64*1024*1024){child.kill();reject(Error('Bounded native log exceeded'));return;}writeFileSync(logPath,log);process.stdout.write(chunk);};
- child.stdout.setEncoding('utf8');child.stderr.setEncoding('utf8');child.stdout.on('data',append);child.stderr.on('data',append);
- child.on('error',reject);child.on('close',(status,signal)=>resolve({status,signal,log}));
-});
-const names=[...run.log.matchAll(/^# Subtest: (.*)$/gm)].map(m=>m[1]);
-const count=key=>Number([...run.log.matchAll(new RegExp(`^# ${key} (\\d+)$`,'gm'))].at(-1)?.[1]??-1);
-const result={schema:'document-native-partition-v1',partition:id,test_sha256:plan.test_sha256,source_commit:process.env.GITHUB_SHA,native:true,status:run.status,signal:run.signal,tests:count('tests'),passed:count('pass'),failed:count('fail'),skipped:count('skipped'),names,log_sha256:sha(run.log)};
-writeFileSync(`/tmp/native-document-boundaries-${id}.json`,JSON.stringify(result,null,2)+'\n');
-if(run.status!==0||run.signal||result.tests!==expected.tests||result.passed!==expected.tests||result.failed!==0||result.skipped!==0||names.some(n=>!group[2](n))||sha(JSON.stringify([...names].sort()))!==expected.names_sha256)throw Error('Incomplete or failing native partition; retained result is not acceptance');
+// Disposable loopback PostgreSQL only; original cases, fresh DB per batch.
+import{readFileSync,writeFileSync,appendFileSync}from'node:fs';import{createHash}from'node:crypto';
+import{documentPathPartitions,partitionId}from'./document-path-test-partitions.mjs';
+import{validateExecutionInventory,runCaseBatches,namesDigest}from'./document-case-batches.mjs';
+const sha=b=>createHash('sha256').update(b).digest('hex'),plan=JSON.parse(readFileSync('tests/database/document-native-test-plan.json')),inventoryBytes=readFileSync('tests/database/document-case-execution-inventory.json');
+const inventory=validateExecutionInventory(plan,JSON.parse(inventoryBytes),readFileSync(plan.test_file));
+const id=process.env.DOCUMENT_NATIVE_PARTITION,preflight=id==='preflight-boundaries',group=documentPathPartitions.find(([name])=>partitionId(name)===id),expected=plan.partitions.find(p=>p.id===id);
+if(process.env.PATHWAY_HISTORY_POSTGRES!=='1'||!process.env.PATHWAY_HISTORY_PG_MODULE||!['localhost','127.0.0.1'].includes(process.env.PGHOST)||(!preflight&&(!group||!expected)))throw Error('Explicit disposable native partition required');
+const preflightMatch=/^(?:rescan service boundary|rescan auto release|registration auto|capacity bound Apply|capacity Apply no-save|capacity private admission|capacity legacy summary claim|capacity queue entry)/;
+const names=preflight?inventory.partitions.flatMap(p=>p.names).filter(n=>preflightMatch.test(n)):inventory.partitions.find(p=>p.id===id).names;
+if(!preflight&&names.some(n=>!group[2](n)))throw Error('Unexpected partition case');
+const logPath='/tmp/native-document-boundaries-'+id+'.log';writeFileSync(logPath,'');
+const append=chunk=>{appendFileSync(logPath,chunk);process.stdout.write(chunk);};
+let run;try{run=await runCaseBatches({testFile:plan.test_file,names,onChunk:append});}catch(error){writeFileSync('/tmp/native-document-boundaries-'+id+'.json',JSON.stringify({schema:'document-native-partition-incomplete-v1',partition:id,test_sha256:plan.test_sha256,source_commit:process.env.GITHUB_SHA,native:true,status:1,complete:false,log_sha256:sha(readFileSync(logPath)),reason:'Batch execution did not finish; raw log retained'},null,2)+'\n');throw error;}
+for(const key of['tests','pass','fail','skipped'])append('# '+key+' '+run[key]+'\n');
+const log=readFileSync(logPath),result={schema:'document-native-partition-v1',partition:id,test_sha256:plan.test_sha256,source_commit:process.env.GITHUB_SHA,native:true,status:0,signal:null,tests:run.tests,passed:run.pass,failed:run.fail,skipped:run.skipped,names:run.names,log_sha256:sha(log),execution_inventory_sha256:sha(inventoryBytes),batches:run.batches};
+writeFileSync('/tmp/native-document-boundaries-'+id+'.json',JSON.stringify(result,null,2)+'\n');
+if(!preflight&&(result.tests!==expected.tests||namesDigest(run.names)!==expected.names_sha256))throw Error('Incomplete original partition; not acceptance');
