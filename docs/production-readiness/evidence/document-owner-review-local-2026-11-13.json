@@ -57,7 +57,7 @@
     },
     {
       "path": "tests/database/document-owner-review.test.mjs",
-      "sha256": "ec105bb24ad52523085d1e11e5242ac49b74a618d3148a91808de358a7fec610"
+      "sha256": "8719f15601c551195bd94bf222bc54b4b2fb5ed16b3ea6d2990c4d5cdc9c7463"
     },
     {
       "path": "tests/database/document-owner-review-races.test.mjs",
@@ -108,5 +108,36 @@
     "fingerprint": "e70fca6681d54b744c387d7a4124d41cb4b7f016fbfc821020848cfd7029774b",
     "fileCount": 1214
   },
-  "local_contracts_passed": 87
+  "local_contracts_passed": 87,
+  "first_native_attempt": {
+    "run": 43516524752,
+    "accepted": false,
+    "component_passed": 60,
+    "component_failed": 4,
+    "cause": "Coupled server-core Zod hook prefix matched the contract but not the dot-named server module; local installed dependencies masked the mismatch. Prefix corrected and actual server+contract isolated-loader resolution asserted.",
+    "product_change": false
+  },
+  "local_visual_checks": [
+    {
+      "width": 320,
+      "viewport": 320,
+      "documentWidth": 320,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-review-local-320.png"
+    },
+    {
+      "width": 390,
+      "viewport": 390,
+      "documentWidth": 390,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-review-local-390.png"
+    },
+    {
+      "width": 1280,
+      "viewport": 1280,
+      "documentWidth": 1280,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-review-local-1280.png"
+    }
+  ]
 }
