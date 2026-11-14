@@ -1,0 +1,49 @@
+{
+  "schema": "document-upload-pause-fence-review-v1",
+  "date": "2026-10-30",
+  "scope": "Third noncanonical/unapplied admission proposal. Reservation and Storage metadata/document INSERT transaction locks only, not browser interval accounting.",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+    "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
+  },
+  "canonical_count": 225,
+  "new_canonical_migrations": 0,
+  "functions": [
+    {
+      "name": "lock_document_upload_admission",
+      "body_md5": "1744a11d6e408dac46edcd12b790c6ab"
+    },
+    {
+      "name": "reserve_document_upload",
+      "body_md5": "238eda86ba72f1141712dee84f553755"
+    },
+    {
+      "name": "can_insert_reserved_student_document",
+      "body_md5": "ede89febb64a8bf2fead5ef24b694fca"
+    },
+    {
+      "name": "guard_document_upload_registration",
+      "body_md5": "7458b36186c93d0c258e39434536a7a9"
+    }
+  ],
+  "changes": [
+    "Add auth-only void volatile definer helper that reads the private paused row and holds FOR SHARE to transaction end. Missing control/paused/stale isolation fails closed.",
+    "Preserve exact reserve and Storage predicate bodies with only the helper call; preserve the original registration trigger body with only an INSERT-specific helper call.",
+    "Require exact old bodies/owners/private grants and paused/clear control before installation. Refuse unresolved upload/scan/summary rows; never alter them to pass preflight.",
+    "Retain original function owners, fixed search paths, private scope/capacity rules and grants. No new control/table mutation right, hold token, cleanup/expiry/recovery protocol."
+  ],
+  "preserved": [
+    "All seven roles still require current explicit private student access; management role is not a bypass.",
+    "Authorized metadata edits, existing registration reads and owner/public-site media remain available.",
+    "Review holds may still be recorded while paused; no quota release, deletion or invented completion."
+  ],
+  "limitations": [
+    "No new durable browser-interval operation or safe cross-request registration continuation exists yet.",
+    "Database metadata locks do not prove physical Storage upload/conditional-write state or provider quiescence.",
+    "Existing unresolved work causes installation refusal and requires separate authorized reconciliation; zero database rows does not certify old provider work stopped.",
+    "Other direct/service writers, full historical ledger/schema and final canonical/ledger packaging still require review."
+  ],
+  "hosted_execution_authorized": false,
+  "production_access_authorized": false,
+  "ready_for_cutover": false
+}

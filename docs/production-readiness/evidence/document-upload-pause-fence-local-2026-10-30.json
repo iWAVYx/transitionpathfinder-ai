@@ -1,0 +1,64 @@
+{
+  "schema": "document-upload-pause-fence-local-v1",
+  "date": "2026-10-30",
+  "source_base": "717460dcf0d9df20e25083154347c2b25d1fdbda",
+  "status": "Verified prepared source: all nine applicable automatic checks passed",
+  "review": "docs/production-readiness/proposals/document-upload-pause-fence-review.json",
+  "validation": {
+    "sql_cases": 771,
+    "pglite_pass": 681,
+    "native_only_skipped": 90,
+    "new_native_race_cases": 12,
+    "safety_contracts": 92,
+    "workflow_yaml": "parsed with existing js-yaml dependency",
+    "application_checks": "Application/worker source unchanged. Retain previous5504 unit tests,19 intercepted Deno tests, TypeScript/build and all nine automatic checks; no new app test/build run claimed."
+  },
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-upload-pause-fence.sql",
+      "sha256": "ff2514440ae8c1db042f7c38d341d1fe589fbe5274672a8dfaf3844f16827ec1"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "f4a84b6ed8736dbf350c2455080cc7f21ce36ad60ad8620aad25ddeba22d5480"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "daca267d2ce14a3247c0d151126a126a06d4a6cd3ad481cd5bb2d9f32419a7b9"
+    }
+  ],
+  "application_runtime": {
+    "fingerprint": "d68c055d1272efe7e14792fa24fbb54dfa16cfbeb9109490c1d02e2e5d2178e9",
+    "files": 1202,
+    "changed": false
+  },
+  "worker_package": {
+    "fingerprint": "dc07a82e08a06e6a37c309494f5cc8fef50ac9aa451ee0466e72ce928cd66b29",
+    "files": 4,
+    "changed": false
+  },
+  "database": {
+    "canonical_count": 225,
+    "unapplied_noncanonical_admission_proposals": 3,
+    "existing_fifteen_migration_batch_includes_these": false
+  },
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "fixtures_created_hosted": false,
+  "browser_interval_tracked": false,
+  "ready_for_cutover": false,
+  "verified_source": "b561db3ad4562e72974dd72bd38190107efe190f",
+  "automatic_checks": {
+    "successes": 9,
+    "failures": 0,
+    "pending": 0,
+    "database_runs": [
+      41073251058,
+      41073241553
+    ],
+    "native_sql": "Both771/771, zero skips;225 canonical plus3 unapplied proposals.",
+    "aggregate_proofs": "Both match the four reviewed routine hashes/fixed paths, paused true and interval/provider/cutover fields false.",
+    "hosted_tests": "Protected hosted tests skipped and unperformed."
+  }
+}

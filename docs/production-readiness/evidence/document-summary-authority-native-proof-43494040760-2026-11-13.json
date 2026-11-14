@@ -1,0 +1,109 @@
+{
+  "schema": "document-summary-authority-native-proof-v1",
+  "source_commit": "63c5cfc4c1de5d9a0a2cd0d283cf48c723fea58c",
+  "native": true,
+  "tests": 46,
+  "passed": 46,
+  "failed": 0,
+  "skipped": 0,
+  "baseline_reproductions": 1,
+  "fixed_access_races": 28,
+  "functional_installation_cases": 17,
+  "suites": [
+    {
+      "stem": "document-summary-authority",
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "names": [
+        "Summary authority component role-family",
+        "Summary authority component role-student",
+        "Summary authority component role-educator",
+        "Summary authority component role-owner",
+        "Summary authority component role-school",
+        "Summary authority component role-district",
+        "Summary authority component role-partner-transition",
+        "Summary authority component private-anon",
+        "Summary authority component private-authenticated",
+        "Summary authority component private-service_role",
+        "Summary authority component install-unpaused",
+        "Summary authority component install-held",
+        "Summary authority component install-reader-drift",
+        "Summary authority component install-canonical-drift",
+        "Summary authority component install-trigger-disabled",
+        "Summary authority component install-reader-grant",
+        "Summary authority component install-rollback"
+      ],
+      "log_sha256": "93ce343dc3ae9e30e89914045686012f6bc6f11141f021e24dc5814079f391a1"
+    },
+    {
+      "stem": "document-summary-access",
+      "tests": 29,
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0,
+      "names": [
+        "Summary authority baseline reproduces unlocked editor removal",
+        "Summary authority race family removal-first COMMIT",
+        "Summary authority race family removal-first ROLLBACK",
+        "Summary authority race family source-first COMMIT",
+        "Summary authority race family source-first ROLLBACK",
+        "Summary authority race student removal-first COMMIT",
+        "Summary authority race student removal-first ROLLBACK",
+        "Summary authority race student source-first COMMIT",
+        "Summary authority race student source-first ROLLBACK",
+        "Summary authority race educator removal-first COMMIT",
+        "Summary authority race educator removal-first ROLLBACK",
+        "Summary authority race educator source-first COMMIT",
+        "Summary authority race educator source-first ROLLBACK",
+        "Summary authority race owner removal-first COMMIT",
+        "Summary authority race owner removal-first ROLLBACK",
+        "Summary authority race owner source-first COMMIT",
+        "Summary authority race owner source-first ROLLBACK",
+        "Summary authority race school removal-first COMMIT",
+        "Summary authority race school removal-first ROLLBACK",
+        "Summary authority race school source-first COMMIT",
+        "Summary authority race school source-first ROLLBACK",
+        "Summary authority race district removal-first COMMIT",
+        "Summary authority race district removal-first ROLLBACK",
+        "Summary authority race district source-first COMMIT",
+        "Summary authority race district source-first ROLLBACK",
+        "Summary authority race partner-transition removal-first COMMIT",
+        "Summary authority race partner-transition removal-first ROLLBACK",
+        "Summary authority race partner-transition source-first COMMIT",
+        "Summary authority race partner-transition source-first ROLLBACK"
+      ],
+      "log_sha256": "58f36891faec8a84dcff48cf64fd08ede9fce60c2a496fc52dee0718da6a32d4"
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "tests/database/document-summary-authority.test.mjs",
+      "sha256": "c94ea94d65deac30887988ae7dab8695e890373c81e51d11a50bf9e60b7d7876"
+    },
+    {
+      "path": "tests/database/document-summary-access-races.test.mjs",
+      "sha256": "d7e6ca6477a1706f1aec95c906b862f1e2b824e8bf1afa082718ef3861203615"
+    },
+    {
+      "path": "tests/database/document-summary-access-race-cases.mjs",
+      "sha256": "8dcdc19275a60fa801a9564d7d66a9d10d685119765166e320e2494873e722b9"
+    },
+    {
+      "path": "tests/database/document-guarded-composite-fixture.mjs",
+      "sha256": "85947aaad7a32c4f120299cfdb0ab2e834605083745f14922a54c82606ef9e62"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-authority-lock.sql",
+      "sha256": "42936e91ad6e9d721c839360e589011cbeebf97ad7557a09ad99ae8174265d97"
+    }
+  ],
+  "provider_calls": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

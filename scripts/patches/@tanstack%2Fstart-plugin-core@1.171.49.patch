@@ -1,0 +1,39 @@
+diff --git a/dist/esm/vite/start-compiler-plugin/plugin.js b/dist/esm/vite/start-compiler-plugin/plugin.js
+index 8ea10b586a9412bc0dd1d920611c67b68ad0e9fa..e9a94f23934a6cc4a97c858e0ac91832964826c1 100644
+--- a/dist/esm/vite/start-compiler-plugin/plugin.js
++++ b/dist/esm/vite/start-compiler-plugin/plugin.js
+@@ -120,6 +120,13 @@ function startCompilerPlugin(opts) {
+ 			buildStart() {
+ 				if (this.environment.mode === "build" || bundledDev && this.environment.name === VITE_ENVIRONMENT_NAMES.client) compilers.delete(this.environment.name);
+ 			},
++			buildEnd() {
++				// Release transform caches, retaining the shared server-function registry.
++				if (this.environment.mode === "build" && process.env.TF_BUILD_RELEASE_COMPILER_CACHE !== "0") {
++					const released = compilers.delete(this.environment.name);
++					if (process.env.TF_BUILD_CACHE_METRICS === "1") console.info(`[start-compiler-cache] ${this.environment.name}: ${released ? "released" : "empty"}`);
++				}
++			},
+ 			watchChange(id) {
+ 				if (bundledDev && this.environment.mode === "dev") compilers.get(this.environment.name)?.invalidateModule(id);
+ 			},
+diff --git a/src/vite/start-compiler-plugin/plugin.ts b/src/vite/start-compiler-plugin/plugin.ts
+index 1dabf64db88a6a1e3d138ac5c5c80de0ddce62ce..7c1df21ba3028a21ca42954b2a948b09e1c9a555 100644
+--- a/src/vite/start-compiler-plugin/plugin.ts
++++ b/src/vite/start-compiler-plugin/plugin.ts
+@@ -306,6 +306,16 @@ export function startCompilerPlugin(
+           compilers.delete(this.environment.name)
+         }
+       },
++      buildEnd() {
++        // Transform lookup caches are no longer needed once the graph is built.
++        // The shared serverFnsById registry is retained for the SSR resolver.
++        if (this.environment.mode === 'build' && process.env.TF_BUILD_RELEASE_COMPILER_CACHE !== '0') {
++          const released = compilers.delete(this.environment.name)
++          if (process.env.TF_BUILD_CACHE_METRICS === '1') {
++            console.info(`[start-compiler-cache] ${this.environment.name}: ${released ? 'released' : 'empty'}`)
++          }
++        }
++      },
+       watchChange(id) {
+         if (bundledDev && this.environment.mode === 'dev') {
+           compilers.get(this.environment.name)?.invalidateModule(id)

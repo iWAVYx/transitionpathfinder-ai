@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { widgetLinkDestination } from "../../src/lib/dashboard/dashboard-widget-navigation";
+import { widgetEventDestination, widgetLinkDestination } from "../../src/lib/dashboard/dashboard-widget-navigation";
 
 describe("dashboard widget links", () => {
   it.each(["family", "student", "educator"] as const)(
@@ -18,3 +18,10 @@ describe("dashboard widget links", () => {
     expect(widgetLinkDestination("partner", "/calendar")).toBe("/calendar");
   });
 });
+
+it.each(["family", "student", "educator", "school_admin", "district_admin", "partner"] as const)(
+  "%s calendar rows never open meeting tools", role => {
+    expect(widgetEventDestination(role, "calendar")).toBe(widgetLinkDestination(role, role === "school_admin" ? "/school/calendar" : "/calendar"));
+    if (role === "family" || role === "educator") expect(widgetEventDestination(role, "meetings")).toBe("/meetings");
+  },
+);

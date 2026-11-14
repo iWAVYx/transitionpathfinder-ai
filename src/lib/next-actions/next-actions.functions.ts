@@ -1,21 +1,13 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+import { organizationActionDestination } from "@/lib/dashboard/organization-widget-actions.functions";
+import { z } from "zod";
+import { audiencesForRoles } from "@/lib/role-policy";
+import { personalActionDestination, type PersonalActionRole } from "./personal-action-destination";
+import { readOrganizationPages } from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type {
-  NextAction,
-  NextActionStatus,
-  NextActionUrgency,
-  ActivityEvent,
-} from "./types";
-import {
-  REPORT_SECTIONS,
-  REPORT_SECTION_LABELS,
-} from "@/lib/report-evidence/types";
-
-/** Report sections we most want covered by evidence before a report is defensible. */
-const PRIORITY_EVIDENCE_SECTIONS: ReadonlyArray<
-  (typeof REPORT_SECTIONS)[number]
-> = ["snapshot", "student_voice", "family_priorities", "documents", "readiness"];
-
+import type { NextAction, NextActionStatus, NextActionUrgency, ActivityEvent } from "./types";
 interface DbAction {
   id: string;
   kind: string;
@@ -46,7 +38,7 @@ function toDomain(row: DbAction): NextAction {
   let urgency: NextActionUrgency = "normal";
   let dueLabel: string | undefined;
   let status: NextActionStatus = row.status;
-  if (due != null) {
+  if (due != null && Number.isFinite(due)) {
     const days = Math.round((due - now) / 86_400_000);
     if (days < 0) {
       urgency = "overdue";
@@ -98,116 +90,177 @@ function formatRole(role: string): string {
 
 /**
  * Fetch active + recently completed next actions for the current user.
- * Also merges derived actions from live state (draft reports, pending
- * meetings, unreviewed documents) so users see something useful even
+ * Also merges supported derived actions from live state (draft reports and
+ * upcoming meetings) so users see something useful even
  * before any next-action rows have been inserted.
  */
 export const getNextActionsForMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator((input: unknown) =>
+    z
+      .object({
+        role: z.enum(["student", "family", "educator", "partner"]).optional(),
+        student_id: z.string().uuid().optional(),
+      })
+      .optional()
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-
-    const [{ data: rows }, derived] = await Promise.all([
+    const roles = await readOrganizationPages<{ role: string }>((from, to) =>
       supabase
-        .from("next_actions")
-        .select(
-          "id,kind,title,reason,cta_label,cta_route,secondary_label,secondary_route,status,priority,due_at,blocked_reason,owner_role,student_id,organization_id,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at,updated_at",
-        )
-        .or(`owner_user_id.eq.${userId}`)
-        .order("updated_at", { ascending: false })
-        .limit(50),
-      deriveActionsFromState(supabase, userId),
+        .from("user_roles")
+        .select("id,role", { count: "exact" })
+        .eq("user_id", userId)
+        .order("id")
+        .range(from, to),
+    );
+    const audiences = audiencesForRoles(roles.map((row) => row.role));
+    // Owner is a management workspace, including accounts with secondary roles.
+    if (audiences.has("admin")) return { active: [], recentlyCompleted: [], viewer_id: userId };
+    const requested = data?.role;
+    if (requested && !audiences.has(requested))
+      throw new Error("This action workspace is not available for your role.");
+    const role: PersonalActionRole | undefined =
+      requested ??
+      (["educator", "family", "student", "partner"] as const).find((value) => audiences.has(value));
+    if (!role) return { active: [], recentlyCompleted: [], viewer_id: userId };
+
+    const studentId = data?.student_id;
+    if (studentId) {
+      const students = await readOrganizationPages<{ id: string }>((from, to) =>
+        supabase
+          .from("students")
+          .select("id", { count: "exact" })
+          .eq("id", studentId)
+          .order("id")
+          .range(from, to),
+      );
+      if (!students.some((student) => student.id === studentId))
+        throw new Error("This student is unavailable. Choose an accessible student and try again.");
+    }
+
+    const [rows, derived] = await Promise.all([
+      readOrganizationPages<DbAction>((from, to) => {
+        let query = supabase
+          .from("next_actions")
+          .select(
+            "id,kind,title,reason,cta_label,cta_route,secondary_label,secondary_route,status,priority,due_at,blocked_reason,owner_role,student_id,organization_id,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at,updated_at",
+            { count: "exact" },
+          )
+          .eq("owner_user_id", userId);
+        if (studentId) query = query.or(`student_id.eq.${studentId},student_id.is.null`);
+        return query.order("updated_at", { ascending: false }).order("id").range(from, to) as any;
+      }),
+      deriveActionsFromState(supabase, role, studentId),
     ]);
 
-    const stored = (rows ?? []).map((r) => toDomain(r as DbAction));
-    // Dedupe: prefer stored row over derived when they share (kind + student).
-    const seen = new Set(stored.map((s) => `${s.kind}::${s.studentId ?? ""}`));
+    const storedRows = rows
+      .filter(
+        (row) =>
+          !row.owner_role ||
+          row.owner_role === role ||
+          audiencesForRoles([row.owner_role]).has(role),
+      )
+      .map(toDomain);
+    const eligible = (action: NextAction): NextAction[] => {
+      const ctaRoute = personalActionDestination(role, action.ctaRoute);
+      if (!ctaRoute) return [];
+      const secondaryRoute = personalActionDestination(role, action.secondaryRoute);
+      return [
+        {
+          ...action,
+          ctaRoute,
+          secondaryRoute,
+          secondaryLabel: secondaryRoute ? action.secondaryLabel : undefined,
+        },
+      ];
+    };
+    const stored = storedRows.flatMap(eligible);
+    // Only an active action for the exact same related record can replace a
+    // suggestion. A completed older report must not hide a newer draft.
+    const identity = (action: NextAction) => {
+      const record =
+        action.relatedReportId ??
+        action.relatedMeetingId ??
+        action.relatedDocumentId ??
+        action.relatedOpportunityId;
+      return record
+        ? JSON.stringify([action.kind, action.studentId, action.organizationId, record])
+        : action.id;
+    };
+    const seen = new Set(
+      stored.filter((a) => a.status !== "completed" && a.status !== "dismissed").map(identity),
+    );
     const combined = [
       ...stored,
-      ...derived.filter((d) => !seen.has(`${d.kind}::${d.studentId ?? ""}`)),
-    ];
+      ...derived.filter((action) => !seen.has(identity(action))),
+    ].flatMap(eligible);
 
     const active = combined.filter((a) => a.status !== "completed" && a.status !== "dismissed");
-    const recentlyCompleted = combined
-      .filter((a) => a.status === "completed")
-      .slice(0, 3);
+    const recentlyCompleted = combined.filter((a) => a.status === "completed").slice(0, 3);
 
-    return { active, recentlyCompleted };
+    return { active, recentlyCompleted, viewer_id: userId };
   });
 
 /**
- * Cheap derivation pass — looks at a handful of user-scoped tables and
- * emits synthetic Next Actions. Never writes to the DB. All routes
- * point at real feature pages.
+ * Caller-visible derivation pass — reads complete counted source lists and
+ * emits synthetic Next Actions for the authenticated personal role. Never writes to the DB.
+ * Unsupported invitation and evidence-attachment suggestions are intentionally omitted.
  */
 async function deriveActionsFromState(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
-  userId: string,
+  supabase: SupabaseClient<Database>,
+  role: PersonalActionRole,
+  studentId?: string,
 ): Promise<NextAction[]> {
   const out: NextAction[] = [];
 
+  if (role === "partner") return out;
+
   // Draft pathway reports
-  const { data: reports } = await supabase
-    .from("pathway_reports")
-    .select("id,student_id,status,updated_at")
-    .in("status", ["draft", "needs_review"])
-    .limit(5);
+  const reports = await readOrganizationPages<
+    Pick<Database["public"]["Tables"]["pathway_reports"]["Row"], "id" | "student_id">
+  >((from, to) => {
+    let query = supabase
+      .from("pathway_reports")
+      .select("id,student_id", { count: "exact" })
+      .eq("report_status", "draft");
+    if (studentId) query = query.eq("student_id", studentId);
+    return query.order("id").range(from, to);
+  });
   for (const r of reports ?? []) {
     out.push({
       id: `derived:report:${r.id}`,
       kind: "review_report",
       title: "Review Draft Pathway Report",
-      reason: "A draft report is waiting for review before it can be shared.",
+      reason: "A visible draft report is available to review.",
       ownerLabel: "You",
       ctaLabel: "Open Report",
-      ctaRoute: `/pathways/${r.id}`,
+      ctaRoute: `/reports/${r.id}`,
       status: "needs_review",
-      urgency: "due_soon",
+      urgency: "normal",
       priority: 12,
       studentId: r.student_id ?? undefined,
       relatedReportId: r.id,
     });
   }
 
-  // Pending invitations to this user
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("id", userId)
-    .maybeSingle();
-  if (profile?.email) {
-    const { data: invites } = await supabase
-      .from("invitations")
-      .select("id,invitation_type")
-      .eq("email", profile.email)
-      .eq("status", "pending")
-      .limit(3);
-    for (const i of invites ?? []) {
-      out.push({
-        id: `derived:invite:${i.id}`,
-        kind: "accept_invitation",
-        title: "Accept Pending Invitation",
-        reason: "Someone invited you to collaborate — accept to see their content.",
-        ownerLabel: "You",
-        ctaLabel: "Review Invitation",
-        ctaRoute: `/family/invites`,
-        status: "waiting",
-        urgency: "due_soon",
-        priority: 8,
-      });
-    }
-  }
+  // General invitations require their emailed secure token; Family's inbox
+  // handles collaborator invites instead. Do not invent a token or inbox CTA.
+  if (role === "student") return out;
 
   // Upcoming meetings in next 14 days
   const in14 = new Date(Date.now() + 14 * 86_400_000).toISOString();
-  const { data: meetings } = await supabase
-    .from("meetings")
-    .select("id,title,scheduled_at,student_id")
-    .gte("scheduled_at", new Date().toISOString())
-    .lte("scheduled_at", in14)
-    .order("scheduled_at", { ascending: true })
-    .limit(3);
+  const now = new Date().toISOString();
+  const meetings = await readOrganizationPages<any>((from, to) => {
+    let query = supabase
+      .from("meetings")
+      .select("id,title,scheduled_at,student_id", { count: "exact" })
+      .gte("scheduled_at", now)
+      .lte("scheduled_at", in14);
+    if (studentId) query = query.eq("student_id", studentId);
+    return query.order("scheduled_at", { ascending: true }).order("id").range(from, to);
+  });
   for (const m of meetings ?? []) {
     out.push({
       id: `derived:meeting:${m.id}`,
@@ -218,127 +271,202 @@ async function deriveActionsFromState(
       ctaLabel: "Open Meeting",
       ctaRoute: `/meetings/${m.id}`,
       status: "needs_review",
-      urgency: "due_soon",
+      urgency:
+        new Date(m.scheduled_at).getTime() - Date.now() <= 7 * 86_400_000 ? "due_soon" : "normal",
       priority: 15,
       studentId: m.student_id ?? undefined,
       relatedMeetingId: m.id,
     });
   }
 
-  // Evidence gaps — for each accessible student, suggest attaching evidence
-  // for priority Pathway Report sections that currently have zero links.
-  try {
-    const { data: students } = await supabase
-      .from("students")
-      .select("id,first_name,last_name")
-      .limit(10);
-    const studentIds = (students ?? []).map(
-      (s: { id: string }) => s.id,
-    );
-    if (studentIds.length > 0) {
-      const { data: links } = await supabase
-        .from("report_evidence_links")
-        .select("student_id,report_section")
-        .in("student_id", studentIds);
-      const covered = new Map<string, Set<string>>();
-      for (const l of links ?? []) {
-        const set = covered.get(l.student_id) ?? new Set<string>();
-        set.add(l.report_section);
-        covered.set(l.student_id, set);
-      }
-      let emitted = 0;
-      for (const s of students ?? []) {
-        if (emitted >= 5) break;
-        const coveredSet = covered.get(s.id) ?? new Set<string>();
-        const missing = PRIORITY_EVIDENCE_SECTIONS.filter(
-          (sec) => !coveredSet.has(sec),
-        );
-        if (missing.length === 0) continue;
-        const first = missing[0];
-        const label = REPORT_SECTION_LABELS[first];
-        const name = [s.first_name, s.last_name].filter(Boolean).join(" ") || "Student";
-        out.push({
-          id: `derived:evidence:${s.id}:${first}`,
-          kind: "attach_evidence",
-          title: `Attach evidence for ${label}`,
-          reason: `${name}'s Pathway Report has no evidence linked to "${label}" yet — attach a document, note, or meeting to strengthen it.`,
-          ownerLabel: "You",
-          ctaLabel: "Open Report Evidence",
-          ctaRoute: `/reports`,
-          status: "needs_review",
-          urgency: missing.length >= 3 ? "due_soon" : "normal",
-          priority: 18 + emitted,
-          studentId: s.id,
-        });
-        emitted += 1;
-      }
-    }
-  } catch (e) {
-    console.error("evidence-gap derivation failed", e);
-  }
-
+  // Evidence attachment controls are not mounted in a live tool yet. A
+  // reports-list link cannot promise that workflow, so emit no gap task here.
   return out;
 }
+const ACTIVE_ACTION_STATES = [
+  "not_started",
+  "in_progress",
+  "waiting",
+  "needs_review",
+  "due_soon",
+  "overdue",
+] as const;
 
-/**
- * Mark a stored next action as complete. Also emits an activity_history row.
- */
+async function readOwnedAction(supabase: any, userId: string, id: string) {
+  const { data: row, error } = await supabase
+    .from("next_actions")
+    .select(
+      "id,owner_user_id,status,updated_at,title,cta_route,student_id,organization_id,owner_role,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at",
+    )
+    .eq("id", id)
+    .eq("owner_user_id", userId)
+    .maybeSingle();
+  if (error) throw new Error("Your action could not be loaded. Please try again.");
+  if (!row || row.id !== id || row.owner_user_id !== userId)
+    throw new Error("This action is unavailable.");
+  return row;
+}
+function assertActiveAction(row: any, expectedVersion?: string) {
+  if (expectedVersion && expectedVersion !== row.updated_at)
+    throw new Error("This action has changed. Refresh your action list before trying again.");
+  if (
+    !ACTIVE_ACTION_STATES.includes(row.status) ||
+    row.completed_at ||
+    !row.updated_at ||
+    !Number.isFinite(Date.parse(row.updated_at))
+  )
+    throw new Error("This action has changed. Refresh your action list before trying again.");
+}
+async function changeOwnedAction(supabase: any, userId: string, row: any, patch: any) {
+  const { data: changed, error } = await supabase
+    .from("next_actions")
+    .update(patch)
+    .eq("id", row.id)
+    .eq("owner_user_id", userId)
+    .eq("status", row.status)
+    .eq("updated_at", row.updated_at)
+    .is("completed_at", null)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error("Your action could not be updated. Please try again.");
+  if (!changed || changed.id !== row.id)
+    throw new Error("This action has changed. Refresh your action list before trying again.");
+}
+
+/** Complete a caller-owned active action; history logging is a separate write. */
 export const completeNextAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { id: string; note?: string }) => input)
+  .validator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        expected_viewer_id: z.string().min(1).max(100).optional(),
+        expected_updated_at: z
+          .string()
+          .max(80)
+          .refine((value) => Number.isFinite(Date.parse(value)))
+          .optional(),
+        note: z.string().trim().max(2000).optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row } = await supabase
-      .from("next_actions")
-      .select("id,title,cta_route,student_id,organization_id,owner_role,related_document_id,related_report_id,related_meeting_id,related_opportunity_id,completed_at")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (!row) throw new Error("Action not found");
-    if (row.completed_at) return { ok: true, alreadyCompleted: true };
-
-    const { error } = await supabase
-      .from("next_actions")
-      .update({
-        status: "completed",
-        completed_at: new Date().toISOString(),
-        completed_by: userId,
-        completion_note: data.note ?? null,
-      })
-      .eq("id", data.id);
-    if (error) throw error;
-
-    // Best-effort activity log
-    await supabase.from("activity_history").insert({
-      actor_user_id: userId,
-      actor_role: row.owner_role,
-      student_id: row.student_id,
-      organization_id: row.organization_id,
-      event_type: "step_completed",
-      subject_title: row.title,
-      subject_route: row.cta_route,
-      related_document_id: row.related_document_id,
-      related_report_id: row.related_report_id,
-      related_meeting_id: row.related_meeting_id,
-      related_opportunity_id: row.related_opportunity_id,
-      related_action_id: row.id,
-      metadata: data.note ? { note: data.note } : {},
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Refresh your action list before trying again.");
+    const row = await readOwnedAction(supabase, userId, data.id);
+    if (row.status === "completed")
+      return { ok: true, alreadyCompleted: true, activityLogged: null };
+    assertActiveAction(row, data.expected_updated_at);
+    // The task's owner-role label is not proof of the actor's current role.
+    const roles = await readOrganizationPages<{ role: string }>((from, to) =>
+      supabase
+        .from("user_roles")
+        .select("id,role", { count: "exact" })
+        .eq("user_id", userId)
+        .order("id")
+        .range(from, to),
+    );
+    const audiences = audiencesForRoles(roles.map((role) => role.role));
+    const recorded = audiencesForRoles([row.owner_role ?? ""]);
+    const actorRole =
+      (
+        [
+          "student",
+          "family",
+          "educator",
+          "school_admin",
+          "district_admin",
+          "partner",
+          "admin",
+        ] as const
+      ).find((role) => audiences.has(role) && (role === row.owner_role || recorded.has(role))) ??
+      null;
+    let subjectRoute: string | null = null;
+    if (
+      actorRole === "student" ||
+      actorRole === "family" ||
+      actorRole === "educator" ||
+      actorRole === "partner"
+    )
+      subjectRoute = personalActionDestination(actorRole, row.cta_route) ?? null;
+    else if (
+      (actorRole === "school_admin" || actorRole === "district_admin") &&
+      row.organization_id
+    ) {
+      const destination = organizationActionDestination(
+        actorRole,
+        row.organization_id,
+        row.cta_route,
+      );
+      if (destination)
+        subjectRoute =
+          destination.to +
+          "?" +
+          new URLSearchParams(destination.search).toString() +
+          (destination.hash ? "#" + destination.hash : "");
+    }
+    const now = new Date().toISOString();
+    await changeOwnedAction(supabase, userId, row, {
+      status: "completed",
+      completed_at: now,
+      completed_by: userId,
+      completion_note: data.note ?? null,
+      updated_at: now,
     });
-
-    return { ok: true };
+    let activityLogged = false;
+    try {
+      const result = await supabase.from("activity_history").insert({
+        actor_user_id: userId,
+        actor_role: actorRole,
+        student_id: row.student_id,
+        organization_id: row.organization_id,
+        event_type: "step_completed",
+        subject_title: row.title,
+        subject_route: subjectRoute,
+        related_document_id: row.related_document_id,
+        related_report_id: row.related_report_id,
+        related_meeting_id: row.related_meeting_id,
+        related_opportunity_id: row.related_opportunity_id,
+        related_action_id: row.id,
+        metadata: data.note ? { note: data.note } : {},
+      });
+      activityLogged = !result.error;
+    } catch {
+      /* Completion succeeded; do not ask the user to repeat its write. */
+    }
+    return { ok: true, alreadyCompleted: false, activityLogged };
   });
 
+/** Dismiss only an active caller-owned action; completed records stay intact. */
 export const dismissNextAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { id: string }) => input)
+  .validator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        expected_viewer_id: z.string().min(1).max(100).optional(),
+        expected_updated_at: z
+          .string()
+          .max(80)
+          .refine((value) => Number.isFinite(Date.parse(value)))
+          .optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("next_actions")
-      .update({ status: "dismissed" })
-      .eq("id", data.id);
-    if (error) throw error;
-    return { ok: true };
+    const { supabase, userId } = context;
+    if (data.expected_viewer_id && data.expected_viewer_id !== userId)
+      throw new Error("Your sign-in changed. Refresh your action list before trying again.");
+    const row = await readOwnedAction(supabase, userId, data.id);
+    if (row.status === "dismissed") return { ok: true, alreadyDismissed: true };
+    assertActiveAction(row, data.expected_updated_at);
+    await changeOwnedAction(supabase, userId, row, {
+      status: "dismissed",
+      updated_at: new Date().toISOString(),
+    });
+    return { ok: true, alreadyDismissed: false };
   });
-
 /** Recent activity history visible to the current user. */
 export const listMyActivityHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -352,7 +480,7 @@ export const listMyActivityHistory = createServerFn({ method: "GET" })
     return (data ?? []).map((e) => ({
       id: e.id,
       eventType: e.event_type,
-      actorLabel: e.actor_role ? formatRole(e.actor_role) : "System",
+      actorLabel: e.actor_role ? formatRole(e.actor_role) : "Not Recorded",
       subjectTitle: e.subject_title,
       subjectRoute: e.subject_route ?? undefined,
       occurredAt: e.occurred_at,

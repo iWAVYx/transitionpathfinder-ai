@@ -96,5 +96,33 @@
     "polcmd": "a",
     "using_expr": null,
     "check_expr": "((bucket_id = 'student-documents'::text) AND (NOT is_partner_only(auth.uid())) AND can_edit_student(auth.uid(), ((storage.foldername(name))[1])::uuid))"
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "student_document_no_blocked_read",
+    "polcmd": "r",
+    "using_expr": "((bucket_id IS DISTINCT FROM 'student-documents'::text) OR student_document_not_blocked(name))",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "student_document_no_client_delete",
+    "polcmd": "d",
+    "using_expr": "(bucket_id IS DISTINCT FROM 'student-documents'::text)",
+    "check_expr": null
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "student_document_no_client_replace",
+    "polcmd": "w",
+    "using_expr": "(bucket_id IS DISTINCT FROM 'student-documents'::text)",
+    "check_expr": "(bucket_id IS DISTINCT FROM 'student-documents'::text)"
+  },
+  {
+    "rel": "storage.objects",
+    "polname": "student_document_reserved_insert",
+    "polcmd": "a",
+    "using_expr": null,
+    "check_expr": "\nCASE\n    WHEN (bucket_id IS DISTINCT FROM 'student-documents'::text) THEN true\n    WHEN (CURRENT_USER = 'authenticated'::name) THEN can_insert_reserved_student_document(name, (to_jsonb(objects.*) ->> 'owner_id'::text))\n    ELSE false\nEND"
   }
 ]

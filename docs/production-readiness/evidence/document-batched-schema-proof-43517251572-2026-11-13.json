@@ -1,0 +1,12 @@
+{
+  "schema": "document-completion-marker-schema-proof-v1",
+  "canonical_count": 225,
+  "review_drafts": 37,
+  "exact_marker_guard": true,
+  "exact_protocol_inventory_patch": true,
+  "paused": true,
+  "remaining_capacity_units": 0,
+  "provider_quiescence_verified": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

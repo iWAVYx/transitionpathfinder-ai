@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-26",
+  "status": "local-validation-only",
+  "runtime_files": [
+    "src/lib/iep-extract.functions.ts"
+  ],
+  "tests": {
+    "focused": {
+      "files": 3,
+      "passed": 25
+    },
+    "complete": {
+      "files": 333,
+      "passed": 4839
+    },
+    "typescript": "passed",
+    "staging_build": "passed",
+    "staging_build_log": "/private/tmp/tf-iep-extraction-local-build-20261026.log"
+  },
+  "changes": [
+    "Complete existing maximum 120000-character redacted source; no silent 100000-character cutoff",
+    "Shared source-grounding instructions",
+    "Bounded structured fields; missing values remain blank",
+    "Content-free server error logging"
+  ],
+  "role_scope": "Shared Pathway Builder IEP upload; no new permissions or Owner planning dashboard",
+  "languages": {
+    "report_targets": [
+      "Arabic",
+      "Spanish",
+      "Portuguese",
+      "Haitian Creole",
+      "French",
+      "Simplified Chinese",
+      "Vietnamese",
+      "Polish"
+    ],
+    "original": "English",
+    "live_acceptance": [
+      "Spanish"
+    ],
+    "pending": "Arabic right-to-left layout/meaning and remaining target languages; not site-wide localization"
+  },
+  "limits": [
+    "Mocked provider tests do not establish live source fidelity",
+    "Pattern redaction does not guarantee complete de-identification",
+    "Separate document-goal and report-evidence extractors remain under audit",
+    "No deployment, publication, migration, hosted records or AI calls; production unchanged"
+  ]
+}

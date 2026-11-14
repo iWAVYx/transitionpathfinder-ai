@@ -1,0 +1,119 @@
+{
+  "schema": "document-extraction-source-write-fence-local-v1",
+  "date": "2026-11-10",
+  "source_base": "86c85519",
+  "workstream_actions": [
+    "2.5",
+    "2.6",
+    "4"
+  ],
+  "scope": "Original/generated review data and identity writer boundary only; manual completion markers and compare-and-swap semantics are not newly certified. Source-only proposal, not a hosted permission change.",
+  "completed_locally": [
+    "Retained invoker save_document_text_review requires the exact actor/source/revision/status preparation in its current transaction, refusing old callers before source-row locks; the valid bound wrapper remains INVOKER",
+    "Direct original raw replacement requires the prior committed counted claim and an unfinished same-transaction preparation; suppressed/incomplete saves still cannot commit",
+    "Document/student/extraction/creator/creation/type/source-label identity remains immutable; manual edits cannot rewrite or remove recorded original section values",
+    "New review INSERTs require empty pending content, the actual current editor as creator, empty review metadata and known blank section shapes. Actual app12-key initialization is exercised; creation/revision timestamps are server-written",
+    "Manual values/states/notes and missing information/questions/review notes remain editable for current editors; all seven role categories exercise canonical editing/access proof rules",
+    "Source availability and actual ownership/self/editor/approved-relationship/partner-only proof are rechecked and locked for content changes",
+    "Private revision-only recovery can invalidate exactly updated_at without changing any other field or releasing capacity; no arbitrary trusted-role content bypass is introduced",
+    "Protocol integrity inventory is extended with exact new save/gate/helper/guard bodies, fixed paths/owners/grants, the enabled INSERT/UPDATE source guard and the preparation snapshot mode; drift fails before admission",
+    "Five actual TypeScript-consumer/SQL fictional-callback journeys still pass, including lost admission/save replies and post-generation access removal"
+  ],
+  "local_results": {
+    "combined": {
+      "tests": 231,
+      "pass": 193,
+      "fail": 0,
+      "skipped": 38
+    },
+    "new_cases": 56,
+    "new_local_passed": 46,
+    "new_native_only_skipped": 10,
+    "actual_consumer_sql_cases": 5,
+    "manual_role_categories": 7,
+    "log_sha256": "f3e94fc584fa563fc7bba16c5066ab45f016609b6f5d955d4a80a73c13dee45c",
+    "workflow_shell_blocks": 84,
+    "release_contracts_passed": 45,
+    "release_contracts_failed": 0
+  },
+  "required_native": [
+    "Manual edit versus bound save, both orderings and COMMIT/ROLLBACK (four)",
+    "Ownership removal versus manual edit, COMMIT/ROLLBACK (two)",
+    "Raw service writer behind a save, COMMIT/ROLLBACK (two)",
+    "Retired unbound RPC refuses before held source locks, COMMIT/ROLLBACK (two)"
+  ],
+  "reviewed_retained_paths": [
+    "Safe pending initializer",
+    "Manual section/meta edits",
+    "Apply-shaped completion update fields (not a new proof of completion-marker authorization)",
+    "Private timestamp-only no-save recovery",
+    "Standalone no-save IEP extraction"
+  ],
+  "remaining": [
+    "All56 native cases, including ten cross-session races, and full225+36 replay",
+    "Actual composite Apply/private no-save recovery acceptance beyond the preserved field-level operations",
+    "Other completion-marker and manual stale-write semantics, other source/access/Storage/service/scheduled/deployed writers",
+    "Trusted operator authorization/other reconciliation kinds; actual authorized hosted/provider acceptance; final canonical/ledger packaging and release gates"
+  ],
+  "routine_hashes": [
+    {
+      "signature": "public.has_internal_document_text_save_preparation(uuid,uuid,uuid,timestamptz,timestamptz,text)",
+      "body_md5": "3fbfa01e984cf04737aa6dc2dabc1394",
+      "definer": true,
+      "authenticated": false,
+      "stable": true
+    },
+    {
+      "signature": "public.require_document_text_save_preparation(uuid,uuid,uuid,timestamptz,timestamptz,text)",
+      "body_md5": "5a707ebeaa02dde7f1cee4f1dfd86ff3",
+      "definer": true,
+      "authenticated": true,
+      "stable": false
+    },
+    {
+      "signature": "public.guard_document_extraction_source_write()",
+      "body_md5": "5c4426d98589aeba2c091c1f674d5bf6",
+      "definer": true,
+      "authenticated": false,
+      "stable": false
+    },
+    {
+      "signature": "public.save_document_text_review(uuid,uuid,uuid,timestamptz,timestamptz,text,jsonb,jsonb)",
+      "body_md5": "78fff850095cb3fe350abf7224b3a789",
+      "definer": false,
+      "authenticated": true,
+      "stable": false
+    },
+    {
+      "signature": "public.assert_internal_document_text_protocol()",
+      "body_md5": "c2b9bea3f70690c1a3551eb7eefe0bf7",
+      "definer": false,
+      "authenticated": false,
+      "stable": false
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
+    },
+    {
+      "path": "tests/database/document-extraction-source-write-fence.test.mjs",
+      "sha256": "31f9e600a781ad4061897ae082482e7db13aadd2c4cae8c813cb6a631c42b8ea"
+    },
+    {
+      "path": "src/lib/extractions.functions.ts",
+      "sha256": "8aa68746cc4ad18dc62624c71a6f5a3b8fda502aa98f4cc239ca7400aca68dc5"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "43df56fc4bf8df61063bfed3d572418b9315e7ed756a2b5417afb4a0739bf3a9"
+    }
+  ],
+  "native_full_schema_verified": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

@@ -1,5 +1,8 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
+import { useOrganizationDashboardSelection } from "@/hooks/use-organization-dashboard-selection";
+import { OrganizationLoadError } from "@/components/dashboard/OrganizationLoadError";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { BookOpen, Loader2, ExternalLink, Users } from "lucide-react";
 
@@ -17,6 +20,8 @@ import {
 } from "@/lib/school-insights.functions";
 
 export const Route = createFileRoute("/_authenticated/school/resource-usage")({
+  ...schoolDashboardNavigation,
+  errorComponent: organizationRouteErrorComponent("school", "/school/resource-usage"),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
   head: () => ({
     meta: [
@@ -46,29 +51,20 @@ function fmtDate(iso: string | null): string {
 
 function SchoolResourceUsagePage() {
   const fetchUsage = useServerFn(getSchoolResourceUsage);
-  const [data, setData] = useState<SchoolResourceUsage | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const d = await fetchUsage({ data: {} });
-        if (alive) setData(d);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, [fetchUsage]);
+  const { data, loading, reload, recoverSelection } = useOrganizationDashboardSelection<SchoolResourceUsage>(
+    "school",
+    (id) => fetchUsage({ data: { org_id: id } }),
+    (result) => result.org_id,
+    "Could not load school information.",
+  );
 
   return (
     <SiteShell>
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Breadcrumbs
           trail={[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "School Administration", to: "/school/overview" },
+            { label: "School Dashboard", to: "/school/overview" },
+            { label: "School Administration" },
             { label: "Resource Usage" },
           ]}
         />
@@ -89,7 +85,9 @@ function SchoolResourceUsagePage() {
             <div className="flex justify-center py-16">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : !data || !data.is_school_admin ? (
+          ) : !data ? (
+            <OrganizationLoadError onRetry={() => void reload()} onRecoverSelection={recoverSelection} />
+          ) : !data.is_school_admin ? (
             <Empty title="No school linked yet" body="Set up your school in the Overview to track resource usage." />
           ) : data.team_size === 0 ? (
             <Empty title="No team yet" body="Invite school administrators and educators to your school so their saved resources roll up here." />

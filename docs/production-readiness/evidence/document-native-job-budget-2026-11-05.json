@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-05",
+  "workstream_actions": [
+    "1.3",
+    "1.6"
+  ],
+  "problem": "Registration verification run41906499820 cancelled after approximately six hours while full native suite was running; schema replay was never reached and is not accepted.",
+  "change": "Run entire native document file unchanged in its own isolated PostgreSQL job. Keep early focused native checks, full local model and complete canonical/proposal replay in replay job. Overall workflow requires all jobs to pass.",
+  "assertions_removed": 0,
+  "full_native_file_runs": 1,
+  "native_database_split_or_mocked": false,
+  "hosted_credentials": false,
+  "validation": {
+    "yaml": "passed",
+    "shell_blocks_parsed": 48,
+    "readiness_and_hosting_contracts_passed": 41
+  },
+  "current_registration_acceptance": "pending",
+  "rescan_gate_evidence": "docs/production-readiness/evidence/document-rescan-service-boundary-verified-2026-11-05.json",
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

@@ -1,0 +1,354 @@
+{
+  "date": "2026-10-23",
+  "scope": "Local report career-field layout only; not deployed or published",
+  "runtime": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+    "fileCount": 1184
+  },
+  "stagingRuntimeUnchanged": "5ba40cce2a4b1a0e1213a37c3ea5c40e854b8fb2c001c60c5145b335ad43b58c",
+  "changes": [
+    "Six career fields use three equal paired rows with uniform field headings and column insets.",
+    "Small screens stack fields; desktop readers and exports pair them.",
+    "Same shared ReportView for applicable saved/demo planning audiences and fixed Family/Educator shares; no permission or generation changes."
+  ],
+  "validation": {
+    "completeSuiteBeforeFinalHeadingInsetRefinement": {
+      "passed": 46,
+      "failed": 0,
+      "log": "/private/tmp/tf-career-density-final-suite.log"
+    },
+    "finalAffectedCases": {
+      "passed": 4,
+      "failed": 0,
+      "retries": 0,
+      "log": "/private/tmp/tf-career-density-aligned.log",
+      "assertions": [
+        "All six field headings align across rows and paired columns at desktop/print; mobile stacks.",
+        "Recorded career text remains in every exported PDF.",
+        "Meeting questions/follow-ups/source stay together; endings and nonempty pages retained.",
+        "Surrounding report headings/wrappers retain alignment."
+      ]
+    },
+    "typescript": {
+      "passed": true,
+      "log": "/private/tmp/tf-career-density-aligned-typescript.log"
+    },
+    "pdfCombinations": [
+      {
+        "mode": "saved",
+        "audience": "family",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "family",
+        "format": "A4",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "family",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "family",
+        "format": "A4",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "educator",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "educator",
+        "format": "A4",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "educator",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "educator",
+        "format": "A4",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "student",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "student",
+        "format": "A4",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "student",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "saved",
+        "audience": "student",
+        "format": "A4",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "demo",
+        "audience": "family",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 30,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "demo",
+        "audience": "family",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 30,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "demo",
+        "audience": "educator",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 30,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "demo",
+        "audience": "educator",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 30,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "demo",
+        "audience": "student",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 30,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "demo",
+        "audience": "student",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 30,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "shared",
+        "audience": "family",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "shared",
+        "audience": "family",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "shared",
+        "audience": "educator",
+        "format": "Letter",
+        "printMode": "standard",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      },
+      {
+        "mode": "shared",
+        "audience": "educator",
+        "format": "Letter",
+        "printMode": "magazine",
+        "pages": 31,
+        "meetingPage": 8,
+        "followUpPages": [
+          8,
+          8,
+          8
+        ]
+      }
+    ],
+    "visualReview": {
+      "method": "Poppler rendering with selected full-resolution review",
+      "files": [
+        "/private/tmp/tf-career-layout-aligned.png",
+        "/private/tmp/tf-career-shared-aligned.png"
+      ],
+      "limits": "Selected final Family magazine and shared Educator standard career pages; not all-page proofreading or native-print acceptance."
+    },
+    "retainedFailure": {
+      "log": "/private/tmp/tf-report-compact-careers-full.log",
+      "result": "45 passed, one new alignment assertion failed on inherited paragraph margin; corrected and final affected checks passed."
+    },
+    "discardedExperiment": "Changing presentation-table row break rules did not reduce page count; no table-break change retained."
+  },
+  "limits": [
+    "Overall page count unchanged: this local fixture remains 31 pages saved/shared and 30 demo; the different accepted hosted fixtures remain 32 pages.",
+    "No hosted source parity, native print, live generation or new report-record acceptance claimed.",
+    "Owner/admin data policy, linked-editor hosted acceptance, stale browser intent, retention/bearer lifecycle and wider production gates remain open.",
+    "All TF-01\u2013TF-26 roadmap items retained; Parent Pilot/Pathway Snapshot deferred."
+  ],
+  "hostedActions": {
+    "deployment": false,
+    "publication": false,
+    "migration": false,
+    "fixtures": false,
+    "aiCalls": false,
+    "production": false
+  }
+}

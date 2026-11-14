@@ -1,0 +1,60 @@
+{
+  "schema": "document-rescan-continuation-local-v1",
+  "date": "2026-10-31",
+  "base_source": "27438924",
+  "scope": "One existing shared server helper; no role-specific exemption or permission expansion. Existing endpoint uses the same helper for every authorized document editor. Demo does not perform live document scans.",
+  "behavior": [
+    "Preparation is spent synchronously before awaiting authority, metadata or file IO; concurrent/later calls cannot download again, including after a lost download reply.",
+    "The first pending check pins exactly one revision for pre/post-provider checks. A different or malformed revision permanently stops that continuation without further IO.",
+    "A failed authority/source/object/pending check cannot resume after conditions recover. Overlapping checks stop both rather than allowing a racing success.",
+    "Current edit/view/non-partner, exact source/object/hash/size checks and same downloaded immutable Blob remain unchanged."
+  ],
+  "local_verification": {
+    "focused_files": 3,
+    "focused_tests": 183,
+    "full_unit_files": 360,
+    "full_unit_tests": 5716,
+    "passed": 5716,
+    "safety_contracts": 88,
+    "typescript": "passed (tsc --noEmit, exit0)",
+    "full_unit_log_sha256": "0b57032fc0d5f25baddb4a1c145886d919572c658b5fd9bf22eb3b6d24dc2f41",
+    "focused_log_sha256": "da7b8be44e39681db02208e273fc33c757eb560f374af3e28b8c3fedb75ad2d9",
+    "safety_log_sha256": "f9ff842eaaf95bd8bc1e88f96c97ecf62cc00ae0c78e2f79e02be2e24fd67161",
+    "typescript_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "runtime": {
+    "website_fingerprint": "3de06675c2de5effc6ff6888e189201d4f26cd9a2fba6d9c51b2433ac12e1f16",
+    "website_file_count": 1205,
+    "worker_changed": false,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_file_count": 4
+  },
+  "source_manifest": [
+    {
+      "path": "src/lib/document-rescan-source.server.ts",
+      "sha256": "d49457200e6979c1c063047ce0f891634ac7b7d2dc64e5f2c409e9576f5a4ca9"
+    },
+    {
+      "path": "tests/unit/document-rescan-source.test.ts",
+      "sha256": "1dcc464e39fc593cb1b2f7ebca354386db64e7129b5a6577f7205d59d2015e2c"
+    }
+  ],
+  "boundaries": {
+    "durable_source_bound_rescan_claim_implemented": false,
+    "source_bound_rescan_capacity_reserved_before_io": false,
+    "cross_request_duplicate_prevention_implemented": false,
+    "general_application_limits_implemented": false,
+    "provider_reconciliation_implemented": false,
+    "new_sql_proposal": false,
+    "schema_changed": false,
+    "hosted_actions": false,
+    "ai_provider_or_physical_storage_calls": false,
+    "production_actions": false,
+    "ready_for_cutover": false
+  },
+  "required_next": [
+    "Implement the reviewed private exact-source/failed-revision claim and both-unit capacity reservation before file IO; retain no-replay handling for lost claim replies.",
+    "Prepare a one-use exact-source pending transition before scanner dispatch and its separately source-bound outcome/queue/settlement receipts.",
+    "Do not bypass unresolved original registration or provider work because a row says failed. Trusted held-work reconciliation and legacy/direct writer fences remain prerequisites before activation."
+  ]
+}

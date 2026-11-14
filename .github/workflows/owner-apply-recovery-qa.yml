@@ -1,0 +1,75 @@
+name: Owner-reviewed Apply recovery (disposable)
+permissions:
+  contents: read
+on:
+  push:
+    paths:
+      - '.github/workflows/owner-apply-recovery-qa.yml'
+      - 'tests/database/document-owner-apply-recovery*'
+      - 'tests/database/verify-owner-apply-recovery-baseline.mjs'
+      - 'tests/document-owner-apply-recovery-plan.test.mjs'
+      - 'src/lib/owner/document-work-review*'
+      - 'src/components/owner/DocumentWorkReviewPanel.tsx'
+  pull_request:
+    paths:
+      - '.github/workflows/owner-apply-recovery-qa.yml'
+      - 'tests/database/document-owner-apply-recovery*'
+      - 'tests/database/verify-owner-apply-recovery-baseline.mjs'
+      - 'tests/document-owner-apply-recovery-plan.test.mjs'
+      - 'src/lib/owner/document-work-review*'
+      - 'src/components/owner/DocumentWorkReviewPanel.tsx'
+  workflow_dispatch:
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: supabase_admin
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require byte-identical verified SQL before fixtures
+        run: node tests/database/verify-owner-apply-recovery-baseline.mjs /tmp/owner-apply-recovery-baseline.json
+      - name: Test complete Owner-reviewed recovery journeys
+        run: |
+          npm install --prefix "$RUNNER_TEMP/owner-apply-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3 zod@4.6.7
+          export PATHWAY_HISTORY_POSTGRES=1
+          export PATHWAY_HISTORY_PG_MODULE="$RUNNER_TEMP/owner-apply-tests/node_modules/pg/lib/index.js"
+          export PATHWAY_HISTORY_ZOD_MODULE="$RUNNER_TEMP/owner-apply-tests/node_modules/zod/index.js"
+          set -o pipefail
+          node --test tests/database/document-owner-apply-recovery.test.mjs | tee /tmp/owner-apply-recovery-native.log
+          node --input-type=module <<'NODE'
+          import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';import{ownerApplyRecoveryCases}from'./tests/database/document-owner-apply-recovery-cases.mjs';const sha=b=>createHash('sha256').update(b).digest('hex');const log=readFileSync('/tmp/owner-apply-recovery-native.log');const names=[...log.toString().matchAll(/^# Subtest: (.*)$/gm)].map(m=>m[1]);assert.equal(ownerApplyRecoveryCases.length,25);assert.deepEqual([...names].sort(),ownerApplyRecoveryCases.map(k=>'Owner reviewed Apply recovery '+k).sort());for(const[k,n]of Object.entries({tests:25,pass:25,fail:0,skipped:0}))assert.equal(Number([...log.toString().matchAll(new RegExp('^# '+k+' ([0-9]+)$','gm'))].at(-1)?.[1]??-1),n);const source=['tests/database/document-owner-apply-recovery-cases.mjs','tests/database/document-owner-apply-recovery.test.mjs','tests/database/verify-owner-apply-recovery-baseline.mjs','src/lib/owner/document-work-review-contract.ts','src/lib/owner/document-work-review.server.ts','src/components/owner/DocumentWorkReviewPanel.tsx','.github/workflows/owner-apply-recovery-qa.yml'];writeFileSync('/tmp/owner-apply-recovery-native.json',JSON.stringify({schema:'owner-reviewed-apply-recovery-native-v1',source_commit:process.env.GITHUB_SHA,native:true,tests:25,passed:25,failed:0,skipped:0,names,log_sha256:sha(log),baseline_proof_sha256:sha(readFileSync('/tmp/owner-apply-recovery-baseline.json')),source_manifest:source.map(path=>({path,sha256:sha(readFileSync(path))})),provider_calls:false,hosted_actions:false,public_recovery_grant_added:false,ready_for_cutover:false},null,2));
+          NODE
+      - name: Retain exact bounded proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owner-reviewed-apply-recovery-proof
+          path: |
+            /tmp/owner-apply-recovery-baseline.json
+            /tmp/owner-apply-recovery-native.log
+            /tmp/owner-apply-recovery-native.json
+          if-no-files-found: error

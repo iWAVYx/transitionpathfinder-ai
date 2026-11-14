@@ -148,10 +148,13 @@ describe("live family dashboard and document truthfulness alignment", () => {
     expect(DOCUMENTS).not.toContain("DocumentSignalsCard");
   });
 
-  it("keeps sample readiness explicit and confined to demo mode", () => {
-    expect(DEMO_MODE).toContain("SAMPLE_DOCUMENT_READINESS");
-    expect(DEMO_MODE).toContain("<DocumentReadinessMeter items={SAMPLE_DOCUMENT_READINESS} />");
+  it("keeps explicit sample previews separate from live document readiness", () => {
+    expect(DEMO_MODE).toContain('throw redirect({ to: "/demo", replace: true })');
+    expect(DEMO_MODE).not.toContain("SAMPLE_DOCUMENT_READINESS");
+    expect(DEMO_MODE).not.toContain("<DocumentReadinessMeter");
+    expect(read("src/routes/demo_.family.tsx")).toContain("<ParentOverviewGrid isSample />");
     expect(DOCUMENTS).not.toContain("SAMPLE_DOCUMENT_READINESS");
+    expect(LIVE_OVERVIEW).not.toContain("SAMPLE_DOCUMENT_READINESS");
   });
 
   it("plainly explains the local redaction and approval boundary", () => {

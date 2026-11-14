@@ -1,6 +1,6 @@
 import { DemoPathwayBuilder } from "@/components/demo/DemoPathwayBuilder";
 import { useEffect } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { SiteShell } from "@/components/site/SiteShell";
@@ -75,6 +75,7 @@ function DemoWorkspaceStagePage() {
   const search = Route.useSearch();
   const stage = getStage(stageId);
   const navigate = useNavigate();
+  const hash = useRouterState({ select: (state) => state.location.hash });
   const expanded = search.expand === true;
   const { profile } = useDemoStudent();
   const { role: viewRole, setRole } = useDemoPlanningRole(profile.id);
@@ -98,7 +99,9 @@ function DemoWorkspaceStagePage() {
       to: "/demo/workspace/$stage",
       params: { stage: stageId },
       search: { ...search, ...(next ? { expand: true as const } : { expand: undefined }) },
+      hash,
       replace: false,
+      resetScroll: false,
     });
   };
 

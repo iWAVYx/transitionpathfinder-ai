@@ -1,3 +1,9 @@
+import { ReportIepSummary } from "@/components/documents/ReportIepSummary";
+import { ReportPlanningGap } from "@/components/documents/ReportPlanningGap";
+import { toTitleCase } from "@/lib/title-case";
+import { reportWebDestination, reportFollowUpRole } from "@/lib/report-match-details";
+import { reportMeetingQuestions } from "@/lib/report-v2-contents";
+import type { ReportSourceCount } from "@/lib/report-source-summary";
 /**
  * v2 Pathway Report sections — rendered alongside the legacy `ReportView`
  * when the report content opted into `schema_version: 2`.
@@ -68,12 +74,12 @@ export function ReportV2Sections({
   const r = content as Record<string, unknown>;
 
   const iep = r.iep_plan_summary as IepPlanSummary | undefined;
-  const eduRecs = (r.postsecondary_education_recs as PillarRec[] | undefined) ?? [];
-  const empRecs = (r.employment_pathway_recs as PillarRec[] | undefined) ?? [];
-  const ilRecs = (r.independent_living_recs as PillarRec[] | undefined) ?? [];
-  const commRecs = (r.community_participation_recs as PillarRec[] | undefined) ?? [];
-  const resourceMatches = (r.resource_matches as ResourceMatch[] | undefined) ?? [];
-  const partnerMatches = (r.partner_matches as PartnerMatch[] | undefined) ?? [];
+  const eduRecs = (r.postsecondary_education_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const empRecs = (r.employment_pathway_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const ilRecs = (r.independent_living_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const commRecs = (r.community_participation_recs as (PillarRec & ReportSourceCount)[] | undefined) ?? [];
+  const resourceMatches = (r.resource_matches as (ResourceMatch & ReportSourceCount)[] | undefined) ?? [];
+  const partnerMatches = (r.partner_matches as (PartnerMatch & ReportSourceCount)[] | undefined) ?? [];
   const gaps = (r.missing_information_v2 as MissingInfo[] | undefined) ?? [];
   const studentPlan = r.student_action_plan as ActionPlan | undefined;
   const familyPlan = r.family_action_plan_v2 as ActionPlan | undefined;
@@ -82,6 +88,7 @@ export function ReportV2Sections({
   const meetingQs = r.meeting_prep_questions as
     | Array<{ question: string; for_audience: string; why?: string }>
     | undefined;
+  const visibleMeetingQs = reportMeetingQuestions(meetingQs, audience);
   const audMsgs = r.audience_messages as
     | { student?: Record<string, string>; family?: Record<string, string>; educator?: Record<string, string> }
     | undefined;
@@ -109,91 +116,18 @@ export function ReportV2Sections({
       <PublicationPullQuote attribution={audienceLabel[audience]}>
         <p className="font-display text-xl sm:text-2xl">{studentName}'s Full Pathway Report</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Every recommendation below explains why it was made, what informed it, what
-          should happen next, who should follow up, and whether it should be raised
-          at the next PPT / IEP meeting.
+          Review the recommendations and their recorded information with the student
+          and team. Discuss the next steps, who can help, and any questions to
+          bring to the next meeting.
         </p>
       </PublicationPullQuote>
 
       <ReportV2ExtrasBody content={content} audience={audience} />
 
-      {iep && (
-        <PublicationPage
-          kicker="Section 01"
-          chapter="IEP / Transition Plan Summary"
-          dek={
-            iep.caveats ??
-            "Pulled from the most recent IEP on file. Please verify against the source document before any formal action."
-          }
-        >
-          <section id="v2-iep-summary">
-            <div className="flex flex-wrap gap-2">
-              {(iep.plan_date_start || iep.plan_date_end) && (
-                <Badge variant="outline" className="w-fit text-[11px]">
-                  Plan dates: {iep.plan_date_start ?? "—"} → {iep.plan_date_end ?? "—"}
-                </Badge>
-              )}
-            </div>
-
-            {iep.present_levels && (
-              <div className="mt-4">
-                <h2 className="font-display text-lg">Present Levels</h2>
-                <hr className="my-2 border-t border-[color:var(--pub-rule-soft)]" />
-                <p className="text-sm whitespace-pre-wrap">{iep.present_levels}</p>
-              </div>
-            )}
-
-            {iep.transition_goals?.length > 0 && (
-              <div className="mt-6">
-                <h2 className="font-display text-lg">Transition Goals</h2>
-                <hr className="my-2 border-t border-[color:var(--pub-rule-soft)]" />
-                <ul>
-                  {iep.transition_goals.map((g, i) => (
-                    <li
-                      key={i}
-                      className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
-                    >
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-primary font-[Urbanist,sans-serif]">
-                        {g.area}
-                      </p>
-                      <p className="mt-1 font-[Instrument_Serif,serif] text-base font-medium">
-                        {g.goal_text}
-                      </p>
-                      {audience !== "educator" && g.plain_language && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          In plain language: {g.plain_language}
-                        </p>
-                      )}
-                      {g.related_services?.length ? (
-                        <ul className="mt-2 flex flex-wrap gap-1">
-                          {g.related_services.map((s) => (
-                            <li key={s}>
-                              <Badge variant="secondary" className="text-[10px]">
-                                {s}
-                              </Badge>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {(iep.accommodations?.length || iep.services?.length) ? (
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <ChipList label="Accommodations" items={iep.accommodations} />
-                <ChipList label="Services" items={iep.services} />
-              </div>
-            ) : null}
-          </section>
-        </PublicationPage>
-      )}
+      {iep && <ReportIepSummary iep={iep} audience={audience} />}
 
       <PillarRecsBlock
         id="v2-edu"
-        sectionNum="02"
         icon={<BookOpen className="h-5 w-5" />}
         title="Postsecondary Education & Training Recommendations"
         audience={audience}
@@ -202,7 +136,6 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-emp"
-        sectionNum="03"
         icon={<Briefcase className="h-5 w-5" />}
         title="Employment Pathway Recommendations"
         audience={audience}
@@ -211,7 +144,6 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-il"
-        sectionNum="04"
         icon={<Home className="h-5 w-5" />}
         title="Independent Living Recommendations"
         audience={audience}
@@ -220,7 +152,6 @@ export function ReportV2Sections({
       />
       <PillarRecsBlock
         id="v2-comm"
-        sectionNum="05"
         icon={<Users className="h-5 w-5" />}
         title="Community Participation Recommendations"
         audience={audience}
@@ -230,7 +161,7 @@ export function ReportV2Sections({
 
       {resourceMatches.length > 0 && (
         <PublicationPage
-          kicker="Section 06"
+          headingLevel="h2"
           chapter="Resource Matches"
           dek="Resources matched to this student's interests, goals, and supports."
         >
@@ -239,27 +170,19 @@ export function ReportV2Sections({
               {resourceMatches.map((m, i) => (
                 <li
                   key={i}
+                  data-report-match-entry
                   className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="font-[Instrument_Serif,serif] text-base font-medium">
-                      {m.title}
+                    <p data-report-match-title className="font-[Instrument_Serif,serif] text-base font-medium">
+                      {toTitleCase(m.title)}
                     </p>
-                    {m.url && (
-                      <a
-                        href={m.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                      >
-                        Open <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
+                    <RecordedMatchLink url={m.url} title={m.title} label="Open Resource" />
                   </div>
                   {m.summary && (
                     <p className="mt-1 text-sm text-muted-foreground">{m.summary}</p>
                   )}
-                  <div className="mt-2 space-y-1">
+                  <div data-report-match-details className="mt-2 space-y-1">
                     <PublicationCallout kind="means">
                       {m.why}
                     </PublicationCallout>
@@ -267,9 +190,11 @@ export function ReportV2Sections({
                       {m.next_action}
                     </PublicationCallout>
                   </div>
+                  <RecordedFollowUp ownerRole={m.owner_role} />
                   {audience !== "student" && (
                     <SourceChips
                       sources={m.sources}
+                      sourceCount={m.source_count}
                       collapsed={audience === "family"}
                       className="mt-2"
                     />
@@ -283,7 +208,7 @@ export function ReportV2Sections({
 
       {partnerMatches.length > 0 && (
         <PublicationPage
-          kicker="Section 07"
+          headingLevel="h2"
           chapter="Partner / Opportunity Matches"
           dek="Programs, internships, and adult-service partners matched to this student."
         >
@@ -292,12 +217,13 @@ export function ReportV2Sections({
               {partnerMatches.map((m, i) => (
                 <li
                   key={i}
+                  data-report-match-entry
                   className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="font-[Instrument_Serif,serif] text-base font-medium">
-                        {m.title}
+                      <p data-report-match-title className="font-[Instrument_Serif,serif] text-base font-medium">
+                        {toTitleCase(m.title)}
                       </p>
                       {m.organization && (
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
@@ -305,13 +231,14 @@ export function ReportV2Sections({
                         </p>
                       )}
                     </div>
+                    <RecordedMatchLink url={m.url} title={m.title} label="Open Program or Opportunity" />
                     {m.readiness_level && (
                       <Badge variant="outline" className="text-[10px] capitalize">
                         {m.readiness_level}
                       </Badge>
                     )}
                   </div>
-                  <div className="mt-2 space-y-1">
+                  <div data-report-match-details className="mt-2 space-y-1">
                     <PublicationCallout kind="means">
                       {m.why}
                     </PublicationCallout>
@@ -319,9 +246,11 @@ export function ReportV2Sections({
                       {m.next_action}
                     </PublicationCallout>
                   </div>
+                  <RecordedFollowUp ownerRole={m.owner_role} />
                   {audience !== "student" && (
                     <SourceChips
                       sources={m.sources}
+                      sourceCount={m.source_count}
                       collapsed={audience === "family"}
                       className="mt-2"
                     />
@@ -335,20 +264,18 @@ export function ReportV2Sections({
 
       {gaps.length > 0 && (
         <PublicationPage
-          kicker="Section 08"
+          headingLevel="h2"
           chapter="Missing Information & Planning Gaps"
           dek="Filling these in will make the next regeneration of this report sharper."
         >
           <section id="v2-gaps">
             <ul>
               {gaps.map((g, i) => (
-                <li
+                <ReportPlanningGap
+                  as="li" title={g.topic}
                   key={i}
                   className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                 >
-                  <p className="font-[Instrument_Serif,serif] text-base font-medium">
-                    {g.topic}
-                  </p>
                   <PublicationCallout kind="matters">
                     {g.why_it_matters}
                   </PublicationCallout>
@@ -358,7 +285,7 @@ export function ReportV2Sections({
                   <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
                     Follow-up: {g.owner_role.replace("_", " ")}
                   </p>
-                </li>
+                </ReportPlanningGap>
               ))}
             </ul>
           </section>
@@ -368,7 +295,6 @@ export function ReportV2Sections({
       {(audience === "student" || audience === "family") && studentPlan && (
         <ActionPlanBlock
           id="v2-student-plan"
-          sectionNum="09"
           title="Student Action Plan"
           plan={studentPlan}
           pronoun="you"
@@ -377,7 +303,6 @@ export function ReportV2Sections({
       {familyPlan && (
         <ActionPlanBlock
           id="v2-family-plan"
-          sectionNum="10"
           title="Family Action Plan"
           plan={familyPlan}
           pronoun="your family"
@@ -386,36 +311,29 @@ export function ReportV2Sections({
       {audience === "educator" && eduPlan && (
         <ActionPlanBlock
           id="v2-edu-plan"
-          sectionNum="11"
           title="Educator / Case Manager Action Plan"
           plan={eduPlan}
           pronoun="the team"
         />
       )}
 
-      {meetingQs?.length ? (
+      {visibleMeetingQs.length ? (
         <PublicationPage
-          kicker="Section 12"
+          headingLevel="h2"
           chapter="Meeting Prep Questions"
+          repeatPrintHeader
           dek="Bring these to the next PPT / IEP / transition meeting."
         >
           <section id="v2-meeting-qs">
             <ul>
-              {meetingQs
-                .filter((q) =>
-                  audience === "student"
-                    ? q.for_audience === "student" || q.for_audience === "team"
-                    : audience === "family"
-                    ? q.for_audience !== "educator"
-                    : true,
-                )
+              {visibleMeetingQs
                 .map((q, i) => (
                   <li
                     key={i}
                     className="border-b border-[color:var(--pub-rule-soft)] py-4 last:border-b-0"
                   >
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-primary font-[Urbanist,sans-serif]">
-                      {q.for_audience}
+                    <p data-document-subheading className="text-[10px] font-semibold text-primary font-[Urbanist,sans-serif]">
+                      {toTitleCase(q.for_audience)}
                     </p>
                     <p className="mt-1 font-[Instrument_Serif,serif] text-base">
                       {q.question}
@@ -434,7 +352,7 @@ export function ReportV2Sections({
 
       {cross && (
         <PublicationPage
-          kicker="Section 13"
+          headingLevel="h2"
           chapter="30 / 90 Day · 6-Month · 1-Year Plan"
           dek="A cross-cutting view of what should happen, when."
         >
@@ -456,19 +374,17 @@ export function ReportV2Sections({
 
 function PillarRecsBlock({
   id,
-  sectionNum,
   title,
   audience,
   message,
   recs,
 }: {
   id: string;
-  sectionNum: string;
   icon: React.ReactNode;
   title: string;
   audience: V2Audience;
   message?: string;
-  recs: PillarRec[];
+  recs: (PillarRec & ReportSourceCount)[];
 }) {
   const ordered = useMemo(() => {
     return [...recs].sort((a, b) => {
@@ -480,12 +396,12 @@ function PillarRecsBlock({
   if (!recs.length) return null;
   return (
     <PublicationPage
-      kicker={`Section ${sectionNum}`}
+      headingLevel="h2"
       chapter={title}
       dek={message}
     >
-      <section id={id}>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section id={id} data-report-pillar-recommendations>
+        <div className={ordered.length === 1 ? "grid gap-3" : "grid gap-3 sm:grid-cols-2"}>
           {ordered.map((rec, i) => (
             <RecommendationCard key={i} rec={rec} audience={audience} />
           ))}
@@ -495,46 +411,38 @@ function PillarRecsBlock({
   );
 }
 
-function ChipList({ label, items }: { label: string; items?: string[] }) {
-  if (!items?.length) return null;
-  return (
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-[Urbanist,sans-serif]">
-        {label}
-      </p>
-      <ul className="mt-2 flex flex-wrap gap-1.5">
-        {items.map((t) => (
-          <li key={t}>
-            <Badge variant="secondary" className="text-[10px]">
-              {t}
-            </Badge>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+function RecordedMatchLink({ url, title, label }: { url?: string; title: string; label: string }) {
+  const destination = reportWebDestination(url);
+  if (!destination) return null;
+  return <a href={destination} target="_blank" rel="noopener noreferrer"
+    aria-label={`${label}: ${title}`}
+    className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+    {label} <ExternalLink className="h-3 w-3 print:hidden" />
+  </a>;
+}
+function RecordedFollowUp({ ownerRole }: { ownerRole?: string }) {
+  const role = reportFollowUpRole(ownerRole);
+  return role ? <p className="mt-2 text-xs text-muted-foreground">Who Can Help: <strong className="text-foreground">{role}</strong></p> : null;
 }
 
 function ActionPlanBlock({
   id,
-  sectionNum,
   title,
   plan,
   pronoun,
 }: {
   id: string;
-  sectionNum: string;
   title: string;
   plan: ActionPlan;
   pronoun: string;
 }) {
   return (
     <PublicationPage
-      kicker={`Section ${sectionNum}`}
+      headingLevel="h2"
       chapter={title}
       dek={plan.intro ?? `What ${pronoun} can do, broken out by timeframe.`}
     >
-      <section id={id}>
+      <section id={id} data-report-role-plan>
         <PublicationSpread
           lead={
             <div className="space-y-6">

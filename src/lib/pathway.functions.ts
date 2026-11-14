@@ -1,3 +1,13 @@
+import { pathwayCreationFailure, readPathwayCreationFailure } from "./pathway-creation-failure";
+import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
+import { bindBuilderSourceRefs } from "./pathway-builder-source-refs";
+import { intakeHasStudentVoice, reconcileIntakeVoiceWarnings } from "./pathway-voice-coverage";
+import { reportContentRevision, assertObservedReportRevision } from "./report-content-revision.server";
+import { loadRegenerationStudentProfile } from "./pathway-student-profile";
+import { assertExpectedViewer, optionalViewerIntent, viewerIntentSchema } from "./viewer-intent";
+import { writeReportContent } from "./report-content-write.server";
+import { recordGeneratedSections, recordSavedSections } from "./report-section-updates";
+import { readReportPages, readReportBatches } from "./report-query-pages";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -9,6 +19,7 @@ import { requireFeatureEntitlement } from "./entitlement-guard";
 import {
   PathwayReportV2,
   computeDeterministicGaps,
+  hasRecordedStudentVoice,
   diffInputsForChangeSummary,
   isV2,
   type InputsUsed,
@@ -24,12 +35,22 @@ import {
 import { IntakeSchema, type PathwayReport } from "./pathway-generation-contract";
 export type { IntakeInput, PathwayReport } from "./pathway-generation-contract";
 import { generateIntakeReport, INTAKE_REPORT_MODEL } from "./pathway-generation.server";
-import { pathwayGenerationDiagnostics } from "./pathway-generation-diagnostics";
+
+async function runCreationWrite<T>(stage: "intake_save" | "report_save", operation: () => PromiseLike<T>): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    const failure = pathwayCreationFailure(stage, error);
+    console.error("Pathway creation write failed", readPathwayCreationFailure(failure));
+    throw failure;
+  }
+}
 
 export const createPathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => IntakeSchema.parse(input))
+  .validator((input: unknown) => IntakeSchema.extend(viewerIntentSchema.shape).parse(input))
   .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
 
@@ -49,40 +70,44 @@ export const createPathwayReport = createServerFn({ method: "POST" })
       );
     }
 
-    const { data: intake, error: intakeErr } = await supabase
-      .from("student_intakes")
-      .insert({
-        user_id: userId,
-        student_id: data.student_id ?? null,
-        submitter_role: data.submitter_role,
-        student_first_name: data.student_first_name,
-        grade_band: data.grade_band ?? null,
-        strengths: data.strengths || null,
-        interests: data.interests || null,
-        needs: data.needs || null,
-        supports: data.supports || null,
-        transportation: data.transportation || null,
-        communication: data.communication || null,
-        current_goals: data.current_goals || null,
-        family_concerns: data.family_concerns || null,
-        student_voice: data.student_voice || null,
-        family_voice: data.family_voice || null,
-        educator_input: data.educator_input || null,
-        communication_prefs: data.communication_prefs || null,
-        transportation_needs: data.transportation_needs || null,
-        family_priorities: data.family_priorities || null,
-        family_concerns_extended: data.family_concerns_extended || null,
-        student_worries: data.student_worries || null,
-        services_received: data.services_received || null,
-        desired_postsecondary_outcomes: data.desired_postsecondary_outcomes || null,
-        upcoming_meetings: data.upcoming_meetings || null,
-      })
-      .select("id")
-      .single();
+    const { data: intake, error: intakeErr } = await runCreationWrite(
+      "intake_save",
+      async () => supabase
+          .from("student_intakes")
+          .insert({
+            user_id: userId,
+            student_id: data.student_id ?? null,
+            submitter_role: data.submitter_role,
+            student_first_name: data.student_first_name,
+            grade_band: data.grade_band ?? null,
+            strengths: data.strengths || null,
+            interests: data.interests || null,
+            needs: data.needs || null,
+            supports: data.supports || null,
+            transportation: data.transportation || null,
+            communication: data.communication || null,
+            current_goals: data.current_goals || null,
+            family_concerns: data.family_concerns || null,
+            student_voice: data.student_voice || null,
+            family_voice: data.family_voice || null,
+            educator_input: data.educator_input || null,
+            communication_prefs: data.communication_prefs || null,
+            transportation_needs: data.transportation_needs || null,
+            family_priorities: data.family_priorities || null,
+            family_concerns_extended: data.family_concerns_extended || null,
+            student_worries: data.student_worries || null,
+            services_received: data.services_received || null,
+            desired_postsecondary_outcomes: data.desired_postsecondary_outcomes || null,
+            upcoming_meetings: data.upcoming_meetings || null,
+          })
+          .select("id")
+          .single(),
+    );
 
     if (intakeErr || !intake) {
-      console.error("intake insert failed", intakeErr);
-      throw new Error("Could not save your intake. Please try again.");
+      const failure = pathwayCreationFailure("intake_save", intakeErr);
+      console.error("intake insert failed", readPathwayCreationFailure(failure));
+      throw failure;
     }
 
     const model = INTAKE_REPORT_MODEL;
@@ -91,30 +116,31 @@ export const createPathwayReport = createServerFn({ method: "POST" })
     try {
       report = await generateIntakeReport(data, apiKey);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("AI generation failed", pathwayGenerationDiagnostics(err));
-      if (msg.includes("429"))
-        throw new Error("The AI is busy right now. Please try again in a moment.");
-      if (msg.includes("402"))
-        throw new Error("AI usage limit reached. Please add credits to continue.");
-      throw new Error("We couldn't generate the Pathway Report. Please try again.");
+      const failure = pathwayCreationFailure("generation", err);
+      console.error("AI generation failed", readPathwayCreationFailure(failure));
+      throw failure;
     }
 
-    const { data: saved, error: reportErr } = await supabase
-      .from("pathway_reports")
-      .insert({
-        user_id: userId,
-        intake_id: intake.id,
-        student_id: data.student_id ?? null,
-        model,
-        content: JSON.parse(JSON.stringify(report)),
-      })
-      .select("id")
-      .single();
+    const { savedContent, saved, reportErr } = await runCreationWrite("report_save", async () => {
+      const savedContent = recordGeneratedSections(undefined, report);
+      const { data: saved, error: reportErr } = await supabase
+        .from("pathway_reports")
+        .insert({
+          user_id: userId,
+          intake_id: intake.id,
+          student_id: data.student_id ?? null,
+          model,
+          content: JSON.parse(JSON.stringify(savedContent)),
+        })
+        .select("id")
+        .single();
+      return { savedContent, saved, reportErr };
+    });
 
     if (reportErr || !saved) {
-      console.error("report insert failed", reportErr);
-      throw new Error("Generated the report but couldn't save it. Please try again.");
+      const failure = pathwayCreationFailure("report_save", reportErr);
+      console.error("report insert failed", readPathwayCreationFailure(failure));
+      throw failure;
     }
 
     if (data.student_id) {
@@ -137,7 +163,7 @@ export const createPathwayReport = createServerFn({ method: "POST" })
       reportId: saved.id,
       intakeId: intake.id,
       studentId: data.student_id ?? null,
-      report,
+      report: savedContent as PathwayReport,
     };
   });
 
@@ -153,19 +179,10 @@ export type ReportListRow = {
 
 export const listMyReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data ?? {}, context.userId);
     const { supabase } = context;
-    const { data, error } = await supabase
-      .from("pathway_reports")
-      .select(
-        "id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band)",
-      )
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (error) {
-      console.error("listMyReports failed", error);
-      return { reports: [] as ReportListRow[] };
-    }
     type Row = {
       id: string;
       created_at: string;
@@ -174,51 +191,50 @@ export const listMyReports = createServerFn({ method: "GET" })
       content: { summary?: string } | null;
       student_intakes: { student_first_name: string; grade_band: string | null } | null;
     };
-    const rows = (data ?? []) as unknown as Row[];
+    try {
+      const rows = await readReportPages<Row>(async (from, to) => {
+        const result = await supabase
+          .from("pathway_reports")
+          .select("id, created_at, intake_id, student_id, content, student_intakes(student_first_name, grade_band)", { count: "exact" })
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to);
+        return { ...result, data: result.data as unknown as Row[] | null };
+      });
+      const studentIds = rows.map((r) => r.student_id).filter((id): id is string => !!id);
+      const students = await readReportBatches<{ id: string; first_name: string; last_name: string | null }>(
+        studentIds, (ids, from, to) => supabase.from("students")
+          .select("id, first_name, last_name", { count: "exact" })
+          .in("id", ids).order("id", { ascending: true }).range(from, to),
+      );
+      const studentNameMap = new Map(students.map((student) => [student.id,
+        `${student.first_name}${student.last_name ? " " + student.last_name : ""}`]));
 
-    // Resolve linked student names in a single follow-up query.
-    const studentIds = Array.from(
-      new Set(rows.map((r) => r.student_id).filter((x): x is string => !!x)),
-    );
-    const studentNameMap = new Map<string, string>();
-    if (studentIds.length > 0) {
-      const { data: studs } = await supabase
-        .from("students")
-        .select("id, first_name, last_name")
-        .in("id", studentIds);
-      for (const s of studs ?? []) {
-        studentNameMap.set(
-          (s as { id: string }).id,
-          `${(s as { first_name: string }).first_name}${
-            (s as { last_name: string | null }).last_name
-              ? " " + (s as { last_name: string }).last_name
-              : ""
-          }`,
-        );
-      }
+      const reports: ReportListRow[] = rows.map((r) => ({
+        id: r.id,
+        created_at: r.created_at,
+        student_first_name: r.student_intakes?.student_first_name ?? "—",
+        grade_band: r.student_intakes?.grade_band ?? null,
+        summary: r.content?.summary ?? null,
+        student_id: r.student_id,
+        linked_student_name: r.student_id ? (studentNameMap.get(r.student_id) ?? null) : null,
+      }));
+      return { reports, loadFailed: false };
+    } catch (error) {
+      console.error("listMyReports failed", error);
+      return { reports: [] as ReportListRow[], loadFailed: true };
     }
-
-    const reports: ReportListRow[] = rows.map((r) => ({
-      id: r.id,
-      created_at: r.created_at,
-      student_first_name: r.student_intakes?.student_first_name ?? "—",
-      grade_band: r.student_intakes?.grade_band ?? null,
-      summary: r.content?.summary ?? null,
-      student_id: r.student_id,
-      linked_student_name: r.student_id ? (studentNameMap.get(r.student_id) ?? null) : null,
-    }));
-    return { reports };
   });
 
 export const getReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
       .select(
-        "id, created_at, content, intake_id, student_id, review_date, student_intakes(student_first_name, grade_band)",
+        "id, user_id, created_at, content, intake_id, student_id, review_date, student_intakes(student_first_name, grade_band)",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -228,6 +244,7 @@ export const getReport = createServerFn({ method: "POST" })
     }
     type Row = {
       id: string;
+      user_id: string;
       created_at: string;
       content: unknown;
       intake_id: string;
@@ -238,25 +255,30 @@ export const getReport = createServerFn({ method: "POST" })
     const r = row as unknown as Row;
     return {
       id: r.id,
+      // Ownership hint for reader controls only; mutation handlers and RLS
+      // still recheck authorization, student access and entitlements.
+      is_report_owner: typeof userId === "string" && userId.length > 0 && r.user_id === userId,
       created_at: r.created_at,
       student_id: r.student_id,
       student_first_name: r.student_intakes?.student_first_name ?? "—",
       grade_band: r.student_intakes?.grade_band ?? null,
       review_date: r.review_date,
+      content_revision: await reportContentRevision(r),
       report: r.content as PathwayReport,
     };
   });
 
 export const linkReportToStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) =>
-    z
-      .object({
-        report_id: z.string().uuid(),
-        student_id: z.string().uuid().nullable(),
-      })
-      .parse(input),
-  )
+  .validator((input: unknown) => {
+    const parsed = z.object({
+      report_id: z.string().uuid(),
+      student_id: z.string().uuid().nullable(),
+      expected_student_id: z.string().uuid().nullable(),
+    }).safeParse(input);
+    if (!parsed.success) throw new Error("Reload this report before changing its student.");
+    return parsed.data;
+  })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     if (data.student_id) {
@@ -265,13 +287,19 @@ export const linkReportToStudent = createServerFn({ method: "POST" })
         "You don't have permission to link a report to this student.",
       );
     }
-    const { error } = await supabase
+    // Compare the browser's observed association in the UPDATE itself. RLS and
+    // the identity trigger still authorize the current caller and target student.
+    let update = supabase
       .from("pathway_reports")
       .update({ student_id: data.student_id })
-      .eq("id", data.report_id);
-    if (error) {
-      console.error("linkReportToStudent failed", error);
-      throw new Error("Could not link this report.");
+      .eq("id", data.report_id)
+      .eq("user_id", userId);
+    update = data.expected_student_id === null
+      ? update.is("student_id", null)
+      : update.eq("student_id", data.expected_student_id);
+    const { data: changed, error } = await update.select("id, student_id").maybeSingle();
+    if (error || !changed || changed.id !== data.report_id || changed.student_id !== data.student_id) {
+      throw new Error("Could not update this report's student. Reload the report and try again.");
     }
     // Slice B6: shadow-mode provenance emission (no-op unless EVIDENCE_GRAPH_WRITES=true).
     if (data.student_id) {
@@ -363,6 +391,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
     z
       .object({
         report_id: z.string().uuid(),
+        expected_revision: z.unknown().optional(),
         content: z.unknown(),
         change_summary: z.string().trim().max(500).optional().default(""),
       })
@@ -373,7 +402,7 @@ export const updateReportContent = createServerFn({ method: "POST" })
 
     const { data: current, error: curErr } = await supabase
       .from("pathway_reports")
-      .select("id, user_id, content")
+      .select("id, user_id, student_id, content")
       .eq("id", data.report_id)
       .maybeSingle();
     if (curErr || !current) throw new Error("Report not found.");
@@ -381,17 +410,11 @@ export const updateReportContent = createServerFn({ method: "POST" })
       throw new Error("You don't have permission to edit this report.");
     }
 
-    // Compute next version number from existing snapshots.
-    const { data: maxRow } = await supabase
-      .from("pathway_report_versions")
-      .select("version_number")
-      .eq("report_id", data.report_id)
-      .order("version_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const nextVersion = ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
+    await assertObservedReportRevision(data.expected_revision, current as { id: string; student_id: string | null; content: unknown });
 
-    // Snapshot the CURRENT content as the new version row before overwriting.
+    const nextContent = recordSavedSections((current as { content: unknown }).content, data.content);
+
+    // The RPC preserves the observed content and replaces it atomically.
     // For v2 → v2 transitions, auto-fill change_summary from the input manifest diff
     // when the caller didn't provide one.
     let summary = data.change_summary || null;
@@ -403,27 +426,10 @@ export const updateReportContent = createServerFn({ method: "POST" })
         if (nextInputs) summary = diffInputsForChangeSummary(prevInputs, nextInputs);
       }
     }
-    const { error: vErr } = await supabase.from("pathway_report_versions").insert({
-      report_id: data.report_id,
-      version_number: nextVersion,
-      content: JSON.parse(JSON.stringify((current as { content: unknown }).content ?? {})),
-      change_summary: summary,
-      created_by: userId,
-    });
-
-    if (vErr) {
-      console.error("version snapshot failed", vErr);
-      throw new Error("Could not save a version snapshot.");
-    }
-
-    const { error: upErr } = await supabase
-      .from("pathway_reports")
-      .update({ content: JSON.parse(JSON.stringify(data.content)) })
-      .eq("id", data.report_id);
-    if (upErr) {
-      console.error("report content update failed", upErr);
-      throw new Error("Could not save the report.");
-    }
+    const nextVersion = await writeReportContent(
+      supabase, data.report_id, (current as { content: unknown }).content,
+      nextContent, summary, "save", (current as { student_id: string | null }).student_id ?? null,
+    );
 
     return { ok: true, version_number: nextVersion };
   });
@@ -433,17 +439,19 @@ export const listReportVersions = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ report_id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: rows, error } = await supabase
-      .from("pathway_report_versions")
-      .select("id, version_number, change_summary, created_at, created_by")
-      .eq("report_id", data.report_id)
-      .order("version_number", { ascending: false })
-      .limit(50);
-    if (error) {
+    try {
+      const versions = await readReportPages<ReportVersionRow>((from, to) => supabase
+        .from("pathway_report_versions")
+        .select("id, version_number, change_summary, created_at, created_by", { count: "exact" })
+        .eq("report_id", data.report_id)
+        .order("version_number", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to));
+      return { versions, loadFailed: false };
+    } catch (error) {
       console.error("listReportVersions failed", error);
-      return { versions: [] as ReportVersionRow[] };
+      return { versions: [] as ReportVersionRow[], loadFailed: true };
     }
-    return { versions: (rows ?? []) as ReportVersionRow[] };
   });
 
 export const getReportVersion = createServerFn({ method: "POST" })
@@ -475,24 +483,27 @@ export const getLatestReportForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ student_id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("pathway_reports")
-      .select("id, created_at, content")
+      .select("id, user_id, student_id, created_at, content")
       .eq("student_id", data.student_id)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error) {
       console.error("getLatestReportForStudent failed", error);
-      return { report: null };
+      return { report: null, loadFailed: true };
     }
-    if (!row) return { report: null };
-    const r = row as { id: string; created_at: string; content: unknown };
+    if (!row) return { report: null, loadFailed: false };
+    const r = row as { id: string; user_id: string; student_id: string | null; created_at: string; content: unknown };
     const content = r.content as Partial<PathwayReport> | null;
     return {
+      loadFailed: false,
       report: {
         id: r.id,
+        content_revision: await reportContentRevision(r),
+        is_report_owner: typeof userId === "string" && userId.length > 0 && r.user_id === userId,
         created_at: r.created_at,
         summary: content?.summary ?? null,
       },
@@ -542,15 +553,19 @@ type V2Ctx = {
 
 function buildV2Prompt(ctx: V2Ctx): string {
   const s = ctx.student;
+  const profileSummary = (value: string[] | null) =>
+    value?.length ? JSON.stringify(value) : "(none)";
   const safe = (v: unknown) =>
     v === null || v === undefined ? "(none)" : JSON.stringify(v).slice(0, 1600);
   return `You are TransitionForward, generating the v2 Pathway Report — the platform's flagship deliverable.
 
 Voice: warm, plain-language, 7th-grade reading level, never clinical, never generic. Honor the student's voice above all.
+A student perspective supplied in Pathway Builder is a recorded input even if the separate Student Voice response list is empty. Identify it as a Pathway Builder response, do not invent a structured response ID, and do not claim the student's perspective is absent. Suggest confirmation or additional responses when useful.
 
 Generate the v2 additive sections ONLY. Schema is enforced. EVERY recommendation must include:
 - title, summary, why, sources[], next_action, owner_role, discuss_at_next_meeting (boolean).
-- sources[] must cite the actual inputs below using { kind, id?, label }. Use kind values: profile, student_voice, iep_doc, iep_extraction, goal, readiness, action_item, meeting_prep, saved_resource, partner_match, family_priority, educator_input.
+- sources[] must cite the actual inputs below using { kind, id?, label }. Use kind values: intake, profile, student_voice, iep_doc, iep_extraction, goal, readiness, action_item, meeting_prep, saved_resource, partner_match, family_priority, educator_input.
+- Use kind intake for any Pathway Builder field, including student/family voice, educator notes and proposed goals. Label it Pathway Builder and do not classify these responses as separately verified profile, goal or IEP records. Use profile only for the actual STUDENT profile above; preserve actual input origin even when a role submitted the response.
 - If you cannot cite a real input, do NOT invent the recommendation.
 - timeframe is optional but encouraged ('30_day' | '90_day' | '6_month' | '1_year').
 
@@ -585,9 +600,10 @@ Do NOT populate 'change_summary' — the server fills it from the input-manifest
 STUDENT
 First name: ${s.first_name}
 Grade band: ${s.grade_band ?? "(unknown)"}
-Interests (profile): ${safe(s.interests)}
-Strengths (profile): ${safe(s.strengths)}
-Needs (profile): ${safe(s.needs)}
+Interests (profile): ${profileSummary(s.interests)}
+Strengths (profile): ${profileSummary(s.strengths)}
+Needs (profile): ${profileSummary(s.needs)}
+Student perspective (Pathway Builder): ${safe(ctx.intake?.student_voice)}
 
 STUDENT VOICE (the student's own words)
 ${ctx.voice.length === 0 ? "(no responses on file)" : ctx.voice.map((v) => `- [${v.prompt_key}] ${v.response_text}`).join("\n")}
@@ -604,7 +620,7 @@ ${ctx.iep_docs.length === 0 ? "(none)" : ctx.iep_docs.map((d) => `- [id:${d.id}]
 IEP EXTRACTIONS (AI-parsed; verify before formal use)
 ${ctx.iep_extractions.length === 0 ? "(none)" : ctx.iep_extractions.map((e) => `- [id:${e.id}] doc:${e.document_id} goals:${safe(e.goals_identified)} accommodations:${safe(e.accommodations)}`).join("\n")}
 
-INTAKE (last submitted)
+PATHWAY BUILDER (original responses attached to this report)
 ${safe(ctx.intake)}
 
 SAVED RESOURCES
@@ -635,7 +651,7 @@ Return ONLY the v2 schema JSON.`;
 
 export const regeneratePathwayReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: unknown) => z.object({ report_id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ report_id: z.string().uuid(), expected_revision: z.unknown().optional() }).parse(input))
   .handler(async ({ data, context }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("AI service is not configured.");
@@ -663,9 +679,11 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         "Link this report to a student first — then regenerate to pull their full profile.",
       );
 
-    // Gather inputs (RLS scopes everything to the caller; failures are tolerated per-table)
+    await assertObservedReportRevision(data.expected_revision, rep);
+
+    // Gather caller-visible inputs. The linked profile is required; optional tables retain existing recovery.
     const [
-      studentRes,
+      studentProfile,
       intakeRes,
       voiceRes,
       goalsRes,
@@ -680,11 +698,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       prepsRes,
       evidenceRes,
     ] = await Promise.all([
-      supabase
-        .from("students")
-        .select("id, first_name, last_name, grade_band, interests, strengths, needs")
-        .eq("id", rep.student_id)
-        .maybeSingle(),
+      loadRegenerationStudentProfile(supabase, rep.student_id),
       rep.intake_id
         ? supabase.from("student_intakes").select("*").eq("id", rep.intake_id).maybeSingle()
         : Promise.resolve({ data: null, error: null }),
@@ -748,17 +762,21 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         .limit(200),
     ]);
 
-    const student = studentRes.data as V2Ctx["student"] | null;
-    if (!student) throw new Error("Couldn't load the linked student.");
+    const recordedIntake = intakeRes.data as Record<string, unknown> | null;
+    if (rep.intake_id) {
+      if (intakeRes.error || !recordedIntake || Array.isArray(recordedIntake) || recordedIntake.id !== rep.intake_id) {
+        throw new Error("Couldn't load this report's original Pathway Builder responses. Reload the report and try again.");
+      }
+      // An explicitly unlinked intake is the existing build-first/link-later flow.
+      // Never combine another student's recorded intake with the linked profile.
+      if (recordedIntake.student_id !== null && recordedIntake.student_id !== rep.student_id) {
+        throw new Error("These Pathway Builder responses belong to a different student. Create a new report for the linked student.");
+      }
+    }
 
     const ctx: V2Ctx = {
-      student: {
-        ...student,
-        interests: (student.interests as unknown as string[] | null) ?? null,
-        strengths: (student.strengths as unknown as string[] | null) ?? null,
-        needs: (student.needs as unknown as string[] | null) ?? null,
-      },
-      intake: (intakeRes.data as Record<string, unknown> | null) ?? null,
+      student: studentProfile,
+      intake: recordedIntake ?? null,
       voice: (voiceRes.data as Array<{ prompt_key: string; response_text: string }> | null) ?? [],
       goals:
         (goalsRes.data as Array<{
@@ -818,16 +836,23 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       evidence: (evidenceRes.data as EvidenceRow[] | null) ?? [],
     };
 
+    // Unknown/out-of-range scores are not assessed readiness levels.
+    const scoredReadiness = ctx.readiness.filter(r =>
+      !!r.category?.trim() && typeof r.score === "number" && Number.isFinite(r.score) &&
+      r.score >= 0 && r.score <= 100,
+    );
+
     // Build the deterministic input manifest BEFORE we ask the AI.
     const inputs_used: InputsUsed = {
       profile: true,
       intake: !!ctx.intake,
-      student_voice_keys: ctx.voice.map((v) => v.prompt_key),
+      student_voice_keys: ctx.voice.filter(v => v.response_text?.trim() && v.prompt_key?.trim()).map((v) => v.prompt_key),
+      intake_student_voice: intakeHasStudentVoice(ctx.intake),
       iep_doc_ids: ctx.iep_docs.map((d) => d.id),
       iep_extraction_ids: ctx.iep_extractions.map((e) => e.id),
       goal_ids: ctx.goals.map((g) => g.id),
-      readiness_at: ctx.readiness[0]?.updated_at ?? undefined,
-      readiness_category_count: ctx.readiness.length,
+      readiness_at: scoredReadiness[0]?.updated_at ?? undefined,
+      readiness_category_count: scoredReadiness.length,
       action_item_ids: ctx.action_items.map((a) => a.id),
       meeting_prep_ids: ctx.meeting_preps.map((m) => m.id),
       saved_resource_ids: ctx.saved_resources.map((r) => r.id),
@@ -842,7 +867,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       const { experimental_output } = await generateText({
         model: gateway(REGEN_MODEL),
         experimental_output: Output.object({ schema: PathwayReportV2 }),
-        system: await buildStructuredOutputSystem(PathwayReportV2),
+        system: await buildStructuredOutputSystem(PathwayReportV2, PLANNING_SOURCE_GROUNDING),
         prompt: buildV2Prompt(ctx),
       });
       v2 = PathwayReportV2.parse(experimental_output);
@@ -863,7 +888,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         const retry = await generateText({
           model: gateway(REGEN_MODEL),
           experimental_output: Output.object({ schema: PathwayReportV2 }),
-          system: await buildStructuredOutputSystem(PathwayReportV2),
+          system: await buildStructuredOutputSystem(PathwayReportV2, PLANNING_SOURCE_GROUNDING),
           prompt: retryPrompt,
         });
         const v2b = PathwayReportV2.parse(retry.experimental_output);
@@ -877,6 +902,9 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         console.warn("v2 regeneration weak-summary retry failed (using first pass)", err);
       }
     }
+
+    v2 = bindBuilderSourceRefs(v2, rep.intake_id);
+    v2 = reconcileIntakeVoiceWarnings(v2, inputs_used.intake_student_voice === true);
 
     // Merge deterministic gaps with any AI-suggested gaps (dedupe by topic).
     const determined = computeDeterministicGaps(inputs_used);
@@ -894,8 +922,7 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       if (n >= 26) return "developing";
       return "emerging";
     };
-    const readiness_indicators = ctx.readiness
-      .filter((r) => !!r.category)
+    const readiness_indicators = scoredReadiness
       .slice(0, 20)
       .map((r) => ({
         domain: r.category,
@@ -905,11 +932,10 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
 
     const aiSnapshot = v2.student_snapshot ?? {};
     const student_snapshot = {
-      ...aiSnapshot,
+      headline: aiSnapshot.headline,
       display_name:
-        [ctx.student.first_name, ctx.student.last_name].filter(Boolean).join(" ") ||
-        aiSnapshot.display_name,
-      grade: ctx.student.grade_band ?? aiSnapshot.grade,
+        [ctx.student.first_name, ctx.student.last_name].filter(Boolean).join(" "),
+      grade: ctx.student.grade_band ?? undefined,
       last_updated: new Date().toISOString().slice(0, 10),
     };
 
@@ -918,11 +944,11 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const inputSignals = [
       true, // profile always present
       !!ctx.intake,
-      ctx.voice.length > 0,
+      hasRecordedStudentVoice(inputs_used),
       ctx.iep_docs.length > 0,
       ctx.iep_extractions.length > 0,
       ctx.goals.length > 0,
-      ctx.readiness.length > 0,
+      scoredReadiness.length > 0,
     ];
     const signalRatio = inputSignals.filter(Boolean).length / inputSignals.length;
     const computedOverall: "low" | "medium" | "high" =
@@ -934,11 +960,11 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
         ? aiConfidence.overall
         : computedOverall;
     const baseCaveats: string[] = [];
-    if (ctx.voice.length === 0) baseCaveats.push("No student voice responses on file.");
+    if (!hasRecordedStudentVoice(inputs_used)) baseCaveats.push("No student perspective was supplied for this report.");
     if (ctx.iep_docs.length === 0) baseCaveats.push("No IEP or transition document uploaded.");
     if (ctx.iep_extractions.length === 0 && ctx.iep_docs.length > 0)
       baseCaveats.push("IEP uploaded but not yet extracted — some sections may be thin.");
-    if (ctx.readiness.length === 0) baseCaveats.push("No readiness scores yet.");
+    if (scoredReadiness.length === 0) baseCaveats.push("No scored readiness results were supplied for this report.");
     const mergedCaveats = Array.from(
       new Set([...(aiConfidence?.caveats ?? []), ...baseCaveats]),
     ).slice(0, 8);
@@ -959,16 +985,16 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
           "AI-extracted IEP content — verify goals, services, and accommodations with the team.",
         owner_role: "case_manager",
       });
-    if (ctx.voice.length === 0)
+    if (!hasRecordedStudentVoice(inputs_used))
       baseFlags.push({
         section: "student_voice",
         reason: "No Student Voice responses on file — please capture before the next meeting.",
         owner_role: "student",
       });
-    if (ctx.readiness.length === 0)
+    if (scoredReadiness.length === 0)
       baseFlags.push({
         section: "readiness_indicators",
-        reason: "Readiness scores have not been entered — indicators are placeholders.",
+        reason: "No scored readiness results were supplied for this report. Review readiness with the team before assigning a level.",
         owner_role: "case_manager",
       });
     const aiFlags = v2.needs_review_flags ?? [];
@@ -1022,15 +1048,18 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
     const weak_summary_flag =
       isWeakSummary(plain_language_summary) || isWeakSummary(professional_summary);
 
-    const nextContent: Record<string, unknown> = {
-      ...prevContent,
+    const nextContent = recordGeneratedSections(prevContent, {
       ...v2,
       schema_version: 2,
+      // Legacy consumers (report cards, document context) must see the current
+      // summary/confidence too. The atomic write preserves the complete old payload.
+      summary: plain_language_summary,
+      confidence_level: overall === "medium" ? "moderate" : overall,
       missing_information_v2: mergedGaps,
       inputs_used,
       student_snapshot,
       readiness_indicators:
-        readiness_indicators.length > 0 ? readiness_indicators : v2.readiness_indicators,
+        readiness_indicators.length > 0 ? readiness_indicators : undefined,
       spin,
       confidence,
       needs_review_flags,
@@ -1039,38 +1068,11 @@ export const regeneratePathwayReport = createServerFn({ method: "POST" })
       change_summary,
       evidence_used,
       weak_summary_flag,
-    };
-
-    // Snapshot + overwrite via updateReportContent path (manual to avoid round-trip).
-    const { data: maxRow } = await supabase
-      .from("pathway_report_versions")
-      .select("version_number")
-      .eq("report_id", rep.id)
-      .order("version_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const nextVersion = ((maxRow as { version_number: number } | null)?.version_number ?? 0) + 1;
-
-    const { error: vErr } = await supabase.from("pathway_report_versions").insert({
-      report_id: rep.id,
-      version_number: nextVersion,
-      content: JSON.parse(JSON.stringify(prevContent)),
-      change_summary,
-      created_by: userId,
     });
-    if (vErr) {
-      console.error("regen version snapshot failed", vErr);
-      throw new Error("Could not save a version snapshot.");
-    }
 
-    const { error: upErr } = await supabase
-      .from("pathway_reports")
-      .update({ content: JSON.parse(JSON.stringify(nextContent)) })
-      .eq("id", rep.id);
-    if (upErr) {
-      console.error("regen content write failed", upErr);
-      throw new Error("Could not save the regenerated report.");
-    }
+    const nextVersion = await writeReportContent(
+      supabase, rep.id, prevContent, nextContent, change_summary, "regenerate", rep.student_id,
+    );
 
     return {
       ok: true as const,

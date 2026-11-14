@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "2.4",
+  "scope": "Queued pause/resume and fresh database connections; not a hosted worker-process restart",
+  "head_source": "293e5268f80a886ef65323615b9e78a6f35a28b5",
+  "checkout_commit": "fb6167ae57e0abe10847923380fc8e8b6424bbb1",
+  "run": 42084127380,
+  "partition": "counted-worker",
+  "tests": 48,
+  "passed": 48,
+  "failed": 0,
+  "skipped": 0,
+  "added_cases": [
+    "counted worker pause recovery retains queued register capacity through explicit resume",
+    "counted worker pause recovery retains queued rescan capacity through explicit resume",
+    "counted worker pause recovery native fresh register session cannot restart claimed work",
+    "counted worker pause recovery native fresh rescan session cannot restart claimed work"
+  ],
+  "proof": "docs/production-readiness/evidence/document-pause-recovery-native-proof-42084127380-2026-11-05.json",
+  "proof_sha256": "cac66f39b41fccdb80d03dbde06fe5577ef8f4b6f600c7afcd97e4d08b27a83a",
+  "raw_log_sha256": "c8b8e83d91febd954ae213ae90caa124a4fcdc11adee7904cb56d2028b62b848",
+  "native_fresh_session_verified": true,
+  "full1594_gate_verified": false,
+  "native_full_schema_verified": false,
+  "hosted_process_restart_tested": false,
+  "whole_action_complete": false,
+  "remaining": [
+    "Complete exact-source1594 native gate and schema replay",
+    "Queued/promised inventory alongside active-lease drain inspection",
+    "Authorized hosted pause/restart/resume acceptance after older/source/access fences"
+  ],
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

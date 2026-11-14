@@ -17,6 +17,8 @@ export function PlanHorizonTabs({
   const horizons: PlanHorizon[] = ["thirty", "sixty", "ninety"];
   return (
     <div
+      role="group"
+      aria-label="Action Plan Timeframe"
       className={cn(
         "inline-flex divide-x divide-[color:var(--pub-rule-soft,theme(colors.border))] border-y border-[color:var(--pub-rule-soft,theme(colors.border))]",
         className,
@@ -54,9 +56,9 @@ export function PlanHorizonTabs({
 
 export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
   return (
-    <li className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
-      <div className="flex flex-wrap items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center border border-primary/40 text-primary">
+    <li data-report-plan-step className="relative border-l-2 border-primary/30 pl-6 py-5 sm:pl-8">
+      <div data-report-plan-heading className="flex flex-wrap items-start gap-4">
+        <div data-report-plan-week className="flex h-12 w-12 shrink-0 flex-col items-center justify-center border border-primary/40 text-primary">
           <span className="text-[8px] font-semibold uppercase tracking-[0.18em] opacity-80">Week</span>
           <span className="font-display text-xl leading-none">{step.week}</span>
         </div>
@@ -65,14 +67,14 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
             {step.focus}
           </p>
           <h3 className="mt-1 font-display text-lg leading-snug text-foreground">{step.action}</h3>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs">
-            <Chip icon={<UserRound className="h-3 w-3" />}>{step.owner}</Chip>
-            <Chip icon={<Clock className="h-3 w-3" />}>{step.time}</Chip>
-          </div>
+          {(step.owner || step.time) && <div data-report-plan-meta className="mt-3 flex flex-wrap gap-2 text-xs">
+            {step.owner && <Chip icon={<UserRound className="h-3 w-3" />}>{step.owner}</Chip>}
+            {step.time && <Chip icon={<Clock className="h-3 w-3" />}>{step.time}</Chip>}
+          </div>}
         </div>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
+      {(step.details.length > 0 || step.outcome) && <div data-report-plan-details className="mt-4 grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
         <ul className="space-y-2">
           {step.details.map((d) => (
             <li key={d} className="flex items-start gap-2 text-sm leading-relaxed">
@@ -81,19 +83,19 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
             </li>
           ))}
         </ul>
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-3 text-xs leading-relaxed text-foreground/85 dark:bg-emerald-950/10 sm:max-w-[18rem]">
-          <p className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-            <Trophy className="h-3 w-3" /> Success looks like
+        {step.outcome && <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-3 text-xs leading-relaxed text-foreground/85 dark:bg-emerald-950/10 sm:max-w-[18rem]">
+          <p data-report-plan-label className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+            <Trophy className="h-3 w-3" /> What Success Looks Like
           </p>
           <p className="mt-1">{step.outcome}</p>
-        </div>
-      </div>
+        </div>}
+      </div>}
 
       {(step.familyActions?.length || step.teacherActions?.length) && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div data-report-plan-actions className="mt-4 grid gap-3 sm:grid-cols-2">
           {step.familyActions && step.familyActions.length > 0 && (
             <ActionList
-              title="Family actions"
+              title="Family Actions"
               icon={<Users className="h-3 w-3" />}
               tone="primary"
               items={step.familyActions}
@@ -101,7 +103,7 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
           )}
           {step.teacherActions && step.teacherActions.length > 0 && (
             <ActionList
-              title="Teacher / case manager actions"
+              title="Teacher / Case Manager Actions"
               icon={<GraduationCap className="h-3 w-3" />}
               tone="amber"
               items={step.teacherActions}
@@ -111,7 +113,7 @@ export function RichPlanStepCard({ step }: { step: RichPlanStep }) {
       )}
 
       {step.readiness && (
-        <div className="mt-3">
+        <div data-report-plan-readiness className="mt-3">
           <ReadinessTile readiness={step.readiness} />
         </div>
       )}
@@ -141,7 +143,7 @@ function ActionList({
       : "border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/10";
   return (
     <div className={`rounded-2xl border ${borderCls} p-3`}>
-      <p className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${headerCls}`}>
+      <p data-report-plan-label className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${headerCls}`}>
         {icon}
         {title}
       </p>
@@ -174,16 +176,16 @@ function ReadinessTile({
     readiness.level.charAt(0).toUpperCase() + readiness.level.slice(1);
   return (
     <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/40 p-4 text-foreground/85 dark:bg-emerald-950/10">
-      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+      <p data-report-plan-label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
         <Gauge className="h-3 w-3" /> Readiness for this step
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Category</p>
+          <p data-report-plan-label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Category</p>
           <p className="mt-1 text-sm font-medium text-foreground">{readiness.category}</p>
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Level</p>
+          <p data-report-plan-label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Level</p>
           <div className="mt-1 flex items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
               {levelLabel}
@@ -198,7 +200,7 @@ function ReadinessTile({
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Measurable goal</p>
+          <p data-report-plan-label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Measurable goal</p>
           <p className="mt-1 text-xs leading-relaxed text-foreground/85">{readiness.metric}</p>
         </div>
       </div>

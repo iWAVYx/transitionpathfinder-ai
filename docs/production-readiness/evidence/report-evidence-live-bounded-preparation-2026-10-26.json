@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-26",
+  "status": "prepared only; no hosted migration/release/test dispatched",
+  "application_commit": "124bbfa46cd2a261b1fc6d1ad904d5038ed816e4",
+  "validated_native_revision": "f9c3b21b5360175098494b7de6bbcb2814130c5b",
+  "native_review": {
+    "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40399769070",
+    "evidence_cases_passed": 39,
+    "evidence_cases_skipped": 0,
+    "full_canonical_migration_count": 210,
+    "retained_permission_inventory": "passed"
+  },
+  "automatic_review_caveat": "Exact f9c3b21b push build passed40399760951; PR build40399769127 exhausted its existing1216MB Node heap twice. No source/dependency/memory-setting workaround; final follow-up automatic review required.",
+  "runtime_fingerprint": "c95a008f5ae678a66311b906fffd8983ca790f9fb6738c24daa60f4a906ae5c8",
+  "runtime_source_file_count": 1190,
+  "proposed_rollout": {
+    "requires_new_authorization": true,
+    "target_backend_only": "qgrertkqbwanerqqemph",
+    "migration": "20261026010000_save_extracted_report_evidence.sql",
+    "migration_sha256": "46d02b33cff34bd0d5a19053f5c4aae4f8479fbb78fce12eed2b7bcc4bfb513c",
+    "ledger": "Exact canonical file stored as data and committed atomically with routine creation; no prior ledger edit",
+    "preflight": "docs/production-readiness/proposals/report-evidence-save-preflight.sql",
+    "batch_generator": "tests/database/report-evidence-rollout-sql.mjs",
+    "order": [
+      "Independently confirm selected isolated staging backend; run metadata-only preflight and review existing index, table RLS, helper bodies/grants and prerequisite ledger",
+      "Apply only reviewed additive migration and exact ledger in one transaction; verify both",
+      "Release reviewed source to Cloudflare staging, sync only src/lib/report-evidence/extract.functions.ts to existing isolated Lovable staging and update only its existing publication",
+      "Verify both stable runtime fingerprints/counts, staging backend, sandbox payments and isolation before any fixture or AI action",
+      "Run exactly one separately authorized bounded evidence workflow after GitHub human review; independently verify every cleanup scope"
+    ],
+    "recovery": "Stop on unexpected prerequisite/schema/identity or uncertain completion. The routine/index correction is additive; preserve existing evidence. Any app rollback or function removal requires a separately reviewed decision; do not rewrite applied migrations or delete existing evidence."
+  },
+  "proposed_test": {
+    "workflow": ".github/workflows/staging-role-verification.yml",
+    "scope": "evidence-live-bounded",
+    "confirmation": "disposable-evidence-live",
+    "accounts": "Existing Family/Educator creators; seven existing accounts total for private-access checks; no new accounts or relationships",
+    "bounds": {
+      "students": 2,
+      "evidence_links_max": 24,
+      "extraction_actions": 2,
+      "model_invocations_max": 2,
+      "sdk_request_attempts_max": 6,
+      "duplicate_rpc_checks": 2,
+      "other_role_empty_batch_denial_calls": 12,
+      "screenshots": 2,
+      "test_retries": 0,
+      "uploads": 0,
+      "profiles_saved": 0,
+      "intakes": 0,
+      "reports": 0,
+      "history_versions": 0,
+      "goals": 0,
+      "pdfs": 0,
+      "shares": 0
+    },
+    "provider_limit": "Gateway retries/billing are not independently observable; this is not a spending cap.",
+    "ui_path": "/bridgeforward/intake; one synthetic pasted source and extraction per creator. Do not save the BridgeForward profile.",
+    "persistence": "Complete caller-RLS readback of <=12 links per student, null source ID, known source label, actual creator, valid hashes and supported note format. Re-submit exact saved snippets to RPC once without AI; require zero returned IDs and full original rows unchanged.",
+    "private_access": "Each other existing role must read neither fictional student nor its links and must receive42501 on an empty save batch. No access grants are added.",
+    "cleanup": "Record exact student scope before creation and exact evidence IDs after readback. Validate original marked/demo/owned student, all saved source fields, unchanged original row snapshot and zero related records. Delete each exact evidence row with source/author/hash/note/updated_at predicates, then exact student. Refuse parent deletion after any unconfirmed child removal. Independently execute prepared postgres/table-owner read-only absence SQL for exact scope; no prefix sweep.",
+    "uncertainty": "No automatic generation/test retry. Uncertain creation/extraction/save completion stops for exact trusted reconciliation before deletion; unexpected row changes or related records stop cleanup.",
+    "coverage_limits": [
+      "This tests null-source text extraction and shared persistence for Family/Educator; not a file upload, stored-document-summary extraction, every permitted role generation or a report-rendering acceptance.",
+      "Source excerpts are fictional; output still needs manual grounding review. No legal/policy verification or complete de-identification claim.",
+      "Screenshots are functional source-form artifacts, not a new document-polish/mobile visual acceptance."
+    ]
+  },
+  "local_validation": {
+    "unit_files": 339,
+    "unit_tests_passed": 4947,
+    "focused_preparation_safety_tests": 105,
+    "browser_spec_typescript": "passed",
+    "browser_discovery": "exactly two cases listed; no test run",
+    "workflow_yaml": "parsed with existing js-yaml; manual staging environment retained",
+    "runtime_unchanged_from_application_candidate": true
+  },
+  "unchanged": [
+    "Hosted staging remains e3d10dd8 with verified704262c5 fingerprint/1190 files",
+    "Original main and production",
+    "Environments, dependencies, generated types, widget views and Lovable heading edit",
+    "Deferred report polish and Parent Pilot/Pathway Snapshot; all TF-01\u2013TF-26/six milestones remain"
+  ]
+}

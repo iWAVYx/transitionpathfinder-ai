@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.4",
+  "completed_substeps": [
+    "Exact local admission/save prerequisite body/owner/security/permission and private capacity/source checks",
+    "Single-transaction reviewed Apply installer with exact four-source manifest and final complete-chain checks",
+    "Late/final installation failure rolls back every new Apply table/routine and restores the prior save body"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-apply-source-capacity.sql",
+      "sha256": "4e8326170df60b10c9d44176c6a6e1bfdc346727e0b77aa644a1bd5f3c1ab110"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-completion-receipt.sql",
+      "sha256": "195cec8efe3ec370dd795127d4162483985a199ea32a179ae776f9dd0db717c2"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-capacity-release.sql",
+      "sha256": "8c5d5e61d975cc820d1edaf139ebe1a4b5f5079723b1d7f3a4c268003b7abeae"
+    },
+    {
+      "path": "tests/database/document-apply-rollout-sql.mjs",
+      "sha256": "3a0692b21d9604474bed54ba1a490fafc8d89c46560e07c507a3dba6b3734b9c"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-atomic-install-plan.json",
+      "sha256": "9f2dddb02ebaab0e0bfb4d20861f7abdc8ceb6134d47c74e98277d9d0d2342a4"
+    }
+  ],
+  "validation": {
+    "combined_database_cases": 142,
+    "passed": 134,
+    "native_only_skipped": 8,
+    "failed": 0,
+    "new_prerequisite_cases": 10,
+    "atomic_install_local_cases": 4,
+    "atomic_install_native_visibility_cases_pending": 2,
+    "readiness_portability_contracts_passed": 41,
+    "workflow_yaml": "parsed with installed js-yaml",
+    "workflow_shell_blocks_checked": 48,
+    "database_log_sha256": "d0302ab5d30542d748dd25a4ec6dbecac8f93c71aea082a01abb1634035380bc",
+    "contracts_log_sha256": "64a9e74522c450a3d44bbf69dd02c33982a5cb1628ee1c58b9e836318aa92ea4"
+  },
+  "supported_installation": "Use the prepared single-transaction installer; individual stage drafts are not a supported installation recipe. Its RPC grants/save changes become externally visible only at commit. Cross-connection behavior is prepared for native verification, not claimed locally verified.",
+  "scope_limit": "Prepared review package only. Existing SQL test fixtures are reduced stage fixtures, not complete canonical/hosted installation evidence. No runtime catalog monitor is added.",
+  "remaining": [
+    "Exact-source native concurrency/commit/rollback and full canonical-schema replay with the complete Apply installer",
+    "Coherent quota re-admission and mixed producer/worker accounting acceptance",
+    "Final canonical migration/ledger and coordinated runtime/worker packaging",
+    "Separately authorized hosted rollout and bounded acceptance"
+  ],
+  "native_verified": false,
+  "full_schema_verified": false,
+  "canonical_ledger_package_prepared": false,
+  "complete_release_package": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "whole_workstream_complete": false
+}

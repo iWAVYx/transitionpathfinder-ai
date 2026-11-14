@@ -233,6 +233,15 @@ function assertDocumentPolicySecurityFloor(policies, source) {
       );
     }
   }
+
+  for (const [name,cmd,key,guard] of [
+    ['student_document_no_client_replace','w','using_expr',/bucket_id IS DISTINCT FROM 'student-documents'/],
+    ['student_document_no_client_replace','w','check_expr',/bucket_id IS DISTINCT FROM 'student-documents'/],
+    ['student_document_no_client_delete','d','using_expr',/bucket_id IS DISTINCT FROM 'student-documents'/],
+    ['student_document_no_blocked_read','r','using_expr',/student_document_not_blocked\(name\)/],
+    ['student_document_reserved_insert','a','check_expr',/can_insert_reserved_student_document\(name,/],
+  ]) assert.match(requiredPolicy(policies,'storage.objects',name,cmd)[key] ?? '',guard,source+': '+name);
+
 }
 
 test("committed document RLS snapshot enforces the security floor", () => {

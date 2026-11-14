@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-13",
+  "schema": "transitionforward-document-archive-source-local-v1",
+  "status": "source-local-verified-not-hosted",
+  "source_base": "c10dc040a5ba00f478e86ca9a72d88cc94f9d9c2",
+  "workstream_component": "2.5b conditional archive/restore metadata confirmation",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-archive.server.ts",
+      "sha256": "810728a54188accf3437849e61888158f1dbd8966a353cd21719c8f96f911463"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "63bee2d6ed8554a2d6aaa9c05b5d83bec2144567a7bb611395a5e736296dfa42"
+    },
+    {
+      "path": "src/routes/_authenticated/students.$studentId.tsx",
+      "sha256": "eecd7aef1156d40b219d6130d4cc89ed6677bbe5d79bd47e8a70e1be035c6b11"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "14bf5556dc4cc9d075504d6757c3c4554551297f8e229d5d39d35ebce43277eb"
+    },
+    {
+      "path": "tests/unit/document-archive.test.ts",
+      "sha256": "309d1af4e9bf8d0d54f1f32730ea136cb44e6c05f848d6ebd6923146f46bcea3"
+    },
+    {
+      "path": "tests/unit/student-goal-extraction-lifetime.test.tsx",
+      "sha256": "aab6ac4a23f8409a0dce9bfc00cf05675cdf71d6b14d0cab89b0dde48a772d91"
+    }
+  ],
+  "behavior": [
+    "Required loaded viewer, student and document revision; stale cached calls fail before mutation.",
+    "Preserved caller-scoped student edit authorization and documents RLS; no Owner/admin bypass.",
+    "Conditional update includes exact document/student/revision/archive state; complete returned-row outcome required before success audit.",
+    "Zero-row, malformed receipt, lost response and audit error never report success or automatically replay.",
+    "Shared student page ignores departed account/student responses and blocks concurrent archive clicks.",
+    "Archive wording accurately explains retained file; hard deletion remains paused."
+  ],
+  "validation": {
+    "focused_unit_cases": 44,
+    "full_unit_cases": 5924,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "inventory_navigation_contracts": 94,
+    "release_security_contracts": 72
+  },
+  "limits": [
+    "Source/local mocks do not prove transaction-held access-removal serialization or hosted RLS behavior.",
+    "Metadata update and audit insert are separate caller-scoped statements. Audit failure may follow a committed archive; refresh and inspect, never automatically replay.",
+    "No Storage bytes are changed; no worker/provider recovery or deletion receipt is certified.",
+    "All-role hosted acceptance, stale external clients and complete deployed-writer inventory remain open.",
+    "Prior 2405 native SQL and 25 focused Apply proof remain historical composed evidence for unchanged SQL; no new native replay is claimed."
+  ],
+  "sql_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "runtime_source_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "466c99e683c6ef7489bb6601798954f06881592b41a14dd8860aa0e6a76acbdf",
+    "fileCount": 1219
+  }
+}

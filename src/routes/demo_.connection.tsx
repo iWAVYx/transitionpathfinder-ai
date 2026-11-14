@@ -1,3 +1,4 @@
+import { ContextualBackLink } from "@/components/navigation/NavigationOriginProvider";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DEMO_FEATURE_MAP, type DemoElementId } from "@/lib/demo/feature-map";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -41,9 +42,7 @@ function DemoConnectionPage() {
           </PublicationCallout>
 
           <p className="text-sm mb-4">
-            <Link to="/demo" className="underline">
-              ← Back to the demo overview
-            </Link>
+            <ContextualBackLink to="/demo" className="underline" label="← Back to Demo Overview" />
           </p>
 
           <div className="overflow-x-auto">

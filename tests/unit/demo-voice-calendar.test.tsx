@@ -56,3 +56,41 @@ describe("public voice and calendar sample context", () => {
     }
   });
 });
+
+
+describe("organization calendar preview destinations", () => {
+  it.each([
+    ["school-admin", "school", "specialized"],
+    ["district-admin", "district", "local-district"],
+    ["partner", "plan", "premium"],
+  ] as const)("%s event links pin only their applicable selected context", (role, parameter, value) => {
+    const context = { school: "specialized", district: "local-district", plan: "premium" } as const;
+    const events = demoCalendarEvents(role, getDemoProfile("riley"), undefined, context);
+    const links = events.flatMap(event => [event.href, event.pathwayGoal?.href]).filter(Boolean) as string[];
+    expect(links.length).toBeGreaterThan(0);
+    for (const href of links) {
+      const url = new URL(href, "https://example.test");
+      const slug = url.pathname.split("/").at(-1)!;
+      expect(getDemoFeature(role, slug)).not.toBeNull();
+      expect([...url.searchParams.entries()]).toEqual([[parameter, value]]);
+    }
+  });
+  it("Owner calendar examples receive no student, school, district or listing-plan context", () => {
+    const events = demoCalendarEvents("owner", getDemoProfile("sam"), undefined, { school: "specialized", district: "local-district", plan: "premium" });
+    for (const event of events) for (const href of [event.href, event.pathwayGoal?.href]) {
+      if (!href) continue;
+      expect(new URL(href, "https://example.test").search).toBe("");
+      expect(href).toMatch(/^\/demo\/feature\/owner\//);
+    }
+  });
+  it("invalid organization context values are ignored without changing the destination", () => {
+    const profile = getDemoProfile("sam");
+    expect(demoCalendarEvents("school-admin", profile, undefined, { school: "unknown" } as any).map(event => event.href))
+      .toEqual(demoCalendarEvents("school-admin", profile).map(event => event.href));
+  });
+});
+
+it("the school report deadline opens the existing report-completion preview", () => {
+  const event = demoCalendarEvents("school-admin", getDemoProfile("sam"), undefined, { school: "specialized" }).find(event => event.id === "sa3");
+  expect(event?.href).toBe("/demo/feature/school-admin/report-completion?school=specialized");
+});

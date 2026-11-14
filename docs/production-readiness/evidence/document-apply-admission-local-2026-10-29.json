@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-29",
+  "status": "Reviewed Apply integration, loaded-viewer lifetime and database pause fence verified on exact-source automatic/native checks; not deployed or applied hosted",
+  "source_base": "e08e1365",
+  "runtime_source_fingerprint": "385a87046fea210386e6e1ff0e3f3dc71e4d1652c882071bf3bbf67eb2e542a4",
+  "runtime_source_file_count": 1201,
+  "source_hashes": {
+    "src/lib/document-extraction-apply.server.ts": "111c929860b1a55899b3a38591b1201f8cdb94dac8d088a244ef3e138b95d458",
+    "src/lib/extractions.functions.ts": "00476c0d36fc75e19e633f839e11770072a7c24e229f127ce3827e0cb13cb806",
+    "src/routes/_authenticated/documents.$documentId.review.tsx": "da221eb33d2a5b45b01ee98e281d781d7de7a1e14693b4d0b270ddd3ee743898",
+    "docs/production-readiness/proposals/document-apply-admission.sql": "e79a8d152da88eb6f6c85f5bffcb2b246a6f0af83b31a8cd2acf6a0b761dc0ff"
+  },
+  "canonical_count": 225,
+  "unapplied_control_proposals": 2,
+  "gated_apply_prosrc_md5": "931e2c8dda387bacd5829d3f5b81749d",
+  "validation": {
+    "focused_cases": 90,
+    "full_unit_tests": 5370,
+    "unit_files": 352,
+    "unhandled_errors": 0,
+    "typescript": "passed",
+    "capped_local_staging_build": "passed, including service-worker generation",
+    "local_sql": {
+      "tests": 716,
+      "pass": 638,
+      "fail": 0,
+      "skip": 78,
+      "skips": "Native PostgreSQL contention only."
+    },
+    "safety_transport_contracts": 92
+  },
+  "checked": [
+    "Shared authenticated Apply now binds a required loaded-viewer UUID and establishes caller-RLS edit/non-partner/view and exact current extraction/document scope before loading metadata admission.",
+    "Service capability is used only for operation begin/finish; all atomic data/evidence/completion/audit writes stay on the caller client. No scope or permission widening.",
+    "Only received null-data exact-string SQL42501/55000 failures from this fixed database-only RPC are confirmed refusals: close operation once, then return a safe error, never saved success. Other failures/receipts remain uncertain with no retry or fallback.",
+    "New unapplied SQL gate preserves the entire reviewed invoker body and grants, adding only a transaction-held control-row lock. Paused direct RPC calls make no private changes. Installation requires exact original body plus paused/clear control.",
+    "Review UI binds loaded account/document generations, hides departed content immediately and ignores late loads/extraction/save/Apply outcomes, including leave-and-return. Old requests are not canceled or undone.",
+    "Old clients missing viewer intent fail before admission with a plain reload message. Local page tests send the correct viewer and suppress stale success/navigation."
+  ],
+  "review": "docs/production-readiness/proposals/document-apply-admission-review.json",
+  "remaining": [
+    "Native direct-save/pause commit/rollback and complete225-schema plus both admission proposals now pass in both runs. Hosted application/DB/UI acceptance remains open.",
+    "Register/rescan, multi-request browser-upload continuation and separately packaged summary worker remain unintegrated. Other direct writers/legacy sequential handlers and provider work are not fenced by this Apply-only change.",
+    "Per-actor retained-hold admission bounds and authorized manual reconciliation remain required before activation. No automatic cleanup, expiry or recovery.",
+    "Both control proposals still require canonical/ledger packaging and fresh specifically bounded hosted preflight/migration/release/test authorization. Existing fifteen-migration batch does not install them.",
+    "Full TF-01\u2013TF-26/six milestones retained; report polish and Parent Pilot/Pathway Snapshot deferred."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false,
+  "verified_source": "c8538a302e17c12d9acc627ac2429434ad733d66",
+  "native_sql": {
+    "tests": 716,
+    "pass": 716,
+    "fail": 0,
+    "skip": 0,
+    "canonical_replay": 225,
+    "additional_proposals": [
+      "document-operation-admission.sql",
+      "document-apply-admission.sql"
+    ],
+    "pr_run": 40987411633,
+    "push_run": 40987405073,
+    "artifacts": [
+      {
+        "event": "pr",
+        "run": 40987411633,
+        "sha256": {
+          "atomic-extraction-preflight.json": "61362297c4fd237fef71378b80dfcee6e776d5e33d5e93950ca4d2edb34bcd81",
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92"
+        }
+      },
+      {
+        "event": "push",
+        "run": 40987405073,
+        "sha256": {
+          "atomic-extraction-preflight.json": "61362297c4fd237fef71378b80dfcee6e776d5e33d5e93950ca4d2edb34bcd81",
+          "document-operation-admission.json": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+          "document-reference-catalog.json": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+          "document-summary-rollout-inventory.json": "045a37ef171838e69ce58a9231ca6bcdfa5e7f8abd06fbd037ca9e0dd7340d92"
+        }
+      }
+    ],
+    "retained_preflight": "docs/production-readiness/evidence/document-apply-admission-disposable-preflight-2026-10-29.json",
+    "retained_catalog": "docs/production-readiness/evidence/document-reference-catalog-apply-admission-2026-10-29.json",
+    "scope": "Disposable full-schema and fictional rows only; gated prosrc MD5 and exact invoker/client/service grants independently verified. Not hosted data/ledger/provider acceptance."
+  },
+  "automatic_checks": {
+    "pass": 9,
+    "build_runs": [
+      40987411666,
+      40987405062
+    ],
+    "unit_run": 40987411711,
+    "unit_tests": 5370,
+    "unit_files": 352,
+    "role_run": 40987411657,
+    "accessibility_run": 40987411685,
+    "readiness_run": 40987411623,
+    "static_run": 40987411710,
+    "protected_hosted_checks": "Skipped/unperformed; not live acceptance."
+  }
+}

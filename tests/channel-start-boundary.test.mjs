@@ -38,8 +38,12 @@ test("only authenticated callers can start and list their linked-team conversati
 test("new conversation and send UI expose success and failure without dropping the draft", () => {
   assert.match(form, /data-testid="start-student-conversation"/);
   assert.match(form, /Start and send/);
-  assert.match(form, /onCreated\(channel_id\)/);
-  assert.match(route, /<StartStudentConversation onCreated=/);
-  assert.match(route, /onError: \(error: Error\) => \{\s+toast\.error/);
-  assert.match(route, /Could not send this message\. It remains in the composer/);
+  assert.match(form, /await onCreated\(result\.channel_id\)/);
+  assert.match(form, /savedRef\.current/);
+  assert.match(form, /Your conversation is saved/);
+  assert.match(form, /Check your conversations before trying again/);
+  assert.match(route, /<StartStudentConversation[\s\S]*?onCreated=\{async/);
+  assert.match(route, /channel: channelId/);
+  assert.match(route, /We couldn't confirm this message was sent/);
+  assert.match(route, /It remains in this channel's composer; check the conversation before trying again/);
 });

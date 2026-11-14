@@ -79,7 +79,7 @@ const RECOMMENDED: Rec[] = [
 function RecommendedResourcesPage() {
   return (
     <SiteShell>
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <Breadcrumbs
           trail={[
             { label: "Family", to: "/hubs/family" },
@@ -147,7 +147,7 @@ function RecommendedResourcesPage() {
             <Link to="/resources/saved">Open Saved Library</Link>
           </Button>
         </div>
-      </main>
+      </section>
     </SiteShell>
   );
 }

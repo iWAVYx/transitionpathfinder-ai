@@ -1,0 +1,17 @@
+{
+  "schema": "document-text-source-admission-native-proof-v1",
+  "source_commit": "8d7c106cb170ded8677e31dcada3de1c78c526bb",
+  "tests": 68,
+  "passed": 68,
+  "failed": 0,
+  "skipped": 0,
+  "native": true,
+  "test_sha256": "0dc11aae615c68492a4bc1de3876b0125b74246d9a5262a4cb99bd075ca0b604",
+  "sql_sha256": "3bcba9bf30b73734ad1e9c3d2cdf46e4e8b6d4953b918b5d7d9bda4fa976b5ba",
+  "consumer_sha256": "e1630ac709c0bb2da2150311d6b4f1358b2bc1867176899d7cac96f8bdc1bde8",
+  "admission_consumer_sha256": "d5cf8dff70d898ba82a94e0375c750f6782ed8b7881a2e48f4c16ff58fe6216d",
+  "log_sha256": "822b2a44f89856776f21932b78506a62378b7a7a8b5172aea1347b38f6bb4aac",
+  "provider_calls": false,
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

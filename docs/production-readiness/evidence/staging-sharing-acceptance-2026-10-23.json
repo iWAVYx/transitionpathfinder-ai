@@ -1,0 +1,153 @@
+{
+  "schema": "transitionforward-staging-sharing-acceptance-v1",
+  "date": "2026-10-23",
+  "environment": "isolated staging only",
+  "run": {
+    "conclusion": "success",
+    "createdAt": "2026-10-23T07:29:29Z",
+    "headSha": "4b91ca223d93c35a3b31a3cd603231e8ac3bdc39",
+    "status": "completed",
+    "updatedAt": "2026-10-23T08:43:13Z"
+  },
+  "human_approval": [
+    {
+      "environments": [
+        "staging"
+      ],
+      "reviewer": "iWAVYx",
+      "state": "approved"
+    }
+  ],
+  "application_source_commit": "a2c5564c7260e67ab3534d5fab433f46110cb058",
+  "lovable_sync_commit": "38cae2626da442b89b16b0d954bb5c02cd5e31dd",
+  "test_head": "4b91ca223d93c35a3b31a3cd603231e8ac3bdc39",
+  "cloudflare_health": {
+    "app_env": "staging",
+    "vite_app_env": "staging",
+    "hostname": "transitionforward-staging.caysi101.workers.dev",
+    "supabase_project_ref": "qgrertkqbwanerqqemph",
+    "is_production_project": false,
+    "is_production_hostname": false,
+    "is_staging_target": true,
+    "is_production_target": false,
+    "stripe_mode": "sandbox",
+    "stripe_public_mode": "sandbox",
+    "stripe_server_mode": "sandbox",
+    "stripe_livemode": false,
+    "ai_gateway_configured": false,
+    "ai_runtime": "unconfigured",
+    "runtime_source_fingerprint": "c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d",
+    "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+    "runtime_source_fingerprint_algorithm": "sha256",
+    "runtime_source_file_count": 1184,
+    "git_commit_sha": "a2c5564c7260e67ab3534d5fab433f46110cb058",
+    "isolation": {
+      "ok": true,
+      "errors": []
+    }
+  },
+  "lovable_health": {
+    "app_env": "staging",
+    "vite_app_env": "staging",
+    "hostname": "gentle-forward-reach.lovable.app",
+    "supabase_project_ref": "qgrertkqbwanerqqemph",
+    "is_production_project": false,
+    "is_production_hostname": false,
+    "is_staging_target": true,
+    "is_production_target": false,
+    "stripe_mode": "sandbox",
+    "stripe_public_mode": "sandbox",
+    "stripe_server_mode": "sandbox",
+    "stripe_livemode": false,
+    "ai_gateway_configured": true,
+    "ai_runtime": "lovable-managed",
+    "runtime_source_fingerprint": "c4e3096bb114388a5ff91157df2c8dd75ec8b92f2fa358d8cfbe2e14f9adb13d",
+    "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+    "runtime_source_fingerprint_algorithm": "sha256",
+    "runtime_source_file_count": 1184,
+    "git_commit_sha": "38cae2626da442b89b16b0d954bb5c02cd5e31dd",
+    "isolation": {
+      "ok": true,
+      "errors": []
+    }
+  },
+  "acceptance": {
+    "runId": "39918095920-1",
+    "aiCalls": 0,
+    "maxIntakes": 2,
+    "maxReports": 2,
+    "maxTokens": 8,
+    "checks": [
+      "All seven existing synthetic role clients authenticated",
+      "parent: both audience links created through the actual report UI",
+      "parent: protected columns, all non-issuers, missing IDs, delete and raw RPC boundaries verified",
+      "parent: both fixed audiences render projected content on both staging hosts",
+      "parent: saved-report revoke confirms the exact educator link",
+      "Family: Trust & Consent revokes only the uniquely identified fixture link",
+      "parent: refreshed revoked/expired links are unavailable on both staging hosts",
+      "educator: both audience links created through the actual report UI",
+      "educator: protected columns, all non-issuers, missing IDs, delete and raw RPC boundaries verified",
+      "educator: both fixed audiences render projected content on both staging hosts",
+      "educator: saved-report revoke confirms the exact educator link",
+      "educator: refreshed revoked/expired links are unavailable on both staging hosts"
+    ],
+    "fixtures": [
+      {
+        "role": "parent",
+        "reportId": "88a55cb7-caa7-4b5b-8949-988992024470",
+        "intakeId": "37edd707-bbed-4d6e-a24c-c7538d40547f",
+        "tokenIds": [
+          "5af5adb7-5d6d-40fc-ae5e-a14212493e04",
+          "a6811f74-e634-4d8a-9f00-81419f207d30",
+          "d6a67a14-6df6-431d-bd65-f349bceee2e6",
+          "504ae9f5-3355-46b5-acfb-93ff6b3802a4"
+        ],
+        "errors": []
+      },
+      {
+        "role": "educator",
+        "reportId": "484e9a5b-f257-47da-b658-084f2a89baf3",
+        "intakeId": "cf471a31-9534-4c7d-8215-456bfb5584c5",
+        "tokenIds": [
+          "1b449f48-37f1-48c6-bfcb-c88c0fd26818",
+          "2ebfbbd8-ff13-4c5c-aa7b-ebe04a48d2cf",
+          "ae8a82b8-1e1f-4785-ac48-32156448cb91",
+          "a4df5c80-a8c6-4f27-836b-5b315c997eff"
+        ],
+        "errors": []
+      }
+    ],
+    "cleanupScope": "Exact owner-scoped fixture IDs and report FK cascade; caller-RLS absence only. Privileged exact-ID readback remains required."
+  },
+  "privileged_cleanup_readback": {
+    "run_id": "39918095920-1",
+    "session_user": "postgres",
+    "intakes_remaining": 0,
+    "reports_remaining": 0,
+    "versions_remaining": 0,
+    "transaction_read_only": "on",
+    "tokens_by_id_remaining": 0,
+    "tokens_by_report_remaining": 0
+  },
+  "privileged_cleanup_sql_sha256": "855771c066de47d496dfaa9dd3d60f0173ff9a0b870a523537e60cdfdb43349f",
+  "artifact": {
+    "id": 12489148904,
+    "name": "staging-role-verification-39918095920",
+    "zip_sha256_reported_by_upload": "bd5e04ee2e9900ba31bc04b82d514506dc02541e49b0145f3ce109c291b2c1a5",
+    "sanitizer": "passed; 0 unsafe files found; no bearer tokens, auth state, trace, video or screenshot attachments"
+  },
+  "counts": {
+    "auth_setup_passed": 7,
+    "sharing_tests_passed": 1,
+    "intakes_created": 2,
+    "reports_created": 2,
+    "links_created": 8,
+    "retries": 0,
+    "ai_calls": 0
+  },
+  "limits": [
+    "No whole-site/all-tool/all-role generation acceptance claim.",
+    "Existing Owner report SELECT exception, direct report/history write integrity, bearer-link lifecycle and broader production gates remain open.",
+    "No production/main merge, production read/change, new account/membership, payment or secret change."
+  ]
+}

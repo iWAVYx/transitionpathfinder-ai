@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.5",
+  "completed_substep": "Automatic rescan producer release connected to the shared guarded finish in an uninstalled draft",
+  "proposal": "docs/production-readiness/proposals/document-rescan-automatic-release.sql",
+  "proposal_sha256": "98050642564389e3bc2cea07999ff23464c9008e08e2f580194f00ee301f7a2d",
+  "validation": {
+    "combined_registration_rescan_apply_cases": 150,
+    "passed": 142,
+    "native_only_skipped": 8,
+    "failed": 0,
+    "focused_rescan_cases": 19,
+    "focused_rescan_passed": 17,
+    "focused_rescan_native_pending": 2,
+    "readiness_contracts_passed": 41,
+    "workflow_shell_blocks_checked": 50,
+    "database_log_sha256": "87754223ddd9e8d0b5679659ade8ebcd1de01dfd076053efb8d249202a2e26b9"
+  },
+  "properties": [
+    "Existing finish body differs only by a rescan settlement hook; exact original admission owner is retained",
+    "Clean producer frees one unit while its worker retains one; quarantine frees both unused obligations",
+    "Producer-first and worker-first completion each reach zero exactly once",
+    "Producer/worker uncertainty retains the respective obligation",
+    "Suppressed or altered settlement rolls back finish and completion",
+    "Private bridge requires actual same-transaction completion; no browser/service helper grant",
+    "Apply quota fixture also uses the combined registration/rescan/Apply finish chain"
+  ],
+  "verification_preparation": "Credential-free native and full-schema proof prepared; install the rescan release draft after registration19 and before the atomic four-draft Apply package",
+  "native_full_schema_verified": false,
+  "remaining": [
+    "Current-source native duplicate/finish-order races and complete-schema proof",
+    "Broader final integrated-source acceptance under1.6",
+    "Final canonical/ledger package and separately authorized hosted acceptance"
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false,
+  "whole_workstream_complete": false
+}

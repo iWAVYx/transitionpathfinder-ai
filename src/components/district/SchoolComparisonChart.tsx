@@ -43,7 +43,7 @@ export function SchoolComparisonChart({ schools = SAMPLE, className }: Props) {
       <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="font-display text-lg">School-By-School Readiness</h3>
-          <p className="text-sm text-muted-foreground">Hover a bar for gap detail.</p>
+          <p className="text-sm text-muted-foreground">{schools.length ? "Hover a bar for gap detail." : "School-level readiness comparisons are not available for this workspace yet."}</p>
         </div>
         <div className="flex gap-1 text-xs">
           {(["readiness", "name", "trend"] as SortKey[]).map((k) => (

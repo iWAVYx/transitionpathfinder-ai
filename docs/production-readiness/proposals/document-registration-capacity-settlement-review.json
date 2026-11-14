@@ -1,0 +1,96 @@
+{
+  "schema": "document-registration-capacity-settlement-review-v1",
+  "date": "2026-10-31",
+  "source_base": "5b3c9efbcbf9278edbd1e0adb1024a26178b4a43",
+  "proposal": {
+    "path": "docs/production-readiness/proposals/document-registration-capacity-settlement.sql",
+    "sha256": "194ba968ed3b4008c89d59c95cb92951032a7bbc7035a8d874f3c62941d3562f"
+  },
+  "scope": "Ninth noncanonical/unapplied proposal. Registration producer only: immutable guarded-finish receipt, one-unit clean-plus-exact-queue settlement or two-unit no-summary quarantine. Rescan/Apply and source-bound admission/queue/worker capacity hooks remain open.",
+  "routines": [
+    {
+      "signature": "public.read_internal_document_registration_completion(uuid)",
+      "body_md5": "dc3b28d28174e13759e47896e549a3b8",
+      "definer": false
+    },
+    {
+      "signature": "public.guard_document_registration_completion_receipt()",
+      "body_md5": "47defe9db1ab2e654d178d25e8dcb199",
+      "definer": false
+    },
+    {
+      "signature": "public.record_internal_document_registration_completion(uuid)",
+      "body_md5": "4b2881100167d594248a391149957ae8",
+      "definer": true
+    },
+    {
+      "signature": "public.guard_registered_document_summary_queue()",
+      "body_md5": "0bdef1bb3b14b5e0bb6f341e5464bbeb",
+      "definer": true
+    },
+    {
+      "signature": "public.guard_document_capacity_registration_settlement()",
+      "body_md5": "f624d20bfd7c81e6fa2e2f56ac786d60",
+      "definer": false
+    },
+    {
+      "signature": "public.settle_internal_document_registration_capacity(uuid)",
+      "body_md5": "174b6e74b5cd821d41f731915b546d73",
+      "definer": false
+    },
+    {
+      "signature": "public.finish_document_operation(uuid,uuid,uuid,text)",
+      "body_md5": "e17e9ae509adc829e867f9723a15748d",
+      "definer": true
+    },
+    {
+      "signature": "public.guard_document_capacity_reservation()",
+      "body_md5": "fd1a2d66f6a7c7e6a0b6f115a0b71b3a",
+      "definer": false
+    }
+  ],
+  "finish": "Preserve the complete original actor/receipt/state/outcome checks and reply. Add control/capacity lock before lease-row locking, then record the private registration receipt after completed lease update in the same transaction. Receipt refusal rolls back finish. Untracked or non-register operations gain no fabricated receipt or settlement.",
+  "source_proof": "Derive actor/student/attempt/document/object/version/path/content/review identity from the immutable upload binding and registered attempt. Require actual persisted scan outcome, source identity, completed operation timestamp and exact counted queued job; not merely another matching job. Store metadata only, no raw scan ID, provider payload, text, names or private admission capability.",
+  "units": "Clean-plus-exact-queue frees only its producer unit. Confirmed infection with rejected/archived source and clean_result false frees both units only if no summary was bound, claimed or otherwise queued. A confirmed summary and clean producer can settle in either order, exactly once each. Rescan/Apply and active/held/uncertain outcomes remain counted.",
+  "queue_protection": "Serialize document-summary INSERT with the completion mutex so quarantine and queue insertion cannot race past each other. Check current actor/student/document authority before consulting private quarantine receipts; use the same safe refusal for unauthorized/quarantined requests. Retain registered queue source identity before worker binding while allowing normal claim/completion. This narrow gate does not replace the remaining general source-bound enqueue/reservation hooks or legacy-writer review.",
+  "ownership_and_grants": "Existing finish keeps its coherent admission/control owner, which can differ from migration executor. Only that trusted SQL role receives execute on the private completion lock and registration recorder; recorder is a fixed-path definer returning void. New receipt/settlement tables remain private RLS, and all new helpers remain unavailable to anon/authenticated/service_role. No existing ownership transfer or new user-facing Owner/admin rights.",
+  "existing_reads": "Preserve exact existing upload-attempt SELECT roles and the two scoped/service read policies; ordinary INSERT/UPDATE/DELETE/TRUNCATE and column mutation privileges still refuse. No permissions are repaired or expanded by preflight.",
+  "pause": "Already-admitted work can finish/settle while paused; fresh admission is still blocked. Common control/capacity fence precedes finish lease locks. Quarantine queue races are tested in both transaction orders.",
+  "retention": "Completion/settlement receipts and source references are permanent and RESTRICT-linked. No expiry, deletion, reset, retention duration, provider cancellation or ordinary held-work release.",
+  "registration_finish_receipt_hook_prepared": true,
+  "registration_capacity_settlement_prepared": true,
+  "rescan_apply_settlement_implemented": false,
+  "source_bound_admission_queue_worker_hooks_installed": false,
+  "general_application_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "numeric_policy_selected": false,
+  "manual_reconciliation_implemented": false,
+  "provider_quiescence_verified": false,
+  "hosted_execution_authorized": false,
+  "production_access_authorized": false,
+  "ready_for_cutover": false,
+  "required_next": [
+    "Prepare exact source-bound rescan and Apply completion proof; do not settle actor-only leases from typed status.",
+    "Connect source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker handoff in one reviewed lock order before IO; retain current permissions and exact reserved retry.",
+    "Native1054 and full225+all-nine replay verified; select reviewed numeric ceilings and finish canonical/ledger packaging after remaining source-bound hooks.",
+    "Finish legacy/direct/scheduled fencing, trusted held-work reconciliation and physical Storage/provider/drain acceptance before freshly authorized hosted rollout."
+  ],
+  "preflight_comparison_correction": {
+    "corrected_from_source": "a8ef79db312a719135d40362c00ec4a18d149e65",
+    "previous_proposal_sha256": "7267aadb7fc06a5866d3df55673f19efe64de6c5919fb4c7412a19f189162520",
+    "method": "Create a private zero-row temporary LIKE reference and parse the expected two policies using the same database. Compare names, commands, permissiveness, exact roles and database-deparsed USING/WITH CHECK expressions under the same session context; no whitespace/parenthesis stripping or textual qualification assumption.",
+    "cleanup": "ON COMMIT DROP; rollback removes newly created reference. Existing reference-name collision refuses without replacing/deleting the object.",
+    "actual_policies_or_grants_changed": false,
+    "runtime_routine_hashes_changed": false,
+    "native_confirmation_pending": false,
+    "evidence": "docs/production-readiness/evidence/document-registration-policy-compatibility-local-2026-10-31.json",
+    "native_confirmation": "Both source60dfc08b suites pass1052/1052 zero skips; full225+9 separately fails at preexisting finish owner."
+  },
+  "owner_context_correction": {
+    "method": "Explicit authorized admin session with restricted postgres current role; use existing owner/admin context only while replacing finish, verify its owner unchanged, then restore original executor before subsequent DDL. No ownership transfer, role membership or application grants added.",
+    "evidence": "docs/production-readiness/evidence/document-registration-owner-context-local-2026-10-31.json",
+    "native_full_replay_pending": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-registration-capacity-settlement-verified-2026-10-31.json",
+    "verified_source": "c9eeb3d378e4345a0fd976412882c6a18ea97308"
+  }
+}

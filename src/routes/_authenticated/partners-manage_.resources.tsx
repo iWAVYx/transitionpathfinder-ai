@@ -177,7 +177,7 @@ function PartnerResourcesPage() {
 
   return (
     <SiteShell>
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <Breadcrumbs
           trail={[
             { label: "Partner Workspace", to: "/partners-manage" },
@@ -429,7 +429,7 @@ function PartnerResourcesPage() {
             })}
           </div>
         )}
-      </main>
+      </section>
     </SiteShell>
   );
 }

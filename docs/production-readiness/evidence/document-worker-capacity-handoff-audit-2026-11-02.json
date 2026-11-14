@@ -1,0 +1,78 @@
+{
+  "schema": "document-worker-capacity-handoff-audit-v1",
+  "date": "2026-11-02",
+  "source_base": "7d145bef2ea8c71b555efc43ff5568b14eaca021",
+  "status": "Read-only source audit and three offline continuation regression cases; no new SQL stage or runtime hook",
+  "source_manifest": [
+    {
+      "path": "supabase/functions/ai-job-processor/document-operation-admission.ts",
+      "sha256": "cae67e2a0f15ae03dc1710f9863aa087c11923d0af90f37b0c193b6fc21deca7"
+    },
+    {
+      "path": "supabase/functions/ai-job-processor/index.ts",
+      "sha256": "2c73d6949a6d87df084146f5f401b100f27ada142324637b54c5a1b477de51c8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-operation-handoff.sql",
+      "sha256": "638a1a90bbd3aa7c1816a69a6b7e6dd357b7a63da1d1516bb38e0e8a66643ed5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-capacity-ledger-foundation.sql",
+      "sha256": "0892b4312a4845aae7e6ab5b9a68b1332b32ab36b7a44adc33b5b3087b89e021"
+    },
+    {
+      "path": "tests/unit/summary-operation-continuation.test.ts",
+      "sha256": "af775ebce40a6cb259794744c1e419b4cfd9d136f9ee6b790bb131fd620c3eb9"
+    },
+    {
+      "path": "tests/unit/document-worker-admission.test.ts",
+      "sha256": "d9ee1e0b288d910e422cd0f15f2c7163c1df2953ff0f53a97c882112adebeb2d"
+    }
+  ],
+  "findings": [
+    {
+      "boundary": "Atomic worker claim",
+      "confirmed": "Existing service claim atomically binds the selected job, verified source and new operation; worker dispatch uses only that confirmed reply.",
+      "gap": "The SQL transaction does not call claim_internal_document_capacity. A later private call in a fixture is not an installed automatic hook."
+    },
+    {
+      "boundary": "Capacity transfer",
+      "confirmed": "Private capacity claim attaches one existing selected-job reservation and adds no unit. It is not executable by service_role.",
+      "gap": "It uses the current pause-rejecting common lock helper. Existing worker admission also rejects pause; at-cap transfer and paused transfer are distinct gates."
+    },
+    {
+      "boundary": "Pause policy",
+      "confirmed": "Current SQL and original transfer design block queued worker starts while paused. Later integration plans propose a narrowly counted drain exception.",
+      "gap": "That proposed exception is not installed or verified. Review and test it explicitly; preserve current refusal until a source-bound replacement passes native pause races. Never generally unpause begin_document_operation."
+    },
+    {
+      "boundary": "Completion accounting",
+      "confirmed": "Three new asynchronous cases prove no finish RPC before work settles and preserve the original finish capability despite transport mutation.",
+      "gap": "These mocked protocol cases do not prove an automatic SQL transfer/settlement, native race, provider cessation or hosted execution."
+    }
+  ],
+  "next_stage_requirements": [
+    "Wait for both exact stage13 native1296/full225+13 replays and retain their actual proof artifacts before adding another SQL stage.",
+    "Acquire the reviewed common control/capacity fence before selected job/source locks; atomically claim, bind and transfer the one existing worker obligation or roll everything back. No fresh capacity reservation, privileged service helper grant or capability recovery.",
+    "Require exact immutable producer/source/selected-job evidence, current permitted actor/student authority and unused worker binding. Do not adopt a typed queued/clean status, unknown producer result or another job.",
+    "Test source/access drift, duplicate claims, response loss, binding-write suppression, actor/student/global capacity invariance, held producer, worker completion and both release orders.",
+    "Resolve the explicit paused-drain policy and registration-versus-rescan evidence requirements before implementing that exception; retain current behavior in the meantime.",
+    "Run native COMMIT/ROLLBACK claim/pause/source/access races, separate-owner full-schema replay and intercepted real-worker tests before any hosted authorization request."
+  ],
+  "validation": {
+    "command": "node node_modules/vitest/vitest.mjs run tests/unit/summary-operation-continuation.test.ts tests/unit/document-worker-admission.test.ts",
+    "files": 2,
+    "passed": 69,
+    "failed": 0,
+    "new_cases": 3,
+    "network_or_provider_calls": false,
+    "native_stage13": "Still running when audit recorded; no failure reported, not yet accepted",
+    "readiness_and_portability_cases_passed": 40
+  },
+  "runtime_changed": false,
+  "new_sql_proposal_added": false,
+  "automatic_worker_capacity_hook_installed": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

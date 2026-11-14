@@ -1,0 +1,186 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "bounded report-assistance functional/source-immutability/private-access acceptance passed; exact cleanup independently verified; limited sampled manual meaning/source review complete",
+  "run": 40343536688,
+  "conclusion": "success",
+  "tested_revision": "033424087f83a96b8d07197dd14f1e890b93531e",
+  "application_runtime": {
+    "cloudflare_commit": "7c6890792139c5570873785f12940e7d3857753e",
+    "fingerprint": "8f3b5851fa8482c86bb5e201414488cdf34734216a2f03bcf9ab6a615aa9d6aa",
+    "file_count": 1190,
+    "both_stable_staging_health_checks": "passed before dispatch and again within test",
+    "lovable_identity": "dev in health; exact reviewed fingerprint used under existing staging policy; no fabricated commit metadata"
+  },
+  "standing_role_signins": 7,
+  "cases": {
+    "parent": {
+      "result": {
+        "role": "parent",
+        "completed": true,
+        "translationActions": 1,
+        "suggestionActions": 1,
+        "sourceUnchanged": true,
+        "historyVersions": 0,
+        "otherRoleReadDenials": 6,
+        "manualMeaningReviewRequired": true
+      },
+      "transport": {
+        "phase": "complete",
+        "primaryFailureKind": "unknown",
+        "failedPostStatuses": [],
+        "failedPostRequests": 0,
+        "postResponseStatuses": [
+          202,
+          200,
+          202,
+          202,
+          200
+        ],
+        "startedPostRequests": 5,
+        "finishedPostRequests": 5,
+        "pendingPostRequests": 0,
+        "visibleErrorCodes": []
+      },
+      "cleanup": {
+        "ownerId": "fee1b881-8d46-4375-949a-db15487af9dc",
+        "studentId": "8a3ae8fb-7169-4fed-8cdd-a7926b9e8f65",
+        "intakeId": "b4fdd2b4-825c-460f-848e-ebfc98f933ef",
+        "reportId": "6d602bab-011e-4b4b-ad06-dc797c059ee6",
+        "marker": "QA Report Assist 40343536688-1 parent",
+        "role": "parent",
+        "versionIds": [],
+        "callerVisibleCountsZero": true,
+        "independentPrivilegedAbsenceRequired": true
+      },
+      "independent_absence": {
+        "operator": "postgres",
+        "read_only": "on",
+        "edge_count": 0,
+        "run_marker": "QA Report Assist 40343536688-1 parent",
+        "goals_count": 0,
+        "observed_at": "2026-10-26T15:23:10.790343+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "student_count": 0,
+        "version_count": 0,
+        "documents_count": 0,
+        "action_items_count": 0,
+        "evidence_items_count": 0,
+        "readiness_scores_count": 0,
+        "ppt_meeting_preps_count": 0,
+        "student_guardians_count": 0,
+        "document_extractions_count": 0,
+        "student_team_members_count": 0,
+        "report_evidence_links_count": 0,
+        "student_collaborators_count": 0,
+        "student_relationships_count": 0,
+        "student_saved_partners_count": 0,
+        "student_voice_responses_count": 0,
+        "student_opportunity_matches_count": 0,
+        "student_resource_recommendations_count": 0
+      }
+    },
+    "educator": {
+      "result": {
+        "role": "educator",
+        "completed": true,
+        "translationActions": 1,
+        "suggestionActions": 1,
+        "sourceUnchanged": true,
+        "historyVersions": 0,
+        "otherRoleReadDenials": 6,
+        "manualMeaningReviewRequired": true
+      },
+      "transport": {
+        "phase": "complete",
+        "primaryFailureKind": "unknown",
+        "failedPostStatuses": [],
+        "failedPostRequests": 0,
+        "postResponseStatuses": [
+          202,
+          200,
+          202,
+          202,
+          200
+        ],
+        "startedPostRequests": 5,
+        "finishedPostRequests": 5,
+        "pendingPostRequests": 0,
+        "visibleErrorCodes": []
+      },
+      "cleanup": {
+        "ownerId": "d606bc69-8605-4e84-904d-dcc7632fa595",
+        "studentId": "305df947-80ab-4c78-9715-b80957b6f7c9",
+        "intakeId": "c082015b-508a-4c88-9ca0-47003bdc47cc",
+        "reportId": "0b62c352-1c08-442e-8442-c9846f53a12d",
+        "marker": "QA Report Assist 40343536688-1 educator",
+        "role": "educator",
+        "versionIds": [],
+        "callerVisibleCountsZero": true,
+        "independentPrivilegedAbsenceRequired": true
+      },
+      "independent_absence": {
+        "operator": "postgres",
+        "read_only": "on",
+        "edge_count": 0,
+        "run_marker": "QA Report Assist 40343536688-1 educator",
+        "goals_count": 0,
+        "observed_at": "2026-10-26T15:24:10.509117+00:00",
+        "share_count": 0,
+        "intake_count": 0,
+        "report_count": 0,
+        "student_count": 0,
+        "version_count": 0,
+        "documents_count": 0,
+        "action_items_count": 0,
+        "evidence_items_count": 0,
+        "readiness_scores_count": 0,
+        "ppt_meeting_preps_count": 0,
+        "student_guardians_count": 0,
+        "document_extractions_count": 0,
+        "student_team_members_count": 0,
+        "report_evidence_links_count": 0,
+        "student_collaborators_count": 0,
+        "student_relationships_count": 0,
+        "student_saved_partners_count": 0,
+        "student_voice_responses_count": 0,
+        "student_opportunity_matches_count": 0,
+        "student_resource_recommendations_count": 0
+      }
+    }
+  },
+  "manual_review": {
+    "summary_conditions": "Selected Spanish summary prose preserves the family-reported baseline of 2 independent animal-care steps with written directions; target 4 remains proposed, no dated progress log/reviewed IEP is invented, and target is explicitly not evidence of progress. Both returned to original English successfully.",
+    "next_step_source_review": "All captured suggestions were compared with the supplied fictional report: animal-care tours/shadowing, written supports, sensory/processing needs, PPT/BRS referral discussions, money practice and DDS planning are present in the sample. Ms. Alvarez is in the sample report prose. Suggestions are framed as proposed actions, not completed services. Educator output explicitly distinguishes proposed targets from the family-reported baseline. This checks consistency with supplied fiction, not policy/legal verification of the source itself.",
+    "scope": "Existing Family and Educator account owners both used the explicit Family reading lens. Spanish supplied report prose was tested; UI chrome and preserved metadata remain in English. No claim of every language, every audience lens, every generated sentence or all generators covered.",
+    "visual_limit": "Both captured panels include sticky navigation/header overlap and a translation toast, obscuring the panel heading/top. They support functional state/content review only, not full-page/mobile visual acceptance; no extra generation or cosmetic redesign performed."
+  },
+  "bounds": {
+    "completed_translation_actions": 2,
+    "completed_suggestion_actions": 2,
+    "model_invocations_call_site_budget_max": 4,
+    "sdk_attempt_budget_max": 12,
+    "gateway_retries_or_billing_observed": false,
+    "spending_cap": false,
+    "students_created_and_removed": 2,
+    "intakes_created_and_removed": 2,
+    "reports_created_and_removed": 2,
+    "history_versions": 0,
+    "screenshots": 2,
+    "pdfs": 0,
+    "test_retries": 0,
+    "private_report_read_denials": 12,
+    "new_accounts_relationships_or_shares": 0
+  },
+  "transport_note": "Five observed same-origin action-window POSTs per role completed with 202/200 responses, no failed/pending requests or visible error codes. These are browser transport observations (which can include polling/telemetry), not an independent model/SDK attempt or billing count. primaryFailureKind unknown represents undefined primary error on complete success, not an unresolved thrown failure.",
+  "sanitizer": "passed before artifact download; zero unsafe files removed",
+  "earlier_run": "40338483904 failed with primary error masked by cleanup wrapper; exact cleanup independently verified. Numeric QA display-name incompatibility reproduced in offline actual-validator regression. Corrected-name repeat passed; no retroactive claim of a captured original live cause.",
+  "automatic_review": "All eight automatic checks passed on 03342408; one failed build was confirmed heap exhaustion and one identical source/settings retry (40342565027 attempt2) passed; parallel build40342557786 also passed. No memory/dependency workaround. 4825 local unit tests, actual browser-spec/helper type-check and two-case discovery passed before dispatch.",
+  "next": [
+    "Continue IEP text/document-goal/report-evidence extraction source completeness, privacy-safe logging and applicable-role/session grounding; read-only preflight found accepted text can be silently clipped by these extractors",
+    "Retain sampled-language/audience/visual limitations; no unapproved AI repeat or document polish loop",
+    "Continue full TF-01\u2013TF-26/six milestones and production security/provider/privacy/billing/email/licensing/operations gates. Readiness wording caveat and original Pathway intermittent cause stay open. Report polish and Parent Pilot/Pathway Snapshot remain deferred."
+  ],
+  "preserved": "This packet made no deployment, publication, migration, production/original-main merge, new accounts/relationships/shares, payment or secret changes. Only the explicitly authorized temporary fixture data and four UI assistance actions were used."
+}

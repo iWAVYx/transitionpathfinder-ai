@@ -1,0 +1,570 @@
+{
+  "schema": "transitionforward-source-workflow-boundary-review-v1",
+  "review_date": "2026-11-03",
+  "source_commit": "e1940751f413fb621811239e6e4bba480f844204",
+  "workstream": 8,
+  "scope": "Source-only workflow trigger and deployment-command inventory; no hosted control-plane access or workflow dispatch.",
+  "completed_substep": "Inventory current repository workflow triggers and source deployment boundary.",
+  "whole_workstream_closed": false,
+  "workflows": [
+    {
+      "file": ".github/workflows/bootstrap-staging-qa-identities.yml",
+      "sha256": "eb163a2c767a0831d829ffa06fe5352606f82d84a9bb3127c7c224da017e4f9e",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "bootstrap-staging-qa",
+          "condition": "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/build-ssr-verify.yml",
+      "sha256": "b3e34d5d41bb14c59edbffb3e9696fc64f6c54dfa324f495294eef9f124f97bf",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "push_branches": [
+        "**"
+      ],
+      "jobs": [
+        {
+          "id": "build",
+          "condition": null,
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/setup-node@v4",
+            "actions/cache@v4",
+            "actions/cache@v4",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/calendar-rls-qa.yml",
+      "sha256": "c4e3b7cebdd862ba8861e57e9e047efdb404c38a4bd977c2fee42b06c47e9873",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "rls-regression",
+          "condition": "github.event_name == 'push' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "actions/setup-node@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/capture-staging-calendar-rls-snapshot.yml",
+      "sha256": "08c15de73bceb500b853fb704694cc1009e8d51edf9388102b0239897d762520",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "capture",
+          "condition": "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "actions/setup-node@v4",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/channel-attachment-malware-qa.yml",
+      "sha256": "926276f876cbe9cfd79f76b00b27d012c970f1584b9214b134d8ca0d8760e0ad",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "live-staging-antivirus",
+          "condition": "github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/cross-district-rls-qa.yml",
+      "sha256": "85f14c8b8a78a2006f1a5c56100cf7f32c2f18ce48e497755f08ce240904f13c",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "cross-district-rls",
+          "condition": "github.event_name == 'push' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "actions/setup-node@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/ct-seed-v2-audit.yml",
+      "sha256": "9e39472e531a579573e1e42ea35105f48f3a35ab08bb224ae1ae605a457b9c42",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "static-audit",
+          "condition": "github.event_name == 'pull_request'",
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/cache@v4"
+          ]
+        },
+        {
+          "id": "live-staging-audit",
+          "condition": "github.event_name == 'push' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/cache@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/ct-seed-v2-staging-repair.yml",
+      "sha256": "6d4e3fde32ef9a24ace9f6eeb57d1c54d1fc1c4eb04ab34176073a1fe6573254",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "repair-staging",
+          "condition": "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/dashboard-regression.yml",
+      "sha256": "67ae689114f81afe651af2217f945e0dacf6c1f78426417d99473d7d90725fdd",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "unit",
+          "condition": null,
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        },
+        {
+          "id": "e2e",
+          "condition": "github.event_name != 'pull_request'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/deploy-staging.yml",
+      "sha256": "80e06613825e3da7ca019034e6eba2fcb182f745114b6081deac7d65d204f681",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "deploy",
+          "condition": null,
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/migration-replay.yml",
+      "sha256": "cb23fcbb46220b0e45f22732cd8c27ee521d98a4099319ed802f18f93c846dd2",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "replay",
+          "condition": null,
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "actions/setup-node@v4",
+            "denoland/setup-deno@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/pathway-live-staging-qa.yml",
+      "sha256": "8054e61418b382e9165a602430780de883d88518b09d79b7b7c1e55caa1a3d4b",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "pathway-live-staging",
+          "condition": "github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/permission-regression-qa.yml",
+      "sha256": "b610b59d744257f7f21de58b4cfeccc7b9263ad32e09957cb860403bfbbb737a",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "permission-regression",
+          "condition": "github.event_name == 'push' && github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "actions/setup-node@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/ppt-live-staging-qa.yml",
+      "sha256": "f13aa568a3f3d8ec5c947efe53fb53ecc8af664b9d8eadc2ccdbbd4e8cdb8fbd",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "ppt-live-staging",
+          "condition": "github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/production-readiness-audit.yml",
+      "sha256": "447fd0995b8ce29a4519a34f622f23479e7df6feea6e23011a3a0ebff6f9800c",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "static-audit",
+          "condition": null,
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "actions/setup-node@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/provision-staging-stripe-catalog.yml",
+      "sha256": "b6f26828cb790581131851c3cdaaad57c1032dd8ec668fe0be2a01ed18033692",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "provision-catalog",
+          "condition": null,
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/release-readiness.yml",
+      "sha256": "5900717285d9f149c5a72c4f0e08f6ca8cccf14a8f5b821c4eba46e5962ad9d1",
+      "events": [
+        "workflow_dispatch",
+        "schedule"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "release-readiness",
+          "condition": null,
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/report-a11y.yml",
+      "sha256": "6bfcc72b9231bb5889171935dc1c0a86d9b5853c1b8bc1e890beaba3aafd1190",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "report-a11y",
+          "condition": null,
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/role-guard-qa.yml",
+      "sha256": "c92e5c144aabe1a867c783cdb66c88962eadc59ed2fa9b31ed327edd1d81ffe1",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "push_branches": [
+        "main"
+      ],
+      "jobs": [
+        {
+          "id": "role-guard-matrix",
+          "condition": null,
+          "environment": null,
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "actions/setup-node@v4"
+          ]
+        },
+        {
+          "id": "role-leak-signedin",
+          "condition": "github.event_name != 'pull_request'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v4",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/staging-billing-verification.yml",
+      "sha256": "54ea6cf74e444d60003d2ac9a40d4d33031204928d465c45cc47d3e3910a38b7",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "verify-staging-billing",
+          "condition": null,
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/staging-role-verification.yml",
+      "sha256": "580ec824b0b4da74d1ac03b3cc0c2700fd2509a5e4df70ed9c95bec2af056f20",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "verify-seven-roles",
+          "condition": null,
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2",
+            "actions/upload-artifact@v4"
+          ]
+        }
+      ]
+    },
+    {
+      "file": ".github/workflows/student-document-malware-qa.yml",
+      "sha256": "d8127c32e8763337110f752b36cb82f74cdf7a1db79b1ba7eede1ef55ec6b321",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "push_branches": null,
+      "jobs": [
+        {
+          "id": "live-staging-antivirus",
+          "condition": "github.ref == 'refs/heads/main'",
+          "environment": "staging",
+          "reusable_workflow": null,
+          "step_actions": [
+            "actions/checkout@v5",
+            "oven-sh/setup-bun@v2"
+          ]
+        }
+      ]
+    }
+  ],
+  "findings": {
+    "workflow_count": 22,
+    "website_deployment_workflow": ".github/workflows/deploy-staging.yml",
+    "deployment_trigger": "workflow_dispatch only",
+    "deployment_environment": "staging",
+    "deployment_command": "bunx wrangler deploy --config wrangler.staging.toml",
+    "worker_name": "transitionforward-staging",
+    "production_deployment_command_found": false,
+    "hosted_supabase_migration_or_function_deployment_command_found": false,
+    "merge_to_main_can_trigger_test_jobs": true,
+    "build_label_is_not_publication": true,
+    "package_build_scripts_contain_no_deployment_command": true
+  },
+  "not_verified": [
+    "Actual GitHub environment review settings and stored-secret destinations",
+    "External Lovable GitHub source sync, production project connection and automatic publication settings",
+    "Any external Cloudflare or Supabase deployment integrations",
+    "Fresh production runtime, database ledger and service configuration"
+  ],
+  "remaining_gate": "Before any main merge, verify external production delivery controls under explicit authorization; source inventory alone does not prove merge is safe.",
+  "native_document_gate": {
+    "push_run": 41683201113,
+    "pr_run": 41683212048,
+    "early_push_compatibility_step": "success",
+    "full_current_native_and_schema_proof": "pending"
+  },
+  "actions": {
+    "deployed": false,
+    "published": false,
+    "hosted_migration": false,
+    "production_access": false,
+    "provider_calls": false,
+    "hosted_records": false
+  }
+}

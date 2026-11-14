@@ -1,0 +1,81 @@
+{
+  "schema": "document-summary-capacity-settlement-local-v1",
+  "date": "2026-10-31",
+  "source_base": "496ad3695f23e5c8e983f87b01a55494fcc8a0d9",
+  "status": "Summary-only guarded receipt/settlement prepared; no hosted activation or general application enforcement",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-summary-capacity-settlement.sql",
+      "sha256": "861d744fc1352e5305f8a4c34ac5c6997c6d422930f0b8ad0743a8605447667b"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-summary-capacity-settlement-review.json",
+      "sha256": "d7b5615c390bca339a1402f17f9f42af8c3e9ecefd915e21be514843c2a13bb4"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "305aa07009c39f3f3818d358b6ab457c8de6af2da02b7a01e368eae9b067c8fd"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "e7f23b59dac6ca05e375bac97b27d58719537b78aa427e615f1accafc3a6ce5f"
+    }
+  ],
+  "validation": {
+    "full_local_sql": {
+      "tests": 995,
+      "passed": 875,
+      "failed": 0,
+      "skipped": 120,
+      "skip_scope": "Native PostgreSQL concurrency-only cases"
+    },
+    "new_summary_settlement_cases": 41,
+    "new_native_only_cases": 4,
+    "focused_final": {
+      "tests": 41,
+      "passed": 37,
+      "failed": 0,
+      "skipped": 4
+    },
+    "offline_safety_and_accounting_contracts": 110,
+    "workflow_yaml": "parsed; one eighth-stage verification",
+    "parity": "Complete original guarded domain body and reply preserved except the explicit lock/operation check/receipt additions; capacity guard preserved except three exact one-unit deductions. Both parity cases pass.",
+    "new_source_ci": "Pending; prepares full225 canonical plus eight noncanonical proposals with exact seven routine/owner/path/grant checks, enabled guards and dormant/empty proof artifact.",
+    "final_documentation_contracts": 44
+  },
+  "verified_foundation": {
+    "source": "496ad3695f23e5c8e983f87b01a55494fcc8a0d9",
+    "evidence": "docs/production-readiness/evidence/document-capacity-ledger-foundation-verified-2026-10-31.json",
+    "native_each": 954,
+    "native_skips": 0,
+    "full_replays": "Both225+seven",
+    "automatic_successes": 9
+  },
+  "proof_boundary": "Disposable SQL proves persisted domain/operation/accounting consistency, not that model output is accurate, physical provider work ceased, spending is capped, source-bound capacity adapters are wired or a hosted release is accepted.",
+  "runtime_source_unchanged": {
+    "website_fingerprint": "394cc528f6d15660160e90b954d23c6ffbcb514f54b407461b1848ba2a298a20",
+    "website_files": 1205,
+    "worker_fingerprint": "2c7d8c7014db5b7a98bbecc4a7051f4135690af6e8f20a7e40ae5f8ac2de9746",
+    "worker_files": 4
+  },
+  "canonical_migrations": 225,
+  "existing_unapplied_batch": 15,
+  "noncanonical_unapplied_proposals": 8,
+  "summary_capacity_settlement_prepared": true,
+  "producer_apply_settlement_implemented": false,
+  "producer_worker_capacity_hooks_installed": false,
+  "general_application_limits_implemented": false,
+  "queue_budget_reservation_implemented": false,
+  "manual_reconciliation_implemented": false,
+  "numeric_policy_selected": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "next": [
+    "Source-bound guarded producer/Apply completion and quarantine/no-summary handling; never infer settlement from a typed lease/job status.",
+    "Atomic source-bound registration/rescan/Apply reservation, exact queue insertion/transfer and worker transfer; preserve existing reserved retry, current caller authority and one reviewed lock order.",
+    "Native995-case races, full225+eight replay, exact private-grant/source parity and original-reader behavior; no hosted acceptance inferred from offline proof.",
+    "Legacy/direct/scheduled fencing, trusted held-work reconciliation, reviewed numeric policy, physical Storage/provider/drain acceptance and final canonical/ledger packaging before any freshly authorized hosted rollout."
+  ]
+}

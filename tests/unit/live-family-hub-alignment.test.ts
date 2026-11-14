@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { buildFamilyHubLiveState } from "../../src/lib/dashboard/family-live-hub";
 import type { DashboardSnapshot } from "../../src/lib/golden-path.functions";
 
+beforeEach(() => vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-14T12:00:00Z")));
+afterEach(() => vi.restoreAllMocks());
 const HUB = readFileSync("src/routes/_authenticated/hubs.family.tsx", "utf8");
 const OVERVIEW = readFileSync("src/components/dashboard/LiveFamilyWorkspaceOverview.tsx", "utf8");
 
@@ -119,7 +121,7 @@ describe("live Family Hub alignment", () => {
       tone: "success",
     });
     expect(state?.operations.consent).toEqual({ status: "1 active", tone: "success" });
-    expect(state?.operations.resources).toEqual({ status: "1 matched", tone: "neutral" });
+    expect(state?.operations.resources).toEqual({ status: "1 shown", tone: "neutral" });
     expect([...state!.completedStages]).toEqual([
       "start",
       "voice",
@@ -168,4 +170,26 @@ describe("live Family Hub alignment", () => {
     expect(HUB).not.toContain("<NextActionCardServer");
     expect(HUB).toMatch(/<\/WorkspaceZone>\s*<\/HubShell>/);
   });
+});
+
+it("shares expiry and grant-date rules with the live Family consent card", () => {
+  const current = snapshot.consents[0];
+  const state = buildFamilyHubLiveState({
+    ...snapshot,
+    consents: [
+      current,
+      { ...current, expires_at: "2026-10-14T12:00:00Z" },
+      { ...current, granted_at: "2026-10-15T12:00:00Z" },
+      { ...current, expires_at: "invalid" },
+    ],
+  });
+  expect(state?.operations.consent).toEqual({ status: "1 active", tone: "success" });
+});
+it("does not turn a cached past meeting into an upcoming Family operation", () => {
+  const state = buildFamilyHubLiveState({
+    ...snapshot,
+    upcomingMeeting: { ...snapshot.upcomingMeeting!, scheduled_at: "2026-10-13T12:00:00Z" },
+  });
+  expect(state?.operations.meeting).toEqual({ status: "Not scheduled", tone: "warn" });
+  expect(state?.operations.resources.status).toBe("1 shown");
 });

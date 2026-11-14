@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-23",
+  "sourceSha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+  "status": "released-both-staging-sites-bounded-read-only-acceptance-passed",
+  "deploymentRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40017617374",
+  "deploymentConclusion": "success",
+  "isolatedLovableSyncSha": "6c51391db6cdaa89ebc62782a3c7171594db0999",
+  "publishedHealth": {
+    "cloudflare": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "transitionforward-staging.caysi101.workers.dev",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": false,
+      "ai_runtime": "unconfigured",
+      "runtime_source_fingerprint": "080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    "lovable": {
+      "app_env": "staging",
+      "vite_app_env": "staging",
+      "hostname": "gentle-forward-reach.lovable.app",
+      "supabase_project_ref": "qgrertkqbwanerqqemph",
+      "is_production_project": false,
+      "is_production_hostname": false,
+      "is_staging_target": true,
+      "is_production_target": false,
+      "stripe_mode": "sandbox",
+      "stripe_public_mode": "sandbox",
+      "stripe_server_mode": "sandbox",
+      "stripe_livemode": false,
+      "ai_gateway_configured": true,
+      "ai_runtime": "lovable-managed",
+      "runtime_source_fingerprint": "080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0",
+      "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+      "runtime_source_fingerprint_algorithm": "sha256",
+      "runtime_source_file_count": 1184,
+      "git_commit_sha": "6c51391db6cdaa89ebc62782a3c7171594db0999",
+      "isolation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  },
+  "verificationRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40018705627",
+  "verificationStatus": "success",
+  "scope": "Seven existing role sessions, four anonymous sample-report journeys, three fictional PDFs; no records or AI",
+  "limits": [
+    "Hosted linked-editor/card ownership recovery not established by sample-reader tests",
+    "Owner/admin data policy and broader production gates remain open",
+    "Seven role sign-ins do not establish every role feature. Three prepared PDF exports are functional assertions, not a new cosmetic or all-page visual review."
+  ],
+  "deferred": "Report length/cosmetic polish and Parent Pilot/Pathway Snapshot remain deferred",
+  "productionChanged": false,
+  "migrations": false,
+  "hostedRecords": false,
+  "aiCalls": false,
+  "authorization": "User authorized this staging-only release, existing isolated Lovable publication update and read-only role/report checks; GitHub human reviews submitted for release and test.",
+  "automaticChecks": {
+    "checks": [
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951339/job/120598579999",
+        "name": "e2e",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951208/job/120597429187",
+        "name": "role-leak-signedin",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951527/job/120597237487",
+        "name": "rls-regression",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951208/job/120597180296",
+        "name": "role-guard-matrix",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951783/job/120597179953",
+        "name": "CT Seed v2 Live Staging Audit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951406/job/120597179205",
+        "name": "cross-district-rls",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951206/job/120597178880",
+        "name": "permission-regression",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951742/job/120597178209",
+        "name": "report-a11y",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951783/job/120597178111",
+        "name": "CT Seed v2 Static Audit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951476/job/120597177577",
+        "name": "Clean Production Build",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951339/job/120597176646",
+        "name": "unit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951222/job/120597176472",
+        "name": "replay",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006951250/job/120597176112",
+        "name": "Credential-free Production Readiness Audit",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40006944723/job/120597154566",
+        "name": "Clean Production Build",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "head_sha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+        "html_url": "https://github.com/iWAVYx/transitionpathfinder-ai/runs/120597151350",
+        "name": "Supabase Preview",
+        "status": "completed"
+      }
+    ],
+    "total_count": 15
+  },
+  "isolatedSyncReceipt": {
+    "sourceSha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+    "repository": "iWAVYx/gentle-forward-reach",
+    "baseline": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "0e9795d59b64725ae88e38d30f4d3a292e31e8734f925822493fe2059d973fd1",
+      "fileCount": 1184
+    },
+    "candidate": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "080da8fba99c4623d7fe67103211ca3ae744e9a9eb9bc062b1091075f69b57e0",
+      "fileCount": 1184
+    },
+    "changedFiles": [
+      "src/components/students/PathwayReportCard.tsx",
+      "src/components/students/StudentPathwayReportPanel.tsx",
+      "src/lib/pathway.functions.ts",
+      "src/routes/_authenticated/students.$studentId.tsx"
+    ],
+    "protectedFilesUnchanged": [
+      ".env",
+      ".env.development",
+      ".env.production",
+      "package.json",
+      "bun.lock",
+      "src/integrations/supabase/types.ts"
+    ],
+    "noInstallOrDependencyChange": true,
+    "builderEditPreserved": "Only the four named files changed; Your Dashboard Widgets edit remains untouched."
+  },
+  "readOnlyAcceptance": {
+    "runId": 40018705627,
+    "sourceSha": "3bb45d0c5adf8831ccadc665ad39461b09c3bd3f",
+    "conclusion": "success",
+    "existingRoleSignInsPassed": 7,
+    "anonymousReportJourneysPassed": 4,
+    "viewportWidths": [
+      390,
+      1440
+    ],
+    "samplePdfExports": 3,
+    "retries": 0,
+    "artifactSanitizer": "success-before-download",
+    "assertions": [
+      "Audience selection in one click, URL, reload and browser history",
+      "Optional sample-details return and no report horizontal overflow",
+      "Loaded watermark, five meeting questions each printed once, complete final question/source note together, complete report ending and no text-empty PDF pages"
+    ],
+    "notPerformed": [
+      "New saved-report/card ownership, load-error or linked-editor hosted fixtures",
+      "Live AI generation",
+      "Native OS print dialog",
+      "New all-page visual PDF review"
+    ],
+    "noHostedRecords": true,
+    "noAiCalls": true,
+    "cleanup": "Not needed: no fixtures created",
+    "localSanitizedArtifacts": "/private/tmp/tf-student-report-card-3bb45d0c/artifacts"
+  }
+}

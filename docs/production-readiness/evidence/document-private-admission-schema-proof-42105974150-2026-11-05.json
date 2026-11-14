@@ -1,0 +1,10 @@
+{
+  "paused": true,
+  "schema": "document-private-admission-proof-v1",
+  "begin_body_md5": "4ff01874b39fa3e46c24a6bf3d8149fc",
+  "hosted_applied": false,
+  "finish_body_md5": "b96db30c250af2e17a60159843b5392d",
+  "ready_for_cutover": false,
+  "service_completion": true,
+  "service_generic_admission": false
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "document-producer-authority-local-v1",
+  "date": "2026-11-13",
+  "source_base": "e2ca042cc5e986ff5fca42eff87bc616219907a1",
+  "workstream_actions": [
+    "2.6",
+    "2.7"
+  ],
+  "scope": "Transaction-held explicit editing proof for upload reservation, document registration, registration recovery and rescan begin/pending/result only. No hosted/provider acceptance.",
+  "local_component_cases_passed": 23,
+  "local_failed": 0,
+  "local_skipped": 0,
+  "prepared_native_baseline_reproductions": 6,
+  "prepared_native_fixed_races": 168,
+  "prepared_native_component_cases": 23,
+  "native_verified": false,
+  "full225_plus39_verified": false,
+  "review_drafts": 39,
+  "canonical_migrations": 225,
+  "original1660_test_source_unchanged": true,
+  "local_verified": [
+    "All six actual SQL flow boundaries pass with expected atomic state and exact capacity accounting.",
+    "Private helper execution is refused for anon/authenticated/service roles; Owner without explicit student access and a foreign actor are refused.",
+    "Unpaused/held installation, first/last target drift, canonical-helper drift, disabled role trigger and expanded recovery grants are refused atomically; installer rollback preserves exact prior routine bodies/settings/grants and accounting.",
+    "Stronger transaction isolation is refused; exact reservation retry remains valid at the two-unit student cap, and admitted rescan results may drain while paused."
+  ],
+  "native_pending": "Six unpatched editor-removal reproductions and all168 corrected races must observe the actual competing session lock across seven role proofs, both operation orderings and commit/rollback.",
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-producer-authority-lock.sql",
+      "sha256": "3974bb53390e88a5b0ab43451a9fab97715d58c6a6ee594952f35145c5ad6fb8"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-producer-authority-patches.json",
+      "sha256": "ccd03c17b6a788f07dc773263ff86e2c26d54c4a4e9d9c29db4f2c6ecda2e7c8"
+    },
+    {
+      "path": "tests/database/document-producer-authority-fixture.mjs",
+      "sha256": "4e65d863f724c29e61ec0c3e1f8d45c398accfa8b820feddc3bc42802fbd1eac"
+    },
+    {
+      "path": "tests/database/document-producer-authority-cases.mjs",
+      "sha256": "3d98346bcccabc58ef5bf3769d98c7b2550ca1e7e7436459f9d77be8ac2138f9"
+    },
+    {
+      "path": "tests/database/document-producer-authority.test.mjs",
+      "sha256": "82467de48d0d439d5b58916a0a51755329d4fe18615be9c781c6ba6a3ea18219"
+    },
+    {
+      "path": "tests/database/document-producer-access-races.test.mjs",
+      "sha256": "8eac0b9473ce0240facae6f2a357323193e6478b2d03d4aa51bb30e41af8ff1c"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a"
+    }
+  ],
+  "product_app_code_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false,
+  "local_contracts_passed": 84,
+  "workflow_shell_blocks_parsed": 94,
+  "local_component_log_sha256": "ba809a1bf8a162caa32e0810535e43f6b82881317eb0845cc6f971b78bb25a9d",
+  "local_contract_log_sha256": "b3a8a50340d76ebcb3910e9be4da59df706cbe7b036111c643f5b4696e1824be"
+}

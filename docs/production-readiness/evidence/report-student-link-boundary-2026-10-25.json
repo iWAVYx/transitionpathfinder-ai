@@ -1,0 +1,299 @@
+{
+  "date": "2026-10-25",
+  "status": "both-staging-releases-verified-read-only-acceptance-passed",
+  "runtimeDeployed": true,
+  "findings": [
+    "Link action previously returned success on an RLS-filtered zero-row update.",
+    "Relink previously omitted the browser-observed student association, permitting stale overwrite of a newer association.",
+    "Non-owner readers were shown linking controls rejected by the database.",
+    "Reader retained active-link controls after a context change retired those links."
+  ],
+  "changes": [
+    "Require a valid explicit expected_student_id (UUID or null), with readable reload guidance for old/invalid requests.",
+    "Filter one UPDATE by report ID, actual authenticated owner and observed student association (IS NULL for unlinked); require a matching returned report/student row.",
+    "Keep existing target edit authorization, caller RLS and identity trigger; never supply alternate ownership or service credentials.",
+    "Hide linking/save-to-profile controls from non-owners; serialize linking with regeneration.",
+    "Clear old share controls immediately after confirmed relink, including if subsequent report reopening fails.",
+    "Only announce success if reopening returns the same report and intended student association."
+  ],
+  "validation": {
+    "fullUnitTests": 4502,
+    "files": 316,
+    "fullUnitLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-unit.log",
+    "focusedCases": 49,
+    "focusedLog": "/private/tmp/tf-linked-save-canonical/report-link-focused-final.log",
+    "automaticChecks": [
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343867/job/121208534456",
+        "name": "e2e",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343901/job/121208050498",
+        "name": "role-leak-signedin",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343786/job/121208019093",
+        "name": "rls-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343867/job/121207986080",
+        "name": "unit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343830/job/121207986062",
+        "name": "CT Seed v2 Static Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343754/job/121207985944",
+        "name": "replay",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343745/job/121207985549",
+        "name": "Credential-free Production Readiness Audit",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343895/job/121207986268",
+        "name": "report-a11y",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343901/job/121207986194",
+        "name": "role-guard-matrix",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343782/job/121207986193",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206340397/job/121207976174",
+        "name": "Clean Production Build",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343818/job/121207987275",
+        "name": "cross-district-rls",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343830/job/121207987304",
+        "name": "CT Seed v2 Live Staging Audit",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40206343851/job/121207987329",
+        "name": "permission-regression",
+        "state": "SKIPPED"
+      },
+      {
+        "link": "https://supabase.com/dashboard/project/cyhclwpkjnzaelwkzgly/branches",
+        "name": "Supabase Preview",
+        "state": "SKIPPED"
+      }
+    ],
+    "typescriptPassed": true,
+    "typescriptLog": "/private/tmp/tf-linked-save-canonical/report-link-reviewed-tsc.log",
+    "allRequiredAutomaticChecksPassed": true
+  },
+  "limits": [
+    "Observed-student compare is state-based; it does not detect a change-away-and-back association (ABA), enforce whole-report metadata revision, or lock provider input provenance.",
+    "No new database policy, function, grant or migration. Existing database identity/access controls remain authoritative.",
+    "No hosted relink mutation test has been run for this candidate. Local tests exercise request validation, owner/source filters, zero-row/denied result handling and reader behavior; they do not substitute for native lock-concurrency evidence.",
+    "Shared readers and demos have no live report relinking action. The shared saved-report mutation applies to every permitted report owner rather than one role."
+  ],
+  "hostedActions": "Authorized application staging rollout completed on both stable sites. Read-only acceptance passed after human review: seven existing role sign-ins, four prepared-reader journeys, three fictional sample PDFs. Zero fixture records, AI/provider calls, migrations, new accounts, payment or secret changes.",
+  "productionTouched": false,
+  "mainMerged": false,
+  "next": [
+    "Review remaining metadata/direct-writer/provenance boundaries locally; live relink writes and change-away/back remain separately unverified.",
+    "Continue broader all-role generation, provider/privacy/security/operations release checklist.",
+    "Keep report length/cosmetic polish, Parent Pilot and Pathway Snapshot deferred; production requires separate reviewed authorization."
+  ],
+  "preserved": [
+    "Your Dashboard Widgets builder edit",
+    "Full TF-01\u2013TF-26 roadmap",
+    "Deferred report polish",
+    "Deferred Parent Pilot and Pathway Snapshot"
+  ],
+  "reviewedCandidate": "04bf970b",
+  "runtimeFingerprint": "6126e2ed837e0c195f593802c091d601ebf991b019a6e4b4d94d547028a480dd",
+  "runtimeFiles": 1185,
+  "stagingRelease": {
+    "authorized": true,
+    "cloudflareRun": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40207428692",
+    "releaseCommit": "1544ede3d6c6a4d02988a6323a748699c45622df",
+    "githubStatus": "success",
+    "isolatedRepository": "iWAVYx/gentle-forward-reach",
+    "isolatedSyncCommit": "d6c6f48aaf7570a423729b623f84eb25b5fc4a4b",
+    "syncEvidence": {
+      "sourceSha": "1544ede3d6c6a4d02988a6323a748699c45622df",
+      "previousIsolatedCommit": "cc0beadf4971c671789a5e0e12273d6fa26ba3b2",
+      "runtimeFiles": [
+        "src/lib/pathway.functions.ts",
+        "src/routes/_authenticated/reports.$reportId.tsx"
+      ],
+      "builderChangesSincePriorSync": 0,
+      "protectedHashesBefore": {
+        ".env": "1a189ff56cf1136aec1754cbe4400de30079ef775a72966f008064abf974b96a",
+        ".env.development": "0b0bf11adff1a6cbe1a2bccfcd780b58c4c143f348e8b27dde8efa4527b312ac",
+        ".env.production": "1fc578d7313884b857d0174fdecfa1d24e017023c6a3ae0b18879fc50dd63bd7",
+        "package.json": "d22e08594a4f5587b942d8c7cbeb7aaf514fb1d0f4787ed764ba251acdd2259d",
+        "bun.lock": "e6e040cd498daf15202ab8225e528e88a22208959024d28c48c97e27d9c11175",
+        "src/integrations/supabase/types.ts": "3afffb120e9747977e6c1df0498a18dd59a20da44d0a60fecdc40a144870e4c6",
+        "src/routes/demo.tsx": "d5e356e3b00dd6ed7b89d8bca27c53ea60f457e2b37575179ee8cab24cd54f07"
+      },
+      "protectedHashesAfter": {
+        ".env": "1a189ff56cf1136aec1754cbe4400de30079ef775a72966f008064abf974b96a",
+        ".env.development": "0b0bf11adff1a6cbe1a2bccfcd780b58c4c143f348e8b27dde8efa4527b312ac",
+        ".env.production": "1fc578d7313884b857d0174fdecfa1d24e017023c6a3ae0b18879fc50dd63bd7",
+        "package.json": "d22e08594a4f5587b942d8c7cbeb7aaf514fb1d0f4787ed764ba251acdd2259d",
+        "bun.lock": "e6e040cd498daf15202ab8225e528e88a22208959024d28c48c97e27d9c11175",
+        "src/integrations/supabase/types.ts": "3afffb120e9747977e6c1df0498a18dd59a20da44d0a60fecdc40a144870e4c6",
+        "src/routes/demo.tsx": "d5e356e3b00dd6ed7b89d8bca27c53ea60f457e2b37575179ee8cab24cd54f07"
+      }
+    },
+    "isolatedFingerprintVerifiedLocally": true,
+    "lovablePreviewStatus": "expected fingerprint/count confirmed externally",
+    "lovablePublication": "existing isolated staging publication updated and stable identity verified",
+    "readOnlyAcceptance": {
+      "run": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40209150697",
+      "scope": "report-reader-lenses",
+      "status": "success",
+      "records": 0,
+      "aiCalls": 0,
+      "requiredHumanReviewCompleted": true,
+      "retries": 0,
+      "existingRoleSessions": 7,
+      "sampleReportCases": 4,
+      "unexpected": 0,
+      "flaky": 0,
+      "skippedSampleCases": 0,
+      "preparedReaderReceipts": [
+        {
+          "width": 390,
+          "origin": "family",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [],
+          "nativePrintDialogVerified": false
+        },
+        {
+          "width": 390,
+          "origin": "educator",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [],
+          "nativePrintDialogVerified": false
+        },
+        {
+          "width": 1440,
+          "origin": "family",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [
+            {
+              "audience": "educator",
+              "pages": 30,
+              "finalQuestionWithSources": true,
+              "meetingQuestionsPrintedOnce": 5
+            },
+            {
+              "audience": "student",
+              "pages": 30,
+              "finalQuestionWithSources": true,
+              "meetingQuestionsPrintedOnce": 5
+            },
+            {
+              "audience": "family",
+              "pages": 30,
+              "finalQuestionWithSources": true,
+              "meetingQuestionsPrintedOnce": 5
+            }
+          ],
+          "nativePrintDialogVerified": false
+        },
+        {
+          "width": 1440,
+          "origin": "educator",
+          "singleClick": true,
+          "history": true,
+          "reload": true,
+          "optionalRoundTrip": true,
+          "pdfs": [],
+          "nativePrintDialogVerified": false
+        }
+      ],
+      "samplePdfExports": 3,
+      "artifactSanitization": "success",
+      "nativePrintDialogVerified": false,
+      "hostedRelinkWritesVerified": false,
+      "artifacts": "/private/tmp/tf-linked-save-canonical/hosted-40209150697"
+    },
+    "stableHealth": {
+      "cloudflare": {
+        "app_env": "staging",
+        "vite_app_env": "staging",
+        "hostname": "transitionforward-staging.caysi101.workers.dev",
+        "supabase_project_ref": "qgrertkqbwanerqqemph",
+        "is_production_project": false,
+        "is_production_hostname": false,
+        "is_staging_target": true,
+        "is_production_target": false,
+        "stripe_mode": "sandbox",
+        "stripe_public_mode": "sandbox",
+        "stripe_server_mode": "sandbox",
+        "stripe_livemode": false,
+        "ai_gateway_configured": false,
+        "ai_runtime": "unconfigured",
+        "runtime_source_fingerprint": "6126e2ed837e0c195f593802c091d601ebf991b019a6e4b4d94d547028a480dd",
+        "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+        "runtime_source_fingerprint_algorithm": "sha256",
+        "runtime_source_file_count": 1185,
+        "git_commit_sha": "1544ede3d6c6a4d02988a6323a748699c45622df",
+        "isolation": {
+          "ok": true,
+          "errors": []
+        }
+      },
+      "lovable": {
+        "app_env": "staging",
+        "vite_app_env": "staging",
+        "hostname": "gentle-forward-reach.lovable.app",
+        "supabase_project_ref": "qgrertkqbwanerqqemph",
+        "is_production_project": false,
+        "is_production_hostname": false,
+        "is_staging_target": true,
+        "is_production_target": false,
+        "stripe_mode": "sandbox",
+        "stripe_public_mode": "sandbox",
+        "stripe_server_mode": "sandbox",
+        "stripe_livemode": false,
+        "ai_gateway_configured": true,
+        "ai_runtime": "lovable-managed",
+        "runtime_source_fingerprint": "6126e2ed837e0c195f593802c091d601ebf991b019a6e4b4d94d547028a480dd",
+        "runtime_source_fingerprint_schema": "transitionforward-runtime-source-v1",
+        "runtime_source_fingerprint_algorithm": "sha256",
+        "runtime_source_file_count": 1185,
+        "git_commit_sha": "d6c6f48aaf7570a423729b623f84eb25b5fc4a4b",
+        "isolation": {
+          "ok": true,
+          "errors": []
+        }
+      }
+    }
+  }
+}

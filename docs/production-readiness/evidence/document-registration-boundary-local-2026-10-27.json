@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-27",
+  "status": "local registration boundary correction; hosted acceptance not run",
+  "base_commit": "488a667be9ba6afe270cab151ed16727b3094f80",
+  "corrected": [
+    "Registration rejects storage paths outside the exact student folder, nested folders, traversal/encoded/query/fragment/backslash paths before database or privileged processing.",
+    "Registration independently confirms can_edit_student(authenticated actor, requested student) before role queries, duplicate lookup, privileged sniff/scan/removal or pipeline processing. Only true without an error is accepted; rejected calls fail closed without retry or private error details.",
+    "Existing protected-file upload gate, partner denial, caller row-level writes and scanner configuration remain unchanged. No permission expansion or migration."
+  ],
+  "observed_open_findings": [
+    {
+      "area": "Upload result messaging",
+      "evidence": "FamilyDocumentUpload ignores the registration result and reports Document uploaded even when the server returns rejected/archived or failed/deleted scan state. Clean registration returns the initial row, not a confirmed persisted scan-status readback.",
+      "next": "Define truthful confirmed, quarantined and uncertain outcomes; check update receipts before claiming a persisted clean result."
+    },
+    {
+      "area": "Upload lifetime and retries",
+      "evidence": "The shared form uses React busy state without a synchronous in-flight latch and performs permission, storage and registration awaits without an expected-viewer/session intent guard in this flow.",
+      "next": "Check double submission, student/viewer departure and lost response behavior across shared role access; avoid replaying uncertain writes."
+    },
+    {
+      "area": "Duplicate uploads and orphan storage",
+      "evidence": "FamilyDocumentUpload does not supply content_hash. Optional server dedupe uses a lookup; storage has already been written, and that branch does not reconcile the new object. A registration failure can likewise leave uploaded bytes without a document receipt.",
+      "next": "Derive trusted content identity and define concurrency-safe exact object reconciliation; do not blindly delete after a lost response."
+    },
+    {
+      "area": "Error handling",
+      "evidence": "Upload catch logs the original error and displays its message; listDocuments converts an error into an empty list.",
+      "next": "Use friendly content-free errors, distinguish unavailable from empty and separate post-save refresh errors from failed persistence."
+    },
+    {
+      "area": "Quarantine/private downloads",
+      "evidence": "getDocumentSignedUrl relies on authorization plus storage RLS. The existing storage_can_read_student_doc definition includes uploader/admin/recent-grant exceptions for non-clean rows and an unregistered-object editor path.",
+      "next": "Review current effective policies in disposable database tests before certifying quarantine or changing permissions. This audit does not establish an exploit or claim those policies were changed."
+    },
+    {
+      "area": "Provider/jobs and cleanup",
+      "evidence": "A clean registration enqueues a document_summary ai_jobs row; registration can also write privileged pipeline rows, audit rows and access logs. Some transition/audit write errors are not checked.",
+      "next": "Map all exact child IDs/object paths and background-worker effects before proposing a bounded storage acceptance run. Do not describe a clean upload test as no-AI without proving worker isolation."
+    }
+  ],
+  "bounded_test_preparation": {
+    "status": "draft sequence, not executable or authorized",
+    "goal_save_first": "Prepare a separate no-provider write/receipt/access acceptance using existing Family/Educator accounts and fictional proposals, with explicit row IDs, maximum counts and independent absence checks; it must not be represented as live goal extraction acceptance.",
+    "document_storage_second": "Resolve receipt, lifetime, dedupe/orphan, scan-policy and automatic-job questions first. Then specify fictional privacy-safe bytes only, exact students/objects/rows/jobs/provider limits, all-role denial checks and table-owner absence verification.",
+    "cleanup_rule": "Reconcile exact returned IDs and exact attempted storage paths. Verify descendants explicitly, including documents, goals, evidence, pipeline, access/audit and jobs; no prefix sweeps or deletion of unrelated records. Uncertain completion stops for reconciliation.",
+    "authorization": "Fresh scoped rollout and any fixture/provider/storage acceptance authorization plus required human GitHub review remain necessary."
+  },
+  "prior_candidate_ci": {
+    "candidate": "488a667b",
+    "automatic_checks": "All eight applicable checks passed after one same-source failed-build retry.",
+    "failed_push_build_run": "40436945178",
+    "initial_failure": "Node heap exhausted under existing 1216MB cap",
+    "retry_attempt": 2,
+    "retry_result": "success",
+    "separate_pr_build": "40437090987 passed",
+    "hosted_acceptance": "not run"
+  },
+  "runtime_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "6430cdfd462efbf18d54330666343729f3af4d2d9fb138a19b4c6ae04f5fa393",
+    "file_count": 1191
+  },
+  "validation": {
+    "focused_tests": 68,
+    "new_registration_cases": 21,
+    "full_unit_files": 341,
+    "full_unit_tests": 4997,
+    "static_upload_gate_contracts": 5,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "diff_check": "passed"
+  },
+  "limits": [
+    "Shared server boundary applies to each authorized role; no new role/dashboard/document entitlement. Demo remains sample-only, without real uploads/provider calls.",
+    "No hosted uploads, fixtures, AI/provider calls, migration, deployment, publication, production/original-main merge, account/access, payment or secrets changes.",
+    "Preserve full TF-01\u2013TF-26/six milestones, Lovable heading and protected files; report polish and Parent Pilot/Pathway Snapshot remain deferred."
+  ]
+}

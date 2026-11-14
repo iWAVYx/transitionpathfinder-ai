@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-28",
+  "status": "eleventh proposal passes all nine applicable checks on corrected candidate; both native runs pass 395 cases with zero skips; no hosted integration",
+  "source_base": "163d575a",
+  "hosted_actions": false,
+  "canonical_migration_count": 210,
+  "noncanonical_proposal_count": 11,
+  "application_changed": false,
+  "application_fingerprint": "6145db241b6b3d03692c1899589ec825221dd5bf943a2148a89e735c15f9ebf3",
+  "application_file_count": 1199,
+  "proposal": "docs/production-readiness/proposals/document-upload-admission-limits.sql",
+  "proposal_sha256": "b7334ca0b44dc38a9d03ed71a3e8ff935dd8448ec90577713f60eab09a3b3dc8",
+  "implemented": [
+    "Prototype limits: at most five unresolved reservations per actor across students and ten per student across actors. Reserved and review_required count; registered claims do not.",
+    "Exact existing reserved receipts remain idempotent at or above capacity. Changed, held, registered, foreign and inaccessible intents retain generic refusals. No count or foreign receipt is exposed.",
+    "A single transaction-scoped global advisory admission lock (824601,11) serializes new claims. READ COMMITTED is required; stronger snapshot modes are refused. Current edit/partner authority is rechecked after the wait.",
+    "Bounded count queries use partial indexes. Existing over-limit rows are preserved without resetting, deleting, expiring, releasing or changing their timestamps. No new table or role mutation rights."
+  ],
+  "validation": {
+    "local_disposable_sql": {
+      "tests": 395,
+      "pass": 369,
+      "skip": 26,
+      "fail": 0,
+      "skips": "Native-only lock/contention cases; not local concurrency proof."
+    },
+    "local_contracts": {
+      "pass": 70,
+      "fail": 0
+    },
+    "native_ci": {
+      "tests": 395,
+      "pass": 395,
+      "fail": 0,
+      "skip": 0,
+      "runs": [
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40722663801",
+        "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40722652678"
+      ],
+      "contention": "Seven new cases observe actual lock waits: actor/student final-slot COMMIT/ROLLBACK, identical intent COMMIT/ROLLBACK, and access removal during admission wait."
+    },
+    "canonical_replay": "Both full 210 canonical migration replays plus all eleven proposal installations/catalog assertions pass.",
+    "automatic_checks": {
+      "applicable_pass": 9,
+      "runs": [
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40722663907,
+          "name": "Cross-district RLS QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663866,
+          "name": "CT Seed v2 Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663855,
+          "name": "Production Readiness Audit",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40722663853,
+          "name": "Permission regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "skipped",
+          "databaseId": 40722664074,
+          "name": "RLS regression QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663868,
+          "name": "Role-guard QA",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663817,
+          "name": "Report a11y (axe-core)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663835,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663810,
+          "name": "Dashboard regression",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722663801,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722652664,
+          "name": "Build & SSR Verification",
+          "status": "completed"
+        },
+        {
+          "attempt": 1,
+          "conclusion": "success",
+          "databaseId": 40722652678,
+          "name": "Migration Replay (disposable Postgres)",
+          "status": "completed"
+        }
+      ],
+      "builds": "Both first attempt; unchanged capped configuration; no reruns.",
+      "protected_skipped": "Unperformed, not hosted acceptance."
+    }
+  },
+  "limits": [
+    "Proposal only; no live RPC replacement or app caller integration. Numeric defaults require release review before any promotion.",
+    "Global admission serialization intentionally favors correctness over throughput. Long caller transactions can block all reservations; contention/timeout UX, throughput and lock ordering with future recovery operations remain review gates. PostgreSQL deadlock/timeout aborts are not successful receipts.",
+    "Admission is an unresolved-row bound, not a byte, bandwidth, daily rate, object-store orphan, provider or spending cap. It cannot stop trusted database owners from bypassing the RPC.",
+    "Permission checks are fresh after the admission lock wait but do not lock the full permission graph against later changes.",
+    "Held claims remain indefinite and can exhaust capacity. Verified recovery, terminal resolution, retention, expiry and safe cleanup authority remain unimplemented; quota denial never authorizes deletion.",
+    "Physical Storage API ownership/rollback/in-flight byte behavior and hosted all-role acceptance remain unperformed. App fingerprint does not include these SQL files; proposal hash and exact CI source are separate proof."
+  ],
+  "initial_native_failure": {
+    "source": "eab342e2",
+    "runs": [
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40719407545",
+      "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/40719393916"
+    ],
+    "result": "388 passed; seven new contention cases failed; zero skips. Full-schema installation did not run after the test failure.",
+    "cause": "Six test lock observers still ran as authenticated and could not read competing backend wait details. The access-removal case used TRUNCATE, which blocks on a table lock retained by the test transaction.",
+    "correction": "Reset only the observer connection role before watching; tested sessions remain authenticated. Revoke only the exact Educator collaborator row via DELETE, retaining strict lock-wait and denial assertions. No SQL proposal or production role grants changed."
+  },
+  "verified_source": "579db67a6f7a1065851a0b7d6fb7738bf73dc826"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "document-text-capacity-schema-proof-v1",
+  "paused": true,
+  "text_reserved_units": 0,
+  "remaining_capacity_units": 0,
+  "selected_policy": [
+    32,
+    4,
+    2
+  ],
+  "private_accounting_only": true,
+  "provider_admission_verified": false,
+  "completion_release_implemented": false,
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

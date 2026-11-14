@@ -1,0 +1,34 @@
+{
+  "schema": "document-writer-app-key-lookup-correction-v1",
+  "date": "2026-11-13",
+  "source_base": "4b3d36ef4c58e1a96b9f842c1d57a9e7c4266f71",
+  "run": 43338977069,
+  "failure": "The writer suite test55 read EXTRACTION_SECTION_KEYS from extractions.functions.ts after the constant moved to document-review-edit.server.ts. The regex returned null before its database initialization assertions.",
+  "correction": "Read the actual shared key declaration and assert the app imports it. Retain the exact 12-key count and real empty-initialization/returned-section equality assertions. No application or SQL change for this correction.",
+  "local_results": {
+    "tests": 56,
+    "passed": 46,
+    "failed": 0,
+    "skipped": 10,
+    "skipped_scope": "native-only concurrency cases, not accepted locally"
+  },
+  "native_recheck_pending": false,
+  "logs": [
+    {
+      "path": "/private/tmp/tf-manual-save-ci-failure.log",
+      "sha256": "cb9d5307131f61d106caf9d42bf0ddfb55c50eafb0c42ebe28df2671acf59fc0"
+    },
+    {
+      "path": "/private/tmp/tf-writer-key-correction.log",
+      "sha256": "a471fb0832ad871c5f2e75b53229ea9e55614e9343a1a022787896d3ad99833e"
+    }
+  ],
+  "test_sha256": "c8be643c84e2a9a0d3766a827e83de1c32522c7b385c03f53208712aec339e37",
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "native_verified": true,
+  "native_cases_verified": 56,
+  "verified_run": 43404861945,
+  "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
+}

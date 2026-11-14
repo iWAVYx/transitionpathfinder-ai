@@ -60,6 +60,9 @@ jobs:
       - name: Verify preview auth storage isolation
         run: node --experimental-strip-types --test tests/preview-auth-storage.test.mjs
 
+      - name: Verify compiler cache lifecycle and server-function handoff
+        run: node --test tests/start-compiler-cache-lifecycle.test.mjs
+
       - name: Run clean production build
         id: build
         env:
@@ -68,6 +71,7 @@ jobs:
           # credentials and do not select staging or production services.
           LOVABLE_SANDBOX: "1"
           LOVABLE_NITRO_PRESET: lovable-fetch-bundle
+          TF_BUILD_CACHE_METRICS: "1"
         run: |
           set +e
           echo "::group::Build output"

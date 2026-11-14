@@ -1,0 +1,50 @@
+{
+  "paused": true,
+  "schema": "document-operation-review-proof-v1",
+  "routines": [
+    {
+      "name": "guard_document_operation_review",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "a55a11bab426be4b3c1e2377aef05a89",
+      "fixed_settings": [
+        "search_path=pg_catalog"
+      ]
+    },
+    {
+      "name": "inspect_document_operation_review",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "e41c4b570e6e091691b4b893bc53e9ab",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "inspect_internal_document_operation_review",
+      "owner": "postgres",
+      "definer": false,
+      "body_md5": "66c3b886188974a67ccc94ba8be12f49",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    },
+    {
+      "name": "record_document_operation_review",
+      "owner": "postgres",
+      "definer": true,
+      "body_md5": "cce2d4ee9b50843c7ccba5576c661c15",
+      "fixed_settings": [
+        "search_path=pg_catalog",
+        "TimeZone=UTC"
+      ]
+    }
+  ],
+  "review_rows": 0,
+  "hosted_applied": false,
+  "ready_for_cutover": false,
+  "release_permitted": false,
+  "provider_quiescence_verified": false
+}

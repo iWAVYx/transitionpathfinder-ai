@@ -1,3 +1,5 @@
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
+import { readOrganizationPages } from "@/lib/organization-query-pages";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { getAppBaseUrl } from "@/lib/app-url.server";
@@ -204,19 +206,22 @@ async function logActivity(
 
 export const getMyAdminRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data: intent, context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
-      .from("admin_roles")
-      .select("role, granted_at")
-      .eq("user_id", userId);
-    if (error) throw new Error("Could not verify platform administrator access.");
-    const roles = (data ?? []).map((r: any) => r.role as AdminRole);
+    assertExpectedViewer(intent, userId);
+    const rows = await readOrganizationPages<{ role: AdminRole }>((from, to) =>
+      supabase
+        .from("admin_roles")
+        .select("id,role,granted_at", { count: "exact" })
+        .eq("user_id", userId)
+        .order("id")
+        .range(from, to),
+    );
+    const roles = rows.map((row) => row.role);
     return {
       roles,
-      isPlatformAdmin: roles.some(
-        (r) => r === "platform_owner" || r === "platform_admin",
-      ),
+      isPlatformAdmin: roles.some((r) => r === "platform_owner" || r === "platform_admin"),
       isAnyAdmin: roles.length > 0,
     };
   });

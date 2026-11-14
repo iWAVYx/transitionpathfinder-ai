@@ -454,7 +454,7 @@ html.high-contrast *:focus-visible { outline: 3px solid var(--ring); outline-off
     .flex.flex-wrap.items-center.gap-2,
     .flex.flex-wrap.items-center.gap-3,
     .flex.flex-wrap.items-center.gap-4
-  ):not(.mobile-no-center) {
+  ):not(.mobile-no-center):not([data-generated-document] *) {
     justify-content: center;
   }
 

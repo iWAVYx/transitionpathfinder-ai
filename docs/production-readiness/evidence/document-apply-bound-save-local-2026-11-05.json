@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-05",
+  "workstream_action": "1.4",
+  "completed_substep": "Source-bound gate connected to unchanged caller-RLS atomic Apply save body in an uninstalled SQL draft",
+  "proposal": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+  "proposal_sha256": "b85b4727462aea7a471f4a150d736eb6fde73b13f12c874920f9980e42f2a59f",
+  "validation": {
+    "source_reservation_and_save_cases": 25,
+    "passed": 25,
+    "combined_prior_atomic_pause_and_source_cases": 87,
+    "combined_passed": 81,
+    "native_only_skips": 6,
+    "failed": 0,
+    "log_sha256": "2aa652b7ee6cdf593eb18fc91d9a7211dd6abed6df6fb1d5b94aafa04a722328"
+  },
+  "properties": [
+    "Unreserved direct save refuses before profile writes",
+    "Reserved source revisions, sections and document snapshot must match",
+    "Current user permission checks and invoker data writes remain",
+    "Already-admitted bound save can drain while new starts remain paused",
+    "Original atomic save body differs only at admission gate"
+  ],
+  "fixture_limit": "Fixture loads the exact reviewed old gated function body; this is not proof of complete canonical installation.",
+  "remaining": [
+    "Bind completion and one-unit release to actual saved domain result",
+    "Wire server orchestration to source-bound claim/save/completion protocol",
+    "Finish dependency/owner/grant/trigger preflight and native/full-schema verification"
+  ],
+  "hosted_actions": false,
+  "ready_for_cutover": false,
+  "whole_action_complete": false
+}

@@ -1,3 +1,5 @@
+import { organizationRouteErrorComponent } from "@/components/routing/OrganizationRouteError";
+import { schoolDashboardNavigation } from "@/lib/organization-dashboard-navigation";
 import { createFileRoute } from "@tanstack/react-router";
 import { withRoleGuard } from "@/components/withRoleGuard";
 import { CalendarDays } from "lucide-react";
@@ -8,6 +10,7 @@ import { ensureRoleAccess } from "@/lib/route-role-guard";
 import { dashboardErrorComponent } from "@/components/dashboard/DashboardErrorFallback";
 
 export const Route = createFileRoute("/_authenticated/school/calendar")({
+  ...schoolDashboardNavigation,
   head: () => ({
     meta: [
       { title: "School Calendar — TransitionForward" },
@@ -19,12 +22,12 @@ export const Route = createFileRoute("/_authenticated/school/calendar")({
     ],
   }),
   beforeLoad: () => ensureRoleAccess(["school_admin", "admin"]),
-  errorComponent: dashboardErrorComponent("school_admin"),
+  errorComponent: organizationRouteErrorComponent("school", "/school/calendar", dashboardErrorComponent("school_admin")),
   component: withRoleGuard(["school_admin", "admin"], SchoolCalendarPage),
 });
 
 function SchoolCalendarPage() {
-  const { data, loading, orgId, reload } = useSchoolDashboard();
+  const { data, loading, orgId, reload, recoverSelection } = useSchoolDashboard();
   return (
     <SchoolPageShell
       path="/school/calendar"
@@ -34,14 +37,19 @@ function SchoolCalendarPage() {
       loading={loading}
       orgId={orgId}
       onSwitchOrg={(id) => reload(id)}
+      onRecoverSelection={recoverSelection}
     >
-      {() => (
+      {(org) => (
         <div className="space-y-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarDays className="h-4 w-4" aria-hidden />
             <span>Every school event on one calendar. Filters and export are available inside the calendar.</span>
           </div>
-          <DashboardCalendar />
+          <DashboardCalendar
+            organizationId={org.id}
+            organizationOptions={[{ id: org.id, name: org.name }]}
+            allowedVisibilities={["private", "school_team"]}
+          />
         </div>
       )}
     </SchoolPageShell>

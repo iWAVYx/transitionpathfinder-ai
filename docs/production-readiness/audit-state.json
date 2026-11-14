@@ -45,13 +45,16 @@
     "malwareScanningVerified": false
   },
   "migrations": {
-    "canonicalCount": 201,
-    "latestCanonicalFile": "20260929010000_student_channel_removal_history.sql",
+    "canonicalCount": 225,
+    "latestCanonicalFile": "20261029021300_document_summary_source_binding.sql",
     "productionHistoryReadAt": "2026-09-17T23:54:44.631906Z",
     "productionHistoryEvidence": "docs/production-readiness/evidence/production-migration-history-2026-09-17.csv",
     "productionHistoryComparedMainSha": "f933401803e26ac76e3190d71cab9ca8c8b52536",
     "productionHistoryAppliedCount": 187,
     "productionHistoryLatestAppliedVersion": "20260914120000",
-    "pendingProductionCount": 7
+    "pendingProductionCount": 31,
+    "canonicalInventoryReviewedAt": "2026-10-29",
+    "canonicalInventorySourceCommit": "b784f51f0599a4d4e063c8878ead8016e41af2ca",
+    "canonicalInventoryStatus": "225 canonical migrations verified in disposable full replay; atomic extraction and fourteen upload/summary boundaries remain unapplied hosted. Isolated staging remains at authorized 20261026010000 and c95a008f/1190-file release. Production31 pending compares unchanged saved September17 evidence only; no production access or refreshed baseline."
   }
 }

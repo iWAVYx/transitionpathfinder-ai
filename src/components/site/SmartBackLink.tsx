@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { DashboardReturnContext } from "@/components/dashboard/dashboard-return-context";
+import { useNavigationOrigin } from "@/components/navigation/NavigationOriginProvider";
 import { useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -8,10 +11,10 @@ import { cn } from "@/lib/utils";
  * SmartBackLink — context-aware "Back" control.
  *
  * Behavior:
- *  - If the router has history beyond the current entry, go back.
+ *  - If the router knows this entry’s source, return to that exact entry.
  *  - Otherwise navigate to `fallbackTo` (a sensible page-specific default).
  *
- * Renders as an <a> so cmd/ctrl-click still opens the fallback in a new tab.
+ * Renders as an <a> so cmd/ctrl-click still opens its stated destination in a new tab.
  * Shows a brief loading state while navigating so the user knows the click
  * registered, especially on slower connections.
  *
@@ -36,21 +39,22 @@ export function SmartBackLink({
   onBeforeNavigate?: () => void;
 }) {
   const router = useRouter();
+  const origin = useNavigationOrigin();
+  const headerOwnsReturn = useContext(DashboardReturnContext);
   const [isNavigating, setIsNavigating] = useState(false);
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Let modified clicks open in new tab using the fallback href.
+    // Let modified clicks open the stated destination in a new tab.
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
 
     setIsNavigating(true);
     onBeforeNavigate?.();
 
-    const hasHistory =
-      typeof window !== "undefined" && window.history.length > 1;
+    const hasHistory = Boolean(origin);
 
     const performNavigation = () => {
       if (hasHistory) {
-        router.history.back();
+        origin?.go();
       } else {
         router.navigate({ to: fallbackTo });
       }
@@ -64,10 +68,10 @@ export function SmartBackLink({
     }
 
     if (hasHistory) {
-      // Stop the link from navigating to the fallback; use history.back()
+      // Stop the link from pushing a new entry; revisit the recorded source
       // instead. Defer one frame so the spinner renders before unmount.
       e.preventDefault();
-      requestAnimationFrame(() => router.history.back());
+      requestAnimationFrame(() => origin?.go());
       return;
     }
 
@@ -75,9 +79,10 @@ export function SmartBackLink({
     // normally while the loading state gives immediate click feedback.
   };
 
+  if (origin && headerOwnsReturn) return null;
   return (
     <SmartLink
-      to={fallbackTo}
+      to={origin?.to ?? fallbackTo}
       onClick={onClick}
       aria-busy={isNavigating}
       aria-disabled={isNavigating}
@@ -92,7 +97,7 @@ export function SmartBackLink({
       ) : (
         <ArrowLeft className="h-4 w-4" />
       )}
-      {isNavigating ? "Returning..." : label}
+      {isNavigating ? "Returning…" : origin?.label ?? label}
     </SmartLink>
   );
 }

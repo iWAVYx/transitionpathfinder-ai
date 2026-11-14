@@ -1,3 +1,6 @@
+import { revokeOwnedShareToken } from "./revoke-share-token.server";
+import { readOrganizationPages } from "@/lib/organization-query-pages";
+import { optionalViewerIntent, assertExpectedViewer } from "@/lib/viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -36,7 +39,9 @@ export type Student = {
  */
 export const ensureOwnStudentProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { data: row, error } = await context.supabase.rpc(
       "ensure_student_self_profile" as never,
     );
@@ -49,17 +54,19 @@ export const ensureOwnStudentProfile = createServerFn({ method: "POST" })
 
 export const listStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator(optionalViewerIntent)
+  .handler(async ({ data, context }) => {
+    assertExpectedViewer(data, context.userId);
     const { supabase } = context;
-    const { data, error } = await supabase
-      .from("students")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      console.error("listStudents failed", error);
-      return { students: [] as Student[] };
+    try {
+      const students = await readOrganizationPages<Student>((from, to) =>
+        supabase.from("students").select("*", { count: "exact" })
+          .order("created_at", { ascending: false }).order("id").range(from, to),
+      );
+      return { students, loadFailed: false };
+    } catch {
+      return { students: [] as Student[], loadFailed: true };
     }
-    return { students: (data ?? []) as Student[] };
   });
 
 export const getStudent = createServerFn({ method: "POST" })
@@ -386,11 +393,6 @@ export const revokeShareToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
-      .from("share_tokens")
-      .update({ revoked: true })
-      .eq("id", data.id);
-    if (error) throw new Error("Could not revoke link.");
+    await revokeOwnedShareToken(context.supabase, context.userId, data.id);
     return { ok: true };
   });

@@ -1,0 +1,49 @@
+{
+  "schema": "document-native-complete-proof-v1",
+  "source_commit": "812c9e3dca346f4f68e6254452838998e8697967",
+  "test_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+  "tests": 1660,
+  "passed": 1660,
+  "failed": 0,
+  "skipped": 0,
+  "partitions": [
+    {
+      "partition": "summary-automatic-settlement",
+      "tests": 45,
+      "log_sha256": "9395517ede9bc42e5fdb5a7cffc8e1eee44cde297b406d2b7a48940aed620567"
+    },
+    {
+      "partition": "counted-worker",
+      "tests": 48,
+      "log_sha256": "2f23753573a7a8d25aae04de40ccb63eebd055ba19be5155a0e8c8220cee7bf4"
+    },
+    {
+      "partition": "other-boundaries",
+      "tests": 847,
+      "log_sha256": "6ace37d15657b50236b5a502c2bd54d119479fc744752a712ba6972abd1e5426"
+    },
+    {
+      "partition": "producer-and-summary-boundaries",
+      "tests": 435,
+      "log_sha256": "54f626be55c8255c2c3b0edd7aea9bb3ad75bb067a01e497586956178ca8a94a"
+    },
+    {
+      "partition": "rescan-source-and-pending",
+      "tests": 147,
+      "log_sha256": "247d0acc29784dc21d46c0772a54149f039abbf8a76935053cb7e4e0d91d02e6"
+    },
+    {
+      "partition": "rescan-outcome",
+      "tests": 86,
+      "log_sha256": "b543af67a5e780aa300cb068490bba1a939c4942fc124dc057b6864ecc3433b9"
+    },
+    {
+      "partition": "rescan-settlement",
+      "tests": 52,
+      "log_sha256": "c3ee52f328f5741f800680588a0dbbc378dcb8819976db55744d35da95e70801"
+    }
+  ],
+  "scope": "All original cases and assertions retained; exact raw coverage validated per partition and bounded fresh batch when present; competing sessions remain inside their original test.",
+  "hosted_actions": false,
+  "ready_for_cutover": false
+}

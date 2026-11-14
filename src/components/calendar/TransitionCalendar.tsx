@@ -145,7 +145,7 @@ function icsEscape(v: string): string {
 function icsDate(iso: string): string {
   return iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
-function toIcs(events: CalendarEvent[]): string {
+export function transitionCalendarIcs(events: CalendarEvent[]): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -155,8 +155,15 @@ function toIcs(events: CalendarEvent[]): string {
     lines.push("BEGIN:VEVENT");
     lines.push(`UID:${e.id}@transitionforward`);
     lines.push(`DTSTAMP:${icsDate(new Date().toISOString())}`);
-    lines.push(`DTSTART:${icsDate(e.start)}`);
-    if (e.end) lines.push(`DTEND:${icsDate(e.end)}`);
+    if (e.allDay) {
+      // DATE preserves the calendar day instead of creating a midnight appointment.
+      const date = (value: string) => value.slice(0, 10).replace(/-/g, "");
+      lines.push(`DTSTART;VALUE=DATE:${date(e.start)}`);
+      if (e.end) lines.push(`DTEND;VALUE=DATE:${date(e.end)}`);
+    } else {
+      lines.push(`DTSTART:${icsDate(e.start)}`);
+      if (e.end) lines.push(`DTEND:${icsDate(e.end)}`);
+    }
     lines.push(`SUMMARY:${icsEscape(e.title)}`);
     if (e.location) lines.push(`LOCATION:${icsEscape(e.location)}`);
     if (e.description) lines.push(`DESCRIPTION:${icsEscape(e.description)}`);
@@ -279,7 +286,7 @@ export function TransitionCalendar({
 
   function download() {
     if (!exportFilename) return;
-    const blob = new Blob([toIcs(filtered)], { type: "text/calendar" });
+    const blob = new Blob([transitionCalendarIcs(filtered)], { type: "text/calendar" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

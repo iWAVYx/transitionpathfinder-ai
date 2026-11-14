@@ -1,0 +1,86 @@
+{
+  "schema": "document-guarded-apply-recovery-local-v1",
+  "date": "2026-11-12",
+  "source_base": "a9ecf737",
+  "workstream_actions": [
+    "2.6",
+    "2.7",
+    "4"
+  ],
+  "scope": "Composite behavior of the actual reviewed Apply, automatic commit/finish/settlement and private no-save recovery routines with all text protocol/source writer guards installed. Source tests and synthetic disposable SQL only; no application/runtime SQL changes or actual providers.",
+  "local": {
+    "tests": 19,
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "release_and_native_gate_contracts_passed": 54,
+    "workflow_shell_blocks": 86,
+    "raw_log_sha256": "e2698efa370faf8b6a2481901d5c9f4907ff44abd25a40d609d92f6729b3cda1",
+    "case_labels_sha256": "826496537ddeed1651f90405d8113c6e72bd843b63ee3e565dec49aa49c8b813"
+  },
+  "completed_locally": [
+    "Actual Apply succeeds for Family/Educator/Student/School/District and explicitly authorized Owner; partner-only and unrelated Owner are refused",
+    "Actual profile/transition fields, evidence/audit, review completion, automatic lease finish and one-unit settlement commit together; no duplicate post-commit finish is issued",
+    "Apply without evidence keeps the same save/settlement behavior; transaction rollback restores the complete profile/review/evidence/audit/capacity snapshot",
+    "Manual review and source-fence rejection of raw/unbound writes coexist with successful actual Apply",
+    "Private DB-only no-save recovery with an empty JWT changes only the exact database revision and reconciles one held Apply unit without success/profile/evidence writes",
+    "Recovery rollback preserves the exact held/source/capacity snapshot; stale admission/save remain refused and a fresh claim/revision can Apply successfully",
+    "Provider-unknown review remains held; anon/authenticated/service_role cannot call the private resolver",
+    "Policy definitions remain identical through fixture role normalization; canonical access helper bodies and the complete reviewed source protocol/writer-guard SQL are installed"
+  ],
+  "fixture_scope": "Reuses existing real registration -> counted summary -> Apply/recovery fixtures. Historical role aliases are normalized only inside fresh disposable children; canonical access functions are loaded exactly. This is not proof of full hosted schema/provider/Storage behavior.",
+  "original_regression_preservation": {
+    "cases": 1660,
+    "distinct_labels": 1657,
+    "partitions": 7,
+    "original_fixture_is_exact_prefix": true,
+    "only_read_only_exports_appended": true,
+    "all_registrations_assertions_timeouts_unchanged": true,
+    "all_case_inventory_multiplicities_and_partitions_unchanged": true,
+    "test_plan_fields_changed": [
+      "test_sha256",
+      "inventory_source"
+    ],
+    "default_owner_case_passed": true
+  },
+  "source_manifest": [
+    {
+      "path": "tests/database/document-guarded-apply-recovery.test.mjs",
+      "sha256": "8d84b3cefa364ce3250ed39e2c34107316781e852d1231fa61c20a3b1cc88e5e"
+    },
+    {
+      "path": "tests/database/document-path-exclusivity.test.mjs",
+      "sha256": "5c9d514f90a5a5b20c437354f701a773a1e6e272734bc739ef56556b5c960a6a"
+    },
+    {
+      "path": "tests/database/document-native-test-plan.json",
+      "sha256": "a1bf861b2bfc7c79095a8a54260cd24e7782760f3ed0aae61235c812bb3b5656"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-extraction-source-write-fence.sql",
+      "sha256": "7e9205ac3353b1e0b8a21e6df69abd1b4966b5646a6fe40fd47d09f52c302069"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-bound-save.sql",
+      "sha256": "452d03b482bccaaf75a8f294943cfbfc26f82bdad278a269ab41e9c7756a5b25"
+    },
+    {
+      "path": "docs/production-readiness/proposals/document-apply-no-save-reconciliation.sql",
+      "sha256": "1147e4950eeeaf90a19713ba319b818cd2c179e786df0ba8ad3a90bbddf4bd07"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "84fb17af71044972233024327f15175a4b45bfe73f820cdf7c8306751247abbd"
+    }
+  ],
+  "runtime_sql_changed": false,
+  "application_source_changed": false,
+  "new_sql_drafts": 0,
+  "native_verified": false,
+  "cumulative_native_full_schema_verified": false,
+  "whole_action_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "provider_calls": false,
+  "ready_for_cutover": false
+}

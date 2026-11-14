@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26 America/New_York",
+  "status": "local report-assist correction validated; not deployed; automatic review pending",
+  "changes": [
+    "Replace recursive field/list/byte truncation for next-step prompts with supported legacy/v2 report validation and exact UTF-8 context budget; oversized or incomplete context fails before gateway credential lookup/provider calls",
+    "Reuse the existing validated document projection; omit unrelated identity/reference/unknown metadata without claiming free-text de-identification. Preserve complete planning strings, arrays, measured conditions and current v2 content",
+    "Share planning-source rules with next-step generation: reported facts are not verification, a proposed target is not a measured result, and progress/firsthand observations cannot be invented",
+    "Validate suggested-action strings as nonblank and bounded, preserving existing category/array limits",
+    "Scope shared report-assistance UI to the current signed-in viewer and report session; ignore departed responses/notices, hide controls during auth transitions, and guard duplicate same-action requests",
+    "Send existing optional expected-viewer intent for both translation and next-step actions; mismatches fail before provider work, without adding permissions or database reads",
+    "Remove raw provider messages from these server error logs; user-facing fallbacks remain friendly",
+    "Keep translation text-slot matching, full-structure reconstruction and local preservation of identifiers/metadata unchanged"
+  ],
+  "validation": {
+    "focused_tests": 57,
+    "focused_files": 5,
+    "full_unit_tests": 4763,
+    "unit_files": 330,
+    "typescript": "passed",
+    "isolated_staging_build": "passed",
+    "service_worker": "passed",
+    "live_calls": 0,
+    "hosted_records": 0
+  },
+  "candidate_runtime": {
+    "fingerprint": "8f3b5851fa8482c86bb5e201414488cdf34734216a2f03bcf9ab6a615aa9d6aa",
+    "file_count": 1190
+  },
+  "staging_unchanged": {
+    "commit": "b444619fe9dd6f3b628a0b15629e7586edcefeae",
+    "fingerprint": "eebb4f81f22e87e90e6a9184f31086b8050e366465ef124c9dff51b97a2f0159",
+    "file_count": 1189
+  },
+  "scope": "Every existing permitted signed-in ReportView consumer; demo and read-only reports already exclude provider assistance and remain unchanged. Owner remains management-only; no new role generation controls. No saved report is rewritten.",
+  "limitations": [
+    "Schema/structure/context preservation does not prove semantic translation fidelity or every next-step sentence",
+    "Client-supplied report content is not a server-loaded authorization or atomic student record snapshot; existing report-reading permissions remain separate and unchanged",
+    "Removed explicit identity/reference metadata does not redact arbitrary identifying details embedded in prose; provider/privacy production gates remain open",
+    "Optional viewer intent preserves older-call compatibility; no assertion of hard revocation or cancellation of already-issued provider requests",
+    "Readiness single-score progress wording caveat and historical intermittent Pathway cause remain open"
+  ],
+  "next": [
+    "Complete automatic review, then prepare a concrete separately authorized staging release and bounded applicable-role report-assist acceptance",
+    "Validate translation structure/meaning and next-step relevance on fictional content with explicit call/fixture/output limits before any provider run",
+    "Continue IEP text, document extraction and report-evidence workflows and all broader production gates"
+  ],
+  "preserved": "Full TF-01\u2013TF-26/six milestones; deferred report polish and Parent Pilot/Pathway Snapshot; Lovable title-case edit; no production/main merge, deployment/publication, migration, hosted fixture/AI, accounts/access, payments or secrets changes"
+}

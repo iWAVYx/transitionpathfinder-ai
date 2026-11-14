@@ -1,9 +1,10 @@
 // Workstream C, Slice C6 — Upload magic-byte sniff + size/type allowlist.
 //
 // Runs server-side after an object is uploaded to the `student-documents`
-// storage bucket but before the AI extract job is enqueued. Downloads a
-// small prefix of the freshly-uploaded object via the service-role client,
-// inspects magic bytes, and confirms the file matches its declared MIME
+// storage bucket but before the AI extract job is enqueued. Registration passes
+// its server-held immutable Blob so fingerprinting and sniffing use one copy.
+// Legacy callers download through the service client. Inspects magic bytes
+// and confirms the file matches its declared MIME
 // against a strict allowlist. On rejection the caller quarantines the row
 // and skips extract; on acceptance the caller emits a `sniff` breadcrumb
 // and proceeds to enqueue.
@@ -102,7 +103,7 @@ function detectKind(bytes: Uint8Array): DetectedKind {
   return "unknown";
 }
 
-export async function sniffUploadedDocument(input: SniffInput): Promise<SniffResult> {
+export async function sniffUploadedDocument(input: SniffInput, storedCopy?: Blob): Promise<SniffResult> {
   // Size gate first — reject oversize before spending a download.
   if (input.declared_size !== null && input.declared_size > MAX_UPLOAD_BYTES) {
     return {
@@ -114,17 +115,17 @@ export async function sniffUploadedDocument(input: SniffInput): Promise<SniffRes
   }
 
   try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: blob, error } = await supabaseAdmin.storage
-      .from("student-documents")
-      .download(input.storage_path);
-    if (error || !blob) {
-      return {
-        ok: false,
-        detected_kind: "unknown",
-        error_code: "download_failed",
-        error_message: error?.message ?? "Could not read uploaded object for sniff.",
-      };
+    let blob: Blob;
+    if (storedCopy !== undefined) {
+      // Internal argument only, never a public request field. A malformed copy
+      // must fail rather than silently reading a different object from storage.
+      if (!(storedCopy instanceof Blob)) throw new Error("The reviewed file copy is unavailable.");
+      blob = storedCopy;
+    } else {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const stored = await supabaseAdmin.storage.from("student-documents").download(input.storage_path);
+      if (stored.error || !(stored.data instanceof Blob)) throw new Error("Could not read uploaded object for sniff.");
+      blob = stored.data;
     }
 
     // Enforce true size from storage as well (declared size can lie).

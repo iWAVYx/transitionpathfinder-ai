@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-29",
+  "status": "Dormant fresh-call adapter verified by exact-source automatic checks; all application/browser/worker integration remains pending",
+  "source_base": "35b2d4de",
+  "adapter": "src/lib/document-operation-admission.server.ts",
+  "adapter_sha256": "f4ffe955ed2d2bdea5ecdb648de34e8fa4fc4d2e997973b540bfa99f9e32cc88",
+  "integration_plan": "docs/production-readiness/proposals/document-operation-integration-plan.json",
+  "validation": {
+    "focused_cases": 40,
+    "full_unit_tests": 5334,
+    "full_unit_files": 350,
+    "unhandled_errors": 0,
+    "typescript": "passed",
+    "capped_isolated_staging_build": "passed under Node22/Bun1.4.3 with 1216MiB old-space cap",
+    "service_worker_generation": "passed",
+    "local_safety_transport_contracts": 92
+  },
+  "runtime_source_fingerprint": "23088ad32ac27fe1a1f8f1ea0e9eefa8e3891d63882fc9d226548b9e3180c9e1",
+  "runtime_source_file_count": 1201,
+  "runtime_source_changed": true,
+  "handler_behavior_changed": false,
+  "database_sql_changed": false,
+  "prior_database_proof": "f0c96396: both native694/694 plus225 canonical and one admission proposal. SQL unchanged; the automatic cumulative PR check also reran and passed at b88a024a, recorded separately.",
+  "verified": [
+    "All four fixed operation kinds keep callback work between one validated admission and one validated completion.",
+    "Unknown/invalid server context, missing service client, invalid UUID generation, error-bearing/lost/foreign/malformed admission never runs work or tries to clear an unknown receipt.",
+    "Callback failure attempts one uncertainty finish; failed marking leaves active work counted and preserves a safe work-stage error.",
+    "Completion failure cannot return the callback result, issue another finish, rewrite uncertain state or replay work.",
+    "Callback receives no service client/receipt argument; no raw errors, provider contents or causes are exposed; no logging or automatic timeout/retry/cleanup."
+  ],
+  "limits": [
+    "No imports/calls from application handlers; adapter remains dormant. Browser upload handoff, confirmed-refusal classification, retained-hold abuse limits/manual reconciliation and separate Deno worker integration are explicitly open.",
+    "Callback result validation and current student/source authority remain each handler responsibility. Mock tests verify orchestration, not real provider completion or drain.",
+    "New source fingerprint is local only; both hosted staging surfaces remain the prior c95a008f/1190-file release.",
+    "Full TF-01\u2013TF-26/six milestones retained; deferred report polish and Parent Pilot/Pathway Snapshot unchanged."
+  ],
+  "hosted_actions": false,
+  "production_access": false,
+  "authorization_recorded": false,
+  "verified_source": "b88a024a79630723e9150da004b80632a983d156",
+  "automatic_checks": {
+    "pass": 8,
+    "build_runs": [
+      40935066309,
+      40935058006
+    ],
+    "unit_run": 40935066023,
+    "unit_tests": 5334,
+    "unit_files": 350,
+    "role_run": 40935066088,
+    "accessibility_run": 40935066164,
+    "readiness_run": 40935066242,
+    "static_run": 40935066037,
+    "cumulative_pr_database_run": 40935066166,
+    "protected_hosted_checks": "Skipped/unperformed; not hosted acceptance."
+  },
+  "automatic_pr_database_recheck": {
+    "tests": 694,
+    "pass": 694,
+    "fail": 0,
+    "skip": 0,
+    "canonical_replay": 225,
+    "additional_proposal": "document-operation-admission.sql",
+    "trigger": "GitHub cumulative pull-request diff; no SQL changed and no manual SQL rerun dispatched.",
+    "artifacts": {
+      "document-operation-admission.json": {
+        "sha256": "3b3446dd43b25e798438937c5f126f1ed3822f074be52614ceefefce08376dec",
+        "semantically_matches_retained": "docs/production-readiness/evidence/document-operation-admission-disposable-2026-10-29.json"
+      },
+      "document-reference-catalog.json": {
+        "sha256": "4612a6c5bb4c132492f6a2183dc352bcd3b42c37a39dbe77727973a72cdc3d97",
+        "semantically_matches_retained": "docs/production-readiness/evidence/document-reference-catalog-admission-2026-10-29.json"
+      }
+    },
+    "limits": "Disposable schema/data; does not test adapter against a real provider or integrated handler."
+  }
+}
