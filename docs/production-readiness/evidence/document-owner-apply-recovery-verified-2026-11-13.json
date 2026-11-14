@@ -1,0 +1,132 @@
+{
+  "schema": "owner-reviewed-apply-recovery-verified-v1",
+  "date": "2026-11-13",
+  "workstream_actions": [
+    "2.3"
+  ],
+  "scope": "Complete Owner MFA audit -> trusted DB-only no-save Apply resolution -> caller status journey, with truthful recovered/lost-reply display. No SQL or public recovery grant changes.",
+  "run": 43551449043,
+  "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43551449043",
+  "checkout_commit": "4964ab3e13531860e67d6d078f30ac6498a1dd52",
+  "workflow": "success",
+  "verification_method": "25 fresh focused native journeys composed with the independently verified byte-identical 2405-case SQL/full225+41 baseline. This is not a fresh complete-suite rerun.",
+  "fresh_complete_suite_rerun_claimed": false,
+  "new_native_journeys": 25,
+  "new_native_failed": 0,
+  "new_native_skipped": 0,
+  "retained_prior_native_sql_cases": 2405,
+  "canonical_migrations": 225,
+  "review_drafts": 41,
+  "all297_sql_files_byte_identical": true,
+  "original_native_test_source_unchanged": true,
+  "prior_database_evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json",
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/owner-reviewed-apply-native-proof-43551449043-2026-11-13.json",
+      "sha256": "8603a46b56ac68ddc8bf793de4f9df286cd8a56ea6102eb9e960ceebd0447aa8"
+    },
+    {
+      "path": "docs/production-readiness/evidence/owner-reviewed-apply-unchanged-sql-proof-43551449043-2026-11-13.json",
+      "sha256": "359ed24ed24cef588e4fa43508d3a1b03abc436bb432110130d331a9d94ac42c"
+    }
+  ],
+  "raw_log_and_case_inventory_independently_validated": true,
+  "source_manifest": [
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "3ef65893ea62d77362f5eb8d29a61cd84121170dc049efe02c45980c22fe5b6e"
+    },
+    {
+      "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+      "sha256": "cebde6e8d6ab1a9b9cd30db8c26a29e93e58ec56b6e526517434a11e847a64cc"
+    },
+    {
+      "path": "tests/unit/owner-document-work-review.test.ts",
+      "sha256": "38795ef0cf22f969c2034064d89264bedfc715ea2959f296150c79dc723c4876"
+    },
+    {
+      "path": "tests/unit/owner-document-work-panel.test.tsx",
+      "sha256": "014c059ab6b86c0a34bcaeb26c4540dc9400d63678c9135a77765093f3e72d1b"
+    },
+    {
+      "path": "tests/database/document-owner-apply-recovery-cases.mjs",
+      "sha256": "3cf1092ef532b6e1988cdf9f19a3e60842750eefaa88be70dc15648d97b4a5c8"
+    },
+    {
+      "path": "tests/database/document-owner-apply-recovery.test.mjs",
+      "sha256": "350efea33bdab5fd38c9804af4db66271c316ccf6ea9dc5fa4b166a2dc7d9255"
+    },
+    {
+      "path": "tests/database/verify-owner-apply-recovery-baseline.mjs",
+      "sha256": "f8e6cecbe93f6ce0bade6b74870f4d75094bdb8ce77c1732360f796c2aec4f46"
+    },
+    {
+      "path": "tests/document-owner-apply-recovery-plan.test.mjs",
+      "sha256": "62557875d1b3a807d1f2021941f7ca3148ff8a28645bd82b27b2b613913f830a"
+    },
+    {
+      "path": ".github/workflows/owner-apply-recovery-qa.yml",
+      "sha256": "adad8baf067048285b1d3da32eed65cea4faf1d39bca443aa5b89d5a58558098"
+    }
+  ],
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "1e904f189626f037bbade7e021065f545ed711a4cb832e1b16bbc6553c9807f1",
+    "fileCount": 1218
+  },
+  "unit_tests_passed": 5894,
+  "unit_files_passed": 369,
+  "focused_unit_tests_passed": 57,
+  "inventory_navigation_contracts_passed": 94,
+  "release_security_contracts_passed": 72,
+  "typescript_passed": true,
+  "isolated_environment_file_free_staging_build_passed": true,
+  "negative_changed_sql_probe_passed": true,
+  "local_visual_checks": [
+    {
+      "width": 320,
+      "documentWidth": 320,
+      "overflow": [],
+      "releaseControls": 0,
+      "path": "/private/tmp/tf-apply-recovery-local-320.png"
+    },
+    {
+      "width": 390,
+      "documentWidth": 390,
+      "overflow": [],
+      "releaseControls": 0,
+      "path": "/private/tmp/tf-apply-recovery-local-390.png"
+    },
+    {
+      "width": 1280,
+      "documentWidth": 1280,
+      "overflow": [],
+      "releaseControls": 0,
+      "path": "/private/tmp/tf-apply-recovery-local-1280.png"
+    }
+  ],
+  "verified": [
+    "Normal and lost resolution replies are reconciled by exact status reads, never automatic reposts. A rollback restores held work; duplicate resolution cannot release another unit.",
+    "The browser-facing Owner audit requires current membership and verified MFA. The private resolver separately refuses missing/stale/wrong/other-operation/provider-uncertain reviews without releasing work. Losing Owner membership prevents new metadata/audit access.",
+    "Seven app-role accounts, including the platform Owner, and anon/authenticated/service roles cannot directly execute the private resolver. No raw grant or browser recovery action is added.",
+    "A successful private resolution changes only the target extraction timestamp and inserts one immutable reconciliation row. Student/profile/content/evidence/application-audit state and all other extraction fields remain unchanged.",
+    "Old Apply requests are refused after invalidation; new explicit admission with a new operation/revision remains valid.",
+    "Actual TypeScript audit and status readers are coupled to native SQL for confirmed and lost audit replies. Strict no-save coherence rejects contradictory private outcomes before rendering.",
+    "The Owner panel keeps verified recovery visible after a lost review reply and avoids falsely claiming work is still reserved or that newer work has not started."
+  ],
+  "component_complete": true,
+  "whole_workstream_complete": false,
+  "remaining": [
+    "Other held/provider-backed recovery paths still need independent outcome/cessation evidence; no blind release, expiry or synthetic success.",
+    "Remaining Storage/service/scheduled/deployed-writer inventory and process/provider acceptance.",
+    "Final schema/ledger/website/worker package and separately authorized hosted rollout, final role/demo acceptance, merge and production."
+  ],
+  "sql_changed": false,
+  "public_recovery_grant_added": false,
+  "provider_calls": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}

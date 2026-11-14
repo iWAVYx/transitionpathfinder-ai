@@ -1,0 +1,72 @@
+{
+  "schema": "owner-reviewed-apply-recovery-native-v1",
+  "source_commit": "4964ab3e13531860e67d6d078f30ac6498a1dd52",
+  "native": true,
+  "tests": 25,
+  "passed": 25,
+  "failed": 0,
+  "skipped": 0,
+  "names": [
+    "Owner reviewed Apply recovery confirmed",
+    "Owner reviewed Apply recovery lost-resolution-reply",
+    "Owner reviewed Apply recovery rolled-back-resolution",
+    "Owner reviewed Apply recovery duplicate-resolution",
+    "Owner reviewed Apply recovery stale-review",
+    "Owner reviewed Apply recovery wrong-review",
+    "Owner reviewed Apply recovery review-for-other-operation",
+    "Owner reviewed Apply recovery missing-review",
+    "Owner reviewed Apply recovery no-owner-mfa",
+    "Owner reviewed Apply recovery owner-role-removed",
+    "Owner reviewed Apply recovery owner-role-demoted",
+    "Owner reviewed Apply recovery no-new-private-access",
+    "Owner reviewed Apply recovery coupled-confirmed",
+    "Owner reviewed Apply recovery coupled-lost",
+    "Owner reviewed Apply recovery stale-apply-rejected",
+    "Owner reviewed Apply recovery fresh-apply-admitted",
+    "Owner reviewed Apply recovery repeated-status-read",
+    "Owner reviewed Apply recovery provider-uncertain-review",
+    "Owner reviewed Apply recovery private-denial:family",
+    "Owner reviewed Apply recovery private-denial:student",
+    "Owner reviewed Apply recovery private-denial:educator",
+    "Owner reviewed Apply recovery private-denial:partner",
+    "Owner reviewed Apply recovery private-denial:school",
+    "Owner reviewed Apply recovery private-denial:district",
+    "Owner reviewed Apply recovery private-denial:owner"
+  ],
+  "log_sha256": "ce5b70265f0be076eefed5758266815efb7d06667f364aa634659edb2376f417",
+  "baseline_proof_sha256": "359ed24ed24cef588e4fa43508d3a1b03abc436bb432110130d331a9d94ac42c",
+  "source_manifest": [
+    {
+      "path": "tests/database/document-owner-apply-recovery-cases.mjs",
+      "sha256": "3cf1092ef532b6e1988cdf9f19a3e60842750eefaa88be70dc15648d97b4a5c8"
+    },
+    {
+      "path": "tests/database/document-owner-apply-recovery.test.mjs",
+      "sha256": "350efea33bdab5fd38c9804af4db66271c316ccf6ea9dc5fa4b166a2dc7d9255"
+    },
+    {
+      "path": "tests/database/verify-owner-apply-recovery-baseline.mjs",
+      "sha256": "f8e6cecbe93f6ce0bade6b74870f4d75094bdb8ce77c1732360f796c2aec4f46"
+    },
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "3ef65893ea62d77362f5eb8d29a61cd84121170dc049efe02c45980c22fe5b6e"
+    },
+    {
+      "path": "src/lib/owner/document-work-review.server.ts",
+      "sha256": "e5b1b71668e2fa14ba8ac77def2e6f44f72f1d2689490f711d7e58cfc65f9df5"
+    },
+    {
+      "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+      "sha256": "cebde6e8d6ab1a9b9cd30db8c26a29e93e58ec56b6e526517434a11e847a64cc"
+    },
+    {
+      "path": ".github/workflows/owner-apply-recovery-qa.yml",
+      "sha256": "adad8baf067048285b1d3da32eed65cea4faf1d39bca443aa5b89d5a58558098"
+    }
+  ],
+  "provider_calls": false,
+  "hosted_actions": false,
+  "public_recovery_grant_added": false,
+  "ready_for_cutover": false
+}
