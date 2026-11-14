@@ -123,6 +123,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   const active = useRef(false);
   const parsePending = useRef(false);
   const savePending = useRef(false);
+  const archivePending = useRef(false);
   useEffect(() => {
     active.current = true;
     return () => { active.current = false; };
@@ -180,9 +181,19 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   }
 
   async function handleDelete(doc: DocumentRow) {
-    if (!confirm(`Delete "${doc.title}"? This removes the file and its record.`)) return;
-    await remove({ data: { id: doc.id } });
-    await reload();
+    if (!active.current || archivePending.current || !canEdit) return;
+    if (!confirm(`Archive "${doc.title}"? It will be hidden from active document lists. The file is retained.`)) return;
+    archivePending.current = true;
+    try {
+      await remove({ data: { id: doc.id, student_id: studentId, expected_viewer_id: viewerId, expected_updated_at: doc.updated_at } });
+      if (!active.current) return;
+      toast.success("Document archived.");
+    } catch {
+      if (active.current) toast.error("We couldn't confirm this change. Refresh the document list to see its current status before trying again.");
+    } finally {
+      if (active.current) await reload();
+      archivePending.current = false;
+    }
   }
 
   async function handleParse(doc: DocumentRow) {

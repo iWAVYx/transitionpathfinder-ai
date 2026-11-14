@@ -16,7 +16,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "d4e12fcc379eb1d6f50566eb879d18a5bbf1e4e2a88b5b839d7b6d61fd00771d"
+      "sha256": "63bee2d6ed8554a2d6aaa9c05b5d83bec2144567a7bb611395a5e736296dfa42"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -92,7 +92,7 @@
     },
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
-      "sha256": "c0bf5717356ef915a92408135b760b8dd5d5583315e0fa020edb384cb2f41f45"
+      "sha256": "14bf5556dc4cc9d075504d6757c3c4554551297f8e229d5d39d35ebce43277eb"
     },
     {
       "path": "src/lib/document-upload-reservation.server.ts",
@@ -241,6 +241,10 @@
     {
       "path": "src/components/owner/TextWorkReviewPanel.tsx",
       "sha256": "e3baafc551a9843f91b8689673531843a2da3a29c31b44d2135af99b8ea1c449"
+    },
+    {
+      "path": "src/lib/document-archive.server.ts",
+      "sha256": "810728a54188accf3437849e61888158f1dbd8966a353cd21719c8f96f911463"
     }
   ],
   "batch": {
@@ -843,11 +847,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "6efba7d8b941a8472a006c155b9e97a5fbbdb5e4",
-    "evidence": "docs/production-readiness/evidence/document-owner-apply-recovery-verified-2026-11-13.json",
-    "declared_entries_checked": 59,
+    "checked_against_source": "c10dc040a5ba00f478e86ca9a72d88cc94f9d9c2",
+    "evidence": "docs/production-readiness/evidence/document-archive-confirmation-local-2026-11-13.json",
+    "declared_entries_checked": 60,
     "corrected_entries": 2,
-    "added_entries": 0,
+    "added_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1259,5 +1263,13 @@
     "verification_method": "25 fresh focused native journeys composed with the independently verified byte-identical 2405-case SQL/full225+41 baseline. This is not a fresh complete-suite rerun.",
     "fresh_complete_suite_rerun_claimed": false,
     "component_complete": true
+  },
+  "document_archive_confirmation": {
+    "evidence": "docs/production-readiness/evidence/document-archive-confirmation-local-2026-11-13.json",
+    "source_local_complete": true,
+    "hosted_verified": false,
+    "transaction_held_authorization_verified": false,
+    "sql_changed": false,
+    "ready_for_cutover": false
   }
 }

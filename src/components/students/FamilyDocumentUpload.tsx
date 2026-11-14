@@ -830,7 +830,7 @@ export function StandardDocActions({
         <Download className="h-3.5 w-3.5" />
       </Button>
       {onDelete && (
-        <Button size="sm" variant="ghost" onClick={() => onDelete(doc)} aria-label="Delete">
+        <Button size="sm" variant="ghost" onClick={() => onDelete(doc)} aria-label="Archive Document" title="Archive Document">
           <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
         </Button>
       )}

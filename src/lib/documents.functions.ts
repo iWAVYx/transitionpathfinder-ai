@@ -1,3 +1,4 @@
+import { archiveDocumentRequest, archiveDocumentMetadata } from "./document-archive.server";
 import { documentRegistrationRequestSchema, documentUploadReservationRequestSchema, documentUploadRecoveryRequestSchema } from "./document-upload-intent";
 import { documentUploadFingerprint } from "./document-upload-fingerprint";
 import { documentUploadOutcome } from "./document-upload-outcome";
@@ -608,44 +609,14 @@ export const registerDocument = createServerFn({ method: "POST" })
  */
 export const archiveDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({
-    id: z.string().uuid(),
-    reason: z.string().trim().max(500).optional(),
-    restore: z.boolean().optional(),
-  }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: row, error: readErr } = await supabase
-      .from("documents")
-      .select("id, student_id")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (readErr || !row) throw new Error("Document not found or access denied.");
-
-    await assertAuthorized(
-      { supabase, userId, action: "edit", resourceType: "student", resourceId: row.student_id },
-      data.restore
-        ? "You don't have permission to restore this document."
-        : "You don't have permission to archive this document.",
-    );
-
-    const patch = data.restore
-      ? { archived_at: null, archived_by: null, archive_reason: null }
-      : { archived_at: new Date().toISOString(), archived_by: userId, archive_reason: data.reason ?? null };
-
-    const { error } = await supabase.from("documents").update(patch).eq("id", data.id);
-    if (error) throw new Error("Could not update document.");
-
-    await supabase.from("document_access_log").insert({
-      document_id: row.id,
-      student_id: row.student_id,
-      actor_id: userId,
-      action: data.restore ? "restore" : "archive",
-      reason: data.reason ?? null,
-    });
-
-    return { ok: true };
-  });
+  .validator((i: unknown) => archiveDocumentRequest.parse(i))
+  .handler(async ({ data, context }) => archiveDocumentMetadata(
+    context.supabase, context.userId, data,
+    async (studentId) => { await assertAuthorized(
+      { supabase: context.supabase, userId: context.userId, action: "edit", resourceType: "student", resourceId: studentId },
+      data.restore ? "You don't have permission to restore this document." : "You don't have permission to archive this document.",
+    ); },
+  ));
 
 /**
  * Permanent removal is paused until a guarded cleanup protocol can prove

@@ -2,19 +2,19 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({ id: "student-a", auth: { user: { id: "viewer-a" }, loading: false } as any,
-  student: vi.fn(), docs: vi.fn(), goals: vi.fn(), canEdit: vi.fn(), sign: vi.fn(), extract: vi.fn(), save: vi.fn(), pdf: vi.fn(), success: vi.fn(), error: vi.fn(), info: vi.fn() }));
+  archive: vi.fn(), student: vi.fn(), docs: vi.fn(), goals: vi.fn(), canEdit: vi.fn(), sign: vi.fn(), extract: vi.fn(), save: vi.fn(), pdf: vi.fn(), success: vi.fn(), error: vi.fn(), info: vi.fn() }));
 vi.mock("@/hooks/use-auth", () => ({ useAuth: () => api.auth }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: unknown) => ({ options, useParams: () => ({ studentId: api.id }), useSearch: () => ({ tab: "documents" }), useNavigate: () => vi.fn() }), Link: ({ to, children }: any) => <a href={to}>{children}</a> }));
 vi.mock("@/components/withRoleGuard", () => ({ withRoleGuard: (_roles: unknown, component: unknown) => component }));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => <main>{children}</main> }));
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
-vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract, parsing, extractionDisabled }: any) => onExtract ? <button disabled={!!parsing || extractionDisabled} onClick={() => onExtract(doc)}>Read {doc.id}</button> : null }));
+vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract, onDelete, parsing, extractionDisabled }: any) => <>{onExtract && <button disabled={!!parsing || extractionDisabled} onClick={() => onExtract(doc)}>Read {doc.id}</button>}{onDelete && <button onClick={() => onDelete(doc)}>Archive {doc.id}</button>}</> }));
 vi.mock("@/components/students/StudentProfileSupport", () => ({ StudentProfileSupport: () => null }));
 vi.mock("@/components/students/StudentPathwayReportPanel", () => ({ StudentPathwayReportPanel: () => null }));
 vi.mock("@/components/students/StudentPlanningTools", () => ({ StudentPlanningTools: () => null }));
 vi.mock("@/lib/students.functions", () => ({ getStudent: api.student, listGoals: api.goals, canEditStudent: api.canEdit }));
-vi.mock("@/lib/documents.functions", () => ({ listDocuments: api.docs, deleteDocument: vi.fn(), getDocumentSignedUrl: api.sign, extractGoalsFromText: api.extract, saveExtractedGoals: api.save }));
+vi.mock("@/lib/documents.functions", () => ({ listDocuments: api.docs, deleteDocument: api.archive, getDocumentSignedUrl: api.sign, extractGoalsFromText: api.extract, saveExtractedGoals: api.save }));
 vi.mock("@/lib/browser-only-libs", () => ({ extractPdfText: api.pdf }));
 vi.mock("sonner", () => ({ toast: { success: api.success, error: api.error, info: api.info } }));
 import { Route } from "../../src/routes/_authenticated/students.$studentId";
@@ -24,7 +24,9 @@ function pending() { let resolve!: (value: any) => void, reject!: (error: Error)
 beforeEach(() => {
   vi.clearAllMocks(); api.id = "student-a"; api.auth = { user: { id: "viewer-a" }, loading: false };
   api.student.mockImplementation(async ({ data }: any) => ({ id: data.id, first_name: data.id, grade_band: "9-10" }));
-  api.docs.mockImplementation(async ({ data }: any) => ({ documents: [{ id: `doc-${data.student_id}`, title: "Source.pdf", mime_type: "application/pdf" }] }));
+  api.docs.mockImplementation(async ({ data }: any) => ({ documents: [{ id: `doc-${data.student_id}`, title: "Source.pdf", updated_at: "2026-11-13T12:00:00.000Z", mime_type: "application/pdf" }] }));
+  api.archive.mockResolvedValue({ ok: true });
+  vi.stubGlobal("confirm", vi.fn(() => true));
   api.goals.mockResolvedValue({ goals: [] }); api.canEdit.mockResolvedValue({ canEdit: true });
   api.sign.mockResolvedValue({ url: "https://synthetic.invalid/file" });
   vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, blob: async () => new Blob(["fictional source"]) })));
@@ -100,4 +102,25 @@ it.each(["student","viewer"])("does not apply a departed save to the new %s revi
  const request=pending();api.save.mockReturnValueOnce(request.promise);const view=render(<Component />);await read();await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Save 1 goal"})));
  if(change==="student")api.id="student-b";else api.auth={user:{id:"viewer-b"},loading:false};view.rerender(<Component />);await read();
  await act(async()=>request.resolve({inserted:1}));expect(api.success).not.toHaveBeenCalled();expect(screen.getByText(goal.title)).toBeTruthy();expect((screen.getByRole("button",{name:"Save 1 goal"}) as HTMLButtonElement).disabled).toBe(false);
+});
+
+async function archive() { const button = await screen.findByRole("button", { name: `Archive doc-${api.id}` }); await act(async () => fireEvent.click(button)); }
+it("archives with the loaded account/student/revision and accurately describes retention", async () => {
+ render(<Component />); await archive();
+ expect(api.archive).toHaveBeenCalledWith({ data: { id: "doc-student-a", student_id: "student-a", expected_viewer_id: "viewer-a", expected_updated_at: "2026-11-13T12:00:00.000Z" } });
+ expect(confirm).toHaveBeenCalledWith(expect.stringContaining("The file is retained.")); expect(api.success).toHaveBeenCalledWith("Document archived.");
+});
+it("does not archive after cancelling or with view-only access", async () => {
+ vi.mocked(confirm).mockReturnValue(false); const view=render(<Component />); await archive(); expect(api.archive).not.toHaveBeenCalled();
+ cleanup(); api.canEdit.mockResolvedValue({canEdit:false}); render(<Component />); await screen.findByRole("heading",{name:"student-a"}); expect(screen.queryByRole("button",{name:"Archive doc-student-a"})).toBeNull();
+});
+it("blocks duplicate archive clicks and reloads after an unknown outcome without replay", async () => {
+ const request=pending(); api.archive.mockReturnValueOnce(request.promise);render(<Component />); const button=await screen.findByRole("button",{name:"Archive doc-student-a"});
+ await act(async()=>{fireEvent.click(button);fireEvent.click(button);}); expect(api.archive).toHaveBeenCalledOnce();
+ await act(async()=>request.reject(new Error("PRIVATE lost reply"))); expect(api.success).not.toHaveBeenCalled();expect(api.error).toHaveBeenCalledWith(expect.stringContaining("Refresh the document list"));expect(api.docs).toHaveBeenCalledTimes(2);expect(api.archive).toHaveBeenCalledOnce();
+});
+it.each(["student","viewer","signed-out"])("ignores late archive responses after %s changes",async change=>{
+ const request=pending();api.archive.mockReturnValueOnce(request.promise);const view=render(<Component />);await archive();
+ if(change==="student")api.id="student-b";if(change==="viewer")api.auth={user:{id:"viewer-b"},loading:false};if(change==="signed-out")api.auth={user:null,loading:false};view.rerender(<Component />);
+ await act(async()=>request.resolve({ok:true}));expect(api.success).not.toHaveBeenCalled();expect(api.error).not.toHaveBeenCalled();expect(api.archive).toHaveBeenCalledOnce();
 });
