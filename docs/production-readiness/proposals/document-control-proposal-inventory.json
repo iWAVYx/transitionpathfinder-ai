@@ -2,7 +2,7 @@
   "schema": "document-control-proposal-inventory-v1",
   "date": "2026-11-13",
   "source_base": "e921e4221447cdc6f91634d9fc80f5479ec9adfd",
-  "scope": "Prior40 drafts and2341 native cases remain verified; new read-only Owner pasted-text work inventory41 has48 local SQL/API cases and16 prepared native role-removal races. Native/full225+41 remains pending. No hosted/release authority.",
+  "scope": "All41 review-only SQL drafts and2405 native cases are verified through full225+41 replay. Read-only Owner pasted-text work inventory passes48 component and16 actual role deletion/demotion races. Other recovery/writer/process/provider and hosted/release gates remain open; no release authority.",
   "proposal_count": 19,
   "proposals": [
     {
@@ -341,10 +341,11 @@
       "path": "docs/production-readiness/proposals/document-owner-text-work-review.sql",
       "sha256": "20b0529fac9b96fb6769173e9201288123304993288d8c02cb57f5ccc231f327",
       "local_verified": true,
-      "native_full_schema_verified": false,
+      "native_full_schema_verified": true,
       "hosted_applied": false,
       "local_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
-      "native_status": "pending_native_and_full_schema"
+      "native_status": "verified_complete_native_and_full_schema",
+      "verified_evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json"
     }
   ],
   "registration_replay_failure": {
@@ -392,7 +393,7 @@
     "docs/production-readiness/proposals/document-owner-review-boundary.sql",
     "docs/production-readiness/proposals/document-owner-text-work-review.sql"
   ],
-  "verification_appendix_scope": "Twenty-one verified appendix drafts plus one prepared read-only Owner text-work inventory after the19 ordered proposals. Full225+41 and2405 native cases remain pending.",
+  "verification_appendix_scope": "All22 appendix drafts after ordered19 are native/full-schema verified through225+41 replay and2405 native cases, zero failures/skips. Other recovery/writer/process/provider and hosted/release gates remain open.",
   "apply_native_observer_correction": "docs/production-readiness/evidence/document-apply-native-observer-correction-local-2026-11-05.json",
   "verified_component_evidence": "docs/production-readiness/evidence/document-component-integration-verified-2026-11-05.json",
   "complete_native_suite_pending": false,
@@ -450,7 +451,7 @@
   },
   "text_bound_save_preparation_evidence": "docs/production-readiness/evidence/document-text-bound-save-local-2026-11-08.json",
   "text_source_admission_preparation_evidence": "docs/production-readiness/evidence/document-text-source-admission-local-2026-11-08.json",
-  "candidate_full_replay_pending": true,
+  "candidate_full_replay_pending": false,
   "text_source_protocol_verified_evidence": "docs/production-readiness/evidence/document-text-source-protocol-verified-2026-11-10.json",
   "extraction_source_write_fence_preparation_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-local-2026-11-10.json",
   "extraction_source_write_fence_verified_evidence": "docs/production-readiness/evidence/document-extraction-source-write-fence-verified-2026-11-10.json",
@@ -465,5 +466,6 @@
   "producer_authority_verified_evidence": "docs/production-readiness/evidence/document-producer-authority-verified-2026-11-13.json",
   "owner_review_preparation_evidence": "docs/production-readiness/evidence/document-owner-review-local-2026-11-13.json",
   "owner_review_verified_evidence": "docs/production-readiness/evidence/document-owner-review-verified-2026-11-13.json",
-  "owner_text_work_preparation_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json"
+  "owner_text_work_preparation_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+  "owner_text_work_verified_evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json"
 }

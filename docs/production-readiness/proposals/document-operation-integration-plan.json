@@ -1123,7 +1123,7 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
     "checked_against_source": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
-    "evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+    "evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json",
     "declared_entries_checked": 53,
     "corrected_entries": 1,
     "added_entries": 5,
@@ -1237,14 +1237,20 @@
     "ready_for_cutover": false
   },
   "owner_text_work_preparation": {
-    "evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+    "evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json",
     "local_verified": true,
-    "native_verified": false,
+    "native_verified": true,
     "component_cases": 48,
     "native_role_races_prepared": 16,
     "read_only": true,
     "whole_workstream_complete": false,
     "hosted_actions": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "total_native_cases": 2405,
+    "native_failed": 0,
+    "native_skipped": 0,
+    "canonical_migrations": 225,
+    "review_drafts": 41,
+    "component_complete": true
   }
 }

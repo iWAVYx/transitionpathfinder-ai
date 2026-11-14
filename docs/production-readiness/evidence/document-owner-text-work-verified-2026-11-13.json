@@ -1,0 +1,273 @@
+{
+  "schema": "document-owner-text-work-verified-v1",
+  "date": "2026-11-13",
+  "workstream_actions": [
+    "2.3"
+  ],
+  "scope": "Read-only Owner recovery inventory for the separate document-attached pasted-text capacity/completion ledger. Explicit namespace and current transaction-held Owner authorization; no student content, mutation, retry or release authority.",
+  "run": 43529173404,
+  "url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43529173404",
+  "head_source": "4b27fbab1dc7a1684cf8cb0c153f9caa1b5bc566",
+  "checkout_commit": "4b27fbab1dc7a1684cf8cb0c153f9caa1b5bc566",
+  "workflow": "success",
+  "canonical_migrations": 225,
+  "review_drafts": 41,
+  "total_native_cases": 2405,
+  "native_failed": 0,
+  "native_skipped": 0,
+  "new_native_cases": 64,
+  "component_cases": 48,
+  "role_removal_races": 16,
+  "retained_prior_native_cases": 2341,
+  "existing_core_native_cases": 1660,
+  "native_batches": 55,
+  "execution_inventory_sha256": "8fffea5e576c5a81e11938c19a7dbc0a6b507f28575ac9c024f472747c12f613",
+  "original_core_test_source_unchanged": true,
+  "all1660_original_registrations_assertions_timeouts_multiplicities_and_seven_partitions_preserved": true,
+  "raw_logs_case_inventories_and_source_hashes_independently_validated": true,
+  "proofs": [
+    {
+      "path": "docs/production-readiness/evidence/document-extraction-writer-native-proof-43529173404-2026-11-13.json",
+      "sha256": "5bbd41cb06bd1e798ca2af0286b4678ce2a79e1c08249ceb6a82527d8b623172"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-source-admission-native-proof-43529173404-2026-11-13.json",
+      "sha256": "51e5376256ba802c33d9a8046add6bcb2a2067f92ed3243f4ecf61deab94fdd7"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-bound-save-native-proof-43529173404-2026-11-13.json",
+      "sha256": "db571e7d768517d7db399fcfb5604312a0932ac10e026bb83ec3e6318f6c630e"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-capacity-native-proof-43529173404-2026-11-13.json",
+      "sha256": "53ee8779ce2aa8baf5f3a01cd71b4b2485d68a5ed3a1dfbdca66f94ea7cc0c3d"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-authority-native-proof-43529173404-2026-11-13.json",
+      "sha256": "4a631f7392a588cbfb6c261fe8f999faa3946b04352d8b540f6c89b9ac0f1de0"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-text-review-save-native-proof-43529173404-2026-11-13.json",
+      "sha256": "3b6863fd2feb2cd1267380e9c325d121f113c22c703c29dfa89fea1cc54fcdc2"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-composite-native-proof-43529173404-2026-11-13.json",
+      "sha256": "d28c2bcd347b15254cf7108b8becadfe599b1571e70c5a668c938310098c9de4"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-complete-native-proof-43529173404-2026-11-13.json",
+      "sha256": "5283b36af2ce0c88122d33689a9e6990e757cca274a55681e20c04d0b0a5f775"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-schema-proof-43529173404-2026-11-13.json",
+      "sha256": "2eea4815021f1ddde104fa984cc3c426d126c308892bc4544b80084fb7babf54"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-writer-schema-regression-proof-43529173404-2026-11-13.json",
+      "sha256": "60f1c09c91212e0581383401e6f23aa0c3a3b1f8ff50dc752c60e978ee706364"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-batched-drain-regression-proof-43529173404-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-apply-access-native-proof-43529173404-2026-11-13.json",
+      "sha256": "fbd4d6c0227a52fbce7248f2551487278a90a8621abd9f3452b41d1b30539293"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-summary-authority-native-proof-43529173404-2026-11-13.json",
+      "sha256": "72c6540226b2e2e59f787ff203380e65ca90c6d97ed49369e4fc4459ab95f776"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-summary-authority-schema-proof-43529173404-2026-11-13.json",
+      "sha256": "372779271988e31d11ccbe780e95fa72a48cf146e214f94a463b9e4981a96d32"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-producer-authority-native-proof-43529173404-2026-11-13.json",
+      "sha256": "031e05ad70b3b9c12ac19451f2b9a675278c6d54c2c952540629bdb1e5b70288"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-producer-authority-schema-proof-43529173404-2026-11-13.json",
+      "sha256": "8cb59c51f7b00b7cf3dcd552b9017b5dbeebf91933b2e50eda88d6233d33d032"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-producer-authority-drain-proof-43529173404-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-review-native-proof-43529173404-2026-11-13.json",
+      "sha256": "571af5785f2592e713d2f3d4bc9b65e4e763102826cf1f640c27b0c368e1e2a8"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-review-schema-proof-43529173404-2026-11-13.json",
+      "sha256": "a60a0674854ec6699f66da8dd5f7f2d63b7158fbf01465a61b28c009a1754b13"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-review-drain-proof-43529173404-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-text-work-native-proof-43529173404-2026-11-13.json",
+      "sha256": "1560b870ea6776cac28643af55ef2566f53b91143b6d9b3e6f3d229012bd203a"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-text-work-schema-proof-43529173404-2026-11-13.json",
+      "sha256": "307bbb0b999d26ff68eab54a2cdad67ffd801b538a0c4766335739e3171b55e4"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-owner-text-work-drain-proof-43529173404-2026-11-13.json",
+      "sha256": "fe3021a3f8d5f0fa71af81f8c8f1c51f76b8f738d2589af0365784e7512abc74"
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/document-owner-text-work-review.sql",
+      "sha256": "20b0529fac9b96fb6769173e9201288123304993288d8c02cb57f5ccc231f327"
+    },
+    {
+      "path": "src/lib/owner/text-work-review-contract.ts",
+      "sha256": "65e4fe48ec193c2d1620709ed633026ca134345dffd056e7ec1a3c467151d74d"
+    },
+    {
+      "path": "src/lib/owner/text-work-review.server.ts",
+      "sha256": "ff5358392de95a8725c4797300f3fdc39cf38d7fdb177586bd317b013c016da0"
+    },
+    {
+      "path": "src/lib/owner/text-work-review.functions.ts",
+      "sha256": "d3eea5b334837add165be55893a85442093a9733fd9f5fdaa03766123ec2f557"
+    },
+    {
+      "path": "src/components/owner/TextWorkReviewPanel.tsx",
+      "sha256": "e3baafc551a9843f91b8689673531843a2da3a29c31b44d2135af99b8ea1c449"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.health.tsx",
+      "sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
+    },
+    {
+      "path": "docs/production-readiness/hosting-portability-policy.json",
+      "sha256": "209c4d4b1f9d0358e743cd7c312bb57947976ac857ddcc6eeb408b29f52cd744"
+    },
+    {
+      "path": "tests/database/document-owner-text-work-cases.mjs",
+      "sha256": "c23d88a16e9a62cfcf986c9048bf9a22fb74f9f8150a0f45cc66c2c0e42c7e24"
+    },
+    {
+      "path": "tests/database/document-owner-text-work-fixture.mjs",
+      "sha256": "612718735d8d7c89f9138a1bd880e120c0db3938e62c75711f8aa9012bc9ac1d"
+    },
+    {
+      "path": "tests/database/document-owner-text-work.test.mjs",
+      "sha256": "cbfcac9e26dee49151e92d170f22fcad9d024eac5693f53fe405dac55e158af8"
+    },
+    {
+      "path": "tests/database/document-owner-text-work-races.test.mjs",
+      "sha256": "8c5fd2fc083788b87d312a17438e1a297458c9456d5022a257d543a927e480fe"
+    },
+    {
+      "path": "tests/unit/owner-text-work-review.test.ts",
+      "sha256": "5290d50c586ca11c58839768a155755c8d3f6e1d32289630f6e8876cbbb3cd95"
+    },
+    {
+      "path": "tests/unit/owner-text-work-panel.test.tsx",
+      "sha256": "a8c7ba36501d2c4f4062ae0b5736688acb2e8eaf92943d79f0602b0432fe6f6f"
+    },
+    {
+      "path": "tests/document-owner-text-work-plan.test.mjs",
+      "sha256": "ed027b5bf81d58c655fa69e3c4260f80ebb165e841d78820f1fff526e44c25af"
+    },
+    {
+      "path": ".github/workflows/migration-replay.yml",
+      "sha256": "e8d6ab0641ba36272bb00639c10984d062d3c50e40c170d0b5b3e9b835240546"
+    }
+  ],
+  "local_log_hashes": [
+    {
+      "path": "/private/tmp/tf-owner-text-local-final.log",
+      "sha256": "f7528712db5bcbfbb84af1523ee6c758bf473c00b0dd9784d09a40a9fa20f7d0"
+    },
+    {
+      "path": "/private/tmp/tf-owner-text-units-final.log",
+      "sha256": "e8fe3a0b718efbb3e13fcbd9a71ff08daa31d1c5c4cde93a388afd2451d1e544"
+    },
+    {
+      "path": "/private/tmp/tf-owner-text-all-units.log",
+      "sha256": "dea740e1295583cef674ee8485e50ff5b73bab760e69f58dba2c4f00799a2989"
+    },
+    {
+      "path": "/private/tmp/tf-owner-text-contracts.log",
+      "sha256": "57f89bd772496460b5fbc74a967513eac16bf0ffeaca056d214a11097d51ebdd"
+    },
+    {
+      "path": "/private/tmp/tf-owner-text-release-contracts-final.log",
+      "sha256": "3ed60b5b86294a7e897802bb35fda3188013bbb1ec3dfbb53f4f487b37401ec1"
+    },
+    {
+      "path": "/private/tmp/tf-owner-text-ts.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/tf-owner-text-isolated-build.log",
+      "sha256": "df186e0cca5e9cd7f51c47fe6f1fad4c3e9bfd8537099cb777b41c45f0f1f217"
+    }
+  ],
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "da23d2518969d7d059d2d9a9d8a33f3c2baaa5a2e257f1bf426e6cbd41f87736",
+    "fileCount": 1218
+  },
+  "local_visual_checks": [
+    {
+      "width": 320,
+      "viewport": 320,
+      "documentWidth": 320,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-text-local-320.png"
+    },
+    {
+      "width": 390,
+      "viewport": 390,
+      "documentWidth": 390,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-text-local-390.png"
+    },
+    {
+      "width": 1280,
+      "viewport": 1280,
+      "documentWidth": 1280,
+      "overflow": [],
+      "path": "/private/tmp/tf-owner-text-local-1280.png"
+    }
+  ],
+  "prior_evidence": "docs/production-readiness/evidence/document-owner-review-verified-2026-11-13.json",
+  "replay_log_sha256": "a7321806c33011eab2829fe0ac85870dc3011df9612020c09120acd2ae96efdb",
+  "workflow_snapshot_sha256": "a082d61b0a36a4c6a42ebb181db7afd34ff19c80ca5381a2a71dc1638d3d8ff1",
+  "verified": [
+    "All48 component cases pass natively using actual source-bound admission/hold/completion and actual TypeScript reader coupling. Held states retain one unit; completed/lost-success saves show zero; a later hold cannot reopen completed work.",
+    "All16 genuine two-session role deletion/demotion races observe the exact blocking Owner row across both read actions, both orderings and commit/rollback. Every read/refusal preserves exact application/ledger/accounting state.",
+    "Ten other role categories and unverified/mismatched/service claims are refused; raw ledgers and private helper execution remain inaccessible. Actual file-work IDs cannot be misread as attached-text work.",
+    "The new panel fetches only deliberately, ignores departed-viewer responses, clears stale metadata on errors, uses readable hold labels, and exposes no generation/retry/release action.",
+    "All5884 unit tests/369 files,56 focused API/panel tests,90 inventory/navigation and72 release/security contracts,TypeScript and the environment-file-free staging build pass locally. Mobile320/390 anddesktop1280 local fictional panel views have no horizontal overflow.",
+    "Full225+41 restricted replay verifies three exact function bodies/owners/modes/settings/grants while preserving every preexisting public routine, role/private-ledger ACL/RLS and processing control row. Read-only drain remains clear and does not assert provider quiescence.",
+    "All2341 earlier native cases pass with zero failures/skips, including the original1660 unchanged case labels/multiplicities/timeouts and55 fresh batches."
+  ],
+  "component_complete": true,
+  "whole_workstream_complete": false,
+  "read_only": true,
+  "remaining": [
+    "Other verified recovery actions: held/ambiguous/provider-backed outcomes remain counted without independent cessation/outcome proof.",
+    "Remaining Storage/service/scheduled/deployed writers and process/provider-interruption acceptance under2.5-2.7.",
+    "Final canonical/ledger/website/worker package and separately authorized hosted acceptance/merge/production rollout."
+  ],
+  "product_code_changed": true,
+  "new_sql_review_only": true,
+  "native_full_schema_verified": true,
+  "provider_quiescence_verified": false,
+  "release_authority_added": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}
