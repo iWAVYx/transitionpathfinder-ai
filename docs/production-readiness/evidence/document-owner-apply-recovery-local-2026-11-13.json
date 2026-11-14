@@ -1,0 +1,93 @@
+{
+  "schema": "document-owner-apply-recovery-local-v1",
+  "date": "2026-11-13",
+  "source_base": "6efba7d8b941a8472a006c155b9e97a5fbbdb5e4",
+  "workstream_actions": [
+    "2.3"
+  ],
+  "scope": "Complete Owner MFA audit -> trusted DB-only no-save Apply resolution -> caller status journey, plus accurate recovery display and strict no-save metadata coherence. No new SQL or public recovery grant.",
+  "source_manifest": [
+    {
+      "path": "src/lib/owner/document-work-review-contract.ts",
+      "sha256": "3ef65893ea62d77362f5eb8d29a61cd84121170dc049efe02c45980c22fe5b6e"
+    },
+    {
+      "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+      "sha256": "cebde6e8d6ab1a9b9cd30db8c26a29e93e58ec56b6e526517434a11e847a64cc"
+    },
+    {
+      "path": "tests/unit/owner-document-work-review.test.ts",
+      "sha256": "38795ef0cf22f969c2034064d89264bedfc715ea2959f296150c79dc723c4876"
+    },
+    {
+      "path": "tests/unit/owner-document-work-panel.test.tsx",
+      "sha256": "014c059ab6b86c0a34bcaeb26c4540dc9400d63678c9135a77765093f3e72d1b"
+    },
+    {
+      "path": "tests/database/document-owner-apply-recovery-cases.mjs",
+      "sha256": "3cf1092ef532b6e1988cdf9f19a3e60842750eefaa88be70dc15648d97b4a5c8"
+    },
+    {
+      "path": "tests/database/document-owner-apply-recovery.test.mjs",
+      "sha256": "350efea33bdab5fd38c9804af4db66271c316ccf6ea9dc5fa4b166a2dc7d9255"
+    },
+    {
+      "path": "tests/database/verify-owner-apply-recovery-baseline.mjs",
+      "sha256": "f8e6cecbe93f6ce0bade6b74870f4d75094bdb8ce77c1732360f796c2aec4f46"
+    },
+    {
+      "path": "tests/document-owner-apply-recovery-plan.test.mjs",
+      "sha256": "62557875d1b3a807d1f2021941f7ca3148ff8a28645bd82b27b2b613913f830a"
+    },
+    {
+      "path": ".github/workflows/owner-apply-recovery-qa.yml",
+      "sha256": "adad8baf067048285b1d3da32eed65cea4faf1d39bca443aa5b89d5a58558098"
+    }
+  ],
+  "local_journeys_passed": 25,
+  "local_failed": 0,
+  "local_skipped": 0,
+  "focused_unit_tests_passed": 57,
+  "unit_tests_passed": 5894,
+  "unit_files_passed": 369,
+  "typescript_passed": true,
+  "isolated_environment_file_free_staging_build_passed": true,
+  "runtime_source": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "1e904f189626f037bbade7e021065f545ed711a4cb832e1b16bbc6553c9807f1",
+    "fileCount": 1218
+  },
+  "sql_baseline_evidence": "docs/production-readiness/evidence/document-owner-apply-recovery-sql-baseline-2026-11-13.json",
+  "all297_sql_files_unchanged": true,
+  "canonical_migrations": 225,
+  "review_drafts": 41,
+  "retained_prior_native_sql_cases": 2405,
+  "verification_method": "Prior complete225+41/2405-case SQL evidence plus a new independently checked focused native journey run; do not claim a fresh complete-suite rerun.",
+  "new_native_cases_prepared": 25,
+  "native_verified": false,
+  "verified": [
+    "Owner review requires verified MFA/current role; every application role, including Owner, remains unable to execute the private resolver.",
+    "A trusted database operator can resolve only the exact DB-only no-save proof. Missing/stale/wrong/other-operation/provider-uncertain reviews refuse without releasing capacity.",
+    "A committed resolution releases exactly one unit and changes only the target extraction timestamp plus one immutable recovery row. Clinical student/profile/content/evidence/audit data remain unchanged.",
+    "Lost replies are verified by status reads without reposting; rollback restores the entire held state, duplicate resolution cannot release twice, stale Apply fails, and a new explicit admission remains possible.",
+    "Owner display keeps confirmed recovery visible after a lost review reply; it does not say the old task remains reserved or claim that newer work has not started. Contradictory no-save facts are rejected before display."
+  ],
+  "historical_local_run": {
+    "passed": 17,
+    "failed": 8,
+    "accepted": false,
+    "cause": "Unordered extraction SELECT changed row order after timestamp update. Compare keyed rows, allowing updated_at to change only on the target row; all other fields remain strictly checked."
+  },
+  "sql_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "public_recovery_grant_added": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "inventory_navigation_contracts_passed": 94,
+  "release_security_contracts_passed": 72,
+  "negative_changed_sql_probe_passed": true
+}

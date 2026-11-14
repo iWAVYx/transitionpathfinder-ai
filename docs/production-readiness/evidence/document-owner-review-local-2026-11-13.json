@@ -29,7 +29,7 @@
     },
     {
       "path": "src/lib/owner/document-work-review-contract.ts",
-      "sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef"
+      "sha256": "3ef65893ea62d77362f5eb8d29a61cd84121170dc049efe02c45980c22fe5b6e"
     },
     {
       "path": "src/lib/owner/document-work-review.server.ts",
@@ -41,7 +41,7 @@
     },
     {
       "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
-      "sha256": "6f638e4fa6229bd37a72b694b67378a2b971da7530fb2aafd0b390e2dc94a691"
+      "sha256": "cebde6e8d6ab1a9b9cd30db8c26a29e93e58ec56b6e526517434a11e847a64cc"
     },
     {
       "path": "src/routes/_authenticated/owner.health.tsx",
@@ -65,11 +65,11 @@
     },
     {
       "path": "tests/unit/owner-document-work-review.test.ts",
-      "sha256": "f4d46ac3d6f0b3f1c3a8046aad8b7c535095b690a650f082e95fb7c1999c44b0"
+      "sha256": "38795ef0cf22f969c2034064d89264bedfc715ea2959f296150c79dc723c4876"
     },
     {
       "path": "tests/unit/owner-document-work-panel.test.tsx",
-      "sha256": "cffa6de58c735c45219a0fe61e9ab05a1db8d1612b48781da9a9422ef9ae414c"
+      "sha256": "014c059ab6b86c0a34bcaeb26c4540dc9400d63678c9135a77765093f3e72d1b"
     },
     {
       "path": "docs/production-readiness/hosting-portability-policy.json",
@@ -141,21 +141,51 @@
     }
   ],
   "compatible_source_followup": {
-    "source_base": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
-    "scope": "Add a separate read-only pasted-text task panel to Owner health and review its caller-authenticated module. Existing uploaded-file review panel/core/contracts and all proposal40 SQL remain byte-identical. Current preparation hashes follow this compatible composition; historical native evidence retains the original exact source hashes. New source/native verification is recorded independently.",
+    "source_base": "6efba7d8b941a8472a006c155b9e97a5fbbdb5e4",
+    "scope": "Tighten exact DB-only no-save status coherence and correct Owner display/unknown-review verification after trusted recovery. SQL, API server core, MFA/current-role authorization and private grants remain unchanged. Historical native proof hashes are preserved; the new 25-case focused journey proof is separate.",
     "changes": [
       {
-        "path": "src/routes/_authenticated/owner.health.tsx",
-        "prior_sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e",
-        "current_sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
+        "path": "src/lib/owner/document-work-review-contract.ts",
+        "prior_sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef",
+        "current_sha256": "3ef65893ea62d77362f5eb8d29a61cd84121170dc049efe02c45980c22fe5b6e"
       },
       {
-        "path": "docs/production-readiness/hosting-portability-policy.json",
-        "prior_sha256": "aa1d9037af677984dd04971fb7c6505fae0a6f94954f022e35c8290bc6e7572a",
-        "current_sha256": "209c4d4b1f9d0358e743cd7c312bb57947976ac857ddcc6eeb408b29f52cd744"
+        "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
+        "prior_sha256": "6f638e4fa6229bd37a72b694b67378a2b971da7530fb2aafd0b390e2dc94a691",
+        "current_sha256": "cebde6e8d6ab1a9b9cd30db8c26a29e93e58ec56b6e526517434a11e847a64cc"
+      },
+      {
+        "path": "tests/unit/owner-document-work-review.test.ts",
+        "prior_sha256": "f4d46ac3d6f0b3f1c3a8046aad8b7c535095b690a650f082e95fb7c1999c44b0",
+        "current_sha256": "38795ef0cf22f969c2034064d89264bedfc715ea2959f296150c79dc723c4876"
+      },
+      {
+        "path": "tests/unit/owner-document-work-panel.test.tsx",
+        "prior_sha256": "cffa6de58c735c45219a0fe61e9ab05a1db8d1612b48781da9a9422ef9ae414c",
+        "current_sha256": "014c059ab6b86c0a34bcaeb26c4540dc9400d63678c9135a77765093f3e72d1b"
       }
     ],
-    "separate_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+    "separate_evidence": "docs/production-readiness/evidence/document-owner-apply-recovery-local-2026-11-13.json",
     "does_not_rewrite_historical_native_proof": true
-  }
+  },
+  "compatible_source_followup_history": [
+    {
+      "source_base": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
+      "scope": "Add a separate read-only pasted-text task panel to Owner health and review its caller-authenticated module. Existing uploaded-file review panel/core/contracts and all proposal40 SQL remain byte-identical. Current preparation hashes follow this compatible composition; historical native evidence retains the original exact source hashes. New source/native verification is recorded independently.",
+      "changes": [
+        {
+          "path": "src/routes/_authenticated/owner.health.tsx",
+          "prior_sha256": "e3e991f17ae97215810d900b1cc9f9b777303eedd43858f3282b5b380afde90e",
+          "current_sha256": "21deb2aca65f57ed350f64d9eb96910e104d26767e80df88ccb1b3a0de27f6b3"
+        },
+        {
+          "path": "docs/production-readiness/hosting-portability-policy.json",
+          "prior_sha256": "aa1d9037af677984dd04971fb7c6505fae0a6f94954f022e35c8290bc6e7572a",
+          "current_sha256": "209c4d4b1f9d0358e743cd7c312bb57947976ac857ddcc6eeb408b29f52cd744"
+        }
+      ],
+      "separate_evidence": "docs/production-readiness/evidence/document-owner-text-work-local-2026-11-13.json",
+      "does_not_rewrite_historical_native_proof": true
+    }
+  ]
 }

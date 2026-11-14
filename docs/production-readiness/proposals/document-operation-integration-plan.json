@@ -167,7 +167,7 @@
     },
     {
       "path": "src/lib/owner/document-work-review-contract.ts",
-      "sha256": "d7e47458d0a3d7c4dcfc7ca44c5f6762ecb95256d65ea91fd9228ba327c8c0ef"
+      "sha256": "3ef65893ea62d77362f5eb8d29a61cd84121170dc049efe02c45980c22fe5b6e"
     },
     {
       "path": "src/lib/owner/document-work-review.server.ts",
@@ -179,7 +179,7 @@
     },
     {
       "path": "src/components/owner/DocumentWorkReviewPanel.tsx",
-      "sha256": "6f638e4fa6229bd37a72b694b67378a2b971da7530fb2aafd0b390e2dc94a691"
+      "sha256": "cebde6e8d6ab1a9b9cd30db8c26a29e93e58ec56b6e526517434a11e847a64cc"
     },
     {
       "path": "src/routes/_authenticated/owner.health.tsx",
@@ -1122,11 +1122,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-13",
-    "checked_against_source": "d0576ff9d3e2aa2c20aba71f90e67bb01011cf86",
-    "evidence": "docs/production-readiness/evidence/document-owner-text-work-verified-2026-11-13.json",
+    "checked_against_source": "6efba7d8b941a8472a006c155b9e97a5fbbdb5e4",
+    "evidence": "docs/production-readiness/evidence/document-owner-apply-recovery-local-2026-11-13.json",
     "declared_entries_checked": 53,
-    "corrected_entries": 1,
-    "added_entries": 5,
+    "corrected_entries": 2,
+    "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1252,5 +1252,15 @@
     "canonical_migrations": 225,
     "review_drafts": 41,
     "component_complete": true
+  },
+  "owner_reviewed_apply_recovery": {
+    "evidence": "docs/production-readiness/evidence/document-owner-apply-recovery-local-2026-11-13.json",
+    "local_verified": true,
+    "native_verified": false,
+    "sql_changed": false,
+    "public_recovery_grant_added": false,
+    "whole_workstream_complete": false,
+    "hosted_actions": false,
+    "ready_for_cutover": false
   }
 }

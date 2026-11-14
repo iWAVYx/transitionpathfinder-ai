@@ -26,3 +26,12 @@ for (const fault of ["missing", "review", "operation", "release", "private"]) it
 it("accepts an exact already-recorded receipt without a second RPC", async () => { api.rpc.mockResolvedValue({ data: { ...receipt(), already_recorded: true }, error: null }); expect(await retain()).toMatchObject({ ok: true, receipt: { already_recorded: true } }); expect(api.rpc).toHaveBeenCalledTimes(1); });
 for (const fault of ["private", "duplicate", "cursor", "release"]) it("refuses unsafe queue metadata: " + fault, async () => { const data: any = queue(); if (fault === "private") data.student_id = owner; if (fault === "duplicate") data.items.push(data.items[0]); if (fault === "cursor") data.has_more = true; if (fault === "release") data.release_permitted = true; api.rpc.mockResolvedValue({ data, error: null }); await expect(read()).rejects.toThrow("couldn't load"); });
 it("refuses a mismatched inspection identity", async () => { api.rpc.mockResolvedValue({ data: { ...detail(), snapshot: { ...detail().snapshot, operation_id: owner } }, error: null }); await expect(inspect()).rejects.toThrow("couldn't load"); });
+
+for (const patch of [ { operation_kind: "rescan" }, { state: "completed" }, { reservation_present: false }, { accounting_consistent: false, shared_reserved_units: null, remaining_shared_units: null }, { shared_reserved_units: 2 }, { remaining_shared_units: 1 }, { recorded_completion: true } ]) it("rejects contradictory no-save recovery metadata: " + JSON.stringify(patch), async () => {
+  const value = detail(); api.rpc.mockResolvedValue({ data: { ...value, snapshot: { ...value.snapshot, reconciled_no_save: true, remaining_shared_units: 0, ...patch } }, error: null });
+  await expect(inspect()).rejects.toThrow("couldn't load");
+});
+it("accepts the exact recorded DB-only no-save recovery without release authority", async () => {
+  const value=detail(); api.rpc.mockResolvedValue({ data: { ...value, snapshot: { ...value.snapshot, reconciled_no_save: true, remaining_shared_units: 0 } }, error: null });
+  expect((await inspect()).snapshot).toMatchObject({ reconciled_no_save: true, remaining_shared_units: 0, recorded_completion: false, release_permitted: false });
+});
