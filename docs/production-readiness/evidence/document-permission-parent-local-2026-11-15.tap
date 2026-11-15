@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: baseline: an editor can insert a foreign-document grant using an editable student and expose its metadata
+ok 1 - baseline: an editor can insert a foreign-document grant using an editable student and expose its metadata
+  ---
+  duration_ms: 723.413042
+  type: 'test'
+  ...
+# Subtest: baseline: an editable grant can be retargeted to an unrelated document
+ok 2 - baseline: an editable grant can be retargeted to an unrelated document
+  ---
+  duration_ms: 420.136875
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from family
+ok 3 - parent guard refuses a mismatched document grant from family
+  ---
+  duration_ms: 460.199708
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from student
+ok 4 - parent guard refuses a mismatched document grant from student
+  ---
+  duration_ms: 397.182625
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from educator
+ok 5 - parent guard refuses a mismatched document grant from educator
+  ---
+  duration_ms: 407.870541
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from school
+ok 6 - parent guard refuses a mismatched document grant from school
+  ---
+  duration_ms: 403.93325
+  type: 'test'
+  ...
+# Subtest: parent guard refuses a mismatched document grant from district
+ok 7 - parent guard refuses a mismatched document grant from district
+  ---
+  duration_ms: 399.469834
+  type: 'test'
+  ...
+# Subtest: parent guard also refuses a mismatched trusted-service insert
+ok 8 - parent guard also refuses a mismatched trusted-service insert
+  ---
+  duration_ms: 467.653583
+  type: 'test'
+  ...
+# Subtest: parent guard refuses reassignment of document_id
+ok 9 - parent guard refuses reassignment of document_id
+  ---
+  duration_ms: 409.148292
+  type: 'test'
+  ...
+# Subtest: parent guard refuses reassignment of student_id
+ok 10 - parent guard refuses reassignment of student_id
+  ---
+  duration_ms: 385.371042
+  type: 'test'
+  ...
+# Subtest: historical mismatches are retained but no longer authorize document metadata
+ok 11 - historical mismatches are retained but no longer authorize document metadata
+  ---
+  duration_ms: 392.898833
+  type: 'test'
+  ...
+# Subtest: a service-written mismatch also becomes inert
+ok 12 - a service-written mismatch also becomes inert
+  ---
+  duration_ms: 395.706833
+  type: 'test'
+  ...
+# Subtest: direct editing of a historical mismatched row is refused without deleting it
+ok 13 - direct editing of a historical mismatched row is refused without deleting it
+  ---
+  duration_ms: 402.649708
+  type: 'test'
+  ...
+# Subtest: correctly bound view_document keeps its prior behavior; tier privacy remains a separate gate
+ok 14 - correctly bound view_document keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 411.923292
+  type: 'test'
+  ...
+# Subtest: correctly bound view_summary keeps its prior behavior; tier privacy remains a separate gate
+ok 15 - correctly bound view_summary keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 394.799458
+  type: 'test'
+  ...
+# Subtest: correctly bound view_student_friendly_summary keeps its prior behavior; tier privacy remains a separate gate
+ok 16 - correctly bound view_student_friendly_summary keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 405.09025
+  type: 'test'
+  ...
+# Subtest: correctly bound edit_metadata keeps its prior behavior; tier privacy remains a separate gate
+ok 17 - correctly bound edit_metadata keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 395.672416
+  type: 'test'
+  ...
+# Subtest: correctly bound manage keeps its prior behavior; tier privacy remains a separate gate
+ok 18 - correctly bound manage keeps its prior behavior; tier privacy remains a separate gate
+  ---
+  duration_ms: 390.8925
+  type: 'test'
+  ...
+# Subtest: a correctly bound role grant keeps its prior behavior; audience scope remains a separate gate
+ok 19 - a correctly bound role grant keeps its prior behavior; audience scope remains a separate gate
+  ---
+  duration_ms: 404.245917
+  type: 'test'
+  ...
+# Subtest: correctly bound none does not add document access
+ok 20 - correctly bound none does not add document access
+  ---
+  duration_ms: 406.929625
+  type: 'test'
+  ...
+# Subtest: valid insert RETURNING and deletion receipts still work for the application
+ok 21 - valid insert RETURNING and deletion receipts still work for the application
+  ---
+  duration_ms: 401.260625
+  type: 'test'
+  ...
+# Subtest: the parent helper is invoker-only, fixed-path, unconditional and directly uncallable
+ok 22 - the parent helper is invoker-only, fixed-path, unconditional and directly uncallable
+  ---
+  duration_ms: 409.719
+  type: 'test'
+  ...
+# Subtest: view helper OID owner grants mode path and unrelated policies are preserved
+ok 23 - view helper OID owner grants mode path and unrelated policies are preserved
+  ---
+  duration_ms: 399.263333
+  type: 'test'
+  ...
+# Subtest: a changed baseline refuses installation without partial helper/trigger changes
+ok 24 - a changed baseline refuses installation without partial helper/trigger changes
+  ---
+  duration_ms: 391.180667
+  type: 'test'
+  ...
+# Subtest: repeat installation refuses unreviewed state
+ok 25 - repeat installation refuses unreviewed state
+  ---
+  duration_ms: 430.821542
+  type: 'test'
+  ...
+# Subtest: rollback restores the prior helper and removes the new guard atomically
+ok 26 - rollback restores the prior helper and removes the new guard atomically
+  ---
+  duration_ms: 407.745208
+  type: 'test'
+  ...
+# Subtest: Owner without explicit student access cannot create a document grant
+ok 27 - Owner without explicit student access cannot create a document grant
+  ---
+  duration_ms: 392.319792
+  type: 'test'
+  ...
+# Subtest: an explicitly assigned editing Owner can create only a correctly bound grant
+ok 28 - an explicitly assigned editing Owner can create only a correctly bound grant
+  ---
+  duration_ms: 535.44075
+  type: 'test'
+  ...
+# Subtest: partner-only actors cannot create grants even with an editing collaboration
+ok 29 - partner-only actors cannot create grants even with an editing collaboration
+  ---
+  duration_ms: 477.40925
+  type: 'test'
+  ...
+# Subtest: view-only collaborators cannot create grants
+ok 30 - view-only collaborators cannot create grants
+  ---
+  duration_ms: 435.794666
+  type: 'test'
+  ...
+# Subtest: a duplicate valid INSERT remains a unique error rather than replacing an existing grant
+ok 31 - a duplicate valid INSERT remains a unique error rather than replacing an existing grant
+  ---
+  duration_ms: 414.062667
+  type: 'test'
+  ...
+# Subtest: baseline partial-index conflict target remains a distinct rights-transfer writer issue
+ok 32 - baseline partial-index conflict target remains a distinct rights-transfer writer issue
+  ---
+  duration_ms: 401.508209
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13656.990166
