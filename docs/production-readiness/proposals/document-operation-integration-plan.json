@@ -228,6 +228,18 @@
     {
       "path": "src/lib/document-signed-link.server.ts",
       "sha256": "06fec627171452ae2b07674990856dbb8172b4653badb99b3c3ef72b6e5d4231"
+    },
+    {
+      "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+      "sha256": "80b74335dc6874c723b0f2158f6573f2854da20bcf0b2ae4c210d0c2c7c2b8d0"
+    },
+    {
+      "path": "src/lib/document-access-audit-display.ts",
+      "sha256": "9d6e4d5de09c4e4b244076decbe271c55fae07bdfb1e37d644c4e412b59fa340"
+    },
+    {
+      "path": "src/routes/_authenticated/owner.iep-audit.tsx",
+      "sha256": "74ff5d2306dd2ef328cb98c6df5f4dd76fc57342db33e7c3e462f7fa79561776"
     }
   ],
   "adapter_contract": {
@@ -1134,11 +1146,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "2d816b3929ef54ed3ecff9a5f4fd9c0c1abb046c",
-    "evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json",
-    "declared_entries_checked": 56,
-    "corrected_entries": 1,
-    "added_entries": 1,
+    "checked_against_source": "2a8239a35dca58a4f088c541f15567d3cce620e9",
+    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-local-2026-11-15.json",
+    "declared_entries_checked": 59,
+    "corrected_entries": 0,
+    "added_entries": 3,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1304,6 +1316,16 @@
     "release_blocker_remains": true,
     "sql_changed": false,
     "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "admin_document_grant_retirement": {
+    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-local-2026-11-15.json",
+    "separate_review_draft": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+    "canonical_or_ordered_chain_added": false,
+    "targeted_local_cases": 27,
+    "native_full_chain_verified": false,
+    "hosted_applied": false,
+    "release_blocker_remains": true,
     "ready_for_cutover": false
   }
 }
