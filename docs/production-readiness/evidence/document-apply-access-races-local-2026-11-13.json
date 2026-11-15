@@ -70,7 +70,7 @@
     },
     {
       "path": ".github/workflows/migration-replay.yml",
-      "sha256": "3051620ee5935887a5558c7ce9190e8a1226db7a06c8367bbbe77464358cdbaf"
+      "sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423"
     }
   ],
   "logs": [
@@ -99,5 +99,15 @@
   "provider_calls": false,
   "production_access": false,
   "release_authorization_granted": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "separate_grant_retirement_followup": {
+    "date": "2026-11-15",
+    "source_base": "14cbe480",
+    "existing225_plus41_guards_unchanged": true,
+    "original_native_test_unchanged": true,
+    "historical_verified_evidence_unchanged": true,
+    "new_verification_runs_after_prior_baseline": true,
+    "new_separate_draft_not_in_prior_native_count": true,
+    "native_full_chain_pending": true
+  }
 }

@@ -23,9 +23,9 @@
     },
     {
       "path": ".github/workflows/migration-replay.yml",
-      "sha256": "e8d6ab0641ba36272bb00639c10984d062d3c50e40c170d0b5b3e9b835240546",
+      "sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423",
       "classification": "disposable-database-verification",
-      "finding": "Disposable replay and worker checks reference Storage policies, summary guards and cron isolation.",
+      "finding": "Disposable full225+41 baseline and worker checks remain; a separately labeled final stage verifies the one review-only admin-grant retirement draft without changing prior baseline/native counts.",
       "remaining_boundary": "Disposable fixtures and fake secrets do not establish deployed database/function/scheduler/provider state."
     },
     {

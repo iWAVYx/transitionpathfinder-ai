@@ -10,6 +10,8 @@ on:
     paths:
       - "supabase/migrations/**"
       - ".github/workflows/migration-replay.yml"
+      - "docs/database-proposals/document-admin-grant-retirement/**"
+      - "tests/database/document-admin-grant-full-chain-review.sql"
       - "tests/documents-rls.test.mjs"
       - "tests/security-finding-alignment.test.mjs"
       - "tests/security-definer-routine-grants.test.mjs"
@@ -169,6 +171,8 @@ on:
     paths:
       - "supabase/migrations/**"
       - ".github/workflows/migration-replay.yml"
+      - "docs/database-proposals/document-admin-grant-retirement/**"
+      - "tests/database/document-admin-grant-full-chain-review.sql"
       - "tests/documents-rls.test.mjs"
       - "tests/security-finding-alignment.test.mjs"
       - "tests/security-definer-routine-grants.test.mjs"
@@ -3299,12 +3303,22 @@ jobs:
           import assert from'node:assert/strict';import{readFileSync,writeFileSync}from'node:fs';const d=JSON.parse(readFileSync('/tmp/document-owner-text-work-drain.json'));for(const[k,v]of Object.entries({paused:true,database_work_clear:true,remaining_capacity_units:0,provider_quiescence_verified:false,ready_for_cutover:false}))assert.equal(d[k],v,k);writeFileSync('/tmp/document-owner-text-work-schema.json',JSON.stringify({schema:'document-owner-text-work-schema-proof-v1',canonical_count:225,review_drafts:41,exact_new_boundaries:3,preexisting_public_routines_unchanged:true,admin_role_and_private_ledger_acl_rls_unchanged:true,control_unchanged:true,metadata_only:true,read_only:true,release_authority_added:false,read_only_drain_clear:true,paused:true,remaining_capacity_units:0,provider_quiescence_verified:false,hosted_applied:false,ready_for_cutover:false}));
           NODE
 
+      - name: Verify separate document grant retirement after the complete225+41 baseline
+        run: |
+          PGUSER=supabase_admin psql -v ON_ERROR_STOP=1 -qAt -c 'SET ROLE postgres' \
+            -f tests/database/document-admin-grant-full-chain-review.sql > /tmp/document-grant-retirement-full-chain.json
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';import {readFileSync,writeFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+          const path='/tmp/document-grant-retirement-full-chain.json',value=JSON.parse(readFileSync(path));assert.equal(value.native_full_chain_installed,true);assert.equal(value.canonical_count,225);assert.equal(value.prior_review_drafts,41);assert.equal(value.separate_review_drafts,1);assert.equal(value.hosted_applied,false);assert.equal(value.ready_for_cutover,false);value.source_commit=process.env.GITHUB_SHA;value.source_manifest=['tests/database/document-admin-grant-full-chain-review.sql','docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql','.github/workflows/migration-replay.yml'].map(path=>({path,sha256:createHash('sha256').update(readFileSync(path)).digest('hex')}));writeFileSync(path,JSON.stringify(value,null,2));
+          NODE
+
       - name: Upload replay log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: migration-replay-log
           path: |
+            /tmp/document-grant-retirement-full-chain.json
             /tmp/realtime_policies.txt
             /tmp/security-finding-inventory.txt
             /tmp/document-path-proposal-verification.txt

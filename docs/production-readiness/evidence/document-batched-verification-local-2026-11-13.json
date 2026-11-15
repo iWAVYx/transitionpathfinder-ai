@@ -83,7 +83,7 @@
     },
     {
       "path": ".github/workflows/migration-replay.yml",
-      "sha256": "c06cae77a253437923b08f1c79c97198316e1efad272f127f12018578ef1fa81"
+      "sha256": "f4fb30fb9ed25ab3e63213edee428dff8d9898bf951da0609736f75651659423"
     }
   ],
   "logs": [
@@ -130,5 +130,15 @@
     "failure": "Exact coverage gate stopped when a TAP-escaped hash label selected31 instead of32 cases.",
     "resolution": "Decode the TAP hash display escape for selection; retain the original raw label, assertion and expected count. All1660 cases then completed with unchanged1474/186 local outcomes.",
     "acceptance_claimed_for_failed_run": false
+  },
+  "separate_grant_retirement_followup": {
+    "date": "2026-11-15",
+    "source_base": "14cbe480",
+    "existing225_plus41_guards_unchanged": true,
+    "original_native_test_unchanged": true,
+    "historical_verified_evidence_unchanged": true,
+    "new_verification_runs_after_prior_baseline": true,
+    "new_separate_draft_not_in_prior_native_count": true,
+    "native_full_chain_pending": true
   }
 }
