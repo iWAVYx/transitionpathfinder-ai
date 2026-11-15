@@ -102,13 +102,13 @@ function ReviewPage() {
     if (!request.key || !request.viewerId) return;
     (async () => {
       try {
-        const res = await fnGet({ data: { document_id: documentId } });
+        const res = await fnGet({ data: { document_id: documentId, expected_viewer_id: request.viewerId } });
         if (!active || !current(request)) return;
         saveQueue.current?.cancel(); saveQueue.current = createReviewSaveQueue(res.extraction.updated_at);
         setExtraction(res.extraction as unknown as Extraction);
         fnLogView({ data: { document_id: documentId, context: "extraction_review" } }).catch(() => {});
       } catch (e) {
-        if (active && current(request)) toast.error(e instanceof Error ? e.message : "Could not load extraction.");
+        if (active && current(request)) toast.error("We couldn't open this document review. Refresh the page to check your sign-in, access and the current review before trying again.");
       } finally {
         if (active && current(request)) { setLoadedScope(request); setLoading(false); }
       }

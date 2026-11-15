@@ -1,5 +1,5 @@
+import { loadOrInitializeDocumentReview, parseDocumentReviewLoadRequest } from "./document-review-initialization.server";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractFromIep, type IepExtract } from "./iep-extract.functions";
@@ -32,41 +32,10 @@ function emptySections(extract?: Partial<IepExtract>): ExtractionSections {
 
 export const getOrCreateExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({ document_id: z.string().uuid() }).parse(i),
-  )
+  .validator((input: unknown) => parseDocumentReviewLoadRequest(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    const { data: existing } = await supabase
-      .from("document_extractions")
-      .select("*")
-      .eq("document_id", data.document_id)
-      .maybeSingle();
-
-    if (existing) return { extraction: existing };
-
-    // Need the student_id from the document (RLS-guarded).
-    const { data: doc, error: docErr } = await supabase
-      .from("documents")
-      .select("id, student_id, title")
-      .eq("id", data.document_id)
-      .maybeSingle();
-    if (docErr || !doc) throw new Error("Document not found or not accessible.");
-
-    const { data: inserted, error } = await supabase
-      .from("document_extractions")
-      .insert({
-        document_id: doc.id,
-        student_id: doc.student_id,
-        status: "pending",
-        sections: emptySections() as any,
-        created_by: userId,
-      })
-      .select("*")
-      .single();
-    if (error || !inserted) throw new Error("Could not initialize extraction.");
-    return { extraction: inserted };
+    const result = await loadOrInitializeDocumentReview(context.supabase, context.userId, data);
+    return { extraction: result.extraction as unknown as Database["public"]["Tables"]["document_extractions"]["Row"] };
   });
 
 export const runExtractionFromText = createServerFn({ method: "POST" })

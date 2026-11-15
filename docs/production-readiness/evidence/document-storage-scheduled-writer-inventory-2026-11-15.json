@@ -313,7 +313,9 @@
     {
       "item": "Existing review initialization",
       "source": "src/lib/extractions.functions.ts:getOrCreateExtraction",
-      "action": "Bind expected viewer before review lookup/initialization and verify current authority and document identity. Do not replay an uncertain insert."
+      "action": "Bind expected viewer before review lookup/initialization and verify current authority and document identity. Do not replay an uncertain insert.",
+      "status": "source-local-closed-hosted-verification-open",
+      "completion_evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json"
     },
     {
       "item": "Signed links and admin override",
@@ -355,5 +357,13 @@
     },
     "runtime_application_changed": false,
     "fresh_native_sql_replay_claimed": false
+  },
+  "followup_reconciliation": {
+    "date": "2026-11-15",
+    "source_base": "bbd94f89d37af986bc907d45a6470897313495ac",
+    "evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json",
+    "candidate_hashes_changed": false,
+    "inventory_scope_unchanged": true,
+    "hosted_verified": false
   }
 }

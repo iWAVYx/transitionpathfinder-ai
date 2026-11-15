@@ -15,7 +15,7 @@
     },
     {
       "path": "src/lib/extractions.functions.ts",
-      "sha256": "7c2c2b87455ce482a3e996d80f7740a1b049c4042857896eb1f05499c4ea4559"
+      "sha256": "264865d3a7a4e0a7ba9caa76ad9b2eb87bc4a3da98bc3927bdb7c9e901d53999"
     },
     {
       "path": "src/lib/document-extraction-apply.server.ts",
@@ -31,7 +31,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "68997bceea64a5c87bc65fb74fb28f0655baab5f868d7e160f96333f1cc6ddb3"
+      "sha256": "3c626cc47dfd64c5ae94ec86b55f693f4d76b679c01b57267170086a8089edc9"
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
@@ -220,6 +220,10 @@
     {
       "path": "src/lib/document-archive.server.ts",
       "sha256": "810728a54188accf3437849e61888158f1dbd8966a353cd21719c8f96f911463"
+    },
+    {
+      "path": "src/lib/document-review-initialization.server.ts",
+      "sha256": "30a0a21281fd813cd5fbd3b69a6efa1076cede2b7d3424f189e62d8d6e9ebb1e"
     }
   ],
   "adapter_contract": {
@@ -1125,10 +1129,10 @@
     "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-13",
-    "checked_against_source": "c10dc040a5ba00f478e86ca9a72d88cc94f9d9c2",
-    "evidence": "docs/production-readiness/evidence/document-archive-confirmation-local-2026-11-13.json",
-    "declared_entries_checked": 54,
+    "date": "2026-11-15",
+    "checked_against_source": "bbd94f89d37af986bc907d45a6470897313495ac",
+    "evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json",
+    "declared_entries_checked": 55,
     "corrected_entries": 2,
     "added_entries": 1,
     "complete_release_manifest": false,
@@ -1278,6 +1282,15 @@
     "hosted_verified": false,
     "transaction_held_authorization_verified": false,
     "sql_changed": false,
+    "ready_for_cutover": false
+  },
+  "document_review_initialization": {
+    "evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json",
+    "source_local_complete": true,
+    "existing_read_access_preserved": true,
+    "sql_changed": false,
+    "transaction_held_authorization_verified": false,
+    "hosted_verified": false,
     "ready_for_cutover": false
   }
 }
