@@ -11,7 +11,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "f6d5eccede15253a0543c405256dd562dbc7e8c1ee9fffb13a448463df30dea9"
+      "sha256": "4371a9160917fe79b98a9f22f7bf2800c96a462cfe36d8ddb62229c7b656ea4c"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -75,7 +75,7 @@
     },
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
-      "sha256": "14bf5556dc4cc9d075504d6757c3c4554551297f8e229d5d39d35ebce43277eb"
+      "sha256": "5052c703ff3f95c1bd7e5e6fa63a4e69384f4aa0b4bea57d6e3fa54443c3c34e"
     },
     {
       "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
@@ -252,6 +252,18 @@
     {
       "path": "src/components/documents/DocumentClassificationCard.tsx",
       "sha256": "0079e46aa2f3f71efdcb7981ca3e4ab5dde6a03210bb631a026c3f281b45dc83"
+    },
+    {
+      "path": "src/lib/document-permissions-contract.ts",
+      "sha256": "cfc02b1886b5ed79028df41575be41073edbc29a0c2bc49ec37bc98623155808"
+    },
+    {
+      "path": "src/lib/document-permissions.server.ts",
+      "sha256": "f95080b0cceaa2b7d169941d87222927991cdda824df8fdf233e51d56eb77b2f"
+    },
+    {
+      "path": "src/components/students/DocumentPermissionsDialog.tsx",
+      "sha256": "24043aaafa5c3cfbd3e6bbc9bb8c81ff6ef18ebf88dd2103cac979427f476df3"
     }
   ],
   "adapter_contract": {
@@ -1158,9 +1170,9 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "3e088926d51d7043f11a563cb314d2d4bbd2d31d",
-    "evidence": "docs/production-readiness/evidence/document-metadata-writers-local-2026-11-15.json",
-    "declared_entries_checked": 62,
+    "checked_against_source": "89b72168a82bcf03e869089fca326ac2329fa61e",
+    "evidence": "docs/production-readiness/evidence/document-permissions-source-local-2026-11-15.json",
+    "declared_entries_checked": 65,
     "corrected_entries": 2,
     "added_entries": 3,
     "complete_release_manifest": false,
@@ -1346,6 +1358,13 @@
   "document_metadata_writers": {
     "evidence": "docs/production-readiness/evidence/document-metadata-writers-local-2026-11-15.json",
     "status": "source/local component complete; whole 2.6 remains open",
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "document_permission_source_component": {
+    "evidence": "docs/production-readiness/evidence/document-permissions-source-local-2026-11-15.json",
+    "status": "shared application component complete; database privacy and whole 5.2/5.3 remain open",
+    "database_privacy_gate_open": true,
     "hosted_verified": false,
     "ready_for_cutover": false
   }

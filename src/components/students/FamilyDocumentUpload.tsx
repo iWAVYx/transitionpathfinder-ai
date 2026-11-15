@@ -222,7 +222,8 @@ function FamilyDocumentUploadSession({
   }, [viewerId, studentId]);
   const [docType, setDocType] = useState<DocType>("current-iep");
   const [title, setTitle] = useState("");
-  const [visibility, setVisibility] = useState<"private" | "team" | "family" | "student">("team");
+  // The current document policy uses student access, not visibility labels.
+  const visibility = "team" as const;
   const [schoolYear, setSchoolYear] = useState("");
   const [meetingDate, setMeetingDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
@@ -597,23 +598,14 @@ function FamilyDocumentUploadSession({
 
 
         <div>
-          <Label htmlFor="doc-visibility" className="mb-1.5 inline-block">
-            Who should see this?
-          </Label>
-          <Select value={visibility} onValueChange={(v) => setVisibility(v as typeof visibility)}>
-            <SelectTrigger id="doc-visibility">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="private">Just me</SelectItem>
-              <SelectItem value="family">Family only</SelectItem>
-              <SelectItem value="student">{firstName} and family</SelectItem>
-              <SelectItem value="team">{firstName}'s full team (default)</SelectItem>
-            </SelectContent>
-          </Select>
+          <p className="mb-1.5 text-sm font-medium">Student-Team Access</p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            People with access to this student may be able to view this document.
+            Private and family-only sharing are not available in this upload form.
+          </p>
           <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-            You can grant individual people access at any time from the file row's
-            <strong> Manage access</strong> button. Partners are never given IEPs.
+            Review additional document grants for existing team members using the file row's
+            <strong> Manage Access</strong> button. This form does not grant access to partner-only accounts.
           </p>
         </div>
 
@@ -821,8 +813,8 @@ export function StandardDocActions({
         size="sm"
         variant="ghost"
         onClick={() => setPermsOpen(true)}
-        aria-label="Manage access"
-        title="Manage access"
+        aria-label="Manage Access"
+        title="Manage Access"
       >
         <UsersIcon className="h-3.5 w-3.5" />
       </Button>

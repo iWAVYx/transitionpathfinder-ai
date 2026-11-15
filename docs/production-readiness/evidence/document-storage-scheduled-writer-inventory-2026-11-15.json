@@ -44,9 +44,9 @@
     },
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
-      "sha256": "14bf5556dc4cc9d075504d6757c3c4554551297f8e229d5d39d35ebce43277eb",
+      "sha256": "5052c703ff3f95c1bd7e5e6fa63a4e69384f4aa0b4bea57d6e3fa54443c3c34e",
       "classification": "caller-upload",
-      "finding": "One privacy-safe file upload uses the exact reserved path and upsert:false; uncertain upload/registration pauses and read-only reconciliation does not repeat the upload.",
+      "finding": "One privacy-safe file upload uses the exact reserved path and upsert:false; uncertain upload/registration pauses and read-only reconciliation does not repeat the upload. Sharing source follow-up: account/document-bound grants/removals and truthful team-scope upload wording are prepared; Storage and database grant policies are unchanged. See document-permissions-source-local-2026-11-15.json for remaining direct-write/privacy blockers.",
       "remaining_boundary": "Actual Storage write/unknown-reply, access removal and service overwrite acceptance remain hosted gates."
     },
     {
@@ -128,9 +128,9 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "f6d5eccede15253a0543c405256dd562dbc7e8c1ee9fffb13a448463df30dea9",
+      "sha256": "4371a9160917fe79b98a9f22f7bf2800c96a462cfe36d8ddb62229c7b656ea4c",
       "classification": "document-metadata-and-signed-link",
-      "finding": "Source-bound registration/rescan and confirmed archive metadata; normal links delegate to the exact current-account/source helper. Legacy application override refuses before IO; hard delete remains paused. Classification/review metadata now uses a loaded-viewer and exact-revision caller-scoped helper, with strict receipts; Storage operations are unchanged.",
+      "finding": "Source-bound registration/rescan and confirmed archive metadata; normal links delegate to the exact current-account/source helper. Legacy application override refuses before IO; hard delete remains paused. Classification/review metadata now uses a loaded-viewer and exact-revision caller-scoped helper, with strict receipts; Storage operations are unchanged. Sharing source follow-up: account/document-bound grants/removals and truthful team-scope upload wording are prepared; Storage and database grant policies are unchanged. See document-permissions-source-local-2026-11-15.json for remaining direct-write/privacy blockers.",
       "remaining_boundary": "Direct authenticated database grant policy/helper and Storage exception remain a release blocker. Enriched private denial probes are replaced with minimal caller audit; hosted monitoring/permission acceptance remains open."
     },
     {

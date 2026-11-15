@@ -250,3 +250,14 @@ it("does not overlap initial read-only status checks in StrictMode",async()=>{
  rememberUploadInterruption("current-viewer",student,attempt);const request=pending();api.interrupted.mockReturnValueOnce(request.promise);
  render(<StrictMode>{panel()}</StrictMode>);await waitFor(()=>expect(api.interrupted).toHaveBeenCalledTimes(1));await act(async()=>request.reject(Error("PRIVATE")));expect(readUploadInterruption("current-viewer",student).state).toBe("pending");
 });
+it("describes the actual student-access scope instead of offering unenforced private/family-only visibility", async () => {
+  const view = open();
+  expect(screen.getByText("Student-Team Access")).toBeTruthy();
+  expect(screen.queryByText("Just me", { exact: true })).toBeNull();
+  expect(screen.queryByText("Family only", { exact: true })).toBeNull();
+  expect(screen.getByText(/Private and family-only sharing are not available/)).toBeTruthy();
+  await act(async () => view.approve());
+  await waitFor(() => expect(api.register).toHaveBeenCalledOnce());
+  expect(api.reserve.mock.calls[0][0].data.visibility).toBe("team");
+  expect(api.register.mock.calls[0][0].data.visibility).toBe("team");
+});

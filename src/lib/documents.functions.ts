@@ -1,3 +1,6 @@
+import { documentPermissionAction } from "./document-permissions.server";
+import { parseDocumentPermissionRequest } from "./document-permissions-contract";
+export type { DocumentPermissionRow } from "./document-permissions-contract";
 import { documentMetadataAction } from "./document-metadata.server";
 import { parseDocumentMetadata } from "./document-metadata-contract";
 export { DOC_TYPES } from "./document-metadata-contract";
@@ -37,19 +40,6 @@ export type DocumentRow = {
   effective_date: string | null;
   review_date: string | null;
   consent_acknowledged_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-export type DocumentPermissionRow = {
-  id: string;
-  document_id: string;
-  student_id: string;
-  user_id: string | null;
-  role_type: string | null;
-  permission_level: "none" | "view_summary" | "view_student_friendly_summary" | "view_document" | "edit_metadata" | "manage";
-  granted_by: string;
-  notes: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -850,128 +840,36 @@ export const saveExtractedGoals = createServerFn({ method: "POST" })
 
 /* ---------- DOCUMENT PERMISSIONS ---------- */
 
-const PERMISSION_LEVELS = ["none", "view_summary", "view_document", "edit_metadata", "manage"] as const;
-const ROLE_TYPES = ["family", "student", "educator", "school_admin", "district_admin", "partner"] as const;
-
 export const listDocumentPermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ document_id: z.string().uuid() }).parse(i))
+  .validator((input: unknown) => parseDocumentPermissionRequest(input, "list"))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: rows, error } = await supabase
-      .from("document_permissions")
-      .select("*")
-      .eq("document_id", data.document_id)
-      .order("created_at", { ascending: true });
-    if (error) {
-      console.error("listDocumentPermissions failed", error);
-      return { permissions: [] as DocumentPermissionRow[] };
-    }
-    return { permissions: (rows ?? []) as DocumentPermissionRow[] };
+    const result = await documentPermissionAction(context.supabase, context.userId, data, "list");
+    if (result.permissions === undefined) throw new Error("Document grants could not be confirmed.");
+    return result;
   });
 
 export const grantDocumentPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      document_id: z.string().uuid(),
-      user_email: z.string().trim().email().max(254).optional(),
-      role_type: z.enum(ROLE_TYPES).optional(),
-      permission_level: z.enum(PERMISSION_LEVELS).default("view_document"),
-      notes: z.string().trim().max(500).optional(),
-    })
-      .refine((v) => !!v.user_email !== !!v.role_type, {
-        message: "Provide exactly one of user_email or role_type.",
-      })
-      .parse(i),
-  )
+  .validator((input: unknown) => parseDocumentPermissionRequest(input, "grant"))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    // Resolve the document → student_id under RLS (caller must have access).
-    const { data: doc, error: docErr } = await supabase
-      .from("documents")
-      .select("id, student_id")
-      .eq("id", data.document_id)
-      .maybeSingle();
-    if (docErr || !doc) throw new Error("Document not found or access denied.");
-
-    let resolved_user_id: string | null = null;
-    if (data.user_email) {
+    const result = await documentPermissionAction(context.supabase, context.userId, data, "grant", async email => {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: prof } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("email", data.user_email.toLowerCase())
-        .maybeSingle();
-      if (!prof?.id) {
-        throw new Error("No TransitionForward account found for that email yet.");
-      }
-      resolved_user_id = prof.id;
-    }
-
-    const { data: row, error } = await supabase
-      .from("document_permissions")
-      .upsert(
-        {
-          document_id: doc.id,
-          student_id: doc.student_id,
-          user_id: resolved_user_id,
-          role_type: data.role_type ?? null,
-          permission_level: data.permission_level,
-          granted_by: userId,
-          notes: data.notes ?? null,
-        },
-        {
-          onConflict: resolved_user_id ? "document_id,user_id" : "document_id,role_type",
-        },
-      )
-      .select("*")
-      .single();
-    if (error || !row) {
-      console.error("grantDocumentPermission failed", error);
-      throw new Error("Could not save this access grant.");
-    }
-
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.permission.grant",
-      entity_type: "document",
-      entity_id: doc.id,
-      student_id: doc.student_id,
-      metadata: {
-        permission_level: data.permission_level,
-        target_user_id: resolved_user_id,
-        target_role: data.role_type ?? null,
-      },
+      const reply = await supabaseAdmin.from("profiles").select("id").eq("email", email).maybeSingle();
+      if (reply.error !== null || !reply.data) throw new Error();
+      return reply.data.id;
     });
-
-    return row as DocumentPermissionRow;
+    if (result.permission === undefined) throw new Error("Document grant could not be confirmed.");
+    return result;
   });
 
 export const revokeDocumentPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((input: unknown) => parseDocumentPermissionRequest(input, "remove"))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: row } = await supabase
-      .from("document_permissions")
-      .select("id, document_id, student_id")
-      .eq("id", data.id)
-      .maybeSingle();
-    const { error } = await supabase.from("document_permissions").delete().eq("id", data.id);
-    if (error) throw new Error("Could not revoke this access.");
-    if (row) {
-      await supabase.from("audit_log").insert({
-        actor_id: userId,
-        action: "document.permission.revoke",
-        entity_type: "document",
-        entity_id: row.document_id,
-        student_id: row.student_id,
-        metadata: { permission_id: row.id },
-      });
-    }
-    return { ok: true };
+    const result = await documentPermissionAction(context.supabase, context.userId, data, "remove");
+    if (result.permission === undefined) throw new Error("Document grant removal could not be confirmed.");
+    return result;
   });
 
 /**

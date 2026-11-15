@@ -1,0 +1,129 @@
+{
+  "schema": "transitionforward-document-permissions-source-local-v1",
+  "date": "2026-11-15",
+  "source_base": "89b72168a82bcf03e869089fca326ac2329fa61e",
+  "status": "shared application component complete; database privacy and whole 5.2/5.3 remain open",
+  "workstreams": [
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "src/lib/document-permissions-contract.ts",
+      "sha256": "cfc02b1886b5ed79028df41575be41073edbc29a0c2bc49ec37bc98623155808"
+    },
+    {
+      "path": "src/lib/document-permissions.server.ts",
+      "sha256": "f95080b0cceaa2b7d169941d87222927991cdda824df8fdf233e51d56eb77b2f"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "4371a9160917fe79b98a9f22f7bf2800c96a462cfe36d8ddb62229c7b656ea4c"
+    },
+    {
+      "path": "src/components/students/DocumentPermissionsDialog.tsx",
+      "sha256": "24043aaafa5c3cfbd3e6bbc9bb8c81ff6ef18ebf88dd2103cac979427f476df3"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "5052c703ff3f95c1bd7e5e6fa63a4e69384f4aa0b4bea57d6e3fa54443c3c34e"
+    },
+    {
+      "path": "tests/unit/document-permissions-action.test.ts",
+      "sha256": "4b096391bd53f2ff5b082ce1b2e3b113cb03033683e9e889d6d32ecadec128f1"
+    },
+    {
+      "path": "tests/unit/document-permissions-lifetime.test.tsx",
+      "sha256": "80e27e6286a1772be431c23fbebe360ab4af88b9df29413c9440489c95ce4b57"
+    },
+    {
+      "path": "tests/unit/family-document-upload-outcomes.test.tsx",
+      "sha256": "4b46d04aa869465db239ed7951583497ddc3d836b806a933d8fe92b797d0207d"
+    }
+  ],
+  "source_review_dependencies": [
+    {
+      "path": "supabase/migrations/20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql",
+      "sha256": "a0f5fcef2f1893690fa5d5fe1574827c37f2151b0a40b000d8577754d6f1e72b"
+    },
+    {
+      "path": "supabase/migrations/20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql",
+      "sha256": "aff1dbc67c2bcb7a32be5298e10b3899bf2a2a5f2947ee310ede5c1a6dc631b3"
+    },
+    {
+      "path": "src/lib/rights.functions.ts",
+      "sha256": "320e6f3ec1b2c748403ea0faca06e361221406bf0f631a740f8d86b60e448b8c"
+    },
+    {
+      "path": "src/lib/document-signed-link.server.ts",
+      "sha256": "06fec627171452ae2b07674990856dbb8172b4653badb99b3c3ef72b6e5d4231"
+    }
+  ],
+  "completed": [
+    "Current viewer/student/document revision and canonical viewing/editing/non-partner proof are required before list, grant or removal. Privileged email lookup is deferred until actor authorization, with generic errors and no email in audit metadata.",
+    "New grants are explicit acknowledged full-document, individual-account INSERTs only; the recipient must be non-partner-only and have current student access, matching the existing reader. Unknown/cached summary/edit/manage/role-wide requests fail closed. Existing/competing grants are not replaced.",
+    "Removal binds exact loaded document/student/grant revision, requires a complete identical returned deletion receipt and confirms caller audit. Empty/lost/malformed replies and audit failures do not report success or replay.",
+    "Shared dialog is keyed by current viewer/document/student/revision and unmounted when closed or signed out. It prevents duplicate/cross-action submissions, ignores departed responses and requires an explicit successful refresh after uncertain writes. Unavailable reads are never presented as an empty successful list.",
+    "Wording distinguishes removing an additional grant from removing student-team access; legacy tiers are not presented as enforceable summary/edit/manage isolation.",
+    "The shared upload form offers only the supported team setting and explains student-access scope, replacing unenforced private/family-only choices. No existing document metadata or grants are rewritten."
+  ],
+  "verification": {
+    "focused_tests": 169,
+    "focused_files": 3,
+    "new_permission_tests": 89,
+    "new_upload_scope_tests": 1,
+    "unit_tests": 6156,
+    "unit_files": 377,
+    "typescript": "passed",
+    "isolated_build": "passed; constrained staging copy without environment files; service worker generated",
+    "runtime_source_fingerprint": "896a19b394c6e96e7241b95e2e8dbf7416bb9dab7d431ed763a40bcf858b750f",
+    "runtime_source_file_count": 1227,
+    "isolated_copy_fingerprint_matches": true,
+    "native_database_rerun": false,
+    "sql_changed": false,
+    "inventory_navigation_contracts": 103,
+    "release_security_contracts": 72,
+    "diff_check": "passed"
+  },
+  "remaining_release_blockers": [
+    {
+      "finding": "Direct table writes are not bound to the document\u2019s true student. INSERT/UPDATE policies authorize using the supplied student_id; the document-view grant lookup does not require p.student_id = d.student_id.",
+      "basis": "supabase/migrations/20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql",
+      "scope": "Source-confirmed missing parent-binding checks; no hosted exploit or full-schema reproduction run in this step. Prepare caller/direct/cached-path SQL proof and correction before release."
+    },
+    {
+      "finding": "Existing summary/edit/manage/role grants still feed a non-none document-view check and may authorize raw document rows and Storage access. Role audiences are not scoped to a student in the grant lookup; source-only UI restrictions do not fence direct/cached table requests.",
+      "basis": [
+        "supabase/migrations/20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql",
+        "supabase/migrations/20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql"
+      ],
+      "scope": "Database policy/helper correction and current-schema/role/Storage proof remain required."
+    },
+    {
+      "finding": "Removing a student relationship does not itself retire a document_permissions row in the reviewed grant definition; a surviving grant may continue to satisfy document-view access.",
+      "basis": "supabase/migrations/20260611232723_f4eac771-7183-4a69-887e-49ea6b7c4f75.sql",
+      "scope": "Review actual removal paths and permanently retire obsolete grants with separately reviewed migration/acceptance; no whole-site removal claim."
+    },
+    {
+      "finding": "Separate authorization/read/write/audit requests do not prove transaction-held access or document-lifecycle serialization. A committed grant/removal can precede an audit failure; refresh is required.",
+      "scope": "Current application proof only; actual RLS/concurrency and hosted acceptance remain open."
+    },
+    {
+      "finding": "rights.functions.ts retains a separate transfer-of-rights grant upsert using the partial conflict target and ignores its returned error.",
+      "basis": "src/lib/rights.functions.ts",
+      "scope": "Not changed; reconcile this separate writer and its actual intended authority before launch."
+    },
+    {
+      "finding": "Canonical document SELECT/Storage policy does not use the upload visibility labels to enforce private/family-only access.",
+      "basis": "supabase/migrations/20260814215748_0bb83fc3-57a7-4fa4-a669-cce132fe5c0f.sql",
+      "scope": "New upload UI is truthful; legacy metadata, direct requests and final database privacy model remain uncorrected. Outside-team sharing is not enabled by this form."
+    }
+  ],
+  "role_demo_scope": "Shared signed-in student-document controls apply through canonical authorization rather than account-role bypasses; Owner requires explicit student editing access. No private permission editor exists in the public demo; no fake grant or provider operation was added. Hosted all-role acceptance remains separate.",
+  "whole_workstream_complete": false,
+  "hosted_verified": false,
+  "ready_for_cutover": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false
+}
