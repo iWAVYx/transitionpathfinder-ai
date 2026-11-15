@@ -3,14 +3,16 @@ on:
   pull_request:
     paths:
       - "docs/database-proposals/document-admin-grant-retirement/**"
-      - "tests/database/document-admin-grant-retirement.test.mjs"
+      - "tests/database/document-admin-grant*.mjs"
+      - "tests/database/run-document-grant-native.mjs"
       - "supabase/migrations/**"
       - ".github/workflows/document-admin-grant-review.yml"
   push:
     branches: ["codex/ppt-output-quality-print"]
     paths:
       - "docs/database-proposals/document-admin-grant-retirement/**"
-      - "tests/database/document-admin-grant-retirement.test.mjs"
+      - "tests/database/document-admin-grant*.mjs"
+      - "tests/database/run-document-grant-native.mjs"
       - "supabase/migrations/**"
       - ".github/workflows/document-admin-grant-review.yml"
 permissions:
@@ -30,3 +32,45 @@ jobs:
         run: |
           export DOCUMENT_GRANT_PGLITE_MODULE="$RUNNER_TEMP/tf-grant-pglite/node_modules/@electric-sql/pglite/dist/index.js"
           node --test tests/database/document-admin-grant-retirement.test.mjs
+
+  targeted-native-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: supabase_admin
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install disposable database driver
+        run: npm install --prefix "$RUNNER_TEMP/tf-grant-pg" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+      - name: Verify targeted native cases and observed concurrent locks
+        run: |
+          export DOCUMENT_GRANT_PG_MODULE="$RUNNER_TEMP/tf-grant-pg/node_modules/pg/lib/index.js"
+          node tests/database/run-document-grant-native.mjs /tmp/document-grant-native
+      - name: Retain exact native results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: document-grant-targeted-native
+          path: /tmp/document-grant-native
+          if-no-files-found: error
