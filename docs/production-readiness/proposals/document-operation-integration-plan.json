@@ -231,7 +231,7 @@
     },
     {
       "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
-      "sha256": "80b74335dc6874c723b0f2158f6573f2854da20bcf0b2ae4c210d0c2c7c2b8d0"
+      "sha256": "2e6302818b3cb4af98b9fec9614f8538659d6ec9ab9c6c15b8df2faa7b4ff079"
     },
     {
       "path": "src/lib/document-access-audit-display.ts",
@@ -1146,11 +1146,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "2a8239a35dca58a4f088c541f15567d3cce620e9",
-    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-local-2026-11-15.json",
+    "checked_against_source": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
+    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json",
     "declared_entries_checked": 59,
-    "corrected_entries": 0,
-    "added_entries": 3,
+    "corrected_entries": 1,
+    "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1319,13 +1319,16 @@
     "ready_for_cutover": false
   },
   "admin_document_grant_retirement": {
-    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-local-2026-11-15.json",
+    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json",
     "separate_review_draft": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
     "canonical_or_ordered_chain_added": false,
-    "targeted_local_cases": 27,
-    "native_full_chain_verified": false,
+    "targeted_local_cases": 36,
+    "native_full_chain_verified": true,
     "hosted_applied": false,
     "release_blocker_remains": true,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "targeted_native_cases": 48,
+    "full_schema_stages": 56,
+    "source_component_complete": true
   }
 }

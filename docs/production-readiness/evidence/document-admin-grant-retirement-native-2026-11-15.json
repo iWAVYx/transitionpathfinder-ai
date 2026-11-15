@@ -1,0 +1,283 @@
+{
+  "schema": "document-grant-retirement-targeted-native-v1",
+  "source_commit": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
+  "native": true,
+  "fresh_database_per_case": true,
+  "tests": 48,
+  "passed": 48,
+  "failed": 0,
+  "skipped": 0,
+  "records": [
+    {
+      "name": "baseline: platform admin can self-grant unrelated active document metadata and Storage access",
+      "log_sha256": "85de92c09ba9cccc4af894c090d79afa6506d97e976b01cf686570ecac1babd1",
+      "passed": true
+    },
+    {
+      "name": "baseline: an unexpired Owner grant works without any student relationship",
+      "log_sha256": "adfc72b963f198d1bdb9991538b5016abd675822c05cb2f782921b42c6255bfa",
+      "passed": true
+    },
+    {
+      "name": "retirement: pre-existing unexpired active grant no longer reads metadata or Storage",
+      "log_sha256": "9cb22184314134ee5f8d6c33d87b1950d7d667fc7bc38fd9e9b3b0497e7e3e1d",
+      "passed": true
+    },
+    {
+      "name": "retirement: pre-existing unexpired archived grant no longer reads metadata or Storage",
+      "log_sha256": "27057d7299843d6ec5c0075016aa7b37092d43f1d9f83b661837606564db7c23",
+      "passed": true
+    },
+    {
+      "name": "retirement: pre-existing unexpired deleted grant no longer reads metadata or Storage",
+      "log_sha256": "e9a756ff4a27fd45781abe5c570221654d67d09e23eada279a1e9f832c89f826",
+      "passed": true
+    },
+    {
+      "name": "retirement: cached authenticated owner grant INSERT is refused",
+      "log_sha256": "09ae6a485d9d9a94b343cdc00156877abbc0785a13537976f212ba59a9c0a71f",
+      "passed": true
+    },
+    {
+      "name": "retirement: cached authenticated platform_admin grant INSERT is refused",
+      "log_sha256": "1fb7276402c7497d35130b2359a97978099ee60c5b6d92911abe57a958109a55",
+      "passed": true
+    },
+    {
+      "name": "retirement: accidental future permissive INSERT policy/privilege cannot reopen grants",
+      "log_sha256": "de65149690f0b124be32b41aa8e13b41c9195bb8f791cfcc81a6ffd609bfd6ef",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves explicit active document/Storage access for family",
+      "log_sha256": "1f007377605749ca63eab4e5236b1cd388447236f9952d6abd51d8a0a0d47535",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves explicit active document/Storage access for guardian",
+      "log_sha256": "fcfc4e4a4968c8e45cf02a71bd161f752a7e2cb2ccb869cf05f859f4ef3c4581",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves explicit active document/Storage access for student",
+      "log_sha256": "66e3b0ca901b7b8c723f58a43f0a35eb9f28d580517e642bf548f95af3d2d91d",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves explicit active document/Storage access for educator",
+      "log_sha256": "12bdd0e9f8a8bfc5459fb64c9c61f97a3ba85396461590315d9f82327ce10b39",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves explicit active document/Storage access for school",
+      "log_sha256": "60000ea0a5affde8960a7268549b6fb29faee52381bd1bf2fef5ada88ee9f367",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves explicit active document/Storage access for district",
+      "log_sha256": "eec5a6d2e4ab00cdc716c1a6b2c2004b3d996ea4c186f1fd8a2824f843fe4efb",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves genuine student collaboration for owner",
+      "log_sha256": "62ad93a3ae0ba0ff545a261c614505d2868d45bbec7a66828abe45df77e3d422",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves genuine student collaboration for platform_admin",
+      "log_sha256": "0012e0476ec123e5375eae58e0ce874cad837eac235cf70bfb11eafccb462152",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves a directly assigned document permission without an admin-role shortcut",
+      "log_sha256": "3bfa34d69975042a82d8dc01eac68d7bb3eb69d4d799cf2c2d8fb25e99a024d2",
+      "passed": true
+    },
+    {
+      "name": "partner-only membership cannot use a student collaboration to read documents",
+      "log_sha256": "614b010c8aec406617cff26358365c2f4731dd953763f7089e0aca7a6d6af359",
+      "passed": true
+    },
+    {
+      "name": "unrelated and removed collaborators stay denied after retirement",
+      "log_sha256": "8cb0b1228d83ca0508f47104da1bcb5c70d9d0fb60fda81f3ae146f34df327aa",
+      "passed": true
+    },
+    {
+      "name": "legitimate pre-registration Storage reads for the editing uploader are preserved",
+      "log_sha256": "9be4f453db809c022c2038d70515ebe7d04d2a900ddf560928a1339e81fd6a3d",
+      "passed": true
+    },
+    {
+      "name": "existing quarantine and no-client-overwrite/delete fences remain installed",
+      "log_sha256": "b94d2352e5c95d1d62eaafd10c48c05da9f143b06d558377bf0cb742eeee6a5b",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves grant history and installs only the reviewed Storage predicate",
+      "log_sha256": "0ab8f42f4b0016dd7118604e907739f115ee4266b5362270ab64b8b7e702f081",
+      "passed": true
+    },
+    {
+      "name": "retired helper preserves its OID/ACL, uses invoker mode and never treats service-written grants as access",
+      "log_sha256": "4d82dc019d1729ecaa6a255a088b43112198bbd3396fd727509c68df31606129",
+      "passed": true
+    },
+    {
+      "name": "changed legacy function body refuses installation without partial retirement",
+      "log_sha256": "77c2886418d819233ed68d7da9d3b296c24732a564c0eb5ebd72f9f4d4f573dc",
+      "passed": true
+    },
+    {
+      "name": "repeat installation refuses the unreviewed state instead of blindly rerunning",
+      "log_sha256": "dd9ca6ed5f12774490e635ba9531ff786623d7bd59f62bf8d92e653e0032e39e",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves archived editor access and denies an archived viewer",
+      "log_sha256": "80e76b168a7a3290567b39fc4888f0757a39326cb0429a5344a996b4ea17c6df",
+      "passed": true
+    },
+    {
+      "name": "retirement rollback restores the original policy/privilege/helper atomically",
+      "log_sha256": "1ea4f7ae1603a582619b13cf230dd8b2811c7ff8d27260c15406af00f2aff6ce",
+      "passed": true
+    },
+    {
+      "name": "baseline: current canonical grant revocation already denies an old Owner grant",
+      "log_sha256": "9205a9d7d84efb2ed3724ebcf1bb64149d3aafc72458fd70880f3430cc0438d6",
+      "passed": true
+    },
+    {
+      "name": "baseline: current non-clean Storage exception permits an unrelated platform role without a grant",
+      "log_sha256": "fdb9da9de879a24718d2154eb5a172e9d34bb27f705bcde234174fdd878ede99",
+      "passed": true
+    },
+    {
+      "name": "retirement denies the unrelated platform-role non-clean Storage exception",
+      "log_sha256": "2f44baac243c7d4a2eebbed6d9eb3675c88df5926de1c0f9128b42753129115a",
+      "passed": true
+    },
+    {
+      "name": "retirement preserves an authorized editing uploader's non-clean registration copy",
+      "log_sha256": "9d3de074362675fd3e3254bd33d1f901c8c5f5d6629ba387057b9e99cb7d60b0",
+      "passed": true
+    },
+    {
+      "name": "retirement denies a removed uploader's non-clean Storage copy",
+      "log_sha256": "17f6b8bc88b790496c41439738d528b28461fca483021719388d250440c28e96",
+      "passed": true
+    },
+    {
+      "name": "retirement permits a student-assigned editing platform administrator's non-clean review copy",
+      "log_sha256": "7fa7f8c5bf6eb2b6e28f87aa1702150bb3fefefe32d1232259a27729d243594c",
+      "passed": true
+    },
+    {
+      "name": "retirement denies non-clean bytes to a platform administrator assigned only viewing access",
+      "log_sha256": "f60780f546f4cf82e943290ecbdff74bf5a9c2b3dab6dbe0b21caf3dc8d82828",
+      "passed": true
+    },
+    {
+      "name": "retirement requires a student relationship for an admin with only a document permission",
+      "log_sha256": "bded8b3d8421aea94953caae14164f4e7f79f09c9c6b3756e8365a8d75f054f4",
+      "passed": true
+    },
+    {
+      "name": "retirement denies mismatched document/student Storage paths",
+      "log_sha256": "19ae93a1ebd9561a30309a76c37c392355f0f16d5069663a09db02b08a06b9e4",
+      "passed": true
+    },
+    {
+      "name": "native grant-first COMMIT",
+      "log_sha256": "13053fd6e3599370c829efad597139f77a1df8462cef3ce0bd8b691907c473f3",
+      "passed": true
+    },
+    {
+      "name": "native grant-first ROLLBACK",
+      "log_sha256": "1ccde43a171998bd445526de620d59fe0c5b91f3e7d38f33466d44174c15d4a7",
+      "passed": true
+    },
+    {
+      "name": "native retirement-first COMMIT",
+      "log_sha256": "c92353d8e4583a45ece006e4ee24ecae7f3f7ec00a2935590e7684bdfbff7f69",
+      "passed": true
+    },
+    {
+      "name": "native retirement-first ROLLBACK",
+      "log_sha256": "4cb4d26571bdd4aba34522e094012842209875fc289e97b16f85983cd0a8139d",
+      "passed": true
+    },
+    {
+      "name": "native read-first COMMIT",
+      "log_sha256": "b787022ed3a4c52f4171f021674a7f281a91acc00418643579400ccb0c1ee6f9",
+      "passed": true
+    },
+    {
+      "name": "native read-first ROLLBACK",
+      "log_sha256": "fbc48939a7ecaeae3c6d3f9965c45ca185c1d6be2d010e841d77fadf7f14b08d",
+      "passed": true
+    },
+    {
+      "name": "native read-during-retirement COMMIT",
+      "log_sha256": "3be852ee74abafd4b703ddeea0342bc7f2be209b2df03f39e8d1ec4b2b520423",
+      "passed": true
+    },
+    {
+      "name": "native read-during-retirement ROLLBACK",
+      "log_sha256": "d8e7ad9191fd44619476368fc64dbbccfa7c90bfc75ef877d42a50d2a7c81371",
+      "passed": true
+    },
+    {
+      "name": "native cached metadata statement invalidates after retirement",
+      "log_sha256": "c9c920f843ab15a26acb979d0992713a7b9ceb2cab401682a1aa2cea28c06a19",
+      "passed": true
+    },
+    {
+      "name": "native cached Storage statement invalidates after retirement",
+      "log_sha256": "f0adea544d1c5abc22001bb3adfdc809e0466b909fa2fc0970b0c3e29cde290b",
+      "passed": true
+    },
+    {
+      "name": "native cached grant INSERT is refused for owner",
+      "log_sha256": "2842e09e089673b7f258a0ff54d86f47a7c5a880484473abcb5d58c0f8cbb431",
+      "passed": true
+    },
+    {
+      "name": "native cached grant INSERT is refused for platform_admin",
+      "log_sha256": "2f0ac7ca8de5e9632e8570387b35850641e9a1e3adb2f91f515671b0e6497ff8",
+      "passed": true
+    }
+  ],
+  "log_sha256": "98047c30bcb09b37b64babee5cf8e4396df71445b277809cb31cad78b7d1f627",
+  "source_manifest": [
+    {
+      "path": "tests/database/document-admin-grant-retirement.test.mjs",
+      "sha256": "f2593ec73ac104f3e34070e2e17665c7adcc5d509220d59bfb334d1d94b4f1d8"
+    },
+    {
+      "path": "tests/database/document-admin-grant-cases.mjs",
+      "sha256": "f1101d41394f8890d8fd42468d79f2e0eda6ec76484274163071104c29a6bb51"
+    },
+    {
+      "path": "tests/database/run-document-grant-native.mjs",
+      "sha256": "e52353395d8b4564548f0eb0964e5b0284c8456c5fd4355be5c501a0a1ca7f0c"
+    },
+    {
+      "path": "docs/database-proposals/document-admin-grant-retirement/retire-admin-document-grants.review.sql",
+      "sha256": "2e6302818b3cb4af98b9fec9614f8538659d6ec9ab9c6c15b8df2faa7b4ff079"
+    },
+    {
+      "path": ".github/workflows/document-admin-grant-review.yml",
+      "sha256": "b21b0e9394b2548ab808439e28dce66a30569191433374ea913ae892dc589a6f"
+    }
+  ],
+  "full_schema_verified": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "ready_for_cutover": false,
+  "raw_log_path": "docs/production-readiness/evidence/document-admin-grant-retirement-native-2026-11-15.tap",
+  "workflow_run": 43752545647,
+  "workflow_conclusion": "success",
+  "independently_validated": true
+}

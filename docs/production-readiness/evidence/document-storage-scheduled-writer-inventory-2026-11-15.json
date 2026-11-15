@@ -327,9 +327,9 @@
     {
       "item": "Signed links and admin override",
       "source": "src/lib/documents.functions.ts:getDocumentSignedUrl/requestAdminDocAccess",
-      "action": "Reproduce direct authenticated grant access in disposable SQL, prepare narrowly reviewed retirement that preserves explicit student/document access and legitimate registration reads, then prove denial including existing unexpired grants. No hosted installation is authorized.",
-      "status": "application-source-local-closed-database-exception-open",
-      "completion_evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json"
+      "action": "Promote the verified separate draft with exact ledger/preflight under4.1, then obtain isolated staging rollout/acceptance authorization; do not infer any hosted permission change.",
+      "status": "source-native-full-schema-verified-packaging-hosted-open",
+      "completion_evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json"
     },
     {
       "item": "Deployed inventory",
@@ -369,11 +369,10 @@
   },
   "followup_reconciliation": {
     "date": "2026-11-15",
-    "source_base": "2d816b3929ef54ed3ecff9a5f4fd9c0c1abb046c",
-    "evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json",
-    "candidate_hashes_changed": true,
+    "source_base": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
+    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json",
+    "candidate_hashes_changed": false,
     "reviewed_candidate_count": 41,
-    "new_candidate_count": 1,
     "hosted_verified": false
   }
 }

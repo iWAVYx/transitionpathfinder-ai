@@ -102,12 +102,14 @@
   "ready_for_cutover": false,
   "separate_grant_retirement_followup": {
     "date": "2026-11-15",
-    "source_base": "14cbe480",
+    "source_base": "14cbe480a82fc48b59b2f5be7517afcd77764165",
     "existing225_plus41_guards_unchanged": true,
     "original_native_test_unchanged": true,
     "historical_verified_evidence_unchanged": true,
     "new_verification_runs_after_prior_baseline": true,
     "new_separate_draft_not_in_prior_native_count": true,
-    "native_full_chain_pending": true
+    "native_full_chain_pending": false,
+    "verified_evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json",
+    "source_scope": "Only separately reviewed grant/Storage retirement; original225+41 SQL and original test source remain unchanged."
   }
 }
