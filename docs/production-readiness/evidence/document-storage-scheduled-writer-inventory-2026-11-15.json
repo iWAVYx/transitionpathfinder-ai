@@ -128,9 +128,9 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "69f2112d7d13b32bdddabba2427435ee3adc9ab4916f0abc0b4fff4399404d28",
+      "sha256": "f6d5eccede15253a0543c405256dd562dbc7e8c1ee9fffb13a448463df30dea9",
       "classification": "document-metadata-and-signed-link",
-      "finding": "Source-bound registration/rescan and confirmed archive metadata; normal links delegate to the exact current-account/source helper. Legacy application override refuses before IO; hard delete remains paused.",
+      "finding": "Source-bound registration/rescan and confirmed archive metadata; normal links delegate to the exact current-account/source helper. Legacy application override refuses before IO; hard delete remains paused. Classification/review metadata now uses a loaded-viewer and exact-revision caller-scoped helper, with strict receipts; Storage operations are unchanged.",
       "remaining_boundary": "Direct authenticated database grant policy/helper and Storage exception remain a release blocker. Enriched private denial probes are replaced with minimal caller audit; hosted monitoring/permission acceptance remains open."
     },
     {

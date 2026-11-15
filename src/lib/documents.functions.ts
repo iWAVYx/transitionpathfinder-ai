@@ -1,3 +1,7 @@
+import { documentMetadataAction } from "./document-metadata.server";
+import { parseDocumentMetadata } from "./document-metadata-contract";
+export { DOC_TYPES } from "./document-metadata-contract";
+export type { DocType, DocumentMetaRow } from "./document-metadata-contract";
 import { createCurrentDocumentLink, parseDocumentLinkRequest, ADMIN_DOCUMENT_OVERRIDE_RETIRED } from "./document-signed-link.server";
 import { archiveDocumentRequest, archiveDocumentMetadata } from "./document-archive.server";
 import { documentRegistrationRequestSchema, documentUploadReservationRequestSchema, documentUploadRecoveryRequestSchema } from "./document-upload-intent";
@@ -1007,120 +1011,18 @@ export const logDocumentView = createServerFn({ method: "POST" })
 
 /* ---------- Slice A: classification & review metadata ---------- */
 
-export const DOC_TYPES = [
-  "iep",
-  "current-iep",
-  "previous-iep",
-  "evaluation",
-  "transition-plan",
-  "progress-report",
-  "meeting-notes",
-  "other",
-] as const;
-export type DocType = (typeof DOC_TYPES)[number];
-
-export type DocumentMetaRow = {
-  id: string;
-  student_id: string;
-  title: string;
-  doc_type: string;
-  reviewed_at: string | null;
-  reviewed_by: string | null;
-  used_in_report_at: string | null;
-};
-
 export const getDocumentMeta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ document_id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: row, error } = await supabase
-      .from("documents")
-      .select("id, student_id, title, doc_type, reviewed_at, reviewed_by, used_in_report_at")
-      .eq("id", data.document_id)
-      .maybeSingle();
-    if (error || !row) throw new Error("Document not found or access denied.");
-    return row as DocumentMetaRow;
-  });
-
-async function ensureCanEditDocument(
-  supabase: import("@supabase/supabase-js").SupabaseClient,
-  userId: string,
-  documentId: string,
-): Promise<{ id: string; student_id: string }> {
-  const { data: row } = await supabase
-    .from("documents")
-    .select("id, student_id")
-    .eq("id", documentId)
-    .maybeSingle();
-  if (!row) throw new Error("Document not found or access denied.");
-  const { data: canEdit } = await supabase.rpc("can_edit_student", {
-    _user_id: userId,
-    _student_id: row.student_id,
-  });
-  if (!canEdit) throw new Error("You don't have permission to update this document.");
-  return row as { id: string; student_id: string };
-}
-
+  .validator((input: unknown) => parseDocumentMetadata(input,"read"))
+  .handler(async ({data,context}) => documentMetadataAction(context.supabase,context.userId,data,"read"));
 export const classifyDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      id: z.string().uuid(),
-      doc_type: z.enum(DOC_TYPES),
-    }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const doc = await ensureCanEditDocument(supabase, userId, data.id);
-    const { data: row, error } = await supabase
-      .from("documents")
-      .update({ doc_type: data.doc_type })
-      .eq("id", data.id)
-      .select("id, student_id, title, doc_type, reviewed_at, reviewed_by, used_in_report_at")
-      .single();
-    if (error || !row) throw new Error("Could not update document type.");
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.classify",
-      entity_type: "document",
-      entity_id: doc.id,
-      student_id: doc.student_id,
-      metadata: { doc_type: data.doc_type },
-    });
-    return row as DocumentMetaRow;
-  });
-
+  .validator((input: unknown) => parseDocumentMetadata(input,"classify"))
+  .handler(async ({data,context}) => documentMetadataAction(context.supabase,context.userId,data,"classify"));
 export const markDocumentReviewed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) =>
-    z.object({
-      id: z.string().uuid(),
-      reviewed: z.boolean().default(true),
-    }).parse(i),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const doc = await ensureCanEditDocument(supabase, userId, data.id);
-    const patch = data.reviewed
-      ? { reviewed_at: new Date().toISOString(), reviewed_by: userId }
-      : { reviewed_at: null, reviewed_by: null };
-    const { data: row, error } = await supabase
-      .from("documents")
-      .update(patch)
-      .eq("id", data.id)
-      .select("id, student_id, title, doc_type, reviewed_at, reviewed_by, used_in_report_at")
-      .single();
-    if (error || !row) throw new Error("Could not update review status.");
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: data.reviewed ? "document.reviewed" : "document.unreviewed",
-      entity_type: "document",
-      entity_id: doc.id,
-      student_id: doc.student_id,
-    });
-    return row as DocumentMetaRow;
-  });
+  .validator((input: unknown) => parseDocumentMetadata(input,"review"))
+  .handler(async ({data,context}) => documentMetadataAction(context.supabase,context.userId,data,"review"));
 
 /**
  * Re-run the Cloudmersive advanced scan on a document whose previous scan

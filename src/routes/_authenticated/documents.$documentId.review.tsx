@@ -258,7 +258,7 @@ function ReviewPage() {
         <TrustNote variant="document" />
         <AIDisclaimer />
 
-        <DocumentClassificationCard documentId={documentId} />
+        <DocumentClassificationCard documentId={documentId} disabled={running||applying||pendingSaves>0||saveFailed} />
 
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-4 py-3">
           <p className="text-xs text-muted-foreground max-w-md">

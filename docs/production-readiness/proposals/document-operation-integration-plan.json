@@ -11,7 +11,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "69f2112d7d13b32bdddabba2427435ee3adc9ab4916f0abc0b4fff4399404d28"
+      "sha256": "f6d5eccede15253a0543c405256dd562dbc7e8c1ee9fffb13a448463df30dea9"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -31,7 +31,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
-      "sha256": "3c626cc47dfd64c5ae94ec86b55f693f4d76b679c01b57267170086a8089edc9"
+      "sha256": "ce0418a807897e662298e4cb4d091cc87b42a7a5cdaf2e941f8e876f326a5799"
     },
     {
       "path": "supabase/functions/ai-job-processor/index.ts",
@@ -240,6 +240,18 @@
     {
       "path": "src/routes/_authenticated/owner.iep-audit.tsx",
       "sha256": "74ff5d2306dd2ef328cb98c6df5f4dd76fc57342db33e7c3e462f7fa79561776"
+    },
+    {
+      "path": "src/lib/document-metadata-contract.ts",
+      "sha256": "16a89648d83b5a02a8d07e34faad858b7f76654cc114aa6a240df921865b7519"
+    },
+    {
+      "path": "src/lib/document-metadata.server.ts",
+      "sha256": "2359f15ec283bc356751e03d5d4ba345a04254163e378ab8e4c7b31f99b201cf"
+    },
+    {
+      "path": "src/components/documents/DocumentClassificationCard.tsx",
+      "sha256": "0079e46aa2f3f71efdcb7981ca3e4ab5dde6a03210bb631a026c3f281b45dc83"
     }
   ],
   "adapter_contract": {
@@ -1021,7 +1033,7 @@
     "native_evidence": "docs/production-readiness/evidence/document-private-admission-native-verified-2026-11-05.json",
     "verified_evidence": "docs/production-readiness/evidence/document-legacy-writers-native-schema-verified-2026-11-05.json"
   },
-  "last_updated": "2026-11-12",
+  "last_updated": "2026-11-15",
   "summary_claim_write_fence_preparation": {
     "proposal": "docs/production-readiness/proposals/document-summary-claim-write-fence.sql",
     "evidence": "docs/production-readiness/evidence/document-summary-claim-write-fence-local-2026-11-05.json",
@@ -1146,11 +1158,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "7fa8dd0c85bc620732e9e9ae42b72c285feb7b52",
-    "evidence": "docs/production-readiness/evidence/document-admin-grant-retirement-verified-2026-11-15.json",
-    "declared_entries_checked": 59,
-    "corrected_entries": 1,
-    "added_entries": 0,
+    "checked_against_source": "3e088926d51d7043f11a563cb314d2d4bbd2d31d",
+    "evidence": "docs/production-readiness/evidence/document-metadata-writers-local-2026-11-15.json",
+    "declared_entries_checked": 62,
+    "corrected_entries": 2,
+    "added_entries": 3,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1330,5 +1342,11 @@
     "targeted_native_cases": 48,
     "full_schema_stages": 56,
     "source_component_complete": true
+  },
+  "document_metadata_writers": {
+    "evidence": "docs/production-readiness/evidence/document-metadata-writers-local-2026-11-15.json",
+    "status": "source/local component complete; whole 2.6 remains open",
+    "hosted_verified": false,
+    "ready_for_cutover": false
   }
 }
