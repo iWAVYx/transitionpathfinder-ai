@@ -20,12 +20,21 @@ export const commonGrantCases = [
   "unrelated and removed collaborators stay denied after retirement",
   "legitimate pre-registration Storage reads for the editing uploader are preserved",
   "existing quarantine and no-client-overwrite/delete fences remain installed",
-  "retirement preserves every historical grant row and existing Storage helper body",
+  "retirement preserves grant history and installs only the reviewed Storage predicate",
   "retired helper preserves its OID/ACL, uses invoker mode and never treats service-written grants as access",
   "changed legacy function body refuses installation without partial retirement",
   "repeat installation refuses the unreviewed state instead of blindly rerunning",
   "retirement preserves archived editor access and denies an archived viewer",
-  "retirement rollback restores the original policy/privilege/helper atomically"
+  "retirement rollback restores the original policy/privilege/helper atomically",
+  "baseline: current canonical grant revocation already denies an old Owner grant",
+  "baseline: current non-clean Storage exception permits an unrelated platform role without a grant",
+  "retirement denies the unrelated platform-role non-clean Storage exception",
+  "retirement preserves an authorized editing uploader's non-clean registration copy",
+  "retirement denies a removed uploader's non-clean Storage copy",
+  "retirement permits a student-assigned editing platform administrator's non-clean review copy",
+  "retirement denies non-clean bytes to a platform administrator assigned only viewing access",
+  "retirement requires a student relationship for an admin with only a document permission",
+  "retirement denies mismatched document/student Storage paths"
 ];
 export const nativeGrantCases = [
   "native grant-first COMMIT",

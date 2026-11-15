@@ -26,8 +26,12 @@ BEGIN
    OR now_routine.proconfig IS DISTINCT FROM ARRAY['search_path=pg_catalog']::text[]
    OR public.has_recent_admin_doc_access(gen_random_uuid(),gen_random_uuid()) IS DISTINCT FROM false THEN
   RAISE EXCEPTION 'Retired helper signature/ACL/mode/result mismatch';END IF;
+ SELECT * INTO STRICT helper_before FROM grant_review_routines WHERE oid='public.storage_can_read_student_doc(uuid,text)'::regprocedure;
+ SELECT * INTO STRICT now_routine FROM pg_proc WHERE oid=helper_before.oid;
+ IF now_routine.proowner<>helper_before.proowner OR now_routine.proacl IS DISTINCT FROM helper_before.proacl OR NOT now_routine.prosecdef
+  OR now_routine.proconfig IS DISTINCT FROM ARRAY['search_path=pg_catalog']::text[] OR md5(now_routine.prosrc)<>'dd10685db5e204f9d88dc188ad2638d4' THEN RAISE EXCEPTION 'Explicit Storage predicate identity/ACL/body mismatch';END IF;
  IF EXISTS(SELECT 1 FROM grant_review_routines old LEFT JOIN pg_proc p ON p.oid=old.oid
-  WHERE old.oid<>'public.has_recent_admin_doc_access(uuid,uuid)'::regprocedure AND (p.oid IS NULL OR
+  WHERE old.oid NOT IN('public.has_recent_admin_doc_access(uuid,uuid)'::regprocedure,'public.storage_can_read_student_doc(uuid,text)'::regprocedure) AND (p.oid IS NULL OR
    (p.prosrc,p.proconfig,p.prosecdef,p.provolatile,p.proowner,p.proacl) IS DISTINCT FROM (old.prosrc,old.proconfig,old.prosecdef,old.provolatile,old.proowner,old.proacl))) THEN
   RAISE EXCEPTION 'An unrelated public routine changed';END IF;
  IF EXISTS(SELECT 1 FROM grant_review_relations old LEFT JOIN pg_class c ON c.oid=old.oid
@@ -55,4 +59,4 @@ BEGIN
   OR (SELECT control FROM grant_review_state) IS DISTINCT FROM (SELECT to_jsonb(c) FROM public.document_operation_control c) THEN
   RAISE EXCEPTION 'Retirement changed document/grant/Storage/control data';END IF;
 END;$grant_review$;
-SELECT jsonb_build_object('schema','document-grant-retirement-full-chain-v1','canonical_count',225,'prior_review_drafts',41,'separate_review_drafts',1,'helper_signature_acl_preserved',true,'unrelated_public_routines_unchanged',true,'unrelated_policy_and_acl_unchanged',true,'document_grant_storage_control_data_unchanged',true,'native_full_chain_installed',true,'canonical_or_ledger_promotion_claimed',false,'hosted_applied',false,'ready_for_cutover',false);
+SELECT jsonb_build_object('schema','document-grant-retirement-full-chain-v1','canonical_count',225,'prior_review_drafts',41,'separate_review_drafts',1,'helper_signature_acl_preserved',true,'reviewed_storage_predicate_updated',true,'unrelated_public_routines_unchanged',true,'unrelated_policy_and_acl_unchanged',true,'document_grant_storage_control_data_unchanged',true,'native_full_chain_installed',true,'canonical_or_ledger_promotion_claimed',false,'hosted_applied',false,'ready_for_cutover',false);
