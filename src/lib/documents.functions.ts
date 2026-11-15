@@ -1,8 +1,8 @@
+import { createCurrentDocumentLink, parseDocumentLinkRequest, ADMIN_DOCUMENT_OVERRIDE_RETIRED } from "./document-signed-link.server";
 import { archiveDocumentRequest, archiveDocumentMetadata } from "./document-archive.server";
 import { documentRegistrationRequestSchema, documentUploadReservationRequestSchema, documentUploadRecoveryRequestSchema } from "./document-upload-intent";
 import { documentUploadFingerprint } from "./document-upload-fingerprint";
 import { documentUploadOutcome } from "./document-upload-outcome";
-import { assertDocumentFileReady } from "./document-file-readiness";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -685,182 +685,30 @@ export const assertCanUploadForStudent = createServerFn({ method: "POST" })
 
 export const getDocumentSignedUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    // Look up the document. RLS on `documents` returns no row if the caller
-    // has lost access to the student — we use that as the revoked-access
-    // signal and raise an alert before refusing.
-    const { data: row, error } = await supabase
-      .from("documents")
-      .select("id, storage_path, student_id, doc_type, title, scan_status, scan_verdict")
-      .eq("id", data.id)
-      .maybeSingle();
-
-    if (error || !row) {
-      // Confirm document exists (admin-elevated) so we only alert on revoked
-      // access, not on truly missing/invalid ids.
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: probe } = await supabaseAdmin
-        .from("documents")
-        .select("id, student_id, doc_type")
-        .eq("id", data.id)
-        .maybeSingle();
-      if (probe) {
-        const { data: actor } = await supabaseAdmin
-          .from("profiles")
-          .select("email")
-          .eq("id", userId)
-          .maybeSingle();
-        await supabaseAdmin.from("iep_access_alerts").insert({
-          actor_id: userId,
-          actor_email: actor?.email ?? null,
-          student_id: probe.student_id,
-          document_id: probe.id,
-          reason: "revoked_access_signed_url_attempt",
-          metadata: { doc_type: probe.doc_type, action: "mint" },
-        });
-        await supabaseAdmin.from("audit_log").insert({
-          actor_id: userId,
-          actor_email: actor?.email ?? null,
-          action: "document.signed_url.denied",
-          entity_type: "document",
-          entity_id: probe.id,
-          student_id: probe.student_id,
-          metadata: { reason: "revoked_access", doc_type: probe.doc_type },
-        });
-        console.warn("[iep-alert] revoked-access signed URL attempt", {
-          actor: userId,
-          student: probe.student_id,
-          document: probe.id,
-        });
-      }
-      throw new Error("Document not found.");
-    }
-
-    await assertAuthorized(
-      { supabase, userId, action: "view", resourceType: "document", resourceId: row.id },
+  .validator((input: unknown) => parseDocumentLinkRequest(input))
+  .handler(async ({ data, context }) => createCurrentDocumentLink(
+    context.supabase, context.userId, data,
+    async (documentId) => { await assertAuthorized(
+      { supabase: context.supabase, userId: context.userId, action: "view", resourceType: "document", resourceId: documentId },
       "You don't have permission to view this document.",
-    );
+    ); },
+  ));
 
-    assertDocumentFileReady(row);
-
-    const { data: signed, error: signErr } = await supabase.storage
-      .from("student-documents")
-      .createSignedUrl(row.storage_path, 300);
-    if (signErr || !signed) throw new Error("Could not generate link.");
-
-    // Resolve the caller's effective role on this student for the audit row.
-    let role: "owner" | "editor" | "viewer" | "admin" | "other" = "other";
-    const [{ data: ownerRow }, { data: collabRow }, { data: adminRow }] = await Promise.all([
-      supabase.from("students").select("id").eq("id", row.student_id).eq("owner_id", userId).maybeSingle(),
-      supabase
-        .from("student_collaborators")
-        .select("role")
-        .eq("student_id", row.student_id)
-        .eq("user_id", userId)
-        .eq("status", "accepted")
-        .maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
-    ]);
-    if (ownerRow) role = "owner";
-    else if (collabRow?.role === "editor") role = "editor";
-    else if (collabRow?.role === "viewer") role = "viewer";
-    else if (adminRow) role = "admin";
-
-    // Audit (best-effort) — actor_id = auth.uid() satisfies RLS insert policy.
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.signed_url.mint",
-      entity_type: "document",
-      entity_id: row.id,
-      student_id: row.student_id,
-      metadata: {
-        doc_type: row.doc_type,
-        title: row.title,
-        role,
-        ttl_seconds: 300,
-        storage_path: row.storage_path,
-      },
-    });
-
-    await supabase.from("document_access_log").insert({
-      document_id: row.id,
-      student_id: row.student_id,
-      actor_id: userId,
-      actor_role: role,
-      action: "download",
-      metadata: { doc_type: row.doc_type, ttl_seconds: 300 },
-    });
-
-    return { url: signed.signedUrl };
-  });
-
-/**
- * Platform-admin override: create a short-lived (15 min) grant that allows
- * the admin to read a single student document. RLS reads `admin_doc_access_grants`
- * to permit the row + storage object. Every override is logged.
- */
+/** Retired application override. A platform role never supplies private
+ * student access. Keep the authenticated endpoint fail-closed for cached
+ * callers; legacy direct database grant policies require separate review. */
 export const requestAdminDocAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({
+  .validator((input: unknown) => z.object({
     document_id: z.string().uuid(),
-    reason: z.string().trim().min(8, "Please describe why this access is needed.").max(500),
-    scope: z
-      .enum(["single_document", "compliance_audit", "support_ticket", "data_request"])
-      .default("single_document"),
+    reason: z.string().trim().min(8).max(500),
+    scope: z.enum(["single_document", "compliance_audit", "support_ticket", "data_request"]).default("single_document"),
     case_reference: z.string().trim().max(120).optional(),
-  }).parse(i))
+    ...viewerIntentSchema.shape,
+  }).parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("is_platform_admin", { _user_id: userId });
-    if (!isAdmin) throw new Error("Only platform admins may request override access.");
-
-    const { error: grantErr } = await supabase.from("admin_doc_access_grants").insert({
-      actor_id: userId,
-      document_id: data.document_id,
-      reason: data.reason,
-      scope: data.scope,
-      case_reference: data.case_reference ?? null,
-    });
-    if (grantErr) throw new Error("Could not record override grant.");
-
-
-    // Now that the grant exists, RLS lets us load metadata + mint a URL.
-    const { data: doc } = await supabase
-      .from("documents")
-      .select("id, student_id, storage_path, doc_type, title, scan_status, scan_verdict")
-      .eq("id", data.document_id)
-      .maybeSingle();
-    if (!doc) throw new Error("Document not found.");
-
-    assertDocumentFileReady(doc);
-
-    const { data: signed, error: signErr } = await supabase.storage
-      .from("student-documents")
-      .createSignedUrl(doc.storage_path, 300);
-    if (signErr || !signed) throw new Error("Could not generate link.");
-
-    await supabase.from("document_access_log").insert({
-      document_id: doc.id,
-      student_id: doc.student_id,
-      actor_id: userId,
-      actor_role: "platform_admin",
-      action: "admin_override",
-      reason: data.reason,
-      metadata: { doc_type: doc.doc_type, ttl_seconds: 300 },
-    });
-    await supabase.from("audit_log").insert({
-      actor_id: userId,
-      action: "document.admin_override",
-      entity_type: "document",
-      entity_id: doc.id,
-      student_id: doc.student_id,
-      metadata: { reason: data.reason, doc_type: doc.doc_type, title: doc.title },
-    });
-
-    return { url: signed.signedUrl, expiresInSeconds: 300 };
+    assertExpectedViewer(data, context.userId);
+    throw new Error(ADMIN_DOCUMENT_OVERRIDE_RETIRED);
   });
 
 /* ---------- AI: extract goals from IEP text ---------- */

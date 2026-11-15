@@ -1,0 +1,87 @@
+{
+  "schema": "transitionforward-document-signed-link-source-local-v1",
+  "date": "2026-11-15",
+  "source_base": "2d816b3929ef54ed3ecff9a5f4fd9c0c1abb046c",
+  "status": "application-source-local-complete-database-exception-open",
+  "source_manifest": [
+    {
+      "path": "src/lib/document-signed-link.server.ts",
+      "sha256": "06fec627171452ae2b07674990856dbb8172b4653badb99b3c3ef72b6e5d4231"
+    },
+    {
+      "path": "src/lib/documents.functions.ts",
+      "sha256": "69f2112d7d13b32bdddabba2427435ee3adc9ab4916f0abc0b4fff4399404d28"
+    },
+    {
+      "path": "src/routes/_authenticated/students.$studentId.tsx",
+      "sha256": "25832044c1f72cd660429e8ae27659d6ba531c8ea6f785f717744373a73d3c98"
+    },
+    {
+      "path": "tests/unit/document-signed-link.test.ts",
+      "sha256": "fcf2a15c782040739fff85ad7f8f79618172c5d30f84600db15f6c5a3e9e7b70"
+    },
+    {
+      "path": "tests/unit/document-removal-safety.test.ts",
+      "sha256": "843df6fb74d5547336e42f8ae083f4902d126b8535e99d5cadf16930964244c4"
+    },
+    {
+      "path": "tests/unit/student-goal-extraction-lifetime.test.tsx",
+      "sha256": "13f73ef813be5cfface39511ab1abb643d0a217fb2120e293b62d9cd3c678b98"
+    }
+  ],
+  "behavior": [
+    "Normal links require the loaded account, student and document revision before private reads; cached incomplete intent and changed accounts fail before IO.",
+    "Caller-scoped row security, canonical explicit student access, document view access, partner-only exclusion and central authorization are required. Archived reads also require editing access.",
+    "Only clean/not-infected, undeleted files on the exact student path are eligible. Source identity/revision/readiness/access are rechecked after mint and audit.",
+    "Returned capability must use HTTPS and the configured backend origin, exact bucket/path and a nonempty token, with no credentials or fragment. Expiry remains300seconds.",
+    "No automatic remint/retry after lost replies, failed audits or changed authority. Audit metadata excludes URL/token/title/path/email.",
+    "Denied initial attempts use the caller audit client with an unconfirmed reason; no privileged existence/profile probe or private existence disclosure.",
+    "The unused authenticated admin override endpoint always refuses before data/grant/Storage IO, including existing cached requests and platform roles.",
+    "Both download and goal-reading callers supply intent; departed download responses/errors are ignored and concurrent download clicks are blocked.",
+    "Permission, read, signing and audit replies require explicit null error fields; missing status is unconfirmed, not success."
+  ],
+  "validation": {
+    "full_unit_cases": 6014,
+    "unit_files": 372,
+    "focused_cases": 142,
+    "inventory_navigation_contracts": 94,
+    "storage_inventory_cases": 9,
+    "reviewed_storage_candidates": 41,
+    "release_security_contracts": 72,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed"
+  },
+  "database_exception": {
+    "closed": false,
+    "release_blocker": true,
+    "source": "supabase/migrations/20260624032049_03e91336-dff5-4bda-b5ff-94294f60d6ef.sql",
+    "remaining_objects": [
+      "admin_doc_access_grants authenticated INSERT policy/privilege",
+      "has_recent_admin_doc_access(uuid,uuid)",
+      "documents_select_admin_override",
+      "storage_can_read_student_doc(uuid,text) admin-grant branches"
+    ],
+    "required_next_step": "Reproduce direct authenticated grant access in disposable SQL, prepare narrowly reviewed retirement that preserves explicit student/document access and legitimate registration reads, then prove denial including existing unexpired grants. No hosted installation is authorized."
+  },
+  "limits": [
+    "Application retirement is not database grant retirement. Cached/direct SQL/Storage clients may still exercise the canonical legacy exception until separately reviewed schema changes are deployed.",
+    "Already minted URLs remain bearer capabilities until expiry; refusing a later response does not revoke a created capability.",
+    "Post-mint rechecks do not provide transaction-held access-removal serialization or immutable physical-byte proof.",
+    "Audit writes are separate statements; an uncertain audit/mint may have committed and is never automatically replayed here.",
+    "The enriched privileged iep_access_alerts existence-probe path is replaced by caller-scoped audit of an unconfirmed attempt. Confirm alert consumers/monitoring before launch.",
+    "No hosted acceptance, provider IO, schema changes or fresh native replay occurred. Historical SQL proof remains only for unchanged SQL."
+  ],
+  "sql_changed": false,
+  "hosted_actions": false,
+  "provider_calls": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "whole_workstream_complete": false,
+  "ready_for_cutover": false,
+  "runtime_source_identity": {
+    "schema": "transitionforward-runtime-source-v1",
+    "algorithm": "sha256",
+    "fingerprint": "6c7064857dd98e733ca2b1385ab0641eff3e9a2acef2409d198b8f2030753fea",
+    "fileCount": 1222
+  }
+}

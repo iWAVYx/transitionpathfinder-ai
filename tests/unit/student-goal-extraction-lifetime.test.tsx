@@ -9,7 +9,7 @@ vi.mock("@tanstack/react-router", () => ({ createFileRoute: () => (options: unkn
 vi.mock("@/components/withRoleGuard", () => ({ withRoleGuard: (_roles: unknown, component: unknown) => component }));
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => <main>{children}</main> }));
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
-vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract, onDelete, parsing, extractionDisabled }: any) => <>{onExtract && <button disabled={!!parsing || extractionDisabled} onClick={() => onExtract(doc)}>Read {doc.id}</button>}{onDelete && <button onClick={() => onDelete(doc)}>Archive {doc.id}</button>}</> }));
+vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract, onDelete, onDownload, parsing, extractionDisabled }: any) => <>{onDownload && <button onClick={() => onDownload(doc)}>Download {doc.id}</button>}{onExtract && <button disabled={!!parsing || extractionDisabled} onClick={() => onExtract(doc)}>Read {doc.id}</button>}{onDelete && <button onClick={() => onDelete(doc)}>Archive {doc.id}</button>}</> }));
 vi.mock("@/components/students/StudentProfileSupport", () => ({ StudentProfileSupport: () => null }));
 vi.mock("@/components/students/StudentPathwayReportPanel", () => ({ StudentPathwayReportPanel: () => null }));
 vi.mock("@/components/students/StudentPlanningTools", () => ({ StudentPlanningTools: () => null }));
@@ -123,4 +123,16 @@ it.each(["student","viewer","signed-out"])("ignores late archive responses after
  const request=pending();api.archive.mockReturnValueOnce(request.promise);const view=render(<Component />);await archive();
  if(change==="student")api.id="student-b";if(change==="viewer")api.auth={user:{id:"viewer-b"},loading:false};if(change==="signed-out")api.auth={user:null,loading:false};view.rerender(<Component />);
  await act(async()=>request.resolve({ok:true}));expect(api.success).not.toHaveBeenCalled();expect(api.error).not.toHaveBeenCalled();expect(api.archive).toHaveBeenCalledOnce();
+});
+
+it("binds download and goal-reading links to the loaded account/student/revision",async()=>{
+ const open=vi.spyOn(window,"open").mockImplementation(()=>null);render(<Component />);await screen.findByRole("button",{name:"Download doc-student-a"});await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Download doc-student-a"})));await read();
+ for(const [request] of api.sign.mock.calls)expect(request.data).toEqual({id:"doc-student-a",student_id:"student-a",expected_viewer_id:"viewer-a",expected_updated_at:"2026-11-13T12:00:00.000Z"});expect(open).toHaveBeenCalledOnce();open.mockRestore();
+});
+it.each(["student","viewer","signed-out"].flatMap(change=>["success","failure"].map(outcome=>[change,outcome])))("does not open a late link or show a departed failure after %s changes (%s)",async (change,outcome)=>{
+ const request=pending();api.sign.mockReturnValueOnce(request.promise);const open=vi.spyOn(window,"open").mockImplementation(()=>null);const view=render(<Component />);await screen.findByRole("button",{name:"Download doc-student-a"});await act(async()=>fireEvent.click(screen.getByRole("button",{name:"Download doc-student-a"})));
+ if(change==="student")api.id="student-b";if(change==="viewer")api.auth={user:{id:"viewer-b"},loading:false};if(change==="signed-out")api.auth={user:null,loading:false};view.rerender(<Component />);await act(async()=>{if(outcome==="success")request.resolve({url:"https://synthetic.invalid/departed-file"});else request.reject(new Error("PRIVATE old request"));});expect(open).not.toHaveBeenCalled();expect(api.error).not.toHaveBeenCalled();open.mockRestore();
+});
+it("does not duplicate or automatically retry a pending/unknown download-link request",async()=>{
+ const request=pending();api.sign.mockReturnValueOnce(request.promise);render(<Component />);const button=await screen.findByRole("button",{name:"Download doc-student-a"});await act(async()=>{fireEvent.click(button);fireEvent.click(button);});expect(api.sign).toHaveBeenCalledOnce();await act(async()=>request.reject(new Error("PRIVATE response")));expect(api.sign).toHaveBeenCalledOnce();expect(api.error).toHaveBeenCalledWith(expect.stringContaining("Refresh the document list"));
 });

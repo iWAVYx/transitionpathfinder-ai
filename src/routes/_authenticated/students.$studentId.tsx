@@ -139,6 +139,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   const fetchCanEdit = useServerFn(canEditStudent);
   const remove = useServerFn(deleteDocument);
   const sign = useServerFn(getDocumentSignedUrl);
+  const downloadPending = useRef(false);
   const extractGoals = useServerFn(extractGoalsFromText);
   const saveGoals = useServerFn(saveExtractedGoals);
 
@@ -171,12 +172,16 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
   }, [studentId]);
 
   async function handleDownload(doc: DocumentRow) {
+    if (!active.current || downloadPending.current) return;
+    downloadPending.current = true;
     try {
-      const { url } = await sign({ data: { id: doc.id } });
+      const { url } = await sign({ data: { id: doc.id, student_id: studentId, expected_viewer_id: viewerId, expected_updated_at: doc.updated_at } });
       if (!active.current) return;
       window.open(url, "_blank", "noopener,noreferrer");
     } catch {
-      toast.error("Could not open file.");
+      if (active.current) toast.error("We couldn't open this file. Refresh the document list to check your access and its current status.");
+    } finally {
+      downloadPending.current = false;
     }
   }
 
@@ -201,7 +206,7 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
     parsePending.current = true;
     setParsing(doc.id);
     try {
-      const { url } = await sign({ data: { id: doc.id } });
+      const { url } = await sign({ data: { id: doc.id, student_id: studentId, expected_viewer_id: viewerId, expected_updated_at: doc.updated_at } });
       if (!active.current) return;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Document download failed.");

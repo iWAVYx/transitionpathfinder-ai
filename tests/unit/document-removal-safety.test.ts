@@ -14,6 +14,7 @@ vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { rpc: 
 vi.mock("../../src/lib/protected-file-uploads", () => ({ assertProtectedFileUploadsEnabled: api.gate }));
 vi.mock("../../src/lib/document-rescan-source.server", () => ({ authorizeDocumentRescanSource: api.preflight }));
 vi.mock("../../src/lib/document-operation-admission.server", async importOriginal => ({ ...(await importOriginal<typeof import("../../src/lib/document-operation-admission.server")>()), runAdmittedDocumentOperation: api.admit }));
+import { DOCUMENT_LINK_MESSAGE, ADMIN_DOCUMENT_OVERRIDE_RETIRED } from "../../src/lib/document-signed-link.server";
 import { getDocumentSignedUrl, requestAdminDocAccess, hardDeleteDocument, rescanDocument } from "../../src/lib/documents.functions";
 const student = "11111111-1111-4111-8111-111111111111";
 const id = "22222222-2222-4222-8222-222222222222";
@@ -23,6 +24,10 @@ const row = { id, student_id: student, storage_path: path, title: "Fictional rev
   content_hash: "a".repeat(64), uploaded_by: "33333333-3333-4333-8333-333333333333",
   upload_attempt_id: "55555555-5555-4555-8555-555555555555", upload_review_context_sha256: "c".repeat(64), scan_status: "failed", scan_verdict: null, review_status: "rejected", archived_at: "2026-10-28", deleted_at: null, updated_at: "2026-10-30T10:00:00.000Z" };
 const runRescan = (patch: object = {}) => (rescanDocument as any)({ data: { id, expected_viewer_id: "33333333-3333-4333-8333-333333333333", ...patch } });
+const runLink = () => {
+  api.rpc.mockImplementation(async (name: string) => ({ data: name !== "is_partner_only", error: null }));
+  return (getDocumentSignedUrl as any)({ data: { id, student_id: student, expected_viewer_id: "33333333-3333-4333-8333-333333333333", expected_updated_at: row.updated_at } });
+};
 const runDelete = () => (hardDeleteDocument as any)({ data: { id, reason: "Fictional deletion request" } });
 beforeEach(() => {
   vi.resetAllMocks(); api.preflight.mockResolvedValue({ prepareCopy: api.source }); api.admit.mockImplementation((_input, work) => work()); api.source.mockResolvedValue({ copy: new Blob(["Fictional reviewed text"]), contentHash: "a".repeat(64), confirmPending: api.confirmSource }); vi.stubGlobal("fetch", api.fetch);
@@ -30,7 +35,7 @@ beforeEach(() => {
   api.rpc.mockResolvedValue({ data: false, error: null });
   api.read.mockResolvedValue({ data: row, error: null });
   const query: any = { select: () => query, eq: () => query, maybeSingle: api.read };
-  api.context = { userId: "33333333-3333-4333-8333-333333333333", supabase: { storage: { from: () => ({ createSignedUrl: api.sign }) }, rpc: api.rpc, from: (table: string) => ["documents", "students", "student_collaborators", "user_roles"].includes(table) ? query : { insert: table === "ai_jobs" ? api.enqueue : api.audit } } };
+  api.context = { userId: "33333333-3333-4333-8333-333333333333", supabase: { supabaseUrl: "https://fictional.invalid", storage: { from: () => ({ createSignedUrl: api.sign }) }, rpc: api.rpc, from: (table: string) => ["documents", "students", "student_collaborators", "user_roles"].includes(table) ? query : { insert: table === "ai_jobs" ? api.enqueue : api.audit } } };
   const writeQuery: any = { eq: api.match, is: api.notDeleted, select: () => writeQuery, single: api.write };
   api.match.mockReturnValue(writeQuery); api.notDeleted.mockReturnValue(writeQuery);
   api.update.mockReturnValue(writeQuery);
@@ -64,25 +69,26 @@ it.each(["error", "rejection", "truthy"])("uncertain admin permission cannot aut
 
 it.each(["infected", "deleted", "pending", "failed", null, "unknown"])("cannot mint an application file link while scan status is %s", async status => {
   api.read.mockResolvedValue({ data: { ...row, scan_status: status }, error: null });
-  await expect((getDocumentSignedUrl as any)({ data: { id } })).rejects.toThrow("security review is incomplete or blocked");
+  await expect(runLink()).rejects.toThrow(DOCUMENT_LINK_MESSAGE);
   expect(api.sign).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
 });
 it("an infected verdict cannot mint a link even if a stale scan status says clean", async () => {
   api.read.mockResolvedValue({ data: { ...row, scan_status: "clean", scan_verdict: { code: "infected" } }, error: null });
-  await expect((getDocumentSignedUrl as any)({ data: { id } })).rejects.toThrow("security review is incomplete or blocked");
+  await expect(runLink()).rejects.toThrow(DOCUMENT_LINK_MESSAGE);
   expect(api.sign).not.toHaveBeenCalled();
 });
 
 it("clean authorized files still receive a normal short-lived application link", async () => {
   api.read.mockResolvedValue({ data: { ...row, scan_status: "clean" }, error: null });
-  api.sign.mockResolvedValue({ data: { signedUrl: "https://fictional.invalid/file" }, error: null });
-  expect(await (getDocumentSignedUrl as any)({ data: { id } })).toEqual({ url: "https://fictional.invalid/file" });
+  api.sign.mockResolvedValue({ data: { signedUrl: `https://fictional.invalid/storage/v1/object/sign/student-documents/${path}?token=fictional` }, error: null });
+  expect(await runLink()).toEqual({ url: `https://fictional.invalid/storage/v1/object/sign/student-documents/${path}?token=fictional` });
   expect(api.authorize).toHaveBeenCalled(); expect(api.sign).toHaveBeenCalledExactlyOnceWith(path, 300);
 });
-it("a metadata override cannot mint an infected-file link", async () => {
+it.each(["student", "family", "educator", "school", "district", "partner", "owner"])("retired override grants no private access or link for %s", async role => {
   api.rpc.mockResolvedValue({ data: true, error: null });
   api.read.mockResolvedValue({ data: { ...row, scan_status: "infected", scan_verdict: { code: "infected" } }, error: null });
-  await expect((requestAdminDocAccess as any)({ data: { document_id: id, reason: "Fictional support request" } })).rejects.toThrow("security review is incomplete or blocked");
+  await expect((requestAdminDocAccess as any)({ data: { document_id: id, reason: "Fictional support request" } })).rejects.toThrow(ADMIN_DOCUMENT_OVERRIDE_RETIRED);
+  expect(api.rpc).not.toHaveBeenCalled(); expect(api.read).not.toHaveBeenCalled(); expect(api.audit).not.toHaveBeenCalled();
   expect(api.sign).not.toHaveBeenCalled(); expect(api.remove).not.toHaveBeenCalled();
 });
 

@@ -11,7 +11,7 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "63bee2d6ed8554a2d6aaa9c05b5d83bec2144567a7bb611395a5e736296dfa42"
+      "sha256": "69f2112d7d13b32bdddabba2427435ee3adc9ab4916f0abc0b4fff4399404d28"
     },
     {
       "path": "src/lib/extractions.functions.ts",
@@ -224,6 +224,10 @@
     {
       "path": "src/lib/document-review-initialization.server.ts",
       "sha256": "30a0a21281fd813cd5fbd3b69a6efa1076cede2b7d3424f189e62d8d6e9ebb1e"
+    },
+    {
+      "path": "src/lib/document-signed-link.server.ts",
+      "sha256": "06fec627171452ae2b07674990856dbb8172b4653badb99b3c3ef72b6e5d4231"
     }
   ],
   "adapter_contract": {
@@ -1130,10 +1134,10 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "bbd94f89d37af986bc907d45a6470897313495ac",
-    "evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json",
-    "declared_entries_checked": 55,
-    "corrected_entries": 2,
+    "checked_against_source": "2d816b3929ef54ed3ecff9a5f4fd9c0c1abb046c",
+    "evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json",
+    "declared_entries_checked": 56,
+    "corrected_entries": 1,
     "added_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
@@ -1290,6 +1294,15 @@
     "existing_read_access_preserved": true,
     "sql_changed": false,
     "transaction_held_authorization_verified": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "document_signed_link_access": {
+    "evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json",
+    "application_source_local_complete": true,
+    "database_exception_retired": false,
+    "release_blocker_remains": true,
+    "sql_changed": false,
     "hosted_verified": false,
     "ready_for_cutover": false
   }

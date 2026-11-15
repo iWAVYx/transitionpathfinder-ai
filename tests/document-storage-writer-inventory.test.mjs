@@ -7,8 +7,8 @@ import { discoverDocumentStorageCandidates, verifyDocumentStorageInventory, SCAN
 const root = resolve(import.meta.dirname, "..");
 test("current checked-in lexical inventory is exact, classified and source-only", () => {
  const inventory=JSON.parse(readFileSync(resolve(root,INVENTORY_PATH),"utf8"));
- assert.equal(verifyDocumentStorageInventory(root,inventory).checked_files,40);
- assert.equal(inventory.entries.length,40);
+ assert.equal(verifyDocumentStorageInventory(root,inventory).checked_files,41);
+ assert.equal(inventory.entries.length,41);
  for(const path of ["src/lib/cms/cms.functions.ts","src/lib/channel-messages.functions.ts","supabase/config.toml","wrangler.staging.toml",".github/workflows/release-readiness.yml"])assert.ok(inventory.entries.some(v=>v.path===path));
  assert.ok(inventory.known_followups.some(v=>v.item==="Deployed inventory"));
 });

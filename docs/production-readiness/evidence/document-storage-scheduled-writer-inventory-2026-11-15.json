@@ -99,6 +99,13 @@
       "remaining_boundary": "Hosted object/version/revocation and provider interruption acceptance remain open."
     },
     {
+      "path": "src/lib/document-signed-link.server.ts",
+      "sha256": "06fec627171452ae2b07674990856dbb8172b4653badb99b3c3ef72b6e5d4231",
+      "classification": "caller-scoped-private-link-mint",
+      "finding": "Loaded viewer/student/revision, canonical explicit access, file readiness, exact URL origin/bucket/path, reduced audit metadata and post-mint current-source checks. No service client or admin grant.",
+      "remaining_boundary": "Bearer links may survive access removal until expiry; no transaction-held or physical-byte immutability proof. Legacy database grant exception is separately open."
+    },
+    {
       "path": "src/lib/document-sniff.server.ts",
       "sha256": "ea37d3ea671b51239b6e9f928c43a295ceed4eae0ef8d28bada6fbe953cd0951",
       "classification": "service-storage-reader",
@@ -121,10 +128,10 @@
     },
     {
       "path": "src/lib/documents.functions.ts",
-      "sha256": "63bee2d6ed8554a2d6aaa9c05b5d83bec2144567a7bb611395a5e736296dfa42",
+      "sha256": "69f2112d7d13b32bdddabba2427435ee3adc9ab4916f0abc0b4fff4399404d28",
       "classification": "document-metadata-and-signed-link",
-      "finding": "Source-bound registration/rescan and confirmed archive metadata; ordinary caller signed links and the separate short-lived admin override path are present. Hard delete fails closed. No Storage byte update/remove here.",
-      "remaining_boundary": "Archive is not deletion. Signed-link expiry, legacy admin override policy and all deployed writer/access behavior need current security/hosted review."
+      "finding": "Source-bound registration/rescan and confirmed archive metadata; normal links delegate to the exact current-account/source helper. Legacy application override refuses before IO; hard delete remains paused.",
+      "remaining_boundary": "Direct authenticated database grant policy/helper and Storage exception remain a release blocker. Enriched private denial probes are replaced with minimal caller audit; hosted monitoring/permission acceptance remains open."
     },
     {
       "path": "src/lib/owner/system-health.functions.ts",
@@ -320,7 +327,9 @@
     {
       "item": "Signed links and admin override",
       "source": "src/lib/documents.functions.ts:getDocumentSignedUrl/requestAdminDocAccess",
-      "action": "Review loaded-viewer binding and current explicit-access/override behavior separately; source inventory grants no new exception."
+      "action": "Reproduce direct authenticated grant access in disposable SQL, prepare narrowly reviewed retirement that preserves explicit student/document access and legitimate registration reads, then prove denial including existing unexpired grants. No hosted installation is authorized.",
+      "status": "application-source-local-closed-database-exception-open",
+      "completion_evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json"
     },
     {
       "item": "Deployed inventory",
@@ -347,7 +356,7 @@
   "ready_for_cutover": false,
   "validation": {
     "guard_cases": 9,
-    "current_reviewed_candidates": 40,
+    "current_reviewed_candidates": 41,
     "inventory_navigation_contracts": 94,
     "release_security_contracts": 72,
     "previous_application_unit_suite": {
@@ -360,10 +369,11 @@
   },
   "followup_reconciliation": {
     "date": "2026-11-15",
-    "source_base": "bbd94f89d37af986bc907d45a6470897313495ac",
-    "evidence": "docs/production-readiness/evidence/document-review-initialization-local-2026-11-15.json",
-    "candidate_hashes_changed": false,
-    "inventory_scope_unchanged": true,
+    "source_base": "2d816b3929ef54ed3ecff9a5f4fd9c0c1abb046c",
+    "evidence": "docs/production-readiness/evidence/document-signed-link-local-2026-11-15.json",
+    "candidate_hashes_changed": true,
+    "reviewed_candidate_count": 41,
+    "new_candidate_count": 1,
     "hosted_verified": false
   }
 }
