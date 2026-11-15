@@ -1,0 +1,130 @@
+{
+  "schema": "transitionforward-document-permission-parent-verified-v1",
+  "date": "2026-11-15",
+  "source_commit": "c7ed11829a896cae7d845c933ae65f9201acb0f7",
+  "run_id": 43763542345,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43763542345",
+  "status": "parent-binding component verified in source/disposable scope",
+  "workstream": "5.2",
+  "native": {
+    "tests": 41,
+    "passed": 41,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "Owner without explicit student access cannot create a document grant",
+      "a changed baseline refuses installation without partial helper/trigger changes",
+      "a correctly bound role grant keeps its prior behavior; audience scope remains a separate gate",
+      "a duplicate valid INSERT remains a unique error rather than replacing an existing grant",
+      "a service-written mismatch also becomes inert",
+      "an explicitly assigned editing Owner can create only a correctly bound grant",
+      "baseline partial-index conflict target remains a distinct rights-transfer writer issue",
+      "baseline: an editable grant can be retargeted to an unrelated document",
+      "baseline: an editor can insert a foreign-document grant using an editable student and expose its metadata",
+      "correctly bound edit_metadata keeps its prior behavior; tier privacy remains a separate gate",
+      "correctly bound manage keeps its prior behavior; tier privacy remains a separate gate",
+      "correctly bound none does not add document access",
+      "correctly bound view_document keeps its prior behavior; tier privacy remains a separate gate",
+      "correctly bound view_student_friendly_summary keeps its prior behavior; tier privacy remains a separate gate",
+      "correctly bound view_summary keeps its prior behavior; tier privacy remains a separate gate",
+      "direct editing of a historical mismatched row is refused without deleting it",
+      "historical mismatches are retained but no longer authorize document metadata",
+      "native grant-first migration waits then fences mismatched grant after COMMIT",
+      "native grant-first migration waits then fences mismatched grant after ROLLBACK",
+      "native insert-first blocks parent movement through COMMIT",
+      "native insert-first blocks parent movement through ROLLBACK",
+      "native migration-first invalidates cached wrong-parent INSERT after COMMIT",
+      "native migration-first invalidates cached wrong-parent INSERT after ROLLBACK",
+      "native parent-move-first rechecks binding after COMMIT",
+      "native parent-move-first rechecks binding after ROLLBACK",
+      "native prepared document read loses access through an old mismatched grant after installation",
+      "parent guard also refuses a mismatched trusted-service insert",
+      "parent guard refuses a mismatched document grant from district",
+      "parent guard refuses a mismatched document grant from educator",
+      "parent guard refuses a mismatched document grant from family",
+      "parent guard refuses a mismatched document grant from school",
+      "parent guard refuses a mismatched document grant from student",
+      "parent guard refuses reassignment of document_id",
+      "parent guard refuses reassignment of student_id",
+      "partner-only actors cannot create grants even with an editing collaboration",
+      "repeat installation refuses unreviewed state",
+      "rollback restores the prior helper and removes the new guard atomically",
+      "the parent helper is invoker-only, fixed-path, unconditional and directly uncallable",
+      "valid insert RETURNING and deletion receipts still work for the application",
+      "view helper OID owner grants mode path and unrelated policies are preserved",
+      "view-only collaborators cannot create grants"
+    ],
+    "raw_tap": "docs/production-readiness/evidence/document-permission-parent-native-2026-11-15.tap",
+    "raw_tap_sha256": "f51b603608a910ef05b312f40a908d8f6a981a5a6cfc6ac0f9263e23cf9b9cd3",
+    "observed_parent_migration_lock_races": 8,
+    "cached_read_case": 1
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 2,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_script_and_log_hashes_independently_checked": true,
+    "proof": "docs/production-readiness/evidence/document-permission-parent-schema-2026-11-15.json",
+    "proof_sha256": "b898931af53553e93595a799cfa279b28df1f90ad643b8f1933dbc1281839474",
+    "inherited_proof": "docs/production-readiness/evidence/document-permission-parent-inherited-schema-2026-11-15.json",
+    "inherited_proof_sha256": "64973272877500d3e6724501526c14c19f04f57796392c21a595bfd3ce43ea8c",
+    "prior_regression_cases_rerun_claimed": false,
+    "original_sql_files_independently_hashed": 297,
+    "original_test_source_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+    "original_baseline_proof": "docs/production-readiness/evidence/document-permission-parent-original-baseline-2026-11-15.json",
+    "original_baseline_proof_sha256": "359ed24ed24cef588e4fa43508d3a1b03abc436bb432110130d331a9d94ac42c"
+  },
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-permission-parent/bind-document-permission-parent.review.sql",
+      "sha256": "ea25ac327c157169eb90b5a03d39dd3297f4051b2e71dfbf4712eb65c6e5bb21"
+    },
+    {
+      "path": "tests/database/document-permission-parent.test.mjs",
+      "sha256": "d2c028d8530acda4cc012202a2210e397db92145ef7ef62b89bd04a251824d39"
+    },
+    {
+      "path": "tests/database/run-document-permission-parent-schema.mjs",
+      "sha256": "6d0457a3996af9c4a162754d2d1438b77d713e240a98ca12407b44895e0855e1"
+    },
+    {
+      "path": ".github/workflows/document-permission-parent-review.yml",
+      "sha256": "33e55491f5f6e6f5795555d160d1edd118f7e7cf4745002c82ccee3bf50abfa1"
+    }
+  ],
+  "initial_failure": {
+    "run_id": 43763373802,
+    "source_commit": "38e2b8668fdd86293f9cf92b36e1848dd1019019",
+    "native_passed": 40,
+    "native_failed": 1,
+    "reason": "Cached-read test attempted installation while its setup connection retained the authenticated role.",
+    "correction": "RESET ROLE before trusted disposable DDL; no SQL or cached-read assertion changed.",
+    "record": "docs/production-readiness/evidence/document-permission-parent-local-2026-11-15.json"
+  },
+  "preservation": [
+    "No historical grant/document rows deleted or rewritten.",
+    "Correctly bound grants and existing policy/table ACL remain unchanged.",
+    "View-helper OID/owner/ACL/mode/path/language/volatility preserved; new guard is private invoker-only.",
+    "Original225+41 installer scripts and prior original SQL/regression baseline are unchanged."
+  ],
+  "limits": [
+    "Targeted fixtures plus current-schema installation/catalog proof; not a rerun of the entire original regression suite against the final combined release.",
+    "Correctly bound summary/edit/manage and role-wide grant privacy, grant retirement after access removal, and the separate rights-transfer writer remain release blockers.",
+    "No hosted permission change, actual Storage/provider calls or bearer-URL revocation.",
+    "Canonical/ledger promotion, final ordered packaging, target preflight and fresh authorization remain required."
+  ],
+  "application_source_unchanged_since": "b5e1b7fe9555b115a88cf90df608b3aa7093dd9a",
+  "retained_application_proof": "docs/production-readiness/evidence/document-permissions-source-local-2026-11-15.json",
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false,
+  "duplicate_pr_run": {
+    "run_id": 43763548390,
+    "conclusion": "success"
+  }
+}

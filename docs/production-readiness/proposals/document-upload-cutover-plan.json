@@ -903,10 +903,10 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "b5e1b7fe9555b115a88cf90df608b3aa7093dd9a",
-    "evidence": "docs/production-readiness/evidence/document-permission-parent-local-2026-11-15.json",
+    "checked_against_source": "c7ed11829a896cae7d845c933ae65f9201acb0f7",
+    "evidence": "docs/production-readiness/evidence/document-permission-parent-verified-2026-11-15.json",
     "declared_entries_checked": 74,
-    "corrected_entries": 1,
+    "corrected_entries": 0,
     "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
@@ -1373,8 +1373,9 @@
     "ready_for_cutover": false
   },
   "document_permission_parent_binding": {
-    "evidence": "docs/production-readiness/evidence/document-permission-parent-local-2026-11-15.json",
-    "status": "review-only draft; 32 local database cases pass; native and full-schema verification pending",
+    "evidence": "docs/production-readiness/evidence/document-permission-parent-verified-2026-11-15.json",
+    "status": "32 local and41 native cases plus current full225+41+two-separate-draft schema proof verified; source/disposable scope only",
+    "verified_source_commit": "c7ed11829a896cae7d845c933ae65f9201acb0f7",
     "separate_review_draft": true,
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
