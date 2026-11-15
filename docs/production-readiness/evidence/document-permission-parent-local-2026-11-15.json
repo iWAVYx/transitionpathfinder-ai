@@ -11,7 +11,7 @@
     },
     {
       "path": "tests/database/document-permission-parent.test.mjs",
-      "sha256": "3b55da87b0c5f743e6ab877e55e02a834418bf3ebfa57314d920cb37ddc5a8c5"
+      "sha256": "d2c028d8530acda4cc012202a2210e397db92145ef7ef62b89bd04a251824d39"
     },
     {
       "path": "tests/database/run-document-permission-parent-schema.mjs",
@@ -53,5 +53,16 @@
   "release_authorization_granted": false,
   "hosted_actions": false,
   "production_access": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "initial_native_attempt": {
+    "run_id": 43763373802,
+    "source_commit": "38e2b8668fdd86293f9cf92b36e1848dd1019019",
+    "passed": 40,
+    "failed": 1,
+    "skipped": 0,
+    "failed_case": "native prepared document read loses access through an old mismatched grant after installation",
+    "cause": "Test installation connection retained SET ROLE authenticated; reset to trusted disposable installer before DDL. SQL and cached-read assertions unchanged.",
+    "full_schema_job": "passed; final current-source proof remains pending",
+    "tap_sha256": "9ba51d804dd0083655be03bfd5a0a35c113e81f90dda4f3f627d3b33af22dabe"
+  }
 }
