@@ -37,5 +37,7 @@ export const nativeGrantCases = [
   "native read-during-retirement COMMIT",
   "native read-during-retirement ROLLBACK",
   "native cached metadata statement invalidates after retirement",
-  "native cached Storage statement invalidates after retirement"
+  "native cached Storage statement invalidates after retirement",
+  "native cached grant INSERT is refused for owner",
+  "native cached grant INSERT is refused for platform_admin"
 ];
