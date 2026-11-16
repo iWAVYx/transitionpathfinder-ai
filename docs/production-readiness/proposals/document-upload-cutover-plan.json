@@ -521,6 +521,90 @@
     {
       "path": "tests/unit/readiness-score-completeness.test.ts",
       "sha256": "e5b0a8a26cd98739cee5765b2010c51620aca8e01c1263608e50ed7106fdae7d"
+    },
+    {
+      "path": "src/lib/student-voice-prompts.ts",
+      "sha256": "cbf13ebc44e994058afddaeca2fd3fa3649c223985b6858bd17c5b201a11c598"
+    },
+    {
+      "path": "src/lib/student-voice-contract.ts",
+      "sha256": "e6b99514717153af094e70264526ee2beb6181cd504ba2cf6807a377e0bae98a"
+    },
+    {
+      "path": "src/lib/student-voice.server.ts",
+      "sha256": "c118676bd89c8fe06c987a544ef2f48ae749ce84eec3f4f38de4b74d6de8cf72"
+    },
+    {
+      "path": "src/lib/student-voice.functions.ts",
+      "sha256": "4f2f75090892cb3c0da9a4933c8ad1ab4fb5c6e3ed01b42292c016c2eab2c434"
+    },
+    {
+      "path": "src/lib/bridgeforward.functions.ts",
+      "sha256": "576510b53e84426c98e96837741020469969e0d1fd88be13a1b9aa62b7a593f0"
+    },
+    {
+      "path": "src/hooks/use-student-voice-answers.ts",
+      "sha256": "bc95bce37a4a8cbc91af3f5406d67580740864b578eaaa025a151340ba3d962d"
+    },
+    {
+      "path": "src/hooks/use-report-student-voice.ts",
+      "sha256": "c6fe30ce1d066e789cebbc7adab1d8e6fda2fc371efb5bc9855934ad91dde4ad"
+    },
+    {
+      "path": "src/components/students/StudentVoiceWorkspace.tsx",
+      "sha256": "66a0b438dbea91829dbd0fb7cf754352063af48ac16cbbb65a2d221c146e0689"
+    },
+    {
+      "path": "src/components/students/StudentVoicePanel.tsx",
+      "sha256": "ad10b50973ef4910a35bddecbd6e0e64d3169e12d182b348981e874a7c551046"
+    },
+    {
+      "path": "src/components/pathway/ReportView.tsx",
+      "sha256": "0126b70dadec2804efbd931866b1b0774cb27914d404bf9edb354f4a0c504c75"
+    },
+    {
+      "path": "src/routes/_authenticated/student-voice.tsx",
+      "sha256": "e2ddbb43cc1d160d1c4b9dee5474f5f749d1ca7f71897599e464106eeda133af"
+    },
+    {
+      "path": "src/routes/_authenticated/bridgeforward.voice.tsx",
+      "sha256": "9ad0d2990ace9903b54e51c9a7d3e85dec55116defe72d4fbf3b80893ebeeae4"
+    },
+    {
+      "path": "src/routes/_authenticated/pathway.student.tsx",
+      "sha256": "7bb23c72ff6a31a96fb80f174ea57783f67852bda6f1a8530cb4f484ed34acc8"
+    },
+    {
+      "path": "tests/unit/student-voice-receipts.test.ts",
+      "sha256": "6f0557020a71d196ce3f2572d711fc70daa62a14128bbce9fb5d4aa8e85aedf8"
+    },
+    {
+      "path": "tests/unit/student-voice-workspace.test.tsx",
+      "sha256": "a4f2592ff5c57f4e73dd0baea566668913200e4c775bf09eaed566daf5d06a7b"
+    },
+    {
+      "path": "tests/unit/student-voice-panel-lifetime.test.tsx",
+      "sha256": "45c8cb008a86b780d87d91604a3adcb2e2e0448a923bd41af9b57868d9a4b140"
+    },
+    {
+      "path": "tests/unit/report-student-voice-context.test.tsx",
+      "sha256": "fb529deaca7eb79b21f7801c4331fa9fc2073f4590e1dd52afe24c17f0d5aea6"
+    },
+    {
+      "path": "tests/database/student-voice-consistency.test.mjs",
+      "sha256": "2e122c0d8ae0a8a907a98483031afa67d0069091be6113346e8d409afd432c03"
+    },
+    {
+      "path": "tests/database/run-student-voice-consistency-schema.mjs",
+      "sha256": "06f60142c94345b2844658d6d394d79a7964349a2c5b55092a3ab94a67d7a4c3"
+    },
+    {
+      "path": "docs/database-proposals/student-voice-consistency/guard-student-voice.review.sql",
+      "sha256": "72bdeec65e2cb14092553b816d6500069880fbd332e39ce5fbcad3bf01ea1d8c"
+    },
+    {
+      "path": "docs/database-proposals/student-voice-consistency/README.md",
+      "sha256": "db718067e661d33578f23f874f1cb2eff414b53742190aead95f4d3f609e766b"
     }
   ],
   "batch": {
@@ -1125,9 +1209,9 @@
     "date": "2026-11-16",
     "checked_against_source": "fa03028fa20a5255f3b112b116338c8246c0f3dc",
     "evidence": "docs/production-readiness/evidence/readiness-reviewed-sources-local-2026-11-16.json",
-    "declared_entries_checked": 129,
+    "declared_entries_checked": 150,
     "corrected_entries": 0,
-    "added_entries": 5,
+    "added_entries": 21,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -1694,5 +1778,15 @@
     "evidence": "docs/production-readiness/evidence/readiness-reviewed-sources-local-2026-11-16.json",
     "unit_tests": 6393,
     "focused_tests": 129
+  },
+  "student_voice_consistency_review": {
+    "status": "local-verified-native-full-schema-pending",
+    "review_sql": "docs/database-proposals/student-voice-consistency/guard-student-voice.review.sql",
+    "separate_review_drafts_total": 9,
+    "local_sql_cases": 34,
+    "focused_unit_tests": 90,
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
   }
 }

@@ -16,7 +16,7 @@ import { ReportV2InputsUsed } from "@/components/pathway/ReportV2Extras";
 import { ReportGoalDetails } from "@/components/documents/ReportGoalDetails";
 import { ReportReadinessRow, ReadinessBadge, READINESS_LABELS as READINESS_LABEL } from "@/components/documents/ReportReadinessRow";
 import { ReportProfileDetails } from "@/components/documents/ReportProfileDetails";
-import { useReportStudentVoice } from "@/hooks/use-report-student-voice";
+import { useReportStudentVoiceState } from "@/hooks/use-report-student-voice";
 import { StudentVoiceQuotes } from "@/components/documents/StudentVoiceQuotes";
 import { DocumentSectionTitle } from "@/components/documents/DocumentSectionTitle";
 import { ReportContents } from "@/components/documents/ReportContents";
@@ -74,7 +74,7 @@ import {
   getReportViewerPrefs,
   updateReportViewerPrefs,
 } from "@/lib/ui-prefs.functions";
-import { STUDENT_VOICE_PROMPTS } from "@/lib/student-voice-prompts";
+import { studentVoiceQuestion } from "@/lib/student-voice-prompts";
 import {
   EVT_BLOCKS_HYDRATE,
   EVT_DENSITY_SET,
@@ -252,7 +252,7 @@ function ReportViewReader({
 
   // Phase 6D — fetch the student's saved voice answers so the Student
   // audience tab can show "Your Voice in this plan" with their own words.
-  const voiceResponses = useReportStudentVoice(studentId, demo);
+  const {responses:voiceResponses,error:voiceError,refresh:refreshVoice}=useReportStudentVoiceState(studentId,demo);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -839,6 +839,7 @@ function ReportViewReader({
           student_voice: (
             <>
       {/* ============ Phase 6D — Your Voice in this plan (Student tab) ============ */}
+      {audience==="student"&&!demo&&user?.id&&voiceError&&<div role="status" className="print:hidden rounded-xl border p-4 text-sm">Saved Student Voice answers are unavailable. Refresh them before relying on this report. <Button size="sm" variant="outline" onClick={refreshVoice}>Refresh Student Voice</Button></div>}
       {audience === "student" && voiceResponses.length > 0 && (
         <Block
           id="sec-your-voice"
@@ -853,7 +854,7 @@ function ReportViewReader({
           >
             <StudentVoiceQuotes responses={voiceResponses.map(vr => ({
               id: vr.id,
-              prompt: STUDENT_VOICE_PROMPTS.find(p => p.key === vr.prompt_key)?.question ?? vr.prompt_key,
+              prompt: studentVoiceQuestion(vr.prompt_key),
               answer: vr.response_text,
             }))} />
           </PublicationPage>

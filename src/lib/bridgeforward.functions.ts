@@ -339,15 +339,7 @@ export const generateReadinessSnapshot = createServerFn({ method: "POST" })
 
 // -------- Middle-school Voice prompts (server-side helper) --------
 
-export const MIDDLE_SCHOOL_VOICE_PROMPTS = [
-  { key: "ms-strengths", question: "What are you good at — at school or outside school?" },
-  { key: "ms-enjoy", question: "What do you love doing in your free time?" },
-  { key: "ms-hard", question: "What feels hard right now? It's okay to be honest." },
-  { key: "ms-support", question: "What kind of help works best for you when something is tough?" },
-  { key: "ms-hs-hopes", question: "When you think about high school, what are you hoping for?" },
-  { key: "ms-hs-worries", question: "What are you a little worried about for high school?" },
-  { key: "voice-meeting", question: "What do you want your team to know at your next meeting?" },
-] as const;
+export { MIDDLE_SCHOOL_VOICE_PROMPTS } from "./student-voice-prompts";
 
 // -------- Program eligibility (drives nav + dashboard visibility) --------
 

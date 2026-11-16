@@ -98,7 +98,7 @@ function StudentPathwayPage() {
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/student-voice">Update My Student Voice</Link>
+                    <Link to="/student-voice" search={{student:studentId||undefined}}>Update My Student Voice</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -121,7 +121,7 @@ function StudentPathwayPage() {
                 Share your interests and priorities, then ask your team about creating your first report.
               </p>
               <Button asChild className="mt-4">
-                <Link to="/student-voice">Share My Student Voice</Link>
+                <Link to="/student-voice" search={{student:studentId||undefined}}>Share My Student Voice</Link>
               </Button>
             </div>
             <PathwayNextStepsCard role="student" hasReport={false} />
