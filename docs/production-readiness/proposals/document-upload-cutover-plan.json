@@ -377,6 +377,18 @@
     {
       "path": "tests/database/run-document-grant-lifecycle-schema.mjs",
       "sha256": "a34087d727b306bf285b8c7e8ced18b00fe3e0aae79493170dcf8cfc4a05060f"
+    },
+    {
+      "path": "src/lib/rights.functions.ts",
+      "sha256": "a375ab56b396f4fa66c2330e72f546679ac4b5468841f158c4a1cc3cab73b0ba"
+    },
+    {
+      "path": "src/components/students/RightsStatusCard.tsx",
+      "sha256": "1ef4c3acc7f612d6af5edc633dfdc7569320f3b1b6950da451f3323df5da2a3d"
+    },
+    {
+      "path": "tests/unit/rights-status-sharing-boundary.test.ts",
+      "sha256": "4f6f6c362f2eb4a83042dec455f2e7f837b1345ed73180f56c33a175197a8c75"
     }
   ],
   "batch": {
@@ -980,8 +992,8 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-verified-2026-11-16.json",
-    "declared_entries_checked": 93,
+    "evidence": "docs/production-readiness/evidence/rights-status-sharing-writer-retired-2026-11-16.json",
+    "declared_entries_checked": 96,
     "corrected_entries": 0,
     "added_entries": 0,
     "complete_release_manifest": false,
@@ -1483,6 +1495,14 @@
     "legacy_unbound_grants_retained_but_retired": true,
     "target_impact_review_required": true,
     "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "rights_status_sharing_writer_review": {
+    "status": "source-local-verified",
+    "evidence": "docs/production-readiness/evidence/rights-status-sharing-writer-retired-2026-11-16.json",
+    "hidden_document_grants_removed": true,
+    "sql_changed": false,
     "hosted_verified": false,
     "ready_for_cutover": false
   }

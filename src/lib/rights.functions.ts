@@ -142,42 +142,10 @@ export const setRightsStatus = createServerFn({ method: "POST" })
     }
 
 
-    // 3. If the student now controls their own records, auto-grant them
-    // view_document on their own IEP / transition-plan documents.
-    if (data.current_status === "rights_transferred_to_student") {
-      try {
-        const { data: studentRow } = await supabase
-          .from("students")
-          .select("student_user_id")
-          .eq("id", data.student_id)
-          .maybeSingle();
-        const studentUserId = (studentRow as { student_user_id: string | null } | null)?.student_user_id;
-        if (studentUserId) {
-          const { data: docs } = await supabase
-            .from("documents")
-            .select("id")
-            .eq("student_id", data.student_id)
-            .in("doc_type", ["iep", "current-iep", "previous-iep", "transition-plan"]);
-          for (const d of docs ?? []) {
-            await supabase
-              .from("document_permissions")
-              .upsert(
-                {
-                  document_id: d.id,
-                  student_id: data.student_id,
-                  user_id: studentUserId,
-                  permission_level: "view_document",
-                  granted_by: userId,
-                  notes: "Auto-granted on transfer of rights",
-                },
-                { onConflict: "document_id,user_id" },
-              );
-          }
-        }
-      } catch (e) {
-        console.warn("auto-grant on transfer of rights failed", e);
-      }
-    }
+    // Recording education-rights status does not grant document access.
+    // Account-linked students already use the shared student-access rules;
+    // additional sharing requires the explicit document-sharing workflow.
+    // Do not revive retired grants or replace an existing grant here.
 
     // 4. Best-effort audit log entry.
     try {

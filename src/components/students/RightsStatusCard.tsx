@@ -39,7 +39,7 @@ function statusTone(status: RightsStatus): {
       return {
         Icon: ShieldCheck,
         classes: "bg-emerald-50 text-emerald-900 border-emerald-200",
-        blurb: "Student controls sharing.",
+        blurb: "Student decision-making rights recorded.",
       };
     case "under_18_parent_rights_active":
       return {
@@ -174,7 +174,8 @@ export function RightsStatusCard({ studentId }: Props) {
               <DialogDescription>
                 Record who holds education decision-making rights for this student. This is a
                 planning note — it is not legal advice. Check district or official guidance for
-                anything you're unsure about.
+                anything you're unsure about. Saving this status does not change anyone's
+                access to documents. Review document sharing separately.
               </DialogDescription>
             </DialogHeader>
 
