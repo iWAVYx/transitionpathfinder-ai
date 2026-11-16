@@ -2,6 +2,8 @@
 
 ## Current Release Checklist — November 15
 
+**Current action —5.2/4.1:** the fifth separate document-grant lifecycle draft is prepared and passes27 local disposable cases. It permanently retires old grants after final recipient/creator access loss or document reassignment, preserving independent eligible access; re-addition requires a fresh grant. Native concurrency/full225+41+five-draft schema proof is pending. Installation intentionally retires all legacy unbound grant rows, so target impact review and fresh authorization remain required. Application/runtime source is unchanged. This preparation does not close5.2 or4.1.
+
 PR #211 remains a draft. These are eight work packages, not eight small fixes or a delivery estimate. The full TF01–TF26 roadmap and historical evidence below remain in scope. Report-length polish and Parent Pilot / Pathway Snapshot remain deferred.
 
 Progress updates identify the existing numbered workstream, the specific substep completed, and remaining checks. Prepared, locally verified, native verified, staging accepted and production accepted are distinct states; completing a substep does not close its workstream.

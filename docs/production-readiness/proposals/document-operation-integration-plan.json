@@ -340,6 +340,18 @@
     {
       "path": "tests/unit/family-document-upload-outcomes.test.tsx",
       "sha256": "e41072e619916c643dc39d8b9f8e438ad27e93b3c4f0bbc5b71c28f2a80d077d"
+    },
+    {
+      "path": "docs/database-proposals/document-grant-lifecycle/retire-document-grants.review.sql",
+      "sha256": "938585623613ed733b7a0591538cf07bbe29e91d74e25ae3c011d5f3dccf76cd"
+    },
+    {
+      "path": "tests/database/document-grant-lifecycle.test.mjs",
+      "sha256": "6c93163007f6f9397edcd769815a10afc13cba84448fd2fee818f600fc460407"
+    },
+    {
+      "path": "tests/database/run-document-grant-lifecycle-schema.mjs",
+      "sha256": "a34087d727b306bf285b8c7e8ced18b00fe3e0aae79493170dcf8cfc4a05060f"
     }
   ],
   "adapter_contract": {
@@ -1247,13 +1259,14 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json",
-    "declared_entries_checked": 84,
+    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-prepared-2026-11-15.json",
+    "declared_entries_checked": 87,
     "corrected_entries": 0,
     "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "prior_evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json"
   },
   "manual_review_save_preparation": {
     "evidence": "docs/production-readiness/evidence/document-manual-review-save-local-2026-11-12.json",

@@ -1,0 +1,17 @@
+# Document Grant Retirement — Separate Review Draft
+
+This is the fifth separate permission draft after the admin-grant, parent-binding, original-file and reviewed-summary drafts. It is not a canonical migration, has no ledger entry and is not approved for hosted installation.
+
+The draft permanently retires an individual document grant when its recipient loses all eligible student access, its creator loses all eligible editing access, either becomes partner-only, or the document moves to another student. Re-adding access does not reactivate retired grants. Another qualifying proof keeps a grant valid; independent team access remains independent of the grant.
+
+New grants hold one real creator editing proof and one real recipient access proof until commit, sharing the existing role-change locking protocol. Access mutations lock affected active grant rows before freshly checking eligibility. Positive additions participate too, so concurrent removal of two proofs cannot leave an unsupported grant active and re-addition after retirement cannot revive it. Access mutations require read-committed transactions. Conflicting transactions may fail and require a new explicit user action; the application must not blindly replay an uncertain grant action.
+
+Legacy rows have no trustworthy access-lifecycle history. Installation therefore retires **every existing unbound grant**, retains its row and requires a fresh acknowledged grant where appropriate. Before any hosted rollout, inspect actual legacy counts and dependencies under separate authorization, review that impact, and stop if it is not approved. This draft intentionally changes existing permission data; it is not a read-only installer.
+
+Retired rows are hidden from the existing active-grant list and protected from authenticated deletion or replacement. An active partial unique index allows a new UUID grant after re-addition without overwriting retired history. The current application uses explicit old-column reads, insert-only grants and exact active deletes; it needs no runtime change for this component. Manual removal of a currently active grant remains deletion, with its existing separate application audit receipt. Database owner/service authority is not treated as an untrusted adversary.
+
+The parent guard admits only a strictly attenuating retirement update for a mismatched historical parent; student, document, creator, recipient, permission and context fields remain unchanged. No unrelated public routine body, existing policy or table ACL should change. Four new routines are private; two trigger entry points use fixed-path definer mode, and their private helpers use invoker mode.
+
+The disposable test workflow requires no hosted credentials or human deployment review. Its targeted native suite observes actual lock blockers; its full-schema job retains all prior installer stages before installing this draft. Results must be recorded against the exact source revision before claiming native/full-schema verification.
+
+This does not revoke already-issued bearer URLs, close chat-history retention policy, enforce legacy family/private visibility, repair the rights-transfer writer, make the application's source-revision preflight/audit atomic, or certify other tool permissions. Those remain separate roadmap gates. Canonical packaging, final combined regression, hosted acceptance and production authorization remain open.
