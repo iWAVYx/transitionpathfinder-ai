@@ -130,3 +130,8 @@ it("interrupted recovery requires the current loaded viewer and upload gate befo
  await expect((recoverInterruptedDocumentUpload as any)({data})).rejects.toThrow("sign-in changed");expect(api.from).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
  api.gate.mockImplementation(()=>{throw Error("Uploads remain paused");});await expect((recoverInterruptedDocumentUpload as any)({data:{...data,expected_viewer_id:"99999999-9999-4999-8999-999999999999"}})).rejects.toThrow("Uploads remain paused");expect(api.from).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
 });
+
+it.each(["private", "family", "student"])("rejects cached %s registration before permission, storage or provider work", async visibility => {
+  await expect(register({ visibility })).rejects.toThrow();
+  expect(api.rpc).not.toHaveBeenCalled(); noProcessing();
+});

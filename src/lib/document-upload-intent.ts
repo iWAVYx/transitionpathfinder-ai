@@ -18,7 +18,7 @@ export const documentUploadDetailsSchema = z.object({
       "other",
     ])
     .default("current-iep"),
-  visibility: z.enum(["private", "team", "family", "student"]).default("team"),
+  visibility: z.literal("team", { error: "New uploads use student-team access. Refresh the upload form before continuing." }).default("team"),
   school_year: z.string().trim().max(20).optional(),
   meeting_date: z
     .string()

@@ -70,7 +70,6 @@ it.each([
   { content_hash: "b".repeat(64) },
   { mime_type: "application/pdf" },
   { size_bytes: 20 },
-  { visibility: "private" },
   { consent_acknowledged: false },
   { notes: "Changed notes" },
   { meeting_date: "2026-10-28" },
@@ -191,4 +190,10 @@ it("browser confirmation rejects a plausible receipt for a different attempt", (
       doc,
     ),
   ).toThrow();
+});
+
+it.each(["private", "family", "student"])("rejects unsupported %s upload scope before reservation or recovery IO", async visibility => {
+  await expect(reserveDocumentUploadIntent({ rpc }, actor, { ...input, visibility })).rejects.toThrow();
+  await expect(documentUploadReviewHash(actor, { ...input, visibility })).rejects.toThrow();
+  expect(rpc).not.toHaveBeenCalled();
 });
