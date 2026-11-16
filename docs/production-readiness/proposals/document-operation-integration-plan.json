@@ -75,7 +75,7 @@
     },
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
-      "sha256": "5052c703ff3f95c1bd7e5e6fa63a4e69384f4aa0b4bea57d6e3fa54443c3c34e"
+      "sha256": "530af5d8b924cd2084441a3daafcbba908196502597718e7bbaf7fe9f2c91406"
     },
     {
       "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
@@ -336,6 +336,10 @@
     {
       "path": "tests/unit/student-goal-extraction-lifetime.test.tsx",
       "sha256": "5a67eff1c3410cd697fcdfbfa097b8b5bbb0bd509a3e42368041fafcda20f8a0"
+    },
+    {
+      "path": "tests/unit/family-document-upload-outcomes.test.tsx",
+      "sha256": "e41072e619916c643dc39d8b9f8e438ad27e93b3c4f0bbc5b71c28f2a80d077d"
     }
   ],
   "adapter_contract": {
@@ -1242,11 +1246,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "fa59be51",
+    "checked_against_source": "1bdc03757e4bb80b556657c7c9d7ab31c4acb956",
     "evidence": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.json",
-    "declared_entries_checked": 83,
-    "corrected_entries": 0,
-    "added_entries": 11,
+    "declared_entries_checked": 84,
+    "corrected_entries": 1,
+    "added_entries": 1,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1459,7 +1463,7 @@
   },
   "document_summary_scope_preparation": {
     "evidence": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.json",
-    "status": "49 local database cases and6209 unit tests pass; native63/current-schema verification pending",
+    "status": "49 local database and6210 final application tests pass; unchanged SQL passed63 native cases; final aligned-source proof pending",
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false

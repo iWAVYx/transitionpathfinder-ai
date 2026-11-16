@@ -2,7 +2,7 @@
   "schema": "transitionforward-document-summary-scope-local-v1",
   "date": "2026-11-15",
   "source_base": "fa59be51",
-  "status": "49 local database cases and6209 unit tests pass; native63/current-schema verification pending",
+  "status": "49 local database and6210 final application tests pass; unchanged SQL passed63 native cases; final aligned-source proof pending",
   "workstreams": [
     "5.2",
     "5.3"
@@ -55,6 +55,14 @@
     {
       "path": "tests/unit/student-goal-extraction-lifetime.test.tsx",
       "sha256": "5a67eff1c3410cd697fcdfbfa097b8b5bbb0bd509a3e42368041fafcda20f8a0"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "530af5d8b924cd2084441a3daafcbba908196502597718e7bbaf7fe9f2c91406"
+    },
+    {
+      "path": "tests/unit/family-document-upload-outcomes.test.tsx",
+      "sha256": "e41072e619916c643dc39d8b9f8e438ad27e93b3c4f0bbc5b71c28f2a80d077d"
     }
   ],
   "completed": [
@@ -63,7 +71,8 @@
     "Authenticated-only fixed-path stable definer returns only eight allowlisted accepted/edited section values from current in-review/complete records. It excludes raw text, originals, notes, private section keys, pending/rejected/malformed/oversize values and blocked/rejected/archived/deleted sources.",
     "Projection list returns at most50 recent eligible document identities/revisions/readiness flags with no section values. Read requires loaded actor/student/document/review revisions; changed versions return no row.",
     "Existing summary APIs use caller RPC only, never service fallback or raw table reads. Strict receipts and generic errors prevent private diagnostic leaks.",
-    "Shared card is account/student keyed, ignores departed replies, handles unavailable reads distinctly and refreshes explicitly. It is now connected to the existing read-only student Documents tab with team-friendly wording, not added below dashboard widgets."
+    "Shared card is account/student keyed, ignores departed replies, handles unavailable reads distinctly and refreshes explicitly. It is now connected to the existing read-only student Documents tab with team-friendly wording, not added below dashboard widgets.",
+    "Read-only banners/empty-file wording do not promise original downloads or infer no documents were uploaded. Access and download-link audit wording reflect their actual scope."
   ],
   "verification": {
     "local_database_cases": 49,
@@ -71,12 +80,12 @@
     "local_skipped": 0,
     "local_log": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.tap",
     "local_log_sha256": "2640a9d772f540f723aba4778b1b3d288288ba66debdf9391b87d3647e9b64ba",
-    "focused_app_tests": 91,
-    "unit_tests": 6209,
+    "focused_app_tests": 172,
+    "unit_tests": 6210,
     "unit_files": 379,
     "typescript": "passed",
     "isolated_environment_file_free_build": "passed",
-    "runtime_source_fingerprint": "0423409c22cecd5699534ff8c3e8e842a33d9639fc0b82f87e21491668a967c3",
+    "runtime_source_fingerprint": "34f980f9d5087b49badc728cbcb386b0e7912b21e3d1fb2806d088d2e67cbbf9",
     "runtime_source_file_count": 1229
   },
   "remaining": [
@@ -98,5 +107,12 @@
   "hosted_actions": false,
   "production_access": false,
   "release_authorization_granted": false,
-  "ready_for_cutover": false
+  "ready_for_cutover": false,
+  "prior_unchanged_sql_run": {
+    "run_id": 43785100239,
+    "source_commit": "1bdc03757e4bb80b556657c7c9d7ab31c4acb956",
+    "conclusion": "success",
+    "native_cases": 63,
+    "sql_changed_after_run": false
+  }
 }

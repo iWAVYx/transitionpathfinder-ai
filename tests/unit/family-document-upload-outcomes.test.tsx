@@ -261,3 +261,5 @@ it("describes the actual student-access scope instead of offering unenforced pri
   expect(api.reserve.mock.calls[0][0].data.visibility).toBe("team");
   expect(api.register.mock.calls[0][0].data.visibility).toBe("team");
 });
+
+it("describes read-only access without promising downloads or claiming no files were uploaded",()=>{render(<FamilyDocumentUpload viewerId="current-viewer" studentId={student} docs={[]} canEdit={false} onChange={api.refresh}/>);expect(screen.getByText("Available Original Files")).toBeTruthy();expect(screen.getByText(/Original files are available only when your access includes them/)).toBeTruthy();expect(screen.getByText(/No original files are available here with your current access/)).toBeTruthy();expect(screen.queryByText(/Nothing uploaded yet/)).toBeNull();expect(api.upload).not.toHaveBeenCalled();});

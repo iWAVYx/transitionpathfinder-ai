@@ -409,9 +409,9 @@ function FamilyDocumentUploadSession({
         <div className="flex items-start gap-2.5 border-b bg-amber-50/60 px-5 py-3 text-xs leading-relaxed text-amber-900 dark:bg-amber-950/30 dark:text-amber-200 sm:px-6">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            <strong>View only.</strong> You can read and download {firstName}'s documents, but
-            you don't have edit access on this student. Ask the family or the case manager to
-            grant you <em>editor</em> access if you need to upload, replace, or delete files.
+            <strong>Read Only.</strong> Original files are available only when your access includes them.
+            Summary-only access is shown separately. Ask the student's team for editing access
+            if you need to upload or archive documents.
           </p>
         </div>
       )}
@@ -677,8 +677,8 @@ function FamilyDocumentUploadSession({
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
           Before anything is saved, TransitionForward redacts detected personal identifiers from a
           local text copy and shows the privacy-safe result for your approval. Files are stored
-          privately and only available to {firstName}'s team. We log every download to an audit
-          trail you can review. Only the text-only copy you approve is saved; the original file and
+          privately. Access depends on student-team permissions and document grants. Download-link
+          requests made in this app are logged for review. Only the text-only copy you approve is saved; the original file and
           its hidden metadata are not uploaded.
         </p>
       </div>
@@ -701,7 +701,7 @@ function FamilyDocumentUploadSession({
       <div className="border-t">
         <div className="flex items-center justify-between gap-3 px-5 py-3 sm:px-6">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Uploaded files
+            {canEdit ? "Uploaded Files" : "Available Original Files"}
           </h3>
           <span className="text-xs text-muted-foreground">
             {docs.length} file{docs.length === 1 ? "" : "s"}
@@ -709,9 +709,11 @@ function FamilyDocumentUploadSession({
         </div>
         {docs.length === 0 ? (
           <div className="px-5 pb-6 pt-1 text-center text-sm text-muted-foreground sm:px-6">
-            {PROTECTED_FILE_UPLOADS_ENABLED
-              ? "Nothing uploaded yet. Start with the most recent IEP if you have it."
-              : "Nothing is stored here yet. Uploads will return after private security scanning is verified."}
+            {!canEdit
+              ? "No original files are available here with your current access. You may still have a reviewed summary to read."
+              : PROTECTED_FILE_UPLOADS_ENABLED
+                ? "Nothing uploaded yet. Start with the most recent IEP if you have it."
+                : "Nothing is stored here yet. Uploads will return after private security scanning is verified."}
           </div>
         ) : (
           <ul className="divide-y border-t">

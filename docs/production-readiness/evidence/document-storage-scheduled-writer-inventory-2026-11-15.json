@@ -44,9 +44,9 @@
     },
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
-      "sha256": "5052c703ff3f95c1bd7e5e6fa63a4e69384f4aa0b4bea57d6e3fa54443c3c34e",
+      "sha256": "530af5d8b924cd2084441a3daafcbba908196502597718e7bbaf7fe9f2c91406",
       "classification": "caller-upload",
-      "finding": "One privacy-safe file upload uses the exact reserved path and upsert:false; uncertain upload/registration pauses and read-only reconciliation does not repeat the upload. Sharing source follow-up: account/document-bound grants/removals and truthful team-scope upload wording are prepared; Storage and database grant policies are unchanged. See document-permissions-source-local-2026-11-15.json for remaining direct-write/privacy blockers.",
+      "finding": "One privacy-safe file upload uses the exact reserved path and upsert:false; uncertain upload/registration pauses and read-only reconciliation does not repeat the upload. Sharing source follow-up: account/document-bound grants/removals and truthful team-scope upload wording are prepared; Storage and database grant policies are unchanged. See document-permissions-source-local-2026-11-15.json for remaining direct-write/privacy blockers. Reviewed-summary follow-up aligns read-only and audit wording with original-file versus summary access; no new Storage operation.",
       "remaining_boundary": "Actual Storage write/unknown-reply, access removal and service overwrite acceptance remain hosted gates."
     },
     {
