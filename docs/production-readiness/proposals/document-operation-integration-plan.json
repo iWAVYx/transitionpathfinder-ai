@@ -388,6 +388,10 @@
     {
       "path": "tests/unit/document-hub-account-lifetime.test.tsx",
       "sha256": "d8d61fcac8c04a738b48f9e965eee43a5ce852af5f805dc50848db7fcccf7f45"
+    },
+    {
+      "path": "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-16.json",
+      "sha256": "bd415311a9d12d2e899cf6701a1ffb1b4e8b1647bf748c0d757ac1ba984052ed"
     }
   ],
   "adapter_contract": {
@@ -1295,8 +1299,8 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/rights-status-sharing-writer-retired-2026-11-16.json",
-    "declared_entries_checked": 96,
+    "evidence": "docs/production-readiness/evidence/document-legacy-privacy-verified-2026-11-16.json",
+    "declared_entries_checked": 97,
     "corrected_entries": 0,
     "added_entries": 0,
     "complete_release_manifest": false,
@@ -1535,6 +1539,19 @@
     "evidence": "docs/production-readiness/evidence/rights-status-sharing-writer-retired-2026-11-16.json",
     "hidden_document_grants_removed": true,
     "sql_changed": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "document_legacy_privacy_review": {
+    "status": "source-disposable-verified-not-promoted",
+    "evidence": "docs/production-readiness/evidence/document-legacy-privacy-verified-2026-11-16.json",
+    "separate_permission_drafts": 6,
+    "local_cases": 82,
+    "native_cases": 94,
+    "unit_tests": 6226,
+    "existing_labels_and_rows_preserved": true,
+    "target_impact_preflight_required": true,
+    "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false
   }

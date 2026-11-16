@@ -3,7 +3,7 @@ import { resolve, relative, sep } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
-export const INVENTORY_PATH = "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-15.json";
+export const INVENTORY_PATH = "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-16.json";
 export const SCAN_ROOTS = ["src", "scripts", "supabase/functions", "supabase/migrations", ".github/workflows"];
 const signals = /student-documents|(?:\.|\?\.)\s*storage\b|storage\s*\/\s*v1\s*\/\s*object|cron\s*\.\s*(?:un)?schedule|ai-job-processor/i;
 const workflowSignals = /^\s*schedule:|supabase[^\n]*functions[^\n]*deploy|cron webhook|protected-file-uploads/im;

@@ -1,0 +1,267 @@
+{
+  "schema": "transitionforward-document-legacy-privacy-verified-v1",
+  "date": "2026-11-16",
+  "source_commit": "287700f6f8818b1ea60ed26d720e5ab0c52461de",
+  "run_id": 43871479178,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43871479178",
+  "duplicate_pr_run": {
+    "run_id": 43871492153,
+    "conclusion": "success"
+  },
+  "status": "combined legacy visibility and raw document deletion boundary verified in source/disposable scope",
+  "workstreams": [
+    "2.5",
+    "4.1",
+    "5.1",
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-legacy-privacy/restrict-legacy-document-visibility.review.sql",
+      "sha256": "523dfb4db8f475fa2e496ddad23be650591f23b27308f9b7d37fe53d1b7bba9a"
+    },
+    {
+      "path": "tests/database/document-legacy-privacy.test.mjs",
+      "sha256": "c2c0738c07c3222ca7b0d0ddcefee6cfb6dc79132c0aff6e299cab024d9fdeda"
+    },
+    {
+      "path": "tests/database/run-document-legacy-privacy-schema.mjs",
+      "sha256": "0740d096ad93f2d48bda987ee186f867dc421148b9d7f22832f562739ed868cb"
+    },
+    {
+      "path": ".github/workflows/document-legacy-privacy-review.yml",
+      "sha256": "2ee77a86f33a06d0ff8f0ea07ddf6b3208a17912282140a465ac0b6b62e57dd7"
+    }
+  ],
+  "application_source_manifest": [
+    {
+      "path": "src/lib/document-upload-intent.ts",
+      "sha256": "13c0a4018b08d80e785b954f9287211412d70557b682bade01ddebf4c1e0881c"
+    },
+    {
+      "path": "src/routes/_authenticated/documents.tsx",
+      "sha256": "356933012ba0c7d097c58935a05530b74f6cd73d1b7226b9e09e0cfa0b5235ac"
+    },
+    {
+      "path": "src/components/students/FamilyDocumentUpload.tsx",
+      "sha256": "b0cf6f624395520cca61159da5a6432b28a5818899b2d0a41399e265240d1099"
+    },
+    {
+      "path": "tests/unit/document-upload-reservation.test.ts",
+      "sha256": "14611cd5a3967731b0569e8429b8f6987db83f9fe6ec0f8f5dabb0010328cc1a"
+    },
+    {
+      "path": "tests/unit/document-registration-boundary.test.ts",
+      "sha256": "4dc5728bed3b0a7a7840f43388d2cdeb206119206010fb2a14291357907a676e"
+    },
+    {
+      "path": "tests/unit/document-hub-account-lifetime.test.tsx",
+      "sha256": "d8d61fcac8c04a738b48f9e965eee43a5ce852af5f805dc50848db7fcccf7f45"
+    },
+    {
+      "path": "scripts/document-storage-writer-inventory.mjs",
+      "sha256": "4386ccb930df5d43244a9a098ae01d970cf8fff30fe0e8645827c40848bda437"
+    }
+  ],
+  "local": {
+    "tests": 82,
+    "passed": 82,
+    "failed": 0,
+    "skipped": 0,
+    "raw_tap": "docs/production-readiness/evidence/document-legacy-privacy-local-2026-11-16.tap",
+    "raw_tap_sha256": "b28b3104b32c7a75435a0355a5262449545f56eca2edc788b2564cf48cf8e3af"
+  },
+  "native": {
+    "tests": 94,
+    "passed": 94,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "an editing account can clean its unregistered upload without exposing registered private files",
+      "another editor cannot modify hidden legacy document metadata",
+      "baseline reproduces broad-admin hard deletion despite no student access",
+      "baseline reproduces private-label original/raw/summary exposure to another editor",
+      "cached INSERT cannot create unsupported visibility family",
+      "cached INSERT cannot create unsupported visibility private",
+      "cached INSERT cannot create unsupported visibility student",
+      "document DELETE privilege is revoked independently of policies",
+      "family legacy label blocks unrelated-to-upload district document/storage/raw/summary access",
+      "family legacy label blocks unrelated-to-upload educator document/storage/raw/summary access",
+      "family legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access",
+      "family legacy label blocks unrelated-to-upload owner document/storage/raw/summary access",
+      "family legacy label blocks unrelated-to-upload school document/storage/raw/summary access",
+      "family legacy label blocks unrelated-to-upload student document/storage/raw/summary access",
+      "family legacy label preserves uploader current access without rewriting rows",
+      "fresh explicit sharing can authorize a legacy-labelled original without relabelling it",
+      "installation rollback restores earlier reader and delete behavior atomically",
+      "native cached Storage read respects newly installed legacy boundary",
+      "native cached admin DELETE loses both privilege and policy authority",
+      "native cached document_extractions read respects newly installed legacy boundary",
+      "native cached document_summaries read respects newly installed legacy boundary",
+      "native cached documents read respects newly installed legacy boundary",
+      "native cached projection read respects newly installed legacy boundary",
+      "native documents writer-first installation waits through COMMIT",
+      "native documents writer-first installation waits through ROLLBACK",
+      "native registration-first file deletion uses fresh post-lock state after COMMIT",
+      "native registration-first file deletion uses fresh post-lock state after ROLLBACK",
+      "native storage.objects writer-first installation waits through COMMIT",
+      "native storage.objects writer-first installation waits through ROLLBACK",
+      "null legacy label blocks unrelated-to-upload district document/storage/raw/summary access",
+      "null legacy label blocks unrelated-to-upload educator document/storage/raw/summary access",
+      "null legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access",
+      "null legacy label blocks unrelated-to-upload owner document/storage/raw/summary access",
+      "null legacy label blocks unrelated-to-upload school document/storage/raw/summary access",
+      "null legacy label blocks unrelated-to-upload student document/storage/raw/summary access",
+      "null legacy label preserves uploader current access without rewriting rows",
+      "old uploader identity does not survive loss of current student access",
+      "ordinary district cannot delete registered original bytes",
+      "ordinary district cannot hard-delete document rows even with a future permissive policy",
+      "ordinary educator cannot delete registered original bytes",
+      "ordinary educator cannot hard-delete document rows even with a future permissive policy",
+      "ordinary family cannot delete registered original bytes",
+      "ordinary family cannot hard-delete document rows even with a future permissive policy",
+      "ordinary owner cannot delete registered original bytes",
+      "ordinary owner cannot hard-delete document rows even with a future permissive policy",
+      "ordinary partner cannot delete registered original bytes",
+      "ordinary partner cannot hard-delete document rows even with a future permissive policy",
+      "ordinary school cannot delete registered original bytes",
+      "ordinary school cannot hard-delete document rows even with a future permissive policy",
+      "ordinary student cannot delete registered original bytes",
+      "ordinary student cannot hard-delete document rows even with a future permissive policy",
+      "ordinary uploader metadata updates remain supported",
+      "private legacy label blocks unrelated-to-upload district document/storage/raw/summary access",
+      "private legacy label blocks unrelated-to-upload educator document/storage/raw/summary access",
+      "private legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access",
+      "private legacy label blocks unrelated-to-upload owner document/storage/raw/summary access",
+      "private legacy label blocks unrelated-to-upload school document/storage/raw/summary access",
+      "private legacy label blocks unrelated-to-upload student document/storage/raw/summary access",
+      "private legacy label preserves uploader current access without rewriting rows",
+      "raw updates cannot rewrite document privacy identity student_id",
+      "raw updates cannot rewrite document privacy identity uploaded_by",
+      "raw updates cannot rewrite document privacy identity visibility",
+      "reader default argument expressions and arity are exactly preserved",
+      "repeated installation stops without partial changes",
+      "retirement and re-addition cannot revive a private-document grant",
+      "student legacy label blocks unrelated-to-upload district document/storage/raw/summary access",
+      "student legacy label blocks unrelated-to-upload educator document/storage/raw/summary access",
+      "student legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access",
+      "student legacy label blocks unrelated-to-upload owner document/storage/raw/summary access",
+      "student legacy label blocks unrelated-to-upload school document/storage/raw/summary access",
+      "student legacy label blocks unrelated-to-upload student document/storage/raw/summary access",
+      "student legacy label preserves uploader current access without rewriting rows",
+      "summary-only relationship cannot project a private upload",
+      "summary-only relationship retains team projection without gaining originals",
+      "team INSERT retains the ordinary caller route",
+      "team label does not create student access for outsider",
+      "team label does not create student access for owner",
+      "team label does not create student access for partner",
+      "team original/raw/summary access remains available to district",
+      "team original/raw/summary access remains available to educator",
+      "team original/raw/summary access remains available to family",
+      "team original/raw/summary access remains available to school",
+      "team original/raw/summary access remains available to student",
+      "trusted cleanup can remove registered rows without granting ordinary delete authority",
+      "unknown legacy label blocks unrelated-to-upload district document/storage/raw/summary access",
+      "unknown legacy label blocks unrelated-to-upload educator document/storage/raw/summary access",
+      "unknown legacy label blocks unrelated-to-upload outsider document/storage/raw/summary access",
+      "unknown legacy label blocks unrelated-to-upload owner document/storage/raw/summary access",
+      "unknown legacy label blocks unrelated-to-upload school document/storage/raw/summary access",
+      "unknown legacy label blocks unrelated-to-upload student document/storage/raw/summary access",
+      "unknown legacy label preserves uploader current access without rewriting rows",
+      "unregistered upload cleanup is not opened to an unrelated account",
+      "unrelated bucket delete policies are preserved",
+      "visibility helper stays private and cleanup helper refuses anonymous/unrelated probes"
+    ],
+    "observed_registration_delete_races": 2,
+    "observed_writer_installation_races": 4,
+    "cached_read_surfaces": 5,
+    "cached_admin_delete_cases": 1,
+    "raw_tap": "docs/production-readiness/evidence/document-legacy-privacy-native-2026-11-16.tap",
+    "raw_tap_sha256": "63bcf1af928cbdfa57108b25137c786c276cd8d929a6c3b4be5b6d647185dc94"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 6,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_scripts_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "proof": "docs/production-readiness/evidence/document-legacy-privacy-schema-2026-11-16.json",
+    "proof_sha256": "7ddd5aa54319a77736b5f8cfd6aa871906970d3016260aae910319e9147fc2b9",
+    "prior_lifecycle_proof_sha256": "2abc3033fec7ee6aae41c9463c46680bf6c1fc14014a1b422b40401ec41c18ca",
+    "new_routines": 4,
+    "new_restrictive_policies": 4,
+    "new_triggers": 2,
+    "document_client_delete_privilege_revoked": true,
+    "other_table_privileges_and_existing_policies_preserved": true,
+    "unrelated_routines_triggers_indexes_and_all_document_data_preserved": true,
+    "legacy_labels_and_rows_not_rewritten": true,
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "unit_tests": 6226,
+    "unit_files": 380,
+    "focused_upload_registration_and_hub_tests": 93,
+    "typescript": "passed",
+    "isolated_environment_file_free_staging_build": "passed",
+    "service_worker": "passed",
+    "isolated_copy_fingerprint_matches": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "4c9bcbf37bee0d003a456319026fb3f65cd6586ce65fede3cde8612bc1a94d8f",
+      "fileCount": 1229
+    },
+    "existing_readiness_navigation_contracts": 103,
+    "existing_release_security_contracts": 72,
+    "inventory_pointer_followup": "Application src files are unchanged from the6,226-test run. The later operational inventory-path update passes all103 readiness/navigation contracts and a fresh isolated build; its exact hash is recorded separately."
+  },
+  "correction_history": [
+    {
+      "source": "18a4d81970dac7b7baf242f93411e53a9e05a8cc",
+      "run_id": 43870058711,
+      "result": "Installation stopped on strict reader metadata comparison; no corrected installation accepted."
+    },
+    {
+      "source": "3bc0580bc8024e32dfe393f0454ae800d98d32d8",
+      "run_id": 43870395889,
+      "result": "Safe catalog-key diagnostics identified proargdefaults native parser locations; defaults now compared as expressions with all other metadata retained."
+    }
+  ],
+  "completed": [
+    "Legacy non-team labels are preserved and contained: current uploader or fresh eligible acknowledged individual grant, no broad implicit team disclosure.",
+    "Document original metadata, Storage reads, raw child rows and reviewed-summary projections share the visibility boundary.",
+    "Unsupported private/family/student upload intents are rejected before reservation/registration work and by restrictive ordinary INSERT policy.",
+    "Document privacy/ownership identity cannot be silently relabelled or reassigned through metadata UPDATE.",
+    "Ordinary hard deletion of document rows and registered student files is fenced independently of permissive policies; unregistered editor cleanup and unrelated buckets remain supported.",
+    "Native prepared paths, installer commit/rollback, source-registration/delete races and unchanged semantic reader defaults are verified.",
+    "Documents hub no longer hard-codes team sharing or promises commenting access for every document."
+  ],
+  "remaining": [
+    "Actual target label/unfinished-attempt impact preflight; any future audience change needs separate review. Existing containment does not require automatic relabelling.",
+    "Broader rights-status history/mirror/consent/audit consistency and other tool data scopes.",
+    "Parent/student cascade-delete and other trusted/private/service/scheduled/deployed writer review are separate.",
+    "Final canonical/ledger packaging, combined regression, authorized hosted/provider acceptance and production/merge controls."
+  ],
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false,
+  "storage_inventory_reconciliation": {
+    "path": "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-16.json",
+    "sha256": "bd415311a9d12d2e899cf6701a1ffb1b4e8b1647bf748c0d757ac1ba984052ed",
+    "candidate_count": 41,
+    "historical_inventory_preserved": "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-15.json",
+    "historical_inventory_sha256": "cb78ffbd71a6b826bad1003b3bc7c01f6fc0ce9d6792083736aab0f57528d87e",
+    "changed_sources": [
+      "src/components/students/FamilyDocumentUpload.tsx",
+      "scripts/document-storage-writer-inventory.mjs"
+    ],
+    "scope": "Upload comment and inventory pointer only; classifications, scan scope and hosted limitations retained.",
+    "historical_inventory_verified_unchanged_against_git": true
+  }
+}
