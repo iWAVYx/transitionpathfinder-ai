@@ -1,0 +1,113 @@
+name: Planning release package inventory
+on:
+  pull_request:
+    paths:
+      - "tests/database/*planning-review-package*"
+      - ".github/workflows/planning-release-package-review.yml"
+  push:
+    branches: ["codex/ppt-output-quality-print"]
+    paths:
+      - "tests/database/*planning-review-package*"
+      - ".github/workflows/planning-release-package-review.yml"
+permissions:
+  contents: read
+jobs:
+  full-schema-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+      DOCUMENT_GRANT_SCHEMA_SERVICE: "1"
+      PLANNING_PACKAGE_SCHEMA_SERVICE: "1"
+      PLANNING_PACKAGE_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require unchanged original SQL and regression baseline
+        run: node tests/database/verify-owner-apply-recovery-baseline.mjs /tmp/document-grant-original-baseline.json
+      - name: Install disposable catalog driver
+        run: npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+      - name: Execute every existing full schema install and catalog stage
+        run: node tests/database/run-planning-review-package-base.mjs /tmp/document-grant-full-chain
+      - name: Install and verify the separate parent-binding draft
+        env:
+          DOCUMENT_PARENT_SCHEMA_SERVICE: "1"
+          DOCUMENT_PARENT_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-permission-parent-schema.mjs /tmp/document-permission-parent-schema
+      - name: Install and verify the third original-file grant draft
+        env:
+          DOCUMENT_ORIGINAL_SCHEMA_SERVICE: "1"
+          DOCUMENT_ORIGINAL_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-original-access-schema.mjs /tmp/document-original-access-schema
+      - name: Install and verify the fourth summary-scope draft
+        env:
+          DOCUMENT_SUMMARY_SCOPE_SCHEMA_SERVICE: "1"
+          DOCUMENT_SUMMARY_SCOPE_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-summary-scope-schema.mjs /tmp/document-summary-scope-schema
+      - name: Install and verify the fifth lifecycle draft
+        env:
+          DOCUMENT_GRANT_LIFECYCLE_SCHEMA_SERVICE: "1"
+          DOCUMENT_GRANT_LIFECYCLE_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-grant-lifecycle-schema.mjs /tmp/document-grant-lifecycle-schema
+      - name: Install and verify the sixth legacy visibility and deletion boundary
+        env:
+          DOCUMENT_LEGACY_PRIVACY_SCHEMA_SERVICE: "1"
+          DOCUMENT_LEGACY_PRIVACY_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-legacy-privacy-schema.mjs /tmp/document-legacy-privacy-schema
+      - name: Install and verify the atomic rights review with real-schema smoke checks
+        env:
+          RIGHTS_REVIEW_SCHEMA_SERVICE: "1"
+          RIGHTS_REVIEW_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-rights-status-consistency-schema.mjs /tmp/rights-status-consistency-schema
+      - name: Install and verify shared roadmap and personal goal progress
+        env:
+          PROGRESS_REVIEW_SCHEMA_SERVICE: "1"
+          PROGRESS_REVIEW_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-progress-access-consistency-schema.mjs /tmp/progress-access-consistency-schema
+      - name: Install and verify Student Voice saved-answer consistency
+        env:
+          VOICE_REVIEW_SCHEMA_SERVICE: "1"
+          VOICE_REVIEW_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-student-voice-consistency-schema.mjs /tmp/student-voice-consistency-schema
+      - name: Capture final routine owners, modes, paths and effective grants
+        run: node tests/database/planning-review-package-catalog.mjs /tmp/planning-review-package
+      - name: Retain schema integration proof and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: planning-review-package-full-chain
+          path: |
+            /tmp/document-grant-full-chain
+            /tmp/document-permission-parent-schema
+            /tmp/document-original-access-schema
+            /tmp/document-summary-scope-schema
+            /tmp/document-grant-lifecycle-schema
+            /tmp/document-legacy-privacy-schema
+            /tmp/rights-status-consistency-schema
+            /tmp/progress-access-consistency-schema
+            /tmp/student-voice-consistency-schema
+            /tmp/planning-review-package
+            /tmp/document-grant-original-baseline.json
+          if-no-files-found: error

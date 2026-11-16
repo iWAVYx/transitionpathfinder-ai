@@ -580,6 +580,30 @@
     {
       "path": "docs/database-proposals/student-voice-consistency/README.md",
       "sha256": "5d4e192d0dfe66d2af3576ab3ebeb3f3c8e1df35c331b5e01b9a7e55654f00f5"
+    },
+    {
+      "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
+      "sha256": "5d932ebf82ed0fbbf5370c4217b2771172b0fc6c3522b7d4cf9d75db8df40c00"
+    },
+    {
+      "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
+      "sha256": "af9d98dcbef04d34e32ddd76f24e6267c55d15ad8a25be69228337896357f505"
+    },
+    {
+      "path": "tests/helpers/planning-endpoint-inventory.mjs",
+      "sha256": "954474d48ceccd6adf6737fae6530c30e7f4bd0b83a1a73d7ce6266a2ef467d3"
+    },
+    {
+      "path": "tests/planning-release-inventory.test.mjs",
+      "sha256": "259ffeef9836c26a473ea61e29d939cf7b0823d1802533a237c165e364aa5d6e"
+    },
+    {
+      "path": "tests/database/planning-review-package-catalog.mjs",
+      "sha256": "69c3151c461edff09990443760d806497946fe250d7cff0089af16be161b8ae9"
+    },
+    {
+      "path": "tests/database/run-planning-review-package-base.mjs",
+      "sha256": "73f35bd3d1feaa0b0fa6893a17857b0e42f7182df0cbe33899663ba56dec225c"
     }
   ],
   "adapter_contract": {
@@ -1488,9 +1512,9 @@
     "date": "2026-11-16",
     "checked_against_source": "8c566dd736f76404b2eabd29ab970bbd5e991523",
     "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json",
-    "declared_entries_checked": 144,
+    "declared_entries_checked": 150,
     "corrected_entries": 0,
-    "added_entries": 21,
+    "added_entries": 6,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -1803,5 +1827,19 @@
     "real_schema_authenticated_smoke_passed": true,
     "unit_tests": 6480,
     "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json"
+  },
+  "planning_access_and_package_inventory": {
+    "status": "endpoint-inventory-verified-package-catalog-pending",
+    "endpoint_inventory": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
+    "package_checklist": "docs/production-readiness/proposals/planning-release-package-checklist.md",
+    "endpoints": 52,
+    "modules": 12,
+    "scoped_verified_endpoints": 10,
+    "remaining_review_endpoints": 42,
+    "remaining_review_bundles": 4,
+    "whole_privacy_review_complete": false,
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
   }
 }
