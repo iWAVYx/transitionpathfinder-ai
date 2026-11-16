@@ -440,7 +440,7 @@
     },
     {
       "path": "tests/database/run-rights-status-consistency-schema.mjs",
-      "sha256": "081366a0c43ef65a5adae7d03304e3f1b0517544ec262bb9129014c84a7ddd5b"
+      "sha256": "8a4600affa0a249af9da518e2296f2a358ce8377853b4c1e5f0969a10041de4c"
     }
   ],
   "batch": {
