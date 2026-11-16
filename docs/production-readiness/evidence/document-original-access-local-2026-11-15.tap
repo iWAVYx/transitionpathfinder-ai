@@ -1,0 +1,274 @@
+TAP version 13
+# Subtest: baseline: view_summary alone exposes original metadata and Storage
+ok 1 - baseline: view_summary alone exposes original metadata and Storage
+  ---
+  duration_ms: 713.7595
+  type: 'test'
+  ...
+# Subtest: baseline: view_student_friendly_summary alone exposes original metadata and Storage
+ok 2 - baseline: view_student_friendly_summary alone exposes original metadata and Storage
+  ---
+  duration_ms: 457.094459
+  type: 'test'
+  ...
+# Subtest: baseline: a role grant exposes an original to an unrelated matching audience
+ok 3 - baseline: a role grant exposes an original to an unrelated matching audience
+  ---
+  duration_ms: 412.649333
+  type: 'test'
+  ...
+# Subtest: existing view_summary grant alone cannot read originals after correction
+ok 4 - existing view_summary grant alone cannot read originals after correction
+  ---
+  duration_ms: 393.466291
+  type: 'test'
+  ...
+# Subtest: existing view_student_friendly_summary grant alone cannot read originals after correction
+ok 5 - existing view_student_friendly_summary grant alone cannot read originals after correction
+  ---
+  duration_ms: 416.832416
+  type: 'test'
+  ...
+# Subtest: existing request_summary grant alone cannot read originals after correction
+ok 6 - existing request_summary grant alone cannot read originals after correction
+  ---
+  duration_ms: 389.522458
+  type: 'test'
+  ...
+# Subtest: existing none grant alone cannot read originals after correction
+ok 7 - existing none grant alone cannot read originals after correction
+  ---
+  duration_ms: 389.918917
+  type: 'test'
+  ...
+# Subtest: existing individual view_document preserves its original-file read capability
+ok 8 - existing individual view_document preserves its original-file read capability
+  ---
+  duration_ms: 397.036916
+  type: 'test'
+  ...
+# Subtest: existing individual download_document preserves its original-file read capability
+ok 9 - existing individual download_document preserves its original-file read capability
+  ---
+  duration_ms: 393.970375
+  type: 'test'
+  ...
+# Subtest: existing individual review_document preserves its original-file read capability
+ok 10 - existing individual review_document preserves its original-file read capability
+  ---
+  duration_ms: 386.30075
+  type: 'test'
+  ...
+# Subtest: existing individual edit_metadata preserves its original-file read capability
+ok 11 - existing individual edit_metadata preserves its original-file read capability
+  ---
+  duration_ms: 398.136708
+  type: 'test'
+  ...
+# Subtest: existing individual manage preserves its original-file read capability
+ok 12 - existing individual manage preserves its original-file read capability
+  ---
+  duration_ms: 381.705792
+  type: 'test'
+  ...
+# Subtest: existing parent audience grant cannot expose originals to unrelated accounts
+ok 13 - existing parent audience grant cannot expose originals to unrelated accounts
+  ---
+  duration_ms: 413.702125
+  type: 'test'
+  ...
+# Subtest: existing educator audience grant cannot expose originals to unrelated accounts
+ok 14 - existing educator audience grant cannot expose originals to unrelated accounts
+  ---
+  duration_ms: 393.826708
+  type: 'test'
+  ...
+# Subtest: existing school_admin audience grant cannot expose originals to unrelated accounts
+ok 15 - existing school_admin audience grant cannot expose originals to unrelated accounts
+  ---
+  duration_ms: 420.459333
+  type: 'test'
+  ...
+# Subtest: existing district_admin audience grant cannot expose originals to unrelated accounts
+ok 16 - existing district_admin audience grant cannot expose originals to unrelated accounts
+  ---
+  duration_ms: 393.117209
+  type: 'test'
+  ...
+# Subtest: a service-written summary grant is also inert for original-file access
+ok 17 - a service-written summary grant is also inert for original-file access
+  ---
+  duration_ms: 396.367792
+  type: 'test'
+  ...
+# Subtest: independent student-team access is preserved for family
+ok 18 - independent student-team access is preserved for family
+  ---
+  duration_ms: 406.044625
+  type: 'test'
+  ...
+# Subtest: independent student-team access is preserved for student
+ok 19 - independent student-team access is preserved for student
+  ---
+  duration_ms: 385.237042
+  type: 'test'
+  ...
+# Subtest: independent student-team access is preserved for educator
+ok 20 - independent student-team access is preserved for educator
+  ---
+  duration_ms: 381.890791
+  type: 'test'
+  ...
+# Subtest: independent student-team access is preserved for school
+ok 21 - independent student-team access is preserved for school
+  ---
+  duration_ms: 390.074666
+  type: 'test'
+  ...
+# Subtest: independent student-team access is preserved for district
+ok 22 - independent student-team access is preserved for district
+  ---
+  duration_ms: 383.347667
+  type: 'test'
+  ...
+# Subtest: independent approved relationship access is unchanged; baseline summary-role scope remains a separate gate
+ok 23 - independent approved relationship access is unchanged; baseline summary-role scope remains a separate gate
+  ---
+  duration_ms: 380.598917
+  type: 'test'
+  ...
+# Subtest: management role plus a legacy individual grant cannot bypass explicit student access
+ok 24 - management role plus a legacy individual grant cannot bypass explicit student access
+  ---
+  duration_ms: 388.406
+  type: 'test'
+  ...
+# Subtest: genuine assigned Owner access is preserved
+ok 25 - genuine assigned Owner access is preserved
+  ---
+  duration_ms: 397.35475
+  type: 'test'
+  ...
+# Subtest: partner-only accounts cannot read originals even with a legacy full grant and collaboration
+ok 26 - partner-only accounts cannot read originals even with a legacy full grant and collaboration
+  ---
+  duration_ms: 402.507
+  type: 'test'
+  ...
+# Subtest: cached authenticated view_summary INSERT is refused
+ok 27 - cached authenticated view_summary INSERT is refused
+  ---
+  duration_ms: 389.394083
+  type: 'test'
+  ...
+# Subtest: cached authenticated view_student_friendly_summary INSERT is refused
+ok 28 - cached authenticated view_student_friendly_summary INSERT is refused
+  ---
+  duration_ms: 386.947458
+  type: 'test'
+  ...
+# Subtest: cached authenticated edit_metadata INSERT is refused
+ok 29 - cached authenticated edit_metadata INSERT is refused
+  ---
+  duration_ms: 389.505416
+  type: 'test'
+  ...
+# Subtest: cached authenticated manage INSERT is refused
+ok 30 - cached authenticated manage INSERT is refused
+  ---
+  duration_ms: 387.16075
+  type: 'test'
+  ...
+# Subtest: cached authenticated role-wide INSERT is refused
+ok 31 - cached authenticated role-wide INSERT is refused
+  ---
+  duration_ms: 393.996333
+  type: 'test'
+  ...
+# Subtest: new full grant requires a recipient with current student access
+ok 32 - new full grant requires a recipient with current student access
+  ---
+  duration_ms: 382.400166
+  type: 'test'
+  ...
+# Subtest: new full grant also excludes partner-only recipients with an editing collaboration
+ok 33 - new full grant also excludes partner-only recipients with an editing collaboration
+  ---
+  duration_ms: 384.095167
+  type: 'test'
+  ...
+# Subtest: supported full-document INSERT and exact DELETE RETURNING remain available
+ok 34 - supported full-document INSERT and exact DELETE RETURNING remain available
+  ---
+  duration_ms: 387.014667
+  type: 'test'
+  ...
+# Subtest: cached UPDATE cannot promote an existing limited grant
+ok 35 - cached UPDATE cannot promote an existing limited grant
+  ---
+  duration_ms: 393.644625
+  type: 'test'
+  ...
+# Subtest: restoring UPDATE privilege and adding permissive policies cannot bypass the restrictive fences
+ok 36 - restoring UPDATE privilege and adding permissive policies cannot bypass the restrictive fences
+  ---
+  duration_ms: 393.164667
+  type: 'test'
+  ...
+# Subtest: other Storage buckets retain their independent policies
+ok 37 - other Storage buckets retain their independent policies
+  ---
+  duration_ms: 400.858292
+  type: 'test'
+  ...
+# Subtest: quarantine still prevents blocked bytes even for the uploader
+ok 38 - quarantine still prevents blocked bytes even for the uploader
+  ---
+  duration_ms: 404.099875
+  type: 'test'
+  ...
+# Subtest: legitimate editing pre-registration Storage reads are preserved
+ok 39 - legitimate editing pre-registration Storage reads are preserved
+  ---
+  duration_ms: 400.412917
+  type: 'test'
+  ...
+# Subtest: existing data and routine metadata are preserved while UPDATE alone is retired
+ok 40 - existing data and routine metadata are preserved while UPDATE alone is retired
+  ---
+  duration_ms: 390.05625
+  type: 'test'
+  ...
+# Subtest: rollback restores the prior predicate and permissions atomically
+ok 41 - rollback restores the prior predicate and permissions atomically
+  ---
+  duration_ms: 391.678042
+  type: 'test'
+  ...
+# Subtest: changed prerequisite and repeated installation stop before partial mutation
+ok 42 - changed prerequisite and repeated installation stop before partial mutation
+  ---
+  duration_ms: 387.674375
+  type: 'test'
+  ...
+# Subtest: disabled row security refuses installation before predicate changes
+ok 43 - disabled row security refuses installation before predicate changes
+  ---
+  duration_ms: 390.822917
+  type: 'test'
+  ...
+# Subtest: changed Storage prerequisite refuses installation before predicate changes
+ok 44 - changed Storage prerequisite refuses installation before predicate changes
+  ---
+  duration_ms: 389.016333
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17801.482125

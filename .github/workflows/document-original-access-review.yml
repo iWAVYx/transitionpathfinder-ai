@@ -1,0 +1,137 @@
+name: Document original-file grant review
+on:
+  pull_request:
+    paths:
+      - "docs/database-proposals/document-original-access/**"
+      - "tests/database/document-original-access*"
+      - "tests/database/run-document-original-access*"
+      - ".github/workflows/document-original-access-review.yml"
+  push:
+    branches: ["codex/ppt-output-quality-print"]
+    paths:
+      - "docs/database-proposals/document-original-access/**"
+      - "tests/database/document-original-access*"
+      - "tests/database/run-document-original-access*"
+      - ".github/workflows/document-original-access-review.yml"
+permissions:
+  contents: read
+jobs:
+  targeted-local-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned disposable WASM PostgreSQL
+        run: npm install --prefix "$RUNNER_TEMP/tf-original-pglite" --ignore-scripts --no-audit --no-fund @electric-sql/pglite@0.5.8
+      - name: Reproduce the old boundary and test the separate correction
+        run: |
+          export DOCUMENT_ORIGINAL_PGLITE_MODULE="$RUNNER_TEMP/tf-original-pglite/node_modules/@electric-sql/pglite/dist/index.js"
+          node --test tests/database/document-original-access.test.mjs
+
+  targeted-native-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: supabase_admin
+      DOCUMENT_ORIGINAL_DISPOSABLE_SERVICE: "1"
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned disposable native driver
+        run: npm install --prefix "$RUNNER_TEMP/tf-original-pg" --ignore-scripts --no-audit --no-fund pg@8.16.3
+      - name: Verify fresh-database native and observed lock cases
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/document-original-access-native
+          export DOCUMENT_ORIGINAL_POSTGRES=1
+          export DOCUMENT_ORIGINAL_PG_MODULE="$RUNNER_TEMP/tf-original-pg/node_modules/pg/lib/index.js"
+          node --test tests/database/document-original-access.test.mjs | tee /tmp/document-original-access-native/native.tap
+      - name: Retain native results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: document-original-access-native
+          path: /tmp/document-original-access-native
+          if-no-files-found: error
+
+  full-schema-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.020
+        env:
+          POSTGRES_USER: supabase_admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supabase_admin"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+      DOCUMENT_GRANT_SCHEMA_SERVICE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require unchanged original SQL and regression baseline
+        run: node tests/database/verify-owner-apply-recovery-baseline.mjs /tmp/document-grant-original-baseline.json
+      - name: Install disposable catalog driver
+        run: npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
+      - name: Execute every existing full schema install and catalog stage
+        run: node tests/database/run-document-grant-full-schema.mjs /tmp/document-grant-full-chain
+      - name: Install and verify the separate parent-binding draft
+        env:
+          DOCUMENT_PARENT_SCHEMA_SERVICE: "1"
+          DOCUMENT_PARENT_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-permission-parent-schema.mjs /tmp/document-permission-parent-schema
+      - name: Install and verify the third original-file grant draft
+        env:
+          DOCUMENT_ORIGINAL_SCHEMA_SERVICE: "1"
+          DOCUMENT_ORIGINAL_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
+        run: node tests/database/run-document-original-access-schema.mjs /tmp/document-original-access-schema
+      - name: Retain schema integration proof and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: document-original-access-full-chain
+          path: |
+            /tmp/document-grant-full-chain
+            /tmp/document-permission-parent-schema
+            /tmp/document-original-access-schema
+            /tmp/document-grant-original-baseline.json
+          if-no-files-found: error

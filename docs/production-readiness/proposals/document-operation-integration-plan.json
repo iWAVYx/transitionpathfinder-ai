@@ -263,7 +263,7 @@
     },
     {
       "path": "src/components/students/DocumentPermissionsDialog.tsx",
-      "sha256": "24043aaafa5c3cfbd3e6bbc9bb8c81ff6ef18ebf88dd2103cac979427f476df3"
+      "sha256": "9ca53355ba1c6f9a01c921cac05dfcaca5b5ddeca4775adce628d56f1307678d"
     },
     {
       "path": "docs/database-proposals/document-permission-parent/bind-document-permission-parent.review.sql",
@@ -276,6 +276,22 @@
     {
       "path": "tests/database/run-document-permission-parent-schema.mjs",
       "sha256": "6d0457a3996af9c4a162754d2d1438b77d713e240a98ca12407b44895e0855e1"
+    },
+    {
+      "path": "docs/database-proposals/document-original-access/restrict-original-file-grants.review.sql",
+      "sha256": "8ecdce7ae2eff1122281de91dc6a5e6be2a123998d4d86af51d8c46506fbe109"
+    },
+    {
+      "path": "tests/database/document-original-access.test.mjs",
+      "sha256": "f1ab4c0323d7602e2cec51132353c65b2ff05b88504265a7cff3f609d677aae3"
+    },
+    {
+      "path": "tests/database/run-document-original-access-schema.mjs",
+      "sha256": "c78a6173903b669cbde440c9b089487851dc98c40d9c43e4c4c12a9fed30b3ab"
+    },
+    {
+      "path": "tests/unit/document-permissions-lifetime.test.tsx",
+      "sha256": "414750ec35d8a3648017db61c604ff73b258c38d6084c3b45b33da61d2f5d05f"
     }
   ],
   "adapter_contract": {
@@ -1182,11 +1198,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "c7ed11829a896cae7d845c933ae65f9201acb0f7",
-    "evidence": "docs/production-readiness/evidence/document-permission-parent-verified-2026-11-15.json",
-    "declared_entries_checked": 68,
-    "corrected_entries": 0,
-    "added_entries": 0,
+    "checked_against_source": "bde73ced025f576097f97495507fe63142236b4b",
+    "evidence": "docs/production-readiness/evidence/document-original-access-local-2026-11-15.json",
+    "declared_entries_checked": 72,
+    "corrected_entries": 1,
+    "added_entries": 4,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1385,6 +1401,13 @@
     "status": "32 local and41 native cases plus current full225+41+two-separate-draft schema proof verified; source/disposable scope only",
     "verified_source_commit": "c7ed11829a896cae7d845c933ae65f9201acb0f7",
     "separate_review_draft": true,
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "document_original_access_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-original-access-local-2026-11-15.json",
+    "status": "44 local cases pass; native53 and full-schema proof pending",
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false
