@@ -380,15 +380,15 @@
     },
     {
       "path": "src/lib/rights.functions.ts",
-      "sha256": "a375ab56b396f4fa66c2330e72f546679ac4b5468841f158c4a1cc3cab73b0ba"
+      "sha256": "c5a17d183ab316098f546e2fc75d52ad4abc032e28dd754469564e34460f5f2d"
     },
     {
       "path": "src/components/students/RightsStatusCard.tsx",
-      "sha256": "1ef4c3acc7f612d6af5edc633dfdc7569320f3b1b6950da451f3323df5da2a3d"
+      "sha256": "09025927bbce877caecf54ec3c537009dca2f5adfdd0748c60c0cfb5f799229a"
     },
     {
       "path": "tests/unit/rights-status-sharing-boundary.test.ts",
-      "sha256": "4f6f6c362f2eb4a83042dec455f2e7f837b1345ed73180f56c33a175197a8c75"
+      "sha256": "5b67c0d263d224985549a092357bb6d2eda7593bfdbf8f84164d607c12ce4f18"
     },
     {
       "path": "docs/database-proposals/document-legacy-privacy/restrict-legacy-document-visibility.review.sql",
@@ -417,6 +417,30 @@
     {
       "path": "docs/production-readiness/evidence/document-storage-scheduled-writer-inventory-2026-11-16.json",
       "sha256": "bd415311a9d12d2e899cf6701a1ffb1b4e8b1647bf748c0d757ac1ba984052ed"
+    },
+    {
+      "path": "src/lib/rights-status-contract.ts",
+      "sha256": "65838e3455c8ba298dd0539ba5e49b4e4cd3da665b3ef517747d19116525e810"
+    },
+    {
+      "path": "src/lib/rights-status.server.ts",
+      "sha256": "68dd5c8328990db0e8db9de61a6acfd47a2e30399dcdc38d94d9054290bed964"
+    },
+    {
+      "path": "tests/unit/rights-status-lifetime.test.tsx",
+      "sha256": "2f33d9458cc34666db608e30ef820bf781051870d31e438c1bf631acb68921b4"
+    },
+    {
+      "path": "docs/database-proposals/rights-status-consistency/atomic-rights-review.review.sql",
+      "sha256": "4937ccb7464a01efdbcdc2144bf46a3119179e676a961de93a6f2e4dd89ebc53"
+    },
+    {
+      "path": "tests/database/rights-status-consistency.test.mjs",
+      "sha256": "df8c618a6bda831a37738cf6bda4747fe7aa3c78a22f85f1456c621e4542bf57"
+    },
+    {
+      "path": "tests/database/run-rights-status-consistency-schema.mjs",
+      "sha256": "081366a0c43ef65a5adae7d03304e3f1b0517544ec262bb9129014c84a7ddd5b"
     }
   ],
   "batch": {
@@ -1020,8 +1044,8 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/document-legacy-privacy-verified-2026-11-16.json",
-    "declared_entries_checked": 103,
+    "evidence": "docs/production-readiness/evidence/rights-status-consistency-prepared-2026-11-16.json",
+    "declared_entries_checked": 109,
     "corrected_entries": 0,
     "added_entries": 0,
     "complete_release_manifest": false,
