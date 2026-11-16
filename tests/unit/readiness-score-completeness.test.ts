@@ -1,0 +1,14 @@
+import {expect,it,vi} from "vitest";
+import {readReadinessScoreRows,READINESS_SOURCE_UNAVAILABLE} from "../../src/lib/readiness-sources.server";
+const id=(n:number)=>`00000000-0000-4000-8000-${String(n).padStart(12,"0")}`,student=id(2);
+const row=(n:number,extra:any={})=>({id:id(n+10),student_id:student,category:'Employment',score:60,recommendation:'Discuss together',...extra});
+function client(rows:unknown[],options:{failAt?:number;changedCount?:boolean;repeatPage?:boolean;missingCount?:boolean;stopEarly?:boolean}={}){
+ const q:any={};for(const method of ['select','eq','order'])q[method]=vi.fn(()=>q);
+ q.range=vi.fn(async(from:number,to:number)=>({data:options.stopEarly&&from>0?[]:rows.slice(options.repeatPage?0:from,options.repeatPage?to-from+1:to+1),count:options.missingCount?null:rows.length+(options.changedCount&&from>0?1:0),error:options.failAt===from?{message:'PRIVATE later page'}:null}));
+ return{from:vi.fn(()=>q),query:q};
+}
+it('loads all 1,205 scores with caller/student filters and exact page counts',async()=>{const c=client(Array.from({length:1205},(_,n)=>row(n)));const result=await readReadinessScoreRows(c,student);expect(result.data).toHaveLength(1205);expect(c.query.range.mock.calls).toEqual([[0,499],[500,999],[1000,1499]]);expect(c.from.mock.calls.every(([table])=>table==='readiness_scores')).toBe(true);expect(c.query.eq.mock.calls.every(([column,value])=>column==='student_id'&&value===student)).toBe(true);expect(c.query.order.mock.calls.every(([column])=>column==='id')).toBe(true);expect(c.query.select.mock.calls.every(([,options])=>options.count==='exact')).toBe(true);});
+it.each([{failAt:500},{changedCount:true},{repeatPage:true},{missingCount:true},{stopEarly:true}])('refuses a partial or inconsistent collection: %j',async options=>{const c=client(Array.from({length:1001},(_,n)=>row(n)),options);await expect(readReadinessScoreRows(c,student)).rejects.toThrow(READINESS_SOURCE_UNAVAILABLE);expect(c.query.range.mock.calls.length).toBeLessThanOrEqual(3);});
+it.each([{student_id:id(9)},{id:'invalid'},{category:null},{recommendation:{private:'detail'}}])('rejects foreign or malformed score rows: %j',async extra=>{await expect(readReadinessScoreRows(client([row(0,extra)]),student)).rejects.toThrow(READINESS_SOURCE_UNAVAILABLE);});
+it.each([null,-1,101,NaN,Infinity,'75'])('does not promote invalid numeric value %s to a recorded score',async score=>{const result=await readReadinessScoreRows(client([row(0,{score})]),student);expect(result.data[0].score).toBeNull();});
+it('retains later duplicates so downstream category checks can withhold an ambiguous rating',async()=>{const rows=Array.from({length:1001},(_,n)=>row(n,{category:n===0||n===1000?'Employment':'Daily Living'}));const result=await readReadinessScoreRows(client(rows),student);expect(result.data.filter(row=>row.category==='Employment')).toHaveLength(2);});

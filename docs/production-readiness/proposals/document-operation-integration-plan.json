@@ -476,6 +476,26 @@
     {
       "path": "docs/database-proposals/progress-access-consistency/README.md",
       "sha256": "609288446b6e4446c5ae8eb735285c34740161316b81f29a98fe3469d85552b8"
+    },
+    {
+      "path": "src/lib/readiness-insights.functions.ts",
+      "sha256": "706cb505f9b02b9bf39ce189a224e59bd1d5bfce3fa450ad08c7f7a3f3773365"
+    },
+    {
+      "path": "src/lib/readiness-sources.server.ts",
+      "sha256": "7533f2952de150cc40084f4b153bf9e2f2e449d318c341b6774115fc73215605"
+    },
+    {
+      "path": "tests/unit/readiness-insights-grounding.test.ts",
+      "sha256": "9f340e405695bd73bd92cdd454291413dc1b119d60437e60eb05a0cb9eaf01c2"
+    },
+    {
+      "path": "tests/unit/readiness-reviewed-sources.test.ts",
+      "sha256": "b9c59e3a3f83c5169d2e623e7339d10666cc6b6e6050974555a38c4afd9b3c0b"
+    },
+    {
+      "path": "tests/unit/readiness-score-completeness.test.ts",
+      "sha256": "e5b0a8a26cd98739cee5765b2010c51620aca8e01c1263608e50ed7106fdae7d"
     }
   ],
   "adapter_contract": {
@@ -1382,11 +1402,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-16",
-    "checked_against_source": "979a3e3c61e34c8108f3a9b1564881b5991bede5",
-    "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json",
-    "declared_entries_checked": 118,
+    "checked_against_source": "fa03028fa20a5255f3b112b116338c8246c0f3dc",
+    "evidence": "docs/production-readiness/evidence/readiness-reviewed-sources-local-2026-11-16.json",
+    "declared_entries_checked": 123,
     "corrected_entries": 0,
-    "added_entries": 15,
+    "added_entries": 5,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -1670,5 +1690,17 @@
     "competing_creation_update_races": 4,
     "real_schema_authenticated_smoke_passed": true,
     "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
+  },
+  "readiness_reviewed_source_component": {
+    "status": "source-local-verified-hosted-pending",
+    "reviewed_projection": "public.read_reviewed_student_document_summaries(uuid,uuid,uuid,timestamp with time zone,timestamp with time zone)",
+    "new_sql_or_migration": false,
+    "existing_prerequisite": "docs/database-proposals/document-summary-scope/separate-reviewed-summary-access.review.sql",
+    "transaction_held_provider_authority_claimed": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false,
+    "evidence": "docs/production-readiness/evidence/readiness-reviewed-sources-local-2026-11-16.json",
+    "unit_tests": 6393,
+    "focused_tests": 129
   }
 }

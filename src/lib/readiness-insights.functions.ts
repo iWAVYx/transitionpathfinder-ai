@@ -1,3 +1,4 @@
+import { assertReadinessStudentAccess, loadReadinessDocumentSources, readReadinessScoreRows } from "./readiness-sources.server";
 import { PLANNING_SOURCE_GROUNDING } from "./planning-source-grounding";
 import { assertExpectedViewer, viewerIntentSchema } from "./viewer-intent";
 import { buildStructuredOutputSystem } from "@/lib/structured-output-system";
@@ -68,7 +69,8 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     assertExpectedViewer(data, context.userId);
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertReadinessStudentAccess(supabase, userId, data.student_id);
 
     const sourceResults = await Promise.all([
       supabase
@@ -83,31 +85,16 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
         .select("category, title, status")
         .eq("student_id", data.student_id)
         .neq("status", "archived")
+        .order("updated_at", { ascending: false }).order("id")
         .limit(20),
-      supabase
-        .from("readiness_scores")
-        .select("category, score, recommendation")
-        .eq("student_id", data.student_id),
+      readReadinessScoreRows(supabase, data.student_id),
       supabase
         .from("student_voice_responses")
         .select("response_text")
         .eq("student_id", data.student_id)
         .order("created_at", { ascending: false })
+        .order("id")
         .limit(8),
-      supabase
-        .from("documents")
-        .select("id, title, doc_type, status, created_at")
-        .eq("student_id", data.student_id)
-        .is("deleted_at", null)
-        .order("created_at", { ascending: false })
-        .limit(10),
-      supabase
-        .from("document_extractions")
-        .select("doc_type, source_label, sections, missing_information, suggested_questions")
-        .eq("student_id", data.student_id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
       supabase
         .from("student_intakes")
         .select(
@@ -115,13 +102,15 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
         )
         .eq("student_id", data.student_id)
         .order("created_at", { ascending: false })
+        .order("id")
         .limit(1)
         .maybeSingle(),
+      loadReadinessDocumentSources(supabase, userId, data.student_id),
     ]).catch(() => {
       throw new Error("We couldn't load the planning information needed for these insights. Please try again.");
     });
-    if (sourceResults.some(result => result.error) ||
-        [1, 2, 3, 4].some(index => !Array.isArray(sourceResults[index].data))) {
+    if (sourceResults.slice(0, 5).some(result => "error" in result && result.error) ||
+        [1, 2, 3].some(index => !("data" in sourceResults[index]) || !Array.isArray(sourceResults[index].data))) {
       throw new Error("We couldn't load the planning information needed for these insights. Please try again.");
     }
     const [
@@ -129,9 +118,8 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
       { data: goals },
       { data: readiness },
       { data: voice },
-      { data: docs },
-      { data: extraction },
       { data: intake },
+      documentSources,
     ] = sourceResults;
 
     if (!student) throw new Error("Student not found or you don't have access.");
@@ -155,16 +143,16 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
       sources.push({ kind: "readiness", label: `${scoredReadiness.length} recorded readiness score${scoredReadiness.length === 1 ? "" : "s"}` });
     }
     if (goals && goals.length) {
-      sources.push({ kind: "goal", label: `${goals.length} active goals` });
+      sources.push({ kind: "goal", label: `${goals.length} recent active goal${goals.length === 1 ? "" : "s"}` });
     }
     if (voice && voice.length) {
       sources.push({ kind: "student_voice", label: `${voice.length} Student Voice responses` });
     }
-    if (extraction) {
-      sources.push({ kind: "iep_extraction", label: "Latest document summary" });
+    if (documentSources.reviewed) {
+      sources.push({ kind: "iep_extraction", label: "Reviewed document sections" });
     }
-    if (docs && docs.length) {
-      sources.push({ kind: "iep_doc", label: `${docs.length} documents on file` });
+    if (documentSources.documents.length) {
+      sources.push({ kind: "iep_doc", label: `${documentSources.documents.length} recent planning document${documentSources.documents.length === 1 ? "" : "s"}` });
     }
     if (intake) sources.push({ kind: "intake", label: "Pathway Builder responses" });
     if (intake?.family_priorities || student.family_priorities) {
@@ -202,21 +190,8 @@ export const generateReadinessInsights = createServerFn({ method: "POST" })
 
     const voiceSnapshot = (voice ?? []).map((v) => v.response_text).filter(Boolean);
 
-    const docsSnapshot = (docs ?? []).map((d) => ({
-      title: d.title,
-      type: d.doc_type,
-      status: d.status,
-    }));
-
-    const extractionSnapshot = extraction
-      ? {
-          doc_type: extraction.doc_type,
-          source_label: extraction.source_label,
-          sections: extraction.sections,
-          missing_information: extraction.missing_information,
-          suggested_questions: extraction.suggested_questions,
-        }
-      : null;
+    const docsSnapshot = documentSources.documents;
+    const extractionSnapshot = documentSources.reviewed;
 
     const prompt = `You are TransitionForward, a warm, plain-language guide for families and educators planning life after high school. Write at roughly a 7th-grade reading level. No jargon. No shame. Be specific to THIS student.
 
@@ -224,7 +199,7 @@ Generate a short readiness snapshot and friendly next-step callouts for ${studen
 
 For each pillar callout: use the exact recorded pillar name when a score is supplied. Copy that recorded score without rounding or changing it; set status to "strength" (>=80), "steady" (>=60 and <80), "growing" (>=40 and <60), or "needs_focus" (<40). If there is no valid recorded score for an area, use score null and status "not_assessed". Never infer an assessed level or numeric score from a goal, interest, profile label or document summary. Required callouts may explain an unsupplied assessment and propose a question; do not invent evidence to fill the array minimum. Keep "what_we_see" attributed to the available source; keep "why_it_matters" practical and brief.
 
-For each friendly next step: assign "who" (family / student / educator / team), assign "when" (this_week / this_month / before_next_meeting), and give 1-3 concrete steps a real person can do. Steps should be small and specific, with proposed roles and timing to confirm rather than claimed agreements or eligibility. Document titles and status below are metadata, not proof that their contents were reviewed. An extracted document summary is reported planning information, not independent verification.
+For each friendly next step: assign "who" (family / student / educator / team), assign "when" (this_week / this_month / before_next_meeting), and give 1-3 concrete steps a real person can do. Steps should be small and specific, with proposed roles and timing to confirm rather than claimed agreements or eligibility. Document titles and status below are metadata, not proof that their contents were reviewed. Only the supplied human-reviewed document sections may support document-based callouts. They are reported planning information, not independent verification. An unreviewed newer document must not be replaced by an older summary. Goals (up to 20), Student Voice responses (up to eight) and planning documents (up to ten) are recent samples, not complete histories; do not claim complete coverage.
 
 End with one short, sincere line of encouragement.
 
@@ -234,18 +209,22 @@ ${JSON.stringify(profileSnapshot)}
 READINESS PILLAR SCORES:
 ${JSON.stringify(readinessSnapshot)}
 
-ACTIVE GOALS:
+RECENT ACTIVE GOALS (up to 20):
 ${JSON.stringify(goalsSnapshot)}
 
 STUDENT VOICE (most recent responses):
 ${JSON.stringify(voiceSnapshot)}
 
-DOCUMENTS ON FILE:
+RECENT PLANNING DOCUMENT METADATA (up to ten; not complete file coverage):
 ${JSON.stringify(docsSnapshot)}
 
-LATEST DOCUMENT SUMMARY (not independent verification):
+REVIEWED SECTIONS FROM THE NEWEST PLANNING DOCUMENT (not independent verification):
 ${JSON.stringify(extractionSnapshot)}`;
 
+    // No provider request if current student access or the selected reviewed
+    // document projection changed while collecting the planning snapshot.
+    await assertReadinessStudentAccess(supabase, userId, data.student_id);
+    await documentSources.assertCurrent();
     try {
       const gateway = createLovableAiGatewayProvider(aiKey());
       const { experimental_output } = await generateText({
@@ -255,6 +234,10 @@ ${JSON.stringify(extractionSnapshot)}`;
         prompt,
       });
       const insights = InsightsSchema.parse(experimental_output);
+      // Do not return a departed student's result or silently reuse a retired,
+      // superseded or newly unreviewed document after generation completes.
+      await assertReadinessStudentAccess(supabase, userId, data.student_id);
+      await documentSources.assertCurrent();
       return {
         ...insights,
         pillar_callouts: insights.pillar_callouts.map(callout => {
