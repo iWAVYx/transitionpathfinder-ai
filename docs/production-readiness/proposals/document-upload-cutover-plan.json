@@ -1044,7 +1044,7 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/rights-status-consistency-prepared-2026-11-16.json",
+    "evidence": "docs/production-readiness/evidence/rights-status-consistency-verified-2026-11-16.json",
     "declared_entries_checked": 109,
     "corrected_entries": 0,
     "added_entries": 0,
@@ -1567,6 +1567,22 @@
     "unit_tests": 6226,
     "existing_labels_and_rows_preserved": true,
     "target_impact_preflight_required": true,
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "rights_status_consistency_review": {
+    "status": "source-disposable-verified-not-promoted",
+    "evidence": "docs/production-readiness/evidence/rights-status-consistency-verified-2026-11-16.json",
+    "separate_review_drafts_total": 7,
+    "local_cases": 54,
+    "native_cases": 89,
+    "cross_role_save_removal_races": 28,
+    "real_schema_authenticated_smoke_passed": true,
+    "unit_tests": 6275,
+    "existing_status_history_consent_and_audit_preserved": true,
+    "revision_metadata_only_added": true,
+    "automatic_consent_or_sharing_writes": false,
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false
