@@ -126,3 +126,5 @@ if(native){
 }
 
 test('baseline reproduces private-label original/raw/summary exposure to another editor',async()=>{await label('private');assert.deepEqual(await counts(actors.educator),{metadata:1,storage:1,extractions:1,summaries:1,projected:1});});
+
+test('reader default argument expressions and arity are exactly preserved',async()=>{const query="SELECT oid::text,pronargs,pronargdefaults,pg_get_expr(proargdefaults,0) AS defaults FROM pg_proc WHERE oid='public.read_reviewed_student_document_summaries(uuid,uuid,uuid,timestamptz,timestamptz)'::regprocedure";const before=(await db.query(query)).rows;await apply();assert.deepEqual((await db.query(query)).rows,before);});

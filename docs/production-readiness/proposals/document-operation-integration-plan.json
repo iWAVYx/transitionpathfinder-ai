@@ -367,15 +367,15 @@
     },
     {
       "path": "docs/database-proposals/document-legacy-privacy/restrict-legacy-document-visibility.review.sql",
-      "sha256": "d96e77e755a3487dfe5296ca85a9b046ae9f1c64ae7a791a4ce1ce5ddfdcfc14"
+      "sha256": "523dfb4db8f475fa2e496ddad23be650591f23b27308f9b7d37fe53d1b7bba9a"
     },
     {
       "path": "tests/database/document-legacy-privacy.test.mjs",
-      "sha256": "00843179ff4b4d7b71a53125309c61a78a87ba2290387f42f8c99bb1c7f99111"
+      "sha256": "57caafa57c60f6a9c0a16c4b7a56e14e3b2fedfdc1e8d3f82fa6f5e1a05ab782"
     },
     {
       "path": "tests/database/run-document-legacy-privacy-schema.mjs",
-      "sha256": "41cc5197d04136ba02addafd52cdd03158dbc1df71ef9e02838434b2cacc8be7"
+      "sha256": "0740d096ad93f2d48bda987ee186f867dc421148b9d7f22832f562739ed868cb"
     },
     {
       "path": "tests/unit/document-upload-reservation.test.ts",

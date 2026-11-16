@@ -50,7 +50,11 @@ BEGIN
   definition:=pg_get_functiondef(before_proc.oid);replacement:=replace(before_proc.prosrc,item.anchor,item.replacement);
   EXECUTE replace(definition,before_proc.prosrc,replacement);
   SELECT * INTO STRICT after_proc FROM pg_proc WHERE oid=before_proc.oid;
-  IF (to_jsonb(after_proc)-'prosrc') IS DISTINCT FROM (to_jsonb(before_proc)-'prosrc') OR after_proc.prosrc IS DISTINCT FROM replacement THEN
+  -- PostgreSQL15 stores source locations inside the defaults parse tree.
+  -- Compare the unchanged default expressions, not those parser offsets.
+  IF (to_jsonb(after_proc)-ARRAY['prosrc','proargdefaults']) IS DISTINCT FROM (to_jsonb(before_proc)-ARRAY['prosrc','proargdefaults'])
+   OR pg_get_expr(after_proc.proargdefaults,0) IS DISTINCT FROM pg_get_expr(before_proc.proargdefaults,0)
+   OR after_proc.prosrc IS DISTINCT FROM replacement THEN
    RAISE EXCEPTION 'Reader metadata changed outside reviewed body.' USING ERRCODE='55000', DETAIL=(SELECT string_agg(key,',' ORDER BY key) FROM jsonb_each(to_jsonb(after_proc)) j WHERE j.value IS DISTINCT FROM to_jsonb(before_proc)->j.key AND j.key<>'prosrc');END IF;
  END LOOP;
 END;$readers$;
