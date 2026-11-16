@@ -500,7 +500,7 @@
     },
     {
       "path": "docs/database-proposals/progress-access-consistency/README.md",
-      "sha256": "bf4e1226006701e106b42892b0320a7a477367b1a639d5561e099eb90a425ade"
+      "sha256": "609288446b6e4446c5ae8eb735285c34740161316b81f29a98fe3469d85552b8"
     }
   ],
   "batch": {
@@ -1103,8 +1103,8 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-16",
-    "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/rights-status-consistency-verified-2026-11-16.json",
+    "checked_against_source": "979a3e3c61e34c8108f3a9b1564881b5991bede5",
+    "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json",
     "declared_entries_checked": 124,
     "corrected_entries": 0,
     "added_entries": 15,
@@ -1648,7 +1648,7 @@
     "ready_for_cutover": false
   },
   "progress_access_consistency_review": {
-    "status": "local-verified-native-full-schema-pending",
+    "status": "source-disposable-verified-not-promoted",
     "separate_review_drafts_total": 8,
     "local_sql_cases": 48,
     "focused_unit_tests": 101,
@@ -1656,6 +1656,11 @@
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
-    "review_sql": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql"
+    "review_sql": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql",
+    "native_cases": 109,
+    "cross_role_save_removal_races": 56,
+    "competing_creation_update_races": 4,
+    "real_schema_authenticated_smoke_passed": true,
+    "evidence": "docs/production-readiness/evidence/progress-access-consistency-verified-2026-11-16.json"
   }
 }
