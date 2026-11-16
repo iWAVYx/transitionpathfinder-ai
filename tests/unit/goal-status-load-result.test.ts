@@ -6,7 +6,7 @@ vi.mock("@/integrations/supabase/auth-middleware",()=>({requireSupabaseAuth:{}})
 import { listGoalStatuses } from "@/lib/goal-statuses.functions";
 function input(rows: any[], options: {failAt?: number; missingCount?: boolean; changeCount?: boolean}={}) {
   const calls: any[]=[];
-  const supabase={from:vi.fn((table:string)=>{
+  const supabase={rpc:vi.fn().mockResolvedValue({data:true,error:null}),from:vi.fn((table:string)=>{
     const query:any={select:vi.fn(),eq:vi.fn(),order:vi.fn()};
     for(const method of ["select","eq","order"]) query[method].mockReturnValue(query);
     query.range=vi.fn(async(from:number,to:number)=>{

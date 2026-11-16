@@ -1,124 +1,57 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Loader2, MapPin } from "lucide-react";
 import { listProgress, upsertProgress, type ProgressRow } from "@/lib/progress.functions";
 import { Button } from "@/components/ui/button";
 
-const PATHWAY_ID = "transition-roadmap-v1";
-
-type Milestone = { title: string; description: string };
-type Phase = { id: string; label: string; milestones: Milestone[] };
-
-const PHASES: Phase[] = [
-  {
-    id: "discover",
-    label: "Discover (9th–10th grade)",
-    milestones: [
-      { title: "Complete a strengths & interests inventory", description: "Use a tool like the O*NET Interest Profiler with the student." },
-      { title: "Identify 2–3 possible career pathways", description: "Talk about what they love, then connect it to real roles." },
-      { title: "Build a circle of support", description: "List trusted adults at home, at school, and in the community." },
-    ],
-  },
-  {
-    id: "explore",
-    label: "Explore (10th–11th grade)",
-    milestones: [
-      { title: "Job shadow or informational interview", description: "Even an hour with someone in a related role builds confidence." },
-      { title: "Try a community-based experience", description: "Volunteering, club, or part-time job aligned to their interests." },
-      { title: "Practice self-advocacy in a PPT meeting", description: "Help the student lead one section of their own meeting." },
-    ],
-  },
-  {
-    id: "prepare",
-    label: "Prepare (11th–12th grade)",
-    milestones: [
-      { title: "Connect with Bureau of Rehabilitation Services (BRS)", description: "Open a case ahead of graduation to unlock adult supports." },
-      { title: "Tour post-secondary options", description: "Community college, CT technical school, supported employment, or a transition program." },
-      { title: "Draft a one-page transition portfolio", description: "Strengths, supports that work, goals, and contact info on a single page." },
-    ],
-  },
-  {
-    id: "launch",
-    label: "Launch (12th grade & beyond)",
-    milestones: [
-      { title: "Confirm transportation plan", description: "Bus pass, paratransit, ride share, or family driver — written down." },
-      { title: "Set up adult healthcare & benefits", description: "Insurance transition, doctors, and any benefits like SSI if eligible." },
-      { title: "First 90 days plan after graduation", description: "Daily schedule, who checks in, and what success looks like." },
-    ],
-  },
-];
-
-const FLAT = PHASES.flatMap((p, pi) =>
-  p.milestones.map((m, mi) => ({ phaseId: p.id, phaseLabel: p.label, ...m, step_index: pi * 100 + mi })),
-);
+import { useAuth } from "@/hooks/use-auth";
+import { PHASES, FLAT, PATHWAY_ID } from "@/lib/transition-roadmap";
 
 export function PathwayProgress({ studentId }: { studentId: string }) {
-  const fetchProgress = useServerFn(listProgress);
-  const save = useServerFn(upsertProgress);
-
+  const { user, loading } = useAuth(); if (loading || !user?.id) return null;
+  return <RoadmapSession key={`${user.id}:${studentId}`} studentId={studentId} viewerId={user.id} />;
+}
+function RoadmapSession({ studentId, viewerId }: { studentId: string; viewerId: string }) {
+  const fetchProgress = useServerFn(listProgress); const save = useServerFn(upsertProgress);
   const [rows, setRows] = useState<ProgressRow[] | null>(null);
   const [savingIdx, setSavingIdx] = useState<number | null>(null);
   const [drafts, setDrafts] = useState<Record<number, string>>({});
-
+  const [loading, setLoading] = useState(true); const [loadError, setLoadError] = useState(false);
+  const [canEdit, setCanEdit] = useState(false); const [needsRefresh, setNeedsRefresh] = useState(false);
+  const session = useRef({ alive: true, load: 0, saving: false });
   async function reload() {
-    const { progress } = await fetchProgress({
-      data: { student_id: studentId, pathway_id: PATHWAY_ID },
-    });
-    setRows(progress);
-    const d: Record<number, string> = {};
-    for (const r of progress) if (r.note) d[r.step_index] = r.note;
-    setDrafts(d);
+    const current = session.current, serial = ++current.load; setLoading(true); setLoadError(false);
+    try {
+      const result = await fetchProgress({ data: { student_id: studentId, pathway_id: PATHWAY_ID, expected_viewer_id: viewerId } });
+      if (!current.alive || serial !== current.load) return;
+      setRows(result.progress); setCanEdit(result.can_edit); setNeedsRefresh(false);
+      setDrafts(Object.fromEntries(result.progress.map(row => [row.step_index, row.note ?? ""])));
+    } catch { if (current.alive && serial === current.load) { setLoadError(true); setCanEdit(false); setNeedsRefresh(true); } }
+    finally { if (current.alive && serial === current.load) setLoading(false); }
   }
-
-  useEffect(() => {
-    reload().catch(() => setRows([]));
+  useEffect(() => { const current = session.current; current.alive = true; void reload();
+    return () => { current.alive = false; current.load++; };
+    // The keyed session fixes viewer/student identity for its lifetime.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId]);
-
-  const byStep = new Map((rows ?? []).map((r) => [r.step_index, r]));
-
-  async function toggle(step_index: number, completed: boolean) {
-    setSavingIdx(step_index);
+  }, []);
+  const byStep = new Map((rows ?? []).map(row => [row.step_index, row]));
+  async function persist(step_index: number, completed: boolean, announce: boolean) {
+    const current = session.current;
+    if (current.saving || loading || loadError || needsRefresh || !canEdit || rows === null) return;
+    current.saving = true; setSavingIdx(step_index); const existing = byStep.get(step_index);
     try {
-      await save({
-        data: {
-          student_id: studentId,
-          pathway_id: PATHWAY_ID,
-          step_index,
-          completed,
-          note: drafts[step_index] ?? null,
-        },
-      });
-      await reload();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save.");
-    } finally {
-      setSavingIdx(null);
-    }
+      const result = await save({ data: { student_id: studentId, pathway_id: PATHWAY_ID, expected_viewer_id: viewerId,
+        step_index, completed, note: drafts[step_index] ?? null, expected: existing ? { id: existing.id, updated_at: existing.updated_at } : null } });
+      if (!current.alive) return;
+      setRows(previous => [...(previous ?? []).filter(row => row.step_index !== step_index), result.row]);
+      setDrafts(previous => ({ ...previous, [step_index]: result.row.note ?? "" }));
+      if (announce) toast.success("Note saved.");
+    } catch { if (current.alive) { setNeedsRefresh(true); toast.error("We couldn't confirm this update. Refresh saved progress before another change."); } }
+    finally { if (current.alive) { current.saving = false; setSavingIdx(null); } }
   }
-
-  async function saveNote(step_index: number) {
-    const existing = byStep.get(step_index);
-    setSavingIdx(step_index);
-    try {
-      await save({
-        data: {
-          student_id: studentId,
-          pathway_id: PATHWAY_ID,
-          step_index,
-          completed: existing?.completed ?? false,
-          note: drafts[step_index] ?? null,
-        },
-      });
-      toast.success("Note saved.");
-      await reload();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save note.");
-    } finally {
-      setSavingIdx(null);
-    }
-  }
+  const ready = rows !== null && !loading && !loadError;
+  const disabled = savingIdx !== null || !canEdit || needsRefresh;
 
   const completed = FLAT.filter((m) => byStep.get(m.step_index)?.completed).length;
   const total = FLAT.length;
@@ -138,22 +71,27 @@ export function PathwayProgress({ studentId }: { studentId: string }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="font-display text-3xl">{pct}%</p>
+          <p className="font-display text-3xl">{ready ? `${pct}%` : "—"}</p>
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            {completed} of {total} complete
+            {ready ? `${completed} of ${total} complete` : "Saved progress unavailable"}
           </p>
         </div>
       </div>
 
       <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${ready ? pct : 0}%` }} />
       </div>
 
-      {rows === null && (
+      {loading && (
         <p className="mt-6 text-sm text-muted-foreground">Loading roadmap…</p>
       )}
 
-      {rows !== null && (
+      {(loadError || needsRefresh) && <div className="mt-4 text-sm" role="status">
+        Refresh saved progress to confirm your access and the latest changes.
+        <Button size="sm" variant="outline" className="ml-2" disabled={loading || savingIdx !== null} onClick={() => void reload()}>Refresh Saved Progress</Button>
+      </div>}
+      {ready && !canEdit && <p className="mt-4 text-sm text-muted-foreground">You can view this roadmap. Editing requires student-team permission.</p>}
+      {ready && (
         <div className="mt-6 space-y-6">
           {PHASES.map((phase, pi) => (
             <div key={phase.id}>
@@ -170,13 +108,14 @@ export function PathwayProgress({ studentId }: { studentId: string }) {
                       key={step_index}
                       className="rounded-xl border bg-background p-4 transition-colors hover:border-primary/40"
                     >
-                      <label className="flex items-start gap-3 cursor-pointer">
+                      <div className="flex items-start gap-3">
                         <input
                           type="checkbox"
+                          aria-label={m.title}
                           className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-primary"
                           checked={checked}
-                          disabled={savingIdx === step_index}
-                          onChange={(e) => toggle(step_index, e.target.checked)}
+                          disabled={disabled}
+                          onChange={(e) => void persist(step_index, e.target.checked, false)}
                         />
                         <div className="min-w-0 flex-1">
                           <p className={`text-sm font-medium ${checked ? "line-through text-muted-foreground" : ""}`}>
@@ -186,6 +125,10 @@ export function PathwayProgress({ studentId }: { studentId: string }) {
                           <textarea
                             placeholder="Add a note (who, when, what worked)…"
                             rows={2}
+                            maxLength={1000}
+                            readOnly={!canEdit}
+                            disabled={savingIdx !== null || needsRefresh}
+                            aria-label={`Note: ${m.title}`}
                             className="mt-3 w-full resize-y rounded-md border bg-card px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                             value={drafts[step_index] ?? ""}
                             onChange={(e) =>
@@ -201,8 +144,8 @@ export function PathwayProgress({ studentId }: { studentId: string }) {
                             <Button
                               size="sm"
                               variant="outline"
-                              disabled={savingIdx === step_index || (drafts[step_index] ?? "") === (row?.note ?? "")}
-                              onClick={() => saveNote(step_index)}
+                              disabled={disabled || (drafts[step_index] ?? "") === (row?.note ?? "")}
+                              onClick={() => void persist(step_index, row?.completed ?? false, true)}
                             >
                               {savingIdx === step_index ? (
                                 <>
@@ -214,7 +157,7 @@ export function PathwayProgress({ studentId }: { studentId: string }) {
                             </Button>
                           </div>
                         </div>
-                      </label>
+                      </div>
                     </li>
                   );
                 })}

@@ -416,6 +416,66 @@
     {
       "path": "tests/database/run-rights-status-consistency-schema.mjs",
       "sha256": "8a4600affa0a249af9da518e2296f2a358ce8377853b4c1e5f0969a10041de4c"
+    },
+    {
+      "path": "src/components/students/PathwayProgress.tsx",
+      "sha256": "b57e9da887af2bfc94faf9870751246006b57c12e7445d0e48ba47e0fe984beb"
+    },
+    {
+      "path": "src/lib/progress.functions.ts",
+      "sha256": "619e1ea6d8a251e127c108ee8330b275da438a802299b2e10e316457e22fa1f1"
+    },
+    {
+      "path": "src/lib/progress-contract.ts",
+      "sha256": "9c3538eafde000f071dbcdb1053528c9781510400fc9589c49f4ed30441d1bd6"
+    },
+    {
+      "path": "src/lib/progress.server.ts",
+      "sha256": "87a36515cde0b133b19b9e6c9f41ee7168a28e03f8fca1fd0745ce59766177aa"
+    },
+    {
+      "path": "src/lib/transition-roadmap.ts",
+      "sha256": "c69ceb9660bdde58034e3eacb29cc30fe7d4639106a4693e8c306d735789b6ef"
+    },
+    {
+      "path": "src/lib/goal-statuses.functions.ts",
+      "sha256": "484bc314202e6b6a5af09a23a6c8507ea9ebec80ae1c2988a9d4d23dfe106c56"
+    },
+    {
+      "path": "src/lib/goal-progress-read.server.ts",
+      "sha256": "b5d38ae8fe1d6d194444e4d13ceaa44bb0e8d14f6959a0930aaf607fde233b58"
+    },
+    {
+      "path": "tests/unit/goal-progress-viewer-intent.test.ts",
+      "sha256": "163c148336a7dc5cfb9192282d66eb00a78a92c06f87ba66d7199594165c03ae"
+    },
+    {
+      "path": "tests/unit/goal-status-load-result.test.ts",
+      "sha256": "8b3e3be2edfdd18c210721bb3b7d12c1edd1614936f9024773deadadcd18efe6"
+    },
+    {
+      "path": "tests/unit/progress-receipts.test.ts",
+      "sha256": "d11191efc7ab12d37b5537ca46fc91712794ff51fc03828ebe3d7708163f9663"
+    },
+    {
+      "path": "tests/unit/pathway-progress-lifetime.test.tsx",
+      "sha256": "2e498e6d68dd3296caf92838840109f58ab47316f0bf603d6d40b5277bbd9a53"
+    },
+    {
+      "path": "tests/database/progress-access-consistency.test.mjs",
+      "sha256": "f69d80dc951b18317657d5e081377c4a7264e137af6f923773b630af512f5c6e"
+    },
+    {
+      "path": "tests/database/run-progress-access-consistency-schema.mjs",
+      "sha256": "c4c14173e987c686a00f05b58fadada278e09dab34f257fb09aa8a954c01c2bd"
+    },
+    {
+      "path": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql",
+      "sha256": "330ebd618f9280b5d635c1d67d2883d424b1a1885183009e58ce6319e072b1bd"
+    },
+    {
+      "path": "docs/database-proposals/progress-access-consistency/README.md",
+      "sha256": "bf4e1226006701e106b42892b0320a7a477367b1a639d5561e099eb90a425ade"
     }
   ],
   "adapter_contract": {
@@ -1321,12 +1381,12 @@
     "verified_evidence": "docs/production-readiness/evidence/document-completion-marker-fence-verified-2026-11-13.json"
   },
   "source_manifest_reconciliation": {
-    "date": "2026-11-15",
+    "date": "2026-11-16",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
     "evidence": "docs/production-readiness/evidence/rights-status-consistency-verified-2026-11-16.json",
-    "declared_entries_checked": 103,
+    "declared_entries_checked": 118,
     "corrected_entries": 0,
-    "added_entries": 0,
+    "added_entries": 15,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false,
@@ -1594,5 +1654,16 @@
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false
+  },
+  "progress_access_consistency_review": {
+    "status": "local-verified-native-full-schema-pending",
+    "separate_review_drafts_total": 8,
+    "local_sql_cases": 48,
+    "focused_unit_tests": 101,
+    "all_unit_tests": 6343,
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false,
+    "review_sql": "docs/database-proposals/progress-access-consistency/guard-progress-access.review.sql"
   }
 }

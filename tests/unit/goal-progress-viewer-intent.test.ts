@@ -39,7 +39,7 @@ function client(
   };
   for (const method of ["select", "eq", "order", "upsert"]) query[method] = vi.fn(() => query);
   const from = vi.fn(() => query);
-  return { query, context: { userId, supabase: { from } } };
+  return { query, context: { userId, supabase: { from, rpc: vi.fn().mockResolvedValue({ data: true, error: null }) } } };
 }
 beforeEach(() => vi.clearAllMocks());
 describe("Goal Tracker negative viewer intent and caller scope", () => {
