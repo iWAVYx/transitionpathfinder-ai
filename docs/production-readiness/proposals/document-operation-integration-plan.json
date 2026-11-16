@@ -1198,11 +1198,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "bde73ced025f576097f97495507fe63142236b4b",
-    "evidence": "docs/production-readiness/evidence/document-original-access-local-2026-11-15.json",
+    "checked_against_source": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
+    "evidence": "docs/production-readiness/evidence/document-original-access-verified-2026-11-15.json",
     "declared_entries_checked": 72,
-    "corrected_entries": 1,
-    "added_entries": 4,
+    "corrected_entries": 0,
+    "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1406,8 +1406,9 @@
     "ready_for_cutover": false
   },
   "document_original_access_preparation": {
-    "evidence": "docs/production-readiness/evidence/document-original-access-local-2026-11-15.json",
-    "status": "44 local cases pass; native53 and full-schema proof pending",
+    "evidence": "docs/production-readiness/evidence/document-original-access-verified-2026-11-15.json",
+    "status": "grant-origin original-file component source/disposable verified:44 local/53 native and complete225+41+three-separate-draft schema proof",
+    "verified_source_commit": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false
