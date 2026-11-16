@@ -317,6 +317,50 @@
     {
       "path": "tests/unit/document-permissions-lifetime.test.tsx",
       "sha256": "414750ec35d8a3648017db61c604ff73b258c38d6084c3b45b33da61d2f5d05f"
+    },
+    {
+      "path": "docs/database-proposals/document-summary-scope/separate-reviewed-summary-access.review.sql",
+      "sha256": "2cfc905c944941420e2bdcdf540e6cfe7ab9fb21cfac6d545b4928369d589aad"
+    },
+    {
+      "path": "tests/database/document-summary-scope.test.mjs",
+      "sha256": "00618fe0c9e000265a994649c5d159e66b56b3034ab746cd2d4335a170688fd6"
+    },
+    {
+      "path": "tests/database/run-document-summary-scope-schema.mjs",
+      "sha256": "b4726e0b4f8d7b88d37f81ce7a85ab0b8cc9f9ce6155c397d843f05f8634d26c"
+    },
+    {
+      "path": "src/lib/student-summary-contract.ts",
+      "sha256": "4dd1803ca5a1896d821b5b41a7b1cd6e73ea32f5d3c5254b8f732f747bc27420"
+    },
+    {
+      "path": "src/lib/student-summary.server.ts",
+      "sha256": "584aad0019e2cf3ff54cce444ae04e42d56f64b7b2e890b582b44e3bc7ece07a"
+    },
+    {
+      "path": "src/lib/student-access.functions.ts",
+      "sha256": "8f9bbbe6babcfdf076feb99402a826136dda3490689969dbbd3d9c179e9bf072"
+    },
+    {
+      "path": "src/components/dashboard/MyIepSummaryCard.tsx",
+      "sha256": "f60bf47e869dbdbaa0a073274de9504437cedfbb97c583107ee04cd55725891a"
+    },
+    {
+      "path": "src/routes/_authenticated/students.$studentId.tsx",
+      "sha256": "257110860b163967cedf9615f7bab5f4cb1e728afda319e9e28216c60255f4fc"
+    },
+    {
+      "path": "tests/unit/student-summary-reader.test.ts",
+      "sha256": "ad44387bfbb17643726282d6504ab24fc342be05ffeb148ae8882acae4a3e920"
+    },
+    {
+      "path": "tests/unit/student-summary-lifetime.test.tsx",
+      "sha256": "7346250ee0053dcf06a78cadabab8497b03f767a5f8f1e34cd7ce6cbfc86a7e2"
+    },
+    {
+      "path": "tests/unit/student-goal-extraction-lifetime.test.tsx",
+      "sha256": "5a67eff1c3410cd697fcdfbfa097b8b5bbb0bd509a3e42368041fafcda20f8a0"
     }
   ],
   "batch": {
@@ -919,11 +963,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
-    "evidence": "docs/production-readiness/evidence/document-original-access-verified-2026-11-15.json",
-    "declared_entries_checked": 78,
+    "checked_against_source": "fa59be51",
+    "evidence": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.json",
+    "declared_entries_checked": 89,
     "corrected_entries": 0,
-    "added_entries": 0,
+    "added_entries": 11,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1401,6 +1445,13 @@
     "evidence": "docs/production-readiness/evidence/document-original-access-verified-2026-11-15.json",
     "status": "grant-origin original-file component source/disposable verified:44 local/53 native and complete225+41+three-separate-draft schema proof",
     "verified_source_commit": "1ef84739ff9be0d0b8ec6db292c1942a98287c46",
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "document_summary_scope_preparation": {
+    "evidence": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.json",
+    "status": "49 local database cases and6209 unit tests pass; native63/current-schema verification pending",
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false

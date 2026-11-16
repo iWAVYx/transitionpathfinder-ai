@@ -10,6 +10,7 @@ vi.mock("@/components/withRoleGuard", () => ({ withRoleGuard: (_roles: unknown, 
 vi.mock("@/components/site/SiteShell", () => ({ SiteShell: ({ children }: any) => <main>{children}</main> }));
 vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
 vi.mock("@/components/students/FamilyDocumentUpload", () => ({ FamilyDocumentUpload: ({ docs, renderRowActions }: any) => <div>{docs.map((doc: any) => <div key={doc.id}>{renderRowActions(doc)}</div>)}</div>, StandardDocActions: ({ doc, onExtract, onDelete, onDownload, parsing, extractionDisabled }: any) => <>{onDownload && <button onClick={() => onDownload(doc)}>Download {doc.id}</button>}{onExtract && <button disabled={!!parsing || extractionDisabled} onClick={() => onExtract(doc)}>Read {doc.id}</button>}{onDelete && <button onClick={() => onDelete(doc)}>Archive {doc.id}</button>}</> }));
+vi.mock("@/components/dashboard/MyIepSummaryCard", () => ({ MyIepSummaryCard: ({ studentId, audience }: any) => <div data-testid="reviewed-summary-reader" data-audience={audience}>Reviewed summary for {studentId}</div> }));
 vi.mock("@/components/students/StudentProfileSupport", () => ({ StudentProfileSupport: () => null }));
 vi.mock("@/components/students/StudentPathwayReportPanel", () => ({ StudentPathwayReportPanel: () => null }));
 vi.mock("@/components/students/StudentPlanningTools", () => ({ StudentPlanningTools: () => null }));
@@ -136,3 +137,6 @@ it.each(["student","viewer","signed-out"].flatMap(change=>["success","failure"].
 it("does not duplicate or automatically retry a pending/unknown download-link request",async()=>{
  const request=pending();api.sign.mockReturnValueOnce(request.promise);render(<Component />);const button=await screen.findByRole("button",{name:"Download doc-student-a"});await act(async()=>{fireEvent.click(button);fireEvent.click(button);});expect(api.sign).toHaveBeenCalledOnce();await act(async()=>request.reject(new Error("PRIVATE response")));expect(api.sign).toHaveBeenCalledOnce();expect(api.error).toHaveBeenCalledWith(expect.stringContaining("Refresh the document list"));
 });
+
+it("connects read-only document viewers to the reviewed-only summary reader",async()=>{api.canEdit.mockResolvedValue({canEdit:false});render(<Component/>);await screen.findByRole("heading",{name:"student-a"});expect(screen.getByTestId("reviewed-summary-reader").getAttribute("data-audience")).toBe("team");expect(screen.getByText("Reviewed summary for student-a")).toBeTruthy();expect(screen.queryByRole("button",{name:"Read doc-student-a"})).toBeNull();});
+it("keeps the additional summary reader out of the editor document workflow",async()=>{render(<Component/>);await screen.findByRole("button",{name:"Read doc-student-a"});expect(screen.queryByTestId("reviewed-summary-reader")).toBeNull();});

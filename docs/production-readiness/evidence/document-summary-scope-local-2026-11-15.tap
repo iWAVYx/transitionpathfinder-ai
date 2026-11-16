@@ -1,0 +1,304 @@
+TAP version 13
+# Subtest: baseline: approved summary relationship can read original files and raw extraction/summary rows
+ok 1 - baseline: approved summary relationship can read original files and raw extraction/summary rows
+  ---
+  duration_ms: 600.260375
+  type: 'test'
+  ...
+# Subtest: summary relationship receives reviewed projection without raw original access
+ok 2 - summary relationship receives reviewed projection without raw original access
+  ---
+  duration_ms: 428.647625
+  type: 'test'
+  ...
+# Subtest: summary list supplies identity/revisions/readiness but no section text
+ok 3 - summary list supplies identity/revisions/readiness but no section text
+  ---
+  duration_ms: 402.651792
+  type: 'test'
+  ...
+# Subtest: full original authority and safe projection are preserved for family
+ok 4 - full original authority and safe projection are preserved for family
+  ---
+  duration_ms: 406.902042
+  type: 'test'
+  ...
+# Subtest: full original authority and safe projection are preserved for student
+ok 5 - full original authority and safe projection are preserved for student
+  ---
+  duration_ms: 413.163333
+  type: 'test'
+  ...
+# Subtest: full original authority and safe projection are preserved for educator
+ok 6 - full original authority and safe projection are preserved for educator
+  ---
+  duration_ms: 417.574292
+  type: 'test'
+  ...
+# Subtest: full original authority and safe projection are preserved for school
+ok 7 - full original authority and safe projection are preserved for school
+  ---
+  duration_ms: 403.137375
+  type: 'test'
+  ...
+# Subtest: full original authority and safe projection are preserved for district
+ok 8 - full original authority and safe projection are preserved for district
+  ---
+  duration_ms: 403.347917
+  type: 'test'
+  ...
+# Subtest: approved summary-only family relationship is projected rather than raw
+ok 9 - approved summary-only family relationship is projected rather than raw
+  ---
+  duration_ms: 402.524792
+  type: 'test'
+  ...
+# Subtest: approved summary-only student relationship is projected rather than raw
+ok 10 - approved summary-only student relationship is projected rather than raw
+  ---
+  duration_ms: 398.058417
+  type: 'test'
+  ...
+# Subtest: approved summary-only educator relationship is projected rather than raw
+ok 11 - approved summary-only educator relationship is projected rather than raw
+  ---
+  duration_ms: 404.292625
+  type: 'test'
+  ...
+# Subtest: approved summary-only school relationship is projected rather than raw
+ok 12 - approved summary-only school relationship is projected rather than raw
+  ---
+  duration_ms: 398.401792
+  type: 'test'
+  ...
+# Subtest: approved summary-only district relationship is projected rather than raw
+ok 13 - approved summary-only district relationship is projected rather than raw
+  ---
+  duration_ms: 403.091584
+  type: 'test'
+  ...
+# Subtest: approved summary-only owner relationship is projected rather than raw
+ok 14 - approved summary-only owner relationship is projected rather than raw
+  ---
+  duration_ms: 405.071084
+  type: 'test'
+  ...
+# Subtest: approved collaborate retains full original authority
+ok 15 - approved collaborate retains full original authority
+  ---
+  duration_ms: 396.298416
+  type: 'test'
+  ...
+# Subtest: approved manage_documents retains full original authority
+ok 16 - approved manage_documents retains full original authority
+  ---
+  duration_ms: 395.712916
+  type: 'test'
+  ...
+# Subtest: approved manage_plan retains full original authority
+ok 17 - approved manage_plan retains full original authority
+  ---
+  duration_ms: 398.975917
+  type: 'test'
+  ...
+# Subtest: independent accepted viewer collaboration is not revoked by a summary relationship
+ok 18 - independent accepted viewer collaboration is not revoked by a summary relationship
+  ---
+  duration_ms: 391.581042
+  type: 'test'
+  ...
+# Subtest: explicit individual full-document grant can add original access to a summary relationship
+ok 19 - explicit individual full-document grant can add original access to a summary relationship
+  ---
+  duration_ms: 398.196209
+  type: 'test'
+  ...
+# Subtest: pending relationship cannot invoke the summary projection
+ok 20 - pending relationship cannot invoke the summary projection
+  ---
+  duration_ms: 394.165667
+  type: 'test'
+  ...
+# Subtest: revoked relationship cannot invoke the summary projection
+ok 21 - revoked relationship cannot invoke the summary projection
+  ---
+  duration_ms: 395.723541
+  type: 'test'
+  ...
+# Subtest: needs_review relationship cannot invoke the summary projection
+ok 22 - needs_review relationship cannot invoke the summary projection
+  ---
+  duration_ms: 394.64625
+  type: 'test'
+  ...
+# Subtest: unrelated accounts cannot call the projection
+ok 23 - unrelated accounts cannot call the projection
+  ---
+  duration_ms: 395.50875
+  type: 'test'
+  ...
+# Subtest: management role alone cannot call the projection
+ok 24 - management role alone cannot call the projection
+  ---
+  duration_ms: 407.736167
+  type: 'test'
+  ...
+# Subtest: partner-only accounts remain denied even with an approved summary relationship
+ok 25 - partner-only accounts remain denied even with an approved summary relationship
+  ---
+  duration_ms: 400.592583
+  type: 'test'
+  ...
+# Subtest: viewer mismatch is denied without a source-existence distinction
+ok 26 - viewer mismatch is denied without a source-existence distinction
+  ---
+  duration_ms: 410.348291
+  type: 'test'
+  ...
+# Subtest: anon cannot execute the definer projection
+ok 27 - anon cannot execute the definer projection
+  ---
+  duration_ms: 403.519083
+  type: 'test'
+  ...
+# Subtest: service_role cannot execute the definer projection
+ok 28 - service_role cannot execute the definer projection
+  ---
+  duration_ms: 396.973084
+  type: 'test'
+  ...
+# Subtest: stale document or review revisions return no summary
+ok 29 - stale document or review revisions return no summary
+  ---
+  duration_ms: 401.428375
+  type: 'test'
+  ...
+# Subtest: read without the document revision is refused
+ok 30 - read without the document revision is refused
+  ---
+  duration_ms: 402.182209
+  type: 'test'
+  ...
+# Subtest: pending extraction never exposes section values
+ok 31 - pending extraction never exposes section values
+  ---
+  duration_ms: 392.732291
+  type: 'test'
+  ...
+# Subtest: needs_review extraction never exposes section values
+ok 32 - needs_review extraction never exposes section values
+  ---
+  duration_ms: 398.786792
+  type: 'test'
+  ...
+# Subtest: rejected/pending/malformed/private section fields are never projected
+ok 33 - rejected/pending/malformed/private section fields are never projected
+  ---
+  duration_ms: 396.322792
+  type: 'test'
+  ...
+# Subtest: unavailable document archived_at is not listed or read
+ok 34 - unavailable document archived_at is not listed or read
+  ---
+  duration_ms: 399.582375
+  type: 'test'
+  ...
+# Subtest: unavailable document deleted_at is not listed or read
+ok 35 - unavailable document deleted_at is not listed or read
+  ---
+  duration_ms: 400.837291
+  type: 'test'
+  ...
+# Subtest: unavailable document scan_status is not listed or read
+ok 36 - unavailable document scan_status is not listed or read
+  ---
+  duration_ms: 405.550375
+  type: 'test'
+  ...
+# Subtest: unavailable document doc_type is not listed or read
+ok 37 - unavailable document doc_type is not listed or read
+  ---
+  duration_ms: 395.505
+  type: 'test'
+  ...
+# Subtest: unavailable document review_status is not listed or read
+ok 38 - unavailable document review_status is not listed or read
+  ---
+  duration_ms: 396.520209
+  type: 'test'
+  ...
+# Subtest: a mismatched child review cannot be projected or read through raw policies
+ok 39 - a mismatched child review cannot be projected or read through raw policies
+  ---
+  duration_ms: 406.174625
+  type: 'test'
+  ...
+# Subtest: the projection is fixed-path definer with authenticated-only execution
+ok 40 - the projection is fixed-path definer with authenticated-only execution
+  ---
+  duration_ms: 398.6925
+  type: 'test'
+  ...
+# Subtest: extra permissive raw policies cannot reopen summary-only rows
+ok 41 - extra permissive raw policies cannot reopen summary-only rows
+  ---
+  duration_ms: 399.095791
+  type: 'test'
+  ...
+# Subtest: repeated installation stops before partial changes
+ok 42 - repeated installation stops before partial changes
+  ---
+  duration_ms: 401.172084
+  type: 'test'
+  ...
+# Subtest: confirmed absence of a review returns an empty pending projection with a null review version
+ok 43 - confirmed absence of a review returns an empty pending projection with a null review version
+  ---
+  duration_ms: 396.410167
+  type: 'test'
+  ...
+# Subtest: list is bounded to50 recent documents and contains no section values
+ok 44 - list is bounded to50 recent documents and contains no section values
+  ---
+  duration_ms: 408.151959
+  type: 'test'
+  ...
+# Subtest: read-only installation preserves current data and original-view routine metadata
+ok 45 - read-only installation preserves current data and original-view routine metadata
+  ---
+  duration_ms: 404.328041
+  type: 'test'
+  ...
+# Subtest: rollback restores prior authority and removes the projection atomically
+ok 46 - rollback restores prior authority and removes the projection atomically
+  ---
+  duration_ms: 411.583625
+  type: 'test'
+  ...
+# Subtest: unreviewed prerequisite changes stop before new projection creation
+ok 47 - unreviewed prerequisite changes stop before new projection creation
+  ---
+  duration_ms: 395.194417
+  type: 'test'
+  ...
+# Subtest: raw child rows with the wrong student remain hidden even when the actor can access both students
+ok 48 - raw child rows with the wrong student remain hidden even when the actor can access both students
+  ---
+  duration_ms: 415.73625
+  type: 'test'
+  ...
+# Subtest: contradictory infected scan verdict prevents summary projection even with a clean status
+ok 49 - contradictory infected scan verdict prevents summary projection even with a clean status
+  ---
+  duration_ms: 409.245542
+  type: 'test'
+  ...
+1..49
+# tests 49
+# suites 0
+# pass 49
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19965.391917

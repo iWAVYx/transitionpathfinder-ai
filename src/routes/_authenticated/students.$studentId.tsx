@@ -1,3 +1,4 @@
+import { MyIepSummaryCard } from "@/components/dashboard/MyIepSummaryCard";
 import { useReviewedGoalSave } from "@/hooks/use-reviewed-goal-save";
 import { useAuth } from "@/hooks/use-auth";
 import { formatGradeBand } from "@/lib/grade-band-label";
@@ -387,6 +388,9 @@ function StudentDetailSession({ viewerId }: { viewerId: string }) {
           <TabsContent value="documents">
         {/* DOCUMENTS */}
         <div className="mt-10" data-testid="student-document-section">
+          {student?.id === studentId && canEdit === false && (
+            <div className="mb-4"><MyIepSummaryCard studentId={studentId} audience="team" /></div>
+          )}
           <FamilyDocumentUpload
             viewerId={viewerId}
             studentId={studentId}
