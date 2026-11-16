@@ -1246,11 +1246,11 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
-    "checked_against_source": "1bdc03757e4bb80b556657c7c9d7ab31c4acb956",
-    "evidence": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.json",
+    "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
+    "evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json",
     "declared_entries_checked": 84,
-    "corrected_entries": 1,
-    "added_entries": 1,
+    "corrected_entries": 0,
+    "added_entries": 0,
     "complete_release_manifest": false,
     "hosted_verified": false,
     "ready_for_cutover": false
@@ -1462,8 +1462,9 @@
     "ready_for_cutover": false
   },
   "document_summary_scope_preparation": {
-    "evidence": "docs/production-readiness/evidence/document-summary-scope-local-2026-11-15.json",
-    "status": "49 local database and6210 final application tests pass; unchanged SQL passed63 native cases; final aligned-source proof pending",
+    "evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json",
+    "status": "document summary-relationship/reader component source/disposable verified:49 local/63 native,6210 application tests and complete225+41+four-separate-draft schema proof",
+    "verified_source_commit": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false
