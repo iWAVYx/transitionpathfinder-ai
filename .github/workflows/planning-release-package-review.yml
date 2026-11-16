@@ -37,7 +37,6 @@ jobs:
       PGDATABASE: postgres
       DOCUMENT_GRANT_SCHEMA_SERVICE: "1"
       PLANNING_PACKAGE_SCHEMA_SERVICE: "1"
-      PLANNING_PACKAGE_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,6 +49,8 @@ jobs:
       - name: Install disposable catalog driver
         run: npm install --prefix "$RUNNER_TEMP/pathway-history-tests" --ignore-scripts --no-save --package-lock=false pg@8.16.3
       - name: Execute every existing full schema install and catalog stage
+        env:
+          PLANNING_PACKAGE_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
         run: node tests/database/run-planning-review-package-base.mjs /tmp/document-grant-full-chain
       - name: Install and verify the separate parent-binding draft
         env:
@@ -92,6 +93,8 @@ jobs:
           VOICE_REVIEW_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
         run: node tests/database/run-student-voice-consistency-schema.mjs /tmp/student-voice-consistency-schema
       - name: Capture final routine owners, modes, paths and effective grants
+        env:
+          PLANNING_PACKAGE_PG_MODULE: ${{ runner.temp }}/pathway-history-tests/node_modules/pg/lib/index.js
         run: node tests/database/planning-review-package-catalog.mjs /tmp/planning-review-package
       - name: Retain schema integration proof and diagnostics
         if: always()
