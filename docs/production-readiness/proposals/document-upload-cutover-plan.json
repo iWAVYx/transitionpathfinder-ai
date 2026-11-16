@@ -604,7 +604,7 @@
     },
     {
       "path": "docs/database-proposals/student-voice-consistency/README.md",
-      "sha256": "db718067e661d33578f23f874f1cb2eff414b53742190aead95f4d3f609e766b"
+      "sha256": "5d4e192d0dfe66d2af3576ab3ebeb3f3c8e1df35c331b5e01b9a7e55654f00f5"
     }
   ],
   "batch": {
@@ -1207,8 +1207,8 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-16",
-    "checked_against_source": "fa03028fa20a5255f3b112b116338c8246c0f3dc",
-    "evidence": "docs/production-readiness/evidence/readiness-reviewed-sources-local-2026-11-16.json",
+    "checked_against_source": "8c566dd736f76404b2eabd29ab970bbd5e991523",
+    "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json",
     "declared_entries_checked": 150,
     "corrected_entries": 0,
     "added_entries": 21,
@@ -1780,13 +1780,20 @@
     "focused_tests": 129
   },
   "student_voice_consistency_review": {
-    "status": "local-verified-native-full-schema-pending",
+    "status": "source-disposable-verified-not-promoted",
     "review_sql": "docs/database-proposals/student-voice-consistency/guard-student-voice.review.sql",
     "separate_review_drafts_total": 9,
     "local_sql_cases": 34,
     "focused_unit_tests": 90,
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "native_cases": 70,
+    "cross_role_save_removal_races": 28,
+    "competing_creation_update_races": 4,
+    "existing_editor_delete_removal_races": 2,
+    "real_schema_authenticated_smoke_passed": true,
+    "unit_tests": 6480,
+    "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json"
   }
 }
