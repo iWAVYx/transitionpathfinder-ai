@@ -587,7 +587,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "af9d98dcbef04d34e32ddd76f24e6267c55d15ad8a25be69228337896357f505"
+      "sha256": "6c534ebdb2d556ba0b10d47d604276b8d10cfefe0d881b4e5e98ec3ea939874d"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -1510,8 +1510,8 @@
   },
   "source_manifest_reconciliation": {
     "date": "2026-11-16",
-    "checked_against_source": "8c566dd736f76404b2eabd29ab970bbd5e991523",
-    "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json",
+    "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
+    "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
     "declared_entries_checked": 150,
     "corrected_entries": 0,
     "added_entries": 6,
@@ -1829,7 +1829,7 @@
     "evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json"
   },
   "planning_access_and_package_inventory": {
-    "status": "endpoint-inventory-verified-package-catalog-pending",
+    "status": "bounded-endpoint-and-native-catalog-inventory-verified",
     "endpoint_inventory": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
     "package_checklist": "docs/production-readiness/proposals/planning-release-package-checklist.md",
     "endpoints": 52,
@@ -1840,6 +1840,13 @@
     "whole_privacy_review_complete": false,
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
-    "ready_for_cutover": false
+    "ready_for_cutover": false,
+    "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
+    "new_routines": 24,
+    "changed_existing_routines": 3,
+    "unchanged_public_routines": 272,
+    "authenticated_only_new_rpcs": 9,
+    "private_new_helpers": 14,
+    "routine_approval_granted": false
   }
 }

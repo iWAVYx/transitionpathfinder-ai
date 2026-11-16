@@ -4,14 +4,54 @@ on:
     paths:
       - "tests/database/*planning-review-package*"
       - ".github/workflows/planning-release-package-review.yml"
+      - "src/lib/students.functions.ts"
+      - "src/lib/action-items.functions.ts"
+      - "src/lib/counselor-notes.functions.ts"
+      - "src/lib/bridgeforward.functions.ts"
+      - "src/lib/student-membership.functions.ts"
+      - "src/lib/audit.functions.ts"
+      - "src/lib/student-workflow/drafts.functions.ts"
+      - "src/lib/readiness-insights.functions.ts"
+      - "src/lib/student-voice.functions.ts"
+      - "src/lib/progress.functions.ts"
+      - "src/lib/goal-statuses.functions.ts"
+      - "src/lib/student-access.functions.ts"
+      - "tests/helpers/planning-endpoint-inventory.mjs"
+      - "tests/planning-release-inventory.test.mjs"
+      - "docs/production-readiness/proposals/student-planning-endpoint-inventory.json"
   push:
     branches: ["codex/ppt-output-quality-print"]
     paths:
       - "tests/database/*planning-review-package*"
       - ".github/workflows/planning-release-package-review.yml"
+      - "src/lib/students.functions.ts"
+      - "src/lib/action-items.functions.ts"
+      - "src/lib/counselor-notes.functions.ts"
+      - "src/lib/bridgeforward.functions.ts"
+      - "src/lib/student-membership.functions.ts"
+      - "src/lib/audit.functions.ts"
+      - "src/lib/student-workflow/drafts.functions.ts"
+      - "src/lib/readiness-insights.functions.ts"
+      - "src/lib/student-voice.functions.ts"
+      - "src/lib/progress.functions.ts"
+      - "src/lib/goal-statuses.functions.ts"
+      - "src/lib/student-access.functions.ts"
+      - "tests/helpers/planning-endpoint-inventory.mjs"
+      - "tests/planning-release-inventory.test.mjs"
+      - "docs/production-readiness/proposals/student-planning-endpoint-inventory.json"
 permissions:
   contents: read
 jobs:
+  source-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify bounded endpoint scope, target guards and unchanged stage scripts
+        run: node --test tests/planning-release-inventory.test.mjs
   full-schema-integration:
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -33,7 +33,7 @@ Paths above are relative to `docs/database-proposals/`. Their tested order and h
 
 - [x] Preserve the nine source/disposable-verified drafts and their tested order.
 - [x] Prepare a dedicated fake-credential disposable-only collector for owners, security modes, search paths, effective execution grants and body/definition hashes.
-- [ ] Verify and retain its fresh before/after catalog: 24 additions, three reviewed existing-helper changes, no removed or unrelated changed routines.
+- [x] Verify and retain its fresh before/after catalog: 24 additions, three reviewed existing-helper changes, no removed or unrelated changed routines. The fresh run preserves all 56 original stages, all nine draft hashes and 272 unchanged routines. [Verified package evidence](../evidence/planning-release-package-verified-2026-11-16.json); [proposed routine catalogue](../evidence/planning-release-package-catalog-2026-11-16.json).
 - [ ] Review the captured catalog and routine inventory for the final release. Capturing metadata does not grant routine approval.
 - [ ] Promote the final reviewed chain to canonical files and exact ledger records after prerequisites/installation-state review. Do not blindly rerun partially installed drafts.
 - [ ] Finish the current target legacy/consent/creator/prompt/retention and unfinished-work impact review under 4.2/5.4, with separately authorized target access.

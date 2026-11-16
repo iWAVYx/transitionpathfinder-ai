@@ -1,0 +1,151 @@
+{
+  "schema": "transitionforward-planning-release-package-verified-v1",
+  "date": "2026-11-16",
+  "source_commit": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
+  "run_id": 43979166770,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43979166770",
+  "status": "bounded planning endpoint review scope and proposed routine catalogue independently verified; not canonical promotion or routine approval",
+  "workstreams": [
+    "4.1",
+    "5.2",
+    "5.3"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
+      "sha256": "5d932ebf82ed0fbbf5370c4217b2771172b0fc6c3522b7d4cf9d75db8df40c00"
+    },
+    {
+      "path": "tests/helpers/planning-endpoint-inventory.mjs",
+      "sha256": "954474d48ceccd6adf6737fae6530c30e7f4bd0b83a1a73d7ce6266a2ef467d3"
+    },
+    {
+      "path": "tests/planning-release-inventory.test.mjs",
+      "sha256": "259ffeef9836c26a473ea61e29d939cf7b0823d1802533a237c165e364aa5d6e"
+    },
+    {
+      "path": "tests/database/planning-review-package-catalog.mjs",
+      "sha256": "69c3151c461edff09990443760d806497946fe250d7cff0089af16be161b8ae9"
+    },
+    {
+      "path": "tests/database/run-planning-review-package-base.mjs",
+      "sha256": "73f35bd3d1feaa0b0fa6893a17857b0e42f7182df0cbe33899663ba56dec225c"
+    },
+    {
+      "path": ".github/workflows/planning-release-package-review.yml",
+      "sha256": "1dd9408d11cc9dc3674772448e5986188cf8413ba53d3582266ffe9ef7e61dc2"
+    }
+  ],
+  "endpoint_inventory": {
+    "modules": 12,
+    "endpoints": 52,
+    "verified": 10,
+    "review_required": 42,
+    "whole_privacy_review_complete": false,
+    "ready_for_cutover": false
+  },
+  "remaining_planning_batches": [
+    {
+      "id": "P1",
+      "endpoints": 24,
+      "scope": "Student records/goals/actions/BridgeForward"
+    },
+    {
+      "id": "P2",
+      "endpoints": 6,
+      "scope": "Confidential notes/history"
+    },
+    {
+      "id": "P3",
+      "endpoints": 8,
+      "scope": "Membership/sharing"
+    },
+    {
+      "id": "P4",
+      "endpoints": 4,
+      "scope": "Personal workflow drafts"
+    }
+  ],
+  "schema_catalog": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 9,
+    "preserved_inherited_stages": 56,
+    "all_original_scripts_and_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "added_routines": 24,
+    "new_security_definers": 16,
+    "new_invokers": 8,
+    "changed_existing_routines": 3,
+    "unchanged_public_routines": 272,
+    "removed_routines": 0,
+    "authenticated_only_new_rpcs": 9,
+    "new_private_helpers": 14,
+    "actor_scoped_cleanup_predicates_with_anon_execute": 1,
+    "new_public_execute_grants": 0,
+    "new_service_execute_grants": 0,
+    "all_new_owners_postgres_and_paths_pg_catalog": true,
+    "routine_approval_granted": false,
+    "catalog": "docs/production-readiness/evidence/planning-release-package-catalog-2026-11-16.json",
+    "catalog_sha256": "1cd540129058e716eb56572755b95c4052785cda868db753f90d2140ba8cb8de",
+    "before_snapshot_artifact_sha256": "89d9ceb97e6b2d06617f9fd09ffbef3899ac0ef94a975f6e9d859857d74b8785",
+    "after_snapshot_artifact_sha256": "7a0a6aad270add06a87a7146f3b397c7f6c0cee4f4d157b188555eb61a801843",
+    "inherited_proof_artifact_sha256": "79858cca62e65e9800b00966940f5b44f73edc4e546448dec2a942752f6e10f4",
+    "nine_draft_proof_artifact_sha256": "081b18f66dde494393e987eaddaa50f0828a03bcfa47129f67d0281b2c87af5a",
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "verification": {
+    "new_inventory_target_catalog_and_preserved_stage_contracts": 9,
+    "readiness_navigation_including_new_contracts": 112,
+    "release_security_contracts": 72,
+    "runtime_source_unchanged": true,
+    "runtime_source": {
+      "schema": "transitionforward-runtime-source-v1",
+      "algorithm": "sha256",
+      "fingerprint": "4002bac7b9087d7efd93ea9b2ffe613d72c2d0a7ca1b796d3cefd1cf563fa8ac",
+      "fileCount": 1240
+    },
+    "prior_application_unit_tests": 6480,
+    "prior_application_evidence": "docs/production-readiness/evidence/student-voice-consistency-verified-2026-11-16.json",
+    "new_application_unit_type_or_build_rerun_claimed": false
+  },
+  "correction_history": [
+    {
+      "source": "e7dbae41898da672d5413986b458598cb1086ca1",
+      "run_id": 43978898275,
+      "result": "GitHub rejected a runner path used at job-env scope before any job ran; corrected step-level scope, with no SQL or runtime changes."
+    }
+  ],
+  "completed": [
+    "All52 literal server-function exports in the twelve named modules are classified and source-fingerprinted; additions/removals/drift require re-review. Ten retain scoped evidence and42 are grouped into four concrete review batches, not counted as42 confirmed bugs.",
+    "The fresh catalog is captured before the first separate draft and after all nine. All56 original installer/catalog scripts, nine-draft order and297 original SQL identities are independently checked.",
+    "Exactly24 new routines and three reviewed existing-helper changes are catalogued with owners/modes/paths/grants/body hashes; all272 unrelated routines are unchanged and no routine is removed.",
+    "Nine new RPCs are authenticated-only,14 helpers remain private, and the one actor-scoped cleanup predicate preserves its previously verified anon/auth boolean-only permission. No new PUBLIC/service execute grants are introduced.",
+    "Application/runtime source is unchanged from the prior verified Student Voice candidate. No canonical file/ledger entry, hosted action, provider/AI call or production change occurs."
+  ],
+  "remaining": [
+    "Review/resolve the four bounded planning-access batches and retain the separate document/report/PPT/rights/provider/organization/platform scope reviews.",
+    "Review/approve the proposed routine inventory; consolidate canonical/ledger package and current target installation/legacy/consent/retention impact under existing4.1/4.2/5.4 gates.",
+    "Freeze exact release identities, complete ordered cutover/rollback and final combined regression, obtain fresh coordinated staging authorization and perform hosted acceptance.",
+    "Specific main merge/production authorization and rollout verification remain separate."
+  ],
+  "whole_privacy_review_complete": false,
+  "whole_workstream_complete": false,
+  "routine_approval_granted": false,
+  "canonical_or_ledger_promoted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false,
+  "documentation_followup": {
+    "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
+    "sha256": "6c534ebdb2d556ba0b10d47d604276b8d10cfefe0d881b4e5e98ec3ea939874d",
+    "scope": "Completion status/links added after the native run; no executable source change."
+  },
+  "ci_followup": {
+    "path": ".github/workflows/planning-release-package-review.yml",
+    "sha256": "dfb241cc2d3da2a3fbad3016494c3383e468d2a68902e71508fe1ce458b6c83f",
+    "scope": "Added the nine inventory/target/catalogue/stage-preservation tests to CI and triggers for the twelve curated modules. The native full-schema job is byte-identical to the passed606a78e9 job.",
+    "native_schema_job_unchanged": true
+  }
+}
