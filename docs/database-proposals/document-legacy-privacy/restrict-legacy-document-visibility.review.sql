@@ -51,7 +51,7 @@ BEGIN
   EXECUTE replace(definition,before_proc.prosrc,replacement);
   SELECT * INTO STRICT after_proc FROM pg_proc WHERE oid=before_proc.oid;
   IF (to_jsonb(after_proc)-'prosrc') IS DISTINCT FROM (to_jsonb(before_proc)-'prosrc') OR after_proc.prosrc IS DISTINCT FROM replacement THEN
-   RAISE EXCEPTION 'Reader metadata changed outside reviewed body.' USING ERRCODE='55000';END IF;
+   RAISE EXCEPTION 'Reader metadata changed outside reviewed body.' USING ERRCODE='55000', DETAIL=(SELECT string_agg(key,',' ORDER BY key) FROM jsonb_each(to_jsonb(after_proc)) j WHERE j.value IS DISTINCT FROM to_jsonb(before_proc)->j.key AND j.key<>'prosrc');END IF;
  END LOOP;
 END;$readers$;
 -- New uploads already describe student-team access. Cached requests cannot

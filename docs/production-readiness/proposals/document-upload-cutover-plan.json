@@ -392,7 +392,7 @@
     },
     {
       "path": "docs/database-proposals/document-legacy-privacy/restrict-legacy-document-visibility.review.sql",
-      "sha256": "2b7160ce79fda20bd92193ea050d537d5beb9c68fab40046fcaea67f3200734c"
+      "sha256": "d96e77e755a3487dfe5296ca85a9b046ae9f1c64ae7a791a4ce1ce5ddfdcfc14"
     },
     {
       "path": "tests/database/document-legacy-privacy.test.mjs",
