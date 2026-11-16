@@ -14,7 +14,7 @@ vi.mock("@/components/site/Breadcrumbs", () => ({ Breadcrumbs: () => null }));
 vi.mock("@/components/documents/MissingDocumentsChecklist", () => ({ MissingDocumentsChecklist: () => null }));
 vi.mock("@/components/documents/DocumentReadinessMeter", () => ({ DocumentReadinessMeter: () => null }));
 vi.mock("@/components/empty/IllustratedEmptyState", () => ({ IllustratedEmptyState: () => null }));
-vi.mock("@/components/permissions/VisibilityBadge", () => ({ VisibilityBadge: () => null, PermissionLabel: () => null }));
+vi.mock("@/components/permissions/VisibilityBadge", () => ({ VisibilityBadge: () => <span>Team</span>, PermissionLabel: () => <span>You Can View and Comment</span> }));
 vi.mock("@/lib/cross-docs.functions", () => ({ listAllDocuments: api.list }));
 vi.mock("@/lib/documents.functions", () => ({ rescanDocument: api.rescan }));
 vi.mock("sonner", () => ({ toast: { success: api.success, error: api.error } }));
@@ -46,3 +46,10 @@ it("ignores a departed list response after leaving and returning to the same acc
   await act(async () => old({ documents: [row("Stale private response")] })); expect(screen.queryByText("Stale private response")).toBeNull(); expect(screen.getByText("Fresh first account")).toBeTruthy();
 });
 it("does not request private rows while authentication is unsettled", async () => { api.loading = true; render(<Page />); expect(api.list).not.toHaveBeenCalled(); });
+
+it("does not label every document as team-shared or promise commenting permission", async () => {
+  render(<Page />); await screen.findByText("Private first account");
+  expect(screen.getByText("Access Controlled")).toBeTruthy();
+  expect(screen.queryByText("Team")).toBeNull();
+  expect(screen.queryByText("You Can View and Comment")).toBeNull();
+});

@@ -27,7 +27,7 @@
     },
     {
       "path": "src/routes/_authenticated/documents.tsx",
-      "sha256": "02f23b8b6e2be6bd16eb1ca14d76429dd0ce45ba3195f656782cf00686133801"
+      "sha256": "356933012ba0c7d097c58935a05530b74f6cd73d1b7226b9e09e0cfa0b5235ac"
     },
     {
       "path": "src/routes/_authenticated/documents.$documentId.review.tsx",
@@ -75,7 +75,7 @@
     },
     {
       "path": "src/components/students/FamilyDocumentUpload.tsx",
-      "sha256": "530af5d8b924cd2084441a3daafcbba908196502597718e7bbaf7fe9f2c91406"
+      "sha256": "b0cf6f624395520cca61159da5a6432b28a5818899b2d0a41399e265240d1099"
     },
     {
       "path": "docs/production-readiness/proposals/document-upload-retained-limits.sql",
@@ -371,7 +371,7 @@
     },
     {
       "path": "tests/database/document-legacy-privacy.test.mjs",
-      "sha256": "57caafa57c60f6a9c0a16c4b7a56e14e3b2fedfdc1e8d3f82fa6f5e1a05ab782"
+      "sha256": "c2c0738c07c3222ca7b0d0ddcefee6cfb6dc79132c0aff6e299cab024d9fdeda"
     },
     {
       "path": "tests/database/run-document-legacy-privacy-schema.mjs",
@@ -384,6 +384,10 @@
     {
       "path": "tests/unit/document-registration-boundary.test.ts",
       "sha256": "4dc5728bed3b0a7a7840f43388d2cdeb206119206010fb2a14291357907a676e"
+    },
+    {
+      "path": "tests/unit/document-hub-account-lifetime.test.tsx",
+      "sha256": "d8d61fcac8c04a738b48f9e965eee43a5ce852af5f805dc50848db7fcccf7f45"
     }
   ],
   "adapter_contract": {
@@ -1292,7 +1296,7 @@
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
     "evidence": "docs/production-readiness/evidence/rights-status-sharing-writer-retired-2026-11-16.json",
-    "declared_entries_checked": 95,
+    "declared_entries_checked": 96,
     "corrected_entries": 0,
     "added_entries": 0,
     "complete_release_manifest": false,

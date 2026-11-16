@@ -222,7 +222,7 @@ function FamilyDocumentUploadSession({
   }, [viewerId, studentId]);
   const [docType, setDocType] = useState<DocType>("current-iep");
   const [title, setTitle] = useState("");
-  // The current document policy uses student access, not visibility labels.
+  // New uploads use the supported team scope; legacy access is separately restricted.
   const visibility = "team" as const;
   const [schoolYear, setSchoolYear] = useState("");
   const [meetingDate, setMeetingDate] = useState("");

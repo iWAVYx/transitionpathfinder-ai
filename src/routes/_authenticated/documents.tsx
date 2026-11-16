@@ -26,7 +26,6 @@ import { toast } from "sonner";
 import { MissingDocumentsChecklist } from "@/components/documents/MissingDocumentsChecklist";
 import { DocumentReadinessMeter } from "@/components/documents/DocumentReadinessMeter";
 import { buildLiveDocumentReadiness } from "@/lib/document-readiness";
-import { VisibilityBadge, PermissionLabel } from "@/components/permissions/VisibilityBadge";
 import {
   listAllDocuments,
   type CrossDocumentRow,
@@ -274,8 +273,12 @@ function DocumentsHubPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <VisibilityBadge visibility="team" />
-                    <PermissionLabel can={["view", "comment"]} />
+                    <span
+                      className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground"
+                      title="Document access follows your current student access and explicit document sharing."
+                    >
+                      Access Controlled
+                    </span>
                     <StatusBadge status={d.review_status} />
                     <ScanStatusBadge scan={d.scan_status} />
                     {(d.scan_status === "failed" || d.scan_status === "pending") && (
