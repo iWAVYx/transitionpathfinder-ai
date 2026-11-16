@@ -980,7 +980,7 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-local-2026-11-16.json",
+    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-verified-2026-11-16.json",
     "declared_entries_checked": 93,
     "corrected_entries": 0,
     "added_entries": 0,
@@ -1470,6 +1470,18 @@
     "evidence": "docs/production-readiness/evidence/document-summary-scope-verified-2026-11-15.json",
     "status": "document summary-relationship/reader component source/disposable verified:49 local/63 native,6210 application tests and complete225+41+four-separate-draft schema proof",
     "verified_source_commit": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
+    "canonical_or_ledger_promoted": false,
+    "hosted_verified": false,
+    "ready_for_cutover": false
+  },
+  "document_grant_lifecycle_review": {
+    "status": "source-disposable-verified-not-promoted",
+    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-verified-2026-11-16.json",
+    "separate_permission_drafts": 5,
+    "local_cases": 29,
+    "native_cases": 44,
+    "legacy_unbound_grants_retained_but_retired": true,
+    "target_impact_review_required": true,
     "canonical_or_ledger_promoted": false,
     "hosted_verified": false,
     "ready_for_cutover": false

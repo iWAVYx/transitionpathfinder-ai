@@ -1,0 +1,144 @@
+{
+  "schema": "transitionforward-document-grant-lifecycle-verified-v1",
+  "date": "2026-11-16",
+  "source_commit": "29354f84d45eea5e5c5bb64f30bb8a89809cdd03",
+  "run_id": 43807759048,
+  "run_url": "https://github.com/iWAVYx/transitionpathfinder-ai/actions/runs/43807759048",
+  "duplicate_pr_run": {
+    "run_id": 43807766316,
+    "conclusion": "success"
+  },
+  "status": "permanent document-grant lifecycle component verified in source/disposable scope",
+  "workstreams": [
+    "5.2",
+    "4.1"
+  ],
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-grant-lifecycle/retire-document-grants.review.sql",
+      "sha256": "48bde74faf84d99be3a2beb5c4f6e8dcb2c83a4349f1a5f7a20bb238795ce2fe"
+    },
+    {
+      "path": "tests/database/document-grant-lifecycle.test.mjs",
+      "sha256": "d20fb9527a0dbc8a5b0860e99d342d249f0687ed7144dcda6067f3715a751079"
+    },
+    {
+      "path": "tests/database/run-document-grant-lifecycle-schema.mjs",
+      "sha256": "a34087d727b306bf285b8c7e8ced18b00fe3e0aae79493170dcf8cfc4a05060f"
+    },
+    {
+      "path": ".github/workflows/document-grant-lifecycle-review.yml",
+      "sha256": "ab2c70a5ce65347191992f2a4e20a4b9d057155c5d7f9a7c07cd9f0b9b78e60f"
+    }
+  ],
+  "local": {
+    "tests": 29,
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0,
+    "log": "docs/production-readiness/evidence/document-grant-lifecycle-local-2026-11-16.tap",
+    "log_sha256": "dd8d04f971b9384e9252e1459f6fa25098d1556489b8f37b0e75ae7fb9b08376"
+  },
+  "native": {
+    "tests": 44,
+    "passed": 44,
+    "failed": 0,
+    "skipped": 0,
+    "fresh_database_per_case": true,
+    "case_names": [
+      "a freshly acknowledged grant is possible after re-addition without replacing retired history",
+      "another qualifying global role preserves a valid grant for mixed partner roles",
+      "caller supplied lifecycle values cannot mark a newly valid grant retired or unbound",
+      "changed canonical access predicates stop installation before lifecycle columns exist",
+      "changing document student permanently retires the old-context grant even after moving back",
+      "client active grant removal is still possible and cannot remove independent access",
+      "grant retirement follows permission downgrade without removing an independent legitimate path",
+      "installation rollback restores legacy grant authority and original schema",
+      "issuer editing loss retires grants even while the recipient remains on the team",
+      "issuer partner-only transition permanently closes grant",
+      "issuer retains grant while an independent editing relationship remains",
+      "legacy mismatched parent grants can be attenuated without being repaired or deleted",
+      "legacy unbound grants are retained but cannot regain authority",
+      "missing issuer proof cannot create a grant even through trusted direct SQL",
+      "missing recipient proof cannot create an apparently active grant",
+      "native concurrent independent proof removals serialize current eligibility after COMMIT",
+      "native concurrent independent proof removals serialize current eligibility after ROLLBACK",
+      "native issuer removal-first mint rechecks after COMMIT",
+      "native issuer removal-first mint rechecks after ROLLBACK",
+      "native mint holds the established role-change lock through COMMIT",
+      "native mint holds the established role-change lock through ROLLBACK",
+      "native mint-first issuer removal waits through COMMIT",
+      "native mint-first issuer removal waits through ROLLBACK",
+      "native mint-first recipient removal waits through COMMIT",
+      "native mint-first recipient removal waits through ROLLBACK",
+      "native positive proof insertion after final removal preserves the correct continuity",
+      "native positive proof insertion before final removal preserves the correct continuity",
+      "native prepared original reads cannot revive after remove and re-add",
+      "native recipient removal-first mint rechecks after COMMIT",
+      "native recipient removal-first mint rechecks after ROLLBACK",
+      "new grant is bound to current issuer and recipient proofs",
+      "non-read-committed access mutations stop atomically",
+      "owner_id loss retires affected issued grants and does not revive on restore",
+      "recipient partner-only transition permanently closes grant",
+      "recipient removal closes original access and permanently retires its grant",
+      "recipient retains grant while another approved access proof remains",
+      "repeated installation stops without partial mutation",
+      "retired history is hidden from the active grant list and cannot be client deleted",
+      "retirement shape requires a nonnull recorded reason independently of lifecycle triggers",
+      "student_user_id loss retires affected issued grants and does not revive on restore",
+      "trusted ordinary UPDATE cannot rewrite retired history: context_bound=false",
+      "trusted ordinary UPDATE cannot rewrite retired history: retired_at=NULL,retirement_reason=NULL",
+      "trusted ordinary UPDATE cannot rewrite retired history: retirement_reason='legacy_unbound'",
+      "trusted ordinary UPDATE cannot rewrite retired history: user_id='00000000-0000-4000-8000-000000000001'"
+    ],
+    "observed_lock_races": 14,
+    "cached_original_read_cases": 1,
+    "raw_tap": "docs/production-readiness/evidence/document-grant-lifecycle-native-2026-11-16.tap",
+    "raw_tap_sha256": "7111da396f0c6b3f4496ebbfef53ad88ad0211f0658614d726fa8e48157ceaa2"
+  },
+  "schema_installation": {
+    "canonical_count": 225,
+    "prior_control_drafts": 41,
+    "separate_review_drafts": 5,
+    "inherited_install_catalog_stages": 56,
+    "all_inherited_scripts_logs_independently_checked": true,
+    "original_sql_files_independently_checked": 297,
+    "original_core_test_sha256": "81fd8b6361cbe1a847bc6236e5a311cc01b53f4700a97a42c0430ad3ae84e84a",
+    "proof": "docs/production-readiness/evidence/document-grant-lifecycle-schema-2026-11-16.json",
+    "proof_sha256": "aa18c651d565c0dadd75bbad4c89826db9f9dc2152e7ee95898f3254db2d2ebf",
+    "prior_summary_scope_proof_sha256": "009bb7229d09bf9561840832e914832a6ac5acbf9f27800644d23d744525ffc6",
+    "new_private_routines": 4,
+    "new_restrictive_policies": 2,
+    "new_triggers": 6,
+    "existing_policies_and_table_acl_preserved": true,
+    "unrelated_routines_triggers_indexes_and_document_data_preserved": true,
+    "legacy_rows_intentionally_retired_not_deleted": true,
+    "prior_regression_cases_rerun_claimed": false
+  },
+  "application": {
+    "runtime_changed": false,
+    "prior_application_tests": 6210,
+    "application_tests_rerun_claimed": false,
+    "existing_readiness_navigation_contracts": 103,
+    "existing_release_security_contracts": 72
+  },
+  "completed": [
+    "Mint holds genuine current issuer/recipient proof rows and the established role-change lock.",
+    "Final recipient access loss, issuer editing loss and partner-only transitions permanently retire grants.",
+    "Independent qualifying access remains valid; concurrent removals and positive additions serialize on affected grants.",
+    "Document reassignment retires old grants; moving back/re-adding does not reactivate history.",
+    "Legacy unbound grants are retained but retired; fresh acknowledged grants use new UUIDs."
+  ],
+  "remaining": [
+    "Legacy visibility and rights-transfer writer review.",
+    "Other non-document role/privacy scopes and raw document deletion findings.",
+    "Legacy impact preflight, canonical/ledger promotion and final combined regression.",
+    "Fresh authorized coordinated staging rollout, provider acceptance and production/merge gates."
+  ],
+  "canonical_or_ledger_promoted": false,
+  "whole_workstream_complete": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "release_authorization_granted": false,
+  "ready_for_cutover": false
+}
