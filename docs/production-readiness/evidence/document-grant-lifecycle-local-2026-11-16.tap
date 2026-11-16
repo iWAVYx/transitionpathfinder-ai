@@ -1,0 +1,184 @@
+TAP version 13
+# Subtest: new grant is bound to current issuer and recipient proofs
+ok 1 - new grant is bound to current issuer and recipient proofs
+  ---
+  duration_ms: 754.338708
+  type: 'test'
+  ...
+# Subtest: recipient removal closes original access and permanently retires its grant
+ok 2 - recipient removal closes original access and permanently retires its grant
+  ---
+  duration_ms: 495.534833
+  type: 'test'
+  ...
+# Subtest: a freshly acknowledged grant is possible after re-addition without replacing retired history
+ok 3 - a freshly acknowledged grant is possible after re-addition without replacing retired history
+  ---
+  duration_ms: 473.98925
+  type: 'test'
+  ...
+# Subtest: issuer editing loss retires grants even while the recipient remains on the team
+ok 4 - issuer editing loss retires grants even while the recipient remains on the team
+  ---
+  duration_ms: 490.808041
+  type: 'test'
+  ...
+# Subtest: recipient retains grant while another approved access proof remains
+ok 5 - recipient retains grant while another approved access proof remains
+  ---
+  duration_ms: 487.001084
+  type: 'test'
+  ...
+# Subtest: issuer retains grant while an independent editing relationship remains
+ok 6 - issuer retains grant while an independent editing relationship remains
+  ---
+  duration_ms: 435.196791
+  type: 'test'
+  ...
+# Subtest: recipient partner-only transition permanently closes grant
+ok 7 - recipient partner-only transition permanently closes grant
+  ---
+  duration_ms: 461.995959
+  type: 'test'
+  ...
+# Subtest: issuer partner-only transition permanently closes grant
+ok 8 - issuer partner-only transition permanently closes grant
+  ---
+  duration_ms: 486.680917
+  type: 'test'
+  ...
+# Subtest: another qualifying global role preserves a valid grant for mixed partner roles
+ok 9 - another qualifying global role preserves a valid grant for mixed partner roles
+  ---
+  duration_ms: 419.947875
+  type: 'test'
+  ...
+# Subtest: owner_id loss retires affected issued grants and does not revive on restore
+ok 10 - owner_id loss retires affected issued grants and does not revive on restore
+  ---
+  duration_ms: 414.262541
+  type: 'test'
+  ...
+# Subtest: student_user_id loss retires affected issued grants and does not revive on restore
+ok 11 - student_user_id loss retires affected issued grants and does not revive on restore
+  ---
+  duration_ms: 405.571333
+  type: 'test'
+  ...
+# Subtest: changing document student permanently retires the old-context grant even after moving back
+ok 12 - changing document student permanently retires the old-context grant even after moving back
+  ---
+  duration_ms: 413.148209
+  type: 'test'
+  ...
+# Subtest: legacy unbound grants are retained but cannot regain authority
+ok 13 - legacy unbound grants are retained but cannot regain authority
+  ---
+  duration_ms: 416.323666
+  type: 'test'
+  ...
+# Subtest: legacy mismatched parent grants can be attenuated without being repaired or deleted
+ok 14 - legacy mismatched parent grants can be attenuated without being repaired or deleted
+  ---
+  duration_ms: 411.198625
+  type: 'test'
+  ...
+# Subtest: retired history is hidden from the active grant list and cannot be client deleted
+ok 15 - retired history is hidden from the active grant list and cannot be client deleted
+  ---
+  duration_ms: 816.451542
+  type: 'test'
+  ...
+# Subtest: client active grant removal is still possible and cannot remove independent access
+ok 16 - client active grant removal is still possible and cannot remove independent access
+  ---
+  duration_ms: 462.184959
+  type: 'test'
+  ...
+# Subtest: trusted ordinary UPDATE cannot rewrite retired history: retired_at=NULL,retirement_reason=NULL
+ok 17 - trusted ordinary UPDATE cannot rewrite retired history: retired_at=NULL,retirement_reason=NULL
+  ---
+  duration_ms: 518.98425
+  type: 'test'
+  ...
+# Subtest: trusted ordinary UPDATE cannot rewrite retired history: context_bound=false
+ok 18 - trusted ordinary UPDATE cannot rewrite retired history: context_bound=false
+  ---
+  duration_ms: 417.921959
+  type: 'test'
+  ...
+# Subtest: trusted ordinary UPDATE cannot rewrite retired history: retirement_reason='legacy_unbound'
+ok 19 - trusted ordinary UPDATE cannot rewrite retired history: retirement_reason='legacy_unbound'
+  ---
+  duration_ms: 413.077542
+  type: 'test'
+  ...
+# Subtest: trusted ordinary UPDATE cannot rewrite retired history: user_id='00000000-0000-4000-8000-000000000001'
+ok 20 - trusted ordinary UPDATE cannot rewrite retired history: user_id='00000000-0000-4000-8000-000000000001'
+  ---
+  duration_ms: 399.819375
+  type: 'test'
+  ...
+# Subtest: caller supplied lifecycle values cannot mark a newly valid grant retired or unbound
+ok 21 - caller supplied lifecycle values cannot mark a newly valid grant retired or unbound
+  ---
+  duration_ms: 400.887209
+  type: 'test'
+  ...
+# Subtest: missing recipient proof cannot create an apparently active grant
+ok 22 - missing recipient proof cannot create an apparently active grant
+  ---
+  duration_ms: 400.56525
+  type: 'test'
+  ...
+# Subtest: missing issuer proof cannot create a grant even through trusted direct SQL
+ok 23 - missing issuer proof cannot create a grant even through trusted direct SQL
+  ---
+  duration_ms: 414.816667
+  type: 'test'
+  ...
+# Subtest: non-read-committed access mutations stop atomically
+ok 24 - non-read-committed access mutations stop atomically
+  ---
+  duration_ms: 412.589167
+  type: 'test'
+  ...
+# Subtest: grant retirement follows permission downgrade without removing an independent legitimate path
+ok 25 - grant retirement follows permission downgrade without removing an independent legitimate path
+  ---
+  duration_ms: 406.24125
+  type: 'test'
+  ...
+# Subtest: repeated installation stops without partial mutation
+ok 26 - repeated installation stops without partial mutation
+  ---
+  duration_ms: 468.016375
+  type: 'test'
+  ...
+# Subtest: installation rollback restores legacy grant authority and original schema
+ok 27 - installation rollback restores legacy grant authority and original schema
+  ---
+  duration_ms: 442.924834
+  type: 'test'
+  ...
+# Subtest: retirement shape requires a nonnull recorded reason independently of lifecycle triggers
+ok 28 - retirement shape requires a nonnull recorded reason independently of lifecycle triggers
+  ---
+  duration_ms: 466.891583
+  type: 'test'
+  ...
+# Subtest: changed canonical access predicates stop installation before lifecycle columns exist
+ok 29 - changed canonical access predicates stop installation before lifecycle columns exist
+  ---
+  duration_ms: 428.29275
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13512.883625

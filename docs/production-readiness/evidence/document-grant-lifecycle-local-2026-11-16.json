@@ -1,0 +1,43 @@
+{
+  "schema": "document-grant-lifecycle-local-v1",
+  "date": "2026-11-16",
+  "status": "local-verified-final-native-pending",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-grant-lifecycle/retire-document-grants.review.sql",
+      "sha256": "48bde74faf84d99be3a2beb5c4f6e8dcb2c83a4349f1a5f7a20bb238795ce2fe"
+    },
+    {
+      "path": "tests/database/document-grant-lifecycle.test.mjs",
+      "sha256": "d20fb9527a0dbc8a5b0860e99d342d249f0687ed7144dcda6067f3715a751079"
+    },
+    {
+      "path": "tests/database/run-document-grant-lifecycle-schema.mjs",
+      "sha256": "a34087d727b306bf285b8c7e8ced18b00fe3e0aae79493170dcf8cfc4a05060f"
+    },
+    {
+      "path": ".github/workflows/document-grant-lifecycle-review.yml",
+      "sha256": "ab2c70a5ce65347191992f2a4e20a4b9d057155c5d7f9a7c07cd9f0b9b78e60f"
+    }
+  ],
+  "local": {
+    "tests": 29,
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0,
+    "log": "docs/production-readiness/evidence/document-grant-lifecycle-local-2026-11-16.tap",
+    "log_sha256": "dd8d04f971b9384e9252e1459f6fa25098d1556489b8f37b0e75ae7fb9b08376"
+  },
+  "existing_readiness_navigation_contracts": 103,
+  "existing_release_security_contracts": 72,
+  "previous_native_revision": "0938a9c3761f4c0625f54e7da20c8bbb3580d03c",
+  "previous_native_cases": 42,
+  "final_revision_native_verified": false,
+  "legacy_rows_retained_but_retired": true,
+  "runtime_changed": false,
+  "complete_release_manifest": false,
+  "release_authorization_granted": false,
+  "hosted_actions": false,
+  "production_access": false,
+  "ready_for_cutover": false
+}

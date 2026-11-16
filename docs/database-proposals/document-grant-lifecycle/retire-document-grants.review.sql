@@ -25,9 +25,19 @@ BEGIN
     RAISE EXCEPTION 'Access-proof helpers must remain private.' USING ERRCODE='55000';END IF;
   END LOOP;
  END LOOP;
+ FOR item IN SELECT * FROM (VALUES
+  ('public.can_edit_student(uuid,uuid)','79b05b69377dd61a33938fe5ebb06fc7'),
+  ('public.can_access_student(uuid,uuid)','c2dcc71ecab9bc4b982d7f81793da2aa'),
+  ('public.is_partner_only(uuid)','47797991e8c4f44c7e8aa1bbcbc86b91')
+ ) expected(signature,body_md5) LOOP
+  IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure(item.signature) AND md5(prosrc)=item.body_md5
+   AND prosecdef AND provolatile='s' AND proowner=current_user::regrole::oid
+   AND proconfig=CASE WHEN item.signature='public.is_partner_only(uuid)' THEN ARRAY['search_path=pg_catalog, public'] ELSE ARRAY['search_path=public'] END) THEN
+   RAISE EXCEPTION 'Exact canonical access predicates are required.' USING ERRCODE='55000';END IF;
+ END LOOP;
  IF NOT EXISTS(SELECT 1 FROM pg_proc WHERE oid=to_regprocedure('public.can_view_document(uuid,uuid)') AND prosecdef AND provolatile='s' AND proowner=current_user::regrole::oid AND proconfig=ARRAY['search_path=public'] AND md5(prosrc)='575a42ff79a948f356c92cf0eecb3a33')
  OR to_regprocedure('public.lock_internal_document_producer_authority(uuid,uuid)') IS NULL
- OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.user_roles'::regclass AND tgname='user_roles_document_text_authority' AND tgenabled='O')
+ OR NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.user_roles'::regclass AND tgname='user_roles_document_text_authority' AND tgenabled='O' AND tgfoid='public.lock_document_text_role_change()'::regprocedure)
  OR EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='document_permissions' AND column_name='context_bound') THEN
   RAISE EXCEPTION 'Reviewed document grant lifecycle prerequisites are missing or changed.' USING ERRCODE='55000';
  END IF;
@@ -57,7 +67,7 @@ UPDATE public.document_permissions SET retired_at=statement_timestamp(),retireme
 ALTER TABLE public.document_permissions ADD CONSTRAINT document_grant_lifecycle_shape CHECK(
  (context_bound OR retired_at IS NOT NULL)
  AND ((retired_at IS NULL AND retirement_reason IS NULL) OR
- (retired_at IS NOT NULL AND retirement_reason IN('legacy_unbound','access_lost','document_reassigned'))));
+ (retired_at IS NOT NULL AND retirement_reason IS NOT NULL AND retirement_reason IN('legacy_unbound','access_lost','document_reassigned'))));
 DROP INDEX public.document_permissions_user_uniq;
 CREATE UNIQUE INDEX document_permissions_user_uniq ON public.document_permissions(document_id,user_id)
  WHERE user_id IS NOT NULL AND retired_at IS NULL;

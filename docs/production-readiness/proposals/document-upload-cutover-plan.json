@@ -368,11 +368,11 @@
     },
     {
       "path": "docs/database-proposals/document-grant-lifecycle/retire-document-grants.review.sql",
-      "sha256": "938585623613ed733b7a0591538cf07bbe29e91d74e25ae3c011d5f3dccf76cd"
+      "sha256": "48bde74faf84d99be3a2beb5c4f6e8dcb2c83a4349f1a5f7a20bb238795ce2fe"
     },
     {
       "path": "tests/database/document-grant-lifecycle.test.mjs",
-      "sha256": "6c93163007f6f9397edcd769815a10afc13cba84448fd2fee818f600fc460407"
+      "sha256": "d20fb9527a0dbc8a5b0860e99d342d249f0687ed7144dcda6067f3715a751079"
     },
     {
       "path": "tests/database/run-document-grant-lifecycle-schema.mjs",
@@ -980,7 +980,7 @@
   "source_manifest_reconciliation": {
     "date": "2026-11-15",
     "checked_against_source": "981ff7a35d2cbe887e9fd2733b67b97150f64438",
-    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-prepared-2026-11-15.json",
+    "evidence": "docs/production-readiness/evidence/document-grant-lifecycle-local-2026-11-16.json",
     "declared_entries_checked": 93,
     "corrected_entries": 0,
     "added_entries": 0,
