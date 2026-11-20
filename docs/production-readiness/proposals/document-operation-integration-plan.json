@@ -583,11 +583,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "8195f64d2785cbb2021ad3e0d770eeba7851eee4db604bdf24abc10b4b783f29"
+      "sha256": "57ca30ac71c04b61e2a9bffb41cac29f37b5d1fc94bdfa3b94fe2acc1a04bb20"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "299e37fa59af791c3def25cdfe176e6594b090b6d0c792be08089eff16b68f7a"
+      "sha256": "3c67c952324fb21f477d1ffa824cef7af9287231528082402b5b0ff91ca04439"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -631,7 +631,7 @@
     },
     {
       "path": "src/lib/action-items.functions.ts",
-      "sha256": "ccefdc8a0f49d3708cc5d1c945c415364aa8381aeaf988eb72644cedcb7016c4"
+      "sha256": "da979ed806ffdfe77b2fb9b0a5639d998ef448d70fa45d944e450b5a4b2cea18"
     },
     {
       "path": "src/lib/analytics.functions.ts",
@@ -699,7 +699,7 @@
     },
     {
       "path": "tests/unit/planning-side-effects.test.ts",
-      "sha256": "218b86c3dd9e81ac1cf00a38b5696252b0ad8d9a7528d7e6b03ad435f5e075db"
+      "sha256": "3858273436b08826dcc2f39b8859aa826f0f0bae07c3c1c2f47693dbd6a5e975"
     },
     {
       "path": "tests/unit/planning-lifetime.test.tsx",
@@ -772,6 +772,26 @@
     {
       "path": "docs/production-readiness/evidence/planning-action-creators-verified-2026-11-19.json",
       "sha256": "1695ca043aa40f0ff811b096ff2209e3cf0b9395fedd6b7f2522db481fd49f17"
+    },
+    {
+      "path": "src/lib/atomic-action-update.server.ts",
+      "sha256": "8db237e8c1971e34a80d79ba3b88ae0ef07a1a5cbc5f7921d69a752cfbc95137"
+    },
+    {
+      "path": "tests/unit/atomic-action-receipts.test.ts",
+      "sha256": "83dfa3830ef209df20b6943076abaff30692a1253b23b84b5b1628cada51b221"
+    },
+    {
+      "path": "tests/database/action-completion-atomicity.test.mjs",
+      "sha256": "1d6a2ada5b3e52621265f5e99bcd7d30548158f10dba6d1999e709114e2e6834"
+    },
+    {
+      "path": "tests/database/run-action-completion-atomicity-schema.mjs",
+      "sha256": "70a5dbe486a576a5eda9b61b6b5e4fdf13c12fe6164afc6abe2d5c92dd0089c9"
+    },
+    {
+      "path": "docs/database-proposals/action-completion-atomicity/atomic-action-update.review.sql",
+      "sha256": "84f3a0aa467731a37ef194ab3eb47e3dda19226a672001e7cbd5d0c4097822bc"
     }
   ],
   "adapter_contract": {
@@ -1680,7 +1700,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 192,
+    "declared_entries_checked": 197,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

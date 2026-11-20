@@ -1,6 +1,8 @@
 # TransitionForward — Readiness Roadmap
 
-## Current Release Checklist — November 19
+## Current Release Checklist — November 20
+
+**P1 normal action-update transaction — source candidate:** one authenticated RPC now updates the loaded action, completion activity and linked-report stale marker together, holding current reading/editing proof through commit. A private revision trigger preserves increasing microsecond versions. The normal API requires student/version intent and validates actor/row/effect receipts without raw fallback. Separate eleventh review draft:39 local database cases and67 focused application cases pass; final native/current-schema/race and full-source verification are pending. Raw/trusted writers and other CRUD/privacy paths remain open. No canonical, hosted, merge or production action.
 
 **P1 remaining action-creation screens — application component:** report recommendations, partner suggestions, resources and PPT prep now share current-account/request/student-bound creation receipts, synchronous duplicate-click fencing, departed-reply suppression and explicit uncertainty controls. Account/student/report changes retire old controls; failed resource/student and partner suggestion loads stay visible. Resources use readable saved feedback instead of record IDs, and demo/sample views remain inert. PPT document text/print layout and SQL/access policy are unchanged. All6,576 full-suite tests/394 files,63 final focused checks,112 readiness/navigation/inventory checks,72 release/security checks, TypeScript and the exact environment-file-free isolated build pass. Two added PPT callback cases are included in the final focused run. [Scoped source/local evidence](production-readiness/evidence/planning-action-creators-verified-2026-11-19.json). This finishes the named normal creation-screen component, not raw/trusted writer, database authority or whole P1 review.
 

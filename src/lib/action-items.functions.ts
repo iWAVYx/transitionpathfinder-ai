@@ -1,6 +1,6 @@
-import {readPlanningRecords,createPlanningRecord,mutatePlanningRecord,PLANNING_WRITE_UNCONFIRMED} from "./planning-records.server";
+import{updateActionAtomically}from"./atomic-action-update.server";
+import {readPlanningRecords,createPlanningRecord,mutatePlanningRecord} from "./planning-records.server";
 import {viewerIntentSchema} from "./viewer-intent";
-import {isActionItemComplete,normalizeActionRecord} from "./action-item-values";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -62,8 +62,8 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        student_id: z.string().uuid().optional(),
-        expected_updated_at: z.string().datetime({offset:true}).optional(),
+        student_id: z.string().uuid(),
+        expected_updated_at: z.string().datetime({offset:true}),
         ...viewerIntentSchema.shape,
         status: z.enum(STATUSES).optional(),
         priority: z.enum(PRIORITIES).optional(),
@@ -87,17 +87,8 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
     if (data.due_date !== undefined) patch.due_date = data.due_date;
     if (data.title !== undefined) patch.title = data.title;
     if (data.description !== undefined) patch.description = data.description;
-    const result=await mutatePlanningRecord(supabase,userId,'action_items',data,patch);
-    // Side effects run only after the exact mutation receipt and an actual transition.
-    // They are still separate requests; an uncertain result is not a completed transaction.
-    if(result.changed&&isActionItemComplete(data.status)&&!isActionItemComplete(result.before.status as string)){
-      try{
-        const event=await supabase.from('feed_events').insert({student_id:result.row.student_id,actor_id:userId,kind:'action_item.completed',title:`Action completed: ${result.row.title}`,body:null,ref_table:'action_items',ref_id:result.row.id}).select('id,student_id,ref_id').single();
-        if(event.error||!event.data?.id||event.data.student_id!==result.row.student_id||event.data.ref_id!==result.row.id)throw Error();
-        if(result.row.pathway_report_id){const report=await supabase.from('pathway_reports').update({inputs_stale_at:new Date().toISOString()}).eq('id',String(result.row.pathway_report_id)).eq('student_id',result.row.student_id).select('id,student_id').single();if(report.error||report.data?.id!==result.row.pathway_report_id||report.data?.student_id!==result.row.student_id)throw Error();}
-      }catch{throw Error(PLANNING_WRITE_UNCONFIRMED);}
-    }
-    return{ok:true as const,item:normalizeActionRecord(result.row as unknown as StudentActionItem)};
+    const item=await updateActionAtomically(supabase,userId,data,patch);
+    return{ok:true as const,item};
   });
 
 export const deleteStudentActionItem = createServerFn({ method: "POST" })

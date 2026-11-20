@@ -21,7 +21,7 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Recognize both legacy `complete` and current `completed` values in affected role counters; display legacy teacher actions as Educator without rewriting stored records.
 - [x] Prepare the additive tenth review draft for existing/current action values. All 44 local and 44 native constraint cases pass; the full 225 + 41 + ten-draft schema and 35 authenticated value combinations pass. [Scoped evidence](../evidence/planning-goals-actions-verified-2026-11-19.json).
 - [ ] Finish transaction-held access and competing/cached/trusted-writer review. Application prechecks and conditional REST writes are separate requests and do not prove this boundary.
-- [ ] Make completion feed/report-staleness effects atomic or explicitly reconciled; current partial failures are visible, but a completed row can precede a failed effect.
+- [ ] Verify the prepared normal-update atomic action/activity/report-marker RPC, current proof held through commit, loaded revisions and access-removal/competing-write races. Separate eleventh draft; native/full-schema verification pending. Raw completion writers remain outside this bounded component.
 - [x] Guard the remaining normal action-creation screens: report recommendations, partner suggestions, resources and PPT prep. They share actor/request/student-bound receipts, duplicate-click fencing, departed-reply suppression and uncertainty controls. Resource/partner load failures remain visible; the resource picker uses plain saved-status language. [Scoped source/local evidence](../evidence/planning-action-creators-verified-2026-11-19.json).
 - [ ] Finish educator caseload completeness/capability, raw/trusted writers, student/profile handlers and BridgeForward review.
 
@@ -29,7 +29,7 @@ The eight goal/action endpoint entries remain **review-required** until those da
 
 ## Verified Review-Draft Order
 
-The 225 canonical migrations and 41 prior control drafts remain separate from these ten drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
+The 225 canonical migrations and 41 prior control drafts remain separate from these eleven drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
 
 1. Retire the legacy admin document override — `document-admin-grant-retirement/retire-admin-document-grants.review.sql`.
 2. Bind document grants to their actual parent — `document-permission-parent/bind-document-permission-parent.review.sql`.
@@ -41,6 +41,7 @@ The 225 canonical migrations and 41 prior control drafts remain separate from th
 8. Guard shared roadmap and personal goal progress — `progress-access-consistency/guard-progress-access.review.sql`.
 9. Guard Student Voice answers — `student-voice-consistency/guard-student-voice.review.sql`.
 10. Preserve existing and current action values — `action-item-value-compatibility/allow-current-action-values.review.sql` (two CHECK constraints only; no new or modified routines).
+11. Atomic normal action updates — `action-completion-atomicity/atomic-action-update.review.sql` (prepared; native/full-schema verification pending).
 
 Paths above are relative to `docs/database-proposals/`. Their tested order and hashes are collected from the fresh disposable installation. The packaging collector snapshots the routine catalog **after the 225 + 41 baseline and before the first separate draft**, preserves all 56 original installer/catalog stage scripts, runs all existing separate-draft verifiers, then captures the final catalog.
 
