@@ -19,7 +19,7 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Read all goal/action pages with exact counts; expose unavailable data and current edit capability instead of false empty success.
 - [x] Guard the student action panel and family/general/educator action-page replies against departed contexts; preserve read-only controls where current capability is available. Uncertain writes require saved-record refresh.
 - [x] Recognize both legacy `complete` and current `completed` values in affected role counters; display legacy teacher actions as Educator without rewriting stored records.
-- [x] Prepare the additive tenth review draft for existing/current action values. All 44 local constraint cases pass. Disposable native/full-schema verification is pending.
+- [x] Prepare the additive tenth review draft for existing/current action values. All 44 local and 44 native constraint cases pass; the full 225 + 41 + ten-draft schema and 35 authenticated value combinations pass. [Scoped evidence](../evidence/planning-goals-actions-verified-2026-11-19.json).
 - [ ] Finish transaction-held access and competing/cached/trusted-writer review. Application prechecks and conditional REST writes are separate requests and do not prove this boundary.
 - [ ] Make completion feed/report-staleness effects atomic or explicitly reconciled; current partial failures are visible, but a completed row can precede a failed effect.
 - [ ] Finish remaining action-creation consumers, educator caseload completeness/capability, student/profile handlers and BridgeForward review.
@@ -28,7 +28,7 @@ The eight goal/action endpoint entries remain **review-required** until those da
 
 ## Verified Review-Draft Order
 
-The 225 canonical migrations and 41 prior control drafts remain separate from these nine drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
+The 225 canonical migrations and 41 prior control drafts remain separate from these ten drafts. The pre-existing 15-migration rollout batch remains separately tracked; it must not be double-counted as new canonical files. No new canonical filename, ledger entry or target installation is introduced here.
 
 1. Retire the legacy admin document override — `document-admin-grant-retirement/retire-admin-document-grants.review.sql`.
 2. Bind document grants to their actual parent — `document-permission-parent/bind-document-permission-parent.review.sql`.
@@ -39,12 +39,16 @@ The 225 canonical migrations and 41 prior control drafts remain separate from th
 7. Save rights reviews atomically — `rights-status-consistency/atomic-rights-review.review.sql`.
 8. Guard shared roadmap and personal goal progress — `progress-access-consistency/guard-progress-access.review.sql`.
 9. Guard Student Voice answers — `student-voice-consistency/guard-student-voice.review.sql`.
+10. Preserve existing and current action values — `action-item-value-compatibility/allow-current-action-values.review.sql` (two CHECK constraints only; no new or modified routines).
 
 Paths above are relative to `docs/database-proposals/`. Their tested order and hashes are collected from the fresh disposable installation. The packaging collector snapshots the routine catalog **after the 225 + 41 baseline and before the first separate draft**, preserves all 56 original installer/catalog stage scripts, runs all existing separate-draft verifiers, then captures the final catalog.
 
+The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; final combined canonical packaging remains open.
+
 ## Workstream 4.1 Packaging Gates
 
-- [x] Preserve the nine source/disposable-verified drafts and their tested order.
+- [x] Preserve the first nine source/disposable-verified drafts and their tested order.
+- [x] Verify the additive tenth value-compatibility draft after that chain, preserving the existing routine/policy/grant catalogue and all action rows.
 - [x] Prepare a dedicated fake-credential disposable-only collector for owners, security modes, search paths, effective execution grants and body/definition hashes.
 - [x] Verify and retain its fresh before/after catalog: 24 additions, three reviewed existing-helper changes, no removed or unrelated changed routines. The fresh run preserves all 56 original stages, all nine draft hashes and 272 unchanged routines. [Verified package evidence](../evidence/planning-release-package-verified-2026-11-16.json); [proposed routine catalogue](../evidence/planning-release-package-catalog-2026-11-16.json).
 - [ ] Review the captured catalog and routine inventory for the final release. Capturing metadata does not grant routine approval.

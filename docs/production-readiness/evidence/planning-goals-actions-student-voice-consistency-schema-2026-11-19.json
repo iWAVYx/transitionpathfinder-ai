@@ -1,0 +1,48 @@
+{
+  "schema": "student-voice-consistency-full-schema-v1",
+  "source_commit": "d11a1c1e7cc826c4bc90b3f35e6fc67e2089fdae",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 9,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "all_existing_public_routines_preserved": true,
+  "existing_policies_preserved": true,
+  "new_restrictive_policies": 4,
+  "new_routines": 3,
+  "new_triggers": 1,
+  "all_existing_triggers_preserved": true,
+  "all_existing_voice_data_preserved": true,
+  "current_editor_delete_policy_preserved": true,
+  "real_schema_smoke": {
+    "real_auth_profile_student_voice_tables": true,
+    "authenticated_save_update_read": true,
+    "intentional_clearing": true,
+    "monotonic_microsecond_revisions": true,
+    "fictional_transaction_rolled_back": true
+  },
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_progress_proof_sha256": "584431ab2c74047c829e66b4837fa91777195ca7ed6e8ca8e489704109fa50e6",
+  "before_catalog_sha256": "887d1084c726cd02fb849e72ec4ae2f3063b3fff4549b8309e63e057506d9a04",
+  "after_catalog_sha256": "abc5513a19a9d9112c89902f008133353ed308756f760b4f4badb9c6e923fe9b",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/student-voice-consistency/guard-student-voice.review.sql",
+      "sha256": "72bdeec65e2cb14092553b816d6500069880fbd332e39ce5fbcad3bf01ea1d8c"
+    },
+    {
+      "path": "tests/database/student-voice-consistency.test.mjs",
+      "sha256": "2e122c0d8ae0a8a907a98483031afa67d0069091be6113346e8d409afd432c03"
+    },
+    {
+      "path": "tests/database/run-student-voice-consistency-schema.mjs",
+      "sha256": "06f60142c94345b2844658d6d394d79a7964349a2c5b55092a3ab94a67d7a4c3"
+    },
+    {
+      "path": ".github/workflows/student-voice-consistency-review.yml",
+      "sha256": "e012212684cd1805d9ffc537f6a700564cfa8a06b01ba93e0ec050bab24e6e58"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}

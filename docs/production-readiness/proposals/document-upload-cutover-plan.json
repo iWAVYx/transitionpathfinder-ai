@@ -612,7 +612,7 @@
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "fd05cff6bdf6053c9b31e2d693881ebcf657cec63ed001b3cb5e3454e2653d40"
+      "sha256": "935f44bcf6ac00c40a1c87fc5a53346fcf279852600ce23902f9ba7c40bf9c42"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -745,6 +745,10 @@
     {
       "path": "docs/database-proposals/action-item-value-compatibility/allow-current-action-values.review.sql",
       "sha256": "ed9e4cf80cf759c97535218031c0ec27bfc2752431de98d5c03aadd46e854e23"
+    },
+    {
+      "path": "docs/database-proposals/action-item-value-compatibility/README.md",
+      "sha256": "6fc7d0b6f4cf06c0b037db8db87e26ebaf6d72a9f6f7a59816958bbc55f79bc3"
     }
   ],
   "batch": {
@@ -1349,7 +1353,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 185,
+    "declared_entries_checked": 186,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

@@ -1,0 +1,40 @@
+{
+  "schema": "document-summary-scope-full-schema-v1",
+  "source_commit": "d11a1c1e7cc826c4bc90b3f35e6fc67e2089fdae",
+  "canonical_count": 225,
+  "prior_review_drafts": 41,
+  "separate_review_drafts": 4,
+  "prior_schema_stages": 56,
+  "native_full_chain_installed": true,
+  "unrelated_routines_and_view_metadata_preserved": true,
+  "existing_policies_preserved": true,
+  "new_restrictive_policies": 2,
+  "projection_fixed_path_stable_definer": true,
+  "projection_authenticated_only": true,
+  "all_table_permissions_preserved": true,
+  "all_triggers_and_document_data_preserved": true,
+  "prior_regression_cases_rerun_claimed": false,
+  "prior_original_access_proof_sha256": "f550a7c004b14dd341ed60ae23ff22811d573e6855953e26094eaefd67648b69",
+  "before_catalog_sha256": "fcba0733d68ad398bdf0b020f0b2b5d1e57519ec2bb3727047ca25df7d5119fe",
+  "after_catalog_sha256": "04d58cc3fffb9946053159fa041985fcaa5654a73c7e46ad487fc0cfef9635d5",
+  "source_manifest": [
+    {
+      "path": "docs/database-proposals/document-summary-scope/separate-reviewed-summary-access.review.sql",
+      "sha256": "2cfc905c944941420e2bdcdf540e6cfe7ab9fb21cfac6d545b4928369d589aad"
+    },
+    {
+      "path": "tests/database/document-summary-scope.test.mjs",
+      "sha256": "00618fe0c9e000265a994649c5d159e66b56b3034ab746cd2d4335a170688fd6"
+    },
+    {
+      "path": "tests/database/run-document-summary-scope-schema.mjs",
+      "sha256": "b4726e0b4f8d7b88d37f81ce7a85ab0b8cc9f9ce6155c397d843f05f8634d26c"
+    },
+    {
+      "path": ".github/workflows/document-summary-scope-review.yml",
+      "sha256": "e79523a74e55b35be468704bb1104c371731c4d478cb9dc6f24430734c1ff1c6"
+    }
+  ],
+  "hosted_applied": false,
+  "ready_for_cutover": false
+}
