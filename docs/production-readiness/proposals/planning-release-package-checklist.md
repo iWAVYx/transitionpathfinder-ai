@@ -20,8 +20,8 @@ Known findings are attached to their source families in [the machine-readable in
 - [x] Guard the student action panel and family/general/educator action-page replies against departed contexts; preserve read-only controls where current capability is available. Uncertain writes require saved-record refresh.
 - [x] Recognize both legacy `complete` and current `completed` values in affected role counters; display legacy teacher actions as Educator without rewriting stored records.
 - [x] Prepare the additive tenth review draft for existing/current action values. All 44 local and 44 native constraint cases pass; the full 225 + 41 + ten-draft schema and 35 authenticated value combinations pass. [Scoped evidence](../evidence/planning-goals-actions-verified-2026-11-19.json).
-- [ ] Finish transaction-held access and competing/cached/trusted-writer review. Application prechecks and conditional REST writes are separate requests and do not prove this boundary.
-- [ ] Verify the prepared normal-update atomic action/activity/report-marker RPC, current proof held through commit, loaded revisions and access-removal/competing-write races. Separate eleventh draft; native/full-schema verification pending. Raw completion writers remain outside this bounded component.
+- [ ] Finish transaction-held access and competing/cached/trusted-writer review for remaining action CRUD/goals and other planning paths. Their application prechecks/conditional REST writes remain separate requests; the normal action-update RPC is the bounded verified exception below.
+- [x] Verify the normal-update atomic action/activity/report-marker RPC, current proof held through commit, loaded revisions and access-removal/competing-write races. Separate eleventh draft:39 local/74 native cases,32 observed removal races, two competing updates and a cached recheck pass; full225+41+eleven-draft schema and real linked-report smoke pass. Raw completion writers remain outside this bounded component. [Scoped evidence](../evidence/action-completion-atomicity-verified-2026-11-20.json).
 - [x] Guard the remaining normal action-creation screens: report recommendations, partner suggestions, resources and PPT prep. They share actor/request/student-bound receipts, duplicate-click fencing, departed-reply suppression and uncertainty controls. Resource/partner load failures remain visible; the resource picker uses plain saved-status language. [Scoped source/local evidence](../evidence/planning-action-creators-verified-2026-11-19.json).
 - [ ] Finish educator caseload completeness/capability, raw/trusted writers, student/profile handlers and BridgeForward review.
 
@@ -41,11 +41,11 @@ The 225 canonical migrations and 41 prior control drafts remain separate from th
 8. Guard shared roadmap and personal goal progress — `progress-access-consistency/guard-progress-access.review.sql`.
 9. Guard Student Voice answers — `student-voice-consistency/guard-student-voice.review.sql`.
 10. Preserve existing and current action values — `action-item-value-compatibility/allow-current-action-values.review.sql` (two CHECK constraints only; no new or modified routines).
-11. Atomic normal action updates — `action-completion-atomicity/atomic-action-update.review.sql` (prepared; native/full-schema verification pending).
+11. Atomic normal action updates — `action-completion-atomicity/atomic-action-update.review.sql` (verified source/disposable component; one authenticated-only RPC and one private timestamp trigger helper).
 
 Paths above are relative to `docs/database-proposals/`. Their tested order and hashes are collected from the fresh disposable installation. The packaging collector snapshots the routine catalog **after the 225 + 41 baseline and before the first separate draft**, preserves all 56 original installer/catalog stage scripts, runs all existing separate-draft verifiers, then captures the final catalog.
 
-The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; final combined canonical packaging remains open.
+The first-nine routine catalogue remains scoped historical evidence. The fresh tenth-draft full-schema verifier confirms an unchanged before/after routine/policy/grant/catalog snapshot; the eleventh draft separately verifies its two new routines, one new trigger and unchanged existing catalogue. Final combined canonical packaging remains open.
 
 ## Workstream 4.1 Packaging Gates
 

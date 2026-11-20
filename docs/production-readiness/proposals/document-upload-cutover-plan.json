@@ -608,11 +608,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "57ca30ac71c04b61e2a9bffb41cac29f37b5d1fc94bdfa3b94fe2acc1a04bb20"
+      "sha256": "c7e3a59f4cdb6a16d33bf0d2fe09559c764a8085d91ed7c2bb3a06624833087f"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "3c67c952324fb21f477d1ffa824cef7af9287231528082402b5b0ff91ca04439"
+      "sha256": "b0c61a66d435e383eb2b1b4cefef6f22647e8767752532289bdc943983d16e3f"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -817,6 +817,10 @@
     {
       "path": "docs/database-proposals/action-completion-atomicity/atomic-action-update.review.sql",
       "sha256": "84f3a0aa467731a37ef194ab3eb47e3dda19226a672001e7cbd5d0c4097822bc"
+    },
+    {
+      "path": "docs/database-proposals/action-completion-atomicity/README.md",
+      "sha256": "c4474d3583f370674fccede870444790f2f0371cc0967f86bf5cd81aff07cbc5"
     }
   ],
   "batch": {
@@ -1421,7 +1425,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 203,
+    "declared_entries_checked": 204,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

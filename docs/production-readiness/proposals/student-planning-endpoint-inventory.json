@@ -182,8 +182,8 @@
       "status": "review-required",
       "bundle": "P1",
       "finding": "Known empty-success read fallbacks, unconfirmed zero-row writes, mixed completion side effects and loaded identity/version gaps. Other handlers in the same module need coordinated review; their presence is not a new confirmed bug.",
-      "next_action": "Keep review-required until the separate raw/cached/trusted writers and other action CRUD/privacy paths are closed. Verify the prepared normal-update RPC in disposable native/current schema before any canonical or hosted rollout.",
-      "component_progress": "Normal update API now requires loaded student/revision and delegates to one authenticated atomic action/activity/report-marker RPC; exact microsecond/actor/student/row/effect receipts are checked. Separate eleventh draft and observed native removal/competing tests are prepared; native verification pending."
+      "next_action": "Keep review-required until separate raw/cached/trusted writers and other action CRUD/privacy paths are closed and the final package is reviewed. Canonical/ledger promotion and hosted rollout remain separately gated.",
+      "component_progress": "Normal update API requires loaded student/revision and uses one authenticated atomic action/activity/report-marker RPC. Exact receipts and transaction-held current proof pass39 local/74 native cases,32 observed removal races,two competing updates,a cached recheck and full225+41+eleven-draft schema. This is the normal-update component only; raw/trusted writers and wider P1 remain open."
     },
     {
       "id": "src/lib/action-items.functions.ts#deleteStudentActionItem",
