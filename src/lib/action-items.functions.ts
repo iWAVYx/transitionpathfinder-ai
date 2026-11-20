@@ -1,5 +1,6 @@
+import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
 import{updateActionAtomically}from"./atomic-action-update.server";
-import {readPlanningRecords,createPlanningRecord,mutatePlanningRecord} from "./planning-records.server";
+import {readPlanningRecords,createPlanningRecord} from "./planning-records.server";
 import {viewerIntentSchema} from "./viewer-intent";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -93,7 +94,7 @@ export const updateStudentActionItem = createServerFn({ method: "POST" })
 
 export const deleteStudentActionItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((i: unknown) => z.object({ id: z.string().uuid(),student_id:z.string().uuid().optional(),expected_updated_at:z.string().datetime({offset:true}).optional(),...viewerIntentSchema.shape }).parse(i))
+  .validator((i: unknown) => z.object({ id: z.string().uuid(),student_id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true}),...viewerIntentSchema.shape }).parse(i))
   .handler(async ({ data, context }) => {
-    await mutatePlanningRecord(context.supabase,context.userId,'action_items',data,null);return{ok:true as const};
+    return deletePlanningRecordAtomically(context.supabase,context.userId,'action_items',data);
   });

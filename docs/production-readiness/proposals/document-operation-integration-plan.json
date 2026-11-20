@@ -583,11 +583,11 @@
     },
     {
       "path": "docs/production-readiness/proposals/student-planning-endpoint-inventory.json",
-      "sha256": "c7e3a59f4cdb6a16d33bf0d2fe09559c764a8085d91ed7c2bb3a06624833087f"
+      "sha256": "ea18ea64c4685ef3c11cb02ca938d5b047add2c05436359a34deb591ebe54997"
     },
     {
       "path": "docs/production-readiness/proposals/planning-release-package-checklist.md",
-      "sha256": "b0c61a66d435e383eb2b1b4cefef6f22647e8767752532289bdc943983d16e3f"
+      "sha256": "921d2d9e5f968536c1d0e99a9e60f7ddbe6bd5b970aa0cb5f9b5ae29ab8cf137"
     },
     {
       "path": "tests/helpers/planning-endpoint-inventory.mjs",
@@ -631,7 +631,7 @@
     },
     {
       "path": "src/lib/action-items.functions.ts",
-      "sha256": "da979ed806ffdfe77b2fb9b0a5639d998ef448d70fa45d944e450b5a4b2cea18"
+      "sha256": "73959d6067f54f9b7acd3fb7afbeb761669fa5963657986a5495ca13256aee1f"
     },
     {
       "path": "src/lib/analytics.functions.ts",
@@ -667,7 +667,7 @@
     },
     {
       "path": "src/lib/students.functions.ts",
-      "sha256": "466058f0df82c3ad8d6de108f3c4cf8ace40e1bde35ba47c2e960da42345a034"
+      "sha256": "a0bc91babb554373316dbf9cb1e43223af1771757575d123ae8041f97c611549"
     },
     {
       "path": "src/routes/_authenticated/action-items.tsx",
@@ -796,6 +796,30 @@
     {
       "path": "docs/database-proposals/action-completion-atomicity/README.md",
       "sha256": "c4474d3583f370674fccede870444790f2f0371cc0967f86bf5cd81aff07cbc5"
+    },
+    {
+      "path": "src/lib/planning-record-delete.server.ts",
+      "sha256": "82080880e83fd049f25be74133fc2bff3027f5514fc658d29ce644c42c2e4086"
+    },
+    {
+      "path": "tests/unit/planning-delete-receipts.test.ts",
+      "sha256": "f06dec98907aeeaee4817c95a417f0b71051f618936d8103eda951609249f9e2"
+    },
+    {
+      "path": "tests/unit/planning-delete-api.test.ts",
+      "sha256": "4cd8384cfc36ca0bc2e48943bd1ed886b1e6cf68a727146256361195600574e8"
+    },
+    {
+      "path": "tests/database/planning-record-delete.test.mjs",
+      "sha256": "593f08d10def1fa599cbb700fbbae1100dadeada8d32136a3babffa3a1a560c2"
+    },
+    {
+      "path": "tests/database/run-planning-record-delete-schema.mjs",
+      "sha256": "a627fd6a736b9f054e01b9f19c2bd6ce001f202b2fdf97b693c4adff65e6847f"
+    },
+    {
+      "path": "docs/database-proposals/planning-record-delete/atomic-planning-delete.review.sql",
+      "sha256": "1deca22478a819ae10a5d1da73f547262d40e0308a636dd971632f3dc0a0c141"
     }
   ],
   "adapter_contract": {
@@ -1704,7 +1728,7 @@
     "date": "2026-11-16",
     "checked_against_source": "606a78e9b2488c03f40f7dbba6e95b96aee311d4",
     "evidence": "docs/production-readiness/evidence/planning-release-package-verified-2026-11-16.json",
-    "declared_entries_checked": 198,
+    "declared_entries_checked": 204,
     "corrected_entries": 0,
     "added_entries": 6,
     "complete_release_manifest": false,

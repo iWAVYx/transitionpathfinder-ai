@@ -1,3 +1,4 @@
+import{deletePlanningRecordAtomically}from"./planning-record-delete.server";
 import {readPlanningRecords,createPlanningRecord,mutatePlanningRecord} from "./planning-records.server";
 import {viewerIntentSchema} from "./viewer-intent";
 import { revokeOwnedShareToken } from "./revoke-share-token.server";
@@ -244,8 +245,8 @@ const GoalMutation=z.object({id:z.string().uuid(),student_id:z.string().uuid().o
 export const updateGoalStatus=createServerFn({method:"POST"}).middleware([requireSupabaseAuth])
  .validator((input:unknown)=>GoalMutation.extend({status:z.enum(["not-started","in-progress","met","paused"])}).parse(input))
  .handler(async({data,context})=>{const result=await mutatePlanningRecord(context.supabase,context.userId,'goals',data,{status:data.status});return{ok:true as const,goal:result.row as unknown as Goal};});
-export const deleteGoal=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).validator((input:unknown)=>GoalMutation.parse(input))
- .handler(async({data,context})=>{await mutatePlanningRecord(context.supabase,context.userId,'goals',data,null);return{ok:true as const};});
+export const deleteGoal=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).validator((input:unknown)=>GoalMutation.extend({student_id:z.string().uuid(),expected_updated_at:z.string().datetime({offset:true})}).parse(input))
+ .handler(async({data,context})=>{return deletePlanningRecordAtomically(context.supabase,context.userId,'goals',data);});
 
 /* ---------- SHARE TOKENS ---------- */
 
